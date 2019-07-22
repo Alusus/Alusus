@@ -29,6 +29,55 @@ class Factory
 
 
   //============================================================================
+  // Types
+
+  public: struct CommandArg
+  {
+    public: SharedPtr<Reference> prod;
+    public: SharedPtr<TiInt> min;
+    public: SharedPtr<TiInt> max;
+    public: SharedPtr<TiInt> flags;
+    public: CommandArg(
+      SharedPtr<Reference> prod, SharedPtr<TiInt> min, SharedPtr<TiInt> max, SharedPtr<TiInt> flags
+    ) : prod(prod), min(min), max(max), flags(flags)
+    {
+    }
+  };
+
+  public: struct CommandSection
+  {
+    public: SharedPtr<Map> keywords;
+    public: std::initializer_list<CommandArg> args;
+    public: SharedPtr<TiInt> min;
+    public: SharedPtr<TiInt> max;
+    public: SharedPtr<TiInt> flags;
+    public: CommandSection(
+      SharedPtr<Map> keywords, std::initializer_list<CommandArg> args
+    ) : keywords(keywords), args(args)
+    {
+    }
+    public: CommandSection(
+      SharedPtr<Map> keywords, std::initializer_list<CommandArg> args,
+      SharedPtr<TiInt> min, SharedPtr<TiInt> max, SharedPtr<TiInt> flags
+    ) : keywords(keywords), args(args), min(min), max(max), flags(flags)
+    {
+    }
+  };
+
+  public: struct StatementSegment
+  {
+    public: SharedPtr<Reference> prod;
+    public: SharedPtr<TiInt> min;
+    public: SharedPtr<TiInt> max;
+    public: StatementSegment(
+      SharedPtr<Reference> prod, SharedPtr<TiInt> min, SharedPtr<TiInt> max
+    ) : prod(prod), min(min), max(max)
+    {
+    }
+  };
+
+
+  //============================================================================
   // Constructor & Destructor
 
   protected: Factory()
@@ -45,17 +94,29 @@ class Factory
 
   protected: void setRootScope(DynamicContaining<TiObject> *rootScope);
 
-  protected: void set(Char const* qualifier, TiObject *val);
-  protected: void set(Char const* qualifier, TioSharedPtr const &val)
+  protected: void set(Char const *qualifier, TiObject *val);
+  protected: void set(Char const *qualifier, TioSharedPtr const &val)
   {
     this->set(qualifier, val.get());
   }
 
-  protected: void remove(Char const* qualifier);
-  protected: Bool tryRemove(Char const* qualifier);
+  protected: void remove(Char const *qualifier);
+  protected: Bool tryRemove(Char const *qualifier);
 
-  protected: TiObject* get(Char const* qualifier);
-  protected: Bool tryGet(Char const* qualifier, TiObject *&result, Module **ownerModule = 0);
+  protected: TiObject* get(Char const *qualifier);
+  protected: Bool tryGet(Char const *qualifier, TiObject *&result);
+
+  protected: template<class T> T* get(Char const *qualifier)
+  {
+    auto obj = ti_cast<T>(this->get(qualifier));
+    if (obj == 0) {
+      throw EXCEPTION(
+        InvalidArgumentException, S("qualifier"), S("No object of the given type is found for this qualifier."),
+        qualifier
+      );
+    }
+    return obj;
+  }
 
   protected: void initializeObject(TiObject *obj);
 
@@ -95,6 +156,22 @@ class Factory
    * code preceeded by a single _.
    */
   protected: static void generateKey(Char const *text, Str &result);
+
+  protected: void createCommand(
+    Char const *qualifier, std::initializer_list<CommandSection> sections, SharedPtr<BuildHandler> parsingHandler
+  );
+
+  private: SharedPtr<Term> createCommandSection(CommandSection const *section);
+
+  protected: void createStatementVariation(
+    Char const *qualifier, std::initializer_list<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
+  );
+
+  protected: void createProdGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods);
+
+  protected: void addProdsToGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods);
+
+  protected: void removeProdsFromGroup(Char const *qualifier, std::initializer_list<Char const*> prods);
 
 }; // class
 

@@ -45,8 +45,6 @@ class ChainOpParsingHandler : public GenericParsingHandler
     else return GenericParsingHandler::isListObjEnforced(state, levelIndex);
   }
 
-  private: TioSharedPtr prepareToModifyData(TioSharedPtr const &data, ParserState *state, Int levelIndex);
-
 }; // class
 
 } } } // namespace

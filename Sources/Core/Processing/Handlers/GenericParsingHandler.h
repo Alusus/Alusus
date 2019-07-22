@@ -174,13 +174,6 @@ class GenericParsingHandler : public ParsingHandler
   protected: Bool isRouteTerm(ParserState *state, Int levelIndex);
   protected: Bool isListTerm(ParserState *state, Int levelIndex);
 
-  /**
-   * @brief Make sure the top term level is not shared.
-   * If the top level is shared (the shared pointer is not unique) this function
-   * will duplicate that term.
-   */
-  protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex);
-
   /// @}
 
 }; // class

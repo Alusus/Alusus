@@ -62,7 +62,10 @@ template<class T> class BindingCache : public BindingCacheBase
   // Slots
 
   private: Slot<void, SharedMapBase<TiObject, TiObject>*, ContentChangeOp, Int> bindingChangeSlot = {
-    this, &BindingCache::onBindingChanged
+    [=](SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)->void
+    {
+      this->onBindingChanged(src, op, i);
+    }
   };
 
 
@@ -114,7 +117,7 @@ template<class T> class BindingCache : public BindingCacheBase
     this->update();
   }
 
-  private: void onBindingChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)
+  protected: virtual void onBindingChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)
   {
     if (op == ContentChangeOp::ADDED) {
       if (this->index == -1) {
@@ -194,6 +197,13 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
 
 
   //============================================================================
+  // Member Variables
+
+  private: TiFunction<RT(ARGS...)> *callee;
+  private: TiFunction<RT(TiFunctionBase*, ARGS...)> *calleeWithSuper;
+
+
+  //============================================================================
   // Constructor & Destructor
 
   public: FunctionBindingCache(Char const *name) : BindingCache<TiFunctionBase>(name)
@@ -211,12 +221,24 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
 
   public: RT operator()(ARGS... args)
   {
-    return Core::Basic::call<RT, ARGS...>(this->obj, args...);
+    if (this->calleeWithSuper != 0) return this->calleeWithSuper->fn(this->calleeWithSuper->getSuper(), args...);
+    else if (this->callee != 0) return this->callee->fn(args...);
+    else {
+      if (this->obj == 0) throw EXCEPTION(GenericException, S("Function is not set."));
+      else throw EXCEPTION(GenericException, S("Function signature mismatch."));
+    }
   }
 
 
   //============================================================================
   // Member Functions
+
+  protected: virtual void onBindingChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)
+  {
+    BindingCache<TiFunctionBase>::onBindingChanged(src, op, i);
+    this->callee = ti_cast<TiFunction<RT(ARGS...)>>(this->obj);
+    this->calleeWithSuper = ti_cast<TiFunction<RT(TiFunctionBase*, ARGS...)>>(this->obj);
+  }
 
   public: SharedPtr<TiFunctionOverride<RT(ARGS...)>> set(RT (*fn)(ARGS...))
   {
@@ -299,7 +321,7 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
 }; // class FunctionBindingCache
 
 
-template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBindingCache<RT, ARGS...>
+template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBindingCache<RT, TiObject*, ARGS...>
 {
   //============================================================================
   // Member Variables
@@ -324,7 +346,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   //============================================================================
   // Constructor & Destructor
 
-  public: MethodBindingCache(Char const *name) : FunctionBindingCache<RT, ARGS...>(name), self(0)
+  public: MethodBindingCache(Char const *name) : FunctionBindingCache<RT, TiObject*, ARGS...>(name), self(0)
   {
   }
 
@@ -332,10 +354,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
   //============================================================================
   // Operators
 
-  public: void operator=(RT (*fn)(TiObject*, ARGS...))
-  {
-    this->set(fn);
-  }
+  public: using FunctionBindingCache<RT, TiObject*, ARGS...>::operator=;
 
   public: template<class C> void operator=(RT (C::*fn)(ARGS...))
   {
@@ -349,7 +368,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
 
   public: RT operator()(ARGS... args)
   {
-    return Core::Basic::call<RT, TiObject*, ARGS...>(this->obj, this->self, args...);
+    return FunctionBindingCache<RT, TiObject*, ARGS...>::operator()(this->self, args...);
   }
 
 
@@ -362,55 +381,7 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
       throw EXCEPTION(InvalidArgumentException, S("owner"), S("Argument is null."));
     }
     this->self = owner;
-    FunctionBindingCache<RT, ARGS...>::init(owner);
-  }
-
-  public: SharedPtr<TiFunctionOverride<RT(TiObject*,ARGS...)>> set(RT (*fn)(TiObject*, ARGS...))
-  {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    return this->bindingMap->setFunction(this->name, fn);
-  }
-
-  public: SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, TiObject*, ARGS...)>> set(
-    RT (*fn)(TiFunctionBase*, TiObject*, ARGS...)
-  ) {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    return this->bindingMap->setFunction(this->name, fn);
-  }
-
-  public: SharedPtr<TiFunctionOverride<RT(TiObject*, ARGS...)>> set(std::function<RT(TiObject*, ARGS...)> fn)
-  {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    return this->bindingMap->setFunction(this->name, fn);
-  }
-
-  public: SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, TiObject*, ARGS...)>> set(
-    std::function<RT(TiFunctionBase*, TiObject*, ARGS...)> fn
-  ) {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    return this->bindingMap->setFunction(this->name, fn);
-  }
-
-  public: SharedPtr<TiFunctionOverride<RT(TiObject*, ARGS...)>> update(TiFunctionBase *currentTifn,
-                                                                       RT (*fn)(TiObject*, ARGS...))
-  {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    return this->bindingMap->updateFunction(this->name, currentTifn, fn);
+    FunctionBindingCache<RT, TiObject*, ARGS...>::init(owner);
   }
 
   public: MethodCalleeInstance useCallee(TiFunctionBase *c)

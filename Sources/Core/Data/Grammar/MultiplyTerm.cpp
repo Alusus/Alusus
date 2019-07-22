@@ -30,7 +30,7 @@ void MultiplyTerm::setMin(SharedPtr<TiObject> const &m)
                     S("Must be of type TiInt or Reference."),
                     min->getMyTypeInfo()->getUniqueName());
   }
-  this->min = m;
+  UPDATE_OWNED_SHAREDPTR(this->min, m);
 }
 
 
@@ -46,36 +46,17 @@ void MultiplyTerm::setMax(SharedPtr<TiObject> const &m)
                     S("Must be of type TiInt or Reference."),
                     max->getMyTypeInfo()->getUniqueName());
   }
-  this->max = m;
-}
-
-
-/**
- * Set the priority of the inner branch. This can either be the TiInt priority
- * value, or a Reference to it. The value can either be 1, which means priority
- * is for taking (or staying) in the branch, or 0 which means priority is to
- * leave the branch. If null is specified the default value of 1 is considered.
- */
-void MultiplyTerm::setPriority(SharedPtr<TiObject> const &p)
-{
-  if (p != 0 && !p->isA<TiInt>() && !p->isDerivedFrom<Reference>()) {
-    throw EXCEPTION(InvalidArgumentException, S("p"),
-                    S("Must be of type TiInt or Reference."),
-                    p->getMyTypeInfo()->getUniqueName());
-  }
-  this->priority = p;
+  UPDATE_OWNED_SHAREDPTR(this->max, m);
 }
 
 
 //==============================================================================
-// DataHaving Implementation
+// CacheHaving Implementation
 
-void MultiplyTerm::unsetIndexes(Int from, Int to)
+void MultiplyTerm::clearCache()
 {
-  if (this->term != 0) Data::unsetIndexes(this->term.get(), from, to);
-  if (this->min != 0) Data::unsetIndexes(this->min.get(), from, to);
-  if (this->max != 0) Data::unsetIndexes(this->max.get(), from, to);
-  if (this->priority != 0) Data::unsetIndexes(this->priority.get(), from, to);
+  this->innerTextBasedDecisionCache.clear();
+  this->innerIdBasedDecisionCache.clear();
 }
 
 } // namespace

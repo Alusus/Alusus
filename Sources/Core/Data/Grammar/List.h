@@ -24,6 +24,7 @@ class List : public NbList, public Binding, public Inheriting
   TYPE_INFO(List, NbList, "Core.Data.Grammar", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(Binding, Inheriting)
   ));
+  OBJECT_FACTORY(List);
 
 
   //============================================================================
@@ -49,16 +50,36 @@ class List : public NbList, public Binding, public Inheriting
 
   IMPLEMENT_ATTR_LIST_CONSTRUCTOR(List);
 
+  public: virtual ~List()
+  {
+    RESET_OWNED_SHAREDPTR(this->baseRef);
+  }
+
 
   //============================================================================
   // Member Functions
+
+  /// @name Abstract Function Implementations
+  /// @{
+
+  protected: virtual SharedPtr<TiObject> prepareForSet(
+    Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
+  ) {
+    if (inherited) {
+      return cloneInherited(obj);
+    } else {
+      return obj;
+    }
+  }
+
+  /// @}
 
   /// @name Property Accessors
   /// @{
 
   public: void setBaseRef(SharedPtr<Reference> const &p)
   {
-    this->baseRef = p;
+    UPDATE_OWNED_SHAREDPTR(this->baseRef, p);
   }
   private: void setBaseRef(Reference *ref)
   {

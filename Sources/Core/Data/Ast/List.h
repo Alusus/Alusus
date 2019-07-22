@@ -17,14 +17,15 @@ namespace Core::Data::Ast
 {
 
 class List : public NbList,
-             public Binding, public MetaHaving, public Clonable, public Printable
+             public Binding, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(List, NbList, "Core.Data.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, MetaHaving, Clonable, Printable)
+    INHERITANCE_INTERFACES(Binding, MetaHaving, Printable)
   ));
+  OBJECT_FACTORY(List);
 
 
   //============================================================================
@@ -36,8 +37,6 @@ class List : public NbList,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
-
-  IMPLEMENT_AST_LIST_CLONABLE(List);
 
   IMPLEMENT_AST_LIST_PRINTABLE(List);
 

@@ -62,6 +62,7 @@ class ConstTokenizingHandler : public TokenizingHandler
     token->setText(tokenText, tokenTextLength);
     token->setId(this->id);
     token->setSourceLocation(sourceLocation);
+    token->setAsKeyword(true);
   }
 
 }; // class

@@ -2,31 +2,31 @@ ERROR CD1004 @ (23,21): Incompatible 'def' merge.
 ERROR CP1001 @ (35,12): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
- Definition [Main.Def] a1: IntegerLiteral: 1 [Subject.Literal]
+ Definition [Main.Def] a1: IntegerLiteral: 1 [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
- Definition [Main.Def] b1: IntegerLiteral: 2 [Subject.Literal]
+ Definition [Main.Def] b1: IntegerLiteral: 2 [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
- Definition [Main.Def] a2: IntegerLiteral: 1 [Subject.Literal]
- Definition [Main.Def] b2: IntegerLiteral: 2 [Subject.Literal]
- Definition [Main.Def] c2: IntegerLiteral: 3 [Subject.Literal]
+ Definition [Main.Def] a2: IntegerLiteral: 1 [Main.Subject.Literal]
+ Definition [Main.Def] b2: IntegerLiteral: 2 [Main.Subject.Literal]
+ Definition [Main.Def] c2: IntegerLiteral: 3 [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
- Definition [Main.Def] a3: IntegerLiteral: 1 [Subject.Literal]
- Definition [Main.Def] b3: IntegerLiteral: 2 [Subject.Literal]
+ Definition [Main.Def] a3: IntegerLiteral: 1 [Main.Subject.Literal]
+ Definition [Main.Def] b3: IntegerLiteral: 2 [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Module [Main.ModuleStatements.StmtList]
  Definition [Main.Module] M2: Module [Main.ModuleStatements.StmtList]
-  AdditionOperator + [Expression.AddExp]
-   first: IntegerLiteral: 1 [Subject.Literal]
-   second: IntegerLiteral: 2 [Subject.Literal]
+  AdditionOperator + [Main.Expression.AddExp]
+   first: IntegerLiteral: 1 [Main.Subject.Literal]
+   second: IntegerLiteral: 2 [Main.Subject.Literal]
  Definition [Main.Module] M3: Module [Main.ModuleStatements.StmtList]
-  Definition [Main.Def] a: IntegerLiteral: 1 [Subject.Literal]
-  Definition [Main.Def] b: IntegerLiteral: 2 [Subject.Literal]
+  Definition [Main.Def] a: IntegerLiteral: 1 [Main.Subject.Literal]
+  Definition [Main.Def] b: IntegerLiteral: 2 [Main.Subject.Literal]
 ------------------------------------------------------

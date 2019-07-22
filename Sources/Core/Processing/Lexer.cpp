@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 //==============================================================================
@@ -20,11 +20,11 @@ namespace Core { namespace Processing
 
 void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
 {
-  // Before we can change the token list, we need to make sure we have no outstanding
-  // states.
-  if (!this->states.empty()) {
-    throw EXCEPTION(GenericException, S("Token definitions list can't be changed while being in use."));
-  }
+  this->clear();
+
+  this->states = new LexerState*[LEXER_STATES_ARRAY_MAX_SIZE];
+  this->nextStates = new LexerState*[LEXER_STATES_ARRAY_MAX_SIZE];
+  this->recycledStates = new LexerState*[LEXER_STATES_ARRAY_MAX_SIZE];
 
   // TODO: If we currently have a grammar, we need to unset it first.
   //if (this->production_definitions != 0) {
@@ -39,7 +39,7 @@ void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
 
   // Prepare the context.
   this->grammarContext.setRoot(this->grammarRoot.get());
-  Data::Grammar::Module *lexerModule = this->grammarContext.getAssociatedLexerModule();
+  Data::Grammar::LexerModule *lexerModule = this->grammarContext.getAssociatedLexerModule();
   if (lexerModule == 0) {
     throw EXCEPTION(GenericException, S("Couldn't find a lexer module in the given grammar repository."));
   }
@@ -142,8 +142,8 @@ Bool Lexer::pushChar(WChar ch, Data::SourceLocationRecord const &sl)
     if (this->currentProcessingIndex >= this->inputBuffer.getCharCount()) {
       // Check if there are any closed state.
       Int closedStateCount = 0;
-      for (Word i = 0; i < this->states.size(); i++) {
-        if (this->states[i].getTokenLength() != 0) closedStateCount++;
+      for (Word i = 0; i < this->stateCount; i++) {
+        if (this->states[i]->getTokenLength() != 0) closedStateCount++;
       }
       if (closedStateCount == 0) {
         // There are no closed states, so replace the last character.
@@ -223,6 +223,12 @@ Int Lexer::process()
     this->processNextChar(inputChar);
   }
 
+  auto tempStates = this->states;
+  this->states = this->nextStates;
+  this->stateCount = this->nextStateCount;
+  this->nextStates = tempStates;
+  this->nextStateCount = 0;
+
   Int r = 0;
 
   // Check the current status of the states:
@@ -234,8 +240,8 @@ Int Lexer::process()
 
   Int openStateCount = 0;
   Int closedStateCount = 0;
-  for (Word i = 0; i < this->states.size(); i++) {
-    if (this->states[i].getTokenLength() == 0) openStateCount++;
+  for (Word i = 0; i < this->stateCount; i++) {
+    if (this->states[i]->getTokenLength() == 0) openStateCount++;
     else closedStateCount++;
   }
   if (openStateCount > 0) {
@@ -249,7 +255,7 @@ Int Lexer::process()
       ));
       // Choose one of the closed states.
       Int i = this->selectBestToken();
-      Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i].getIndexStack()->at(0));
+      Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i]->getTokenDefIndex());
       // Check if the chosen token is not an ignored token.
       TiInt *flags = this->grammarContext.getSymbolFlags(def);
       if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::IGNORED_TOKEN)) {
@@ -265,22 +271,26 @@ Int Lexer::process()
         TokenizingHandler *handler = ti_cast<TokenizingHandler>(def->getBuildHandler().get());
         if (handler == 0) {
           this->lastToken.setId(def->getId());
-          this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+          this->lastToken.setText(this->inputBuffer.getChars(), this->states[i]->getTokenLength());
           this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
+          this->lastToken.setAsKeyword(false);
         } else {
           handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
-                                this->states[i].getTokenLength(), this->inputBuffer.getSourceLocation());
+                                this->states[i]->getTokenLength(), this->inputBuffer.getSourceLocation());
         }
         // Inform the caller that there is a new token.
         r |= 1;
       }
       // Reuse the remaining characters in the input buffer.
-      this->inputBuffer.remove(this->states[i].getTokenLength());
+      this->inputBuffer.remove(this->states[i]->getTokenLength());
       // Set the processing index to -1 since the character we are currently processing is shifted
       // out of the buffer.
       this->currentProcessingIndex = -1;
       // Delete all the states.
-      this->states.clear();
+      for (Int i = 0; i < this->stateCount; ++i) {
+        this->recycledStates[this->recycledStateCount++] = this->states[i];
+      }
+      this->stateCount = 0;
     } else if (closedStateCount > 0) {
       Int bestToken = this->selectBestToken();
       if (closedStateCount > 1) {
@@ -288,30 +298,36 @@ Int Lexer::process()
         // Select a token among the closed states.
 
         // Remove all closed tokens except for the selected one.
-        for (Int i = 0; i < static_cast<Int>(this->states.size()); i++) {
-          if (this->states[i].getTokenLength() != 0 && i != bestToken) {
+        for (Int i = 0; i < static_cast<Int>(this->stateCount); i++) {
+          if (this->states[i]->getTokenLength() != 0 && i != bestToken) {
             // Remove this unselected closed token.
-            this->disabledStateIndex = i;
-            this->defragStatesList();
+            this->recycledStates[this->recycledStateCount++] = this->states[i];
+            if (i < this->stateCount - 1) {
+              this->states[i] = this->states[this->stateCount - 1];
+            }
+            --this->stateCount;
             // Check if the moved state was actually the selected one.
-            if (bestToken >= static_cast<Int>(this->states.size())) bestToken = i;
+            if (bestToken >= static_cast<Int>(this->stateCount)) bestToken = i;
             --i;
           }
         }
       }
       // Remove any open states belonging to a PREFERE_SHORTER rule that happens to be the same rule as the
       // chosen closed state.
-      auto bestTokenDefIndex = this->states[bestToken].getIndexStack()->at(0);
+      auto bestTokenDefIndex = this->states[bestToken]->getTokenDefIndex();
       auto def = this->getSymbolDefinition(bestTokenDefIndex);
       TiInt *flags = this->grammarContext.getSymbolFlags(def);
       if (flags != 0 && flags->get() & Data::Grammar::SymbolFlags::PREFER_SHORTER) {
-        for (Int i = 0; i < static_cast<Int>(this->states.size()); i++) {
+        for (Int i = 0; i < static_cast<Int>(this->stateCount); i++) {
           if (i == bestToken) continue;
-          if (this->states[i].getIndexStack()->at(0) == bestTokenDefIndex) {
-            this->disabledStateIndex = i;
-            this->defragStatesList();
+          if (this->states[i]->getTokenDefIndex() == bestTokenDefIndex) {
+            this->recycledStates[this->recycledStateCount++] = this->states[i];
+            if (i < this->stateCount - 1) {
+              this->states[i] = this->states[this->stateCount - 1];
+            }
+            --this->stateCount;
             // Check if the moved state was actually the selected one.
-            if (bestToken >= static_cast<Int>(this->states.size())) bestToken = i;
+            if (bestToken >= static_cast<Int>(this->stateCount)) bestToken = i;
             else --i;
           }
         }
@@ -320,7 +336,7 @@ Int Lexer::process()
   } else if (closedStateCount > 0) {
     // Choose one of the closed states.
     Int i = this->selectBestToken();
-    Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i].getIndexStack()->at(0));
+    Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i]->getTokenDefIndex());
     // Check if the chosen token is not an ignored token.
     TiInt *flags = this->grammarContext.getSymbolFlags(def);
     if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::IGNORED_TOKEN)) {
@@ -336,22 +352,25 @@ Int Lexer::process()
       TokenizingHandler *handler = ti_cast<TokenizingHandler>(def->getBuildHandler().get());
       if (handler == 0) {
         this->lastToken.setId(def->getId());
-        this->lastToken.setText(this->inputBuffer.getChars(), this->states[i].getTokenLength());
+        this->lastToken.setText(this->inputBuffer.getChars(), this->states[i]->getTokenLength());
         this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
       } else {
         handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
-                              this->states[i].getTokenLength(), this->inputBuffer.getSourceLocation());
+                              this->states[i]->getTokenLength(), this->inputBuffer.getSourceLocation());
       }
       // Inform the caller that there is a new token.
       r |= 1;
     }
     // Reuse the remaining characters in the input buffer.
-    this->inputBuffer.remove(this->states[i].getTokenLength());
+    this->inputBuffer.remove(this->states[i]->getTokenLength());
     // Set the processing index to -1 since the character we are currently processing is shifted
     // out of the buffer.
     this->currentProcessingIndex = -1;
     // Delete all the states.
-    this->states.clear();
+    for (Int i = 0; i < this->stateCount; ++i) {
+      this->recycledStates[this->recycledStateCount++] = this->states[i];
+    }
+    this->stateCount = 0;
   } else {
     // No states are still alive, so move the first character in the input buffer to the error
     // buffer and try again.
@@ -413,51 +432,92 @@ Int Lexer::process()
 void Lexer::processStartChar(WChar inputChar)
 {
   // There must not be any state currently in the stack.
-  ASSERT(this->states.size() == 0);
+  ASSERT(this->stateCount == 0);
 
   LOG(LogLevel::LEXER_MID, S("Starting a new token. New char: '") << inputChar << S("'"));
 
-  for (Word i = 0; i < this->grammarContext.getModule()->getCount(); i++) {
-    // Skip non tokens and non-root tokens.
-    TiObject *obj = this->grammarContext.getModule()->getElement(i);
-    if (obj == 0 || !obj->isA<Data::Grammar::SymbolDefinition>()) continue;
-    Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
-    TiInt *flags = this->grammarContext.getSymbolFlags(def);
-    if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::ROOT_TOKEN)) continue;
-    // Validation.
-    if (def->getTerm() == 0) {
-      Str excMsg = S("Invalid token definition (");
-      excMsg += ID_GENERATOR->getDesc(def->getId());
-      excMsg += S("). The definition formula is not set yet.");
-      throw EXCEPTION(GenericException, excMsg.c_str());
+  auto lexerModule = static_cast<Core::Data::Grammar::LexerModule*>(this->grammarContext.getModule());
+  auto cache = lexerModule->getCharBasedDecisionCache();
+
+  auto iter = cache->find(inputChar);
+  if (iter == cache->end()) {
+    for (Word i = 0; i < lexerModule->getCount(); i++) {
+      // Skip non tokens and non-root tokens.
+      TiObject *obj = lexerModule->getElement(i);
+      if (obj == 0 || !obj->isA<Data::Grammar::SymbolDefinition>()) continue;
+      Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
+      TiInt *flags = this->grammarContext.getSymbolFlags(def);
+      if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::ROOT_TOKEN)) continue;
+      // Validation.
+      if (def->getTerm() == 0) {
+        Str excMsg = S("Invalid token definition (");
+        excMsg += ID_GENERATOR->getDesc(def->getId());
+        excMsg += S("). The definition formula is not set yet.");
+        throw EXCEPTION(GenericException, excMsg.c_str());
+      }
+      // Set the first entry in the state index stack to the token definition index.
+      auto state = this->createState();
+      state->setTokenDefIndex(i);
+      state->pushTermLevel(0, def->getTerm().get());
+      state->setTokenLength(0);
+      // Process the token.
+      switch (this->processState(state, inputChar, -1)) {
+        case CONTINUE_NEW_CHAR:
+          if (state->getLevelCount() == 0) {
+            // The character was accepted and a full token is formed.
+            state->setTokenLength(1);
+          }
+          this->nextStates[this->nextStateCount++] = state;
+          cache->operator[](inputChar).push_back(i);
+          break;
+        case CONTINUE_SAME_CHAR:
+          // This should never be reached.
+          ASSERT(false);
+          break;
+        case STOP:
+          this->recycledStates[this->recycledStateCount++] = state;
+          break;
+        default:
+          ASSERT(false);
+      }
     }
-    if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(def->getId());
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    // Set the first entry in the state index stack to the token definition index.
-    this->tempState.getIndexStack()->resize(1);
-    this->tempState.getIndexStack()->at(0) = i;
-    // Reset the token length.
-    this->tempState.setTokenLength(0);
-    // Process the token.
-    switch (this->processTempState(inputChar, def->getTerm().s_cast_get<Data::Grammar::Term>(), 1)) {
-      case CONTINUE_NEW_CHAR:
-        // The character was accepted and a full token is formed.
-        this->tempState.setTokenLength(1);
-        this->createState();
-        break;
-      case CONTINUE_SAME_CHAR:
-        // This should never be reached.
-        ASSERT(false);
-        break;
+  } else {
+    for (Int j = 0; j < iter->second.size(); j++) {
+      auto i = iter->second[j];
+      // Skip non tokens and non-root tokens.
+      TiObject *obj = lexerModule->getElement(i);
+      ASSERT(obj != 0 && obj->isA<Data::Grammar::SymbolDefinition>());
+      Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
+      // Set the first entry in the state index stack to the token definition index.
+      auto state = this->createState();
+      state->setTokenDefIndex(i);
+      state->pushTermLevel(0, def->getTerm().get());
+      state->setTokenLength(0);
+      // Process the token.
+      switch (this->processState(state, inputChar, -1)) {
+        case CONTINUE_NEW_CHAR:
+          if (state->getLevelCount() == 0) {
+            // The character was accepted and a full token is formed.
+            state->setTokenLength(1);
+          }
+          this->nextStates[this->nextStateCount++] = state;
+          break;
+        case CONTINUE_SAME_CHAR:
+          // This should never be reached.
+          ASSERT(false);
+          break;
+        case STOP:
+          this->recycledStates[this->recycledStateCount++] = state;
+          break;
+        default:
+          ASSERT(false);
+      }
     }
   }
 
   #ifdef USE_LOGS
-    for (Int i = 0; i < static_cast<Int>(this->states.size()); ++i) {
-      Int index = this->states[i].getIndexStack()->at(0);
+    for (Int i = 0; i < static_cast<Int>(this->nextStateCount); ++i) {
+      Int index = this->nextStates[i]->getTokenDefIndex();
       Int id = this->getSymbolDefinition(index)->getId();
       LOG(LogLevel::LEXER_MID, S("Starting Token: ") << ID_GENERATOR->getDesc(id));
     }
@@ -477,54 +537,41 @@ void Lexer::processStartChar(WChar inputChar)
 void Lexer::processNextChar(WChar inputChar)
 {
   // There must be some states currently in the stack.
-  ASSERT(this->states.size() != 0);
+  ASSERT(this->stateCount != 0);
 
   LOG(LogLevel::LEXER_MID, S("Processing new character: '") << inputChar << S("'"));
 
-  // Make sure not to process newly created states by limiting the loop to the
-  // current states count.
-  Int statesCount = this->states.size();
-  for (Int i = 0; i < statesCount; i++) {
-    if (this->states[i].getTokenLength() > 0) continue;
-    // Extract the state into the temp state.
-    this->extractState(i);
-    // Get the formula head of the state.
-    Int defIndex = this->tempState.getIndexStack()->at(0);
-    Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(defIndex);
-    ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
-    Data::Grammar::Term *head = def->getTerm().s_cast_get<Data::Grammar::Term>();
-    ASSERT(head->isDerivedFrom<Data::Grammar::Term>());
+  while (this->stateCount > 0) {
+    auto state = this->states[--this->stateCount];
+    if (state->getTokenLength() > 0) {
+      this->nextStates[this->nextStateCount++] = state;
+      continue;
+    }
     // Process the token.
-    switch (this->processTempState(inputChar, head, 1)) {
+    switch (this->processState(state, inputChar, -1)) {
       case CONTINUE_NEW_CHAR:
-        // The character was accepted and a full token is formed.
-        this->tempState.setTokenLength(this->currentProcessingIndex+1);
-        this->createState();
+        if (state->getLevelCount() == 0) {
+          // The character was accepted and a full token is formed.
+          state->setTokenLength(this->currentProcessingIndex+1);
+        }
+        this->nextStates[this->nextStateCount++] = state;
         break;
       case CONTINUE_SAME_CHAR:
         // The character was not accepted, but a full token is formed.
-        this->tempState.setTokenLength(this->currentProcessingIndex);
-        this->createState();
+        state->setTokenLength(this->currentProcessingIndex);
+        this->nextStates[this->nextStateCount++] = state;
         break;
-    }
-    // Check if we need to defrag the stack.
-    if (this->disabledStateIndex != -1) {
-      // If the current state count is equal to the original count then
-      // one of the current states will be moved to the position of the
-      // disabled state, so we need to make sure this state is not
-      // ignored.
-      if (static_cast<Int>(this->states.size()) == statesCount) {
-        statesCount--;
-        i--;
-      }
-      // Defrag the states list.
-      this->defragStatesList();
+      case STOP:
+        this->recycledStates[this->recycledStateCount++] = state;
+        break;
+      default:
+        ASSERT(false);
     }
   }
 
   #ifdef USE_LOGS
-    for (Int i = 0; i < static_cast<Int>(this->states.size()); ++i) {
-      Int index = this->states[i].getIndexStack()->at(0);
+    for (Int i = 0; i < static_cast<Int>(this->nextStateCount); ++i) {
+      Int index = this->nextStates[i]->getTokenDefIndex();
       Int id = this->getSymbolDefinition(index)->getId();
       LOG(LogLevel::LEXER_MID, S("Keeping Token: ") << ID_GENERATOR->getDesc(id));
     }
@@ -541,77 +588,91 @@ void Lexer::processNextChar(WChar inputChar)
  * @param inputChar The next input character received from the input stream.
  *                     Receiving the value of '\0' indicates that there are no
  *                     more characters in the input stream.
- * @param currentTerm A pointer to the term object currently being processed.
  * @param currentLevel The index of the entry within the state's internal
  *                        stack that is associated with the current term object.
  * @return Returns a NextAction value telling the caller what to do next.
  */
-Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *currentTerm,
-                                          Int currentLevel)
+Lexer::NextAction Lexer::processState(LexerState *state, WChar inputChar, Int minLevel)
 {
-  // make sure the current level isn't out of range
-  ASSERT(currentLevel <= static_cast<Int>(this->tempState.getIndexStack()->size()));
+  ASSERT(state != 0);
 
-  // check the term type
-  if (currentTerm->isA<Data::Grammar::ConstTerm>()) {
-    //
-    // ConstTerm
-    //
-    Int charIndex;
-    Data::Grammar::ConstTerm *constTerm = static_cast<Data::Grammar::ConstTerm*>(currentTerm);
-    if (constTerm->getMatchString().size() == 0) {
-      throw EXCEPTION(GenericException, S("Const term match string is not set yet."));
-    }
-    // this type of terms is always the deepest level.
-    ASSERT(currentLevel >= static_cast<Int>(this->tempState.getIndexStack()->size())-1);
-    // get the index within the term.
-    if (currentLevel == static_cast<Int>(this->tempState.getIndexStack()->size())) {
-      charIndex = 0;
+  Lexer::NextAction result;
+  Int currentLevel = state->getLevelCount() - 1;
+  while (true) {
+    auto currentTerm = state->refLevel(currentLevel).term;
+    if (currentTerm->isA<Data::Grammar::ConstTerm>()) {
+      result = this->processConstTerm(state, inputChar, currentLevel);
+    } else if (currentTerm->isA<Data::Grammar::CharGroupTerm>()) {
+      result = this->processCharGroupTerm(state, inputChar, currentLevel);
+    } else if (currentTerm->isA<Data::Grammar::MultiplyTerm>()) {
+      result = this->processMultiplyTerm(state, inputChar, currentLevel);
+    } else if (currentTerm->isA<Data::Grammar::AlternateTerm>()) {
+      result = this->processAlternateTerm(state, inputChar, currentLevel);
+    } else if (currentTerm->isA<Data::Grammar::ConcatTerm>()) {
+      result = this->processConcatTerm(state, inputChar, currentLevel);
+    } else if (currentTerm->isA<Data::Grammar::ReferenceTerm>()) {
+      result = this->processReferenceTerm(state, inputChar, currentLevel);
     } else {
-      charIndex = this->tempState.getIndexStack()->at(currentLevel);
+      Str excMsg = S("Invalid token type found. Token definition: ");
+      excMsg += ID_GENERATOR->getDesc(
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+      );
+      excMsg += S(". Object type: ");
+      excMsg += currentTerm->getMyTypeInfo()->getTypeName();
+      throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    // assert that charIndex is not out of the range of the constant.
-    ASSERT(charIndex < static_cast<Int>(constTerm->getMatchString().size()));
+    currentLevel = state->getLevelCount() - 1;
+    if (result != CONTINUE_SAME_CHAR || currentLevel <= minLevel) break;
+  }
+  return result;
+}
+
+
+Lexer::NextAction Lexer::processConstTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::ConstTerm>());
+  Int charIndex;
+  Data::Grammar::ConstTerm *constTerm = static_cast<Data::Grammar::ConstTerm*>(currentTerm);
+  if (constTerm->getMatchString().size() == 0) {
+    throw EXCEPTION(GenericException, S("Const term match string is not set yet."));
+  }
+  // this type of terms is always the deepest level.
+  ASSERT(currentLevel == static_cast<Int>(state->getLevelCount())-1);
+  // get the index within the term.
+  charIndex = state->refLevel(currentLevel).posId;
+  if (charIndex < constTerm->getMatchString().size()) {
     // check if the next character is accepted.
     if (constTerm->getMatchString()[charIndex] == inputChar) {
       charIndex++;
-      // Check if we reached the end of the string.
-      if (charIndex == static_cast<Int>(constTerm->getMatchString().size())) {
-        // Remove charIndex from the stack, if any.
-        if (currentLevel < static_cast<Int>(this->tempState.getIndexStack()->size())) {
-          this->tempState.getIndexStack()->pop_back();
-        }
-        return CONTINUE_NEW_CHAR; // No more chars is expected on this term object.
-      } else {
-        // Add or update charIndex on the stack.
-        if (currentLevel == static_cast<Int>(this->tempState.getIndexStack()->size())) {
-          this->tempState.getIndexStack()->push_back(charIndex);
-        } else {
-          this->tempState.getIndexStack()->at(currentLevel) = charIndex;
-        }
-        // Push the temp state onto the states stack.
-        this->createState();
-
-        return STOP; // More chars is expected on this term object.
-      }
+      state->refLevel(currentLevel).posId = charIndex;
+      return CONTINUE_NEW_CHAR;
     } else {
-      return STOP; // This term object failed to match.
+      return STOP;
     }
-  } else if (currentTerm->isA<Data::Grammar::CharGroupTerm>()) {
-    //
-    // CharGroupTerm
-    //
+  } else {
+    state->popTermLevel();
+    return CONTINUE_SAME_CHAR;
+  }
+}
+
+
+Lexer::NextAction Lexer::processCharGroupTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  if (state->refLevel(currentLevel).posId == 0) {
+    auto currentTerm = state->refLevel(currentLevel).term;
+    ASSERT(currentTerm->isA<Data::Grammar::CharGroupTerm>());
     Data::Grammar::CharGroupTerm *charGroupTerm = static_cast<Data::Grammar::CharGroupTerm*>(currentTerm);
     Data::Grammar::CharGroupDefinition *def;
     Data::Grammar::Reference *ref = charGroupTerm->getCharGroupReference().get();
     if (ref == 0) {
       Str excMsg = S("Reference is null for CharGroupTerm at token definition: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    this->grammarContext.getReferencedCharGroup(ref, def);
+    def = this->grammarContext.getReferencedCharGroup(ref);
     if (def->getCharGroupUnit() == 0) {
       Str excMsg = S("Invalid character group (");
       excMsg += ID_GENERATOR->getDesc(def->getId());
@@ -619,370 +680,232 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
     if (Data::Grammar::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
+      state->refLevel(currentLevel).posId = 1;
       return CONTINUE_NEW_CHAR;
     } else {
       return STOP;
     }
-  } else if (currentTerm->isA<Data::Grammar::MultiplyTerm>()) {
-    //
-    // MultiplyTerm
-    //
-    // HOW IT WORKS:
-    // The term index of the duplicate term will contain the iteration
-    // index (starting from 0). Each time parsing finishes going through
-    // the contained term, the iteration index will be incremented and
-    // a new state will be created. Each time parsing starts a new
-    // iteration (determined by whether an index for the deeper level is
-    // created or not), it will determine the return value depending on
-    // whether the iteration index is less than the required minimum
-    // occurances. If the minimum occurances is met (the duplicate term
-    // has appeared for at least the required minimum) the return value
-    // will be CONTINUE_SAME_CHAR to tell the upper level to continue
-    // parsing causing two different paths to go on at the same time. If
-    // the minimum occurances is not met the return value will be STOP
-    // to prevent the upper level from creating an invalid path that
-    // doesn't meet the minimum occurances requirement.
+  } else {
+    state->popTermLevel();
+    return CONTINUE_SAME_CHAR;
+  }
+}
 
-    Int iterationIndex = 0;
-    Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(currentTerm);
-    if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
-      Str excMsg = S("Multiply term with null or invalid child is found at definition: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    // Get the index within the term.
-    if (currentLevel < static_cast<Int>(this->tempState.getIndexStack()->size())) {
-      iterationIndex = this->tempState.getIndexStack()->at(currentLevel);
-    }
-    // Are we in the middle of the multiply term?
-    if (static_cast<Int>(this->tempState.getIndexStack()->size()) < currentLevel+1) {
-      // We are at the beginning of the multiply term
-      Data::Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
-      ASSERT(term != 0);
-      // add the current index
-      this->tempState.getIndexStack()->resize(currentLevel+1);
-      this->tempState.getIndexStack()->at(currentLevel) = iterationIndex;
-      NextAction ret = this->processTempState(inputChar, term, currentLevel+1);
-      if (ret == CONTINUE_NEW_CHAR) {
-        if (
-          multiplyTerm->getMax() == 0 ||
-          this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex+1
-        ) {
-          this->tempState.getIndexStack()->at(currentLevel) = iterationIndex+1;
-          this->createState();
-        }
-        if (
-          multiplyTerm->getMin() == 0 ||
-          iterationIndex+1 >= this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()
-        ) {
-          this->tempState.getIndexStack()->at(currentLevel) = -1;
-          this->createState();
-        }
-      }
-      // remove any added index
-      this->tempState.getIndexStack()->resize(currentLevel);
-      // Check if we have already passed the required minimum number of occurances.
-      if (multiplyTerm->getMin() != 0 &&
-          iterationIndex < this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()) return STOP;
-      else return CONTINUE_SAME_CHAR;
-    } else if (this->tempState.getIndexStack()->at(currentLevel) == -1) {
-      // This is a delayed state, so just return to let the parent branch continue
-      ASSERT(static_cast<Int>(this->tempState.getIndexStack()->size()) == currentLevel+1);
-      this->tempState.getIndexStack()->pop_back();
-      return CONTINUE_SAME_CHAR;
-    } else {
-      // We are in the middle of the multiply term.
-      // Get the term object.
-      Data::Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
-      ASSERT(term != 0);
-      // Call the inner branch.
-      NextAction ret = this->processTempState(inputChar, term, currentLevel+1);
-      if (ret == CONTINUE_SAME_CHAR) {
-        Int minOccurances = multiplyTerm->getMin() == 0 ?
-                              0 : this->grammarContext.getMultiplyTermMin(multiplyTerm)->get();
-        Int maxOccurances = multiplyTerm->getMax() == 0 ?
-                              0 : this->grammarContext.getMultiplyTermMax(multiplyTerm)->get();
-        // We can continue using the same character. We'll try the multiply branch again using the
-        // same character before moving upward and trying the outer branch with the same character.
-        if (maxOccurances == 0 || maxOccurances > iterationIndex+1) {
-          // The max occurances hasn't been reached, so we can try the multiply branch again.
-          this->tempState.getIndexStack()->at(currentLevel) = iterationIndex+1;
-          ret = this->processTempState(inputChar, term, currentLevel+1);
-          if (ret == CONTINUE_NEW_CHAR) {
-            // The character was consumed in the multiply branch which is now complete, so now
-            // we'll setup to try the next character on both the multiply branch again and the
-            // outer branch.
-            if (maxOccurances == 0 || maxOccurances > iterationIndex+2) {
-              // We still haven't reached the max occurances, so we'll setup the multiply branch
-              // to be tried with the next char.
-              this->tempState.getIndexStack()->at(currentLevel) = iterationIndex+2;
-              this->createState();
-            }
-            if (iterationIndex+1 >= minOccurances) {
-              // The minimum occurances is met so we'll setup to try the outer branch with the next
-              // character.
-              // We will just mark the index with a special value so that the next time it's visited
-              // we know we should just move upwards.
-              this->tempState.getIndexStack()->at(currentLevel) = -1;
-              this->createState();
-            }
-          }
-          // NOTE: We don't need to check again for the CONTINUE_SAME_CHAR return value
-          //       since that's an illogical infinite loop, so we'll treat that as fail.
-          // Trying the multiply branch with the same character again either was not successful
-          // or is successful but is still pending inside the branch. In both cases we don't
-          // need to do anything at this point.
-        }
-        if (iterationIndex >= minOccurances) {
-          // Now we need to try the outer branch with the same character.
-          this->tempState.getIndexStack()->resize(currentLevel);
-          return CONTINUE_SAME_CHAR;
-        } else {
-          // The minimum occurances isn't met so we won't try the outer branch.
-          return STOP;
-        }
-      } else if (ret == CONTINUE_NEW_CHAR) {
-        // Branch was completed successfully and the character was consumed, so we'll setup to
-        // try the next character with both the inner and outer branches.
-        if (multiplyTerm->getMax() == 0 ||
-            this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex+1) {
-          // Create a state to repeat the inner branch with the next character.
-          this->tempState.getIndexStack()->at(currentLevel) = iterationIndex+1;
-          this->createState();
-        }
-        if (multiplyTerm->getMin() == 0 ||
-            iterationIndex >= this->grammarContext.getMultiplyTermMin(multiplyTerm)->get()) {
-          // Minimum condition is met so we'll try the outer branch with the new character.
-          this->tempState.getIndexStack()->resize(currentLevel);
-          return CONTINUE_NEW_CHAR;
-        } else {
-          // The minimum occurances isn't met so we won't try the outer branch.
-          return STOP;
-        }
+
+Lexer::NextAction Lexer::processMultiplyTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  // HOW IT WORKS:
+  // The term index of the duplicate term will contain the iteration
+  // index (starting from 0). Each time parsing finishes going through
+  // the contained term, the iteration index will be incremented and
+  // a new state will be created. Each time parsing starts a new
+  // iteration (determined by whether an index for the deeper level is
+  // created or not), it will determine the return value depending on
+  // whether the iteration index is less than the required minimum
+  // occurances. If the minimum occurances is met (the duplicate term
+  // has appeared for at least the required minimum) the return value
+  // will be CONTINUE_SAME_CHAR to tell the upper level to continue
+  // parsing causing two different paths to go on at the same time. If
+  // the minimum occurances is not met the return value will be STOP
+  // to prevent the upper level from creating an invalid path that
+  // doesn't meet the minimum occurances requirement.
+
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::MultiplyTerm>());
+  Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(currentTerm);
+  if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
+    Str excMsg = S("Multiply term with null or invalid child is found at definition: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  // Get the index within the term.
+  Int iterationIndex = state->refLevel(currentLevel).posId;
+
+  Data::Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
+  ASSERT(term != 0);
+
+  auto tryInner = multiplyTerm->getMax() == 0 ||
+    this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex;
+  auto tryOuter = multiplyTerm->getMin() == 0 ||
+    this->grammarContext.getMultiplyTermMin(multiplyTerm)->get() <= iterationIndex;
+
+  if (tryInner) {
+    state->refLevel(currentLevel).posId++;
+    // Try the inner route.
+    state->pushTermLevel(0, term);
+    NextAction ret = this->processState(state, inputChar, currentLevel+1);
+    if (ret == CONTINUE_NEW_CHAR) {
+      if (tryOuter) {
+        // If we need to try the outer route as well, then we need to duplicate the state.
+        auto innerState = this->createState();
+        innerState->copyFrom(state);
+        innerState->refLevel(currentLevel).posId = iterationIndex+1;
+        this->nextStates[this->nextStateCount++] = innerState;
       } else {
-        // The multiply term either isn't complete yet or wasn't successful.
-        return STOP;
+        // Otherwise we can just use this term and return now.
+        return ret;
       }
     }
-  } else if (currentTerm->isA<Data::Grammar::AlternateTerm>()) {
-    //
-    // AlternateTerm
-    //
-    // HOW IT WORKS:
-    // When the parsing reaches the alternative term for the first time
-    // a state will be created for each branch and parsing for the
-    // current state will end. When the parsing reaches the alternative
-    // term later (through one of the states created in the first visit)
-    // the parsing will simply be passed on to the selected branch
-    // without paying any attention to other branches of the alternative
-    // term.
-    // However, when the alternative term is reached for the first time
-    // and the called branches return with a CONTINUE return value
-    // (rather than waiting for more characters), the function will
-    // return CONTINUE as the return value from the alternative term.
-    // Special Case:
-    // In a first visit, when two branches return with values of
-    // CONTINUE_SAME_CHAR and CONTINUE_NEW_CHAR, the function creates
-    // a delayed state and returns CONTINUE_SAME_CHAR. The delayed
-    // state has an index of -1 for the level of the alternative term.
-    // When the alternative term is reached having an index of -1, it
-    // will simply return CONTINUE_SAME_CHAR. The result of this
-    // approach will be returning CONTNUE_SAME_CHAR and waiting until
-    // the next char to return another CONTINUE_SAME_CHAR, which is
-    // similar to returning CONTINUE_NEW_CHAR immediately.
+  }
+  // Check if we have already passed the required minimum number of occurances.
+  if (tryOuter) {
+    state->resizeLevels(currentLevel);
+    return CONTINUE_SAME_CHAR;
+  } else {
+    return STOP;
+  }
+}
 
-    Int termIndex;
+
+Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  // HOW IT WORKS:
+  // When the parsing reaches the alternative term for the first time
+  // a state will be created for each branch and parsing for the
+  // current state will end. When the parsing reaches the alternative
+  // term later (through one of the states created in the first visit)
+  // the parsing will simply be passed on to the selected branch
+  // without paying any attention to other branches of the alternative
+  // term.
+  // However, when the alternative term is reached for the first time
+  // and the called branches return with a CONTINUE return value
+  // (rather than waiting for more characters), the function will
+  // return CONTINUE as the return value from the alternative term.
+  // Special Case:
+  // In a first visit, when two branches return with values of
+  // CONTINUE_SAME_CHAR and CONTINUE_NEW_CHAR, the function creates
+  // a delayed state and returns CONTINUE_SAME_CHAR. The delayed
+  // state has an index of -1 for the level of the alternative term.
+  // When the alternative term is reached having an index of -1, it
+  // will simply return CONTINUE_SAME_CHAR. The result of this
+  // approach will be returning CONTNUE_SAME_CHAR and waiting until
+  // the next char to return another CONTINUE_SAME_CHAR, which is
+  // similar to returning CONTINUE_NEW_CHAR immediately.
+
+  if (state->refLevel(currentLevel).posId == 0) {
+    auto currentTerm = state->refLevel(currentLevel).term;
+    ASSERT(currentTerm->isA<Data::Grammar::AlternateTerm>());
     Data::Grammar::AlternateTerm *alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(currentTerm);
-    if (alternateTerm->isDynamic()) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
     auto alternateList = alternateTerm->getTerms().s_cast_get<Data::Grammar::List>();
     if (alternateList->getCount() < 2) {
       Str excMsg = S("Alternative term doesn't have enough branches yet (less than two). Token def: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    // Get the index within the term.
-    if (currentLevel == static_cast<Int>(this->tempState.getIndexStack()->size())) {
-      // Just entering the term for the first time.
-      // Loop through all the alternatives of the term.
-      NextAction ret = UNKNOWN_ACTION;
-      Bool delayedStateCreated = false;
-      termIndex = 0;
-      for (Int i = 0; i < alternateList->getCount(); ++i) {
-        Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(alternateList->getElement(i));
-        if (term == 0) {
-          Str excMsg = S("Null term found in an alternate branch. Token def: ");
-          excMsg += ID_GENERATOR->getDesc(
-            this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
-          );
-          throw EXCEPTION(GenericException, excMsg.c_str());
-        }
-        // add the current index
-        this->tempState.getIndexStack()->push_back(termIndex);
-        switch (this->processTempState(inputChar, term, currentLevel+1)) {
-          case CONTINUE_NEW_CHAR:
-            if (ret == CONTINUE_SAME_CHAR) {
-              if (!delayedStateCreated) {
-                // create delayed state
-                this->tempState.getIndexStack()->at(currentLevel) = -1;
-                this->createState();
-                delayedStateCreated = true;
-              }
-            } else {
-              ret = CONTINUE_NEW_CHAR;
-            }
-            break;
-          case CONTINUE_SAME_CHAR:
-            if (ret == CONTINUE_NEW_CHAR) {
-              if (!delayedStateCreated) {
-                // create delayed state
-                this->tempState.getIndexStack()->at(currentLevel) = -1;
-                this->createState();
-                delayedStateCreated = true;
-              }
-            }
-            ret = CONTINUE_SAME_CHAR;
-            break;
-          case STOP:
-            if (ret == UNKNOWN_ACTION) ret = STOP;
-            break;
-        }
-        // remove any added index
-        this->tempState.getIndexStack()->resize(currentLevel);
-        termIndex++;
+
+    // Just entering the term for the first time.
+    // Loop through all the alternatives of the term.
+    NextAction ret = UNKNOWN_ACTION;
+    for (Int i = 0; i < alternateList->getCount(); ++i) {
+      state->refLevel(currentLevel).posId = i + 1;
+      Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(alternateList->getElement(i));
+      if (term == 0) {
+        Str excMsg = S("Null term found in an alternate branch. Token def: ");
+        excMsg += ID_GENERATOR->getDesc(
+          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+        );
+        throw EXCEPTION(GenericException, excMsg.c_str());
       }
-      return ret;
-    } else {
-      // Returning to a single branch of the term.
-      // Check if this is a delayed state
-      if (this->tempState.getIndexStack()->at(currentLevel) == -1) {
-        // This is a delayed state, so just return to let the parent branch continue
-        ASSERT(static_cast<Int>(this->tempState.getIndexStack()->size()) == currentLevel+1);
-        this->tempState.getIndexStack()->pop_back();
-        return CONTINUE_SAME_CHAR;
-      } else {
-        // Get up to the next term object.
-        termIndex = this->tempState.getIndexStack()->at(currentLevel);
-        Data::Grammar::Term *term = static_cast<Data::Grammar::Term*>(alternateList->getElement(termIndex));
-        // Call the inner branch.
-        NextAction ret = this->processTempState(inputChar, term, currentLevel+1);
-        if (ret == CONTINUE_NEW_CHAR || ret == CONTINUE_SAME_CHAR) {
-          this->tempState.getIndexStack()->pop_back();
-        }
-        return ret;
+      // add the current index
+      state->resizeLevels(currentLevel+1);
+      state->pushTermLevel(0, term);
+      switch (this->processState(state, inputChar, currentLevel)) {
+        case CONTINUE_NEW_CHAR:
+          if (ret == CONTINUE_SAME_CHAR || i < alternateList->getCount() - 1) {
+            // We need to use the current state for other routes, so we'll need to duplicate the state.
+            auto innerState = this->createState();
+            innerState->copyFrom(state);
+            innerState->refLevel(currentLevel).posId = i + 1;
+            this->nextStates[this->nextStateCount++] = innerState;
+          }
+          if (ret != CONTINUE_SAME_CHAR) {
+            ret = CONTINUE_NEW_CHAR;
+          }
+          break;
+        case CONTINUE_SAME_CHAR:
+          ret = CONTINUE_SAME_CHAR;
+          break;
+        case STOP:
+          if (ret == UNKNOWN_ACTION) ret = STOP;
+          break;
       }
     }
-  } else if (currentTerm->isA<Data::Grammar::ConcatTerm>()) {
-    //
-    // ConcatTerm
-    //
-    Int termIndex;
-    Data::Grammar::ConcatTerm *concatTerm = static_cast<Data::Grammar::ConcatTerm*>(currentTerm);
-    if (concatTerm->isDynamic()) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    auto concatList = concatTerm->getTerms().s_cast_get<Data::Grammar::List>();
-    if (concatList->getCount() == 0) {
-      Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
-      );
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    // get the index within the term
-    if (currentLevel == static_cast<Int>(this->tempState.getIndexStack()->size())) {
-      termIndex = 0;
-      this->tempState.getIndexStack()->push_back(termIndex);
-    } else {
-      termIndex = this->tempState.getIndexStack()->at(currentLevel);
-    }
-    // get the next term object
-    Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
+    // remove the added index
+    if (ret == CONTINUE_SAME_CHAR) state->resizeLevels(currentLevel);
+    return ret;
+  } else {
+    // This is a delayed state, so just return to let the parent branch continue
+    state->popTermLevel();
+    return CONTINUE_SAME_CHAR;
+  }
+}
+
+
+Lexer::NextAction Lexer::processConcatTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  auto currentTerm = state->refLevel(currentLevel).term;
+  ASSERT(currentTerm->isA<Data::Grammar::ConcatTerm>());
+  Data::Grammar::ConcatTerm *concatTerm = static_cast<Data::Grammar::ConcatTerm*>(currentTerm);
+  auto concatList = concatTerm->getTerms().s_cast_get<Data::Grammar::List>();
+  if (concatList->getCount() == 0) {
+    Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");
+    excMsg += ID_GENERATOR->getDesc(
+      this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+    );
+    throw EXCEPTION(GenericException, excMsg.c_str());
+  }
+  // get the index within the term
+  Int termIndex = state->refLevel(currentLevel).posId;
+  if (termIndex > concatList->getCount()-1) {
+    // we finished all the terms on this level, so return
+    // remove termIndex from the stack
+    state->popTermLevel();
+  } else {
+    // update the term index on the stack
+    auto term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
     if (term == 0) {
       Str excMsg = S("Concat term's child term is null. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    // loop on calling the next level
-    while (true) {
-      switch (this->processTempState(inputChar, term, currentLevel+1)) {
-        case CONTINUE_NEW_CHAR:
-          // move to the next term and stop
-          if (termIndex >= concatList->getCount()-1) {
-            // we finished all the terms on this level, so return
-            // remove termIndex from the stack
-            this->tempState.getIndexStack()->pop_back();
-            return CONTINUE_NEW_CHAR;
-          } else {
-            // update the term index on the stack
-            termIndex++;
-            this->tempState.getIndexStack()->at(currentLevel) = termIndex;
-            // save the state on the stack
-            this->createState();
-            return STOP;
-          }
-        case CONTINUE_SAME_CHAR:
-          // move to the next term immediately
-          if (termIndex >= concatList->getCount()-1) {
-            // we finished all the terms on this level, so return
-            // remove termIndex from the stack
-            this->tempState.getIndexStack()->pop_back();
-            return CONTINUE_SAME_CHAR;
-          } else {
-            // update the term index on the stack
-            termIndex++;
-            this->tempState.getIndexStack()->at(currentLevel) = termIndex;
-            term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
-            if (term == 0) {
-              Str excMsg = S("Concat term's child term is null. Token def: ");
-              excMsg += ID_GENERATOR->getDesc(
-                this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
-              );
-              throw EXCEPTION(GenericException, excMsg.c_str());
-            }
-          }
-          break;
-        case STOP:
-          // stop processing
-          return STOP;
-      }
-    }
-  } else if (currentTerm->isA<Data::Grammar::ReferenceTerm>()) {
-    //
-    // ReferenceTerm
-    //
-    // Pass the call to the referenced term.
+    termIndex++;
+    state->refLevel(currentLevel).posId = termIndex;
+    state->pushTermLevel(0, term);
+  }
+  return CONTINUE_SAME_CHAR;
+}
+
+
+Lexer::NextAction Lexer::processReferenceTerm(LexerState *state, WChar inputChar, Int currentLevel)
+{
+  if (state->refLevel(currentLevel).posId == 0) {
+    state->refLevel(currentLevel).posId = 1;
+
+    auto currentTerm = state->refLevel(currentLevel).term;
+    ASSERT(currentTerm->isA<Data::Grammar::ReferenceTerm>());
     Data::Grammar::ReferenceTerm *referenceTerm = static_cast<Data::Grammar::ReferenceTerm*>(currentTerm);
-    Data::Grammar::SymbolDefinition *def;
-    Data::Grammar::Module *retModule;
+
+    // We are entering the reference term now.
     Data::Grammar::Reference *ref = referenceTerm->getReference().get();
     if (ref == 0) {
       Str excMsg = S("Reference is null for ReferenceTerm at token definition: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    this->grammarContext.getReferencedSymbol(ref, retModule, def);
+    auto def = this->grammarContext.getReferencedSymbol(ref);
+    auto retModule = def->findOwner<Data::Grammar::Module>();
     if (retModule != this->grammarContext.getModule()) {
       Str excMsg = S("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
       excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
+        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
       );
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
@@ -992,21 +915,11 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
       excMsg += S("). The definition formula is not set yet.");
       throw EXCEPTION(GenericException, excMsg.c_str());
     }
-    if (!(def->getTerm()->isDerivedFrom<Data::Grammar::Term>())) {
-      Str excMsg = S("Data driven token definitions are not supported by the lexer yet. Token def: ");
-      excMsg += ID_GENERATOR->getDesc(def->getId());
-      throw EXCEPTION(GenericException, excMsg.c_str());
-    }
-    return this->processTempState(inputChar, def->getTerm().s_cast_get<Data::Grammar::Term>(), currentLevel);
+    state->pushTermLevel(0, def->getTerm().get());
   } else {
-    Str excMsg = S("Invalid token type found. Token definition: ");
-    excMsg += ID_GENERATOR->getDesc(
-      this->getSymbolDefinition(this->tempState.getIndexStackEntry(0))->getId()
-    );
-    excMsg += S(". Object type: ");
-    excMsg += currentTerm->getMyTypeInfo()->getTypeName();
-    throw EXCEPTION(GenericException, excMsg.c_str());
+    state->popTermLevel();
   }
+  return CONTINUE_SAME_CHAR;
 }
 
 
@@ -1024,29 +937,29 @@ Lexer::NextAction Lexer::processTempState(WChar inputChar, Data::Grammar::Term *
 Int Lexer::selectBestToken()
 {
   Int index = -1;
-  for (Int i = 0; i < static_cast<Int>(this->states.size()); ++i) {
-    if (this->states[i].getTokenLength() == 0) continue;
+  for (Int i = 0; i < static_cast<Int>(this->stateCount); ++i) {
+    if (this->states[i]->getTokenLength() == 0) continue;
     if (index == -1) {
       index = i;
     } else {
       // get token lengths
-      Int lengthI = this->states[i].getTokenLength();
-      Int lengthIndex = this->states[index].getTokenLength();
+      Int lengthI = this->states[i]->getTokenLength();
+      Int lengthIndex = this->states[index]->getTokenLength();
       // check for a longer token
       if (lengthI > lengthIndex) {
         // choose the longer token
         index = i;
       } else if (lengthI == lengthIndex) {
         // get token definition index
-        Int tokenDefinitionI = this->states[i].getIndexStack()->at(0);
-        Int tokenDefinitionIndex = this->states[index].getIndexStack()->at(0);
+        Int tokenDefinitionI = this->states[i]->getTokenDefIndex();
+        Int tokenDefinitionIndex = this->states[index]->getTokenDefIndex();
         // check which state is for a constant token
         Bool isConstantI, isConstantIndex;
 
         // Check if tokenDefinitionI refers to a const term.
         Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(tokenDefinitionI);
         ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
-        Data::Grammar::Term *head = def->getTerm().s_cast_get<Data::Grammar::Term>();
+        Data::Grammar::Term *head = def->getTerm().get();
         ASSERT(head->isDerivedFrom<Data::Grammar::Term>());
         if (head->isA<Data::Grammar::ConstTerm>()) isConstantI = true;
         else isConstantI = false;
@@ -1054,7 +967,7 @@ Int Lexer::selectBestToken()
         // Check if tokenDeinitionIndex refers to a const term.
         def = this->getSymbolDefinition(tokenDefinitionIndex);
         ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
-        head = def->getTerm().s_cast_get<Data::Grammar::Term>();
+        head = def->getTerm().get();
         ASSERT(head->isDerivedFrom<Data::Grammar::Term>());
         if (head->isA<Data::Grammar::ConstTerm>()) isConstantIndex = true;
         else isConstantIndex = false;
@@ -1084,83 +997,50 @@ Int Lexer::selectBestToken()
  */
 void Lexer::clear()
 {
-  this->states.clear();
+  if (this->states != 0) {
+    for (Int i = 0; i < this->stateCount; ++i) delete this->states[i];
+    delete this->states;
+    this->states = 0;
+    this->stateCount = 0;
+  }
+  if (this->nextStates != 0) {
+    for (Int i = 0; i < this->nextStateCount; ++i) delete this->nextStates[i];
+    delete this->nextStates;
+    this->nextStates = 0;
+    this->nextStateCount = 0;
+  }
+  if (this->recycledStates != 0) {
+    for (Int i = 0; i < this->recycledStateCount; ++i) delete this->recycledStates[i];
+    delete this->recycledStates;
+    this->recycledStates = 0;
+    this->recycledStateCount = 0;
+  }
+
   this->inputBuffer.clear();
   this->errorBuffer.clear();
 
-  this->tempState.getIndexStack()->clear();
-  this->tempState.setTokenLength(0);
-
-  this->disabledStateIndex = -1;
   this->currentProcessingIndex = 0;
   this->currentTokenClamped = false;
   this->lastToken.setId(UNKNOWN_ID);
 }
 
 
-/**
- * Creates a state machine instance on the states stack. The function also puts
- * into consideration the disabled state, if any. If there is a disabled state,
- * the function will simply use it, otherwise it will add a new instance of
- * LexerState on the stack. The new object will automatically contain a copy of the
- * values in the temp state object (tempState).
- *
- * @return Int Returns the index of the new state on the stack.
- */
-Int Lexer::createState()
+LexerState* Lexer::createState()
 {
-  Int r;
-  if (this->disabledStateIndex != -1) {
-    r = this->disabledStateIndex;
-    this->disabledStateIndex = -1;
-    this->states[r] = this->tempState;
-    return r;
+  ASSERT(this->recycledStates != 0);
+  if (this->recycledStateCount > 0) {
+    auto state = this->recycledStates[this->recycledStateCount - 1];
+    --this->recycledStateCount;
+    state->clear();
+    return state;
   } else {
-    r = this->states.size();
-    // Limit the size of the array to a maximum value.
-    if (r >= LEXER_STATES_ARRAY_MAX_SIZE) {
-      throw EXCEPTION(GenericException, S("States array maximum size exceeded."));
+    // Prevent the creation of more than our buffers can handle.
+    auto totalStateCount = this->recycledStateCount + this->stateCount + this->nextStateCount;
+    if (totalStateCount >= LEXER_STATES_ARRAY_MAX_SIZE) {
+      throw EXCEPTION(GenericException, S("LexerState buffers overflow."));
     }
-    // Create the new state.
-    this->states.push_back(this->tempState);
-    return r;
+    return new LexerState();
   }
 }
 
-
-/**
- * Copy the state with the given index from the stack into the temp state then
- * disabled it.
- *
- * @param index The index of the state to extract.
- */
-void Lexer::extractState(Int index)
-{
-  // make sure no state is currently extracted
-  ASSERT(this->disabledStateIndex == -1);
-
-  this->tempState = this->states[index];
-  this->disabledStateIndex = index;
-}
-
-
-/**
- * If a state is disabled, move the last state in the states list into the
- * location of the disabled state.
- */
-void Lexer::defragStatesList()
-{
-  if (this->disabledStateIndex != -1 && this->states.size() != 0) {
-    if (this->disabledStateIndex == static_cast<Int>(this->states.size())-1) {
-      // the last state in the stack is the disabled one, so just reduce the stack size
-      this->states.pop_back();
-    } else {
-      // move the last state to the location of the disabled state
-      this->states[this->disabledStateIndex] = this->states[this->states.size()-1];
-      this->states.pop_back();
-    }
-    this->disabledStateIndex = -1;
-  }
-}
-
-} } // namespace
+} // namespace

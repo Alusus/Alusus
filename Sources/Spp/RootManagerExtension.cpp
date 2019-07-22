@@ -77,14 +77,13 @@ void RootManagerExtension::_executeRootElement(
   PREPARE_SELF(rootManager, Core::Main::RootManager);
   PREPARE_SELF(rootManagerExt, RootManagerExtension);
 
-  auto root = rootManager->getRootScope().get();
-
   if (rootManager->isInteractive()) {
     // If we are running in an interactive mode and we faced previous errors, we'll try to clear the errors and start
     // fresh to give the user a chance to correct the errors if possible.
     auto minSeverity = rootManager->getMinNoticeSeverityEncountered();
     auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
     if ((minSeverity >= 0 && minSeverity <= 1) || (thisMinSeverity >= 0 && thisMinSeverity <= 1)) {
+      auto root = rootManager->getRootScope().get();
       rootManager->resetMinNoticeSeverityEncountered();
       noticeStore->resetMinEncounteredSeverity();
       rootManagerExt->resetBuildData(root);
@@ -92,68 +91,61 @@ void RootManagerExtension::_executeRootElement(
     }
   }
 
-  // Perform macro processing.
-  // TODO: Perform macro processing only on the new element.
-  rootManagerExt->macroProcessor->preparePass(noticeStore);
-  Bool result = rootManagerExt->macroProcessor->runMacroPass(root);
+  // Build the IR code.
+  rootManagerExt->targetGenerator->setGlobalItemRepo(rootManagerExt->generator->getGlobalItemRepo());
+  rootManagerExt->targetGenerator->setNoticeStore(noticeStore);
+  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(rootManagerExt->targetGenerator.get().get());
+  rootManagerExt->generator->prepareBuild(noticeStore, false);
+  auto generation = ti_cast<CodeGen::Generation>(rootManagerExt->generator.get().get());
 
-  if (result) {
-    // Build the IR code.
-    rootManagerExt->targetGenerator->setGlobalItemRepo(rootManagerExt->generator->getGlobalItemRepo());
-    rootManagerExt->targetGenerator->setNoticeStore(noticeStore);
-    auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(rootManagerExt->targetGenerator.get().get());
-    rootManagerExt->generator->prepareBuild(noticeStore, false);
-    auto generation = ti_cast<CodeGen::Generation>(rootManagerExt->generator.get().get());
+  // Generate function type.
+  TioSharedPtr tgVoidType;
+  if (!rootManagerExt->targetGenerator->generateVoidType(tgVoidType)) {
+    throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
+  }
+  SharedMap<TiObject> argTypes;
+  TioSharedPtr tgFuncType;
+  if (!rootManagerExt->targetGenerator->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
+    throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
+  }
 
-    // Generate function type.
-    TioSharedPtr tgVoidType;
-    if (!rootManagerExt->targetGenerator->generateVoidType(tgVoidType)) {
-      throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
+  // If there was a previous root statement function, delete it now.
+  if (rootManagerExt->rootStmtTgFunc != 0) {
+    if (!rootManagerExt->targetGenerator->deleteFunction(rootManagerExt->rootStmtTgFunc.get().get())) {
+      throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
     }
-    SharedMap<TiObject> argTypes;
-    TioSharedPtr tgFuncType;
-    if (!rootManagerExt->targetGenerator->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
-      throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
-    }
+    rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
+  }
 
-    // If there was a previous root statement function, delete it now.
-    if (rootManagerExt->rootStmtTgFunc != 0) {
-      if (!rootManagerExt->targetGenerator->deleteFunction(rootManagerExt->rootStmtTgFunc.get().get())) {
-        throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
-      }
-      rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
-    }
+  // Prepare a function name.
+  auto funcName = S("__rootstatement__");
 
-    // Prepare a function name.
-    auto funcName = S("__rootstatement__");
+  // Generate the function.
+  TioSharedPtr tgFunc;
+  if (!rootManagerExt->targetGenerator->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
+    throw EXCEPTION(GenericException, S("Failed to generate function declaration for root scope statement."));
+  }
+  rootManagerExt->rootStmtTgFunc = tgFunc;
+  SharedList<TiObject> args;
+  TioSharedPtr context;
+  if (!rootManagerExt->targetGenerator->prepareFunctionBody(
+    rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context)
+  ) {
+    throw EXCEPTION(GenericException, S("Failed to generate function body for root scope statement."));
+  }
+  CodeGen::TerminalStatement terminal;
+  Bool result = generation->generateStatement(element.get(), targetGeneration, context.get(), terminal);
+  if (!rootManagerExt->targetGenerator->finishFunctionBody(
+    rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context.get()
+  )) {
+    throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
+  }
 
-    // Generate the function.
-    TioSharedPtr tgFunc;
-    if (!rootManagerExt->targetGenerator->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
-      throw EXCEPTION(GenericException, S("Failed to generate function declaration for root scope statement."));
-    }
-    rootManagerExt->rootStmtTgFunc = tgFunc;
-    SharedList<TiObject> args;
-    TioSharedPtr context;
-    if (!rootManagerExt->targetGenerator->prepareFunctionBody(
-      rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context)
-    ) {
-      throw EXCEPTION(GenericException, S("Failed to generate function body for root scope statement."));
-    }
-    CodeGen::TerminalStatement terminal;
-    result = generation->generateStatement(element.get(), targetGeneration, context.get(), terminal);
-    if (!rootManagerExt->targetGenerator->finishFunctionBody(
-      rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context.get()
-    )) {
-      throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
-    }
-
-    // Execute
-    auto minSeverity = rootManager->getMinNoticeSeverityEncountered();
-    auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
-    if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
-      rootManagerExt->targetGenerator->execute(funcName);
-    }
+  // Execute
+  auto minSeverity = rootManager->getMinNoticeSeverityEncountered();
+  auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
+  if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
+    rootManagerExt->targetGenerator->execute(funcName);
   }
 }
 

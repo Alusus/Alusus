@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_PARSINGHANDLER_H
 #define CORE_PROCESSING_PARSINGHANDLER_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 class Parser;
@@ -216,106 +216,6 @@ class ParsingHandler : public Data::Grammar::BuildHandler
   }
 
   /**
-   * @brief Called when parsing is about to branch at a specific location.
-   *
-   * This event is raised by the state machine when the given state is about
-   * to branch into two.
-   *
-   * @param parser The parser that fired the event.
-   * @param state The subject state (state that is about to be duplicated).
-   */
-  public: virtual void onBranching(Parser *parser, ParserState *state, Data::Token const *token)
-  {
-  }
-
-  /**
-   * @brief Called after parsing branches into two states.
-   *
-   * This event is raised by the state machine after branching happens to a
-   * state.
-   *
-   * @param parser The parser that fired the event.
-   * @param state1 The branching state that received the higher priority.
-   * @param state2 The branching state that received the lower priority.
-   */
-  public: virtual void onBranched(Parser *parser, ParserState *state1, ParserState *state2, Data::Token const *token)
-  {
-  }
-
-  /**
-   * @brief Called before a specific term level is to be duplicated.
-   *
-   * Unlike onBranching, this event is raised for each level in the state
-   * stack whereas onBranching is raised only for the topmost level.
-   *
-   * @param parser The parser that fired the event.
-   * @param state The subject state (state that is about to be duplicated).
-   * @param prodOffset The offset of the production level to which the
-   *                    duplicating term level belongs.
-   * @param termOffset The offset of the term level that is about to be
-   *                    duplicated.
-   */
-  public: virtual void onTermLevelDuplicating(Parser *parser, ParserState *state, Int prodOffset, Int termOffset,
-                                              Data::Token const *token)
-  {
-  }
-
-  /**
-   * @brief Called before a specific production level is to be duplicated.
-   *
-   * Unlike onBranching, this event is raised for each level in the state
-   * stack whereas onBranching is raised only for the topmost level.
-   *
-   * @param parser The parser that fired the event.
-   * @param state The subject state (state that is about to be duplicated).
-   * @param prodOffset The offset of the production level that is about to
-   *                    be duplicated.
-   * @param termOffset The offset of the production level's root term level.
-   */
-  public: virtual void onProdLevelDuplicating(Parser *parser, ParserState *state, Int prodOffset, Int termOffset,
-                                              Data::Token const *token)
-  {
-  }
-
-  /**
-   * @brief Called after a specific term level is duplicated.
-   *
-   * Unlike onBranched, this event is raised for each level in the state
-   * stack whereas onBranched is raised only for the topmost level.
-   *
-   * @param parser The parser that fired the event.
-   * @param state1 The branching state that received the higher priority.
-   * @param state2 The branching state that received the lower priority.
-   * @param prodOffset The offset of the production level to which the
-   *                    duplicated term level belongs.
-   * @param termOffset The offset of the term level that has been duplicated
-   * @note The offset are the same in both states.
-   */
-  public: virtual void onTermLevelDuplicated(Parser *parser, ParserState *state1, ParserState *state2,
-                                             Int prodOffset, Int termOffset, Data::Token const *token)
-  {
-  }
-
-  /**
-   * @brief Called after a specific state level is duplicated.
-   *
-   * Unlike onBranched, this event is raised for each level in the state
-   * stack whereas onBranched is raised only for the topmost level.
-   *
-   * @param parser The parser that fired the event.
-   * @param state1 The branching state that received the higher priority.
-   * @param state2 The branching state that received the lower priority.
-   * @param prodOffset The offset of the production level that has been
-   *                    duplicated.
-   * @param termOffset The offset of the production level's root term level.
-   * @note The offset are the same in both states.
-   */
-  public: virtual void onProdLevelDuplicated(Parser *parser, ParserState *state1, ParserState *state2,
-                                             Int prodOffset, Int termOffset, Data::Token const *token)
-  {
-  }
-
-  /**
    * @brief Called when a term level is about to be cancelled.
    *
    * This event is raised in case of an error when there is only error states
@@ -397,6 +297,6 @@ class ParsingHandler : public Data::Grammar::BuildHandler
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

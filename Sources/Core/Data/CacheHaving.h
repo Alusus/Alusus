@@ -1,6 +1,6 @@
 /**
- * @file Core/Data/DataHaving.h
- * Contains the header of interface Data::DataHaving.
+ * @file Core/Data/CacheHaving.h
+ * Contains the header of interface Data::CacheHaving.
  *
  * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
@@ -10,33 +10,26 @@
  */
 //==============================================================================
 
-#ifndef CORE_DATA_DATAHAVING_H
-#define CORE_DATA_DATAHAVING_H
+#ifndef CORE_DATA_CACHEHAVING_H
+#define CORE_DATA_CACHEHAVING_H
 
 namespace Core::Data
 {
 
 // TODO: DOC
 
-/**
- * @brief An interface to provide tree management functions.
- * @ingroup core_data
- *
- * Classes that owns children need to implement this class to provide those
- * functionalitites.
- */
-class DataHaving : public TiInterface
+class CacheHaving : public TiInterface
 {
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(DataHaving, TiInterface, "Core.Data", "Core", "alusus.org");
+  INTERFACE_INFO(CacheHaving, TiInterface, "Core.Data", "Core", "alusus.org");
 
 
   //============================================================================
   // Abstract Functions
 
-  public: virtual void unsetIndexes(Int from, Int to) = 0;
+  public: virtual void clearCache() = 0;
 
 }; // class
 

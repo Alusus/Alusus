@@ -1,26 +1,26 @@
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] MyType: UserType [Main.Type]
-  body: Scope [Statements.StmtList]
-   Definition [Main.Def] x: Identifier: Int [Subject.Identifier]
+  body: Scope [Main.BlockStatements.StmtList]
+   Definition [Main.Def] x: Identifier: Int [Main.Subject.Identifier]
    Definition [Main.Def] y
     modifiers:
-     Identifier: shared [Subject.Identifier]
-    target: Identifier: Int [Subject.Identifier]
+     Identifier: shared [Modifier.Subject.Identifier]
+    target: Identifier: Int [Main.Subject.Identifier]
    Definition [Main.Def] t
     modifiers:
-     Identifier: shared [Subject.Identifier]
-    target: Identifier: MyType [Subject.Identifier]
+     Identifier: shared [Modifier.Subject.Identifier]
+    target: Identifier: MyType [Main.Subject.Identifier]
    Definition [Main.Def] printIt
     modifiers:
-     Identifier: shared [Subject.Identifier]
+     Identifier: shared [Modifier.Subject.Identifier]
     target: Function  [Main.Function]
       type: FunctionType [Main.Function]
        argTypes: NULL
        retType: NULL
-      body: Scope [Statements.StmtList]
+      body: Scope [Main.BlockStatements.StmtList]
        Definition [Main.Def] z
         modifiers:
-         Identifier: shared [Subject.Identifier]
-        target: Identifier: Int [Subject.Identifier]
+         Identifier: shared [Modifier.Subject.Identifier]
+        target: Identifier: Int [Main.Subject.Identifier]
 ------------------------------------------------------

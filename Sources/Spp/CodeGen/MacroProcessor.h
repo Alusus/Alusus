@@ -166,56 +166,65 @@ class MacroProcessor : public TiObject, public DynamicBinding, public DynamicInt
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_clonable,
+  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_other,
     Bool, (
-      Core::Data::Clonable* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      TiObject* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
     )
   );
-  private: static Bool _applyMacroArgsIteration_clonable(
-    TiObject *self, Core::Data::Clonable *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _applyMacroArgsIteration_other(
+    TiObject *self, TiObject *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
   public: METHOD_BINDING_CACHE(applyMacroArgsIteration_binding,
     Bool, (
       Binding* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */
+      Core::Data::SourceLocation* /* sl */, Binding* /* destObj */
     )
   );
   private: static Bool _applyMacroArgsIteration_binding(
     TiObject *self, Binding *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl
+    Core::Data::SourceLocation *sl, Binding *destObj
   );
 
   public: METHOD_BINDING_CACHE(applyMacroArgsIteration_containing,
     Bool, (
       Containing<TiObject>* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */
+      Core::Data::SourceLocation* /* sl */, Containing<TiObject>* /* destObj */
     )
   );
   private: static Bool _applyMacroArgsIteration_containing(
     TiObject *self, Containing<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl
+    Core::Data::SourceLocation *sl, Containing<TiObject> *destObj
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_mapContaining,
+  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_dynContaining,
     Bool, (
-      DynamicMapContaining<TiObject>* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */
+      DynamicContaining<TiObject>* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      Core::Data::SourceLocation* /* sl */, DynamicContaining<TiObject>* /* destObj */
     )
   );
-  private: static Bool _applyMacroArgsIteration_mapContaining(
+  private: static Bool _applyMacroArgsIteration_dynContaining(
+    TiObject *self, DynamicContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+    Core::Data::SourceLocation *sl, DynamicContaining<TiObject> *destObj
+  );
+
+  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_dynMapContaining,
+    Bool, (
+      DynamicMapContaining<TiObject>* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      Core::Data::SourceLocation* /* sl */, DynamicMapContaining<TiObject>* /* destObj */
+    )
+  );
+  private: static Bool _applyMacroArgsIteration_dynMapContaining(
     TiObject *self, DynamicMapContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl
+    Core::Data::SourceLocation *sl, DynamicMapContaining<TiObject> *destObj
   );
 
   /// @}
 
   /// @name Helper Functions
   /// @{
-
-  private: TioSharedPtr cloneTree(TiObject *obj, Core::Data::SourceLocation *sl);
 
   private: void parseStringTemplate(
     Char const *str, Char *var, Word varBufSize, Word &prefixSize, Char const *&suffix,
@@ -225,8 +234,6 @@ class MacroProcessor : public TiObject, public DynamicBinding, public DynamicInt
   private: void generateStringFromTemplate(
     Char const *prefix, Word prefixSize, Char const *var, Char const *suffix, Char *output, Word outputBufSize
   );
-
-  private: void addSourceLocation(TiObject *obj, Core::Data::SourceLocation *sl);
 
   /// @}
 

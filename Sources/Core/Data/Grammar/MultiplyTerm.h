@@ -31,14 +31,22 @@ namespace Core::Data::Grammar
  * Priority can be specified manually, but by default it's for taking the
  * branch rather than quiting the branch.
  */
-class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObject>
+class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObject>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(MultiplyTerm, Term, "Core.Data.Grammar", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving, MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(CacheHaving, MapContaining<TiObject>)
   ));
+  OBJECT_FACTORY(MultiplyTerm);
+
+
+  //============================================================================
+  // Types
+
+  public: typedef std::unordered_map<Str, Int, std::hash<std::string>> TextBasedDecisionCache;
+  public: typedef std::unordered_map<Word, Int> IdBasedDecisionCache;
 
 
   //============================================================================
@@ -50,7 +58,9 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
 
   private: TioSharedPtr max;
 
-  private: TioSharedPtr priority;
+  private: TextBasedDecisionCache innerTextBasedDecisionCache;
+
+  private: IdBasedDecisionCache innerIdBasedDecisionCache;
 
 
   //============================================================================
@@ -58,8 +68,7 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
 
   IMPLEMENT_BINDING(Term,
     (min, TiObject, SHARED_REF, setMin(value), min.get()),
-    (max, TiObject, SHARED_REF, setMax(value), max.get()),
-    (priority, TiObject, SHARED_REF, setPriority(value), priority.get())
+    (max, TiObject, SHARED_REF, setMax(value), max.get())
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
@@ -77,6 +86,8 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
   public: virtual ~MultiplyTerm()
   {
     RESET_OWNED_SHAREDPTR(this->term);
+    RESET_OWNED_SHAREDPTR(this->min);
+    RESET_OWNED_SHAREDPTR(this->max);
   }
 
 
@@ -128,26 +139,22 @@ class MultiplyTerm : public Term, public DataHaving, public MapContaining<TiObje
     return this->max;
   }
 
-  /// Set the priority of the child branches.
-  public: void setPriority(SharedPtr<TiObject> const &p);
-
-  private: void setPriority(TiObject *p)
+  public: TextBasedDecisionCache* getInnerTextBasedDecisionCache()
   {
-    this->setPriority(getSharedPtr(p));
+    return &this->innerTextBasedDecisionCache;
   }
 
-  /// @sa setPriority()
-  public: SharedPtr<TiObject> const& getPriority() const
+  public: IdBasedDecisionCache* getInnerIdBasedDecisionCache()
   {
-    return this->priority;
+    return &this->innerIdBasedDecisionCache;
   }
 
 
   //============================================================================
-  // DataHaving Implementation
+  // CacheHaving Implementation
 
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to);
+  /// @sa CacheHaving::clearCache()
+  public: virtual void clearCache();
 
 }; // class
 

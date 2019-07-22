@@ -30,6 +30,8 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
         referenceCache->push_back(std::make_shared<Reference>());
       }
       seg = referenceCache->at(cacheIndex);
+      seg->setCachedValue(0);
+      seg->setValueCacheEnabled(false);
       ++cacheIndex;
     } else {
       seg = std::make_shared<Reference>(qualifier + begin, size);
@@ -52,6 +54,9 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
   }
   addSegment(start, SBSTR(qualifier).size() - start);
   ASSERT(ref != 0);
+
+  // Cache any reference that isn't on the stack since the stack is the only place updated inside list terms' loops.
+  if (ref->getKey() != S("stack")) ref->setValueCacheEnabled(true);
 
   return ref;
 }
@@ -189,6 +194,78 @@ void generateId(Node *obj, StrStream &id)
     }
   }
   throw EXCEPTION(GenericException, S("The provided object has an invalid owner."));
+}
+
+
+TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
+{
+  if (obj.ti_cast_get<Node>() == 0) return obj;
+
+  auto factory = obj->getMyTypeInfo()->getFactory();
+  if (!factory) {
+    throw EXCEPTION(GenericException, S("A Node derived class is missing a type factory."));
+  }
+  auto clone = factory->createShared();
+
+  auto inheritable = clone.ti_cast_get<Inheriting>();
+  if (inheritable != 0) {
+    inheritable->setBase(obj.get());
+  } else {
+    auto bindings = obj.ti_cast_get<Binding>();
+    auto cloneBindings = clone.ti_cast_get<Binding>();
+    if (cloneBindings != 0) {
+      for (Int i = 0; i < bindings->getMemberCount(); ++i) {
+        if (bindings->getMemberHoldMode(i) == HoldMode::SHARED_REF) {
+          auto childMember = getSharedPtr(bindings->getMember(i));
+          cloneBindings->setMember(i, _cloneInherited(childMember).get());
+        } else {
+          cloneBindings->setMember(i, bindings->getMember(i));
+        }
+      }
+    }
+
+    auto dynMapContainer = obj.ti_cast_get<DynamicMapContaining<TiObject>>();
+    auto cloneDynMapContainer = clone.ti_cast_get<DynamicMapContaining<TiObject>>();
+    if (cloneDynMapContainer != 0) {
+      for (Int i = 0; i < dynMapContainer->getElementCount(); ++i) {
+        auto childElement = getSharedPtr(dynMapContainer->getElement(i));
+        cloneDynMapContainer->addElement(
+          dynMapContainer->getElementKey(i).c_str(), _cloneInherited(childElement).get()
+        );
+      }
+      return clone;
+    }
+
+    auto dynContainer = obj.ti_cast_get<DynamicContaining<TiObject>>();
+    auto cloneDynContainer = clone.ti_cast_get<DynamicContaining<TiObject>>();
+    if (cloneDynContainer != 0) {
+      for (Int i = 0; i < dynContainer->getElementCount(); ++i) {
+        auto childElement = getSharedPtr(dynContainer->getElement(i));
+        cloneDynContainer->addElement(_cloneInherited(childElement).get());
+      }
+      return clone;
+    }
+
+    auto mapContainer = obj.ti_cast_get<MapContaining<TiObject>>();
+    auto cloneMapContainer = clone.ti_cast_get<MapContaining<TiObject>>();
+    if (cloneMapContainer != 0) {
+      for (Int i = 0; i < mapContainer->getElementCount(); ++i) {
+        auto childElement = getSharedPtr(mapContainer->getElement(i));
+        cloneMapContainer->setElement(mapContainer->getElementKey(i).c_str(), _cloneInherited(childElement).get());
+      }
+      return clone;
+    }
+
+    auto container = obj.ti_cast_get<Containing<TiObject>>();
+    auto cloneContainer = clone.ti_cast_get<Containing<TiObject>>();
+    if (cloneContainer != 0) {
+      for (Int i = 0; i < container->getElementCount(); ++i) {
+        auto childElement = getSharedPtr(container->getElement(i));
+        cloneContainer->setElement(i, _cloneInherited(childElement).get());
+      }
+    }
+  }
+  return clone;
 }
 
 } // namespace

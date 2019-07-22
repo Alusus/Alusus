@@ -12,23 +12,8 @@
 
 #include "core.h"
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
-
-//==============================================================================
-// Clonable Implementation
-
-SharedPtr<TiObject> Definition::clone() const
-{
-  SharedPtr<Definition> newDefinition = std::make_shared<Definition>();
-  newDefinition->setProdId(this->getProdId());
-  newDefinition->setSourceLocation(this->getSourceLocation());
-  newDefinition->setTarget(this->target);
-  newDefinition->setName(this->name.get());
-  newDefinition->setToMerge(this->isToMerge());
-  return newDefinition;
-}
-
 
 //==============================================================================
 // Printable Implementation
@@ -65,4 +50,4 @@ void Definition::print(OutStream &stream, Int indents) const
   }
 }
 
-} } } // namespace
+} // namespace

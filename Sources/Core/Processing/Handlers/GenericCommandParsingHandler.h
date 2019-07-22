@@ -49,8 +49,6 @@ class GenericCommandParsingHandler : public GenericParsingHandler
 
   protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex);
 
-  protected: virtual void prepareToModifyData(ParserState *state, Int levelIndex);
-
 }; // class
 
 } } } // namespace

@@ -156,7 +156,6 @@ Bool MacroParsingHandler::onIncomingModifier(
 
   // Prepare to modify.
   Int levelOffset = -state->getTopProdTermLevelCount();
-  this->prepareToModifyData(state, levelOffset);
   auto data = state->getData(levelOffset).get();
   auto definition = ti_cast<Core::Data::Ast::Definition>(data);
 

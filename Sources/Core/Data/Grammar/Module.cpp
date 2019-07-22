@@ -34,14 +34,8 @@ Module::~Module()
 SharedPtr<TiObject> Module::prepareForSet(
   Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
 ) {
-  if (inherited && obj != 0 && obj->isDerivedFrom<Module>()) {
-    auto module = Module::create();
-    StrStream baseRef;
-    baseRef << S("bmodule.") << key;
-    module->setBaseRef(std::make_shared<Reference>(baseRef.str().c_str()));
-    module->setBase(obj.get());
-    module->setOwner(this);
-    return module;
+  if (inherited) {
+    return cloneInherited(obj);
   } else {
     return obj;
   }
@@ -51,7 +45,7 @@ SharedPtr<TiObject> Module::prepareForSet(
 void Module::finalizeSet(
   Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
 ) {
-  if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+  if (obj != 0 && obj->isDerivedFrom<Node>()) {
     obj.s_cast_get<Node>()->setOwner(this);
     setTreeIds(obj.get());
   }
@@ -61,7 +55,7 @@ void Module::finalizeSet(
 void Module::prepareForUnset(
   Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited
 ) {
-  if (!inherited && obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
+  if (obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
     obj.s_cast_get<Node>()->setOwner(0);
   }
 }
@@ -79,13 +73,16 @@ void Module::attachToBase(Module *b)
   this->getBaseModule()->metaChangeNotifier.connect(this->baseMetaChangeSlot);
 
   if ((this->ownership & Module::MetaElement::START_REF) == 0) {
-    this->startRef = this->getBaseModule()->getStartRef();
+    this->startRef = cloneInherited(this->getBaseModule()->getStartRef());
+    OWN_SHAREDPTR(this->startRef);
   }
   if ((this->ownership & Module::MetaElement::LEXER_MODULE_REF) == 0) {
-    this->lexerModuleRef = this->getBaseModule()->getLexerModuleRef();
+    this->lexerModuleRef = cloneInherited(this->getBaseModule()->getLexerModuleRef());
+    OWN_SHAREDPTR(this->lexerModuleRef);
   }
   if ((this->ownership & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
-    this->errorSyncBlockPairsRef = this->getBaseModule()->getErrorSyncBlockPairsRef();
+    this->errorSyncBlockPairsRef = cloneInherited(this->getBaseModule()->getErrorSyncBlockPairsRef());
+    OWN_SHAREDPTR(this->errorSyncBlockPairsRef);
   }
 }
 
@@ -112,40 +109,16 @@ void Module::detachFromBase()
 void Module::onBaseMetaChanged(Module *obj, Word element)
 {
   if ((element & Module::MetaElement::START_REF) == 0) {
-    this->startRef = obj->getStartRef();
+    this->startRef = cloneInherited(obj->getStartRef());
+    OWN_SHAREDPTR(this->startRef);
   }
   if ((element & Module::MetaElement::LEXER_MODULE_REF) == 0) {
-    this->lexerModuleRef = obj->getLexerModuleRef();
+    this->lexerModuleRef = cloneInherited(obj->getLexerModuleRef());
+    OWN_SHAREDPTR(this->lexerModuleRef);
   }
   if ((element & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
-    this->errorSyncBlockPairsRef = obj->getErrorSyncBlockPairsRef();
-  }
-}
-
-
-//==============================================================================
-// DataHaving Implementation
-
-void Module::unsetIndexes(Int from, Int to)
-{
-  if (this->baseRef != 0) {
-    Data::unsetIndexes(this->baseRef.get(), from, to);
-  }
-  if (this->startRef != 0 && (this->ownership & Module::MetaElement::START_REF) != 0) {
-    Data::unsetIndexes(this->startRef.get(), from, to);
-  }
-  if (this->lexerModuleRef != 0 && (this->ownership & Module::MetaElement::LEXER_MODULE_REF) != 0) {
-    Data::unsetIndexes(this->lexerModuleRef.get(), from, to);
-  }
-  if (
-    this->errorSyncBlockPairsRef != 0 && (this->ownership & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) != 0
-  ) {
-    Data::unsetIndexes(this->errorSyncBlockPairsRef.get(), from, to);
-  }
-
-  for (Word i = 0; i < this->getCount(); ++i) {
-    TiObject *obj = this->get(i).get();
-    if (obj != 0) Data::unsetIndexes(obj, from, to);
+    this->errorSyncBlockPairsRef = cloneInherited(obj->getErrorSyncBlockPairsRef());
+    OWN_SHAREDPTR(this->errorSyncBlockPairsRef);
   }
 }
 

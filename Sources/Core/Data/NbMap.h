@@ -16,15 +16,13 @@
 namespace Core::Data
 {
 
-class NbMap : public SharedMapBase<TiObject, Node>, public DataHaving
+class NbMap : public SharedMapBase<TiObject, Node>
 {
   //============================================================================
   // Type Info
 
   typedef SharedMapBase<TiObject, Node> _MyBase;
-  TYPE_INFO(NbMap, _MyBase, "Core.Data", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(DataHaving)
-  ));
+  TYPE_INFO(NbMap, _MyBase, "Core.Data", "Core", "alusus.org");
 
 
   //============================================================================
@@ -70,7 +68,7 @@ class NbMap : public SharedMapBase<TiObject, Node>, public DataHaving
   protected: virtual void finalizeSet(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   ) {
-    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>()) {
+    if (obj != 0 && obj->isDerivedFrom<Node>()) {
       obj.s_cast_get<Node>()->setOwner(this);
     }
   }
@@ -78,7 +76,7 @@ class NbMap : public SharedMapBase<TiObject, Node>, public DataHaving
   protected: virtual void prepareForUnset(
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited
   ) {
-    if (!inherited && obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
+    if (obj != 0 && obj->isDerivedFrom<Node>() && obj.s_cast_get<Node>()->getOwner() == this) {
       obj.s_cast_get<Node>()->setOwner(0);
     }
   }
@@ -96,20 +94,6 @@ class NbMap : public SharedMapBase<TiObject, Node>, public DataHaving
   public: NbMap* getBase() const
   {
     return static_cast<NbMap*>(this->base);
-  }
-
-  /// @}
-
-  /// @name DataHaving Implementation
-  /// @{
-
-  /// @sa DataHaving::unsetIndexes()void
-  public: virtual void unsetIndexes(Int from, Int to)
-  {
-    for (Word i = 0; i < this->getCount(); ++i) {
-      TiObject *obj = this->get(i).get();
-      if (obj != 0) Data::unsetIndexes(obj, from, to);
-    }
   }
 
   /// @}

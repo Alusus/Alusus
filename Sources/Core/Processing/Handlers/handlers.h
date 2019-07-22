@@ -34,6 +34,7 @@ namespace Core::Main
 
 #include "ConstTokenizingHandler.h"
 #include "StringLiteralTokenizingHandler.h"
+#include "IdentifierTokenizingHandler.h"
 // TODO:
 // #include "NumberLiteralTokenizingHandler.h"
 

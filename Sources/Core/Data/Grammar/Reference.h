@@ -16,35 +16,49 @@
 namespace Core::Data::Grammar
 {
 
-class Reference : public Node, public DataHaving
+class Reference : public Node, public Binding, public CacheHaving
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Reference, Node, "Core.Data.Grammar", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES_1(Node, DataHaving);
+  TYPE_INFO(Reference, Node, "Core.Data.Grammar", "Core", "alusus.org", (
+    INHERITANCE_INTERFACES(Binding, CacheHaving)
+  ));
+  OBJECT_FACTORY(Reference);
 
 
   //============================================================================
   // Member Variables
 
   private: SharedPtr<Reference> next;
-  private: Str key;
-  private: mutable Int cachedIndex;
+  private: TiStr key;
+  private: TiBool valueCacheEnabled = false;
+  private: mutable Int cachedIndex = -1;
+  private: mutable TiObject *cachedValue = 0;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDING(Binding,
+    (next, Reference, SHARED_REF, setNext(value), next.get()),
+    (key, TiStr, VALUE, setKey(value), &this->key),
+    (valueCacheEnabled, TiBool, VALUE, setValueCacheEnabled(value), &this->valueCacheEnabled)
+  );
 
 
   //============================================================================
   // Constructor
 
-  public: Reference() : cachedIndex(-1)
+  public: Reference()
   {
   }
 
-  public: Reference(Char const *k) : key(k), cachedIndex(-1)
+  public: Reference(Char const *k) : key(k)
   {
   }
 
-  public: Reference(Char const *k, Int s) : key(k, s), cachedIndex(-1)
+  public: Reference(Char const *k, Int s) : key(k, s)
   {
   }
 
@@ -66,6 +80,10 @@ class Reference : public Node, public DataHaving
   {
     UPDATE_OWNED_SHAREDPTR(this->next, n);
   }
+  public: void setNext(Reference *n)
+  {
+    this->setNext(getSharedPtr(n));
+  }
 
   /// @sa setNext()
   public: SharedPtr<Reference> const& getNext() const
@@ -78,32 +96,61 @@ class Reference : public Node, public DataHaving
     this->key = k;
     this->cachedIndex = -1;
   }
+  public: void setKey(TiStr const *k)
+  {
+    this->key = k == 0 ? "" : k->get();
+  }
 
   public: void setKey(Char const *k, Int s)
   {
-    this->key.assign(k, s);
+    this->key.set(k, s);
     this->cachedIndex = -1;
   }
 
-  public: Str const& getKey() const
+  public: TiStr const& getKey() const
   {
     return this->key;
+  }
+
+  public: void setValueCacheEnabled(Bool e)
+  {
+    this->valueCacheEnabled = e;
+  }
+  public: void setValueCacheEnabled(TiBool const *e)
+  {
+    this->valueCacheEnabled = e == 0 ? false : e->get();
+  }
+
+  public: Bool isValueCacheEnabled() const
+  {
+    return this->valueCacheEnabled;
+  }
+
+  public: void setCachedValue(TiObject *val) const
+  {
+    this->cachedValue = val;
+  }
+
+  public: TiObject* getCachedValue() const
+  {
+    return this->cachedValue;
   }
 
   public: Bool setValue(TiObject *source, TiObject *value) const;
 
   public: Bool removeValue(TiObject *source) const;
 
-  public: Bool getValue(TiObject *source, TiObject *&value, Module **ownerModule = 0) const;
+  public: Bool getValue(TiObject *source, TiObject *&value) const;
 
-  private: Bool _getValue(TiObject *source, TiObject *&value, Module **ownerModule = 0) const;
+  private: Bool _getValue(TiObject *source, TiObject *&value) const;
 
   public: Bool isEqual(Reference *ref);
 
-  /// @sa DataHaving::unsetIndexes()
-  public: virtual void unsetIndexes(Int from, Int to)
+  /// @sa CacheHaving::clearCache()
+  public: virtual void clearCache()
   {
-    if (this->cachedIndex >= from && this->cachedIndex <= to) this->cachedIndex = -1;
+    this->cachedIndex = -1;
+    this->cachedValue = 0;
   }
 
 }; // class

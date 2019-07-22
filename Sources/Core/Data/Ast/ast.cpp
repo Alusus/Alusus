@@ -26,6 +26,23 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj)
 }
 
 
+void addSourceLocation(TiObject *obj, SourceLocation *sl)
+{
+  auto metadata = ti_cast<MetaHaving>(obj);
+  if (metadata == 0) return;
+
+  auto currentSl = metadata->findSourceLocation();
+  if (currentSl == 0) {
+    metadata->setSourceLocation(sl);
+  } else {
+    auto newSl = std::make_shared<SourceLocationStack>();
+    newSl->push(sl);
+    newSl->push(currentSl.get());
+    metadata->setSourceLocation(newSl);
+  }
+}
+
+
 Bool mergeDefinition(Definition *def, DynamicContaining<TiObject> *target, Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(def, target, noticeStore);
@@ -103,6 +120,74 @@ void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *mod
     auto paramPass = static_cast<Data::Ast::ParamPass*>(modifier);
     translateModifier(symbolDef, paramPass->getOperand().get());
   }
+}
+
+
+TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl)
+{
+  if (obj.ti_cast_get<Node>() == 0) return obj;
+
+  auto factory = obj->getMyTypeInfo()->getFactory();
+  if (!factory) {
+    throw EXCEPTION(GenericException, S("A Node derived class is missing a type factory."));
+  }
+  auto clone = factory->createShared();
+
+  auto bindings = obj.ti_cast_get<Binding>();
+  auto cloneBindings = clone.ti_cast_get<Binding>();
+  if (cloneBindings != 0) {
+    for (Int i = 0; i < bindings->getMemberCount(); ++i) {
+      if (bindings->getMemberHoldMode(i) == HoldMode::SHARED_REF) {
+        auto childMember = getSharedPtr(bindings->getMember(i));
+        cloneBindings->setMember(i, _clone(childMember, sl).get());
+      } else {
+        cloneBindings->setMember(i, bindings->getMember(i));
+      }
+    }
+  }
+
+  auto dynMapContainer = obj.ti_cast_get<DynamicMapContaining<TiObject>>();
+  auto cloneDynMapContainer = clone.ti_cast_get<DynamicMapContaining<TiObject>>();
+  if (cloneDynMapContainer != 0) {
+    for (Int i = 0; i < dynMapContainer->getElementCount(); ++i) {
+      if (dynMapContainer->getElementHoldMode(i) == HoldMode::SHARED_REF) {
+        auto childElement = getSharedPtr(dynMapContainer->getElement(i));
+        cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i).c_str(), _clone(childElement, sl).get());
+      } else {
+        cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i).c_str(), dynMapContainer->getElement(i));
+      }
+    }
+  }
+
+  auto dynContainer = obj.ti_cast_get<DynamicContaining<TiObject>>();
+  auto cloneDynContainer = clone.ti_cast_get<DynamicContaining<TiObject>>();
+  if (cloneDynContainer != 0) {
+    for (Int i = 0; i < dynContainer->getElementCount(); ++i) {
+      if (dynContainer->getElementHoldMode(i) == HoldMode::SHARED_REF) {
+        auto childElement = getSharedPtr(dynContainer->getElement(i));
+        cloneDynContainer->addElement(_clone(childElement, sl).get());
+      } else {
+        cloneDynContainer->addElement(dynContainer->getElement(i));
+      }
+    }
+  }
+
+  auto container = obj.ti_cast_get<Containing<TiObject>>();
+  auto cloneContainer = clone.ti_cast_get<Containing<TiObject>>();
+  if (cloneDynContainer == 0 && cloneDynMapContainer == 0 && cloneContainer != 0) {
+    for (Int i = 0; i < container->getElementCount(); ++i) {
+      if (container->getElementHoldMode(i) == HoldMode::SHARED_REF) {
+        auto childElement = getSharedPtr(container->getElement(i));
+        cloneContainer->setElement(i, _clone(childElement, sl).get());
+      } else {
+        cloneContainer->setElement(i, container->getElement(i));
+      }
+    }
+  }
+
+  if (sl != 0) addSourceLocation(clone.get(), sl);
+
+  return clone;
 }
 
 } // namespace
