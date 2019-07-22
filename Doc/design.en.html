@@ -1,0 +1,479 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" style="height: 100%;">
+<head profile="http://gmpg.org/xfn/11">
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+ <title>Design - Alusus Programming Language</title>
+
+ <link rel="stylesheet" href="Resources/main.css">
+ <link rel="stylesheet" href="Resources/highlight.default.css">
+
+ <script src="Resources/jquery-1.10.2.min.js"></script>
+ <script src="Resources/highlight.pack.js"></script>
+ <script src="Resources/main.js"></script>
+ <script language="javascript">
+ $(document).ready(function() {
+   addNumbering($('#rootdiv'), ".foldable");
+ });
+ </script>
+</head>
+
+<body style="background: grey; text-align:center; height:100%; padding-left: 10px; padding-right:10px;" alink="#00FFFF" link="#FFFFFF" text="#FFFFFF" vlink="#CCCCCC">
+<div style="border-left: solid 1px; border-right: solid 1px; background: white; min-width:840px; max-width:1200px; width: 100%; min-height:100%; text-align:left; margin-left:auto; margin-right:auto;">
+ <div style="width: 100%; height: 83px; padding-top:10px; text-align:center;">
+  <div style="float:left;"><img src="Resources/logo.en.gif" style="border:0;"/></div>
+  <img src="Resources/title.en.gif" style="border:0;padding-top:15px;"/>
+  <div style="padding: 10px 15px; float:right; width:120px; text-align:right;"><a style="text-decoration:none; color:black;" href="design.ar.html"><b>العربية</b></a></div>
+ </div>
+ <div class="menu">
+  <span class="menuItem"><a href="https://alusus.org?lang=en">Alusus Language</a> &#x276f; <a href="https://alusus.org/documentation?lang=en">Documentation</a></span>
+ </div>
+ <div id='rootdiv' style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
+ <h1>Design of Alusus Language</h1>
+ <a href='#' onclick='openAllFolds()'>Open All</a>&nbsp;&nbsp;&nbsp;<a href='#' onclick='closeAllFolds()'>Close All</a>
+
+ <!-- ********************************************************************** -->
+ <h2 class="foldable">Introduction</h2>
+ <div>
+  Alusus Language is designed to be a comprehensive language that can be used to write any program regardless of the field, environment, or execution mechanism. This comprehensiveness required designing the language from a philosophical perspective rather than practical perspective that is often linked to a certain field or environment. This comprehensiveness also requires making the language expandable by the user or the community instead of limiting the development of the language to a central team. The design also needs to allow the programmer (the user) to reach and control the compiler itself. Also, expanding or modifying the language should be doable dynamically, i.e. without needing to rebuild the compiler.
+
+  <h3>Alusus' Definition of a Computer Program</h3>
+  Alusus Language's definition of a computer program is irrelevant of the field of this program or its execution environment. Alusus defines a computer program to be a set of statements; each statement consists of one or more subjects; each subject can be a literal, an identifier, an expression, a command, another statement, or a set of other statements. Based on this high level definition, a base grammar is created and is made dynamic and an ability was added to Alusus to create new grammar rules that inherits from the base grammar. This allows the language to be expandable without breaking the general guidelines and consistency of the grammar and without causing parsing ambiguity.
+
+  <h3>An Open, Flexible, and Decentralied Compilation System</h3>
+  Instead of creating a closed monolithic compiler that understands a predefined set of programming paradigms and a predefined execution mechanism, Alusus adopted a different design that allows the compilation to be done by a system that is open and modularized with a central component that manages the compilation process and provides the foundation on which the different components of the system is based on. This allows modifying or expanding the language and the compilation proces by replacing certain parts or adding new parts. The system also allows any programmer to reach its internal components and data entities in order to develop new compilation modules and that makes it possible for the community to develop the language rather than being limited to a small central group. It also allows developing different aspects of the language simultaneously by different teams. The following graph compares a traditional compilation method to the one adopted by Alusus:
+
+  <p align="middle"><img src="design.resources/compilation_method_comparison.en.gif"/></p>
+ </div>
+
+ <!-- ********************************************************************** -->
+ <h2 class="foldable">Design Overview</h2>
+ <div>
+  <h3>Compilation System</h3>
+  Instead of depending on a monolithic compiler, Alusus uses a compilation system that is decentralized and modularized. The compilation system consists of:
+  <ul>
+   <li><b>Core:</b> The central component of the system. The Core defines the base grammar, parses the provided source code, and manages the build libraries.</li>
+   <li><b>Build Libraries:</b> Defines a specialized grammar using the base grammar and converts the parsed data into executable code. These libraries are linked dynamically to the Core which can load unspecified number of those libraries simultaneously. Loading the libraries is done through commands in the source code being compiled./li>
+  </ul>
+  The following graph shows the flow of data from source code to executable code:
+  <p align="middle"><img src="design.resources/compilation_flow.en.gif"/></p>
+  Build libraries are simply dynamic libraries that contain data types related to the grammar and the compilation process and they are loaded the same way regular libraries are loaded, i.e. with the `import` command inside the source code being compiled. This way each project can decide the language feature it needs without needing to configure the compiler in any way.<br/>
+  The Core contains a dynamic repository for grammar definitions that can be accessed by build libraries to add their own specialized grammar or build handlers. The Core also contains a generic definitions repository that can be used by build libraries to add their build results to make them available publicly to other build libraries or to the program being built.<br/>
+  The following graph shows the relations between the different components of the build system:
+  <p align="middle"><img src="design.resources/class_diagram.en.gif"/></p>
+  It's also possible to define additional grammar or build handlers inside the source code being built itself. In other words, the program being built can define its own grammar given that those definitions preceed their use in the source code.
+
+  <h3>Grammar of Alusus Language</h3>
+  Alusus' grammar has the following features:
+  <ul>
+   <li>Data Driven Grammar: It's possible to build grammar definitions that are controllable by variables at run time.</li>
+   <li>Dynamic Grammar: It's possible to add or modify new grammar during compilation.</li>
+   <li>Grammar Inheritance: It's possible to derive new grammar definitions from other definitions using grammar inheritance which allows the new grammar to inherit and override the properties of the parent grammar. This feature also allows building grammar templates.</li>
+   <li>Grammar Templates: Alusus' grammar contains predefined grammar templates that can be used by programmers (whether build library writers or not) to add their own grammar definitions that are consistent with the rest of the grammar.</li>
+   <li>Modular Grammar: Alusus allows the creation of grammar modules to group related grammar together and simplify grammar inheritance. For example, all grammar definitions related to expressions are grouped in one module which makes it easy to create specialized expressions by inheriting the expression module.</li>
+  </ul>
+
+  These grammar features enables the creation of generic base grammar definitions upon which the rest of the grammar is built, which guarantees the consistency of the grammar built by different independent teams. The <b>Base Grammar</b> in Alusus is simplified and generic and it directly matches Alusus' definition of a computer program:
+  <ul>
+   <li><b>Program:</b> A set of statements.</li>
+   <li><b>Statement:</b> Consists of one subject or a series of subjects.</li>
+   <li><b>Subject:</b> Can either be a literal, an identifier, an expression, a command, a statement, or a set of statements.</li>
+   <li><b>Command:</b> Consists of a keyword, followed optionally by a subject or a series of subjects.</li>
+   <li><b>Expression:</b> Consists of a subject, or a hierarchy of subjects linked with operators.</li>
+  </ul>
+  In addition to the hierarchical structure above, Alusus' grammar contains <b>Modifiers</b> which are attachments that can be applied on any of the elements mentioned in the above list. Modifiers are used to add metadata to any part of the program.
+  <p>
+  Notice from the definitions above that the base grammar is not related in any way to the nature of the program or the environment of execution. It does not associate the language with a certain field, instead it leaves the language open to all fields of programming. The Core only understands a small set of specialized commands, among those is a command to load other libraries or source files (import command). When a build library is loaded, it feeds the Core with its own specialized grammar which is derived from the base grammar and it remains responsible for handling the data parsed with those specialized grammar definitions. The Core links the new grammar to those libraries and it calls them during parsing whenever it encounters that grammar. The Core can load an unspecified number of libraries and it remains responsible for coordinating between them.
+  </p>
+ </div>
+
+ <!-- ********************************************************************** -->
+ <h2 class="foldable">Grammar and Parsing Techniques</h2>
+ <div>
+  In addition to the common techniques in writig grammars and parsers, Alusus uses the following techniques:
+
+  <h3>Using Data in Grammar Definitions</h3>
+  Grammar definitions can use data passed as parameters to the definition, or stored globally. The following example shows a command definition that keeps the keyword data driven:
+<pre dir=ltr class="code">
+SubCmd (kwd:string) : kwd Expression.
+IfCommand : SubCmd("if") Statement.
+WhileCommand : SubCmd("while") Statement.
+</pre>
+  In the upper example, the definition of `SubCmd` receives a string as a parameter and uses it as a literal in the definition. This deinition is then used to define two commands: If and While. This technique is not limited to using data as literals; it's also possible to use arrays and apply grammar operations on them. For example:
+<pre dir=ltr class="code">
+BinaryOperation (kwds:list[string]) : Operand (kwds[0] | kwds[1] | ...) Operand.
+LogicalOperation : BinaryOperation(["and", "or", "xor"]).
+MathOperation : BinaryOperation(["+", "-", "*", "/"]).
+</pre>
+  Usage of data in grammar definitions is open to all possibilities in a way similar to how data is used in programming languages. For example, it's possible to apply the elements of the array on a template and apply grammar operations on the result as in the following example:
+<pre dir=ltr class="code">
+BinaryOperation (kwds:list[string]) : Operand (Command(kwds[0]) Command(kwds[1]) ...).
+</pre>
+
+  <h3>Modularized Grammar</h3>
+   Grammar definitions can be grouped into modules in a way similar to object oriented programming. In the following example, definitions related to expressions are grouped into one module:
+<pre dir=ltr class="code">
+Expression : {
+  Add (kwds=["+","-"]) : Multiply [(kwds[0] | kwds[1] | ...) Add].
+  Multiply (kwds=["*","/"]) : Operand [(kwds[0] | kwds[1] | ...) Multiply].
+  Operand : Identifier | Literal.
+}.
+</pre>
+  It's also possible to define a module inside another module, and it's possible for definitions inside a module to refer to or be referenced by definitions outside the module.
+
+  <h3>Grammar Inheritance</h3>
+  In Alusus, grammar definitions can inherit from other definitions. As in object oriented programming, inheritance in the grammar copies the properties of a definition into the inheriting definition which can in turn override some of those properties. For example, if we have the following definition:
+<pre dir=ltr class="code">
+LogicalOperation (kwds=["and", "or"]) : Operand (kwds[0] | kwds[1] | ...) Operand.
+</pre>
+  then we can derive a new definition from it and add more keywords to the child (inheriting) definition:
+<pre dir=ltr class="code">
+MyLogicalOperation -&gt; LogicalOperation (
+  kwds = ["and", "or", "&&", "||"]
+).
+</pre>
+  Inheritance is also possible with modules, so you can have one module inherits from another. In the case of modules, inheritance copies all elements of the parent module to the child module which in turn can replace some of those elements or add new elements. In the following example we define a module that inherits another module and replace one of its definitions:
+<pre dir=ltr class="code">
+MyExpression -&gt; Expression {
+  Operand : Identifier | Literal | "(" Add ")".
+}.
+</pre>
+
+  <h3>Multi-Dimensional Parsing</h3>
+  Multi-dimensional parsing allows marking certain grammar productions to be parsed in parallel to the main parsing thread. On each step of the main parsing thread, the parser can jump into the parallel parsing thread and once it's done parsing the parallel thread it goes back to the same point where it left in the main parsing thread. The following figure shows how the operation works:
+  <p align="middle"><img src="design.resources/multidimensional_parsing.en.gif" /></p>
+  This technique is used to simplify the defintion of productions that can appear in many places across the grammar, instead of having to manually reference that production everywhere. The following example clarifies the benefit of this technique:
+<pre dir=ltr class="code">
+DefStatement : "def" Identifier ":" Identifier.
+ParallelStatement : "@" Identifier.
+</pre>
+  With the definition of ParallelStatement as a parallel grammar, the following statements become all valid:
+<pre dir=ltr class="code">
+@myattribute def myvar : mytype;
+def @myattribute myvar : mytype;
+def myvar : @myattribute mytype;
+</pre>
+  Without multi-dimensional parsing, the defintion of DefStatement will have to be like this:
+<pre dir=ltr class="code">
+DefStatement : [ParallelStatement] "def" [ParallelStatement] Identifier ":" [ParallelStatement] Identifier.
+</pre>
+ </div>
+
+ <!-- ********************************************************************** -->
+ <h2 class="foldable">Design Principles</h2>
+ <div>
+  There are some principles that were adopted during the design and implementation of Alusus, and it's required from Alusus developers and contiributors to adopt these principles while working on the Core or the libraries. In this list `programmer` refers to Alusus users, not developers:
+  <ul>
+   <li>Independence of Grammar from Context: Alusus grammar should remain independent from the context of the program. In other words, the parser should be able to parse the source code without needing to know what that code or its elements actually mean.</li>
+   <li>Direct Expression of Intent: The grammar should enable the programmer to follow a direct path towards his goal while writing his program. In other words, the programmer should be able to write and design his program according to its goals or features rather than the way it's going to be compiled.</li>
+   <li>Avoid Unneeded Syntax: For example, there is no need to force the use of brackets if the code can be parsed without them.</li>
+   <li>Consistency of Grammar and Design: We should keep consistency in the grammar and the libraries.</li>
+   <li>Rationality for Grammar Rather Than Habits: We don't necessarily need to follow what's common in progamming languages because the logical reasoning is more important than the beautiy of the code or the habits of the programmers.</li>
+   <li>There are no standards in syntax designs, but there is a standard for the syntax of math formulas. Therefore, mimicing math standards should be higher priority under the condition that it doesn't contradict with the rationality of the grammar. For example, functions in math are written using regular brackets therefore functions in Alusus should also be written using regular brackets.</li>
+   <li>Minimize Dependence on New Grammar: The more generic the grammar is, the less is the need for new grammar.</li>
+   <li>Orthogonality and Modular Design: Orthogonality and modular design should be targetted as much as possible.</li>
+   <li>Enabling the programmer to work on all levels starting from direct control of the hardware all the way to the highest programming level.</li>
+   <li>Limiting a Single Library to the Same Programming Level: When designing the standard libraries, mixing different programming levels inside the same library should be avoided as much as possible.</li>
+   <li>Support the Features at the Lowest Possible Level: The lower the level at which a feature is supported, the wider is its availability.</li>
+   <li>Enabling Centralized Control of Features: The openness of the language necessitates the ability to centrally control the availability of features to team members. For example, a team lead can prevent the use of pointers in a certain namespace, or he can limit the accessable libraries inside a certain namespace.</li>
+   <li>Avoid Making Decisions on Behalf of the Programmar: A programmer should know how the compilation system will treat his program. For example, it's not appropriate for a build library to decide the memory management model without allowing the programmer to control that decision.</li>
+   <li>Avoid Artificial Boundaries: For example, we should not prevent the programmer from using direct pointers in a certain context if such usage is possible. Depriving the programmer from a feature just because it can be misused is not acceptable.</li>
+  </ul>
+ </div>
+
+ <!-- ********************************************************************** -->
+ <h2 class="foldable">Standard Libraries</h2>
+ <div>
+  Standard libraries are categorized into:
+  <ul>
+   <li>Build Libraries: A group of build libraries to support popular programming paradigms.</li>
+   <li>Runtime Libraries: A group of libraries containing functions and classes to support basic runtime functionalities like math or string operations.</li>
+  </ul>
+  Standard libraries focus on supporting language features and functionalities that are most common in various applications, and it leaves it to the community to implement the exceptional or less common features. Features that are to be supported by standard libraries are:
+
+  <ul>
+   <li>Programming Paradigms:
+    <ul>
+     <li>Object-Oriented Programming.</li>
+     <li>Procedural Programming.</li>
+     <li>Functional Programming.</li>
+     <li>Aspect-Oriented Programming.</li>
+     <li>Supporting multiple paradigms inside a single application.</li>
+    </ul>
+   </li>
+   <li>Programming levels. The standard libraries will support three programming levels:
+    <ul>
+     <li>Lowest Level: This level supports basic language features like loops, conditional statements, variable definitions, pointers, etc.</li>
+     <li>Mid Level: This level provides low level libraries like math libraries, string libraries, system interaction libraries, etc.</li>
+     <li>High Level: This level supports various memory management models, parallel programming, database programming, etc.</li>
+    </ul>
+   </li>
+   <li>All data types are treated like objects. For example, you can create a class that inherits from Integer.</li>
+   <li>Functions supports multiple inputs (arguments) as well as multiple outputs (multiple return values).</li>
+   <li>Spreading Operations: Write an operation once and apply it on multiple objects.</li>
+   <li>Class and function templates.</li>
+   <li>Parallel programming. The standard libraries are to support features to ease parallel programming:
+    <ul>
+     <li>Commands to simplify forking inside a single function, or call other functions parallely.</li>
+     <li>Automatic forking on loops marked for parallel execution.</li>
+     <li>Automatic forking on functions marked for parallel execution.</li>
+     <li>Automatic control of execution threads to guarantee maximum performance.</li>
+     <li>Automatic synchronization of resources marked for synchronous access.</li>
+     <li>Commands for communication between parallel threads.</li>
+    </ul>
+   </li>
+   <li>Single Instruction Multiple Data.</li>
+   <li>Exception handling.</li>
+   <li>Modifiers: The possibility to define code units that can be applied on other code units to modify their features or functionalities. This is used in Aspect-Oriented Programming as well as other areas.</li>
+   <li>Dynamic objects. The libraries will also support using dynamic objects side-by-side with static objects.</li>
+   <li>Client-server development.</li>
+   <li>Compile-Time Execution: This allows executing code during compilation to control the compilation process and its results.</li>
+   <li>Optionally provide run time type information.</li>
+   <li>Ability to choose between interpretation, compilation to intermediate language, or compilation to machine code, with the ability to mix between the different methods and the ability to choose the target platform of the compilation.</li>
+  </ul>
+ </div>
+
+ <!-- ********************************************************************** -->
+ <h2 class="foldable">Overview of the Syntax</h2>
+ <div>
+  Following are samples of the grammar defined in standard libraries. This is only an overview; it doesn't contain all the details of the grammar.
+
+  <h3>Expressions</h3>
+  Expressions consists of subjects linked with operators in a way similar to popular programming languages. The following is a list of the important operators:
+  NOT operator: !<br/>
+  OR operator: |<br/>
+  XOR operator: $<br/>
+  AND operator: &<br/>
+  Math operators: +، -، *، /<br/>
+  Bitwise operators: &، |، $، !<br/>
+  Logical operators: &&، ||، $$، !!<br/>
+  Comparison operators: <، >، =>، =<، =<br/>
+  Assignment operator: =<br/>
+  Other Assignment operators: +=، -=، *=، /=، |=، &=، $=<br/>
+  Lists are separated by commas. For example: a,b,c<br/>
+  Grouping subjects is done using regular brackets: ()<br/>
+
+  <h3>Loops</h3>
+<pre dir=ltr class="code">
+ For: "for" Initial_Expression "," Condition_Expression "," Update_Expression (Statement|Block).
+ While: "while" Expression (Statement|Block).
+ Do-While: "do" (Statement|Block) "while" Expression.
+</pre>
+
+  <h3>Conditional Statements</h3>
+<pre dir=ltr class="code">
+ "if" Expression (Statement|Block) ["else" (Statement|Block)].
+</pre>
+
+  <h3>Definitions</h3>
+  All definitions in the language is done using the `def` command including variable definitions, constant definitions, function definitions, class definitions, etc. The general syntax is as follows:
+  <pre dir=ltr class="code">"def" name ":" body.</pre>
+  `body` can be a function, a class, a namespace, a datatype, etc., as in the following:<br/>
+  Variable Definition:
+  <pre dir=ltr class="code">"def" name ":" type.</pre>
+  Constant Definition:
+  <pre dir=ltr class="code">"def" name ":" @const type.</pre>
+  Function Definition:
+  <pre dir=ltr class="code">"def" name ":" "function" "(" Input_List ")" "=>" "(" Output_List ")" Block.</pre>
+  Class Definition:
+  <pre dir=ltr class="code">"def" name ":" "type" [Inheritance_Specifier] Block.</pre>
+  Module Definition:
+  <pre dir=ltr class="code">"def" name ":" "module" Block.</pre>
+  The `def` command is also used in other definitions like arrays and pointers as explained below.
+
+  <h3>Arrays</h3>
+  Arrays are defined using the `def` command as follows:
+  <pre dir=ltr class="code">"def" name ":" "array" "[" type, number "]".</pre>
+  And to dynamically specify the array size the following syntax is used:
+<pre dir=ltr class="code">
+ "def" name ":" "array" "[" type "]" "(" number ")".
+ "def" name "=" "array" "[" type "]" "~new" "(" number ")".
+</pre>
+  Array Usage:
+  <pre dir=ltr class="code">name "(" number ")".</pre>
+
+  <h3>Pointers</h3>
+  Pointers are defined using `def` as follows:
+  <pre dir=ltr class="code">"def" name ":" "ptr" "[" type "]".</pre>
+  To access the location pointed by a pointer the `~cnt` operator is used:
+  <pre dir=ltr class="code">name "~cnt".</pre>
+  To get the location of a variable the `~ptr` operator is used after the variable's name:
+  <pre dir=ltr class="code">name "~ptr".</pre>
+
+  <h3>Mixing Definitions</h3>
+  It's possible to mix between definition types using `def`. For example, you can define a pointer to an array, or a pointer to a function, or an array of pointers, etc. The following example shows how to define an array of pointers to functions:
+  <pre dir=ltr class="code">"def" name ":" "array" "[" "ptr" "[" "function" "(" Params ")" "]" "]".</pre>
+
+  <h3>Merging Definitions</h3>
+  Definitions can be merged with an existing definition using the def command by adding the @merge modifier, as follows:
+  <pre dir=ltr class="code">"@merge" "def" name ":" "module" "{" Definitions "}".</pre>
+  <pre dir=ltr class="code">"@merge" "def" name ":" "{" Definitions "}".</pre>
+
+  <h3>Modifiers</h3>
+  Modifiers can appear almost anywhere in the program and not necessarily at the beginning of a statement. Modifiers have the following syntax:
+  <pre dir=ltr class="code">"@" name [ Expression ].</pre>
+
+  <h3>Regular Brackets and Square Brackets</h3>
+  Regular brackets are used for runtime operations like grouping subjects in an expression or passing arguments in function calls. On the other hand square brackets are used for compile-time operations like defining the type of a pointer or an array. In other words, if the info is to be sent to the compiler itself the square brackets are used, otherwise regular brackets are used.
+
+  <h3>Curly Brackets {}</h3>
+  Curly brackets are used to group multiple statements into a block. These blocks are used in conditional statements for example or in bodies of functions, classes, or namespaces.
+<pre dir=ltr class="code">
+ Block: "{" [ Statement_List ] "}".
+ Statement_List: Statement { ";" [Statement] }.
+</pre>
+
+  <h3>Seperating Statements</h3>
+  Semicolons are used to separate statements in a way similar to the usage of comma to separate elements of a list. In other words, the semicolon itself is not part of the statement and it can be ignored if no other statement follows it.
+
+  <h3>Rationale Behind Some Syntax Decisions</h3>
+  <ul>
+   <li>Function Brackets: Regular brackets have always been used for functions in math, so Alusus chose to follow suit and use them for functions.</li>
+   <li>Command Arguments: Command arguments (like expressions of conditional statements) do not include brackets because parsing can be done without them, therefore adding them is meaningless.</li>
+   <li>Some programmers prefer not to use statement separators (;) but if this is correct then why do we have statement separators in human languages?</li>
+   <li>Access control keywords like `public` and `private` are treated as modifiers (starting with @) because they only carry metadata that are used by the compilation system and they do not affect the way the program is executed.</li>
+   <li>The keyword `def` is used to define functions and classes in order to put the entire definition on the side that follows the colon instead of having the name of the function or the class in the middle of the definition. This makes it easier to understand the definition especially with complex definitions like pointers to functions or arrays of pointers to functions.</li>
+   <li>Regular brackets are used to access array members instead of square brackets because the latter is used for compile time arguments. For the same reason regular brackets are used to dynamically specify array sizes while square brackets are used to define array types which is a compile time info.</li>
+  </ul>
+ </div>
+
+ <!-- ********************************************************************** -->
+ <h2 class="foldable">Examples</h2>
+ <div>
+  Some of these examples are implemented already like the Hello World and the factorial examples, while other examples will be implemented in upcoming releases like class definition examples.
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def HelloWorld : module
+{
+  def main : function
+  {
+    Srl.Console.print("Hello World!");
+  }
+}
+</pre>
+<br/>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Factorial : module
+{
+  def factorial : function (i:int)=>(int)
+  {
+    if i == 0 return 1 else return i * factorial(i-1)
+  };
+
+  def main : function
+  {
+    Srl.Console.print("Factorial of %d is %d", 5, factorial(5));
+  }
+}
+</pre>
+<br/>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def While : module
+{
+  def main : function
+  {
+    def i : int = 1;
+    while i < 10 {
+      Srl.Coneole.print("%d\n", i);
+      ++i;
+    };
+  }
+}
+</pre>
+<br/>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Arrays : module
+{
+  def main : function
+  {
+    def a : array[int](10);
+    for i:int=0, i<10, ++i a(i) = i;
+    for i:int=0, i<10, ++i Srl.Console.print("%d\n", a(i));
+  }
+}
+</pre>
+<br/>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Pointers : module
+{
+  def main : function
+  {
+    def p : ptr[int], i : int;
+    i = 10;
+    p = i~ptr;
+    print("%d\n", p);     // prints the address of i.
+    print("%d\n", p~cnt); // prints the value of i.
+  }
+}
+</pre>
+<br/>
+<pre dir=ltr class="samplecode">
+import "Srl/Console.alusus";
+
+def Casting : module
+{
+  def main : function
+  {
+    def i : int, f : float;
+    i = 10;
+    // Treat the bits of i as a floating point number by doing this:
+    // Get the pointer of i,
+    // then cast the pointer to a pointer of float,
+    // then take the contents of that float pointer.
+    f = i~ptr~cast[ptr[float]]~cnt;
+    Srl.Console.print("%f\n", f);
+  }
+}
+</pre>
+<br/>
+<pre dir=ltr class="samplecode">
+import "Srl.alusus";
+
+def ClassDefinition : module
+{
+  def BaseClass : type
+  {
+    @private def i : int;
+    @private def j : int;
+    @public def constructor : function (a:int, b:int)
+    {
+      this.i = a;
+      this.j = b;
+    };
+    @public def getI : function ()=>(int) { return this.i };
+    @public def getJ : function ()=>(int) { return this.j }
+  };
+
+  def ChildClass : type inherits BaseClass
+  {
+    @private def k : int;
+    @public def constructor : function (a:int, b:int, c:int)
+    {
+      parent.constructor(a, b);
+      this.k = c
+    };
+    @public def getK : function ()=>(int) { return this.j }
+  }
+}
+</pre>
+ </div>
+
+ </div>
+ <div style="border-top: solid 1px; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
+  <p>Copyright (C) 2018 <a href="http://sarmad-khalid.info" target="__blank">Sarmad Khalid Abdullah</a>.<br/>
+  This file is released under Alusus Public License, Version 1.0. For details on usage and copying conditions
+  read the full license in the accompanying license file or at <a style="white-space:nowrap;" href="https://alusus.org/alusus_license_1_0">https://alusus.org/alusus_license_1_0</a>.
+  </p>
+ </div>
+</div>
+</body>
+</html>

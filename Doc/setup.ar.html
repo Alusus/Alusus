@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="rtl" lang="ar" style="height: 100%;">
+<head profile="http://gmpg.org/xfn/11">
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+ <title>تعليمات التنصيب - لغة الأسُس البرمجية</title>
+
+ <link rel="stylesheet" href="Resources/main.css">
+ <link rel="stylesheet" href="Resources/arabic_extras.css">
+ <link rel="stylesheet" href="Resources/highlight.default.css">
+
+ <script src="Resources/jquery-1.10.2.min.js"></script>
+ <script src="Resources/highlight.pack.js"></script>
+ <script src="Resources/main.js"></script>
+</head>
+
+<body style="background: grey; text-align:center; height:100%; padding-left: 10px; padding-right:10px;" alink="#00FFFF" link="#FFFFFF" text="#FFFFFF" vlink="#CCCCCC">
+<div style="border-left: solid 1px; border-right: solid 1px; background: white; min-width: 840px; max-width:1200px; width: 100%; min-height:100%; text-align: right; margin-left:auto; margin-right:auto;">
+ <div style="width: 100%; height: 100px; padding-top:10px; text-align:center;">
+  <div style="float:right;"><img src="Resources/logo.gif" style="border:0;"/></div>
+  <img src="Resources/title.gif" style="border:0;"/>
+  <div style="padding: 10px 15px; width:120px; float:left; text-align:left;"></div>
+ </div>
+ <div class="menu">
+  <span class="menuItem"><a href="https://alusus.org?lang=ar">لغة الأسُس</a> &#x276f; <a href="https://alusus.org/documentation?lang=ar">الوثائق</a></span>
+ </div>
+ <div id='rootdiv' style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
+ <h1>تعليمات تنصيب وتشغيل لغة الأسُس</h1>
+
+ <!-- ********************************************************************** -->
+ <h2>تنصيب لغة الأسس</h2>
+ <p>
+  النسخة الحالية من لغة الأسس تدعم نظام لينكس فقط. تتوفر حزم جاهزة للتنصيب على لينكس بصيغتي deb و rpm. فإذا كانت توزيعة التوزيعة التي تستخدمها تدعم إحدى هاتين الصيغتين فما عليك سوى تنزيلها وتنصيبها باستخدام الأمر التالي فيما لو كنت تستخدم صيغة deb أو الذي يليه فما لو كنت تستخدم rpm:
+<pre dir=ltr class="code nohighlight">$ sudo apt-get install alusus_0.4.0_amd64.deb</pre>
+<pre dir=ltr class="code nohighlight">$ sudo dnf install alusus-0.4.0-1.x86_64.rpm</pre>
+  وقد توفر توزيعتك واجهة رسومية لتنصيب الحزم بدل استخدام سطر الأوامر.
+ </p>
+ <p>
+  أما إذا لم تكن توزيعتك تدعم إحدى هاتين الصيغتين فستحتاج إلى <a href="building.ar.html">بناء الأسس من الشفرة المصدرية</a>.
+ </p>
+
+ <!-- ********************************************************************** -->
+ <h2>استخدام لغة الأسُس</h2>
+ <p>
+  لتشغيل أي برنامج بلغة الأسُس لا تحتاج سوى تنفيذ الأمر alusus متبوعاً باسم الملف المراد تشغيله، كما في المثال التالي:
+  <pre dir=ltr class="code nohighlight">$ alusus hello_world.alusus</pre>
+  ويمكن أيضًا استخدام الوصلة العربية كما في المثال التالي:
+  <pre dir=ltr class="code nohighlight">$ الأسس بسملة.أسس</pre>
+ </p>
+
+ <!-- ********************************************************************** -->
+ <h2>دعم العربية في سطر الأوامر</h2>
+ <p>
+  إذا كنت تنوي كتابة برامج بالعربية لسطر الأوامر فستحتاج إلى طرفية تدعم العربية. طرفية كونسول (konsole) من كدي تدعم العربية وبإمكانك تنصيبها حتى لو كنت تستخدم واجهة أخرى مثل واجهة جنوم. كذلك بإمكانك استخدام <a href="https://github.com/behdad/bicon" target="__blank">bicon</a> لتوفير الدعم للعربية في طرفية جنوم.
+ </p>
+
+ <!-- ********************************************************************** -->
+ <h2>تجهيز بيئة التطوير</h2>
+ <p>
+  لا تزال لغة الأسس في بدايتها وهي حاليًا تفتقر لبيئة تطوير متكاملة، لكن البديل الحالي محرر جنوم الذي يأتي مع دعم ممتاز للغة العربية بالإضافة إلى توفر بعض الإمكانيات والإضافات التي تسهل عمل المبرمج. عند تنصيب حزمة الأسُس فإنها تنصب معها ملفا تعريفيا للغة الأسُس ضمن اللغات التي يميزها محرر جنوم. بعد تنصيب الأسس ستجد أن محرر جنوم سيتعرف تلقائياً على الشفرات المصدرية المكتوبة بلغة الأسس (أي التي تنتهي بالإضافة .alusus أو .أسس) وسيقوم بتلوينها بالطريقة الملائمة. وهناك بعض التضبيطات الأخرى التي ننصح المستخدم بالقيام بها بعد تنصيب الأسس لجعل محرر جنوم أكثر ملائمة للبرمجة بلغة الأسس:
+  <ul>
+   <li>من أهم ما يسهل على المبرمج عمله استخدام الخط المناسب للشفرة المصدرية. قد تكون هناك العديد من الخطوط المتوفرة في توزيعتك لكننا ننصح باستخدام الخط <a href="https://makkuk.com/kawkab-mono/" target="__blank">Kawkab Mono</a> إذا كنت تنوي كتابة شفرة مصدرية بالعربية.
+   بعد تنصيب هذا الخط على نظامك ستحتاج لجعل محرر جنوم يستخدمه. في محرر جنوم اذهب إلى التفضيلات -> الخط والألوان، ثم قم باختيار الخط Kawkab Mono Regular مع الحجم الذي تفضله كما في الصورة أدناه:
+    <p><img src="setup.resources/font_selection.png"></p>
+   </li>
+   <li>هناك العديد من الإضافات النافعة لمحرر جنوم، بعضها يأتي منصبًا في النظام مسبقًا وبعضها يحتاج للتنصيب يدويًا. ننصح بتنصيب حزمة gedit-plugins التي تحتوي على بعض الإضافات النافعة. يمكن تنصيبها بسهولة باستخدام نظام الحزم الخاص بتوزيعتك. على سبيل المثال في توزيعة لينكس ستحتاج إلى تنفيذ الأمر التالي:
+    <pre dir=ltr class="code nohighlight">$ sudo apt install gedit-plugins</pre>
+   </li>
+   <li>بعد تنصيب الإضافات ستحتاج لتمكينها من قائمة خيارات محرر جنوم. اذهب إلى التفضيلات -> الملحقات، ثم قم بتمكين الملحقات التالية:
+    <ul>
+     <li>ابحث في الملفات: ستمكنك هذه الإضافة من البحث في كل الملفات داخل مجد معين.</li>
+     <li>الأدوات الخارجية: ستمكنك هذه الإضافة من تنفيذ أوامر خارجية بسهولة. سنستخدمها لتمكين اختصارات لتنفيذ البرامج كما سنذكر لاحقاً.</li>
+     <li>تعليقات الكود: ستمكنك هذه الإضافة من تحويل مجموعة من الأسطر إلى تعليق بكبسة زر، أي بإضافة  العلامة // أمام كل سطر من الأسطر المختارة. كذلك تمكنك من إزالة التعليق أيضاً.</li>
+     <li>جت: هذه الإضافة تميز التغييرات في مشروعك مقارنة مع ما مستودع جت.</li>
+     <li>لوحة متصفح الملفات: هذه اللوحة الجانبية تظهر لك شجرة الملفات والمجلدات داخل مشروعك. ستمكنك من الانتقال بسهولة بين ملفات مشروعك.</li>
+    </ul>
+   </li>
+   <li>بعد تمكين الإضافات قم بفتح متصفح الملفات في اللوحة الجانبية وذلك بالذهاب إلى القائمة -> عرض -> اللوحة الجانبية. بعد ذلك قم باختيار متصفح الملفات من القائمة العلوية كما في الصورة التالية:
+    <p><img src="setup.resources/file_explorer.png"></p>
+   </li>
+   <li>لتمكين تنفيذ الملفات بسهولة يمكن تعريف أوامر خارجية وربطها باختصار معين. اذهب إلى القائمة الرئيسية ثم إلى Manage External Tools وستظهر لك نافذة إدارة الأوامر الخارجية. انقر على + لإضافة أمر جديد ثم عرف الأمر واضبط الاختصار وخيار الحفظ والخرج كما في الصورة التالية:
+    <p><img src="setup.resources/run_command.png"></p>
+   </li>
+   <li>إذا كان برنامجك يحتاجل إلى طرفية (كأن يطلب من المستخدم بعض المدخلات) فستحتاج إلى تنفيذه في طرفية. ننصح بإضافة أمر منفصل ينفذ البرنامج داخل طرفية وربطع باختصار مختلف كما في الصورة أدناه:
+    <p><img src="setup.resources/run_in_konsole_command.png"></p>
+   </li>
+  </ul>
+  بعد إكمال هذه التعديلات سيكون بإمكانك تصفح ملفات مشروعك عبر اللوحة الجانبة ومن ثم تنفيذ البرنامج بالذهاب إلى الملف الرئيسي ومن ثم النقر على F5 أو على Ctrl+F5، كما هو مبين في الصورة أدناه:
+  <p><img src="setup.resources/final.png"></p>
+ </p>
+
+ </div>
+ <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
+  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2019م \ 1440هـ.<br/>
+نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
+والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="https://alusus.org/alusus_license_1_0">https://alusus.org/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
+ </div>
+</div>
+</body>
+</html>

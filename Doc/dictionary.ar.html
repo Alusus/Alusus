@@ -1,0 +1,143 @@
+<html xmlns="http://www.w3.org/1999/xhtml" dir="rtl" lang="ar" style="height: 100%;">
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+ <title>قاموس المصطلحات - لغة الأسُس البرمجية</title>
+
+ <link rel="stylesheet" href="Resources/highlight.default.css">
+ <link rel="stylesheet" href="Resources/main.css">
+ <link rel="stylesheet" href="Resources/arabic_extras.css">
+ <style>
+  .kwd { color:blue; }
+  .dict { border:0; }
+  .dict tr td:first-child { font-weight:bold; padding-left:20px; padding-right:20px; }
+  .dict tr th:first-child { font-weight:bold; padding-left:20px; padding-right:20px; }
+  .dict tr td+td+td { padding-right:20px; }
+  .dict tr th+th+th { padding-right:20px; }
+  .dict2 { border:0; }
+  .dict2 tr td:first-child { padding-left:20px; padding-right:20px; }
+  .dict2 tr td+td { font-weight:bold; }
+  .bilingual tr td+td { text-align:left; }
+ </style>
+
+ <script src="Resources/jquery-1.10.2.min.js"></script>
+ <script src="Resources/highlight.pack.js"></script>
+ <script src="Resources/main.js"></script>
+ <script language="javascript">
+ $(document).ready(function() {
+   sortTable('dictionary', 0);
+   $('table#dictionary tr:even').css('background-color', '#eee');
+   $('table#dictionary tr:odd').css('background-color', '#fff');
+ });
+ function sortArabic() {
+   sortTable('dictionary', 0);
+   $('table#dictionary tr:even').css('background-color', '#eee');
+   $('table#dictionary tr:odd').css('background-color', '#fff');
+ }
+ function sortEnglish() {
+   sortTable('dictionary', 1);
+   $('table#dictionary tr:even').css('background-color', '#eee');
+   $('table#dictionary tr:odd').css('background-color', '#fff');
+ }
+ </script>
+</head>
+<body style="background: grey; text-align:center; height:100%; padding-left: 10px; padding-right:10px;" alink="#00FFFF" link="#FFFFFF" text="#FFFFFF" vlink="#CCCCCC">
+<div style="border-left: solid 1px; border-right: solid 1px; background: white; min-width: 840px; max-width:1200px; width: 100%; min-height:100%; text-align: right; margin-left:auto; margin-right:auto;">
+ <div style="width: 100%; height: 100px; padding-top:10px; text-align:center;">
+  <div style="float:right;"><img src="Resources/logo.gif" style="border:0;"/></div>
+  <img src="Resources/title.gif" style="border:0;"/>
+  <div style="padding: 10px 15px; width:120px; float:left; text-align:left;"></div>
+ </div>
+ <div class="menu">
+  <span class="menuItem"><a href="https://alusus.org?lang=ar">لغة الأسُس</a> &#x276f; <a href="https://alusus.org/documentation?lang=ar">الوثائق</a></span>
+ </div>
+ <div style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
+ <h1>قاموس المصطلحات</h1>
+ <center>
+  <p><a href='#' onclick='sortArabic()'>رتب حسب المصطلحات العربية</a>&nbsp;&nbsp;&nbsp;<a href='#' onclick='sortEnglish()'>رتب حسب المصطلحات الانجليزية</a></p>
+  <table id="dictionary" class="dict bilingual">
+  <tr><td>فئة</td><td>class</td></tr>
+  <tr><td>صنف</td><td>type, data type</td></tr>
+  <tr><td>التركيب النحوي</td><td>syntax</td></tr>
+  <tr><td>تعريف</td><td>definition</td></tr>
+  <tr><td>تعريف قواعدي</td><td>grammar definition, grammar rule</td></tr>
+  <tr><td>متن</td><td dir=ltr>body (definition body, function body, etc)</td></tr>
+  <tr><td>قاعدة إعرابية</td><td dir=ltr>parser rule (grammar production)</td></tr>
+  <tr><td>قاعدة ترميزية</td><td dir=ltr>lexer rule (token definition)</td></tr>
+  <tr><td>صيغة تدوين</td><td>notation</td></tr>
+  <tr><td>المرمِّز</td><td>tokenizer, lexer</td></tr>
+  <tr><td>المعرِب</td><td>parser</td></tr>
+  <tr><td>إعراب</td><td>parsing</td></tr>
+  <tr><td>كلمة تعريفية</td><td>keyword</td></tr>
+  <tr><td>طبعة</td><td dir=ltr>instance [template]</td></tr>
+  <tr><td>نموذج</td><td dir=ltr>instance [class]</td></tr>
+  <tr><td>محرف مركب</td><td>escape sequence</td></tr>
+  <tr><td>تركيب</td><td>expression</td></tr>
+  <tr><td>تعبير نمطي</td><td>regular expression</td></tr>
+  <tr><td>رمز حرفي</td><td>literal</td></tr>
+  <tr><td>مؤثر</td><td>operator</td></tr>
+  <tr><td>معلومات وصفية</td><td>metadata</td></tr>
+  <tr><td>صُوَان</td><td>buffer</td></tr>
+  <tr><td>وسيط</td><td>interface</td></tr>
+  <tr><td>سرد</td><td>enumeration</td></tr>
+  <tr><td>مجال</td><td>namespace</td></tr>
+  <tr><td>إشارة</td><td>signal</td></tr>
+  <tr><td>ساكن</td><td>static</td></tr>
+  <tr><td>كائن مفرد</td><td>singleton</td></tr>
+  <tr><td>حالة تسابق</td><td>race condition</td></tr>
+  <tr><td>تهيئة</td><td>initialization</td></tr>
+  <tr><td>قائمة متصلة</td><td>linked list</td></tr>
+  <tr><td>مؤشر بسيط</td><td>plain pointer</td></tr>
+  <tr><td>مؤشر ذكي</td><td>smart pointer</td></tr>
+  <tr><td>إشعار استثنائي</td><td>exception</td></tr>
+  <tr><td>عضو</td><td>member</td></tr>
+  <tr><td>دالة عضو</td><td>member function</td></tr>
+  <tr><td>متغير عضو</td><td>member variable</td></tr>
+  <tr><td>متغيّر</td><td>variable</td></tr>
+  <tr><td>متغير عمومي</td><td>global variable</td></tr>
+  <tr><td>قيمة باطلة</td><td>null value</td></tr>
+  <tr><td>أحادي</td><td>monolithic</td></tr>
+  <tr><td>قوس اعتيادي (هلالي)</td><td>regular bracket</td></tr>
+  <tr><td>قوس معقوف (مربع)</td><td>square bracket</td></tr>
+  <tr><td>قوس حاصر</td><td>curly bracket</td></tr>
+  <tr><td>التبديل الموضعي</td><td>override</td></tr>
+  <tr><td>كائن</td><td>object</td></tr>
+  <tr><td>ثابت</td><td>constant</td></tr>
+  <tr><td>المترجم</td><td>compiler</td></tr>
+  <tr><td>مكتبة</td><td>library</td></tr>
+  <tr><td>معالج البناء</td><td>build handler</td></tr>
+  <tr><td>اختبار وحدوي</td><td>unit test</td></tr>
+  <tr><td>رزمة تعديلات قواعدية</td><td>grammar override pack</td></tr>
+  <tr><td>معيارية</td><td>standard</td></tr>
+  <tr><td>الدالة المنشئة</td><td>constructor</td></tr>
+  <tr><td>ترميز</td><td>tokenizing</td></tr>
+  <tr><td>بيانات التحليل</td><td>parsed data</td></tr>
+  <tr><td>وحدة</td><td>module</td></tr>
+  <tr><td>مبدِّل</td><td>modifier</td></tr>
+  <tr><td>الديون التقنية</td><td>technical debt</td></tr>
+  <tr><td>أسلوب التسمية</td><td>naming convention</td></tr>
+  <tr><td>التنفيذ المتوازي</td><td>multithreading, parallel processing</td></tr>
+  <tr><td>نمط برمجة</td><td>programming paradigm</td></tr>
+  <tr><td>برمجة كائنية المنحى</td><td>object-oriented programming</td></tr>
+  <tr><td>برمجة جانبية المنحى</td><td>aspect-oriented programming</td></tr>
+  <tr><td>برمجة إجرائية</td><td>procedural programming</td></tr>
+  <tr><td>برمجة وظيفية</td><td>functional programming</td></tr>
+  <tr><td>حلقة</td><td>loop</td></tr>
+  <tr><td>حد</td><td>subject</td></tr>
+  <tr><td>تعامد</td><td>orthogonality</td></tr>
+  <tr><td>متحرك</td><td>dynamic</td></tr>
+  <tr><td>مكدِّس</td><td>stack</td></tr>
+  <tr><td>الكومة</td><td>heap</td></tr>
+  <tr><td>معيار</td><td>specification</td></tr>
+  <tr><td>وراثة (توريث)</td><td>inheritance</td></tr>
+  <tr><td>افتراضي</td><td>virtual</td></tr>
+  <tr><td>تدوين الأحداث</td><td>logging</td></tr>
+  <tr><td>تمثيل</td><td dir=ltr>casting (data type)</td></tr>
+  <tr><td>تركيب</td><td>composition</td></tr>
+  <tr><td>معرف</td><td>identifier</td></tr>
+  </table>
+ </center>
+ </div>
+</div>
+</body>
+</html>

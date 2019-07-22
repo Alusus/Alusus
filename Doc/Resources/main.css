@@ -1,0 +1,141 @@
+a {
+	color: #333;
+}
+
+a img {
+	border: none;
+}
+
+a:visited {
+	color: #333;
+}
+
+a:hover {
+	color: black;
+}
+
+acronym, abbr {
+	border-bottom: 1px dashed #333;
+}
+
+acronym, abbr, span.caps {
+	font-size: 90%;
+	letter-spacing: .07em;
+}
+
+acronym, abbr {
+	cursor: help;
+}
+
+blockquote {
+	border-left: 5px solid #ccc;
+	margin-left: 1.5em;
+	padding-left: 5px;
+}
+
+body {
+	background-color: #808080;
+	text-align: center;
+	color: #000;
+	font-size : 11pt;
+	line-height: 140%;
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+  font-size:140%;
+  text-align:center;
+}
+h2 {
+  font-size:120%;
+  border-bottom:dotted 1px gray;
+  padding-top:10px;
+  margin-bottom:5px;
+  padding-bottom:5px;
+}
+h3 {
+  font-size:110%;
+  padding-top:5px;
+}
+
+img {
+ border:solid 1px;
+ border-color:gray;
+}
+
+cite {
+	font-size: 90%;
+	font-style: normal;
+}
+
+.menu {
+ padding-left:8px;
+ padding-right:8px;
+ border-top:solid 2px;
+ background-color:#ccc;
+ line-height:36px !important;
+}
+.menuItem {
+ padding-left:8px;
+ padding-right:8px;
+ color:black;
+ white-space:nowrap;
+}
+.menuItem a {
+ color:black;
+ font-weight:normal;
+ text-decoration:none;
+}
+.activeMenuItem {
+ color:black;
+ padding-bottom:0px;
+ padding-left:10px;
+ padding-right:10px;
+ font-weight:bold;
+ height:30px;
+ display:inline-block;
+ border-bottom:solid 2px black;
+}
+.activeMenuItem a {
+ color:black;
+ font-weight:normal;
+ text-decoration:none;
+}
+
+.code {
+ text-align:left;
+ background:#f8f8f8;
+ margin:5px 30px 5px 30px;
+ padding:6px 8px 6px 8px;
+ border:2px solid gray;
+ font-family: 'Monospace', 'Courier New';
+ font-size:90%;
+ font-weight:bold;
+ line-height:140%;
+ overflow: auto;
+}
+.samplecode {
+ text-align:left;
+ background:#fff;
+ margin:5px 30px 5px 30px;
+ padding:6px 8px 6px 8px;
+ border:1px solid gray;
+ font-family: 'Monospace', 'Courier New';
+ font-size:90%;
+ font-weight:bold;
+ line-height:140%;
+ overflow: auto;
+}
+
+.small {
+ font-size:90%;
+}
+
+.errors {
+ color:red;
+}
+
+.foldable { color:#060; cursor:default; }
+
