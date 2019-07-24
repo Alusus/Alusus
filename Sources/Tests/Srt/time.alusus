@@ -1,4 +1,5 @@
 import "Srl/Time.alusus";
+import "Srl/System.alusus";
 import "Srl/Console.alusus";
 
 def System: module
@@ -12,8 +13,9 @@ def System: module
     Srl.Console.print("%llu\n", ts);
 
     // getDetailedTime
-    def dt: Srl.Time.Time;
-    def pdt: ptr[Srl.Time.Time];
+    def dt: Srl.Time.DetailedTime;
+    def pdt: ptr[Srl.Time.DetailedTime];
+    Srl.System.setEnv("TZ", "UTC", 1);
     ts = 1535881398;
     Srl.Time.getDetailedTime(ts~ptr, dt~ptr);
     Srl.Console.print("%d-%02d-%02d\n", dt.year + 1900, dt.month + 1, dt.day);

@@ -80,14 +80,14 @@ import "Zip.alusus";
       requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr
     );
     if logs {
-      Console.print(I18n.fetchingInfo, Console.Style.fgBlue(), moduleName~ptr, requestUrl~ptr);
+      Console.print(I18n.fetchingInfo, Console.Style.FG_BLUE, moduleName~ptr, requestUrl~ptr);
     };
 
     if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
       callbackWithPackageInfo(result, size, global, useLatestRelease, logs);
     } else {
       if logs {
-        Console.print(I18n.fetchFailed, Console.Style.fgRed());
+        Console.print(I18n.fetchFailed, Console.Style.FG_RED);
       };
     };
 
@@ -106,11 +106,11 @@ import "Zip.alusus";
       };
       downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, logs);
       if logs {
-        Console.print(I18n.fetchSuccessful, Console.Style.fgBlue());
+        Console.print(I18n.fetchSuccessful, Console.Style.FG_BLUE);
       };
     } else if logs {
-      Console.print(I18n.tagNotFound, Console.Style.fgRed());
-      Console.print(I18n.fetchFailed, Console.Style.fgRed());
+      Console.print(I18n.tagNotFound, Console.Style.FG_RED);
+      Console.print(I18n.fetchFailed, Console.Style.FG_RED);
     };
     Memory.free(matches);
   };
@@ -143,61 +143,61 @@ import "Zip.alusus";
 
     if (Fs.exists(outToAPMModulesDirectory~ptr)){
       if logs {
-        Console.print(I18n.pkgAlreadyInstalled, Console.Style.fgRed(), outToAPMModulesDirectory~ptr);
+        Console.print(I18n.pkgAlreadyInstalled, Console.Style.FG_RED, outToAPMModulesDirectory~ptr);
       };
 
       return 0;
     };
 
     if logs {
-      Console.print(I18n.installingPkg, Console.Style.fgBlue(), moduleName, moduleReleaseTag);
-      Console.print(I18n.pkgRequest, Console.Style.fgBlue(), downloadLink~ptr);
-      Console.print(I18n.downloadingPkg, Console.Style.fgYellow(), downloadLink~ptr, "/tmp/temp.zip");
+      Console.print(I18n.installingPkg, Console.Style.FG_BLUE, moduleName, moduleReleaseTag);
+      Console.print(I18n.pkgRequest, Console.Style.FG_BLUE, downloadLink~ptr);
+      Console.print(I18n.downloadingPkg, Console.Style.FG_YELLOW, downloadLink~ptr, "/tmp/temp.zip");
     };
 
     if Net.get(downloadLink~ptr, "/tmp/temp.zip") {
       if logs {
-        Console.print(I18n.downloadedPkg, Console.Style.fgBlue());
-        Console.print(I18n.unzipToTmp, Console.Style.fgBlue(), "temp.zip", "/tmp/temp_zip/");
+        Console.print(I18n.downloadedPkg, Console.Style.FG_BLUE);
+        Console.print(I18n.unzipToTmp, Console.Style.FG_BLUE, "temp.zip", "/tmp/temp_zip/");
       };
 
       if Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onFileExtracted~ptr, logs~ptr) == 0 {
         if logs {
-          Console.print(I18n.archiveExtracted, Console.Style.fgBlue());
+          Console.print(I18n.archiveExtracted, Console.Style.FG_BLUE);
         };
 
         if(Fs.exists(dirOfAPMModulesDirectory~ptr) || Fs.makeDir(dirOfAPMModulesDirectory~ptr)){
           if logs {
-            Console.print(I18n.created, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
-            Console.print(I18n.movePkg, Console.Style.fgBlue(), dirOfAPMModulesDirectory~ptr);
+            Console.print(I18n.created, Console.Style.FG_BLUE, dirOfAPMModulesDirectory~ptr);
+            Console.print(I18n.movePkg, Console.Style.FG_BLUE, dirOfAPMModulesDirectory~ptr);
             Console.print(
-              I18n.copyPkg, Console.Style.fgYellow(), folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr
+              I18n.copyPkg, Console.Style.FG_YELLOW, folderInTempDirectory~ptr, outToAPMModulesDirectory~ptr
             );
           };
 
           if(System.exec(execCopyCommand~ptr) == 0){
             if logs {
-              Console.print(I18n.pkgMoved, Console.Style.fgGreen(), dirOfAPMModulesDirectory~ptr);
-              Console.print(I18n.pkgInstalled, Console.Style.fgGreen(), moduleName);
+              Console.print(I18n.pkgMoved, Console.Style.FG_GREEN, dirOfAPMModulesDirectory~ptr);
+              Console.print(I18n.pkgInstalled, Console.Style.FG_GREEN, moduleName);
             };
           } else {
             if logs {
-              Console.print(I18n.cannotMovePkg, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
+              Console.print(I18n.cannotMovePkg, Console.Style.FG_RED, dirOfAPMModulesDirectory~ptr);
             };
           };
         } else {
           if logs {
-            Console.print(I18n.cannotCreatePkg, Console.Style.fgRed(), dirOfAPMModulesDirectory~ptr);
+            Console.print(I18n.cannotCreatePkg, Console.Style.FG_RED, dirOfAPMModulesDirectory~ptr);
           };
         };
       } else {
         if logs {
-          Console.print(I18n.cannotExtract, Console.Style.fgRed(), "temp.zip");
+          Console.print(I18n.cannotExtract, Console.Style.FG_RED, "temp.zip");
         };
       };
     } else {
       if logs {
-        Console.print(I18n.cannotGet, Console.Style.fgRed(), downloadLink~ptr);
+        Console.print(I18n.cannotGet, Console.Style.FG_RED, downloadLink~ptr);
       };
     };
 
@@ -207,7 +207,7 @@ import "Zip.alusus";
   func onFileExtracted(fname: ptr[array[Char]], logs: ptr): Int
   {
     if(logs~cast[ptr[bool]]~cnt == 1){
-      Console.print(I18n.fileExtracted, Console.Style.fgGreen(), fname);
+      Console.print(I18n.fileExtracted, Console.Style.FG_GREEN, fname);
     };
     return 0;
   };

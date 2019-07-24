@@ -58,104 +58,34 @@ import "Srl/String.alusus";
     };
 
     module Style {
-      use Srl;      
-      func reset(): ptr[Char] {
-          return "\x1b[0m";
-      };
+      def RESET: "\x1b[0m";
+      def BRIGHT: "\x1b[1m";
+      def DIM: "\x1b[2m";
+      def ITALIC: "\x1b[3m";
+      def UNDERSCORE: "\x1b[4m";
+      def BLINK: "\x1b[5m";
+      def REVERSE: "\x1b[7m";
+      def HIDDEN: "\x1b[8m";
       
-      func bright(): ptr[Char] {
-          return "\x1b[1m";
-      };
-      
-      func dim(): ptr[Char] {
-          return "\x1b[2m";
-      };
-      
-      func italic(): ptr[Char] {
-          return "\x1b[3m";
-      };
-      
-      func underscore(): ptr[Char] {
-          return "\x1b[4m";
-      };
-      
-      func blink(): ptr[Char] {
-          return "\x1b[5m";
-      };
-      
-      func reverse(): ptr[Char] {
-          return "\x1b[7m";
-      };
-      
-      func hidden(): ptr[Char] {
-          return "\x1b[8m";
-      };
+      // frontground
+      def FG_BLACK: "\x1b[30m";
+      def FG_RED: "\x1b[31m";
+      def FG_GREEN: "\x1b[32m";
+      def FG_YELLOW: "\x1b[33m";
+      def FG_BLUE: "\x1b[34m";
+      def FG_MAGENTA: "\x1b[35m";
+      def FG_CYAN: "\x1b[36m";
+      def FG_WHITE: "\x1b[37m";
 
-      
-      func fgBlack(): ptr[Char] {
-          return "\x1b[30m";
-      };
-      
-      func fgRed(): ptr[Char] {
-          return "\x1b[31m";
-      };
-      
-      func fgGreen(): ptr[Char] {
-          return "\x1b[32m";
-      };
-      
-      func fgYellow(): ptr[Char] {
-          return "\x1b[33m";
-      };
-      
-      func fgBlue(): ptr[Char] {
-          return "\x1b[34m";
-      };
-      
-      func fgMagenta(): ptr[Char] {
-          return "\x1b[35m";
-      };
-      
-      func fgCyan(): ptr[Char] {
-          return "\x1b[36m";
-      };
-      
-      func fgWhite(): ptr[Char] {
-          return "\x1b[37m";
-      };
-
-      
-      func bgBlack(): ptr[Char] {
-          return "\x1b[40m";
-      };
-      
-      func bgRed(): ptr[Char] {
-          return "\x1b[41m";
-      };
-      
-      func bgGreen(): ptr[Char] {
-          return "\x1b[42m";
-      };
-      
-      func bgYellow(): ptr[Char] {
-          return "\x1b[43m";
-      };
-      
-      func bgBlue(): ptr[Char] {
-          return "\x1b[44m";
-      };
-      
-      func bgMagenta(): ptr[Char] {
-          return "\x1b[45m";
-      };
-      
-      func bgCyan(): ptr[Char] {
-          return "\x1b[46m";
-      };
-      
-      func bgWhite(): ptr[Char] {
-          return "\x1b[47m";
-      };
+      // background
+      def BG_BLACK: "\x1b[40m";
+      def BG_RED: "\x1b[41m";
+      def BG_GREEN: "\x1b[42m";
+      def BG_YELLOW: "\x1b[43m";
+      def BG_BLUE: "\x1b[44m";
+      def BG_MAGENTA: "\x1b[45m";
+      def BG_CYAN: "\x1b[46m";
+      def BG_WHITE: "\x1b[47m";
     };
   };
 };

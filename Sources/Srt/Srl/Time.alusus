@@ -3,7 +3,7 @@ import "globals.alusus";
 
 @merge module Srl {
     module Time {
-        type Time {
+        type DetailedTime {
             def second: Int;
             def minute: Int;
             def hour: Int;
@@ -28,9 +28,9 @@ import "globals.alusus";
         func toString(timestamp: ptr[Word[64]]): ptr[Char];
 
         @expname[localtime]
-        func getDetailedTime(timestamp: ptr[Word[64]]): ptr[Time];
+        func getDetailedTime(timestamp: ptr[Word[64]]): ptr[DetailedTime];
 
         @expname[localtime_r]
-        func getDetailedTime(timestamp: ptr[Word[64]], detialedTime: ptr[Time]): ptr[Time];
+        func getDetailedTime(timestamp: ptr[Word[64]], detialedTime: ptr[DetailedTime]): ptr[DetailedTime];
     };
 };

@@ -7,22 +7,22 @@
       if (argCount >= 4 && String.compare(argv~cnt(3), I18n.cmd_install) == 0) {
         installRelease(argv~cnt(4)~cast[ptr[array[Char]]], 0, 1);
       } else {
-        Console.print(I18n.use_apm_local_install, Console.Style.fgRed());
+        Console.print(I18n.use_apm_local_install, Console.Style.FG_RED);
       }
     } else if(argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_help) == 0) {
       def homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
       def pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
-      Console.print(I18n.help_commands, Console.Style.fgGreen());
-      Console.print(I18n.help_apm_help, Console.Style.fgYellow());
-      Console.print(I18n.help_apm_help_tip, Console.Style.fgWhite());
-      Console.print(I18n.help_apm_install, Console.Style.fgYellow());
-      Console.print(I18n.help_apm_install_tip, Console.Style.fgWhite(), homeDirectory);
-      Console.print(I18n.help_apm_install_local, Console.Style.fgYellow());
-      Console.print(I18n.help_apm_install_tip, Console.Style.fgWhite(), pwdDirectory);
+      Console.print(I18n.help_commands, Console.Style.FG_GREEN);
+      Console.print(I18n.help_apm_help, Console.Style.FG_YELLOW);
+      Console.print(I18n.help_apm_help_tip, Console.Style.FG_WHITE);
+      Console.print(I18n.help_apm_install, Console.Style.FG_YELLOW);
+      Console.print(I18n.help_apm_install_tip, Console.Style.FG_WHITE, homeDirectory);
+      Console.print(I18n.help_apm_install_local, Console.Style.FG_YELLOW);
+      Console.print(I18n.help_apm_install_tip, Console.Style.FG_WHITE, pwdDirectory);
     } else if(argCount >= 3) {
-      Console.print(I18n.unknown_command, Console.Style.fgRed(), argv~cnt(2));
+      Console.print(I18n.unknown_command, Console.Style.FG_RED, argv~cnt(2));
     } else {
-      Console.print(I18n.use_help_command, Console.Style.fgWhite());
+      Console.print(I18n.use_help_command, Console.Style.FG_WHITE);
     };
 
     return 0;
