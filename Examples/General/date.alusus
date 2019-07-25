@@ -9,7 +9,7 @@ def Main: module
   {
     def ts: Word[64];
     ts = Time.getTimestamp(0);
-    def time: ptr[Time];
+    def time: ptr[Time.DetailedTime];
     time = Time.getDetailedTime(ts~ptr);
     Console.print("Current date: %d-%02d-%02d\n", time~cnt.year + 1900, time~cnt.month + 1, time~cnt.day);
     Console.print("Current timezone: %s\n", time~cnt.timezone);
