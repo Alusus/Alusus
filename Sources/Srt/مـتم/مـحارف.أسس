@@ -10,6 +10,7 @@
     عرّف جد_آخر_محرف: لقب findLastChar؛
     عرّف جد_محارف: لقب findString؛
     عرّف قارن: لقب compare؛
+    عرّف متطابق: لقب equal؛
     عرّف انسخ: لقب copy؛
     عرّف سلسل: لقب concat؛
     عرّف جد_طول: لقب getLength؛

@@ -1,32 +1,64 @@
 import "globals.alusus";
 import "Srl/Memory.alusus";
 
-@merge def Srl : module
-{
-  def String: module
-  {
-    def findChar: @expname[strchr] function (s: ptr[Char], c: Int) => ptr[Char];
-    def findChar: @expname[memchr] function (s: ptr[Void], c: Int, n: Int[64]) => ptr[Void];
-    def findLastChar: @expname[strrchr] function (s: ptr[Char], c: Int) => ptr[Char];
-    def findString: @expname[strstr] function (haystack: ptr[Char], needle: ptr[Char]) => ptr[Char];
-    def compare: @expname[strcmp] function (s1: ptr[Char], s2: ptr[Char]) => Int;
-    def compare: @expname[strncmp] function (s1: ptr[Char], s2: ptr[Char], n: Int[64]) => Int;
-    def copy: @expname[strcpy] function (dest: ptr[Char], src: ptr[Char]) => ptr[Void];
-    def copy: @expname[strncpy] function (dest: ptr[Char], src: ptr[Char], n: Int[64]) => ptr[Void];
-    def concat: @expname[strcat] function (dest: ptr[Char], src: ptr[Char]) => ptr[Char];
-    def concat: @expname[strncat] function (dest: ptr[Char], src: ptr[Char], n: Int[64]) => ptr[Char];
-    def getLength: @expname[strlen] function (s: ptr[Char]) => Int[64];
-    def assign: @expname[sprintf] function (target: ptr[Char], format: ptr[Word[8]], args: ...any) => Int[32];
-    def scan: @expname[sscanf] function (target: ptr[Char], format: ptr[Word[8]], args: ...any) => Int[32];
+@merge module Srl {
+  module String {
+    
+    @expname[strchr]
+    func findChar(s: ptr[Char], c: Int): ptr[Char];
+    
+    @expname[memchr]
+    func findChar(s: ptr[Void], c: Int, n: Int[64]): ptr[Void];
+    
+    @expname[strrchr]
+    func findLastChar(s: ptr[Char], c: Int): ptr[Char];
+    
+    @expname[strstr]
+    func findString(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
+    
+    @expname[strcmp]
+    func compare(s1: ptr[Char], s2: ptr[Char]): Int;
+    
+    @expname[strncmp]
+    func compare(s1: ptr[Char], s2: ptr[Char], n: Int[64]): Int;
+
+    func equal(s1: ptr[Char], s2: ptr[Char]): bool {
+      if compare(s1, s2) == 0 {
+        return 1;
+      } else {
+        return 0
+      };
+    };
+    
+    @expname[strcpy]
+    func copy(dest: ptr[Char], src: ptr[Char]): ptr[Void];
+    
+    @expname[strncpy]
+    func copy(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Void];
+    
+    @expname[strcat]
+    func concat(dest: ptr[Char], src: ptr[Char]): ptr[Char];
+    
+    @expname[strncat]
+    func concat(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Char];
+    
+    @expname[strlen]
+    func getLength(s: ptr[Char]): Int[64];
+    
+    @expname[sprintf]
+    func assign(target: ptr[Char], format: ptr[Word[8]], args: ...any): Int[32];
+    
+    @expname[sscanf]
+    func scan(target: ptr[Char], format: ptr[Word[8]], args: ...any): Int[32];
 
     def _maxChars: alias array[Char, 10240];
 
-    def RegexMatches: type {
+    type RegexMatches {
       def count: Int;
       def matches: array[_maxChars];
     };
 
-    def regex_t: type {
+    type regex_t {
       def buffer: ptr[Char];
       def allocated: Word[64];
       def used: Word[64];
@@ -37,17 +69,23 @@ import "Srl/Memory.alusus";
       def flags: Word[8];
     };
 
-    def regmatch_t: type {
+    type regmatch_t {
         def rm_so: int;  // Byte offset from string's start to substring's start.
         def rm_eo: int;  // Byte offset from string's start to substring's end.
     };
-    def regcomp: @expname[regcomp] function (preg: ptr[regex_t], pattern: ptr[array[Char]], cflags: Int) => Int[32];
-    def regexec: @expname[regexec] function (preg: ptr[regex_t], pattern: ptr[array[Char]], size: Int, match: ptr[array[regmatch_t]], cflags: Int) => Int[32];
-    def regfree: @expname[regfree] function (preg: ptr[regex_t]);
+
+    @expname[regcomp]
+    func regcomp(preg: ptr[regex_t], pattern: ptr[array[Char]], cflags: Int): Int[32];
+    
+    @expname[regexec]
+    func regexec(preg: ptr[regex_t], pattern: ptr[array[Char]], size: Int, match: ptr[array[regmatch_t]], cflags: Int): Int[32];
+    
+    @expname[regfree]
+    func regfree(preg: ptr[regex_t]);
 
     def _results: array[_maxChars, 100];
     def _regmatch: array[regmatch_t, 255];
-    def regex: function(pattern: ptr[array[Char]], string: ptr[array[Char]], mode: Int) => ptr[RegexMatches] {
+    func regex(pattern: ptr[array[Char]], string: ptr[array[Char]], mode: Int): ptr[RegexMatches] {
       def i: Int;
       def len: int;
       def reg: regex_t;

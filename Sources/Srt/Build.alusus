@@ -52,13 +52,13 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     @shared function generate (exe: ptr[Exe]) => Bool
     {
       if !Spp.buildObjectFileForElement(exe~cnt.element, "/tmp/output.o") {
-        Srl.Console.print(I18n.objectGenerationError, Srl.Console.Style.fgRed(), exe~cnt.outputFilename);
+        Srl.Console.print(I18n.objectGenerationError, Srl.Console.Style.FG_RED, exe~cnt.outputFilename);
         return false;
       };
       def cmd: array[Char, 256];
       Srl.String.assign(cmd~ptr, "gcc -no-pie /tmp/output.o -o %s %s", exe~cnt.outputFilename, exe~cnt.deps~ptr);
       if Srl.System.exec(cmd~ptr) != 0 {
-        Srl.Console.print(I18n.exeGenerationError, Srl.Console.Style.fgRed(), exe~cnt.outputFilename);
+        Srl.Console.print(I18n.exeGenerationError, Srl.Console.Style.FG_RED, exe~cnt.outputFilename);
         return false;
       };
       return true;
