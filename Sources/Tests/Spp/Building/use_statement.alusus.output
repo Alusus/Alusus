@@ -8,23 +8,23 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@__anonymous0 = private constant [2 x i8] c"\0A\00", align 1
-@__anonymous1 = private constant [15 x i8] c"Use Statement\0A\00", align 1
-@__anonymous2 = private constant [5 x i8] c"Use \00", align 1
-@__anonymous3 = private constant [10 x i8] c"Statement\00", align 1
-@__anonymous4 = private constant [15 x i8] c"Use Statement\0A\00", align 1
-@__anonymous5 = private constant [2 x i8] c"!\00", align 1
+@"#anonymous0" = private constant [2 x i8] c"\0A\00", align 1
+@"#anonymous1" = private constant [15 x i8] c"Use Statement\0A\00", align 1
+@"#anonymous2" = private constant [5 x i8] c"Use \00", align 1
+@"#anonymous3" = private constant [10 x i8] c"Statement\00", align 1
+@"#anonymous4" = private constant [15 x i8] c"Use Statement\0A\00", align 1
+@"#anonymous5" = private constant [2 x i8] c"!\00", align 1
 
 define void @"Main.Other3.printNewLine()"() {
-__block0:
-  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @__anonymous0, i32 0, i32 0))
+"#block0":
+  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous0", i32 0, i32 0))
   ret void
 }
 
 declare i64 @printf(i8*, ...)
 
 define void @"Main.start()=>(Void)"() {
-__block1:
+"#block1":
   call void @"Other1.printUse()"()
   call void @"Other2.printStatement()"()
   call void @"Main.Other3.printNewLine()"()
@@ -32,26 +32,26 @@ __block1:
 }
 
 define void @"Other1.printUse()"() {
-__block2:
-  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @__anonymous2, i32 0, i32 0))
+"#block2":
+  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @"#anonymous2", i32 0, i32 0))
   ret void
 }
 
 define void @"Other2.printStatement()"() {
-__block3:
-  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__anonymous3, i32 0, i32 0))
+"#block3":
+  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @"#anonymous3", i32 0, i32 0))
   ret void
 }
 
 define void @"Main.start2()"() {
-__block4:
+"#block4":
   call void @"Std.Inner.printExclamation()"()
   ret void
 }
 
 define void @"Std.Inner.printExclamation()"() {
-__block5:
-  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @__anonymous5, i32 0, i32 0))
+"#block5":
+  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous5", i32 0, i32 0))
   ret void
 }
 ------------------------------------------------------------

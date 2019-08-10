@@ -3,23 +3,23 @@
 source_filename = "AlususProgram"
 
 define void @"\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\A5\D8\A8\D8\AF\D8\A3()"() {
-__block0:
+"#block0":
   call void @"\D8\AF\D8\A7\D9\84\D8\AA\D9\87"()
   ret void
 }
 
 define void @"\D8\AF\D8\A7\D9\84\D8\AA\D9\87"() {
-__block1:
+"#block1":
   ret void
 }
 
 define void @"\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\AF\D8\A7\D9\84\D8\AA\D9\8A2()"() {
-__block2:
+"#block2":
   ret void
 }
 
 define void @myfunc3() {
-__block3:
+"#block3":
   ret void
 }
 ------------------------------------------------------------

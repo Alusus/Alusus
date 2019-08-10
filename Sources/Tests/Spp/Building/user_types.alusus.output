@@ -18,19 +18,19 @@ source_filename = "AlususProgram"
 
 @Main.i = global i32 0
 @Main.gpoint = global %Main_Point zeroinitializer
-@__anonymous0 = private constant [10 x i8] c"p.x = %d\0A\00", align 1
-@__anonymous1 = private constant [10 x i8] c"p.y = %d\0A\00", align 1
-@__anonymous2 = private constant [8 x i8] c"p.x=%d\0A\00", align 1
-@__anonymous3 = private constant [10 x i8] c"n.p.y=%d\0A\00", align 1
-@__anonymous4 = private constant [8 x i8] c"p.i=%d\0A\00", align 1
-@__anonymous5 = private constant [27 x i8] c"getPoint(1, 2, 3f).y = %d\0A\00", align 1
-@__anonymous6 = private constant [15 x i8] c"gpoint.x = %d\0A\00", align 1
-@__anonymous7 = private constant [15 x i8] c"gpoing.y = %d\0A\00", align 1
+@"#anonymous0" = private constant [10 x i8] c"p.x = %d\0A\00", align 1
+@"#anonymous1" = private constant [10 x i8] c"p.y = %d\0A\00", align 1
+@"#anonymous2" = private constant [8 x i8] c"p.x=%d\0A\00", align 1
+@"#anonymous3" = private constant [10 x i8] c"n.p.y=%d\0A\00", align 1
+@"#anonymous4" = private constant [8 x i8] c"p.i=%d\0A\00", align 1
+@"#anonymous5" = private constant [27 x i8] c"getPoint(1, 2, 3f).y = %d\0A\00", align 1
+@"#anonymous6" = private constant [15 x i8] c"gpoint.x = %d\0A\00", align 1
+@"#anonymous7" = private constant [15 x i8] c"gpoing.y = %d\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
 define %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 %x, i32 %y, float %s) {
-__block0:
+"#block0":
   %x1 = alloca i32
   store i32 %x, i32* %x1
   %y2 = alloca i32
@@ -52,20 +52,20 @@ __block0:
 }
 
 define void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %p) {
-__block1:
+"#block1":
   %p1 = alloca %Main_Point
   store %Main_Point %p, %Main_Point* %p1
   %0 = getelementptr %Main_Point, %Main_Point* %p1, i32 0, i32 0
   %1 = load i32, i32* %0
-  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__anonymous0, i32 0, i32 0), i32 %1)
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @"#anonymous0", i32 0, i32 0), i32 %1)
   %3 = getelementptr %Main_Point, %Main_Point* %p1, i32 0, i32 1
   %4 = load i32, i32* %3
-  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__anonymous1, i32 0, i32 0), i32 %4)
+  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @"#anonymous1", i32 0, i32 0), i32 %4)
   ret void
 }
 
 define void @"Main.start()=>(Void)"() {
-__block2:
+"#block2":
   %p = alloca %Main_Point
   %n = alloca %Main_Nested
   %e = alloca %Main_Empty
@@ -87,11 +87,11 @@ __block2:
   store %Main_Point %8, %Main_Point* %7
   %9 = getelementptr %Main_Point, %Main_Point* %p, i32 0, i32 0
   %10 = load i32, i32* %9
-  %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous2, i32 0, i32 0), i32 %10)
+  %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous2", i32 0, i32 0), i32 %10)
   %12 = getelementptr %Main_Nested, %Main_Nested* %n, i32 0, i32 0
   %13 = getelementptr %Main_Point, %Main_Point* %12, i32 0, i32 1
   %14 = load i32, i32* %13
-  %15 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__anonymous3, i32 0, i32 0), i32 %14)
+  %15 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @"#anonymous3", i32 0, i32 0), i32 %14)
   %16 = getelementptr %Main_Point, %Main_Point* %p, i32 0, i32 0
   store i32 1, i32* %16
   %17 = getelementptr %Main_Point, %Main_Point* %p, i32 0, i32 0
@@ -108,7 +108,7 @@ __block2:
   store %Main_Point %23, %Main_Point* %24
   %25 = getelementptr %Main_Point, %Main_Point* %24, i32 0, i32 1
   %26 = load i32, i32* %25
-  %27 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__anonymous5, i32 0, i32 0), i32 %26)
+  %27 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([27 x i8], [27 x i8]* @"#anonymous5", i32 0, i32 0), i32 %26)
   %28 = load %Main_Point, %Main_Point* %p
   call void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %28)
   %29 = call %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 2, i32 4, float 6.000000e+00)
@@ -118,9 +118,9 @@ __block2:
   %31 = load %Main_Point, %Main_Point* %p
   call void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %31)
   %32 = load i32, i32* getelementptr inbounds (%Main_Point, %Main_Point* @Main.gpoint, i32 0, i32 0)
-  %33 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__anonymous6, i32 0, i32 0), i32 %32)
+  %33 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous6", i32 0, i32 0), i32 %32)
   %34 = load i32, i32* getelementptr inbounds (%Main_Point, %Main_Point* @Main.gpoint, i32 0, i32 1)
-  %35 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__anonymous7, i32 0, i32 0), i32 %34)
+  %35 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous7", i32 0, i32 0), i32 %34)
   %pp = alloca %Main_Point*
   %pn = alloca %Main_Nested*
   %pd = alloca %Main_DeepNested*

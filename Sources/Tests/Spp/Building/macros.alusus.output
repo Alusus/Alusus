@@ -7,23 +7,23 @@ source_filename = "AlususProgram"
 
 %Main_Coordinates = type { double, double }
 
-@__anonymous0 = private constant [8 x i8] c"a = %d\0A\00", align 1
-@__anonymous1 = private constant [18 x i8] c"b1 = %d, b2 = %d\0A\00", align 1
-@__anonymous2 = private constant [12 x i8] c"__n__ = %d\0A\00", align 1
-@__anonymous3 = private constant [10 x i8] c"a*a = %d\0A\00", align 1
-@__anonymous4 = private constant [19 x i8] c"min of 5 & 7 = %d\0A\00", align 1
-@__anonymous5 = private constant [23 x i8] c"min of 5.0 & 7.0 = %d\0A\00", align 1
-@__anonymous6 = private constant [4 x i8] c"%d \00", align 1
-@__anonymous7 = private constant [2 x i8] c"\0A\00", align 1
-@__anonymous8 = private constant [14 x i8] c"Hello Alusus\0A\00", align 1
-@__anonymous9 = private constant [14 x i8] c"Hello Alusus\0A\00", align 1
-@__anonymous10 = private constant [13 x i8] c"Hello {{n}}\0A\00", align 1
-@__anonymous11 = private constant [13 x i8] c"Hello {{n}}\0A\00", align 1
-@__anonymous12 = private constant [13 x i8] c"Hello World\0A\00", align 1
-@__anonymous13 = private constant [14 x i8] c"p = (%f, %f)\0A\00", align 1
+@"#anonymous0" = private constant [8 x i8] c"a = %d\0A\00", align 1
+@"#anonymous1" = private constant [18 x i8] c"b1 = %d, b2 = %d\0A\00", align 1
+@"#anonymous2" = private constant [12 x i8] c"__n__ = %d\0A\00", align 1
+@"#anonymous3" = private constant [10 x i8] c"a*a = %d\0A\00", align 1
+@"#anonymous4" = private constant [19 x i8] c"min of 5 & 7 = %d\0A\00", align 1
+@"#anonymous5" = private constant [23 x i8] c"min of 5.0 & 7.0 = %d\0A\00", align 1
+@"#anonymous6" = private constant [4 x i8] c"%d \00", align 1
+@"#anonymous7" = private constant [2 x i8] c"\0A\00", align 1
+@"#anonymous8" = private constant [14 x i8] c"Hello Alusus\0A\00", align 1
+@"#anonymous9" = private constant [14 x i8] c"Hello Alusus\0A\00", align 1
+@"#anonymous10" = private constant [13 x i8] c"Hello {{n}}\0A\00", align 1
+@"#anonymous11" = private constant [13 x i8] c"Hello {{n}}\0A\00", align 1
+@"#anonymous12" = private constant [13 x i8] c"Hello World\0A\00", align 1
+@"#anonymous13" = private constant [14 x i8] c"p = (%f, %f)\0A\00", align 1
 
 define void @"Main.start()=>(Void)"() {
-__block0:
+"#block0":
   %a = alloca i32
   %b1 = alloca i32
   %b2 = alloca i32
@@ -33,46 +33,46 @@ __block0:
   store i32 7, i32* %b2
   store i32 8, i32* %__n__
   %0 = load i32, i32* %a
-  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous0, i32 0, i32 0), i32 %0)
+  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous0", i32 0, i32 0), i32 %0)
   %2 = load i32, i32* %b1
   %3 = load i32, i32* %b2
-  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__anonymous1, i32 0, i32 0), i32 %2, i32 %3)
+  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @"#anonymous1", i32 0, i32 0), i32 %2, i32 %3)
   %5 = load i32, i32* %__n__
-  %6 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous2, i32 0, i32 0), i32 %5)
+  %6 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"#anonymous2", i32 0, i32 0), i32 %5)
   %7 = load i32, i32* %a
   %8 = load i32, i32* %a
   %9 = mul nsw i32 %7, %8
-  %10 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__anonymous3, i32 0, i32 0), i32 %9)
+  %10 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @"#anonymous3", i32 0, i32 0), i32 %9)
   %11 = call i32 @"Main.getMin(Int[32],Int[32])=>(Int[32])"(i32 5, i32 7)
-  %12 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__anonymous4, i32 0, i32 0), i32 %11)
+  %12 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @"#anonymous4", i32 0, i32 0), i32 %11)
   %13 = call float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float 5.000000e+00, float 7.000000e+00)
-  %14 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__anonymous5, i32 0, i32 0), float %13)
+  %14 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @"#anonymous5", i32 0, i32 0), float %13)
   store i32 0, i32* %a
-  br label %__block7
+  br label %"#block7"
 
-__block7:                                         ; preds = %__block8, %__block0
+"#block7":                                        ; preds = %"#block8", %"#block0"
   %15 = load i32, i32* %a
   %16 = icmp sle i32 %15, 9
-  br i1 %16, label %__block9, label %__block10
+  br i1 %16, label %"#block9", label %"#block10"
 
-__block8:                                         ; preds = %__block9
+"#block8":                                        ; preds = %"#block9"
   %17 = load i32, i32* %a
   %18 = add nsw i32 %17, 1
   store i32 %18, i32* %a
-  br label %__block7
+  br label %"#block7"
 
-__block9:                                         ; preds = %__block7
+"#block9":                                        ; preds = %"#block7"
   %19 = load i32, i32* %a
-  %20 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous6, i32 0, i32 0), i32 %19)
-  br label %__block8
+  %20 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous6", i32 0, i32 0), i32 %19)
+  br label %"#block8"
 
-__block10:                                        ; preds = %__block7
-  %21 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @__anonymous7, i32 0, i32 0))
-  %22 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__anonymous8, i32 0, i32 0))
-  %23 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__anonymous9, i32 0, i32 0))
-  %24 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__anonymous10, i32 0, i32 0))
-  %25 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__anonymous11, i32 0, i32 0))
-  %26 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__anonymous12, i32 0, i32 0))
+"#block10":                                       ; preds = %"#block7"
+  %21 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous7", i32 0, i32 0))
+  %22 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous8", i32 0, i32 0))
+  %23 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous9", i32 0, i32 0))
+  %24 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous10", i32 0, i32 0))
+  %25 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous11", i32 0, i32 0))
+  %26 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous12", i32 0, i32 0))
   %p = alloca %Main_Coordinates
   %27 = getelementptr %Main_Coordinates, %Main_Coordinates* %p, i32 0, i32 0
   store double 5.500000e+00, double* %27
@@ -82,14 +82,14 @@ __block10:                                        ; preds = %__block7
   %30 = getelementptr %Main_Coordinates, %Main_Coordinates* %p, i32 0, i32 1
   %31 = load double, double* %29
   %32 = load double, double* %30
-  %33 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__anonymous13, i32 0, i32 0), double %31, double %32)
+  %33 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous13", i32 0, i32 0), double %31, double %32)
   ret void
 }
 
 declare i64 @printf(i8*, ...)
 
 define i32 @"Main.getMin(Int[32],Int[32])=>(Int[32])"(i32 %a, i32 %b) {
-__block1:
+"#block1":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca i32
@@ -97,19 +97,19 @@ __block1:
   %0 = load i32, i32* %a1
   %1 = load i32, i32* %b2
   %2 = icmp sle i32 %0, %1
-  br i1 %2, label %__block2, label %__block3
+  br i1 %2, label %"#block2", label %"#block3"
 
-__block2:                                         ; preds = %__block1
+"#block2":                                        ; preds = %"#block1"
   %3 = load i32, i32* %a1
   ret i32 %3
 
-__block3:                                         ; preds = %__block1
+"#block3":                                        ; preds = %"#block1"
   %4 = load i32, i32* %b2
   ret i32 %4
 }
 
 define float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float %a, float %b) {
-__block4:
+"#block4":
   %a1 = alloca float
   store float %a, float* %a1
   %b2 = alloca float
@@ -117,13 +117,13 @@ __block4:
   %0 = load float, float* %a1
   %1 = load float, float* %b2
   %2 = fcmp ole float %0, %1
-  br i1 %2, label %__block5, label %__block6
+  br i1 %2, label %"#block5", label %"#block6"
 
-__block5:                                         ; preds = %__block4
+"#block5":                                        ; preds = %"#block4"
   %3 = load float, float* %a1
   ret float %3
 
-__block6:                                         ; preds = %__block4
+"#block6":                                        ; preds = %"#block4"
   %4 = load float, float* %b2
   ret float %4
 }

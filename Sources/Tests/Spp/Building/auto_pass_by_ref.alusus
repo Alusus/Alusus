@@ -1,0 +1,37 @@
+import "libalusus_spp.so";
+
+type Point1 {
+  def x: Int;
+  def y: Int;
+};
+
+type Point2 {
+  def x: Int;
+  def y: Int;
+  @shared function constructor {};
+};
+
+function convertPoint1 (p: Point1) => Point1 {
+  def r: Point1;
+  return r;
+};
+
+function convertPoint2 (p: Point1) => Point2 {
+  def r: Point2;
+  return r;
+};
+
+function convertPoint3 (p: Point2) => Point1 {
+  def r: Point1;
+  return r;
+};
+
+function convertPoint4 (p: Point2) => Point2 {
+  def r: Point2;
+  return r;
+};
+
+Spp.dumpLlvmIrForElement(convertPoint1~ast);
+Spp.dumpLlvmIrForElement(convertPoint2~ast);
+Spp.dumpLlvmIrForElement(convertPoint3~ast);
+Spp.dumpLlvmIrForElement(convertPoint4~ast);

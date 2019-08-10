@@ -13,39 +13,39 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@__anonymous0 = private constant [4 x i8] c"%s\0A\00", align 1
-@__anonymous1 = private constant [11 x i8] c"dual check\00", align 1
-@__anonymous2 = private constant [20 x i8] c"binary type check 1\00", align 1
-@__anonymous3 = private constant [20 x i8] c"binary type check 2\00", align 1
-@__anonymous4 = private constant [14 x i8] c"tripple check\00", align 1
-@__anonymous5 = private constant [11 x i8] c"dual check\00", align 1
-@__anonymous6 = private constant [20 x i8] c"binary type check 1\00", align 1
-@__anonymous7 = private constant [20 x i8] c"binary type check 2\00", align 1
-@__anonymous8 = private constant [14 x i8] c"tripple check\00", align 1
-@__anonymous9 = private constant [16 x i8] c"Or of two ands.\00", align 1
-@__anonymous10 = private constant [16 x i8] c"And of two ors.\00", align 1
-@__anonymous11 = private constant [6 x i8] c"not b\00", align 1
-@__anonymous12 = private constant [5 x i8] c"!! b\00", align 1
+@"#anonymous0" = private constant [4 x i8] c"%s\0A\00", align 1
+@"#anonymous1" = private constant [11 x i8] c"dual check\00", align 1
+@"#anonymous2" = private constant [20 x i8] c"binary type check 1\00", align 1
+@"#anonymous3" = private constant [20 x i8] c"binary type check 2\00", align 1
+@"#anonymous4" = private constant [14 x i8] c"tripple check\00", align 1
+@"#anonymous5" = private constant [11 x i8] c"dual check\00", align 1
+@"#anonymous6" = private constant [20 x i8] c"binary type check 1\00", align 1
+@"#anonymous7" = private constant [20 x i8] c"binary type check 2\00", align 1
+@"#anonymous8" = private constant [14 x i8] c"tripple check\00", align 1
+@"#anonymous9" = private constant [16 x i8] c"Or of two ands.\00", align 1
+@"#anonymous10" = private constant [16 x i8] c"And of two ors.\00", align 1
+@"#anonymous11" = private constant [6 x i8] c"not b\00", align 1
+@"#anonymous12" = private constant [5 x i8] c"!! b\00", align 1
 
 declare i64 @printf(i8*, ...)
 
 define void @"Main.print(ptr[Word[8]])=>(Void)"(i8* %str) {
-__block0:
+"#block0":
   %str1 = alloca i8*
   store i8* %str, i8** %str1
   %0 = load i8*, i8** %str1
-  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous0, i32 0, i32 0), i8* %0)
+  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous0", i32 0, i32 0), i8* %0)
   ret void
 }
 
 define void @"Main.main()=>(Void)"() {
-__block1:
+"#block1":
   call void @"Main.testMixed()=>(Void)"()
   ret void
 }
 
 define void @"Main.testOr()=>(Void)"() {
-__block2:
+"#block2":
   %i = alloca i32
   %j = alloca i32
   %b = alloca i1
@@ -54,131 +54,131 @@ __block2:
   store i1 true, i1* %b
   %0 = load i32, i32* %i
   %1 = icmp sgt i32 %0, 6
-  br i1 %1, label %__block5, label %__block4
+  br i1 %1, label %"#block5", label %"#block4"
 
-__block3:                                         ; preds = %__block5
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__anonymous1, i32 0, i32 0))
-  br label %__block6
+"#block3":                                        ; preds = %"#block5"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @"#anonymous1", i32 0, i32 0))
+  br label %"#block6"
 
-__block4:                                         ; preds = %__block2
+"#block4":                                        ; preds = %"#block2"
   %2 = load i32, i32* %j
   %3 = icmp sgt i32 %2, 10
-  br label %__block5
+  br label %"#block5"
 
-__block5:                                         ; preds = %__block2, %__block4
-  %4 = phi i1 [ %1, %__block2 ], [ %3, %__block4 ]
-  br i1 %4, label %__block3, label %__block6
+"#block5":                                        ; preds = %"#block2", %"#block4"
+  %4 = phi i1 [ %1, %"#block2" ], [ %3, %"#block4" ]
+  br i1 %4, label %"#block3", label %"#block6"
 
-__block6:                                         ; preds = %__block5, %__block3
+"#block6":                                        ; preds = %"#block5", %"#block3"
   %5 = load i32, i32* %i
   %6 = icmp sgt i32 %5, 6
-  br i1 %6, label %__block9, label %__block8
+  br i1 %6, label %"#block9", label %"#block8"
 
-__block7:                                         ; preds = %__block9
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__anonymous2, i32 0, i32 0))
-  br label %__block10
+"#block7":                                        ; preds = %"#block9"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous2", i32 0, i32 0))
+  br label %"#block10"
 
-__block8:                                         ; preds = %__block6
+"#block8":                                        ; preds = %"#block6"
   %7 = load i1, i1* %b
-  br label %__block9
+  br label %"#block9"
 
-__block9:                                         ; preds = %__block6, %__block8
-  %8 = phi i1 [ %6, %__block6 ], [ %7, %__block8 ]
-  br i1 %8, label %__block7, label %__block10
+"#block9":                                        ; preds = %"#block6", %"#block8"
+  %8 = phi i1 [ %6, %"#block6" ], [ %7, %"#block8" ]
+  br i1 %8, label %"#block7", label %"#block10"
 
-__block10:                                        ; preds = %__block9, %__block7
+"#block10":                                       ; preds = %"#block9", %"#block7"
   %9 = load i1, i1* %b
-  br i1 %9, label %__block13, label %__block12
+  br i1 %9, label %"#block13", label %"#block12"
 
-__block11:                                        ; preds = %__block13
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__anonymous3, i32 0, i32 0))
-  br label %__block14
+"#block11":                                       ; preds = %"#block13"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous3", i32 0, i32 0))
+  br label %"#block14"
 
-__block12:                                        ; preds = %__block10
+"#block12":                                       ; preds = %"#block10"
   %10 = load i32, i32* %i
   %11 = icmp sgt i32 %10, 6
-  br label %__block13
+  br label %"#block13"
 
-__block13:                                        ; preds = %__block10, %__block12
-  %12 = phi i1 [ %9, %__block10 ], [ %11, %__block12 ]
-  br i1 %12, label %__block11, label %__block14
+"#block13":                                       ; preds = %"#block10", %"#block12"
+  %12 = phi i1 [ %9, %"#block10" ], [ %11, %"#block12" ]
+  br i1 %12, label %"#block11", label %"#block14"
 
-__block14:                                        ; preds = %__block13, %__block11
+"#block14":                                       ; preds = %"#block13", %"#block11"
   %13 = load i32, i32* %i
   %14 = icmp sgt i32 %13, 6
-  br i1 %14, label %__block18, label %__block17
+  br i1 %14, label %"#block18", label %"#block17"
 
-__block15:                                        ; preds = %__block19
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__anonymous4, i32 0, i32 0))
-  br label %__block20
+"#block15":                                       ; preds = %"#block19"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous4", i32 0, i32 0))
+  br label %"#block20"
 
-__block16:                                        ; preds = %__block18
+"#block16":                                       ; preds = %"#block18"
   %15 = load i1, i1* %b
-  br label %__block19
+  br label %"#block19"
 
-__block17:                                        ; preds = %__block14
+"#block17":                                       ; preds = %"#block14"
   %16 = load i32, i32* %j
   %17 = icmp sgt i32 %16, 10
-  br label %__block18
+  br label %"#block18"
 
-__block18:                                        ; preds = %__block14, %__block17
-  %18 = phi i1 [ %14, %__block14 ], [ %17, %__block17 ]
-  br i1 %18, label %__block19, label %__block16
+"#block18":                                       ; preds = %"#block14", %"#block17"
+  %18 = phi i1 [ %14, %"#block14" ], [ %17, %"#block17" ]
+  br i1 %18, label %"#block19", label %"#block16"
 
-__block19:                                        ; preds = %__block18, %__block16
-  %19 = phi i1 [ %18, %__block18 ], [ %15, %__block16 ]
-  br i1 %19, label %__block15, label %__block20
+"#block19":                                       ; preds = %"#block18", %"#block16"
+  %19 = phi i1 [ %18, %"#block18" ], [ %15, %"#block16" ]
+  br i1 %19, label %"#block15", label %"#block20"
 
-__block20:                                        ; preds = %__block19, %__block15
+"#block20":                                       ; preds = %"#block19", %"#block15"
   %20 = load i32, i32* %i
   %21 = icmp sgt i32 %20, 6
-  br i1 %21, label %__block22, label %__block21
+  br i1 %21, label %"#block22", label %"#block21"
 
-__block21:                                        ; preds = %__block20
+"#block21":                                       ; preds = %"#block20"
   %22 = load i32, i32* %j
   %23 = icmp sgt i32 %22, 10
-  br label %__block22
+  br label %"#block22"
 
-__block22:                                        ; preds = %__block20, %__block21
-  %24 = phi i1 [ %21, %__block20 ], [ %23, %__block21 ]
+"#block22":                                       ; preds = %"#block20", %"#block21"
+  %24 = phi i1 [ %21, %"#block20" ], [ %23, %"#block21" ]
   store i1 %24, i1* %b
   %25 = load i32, i32* %i
   %26 = icmp sgt i32 %25, 6
-  br i1 %26, label %__block25, label %__block24
+  br i1 %26, label %"#block25", label %"#block24"
 
-__block23:                                        ; preds = %__block25
+"#block23":                                       ; preds = %"#block25"
   %27 = load i32, i32* %i
   %28 = load i32, i32* %j
   %29 = icmp eq i32 %27, %28
-  br label %__block26
+  br label %"#block26"
 
-__block24:                                        ; preds = %__block22
+"#block24":                                       ; preds = %"#block22"
   %30 = load i32, i32* %j
   %31 = icmp sgt i32 %30, 10
-  br label %__block25
+  br label %"#block25"
 
-__block25:                                        ; preds = %__block22, %__block24
-  %32 = phi i1 [ %26, %__block22 ], [ %31, %__block24 ]
-  br i1 %32, label %__block26, label %__block23
+"#block25":                                       ; preds = %"#block22", %"#block24"
+  %32 = phi i1 [ %26, %"#block22" ], [ %31, %"#block24" ]
+  br i1 %32, label %"#block26", label %"#block23"
 
-__block26:                                        ; preds = %__block25, %__block23
-  %33 = phi i1 [ %32, %__block25 ], [ %29, %__block23 ]
+"#block26":                                       ; preds = %"#block25", %"#block23"
+  %33 = phi i1 [ %32, %"#block25" ], [ %29, %"#block23" ]
   store i1 %33, i1* %b
   %34 = load i32, i32* %i
   %35 = icmp sgt i32 %34, 6
   ret void
 
-__block27:                                        ; No predecessors!
+"#block27":                                       ; No predecessors!
 
-__block28:                                        ; No predecessors!
+"#block28":                                       ; No predecessors!
 
-__block29:                                        ; No predecessors!
+"#block29":                                       ; No predecessors!
 
-__block30:                                        ; No predecessors!
+"#block30":                                       ; No predecessors!
 }
 
 define void @"Main.testAnd()=>(Void)"() {
-__block31:
+"#block31":
   %i = alloca i32
   %j = alloca i32
   %b = alloca i1
@@ -187,212 +187,212 @@ __block31:
   store i1 true, i1* %b
   %0 = load i32, i32* %i
   %1 = icmp sgt i32 %0, 6
-  br i1 %1, label %__block33, label %__block34
+  br i1 %1, label %"#block33", label %"#block34"
 
-__block32:                                        ; preds = %__block34
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__anonymous5, i32 0, i32 0))
-  br label %__block35
+"#block32":                                       ; preds = %"#block34"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @"#anonymous5", i32 0, i32 0))
+  br label %"#block35"
 
-__block33:                                        ; preds = %__block31
+"#block33":                                       ; preds = %"#block31"
   %2 = load i32, i32* %j
   %3 = icmp sgt i32 %2, 10
-  br label %__block34
+  br label %"#block34"
 
-__block34:                                        ; preds = %__block31, %__block33
-  %4 = phi i1 [ %1, %__block31 ], [ %3, %__block33 ]
-  br i1 %4, label %__block32, label %__block35
+"#block34":                                       ; preds = %"#block31", %"#block33"
+  %4 = phi i1 [ %1, %"#block31" ], [ %3, %"#block33" ]
+  br i1 %4, label %"#block32", label %"#block35"
 
-__block35:                                        ; preds = %__block34, %__block32
+"#block35":                                       ; preds = %"#block34", %"#block32"
   %5 = load i32, i32* %i
   %6 = icmp sgt i32 %5, 6
-  br i1 %6, label %__block37, label %__block38
+  br i1 %6, label %"#block37", label %"#block38"
 
-__block36:                                        ; preds = %__block38
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__anonymous6, i32 0, i32 0))
-  br label %__block39
+"#block36":                                       ; preds = %"#block38"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous6", i32 0, i32 0))
+  br label %"#block39"
 
-__block37:                                        ; preds = %__block35
+"#block37":                                       ; preds = %"#block35"
   %7 = load i1, i1* %b
-  br label %__block38
+  br label %"#block38"
 
-__block38:                                        ; preds = %__block35, %__block37
-  %8 = phi i1 [ %6, %__block35 ], [ %7, %__block37 ]
-  br i1 %8, label %__block36, label %__block39
+"#block38":                                       ; preds = %"#block35", %"#block37"
+  %8 = phi i1 [ %6, %"#block35" ], [ %7, %"#block37" ]
+  br i1 %8, label %"#block36", label %"#block39"
 
-__block39:                                        ; preds = %__block38, %__block36
+"#block39":                                       ; preds = %"#block38", %"#block36"
   %9 = load i1, i1* %b
-  br i1 %9, label %__block41, label %__block42
+  br i1 %9, label %"#block41", label %"#block42"
 
-__block40:                                        ; preds = %__block42
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__anonymous7, i32 0, i32 0))
-  br label %__block43
+"#block40":                                       ; preds = %"#block42"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous7", i32 0, i32 0))
+  br label %"#block43"
 
-__block41:                                        ; preds = %__block39
+"#block41":                                       ; preds = %"#block39"
   %10 = load i32, i32* %i
   %11 = icmp sgt i32 %10, 6
-  br label %__block42
+  br label %"#block42"
 
-__block42:                                        ; preds = %__block39, %__block41
-  %12 = phi i1 [ %9, %__block39 ], [ %11, %__block41 ]
-  br i1 %12, label %__block40, label %__block43
+"#block42":                                       ; preds = %"#block39", %"#block41"
+  %12 = phi i1 [ %9, %"#block39" ], [ %11, %"#block41" ]
+  br i1 %12, label %"#block40", label %"#block43"
 
-__block43:                                        ; preds = %__block42, %__block40
+"#block43":                                       ; preds = %"#block42", %"#block40"
   %13 = load i32, i32* %i
   %14 = icmp sgt i32 %13, 6
-  br i1 %14, label %__block46, label %__block47
+  br i1 %14, label %"#block46", label %"#block47"
 
-__block44:                                        ; preds = %__block48
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__anonymous8, i32 0, i32 0))
-  br label %__block49
+"#block44":                                       ; preds = %"#block48"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous8", i32 0, i32 0))
+  br label %"#block49"
 
-__block45:                                        ; preds = %__block47
+"#block45":                                       ; preds = %"#block47"
   %15 = load i1, i1* %b
-  br label %__block48
+  br label %"#block48"
 
-__block46:                                        ; preds = %__block43
+"#block46":                                       ; preds = %"#block43"
   %16 = load i32, i32* %j
   %17 = icmp sgt i32 %16, 10
-  br label %__block47
+  br label %"#block47"
 
-__block47:                                        ; preds = %__block43, %__block46
-  %18 = phi i1 [ %14, %__block43 ], [ %17, %__block46 ]
-  br i1 %18, label %__block45, label %__block48
+"#block47":                                       ; preds = %"#block43", %"#block46"
+  %18 = phi i1 [ %14, %"#block43" ], [ %17, %"#block46" ]
+  br i1 %18, label %"#block45", label %"#block48"
 
-__block48:                                        ; preds = %__block47, %__block45
-  %19 = phi i1 [ %18, %__block47 ], [ %15, %__block45 ]
-  br i1 %19, label %__block44, label %__block49
+"#block48":                                       ; preds = %"#block47", %"#block45"
+  %19 = phi i1 [ %18, %"#block47" ], [ %15, %"#block45" ]
+  br i1 %19, label %"#block44", label %"#block49"
 
-__block49:                                        ; preds = %__block48, %__block44
+"#block49":                                       ; preds = %"#block48", %"#block44"
   %20 = load i32, i32* %i
   %21 = icmp sgt i32 %20, 6
-  br i1 %21, label %__block50, label %__block51
+  br i1 %21, label %"#block50", label %"#block51"
 
-__block50:                                        ; preds = %__block49
+"#block50":                                       ; preds = %"#block49"
   %22 = load i32, i32* %j
   %23 = icmp sgt i32 %22, 10
-  br label %__block51
+  br label %"#block51"
 
-__block51:                                        ; preds = %__block49, %__block50
-  %24 = phi i1 [ %21, %__block49 ], [ %23, %__block50 ]
+"#block51":                                       ; preds = %"#block49", %"#block50"
+  %24 = phi i1 [ %21, %"#block49" ], [ %23, %"#block50" ]
   store i1 %24, i1* %b
   %25 = load i32, i32* %i
   %26 = icmp sgt i32 %25, 6
-  br i1 %26, label %__block53, label %__block54
+  br i1 %26, label %"#block53", label %"#block54"
 
-__block52:                                        ; preds = %__block54
+"#block52":                                       ; preds = %"#block54"
   %27 = load i32, i32* %i
   %28 = load i32, i32* %j
   %29 = icmp eq i32 %27, %28
-  br label %__block55
+  br label %"#block55"
 
-__block53:                                        ; preds = %__block51
+"#block53":                                       ; preds = %"#block51"
   %30 = load i32, i32* %j
   %31 = icmp sgt i32 %30, 10
-  br label %__block54
+  br label %"#block54"
 
-__block54:                                        ; preds = %__block51, %__block53
-  %32 = phi i1 [ %26, %__block51 ], [ %31, %__block53 ]
-  br i1 %32, label %__block52, label %__block55
+"#block54":                                       ; preds = %"#block51", %"#block53"
+  %32 = phi i1 [ %26, %"#block51" ], [ %31, %"#block53" ]
+  br i1 %32, label %"#block52", label %"#block55"
 
-__block55:                                        ; preds = %__block54, %__block52
-  %33 = phi i1 [ %32, %__block54 ], [ %29, %__block52 ]
+"#block55":                                       ; preds = %"#block54", %"#block52"
+  %33 = phi i1 [ %32, %"#block54" ], [ %29, %"#block52" ]
   store i1 %33, i1* %b
   %34 = load i32, i32* %i
   %35 = icmp sgt i32 %34, 6
   ret void
 
-__block56:                                        ; No predecessors!
+"#block56":                                       ; No predecessors!
 
-__block57:                                        ; No predecessors!
+"#block57":                                       ; No predecessors!
 
-__block58:                                        ; No predecessors!
+"#block58":                                       ; No predecessors!
 
-__block59:                                        ; No predecessors!
+"#block59":                                       ; No predecessors!
 }
 
 define void @"Main.testMixed()=>(Void)"() {
-__block60:
+"#block60":
   %i = alloca i32
   %j = alloca i32
   store i32 5, i32* %i
   store i32 10, i32* %j
   %0 = load i32, i32* %i
   %1 = icmp sgt i32 %0, 10
-  br i1 %1, label %__block63, label %__block64
+  br i1 %1, label %"#block63", label %"#block64"
 
-__block61:                                        ; preds = %__block67
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @__anonymous9, i32 0, i32 0))
-  br label %__block68
+"#block61":                                       ; preds = %"#block67"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous9", i32 0, i32 0))
+  br label %"#block68"
 
-__block62:                                        ; preds = %__block64
+"#block62":                                       ; preds = %"#block64"
   %2 = load i32, i32* %i
   %3 = icmp slt i32 %2, 5
-  br i1 %3, label %__block65, label %__block66
+  br i1 %3, label %"#block65", label %"#block66"
 
-__block63:                                        ; preds = %__block60
+"#block63":                                       ; preds = %"#block60"
   %4 = load i32, i32* %j
   %5 = icmp sgt i32 %4, 10
-  br label %__block64
+  br label %"#block64"
 
-__block64:                                        ; preds = %__block60, %__block63
-  %6 = phi i1 [ %1, %__block60 ], [ %5, %__block63 ]
-  br i1 %6, label %__block67, label %__block62
+"#block64":                                       ; preds = %"#block60", %"#block63"
+  %6 = phi i1 [ %1, %"#block60" ], [ %5, %"#block63" ]
+  br i1 %6, label %"#block67", label %"#block62"
 
-__block65:                                        ; preds = %__block62
+"#block65":                                       ; preds = %"#block62"
   %7 = load i32, i32* %j
   %8 = icmp slt i32 %7, 5
-  br label %__block66
+  br label %"#block66"
 
-__block66:                                        ; preds = %__block62, %__block65
-  %9 = phi i1 [ %3, %__block62 ], [ %8, %__block65 ]
-  br label %__block67
+"#block66":                                       ; preds = %"#block62", %"#block65"
+  %9 = phi i1 [ %3, %"#block62" ], [ %8, %"#block65" ]
+  br label %"#block67"
 
-__block67:                                        ; preds = %__block64, %__block66
-  %10 = phi i1 [ %6, %__block64 ], [ %9, %__block66 ]
-  br i1 %10, label %__block61, label %__block68
+"#block67":                                       ; preds = %"#block64", %"#block66"
+  %10 = phi i1 [ %6, %"#block64" ], [ %9, %"#block66" ]
+  br i1 %10, label %"#block61", label %"#block68"
 
-__block68:                                        ; preds = %__block67, %__block61
+"#block68":                                       ; preds = %"#block67", %"#block61"
   %11 = load i32, i32* %i
   %12 = icmp sgt i32 %11, 10
-  br i1 %12, label %__block72, label %__block71
+  br i1 %12, label %"#block72", label %"#block71"
 
-__block69:                                        ; preds = %__block75
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @__anonymous10, i32 0, i32 0))
-  br label %__block76
+"#block69":                                       ; preds = %"#block75"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous10", i32 0, i32 0))
+  br label %"#block76"
 
-__block70:                                        ; preds = %__block72
+"#block70":                                       ; preds = %"#block72"
   %13 = load i32, i32* %i
   %14 = icmp slt i32 %13, 5
-  br i1 %14, label %__block74, label %__block73
+  br i1 %14, label %"#block74", label %"#block73"
 
-__block71:                                        ; preds = %__block68
+"#block71":                                       ; preds = %"#block68"
   %15 = load i32, i32* %j
   %16 = icmp sgt i32 %15, 10
-  br label %__block72
+  br label %"#block72"
 
-__block72:                                        ; preds = %__block68, %__block71
-  %17 = phi i1 [ %12, %__block68 ], [ %16, %__block71 ]
-  br i1 %17, label %__block70, label %__block75
+"#block72":                                       ; preds = %"#block68", %"#block71"
+  %17 = phi i1 [ %12, %"#block68" ], [ %16, %"#block71" ]
+  br i1 %17, label %"#block70", label %"#block75"
 
-__block73:                                        ; preds = %__block70
+"#block73":                                       ; preds = %"#block70"
   %18 = load i32, i32* %j
   %19 = icmp slt i32 %18, 5
-  br label %__block74
+  br label %"#block74"
 
-__block74:                                        ; preds = %__block70, %__block73
-  %20 = phi i1 [ %14, %__block70 ], [ %19, %__block73 ]
-  br label %__block75
+"#block74":                                       ; preds = %"#block70", %"#block73"
+  %20 = phi i1 [ %14, %"#block70" ], [ %19, %"#block73" ]
+  br label %"#block75"
 
-__block75:                                        ; preds = %__block72, %__block74
-  %21 = phi i1 [ %17, %__block72 ], [ %20, %__block74 ]
-  br i1 %21, label %__block69, label %__block76
+"#block75":                                       ; preds = %"#block72", %"#block74"
+  %21 = phi i1 [ %17, %"#block72" ], [ %20, %"#block74" ]
+  br i1 %21, label %"#block69", label %"#block76"
 
-__block76:                                        ; preds = %__block75, %__block69
+"#block76":                                       ; preds = %"#block75", %"#block69"
   ret void
 }
 
 define void @"Main.testNot()=>(Void)"() {
-__block77:
+"#block77":
   %b = alloca i1
   %i = alloca i32
   %f = alloca float
@@ -401,28 +401,28 @@ __block77:
   store float 5.000000e+00, float* %f
   %0 = load i1, i1* %b
   %1 = xor i1 %0, true
-  br i1 %1, label %__block78, label %__block79
+  br i1 %1, label %"#block78", label %"#block79"
 
-__block78:                                        ; preds = %__block77
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous11, i32 0, i32 0))
-  br label %__block79
+"#block78":                                       ; preds = %"#block77"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous11", i32 0, i32 0))
+  br label %"#block79"
 
-__block79:                                        ; preds = %__block77, %__block78
+"#block79":                                       ; preds = %"#block77", %"#block78"
   %2 = load i32, i32* %i
   %3 = load float, float* %f
   %4 = load i1, i1* %b
   %5 = xor i1 %4, true
-  br i1 %5, label %__block82, label %__block83
+  br i1 %5, label %"#block82", label %"#block83"
 
-__block80:                                        ; No predecessors!
+"#block80":                                       ; No predecessors!
 
-__block81:                                        ; No predecessors!
+"#block81":                                       ; No predecessors!
 
-__block82:                                        ; preds = %__block79
-  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @__anonymous12, i32 0, i32 0))
-  br label %__block83
+"#block82":                                       ; preds = %"#block79"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @"#anonymous12", i32 0, i32 0))
+  br label %"#block83"
 
-__block83:                                        ; preds = %__block79, %__block82
+"#block83":                                       ; preds = %"#block79", %"#block82"
   %6 = load i32, i32* %i
   %7 = load float, float* %f
   %8 = load i32, i32* %i
@@ -432,8 +432,8 @@ __block83:                                        ; preds = %__block79, %__block
   %11 = load i32, i32* %i
   ret void
 
-__block84:                                        ; No predecessors!
+"#block84":                                       ; No predecessors!
 
-__block85:                                        ; No predecessors!
+"#block85":                                       ; No predecessors!
 }
 ------------------------------------------------------------

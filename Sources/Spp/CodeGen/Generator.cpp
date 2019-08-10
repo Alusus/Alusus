@@ -29,6 +29,8 @@ void Generator::initBindings()
   generation->generateFunctionDecl = &Generator::_generateFunctionDecl;
   generation->generateUserTypeBody = &Generator::_generateUserTypeBody;
   generation->generateVarDef = &Generator::_generateVarDef;
+  generation->generateTempVar = &Generator::_generateTempVar;
+  generation->generateVarInitialization = &Generator::_generateVarInitialization;
   generation->generateStatements = &Generator::_generateStatements;
   generation->generateStatement = &Generator::_generateStatement;
   generation->generateExpression = &Generator::_generateExpression;
@@ -128,17 +130,52 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     ASSERT(tgFuncType != 0);
 
     auto astArgs = astFuncType->getArgTypes().get();
+    auto astRetTypeRef = astFuncType->getRetType().get();
+    Ast::Type *astRetType = astFuncType->traceRetType(generator->astHelper);
 
     // Prepare the funciton body.
     SharedList<TiObject> tgVars;
     TioSharedPtr tgContext;
     if (!tg->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return false;
 
+    // Store the generated ret value reference, if needed.
+    if (astRetType->hasCustomInitialization(generator->astHelper, tg->getExecutionContext())) {
+      setCodeGenData(astRetTypeRef, tgVars.get(0));
+      tgVars.remove(0);
+    }
+
     // Store the generated data.
     setCodeGenData(astBlock, tgContext);
     for (Int i = 0; i < tgVars.getCount(); ++i) {
       auto argType = astArgs->getElement(i);
-      setCodeGenData(argType, tgVars.get(i));
+      auto argAstType = Ast::getAstType(argType);
+      auto argTgType = getCodeGenData<TiObject>(argAstType);
+      TioSharedPtr argTgVar;
+      if (!tg->generateLocalVariable(tgContext.get(), argTgType, astArgs->getElementKey(i).c_str(), 0, argTgVar)) {
+        return false;
+      }
+      setCodeGenData(argType, argTgVar);
+      Ast::Type *argSourceAstType;
+      if (argAstType->hasCustomInitialization(generator->astHelper, tg->getExecutionContext())) {
+        argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType);
+      } else {
+        argSourceAstType = argAstType;
+      }
+      SharedList<TiObject> initTgVals;
+      PlainList<Ast::Type> initAstTypes;
+      initTgVals.clear();
+      initTgVals.add(tgVars.get(i));
+      initAstTypes.clear();
+      initAstTypes.add(argSourceAstType);
+      TioSharedPtr argTgVarRef;
+      if (!tg->generateVarReference(tgContext.get(), argTgType, argTgVar.get(), argTgVarRef)) {
+        return false;
+      }
+      if (!generation->generateVarInitialization(
+        argAstType, argTgVarRef.get(), ti_cast<Core::Data::Node>(argType), &initAstTypes, &initTgVals, tg, tgContext.get()
+      )) {
+        return false;
+      }
     }
 
     // Generate the function's statements.
@@ -146,7 +183,6 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, T
     auto retVal = generation->generateStatements(astBlock, tg, tgContext.get(), terminal);
 
     // Does this function need to return a value?
-    auto astRetType = astFuncType->traceRetType(generator->astHelper);
     if (!generator->astHelper->isVoid(astRetType) && terminal != TerminalStatement::YES) {
       // A block could have been terminated by a block or continue statement instead of a return, but that's fine
       // since top level breaks and returns will raise an error anyway.
@@ -248,6 +284,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
 Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *definition, TargetGeneration *tg)
 {
   PREPARE_SELF(generator, Generator);
+  PREPARE_SELF(generation, Generation);
 
   TiObject *astVar = definition->getTarget().get();
   TiObject *tgVar = tryGetCodeGenData<TiObject>(astVar);
@@ -306,6 +343,10 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
         generator->globalItemRepo->addItem(name.c_str(), size);
       }
+
+      // TODO: Initialize the variable if it's not an already initialized global.
+      // TODO: Add to destructor list if necessary.
+
       setCodeGenData(astVar, tgGlobalVar);
     } else {
       auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(definition);
@@ -316,33 +357,193 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         // Generate a local variable.
 
         // To avoid stack overflows we need to allocate at the function level rather than any inner block.
-        while (astBlock != 0 && ti_cast<Ast::Function>(astBlock->getOwner()) == 0) {
-          astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astBlock->getOwner());
+        auto astFuncBlock = astBlock;
+        while (astFuncBlock != 0 && ti_cast<Ast::Function>(astFuncBlock->getOwner()) == 0) {
+          astFuncBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astFuncBlock->getOwner());
         }
-        if (astBlock == 0) {
+        if (astFuncBlock == 0) {
           throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
         }
 
         // At this point we should already have a TG context.
-        auto tgContext = getCodeGenData<TiObject>(astBlock);
+        auto tgFuncContext = getCodeGenData<TiObject>(astFuncBlock);
 
+        // Create the target local var.
+        TioSharedPtr tgLocalVar;
+        if (!tg->generateLocalVariable(tgFuncContext, tgType, definition->getName().get(), 0, tgLocalVar)) {
+          setCodeGenFailed(astVar, true);
+          return false;
+        }
+
+        // Initialize the variable.
         // TODO: Should we use default values with local variables?
         // TioSharedPtr tgDefaultValue;
         // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
         //   if (!generator->typeGenerator->generateDefaultValue(astType, tg, tgContext, tgDefaultValue)) return false;
         // }
-
-        // Create the llvm global var.
-        TioSharedPtr tgLocalVar;
-        if (!tg->generateLocalVariable(tgContext, tgType, definition->getName().get(), 0, tgLocalVar)) {
-          setCodeGenFailed(astVar, true);
+        auto tgContext = getCodeGenData<TiObject>(astBlock);
+        SharedList<TiObject> initTgVals;
+        PlainList<Ast::Type> initAstTypes;
+        TioSharedPtr tgLocalVarRef;
+        if (!tg->generateVarReference(tgContext, tgType, tgLocalVar.get(), tgLocalVarRef)) {
           return false;
         }
+        if (!generation->generateVarInitialization(
+          astType, tgLocalVarRef.get(), definition, &initAstTypes, &initTgVals, tg, tgContext
+        )) return false;
+
+        // TODO: Add to destructor list if necessary.
+
         setCodeGenData(astVar, tgLocalVar);
       }
     }
   }
 
+  return true;
+}
+
+
+Bool Generator::_generateTempVar(
+  TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, TargetGeneration *tg
+) {
+  PREPARE_SELF(generator, Generator);
+  PREPARE_SELF(generation, Generation);
+
+  TiObject *tgVar = tryGetCodeGenData<TiObject>(astNode);
+
+  if (tgVar == 0) {
+    // Generate the type of the variable.
+    TiObject *tgType;
+    if (!generator->typeGenerator->getGeneratedType(astType, tg, tgType, 0)) return false;
+
+    // Also generate the reference type of this type.
+    Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);
+    if (astRefType == 0) {
+      throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
+    }
+    TiObject *tgRefType;
+    if (!generator->typeGenerator->getGeneratedType(astRefType, tg, tgRefType, 0)) {
+      throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
+    }
+
+    Ast::setAstType(astNode, astType);
+
+    Core::Data::Ast::Definition tempDef;
+    tempDef.setOwner(astNode->getOwner());
+
+    if (generator->getAstHelper()->getDefinitionDomain(&tempDef) == Ast::DefinitionDomain::GLOBAL) {
+      // Generate a global or a static variable.
+      Str name = generator->getTempVarName();
+      TioSharedPtr tgGlobalVar;
+      if (generator->offlineExecution) {
+        // Generate the default value.
+        TioSharedPtr tgDefaultValue;
+        if (!generator->typeGenerator->generateDefaultValue(astType, tg, 0, tgDefaultValue)) return false;
+        // Create the llvm global var.
+        if (!tg->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) return false;
+      } else {
+        // Create the llvm global var.
+        if (!tg->generateGlobalVariable(tgType, name.c_str(), 0, tgGlobalVar)) return false;
+        // Add an entry for the variable in the repo.
+        Word size;
+        if (!generator->typeGenerator->getTypeAllocationSize(astType, tg, size)) return false;
+        generator->globalItemRepo->addItem(name.c_str(), size);
+      }
+
+      // TODO: Initialize the variable.
+      // TODO: Add to destructor list if necessary.
+
+      setCodeGenData(astNode, tgGlobalVar);
+    } else {
+      auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astNode);
+      if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
+        // This should never happen.
+        throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
+      } else {
+        // Generate a local variable.
+
+        // To avoid stack overflows we need to allocate at the function level rather than any inner block.
+        auto astFuncBlock = astBlock;
+        while (astFuncBlock != 0 && ti_cast<Ast::Function>(astFuncBlock->getOwner()) == 0) {
+          astFuncBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astFuncBlock->getOwner());
+        }
+        if (astFuncBlock == 0) throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
+
+        // At this point we should already have a TG context.
+        auto tgFuncContext = getCodeGenData<TiObject>(astFuncBlock);
+
+        // Create the llvm local var.
+        TioSharedPtr tgLocalVar;
+        Str name = generator->getTempVarName();
+        if (!tg->generateLocalVariable(tgFuncContext, tgType, name.c_str(), 0, tgLocalVar)) return false;
+
+        // Initialize the variable.
+        // TODO: Should we use default values with local variables?
+        // TioSharedPtr tgDefaultValue;
+        // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
+        //   if (!generator->typeGenerator->generateDefaultValue(astType, tg, tgContext, tgDefaultValue)) return false;
+        // }
+        auto tgContext = getCodeGenData<TiObject>(astBlock);
+        SharedList<TiObject> initTgVals;
+        PlainList<Ast::Type> initAstTypes;
+        TioSharedPtr tgLocalVarRef;
+        if (!tg->generateVarReference(tgContext, tgType, tgLocalVar.get(), tgLocalVarRef)) {
+          return false;
+        }
+        if (!generation->generateVarInitialization(
+          astType, tgLocalVar.get(), astNode, &initAstTypes, &initTgVals, tg, tgContext
+        )) return false;
+
+        // TODO: Add to destructor list if necessary.
+
+        setCodeGenData(astNode, tgLocalVar);
+      }
+    }
+  }
+
+  return true;
+}
+
+
+Bool Generator::_generateVarInitialization(
+  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *paramsAstNode,
+  PlainList<Ast::Type> *paramAstTypes, SharedList<TiObject> *paramTgValues,
+  TargetGeneration *tg, TiObject *tgContext
+) {
+  PREPARE_SELF(generator, Generator);
+  PREPARE_SELF(generation, Generation);
+  // TODO: Call empty constructors, if any.
+  if (paramAstTypes->getCount() > 0) {
+    // Initialize from the given value.
+    // TODO: Do we have constructors for the given source?
+    // Else just copy the value.
+    ASSERT(paramAstTypes->getCount() == 1);
+    ASSERT(paramTgValues->getCount() == 1);
+
+    // Cast the value to var type.
+    if (!paramAstTypes->getElement(0)->isImplicitlyCastableTo(
+      varAstType, generator->astHelper, tg->getExecutionContext()
+    )) {
+      generator->noticeStore->add(
+        std::make_shared<Spp::Notices::InvalidReturnValueNotice>(Core::Data::Ast::findSourceLocation(paramsAstNode))
+      );
+      return false;
+    }
+    TioSharedPtr tgCastedValue;
+    if (!generation->generateCast(
+      tg, tgContext, paramAstTypes->getElement(0), varAstType, paramTgValues->getElement(0), tgCastedValue)
+    ) {
+      // This should not happen since non-castable calls should be filtered out earlier.
+      throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
+    }
+
+    // Copy the value into the var.
+    auto varTgType = getCodeGenData<TiObject>(varAstType);
+    TioSharedPtr assignTgRes;
+    if (!tg->generateAssign(tgContext, varTgType, tgCastedValue.get(), tgVarRef, assignTgRes)) {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -462,6 +663,15 @@ Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, 
 {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->getTypeAllocationSize(astType, tg, result);
+}
+
+
+//==============================================================================
+// Helper Functions
+
+Str Generator::getTempVarName()
+{
+  return Str("#temp") + std::to_string(this->tempVarIndex++);
 }
 
 } } // namespace

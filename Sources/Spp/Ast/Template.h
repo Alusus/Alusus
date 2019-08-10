@@ -37,7 +37,7 @@ class Template : public Core::Data::Node,
 
   private: TioSharedPtr body;
 
-  private: std::vector<SharedPtr<Core::Data::Ast::Scope>> instances;
+  private: SharedList<Core::Data::Ast::Scope> instances;
 
 
   //============================================================================
@@ -132,6 +132,16 @@ class Template : public Core::Data::Node,
   public: static TiObject* getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name);
 
   private: static TiObject* traceObject(TiObject *ref, TemplateVarType varType, Helper *helper);
+
+  public: Word getInstanceCount() const
+  {
+    return this->instances.getCount();
+  }
+
+  public: SharedPtr<Core::Data::Ast::Scope> const& getInstance(Int index)
+  {
+    return this->instances.get(index);
+  }
 
 
   //============================================================================

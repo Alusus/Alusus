@@ -8,39 +8,39 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@__anonymous0 = private constant [12 x i8] c"hello world\00", align 1
-@__anonymous1 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous2 = private constant [6 x i8] c"world\00", align 1
-@__anonymous3 = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous0" = private constant [12 x i8] c"hello world\00", align 1
+@"#anonymous1" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous2" = private constant [6 x i8] c"world\00", align 1
+@"#anonymous3" = private constant [6 x i8] c"hello\00", align 1
 
 define i64 @"Main.main(Int[64],Float[64])=>(Int[64])"(i64 %a, double %b) {
-__block0:
+"#block0":
   %a1 = alloca i64
   store i64 %a, i64* %a1
   %b2 = alloca double
   store double %b, double* %b2
   call void @"Main.g()"()
-  call void @"Main.h(ptr[Word[8]])"(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous0, i32 0, i32 0))
-  call void @hh(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous1, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous2, i32 0, i32 0))
+  call void @"Main.h(ptr[Word[8]])"(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"#anonymous0", i32 0, i32 0))
+  call void @hh(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous1", i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous2", i32 0, i32 0))
   call void @"Other.f(Int[32])"(i32 5)
-  call void @"Other.f(ptr[Word[8]])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous3, i32 0, i32 0))
+  call void @"Other.f(ptr[Word[8]])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous3", i32 0, i32 0))
   call void @"Other.Nested.g()=>(Void)"()
 }
 
 define void @"Main.g()"() {
-__block1:
+"#block1":
   ret void
 }
 
 define void @"Main.h(ptr[Word[8]])"(i8* %a) {
-__block2:
+"#block2":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @hh(i8* %a, i8* %b) {
-__block3:
+"#block3":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   %b2 = alloca i8*
@@ -49,26 +49,26 @@ __block3:
 }
 
 define void @"Other.f(Int[32])"(i32 %a) {
-__block4:
+"#block4":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   ret void
 }
 
 define void @"Other.f(ptr[Word[8]])"(i8* %a) {
-__block5:
+"#block5":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Other.Nested.g()=>(Void)"() {
-__block6:
+"#block6":
   ret void
 }
 
 define void @"Main.f(Int[32],Float[32])"(i32 %a, float %b) {
-__block7:
+"#block7":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca float
@@ -77,13 +77,13 @@ __block7:
 }
 
 define void @"Main.subModule.start()=>(Void)"() {
-__block8:
+"#block8":
   %0 = call i32 @"Main.subModule.g()=>(Int[32])"()
   ret void
 }
 
 define i32 @"Main.subModule.g()=>(Int[32])"() {
-__block9:
+"#block9":
   ret i32 20
 }
 ------------------------------------------------------------

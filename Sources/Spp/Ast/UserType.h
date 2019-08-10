@@ -50,6 +50,8 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
 
   public: virtual Bool merge(TiObject *src, Core::Notices::Store *noticeStore);
 
+  public: virtual Bool hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const;
+
 }; // class
 
 } // namespace

@@ -55,6 +55,7 @@ Bool CommandGenerator::_generateReturnStatement(
   if (function == 0) {
     throw EXCEPTION(GenericException, S("Return statement does not belong to a function."));
   }
+  auto retTypeRef = function->getType()->getRetType().ti_cast_get<Core::Data::Node>();
   Ast::Type *retType = function->getType()->traceRetType(cmdGenerator->astHelper);
 
   auto operand = astNode->getOperand().get();
@@ -62,24 +63,45 @@ Bool CommandGenerator::_generateReturnStatement(
     // Generate the expression to return.
     GenResult operandResult;
     if (!g->generateExpression(operand, tg, tgContext, operandResult)) return false;
-    // Cast the returned value, if needed.
-    if (!operandResult.astType->isImplicitlyCastableTo(
-      retType, cmdGenerator->astHelper, tg->getExecutionContext()
-    )) {
-      cmdGenerator->noticeStore->add(
-        std::make_shared<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
-      );
-      return false;
-    }
-    TioSharedPtr tgCastedValue;
-    if (!g->generateCast(
-      tg, tgContext, operandResult.astType, retType, operandResult.targetData.get(), tgCastedValue)
-    ) {
-      // This should not happen since non-castable calls should be filtered out earlier.
-      throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
-    }
     // Generate the return statement.
-    tg->generateReturn(tgContext, getCodeGenData<TiObject>(retType), tgCastedValue.get());
+    if (retType->hasCustomInitialization(cmdGenerator->astHelper, tg->getExecutionContext())) {
+      // Assign value to ret reference.
+      TiObject *retTgType;
+      if (!g->getGeneratedType(retType, tg, retTgType, 0)) return false;
+
+      SharedList<TiObject> initTgVals;
+      PlainList<Ast::Type> initAstTypes;
+      initTgVals.add(operandResult.targetData);
+      initAstTypes.add(operandResult.astType);
+      if (!g->generateVarInitialization(
+        retType, getCodeGenData<TiObject>(retTypeRef), retTypeRef,
+        &initAstTypes, &initTgVals, tg, tgContext
+      )) {
+        return false;
+      }
+
+      tg->generateReturn(tgContext, getCodeGenData<TiObject>(retType), 0);
+    } else {
+      // Return the value itself.
+
+      // Cast the returned value, if needed.
+      if (!operandResult.astType->isImplicitlyCastableTo(
+        retType, cmdGenerator->astHelper, tg->getExecutionContext()
+      )) {
+        cmdGenerator->noticeStore->add(
+          std::make_shared<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
+        );
+        return false;
+      }
+      TioSharedPtr tgCastedValue;
+      if (!g->generateCast(
+        tg, tgContext, operandResult.astType, retType, operandResult.targetData.get(), tgCastedValue)
+      ) {
+        // This should not happen since non-castable calls should be filtered out earlier.
+        throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
+      }
+      tg->generateReturn(tgContext, getCodeGenData<TiObject>(retType), tgCastedValue.get());
+    }
   } else {
     // Make sure return type is void.
     if (!retType->isA<Ast::VoidType>()) {
@@ -125,6 +147,7 @@ Bool CommandGenerator::_generateIfStatement(
   // Generate ifBody.
   TerminalStatement terminalBody = TerminalStatement::UNKNOWN;
   if (ifBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    setCodeGenData(static_cast<Core::Data::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext()));
     if (!g->generateStatements(
       static_cast<Core::Data::Ast::Scope*>(ifBody), tg, ifTgContext->getBodyContext(), terminalBody)
     ) {
@@ -140,6 +163,7 @@ Bool CommandGenerator::_generateIfStatement(
   TerminalStatement terminalElse = TerminalStatement::UNKNOWN;
   if (elseBody != 0) {
     if (elseBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
+      setCodeGenData(static_cast<Core::Data::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext()));
       if (!g->generateStatements(
         static_cast<Core::Data::Ast::Scope*>(elseBody), tg, ifTgContext->getElseContext(), terminalElse)
       ) {
@@ -183,6 +207,7 @@ Bool CommandGenerator::_generateWhileStatement(
   // Generate body.
   auto body = astNode->getBody().get();
   if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    setCodeGenData(static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext()));
     TerminalStatement terminal;
     if (!g->generateStatements(
       static_cast<Core::Data::Ast::Scope*>(body), tg, loopTgContext->getBodyContext(), terminal)
@@ -234,6 +259,7 @@ Bool CommandGenerator::_generateForStatement(
   // Generate body.
   auto body = astNode->getBody().get();
   if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    setCodeGenData(static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext()));
     TerminalStatement terminal;
     if (!g->generateStatements(
       static_cast<Core::Data::Ast::Scope*>(body), tg, loopTgContext->getBodyContext(), terminal)

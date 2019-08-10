@@ -176,13 +176,14 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnCallee,
     Bool, (
-      TiObject* /* callee */, Ast::Type* /* calleeType */, SharedList<TiObject>* /* paramTgValues */,
-      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
+      Core::Data::Node* /* astNode */, TiObject* /* callee */, Ast::Type* /* calleeType */,
+      SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
+      PlainList<TiObject>* /* paramAstNodes */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnCallee(
-    TiObject *self, TiObject *callee, Ast::Type *calleeType,
+    TiObject *self, Core::Data::Node *astNode, TiObject *callee, Ast::Type *calleeType,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
@@ -502,13 +503,13 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
-      Spp::Ast::Function* /* callee */,
+      Core::Data::Node* /* astNode */, Spp::Ast::Function* /* callee */,
       Containing<TiObject>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
       Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
     )
   );
   private: static Bool _generateFunctionCall(
-    TiObject *self, Spp::Ast::Function *callee,
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
     Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
     Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
   );
@@ -533,7 +534,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
   );
 
-  private: Bool dereferenceIfNeeded(
+  public: Bool dereferenceIfNeeded(
     TargetGeneration *tg, TiObject *tgContext, Spp::Ast::Type *astType, TiObject *tgValue, GenResult &result
   );
 

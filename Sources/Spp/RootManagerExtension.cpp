@@ -247,14 +247,32 @@ void RootManagerExtension::_resetBuildData(TiObject *self, TiObject *obj)
   if (obj == 0) return;
   if (obj->isDerivedFrom<Core::Data::Grammar::Module>()) return;
 
-  CodeGen::removeCodeGenData(obj);
-  CodeGen::resetCodeGenFailed(obj);
+  PREPARE_SELF(rootManagerExt, RootManagerExtension);
+
+  auto metahaving = ti_cast<Core::Data::Ast::MetaHaving>(obj);
+  if (metahaving != 0) {
+    CodeGen::removeCodeGenData(metahaving);
+    CodeGen::resetCodeGenFailed(metahaving);
+  }
 
   auto container = ti_cast<Core::Basic::Containing<TiObject>>(obj);
   if (container != 0) {
-    PREPARE_SELF(rootManagerExt, RootManagerExtension);
     for (Int i = 0; i < container->getElementCount(); ++i) {
       rootManagerExt->resetBuildData(container->getElement(i));
+    }
+  }
+
+  auto binding = ti_cast<Core::Basic::Binding>(obj);
+  if (binding != 0) {
+    for (Int i = 0; i < binding->getMemberCount(); ++i) {
+      rootManagerExt->resetBuildData(binding->getMember(i));
+    }
+  }
+
+  auto tpl = ti_cast<Ast::Template>(obj);
+  if (tpl != 0) {
+    for (Int i = 0; i < tpl->getInstanceCount(); ++i) {
+      rootManagerExt->resetBuildData(tpl->getInstance(i).get());
     }
   }
 }

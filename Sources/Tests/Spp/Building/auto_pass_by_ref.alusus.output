@@ -1,0 +1,68 @@
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%Point1 = type { i32, i32 }
+
+define %Point1 @"convertPoint1(Point1)=>(Point1)"(%Point1 %p) {
+"#block0":
+  %p1 = alloca %Point1
+  store %Point1 %p, %Point1* %p1
+  %r = alloca %Point1
+  %0 = load %Point1, %Point1* %r
+  ret %Point1 %0
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%Point2 = type { i32, i32 }
+%Point1 = type { i32, i32 }
+
+define void @"convertPoint2(Point1)=>(Point2)"(%Point2* %"#ret", %Point1 %p) {
+"#block0":
+  %p1 = alloca %Point1
+  store %Point1 %p, %Point1* %p1
+  %r = alloca %Point2
+  %0 = load %Point2, %Point2* %r
+  store %Point2 %0, %Point2* %"#ret"
+  ret void
+  ret void
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%Point1 = type { i32, i32 }
+%Point2 = type { i32, i32 }
+
+define %Point1 @"convertPoint3(Point2)=>(Point1)"(%Point2* %p) {
+"#block0":
+  %p1 = alloca %Point2
+  %0 = load %Point2, %Point2* %p
+  store %Point2 %0, %Point2* %p1
+  %r = alloca %Point1
+  %1 = load %Point1, %Point1* %r
+  ret %Point1 %1
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%Point2 = type { i32, i32 }
+
+define void @"convertPoint4(Point2)=>(Point2)"(%Point2* %"#ret", %Point2* %p) {
+"#block0":
+  %p1 = alloca %Point2
+  %0 = load %Point2, %Point2* %p
+  store %Point2 %0, %Point2* %p1
+  %r = alloca %Point2
+  %1 = load %Point2, %Point2* %r
+  store %Point2 %1, %Point2* %"#ret"
+  ret void
+  ret void
+}
+------------------------------------------------------------

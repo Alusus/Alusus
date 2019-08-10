@@ -10,35 +10,35 @@ source_filename = "AlususProgram"
 %Main_T = type { i32, i32 }
 %Main_TA = type { i32, [4 x i32] }
 
-@__anonymous0 = private constant [12 x i8] c"a(%d) = %d\0A\00", align 1
-@__anonymous1 = private constant [13 x i8] c"hello world!\00", align 1
-@__anonymous2 = private constant [4 x i8] c"%d\0A\00", align 1
-@__anonymous3 = private constant [4 x i8] c"%d\0A\00", align 1
-@__anonymous4 = private constant [4 x i8] c"%s\0A\00", align 1
-@__anonymous5 = private constant [4 x i8] c"%f\0A\00", align 1
-@__anonymous6 = private constant [4 x i8] c"%d\0A\00", align 1
-@__anonymous7 = private constant [4 x i8] c"%d\0A\00", align 1
-@__anonymous8 = private constant [21 x i8] c"getArray(2)(3) = %d\0A\00", align 1
-@__anonymous9 = private constant [26 x i8] c"printArray(getArray(3)):\0A\00", align 1
-@__anonymous10 = private constant [31 x i8] c"getArray => ai => printArray:\0A\00", align 1
+@"#anonymous0" = private constant [12 x i8] c"a(%d) = %d\0A\00", align 1
+@"#anonymous1" = private constant [13 x i8] c"hello world!\00", align 1
+@"#anonymous2" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous3" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous4" = private constant [4 x i8] c"%s\0A\00", align 1
+@"#anonymous5" = private constant [4 x i8] c"%f\0A\00", align 1
+@"#anonymous6" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous7" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous8" = private constant [21 x i8] c"getArray(2)(3) = %d\0A\00", align 1
+@"#anonymous9" = private constant [26 x i8] c"printArray(getArray(3)):\0A\00", align 1
+@"#anonymous10" = private constant [31 x i8] c"getArray => ai => printArray:\0A\00", align 1
 
 declare i64 @printf(i8*, ...)
 
 define [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 %m) {
-__block0:
+"#block0":
   %m1 = alloca i32
   store i32 %m, i32* %m1
   %a = alloca [5 x i32]
   %i = alloca i32
   store i32 0, i32* %i
-  br label %__block1
+  br label %"#block1"
 
-__block1:                                         ; preds = %__block2, %__block0
+"#block1":                                        ; preds = %"#block2", %"#block0"
   %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 5
-  br i1 %1, label %__block2, label %__block3
+  br i1 %1, label %"#block2", label %"#block3"
 
-__block2:                                         ; preds = %__block1
+"#block2":                                        ; preds = %"#block1"
   %2 = load i32, i32* %i
   %3 = sext i32 %2 to i64
   %4 = getelementptr [5 x i32], [5 x i32]* %a, i32 0, i64 %3
@@ -50,44 +50,44 @@ __block2:                                         ; preds = %__block1
   %9 = load i32, i32* %i
   %10 = add nsw i32 %9, 1
   store i32 %10, i32* %i
-  br label %__block1
+  br label %"#block1"
 
-__block3:                                         ; preds = %__block1
+"#block3":                                        ; preds = %"#block1"
   %11 = load [5 x i32], [5 x i32]* %a
   ret [5 x i32] %11
 }
 
 define void @"Main.printArray(array[Int[32],5])=>(Void)"([5 x i32] %a) {
-__block4:
+"#block4":
   %a1 = alloca [5 x i32]
   store [5 x i32] %a, [5 x i32]* %a1
   %i = alloca i32
   store i32 0, i32* %i
-  br label %__block5
+  br label %"#block5"
 
-__block5:                                         ; preds = %__block6, %__block4
+"#block5":                                        ; preds = %"#block6", %"#block4"
   %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 5
-  br i1 %1, label %__block6, label %__block7
+  br i1 %1, label %"#block6", label %"#block7"
 
-__block6:                                         ; preds = %__block5
+"#block6":                                        ; preds = %"#block5"
   %2 = load i32, i32* %i
   %3 = sext i32 %2 to i64
   %4 = getelementptr [5 x i32], [5 x i32]* %a1, i32 0, i64 %3
   %5 = load i32, i32* %i
   %6 = load i32, i32* %4
-  %7 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @__anonymous0, i32 0, i32 0), i32 %5, i32 %6)
+  %7 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"#anonymous0", i32 0, i32 0), i32 %5, i32 %6)
   %8 = load i32, i32* %i
   %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
-  br label %__block5
+  br label %"#block5"
 
-__block7:                                         ; preds = %__block5
+"#block7":                                        ; preds = %"#block5"
   ret void
 }
 
 define void @"Main.start()=>(Void)"() {
-__block8:
+"#block8":
   %ai = alloca [5 x i32]
   %aai = alloca [3 x [5 x i32]]
   %apc = alloca [4 x i8*]
@@ -102,7 +102,7 @@ __block8:
   %3 = getelementptr [5 x i32], [5 x i32]* %2, i32 0, i64 4
   store i32 23, i32* %3
   %4 = getelementptr [4 x i8*], [4 x i8*]* %apc, i32 0, i64 1
-  store i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__anonymous1, i32 0, i32 0), i8** %4
+  store i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous1", i32 0, i32 0), i8** %4
   %5 = getelementptr [7 x double], [7 x double]* %af, i32 0, i64 0
   store double 0x3FF3333340000000, double* %5
   %6 = getelementptr [7 x double], [7 x double]* %af, i32 0, i64 0
@@ -115,25 +115,25 @@ __block8:
   store i32 89, i32* %10
   %11 = getelementptr [5 x i32], [5 x i32]* %ai, i32 0, i64 2
   %12 = load i32, i32* %11
-  %13 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous2, i32 0, i32 0), i32 %12)
+  %13 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous2", i32 0, i32 0), i32 %12)
   %14 = getelementptr [3 x [5 x i32]], [3 x [5 x i32]]* %aai, i32 0, i64 2
   %15 = getelementptr [5 x i32], [5 x i32]* %14, i32 0, i64 4
   %16 = load i32, i32* %15
-  %17 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous3, i32 0, i32 0), i32 %16)
+  %17 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous3", i32 0, i32 0), i32 %16)
   %18 = getelementptr [4 x i8*], [4 x i8*]* %apc, i32 0, i64 1
   %19 = load i8*, i8** %18
-  %20 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous4, i32 0, i32 0), i8* %19)
+  %20 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous4", i32 0, i32 0), i8* %19)
   %21 = getelementptr [7 x double], [7 x double]* %af, i32 0, i64 0
   %22 = load double, double* %21
-  %23 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous5, i32 0, i32 0), double %22)
+  %23 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous5", i32 0, i32 0), double %22)
   %24 = getelementptr [9 x %Main_T], [9 x %Main_T]* %at, i32 0, i64 7
   %25 = getelementptr %Main_T, %Main_T* %24, i32 0, i32 1
   %26 = load i32, i32* %25
-  %27 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous6, i32 0, i32 0), i32 %26)
+  %27 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous6", i32 0, i32 0), i32 %26)
   %28 = getelementptr %Main_TA, %Main_TA* %ta, i32 0, i32 1
   %29 = getelementptr [4 x i32], [4 x i32]* %28, i32 0, i64 3
   %30 = load i32, i32* %29
-  %31 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @__anonymous7, i32 0, i32 0), i32 %30)
+  %31 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous7", i32 0, i32 0), i32 %30)
   %32 = getelementptr [5 x i32], [5 x i32]* %ai, i32 0, i64 2
   %33 = getelementptr [3 x [5 x i32]], [3 x [5 x i32]]* %aai, i32 0, i64 0
   %34 = call [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 2)
@@ -141,11 +141,11 @@ __block8:
   store [5 x i32] %34, [5 x i32]* %35
   %36 = getelementptr [5 x i32], [5 x i32]* %35, i32 0, i64 3
   %37 = load i32, i32* %36
-  %38 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__anonymous8, i32 0, i32 0), i32 %37)
-  %39 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__anonymous9, i32 0, i32 0))
+  %38 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([21 x i8], [21 x i8]* @"#anonymous8", i32 0, i32 0), i32 %37)
+  %39 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([26 x i8], [26 x i8]* @"#anonymous9", i32 0, i32 0))
   %40 = call [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 3)
   call void @"Main.printArray(array[Int[32],5])=>(Void)"([5 x i32] %40)
-  %41 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__anonymous10, i32 0, i32 0))
+  %41 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([31 x i8], [31 x i8]* @"#anonymous10", i32 0, i32 0))
   %42 = call [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 4)
   store [5 x i32] %42, [5 x i32]* %ai
   %43 = load [5 x i32], [5 x i32]* %ai

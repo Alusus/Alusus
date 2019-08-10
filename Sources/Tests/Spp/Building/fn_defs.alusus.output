@@ -7,7 +7,7 @@ Build Failed...
 source_filename = "AlususProgram"
 
 define i64 @"Main.main(Int[64],Float[64])=>(Int[64])"(i64 %a, double %b) {
-__block0:
+"#block0":
   %a1 = alloca i64
   store i64 %a, i64* %a1
   %b2 = alloca double
@@ -15,7 +15,7 @@ __block0:
 }
 
 define i64 @"Main.f(Int[32],Float[32])=>(Int[64])"(i32 %a, float %b) {
-__block1:
+"#block1":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca float
@@ -23,7 +23,7 @@ __block1:
 }
 
 define i32 @"Main.g(ptr[Int[32]])=>(Int[32])"(i32* %a) {
-__block2:
+"#block2":
   %a1 = alloca i32*
   store i32* %a, i32** %a1
 }

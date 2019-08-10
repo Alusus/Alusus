@@ -318,6 +318,13 @@ Bool TypeGenerator::_generateFunctionType(TiObject *self, Spp::Ast::FunctionType
     if (!typeGenerator->getGeneratedType(argType, tg, tgType, &astType)) {
       return false;
     }
+    if (astType->hasCustomInitialization(typeGenerator->astHelper, tg->getExecutionContext())) {
+      // This type has custom initialization, so we'll pass it by reference instead of by value.
+      auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
+      if (!typeGenerator->getGeneratedType(astPtrType, tg, tgType, 0)) {
+        return false;
+      }
+    }
     tgArgs.add(astArgs->getKey(i).c_str(), tgType);
     Ast::setAstType(argType, astType);
   }
@@ -330,6 +337,15 @@ Bool TypeGenerator::_generateFunctionType(TiObject *self, Spp::Ast::FunctionType
       return false;
     }
     Ast::setAstType(astType->getRetType().get(), astRetType);
+    if (astRetType->hasCustomInitialization(typeGenerator->astHelper, tg->getExecutionContext())) {
+      // This type has custom initialization, so we'll pass it by reference instead of by value.
+      auto astRetPtrType = typeGenerator->astHelper->getPointerTypeFor(astRetType);
+      if (!typeGenerator->getGeneratedType(astRetPtrType, tg, tgRetType, 0)) {
+        return false;
+      }
+      tgArgs.insert(0, S("#ret"), tgRetType);
+      if (!typeGenerator->getGeneratedVoidType(tg, tgRetType, 0)) return false;
+    }
   } else {
     if (!typeGenerator->getGeneratedVoidType(tg, tgRetType, 0)) return false;
   }

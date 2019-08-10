@@ -42,6 +42,8 @@ class Generation : public ObjTiInterface
       &this->generateFunctionDecl,
       &this->generateUserTypeBody,
       &this->generateVarDef,
+      &this->generateTempVar,
+      &this->generateVarInitialization,
       &this->generateStatements,
       &this->generateStatement,
       &this->generateExpression,
@@ -87,7 +89,19 @@ class Generation : public ObjTiInterface
     Bool, (Spp::Ast::UserType* /* astType */, TargetGeneration* /* tg */)
   );
 
-  public: METHOD_BINDING_CACHE(generateVarDef, Bool, (Core::Data::Ast::Definition*, TargetGeneration* /* tg */));
+  public: METHOD_BINDING_CACHE(generateVarDef,
+    Bool, (Core::Data::Ast::Definition* /* def */, TargetGeneration* /* tg */)
+  );
+
+  public: METHOD_BINDING_CACHE(generateTempVar,
+    Bool, (Core::Data::Node* /* astNode */, Spp::Ast::Type* /* astType */, TargetGeneration* /* tg */)
+  );
+
+  public: METHOD_BINDING_CACHE(generateVarInitialization, Bool, (
+    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* paramsAstNode */,
+    PlainList<Ast::Type>* /* paramAstTypes */, SharedList<TiObject>* /* paramTgValues */,
+    TargetGeneration* /* tg */, TiObject* /* tgContext */
+  ));
 
   public: METHOD_BINDING_CACHE(generateStatements,
     Bool, (

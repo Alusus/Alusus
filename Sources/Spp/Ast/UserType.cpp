@@ -59,4 +59,19 @@ Bool UserType::merge(TiObject *src, Core::Notices::Store *noticeStore)
   return false;
 }
 
+
+Bool UserType::hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const
+{
+  auto body = this->getBody().get();
+  if (body != 0) {
+    for (Int i = 0; i < body->getCount(); ++i) {
+      auto def = body->get(i).ti_cast_get<Core::Data::Ast::Definition>();
+      if (def != 0 && def->getTarget().ti_cast_get<Ast::Function>() != 0) {
+        if (def->getName() == S("constructor") || def->getName() == S("destructor")) return true;
+      }
+    }
+  }
+  return false;
+}
+
 } // namespace

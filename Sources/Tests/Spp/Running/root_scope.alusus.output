@@ -11,7 +11,7 @@ Build Failed...
 source_filename = "AlususProgram"
 
 define void @"fnWithErrors()"() {
-__block0:
+"#block0":
   ret void
 }
 ------------------------------------------------------------

@@ -46,6 +46,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: Core::Notices::Store *noticeStore = 0;
   private: Bool offlineExecution = false;
+  private: Int tempVarIndex = 0;
 
 
   //============================================================================
@@ -166,6 +167,16 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     TiObject *self, Core::Data::Ast::Definition *definition, TargetGeneration *tg
   );
 
+  private: static Bool _generateTempVar(
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, TargetGeneration *tg
+  );
+
+  private: static Bool _generateVarInitialization(
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *paramsAstNode,
+    PlainList<Ast::Type> *paramAstTypes, SharedList<TiObject> *paramTgValues,
+    TargetGeneration *tg, TiObject *tgContext
+  );
+
   private: static Bool _generateStatements(
     TiObject *self, Core::Data::Ast::Scope *astBlock, TargetGeneration *tg, TiObject *tgContext,
     TerminalStatement &terminal
@@ -191,6 +202,13 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   private: static Bool _getTypeAllocationSize(
     TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
   );
+
+  /// @}
+
+  /// @name Helper Functions
+  /// @{
+
+  private: Str getTempVarName();
 
   /// @}
 
