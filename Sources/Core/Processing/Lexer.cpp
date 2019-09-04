@@ -468,7 +468,6 @@ void Lexer::processStartChar(WChar inputChar)
             state->setTokenLength(1);
           }
           this->nextStates[this->nextStateCount++] = state;
-          cache->operator[](inputChar).push_back(i);
           break;
         case CONTINUE_SAME_CHAR:
           // This should never be reached.
@@ -479,6 +478,13 @@ void Lexer::processStartChar(WChar inputChar)
           break;
         default:
           ASSERT(false);
+      }
+    }
+    if (this->nextStateCount > 0) {
+      std::vector<Int> &indexes = cache->operator[](inputChar);
+      for (Int i = 0; i < static_cast<Int>(this->nextStateCount); ++i) {
+        auto defIndex = this->nextStates[i]->getTokenDefIndex();
+        if (std::find(indexes.begin(), indexes.end(), defIndex) == indexes.end()) indexes.push_back(defIndex);
       }
     }
   } else {
@@ -821,8 +827,7 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
             innerState->copyFrom(state);
             innerState->refLevel(currentLevel).posId = i + 1;
             this->nextStates[this->nextStateCount++] = innerState;
-          }
-          if (ret != CONTINUE_SAME_CHAR) {
+          } else {
             ret = CONTINUE_NEW_CHAR;
           }
           break;
