@@ -22,23 +22,28 @@ source_filename = "AlususProgram"
 @"#anonymous9" = private constant [26 x i8] c"printArray(getArray(3)):\0A\00", align 1
 @"#anonymous10" = private constant [31 x i8] c"getArray => ai => printArray:\0A\00", align 1
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 declare i64 @printf(i8*, ...)
 
 define [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 %m) {
-"#block0":
+"#block1":
   %m1 = alloca i32
   store i32 %m, i32* %m1
   %a = alloca [5 x i32]
   %i = alloca i32
   store i32 0, i32* %i
-  br label %"#block1"
+  br label %"#block2"
 
-"#block1":                                        ; preds = %"#block2", %"#block0"
+"#block2":                                        ; preds = %"#block3", %"#block1"
   %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 5
-  br i1 %1, label %"#block2", label %"#block3"
+  br i1 %1, label %"#block3", label %"#block4"
 
-"#block2":                                        ; preds = %"#block1"
+"#block3":                                        ; preds = %"#block2"
   %2 = load i32, i32* %i
   %3 = sext i32 %2 to i64
   %4 = getelementptr [5 x i32], [5 x i32]* %a, i32 0, i64 %3
@@ -50,27 +55,27 @@ define [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 %m) {
   %9 = load i32, i32* %i
   %10 = add nsw i32 %9, 1
   store i32 %10, i32* %i
-  br label %"#block1"
+  br label %"#block2"
 
-"#block3":                                        ; preds = %"#block1"
+"#block4":                                        ; preds = %"#block2"
   %11 = load [5 x i32], [5 x i32]* %a
   ret [5 x i32] %11
 }
 
 define void @"Main.printArray(array[Int[32],5])=>(Void)"([5 x i32] %a) {
-"#block4":
+"#block5":
   %a1 = alloca [5 x i32]
   store [5 x i32] %a, [5 x i32]* %a1
   %i = alloca i32
   store i32 0, i32* %i
-  br label %"#block5"
+  br label %"#block6"
 
-"#block5":                                        ; preds = %"#block6", %"#block4"
+"#block6":                                        ; preds = %"#block7", %"#block5"
   %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 5
-  br i1 %1, label %"#block6", label %"#block7"
+  br i1 %1, label %"#block7", label %"#block8"
 
-"#block6":                                        ; preds = %"#block5"
+"#block7":                                        ; preds = %"#block6"
   %2 = load i32, i32* %i
   %3 = sext i32 %2 to i64
   %4 = getelementptr [5 x i32], [5 x i32]* %a1, i32 0, i64 %3
@@ -80,14 +85,14 @@ define void @"Main.printArray(array[Int[32],5])=>(Void)"([5 x i32] %a) {
   %8 = load i32, i32* %i
   %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
-  br label %"#block5"
+  br label %"#block6"
 
-"#block7":                                        ; preds = %"#block5"
+"#block8":                                        ; preds = %"#block6"
   ret void
 }
 
 define void @"Main.start()=>(Void)"() {
-"#block8":
+"#block9":
   %ai = alloca [5 x i32]
   %aai = alloca [3 x [5 x i32]]
   %apc = alloca [4 x i8*]

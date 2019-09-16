@@ -13,8 +13,13 @@ source_filename = "AlususProgram"
 @"#anonymous2" = private constant [6 x i8] c"world\00", align 1
 @"#anonymous3" = private constant [6 x i8] c"hello\00", align 1
 
-define i64 @"Main.main(Int[64],Float[64])=>(Int[64])"(i64 %a, double %b) {
+define void @__constructor__() {
 "#block0":
+  ret void
+}
+
+define i64 @"Main.main(Int[64],Float[64])=>(Int[64])"(i64 %a, double %b) {
+"#block1":
   %a1 = alloca i64
   store i64 %a, i64* %a1
   %b2 = alloca double
@@ -28,19 +33,19 @@ define i64 @"Main.main(Int[64],Float[64])=>(Int[64])"(i64 %a, double %b) {
 }
 
 define void @"Main.g()"() {
-"#block1":
+"#block2":
   ret void
 }
 
 define void @"Main.h(ptr[Word[8]])"(i8* %a) {
-"#block2":
+"#block3":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @hh(i8* %a, i8* %b) {
-"#block3":
+"#block4":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   %b2 = alloca i8*
@@ -49,26 +54,26 @@ define void @hh(i8* %a, i8* %b) {
 }
 
 define void @"Other.f(Int[32])"(i32 %a) {
-"#block4":
+"#block5":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   ret void
 }
 
 define void @"Other.f(ptr[Word[8]])"(i8* %a) {
-"#block5":
+"#block6":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Other.Nested.g()=>(Void)"() {
-"#block6":
+"#block7":
   ret void
 }
 
 define void @"Main.f(Int[32],Float[32])"(i32 %a, float %b) {
-"#block7":
+"#block8":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca float
@@ -77,13 +82,13 @@ define void @"Main.f(Int[32],Float[32])"(i32 %a, float %b) {
 }
 
 define void @"Main.subModule.start()=>(Void)"() {
-"#block8":
+"#block9":
   %0 = call i32 @"Main.subModule.g()=>(Int[32])"()
   ret void
 }
 
 define i32 @"Main.subModule.g()=>(Int[32])"() {
-"#block9":
+"#block10":
   ret i32 20
 }
 ------------------------------------------------------------

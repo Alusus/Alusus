@@ -27,6 +27,34 @@ namespace Spp::CodeGen
 //==============================================================================
 // Types
 
+class TargetGeneration;
+class DestructionStack;
+
+struct GenDeps
+{
+  TargetGeneration *tg;
+  TiObject *tgContext;
+  DestructionStack *destructionStack;
+  TiObject *tgGlobalConstructionContext;
+  DestructionStack *globalDestructionStack;
+
+  GenDeps(
+    TargetGeneration *tg, TiObject *tgc, DestructionStack *ds,
+    TiObject *tgGcc, DestructionStack *gds
+  ) : tg(tg), tgContext(tgc), destructionStack(ds), tgGlobalConstructionContext(tgGcc), globalDestructionStack(gds)
+  {}
+
+  GenDeps(GenDeps const &deps, TiObject *tgc)
+    : tg(deps.tg), tgContext(tgc), destructionStack(deps.destructionStack)
+    , tgGlobalConstructionContext(deps.tgGlobalConstructionContext), globalDestructionStack(deps.globalDestructionStack)
+  {}
+
+  GenDeps(GenDeps const &deps, TiObject *tgc, DestructionStack *ds)
+    : tg(deps.tg), tgContext(tgc), destructionStack(ds)
+    , tgGlobalConstructionContext(deps.tgGlobalConstructionContext), globalDestructionStack(deps.globalDestructionStack)
+  {}
+};
+
 struct GenResult
 {
   TiObject *astNode = 0;
@@ -177,6 +205,7 @@ inline void resetCodeGenFailed(OT *object)
 //==============================================================================
 // Type Names
 
+DEFINE_TYPE_NAME(Spp::CodeGen::GenDeps, "alusus.org/Spp/Spp.CodeGen.GenDeps");
 DEFINE_TYPE_NAME(Spp::CodeGen::GenResult, "alusus.org/Spp/Spp.CodeGen.GenResult");
 DEFINE_TYPE_NAME(Spp::CodeGen::TerminalStatement, "alusus.org/Spp/Spp.CodeGen.TerminalStatement");
 
@@ -190,6 +219,9 @@ namespace Spp::CodeGen
 class Generator;
 
 }
+
+// Helpers
+#include "DestructionStack.h"
 
 // Data
 #include "IfTgContext.h"

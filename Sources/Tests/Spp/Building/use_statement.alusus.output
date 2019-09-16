@@ -15,8 +15,13 @@ source_filename = "AlususProgram"
 @"#anonymous4" = private constant [15 x i8] c"Use Statement\0A\00", align 1
 @"#anonymous5" = private constant [2 x i8] c"!\00", align 1
 
-define void @"Main.Other3.printNewLine()"() {
+define void @__constructor__() {
 "#block0":
+  ret void
+}
+
+define void @"Main.Other3.printNewLine()"() {
+"#block1":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous0", i32 0, i32 0))
   ret void
 }
@@ -24,7 +29,7 @@ define void @"Main.Other3.printNewLine()"() {
 declare i64 @printf(i8*, ...)
 
 define void @"Main.start()=>(Void)"() {
-"#block1":
+"#block2":
   call void @"Other1.printUse()"()
   call void @"Other2.printStatement()"()
   call void @"Main.Other3.printNewLine()"()
@@ -32,25 +37,25 @@ define void @"Main.start()=>(Void)"() {
 }
 
 define void @"Other1.printUse()"() {
-"#block2":
+"#block3":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @"#anonymous2", i32 0, i32 0))
   ret void
 }
 
 define void @"Other2.printStatement()"() {
-"#block3":
+"#block4":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @"#anonymous3", i32 0, i32 0))
   ret void
 }
 
 define void @"Main.start2()"() {
-"#block4":
+"#block5":
   call void @"Std.Inner.printExclamation()"()
   ret void
 }
 
 define void @"Std.Inner.printExclamation()"() {
-"#block5":
+"#block6":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous5", i32 0, i32 0))
   ret void
 }

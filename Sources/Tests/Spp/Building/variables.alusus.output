@@ -34,10 +34,15 @@ source_filename = "AlususProgram"
 @"#anonymous8" = private constant [4 x i8] c"%d\0A\00", align 1
 @"#anonymous9" = private constant [4 x i8] c"%f\0A\00", align 1
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 declare i64 @printf(i8*, ...)
 
 define void @"Main.main()=>(Void)"() {
-"#block0":
+"#block1":
   %li = alloca i32
   %lpi = alloca i32*
   %lbi = alloca i64
@@ -111,7 +116,7 @@ define void @"Main.main()=>(Void)"() {
 }
 
 define void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %ai, double %af) {
-"#block1":
+"#block2":
   %ai1 = alloca i64
   store i64 %ai, i64* %ai1
   %af2 = alloca double
@@ -127,7 +132,7 @@ define void @"Main.testVars(Int[64],Float[64])=>(Void)"(i64 %ai, double %af) {
 }
 
 define void @"Main.testVarOverride()=>(Void)"() {
-"#block2":
+"#block3":
   %gi = alloca i32
   store i32 60, i32* %gi
   %0 = load i32, i32* %gi
@@ -136,7 +141,7 @@ define void @"Main.testVarOverride()=>(Void)"() {
 }
 
 define void @"Main.testGlobals()"() {
-"#block3":
+"#block4":
   store i32* @Main.gi, i32** @Main.gpi
   store i32 10, i32* @Main.gi
   %0 = load i32*, i32** @Main.gpi
@@ -144,34 +149,34 @@ define void @"Main.testGlobals()"() {
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous3", i32 0, i32 0), i32 %1)
   %i = alloca i32
   store i32 0, i32* %i
-  br label %"#block4"
+  br label %"#block5"
 
-"#block4":                                        ; preds = %"#block5", %"#block3"
+"#block5":                                        ; preds = %"#block6", %"#block4"
   %3 = load i32, i32* %i
   %4 = icmp slt i32 %3, 10
-  br i1 %4, label %"#block6", label %"#block7"
+  br i1 %4, label %"#block7", label %"#block8"
 
-"#block5":                                        ; preds = %"#block6"
+"#block6":                                        ; preds = %"#block7"
   %5 = load i32, i32* %i
   %6 = add nsw i32 %5, 1
   store i32 %6, i32* %i
-  br label %"#block4"
+  br label %"#block5"
 
-"#block6":                                        ; preds = %"#block4"
+"#block7":                                        ; preds = %"#block5"
   %7 = load i32, i32* %i
   %8 = sext i32 %7 to i64
   %9 = getelementptr [10 x i32], [10 x i32]* @Main.garr, i32 0, i64 %8
   %10 = load i32, i32* %9
   %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous4", i32 0, i32 0), i32 %10)
-  br label %"#block5"
+  br label %"#block6"
 
-"#block7":                                        ; preds = %"#block4"
+"#block8":                                        ; preds = %"#block5"
   %12 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous5", i32 0, i32 0))
   ret void
 }
 
 define void @"Main.testOtherModules()=>(Void)"() {
-"#block8":
+"#block9":
   store i32 2, i32* @Other.gi
   store double 0x401D333340000000, double* @Other.gf
   %0 = load i32, i32* @Other.gi

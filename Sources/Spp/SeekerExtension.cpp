@@ -114,7 +114,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_dataType(
 ) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   auto block = type->getBody().get();
-  if (flags & Core::Data::Seeker::Flags::SKIP_OWNED) {
+  if ((block == 0) || (flags & Core::Data::Seeker::Flags::SKIP_OWNED)) {
     return Core::Data::Seeker::Verb::MOVE;
   } else {
     return seeker->foreachByIdentifier_level(identifier, block, cb, flags);

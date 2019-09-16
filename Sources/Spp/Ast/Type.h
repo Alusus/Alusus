@@ -79,6 +79,11 @@ class Type : public Core::Data::Node,
     return false;
   }
 
+  public: virtual Bool hasCustomDestruction(Helper *helper, ExecutionContext const *ec) const
+  {
+    return false;
+  }
+
 }; // class
 
 } // namespace

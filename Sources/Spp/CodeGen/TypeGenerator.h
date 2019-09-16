@@ -135,32 +135,32 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
   private: static Bool _generateFunctionType(TiObject *self, Spp::Ast::FunctionType *astType, TargetGeneration *tg);
 
   public: METHOD_BINDING_CACHE(generateCast,
-    Bool, (TargetGeneration*, TiObject*, Spp::Ast::Type*, Spp::Ast::Type*, TiObject*, TioSharedPtr&)
+    Bool, (GenDeps const&, Spp::Ast::Type*, Spp::Ast::Type*, TiObject*, TioSharedPtr&)
   );
   private: static Bool _generateCast(
-    TiObject *self, TargetGeneration *tg, TiObject *tgContext, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
+    TiObject *self, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
     TiObject *tgValue, TioSharedPtr &tgCastedValue
   );
 
   public: METHOD_BINDING_CACHE(generateDefaultValue,
-    Bool, (Spp::Ast::Type*, TargetGeneration*, TiObject*, TioSharedPtr&)
+    Bool, (Spp::Ast::Type*, GenDeps const&, TioSharedPtr&)
   );
   private: static Bool _generateDefaultValue(
-    TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
+    TiObject *self, Spp::Ast::Type *astType, GenDeps const &deps, TioSharedPtr &result
   );
 
   public: METHOD_BINDING_CACHE(generateDefaultArrayValue,
-    Bool, (Spp::Ast::ArrayType*, TargetGeneration*, TiObject*, TioSharedPtr&)
+    Bool, (Spp::Ast::ArrayType*, GenDeps const&, TioSharedPtr&)
   );
   private: static Bool _generateDefaultArrayValue(
-    TiObject *self, Spp::Ast::ArrayType *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
+    TiObject *self, Spp::Ast::ArrayType *astType, GenDeps const &deps, TioSharedPtr &result
   );
 
   public: METHOD_BINDING_CACHE(generateDefaultUserTypeValue,
-    Bool, (Spp::Ast::UserType*, TargetGeneration*, TiObject*, TioSharedPtr&)
+    Bool, (Spp::Ast::UserType*, GenDeps const&, TioSharedPtr&)
   );
   private: static Bool _generateDefaultUserTypeValue(
-    TiObject *self, Spp::Ast::UserType *astType, TargetGeneration *tg, TiObject *tgContext, TioSharedPtr &result
+    TiObject *self, Spp::Ast::UserType *astType, GenDeps const &deps, TioSharedPtr &result
   );
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize, Bool, (Spp::Ast::Type*, TargetGeneration*, Word&));

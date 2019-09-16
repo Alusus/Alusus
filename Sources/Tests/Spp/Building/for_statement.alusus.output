@@ -8,89 +8,94 @@ source_filename = "AlususProgram"
 @"#anonymous1" = private constant [5 x i8] c"%d: \00", align 1
 @"#anonymous2" = private constant [4 x i8] c"%d\0A\00", align 1
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 declare i64 @printf(i8*, ...)
 
 define void @"Main.start()=>(Void)"() {
-"#block0":
+"#block1":
   %i = alloca i32
   %j = alloca i32
   %k = alloca i32
   store i32 0, i32* %i
-  br label %"#block1"
+  br label %"#block2"
 
-"#block1":                                        ; preds = %"#block2", %"#block0"
+"#block2":                                        ; preds = %"#block3", %"#block1"
   %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 10
-  br i1 %1, label %"#block3", label %"#block4"
+  br i1 %1, label %"#block4", label %"#block5"
 
-"#block2":                                        ; preds = %"#block3"
+"#block3":                                        ; preds = %"#block4"
   %2 = load i32, i32* %i
   %3 = add nsw i32 %2, 1
   store i32 %3, i32* %i
-  br label %"#block1"
-
-"#block3":                                        ; preds = %"#block1"
-  %4 = load i32, i32* %i
-  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous0", i32 0, i32 0), i32 %4)
   br label %"#block2"
 
-"#block4":                                        ; preds = %"#block1"
+"#block4":                                        ; preds = %"#block2"
+  %4 = load i32, i32* %i
+  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous0", i32 0, i32 0), i32 %4)
+  br label %"#block3"
+
+"#block5":                                        ; preds = %"#block2"
   store i32 0, i32* %i
   store i32 0, i32* %j
   %k1 = alloca i32
   %k2 = alloca i32
-  br label %"#block5"
+  br label %"#block6"
 
-"#block5":                                        ; preds = %"#block6", %"#block4"
+"#block6":                                        ; preds = %"#block7", %"#block5"
   %6 = load i32, i32* %i
   %7 = icmp slt i32 %6, 5
-  br i1 %7, label %"#block7", label %"#block8"
+  br i1 %7, label %"#block8", label %"#block9"
 
-"#block6":                                        ; preds = %"#block12"
+"#block7":                                        ; preds = %"#block13"
   %8 = load i32, i32* %i
   %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
   %10 = load i32, i32* %j
   %11 = mul nsw i32 %10, 2
   store i32 %11, i32* %j
-  br label %"#block5"
+  br label %"#block6"
 
-"#block7":                                        ; preds = %"#block5"
+"#block8":                                        ; preds = %"#block6"
   %12 = load i32, i32* %i
   %13 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @"#anonymous1", i32 0, i32 0), i32 %12)
   %14 = load i32, i32* %j
   %15 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous2", i32 0, i32 0), i32 %14)
   store i32 0, i32* %k1
-  br label %"#block9"
+  br label %"#block10"
 
-"#block8":                                        ; preds = %"#block5"
+"#block9":                                        ; preds = %"#block6"
   store i32 0, i32* %i
   ret void
 
-"#block9":                                        ; preds = %"#block10", %"#block7"
+"#block10":                                       ; preds = %"#block11", %"#block8"
   %16 = load i32, i32* %k1
   %17 = icmp slt i32 %16, 5
-  br i1 %17, label %"#block11", label %"#block12"
+  br i1 %17, label %"#block12", label %"#block13"
 
-"#block10":                                       ; preds = %"#block11"
+"#block11":                                       ; preds = %"#block12"
   %18 = load i32, i32* %k1
   %19 = add nsw i32 %18, 1
   store i32 %19, i32* %k1
-  br label %"#block9"
-
-"#block11":                                       ; preds = %"#block9"
-  store i32 1, i32* %k2
   br label %"#block10"
 
-"#block12":                                       ; preds = %"#block9"
-  br label %"#block6"
+"#block12":                                       ; preds = %"#block10"
+  store i32 1, i32* %k2
+  br label %"#block11"
 
-"#block13":                                       ; No predecessors!
+"#block13":                                       ; preds = %"#block10"
+  br label %"#block7"
 
 "#block14":                                       ; No predecessors!
 
 "#block15":                                       ; No predecessors!
 
 "#block16":                                       ; No predecessors!
+
+"#block17":                                       ; No predecessors!
 }
 ------------------------------------------------------------

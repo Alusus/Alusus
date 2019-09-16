@@ -17,8 +17,13 @@ source_filename = "AlususProgram"
 @"#anonymous3" = private constant [8 x i8] c"z = %d\0A\00", align 1
 @Main.t = global %Main_MyType zeroinitializer
 
-define void @"Main.MyType.printIt()"() {
+define void @__constructor__() {
 "#block0":
+  ret void
+}
+
+define void @"Main.MyType.printIt()"() {
+"#block1":
   %0 = load i32, i32* @Main.MyType.y
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous1", i32 0, i32 0), i32 %0)
   %2 = load i32, i32* getelementptr inbounds (%Main_MyType, %Main_MyType* @Main.MyType.t, i32 0, i32 0)
@@ -34,7 +39,7 @@ define void @"Main.MyType.printIt()"() {
 declare i64 @printf(i8*, ...)
 
 define void @"Main.start()=>(Void)"() {
-"#block1":
+"#block2":
   store i32 4, i32* @Main.MyType.y
   store i32 23, i32* getelementptr inbounds (%Main_MyType, %Main_MyType* @Main.MyType.t, i32 0, i32 0)
   call void @"Main.MyType.printIt()"()

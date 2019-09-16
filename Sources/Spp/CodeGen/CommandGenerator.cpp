@@ -46,7 +46,7 @@ void CommandGenerator::initBindings()
 // Code Generation Functions
 
 Bool CommandGenerator::_generateReturnStatement(
-  TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
@@ -62,31 +62,33 @@ Bool CommandGenerator::_generateReturnStatement(
   if (operand != 0) {
     // Generate the expression to return.
     GenResult operandResult;
-    if (!g->generateExpression(operand, tg, tgContext, operandResult)) return false;
+    if (!g->generateExpression(operand, deps, operandResult)) return false;
     // Generate the return statement.
-    if (retType->hasCustomInitialization(cmdGenerator->astHelper, tg->getExecutionContext())) {
+    if (retType->hasCustomInitialization(cmdGenerator->astHelper, deps.tg->getExecutionContext())) {
       // Assign value to ret reference.
       TiObject *retTgType;
-      if (!g->getGeneratedType(retType, tg, retTgType, 0)) return false;
+      if (!g->getGeneratedType(retType, deps.tg, retTgType, 0)) return false;
 
       SharedList<TiObject> initTgVals;
-      PlainList<Ast::Type> initAstTypes;
+      PlainList<TiObject> initAstTypes;
       initTgVals.add(operandResult.targetData);
       initAstTypes.add(operandResult.astType);
       if (!g->generateVarInitialization(
         retType, getCodeGenData<TiObject>(retTypeRef), retTypeRef,
-        &initAstTypes, &initTgVals, tg, tgContext
+        &initAstTypes, &initTgVals, deps
       )) {
         return false;
       }
-
-      tg->generateReturn(tgContext, getCodeGenData<TiObject>(retType), 0);
+      // Destruct variables.
+      if (!g->generateVarGroupDestruction(deps, 0)) return false;
+      // Return
+      deps.tg->generateReturn(deps.tgContext, getCodeGenData<TiObject>(retType), 0);
     } else {
       // Return the value itself.
 
       // Cast the returned value, if needed.
       if (!operandResult.astType->isImplicitlyCastableTo(
-        retType, cmdGenerator->astHelper, tg->getExecutionContext()
+        retType, cmdGenerator->astHelper, deps.tg->getExecutionContext()
       )) {
         cmdGenerator->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
@@ -95,12 +97,15 @@ Bool CommandGenerator::_generateReturnStatement(
       }
       TioSharedPtr tgCastedValue;
       if (!g->generateCast(
-        tg, tgContext, operandResult.astType, retType, operandResult.targetData.get(), tgCastedValue)
+        deps, operandResult.astType, retType, operandResult.targetData.get(), tgCastedValue)
       ) {
         // This should not happen since non-castable calls should be filtered out earlier.
         throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
       }
-      tg->generateReturn(tgContext, getCodeGenData<TiObject>(retType), tgCastedValue.get());
+      // Destruct variables.
+      if (!g->generateVarGroupDestruction(deps, 0)) return false;
+      // Return
+      deps.tg->generateReturn(deps.tgContext, getCodeGenData<TiObject>(retType), tgCastedValue.get());
     }
   } else {
     // Make sure return type is void.
@@ -110,8 +115,10 @@ Bool CommandGenerator::_generateReturnStatement(
       );
       return false;
     }
+    // Destruct variables.
+    if (!g->generateVarGroupDestruction(deps, 0)) return false;
     // Generate a void return statement.
-    tg->generateReturn(tgContext, getCodeGenData<TiObject>(retType), 0);
+    deps.tg->generateReturn(deps.tgContext, getCodeGenData<TiObject>(retType), 0);
   }
 
   return true;
@@ -119,7 +126,7 @@ Bool CommandGenerator::_generateReturnStatement(
 
 
 Bool CommandGenerator::_generateIfStatement(
-  TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+  TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, GenDeps const &deps,
   TerminalStatement &terminal
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
@@ -130,17 +137,17 @@ Bool CommandGenerator::_generateIfStatement(
   terminal = TerminalStatement::UNKNOWN;
 
   SharedPtr<IfTgContext> ifTgContext;
-  if (!tg->prepareIfStatement(tgContext, elseBody != 0, ifTgContext)) return false;
+  if (!deps.tg->prepareIfStatement(deps.tgContext, elseBody != 0, ifTgContext)) return false;
   setCodeGenData(astNode, ifTgContext);
 
   // Generate condition.
   GenResult conditionResult;
   if (!g->generateExpression(
-    astNode->getCondition().get(), tg, ifTgContext->getConditionContext(), conditionResult
+    astNode->getCondition().get(), GenDeps(deps, ifTgContext->getConditionContext()), conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, tg, ifTgContext->getConditionContext(), astNode->getCondition().get(), conditionResult.astType,
+    g, GenDeps(deps, ifTgContext->getConditionContext()), astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
 
@@ -149,14 +156,23 @@ Bool CommandGenerator::_generateIfStatement(
   if (ifBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
     setCodeGenData(static_cast<Core::Data::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext()));
     if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(ifBody), tg, ifTgContext->getBodyContext(), terminalBody)
+      static_cast<Core::Data::Ast::Scope*>(ifBody), GenDeps(deps, ifTgContext->getBodyContext()), terminalBody)
     ) {
       return false;
     }
   } else {
-    if (!g->generateStatement(ifBody, tg, ifTgContext->getBodyContext(), terminalBody)) {
+    deps.destructionStack->pushScope();
+    if (!g->generateStatement(ifBody, GenDeps(deps, ifTgContext->getBodyContext()), terminalBody)) {
       return false;
     }
+    Bool result = true;
+    if (terminalBody != TerminalStatement::YES) {
+      if (!g->generateVarGroupDestruction(
+        GenDeps(deps, ifTgContext->getBodyContext()), deps.destructionStack->getScopeStartIndex(-1)
+      )) result = false;
+    }
+    deps.destructionStack->popScope();
+    if (!result) return false;
   }
 
   // Generate elseBody, if needed.
@@ -165,14 +181,23 @@ Bool CommandGenerator::_generateIfStatement(
     if (elseBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
       setCodeGenData(static_cast<Core::Data::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext()));
       if (!g->generateStatements(
-        static_cast<Core::Data::Ast::Scope*>(elseBody), tg, ifTgContext->getElseContext(), terminalElse)
-      ) {
+        static_cast<Core::Data::Ast::Scope*>(elseBody), GenDeps(deps, ifTgContext->getElseContext()), terminalElse
+      )) {
         return false;
       }
     } else {
-      if (!g->generateStatement(elseBody, tg, ifTgContext->getElseContext(), terminalElse)) {
+      deps.destructionStack->pushScope();
+      if (!g->generateStatement(elseBody, GenDeps(deps, ifTgContext->getElseContext()), terminalElse)) {
         return false;
       }
+      Bool result = true;
+      if (terminalBody != TerminalStatement::YES) {
+        if (!g->generateVarGroupDestruction(
+          GenDeps(deps, ifTgContext->getElseContext()), deps.destructionStack->getScopeStartIndex(-1)
+        )) result = false;
+      }
+      deps.destructionStack->popScope();
+      if (!result) return false;
     }
   }
 
@@ -180,29 +205,36 @@ Bool CommandGenerator::_generateIfStatement(
     TerminalStatement::YES :
     TerminalStatement::NO;
 
-  return tg->finishIfStatement(tgContext, ifTgContext.get(), castResult.get());
+  return deps.tg->finishIfStatement(deps.tgContext, ifTgContext.get(), castResult.get());
 }
 
 
 Bool CommandGenerator::_generateWhileStatement(
-  TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   SharedPtr<LoopTgContext> loopTgContext;
-  if (!tg->prepareWhileStatement(tgContext, loopTgContext)) return false;
+  if (!deps.tg->prepareWhileStatement(deps.tgContext, loopTgContext)) return false;
   setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
+  deps.destructionStack->pushScope();
   GenResult conditionResult;
   if (!g->generateExpression(
-    astNode->getCondition().get(), tg, loopTgContext->getConditionContext(), conditionResult
+    astNode->getCondition().get(), GenDeps(deps, loopTgContext->getConditionContext()), conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, tg, loopTgContext->getConditionContext(), astNode->getCondition().get(), conditionResult.astType,
+    g, GenDeps(deps, loopTgContext->getConditionContext()), astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
+  Bool result = true;
+  if (!g->generateVarGroupDestruction(
+    GenDeps(deps, loopTgContext->getConditionContext()), deps.destructionStack->getScopeStartIndex(-1)
+  )) result = false;
+  deps.destructionStack->popScope();
+  if (!result) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
@@ -210,51 +242,72 @@ Bool CommandGenerator::_generateWhileStatement(
     setCodeGenData(static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext()));
     TerminalStatement terminal;
     if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(body), tg, loopTgContext->getBodyContext(), terminal)
+      static_cast<Core::Data::Ast::Scope*>(body), GenDeps(deps, loopTgContext->getBodyContext()), terminal)
     ) {
       return false;
     }
   } else {
+    deps.destructionStack->pushScope();
     TerminalStatement terminal;
-    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext(), terminal)) {
+    if (!g->generateStatement(body, GenDeps(deps, loopTgContext->getBodyContext()), terminal)) {
       return false;
     }
+    if (terminal != TerminalStatement::YES) {
+      if (!g->generateVarGroupDestruction(
+        GenDeps(deps, loopTgContext->getBodyContext()), deps.destructionStack->getScopeStartIndex(-1)
+      )) result = false;
+    }
+    deps.destructionStack->popScope();
+    if (!result) return false;
   }
 
-  return tg->finishWhileStatement(tgContext, loopTgContext.get(), castResult.get());
+  return deps.tg->finishWhileStatement(deps.tgContext, loopTgContext.get(), castResult.get());
 }
 
 
 Bool CommandGenerator::_generateForStatement(
-  TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   if (astNode->getInitializer().get() != 0) {
     TerminalStatement terminal;
-    if (!g->generateStatement(astNode->getInitializer().get(), tg, tgContext, terminal)) return false;
+    if (!g->generateStatement(astNode->getInitializer().get(), deps, terminal)) return false;
   }
 
   SharedPtr<LoopTgContext> loopTgContext;
-  if (!tg->prepareForStatement(tgContext, loopTgContext)) return false;
+  if (!deps.tg->prepareForStatement(deps.tgContext, loopTgContext)) return false;
   setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
+  deps.destructionStack->pushScope();
   GenResult conditionResult;
   if (!g->generateExpression(
-    astNode->getCondition().get(), tg, loopTgContext->getConditionContext(), conditionResult
+    astNode->getCondition().get(), GenDeps(deps, loopTgContext->getConditionContext()), conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, tg, loopTgContext->getConditionContext(), astNode->getCondition().get(), conditionResult.astType,
+    g, GenDeps(deps, loopTgContext->getConditionContext()), astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
+  Bool result = true;
+  if (!g->generateVarGroupDestruction(
+    GenDeps(deps, loopTgContext->getConditionContext()), deps.destructionStack->getScopeStartIndex(-1)
+  )) result = false;
+  deps.destructionStack->popScope();
+  if (!result) return false;
 
   // Generate the updater.
+  deps.destructionStack->pushScope();
   GenResult updateResult;
   if (!g->generateExpression(
-    astNode->getUpdater().get(), tg, loopTgContext->getUpdaterContext(), updateResult
+    astNode->getUpdater().get(), GenDeps(deps, loopTgContext->getUpdaterContext()), updateResult
   )) return false;
+  if (!g->generateVarGroupDestruction(
+    GenDeps(deps, loopTgContext->getUpdaterContext()), deps.destructionStack->getScopeStartIndex(-1)
+  )) result = false;
+  deps.destructionStack->popScope();
+  if (!result) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
@@ -262,23 +315,31 @@ Bool CommandGenerator::_generateForStatement(
     setCodeGenData(static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext()));
     TerminalStatement terminal;
     if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(body), tg, loopTgContext->getBodyContext(), terminal)
+      static_cast<Core::Data::Ast::Scope*>(body), GenDeps(deps, loopTgContext->getBodyContext()), terminal)
     ) {
       return false;
     }
   } else {
+    deps.destructionStack->pushScope();
     TerminalStatement terminal;
-    if (!g->generateStatement(body, tg, loopTgContext->getBodyContext(), terminal)) {
+    if (!g->generateStatement(body, GenDeps(deps, loopTgContext->getBodyContext()), terminal)) {
       return false;
     }
+    if (terminal != TerminalStatement::YES) {
+      if (!g->generateVarGroupDestruction(
+        GenDeps(deps, loopTgContext->getBodyContext()), deps.destructionStack->getScopeStartIndex(-1)
+      )) result = false;
+    }
+    deps.destructionStack->popScope();
+    if (!result) return false;
   }
 
-  return tg->finishForStatement(tgContext, loopTgContext.get(), castResult.get());
+  return deps.tg->finishForStatement(deps.tgContext, loopTgContext.get(), castResult.get());
 }
 
 
 Bool CommandGenerator::_generateContinueStatement(
-  TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
@@ -293,28 +354,40 @@ Bool CommandGenerator::_generateContinueStatement(
   }
 
   // Find the loop statement.
+  Int scopeCount = 0;
   Core::Data::Node *loopNode = astNode;
   while (steps > 0) {
-    loopNode = loopNode->getOwner();
-    while (!loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() && !loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
-      if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
-        cmdGenerator->noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidContinueStepsNotice>(astNode->findSourceLocation())
-        );
-        return false;
+    if (loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() || loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
+      if (--steps == 0) break;
+    } else if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
+      cmdGenerator->noticeStore->add(
+        std::make_shared<Spp::Notices::InvalidContinueStepsNotice>(astNode->findSourceLocation())
+      );
+      return false;
+    } else if (loopNode->isDerivedFrom<Core::Data::Ast::Scope>()) {
+      ++scopeCount;
+    } else {
+      // if it's a non-scope body of a control statement we still want to treat it as if it's a scope.
+      if (
+        ti_cast<Spp::Ast::WhileStatement>(loopNode->getOwner()) != 0 ||
+        ti_cast<Spp::Ast::ForStatement>(loopNode->getOwner()) != 0 ||
+        ti_cast<Spp::Ast::IfStatement>(loopNode->getOwner()) != 0
+      ) {
+        ++scopeCount;
       }
-      loopNode = loopNode->getOwner();
     }
-    --steps;
+    loopNode = loopNode->getOwner();
   }
 
+  if (!g->generateVarGroupDestruction(deps, deps.destructionStack->getScopeStartIndex(-scopeCount))) return false;
+
   auto loopTgContext = getCodeGenData<LoopTgContext>(loopNode);
-  return tg->generateContinue(tgContext, loopTgContext);
+  return deps.tg->generateContinue(deps.tgContext, loopTgContext);
 }
 
 
 Bool CommandGenerator::_generateBreakStatement(
-  TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+  TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
@@ -329,23 +402,35 @@ Bool CommandGenerator::_generateBreakStatement(
   }
 
   // Find the loop statement.
+  Int scopeCount = 0;
   Core::Data::Node *loopNode = astNode;
   while (steps > 0) {
-    loopNode = loopNode->getOwner();
-    while (!loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() && !loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
-      if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
-        cmdGenerator->noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidBreakStepsNotice>(astNode->findSourceLocation())
-        );
-        return false;
+    if (loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() || loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
+      if (--steps == 0) break;
+    } else if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
+      cmdGenerator->noticeStore->add(
+        std::make_shared<Spp::Notices::InvalidBreakStepsNotice>(astNode->findSourceLocation())
+      );
+      return false;
+    } else if (loopNode->isDerivedFrom<Core::Data::Ast::Scope>()) {
+      ++scopeCount;
+    } else {
+      // if it's a non-scope body of a control statement we still want to treat it as if it's a scope.
+      if (
+        ti_cast<Spp::Ast::WhileStatement>(loopNode->getOwner()) != 0 ||
+        ti_cast<Spp::Ast::ForStatement>(loopNode->getOwner()) != 0 ||
+        ti_cast<Spp::Ast::IfStatement>(loopNode->getOwner()) != 0
+      ) {
+        ++scopeCount;
       }
-      loopNode = loopNode->getOwner();
     }
-    --steps;
+    loopNode = loopNode->getOwner();
   }
 
+  if (!g->generateVarGroupDestruction(deps, deps.destructionStack->getScopeStartIndex(-scopeCount))) return false;
+
   auto loopTgContext = getCodeGenData<LoopTgContext>(loopNode);
-  return tg->generateBreak(tgContext, loopTgContext);
+  return deps.tg->generateBreak(deps.tgContext, loopTgContext);
 }
 
 
@@ -353,17 +438,17 @@ Bool CommandGenerator::_generateBreakStatement(
 // Helper Functions
 
 Bool CommandGenerator::castCondition(
-  Generation *g, TargetGeneration *tg, TiObject *tgContext, TiObject *astNode, Spp::Ast::Type *astType,
+  Generation *g, GenDeps const &deps, TiObject *astNode, Spp::Ast::Type *astType,
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();
-  if (!astType->isImplicitlyCastableTo(boolType, this->astHelper, tg->getExecutionContext())) {
+  if (!astType->isImplicitlyCastableTo(boolType, this->astHelper, deps.tg->getExecutionContext())) {
     this->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
     return false;
   }
-  if (!g->generateCast(tg, tgContext, astType, this->astHelper->getBoolType(), tgValue, result)) {
+  if (!g->generateCast(deps, astType, this->astHelper->getBoolType(), tgValue, result)) {
     this->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );

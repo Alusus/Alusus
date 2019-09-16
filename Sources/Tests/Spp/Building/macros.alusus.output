@@ -22,8 +22,13 @@ source_filename = "AlususProgram"
 @"#anonymous12" = private constant [13 x i8] c"Hello World\0A\00", align 1
 @"#anonymous13" = private constant [14 x i8] c"p = (%f, %f)\0A\00", align 1
 
-define void @"Main.start()=>(Void)"() {
+define void @__constructor__() {
 "#block0":
+  ret void
+}
+
+define void @"Main.start()=>(Void)"() {
+"#block1":
   %a = alloca i32
   %b1 = alloca i32
   %b2 = alloca i32
@@ -48,25 +53,25 @@ define void @"Main.start()=>(Void)"() {
   %13 = call float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float 5.000000e+00, float 7.000000e+00)
   %14 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @"#anonymous5", i32 0, i32 0), float %13)
   store i32 0, i32* %a
-  br label %"#block7"
+  br label %"#block8"
 
-"#block7":                                        ; preds = %"#block8", %"#block0"
+"#block8":                                        ; preds = %"#block9", %"#block1"
   %15 = load i32, i32* %a
   %16 = icmp sle i32 %15, 9
-  br i1 %16, label %"#block9", label %"#block10"
+  br i1 %16, label %"#block10", label %"#block11"
 
-"#block8":                                        ; preds = %"#block9"
+"#block9":                                        ; preds = %"#block10"
   %17 = load i32, i32* %a
   %18 = add nsw i32 %17, 1
   store i32 %18, i32* %a
-  br label %"#block7"
-
-"#block9":                                        ; preds = %"#block7"
-  %19 = load i32, i32* %a
-  %20 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous6", i32 0, i32 0), i32 %19)
   br label %"#block8"
 
-"#block10":                                       ; preds = %"#block7"
+"#block10":                                       ; preds = %"#block8"
+  %19 = load i32, i32* %a
+  %20 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous6", i32 0, i32 0), i32 %19)
+  br label %"#block9"
+
+"#block11":                                       ; preds = %"#block8"
   %21 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous7", i32 0, i32 0))
   %22 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous8", i32 0, i32 0))
   %23 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous9", i32 0, i32 0))
@@ -89,7 +94,7 @@ define void @"Main.start()=>(Void)"() {
 declare i64 @printf(i8*, ...)
 
 define i32 @"Main.getMin(Int[32],Int[32])=>(Int[32])"(i32 %a, i32 %b) {
-"#block1":
+"#block2":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca i32
@@ -97,19 +102,19 @@ define i32 @"Main.getMin(Int[32],Int[32])=>(Int[32])"(i32 %a, i32 %b) {
   %0 = load i32, i32* %a1
   %1 = load i32, i32* %b2
   %2 = icmp sle i32 %0, %1
-  br i1 %2, label %"#block2", label %"#block3"
+  br i1 %2, label %"#block3", label %"#block4"
 
-"#block2":                                        ; preds = %"#block1"
+"#block3":                                        ; preds = %"#block2"
   %3 = load i32, i32* %a1
   ret i32 %3
 
-"#block3":                                        ; preds = %"#block1"
+"#block4":                                        ; preds = %"#block2"
   %4 = load i32, i32* %b2
   ret i32 %4
 }
 
 define float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float %a, float %b) {
-"#block4":
+"#block5":
   %a1 = alloca float
   store float %a, float* %a1
   %b2 = alloca float
@@ -117,13 +122,13 @@ define float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float %a, float %b
   %0 = load float, float* %a1
   %1 = load float, float* %b2
   %2 = fcmp ole float %0, %1
-  br i1 %2, label %"#block5", label %"#block6"
+  br i1 %2, label %"#block6", label %"#block7"
 
-"#block5":                                        ; preds = %"#block4"
+"#block6":                                        ; preds = %"#block5"
   %3 = load float, float* %a1
   ret float %3
 
-"#block6":                                        ; preds = %"#block4"
+"#block7":                                        ; preds = %"#block5"
   %4 = load float, float* %b2
   ret float %4
 }

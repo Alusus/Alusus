@@ -30,8 +30,13 @@ source_filename = "AlususProgram"
 @"#anonymous18" = private constant [6 x i8] c"world\00", align 1
 @"#anonymous19" = private constant [6 x i8] c"hello\00", align 1
 
-define i32 @"Main.main()=>(Int[32])"() {
+define void @__constructor__() {
 "#block0":
+  ret void
+}
+
+define i32 @"Main.main()=>(Int[32])"() {
+"#block1":
   call void (i8*, ...) @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous0", i32 0, i32 0))
   call void (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous1", i32 0, i32 0), [7 x i8]* @"#anonymous2")
   call void (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous3", i32 0, i32 0), [6 x i8]* @"#anonymous4", [4 x i8]* @"#anonymous5")
@@ -40,49 +45,49 @@ define i32 @"Main.main()=>(Int[32])"() {
 }
 
 define void @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
-"#block1":
-  %a1 = alloca i8*
-  store i8* %a, i8** %a1
-  ret void
-}
-
-define void @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* %a, ...) {
 "#block2":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
-define void @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* %a, ...) {
+define void @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* %a, ...) {
 "#block3":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
-define void @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* %a, ...) {
+define void @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* %a, ...) {
 "#block4":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
-define void @"Main.f1(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
+define void @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* %a, ...) {
 "#block5":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
-define void @"Main.f1(Int[32],ArgPack[any,0,0])"(i32 %a, ...) {
+define void @"Main.f1(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
 "#block6":
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+  ret void
+}
+
+define void @"Main.f1(Int[32],ArgPack[any,0,0])"(i32 %a, ...) {
+"#block7":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   ret void
 }
 
 define void @"Main.f4(ptr[Word[8]],ArgPack[Word[8],0,0])"(i8* %a, ...) {
-"#block7":
+"#block8":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void

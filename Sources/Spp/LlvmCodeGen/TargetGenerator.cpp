@@ -432,9 +432,6 @@ Bool TargetGenerator::prepareFunctionBody(
   auto argTypes = funcTypeWrapper->getArgs();
   auto i = 0;
   for (auto iter = llvmFunc->arg_begin(); i != argTypes->getElementCount(); ++iter, ++i) {
-    auto argType = ti_cast<Type>(argTypes->getElement(i));
-    ASSERT(argType != 0);
-
     iter->setName(argTypes->getElementKey(i).c_str());
     args->add(std::make_shared<Value>(iter, false));
   }

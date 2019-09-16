@@ -27,10 +27,15 @@ source_filename = "AlususProgram"
 @"#anonymous6" = private constant [15 x i8] c"gpoint.x = %d\0A\00", align 1
 @"#anonymous7" = private constant [15 x i8] c"gpoing.y = %d\0A\00", align 1
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 declare i64 @printf(i8*, ...)
 
 define %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 %x, i32 %y, float %s) {
-"#block0":
+"#block1":
   %x1 = alloca i32
   store i32 %x, i32* %x1
   %y2 = alloca i32
@@ -52,7 +57,7 @@ define %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32
 }
 
 define void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %p) {
-"#block1":
+"#block2":
   %p1 = alloca %Main_Point
   store %Main_Point %p, %Main_Point* %p1
   %0 = getelementptr %Main_Point, %Main_Point* %p1, i32 0, i32 0
@@ -65,7 +70,7 @@ define void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %p) {
 }
 
 define void @"Main.start()=>(Void)"() {
-"#block2":
+"#block3":
   %p = alloca %Main_Point
   %n = alloca %Main_Nested
   %e = alloca %Main_Empty

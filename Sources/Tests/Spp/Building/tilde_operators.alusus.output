@@ -38,10 +38,15 @@ source_filename = "AlususProgram"
 @"#anonymous12" = private constant [24 x i8] c"ptr[Int[32]]~size = %d\0A\00", align 1
 @"#anonymous13" = private constant [24 x i8] c"ptr[Int[62]]~size = %d\0A\00", align 1
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 declare i64 @printf(i8*, ...)
 
 define void @"Main.testPtrAndCnt()=>(Void)"() {
-"#block0":
+"#block1":
   %i = alloca i32
   %pi = alloca i32*
   %pf = alloca float*
@@ -80,7 +85,7 @@ define void @"Main.testPtrAndCnt()=>(Void)"() {
 }
 
 define void @"Main.testCast()=>(Void)"() {
-"#block1":
+"#block2":
   %i = alloca i32
   %l = alloca i64
   %f = alloca float
@@ -123,7 +128,7 @@ define void @"Main.testCast()=>(Void)"() {
 }
 
 define void @"Main.testSize()=>(Void)"() {
-"#block2":
+"#block3":
   %i = alloca i32
   %pi = alloca i32*
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous6", i32 0, i32 0), i8 4)

@@ -12,8 +12,13 @@ source_filename = "AlususProgram"
 @"#anonymous5" = private constant [17 x i8] c"64bit float: %f\0A\00", align 1
 @"#anonymous6" = private constant [19 x i8] c"invalid float: %f\0A\00", align 1
 
-define void @"Main.start()=>(Void)"() {
+define void @__constructor__() {
 "#block0":
+  ret void
+}
+
+define void @"Main.start()=>(Void)"() {
+"#block1":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"#anonymous0", i32 0, i32 0), float 0x4003333340000000)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @"#anonymous1", i32 0, i32 0), float 1.000000e+02)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @"#anonymous2", i32 0, i32 0), float 1.000000e+02)

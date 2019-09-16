@@ -17,10 +17,15 @@ source_filename = "AlususProgram"
 @"#anonymous3" = private constant [16 x i8] c"getAddition: %d\00", align 1
 @"#anonymous4" = private constant [19 x i8] c"getIntIndirect: %d\00", align 1
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 declare i64 @printf(i8*, ...)
 
 define void @"Main.main()=>(Void)"() {
-"#block0":
+"#block1":
   %0 = call i32 @"Main.getInt()=>(Int[32])"()
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @"#anonymous0", i32 0, i32 0), i32 %0)
   %2 = call double @"Main.getFloat()=>(Float[64])"()
@@ -36,125 +41,125 @@ define void @"Main.main()=>(Void)"() {
 }
 
 define i32 @"Main.getInt()=>(Int[32])"() {
-"#block1":
+"#block2":
   ret i32 30
 }
 
 define double @"Main.getFloat()=>(Float[64])"() {
-"#block2":
-  ret double 5.500000e+00
-}
-
-define double @"Main.getFloatCasted()=>(Float[64])"() {
 "#block3":
   ret double 5.500000e+00
 }
 
-define i32 @"Main.getAddition()=>(Int[32])"() {
+define double @"Main.getFloatCasted()=>(Float[64])"() {
 "#block4":
+  ret double 5.500000e+00
+}
+
+define i32 @"Main.getAddition()=>(Int[32])"() {
+"#block5":
   ret i32 15
 }
 
 define i32 @"Main.getIntIndirect()=>(Int[32])"() {
-"#block5":
+"#block6":
   %0 = call i32 @"Main.getInt()=>(Int[32])"()
   ret i32 %0
 }
 
 define i32 @"Main.missingReturn1()=>(Int[32])"() {
-"#block6":
+"#block7":
 }
 
 define i32 @"Main.missingReturn2(Int[32])=>(Int[32])"(i32 %i) {
-"#block7":
+"#block8":
   %i1 = alloca i32
   store i32 %i, i32* %i1
   %0 = load i32, i32* %i1
   %1 = icmp eq i32 %0, 5
-  br i1 %1, label %"#block8", label %"#block9"
+  br i1 %1, label %"#block9", label %"#block10"
 
-"#block8":                                        ; preds = %"#block7"
+"#block9":                                        ; preds = %"#block8"
   ret i32 3
 
-"#block9":                                        ; preds = %"#block7"
-  br label %"#block10"
+"#block10":                                       ; preds = %"#block8"
+  br label %"#block11"
 
-"#block10":                                       ; preds = %"#block9"
+"#block11":                                       ; preds = %"#block10"
 }
 
 define i32 @"Main.missingReturn3(Int[32])=>(Int[32])"(i32 %i) {
-"#block11":
+"#block12":
   %i1 = alloca i32
   store i32 %i, i32* %i1
   %0 = load i32, i32* %i1
   %1 = icmp eq i32 %0, 5
-  br i1 %1, label %"#block12", label %"#block13"
+  br i1 %1, label %"#block13", label %"#block14"
 
-"#block12":                                       ; preds = %"#block11"
-  br label %"#block14"
-
-"#block13":                                       ; preds = %"#block11"
-  ret i32 3
+"#block13":                                       ; preds = %"#block12"
+  br label %"#block15"
 
 "#block14":                                       ; preds = %"#block12"
+  ret i32 3
+
+"#block15":                                       ; preds = %"#block13"
 }
 
 define i32 @"Main.terminalIf(Int[32])=>(Int[32])"(i32 %i) {
-"#block15":
+"#block16":
   %i1 = alloca i32
   store i32 %i, i32* %i1
   %0 = load i32, i32* %i1
   %1 = icmp eq i32 %0, 5
-  br i1 %1, label %"#block16", label %"#block17"
+  br i1 %1, label %"#block17", label %"#block18"
 
-"#block16":                                       ; preds = %"#block15"
+"#block17":                                       ; preds = %"#block16"
   ret i32 1
 
-"#block17":                                       ; preds = %"#block15"
+"#block18":                                       ; preds = %"#block16"
   ret i32 3
 }
 
 define i32 @"Main.unreachableCode1()=>(Int[32])"() {
-"#block18":
+"#block19":
   ret i32 5
 }
 
 define i32 @"Main.unreachableCode2(Int[32])=>(Int[32])"(i32 %i) {
-"#block19":
+"#block20":
   %i1 = alloca i32
   store i32 %i, i32* %i1
   %0 = load i32, i32* %i1
   %1 = icmp eq i32 %0, 5
-  br i1 %1, label %"#block20", label %"#block21"
+  br i1 %1, label %"#block21", label %"#block22"
 
-"#block20":                                       ; preds = %"#block19"
+"#block21":                                       ; preds = %"#block20"
   ret i32 1
 
-"#block21":                                       ; preds = %"#block19"
+"#block22":                                       ; preds = %"#block20"
   ret i32 3
 }
 
 define void @"Main.retVoid()=>(Void)"() {
-"#block22":
+"#block23":
   ret void
   ret void
 }
 
 define void @"Main.voidFunc()=>(Void)"() {
-"#block23":
-  ret void
-}
-
-define void @"Main.invalidReturn1()=>(Void)"() {
 "#block24":
   ret void
 }
 
-define i32 @"Main.invalidReturn2()=>(Int[32])"() {
+define void @"Main.invalidReturn1()=>(Void)"() {
 "#block25":
+  ret void
+}
+
+define i32 @"Main.invalidReturn2()=>(Int[32])"() {
+"#block26":
 }
 
 define float* @"Main.invalidReturn3()=>(ptr[Float[32]])"() {
-"#block26":
+"#block27":
 }
 ------------------------------------------------------------

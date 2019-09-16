@@ -16,205 +16,210 @@ source_filename = "AlususProgram"
 @"#anonymous6" = private constant [3 x i8] c"%d\00", align 1
 @"#anonymous7" = private constant [2 x i8] c"\0A\00", align 1
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 declare i64 @printf(i8*, ...)
 
 define void @"Main.start()=>(Void)"() {
-"#block0":
+"#block1":
   %i = alloca i32
   %j = alloca i32
   store i32 0, i32* %i
-  br label %"#block1"
+  br label %"#block2"
 
-"#block1":                                        ; preds = %"#block6", %"#block0"
+"#block2":                                        ; preds = %"#block7", %"#block1"
   %0 = load i32, i32* %i
   %1 = icmp slt i32 %0, 10
-  br i1 %1, label %"#block2", label %"#block3"
+  br i1 %1, label %"#block3", label %"#block4"
 
-"#block2":                                        ; preds = %"#block1"
+"#block3":                                        ; preds = %"#block2"
   store i32 0, i32* %j
-  br label %"#block4"
+  br label %"#block5"
 
-"#block3":                                        ; preds = %"#block1", %"#block16"
+"#block4":                                        ; preds = %"#block2", %"#block17"
   store i32 0, i32* %i
-  br label %"#block19"
+  br label %"#block20"
 
-"#block4":                                        ; preds = %"#block18", %"#block2"
+"#block5":                                        ; preds = %"#block19", %"#block3"
   %2 = load i32, i32* %j
   %3 = load i32, i32* %i
   %4 = icmp sle i32 %2, %3
-  br i1 %4, label %"#block5", label %"#block6"
+  br i1 %4, label %"#block6", label %"#block7"
 
-"#block5":                                        ; preds = %"#block4"
+"#block6":                                        ; preds = %"#block5"
   %5 = load i32, i32* %i
   %6 = icmp eq i32 %5, 3
-  br i1 %6, label %"#block7", label %"#block10"
+  br i1 %6, label %"#block8", label %"#block11"
 
-"#block6":                                        ; preds = %"#block4", %"#block12", %"#block8"
+"#block7":                                        ; preds = %"#block5", %"#block13", %"#block9"
   %7 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous1", i32 0, i32 0))
   %8 = load i32, i32* %i
   %9 = add nsw i32 %8, 1
   store i32 %9, i32* %i
-  br label %"#block1"
+  br label %"#block2"
 
-"#block7":                                        ; preds = %"#block5"
+"#block8":                                        ; preds = %"#block6"
   %10 = load i32, i32* %j
   %11 = icmp eq i32 %10, 1
-  br i1 %11, label %"#block8", label %"#block9"
+  br i1 %11, label %"#block9", label %"#block10"
 
-"#block8":                                        ; preds = %"#block7"
-  br label %"#block6"
+"#block9":                                        ; preds = %"#block8"
+  br label %"#block7"
 
-"#block9":                                        ; preds = %"#block7"
-  br label %"#block10"
+"#block10":                                       ; preds = %"#block8"
+  br label %"#block11"
 
-"#block10":                                       ; preds = %"#block5", %"#block9"
+"#block11":                                       ; preds = %"#block6", %"#block10"
   %12 = load i32, i32* %i
   %13 = icmp eq i32 %12, 5
-  br i1 %13, label %"#block11", label %"#block14"
-
-"#block11":                                       ; preds = %"#block10"
-  %14 = load i32, i32* %j
-  %15 = icmp eq i32 %14, 2
-  br i1 %15, label %"#block12", label %"#block13"
+  br i1 %13, label %"#block12", label %"#block15"
 
 "#block12":                                       ; preds = %"#block11"
-  br label %"#block6"
+  %14 = load i32, i32* %j
+  %15 = icmp eq i32 %14, 2
+  br i1 %15, label %"#block13", label %"#block14"
 
-"#block13":                                       ; preds = %"#block11"
-  br label %"#block14"
+"#block13":                                       ; preds = %"#block12"
+  br label %"#block7"
 
-"#block14":                                       ; preds = %"#block10", %"#block13"
+"#block14":                                       ; preds = %"#block12"
+  br label %"#block15"
+
+"#block15":                                       ; preds = %"#block11", %"#block14"
   %16 = load i32, i32* %i
   %17 = icmp eq i32 %16, 8
-  br i1 %17, label %"#block15", label %"#block18"
-
-"#block15":                                       ; preds = %"#block14"
-  %18 = load i32, i32* %j
-  %19 = icmp eq i32 %18, 5
-  br i1 %19, label %"#block16", label %"#block17"
+  br i1 %17, label %"#block16", label %"#block19"
 
 "#block16":                                       ; preds = %"#block15"
-  br label %"#block3"
+  %18 = load i32, i32* %j
+  %19 = icmp eq i32 %18, 5
+  br i1 %19, label %"#block17", label %"#block18"
 
-"#block17":                                       ; preds = %"#block15"
-  br label %"#block18"
+"#block17":                                       ; preds = %"#block16"
+  br label %"#block4"
 
-"#block18":                                       ; preds = %"#block14", %"#block17"
+"#block18":                                       ; preds = %"#block16"
+  br label %"#block19"
+
+"#block19":                                       ; preds = %"#block15", %"#block18"
   %20 = load i32, i32* %j
   %21 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @"#anonymous0", i32 0, i32 0), i32 %20)
   %22 = load i32, i32* %j
   %23 = add nsw i32 %22, 1
   store i32 %23, i32* %j
-  br label %"#block4"
+  br label %"#block5"
 
-"#block19":                                       ; preds = %"#block20", %"#block3"
+"#block20":                                       ; preds = %"#block21", %"#block4"
   %24 = load i32, i32* %i
   %25 = icmp slt i32 %24, 10
-  br i1 %25, label %"#block21", label %"#block22"
+  br i1 %25, label %"#block22", label %"#block23"
 
-"#block20":                                       ; preds = %"#block26"
+"#block21":                                       ; preds = %"#block27"
   %26 = load i32, i32* %i
   %27 = add nsw i32 %26, 1
   store i32 %27, i32* %i
-  br label %"#block19"
+  br label %"#block20"
 
-"#block21":                                       ; preds = %"#block19"
+"#block22":                                       ; preds = %"#block20"
   store i32 0, i32* %j
-  br label %"#block23"
+  br label %"#block24"
 
-"#block22":                                       ; preds = %"#block19", %"#block36"
+"#block23":                                       ; preds = %"#block20", %"#block37"
   store i32 0, i32* %i
   store i32 0, i32* %i
   ret void
 
-"#block23":                                       ; preds = %"#block24", %"#block21"
+"#block24":                                       ; preds = %"#block25", %"#block22"
   %28 = load i32, i32* %j
   %29 = load i32, i32* %i
   %30 = icmp sle i32 %28, %29
-  br i1 %30, label %"#block25", label %"#block26"
+  br i1 %30, label %"#block26", label %"#block27"
 
-"#block24":                                       ; preds = %"#block38"
+"#block25":                                       ; preds = %"#block39"
   %31 = load i32, i32* %j
   %32 = add nsw i32 %31, 1
   store i32 %32, i32* %j
-  br label %"#block23"
-
-"#block25":                                       ; preds = %"#block23"
-  %33 = load i32, i32* %i
-  %34 = icmp eq i32 %33, 3
-  br i1 %34, label %"#block27", label %"#block30"
-
-"#block26":                                       ; preds = %"#block23", %"#block32", %"#block28"
-  %35 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous3", i32 0, i32 0))
-  br label %"#block20"
-
-"#block27":                                       ; preds = %"#block25"
-  %36 = load i32, i32* %j
-  %37 = icmp eq i32 %36, 1
-  br i1 %37, label %"#block28", label %"#block29"
-
-"#block28":                                       ; preds = %"#block27"
-  br label %"#block26"
-
-"#block29":                                       ; preds = %"#block27"
-  br label %"#block30"
-
-"#block30":                                       ; preds = %"#block25", %"#block29"
-  %38 = load i32, i32* %i
-  %39 = icmp eq i32 %38, 5
-  br i1 %39, label %"#block31", label %"#block34"
-
-"#block31":                                       ; preds = %"#block30"
-  %40 = load i32, i32* %j
-  %41 = icmp eq i32 %40, 2
-  br i1 %41, label %"#block32", label %"#block33"
-
-"#block32":                                       ; preds = %"#block31"
-  br label %"#block26"
-
-"#block33":                                       ; preds = %"#block31"
-  br label %"#block34"
-
-"#block34":                                       ; preds = %"#block30", %"#block33"
-  %42 = load i32, i32* %i
-  %43 = icmp eq i32 %42, 8
-  br i1 %43, label %"#block35", label %"#block38"
-
-"#block35":                                       ; preds = %"#block34"
-  %44 = load i32, i32* %j
-  %45 = icmp eq i32 %44, 5
-  br i1 %45, label %"#block36", label %"#block37"
-
-"#block36":                                       ; preds = %"#block35"
-  br label %"#block22"
-
-"#block37":                                       ; preds = %"#block35"
-  br label %"#block38"
-
-"#block38":                                       ; preds = %"#block34", %"#block37"
-  %46 = load i32, i32* %j
-  %47 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @"#anonymous2", i32 0, i32 0), i32 %46)
   br label %"#block24"
 
-"#block39":                                       ; No predecessors!
+"#block26":                                       ; preds = %"#block24"
+  %33 = load i32, i32* %i
+  %34 = icmp eq i32 %33, 3
+  br i1 %34, label %"#block28", label %"#block31"
+
+"#block27":                                       ; preds = %"#block24", %"#block33", %"#block29"
+  %35 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous3", i32 0, i32 0))
+  br label %"#block21"
+
+"#block28":                                       ; preds = %"#block26"
+  %36 = load i32, i32* %j
+  %37 = icmp eq i32 %36, 1
+  br i1 %37, label %"#block29", label %"#block30"
+
+"#block29":                                       ; preds = %"#block28"
+  br label %"#block27"
+
+"#block30":                                       ; preds = %"#block28"
+  br label %"#block31"
+
+"#block31":                                       ; preds = %"#block26", %"#block30"
+  %38 = load i32, i32* %i
+  %39 = icmp eq i32 %38, 5
+  br i1 %39, label %"#block32", label %"#block35"
+
+"#block32":                                       ; preds = %"#block31"
+  %40 = load i32, i32* %j
+  %41 = icmp eq i32 %40, 2
+  br i1 %41, label %"#block33", label %"#block34"
+
+"#block33":                                       ; preds = %"#block32"
+  br label %"#block27"
+
+"#block34":                                       ; preds = %"#block32"
+  br label %"#block35"
+
+"#block35":                                       ; preds = %"#block31", %"#block34"
+  %42 = load i32, i32* %i
+  %43 = icmp eq i32 %42, 8
+  br i1 %43, label %"#block36", label %"#block39"
+
+"#block36":                                       ; preds = %"#block35"
+  %44 = load i32, i32* %j
+  %45 = icmp eq i32 %44, 5
+  br i1 %45, label %"#block37", label %"#block38"
+
+"#block37":                                       ; preds = %"#block36"
+  br label %"#block23"
+
+"#block38":                                       ; preds = %"#block36"
+  br label %"#block39"
+
+"#block39":                                       ; preds = %"#block35", %"#block38"
+  %46 = load i32, i32* %j
+  %47 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @"#anonymous2", i32 0, i32 0), i32 %46)
+  br label %"#block25"
+
+"#block40":                                       ; No predecessors!
   %48 = load i32, i32* %i
   %49 = icmp slt i32 %48, 10
 
-"#block40":                                       ; No predecessors!
+"#block41":                                       ; No predecessors!
   store i32 0, i32* %j
   %50 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous5", i32 0, i32 0))
   %51 = load i32, i32* %i
   %52 = add nsw i32 %51, 1
   store i32 %52, i32* %i
 
-"#block41":                                       ; No predecessors!
-
 "#block42":                                       ; No predecessors!
+
+"#block43":                                       ; No predecessors!
   %53 = load i32, i32* %j
   %54 = load i32, i32* %i
   %55 = icmp sle i32 %53, %54
 
-"#block43":                                       ; No predecessors!
+"#block44":                                       ; No predecessors!
   %56 = load i32, i32* %i
   %57 = icmp eq i32 %56, 8
   %58 = load i32, i32* %j
@@ -223,59 +228,59 @@ define void @"Main.start()=>(Void)"() {
   %61 = add nsw i32 %60, 1
   store i32 %61, i32* %j
 
-"#block44":                                       ; No predecessors!
-
 "#block45":                                       ; No predecessors!
+
+"#block46":                                       ; No predecessors!
   %62 = load i32, i32* %j
   %63 = icmp eq i32 %62, 8
   %64 = load i32, i32* %j
   %65 = icmp eq i32 %64, 9
 
-"#block46":                                       ; No predecessors!
-
 "#block47":                                       ; No predecessors!
 
 "#block48":                                       ; No predecessors!
+
+"#block49":                                       ; No predecessors!
   %66 = load i32, i32* %i
   %67 = icmp slt i32 %66, 10
 
-"#block49":                                       ; No predecessors!
+"#block50":                                       ; No predecessors!
   %68 = load i32, i32* %i
   %69 = add nsw i32 %68, 1
   store i32 %69, i32* %i
 
-"#block50":                                       ; No predecessors!
+"#block51":                                       ; No predecessors!
   store i32 0, i32* %j
   %70 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous7", i32 0, i32 0))
 
-"#block51":                                       ; No predecessors!
-
 "#block52":                                       ; No predecessors!
+
+"#block53":                                       ; No predecessors!
   %71 = load i32, i32* %j
   %72 = load i32, i32* %i
   %73 = icmp sle i32 %71, %72
 
-"#block53":                                       ; No predecessors!
+"#block54":                                       ; No predecessors!
   %74 = load i32, i32* %j
   %75 = add nsw i32 %74, 1
   store i32 %75, i32* %j
 
-"#block54":                                       ; No predecessors!
+"#block55":                                       ; No predecessors!
   %76 = load i32, i32* %i
   %77 = icmp eq i32 %76, 8
   %78 = load i32, i32* %j
   %79 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @"#anonymous6", i32 0, i32 0), i32 %78)
 
-"#block55":                                       ; No predecessors!
-
 "#block56":                                       ; No predecessors!
+
+"#block57":                                       ; No predecessors!
   %80 = load i32, i32* %j
   %81 = icmp eq i32 %80, 8
   %82 = load i32, i32* %j
   %83 = icmp eq i32 %82, 9
 
-"#block57":                                       ; No predecessors!
-
 "#block58":                                       ; No predecessors!
+
+"#block59":                                       ; No predecessors!
 }
 ------------------------------------------------------------
