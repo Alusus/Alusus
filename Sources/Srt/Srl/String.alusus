@@ -16,6 +16,38 @@ import "Srl/Memory.alusus";
     @expname[strstr]
     func findString(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
     
+    func removeChar(string: ptr[Char], character: Char): ptr[Char] {
+        def pointer: ptr[Char];
+
+        pointer = findChar(string, character);
+        while pointer != 0 {
+            copy(pointer, (pointer~cast[Int[64]] + 1)~cast[ptr[Char]]);
+            pointer = findChar(pointer, character);
+        };
+
+        return string;
+    };
+
+    func replaceChar(string: ptr[Char], fromCharacter: Char, toCharacter: Char): ptr[Char] {
+        def pointer: ptr[Char];
+
+        pointer = findChar(string, fromCharacter);
+        while pointer != 0 {
+            pointer~cnt = toCharacter;
+            pointer = findChar((pointer~cast[Int[64]] + 1)~cast[ptr[Char]], fromCharacter);
+        };
+
+        return string;
+    };
+
+    func charAt(string: ptr[Char], index: Int): ptr[Char] {
+        @shared
+        def buffer: array[Char, 2];
+        copy(buffer~ptr, (string~cast[Int[64]] + index)~cast[ptr[Char]], 1);
+        buffer(1) = 0;
+        return buffer~ptr;
+    };
+
     @expname[strcmp]
     func compare(s1: ptr[Char], s2: ptr[Char]): Int;
     
@@ -26,7 +58,7 @@ import "Srl/Memory.alusus";
       if compare(s1, s2) == 0 {
         return 1;
       } else {
-        return 0
+        return 0;
       };
     };
     
