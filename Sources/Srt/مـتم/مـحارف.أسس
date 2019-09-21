@@ -9,8 +9,8 @@
     عرّف جد_محرف: لقب findChar؛
     عرّف جد_آخر_محرف: لقب findLastChar؛
     عرّف جد_محارف: لقب findString؛
-    عرّف استبدال_محرف: لقب replaceChar؛
-    عرّف حذف_محرف: لقب removeChar؛
+    عرّف استبدل_محرف: لقب replaceChar؛
+    عرّف احذف_محرف: لقب removeChar؛
     عرّف محرف_عند: لقب charAt؛
     عرّف قارن: لقب compare؛
     عرّف متطابق: لقب equal؛

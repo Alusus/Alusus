@@ -41,6 +41,7 @@ import "Srl/Memory.alusus";
     };
 
     func charAt(string: ptr[Char], index: Int): ptr[Char] {
+        @shared
         def buffer: array[Char, 2];
         copy(buffer~ptr, (string~cast[Int[64]] + index)~cast[ptr[Char]], 1);
         buffer(1) = 0;
