@@ -123,6 +123,15 @@
     عرف كـرل_سهل: لقب CurlEasy؛
     @دمج عرف CurlEasy: وحدة
     {
+      عرف الحق: لقب append؛
+      عرف الحق_أعلى: لقب appendNodup؛
+      عرف كرر: لقب duplicate؛
+      عرف حرر_الكل: لقب freeAll؛
+    }؛
+
+    عرف كرل_سلسلة_محارف: لقب CurlSlist؛
+    @دمج عرف CurlSlist: وحدة
+    {
       عرف هيئ: لقب init؛
       عرف نظف: لقب cleanup؛
       عرف اضبط_خيار: لقب setOpt؛

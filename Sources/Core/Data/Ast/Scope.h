@@ -22,6 +22,7 @@ class Scope : public List
   // Type Info
 
   TYPE_INFO(Scope, List, "Core.Data.Ast", "Core", "alusus.org");
+  OBJECT_FACTORY(Scope);
 
 
   //============================================================================
@@ -32,8 +33,6 @@ class Scope : public List
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_AST_LIST_CLONABLE(Scope);
 
   IMPLEMENT_AST_LIST_PRINTABLE(Scope);
 

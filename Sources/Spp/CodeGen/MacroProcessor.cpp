@@ -29,10 +29,11 @@ void MacroProcessor::initBindingCaches()
     &this->applyMacroArgsIteration_identifier,
     &this->applyMacroArgsIteration_stringLiteral,
     &this->applyMacroArgsIteration_tiStr,
-    &this->applyMacroArgsIteration_clonable,
+    &this->applyMacroArgsIteration_other,
     &this->applyMacroArgsIteration_binding,
     &this->applyMacroArgsIteration_containing,
-    &this->applyMacroArgsIteration_mapContaining
+    &this->applyMacroArgsIteration_dynContaining,
+    &this->applyMacroArgsIteration_dynMapContaining
   });
 }
 
@@ -47,10 +48,11 @@ void MacroProcessor::initBindings()
   this->applyMacroArgsIteration_identifier = &MacroProcessor::_applyMacroArgsIteration_identifier;
   this->applyMacroArgsIteration_stringLiteral = &MacroProcessor::_applyMacroArgsIteration_stringLiteral;
   this->applyMacroArgsIteration_tiStr = &MacroProcessor::_applyMacroArgsIteration_tiStr;
-  this->applyMacroArgsIteration_clonable = &MacroProcessor::_applyMacroArgsIteration_clonable;
+  this->applyMacroArgsIteration_other = &MacroProcessor::_applyMacroArgsIteration_other;
   this->applyMacroArgsIteration_binding = &MacroProcessor::_applyMacroArgsIteration_binding;
   this->applyMacroArgsIteration_containing = &MacroProcessor::_applyMacroArgsIteration_containing;
-  this->applyMacroArgsIteration_mapContaining = &MacroProcessor::_applyMacroArgsIteration_mapContaining;
+  this->applyMacroArgsIteration_dynContaining = &MacroProcessor::_applyMacroArgsIteration_dynContaining;
+  this->applyMacroArgsIteration_dynMapContaining = &MacroProcessor::_applyMacroArgsIteration_dynMapContaining;
 }
 
 
@@ -69,17 +71,7 @@ Bool MacroProcessor::_runMacroPass(TiObject *self, Core::Data::Ast::Scope *root)
   PREPARE_SELF(macroProcessor, MacroProcessor);
   VALIDATE_NOT_NULL(root);
 
-  Bool result = true;
-  for (Int i = 0; i < root->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(root->getElement(i));
-    if (def != 0) {
-      auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
-      if (module != 0) {
-        if (!macroProcessor->processMacros(module)) result = false;
-      }
-    }
-  }
-  return result;
+  return macroProcessor->processMacros(root);
 }
 
 
@@ -87,6 +79,8 @@ Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
 {
   PREPARE_SELF(macroProcessor, MacroProcessor);
   VALIDATE_NOT_NULL(owner);
+
+  if (owner == 0 || owner->isDerivedFrom<Core::Data::Grammar::Module>()) return true;
 
   auto container = ti_cast<Containing<TiObject>>(owner);
   if (container == 0) return true;
@@ -230,13 +224,7 @@ Bool MacroProcessor::_applyMacroArgsIteration(
   }
 
   // It's not a replacable identifier, so we'll proceed with cloning the tree.
-  auto clonable = ti_cast<Core::Data::Clonable>(obj);
-  if (clonable != 0) {
-    return macroProcessor->applyMacroArgsIteration_clonable(clonable, argTypes, args, sl, result);
-  }
-
-  result.reset();
-  return true;
+  return macroProcessor->applyMacroArgsIteration_other(obj, argTypes, args, sl, result);
 }
 
 
@@ -264,7 +252,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_identifier(
           { S("value"), TiStr(newVar) },
           { S("sourceLocation"), obj->getSourceLocation() }
         });
-        macroProcessor->addSourceLocation(result.get(), sl);
+        Core::Data::Ast::addSourceLocation(result.get(), sl);
       } else {
         macroProcessor->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
@@ -273,11 +261,10 @@ Bool MacroProcessor::_applyMacroArgsIteration_identifier(
       }
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
-      result = macroProcessor->cloneTree(args->getElement(index), sl);
+      result = Core::Data::Ast::clone(getSharedPtr(args->getElement(index)), sl);
     }
   } else {
-    result = obj->clone();
-    macroProcessor->addSourceLocation(result.get(), sl);
+    result = Core::Data::Ast::clone(getSharedPtr(obj), sl);
   }
   return true;
 }
@@ -307,7 +294,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_stringLiteral(
           { S("value"), TiStr(newVar) },
           { S("sourceLocation"), obj->getSourceLocation() }
         });
-        macroProcessor->addSourceLocation(result.get(), sl);
+        Core::Data::Ast::addSourceLocation(result.get(), sl);
       } else {
         macroProcessor->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
@@ -316,11 +303,10 @@ Bool MacroProcessor::_applyMacroArgsIteration_stringLiteral(
       }
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
-      result = macroProcessor->cloneTree(args->getElement(index), sl);
+      result = Core::Data::Ast::clone(getSharedPtr(args->getElement(index)), sl);
     }
   } else {
-    result = obj->clone();
-    macroProcessor->addSourceLocation(result.get(), sl);
+    result = Core::Data::Ast::clone(getSharedPtr(obj), sl);
   }
   return true;
 }
@@ -355,28 +341,53 @@ Bool MacroProcessor::_applyMacroArgsIteration_tiStr(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_clonable(
-  TiObject *self, Core::Data::Clonable *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+Bool MacroProcessor::_applyMacroArgsIteration_other(
+  TiObject *self, TiObject *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
   PREPARE_SELF(macroProcessor, MacroProcessor);
 
-  result = obj->clone();
-  macroProcessor->addSourceLocation(result.get(), sl);
+  if (!obj->isDerivedFrom<Core::Data::Node>()) {
+    // We won't clone basic data types.
+    result = getSharedPtr(obj);
+    return true;
+  }
 
+  auto factory = obj->getMyTypeInfo()->getFactory();
+  if (!factory) {
+    throw EXCEPTION(GenericException, S("A Node derived class is missing a type factory."));
+  }
+  result = factory->createShared();
+  if (sl != 0) Core::Data::Ast::addSourceLocation(result.get(), sl);
+
+  auto srcBinding = ti_cast<Binding>(obj);
   auto binding = result.ti_cast_get<Binding>();
   if (binding != 0) {
-    if (!macroProcessor->applyMacroArgsIteration_binding(binding, argTypes, args, sl)) return false;
+    if (!macroProcessor->applyMacroArgsIteration_binding(srcBinding, argTypes, args, sl, binding)) return false;
   }
 
+  auto srcDynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(obj);
+  auto dynMapContainer = result.ti_cast_get<DynamicMapContaining<TiObject>>();
+  if (dynMapContainer != 0) {
+    if (!macroProcessor->applyMacroArgsIteration_dynMapContaining(
+      srcDynMapContainer, argTypes, args, sl, dynMapContainer
+    )) return false;
+  }
+
+  auto srcDynContainer = ti_cast<DynamicContaining<TiObject>>(obj);
+  auto dynContainer = result.ti_cast_get<DynamicContaining<TiObject>>();
+  if (dynContainer != 0) {
+    if (!macroProcessor->applyMacroArgsIteration_dynContaining(
+      srcDynContainer, argTypes, args, sl, dynContainer
+    )) return false;
+  }
+
+  auto srcContainer = ti_cast<Containing<TiObject>>(obj);
   auto container = result.ti_cast_get<Containing<TiObject>>();
-  if (container != 0) {
-    if (!macroProcessor->applyMacroArgsIteration_containing(container, argTypes, args, sl)) return false;
-  }
-
-  auto mapContainer = result.ti_cast_get<DynamicMapContaining<TiObject>>();
-  if (mapContainer != 0) {
-    if (!macroProcessor->applyMacroArgsIteration_mapContaining(mapContainer, argTypes, args, sl)) return false;
+  if (dynMapContainer == 0 && dynContainer == 0 && container != 0) {
+    if (!macroProcessor->applyMacroArgsIteration_containing(
+      srcContainer, argTypes, args, sl, container
+    )) return false;
   }
 
   return true;
@@ -385,7 +396,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_clonable(
 
 Bool MacroProcessor::_applyMacroArgsIteration_binding(
   TiObject *self, Binding *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
-  Core::Data::SourceLocation *sl
+  Core::Data::SourceLocation *sl, Binding *destObj
 ) {
   PREPARE_SELF(macroProcessor, MacroProcessor);
   for (Int i = 0; i < obj->getMemberCount(); ++i) {
@@ -409,7 +420,9 @@ Bool MacroProcessor::_applyMacroArgsIteration_binding(
         macroProcessor->generateStringFromTemplate(
           obj->refMember<TiStr>(i).get(), prefixSize, identifier->getValue().get(), suffix, newVar, 1000
         );
-        obj->refMember<TiStr>(i) = newVar;
+        destObj->refMember<TiStr>(i) = newVar;
+      } else {
+        destObj->setMember(i, obj->getMember(i));
       }
     } else if (obj->getMemberHoldMode(i) == HoldMode::SHARED_REF) {
       // Clone the member.
@@ -417,8 +430,10 @@ Bool MacroProcessor::_applyMacroArgsIteration_binding(
       TiObject *child = obj->getMember(i);
       if (child != 0) {
         if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
-        if (newChild != 0) obj->setMember(i, newChild.get());
+        destObj->setMember(i, newChild.get());
       }
+    } else {
+      destObj->setMember(i, obj->getMember(i));
     }
   }
   return true;
@@ -427,7 +442,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_binding(
 
 Bool MacroProcessor::_applyMacroArgsIteration_containing(
   TiObject *self, Containing<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
-  Core::Data::SourceLocation *sl
+  Core::Data::SourceLocation *sl, Containing<TiObject> *destObj
 ) {
   PREPARE_SELF(macroProcessor, MacroProcessor);
   for (Int i = 0; i < obj->getElementCount(); ++i) {
@@ -436,42 +451,66 @@ Bool MacroProcessor::_applyMacroArgsIteration_containing(
       TiObject *child = obj->getElement(i);
       if (child != 0) {
         if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
-        if (newChild != 0) obj->setElement(i, newChild.get());
       }
+      destObj->setElement(i, newChild.get());
+    } else {
+      destObj->setElement(i, obj->getElement(i));
     }
   }
   return true;
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_mapContaining(
-  TiObject *self, DynamicMapContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
-  Core::Data::SourceLocation *sl
+Bool MacroProcessor::_applyMacroArgsIteration_dynContaining(
+  TiObject *self, DynamicContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  Core::Data::SourceLocation *sl, DynamicContaining<TiObject> *destObj
 ) {
   PREPARE_SELF(macroProcessor, MacroProcessor);
   for (Int i = 0; i < obj->getElementCount(); ++i) {
-    Char var[1000];
+    if (obj->getElementHoldMode(i) == HoldMode::SHARED_REF) {
+      TioSharedPtr newChild;
+      TiObject *child = obj->getElement(i);
+      if (child != 0) {
+        if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
+      }
+      destObj->addElement(newChild.get());
+    } else {
+      destObj->addElement(obj->getElement(i));
+    }
+  }
+  return true;
+}
+
+
+Bool MacroProcessor::_applyMacroArgsIteration_dynMapContaining(
+  TiObject *self, DynamicMapContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  Core::Data::SourceLocation *sl, DynamicMapContaining<TiObject> *destObj
+) {
+  PREPARE_SELF(macroProcessor, MacroProcessor);
+  for (Int i = 0; i < obj->getElementCount(); ++i) {
+    // Generate the new key value.
+    Char key[1000];
+    Char newKey[1000];
     Word prefixSize = 0;
     Char const *suffix = 0;
-    macroProcessor->parseStringTemplate(obj->getElementKey(i).c_str(), var, 1000, prefixSize, suffix);
-    auto index = argTypes->findElementIndex(var);
+    macroProcessor->parseStringTemplate(obj->getElementKey(i).c_str(), key, 1000, prefixSize, suffix);
+    auto index = argTypes->findElementIndex(key);
     if (index != -1) {
       // The key can be replaced with the new key.
       auto arg = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
       if (arg != 0) {
-        Char newVar[1000];
         macroProcessor->generateStringFromTemplate(
-          obj->getElementKey(i).c_str(), prefixSize, arg->getValue().get(), suffix, newVar, 1000
+          obj->getElementKey(i).c_str(), prefixSize, arg->getValue().get(), suffix, newKey, 1000
         );
         // Make sure the new key isn't already used.
-        if (obj->findElementIndex(newVar) != -1) {
+        if (obj->findElementIndex(newKey) != -1) {
           macroProcessor->noticeStore->add(
             std::make_shared<Spp::Notices::InvalidMacroArgNotice>(arg->findSourceLocation())
           );
           return false;
         }
         auto value = obj->getElement(index);
-        obj->insertElement(index, newVar, value);
+        obj->insertElement(index, newKey, value);
         obj->removeElement(index + 1);
       } else {
         macroProcessor->noticeStore->add(
@@ -479,6 +518,19 @@ Bool MacroProcessor::_applyMacroArgsIteration_mapContaining(
         );
         return false;
       }
+    } else {
+      copyStr(obj->getElementKey(i).c_str(), newKey);
+    }
+    // Generate the value.
+    if (obj->getElementHoldMode(i) == HoldMode::SHARED_REF) {
+      TioSharedPtr newChild;
+      TiObject *child = obj->getElement(i);
+      if (child != 0) {
+        if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
+      }
+      destObj->addElement(newKey, newChild.get());
+    } else {
+      destObj->addElement(newKey, obj->getElement(i));
     }
   }
   return true;
@@ -487,28 +539,6 @@ Bool MacroProcessor::_applyMacroArgsIteration_mapContaining(
 
 //==============================================================================
 // Helper Functions
-
-TioSharedPtr MacroProcessor::cloneTree(TiObject *obj, Core::Data::SourceLocation *sl)
-{
-  auto clonable = ti_cast<Core::Data::Clonable>(obj);
-  if (clonable == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Must be an object that implements Clonable interface."));
-  }
-
-  auto clone = clonable->clone();
-  this->addSourceLocation(clone.get(), sl);
-
-  auto container = clone.ti_cast_get<Containing<TiObject>>();
-  if (container) {
-    for (Int i = 0; i < container->getElementCount(); ++i) {
-      auto childClone = this->cloneTree(container->getElement(i), sl);
-      container->setElement(i, childClone.get());
-    }
-  }
-
-  return clone;
-}
-
 
 void MacroProcessor::parseStringTemplate(
   Char const *str, Char *var, Word varBufSize, Word &prefixSize, Char const *&suffix,
@@ -538,23 +568,6 @@ void MacroProcessor::generateStringFromTemplate(
   if (prefixSize > 0) result.append(prefix, prefixSize, outputBufSize);
   result.append(var, outputBufSize);
   if (suffix != 0) result.append(suffix, outputBufSize);
-}
-
-
-void MacroProcessor::addSourceLocation(TiObject *obj, Core::Data::SourceLocation *sl)
-{
-  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(obj);
-  if (metadata == 0) return;
-
-  auto currentSl = metadata->findSourceLocation();
-  if (currentSl == 0) {
-    metadata->setSourceLocation(sl);
-  } else {
-    auto newSl = std::make_shared<Core::Data::SourceLocationStack>();
-    newSl->push(sl);
-    newSl->push(currentSl.get());
-    metadata->setSourceLocation(newSl);
-  }
 }
 
 } // namespace

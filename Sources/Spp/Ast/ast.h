@@ -67,6 +67,7 @@ ti_s_enum(DefinitionDomain,
 #include "Macro.h"
 // Containers
 #include "Module.h"
+#include "TemplateVarDef.h"
 #include "Template.h"
 #include "Function.h"
 // Control Statements

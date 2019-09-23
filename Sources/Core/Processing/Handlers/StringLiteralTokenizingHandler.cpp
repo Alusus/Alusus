@@ -117,6 +117,7 @@ void StringLiteralTokenizingHandler::prepareToken(
   SFREE(buffer);
   // Set other token info.
   token->setId(id);
+  token->setAsKeyword(false);
   token->setSourceLocation(sourceLocation);
 }
 

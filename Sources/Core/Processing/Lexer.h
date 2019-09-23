@@ -73,26 +73,12 @@ class Lexer : public TiObject
   /// The context used to tracer through the grammar.
   private: Data::Grammar::Context grammarContext;
 
-  /**
-   * @brief The array of current states.
-   * This vector contains the array of the states that are currently active
-   * in the system.
-   */
-  private: std::vector<LexerState> states;
-
-  /// A temporary state object used during processing.
-  private: LexerState tempState;
-
-  /**
-   * @brief The index of the currently disabled state.
-   *
-   * Rather than deleting it, the state currently being processed is marked
-   * by this index as disabled. The state will later be re-enabled at a
-   * lower cost than creating a new one. The purpose behind this mechanism
-   * is optimization. If this value is -1, then no state is currently
-   * disabled.
-   */
-  private: Int disabledStateIndex;
+  private: LexerState **states = 0;
+  private: Word stateCount = 0;
+  private: LexerState **nextStates = 0;
+  private: Word nextStateCount = 0;
+  private: LexerState **recycledStates = 0;
+  private: Word recycledStateCount = 0;
 
   /**
    * @brief A temporary buffer used to buffer byte characters for conversion.
@@ -177,7 +163,6 @@ class Lexer : public TiObject
 
   public: Lexer() :
     errorBuffer(S(""), 0),
-    disabledStateIndex(-1),
     tempByteCharCount(0),
     currentProcessingIndex(0),
     currentTokenClamped(false)
@@ -186,6 +171,7 @@ class Lexer : public TiObject
 
   public: virtual ~Lexer()
   {
+    this->release();
   }
 
 
@@ -239,8 +225,14 @@ class Lexer : public TiObject
   private: void processNextChar(WChar inputChar);
 
   /// Recursively apply the given character on the temp state.
-  private: NextAction processTempState(WChar inputChar, Data::Grammar::Term *currentTerm,
-                                       Int currentLevel);
+  private: NextAction processState(LexerState *state, WChar inputChar, Int minLevel = 0);
+
+  private: Lexer::NextAction processConstTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processCharGroupTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processMultiplyTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processAlternateTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processConcatTerm(LexerState *state, WChar inputChar, Int currentLevel);
+  private: Lexer::NextAction processReferenceTerm(LexerState *state, WChar inputChar, Int currentLevel);
 
   /// Select the best token among the detected tokens.
   private: Int selectBestToken();
@@ -253,14 +245,7 @@ class Lexer : public TiObject
   /// @name Utility Functions
   /// @{
 
-  /// Create a new state object.
-  private: Int createState();
-
-  /// Extract a state from the stack and put it in the temp state.
-  private: void extractState(Int index);
-
-  /// Defrag the states list in case there is a disabled state.
-  private: void defragStatesList();
+  private: LexerState* createState();
 
   /// Get the symbol definition at the specified index.
   public: Data::Grammar::SymbolDefinition* getSymbolDefinition(Int index)

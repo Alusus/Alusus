@@ -18,16 +18,17 @@ namespace Core::Data::Ast
 
 class Bridge : public Node,
                public Binding, public MapContaining<TiObject>, public Core::Data::Ast::MetaHaving,
-               public Core::Data::Clonable, public Core::Data::Printable
+               public Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bridge, Node, "Core.Data.Ast", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(
-      Binding, MapContaining<TiObject>, Core::Data::Ast::MetaHaving, Core::Data::Clonable, Core::Data::Printable
+      Binding, MapContaining<TiObject>, Core::Data::Ast::MetaHaving, Core::Data::Printable
     )
   ));
+  OBJECT_FACTORY(Bridge);
 
 
   //============================================================================
@@ -49,8 +50,6 @@ class Bridge : public Node,
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (target, TiObject, SHARED_REF, setTarget(value), target.get())
   );
-
-  IMPLEMENT_AST_MAP_CLONABLE(Bridge);
 
   IMPLEMENT_AST_MAP_PRINTABLE(Bridge);
 

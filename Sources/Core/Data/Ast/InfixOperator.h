@@ -13,20 +13,20 @@
 #ifndef CORE_DATA_AST_INFIXOPERATOR_H
 #define CORE_DATA_AST_INFIXOPERATOR_H
 
-namespace Core { namespace Data { namespace Ast
+namespace Core::Data::Ast
 {
 
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public Binding, public MapContaining<TiObject>, public MetaHaving,
-                      public Clonable, public Printable
+                      public Binding, public MapContaining<TiObject>, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Data.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Clonable, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<TiObject>, MetaHaving, Printable);
+  OBJECT_FACTORY(InfixOperator);
 
 
   //============================================================================
@@ -117,12 +117,6 @@ class InfixOperator : public Node,
     return this->second;
   }
 
-
-  //============================================================================
-  // Clonable Implementation
-
-  public: virtual SharedPtr<TiObject> clone() const;
-
 }; // class
 
 
@@ -133,24 +127,14 @@ class InfixOperator : public Node,
   class X : public InfixOperator \
   { \
     TYPE_INFO(X, InfixOperator, "Core.Data.Ast", "Core", "alusus.org"); \
-    IMPLEMENT_INTERFACES_2(InfixOperator, Clonable, Printable); \
+    IMPLEMENT_INTERFACES(InfixOperator, Printable); \
+    OBJECT_FACTORY(X); \
     IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_MAP_CONSTRUCTOR(X); \
-    public: virtual SharedPtr<TiObject> clone() const \
-    { \
-      SharedPtr<X> newObject = std::make_shared<X>(); \
-      newObject->setProdId(this->getProdId()); \
-      for (Word i = 0; i < this->getElementCount(); ++i) { \
-        newObject->setElement(i, this->getElement(i)); \
-      } \
-      newObject->setType(this->type); \
-      newObject->setSourceLocation(this->getSourceLocation()); \
-      return newObject; \
-    } \
   }
 
-} } } // namespace
+} // namespace
 
 #endif

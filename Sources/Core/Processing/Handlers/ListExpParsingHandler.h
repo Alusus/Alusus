@@ -52,8 +52,6 @@ template <class TYPE> class ListExpParsingHandler : public GenericParsingHandler
       } else {
         auto list = ti_cast<TYPE>(currentData);
         if (list != 0 && list->getProdId() == UNKNOWN_ID) {
-          this->prepareToModifyData(state, levelIndex);
-          list = state->getData(levelIndex).ti_cast_get<TYPE>();
           list->add(data);
         } else {
           state->setData(this->createListWithItems(getSharedPtr(currentData), data), levelIndex);

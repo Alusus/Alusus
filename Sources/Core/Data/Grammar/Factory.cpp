@@ -63,10 +63,10 @@ TiObject* Factory::get(Char const* qualifier)
 }
 
 
-Bool Factory::tryGet(Char const* qualifier, TiObject *&result, Module **ownerModule)
+Bool Factory::tryGet(Char const* qualifier, TiObject *&result)
 {
   auto ref = createReference(qualifier, &this->referenceCache);
-  return ref->getValue(&this->context, result, ownerModule);
+  return ref->getValue(&this->context, result);
 }
 
 
@@ -77,20 +77,12 @@ void Factory::initializeObject(TiObject *obj)
   if (inheriting != 0) {
     auto baseRef = inheriting->getBaseReference();
     if (baseRef != 0) {
-      // Prepare the context.
-      auto oldModule = this->context.getModule();
-      Node *node = ti_cast<Node>(obj);
-      Module *ownerModule = (node == 0 ? 0 : node->findOwner<Module>());
-      this->context.setModule(ownerModule);
-
       // Lookup the base.
       TiObject *base = this->context.traceValue(baseRef);
       if (base == 0) {
         throw EXCEPTION(GenericException, S("Base reference points to missing definition."));
       }
-
       inheriting->setBase(base);
-      this->context.setModule(oldModule);
     }
   }
 }
@@ -103,10 +95,8 @@ void Factory::generateConstTokenDefinitions(Containing<TiObject> *container)
     if (obj == 0) continue;
     SymbolDefinition *def = ti_cast<SymbolDefinition>(obj);
     if (def != 0) {
-      TiObject *term = def->getTerm().get();
-      if (term->isDerivedFrom<Term>()) {
-        this->generateConstTokenDefinitions(static_cast<Term*>(term));
-      }
+      auto term = def->getTerm().get();
+      this->generateConstTokenDefinitions(term);
     } else {
       auto parseDim = ti_cast<ParsingDimension>(obj);
       if (parseDim != 0) {
@@ -225,6 +215,170 @@ void Factory::generateKey(Char const *text, Str &result)
     ++text;
   }
   result = stream.str();
+}
+
+
+void Factory::createCommand(
+  Char const *qualifier, std::initializer_list<CommandSection> sections, SharedPtr<BuildHandler> parsingHandler
+) {
+  if (sections.size() == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("sections"), S("You need at least one section in a command"));
+  } else if (sections.size() == 1) {
+    // Create a command with a single section.
+    this->set(qualifier, SymbolDefinition::create({}, {
+      {S("term"), this->createCommandSection(sections.begin())},
+      {S("handler"), parsingHandler}
+    }));
+  } else {
+    // Create a multi section command.
+    auto sectionTerms = List::create();
+    for (auto section: sections) {
+      auto sectionTerm = this->createCommandSection(&section);
+      sectionTerm->setFlags(TiInt::create(Processing::ParsingFlags::PASS_ITEMS_UP));
+      sectionTerms->add(MultiplyTerm::create({
+        {S("flags"), section.flags},
+        {S("min"), section.min},
+        {S("max"), section.max}
+      }, {
+        {S("term"), sectionTerm}
+      }));
+    }
+    this->set(qualifier, SymbolDefinition::create({}, {
+      {S("term"), ConcatTerm::create({}, {
+        {S("terms"), sectionTerms}
+      })},
+      {S("handler"), parsingHandler}
+    }));
+  }
+}
+
+
+SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
+{
+  if (section->args.size() == 0) {
+    return TokenTerm::create({
+      {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
+      {S("tokenText"), section->keywords}
+    });
+  } else {
+    auto args = List::create();
+    for (auto arg: section->args) {
+      args->add(MultiplyTerm::create({
+        {S("flags"), arg.flags},
+        {S("min"), arg.min},
+        {S("max"), arg.max}
+      }, {
+        {S("term"), ReferenceTerm::create({{ S("reference"), arg.prod }})}
+      }));
+    }
+
+    return ConcatTerm::create({}, {
+      {S("terms"), List::create({}, {
+        TokenTerm::create({
+          {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
+          {S("tokenText"), section->keywords}
+        }),
+        ConcatTerm::create({
+          {S("flags"), TiInt::create(Processing::ParsingFlags::PASS_ITEMS_UP)}
+        }, {
+          {S("terms"), args}
+        })
+      })}
+    });
+  }
+}
+
+
+void Factory::createStatementVariation(
+  Char const *qualifier, std::initializer_list<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
+) {
+  if (segments.size() == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("segments"), S("There should be at least one segment."));
+  }
+
+  auto segList = List::create();
+  for (auto segment: segments) {
+    segList->add(MultiplyTerm::create({
+      {S("flags"), TiInt::create(Processing::ParsingFlags::PASS_ITEMS_UP)},
+      {S("min"), segment.min},
+      {S("max"), segment.max}
+    }, {
+      {S("term"), ReferenceTerm::create({{ S("reference"), segment.prod }})}
+    }));
+  }
+
+  this->set(qualifier, SymbolDefinition::create({}, {
+    {S("term"), ConcatTerm::create({
+      {S("errorSyncPosId"), TiInt(1000)}
+    }, {
+      {S("terms"), segList}
+    })},
+    {S("handler"), parsingHandler}
+  }));
+}
+
+
+void Factory::createProdGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods)
+{
+  auto prodTerms = List::create();
+  for (auto prod: prods) prodTerms->add(ReferenceTerm::create({{ S("reference"), prod }}));
+
+  this->set(qualifier, SymbolDefinition::create({}, {
+    {S("term"), AlternateTerm::create({}, {
+      {S("terms"), prodTerms}
+    })},
+    {S("handler"), Processing::Handlers::GenericParsingHandler::create()}
+  }));
+}
+
+
+void Factory::addProdsToGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods)
+{
+  auto symbolDef = this->get<SymbolDefinition>(qualifier);
+  auto term = symbolDef->getTerm().ti_cast_get<AlternateTerm>();
+  if (term == 0) {
+    throw EXCEPTION(
+      InvalidArgumentException, S("qualifier"), S("Qualifier doesn't point to a valid prod group."), qualifier
+    );
+  }
+  auto list = term->getTerms().ti_cast_get<List>();
+  if (list == 0) {
+    throw EXCEPTION(
+      InvalidArgumentException, S("qualifier"), S("Qualifier doesn't point to a valid prod group."), qualifier
+    );
+  }
+  for (auto prod: prods) list->add(ReferenceTerm::create({{ S("reference"), prod }}));
+}
+
+
+void Factory::removeProdsFromGroup(Char const *qualifier, std::initializer_list<Char const*> prods)
+{
+  auto symbolDef = this->get<SymbolDefinition>(qualifier);
+  auto term = symbolDef->getTerm().ti_cast_get<AlternateTerm>();
+  if (term == 0) {
+    throw EXCEPTION(
+      InvalidArgumentException, S("qualifier"), S("Qualifier doesn't point to a valid prod group."), qualifier
+    );
+  }
+  auto list = term->getTerms().ti_cast_get<List>();
+  if (list == 0) {
+    throw EXCEPTION(
+      InvalidArgumentException, S("qualifier"), S("Qualifier doesn't point to a valid prod group."), qualifier
+    );
+  }
+
+  for (auto prod: prods) {
+    auto ref1 = Core::Data::Grammar::createReference(prod, &this->referenceCache);
+    for (Int i = list->getCount() - 1; i >= 0; --i) {
+      auto refTerm = list->get(i).ti_cast_get<ReferenceTerm>();
+      if (refTerm == 0) continue;
+      auto ref2 = refTerm->getReference().get();
+      if (ref2 == 0) continue;
+      if (ref1->isEqual(ref2)) {
+        list->remove(i);
+      }
+    }
+  }
 }
 
 } // namespace

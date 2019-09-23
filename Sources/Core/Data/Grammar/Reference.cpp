@@ -24,11 +24,11 @@ Bool Reference::setValue(TiObject *source, TiObject *value) const
     if (container == 0) return false;
 
     if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {
-      this->cachedIndex = container->findElementIndex(this->key.c_str());
+      this->cachedIndex = container->findElementIndex(this->key.get());
     }
 
     if (this->cachedIndex == -1) {
-      container->setElement(this->key.c_str(), value);
+      container->setElement(this->key.get(), value);
     } else {
       container->setElement(this->cachedIndex, value);
     }
@@ -51,7 +51,7 @@ Bool Reference::removeValue(TiObject *source) const
     if (container == 0) return false;
 
     if (this->cachedIndex < 0 || this->cachedIndex >= container->getElementCount()) {
-      this->cachedIndex = container->findElementIndex(this->key.c_str());
+      this->cachedIndex = container->findElementIndex(this->key.get());
       if (this->cachedIndex == -1) return false;
     }
 
@@ -65,29 +65,26 @@ Bool Reference::removeValue(TiObject *source) const
 }
 
 
-Bool Reference::getValue(TiObject *source, TiObject *&value, Module **ownerModule) const
+Bool Reference::getValue(TiObject *source, TiObject *&value) const
 {
   VALIDATE_NOT_NULL(source);
 
   TiObject *tempValue;
-  Module *tempOwnerModule;
-  if (!this->_getValue(source, tempValue, &tempOwnerModule)) return false;
+  if (!this->_getValue(source, tempValue)) return false;
 
   if (this->next == 0) {
-    if (ownerModule != 0) *ownerModule = tempOwnerModule;
     value = tempValue;
   } else {
     // Recurse into next level, if possible.
     if (tempValue == 0) return false;
-    if (!this->next->getValue(tempValue, value, ownerModule)) return false;
-    if (ownerModule != 0 && *ownerModule == 0) *ownerModule = tempOwnerModule;
+    if (!this->next->getValue(tempValue, value)) return false;
   }
 
   return true;
 }
 
 
-Bool Reference::_getValue(TiObject *source, TiObject *&value, Module **ownerModule) const
+Bool Reference::_getValue(TiObject *source, TiObject *&value) const
 {
   VALIDATE_NOT_NULL(source);
 
@@ -96,11 +93,13 @@ Bool Reference::_getValue(TiObject *source, TiObject *&value, Module **ownerModu
   if (this->cachedIndex == -1) {
     if (this->key == S("owner")) {
       this->cachedIndex = -2;
+    } else if (this->key == S("base")) {
+      this->cachedIndex = -3;
     } else {
       container = source->getInterface<MapContaining<TiObject>>();
       if (container == 0) return false;
 
-      this->cachedIndex = container->findElementIndex(this->key.c_str());
+       this->cachedIndex = container->findElementIndex(this->key.get());
       if (this->cachedIndex == -1) return false;
     }
   }
@@ -109,27 +108,19 @@ Bool Reference::_getValue(TiObject *source, TiObject *&value, Module **ownerModu
     // Get the owner of the provided source.
     auto node = ti_cast<Node>(source);
     if (node == 0) return false;
-    if (ownerModule != 0) *ownerModule = 0;
     value = node->getOwner();
+    return true;
+  } else if (this->cachedIndex == -3) {
+    // Get the base of the provided source.
+    auto inheriting = ti_cast<Inheriting>(source);
+    if (inheriting == 0) return false;
+    value = inheriting->getBase();
     return true;
   } else {
     // Get an element from the provided container.
     if (container == 0) container = source->getInterface<MapContaining<TiObject>>();
 
     value = container->getElement(this->cachedIndex);
-
-    if (value != 0) {
-      if (value->isA<SharedPairedPtr>()) {
-        auto *pairedPtr = static_cast<SharedPairedPtr*>(value);
-        value = pairedPtr->object.get();
-        source = pairedPtr->parent.get();
-      } else if (value->isA<PlainPairedPtr>()) {
-        auto *pairedPtr = static_cast<PlainPairedPtr*>(value);
-        value = pairedPtr->object;
-        source = pairedPtr->parent;
-      }
-    }
-    if (ownerModule != 0) *ownerModule = ti_cast<Module>(source);
 
     return true;
   }

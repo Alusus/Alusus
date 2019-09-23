@@ -18,16 +18,17 @@ namespace Spp::Ast
 
 class IfStatement : public Core::Data::Node,
                     public Binding, public MapContaining<TiObject>,
-                    public Core::Data::Ast::MetaHaving, public Core::Data::Clonable,
-                    public Core::Data::Printable
+                    public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(IfStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
-  IMPLEMENT_INTERFACES(Core::Data::Node, Binding, MapContaining<TiObject>,
-                                         Core::Data::Ast::MetaHaving, Core::Data::Clonable,
-                                         Core::Data::Printable);
+  IMPLEMENT_INTERFACES(
+    Core::Data::Node, Binding, MapContaining<TiObject>,
+    Core::Data::Ast::MetaHaving, Core::Data::Printable
+  );
+  OBJECT_FACTORY(IfStatement);
 
 
   //============================================================================
@@ -53,8 +54,6 @@ class IfStatement : public Core::Data::Node,
     (ifBody, TiObject, SHARED_REF, setIfBody(value), ifBody.get()),
     (elseBody, TiObject, SHARED_REF, setElseBody(value), elseBody.get())
   );
-
-  IMPLEMENT_AST_CLONABLE(IfStatement);
 
   IMPLEMENT_AST_MAP_PRINTABLE(IfStatement);
 

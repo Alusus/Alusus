@@ -29,6 +29,7 @@ class ConstTerm : public Term
   // Type Info
 
   TYPE_INFO(ConstTerm, Term, "Core.Data.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(ConstTerm);
 
 
   //============================================================================

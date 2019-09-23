@@ -24,6 +24,8 @@ class StandardFactory : public Factory
 
   private: SharedPtr<Processing::Handlers::ConstTokenizingHandler> constTokenHandler;
 
+  private: SharedPtr<Processing::Handlers::IdentifierTokenizingHandler> identifierTokenHandler;
+
   private: SharedPtr<Processing::Handlers::StringLiteralTokenizingHandler> stringLiteralHandler;
   private: SharedPtr<Processing::Handlers::StringLiteralTokenizingHandler> charLiteralHandler;
 
@@ -73,9 +75,6 @@ class StandardFactory : public Factory
 
   /// Create statement template production definitions.
   private: void createStatementsProductionModule();
-
-  /// Create command template production definitions.
-  private: void createCommandTemplateProductionDefinitions();
 
   /// Create Expression production module.
   private: void createExpressionProductionModule();

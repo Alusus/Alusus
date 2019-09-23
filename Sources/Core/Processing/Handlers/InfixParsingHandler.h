@@ -54,7 +54,6 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
         if (this->forward && state->refTermLevel(levelIndex).getPosId() > 2) {
           // We want to attach the new object to the right leaf of the already
           // existing infix tree.
-          this->prepareToModifyInfixTree(state, levelIndex);
           auto leaf = this->findRightLeaf(state->getData(levelIndex).s_cast_get<TYPE>());
           leaf->setSecond(this->createInfixObj(leaf->getSecond(), data));
         } else {
@@ -103,16 +102,6 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
       obj->setSourceLocation(metadata->findSourceLocation());
     }
     return obj;
-  }
-
-  /// Copy the entire infix list tree, not just its root.
-  private: void prepareToModifyInfixTree(ParserState *state, Int levelIndex)
-  {
-    if (state->isDataShared(levelIndex)) {
-      // Duplicate the data.
-      auto data = state->getData(levelIndex);
-      state->setData(this->cloneInfixTree(data), levelIndex);
-    }
   }
 
   private: SharedPtr<TiObject> cloneInfixTree(SharedPtr<TiObject> const &obj)

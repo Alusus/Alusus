@@ -1,9 +1,9 @@
 ------------------ Parsed Data Dump ------------------
-StringLiteral: hello [Subject.Literal]
+StringLiteral: hello [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-StringLiteral: world [Subject.Literal]
+StringLiteral: world [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-StringLiteral: hello [Subject.Literal]
+StringLiteral: hello [Main.Subject.Literal]
 ------------------------------------------------------

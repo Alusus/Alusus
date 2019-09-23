@@ -1,5 +1,5 @@
 import "Srl/Console.alusus";
-import "Srl/System.alusus";
+import "Srl/Time.alusus";
 
 def Main: module
 {
@@ -8,9 +8,9 @@ def Main: module
   def start: function ()
   {
     def ts: Word[64];
-    ts = System.getTimestamp(0);
-    def time: ptr[System.Time];
-    time = System.getDetailedTime(ts~ptr);
+    ts = Time.getTimestamp(0);
+    def time: ptr[Time.DetailedTime];
+    time = Time.getDetailedTime(ts~ptr);
     Console.print("Current date: %d-%02d-%02d\n", time~cnt.year + 1900, time~cnt.month + 1, time~cnt.day);
     Console.print("Current timezone: %s\n", time~cnt.timezone);
   };

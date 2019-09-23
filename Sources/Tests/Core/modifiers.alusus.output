@@ -1,6 +1,7 @@
-ERROR CP1001 @ (17,14): Parser syntax error.
 ERROR CP1005 @ (17,4): Unexpected modifier encountered.
+ERROR CP1001 @ (17,14): Parser syntax error.
 ERROR CP1001 @ (18,8): Parser syntax error.
+ERROR CP1005 @ (18,4): Unexpected modifier encountered.
 ERROR CP1001 @ (19,40): Parser syntax error.
 ERROR CP1001 @ (20,33): Parser syntax error.
 ERROR CP1005 @ (22,4): Unexpected modifier encountered.
@@ -11,97 +12,124 @@ ERROR CP1005 @ (26,7): Unexpected modifier encountered.
 ERROR CP1005 @ (27,8): Unexpected modifier encountered.
 ERROR CP1005 @ (28,5): Unexpected modifier encountered.
 ------------------ Parsed Data Dump ------------------
-Scope [Statements.StmtList]
+Scope [Main.Statements.StmtList]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: leading [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: leading [Main.Subject.Literal]
   modifiers: List
-   Identifier: test [Subject.Identifier]
+   Identifier: test [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: trailing [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: trailing [Main.Subject.Literal]
   modifiers: List
-   Identifier: test [Subject.Identifier]
+   Identifier: test [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: leading 2 [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: leading 2 [Main.Subject.Literal]
   modifiers: List
-   Identifier: test1 [Subject.Identifier]
-   Identifier: test2 [Subject.Identifier]
+   Identifier: test1 [Modifier.Subject.Identifier]
+   Identifier: test2 [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: trailing 2 [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: trailing 2 [Main.Subject.Literal]
   modifiers: List
-   Identifier: test1 [Subject.Identifier]
-   Identifier: test2 [Subject.Identifier]
+   Identifier: test1 [Modifier.Subject.Identifier]
+   Identifier: test2 [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: leading parens [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: leading parens [Main.Subject.Literal]
   modifiers: List
-   ParamPass () [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Identifier]
-    param: IntegerLiteral: 1 [Subject.Literal]
+   ParamPass () [Modifier.Expression.ParamPassExp]
+    operand: Identifier: test [Modifier.Subject.Identifier]
+    param: IntegerLiteral: 1 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: trailing parens [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: trailing parens [Main.Subject.Literal]
   modifiers: List
-   ParamPass () [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Identifier]
-    param: IntegerLiteral: 1 [Subject.Literal]
+   ParamPass () [Modifier.Expression.ParamPassExp]
+    operand: Identifier: test [Modifier.Subject.Identifier]
+    param: IntegerLiteral: 1 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: leading square brackets 2 [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: leading square brackets 2 [Main.Subject.Literal]
   modifiers: List
-   ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Identifier]
-    param: IntegerLiteral: 1 [Subject.Literal]
-   ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Identifier]
-    param: IntegerLiteral: 2 [Subject.Literal]
+   ParamPass [] [Modifier.Expression.ParamPassExp]
+    operand: Identifier: test [Modifier.Subject.Identifier]
+    param: IntegerLiteral: 1 [Main.Subject.Literal]
+   ParamPass [] [Modifier.Expression.ParamPassExp]
+    operand: Identifier: test [Modifier.Subject.Identifier]
+    param: IntegerLiteral: 2 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: trailing square brackets 2 [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: trailing square brackets 2 [Main.Subject.Literal]
   modifiers: List
-   ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Identifier]
-    param: IntegerLiteral: 1 [Subject.Literal]
-   ParamPass [] [Expression.ParamPassExp]
-    operand: Identifier: test [Subject.Identifier]
-    param: IntegerLiteral: 2 [Subject.Literal]
- AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Identifier]
-  second: AdditionOperator + [Expression.AddExp]
-   first: IntegerLiteral: 1 [Subject.Literal]
-   second: IntegerLiteral: 2 [Subject.Literal]
- AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Identifier]
-  second: AdditionOperator + [Expression.AddExp]
-   first: IntegerLiteral: 1 [Subject.Literal]
-   second: IntegerLiteral: 2 [Subject.Literal]
- AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Identifier]
-  second: AdditionOperator + [Expression.AddExp]
-   first: IntegerLiteral: 1 [Subject.Literal]
-   second: IntegerLiteral: 2 [Subject.Literal]
- AssignmentOperator = [Expression.AssignmentExp]
-  first: Identifier: a [Subject.Identifier]
-  second: AdditionOperator + [Expression.AddExp]
-   first: IntegerLiteral: 1 [Subject.Literal]
-   second: IntegerLiteral: 2 [Subject.Literal]
+   ParamPass [] [Modifier.Expression.ParamPassExp]
+    operand: Identifier: test [Modifier.Subject.Identifier]
+    param: IntegerLiteral: 1 [Main.Subject.Literal]
+   ParamPass [] [Modifier.Expression.ParamPassExp]
+    operand: Identifier: test [Modifier.Subject.Identifier]
+    param: IntegerLiteral: 2 [Main.Subject.Literal]
+ Bracket () [Main.Subject.Sbj]
+  operand: NULL
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: middle leading [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: trailing err - bracket [Main.Subject.Literal]
+  modifiers: List
+   ParamPass () [Modifier.Expression.ParamPassExp]
+    operand: Identifier: test [Modifier.Subject.Identifier]
+    param: IntegerLiteral: 1 [Main.Subject.Literal]
+ GenericCommand do [Main.Do]
+  args: List
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: trailing err - dot [Main.Subject.Literal]
+  modifiers: List
+   Identifier: test [Modifier.Subject.Identifier]
+ AssignmentOperator = [Main.Expression.AssignmentExp]
+  first: Identifier: a [Main.Subject.Identifier]
+  second: AdditionOperator + [Main.Expression.AddExp]
+   first: IntegerLiteral: 1 [Main.Subject.Literal]
+   second: IntegerLiteral: 2 [Main.Subject.Literal]
+ AssignmentOperator = [Main.Expression.AssignmentExp]
+  first: Identifier: a [Main.Subject.Identifier]
+  second: AdditionOperator + [Main.Expression.AddExp]
+   first: IntegerLiteral: 1 [Main.Subject.Literal]
+   second: IntegerLiteral: 2 [Main.Subject.Literal]
+ AssignmentOperator = [Main.Expression.AssignmentExp]
+  first: Identifier: a [Main.Subject.Identifier]
+  second: AdditionOperator + [Main.Expression.AddExp]
+   first: IntegerLiteral: 1 [Main.Subject.Literal]
+   second: IntegerLiteral: 2 [Main.Subject.Literal]
+ AssignmentOperator = [Main.Expression.AssignmentExp]
+  first: Identifier: a [Main.Subject.Identifier]
+  second: AdditionOperator + [Main.Expression.AddExp]
+   first: IntegerLiteral: 1 [Main.Subject.Literal]
+   second: IntegerLiteral: 2 [Main.Subject.Literal]
+ GenericCommand do [Main.Do]
+  args: List
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: middle leading [Main.Subject.Literal]
   modifiers: NULL
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: middle trailing [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: middle trailing [Main.Subject.Literal]
   modifiers: NULL
  GenericCommand do [Main.Do]
   args: List
-   StringLiteral: start trailing [Subject.Literal]
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: start trailing [Main.Subject.Literal]
   modifiers: NULL
  Definition [Main.Def] p
   modifiers:
-   Identifier: public [Subject.Identifier]
-  target: IntegerLiteral: 5 [Subject.Literal]
+   Identifier: public [Modifier.Subject.Identifier]
+  target: IntegerLiteral: 5 [Main.Subject.Literal]
 ------------------------------------------------------

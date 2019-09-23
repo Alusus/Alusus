@@ -5,13 +5,6 @@ def System: module
 {
   def start: function ()
   {
-    // sleep & getTimestamp
-    def ts: Word[64];
-    ts = Srl.System.getTimestamp(0);
-    Srl.System.sleep(1000000);
-    ts = Srl.System.getTimestamp(0) - ts;
-    Srl.Console.print("%llu\n", ts);
-
     // exec
     Srl.System.exec("TZ=UTC LANG=en_US date -d @0");
 
@@ -19,16 +12,6 @@ def System: module
     Srl.System.setEnv("TZ", "UTC", 1);
     Srl.Console.print(Srl.System.getEnv("TZ"));
     Srl.Console.print("\n");
-
-    // getDetailedTime
-    def dt: Srl.System.Time;
-    def pdt: ptr[Srl.System.Time];
-    ts = 1535881398;
-    Srl.System.getDetailedTime(ts~ptr, dt~ptr);
-    Srl.Console.print("%d-%02d-%02d\n", dt.year + 1900, dt.month + 1, dt.day);
-    ts = 0;
-    pdt = Srl.System.getDetailedTime(ts~ptr);
-    Srl.Console.print("%d-%02d-%02d\n", pdt~cnt.year + 1900, pdt~cnt.month + 1, pdt~cnt.day);
   };
 };
 

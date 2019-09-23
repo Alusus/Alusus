@@ -1,47 +1,48 @@
 import "globals.alusus";
 import "Srl/String.alusus";
 
-@merge def Srl : module
+@merge module Srl
 {
-  def Console: module
+  module Console
   {
-    def getChar: @expname[getchar] function () => Int[32];
-    def putChar: @expname[putchar] function (character: Int[32]) => Int[32];
+    @expname[getchar]
+    func getChar(): Int[32];
+    
+    @expname[putchar]
+    func putChar(character: Int[32]): Int[32];
 
-    def print: @expname[printf] function (format: ptr[Word[8]], args: ...any) => Int[32];
+    @expname[printf] func print(format: ptr[Word[8]], args: ...any): Int[32];
 
-    def print: function (i: Int[64])  => Int[32]
-    {
+    func print(i: Int[64]): Int[32] {
       return print("%lld", i);
     };
 
-    def print: function (f: Float[64])  => Int[32]
-    {
+    func print(f: Float[64]): Int[32] {
       return print("%f", f);
     };
 
-    def print: function (f: Float[64], d: Int)  => Int[32]
-    {
+    func print(f: Float[64], d: Int): Int[32] {
       return print("%.*f", d, f);
     };
 
-    def scan: @expname[scanf] function (format: ptr[Word[8]], args: ...any) => Int[32];
-    def getInt: function () => Int
-    {
+    @expname[scanf]
+    func scan(format: ptr[Word[8]], args: ...any): Int[32];
+
+    func getInt(): Int {
       def i: Int;
       i = 0;
       scan("%d", i~ptr);
       return i;
     };
-    def getFloat: function () => Float
-    {
+
+    func getFloat(): Float {
       def i: Float;
       i = 0;
       scan("%f", i~ptr);
       return i;
     };
-    def getString: function (str: ptr[array[Char]], count: Word) => Void
-    {
+
+    func getString(str: ptr[array[Char]], count: Word): Void {
       def i: Word;
       def c: Char;
       i = 0;
@@ -56,108 +57,35 @@ import "Srl/String.alusus";
       str~cnt(i) = 0;
     };
 
-    def Style: module {
-      use Srl;
+    module Style {
+      def RESET: "\x1b[0m";
+      def BRIGHT: "\x1b[1m";
+      def DIM: "\x1b[2m";
+      def ITALIC: "\x1b[3m";
+      def UNDERSCORE: "\x1b[4m";
+      def BLINK: "\x1b[5m";
+      def REVERSE: "\x1b[7m";
+      def HIDDEN: "\x1b[8m";
+      
+      // frontground
+      def FG_BLACK: "\x1b[30m";
+      def FG_RED: "\x1b[31m";
+      def FG_GREEN: "\x1b[32m";
+      def FG_YELLOW: "\x1b[33m";
+      def FG_BLUE: "\x1b[34m";
+      def FG_MAGENTA: "\x1b[35m";
+      def FG_CYAN: "\x1b[36m";
+      def FG_WHITE: "\x1b[37m";
 
-      def styleStr: array[char, 100];
-      def reset: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[0m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bright: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[1m", 0h1b);
-          return styleStr~ptr;
-      };
-      def dim: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[2m", 0h1b);
-          return styleStr~ptr;
-      };
-      def italic: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[3m", 0h1b);
-          return styleStr~ptr;
-      };
-      def underscore: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[4m", 0h1b);
-          return styleStr~ptr;
-      };
-      def blink: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[5m", 0h1b);
-          return styleStr~ptr;
-      };
-      def reverse: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[7m", 0h1b);
-          return styleStr~ptr;
-      };
-      def hidden: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[8m", 0h1b);
-          return styleStr~ptr;
-      };
-
-      def fgBlack: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[30m", 0h1b);
-          return styleStr~ptr;
-      };
-      def fgRed: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[31m", 0h1b);
-          return styleStr~ptr;
-      };
-      def fgGreen: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[32m", 0h1b);
-          return styleStr~ptr;
-      };
-      def fgYellow: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[33m", 0h1b);
-          return styleStr~ptr;
-      };
-      def fgBlue: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[34m", 0h1b);
-          return styleStr~ptr;
-      };
-      def fgMagenta: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[35m", 0h1b);
-          return styleStr~ptr;
-      };
-      def fgCyan: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[36m", 0h1b);
-          return styleStr~ptr;
-      };
-      def fgWhite: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[37m", 0h1b);
-          return styleStr~ptr;
-      };
-
-      def bgBlack: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[40m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bgRed: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[41m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bgGreen: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[42m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bgYellow: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[43m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bgBlue: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[44m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bgMagenta: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[45m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bgCyan: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[46m", 0h1b);
-          return styleStr~ptr;
-      };
-      def bgWhite: function() => ptr[array[Char]]{
-          String.assign(styleStr~ptr, "%c[47m", 0h1b);
-          return styleStr~ptr;
-      };
+      // background
+      def BG_BLACK: "\x1b[40m";
+      def BG_RED: "\x1b[41m";
+      def BG_GREEN: "\x1b[42m";
+      def BG_YELLOW: "\x1b[43m";
+      def BG_BLUE: "\x1b[44m";
+      def BG_MAGENTA: "\x1b[45m";
+      def BG_CYAN: "\x1b[46m";
+      def BG_WHITE: "\x1b[47m";
     };
   };
 };

@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_LEXERSTATE_H
 #define CORE_PROCESSING_LEXERSTATE_H
 
-namespace Core { namespace Processing
+namespace Core::Processing
 {
 
 /**
@@ -28,17 +28,24 @@ namespace Core { namespace Processing
 class LexerState
 {
   //============================================================================
+  // Types
+
+  public: struct Level
+  {
+    public: Int posId;
+    public: Data::Grammar::Term *term;
+    Level() : posId(0), term(0) {}
+    Level(Int id, Data::Grammar::Term *t) : posId(id), term(t) {}
+  };
+
+
+  //============================================================================
   // Member Variables
 
-  /**
-   * @brief The stack of indexes that defines the current state.
-   *
-   * Each entry in this stack defines the position within one level of the
-   * terms hierarchy. The first entry is used to specify the token definition
-   * used by this index (the index within the list of token definitions
-   * defined in the lexer).
-   */
-  private: std::vector<Int> indexStack;
+  private: Int tokenDefIndex = -1;
+
+  private: Level levels[LEXER_STATE_LEVEL_MAX_COUNT];
+  private: Word levelCount = 0;
 
   /**
    * @brief The length of the token.
@@ -46,13 +53,13 @@ class LexerState
    * This variable holds the length of the token if the state has reached an
    * end, or 0 if the state is still active.
    */
-  private: Int tokenLength;
+  private: Int tokenLength = 0;
 
 
   //============================================================================
   // Constructors / Destructor
 
-  public: LexerState() : tokenLength(0)
+  public: LexerState()
   {
   }
 
@@ -81,22 +88,57 @@ class LexerState
   //============================================================================
   // Member Functions
 
-  /// Get the state index stack.
-  public: std::vector<Int> * getIndexStack()
+  public: void clear()
   {
-    return &this->indexStack;
+    this->levelCount = 0;
+    this->tokenLength = 0;
+    this->tokenDefIndex = -1;
   }
 
-  /// Get the size of the state index stack.
-  public: Int getIndexStackSize() const
+  public: void setTokenDefIndex(Int i)
   {
-    return this->indexStack.size();
+    this->tokenDefIndex = i;
   }
 
-  /// Get an entry in the state index stack
-  public: Int getIndexStackEntry(Int i) const
+  public: Int getTokenDefIndex() const
   {
-    return this->indexStack[i];
+    return this->tokenDefIndex;
+  }
+
+  public: void pushTermLevel(Int posId, Data::Grammar::Term *term)
+  {
+    if (this->levelCount >= LEXER_STATE_LEVEL_MAX_COUNT) {
+      throw EXCEPTION(GenericException, S("LexerState levels stack overflow."));
+    }
+    this->levels[this->levelCount] = Level(posId, term);
+    ++this->levelCount;
+  }
+
+  public: void popTermLevel()
+  {
+    --this->levelCount;
+  }
+
+  public: void resizeLevels(Word size)
+  {
+    this->levelCount = size;
+  }
+
+  /// Get the size of the levels stack.
+  public: Word getLevelCount() const
+  {
+    return this->levelCount;
+  }
+
+  /// Get an entry in the levels stack.
+  public: Level& refLevel(Int i)
+  {
+    return this->levels[i];
+  }
+
+  public: Level const& refLevel(Int i) const
+  {
+    return this->levels[i];
   }
 
   /// Set the token length.
@@ -118,10 +160,10 @@ class LexerState
   }
 
   /// Copies the values of the object from another object.
-  private: void copyFrom(const LexerState *src);
+  public: void copyFrom(LexerState const *src);
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif
