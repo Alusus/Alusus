@@ -37,21 +37,32 @@ struct GenDeps
   DestructionStack *destructionStack;
   TiObject *tgGlobalConstructionContext;
   DestructionStack *globalDestructionStack;
+  TiObject *tgSelf;
+  Ast::Type *astSelfType;
 
   GenDeps(
-    TargetGeneration *tg, TiObject *tgc, DestructionStack *ds,
-    TiObject *tgGcc, DestructionStack *gds
-  ) : tg(tg), tgContext(tgc), destructionStack(ds), tgGlobalConstructionContext(tgGcc), globalDestructionStack(gds)
+    TargetGeneration *tg, TiObject *tgc, DestructionStack *ds, TiObject *tgGcc, DestructionStack *gds
+  ) : tg(tg), tgContext(tgc), destructionStack(ds)
+    , tgGlobalConstructionContext(tgGcc), globalDestructionStack(gds)
+    , tgSelf(0), astSelfType(0)
   {}
 
   GenDeps(GenDeps const &deps, TiObject *tgc)
     : tg(deps.tg), tgContext(tgc), destructionStack(deps.destructionStack)
     , tgGlobalConstructionContext(deps.tgGlobalConstructionContext), globalDestructionStack(deps.globalDestructionStack)
+    , tgSelf(deps.tgSelf), astSelfType(deps.astSelfType)
   {}
 
   GenDeps(GenDeps const &deps, TiObject *tgc, DestructionStack *ds)
     : tg(deps.tg), tgContext(tgc), destructionStack(ds)
     , tgGlobalConstructionContext(deps.tgGlobalConstructionContext), globalDestructionStack(deps.globalDestructionStack)
+    , tgSelf(deps.tgSelf), astSelfType(deps.astSelfType)
+  {}
+
+  GenDeps(GenDeps const &deps, TiObject *tgc, DestructionStack *ds, TiObject *tgs, Ast::Type *astst)
+    : tg(deps.tg), tgContext(tgc), destructionStack(ds)
+    , tgGlobalConstructionContext(deps.tgGlobalConstructionContext), globalDestructionStack(deps.globalDestructionStack)
+    , tgSelf(tgs), astSelfType(astst)
   {}
 };
 
@@ -75,75 +86,87 @@ constexpr Char const* META_EXTRA_CODE_GEN_FAILED = S("codeGenFailed");
 //==============================================================================
 // Global Functions
 
-// tryGetCodeGenData
+// tryGetExtra
 
 template <class DT, class OT,
           typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline DT* tryGetCodeGenData(OT *object)
+inline DT* tryGetExtra(OT *object, Char const *name)
 {
-  return object->getExtra(META_EXTRA_CODE_GEN).template ti_cast_get<DT>();
+  return object->getExtra(name).template ti_cast_get<DT>();
 }
 
 template <class DT, class OT,
           typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline DT* tryGetCodeGenData(OT *object)
+inline DT* tryGetExtra(OT *object, Char const *name)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) return 0;
-  return metadata->getExtra(META_EXTRA_CODE_GEN).template ti_cast_get<DT>();
+  return metadata->getExtra(name).template ti_cast_get<DT>();
 }
 
-// getCodeGenData
+// getExtra
 
 template <class DT, class OT>
-inline DT* getCodeGenData(OT *object)
+inline DT* getExtra(OT *object, Char const *name)
 {
-  auto result = tryGetCodeGenData<DT>(object);
+  auto result = tryGetExtra<DT, OT>(object, name);
   if (result == 0) {
     throw EXCEPTION(GenericException, S("Object is missing the generated data."));
   }
   return result;
 }
 
-// setCodeGenData
+// setExtra
 
 template <class DT, class OT,
           typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setCodeGenData(OT *object, SharedPtr<DT> const &data)
+inline void setExtra(OT *object, Char const *name, SharedPtr<DT> const &data)
 {
-  object->setExtra(META_EXTRA_CODE_GEN, data);
+  object->setExtra(name, data);
 }
 
 template <class DT, class OT,
           typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setCodeGenData(OT *object, SharedPtr<DT> const &data)
+inline void setExtra(OT *object, Char const *name, SharedPtr<DT> const &data)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
     throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
-  metadata->setExtra(META_EXTRA_CODE_GEN, data);
+  metadata->setExtra(name, data);
 }
 
-// removeCodeGenData
+// removeExtra
 
 template <class OT,
           typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void removeCodeGenData(OT *object)
+inline void removeExtra(OT *object, Char const *name)
 {
-  object->removeExtra(META_EXTRA_CODE_GEN);
+  object->removeExtra(name);
 }
 
 template <class OT,
           typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void removeCodeGenData(OT *object)
+inline void removeExtra(OT *object, Char const *name)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
   if (metadata == 0) {
     throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
-  metadata->removeExtra(META_EXTRA_CODE_GEN);
+  metadata->removeExtra(name);
 }
+
+#define DEFINE_EXTRA_ACCESSORS(name) \
+  template <class DT, class OT> inline DT* tryGet##name(OT *object) { return tryGetExtra<DT>(object, #name); } \
+  template <class DT, class OT> inline DT* get##name(OT *object) { return getExtra<DT>(object, #name); } \
+  template <class DT, class OT> inline void set##name(OT *object, SharedPtr<DT> const &data) { \
+    setExtra(object, #name, data); \
+  } \
+  template <class OT> inline void remove##name(OT *object) { removeExtra(object, #name); }
+
+DEFINE_EXTRA_ACCESSORS(CodeGenData);
+DEFINE_EXTRA_ACCESSORS(AutoCtor);
+DEFINE_EXTRA_ACCESSORS(AutoDtor);
 
 // didCodeGenFail
 

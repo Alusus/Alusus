@@ -44,7 +44,9 @@ class Generation : public ObjTiInterface
       &this->generateVarDef,
       &this->generateTempVar,
       &this->generateVarInitialization,
+      &this->generateMemberVarInitialization,
       &this->generateVarDestruction,
+      &this->generateMemberVarDestruction,
       &this->registerDestructor,
       &this->generateVarGroupDestruction,
       &this->generateStatements,
@@ -108,10 +110,19 @@ class Generation : public ObjTiInterface
     GenDeps const& /* deps */
   ));
 
+  public: METHOD_BINDING_CACHE(generateMemberVarInitialization,
+    Bool, (TiObject* /* astMemberNode */, GenDeps const& /* deps */)
+  );
+
   public: METHOD_BINDING_CACHE(generateVarDestruction,
     Bool, (
-      Core::Data::Node* /* astNode */, GenDeps const& /* deps */, GenResult& /* result */
+      Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
+      GenDeps const& /* deps */
     )
+  );
+
+  public: METHOD_BINDING_CACHE(generateMemberVarDestruction,
+    Bool, (TiObject* /* astMemberNode */, GenDeps const& /* deps */)
   );
 
   public: METHOD_BINDING_CACHE(registerDestructor,

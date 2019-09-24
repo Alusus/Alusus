@@ -45,3 +45,9 @@ testContinue-nested: 1, 1
 destructed!
 destructed!
 testContinue-out.
+
+constructed!
+constructed!
+testAutoInit: 1, 1
+destructed!
+destructed!

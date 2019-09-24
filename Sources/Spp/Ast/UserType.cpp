@@ -65,9 +65,20 @@ Bool UserType::hasCustomInitialization(Helper *helper, ExecutionContext const *e
   auto body = this->getBody().get();
   if (body != 0) {
     for (Int i = 0; i < body->getCount(); ++i) {
-      auto def = body->get(i).ti_cast_get<Core::Data::Ast::Definition>();
-      if (def != 0 && def->getTarget().ti_cast_get<Ast::Function>() != 0) {
-        if (def->getName() == S("construct")) return true;
+      auto statement = body->getElement(i);
+      auto def = ti_cast<Core::Data::Ast::Definition>(statement);
+      if (def != 0) {
+        if (def->getTarget() != 0) {
+          if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
+            if (def->getName() == S("construct")) return true;
+          } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
+            auto type = helper->traceType(def->getTarget().get());
+            if (type != 0 && type->hasCustomInitialization(helper, ec)) return true;
+          }
+        }
+      } else if (statement != 0) {
+        // If we have any non-definition statement then it must be initialization code.
+        return true;
       }
     }
   }
@@ -80,9 +91,17 @@ Bool UserType::hasCustomDestruction(Helper *helper, ExecutionContext const *ec) 
   auto body = this->getBody().get();
   if (body != 0) {
     for (Int i = 0; i < body->getCount(); ++i) {
-      auto def = body->get(i).ti_cast_get<Core::Data::Ast::Definition>();
-      if (def != 0 && def->getTarget().ti_cast_get<Ast::Function>() != 0) {
-        if (def->getName() == S("destruct")) return true;
+      auto statement = body->getElement(i);
+      auto def = ti_cast<Core::Data::Ast::Definition>(statement);
+      if (def != 0) {
+        if (def->getTarget() != 0) {
+          if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
+            if (def->getName() == S("destruct")) return true;
+          } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
+            auto type = helper->traceType(def->getTarget().get());
+            if (type != 0 && type->hasCustomDestruction(helper, ec)) return true;
+          }
+        }
       }
     }
   }

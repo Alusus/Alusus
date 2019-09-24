@@ -177,8 +177,16 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     GenDeps const &deps
   );
 
+  private: static Bool _generateMemberVarInitialization(
+    TiObject *self, TiObject *astMemberNode, GenDeps const &deps
+  );
+
   private: static Bool _generateVarDestruction(
-    TiObject *self, Core::Data::Node *astNode, GenDeps const &deps, GenResult &result
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, GenDeps const &deps
+  );
+
+  private: static Bool _generateMemberVarDestruction(
+    TiObject *self, TiObject *astMemberNode, GenDeps const &deps
   );
 
   private: static void _registerDestructor(

@@ -31,7 +31,9 @@ void Generator::initBindings()
   generation->generateVarDef = &Generator::_generateVarDef;
   generation->generateTempVar = &Generator::_generateTempVar;
   generation->generateVarInitialization = &Generator::_generateVarInitialization;
+  generation->generateMemberVarInitialization = &Generator::_generateMemberVarInitialization;
   generation->generateVarDestruction = &Generator::_generateVarDestruction;
+  generation->generateMemberVarDestruction = &Generator::_generateMemberVarDestruction;
   generation->registerDestructor = &Generator::_registerDestructor;
   generation->generateVarGroupDestruction = &Generator::_generateVarGroupDestruction;
   generation->generateStatements = &Generator::_generateStatements;
@@ -218,7 +220,9 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
 
   // Generate function type.
   TiObject *tgFunctionType;
-  if (!generator->typeGenerator->getGeneratedType(astFunc->getType().get(), deps.tg, tgFunctionType, 0)) {
+  if (!generator->typeGenerator->getGeneratedType(
+    astFunc->getType().get(), ti_cast<Generation>(self), deps.tg, tgFunctionType, 0
+  )) {
     return false;
   }
 
@@ -244,7 +248,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   PREPARE_SELF(generation, Generation);
 
   TiObject *tgType;
-  if (!generator->typeGenerator->getGeneratedType(astType, deps.tg, tgType, 0)) return false;
+  if (!generator->typeGenerator->getGeneratedType(astType, generation, deps.tg, tgType, 0)) return false;
   ASSERT(tgType != 0);
 
   // Prepare struct members.
@@ -302,7 +306,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     // Generate the type of the variable.
     Ast::Type *astType;
     TiObject *tgType;
-    if (!generator->typeGenerator->getGeneratedType(astVar, deps.tg, tgType, &astType)) {
+    if (!generator->typeGenerator->getGeneratedType(astVar, generation, deps.tg, tgType, &astType)) {
       setCodeGenFailed(astVar, true);
       return false;
     }
@@ -313,7 +317,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
     }
     TiObject *tgRefType;
-    if (!generator->typeGenerator->getGeneratedType(astRefType, deps.tg, tgRefType, 0)) {
+    if (!generator->typeGenerator->getGeneratedType(astRefType, generation, deps.tg, tgRefType, 0)) {
       throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
     }
 
@@ -327,7 +331,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       // Generate the default value.
       TioSharedPtr tgDefaultValue;
       if (generator->offlineExecution) {
-        if (!generator->typeGenerator->generateDefaultValue(astType, deps, tgDefaultValue)) {
+        if (!generator->typeGenerator->generateDefaultValue(astType, generation, deps, tgDefaultValue)) {
           setCodeGenFailed(astVar, true);
           return false;
         }
@@ -343,7 +347,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         if (generator->globalItemRepo->findItem(name.c_str()) == -1) {
           // Add an entry for the variable in the repo.
           Word size;
-          if (!generator->typeGenerator->getTypeAllocationSize(astType, deps.tg, size)) {
+          if (!generator->typeGenerator->getTypeAllocationSize(astType, generation, deps.tg, size)) {
             setCodeGenFailed(astVar, true);
             return false;
           }
@@ -402,7 +406,9 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         // TODO: Should we use default values with local variables?
         // TioSharedPtr tgDefaultValue;
         // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
-        //   if (!generator->typeGenerator->generateDefaultValue(astType, deps, tgDefaultValue)) return false;
+        //   if (!generator->typeGenerator->generateDefaultValue(
+        //     astType, generation, deps, tgDefaultValue
+        //   )) return false;
         // }
         TioSharedPtr tgLocalVarRef;
         if (!deps.tg->generateVarReference(deps.tgContext, tgType, tgLocalVar.get(), tgLocalVarRef)) {
@@ -436,7 +442,7 @@ Bool Generator::_generateTempVar(
   if (tgVar == 0) {
     // Generate the type of the variable.
     TiObject *tgType;
-    if (!generator->typeGenerator->getGeneratedType(astType, deps.tg, tgType, 0)) return false;
+    if (!generator->typeGenerator->getGeneratedType(astType, generation, deps.tg, tgType, 0)) return false;
 
     // Also generate the reference type of this type.
     Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);
@@ -444,7 +450,7 @@ Bool Generator::_generateTempVar(
       throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
     }
     TiObject *tgRefType;
-    if (!generator->typeGenerator->getGeneratedType(astRefType, deps.tg, tgRefType, 0)) {
+    if (!generator->typeGenerator->getGeneratedType(astRefType, generation, deps.tg, tgRefType, 0)) {
       throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
     }
 
@@ -461,7 +467,9 @@ Bool Generator::_generateTempVar(
     //   if (generator->offlineExecution) {
     //     // Generate the default value.
     //     TioSharedPtr tgDefaultValue;
-    //     if (!generator->typeGenerator->generateDefaultValue(astType, tg, 0, tgDefaultValue)) return false;
+    //     if (!generator->typeGenerator->generateDefaultValue(
+    //       astType, generation, tg, 0, tgDefaultValue
+    //     )) return false;
     //     // Create the llvm global var.
     //     if (!tg->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) return false;
     //   } else {
@@ -469,7 +477,7 @@ Bool Generator::_generateTempVar(
     //     if (!tg->generateGlobalVariable(tgType, name.c_str(), 0, tgGlobalVar)) return false;
     //     // Add an entry for the variable in the repo.
     //     Word size;
-    //     if (!generator->typeGenerator->getTypeAllocationSize(astType, tg, size)) return false;
+    //     if (!generator->typeGenerator->getTypeAllocationSize(astType, generation, tg, size)) return false;
     //     generator->globalItemRepo->addItem(name.c_str(), size);
     //   }
 
@@ -508,7 +516,9 @@ Bool Generator::_generateTempVar(
           // TODO: Should we use default values with local variables?
           // TioSharedPtr tgDefaultValue;
           // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
-          //   if (!generator->typeGenerator->generateDefaultValue(astType, tg, tgContext, tgDefaultValue)) return false;
+          //   if (!generator->typeGenerator->generateDefaultValue(
+          //     astType, generation, tg, tgContext, tgDefaultValue
+          //   )) return false;
           // }
           auto tgContext = getCodeGenData<TiObject>(astBlock);
           TioSharedPtr tgLocalVarRef;
@@ -539,22 +549,30 @@ Bool Generator::_generateVarInitialization(
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
 
-  // Add `this` to parameter list.
-  auto varPtrAstType = generator->getAstHelper()->getPointerTypeFor(varAstType);
-  paramAstTypes->insertElement(0, varPtrAstType);
-  paramTgValues->insertElement(0, tgVarRef);
-
   // Do we have custom initialization?
   if (varAstType->hasCustomInitialization(generator->getAstHelper(), deps.tg->getExecutionContext())) {
     // If we have only one arg and it's a reference of the same type, then we should pass a pointer rather than the
     // value. This is to avoid infinite recursion due to needing to call the constructor to construct the constructor's
     // value-type argument.
-    if (paramAstTypes->getCount() == 2) {
-      auto firstArgType = ti_cast<Ast::Type>(paramAstTypes->get(1));
+    if (paramAstTypes->getCount() == 1) {
+      auto firstArgType = ti_cast<Ast::Type>(paramAstTypes->get(0));
       if (generator->getAstHelper()->isReferenceTypeFor(firstArgType, varAstType, deps.tg->getExecutionContext())) {
-        paramAstTypes->set(1, generator->getAstHelper()->getPointerTypeFor(varAstType));
+        paramAstTypes->set(0, generator->getAstHelper()->getPointerTypeFor(varAstType));
       }
     }
+
+    // Call automatic constructors, if any.
+    auto tgAutoCtor = tryGetAutoCtor<TiObject>(varAstType);
+    if (tgAutoCtor != 0) {
+      PlainList<TiObject> autoTgValues({ tgVarRef });
+      TioSharedPtr dummy;
+      if (!deps.tg->generateFunctionCall(deps.tgContext, tgAutoCtor, &autoTgValues, dummy)) return false;
+    }
+
+    // Add `this` to parameter list.
+    auto varPtrAstType = generator->getAstHelper()->getPointerTypeFor(varAstType);
+    paramAstTypes->insertElement(0, varPtrAstType);
+    paramTgValues->insertElement(0, tgVarRef);
 
     // Do we have constructors matching the given vars?
     static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("construct")) }});
@@ -564,14 +582,12 @@ Bool Generator::_generateVarInitialization(
     if (generator->astHelper->lookupCallee(
       &ref, varAstType, false, paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
     )) {
-      // TODO: Call automatic (inlined) constructors, if any.
-
       // Call the found constructor.
       GenResult result;
       return generator->getExpressionGenerator()->generateFunctionCall(
         paramsAstNode, static_cast<Ast::Function*>(callee), paramAstTypes, paramTgValues, generation, deps, result
       );
-    } else {
+    } else if (paramAstTypes->getCount() != 1) {
       // We have custom initialization but no constructors match the given params.
       generator->noticeStore->add(
         std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(paramsAstNode))
@@ -580,9 +596,9 @@ Bool Generator::_generateVarInitialization(
     }
   } else {
     // Else do we have a single arg? If so, cast then copy.
-    if (paramAstTypes->getCount() == 2) {
+    if (paramAstTypes->getCount() == 1) {
       // Cast the value to var type.
-      auto paramAstType = generator->getAstHelper()->traceType(paramAstTypes->getElement(1));
+      auto paramAstType = generator->getAstHelper()->traceType(paramAstTypes->getElement(0));
       ASSERT(paramAstType);
       if (!paramAstType->isImplicitlyCastableTo(
         varAstType, generator->astHelper, deps.tg->getExecutionContext()
@@ -594,7 +610,7 @@ Bool Generator::_generateVarInitialization(
       }
       TioSharedPtr tgCastedValue;
       if (!generation->generateCast(
-        deps, paramAstType, varAstType, paramTgValues->getElement(1), tgCastedValue)
+        deps, paramAstType, varAstType, paramTgValues->getElement(0), tgCastedValue)
       ) {
         // This should not happen since non-castable calls should be filtered out earlier.
         throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
@@ -606,7 +622,7 @@ Bool Generator::_generateVarInitialization(
       if (!deps.tg->generateAssign(deps.tgContext, varTgType, tgCastedValue.get(), tgVarRef, assignTgRes)) {
         return false;
       }
-    } else if (paramAstTypes->getCount() > 1) {
+    } else if (paramAstTypes->getCount() > 0) {
       generator->noticeStore->add(
         std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(paramsAstNode))
       );
@@ -620,45 +636,137 @@ Bool Generator::_generateVarInitialization(
 }
 
 
+Bool Generator::_generateMemberVarInitialization(
+  TiObject *self, TiObject *astMemberNode, GenDeps const &deps
+) {
+  if (deps.tgSelf == 0 || deps.astSelfType == 0) {
+    throw EXCEPTION(GenericException, S("Missing self while tring to initialize object member variables."));
+  }
+
+  PREPARE_SELF(generator, Generator);
+  PREPARE_SELF(generation, Generation);
+
+  // Get the member generated value and type.
+  auto tgMemberVar = getCodeGenData<TiObject>(astMemberNode);
+  auto astMemberType = Ast::getAstType(astMemberNode);
+  if (!astMemberType->hasCustomInitialization(generator->getAstHelper(), deps.tg->getExecutionContext())) {
+    return true;
+  }
+  TiObject *tgMemberType;
+  if (!generation->getGeneratedType(astMemberType, deps.tg, tgMemberType, 0)) return false;
+
+  // Get the struct ptr TG type.
+  TiObject *astSelfPtrType = generator->astHelper->getPointerTypeFor(deps.astSelfType);
+  TiObject *tgStructType;
+  if (!generation->getGeneratedType(astSelfPtrType, deps.tg, tgStructType, 0)) return false;
+
+  // Generate member access.
+  TioSharedPtr tgMemberVarRef;
+  if (!deps.tg->generateMemberVarReference(
+    deps.tgContext, tgStructType, tgMemberType, tgMemberVar, deps.tgSelf, tgMemberVarRef
+  )) {
+    return false;
+  }
+
+  // Initialize the member variable.
+  SharedList<TiObject> initTgVals;
+  PlainList<TiObject> initAstTypes;
+  if (!generation->generateVarInitialization(
+    astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode), &initAstTypes, &initTgVals, deps
+  )) {
+    return false;
+  }
+
+  return true;
+}
+
+
 Bool Generator::_generateVarDestruction(
-  TiObject *self, Core::Data::Node *astNode, GenDeps const &deps, GenResult &result
+  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, GenDeps const &deps
 ) {
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
 
-  TiObject *tgVar = getCodeGenData<TiObject>(astNode);
-  auto astType = Ast::getAstType(astNode);
-  if (tgVar == 0 || astType == 0) {
-    throw EXCEPTION(GenericException, S("The provided node does not seem to be a variable."));
-  }
-  TioSharedPtr tgVarRef;
-  if (!deps.tg->generateVarReference(deps.tgContext, astType, tgVar, tgVarRef)) {
-    return false;
+  if (!varAstType->hasCustomDestruction(generator->getAstHelper(), deps.tg->getExecutionContext())) {
+    return true;
   }
 
   // Prepare param list.
   PlainList<TiObject> paramTgValues;
   PlainList<TiObject> paramAstTypes;
-  auto ptrAstType = generator->getAstHelper()->getPointerTypeFor(astType);
+  auto ptrAstType = generator->getAstHelper()->getPointerTypeFor(varAstType);
   paramAstTypes.insertElement(0, ptrAstType);
-  paramTgValues.insertElement(0, tgVarRef.get());
+  paramTgValues.insertElement(0, tgVarRef);
 
   // Find the destructor.
   static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("destruct")) }});
   TiObject *callee;
   Ast::Type *calleeType;
   SharedPtr<Core::Notices::Notice> notice;
-  if (!generator->astHelper->lookupCallee(
-    &ref, astType, false, &paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
+  if (generator->astHelper->lookupCallee(
+    &ref, varAstType, false, &paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
   )) {
-    // No destructor is found for this object, so just return.
-    return true;
+    // Call the destructor.
+    GenResult result;
+    if (!generator->getExpressionGenerator()->generateFunctionCall(
+      astNode, static_cast<Ast::Function*>(callee), &paramAstTypes, &paramTgValues, generation, deps, result
+    )) return false;
   }
 
-  // Call the destructor.
-  return generator->getExpressionGenerator()->generateFunctionCall(
-    astNode, static_cast<Ast::Function*>(callee), &paramAstTypes, &paramTgValues, generation, deps, result
-  );
+  // Call auto destructor, if any.
+  auto tgAutoDtor = tryGetAutoDtor<TiObject>(varAstType);
+  if (tgAutoDtor != 0) {
+    PlainList<TiObject> autoTgValues({ tgVarRef });
+    TioSharedPtr dummy;
+    if (!deps.tg->generateFunctionCall(deps.tgContext, tgAutoDtor, &autoTgValues, dummy)) return false;
+  }
+
+  return true;
+}
+
+
+Bool Generator::_generateMemberVarDestruction(
+  TiObject *self, TiObject *astMemberNode, GenDeps const &deps
+) {
+  if (deps.tgSelf == 0 || deps.astSelfType == 0) {
+    throw EXCEPTION(GenericException, S("Missing self while tring to destruct object member variables."));
+  }
+
+  PREPARE_SELF(generator, Generator);
+  PREPARE_SELF(generation, Generation);
+
+  // Get the member generated value and type.
+  auto tgMemberVar = getCodeGenData<TiObject>(astMemberNode);
+  auto astMemberType = Ast::getAstType(astMemberNode);
+  if (!astMemberType->hasCustomDestruction(generator->getAstHelper(), deps.tg->getExecutionContext())) {
+    return true;
+  }
+  TiObject *tgMemberType;
+  if (!generation->getGeneratedType(astMemberType, deps.tg, tgMemberType, 0)) return false;
+
+  // Get the struct ptr TG type.
+  TiObject *astSelfPtrType = generator->astHelper->getPointerTypeFor(deps.astSelfType);
+  TiObject *tgStructType;
+  if (!generation->getGeneratedType(astSelfPtrType, deps.tg, tgStructType, 0)) return false;
+
+  // Generate member access.
+  TioSharedPtr tgMemberVarRef;
+  if (!deps.tg->generateMemberVarReference(
+    deps.tgContext, tgStructType, tgMemberType, tgMemberVar, deps.tgSelf, tgMemberVarRef
+  )) {
+    return false;
+  }
+
+  // Initialize the member variable.
+  SharedList<TiObject> initTgVals;
+  PlainList<TiObject> initAstTypes;
+  if (!generation->generateVarDestruction(
+    astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode), deps
+  )) {
+    return false;
+  }
+
+  return true;
 }
 
 
@@ -684,8 +792,18 @@ Bool Generator::_generateVarGroupDestruction(
 
   for (; index < deps.destructionStack->getItemCount(); ++index) {
     auto astNode = deps.destructionStack->getItem(index);
-    GenResult result;
-    if (!generation->generateVarDestruction(astNode, deps, result)) return false;
+
+    TiObject *tgVar = getCodeGenData<TiObject>(astNode);
+    auto astType = Ast::getAstType(astNode);
+    if (tgVar == 0 || astType == 0) {
+      throw EXCEPTION(GenericException, S("The provided node does not seem to be a variable."));
+    }
+    TioSharedPtr tgVarRef;
+    if (!deps.tg->generateVarReference(deps.tgContext, astType, tgVar, tgVarRef)) {
+      return false;
+    }
+
+    if (!generation->generateVarDestruction(astType, tgVarRef.get(), astNode, deps)) return false;
   }
 
   return true;
@@ -798,7 +916,9 @@ Bool Generator::_generateCast(
   TiObject *tgValue, TioSharedPtr &tgCastedValue
 ) {
   PREPARE_SELF(generator, Generator);
-  return generator->typeGenerator->generateCast(deps, srcType, destType, tgValue, tgCastedValue);
+  return generator->typeGenerator->generateCast(
+    ti_cast<Generation>(self), deps, srcType, destType, tgValue, tgCastedValue
+  );
 }
 
 
@@ -806,14 +926,16 @@ Bool Generator::_getGeneratedType(
   TiObject *self, TiObject *ref, TargetGeneration *tg, TiObject *&targetTypeResult, Ast::Type **astTypeResult
 ) {
   PREPARE_SELF(generator, Generator);
-  return generator->typeGenerator->getGeneratedType(ref, tg, targetTypeResult, astTypeResult);
+  return generator->typeGenerator->getGeneratedType(
+    ref, ti_cast<Generation>(self), tg, targetTypeResult, astTypeResult
+  );
 }
 
 
 Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result)
 {
   PREPARE_SELF(generator, Generator);
-  return generator->typeGenerator->getTypeAllocationSize(astType, tg, result);
+  return generator->typeGenerator->getTypeAllocationSize(astType, ti_cast<Generation>(self), tg, result);
 }
 
 

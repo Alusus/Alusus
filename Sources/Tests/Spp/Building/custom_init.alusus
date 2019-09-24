@@ -117,26 +117,11 @@ function testAutoInit
   Srl.Console.print("testAutoInit: %d, %d\n", b.a.i, b.a2.i);
 };
 
-testNoReturn();
-Srl.Console.print("\n");
-
-testReturnVoid();
-Srl.Console.print("\n");
-
-def n: Int = testReturnNonVoid();
-Srl.Console.print("returned value: %d\n", n);
-Srl.Console.print("\n");
-
-testReturnA();
-Srl.Console.print("\n");
-
-testLoop();
-Srl.Console.print("\n");
-
-testBreak();
-Srl.Console.print("\n");
-
-testContinue();
-Srl.Console.print("\n");
-
-testAutoInit();
+Spp.dumpLlvmIrForElement(testNoReturn~ast);
+Spp.dumpLlvmIrForElement(testReturnVoid~ast);
+Spp.dumpLlvmIrForElement(testReturnNonVoid~ast);
+Spp.dumpLlvmIrForElement(testReturnA~ast);
+Spp.dumpLlvmIrForElement(testLoop~ast);
+Spp.dumpLlvmIrForElement(testBreak~ast);
+Spp.dumpLlvmIrForElement(testContinue~ast);
+Spp.dumpLlvmIrForElement(testAutoInit~ast);
