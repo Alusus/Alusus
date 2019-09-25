@@ -1,7 +1,7 @@
 #if defined(__MINGW32__) || defined(__MINGW64__)
 
-#ifndef WIN32API_H
-#define WIN32API_H
+#ifndef WIN32HELPERS_H
+#define WIN32HELPERS_H
 
 #include <string>
 

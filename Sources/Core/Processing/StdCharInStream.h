@@ -30,7 +30,7 @@ class StdCharInStream : public TiObject, public CharInStreaming
   // Member Variables
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-  private: WInStream *stream;
+  private: FILE *fd;
 #else
   private: InStream *stream;
 #endif
@@ -40,12 +40,14 @@ class StdCharInStream : public TiObject, public CharInStreaming
   // Constructors & Destructor
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-  public: StdCharInStream(WInStream *s) : stream(s)
+  public: StdCharInStream(FILE* fd) : fd(fd)
+  {
+    VALIDATE_NOT_NULL(fd);
 #else
   public: StdCharInStream(InStream *s) : stream(s)
-#endif
   {
     VALIDATE_NOT_NULL(s);
+#endif
   }
 
   public: virtual ~StdCharInStream()
@@ -60,18 +62,24 @@ class StdCharInStream : public TiObject, public CharInStreaming
   public: virtual WChar get()
   {
     WChar c;
+    fread(&c, sizeof(c), 1, this->fd);
+    return c;
 #else
   public: virtual Char get()
   {
     Char c;
-#endif
     this->stream->get(c);
     return c;
+#endif
   }
 
   public: virtual Bool isEof()
   {
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    return feof(this->fd);
+#else
     return this->stream->eof();
+#endif
   }
 
 }; // class

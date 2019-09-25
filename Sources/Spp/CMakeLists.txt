@@ -66,7 +66,7 @@ set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
 if(MINGW)
-  target_link_libraries(AlususSpp Win32API)
+  target_link_libraries(AlususSpp Win32Helpers)
 endif()
 target_link_libraries(AlususSpp "LLVM-7")
 target_link_libraries(AlususSpp AlususCoreLib)

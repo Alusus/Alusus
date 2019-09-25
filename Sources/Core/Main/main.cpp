@@ -14,7 +14,7 @@
 #include <stdio.h>  /* defines FILENAME_MAX */
 #include <filesystem>
 #if defined(__MINGW32__) || defined(__MINGW64__)
-#include "win32api.h"
+#include "Win32Helpers.h"
 #include <Windows.h>
 #include <direct.h>
 #else

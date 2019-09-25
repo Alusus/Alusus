@@ -15,7 +15,7 @@
 #include <string.h>
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-#include "win32api.h"
+#include "Win32Helpers.h"
 #include <Windows.h>
 #endif
 

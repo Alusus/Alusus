@@ -23,15 +23,14 @@ std::ostream & outStream = std::cout;
 
 std::istream & inStream = std::cin;
 
-typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-static std::locale utf8Locale("C");
+#include <windows.h>
 #else
+typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
 static std::locale utf8Locale("en_US.UTF8");
-#endif
-
 static const FacetType& utf8Facet = std::use_facet<FacetType>(utf8Locale);
+#endif
 
 
 //============================================================================
@@ -50,6 +49,11 @@ void convertStr(
   Char const *input, int inputLength, WChar *output, int outputSize,
   int &processedInputLength, int &resultedOutputLength
 ) {
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, input, inputLength, NULL, 0);
+  resultedOutputLength = sizeNeeded < outputSize ? sizeNeeded : outputSize;
+  processedInputLength = MultiByteToWideChar(CP_UTF8, 0, input, inputLength, output, resultedOutputLength);
+#else
   std::mbstate_t mystate = std::mbstate_t();
   Char const *fromNext;
   WChar *toNext;
@@ -59,6 +63,7 @@ void convertStr(
 
   processedInputLength = fromNext-input;
   resultedOutputLength = toNext-output;
+#endif
 }
 
 
@@ -66,6 +71,11 @@ void convertStr(
   WChar const *input, int inputLength, Char *output, int outputSize,
   int &processedInputLength, int &resultedOutputLength
 ) {
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, input, inputLength, NULL, 0, NULL, NULL);
+  resultedOutputLength = sizeNeeded < outputSize ? sizeNeeded : outputSize;
+  processedInputLength = WideCharToMultiByte(CP_UTF8, 0, input, inputLength, output, resultedOutputLength, NULL, NULL);
+#else
   std::mbstate_t mystate = std::mbstate_t();
   WChar const *fromNext;
   Char *toNext;
@@ -75,6 +85,7 @@ void convertStr(
 
   processedInputLength = fromNext-input;
   resultedOutputLength = toNext-output;
+#endif
 }
 
 

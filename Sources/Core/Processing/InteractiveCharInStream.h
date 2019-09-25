@@ -14,7 +14,7 @@
 #define CORE_PROCESSING_INTERACTIVECHARINSTREAM_H
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-#include "win32api.h"
+#include "Win32Helpers.h"
 #endif
 
 namespace Core::Processing

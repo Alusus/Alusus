@@ -24,7 +24,7 @@ set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
 set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
 if(MINGW)
-  target_link_libraries(AlususStorage Win32API)
+  target_link_libraries(AlususStorage Win32Helpers)
 endif()
 
 # Add a target for Alusus core library.
@@ -44,7 +44,7 @@ set_target_properties(AlususCoreLib
   COTIRE_CXX_PREFIX_HEADER_INIT "core.h"
 )
 if(MINGW)
-  target_link_libraries(AlususCoreLib Win32API)
+  target_link_libraries(AlususCoreLib Win32Helpers)
 endif()
 target_link_libraries(AlususCoreLib AlususStorage "stdc++fs" "dl")
 cotire(AlususCoreLib)
@@ -60,7 +60,7 @@ set_target_properties(AlususCore
 
 # Finally, we link the executable to the libraries.
 if(MINGW)
-  target_link_libraries(AlususCore Win32API)
+  target_link_libraries(AlususCore Win32Helpers)
 endif()
 target_link_libraries(AlususCore AlususCoreLib "LLVM-7" "stdc++fs")
 cotire(AlususCore)

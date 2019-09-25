@@ -13,7 +13,7 @@
 #include "core.h"
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-#include "win32api.h"
+#include "Win32Helpers.h"
 #endif
 
 namespace Core { namespace Processing
@@ -93,18 +93,23 @@ SharedPtr<TiObject> Engine::processFile(Char const *filename)
 {
   // Open the file.
 #if defined(__MINGW32__) || defined(__MINGW64__)
-  std::wifstream fin;
-  WStr tempStr = utf8Decode(Str(filename));
-  fin.open(tempStr.c_str());
+  WStr wFilename = utf8Decode(Str(filename));
+  FILE* fd = _wfopen(wFilename.c_str(), L"r, ccs=UTF-8");
+  if (!fd) {
+    throw EXCEPTION(InvalidArgumentException, S("filename"), S("Could not open file."), filename);
+  }
+  StdCharInStream finStream(fd);
+  auto returnVal = this->processStream(&finStream, filename);
+  fclose(fd);
+  return returnVal;
 #else
   std::ifstream fin(filename);
-#endif
   if (fin.fail()) {
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("Could not open file."), filename);
   }
-
   StdCharInStream finStream(&fin);
   return this->processStream(&finStream, filename);
+#endif
 }
 
 

@@ -17,12 +17,12 @@
 
 // Get the shared library extention by OS.
 #if defined(__MINGW32__) || defined(__MINGW64__) // Windows under MinGW.
-#include "win32api.h"
-#include <Windows.h>
+#include "Win32Helpers.h"
+#include <windows.h>
 Str SHARED_LIB_EXT = "dll";
 #elif defined(APPLE) // Apple (Mac OS, iOS, Apple Watch).
 Str SHARED_LIB_EXT = "dylib";
-#else // Linux.
+#else // Linux, Android, ...etc.
 Str SHARED_LIB_EXT = "so";
 #endif
 

@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <stdlib.h>
 
-#include "win32api.h"
+#include "Win32Helpers.h"
 
 /*
     Using a modified solution for "utf8Encode" and "utf8Decode" made by "tfinniga" from 

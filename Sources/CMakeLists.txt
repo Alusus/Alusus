@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.1)
 
 if(MINGW)
   set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Bin")
-  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32API")
+  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32Helpers")
 else()
   set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Lib")
 endif()
@@ -92,7 +92,7 @@ endif()
 
 # Add projects
 if(MINGW)
-  add_subdirectory(Win32API)
+  add_subdirectory(Win32Helpers)
 endif()
 add_subdirectory(Core)
 add_subdirectory(Spp)
