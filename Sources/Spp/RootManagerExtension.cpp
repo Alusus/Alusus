@@ -307,6 +307,8 @@ void RootManagerExtension::_resetBuildData(TiObject *self, TiObject *obj)
   auto metahaving = ti_cast<Core::Data::Ast::MetaHaving>(obj);
   if (metahaving != 0) {
     CodeGen::removeCodeGenData(metahaving);
+    CodeGen::removeAutoCtor(metahaving);
+    CodeGen::removeAutoDtor(metahaving);
     CodeGen::resetCodeGenFailed(metahaving);
   }
 

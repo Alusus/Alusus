@@ -357,23 +357,47 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
       }
 
-      // Initialize the variable.
-      TioSharedPtr tgGlobalVarRef;
-      if (!deps.tg->generateVarReference(deps.tgGlobalConstructionContext, tgType, tgGlobalVar.get(), tgGlobalVarRef)) {
-        return false;
-      }
-      SharedList<TiObject> initTgVals;
-      PlainList<TiObject> initAstTypes;
-      if (!generation->generateVarInitialization(
-        astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar), &initAstTypes, &initTgVals,
-        GenDeps(deps, deps.tgGlobalConstructionContext, deps.globalDestructionStack)
-      )) {
-        return false;
-      }
+      // Should this var be initialized in the global constructor or the provided context?
+      if (definition->getOwner()->getOwner() == 0 || definition->getOwner()->isDerivedFrom<Spp::Ast::Module>()) {
+        // This should be initialized in the global context.
 
-      generation->registerDestructor(
-        ti_cast<Core::Data::Node>(astVar), astType, deps.tg->getExecutionContext(), deps.globalDestructionStack
-      );
+        // Initialize the variable.
+        TioSharedPtr tgGlobalVarRef;
+        if (!deps.tg->generateVarReference(
+          deps.tgGlobalConstructionContext, tgType, tgGlobalVar.get(), tgGlobalVarRef
+        )) {
+          return false;
+        }
+        SharedList<TiObject> initTgVals;
+        PlainList<TiObject> initAstTypes;
+        if (!generation->generateVarInitialization(
+          astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar), &initAstTypes, &initTgVals,
+          GenDeps(deps, deps.tgGlobalConstructionContext, deps.globalDestructionStack)
+        )) {
+          return false;
+        }
+
+        generation->registerDestructor(
+          ti_cast<Core::Data::Node>(astVar), astType, deps.tg->getExecutionContext(), deps.globalDestructionStack
+        );
+      } else {
+        // Should be initialized in the local context.
+
+        // Initialize the variable.
+        TioSharedPtr tgGlobalVarRef;
+        if (!deps.tg->generateVarReference(deps.tgContext, tgType, tgGlobalVar.get(), tgGlobalVarRef)) return false;
+        SharedList<TiObject> initTgVals;
+        PlainList<TiObject> initAstTypes;
+        if (!generation->generateVarInitialization(
+          astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar), &initAstTypes, &initTgVals, deps
+        )) {
+          return false;
+        }
+
+        generation->registerDestructor(
+          ti_cast<Core::Data::Node>(astVar), astType, deps.tg->getExecutionContext(), deps.destructionStack
+        );
+      }
     } else {
       auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(definition);
       if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {

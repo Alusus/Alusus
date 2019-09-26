@@ -216,10 +216,17 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
       if (expGenerator->astHelper->isAstReference(obj)) {
         // Make sure the var is not an object member.
         if (expGenerator->getAstHelper()->getDefinitionDomain(obj) == Ast::DefinitionDomain::OBJECT) {
-          expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
-            Core::Data::Ast::findSourceLocation(astNode)
-          ));
-          retVal = false;
+          auto ownerType = static_cast<Core::Data::Node*>(obj)->findOwner<Spp::Ast::UserType>();
+          if (ownerType != 0 && ownerType == deps.astSelfType) {
+            // Generate a reference to a member variable.
+            auto astSelfPtrType = expGenerator->astHelper->getReferenceTypeFor(deps.astSelfType);
+            retVal = expGenerator->generateMemberReference(deps.tgSelf, astSelfPtrType, astNode, g, deps, result);
+          } else {
+            expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
+              Core::Data::Ast::findSourceLocation(astNode)
+            ));
+            retVal = false;
+          }
         } else {
           retVal = expGenerator->generateVarReference(astNode, obj, g, deps, result);
         }

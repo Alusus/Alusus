@@ -26,6 +26,13 @@ type B
   def a2: A;
 };
 
+type C
+{
+  def i: Int;
+  Srl.Console.print("C constructed!\n");
+  i = 3;
+};
+
 function testNoReturn
 {
   def a: A;
@@ -117,6 +124,12 @@ function testAutoInit
   Srl.Console.print("testAutoInit: %d, %d\n", b.a.i, b.a2.i);
 };
 
+function testInlinedInit
+{
+  def gc: C;
+  Srl.Console.print("testInlinedInit: %d\n", gc.i);
+};
+
 testNoReturn();
 Srl.Console.print("\n");
 
@@ -140,3 +153,14 @@ testContinue();
 Srl.Console.print("\n");
 
 testAutoInit();
+Srl.Console.print("\n");
+
+def ga: A;
+def i: Int;
+for i = 0, i < 2, ++i {
+  def a: A;
+  Srl.Console.print("autCtor on the global scope: %d %d\n", a.i, ga.i);
+};
+Srl.Console.print("\n");
+
+testInlinedInit();

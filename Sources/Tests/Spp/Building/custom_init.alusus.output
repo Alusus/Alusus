@@ -709,3 +709,37 @@ define void @"A.destruct(ptr[A])"(%A* %this) {
   ret void
 }
 ------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%C = type { i32 }
+
+@"#anonymous0" = private constant [16 x i8] c"C constructed!\0A\00", align 1
+@"#anonymous1" = private constant [21 x i8] c"testInlinedInit: %d\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"testInlinedInit()"() {
+"#block1":
+  %gc = alloca %C
+  call void @C.__autoConstruct__(%C* %gc)
+  %0 = getelementptr %C, %C* %gc, i32 0, i32 0
+  %1 = load i32, i32* %0
+  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([21 x i8], [21 x i8]* @"#anonymous1", i32 0, i32 0), i32 %1)
+  ret void
+}
+
+define void @C.__autoConstruct__(%C* %this) {
+"#block2":
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous0", i32 0, i32 0))
+  %1 = getelementptr %C, %C* %this, i32 0, i32 0
+  store i32 3, i32* %1
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------

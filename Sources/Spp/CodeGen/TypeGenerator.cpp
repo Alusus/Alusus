@@ -368,7 +368,9 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
         if (!g->generateMemberVarInitialization(target, deps)) return false;
       }
     } else {
-      // TODO: Generate regular statement.
+      // Generate regular statement.
+      TerminalStatement terminal;
+      if (!g->generateStatement(obj, deps, terminal)) return false;
     }
   }
 

@@ -26,6 +26,13 @@ type B
   def a2: A;
 };
 
+type C
+{
+  def i: Int;
+  Srl.Console.print("C constructed!\n");
+  i = 3;
+};
+
 function testNoReturn
 {
   def a: A;
@@ -117,6 +124,12 @@ function testAutoInit
   Srl.Console.print("testAutoInit: %d, %d\n", b.a.i, b.a2.i);
 };
 
+function testInlinedInit
+{
+  def gc: C;
+  Srl.Console.print("testInlinedInit: %d\n", gc.i);
+};
+
 Spp.dumpLlvmIrForElement(testNoReturn~ast);
 Spp.dumpLlvmIrForElement(testReturnVoid~ast);
 Spp.dumpLlvmIrForElement(testReturnNonVoid~ast);
@@ -125,3 +138,4 @@ Spp.dumpLlvmIrForElement(testLoop~ast);
 Spp.dumpLlvmIrForElement(testBreak~ast);
 Spp.dumpLlvmIrForElement(testContinue~ast);
 Spp.dumpLlvmIrForElement(testAutoInit~ast);
+Spp.dumpLlvmIrForElement(testInlinedInit~ast);
