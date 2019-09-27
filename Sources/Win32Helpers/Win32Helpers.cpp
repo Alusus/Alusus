@@ -32,7 +32,7 @@ std::wstring utf8Decode(const std::string &str) {
 }
 
 // Read wchar_t from console.
-wchar_t readWCharTFromConsole() {
+wchar_t readWCharFromConsole() {
   DWORD numRead = 0;
   wchar_t c;
   ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), &c, 1, &numRead, NULL);

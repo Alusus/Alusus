@@ -18,7 +18,7 @@ std::string utf8Encode(const std::wstring &wstr);
 std::wstring utf8Decode(const std::string &str);
 
 // Read wchar_t from console.
-wchar_t readWCharTFromConsole();
+wchar_t readWCharFromConsole();
 
 #endif
 #endif

@@ -55,7 +55,7 @@ class InteractiveCharInStream : public TiObject, public CharInStreaming
 #if defined(__MINGW32__) || defined(__MINGW64__)
   public: virtual WChar get()
   {
-    WChar c = readWCharTFromConsole();
+    WChar c = readWCharFromConsole();
     if (c == L'\n') {
 #else
   public: virtual Char get()
