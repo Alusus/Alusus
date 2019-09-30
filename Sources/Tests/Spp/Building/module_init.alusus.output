@@ -1,0 +1,12 @@
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@Main.i = global i32 0
+
+define void @__constructor__() {
+"#block0":
+  store i32 7, i32* @Main.i
+  ret void
+}
+------------------------------------------------------------

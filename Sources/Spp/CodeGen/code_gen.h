@@ -79,8 +79,8 @@ s_enum(TerminalStatement, UNKNOWN, NO, YES);
 //==============================================================================
 // Global Constants
 
-constexpr Char const* META_EXTRA_CODE_GEN = S("codeGen");
 constexpr Char const* META_EXTRA_CODE_GEN_FAILED = S("codeGenFailed");
+constexpr Char const* META_EXTRA_INIT_STMT_GEN_INDEX = S("initStmtGenIndex");
 
 
 //==============================================================================
@@ -220,6 +220,70 @@ inline void resetCodeGenFailed(OT *object)
     throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
   metadata->removeExtra(META_EXTRA_CODE_GEN_FAILED);
+}
+
+// getInitStatementsGenIndex
+
+template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline Int getInitStatementsGenIndex(OT *object)
+{
+  auto i = object->getExtra(META_EXTRA_INIT_STMT_GEN_INDEX).template ti_cast_get<TiInt>();
+  return i == 0 ? 0 : i->get();
+}
+
+template <class OT, typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline Int getInitStatementsGenIndex(OT *object)
+{
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
+  if (metadata == 0) return false;
+  auto i = metadata->getExtra(META_EXTRA_INIT_STMT_GEN_INDEX).template ti_cast_get<TiInt>();
+  return i == 0 ? 0 : i->get();
+}
+
+// setInitStatementsGenIndex
+
+template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void setInitStatementsGenIndex(OT *object, Int i)
+{
+  auto index = object->getExtra(META_EXTRA_INIT_STMT_GEN_INDEX).template ti_cast_get<TiInt>();
+  if (index == 0) {
+    object->setExtra(META_EXTRA_INIT_STMT_GEN_INDEX, TiInt::create(i));
+  } else {
+    index->set(i);
+  }
+}
+
+template <class OT, typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void setInitStatementsGenIndex(OT *object, Int i)
+{
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
+  if (metadata == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
+  }
+  auto index = metadata->getExtra(META_EXTRA_INIT_STMT_GEN_INDEX).template ti_cast_get<TiInt>();
+  if (index == 0) {
+    metadata->setExtra(META_EXTRA_INIT_STMT_GEN_INDEX, TiInt::create(i));
+  } else {
+    index->set(i);
+  }
+}
+
+// resetInitStatementsGenIndex
+
+template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void resetInitStatementsGenIndex(OT *object)
+{
+  object->removeExtra(META_EXTRA_INIT_STMT_GEN_INDEX);
+}
+
+template <class OT, typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
+inline void resetInitStatementsGenIndex(OT *object)
+{
+  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
+  if (metadata == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
+  }
+  metadata->removeExtra(META_EXTRA_INIT_STMT_GEN_INDEX);
 }
 
 } // namespace

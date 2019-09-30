@@ -38,13 +38,11 @@ def Main: module
     };
   };
 
-  use Wrong1;
   use Other1;
   use Other3;
 
   def start: function ()=>Void
   {
-    use Wrong2;
     use Other2;
     printf("Use Statement\n");
     printUse();
@@ -62,3 +60,13 @@ def Main: module
 };
 
 Spp.dumpLlvmIrForElement(Main~ast);
+
+module Other4 {
+  use Wrong1;
+
+  module Other5 {
+    use Wrong2;
+  }
+};
+
+Spp.dumpLlvmIrForElement(Other4~ast);

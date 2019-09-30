@@ -25,6 +25,7 @@ void Generator::initBindings()
 
   generation->generateModules = &Generator::_generateModules;
   generation->generateModule = &Generator::_generateModule;
+  generation->generateModuleInit = &Generator::_generateModuleInit;
   generation->generateFunction = &Generator::_generateFunction;
   generation->generateFunctionDecl = &Generator::_generateFunctionDecl;
   generation->generateUserTypeBody = &Generator::_generateUserTypeBody;
@@ -114,6 +115,23 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Gen
     }
   }
   return result;
+}
+
+
+Bool Generator::_generateModuleInit(TiObject *self, Spp::Ast::Module *astModule, GenDeps const &deps)
+{
+  PREPARE_SELF(generator, Generator);
+  PREPARE_SELF(generation, Generation);
+  auto startIndex = getInitStatementsGenIndex(astModule);
+  Bool retVal = true;
+  Int i;
+  for (i = startIndex; i < astModule->getCount(); ++i) {
+    auto obj = astModule->getElement(i);
+    TerminalStatement terminal;
+    if (!generation->generateStatement(obj, deps, terminal)) retVal = false;
+  }
+  setInitStatementsGenIndex(astModule, i);
+  return retVal;
 }
 
 
@@ -875,20 +893,19 @@ Bool Generator::_generateStatement(
     auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
     auto target = def->getTarget().get();
     if (target->isDerivedFrom<Spp::Ast::Module>()) {
-      generator->noticeStore->add(std::make_shared<Spp::Notices::InvalidOperationNotice>(def->findSourceLocation()));
-      retVal = false;
-    } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
-      // TODO: Generate function.
-      generator->noticeStore->add(
-        std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
-      );
-      retVal = false;
-    } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
-      // TODO: Generate type.
-      generator->noticeStore->add(
-        std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
-      );
-      retVal = false;
+      retVal = generation->generateModuleInit(static_cast<Spp::Ast::Module*>(target), deps);
+    // } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
+    //   // TODO: Generate function.
+    //   generator->noticeStore->add(
+    //     std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+    //   );
+    //   retVal = false;
+    // } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
+    //   // TODO: Generate type.
+    //   generator->noticeStore->add(
+    //     std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+    //   );
+    //   retVal = false;
     } else if (generator->getAstHelper()->isAstReference(target)) {
       // Generate local variable.
       retVal = generation->generateVarDef(def, deps);

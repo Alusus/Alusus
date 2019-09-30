@@ -157,6 +157,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule, GenDeps const &deps);
 
+  private: static Bool _generateModuleInit(TiObject *self, Spp::Ast::Module *astModule, GenDeps const &deps);
+
   private: static Bool _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, GenDeps const &deps);
 
   private: static Bool _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, GenDeps const &deps);
