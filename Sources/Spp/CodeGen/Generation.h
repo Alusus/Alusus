@@ -42,6 +42,13 @@ class Generation : public ObjTiInterface
       &this->generateFunctionDecl,
       &this->generateUserTypeBody,
       &this->generateVarDef,
+      &this->generateTempVar,
+      &this->generateVarInitialization,
+      &this->generateMemberVarInitialization,
+      &this->generateVarDestruction,
+      &this->generateMemberVarDestruction,
+      &this->registerDestructor,
+      &this->generateVarGroupDestruction,
       &this->generateStatements,
       &this->generateStatement,
       &this->generateExpression,
@@ -73,42 +80,82 @@ class Generation : public ObjTiInterface
   /// @name Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateModules, Bool, (Core::Data::Ast::Scope* /* root */, TargetGeneration* /* tg */));
+  public: METHOD_BINDING_CACHE(generateModules, Bool, (Core::Data::Ast::Scope* /* root */, GenDeps const& /* deps */));
 
-  public: METHOD_BINDING_CACHE(generateModule, Bool, (Spp::Ast::Module* /* astModule */, TargetGeneration* /* tg */));
+  public: METHOD_BINDING_CACHE(generateModule, Bool, (Spp::Ast::Module* /* astModule */, GenDeps const& /* deps */));
 
-  public: METHOD_BINDING_CACHE(generateFunction, Bool, (Spp::Ast::Function* /* astFunc */, TargetGeneration* /* tg */));
+  public: METHOD_BINDING_CACHE(generateFunction, Bool, (Spp::Ast::Function* /* astFunc */, GenDeps const& /* deps */));
 
   public: METHOD_BINDING_CACHE(generateFunctionDecl,
-    Bool, (Spp::Ast::Function* /* astFunc */, TargetGeneration* /* tg */)
+    Bool, (Spp::Ast::Function* /* astFunc */, GenDeps const& /* deps */)
   );
 
   public: METHOD_BINDING_CACHE(generateUserTypeBody,
-    Bool, (Spp::Ast::UserType* /* astType */, TargetGeneration* /* tg */)
+    Bool, (Spp::Ast::UserType* /* astType */, GenDeps const& /* deps */)
   );
 
-  public: METHOD_BINDING_CACHE(generateVarDef, Bool, (Core::Data::Ast::Definition*, TargetGeneration* /* tg */));
+  public: METHOD_BINDING_CACHE(generateVarDef,
+    Bool, (Core::Data::Ast::Definition* /* def */, GenDeps const& /* deps */)
+  );
+
+  public: METHOD_BINDING_CACHE(generateTempVar,
+    Bool, (
+      Core::Data::Node* /* astNode */, Spp::Ast::Type* /* astType */, GenDeps const& /* deps */, Bool /* initialize */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateVarInitialization, Bool, (
+    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* paramsAstNode */,
+    PlainList<TiObject>* /* paramAstTypes */, SharedList<TiObject>* /* paramTgValues */,
+    GenDeps const& /* deps */
+  ));
+
+  public: METHOD_BINDING_CACHE(generateMemberVarInitialization,
+    Bool, (TiObject* /* astMemberNode */, GenDeps const& /* deps */)
+  );
+
+  public: METHOD_BINDING_CACHE(generateVarDestruction,
+    Bool, (
+      Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
+      GenDeps const& /* deps */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateMemberVarDestruction,
+    Bool, (TiObject* /* astMemberNode */, GenDeps const& /* deps */)
+  );
+
+  public: METHOD_BINDING_CACHE(registerDestructor,
+    void, (
+      Core::Data::Node* /* varAstNode */, Ast::Type* /* astType */, ExecutionContext const* /* ec */,
+      DestructionStack* /* destructionStack */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateVarGroupDestruction,
+    Bool, (GenDeps const& /* deps */, Int /* index */)
+  );
 
   public: METHOD_BINDING_CACHE(generateStatements,
     Bool, (
-      Core::Data::Ast::Scope* /* astBlock */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
+      Core::Data::Ast::Scope* /* astBlock */, GenDeps const& /* deps */,
       TerminalStatement& /* terminal */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateStatement,
     Bool, (
-      TiObject* /* astNode */, TargetGeneration* /* tg */, TiObject* /* tgContext */, TerminalStatement& /* terminal */
+      TiObject* /* astNode */, GenDeps const& /* deps */, TerminalStatement& /* terminal */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateExpression,
-    Bool, (TiObject* /* astNode */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */)
+    Bool, (TiObject* /* astNode */, GenDeps const& /* deps */, GenResult& /* result */)
   );
 
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (
-      TargetGeneration* /* tg */, TiObject* /* tgContext */,
+      GenDeps const& /* deps */,
       Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
       TiObject* /* tgValue */, TioSharedPtr& /* tgCastedValue */
     )

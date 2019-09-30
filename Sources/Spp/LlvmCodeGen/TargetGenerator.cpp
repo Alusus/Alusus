@@ -16,9 +16,6 @@
 namespace Spp { namespace LlvmCodeGen
 {
 
-// Static global context
-static llvm::LLVMContext myContext;
-
 //==============================================================================
 // Initialization Functions
 
@@ -141,8 +138,11 @@ void TargetGenerator::prepareBuild()
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
+  // The llvm module should we always be released before the context.
+  this->llvmModule.reset();
   this->llvmDataLayout = std::make_shared<llvm::DataLayout>("");
-  this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", myContext);
+  this->llvmContext = std::make_shared<llvm::LLVMContext>();
+  this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", *this->llvmContext);
   this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
   this->executionContext = std::make_shared<ExecutionContext>(llvmDataLayout->getPointerSizeInBits());
 }
@@ -150,7 +150,10 @@ void TargetGenerator::prepareBuild()
 
 void TargetGenerator::resetBuild()
 {
-  this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", myContext);
+  // The llvm module should we always be released before the context.
+  this->llvmModule.reset();
+  this->llvmContext = std::make_shared<llvm::LLVMContext>();
+  this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", *this->llvmContext);
   this->llvmModule->setDataLayout(this->llvmDataLayout->getStringRepresentation());
   this->blockIndex = 0;
   this->anonymousVarIndex = 0;
@@ -239,6 +242,10 @@ void TargetGenerator::execute(Char const *entry)
   typedef void (*FuncType)();
   auto funcPtr = (FuncType)ee->getFunctionAddress(entry);
 
+  // We need to make sure the LLVMContext doesn't get deleted while we are executing the function, so we'll capture
+  // a shared copy of the context in case the ptr gets replaced during the execution of the function.
+  SharedPtr<llvm::LLVMContext> llvmContextCopy = this->llvmContext;
+
   funcPtr();
 
   delete ee;
@@ -250,7 +257,7 @@ void TargetGenerator::execute(Char const *entry)
 
 Bool TargetGenerator::generateVoidType(TioSharedPtr &type)
 {
-  auto llvmType = llvm::Type::getVoidTy(myContext);
+  auto llvmType = llvm::Type::getVoidTy(this->llvmModule->getContext());
   type = std::make_shared<VoidType>(llvmType);
   return true;
 }
@@ -263,7 +270,7 @@ Bool TargetGenerator::generateIntType(Word bitCount, Bool withSign, TioSharedPtr
     this->noticeStore->add(std::make_shared<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
-  auto llvmType = llvm::Type::getIntNTy(myContext, bitCount);
+  auto llvmType = llvm::Type::getIntNTy(this->llvmModule->getContext(), bitCount);
   type = std::make_shared<IntegerType>(llvmType, bitCount, withSign);
   return true;
 }
@@ -274,14 +281,14 @@ Bool TargetGenerator::generateFloatType(Word bitCount, TioSharedPtr &type)
   llvm::Type *llvmType;
   switch (bitCount) {
     case 32:
-      llvmType = llvm::Type::getFloatTy(myContext);
+      llvmType = llvm::Type::getFloatTy(this->llvmModule->getContext());
       break;
     case 64:
-      llvmType = llvm::Type::getDoubleTy(myContext);
+      llvmType = llvm::Type::getDoubleTy(this->llvmModule->getContext());
       break;
     // TODO: Support 128 bits?
     // case 128:
-    //   llvmType = llvm::Type::getFP128Ty(myContext);
+    //   llvmType = llvm::Type::getFP128Ty(this->llvmModule->getContext());
     //   break;
     default:
       this->noticeStore->add(std::make_shared<Spp::Notices::InvalidFloatBitCountNotice>());
@@ -313,7 +320,7 @@ Bool TargetGenerator::generateArrayType(TiObject *contentType, Word size, TioSha
 Bool TargetGenerator::generateStructTypeDecl(
   Char const *name, TioSharedPtr &type
 ) {
-  auto llvmType = llvm::StructType::create(myContext, name);
+  auto llvmType = llvm::StructType::create(this->llvmModule->getContext(), name);
   type = std::make_shared<StructType>(llvmType, name);
   return true;
 }
@@ -416,7 +423,7 @@ Bool TargetGenerator::prepareFunctionBody(
   PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
   auto llvmFunc = funcWrapper->get();
   auto block = std::make_shared<Block>();
-  block->setLlvmBlock(llvm::BasicBlock::Create(myContext, this->getNewBlockName(), llvmFunc));
+  block->setLlvmBlock(llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), llvmFunc));
   block->setIrBuilder(new llvm::IRBuilder<>(block->getLlvmBlock()));
   block->setLlvmFunction(llvmFunc);
 
@@ -425,18 +432,8 @@ Bool TargetGenerator::prepareFunctionBody(
   auto argTypes = funcTypeWrapper->getArgs();
   auto i = 0;
   for (auto iter = llvmFunc->arg_begin(); i != argTypes->getElementCount(); ++iter, ++i) {
-    auto argType = ti_cast<Type>(argTypes->getElement(i));
-    ASSERT(argType != 0);
-
     iter->setName(argTypes->getElementKey(i).c_str());
-    auto llvmAlloca = block->getIrBuilder()->CreateAlloca(
-      argType->getLlvmType(), 0, argTypes->getElementKey(i).c_str()
-    );
-    block->getIrBuilder()->CreateStore(iter, llvmAlloca);
-
-    SharedPtr<Variable> var = std::make_shared<Variable>();
-    var->setLlvmAllocaInst(llvmAlloca);
-    args->add(var);
+    args->add(std::make_shared<Value>(iter, false));
   }
 
   context = block;
@@ -518,7 +515,7 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
   // Prepare body context.
   auto bodyBlock = std::make_shared<Block>();
   bodyBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setLlvmFunction(block->getLlvmFunction());
@@ -528,7 +525,7 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
   if (withElse) {
     auto elseBlock = std::make_shared<Block>();
     elseBlock->setLlvmBlock(
-      llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+      llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
     );
     elseBlock->setIrBuilder(new llvm::IRBuilder<>(elseBlock->getLlvmBlock()));
     elseBlock->setLlvmFunction(block->getLlvmFunction());
@@ -554,7 +551,7 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
     !ifContext->getElseBlock()->isTerminated()
   ) {
     mergeLlvmBlock = llvm::BasicBlock::Create(
-      myContext, this->getNewBlockName(), block->getLlvmFunction()
+      this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction()
     );
     if (!ifContext->getBodyBlock()->isTerminated()) {
       ifContext->getBodyBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
@@ -590,7 +587,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   // Prepare condition context.
   auto condBlock = std::make_shared<Block>();
   condBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
   condBlock->setLlvmFunction(block->getLlvmFunction());
@@ -599,7 +596,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   // Prepare body context.
   auto bodyBlock = std::make_shared<Block>();
   bodyBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setLlvmFunction(block->getLlvmFunction());
@@ -608,7 +605,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   // Prepare exit block.
   auto exitBlock = std::make_shared<Block>();
   exitBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   exitBlock->setLlvmFunction(block->getLlvmFunction());
   loopContext->setExitBlock(exitBlock);
@@ -656,7 +653,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare condition context.
   auto condBlock = std::make_shared<Block>();
   condBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
   condBlock->setLlvmFunction(block->getLlvmFunction());
@@ -665,7 +662,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare increment context.
   auto updaterBlock = std::make_shared<Block>();
   updaterBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   updaterBlock->setIrBuilder(new llvm::IRBuilder<>(updaterBlock->getLlvmBlock()));
   updaterBlock->setLlvmFunction(block->getLlvmFunction());
@@ -674,7 +671,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare body context.
   auto bodyBlock = std::make_shared<Block>();
   bodyBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setLlvmFunction(block->getLlvmFunction());
@@ -683,7 +680,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare exit block.
   auto exitBlock = std::make_shared<Block>();
   exitBlock->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   exitBlock->setLlvmFunction(block->getLlvmFunction());
   loopContext->setExitBlock(exitBlock);
@@ -894,9 +891,9 @@ Bool TargetGenerator::generateMemberVarReference(
     block->getIrBuilder()->CreateStore(tgStructRef->getLlvmValue(), llvmPtr);
   }
 
-  auto zero = llvm::ConstantInt::get(myContext, llvm::APInt(32, 0, true));
+  auto zero = llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(32, 0, true));
   auto index = llvm::ConstantInt::get(
-    myContext, llvm::APInt(32, tgMemberVarDef->getLlvmStructIndex(), true)
+    this->llvmModule->getContext(), llvm::APInt(32, tgMemberVarDef->getLlvmStructIndex(), true)
   );
   auto llvmResult = block->getIrBuilder()->CreateGEP(
     llvmPtr, llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, index })), ""
@@ -923,7 +920,7 @@ Bool TargetGenerator::generateArrayElementReference(
     block->getIrBuilder()->CreateStore(tgArrayRef->getLlvmValue(), llvmPtr);
   }
 
-  auto zero = llvm::ConstantInt::get(myContext, llvm::APInt(32, 0, true));
+  auto zero = llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(32, 0, true));
   auto llvmResult = block->getIrBuilder()->CreateGEP(
     llvmPtr, llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, tgIndex->getLlvmValue() })), ""
   );
@@ -1037,7 +1034,7 @@ Bool TargetGenerator::prepareLogicalOp(TiObject *context, TioSharedPtr &secondCo
 
   auto block2 = std::make_shared<Block>();
   block2->setLlvmBlock(
-    llvm::BasicBlock::Create(myContext, this->getNewBlockName(), block->getLlvmFunction())
+    llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction())
   );
   block2->setIrBuilder(new llvm::IRBuilder<>(block2->getLlvmBlock()));
   block2->setLlvmFunction(block->getLlvmFunction());
@@ -1057,7 +1054,7 @@ Bool TargetGenerator::finishLogicalOr(
 
   // Create the merge block and jump to it.
   auto mergeLlvmBlock = llvm::BasicBlock::Create(
-    myContext, this->getNewBlockName(), block->getLlvmFunction()
+    this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction()
   );
   block2->getIrBuilder()->CreateBr(mergeLlvmBlock);
 
@@ -1070,7 +1067,7 @@ Bool TargetGenerator::finishLogicalOr(
   block->setLlvmBlock(mergeLlvmBlock);
 
   // Generate phi value.
-  auto boolType = llvm::Type::getIntNTy(myContext, 1);
+  auto boolType = llvm::Type::getIntNTy(this->llvmModule->getContext(), 1);
   llvm::PHINode *phi = block->getIrBuilder()->CreatePHI(boolType, 0);
   phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
   phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
@@ -1090,7 +1087,7 @@ Bool TargetGenerator::finishLogicalAnd(
 
   // Create the merge block and jump to it.
   auto mergeLlvmBlock = llvm::BasicBlock::Create(
-    myContext, this->getNewBlockName(), block->getLlvmFunction()
+    this->llvmModule->getContext(), this->getNewBlockName(), block->getLlvmFunction()
   );
   block2->getIrBuilder()->CreateBr(mergeLlvmBlock);
 
@@ -1103,7 +1100,7 @@ Bool TargetGenerator::finishLogicalAnd(
   block->setLlvmBlock(mergeLlvmBlock);
 
   // Generate phi value.
-  auto boolType = llvm::Type::getIntNTy(myContext, 1);
+  auto boolType = llvm::Type::getIntNTy(this->llvmModule->getContext(), 1);
   llvm::PHINode *phi = block->getIrBuilder()->CreatePHI(boolType, 0);
   phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
   phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
@@ -1368,22 +1365,22 @@ Bool TargetGenerator::generateEarlyInc(
     auto size = integerType->getSize();
     if (integerType->isSigned()) {
       llvmResult = block->getIrBuilder()->CreateNSWAdd(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateAdd(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
       llvmResult = block->getIrBuilder()->CreateFAdd(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Float)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Float)1))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateFAdd(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Double)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Double)1))
       );
     }
   } else {
@@ -1408,22 +1405,22 @@ Bool TargetGenerator::generateEarlyDec(
     auto size = integerType->getSize();
     if (integerType->isSigned()) {
       llvmResult = block->getIrBuilder()->CreateNSWSub(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateSub(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
       llvmResult = block->getIrBuilder()->CreateFSub(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Float)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Float)1))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateFSub(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Double)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Double)1))
       );
     }
   } else {
@@ -1448,22 +1445,22 @@ Bool TargetGenerator::generateLateInc(
     auto size = integerType->getSize();
     if (integerType->isSigned()) {
       llvmResult = block->getIrBuilder()->CreateNSWAdd(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateAdd(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
       llvmResult = block->getIrBuilder()->CreateFAdd(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Float)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Float)1))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateFAdd(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Double)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Double)1))
       );
     }
   } else {
@@ -1488,22 +1485,22 @@ Bool TargetGenerator::generateLateDec(
     auto size = integerType->getSize();
     if (integerType->isSigned()) {
       llvmResult = block->getIrBuilder()->CreateNSWSub(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateSub(
-        llvmVal, llvm::ConstantInt::get(myContext, llvm::APInt(size, 1, true))
+        llvmVal, llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(size, 1, true))
       );
     }
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     if (size == 32) {
       llvmResult = block->getIrBuilder()->CreateFSub(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Float)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Float)1))
       );
     } else {
       llvmResult = block->getIrBuilder()->CreateFSub(
-        llvmVal, llvm::ConstantFP::get(myContext, llvm::APFloat((Double)1))
+        llvmVal, llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Double)1))
       );
     }
   } else {
@@ -1884,7 +1881,7 @@ Bool TargetGenerator::generateLessThanOrEqual(
 Bool TargetGenerator::generateIntLiteral(
   TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
 ) {
-  auto llvmResult = llvm::ConstantInt::get(myContext, llvm::APInt(bitCount, value, withSign));
+  auto llvmResult = llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(bitCount, value, withSign));
   destVal = std::make_shared<Value>(llvmResult, true);
   return true;
 }
@@ -1895,9 +1892,9 @@ Bool TargetGenerator::generateFloatLiteral(
 ) {
   llvm::Value *llvmResult;
   if (bitCount == 32) {
-    llvmResult = llvm::ConstantFP::get(myContext, llvm::APFloat((Float)value));
+    llvmResult = llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat((Float)value));
   } else {
-    llvmResult = llvm::ConstantFP::get(myContext, llvm::APFloat(value));
+    llvmResult = llvm::ConstantFP::get(this->llvmModule->getContext(), llvm::APFloat(value));
   }
   destVal = std::make_shared<Value>(llvmResult, true);
   return true;
@@ -1986,7 +1983,7 @@ Bool TargetGenerator::generateArrayLiteral(
 Bool TargetGenerator::generatePointerLiteral(TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal)
 {
   PREPARE_ARG(type, tgType, PointerType);
-  auto llvmInt = llvm::ConstantInt::get(myContext, llvm::APInt(64, (uint64_t)value, false));
+  auto llvmInt = llvm::ConstantInt::get(this->llvmModule->getContext(), llvm::APInt(64, (uint64_t)value, false));
   auto llvmPtr = llvm::ConstantExpr::getIntToPtr(llvmInt, tgType->getLlvmType());
   destVal = std::make_shared<Value>(llvmPtr, true);
   return true;
@@ -1998,13 +1995,13 @@ Bool TargetGenerator::generatePointerLiteral(TiObject *context, TiObject *type, 
 
 Str TargetGenerator::getNewBlockName()
 {
-  return Str("__block") + std::to_string(this->blockIndex++);
+  return Str("#block") + std::to_string(this->blockIndex++);
 }
 
 
 Str TargetGenerator::getAnonymouseVarName()
 {
-  return Str("__anonymous") + std::to_string(this->anonymousVarIndex++);
+  return Str("#anonymous") + std::to_string(this->anonymousVarIndex++);
 }
 
 } } // namespace

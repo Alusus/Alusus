@@ -1,0 +1,166 @@
+import "Srl/Console.alusus";
+
+type A
+{
+  def i: Int;
+
+  @shared func construct (this: ptr[A]) {
+    Srl.Console.print("constructed!\n");
+    this~cnt.i = 1;
+  };
+
+  @shared func construct (this: ptr[A], that: ptr[A]) {
+    Srl.Console.print("constructed2!\n");
+    this~cnt.i = that~cnt.i * 2;
+  };
+
+  @shared func destruct (this: ptr[A]) {
+    this~cnt.i = 0;
+    Srl.Console.print("destructed!\n");
+  };
+};
+
+type B
+{
+  def a: A;
+  def a2: A;
+};
+
+type C
+{
+  def i: Int;
+  Srl.Console.print("C constructed!\n");
+  i = 3;
+};
+
+function testNoReturn
+{
+  def a: A;
+  Srl.Console.print("testNoReturn: %d\n", a.i);
+};
+
+function testReturnVoid
+{
+  def a: A;
+  Srl.Console.print("testReturnVoid: %d\n", a.i);
+  return;
+};
+
+function testReturnNonVoid ()=>Int
+{
+  def a: A;
+  Srl.Console.print("testReturnNonVoid: %d\n", a.i);
+  return a.i;
+};
+
+function getA () => A
+{
+  def a: A;
+  Srl.Console.print("getA.\n");
+  return a~ptr;
+};
+
+function testReturnA
+{
+  getA();
+  Srl.Console.print("testReturnA.\n");
+};
+
+function testLoop
+{
+  def i: Int = 2;
+  while i > 0 {
+    def a: A;
+    Srl.Console.print("testLoop: %d\n", a.i);
+    --i;
+  };
+  Srl.Console.print("testLoop-out.\n");
+};
+
+function testBreak
+{
+  while 1 {
+    def a: A;
+    Srl.Console.print("testBreak: %d\n", a.i);
+    if 1 == 1 break;
+    Srl.Console.print("testBreak-after.\n");
+  };
+  while 1 {
+    def a: A;
+    while 1 {
+      def b: A;
+      Srl.Console.print("testBreak-nested: %d, %d\n", a.i, b.i);
+      break 2;
+    };
+    Srl.Console.print("testBreak-afterOuter.\n");
+  };
+  Srl.Console.print("testBreak-out.\n");
+};
+
+function testContinue
+{
+  def i: Int;
+  for i = 0, i < 1, ++i {
+    def a: A;
+    Srl.Console.print("testContinue: %d\n", a.i);
+    if i == 0 continue;
+    Srl.Console.print("testContinue-after.\n");
+  };
+  for i = 0, i < 1, ++i {
+    def a: A;
+    while 1 {
+      def b: A;
+      Srl.Console.print("testContinue-nested: %d, %d\n", a.i, b.i);
+      continue 2;
+    };
+    Srl.Console.print("testContinue-afterOuter.\n");
+  };
+  Srl.Console.print("testContinue-out.\n");
+};
+
+function testAutoInit
+{
+  def b: B;
+  Srl.Console.print("testAutoInit: %d, %d\n", b.a.i, b.a2.i);
+};
+
+function testInlinedInit
+{
+  def gc: C;
+  Srl.Console.print("testInlinedInit: %d\n", gc.i);
+};
+
+testNoReturn();
+Srl.Console.print("\n");
+
+testReturnVoid();
+Srl.Console.print("\n");
+
+def n: Int = testReturnNonVoid();
+Srl.Console.print("returned value: %d\n", n);
+Srl.Console.print("\n");
+
+testReturnA();
+Srl.Console.print("\n");
+
+testLoop();
+Srl.Console.print("\n");
+
+testBreak();
+Srl.Console.print("\n");
+
+testContinue();
+Srl.Console.print("\n");
+
+testAutoInit();
+Srl.Console.print("\n");
+
+def ga: A;
+def i: Int;
+for i = 0, i < 2, ++i {
+  def a: A;
+  Srl.Console.print("autCtor on the global scope: %d %d\n", a.i, ga.i);
+};
+Srl.Console.print("\n");
+
+testInlinedInit();

@@ -31,6 +31,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   extension->macroProcessor = macroProcessor;
   extension->generator = generator;
   extension->targetGenerator = targetGenerator;
+  extension->rootCtorTgFunc = TioSharedPtr::null;
   extension->rootStmtTgFunc = TioSharedPtr::null;
   overrides->executeRootElementRef = extension->executeRootElement.set(
     &RootManagerExtension::_executeRootElement
@@ -62,6 +63,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   extension->macroProcessor.remove();
   extension->generator.remove();
   extension->targetGenerator.remove();
+  extension->rootCtorTgFunc.remove();
   extension->rootStmtTgFunc.remove();
   rootManager->removeDynamicInterface<RootManagerExtension>();
   delete overrides;
@@ -77,13 +79,14 @@ void RootManagerExtension::_executeRootElement(
   PREPARE_SELF(rootManager, Core::Main::RootManager);
   PREPARE_SELF(rootManagerExt, RootManagerExtension);
 
+  auto root = rootManager->getRootScope().get();
+
   if (rootManager->isInteractive()) {
     // If we are running in an interactive mode and we faced previous errors, we'll try to clear the errors and start
     // fresh to give the user a chance to correct the errors if possible.
     auto minSeverity = rootManager->getMinNoticeSeverityEncountered();
     auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
     if ((minSeverity >= 0 && minSeverity <= 1) || (thisMinSeverity >= 0 && thisMinSeverity <= 1)) {
-      auto root = rootManager->getRootScope().get();
       rootManager->resetMinNoticeSeverityEncountered();
       noticeStore->resetMinEncounteredSeverity();
       rootManagerExt->resetBuildData(root);
@@ -98,18 +101,13 @@ void RootManagerExtension::_executeRootElement(
   rootManagerExt->generator->prepareBuild(noticeStore, false);
   auto generation = ti_cast<CodeGen::Generation>(rootManagerExt->generator.get().get());
 
-  // Generate function type.
-  TioSharedPtr tgVoidType;
-  if (!rootManagerExt->targetGenerator->generateVoidType(tgVoidType)) {
-    throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
+  // If there was a previous root functions, delete them now.
+  if (rootManagerExt->rootCtorTgFunc != 0) {
+    if (!rootManagerExt->targetGenerator->deleteFunction(rootManagerExt->rootCtorTgFunc.get().get())) {
+      throw EXCEPTION(GenericException, S("Failed to delete root constructor function."));
+    }
+    rootManagerExt->rootCtorTgFunc = TioSharedPtr::null;
   }
-  SharedMap<TiObject> argTypes;
-  TioSharedPtr tgFuncType;
-  if (!rootManagerExt->targetGenerator->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
-    throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
-  }
-
-  // If there was a previous root statement function, delete it now.
   if (rootManagerExt->rootStmtTgFunc != 0) {
     if (!rootManagerExt->targetGenerator->deleteFunction(rootManagerExt->rootStmtTgFunc.get().get())) {
       throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
@@ -117,24 +115,39 @@ void RootManagerExtension::_executeRootElement(
     rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
   }
 
-  // Prepare a function name.
+  // Generate function type.
+  TioSharedPtr tgFuncType = rootManagerExt->getVoidNoArgsFuncTgType();
+
+  // Prepare the constructor function.
+  auto ctorFuncName = S("__constructor__");
+  TioSharedPtr ctorContext;
+  TioSharedPtr ctorTgFunc;
+  rootManagerExt->prepareFunction(ctorFuncName, tgFuncType.get(), ctorContext, ctorTgFunc);
+  rootManagerExt->rootCtorTgFunc = ctorTgFunc;
+
+  // Prepare the execution function.
   auto funcName = S("__rootstatement__");
+  TioSharedPtr context;
+  TioSharedPtr tgFunc;
+  rootManagerExt->prepareFunction(funcName, tgFuncType.get(), context, tgFunc);
+  rootManagerExt->rootStmtTgFunc = tgFunc;
+  CodeGen::setCodeGenData(root, context);
 
   // Generate the function.
-  TioSharedPtr tgFunc;
-  if (!rootManagerExt->targetGenerator->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
-    throw EXCEPTION(GenericException, S("Failed to generate function declaration for root scope statement."));
-  }
-  rootManagerExt->rootStmtTgFunc = tgFunc;
-  SharedList<TiObject> args;
-  TioSharedPtr context;
-  if (!rootManagerExt->targetGenerator->prepareFunctionBody(
-    rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context)
-  ) {
-    throw EXCEPTION(GenericException, S("Failed to generate function body for root scope statement."));
-  }
   CodeGen::TerminalStatement terminal;
-  Bool result = generation->generateStatement(element.get(), targetGeneration, context.get(), terminal);
+  CodeGen::DestructionStack destructionStack;
+  CodeGen::DestructionStack globalDestructionStack;
+  CodeGen::GenDeps deps(targetGeneration, context.get(), &destructionStack, ctorContext.get(), &globalDestructionStack);
+  Bool result = generation->generateStatement(element.get(), deps, terminal);
+  if (!generation->generateVarGroupDestruction(deps, 0)) result = false;
+
+  // Finalize the two functions.
+  SharedList<TiObject> args;
+  if (!rootManagerExt->targetGenerator->finishFunctionBody(
+    rootManagerExt->rootCtorTgFunc.get().get(), tgFuncType.get(), &args, ctorContext.get()
+  )) {
+    throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
+  }
   if (!rootManagerExt->targetGenerator->finishFunctionBody(
     rootManagerExt->rootStmtTgFunc.get().get(), tgFuncType.get(), &args, context.get()
   )) {
@@ -145,8 +158,10 @@ void RootManagerExtension::_executeRootElement(
   auto minSeverity = rootManager->getMinNoticeSeverityEncountered();
   auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
   if (result && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
+    rootManagerExt->targetGenerator->execute(ctorFuncName);
     rootManagerExt->targetGenerator->execute(funcName);
   }
+  CodeGen::removeCodeGenData(root);
 }
 
 
@@ -160,6 +175,7 @@ void RootManagerExtension::_dumpLlvmIrForElement(
   auto root = rootManager->getRootScope().get();
   rootManagerExt->resetBuildData(root);
   rootManagerExt->targetGenerator->resetBuild();
+  rootManagerExt->rootCtorTgFunc = TioSharedPtr::null;
   rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
 
   // Preprocessing.
@@ -173,14 +189,33 @@ void RootManagerExtension::_dumpLlvmIrForElement(
   rootManagerExt->generator->prepareBuild(noticeStore, true);
   auto generation = ti_cast<CodeGen::Generation>(rootManagerExt->generator.get().get());
 
+  // Generate function type.
+  TioSharedPtr tgFuncType = rootManagerExt->getVoidNoArgsFuncTgType();
+
+  // Prepare the constructor function.
+  auto ctorFuncName = S("__constructor__");
+  TioSharedPtr ctorContext;
+  TioSharedPtr ctorTgFunc;
+  rootManagerExt->prepareFunction(ctorFuncName, tgFuncType.get(), ctorContext, ctorTgFunc);
+
   // Generate the element.
+  CodeGen::DestructionStack globalDestructionStack;
+  CodeGen::GenDeps deps(targetGeneration, 0, 0, ctorContext.get(), &globalDestructionStack);
   Bool result;
   if (element->isDerivedFrom<Ast::Module>()) {
-    result = generation->generateModule(static_cast<Ast::Module*>(element), targetGeneration);
+    result = generation->generateModule(static_cast<Ast::Module*>(element), deps);
   } else if (element->isDerivedFrom<Ast::Function>()) {
-    result = generation->generateFunction(static_cast<Ast::Function*>(element), targetGeneration);
+    result = generation->generateFunction(static_cast<Ast::Function*>(element), deps);
   } else {
     throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid argument type."));
+  }
+
+  // Finalize the root constructor.
+  SharedList<TiObject> args;
+  if (!rootManagerExt->targetGenerator->finishFunctionBody(
+    ctorTgFunc.get(), tgFuncType.get(), &args, ctorContext.get()
+  )) {
+    throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
   }
 
   // Dump the IR code.
@@ -211,6 +246,7 @@ Bool RootManagerExtension::_buildObjectFileForElement(
   auto root = rootManager->getRootScope().get();
   rootManagerExt->resetBuildData(root);
   rootManagerExt->targetGenerator->resetBuild();
+  rootManagerExt->rootCtorTgFunc = TioSharedPtr::null;
   rootManagerExt->rootStmtTgFunc = TioSharedPtr::null;
 
   // Preprocessing.
@@ -224,14 +260,33 @@ Bool RootManagerExtension::_buildObjectFileForElement(
   rootManagerExt->generator->prepareBuild(noticeStore, true);
   auto generation = ti_cast<CodeGen::Generation>(rootManagerExt->generator.get().get());
 
+  // Generate function type.
+  TioSharedPtr tgFuncType = rootManagerExt->getVoidNoArgsFuncTgType();
+
+  // Prepare the constructor function.
+  auto ctorFuncName = S("__constructor__");
+  TioSharedPtr ctorContext;
+  TioSharedPtr ctorTgFunc;
+  rootManagerExt->prepareFunction(ctorFuncName, tgFuncType.get(), ctorContext, ctorTgFunc);
+
   // Generate the element.
+  CodeGen::DestructionStack globalDestructionStack;
+  CodeGen::GenDeps deps(targetGeneration, 0, 0, ctorContext.get(), &globalDestructionStack);
   Bool result;
   if (element->isDerivedFrom<Ast::Module>()) {
-    result = generation->generateModule(static_cast<Ast::Module*>(element), targetGeneration);
+    result = generation->generateModule(static_cast<Ast::Module*>(element), deps);
   } else if (element->isDerivedFrom<Ast::Function>()) {
-    result = generation->generateFunction(static_cast<Ast::Function*>(element), targetGeneration);
+    result = generation->generateFunction(static_cast<Ast::Function*>(element), deps);
   } else {
     throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid argument type."));
+  }
+
+  // Finalize the root constructor.
+  SharedList<TiObject> args;
+  if (!rootManagerExt->targetGenerator->finishFunctionBody(
+    ctorTgFunc.get(), tgFuncType.get(), &args, ctorContext.get()
+  )) {
+    throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
   }
 
   if (result) {
@@ -247,14 +302,34 @@ void RootManagerExtension::_resetBuildData(TiObject *self, TiObject *obj)
   if (obj == 0) return;
   if (obj->isDerivedFrom<Core::Data::Grammar::Module>()) return;
 
-  CodeGen::removeCodeGenData(obj);
-  CodeGen::resetCodeGenFailed(obj);
+  PREPARE_SELF(rootManagerExt, RootManagerExtension);
+
+  auto metahaving = ti_cast<Core::Data::Ast::MetaHaving>(obj);
+  if (metahaving != 0) {
+    CodeGen::removeCodeGenData(metahaving);
+    CodeGen::removeAutoCtor(metahaving);
+    CodeGen::removeAutoDtor(metahaving);
+    CodeGen::resetCodeGenFailed(metahaving);
+  }
 
   auto container = ti_cast<Core::Basic::Containing<TiObject>>(obj);
   if (container != 0) {
-    PREPARE_SELF(rootManagerExt, RootManagerExtension);
     for (Int i = 0; i < container->getElementCount(); ++i) {
       rootManagerExt->resetBuildData(container->getElement(i));
+    }
+  }
+
+  auto binding = ti_cast<Core::Basic::Binding>(obj);
+  if (binding != 0) {
+    for (Int i = 0; i < binding->getMemberCount(); ++i) {
+      rootManagerExt->resetBuildData(binding->getMember(i));
+    }
+  }
+
+  auto tpl = ti_cast<Ast::Template>(obj);
+  if (tpl != 0) {
+    for (Int i = 0; i < tpl->getInstanceCount(); ++i) {
+      rootManagerExt->resetBuildData(tpl->getInstance(i).get());
     }
   }
 }
@@ -316,6 +391,40 @@ Bool RootManagerExtension::_getModifierStrings(
   *resultCount = 0;
   *resultStrs = 0;
   return true;
+}
+
+
+//==============================================================================
+// Helper Functions
+
+TioSharedPtr RootManagerExtension::getVoidNoArgsFuncTgType()
+{
+  // Generate function type.
+  TioSharedPtr tgVoidType;
+  if (!this->targetGenerator->generateVoidType(tgVoidType)) {
+    throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
+  }
+  SharedMap<TiObject> argTypes;
+  TioSharedPtr tgFuncType;
+  if (!this->targetGenerator->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
+    throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
+  }
+  return tgFuncType;
+}
+
+
+void RootManagerExtension::prepareFunction(
+  Char const *funcName, TiObject *tgFuncType, TioSharedPtr &context, TioSharedPtr &tgFunc
+) {
+  if (!this->targetGenerator->generateFunctionDecl(funcName, tgFuncType, tgFunc)) {
+    throw EXCEPTION(GenericException, S("Failed to generate function declaration for root scope execution."));
+  }
+  SharedList<TiObject> args;
+  if (!this->targetGenerator->prepareFunctionBody(
+    tgFunc.get(), tgFuncType, &args, context)
+  ) {
+    throw EXCEPTION(GenericException, S("Failed to prepare function body for root scope execution."));
+  }
 }
 
 } // namespace

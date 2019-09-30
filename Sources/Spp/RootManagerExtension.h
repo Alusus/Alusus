@@ -60,6 +60,7 @@ class RootManagerExtension : public ObjTiInterface
       &this->macroProcessor,
       &this->generator,
       &this->targetGenerator,
+      &this->rootCtorTgFunc,
       &this->rootStmtTgFunc
     });
   }
@@ -72,6 +73,7 @@ class RootManagerExtension : public ObjTiInterface
   public: BINDING_CACHE(macroProcessor, CodeGen::MacroProcessor);
   public: BINDING_CACHE(generator, CodeGen::Generator);
   public: BINDING_CACHE(targetGenerator, LlvmCodeGen::TargetGenerator);
+  public: BINDING_CACHE(rootCtorTgFunc, TiObject);
   public: BINDING_CACHE(rootStmtTgFunc, TiObject);
 
 
@@ -140,6 +142,17 @@ class RootManagerExtension : public ObjTiInterface
   public: static Bool _getModifierStrings(
     TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount,
     Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
+  );
+
+  /// @}
+
+  /// @name Helper Functions
+  /// @{
+
+  private: TioSharedPtr getVoidNoArgsFuncTgType();
+
+  private: void prepareFunction(
+    Char const *funcName, TiObject *tgFuncType, TioSharedPtr &context, TioSharedPtr &tgFunc
   );
 
   /// @}

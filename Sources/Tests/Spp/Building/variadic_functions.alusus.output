@@ -9,80 +9,85 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@__anonymous0 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous1 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous2 = private constant [7 x i8] c"world!\00", align 1
-@__anonymous3 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous4 = private constant [6 x i8] c"world\00", align 1
-@__anonymous5 = private constant [4 x i8] c"...\00", align 1
-@__anonymous6 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous7 = private constant [6 x i8] c"world\00", align 1
-@__anonymous8 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous9 = private constant [6 x i8] c"world\00", align 1
-@__anonymous10 = private constant [6 x i8] c"again\00", align 1
-@__anonymous11 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous12 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous13 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous14 = private constant [6 x i8] c"world\00", align 1
-@__anonymous15 = private constant [4 x i8] c"yet\00", align 1
-@__anonymous16 = private constant [6 x i8] c"again\00", align 1
-@__anonymous17 = private constant [6 x i8] c"hello\00", align 1
-@__anonymous18 = private constant [6 x i8] c"world\00", align 1
-@__anonymous19 = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous0" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous1" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous2" = private constant [7 x i8] c"world!\00", align 1
+@"#anonymous3" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous4" = private constant [6 x i8] c"world\00", align 1
+@"#anonymous5" = private constant [4 x i8] c"...\00", align 1
+@"#anonymous6" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous7" = private constant [6 x i8] c"world\00", align 1
+@"#anonymous8" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous9" = private constant [6 x i8] c"world\00", align 1
+@"#anonymous10" = private constant [6 x i8] c"again\00", align 1
+@"#anonymous11" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous12" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous13" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous14" = private constant [6 x i8] c"world\00", align 1
+@"#anonymous15" = private constant [4 x i8] c"yet\00", align 1
+@"#anonymous16" = private constant [6 x i8] c"again\00", align 1
+@"#anonymous17" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous18" = private constant [6 x i8] c"world\00", align 1
+@"#anonymous19" = private constant [6 x i8] c"hello\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
 
 define i32 @"Main.main()=>(Int[32])"() {
-__block0:
-  call void (i8*, ...) @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous0, i32 0, i32 0))
-  call void (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous1, i32 0, i32 0), [7 x i8]* @__anonymous2)
-  call void (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous3, i32 0, i32 0), [6 x i8]* @__anonymous4, [4 x i8]* @__anonymous5)
-  call void (i8*, ...) @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous6, i32 0, i32 0), [6 x i8]* @__anonymous7)
-  call void (i8*, ...) @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous8, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous9, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @__anonymous10, i32 0, i32 0))
+"#block1":
+  call void (i8*, ...) @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous0", i32 0, i32 0))
+  call void (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous1", i32 0, i32 0), [7 x i8]* @"#anonymous2")
+  call void (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous3", i32 0, i32 0), [6 x i8]* @"#anonymous4", [4 x i8]* @"#anonymous5")
+  call void (i8*, ...) @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous6", i32 0, i32 0), [6 x i8]* @"#anonymous7")
+  call void (i8*, ...) @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous8", i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous9", i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous10", i32 0, i32 0))
 }
 
 define void @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
-__block1:
+"#block2":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* %a, ...) {
-__block2:
+"#block3":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* %a, ...) {
-__block3:
+"#block4":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* %a, ...) {
-__block4:
+"#block5":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Main.f1(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
-__block5:
+"#block6":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Main.f1(Int[32],ArgPack[any,0,0])"(i32 %a, ...) {
-__block6:
+"#block7":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   ret void
 }
 
 define void @"Main.f4(ptr[Word[8]],ArgPack[Word[8],0,0])"(i8* %a, ...) {
-__block7:
+"#block8":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void

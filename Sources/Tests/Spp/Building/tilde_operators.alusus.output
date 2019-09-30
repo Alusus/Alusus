@@ -21,27 +21,32 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@__anonymous0 = private constant [8 x i8] c"i = %d\0A\00", align 1
-@__anonymous1 = private constant [13 x i8] c"pi~cnt = %d\0A\00", align 1
+@"#anonymous0" = private constant [8 x i8] c"i = %d\0A\00", align 1
+@"#anonymous1" = private constant [13 x i8] c"pi~cnt = %d\0A\00", align 1
 @Other.i = global i32 0
 @Other.pi = global i32* null
-@__anonymous2 = private constant [8 x i8] c"f = %f\0A\00", align 1
-@__anonymous3 = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00", align 1
-@__anonymous4 = private constant [16 x i8] c"Main~size = %d\0A\00", align 1
-@__anonymous5 = private constant [19 x i8] c"unknown~size = %d\0A\00", align 1
-@__anonymous6 = private constant [13 x i8] c"i~size = %d\0A\00", align 1
-@__anonymous7 = private constant [14 x i8] c"pi~size = %d\0A\00", align 1
-@__anonymous8 = private constant [13 x i8] c"5~size = %d\0A\00", align 1
-@__anonymous9 = private constant [22 x i8] c"(i + 5i64)~size = %d\0A\00", align 1
-@__anonymous10 = private constant [19 x i8] c"Int[32]~size = %d\0A\00", align 1
-@__anonymous11 = private constant [19 x i8] c"Int[62]~size = %d\0A\00", align 1
-@__anonymous12 = private constant [24 x i8] c"ptr[Int[32]]~size = %d\0A\00", align 1
-@__anonymous13 = private constant [24 x i8] c"ptr[Int[62]]~size = %d\0A\00", align 1
+@"#anonymous2" = private constant [8 x i8] c"f = %f\0A\00", align 1
+@"#anonymous3" = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00", align 1
+@"#anonymous4" = private constant [16 x i8] c"Main~size = %d\0A\00", align 1
+@"#anonymous5" = private constant [19 x i8] c"unknown~size = %d\0A\00", align 1
+@"#anonymous6" = private constant [13 x i8] c"i~size = %d\0A\00", align 1
+@"#anonymous7" = private constant [14 x i8] c"pi~size = %d\0A\00", align 1
+@"#anonymous8" = private constant [13 x i8] c"5~size = %d\0A\00", align 1
+@"#anonymous9" = private constant [22 x i8] c"(i + 5i64)~size = %d\0A\00", align 1
+@"#anonymous10" = private constant [19 x i8] c"Int[32]~size = %d\0A\00", align 1
+@"#anonymous11" = private constant [19 x i8] c"Int[62]~size = %d\0A\00", align 1
+@"#anonymous12" = private constant [24 x i8] c"ptr[Int[32]]~size = %d\0A\00", align 1
+@"#anonymous13" = private constant [24 x i8] c"ptr[Int[62]]~size = %d\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
 
 declare i64 @printf(i8*, ...)
 
 define void @"Main.testPtrAndCnt()=>(Void)"() {
-__block0:
+"#block1":
   %i = alloca i32
   %pi = alloca i32*
   %pf = alloca float*
@@ -50,11 +55,11 @@ __block0:
   %0 = load i32*, i32** %pi
   store i32 5, i32* %0
   %1 = load i32, i32* %i
-  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous0, i32 0, i32 0), i32 %1)
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous0", i32 0, i32 0), i32 %1)
   store i32 10, i32* %i
   %3 = load i32*, i32** %pi
   %4 = load i32, i32* %3
-  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__anonymous1, i32 0, i32 0), i32 %4)
+  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous1", i32 0, i32 0), i32 %4)
   %6 = load i32, i32* %i
   %7 = load i32, i32* %i
   %8 = load float*, float** %pf
@@ -80,7 +85,7 @@ __block0:
 }
 
 define void @"Main.testCast()=>(Void)"() {
-__block1:
+"#block2":
   %i = alloca i32
   %l = alloca i64
   %f = alloca float
@@ -91,10 +96,10 @@ __block1:
   store i16 2, i16* %1
   store float 3.000000e+01, float* %f
   %2 = load float, float* %f
-  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__anonymous2, i32 0, i32 0), float %2)
+  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous2", i32 0, i32 0), float %2)
   %4 = load float, float* %f
   %5 = fpext float %4 to double
-  %6 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__anonymous3, i32 0, i32 0), double %5)
+  %6 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @"#anonymous3", i32 0, i32 0), double %5)
   %7 = bitcast i32* %i to i8*
   store i8 1, i8* %7
   %8 = load i32*, i32** %pi
@@ -123,15 +128,15 @@ __block1:
 }
 
 define void @"Main.testSize()=>(Void)"() {
-__block2:
+"#block3":
   %i = alloca i32
   %pi = alloca i32*
-  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__anonymous6, i32 0, i32 0), i8 4)
-  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__anonymous7, i32 0, i32 0), i8 8)
-  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__anonymous8, i32 0, i32 0), i8 1)
-  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([22 x i8], [22 x i8]* @__anonymous9, i32 0, i32 0), i8 8)
-  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__anonymous10, i32 0, i32 0), i8 4)
-  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__anonymous12, i32 0, i32 0), i8 8)
+  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous6", i32 0, i32 0), i8 4)
+  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous7", i32 0, i32 0), i8 8)
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous8", i32 0, i32 0), i8 1)
+  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([22 x i8], [22 x i8]* @"#anonymous9", i32 0, i32 0), i8 8)
+  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @"#anonymous10", i32 0, i32 0), i8 4)
+  %5 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @"#anonymous12", i32 0, i32 0), i8 8)
   ret void
 }
 ------------------------------------------------------------

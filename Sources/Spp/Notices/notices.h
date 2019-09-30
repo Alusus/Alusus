@@ -189,6 +189,9 @@ DEFINE_NOTICE(MissingReturnStatementNotice, "Spp.Notices", "Spp", "alusus.org", 
 DEFINE_NOTICE(InvalidModifierDataNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1023", 1,
   "Invalid modifier data."
 );
+DEFINE_NOTICE(UninitializedLocalVariableNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1024", 1,
+  "Trying to access a local variable before it's initialized."
+);
 
 } // namespace
 

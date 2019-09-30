@@ -94,59 +94,57 @@ class CommandGenerator : public TiObject, public DynamicBinding, public DynamicI
 
   public: METHOD_BINDING_CACHE(generateReturnStatement,
     Bool, (
-      Spp::Ast::ReturnStatement*, Generation*, TargetGeneration*, TiObject*
+      Spp::Ast::ReturnStatement*, Generation*, GenDeps const&
     )
   );
   private: static Bool _generateReturnStatement(
-    TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateIfStatement,
     Bool, (
-      Spp::Ast::IfStatement*, Generation*, TargetGeneration*, TiObject*, TerminalStatement&
+      Spp::Ast::IfStatement*, Generation*, GenDeps const&, TerminalStatement&
     )
   );
   private: static Bool _generateIfStatement(
-    TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, GenDeps const &deps,
     TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateWhileStatement,
     Bool, (
-      Spp::Ast::WhileStatement*, Generation*, TargetGeneration*, TiObject*
+      Spp::Ast::WhileStatement*, Generation*, GenDeps const&
     )
   );
   private: static Bool _generateWhileStatement(
-    TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateForStatement,
     Bool, (
-      Spp::Ast::ForStatement*, Generation*, TargetGeneration*, TiObject*
+      Spp::Ast::ForStatement*, Generation*, GenDeps const&
     )
   );
   private: static Bool _generateForStatement(
-    TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateContinueStatement,
     Bool, (
-      Spp::Ast::ContinueStatement* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */
+      Spp::Ast::ContinueStatement* /* astNode */, Generation* /* g */, GenDeps const& /* deps */
     )
   );
   private: static Bool _generateContinueStatement(
-    TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateBreakStatement,
     Bool, (
-      Spp::Ast::BreakStatement* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */
+      Spp::Ast::BreakStatement* /* astNode */, Generation* /* g */, GenDeps const& /* deps */
     )
   );
   private: static Bool _generateBreakStatement(
-    TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext
+    TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, GenDeps const &deps
   );
 
   /// @}
@@ -155,7 +153,7 @@ class CommandGenerator : public TiObject, public DynamicBinding, public DynamicI
   /// @{
 
   private: Bool castCondition(
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, TiObject *astNode, Spp::Ast::Type *astType,
+    Generation *g, GenDeps const &deps, TiObject *astNode, Spp::Ast::Type *astType,
     TiObject *tgValue, TioSharedPtr &result
   );
 

@@ -1,0 +1,60 @@
+import "Srl/Console.alusus";
+
+type Point1 {
+  def x: Int;
+  def y: Int;
+};
+
+type Point2 {
+  def x: Int;
+  def y: Int;
+  @shared function construct (this: ptr[Point2]) {};
+  @shared function construct (this: ptr[Point2], src: ptr[Point2]) {
+    this~cnt.x = src~cnt.x;
+    this~cnt.y = src~cnt.y;
+  };
+};
+
+function convertPoint1 (p: Point1) => Point1 {
+  p.x += 1;
+  p.y += 2;
+  return p;
+};
+
+function convertPoint2 (p: Point1) => Point2 {
+  def r: Point2;
+  r.x = p.x + 3;
+  r.y = p.y + 4;
+  return r;
+};
+
+function convertPoint3 (p: Point2) => Point1 {
+  def r: Point1;
+  r.x = p.x + 5;
+  r.y = p.y + 6;
+  return r;
+};
+
+function convertPoint4 (p: Point2) => Point2 {
+  p.x += 7;
+  p.y += 8;
+  return p;
+};
+
+def p1: Point1;
+def p1copy: Point1;
+def p2: Point2;
+def p2copy: Point2;
+
+p1.x = 0;
+p1.y = 0;
+
+p1copy = convertPoint1(p1);
+p2 = convertPoint2(p1);
+Srl.Console.print("p1copy = (%d, %d)\n", p1copy.x, p1copy.y);
+Srl.Console.print("p2 = (%d, %d)\n", p2.x, p2.y);
+
+p1 = convertPoint3(p2);
+p2copy = convertPoint4(p2);
+Srl.Console.print("p1 = (%d, %d)\n", p1.x, p1.y);
+Srl.Console.print("p2copy = (%d, %d)\n", p2copy.x, p2copy.y);

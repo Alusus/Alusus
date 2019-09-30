@@ -13,7 +13,7 @@
 #ifndef SPP_CODEGEN_GENERATOR_H
 #define SPP_CODEGEN_GENERATOR_H
 
-namespace Spp { namespace CodeGen
+namespace Spp::CodeGen
 {
 
 class Generator : public TiObject, public DynamicBinding, public DynamicInterfacing
@@ -46,6 +46,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: Core::Notices::Store *noticeStore = 0;
   private: Bool offlineExecution = false;
+  private: Int tempVarIndex = 0;
 
 
   //============================================================================
@@ -152,35 +153,66 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   /// @name Code Generation Functions
   /// @{
 
-  private: static Bool _generateModules(TiObject *self, Core::Data::Ast::Scope *root, TargetGeneration *tg);
+  private: static Bool _generateModules(TiObject *self, Core::Data::Ast::Scope *root, GenDeps const &deps);
 
-  private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule, TargetGeneration *tg);
+  private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule, GenDeps const &deps);
 
-  private: static Bool _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, TargetGeneration *tg);
+  private: static Bool _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, GenDeps const &deps);
 
-  private: static Bool _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, TargetGeneration *tg);
+  private: static Bool _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, GenDeps const &deps);
 
-  private: static Bool _generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astType, TargetGeneration *tg);
+  private: static Bool _generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astType, GenDeps const &deps);
 
   private: static Bool _generateVarDef(
-    TiObject *self, Core::Data::Ast::Definition *definition, TargetGeneration *tg
+    TiObject *self, Core::Data::Ast::Definition *definition, GenDeps const &deps
+  );
+
+  private: static Bool _generateTempVar(
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, GenDeps const &deps, Bool initialize
+  );
+
+  private: static Bool _generateVarInitialization(
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *paramsAstNode,
+    PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
+    GenDeps const &deps
+  );
+
+  private: static Bool _generateMemberVarInitialization(
+    TiObject *self, TiObject *astMemberNode, GenDeps const &deps
+  );
+
+  private: static Bool _generateVarDestruction(
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, GenDeps const &deps
+  );
+
+  private: static Bool _generateMemberVarDestruction(
+    TiObject *self, TiObject *astMemberNode, GenDeps const &deps
+  );
+
+  private: static void _registerDestructor(
+    TiObject *self, Core::Data::Node *varAstNode, Ast::Type *astType, ExecutionContext const *ec,
+    DestructionStack *destructionStack
+  );
+
+  private: static Bool _generateVarGroupDestruction(
+    TiObject *self, GenDeps const &deps, Int index
   );
 
   private: static Bool _generateStatements(
-    TiObject *self, Core::Data::Ast::Scope *astBlock, TargetGeneration *tg, TiObject *tgContext,
+    TiObject *self, Core::Data::Ast::Scope *astBlock, GenDeps const &deps,
     TerminalStatement &terminal
   );
 
   private: static Bool _generateStatement(
-    TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext, TerminalStatement &terminal
+    TiObject *self, TiObject *astNode, GenDeps const &deps, TerminalStatement &terminal
   );
 
   private: static Bool _generateExpression(
-    TiObject *self, TiObject *astNode, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    TiObject *self, TiObject *astNode, GenDeps const &deps, GenResult &result
   );
 
   private: static Bool _generateCast(
-    TiObject *self, TargetGeneration *tg, TiObject *tgContext, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
+    TiObject *self, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
     TiObject *tgValue, TioSharedPtr &tgCastedValue
   );
 
@@ -194,8 +226,15 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   /// @}
 
+  /// @name Helper Functions
+  /// @{
+
+  private: Str getTempVarName();
+
+  /// @}
+
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

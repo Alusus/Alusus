@@ -5,4 +5,9 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
 ------------------------------------------------------------
