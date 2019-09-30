@@ -5,13 +5,20 @@
 6
 24
 ERROR SPPA1003 @ (13,10): No valid match was found for the given type.
+ERROR SPPG1024 @ (14,3): Trying to access a local variable before it's initialized.
+ERROR SPPG1024 @ (15,10): Trying to access a local variable before it's initialized.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
 define void @"fnWithErrors()"() {
-__block0:
+"#block1":
   ret void
 }
 ------------------------------------------------------------

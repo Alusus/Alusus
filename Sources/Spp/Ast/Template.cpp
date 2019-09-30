@@ -25,17 +25,17 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
   }
 
   // Do we already have a default instance?
-  for (Int i = 0; i < this->instances.size(); ++i) {
-    if (this->instances[i]->getCount() == 1) {
-      return this->instances[i]->get(0);
+  for (Int i = 0; i < this->instances.getCount(); ++i) {
+    if (this->instances.get(i)->getCount() == 1) {
+      return this->instances.get(i)->get(0);
     }
   }
   // No default instance was found, create a new one.
   auto block = std::make_shared<Core::Data::Ast::Scope>();
   block->add(Core::Data::Ast::clone(this->body));
-  this->instances.push_back(block);
+  this->instances.add(block);
   block->setOwner(this);
-  return this->instances.back()->get(0);
+  return this->instances.get(this->instances.getCount() - 1)->get(0);
 }
 
 
@@ -55,10 +55,10 @@ Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioShared
   }
 
   // Do we already have an instance?
-  auto count = this->instances.size();
+  auto count = this->instances.getCount();
   for (Int i = 0; i < count; ++i) {
-    if (this->matchTemplateVars(&vars, this->instances[i].get(), helper, notice)) {
-      result = this->instances[i]->get(0);
+    if (this->matchTemplateVars(&vars, this->instances.getElement(i), helper, notice)) {
+      result = this->instances.get(i)->get(0);
       return true;
     } else {
       if (notice != 0) {
@@ -75,9 +75,9 @@ Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioShared
     result = notice;
     return false;
   }
-  this->instances.push_back(block);
+  this->instances.add(block);
   block->setOwner(this);
-  result = this->instances.back()->get(0);
+  result = this->instances.get(this->instances.getCount() - 1)->get(0);
   return true;
 }
 
@@ -320,10 +320,10 @@ void Template::print(OutStream &stream, Int indents) const
   stream << S("\n");
   printIndents(stream, indents+1);
   stream << S("-instances:");
-  for (Word i = 0; i < this->instances.size(); ++i) {
+  for (Word i = 0; i < this->instances.getCount(); ++i) {
     stream << S("\n");
     printIndents(stream, indents+2);
-    Core::Data::dumpData(stream, this->instances[i].get(), indents+2);
+    Core::Data::dumpData(stream, this->instances.getElement(i), indents+2);
   }
 }
 

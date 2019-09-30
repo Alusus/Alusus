@@ -85,12 +85,28 @@ void RootScopeHandlerExtension::_addNewElement(
     auto globalParser = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalParserIndex);
     *((Core::Processing::Parser**)globalParser) = parser;
 
-    for (Int i = start; i <= end; ++i) {
-      auto childData = root->get(i);
-      if (!childData->isDerivedFrom<Core::Data::Ast::Definition>()) {
-        rootManagerExt->executeRootElement(childData, state->getNoticeStore());
+    rootManagerExt->prepareRootScopeExecution(state->getNoticeStore());
+
+    Bool execute = true;
+\
+    // First, let's run all the modules initializations.
+    for (Int i = 0; i < start; ++i) {
+      auto def = ti_cast<Core::Data::Ast::Definition>(root->get(i));
+      if (def != 0) {
+        auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
+        if (module != 0) {
+          if (!rootManagerExt->addRootScopeExecutionElement(def)) execute = false;
+        }
       }
     }
+
+    // Now run all new statements.
+    for (Int i = start; i <= end; ++i) {
+      auto childData = root->get(i);
+      if (!rootManagerExt->addRootScopeExecutionElement(childData)) execute = false;
+    }
+
+    rootManagerExt->finalizeRootScopeExecution(state->getNoticeStore(), execute);
   }
 }
 

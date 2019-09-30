@@ -100,104 +100,97 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generate,
     Bool, (
-      TiObject* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
-      GenResult& /* result */
+      TiObject* /* astNode */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generate(
-    TiObject *self, TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    TiObject *self, TiObject *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateList,
     Bool, (
-      Core::Data::Ast::List* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::List* /* astNode */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateList(
-    TiObject *self, Core::Data::Ast::List *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::List *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateIdentifier,
     Bool, (
-      Core::Data::Ast::Identifier* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::Identifier* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateIdentifier(
-    TiObject *self, Core::Data::Ast::Identifier *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::Identifier *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateScopeMemberReference,
     Bool, (
       TiObject* /* scope */, Core::Data::Ast::Identifier* /* astNode */, Bool /* searchOwners */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateScopeMemberReference(
     TiObject *self, TiObject *scope, Core::Data::Ast::Identifier *astNode, Bool searchOwners,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateLinkOperator,
     Bool, (
-      Core::Data::Ast::LinkOperator* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::LinkOperator* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateLinkOperator(
-    TiObject *self, Core::Data::Ast::LinkOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::LinkOperator *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateParamPass,
     Bool, (
-      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateParamPass(
-    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateRoundParamPass,
     Bool, (
-      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPass(
-    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnCallee,
     Bool, (
-      TiObject* /* callee */, Ast::Type* /* calleeType */, SharedList<TiObject>* /* paramTgValues */,
-      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Node* /* astNode */, TiObject* /* callee */, Ast::Type* /* calleeType */,
+      SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
+      PlainList<TiObject>* /* paramAstNodes */,
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnCallee(
-    TiObject *self, TiObject *callee, Ast::Type *calleeType,
+    TiObject *self, Core::Data::Node *astNode, TiObject *callee, Ast::Type *calleeType,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnResult,
     Bool, (
       Core::Data::Ast::ParamPass* /* astNode */, GenResult* /* prevResult */, SharedList<TiObject>* /* paramTgValues */,
       PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnResult(
     TiObject *self, Core::Data::Ast::ParamPass *astNode, GenResult *prevResult,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnMember,
@@ -205,262 +198,250 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
       Core::Data::Ast::LinkOperator* /* linkOperator */, GenResult* /* prevResult */,
       SharedList<TiObject>* /* paramTgValues */,
       PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnMember(
     TiObject *self, Core::Data::Ast::LinkOperator *linkOperator, GenResult *prevResult,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateSquareParamPass,
     Bool, (
-      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::ParamPass* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateSquareParamPass(
-    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateOperator,
     Bool, (
-      Core::Data::Node* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Node* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateOperator(
-    TiObject *self, Core::Data::Node *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Node *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateLogicalOp,
     Bool, (
-      Core::Data::Ast::InfixOperator* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::InfixOperator* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateLogicalOp(
-    TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateArithmeticOp,
     Bool, (
       Core::Data::Ast::InfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateArithmeticOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateBinaryOp,
     Bool, (
       Core::Data::Ast::InfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateBinaryOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateComparisonOp,
     Bool, (
       Core::Data::Ast::InfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateComparisonOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateAssignOp,
     Bool, (
       Core::Data::Ast::InfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateAssignOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateArithmeticAssignOp,
     Bool, (
       Core::Data::Ast::InfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateArithmeticAssignOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateBinaryAssignOp,
     Bool, (
       Core::Data::Ast::InfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateBinaryAssignOp(
     TiObject *self, Core::Data::Ast::InfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateUnaryValOp,
     Bool, (
       Core::Data::Ast::OutfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateUnaryValOp(
     TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateIntUnaryValOp,
     Bool, (
       Core::Data::Ast::OutfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateIntUnaryValOp(
     TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateUnaryVarOp,
     Bool, (
       Core::Data::Ast::OutfixOperator* /* astNode */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateUnaryVarOp(
     TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generatePointerOp,
     Bool, (
-      Spp::Ast::PointerOp* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Spp::Ast::PointerOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generatePointerOp(
-    TiObject *self, Spp::Ast::PointerOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Spp::Ast::PointerOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateAstRefOp,
     Bool, (
-      Spp::Ast::AstRefOp* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Spp::Ast::AstRefOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateAstRefOp(
-    TiObject *self, Spp::Ast::AstRefOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Spp::Ast::AstRefOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateContentOp,
     Bool, (
-      Spp::Ast::ContentOp* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Spp::Ast::ContentOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateContentOp(
-    TiObject *self, Spp::Ast::ContentOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Spp::Ast::ContentOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateCastOp,
     Bool, (
-      Spp::Ast::CastOp* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Spp::Ast::CastOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateCastOp(
-    TiObject *self, Spp::Ast::CastOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Spp::Ast::CastOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateSizeOp,
     Bool, (
-      Spp::Ast::SizeOp* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Spp::Ast::SizeOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateSizeOp(
-    TiObject *self, Spp::Ast::SizeOp *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Spp::Ast::SizeOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateStringLiteral,
     Bool, (
-      Core::Data::Ast::StringLiteral* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::StringLiteral* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateStringLiteral(
-    TiObject *self, Core::Data::Ast::StringLiteral *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::StringLiteral *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateCharLiteral,
     Bool, (
-      Core::Data::Ast::CharLiteral* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::CharLiteral* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateCharLiteral(
-    TiObject *self, Core::Data::Ast::CharLiteral *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::CharLiteral *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateIntegerLiteral,
     Bool, (
-      Core::Data::Ast::IntegerLiteral* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::IntegerLiteral* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateIntegerLiteral(
-    TiObject *self, Core::Data::Ast::IntegerLiteral *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::IntegerLiteral *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateFloatLiteral,
     Bool, (
-      Core::Data::Ast::FloatLiteral* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */,
-      TiObject* /* tgContext */, GenResult& /* result */
+      Core::Data::Ast::FloatLiteral* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateFloatLiteral(
-    TiObject *self, Core::Data::Ast::FloatLiteral *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
-    GenResult &result
+    TiObject *self, Core::Data::Ast::FloatLiteral *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   /// @}
@@ -470,47 +451,47 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generateVarReference,
     Bool, (
-      TiObject* /* astNode */, Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */,
-      GenResult& /* result */
+      TiObject* /* refAstNode */, TiObject* /* varAstNode */,
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateVarReference(
-    TiObject *self, TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    TiObject *self, TiObject *refAstNode, TiObject *varAstNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateMemberReference,
     Bool, (
       TiObject* /* tgValue */, Ast::Type* /* astType */, Core::Data::Ast::Identifier* /* astNode */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateMemberReference(
     TiObject *self, TiObject *tgValue, Ast::Type * astType, Core::Data::Ast::Identifier *astNode,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateArrayReference,
     Bool, (
       TiObject* /* tgValue */, Ast::Type* /* astType */, TiObject* /* tgIndexVal */, Ast::Type* /* astIndexType */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateArrayReference(
     TiObject *self, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal, Ast::Type *astIndexType,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
-      Spp::Ast::Function* /* callee */,
+      Core::Data::Node* /* astNode */, Spp::Ast::Function* /* callee */,
       Containing<TiObject>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
-      Generation* /* g */, TargetGeneration* /* tg */, TiObject* /* tgContext */, GenResult& /* result */
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateFunctionCall(
-    TiObject *self, Spp::Ast::Function *callee,
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
     Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, GenResult &result
+    Generation *g, GenDeps const &deps, GenResult &result
   );
 
   /// @}
@@ -519,26 +500,26 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   /// @{
 
   private: Bool generateParamList(
-    TiObject *astNode, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    TiObject *astNode, Generation *g, GenDeps const &deps,
     DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
   );
 
   private: Bool generateParamList(
-    Containing<TiObject> *astNodes, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    Containing<TiObject> *astNodes, Generation *g, GenDeps const &deps,
     DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
   );
 
   private: Bool prepareFunctionParams(
-    Spp::Ast::FunctionType *calleeType, Generation *g, TargetGeneration *tg, TiObject *tgContext,
+    Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
     DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
   );
 
-  private: Bool dereferenceIfNeeded(
-    TargetGeneration *tg, TiObject *tgContext, Spp::Ast::Type *astType, TiObject *tgValue, GenResult &result
+  public: Bool dereferenceIfNeeded(
+    Spp::Ast::Type *astType, TiObject *tgValue, GenDeps const &deps, GenResult &result
   );
 
   private: Bool castLogicalOperand(
-    Generation *g, TargetGeneration *tg, TiObject *tgContext, TiObject *astNode, Spp::Ast::Type *astType,
+    Generation *g, GenDeps const &deps, TiObject *astNode, Spp::Ast::Type *astType,
     TiObject *tgValue, TioSharedPtr &result
   );
 

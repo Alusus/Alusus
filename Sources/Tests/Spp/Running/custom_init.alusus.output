@@ -1,0 +1,64 @@
+constructed!
+testNoReturn: 1
+destructed!
+
+constructed!
+testReturnVoid: 1
+destructed!
+
+constructed!
+testReturnNonVoid: 1
+destructed!
+returned value: 1
+
+constructed!
+getA.
+constructed2!
+destructed!
+testReturnA.
+destructed!
+
+constructed!
+testLoop: 1
+destructed!
+constructed!
+testLoop: 1
+destructed!
+testLoop-out.
+
+constructed!
+testBreak: 1
+destructed!
+constructed!
+constructed!
+testBreak-nested: 1, 1
+destructed!
+destructed!
+testBreak-out.
+
+constructed!
+testContinue: 1
+destructed!
+constructed!
+constructed!
+testContinue-nested: 1, 1
+destructed!
+destructed!
+testContinue-out.
+
+constructed!
+constructed!
+testAutoInit: 1, 1
+destructed!
+destructed!
+
+constructed!
+constructed!
+autCtor on the global scope: 1 1
+destructed!
+constructed!
+autCtor on the global scope: 1 1
+destructed!
+
+C constructed!
+testInlinedInit: 3

@@ -42,6 +42,7 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   private: SharedPtr<ExecutionContext> executionContext;
   private: std::unique_ptr<llvm::Module> llvmModule;
   private: SharedPtr<llvm::DataLayout> llvmDataLayout;
+  private: SharedPtr<llvm::LLVMContext> llvmContext;
   private: Int blockIndex = 0;
   private: Int anonymousVarIndex = 0;
 
@@ -63,6 +64,9 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   public: virtual ~TargetGenerator()
   {
+    // The llvm module should we always be released before the context, so we'll need to manually release the
+    // module before the default destructors are triggered.
+    this->llvmModule.reset();
   }
 
 

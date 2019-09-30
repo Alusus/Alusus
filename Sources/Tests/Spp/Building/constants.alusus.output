@@ -9,24 +9,29 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@__anonymous0 = private constant [7 x i8] c"%s %s\0A\00", align 1
-@__anonymous1 = private constant [6 x i8] c"Hello\00", align 1
-@__anonymous2 = private constant [6 x i8] c"World\00", align 1
-@__anonymous3 = private constant [39 x i8] c"days-per-week: %d, days-per-month: %d\0A\00", align 1
-@__anonymous4 = private constant [20 x i8] c"pi: %f, planck: %e\0A\00", align 1
-@__anonymous5 = private constant [43 x i8] c"days-per-week/2: %d, days-per-month/2: %d\0A\00", align 1
-@__anonymous6 = private constant [24 x i8] c"pi*2: %f, planck*2: %e\0A\00", align 1
-@__anonymous7 = private constant [36 x i8] c"days-combined: %d, pi-trippled: %f\0A\00", align 1
-@__anonymous8 = private constant [6 x i8] c"Hello\00", align 1
-@__anonymous9 = private constant [6 x i8] c"World\00", align 1
+@"#anonymous0" = private constant [7 x i8] c"%s %s\0A\00", align 1
+@"#anonymous1" = private constant [6 x i8] c"Hello\00", align 1
+@"#anonymous2" = private constant [6 x i8] c"World\00", align 1
+@"#anonymous3" = private constant [39 x i8] c"days-per-week: %d, days-per-month: %d\0A\00", align 1
+@"#anonymous4" = private constant [20 x i8] c"pi: %f, planck: %e\0A\00", align 1
+@"#anonymous5" = private constant [43 x i8] c"days-per-week/2: %d, days-per-month/2: %d\0A\00", align 1
+@"#anonymous6" = private constant [24 x i8] c"pi*2: %f, planck*2: %e\0A\00", align 1
+@"#anonymous7" = private constant [36 x i8] c"days-combined: %d, pi-trippled: %f\0A\00", align 1
+@"#anonymous8" = private constant [6 x i8] c"Hello\00", align 1
+@"#anonymous9" = private constant [6 x i8] c"World\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
 
 define void @"Main.start()=>(Void)"() {
-__block0:
-  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @__anonymous0, i32 0, i32 0), [6 x i8]* @__anonymous1, [6 x i8]* @__anonymous2)
-  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([39 x i8], [39 x i8]* @__anonymous3, i32 0, i32 0), i8 7, i8 30)
-  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__anonymous4, i32 0, i32 0), double 0x400921FB00000000, double 0x3E49C511E0000000)
-  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([43 x i8], [43 x i8]* @__anonymous5, i32 0, i32 0), i32 3, i32 15)
-  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__anonymous6, i32 0, i32 0), double 0x401921FB00000000, double 0x3E59C511E0000000)
+"#block1":
+  %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @"#anonymous0", i32 0, i32 0), [6 x i8]* @"#anonymous1", [6 x i8]* @"#anonymous2")
+  %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([39 x i8], [39 x i8]* @"#anonymous3", i32 0, i32 0), i8 7, i8 30)
+  %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous4", i32 0, i32 0), double 0x400921FB00000000, double 0x3E49C511E0000000)
+  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([43 x i8], [43 x i8]* @"#anonymous5", i32 0, i32 0), i32 3, i32 15)
+  %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @"#anonymous6", i32 0, i32 0), double 0x401921FB00000000, double 0x3E59C511E0000000)
   %daysCombined = alloca i32
   %piTrippled = alloca double
   store i32 7, i32* %daysCombined
@@ -39,7 +44,7 @@ __block0:
   store double %8, double* %piTrippled
   %9 = load i32, i32* %daysCombined
   %10 = load double, double* %piTrippled
-  %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([36 x i8], [36 x i8]* @__anonymous7, i32 0, i32 0), i32 %9, double %10)
+  %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([36 x i8], [36 x i8]* @"#anonymous7", i32 0, i32 0), i32 %9, double %10)
   %p = alloca i32*
   ret void
 }
