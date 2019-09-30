@@ -1,0 +1,9 @@
+import "libalusus_spp.so";
+def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+module Main
+{
+  def i: Int = 7;
+};
+
+printf("Main.i = %d\n", Main.i);

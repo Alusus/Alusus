@@ -38,6 +38,7 @@ class Generation : public ObjTiInterface
     Basic::initBindingCaches(this->owner, {
       &this->generateModules,
       &this->generateModule,
+      &this->generateModuleInit,
       &this->generateFunction,
       &this->generateFunctionDecl,
       &this->generateUserTypeBody,
@@ -83,6 +84,10 @@ class Generation : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateModules, Bool, (Core::Data::Ast::Scope* /* root */, GenDeps const& /* deps */));
 
   public: METHOD_BINDING_CACHE(generateModule, Bool, (Spp::Ast::Module* /* astModule */, GenDeps const& /* deps */));
+
+  public: METHOD_BINDING_CACHE(generateModuleInit,
+    Bool, (Spp::Ast::Module* /* astModule */, GenDeps const& /* deps */)
+  );
 
   public: METHOD_BINDING_CACHE(generateFunction, Bool, (Spp::Ast::Function* /* astFunc */, GenDeps const& /* deps */));
 

@@ -1,0 +1,8 @@
+import "libalusus_spp.so";
+
+module Main
+{
+  def i: Int = 7;
+};
+
+Spp.dumpLlvmIrForElement(Main~ast);
