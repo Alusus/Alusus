@@ -10,6 +10,7 @@ import platform
 import lzma
 from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
 import wget
+import colorama
 import sys
 from version_info import get_version_info
 
@@ -743,6 +744,7 @@ def create_packages():
     successMsg("Creating installation packages.")
 
 if __name__ == "__main__":
+    colorama.init()
     prep_debs()
     build_alusus()
     if CREATE_PACKAGES == "yes":
