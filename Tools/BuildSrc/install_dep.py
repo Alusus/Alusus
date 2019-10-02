@@ -6,14 +6,17 @@ import os
 import platform
 import sysconfig
 
+
 def get_local_site_packages(prefix):
-    local_deps_path = os.path.join(prefix, 'Lib','site-packages')
+    local_deps_path = os.path.join(prefix, 'Lib', 'site-packages')
     # Only default Windows Python installation (not including MinGW installation) install Python module under Lib\site-packages.
     if platform.system() != "Windows" or sysconfig.get_platform() == "mingw":
-        local_deps_path = os.path.join(prefix, 'lib','python{major}.{minor}'.format(
-            major=platform.python_version_tuple()[0], minor=platform.python_version_tuple()[1]
+        local_deps_path = os.path.join(prefix, 'lib', 'python{major}.{minor}'.format(
+            major=platform.python_version_tuple(
+            )[0], minor=platform.python_version_tuple()[1]
         ), 'site-packages')
     return local_deps_path
+
 
 def add_local_site_packages_to_path(prefix):
     local_deps_path = get_local_site_packages(prefix)
@@ -21,6 +24,7 @@ def add_local_site_packages_to_path(prefix):
         os.makedirs(local_deps_path)
     if local_deps_path not in sys.path:
         sys.path.insert(0, local_deps_path)
+
 
 def install_pip(prefix, verbose=False):
     try:
@@ -30,7 +34,8 @@ def install_pip(prefix, verbose=False):
     except (ModuleNotFoundError, ImportError):
         install_location_args = ['--prefix', prefix]
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        cmd = [sys.executable, os.path.join(script_dir, 'get-pip.py'), '--ignore-installed'] + install_location_args
+        cmd = [sys.executable, os.path.join(
+            script_dir, 'get-pip.py'), '--ignore-installed'] + install_location_args
         ret = 0
         if not verbose:
             with open(os.devnull, "w") as f:
@@ -42,6 +47,7 @@ def install_pip(prefix, verbose=False):
         add_local_site_packages_to_path(prefix)
         return False
 
+
 def install_package(package, prefix, verbose=False):
     try:
         add_local_site_packages_to_path(prefix)
@@ -51,15 +57,18 @@ def install_package(package, prefix, verbose=False):
         install_pip(prefix, verbose=verbose)
         new_env = os.environ.copy()
         if "PYTHONPATH" in new_env:
-            new_env["PYTHONPATH"] += os.pathsep + get_local_site_packages(prefix)
+            new_env["PYTHONPATH"] += os.pathsep + \
+                get_local_site_packages(prefix)
         else:
             new_env["PYTHONPATH"] = get_local_site_packages(prefix)
         install_location_args = ['--prefix', prefix]
-        cmd = [sys.executable, '-m', 'pip', 'install', '--ignore-installed'] + install_location_args + [package]
+        cmd = [sys.executable, '-m', 'pip', 'install',
+               '--ignore-installed'] + install_location_args + [package]
         ret = 0
         if not verbose:
             with open(os.devnull, "w") as f:
-                p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, env=new_env)
+                p = subprocess.Popen(
+                    cmd, stdout=f, stderr=subprocess.STDOUT, env=new_env)
                 ret = p.wait()
         else:
             p = subprocess.Popen(cmd, env=new_env)

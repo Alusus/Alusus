@@ -9,7 +9,6 @@ import subprocess
 import platform
 import lzma
 from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
-import wget
 import colorama
 import sys
 from version_info import get_version_info
@@ -26,13 +25,13 @@ LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
 LLVM_SHARED_LIB_BUILD_NAME = "libLLVM-7" if THIS_SYSTEM != "Darwin" else "libLLVM"
 LLVM_SHARED_LIB_INSTALL_NAME = "libLLVM-7"
-LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
-LIBCURL_NAME="curl-7.64.1"
-LIBZIP_SRC_URL="https://github.com/kuba--/zip/archive/v0.1.14.zip"
-LIBZIP_NAME="zip-0.1.14"
-DLFCN_WIN32_URL="https://github.com/dlfcn-win32/dlfcn-win32/archive/v1.1.2.zip"
-DLFCN_WIN32_VERSION="1.1.2"
-DLFCN_WIN32_NAME="dlfcn-win32"
+LIBCURL_SRC_URL = "https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
+LIBCURL_NAME = "curl-7.64.1"
+LIBZIP_SRC_URL = "https://github.com/kuba--/zip/archive/v0.1.14.zip"
+LIBZIP_NAME = "zip-0.1.14"
+DLFCN_WIN32_URL = "https://github.com/dlfcn-win32/dlfcn-win32/archive/v1.1.2.zip"
+DLFCN_WIN32_VERSION = "1.1.2"
+DLFCN_WIN32_NAME = "dlfcn-win32"
 
 # Build Args
 MAKE_CMD = "mingw32-make" if platform.system() == "Windows" else "make"
@@ -91,8 +90,8 @@ def build_llvm():
 
     if not os.path.exists(os.path.join(LLVM_NAME + ".src", "EXTRACTED")):
         if not os.path.exists(LLVM_NAME + ".src.tar.xz"):
-            wget.download(LLVM_SRC_URL)
-            print('') # Printing new line after 'wget'.
+            subprocess.call(['wget', LLVM_SRC_URL])
+            print('')  # Printing new line after 'wget'.
         with lzma.open(LLVM_NAME + ".src.tar.xz") as fd:
             with tarfile.open(fileobj=fd) as tar:
                 infoMsg("Extracting LLVM sources...")
@@ -105,7 +104,8 @@ def build_llvm():
         infoMsg("LLVM sources are already available.")
 
     if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))):
-        infoMsg("{} is already built and installed.".format(LLVM_SHARED_LIB_INSTALL_NAME))
+        infoMsg("{} is already built and installed.".format(
+            LLVM_SHARED_LIB_INSTALL_NAME))
         successMsg("Building LLVM.")
         return
     try:
@@ -125,7 +125,7 @@ def build_llvm():
                          os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable)]
-        
+
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
                 "-G", "MinGW Makefiles",
@@ -145,10 +145,11 @@ def build_llvm():
         if ret != 0:
             failMsg("Building LLVM.")
             exit(1)
-        
+
         # Now we create the "libLLVM" DLL for Windows MinGW.
         if THIS_SYSTEM == "Windows":
-            infoMsg("Building {llvmDylibName}.{dylibExt} on Windows MinGW...".format(llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
+            infoMsg("Building {llvmDylibName}.{dylibExt} on Windows MinGW...".format(
+                llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
             temp_path = os.getcwd()
             script_dir = os.path.dirname(os.path.realpath(__file__))
             os.chdir(os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib"))
@@ -156,19 +157,23 @@ def build_llvm():
                 os.path.join(script_dir, 'create_libLLVM_MinGW.sh'),
                 'create_libLLVM_MinGW.sh'
             )
-            ret = subprocess.call(['bash', '-c', '{script} {arg}'.format(script='./create_libLLVM_MinGW.sh', arg=LLVM_SHARED_LIB_INSTALL_NAME)])
+            ret = subprocess.call(['bash', '-c', '{script} {arg}'.format(
+                script='./create_libLLVM_MinGW.sh', arg=LLVM_SHARED_LIB_INSTALL_NAME)])
             if ret != 0:
                 failMsg("Building LLVM.")
                 exit(1)
             os.remove('create_libLLVM_MinGW.sh')
             os.chdir(temp_path)
-            infoMsg("Finished building {llvmDylibName}.{dylibExt} on Windows MinGW.".format(llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
+            infoMsg("Finished building {llvmDylibName}.{dylibExt} on Windows MinGW.".format(
+                llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
 
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
-            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib", "{0}.{1}".format(LLVM_SHARED_LIB_BUILD_NAME, SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
+            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib",
+                         "{0}.{1}".format(LLVM_SHARED_LIB_BUILD_NAME, SHARED_LIBS_EXT)),
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(
+                LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
@@ -188,6 +193,7 @@ def build_libcurl():
     global LIB_DIR
     global SHARED_LIBS_EXT
     global THIS_SYSTEM
+    global THIS_SYSTEM
 
     try:
         os.makedirs(BUILD_PATH)
@@ -202,16 +208,17 @@ def build_libcurl():
     old_path = os.path.realpath(os.getcwd())
     os.chdir(DEPS_PATH)
 
-    if not os.path.exists(os.path.join(LIBCURL_NAME, "EXTRACTED")):
+    if not os.path.exists(os.path.join(LIBCURL_NAME + ".src", "EXTRACTED")):
         if not os.path.exists(LIBCURL_NAME + ".tar.xz"):
-            wget.download(LIBCURL_SRC_URL)
-            print('') # Printing new line after 'wget'.
+            subprocess.call(['wget', LIBCURL_SRC_URL])
+            print('')  # Printing new line after 'wget'.
         with lzma.open(LIBCURL_NAME + ".tar.xz") as fd:
             with tarfile.open(fileobj=fd) as tar:
                 infoMsg("Extracting libcurl sources...")
                 tar.extractall()
         os.remove(LIBCURL_NAME + ".tar.xz")
-        with open(os.path.join(LIBCURL_NAME, "EXTRACTED"), "w") as fd:
+        os.rename(LIBCURL_NAME, LIBCURL_NAME + ".src")
+        with open(os.path.join(LIBCURL_NAME + ".src", "EXTRACTED"), "w") as fd:
             fd.write("LIBCURL EXTRACTED CHECKER")
         infoMsg("Finished extracting libcurl sources.")
     else:
@@ -222,32 +229,57 @@ def build_libcurl():
         successMsg("Building libcurl.")
         return
 
-    os.chdir(LIBCURL_NAME)
+    if not os.path.exists(LIBCURL_NAME + ".build"):
+        os.makedirs(LIBCURL_NAME + ".build")
+    if not os.path.exists(LIBCURL_NAME + ".install"):
+        os.makedirs(LIBCURL_NAME + ".install")
+    os.chdir(LIBCURL_NAME + ".build")
 
     try:
-        ret = subprocess.call("bash -c ./configure".split())
-        if ret != 0:
-            failMsg("Building libcurl.")
-            exit(1)
-        ret = subprocess.call("{0} -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        configure_path = os.path.realpath(os.path.join(
+            '..', LIBCURL_NAME + ".src", "configure"))
+        install_prefix_path = os.path.realpath(
+            os.path.join('..', LIBCURL_NAME + ".install"))
+        # Convert the paths to UNIX based on Windows to run under MSYS2 shell.
+        if THIS_SYSTEM == "Windows":
+            configure_path = subprocess.check_output(
+                ['cygpath', configure_path]).decode('utf8')
+            configure_path = configure_path[:len(configure_path) - 1]
+            install_prefix_path = subprocess.check_output(
+                ['cygpath', install_prefix_path]).decode('utf8')
+            install_prefix_path = install_prefix_path[:len(
+                install_prefix_path) - 1]
+        bash_cmd = '{0} --prefix={1} --enable-shared=yes'.format(
+            configure_path, install_prefix_path)
+        if THIS_SYSTEM == "Windows":
+            bash_cmd += ' --disable-dependency-tracking --host={}'.format(
+                os.environ['MINGW_HOST'])
+        ret = subprocess.call(['bash', '-c', bash_cmd])
         if ret != 0:
             failMsg("Building libcurl.")
             exit(1)
 
-        # Now we create the "libcurl.dll" for Windows MinGW.
-        if THIS_SYSTEM == "Windows":
-            subprocess.call(['g++', '-shared', '-o', os.path.join('lib', '.libs', 'libcurl.dll'), os.path.join('lib', '.libs', 'libcurl.a')])
+        # On Windows, we will be using MSYS2's "make" (not "mingw32-make") command, as we are going to build under MSYS2's UNIX shell.
+        ret = subprocess.call(
+            ['make', '-j{0}'.format(MAKE_THREAD_COUNT), 'install'])
+        if ret != 0:
+            failMsg("Building libcurl.")
+            exit(1)
 
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             try:
-                os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
+                os.makedirs(os.path.join(
+                    os.path.realpath(INSTALL_PATH), LIB_DIR))
             except:
-                failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
+                failMsg(
+                    "Cannot create \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
-            os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", "libcurl.{}".format(SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
+            os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "bin",
+                         "libcurl-4.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR,
+                         "libcurl.{}".format(SHARED_LIBS_EXT))
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
@@ -282,14 +314,14 @@ def build_libzip():
     os.chdir(DEPS_PATH)
 
     if not os.path.exists(os.path.join(LIBZIP_NAME + ".src", "EXTRACTED")):
-        if not os.path.exists(LIBZIP_NAME + ".zip"):
-            wget.download(LIBZIP_SRC_URL)
-            print('') # Printing new line after 'wget'.
-        with ZipFile(file=LIBZIP_NAME + ".zip", mode="r") as zip:
+        if not os.path.exists('v0.1.14.zip'):
+            subprocess.call(['wget', LIBZIP_SRC_URL])
+            print('')  # Printing new line after 'wget'.
+        with ZipFile(file='v0.1.14.zip', mode="r") as zip:
             infoMsg("Extracting libzip sources...")
             zip.extractall()
             os.rename(LIBZIP_NAME, LIBZIP_NAME + ".src")
-        os.remove(LIBZIP_NAME + ".zip")
+        os.remove('v0.1.14.zip')
         with open(os.path.join(LIBZIP_NAME + ".src", "EXTRACTED"), "w") as fd:
             fd.write("LIBZIP EXTRACTED CHECKER")
         infoMsg("Finished extracting libzip sources.")
@@ -313,7 +345,8 @@ def build_libzip():
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
                      "-DCMAKE_DISABLE_TESTING=\"\"",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                     "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(DEPS_PATH, LIBZIP_NAME + ".install")),
+                     "-DCMAKE_INSTALL_PREFIX={}".format(
+                         os.path.join(DEPS_PATH, LIBZIP_NAME + ".install")),
                      os.path.join(DEPS_PATH, LIBZIP_NAME + ".src")]
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
@@ -324,7 +357,8 @@ def build_libzip():
         if ret != 0:
             failMsg("Building libzip.")
             exit(1)
-        ret = subprocess.call("{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        ret = subprocess.call(
+            "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building libzip.")
             exit(1)
@@ -332,7 +366,8 @@ def build_libzip():
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shared_lib_dir = "bin" if THIS_SYSTEM == "Windows" else "lib"
         shutil.copy2(
-            os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", shared_lib_dir, "libzip.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(DEPS_PATH, LIBZIP_NAME + ".install",
+                         shared_lib_dir, "libzip.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
@@ -341,6 +376,7 @@ def build_libzip():
         exit(1)
     os.chdir(old_path)
     successMsg("Building libzip.")
+
 
 def build_dlfcn_win32():
     global BUILD_PATH
@@ -369,14 +405,14 @@ def build_dlfcn_win32():
 
     dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
     if not os.path.exists(os.path.join(dlfcn_folder_name + ".src", "EXTRACTED")):
-        if not os.path.exists((dlfcn_folder_name + ".zip")):
-            wget.download(DLFCN_WIN32_URL)
-            print('') # Printing new line after 'wget'.
-        with ZipFile(file=(dlfcn_folder_name + ".zip"), mode="r") as zip:
+        if not os.path.exists("v1.1.2.zip"):
+            subprocess.call(['wget', DLFCN_WIN32_URL])
+            print('')  # Printing new line after 'wget'.
+        with ZipFile(file=("v1.1.2.zip"), mode="r") as zip:
             infoMsg("Extracting dlfcn-win32 sources...")
             zip.extractall()
         os.rename(dlfcn_folder_name, dlfcn_folder_name + ".src")
-        os.remove((dlfcn_folder_name + ".zip"))
+        os.remove("v1.1.2.zip")
         with open(os.path.join(dlfcn_folder_name + ".src", "EXTRACTED"), "w") as fd:
             fd.write("DLFCN-WIN32 EXTRACTED CHECKER")
         infoMsg("Finished extracting dlfcn-win32 sources.")
@@ -399,8 +435,9 @@ def build_dlfcn_win32():
                      "-DBUILD_SHARED_LIBS=ON",
                      "-DCMAKE_BUILD_TYPE=MinSizeRel",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                     "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(DEPS_PATH, dlfcn_folder_name + ".install")),
-                     os.path.join(DEPS_PATH, dlfcn_folder_name + ".src"),]
+                     "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(
+                         DEPS_PATH, dlfcn_folder_name + ".install")),
+                     os.path.join(DEPS_PATH, dlfcn_folder_name + ".src"), ]
         if THIS_SYSTEM == "Windows":
             cmake_cmd += [
                 "-G", "MinGW Makefiles",
@@ -410,21 +447,25 @@ def build_dlfcn_win32():
         if ret != 0:
             failMsg("Building libdl.")
             exit(1)
-        ret = subprocess.call("{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        ret = subprocess.call(
+            "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building libdl.")
             exit(1)
 
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             try:
-                os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
+                os.makedirs(os.path.join(
+                    os.path.realpath(INSTALL_PATH), LIB_DIR))
             except:
-                failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
+                failMsg(
+                    "Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
                 exit(1)
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
-            os.path.join(DEPS_PATH, dlfcn_folder_name + ".install", "bin", "libdl.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(DEPS_PATH, dlfcn_folder_name + ".install",
+                         "bin", "libdl.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
         )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
@@ -446,13 +487,15 @@ def prep_debs():
         build_dlfcn_win32()
     successMsg("Building dependencies.")
 
+
 def copy_dep(dep_dir, dep_name, to_check_string, mingw_dir):
     global INSTALL_PATH
     try:
         index = dep_dir.index(to_check_string)
         if index != -1 and (index + len(to_check_string)) == len(dep_dir):
             dllfile = os.path.join(mingw_dir, dep_name)
-            installed_dllfile = os.path.realpath(os.path.join(INSTALL_PATH, 'Bin', dep_name))
+            installed_dllfile = os.path.realpath(
+                os.path.join(INSTALL_PATH, 'Bin', dep_name))
             if not os.path.exists(installed_dllfile):
                 shutil.copy2(
                     dllfile,
@@ -462,29 +505,33 @@ def copy_dep(dep_dir, dep_name, to_check_string, mingw_dir):
     except ValueError:
         return False
 
+
 def ldd_parser(filepath):
     libs = []
     output = ''
     with open(os.devnull, 'w') as devnull:
-        output = subprocess.check_output(["ldd", filepath], stderr=devnull).decode('utf8')
+        output = subprocess.check_output(
+            ["ldd", filepath], stderr=devnull).decode('utf8')
     result = output.split('\n')
     for line in result:
         s = line.split()
         to_append = ''
         if "=>" in line:
-            if len(s) == 3: # virtual library
+            if len(s) == 3:  # virtual library
                 pass
             else:
                 to_append = s[2]
-        else: 
+        else:
             if len(s) == 2:
                 to_append = s[0]
         if to_append:
             windows_path = ''
             with open(os.devnull, 'w') as devnull:
-                windows_path = subprocess.check_output(['cygpath', '-w', to_append], stderr=devnull).decode('utf8').strip()
+                windows_path = subprocess.check_output(
+                    ['cygpath', '-w', to_append], stderr=devnull).decode('utf8').strip()
             libs.append(windows_path)
     return libs
+
 
 def copy_mingw_dlls():
     global INSTALL_PATH
@@ -493,17 +540,18 @@ def copy_mingw_dlls():
     # Copying MinGW DLL's to make a portable Alusus that does not rely on MinGW install.
     if THIS_SYSTEM != "Windows":
         return
-    
+
     infoMsg("Copying MinGW DLL's...")
 
     # Get the paths to all EXE's in the installed "Bin" folder.
     bin_directory = os.path.join(INSTALL_PATH, 'Bin')
-    exe_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory) \
-        if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.exe']
+    exe_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory)
+                 if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.exe']
 
     # Get the path to the used MinGW (DO NOT mix and match MinGW 32 bit and 64 bit packages).
     minGW_dir = os.path.realpath(os.path.dirname(
-        os.path.dirname(subprocess.check_output(['where', 'gcc']).decode('utf8').split('\r\n')[0])
+        os.path.dirname(subprocess.check_output(
+            ['where', 'gcc']).decode('utf8').split('\r\n')[0])
     ))
     mingw_bin_dir = os.path.join(minGW_dir, 'bin')
     mingw_lib_dir = os.path.join(minGW_dir, 'lib')
@@ -518,10 +566,10 @@ def copy_mingw_dlls():
             copy_dep(dep_dir, dep_name, '\\mingw64\\lib', mingw_lib_dir)
             copy_dep(dep_dir, dep_name, '\\mingw32\\bin', mingw_bin_dir)
             copy_dep(dep_dir, dep_name, '\\mingw32\\lib', mingw_lib_dir)
-    
+
     # Copy the dependencies of the dependencies.
-    dep_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory) \
-        if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.dll']
+    dep_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory)
+                 if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.dll']
     i = 0
     while i < len(dep_paths):
         current_dep_path = dep_paths[i]
@@ -535,19 +583,24 @@ def copy_mingw_dlls():
             dep_dir = os.path.dirname(dep_path)
             dep_name = os.path.basename(dep_path)
 
-            retval = copy_dep(dep_dir, dep_name, '\\mingw64\\bin', mingw_bin_dir)
-            retval = retval or copy_dep(dep_dir, dep_name, '\\mingw64\\lib', mingw_lib_dir)
-            retval = retval or copy_dep(dep_dir, dep_name, '\\mingw32\\bin', mingw_bin_dir)
-            retval = retval or copy_dep(dep_dir, dep_name, '\\mingw32\\lib', mingw_lib_dir)
+            retval = copy_dep(dep_dir, dep_name,
+                              '\\mingw64\\bin', mingw_bin_dir)
+            retval = retval or copy_dep(
+                dep_dir, dep_name, '\\mingw64\\lib', mingw_lib_dir)
+            retval = retval or copy_dep(
+                dep_dir, dep_name, '\\mingw32\\bin', mingw_bin_dir)
+            retval = retval or copy_dep(
+                dep_dir, dep_name, '\\mingw32\\lib', mingw_lib_dir)
             if retval:
-                dep_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory) \
-                    if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.dll']
+                dep_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory)
+                             if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.dll']
                 is_reset = True
                 i = 0
         if not is_reset:
             i += 1
-    
+
     infoMsg("Finished Copying MinGW DLL's.")
+
 
 def copy_other_installation_files():
     global ALUSUS_ROOT
@@ -596,6 +649,7 @@ def copy_other_installation_files():
     copy_mingw_dlls()
     successMsg("Copying other installation files.")
 
+
 def build_alusus():
     global BUILD_PATH
     global ALUSUS_ROOT
@@ -620,22 +674,23 @@ def build_alusus():
         # CMake will not run everytime by default to reduce build time.
         if (not os.path.exists('CMAKE_CHECKER')) or global_args['rerunCMake']:
             cmake_cmd = ["cmake",
-                    "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
-                    "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
-                    "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
-                    "-DLLVM_PATH={}".format(
-                        (os.path.join(DEPS_PATH, LLVM_NAME + ".install").replace('\\', '/') if THIS_SYSTEM == "Windows" else \
-                        os.path.join(DEPS_PATH, LLVM_NAME + ".install"))
-                    ),
-                    "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                    "-DPYTHON_PREFIX={}".format(PYTHON_DEPS_PATH)]
-            
+                         "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
+                         "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
+                         "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
+                         "-DLLVM_PATH={}".format(
+                             (os.path.join(DEPS_PATH, LLVM_NAME + ".install").replace('\\', '/') if THIS_SYSTEM == "Windows" else
+                              os.path.join(DEPS_PATH, LLVM_NAME + ".install"))
+                         ),
+                         "-DPYTHON_EXECUTABLE={}".format(sys.executable),
+                         "-DPYTHON_PREFIX={}".format(PYTHON_DEPS_PATH)]
+
             if THIS_SYSTEM == "Windows":
                 dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
                 cmake_cmd += [
                     "-G", "MinGW Makefiles",
                     "-DCMAKE_SH=CMAKE_SH-NOTFOUND",
-                    "-DDLFCN_WIN32_PATH={}".format(os.path.join(DEPS_PATH, dlfcn_folder_name + ".install").replace('\\', '/'))
+                    "-DDLFCN_WIN32_PATH={}".format(os.path.join(
+                        DEPS_PATH, dlfcn_folder_name + ".install").replace('\\', '/'))
                 ]
 
             ret = subprocess.call(cmake_cmd)
@@ -645,7 +700,7 @@ def build_alusus():
 
             with open('CMAKE_CHECKER', 'w') as fd:
                 fd.write("CMAKE GENERATOR CHECKER")
-        
+
         ret = subprocess.call(
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
@@ -730,7 +785,8 @@ def create_packages():
     global THIS_SYSTEM
 
     infoMsg("Creating installation packages...")
-    packages_path = os.path.join(PACKAGES_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
+    packages_path = os.path.join(
+        PACKAGES_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
     shutil.rmtree(packages_path, ignore_errors=True)
     os.makedirs(packages_path)
     copy_other_installation_files()
@@ -743,9 +799,10 @@ def create_packages():
             "Packaging is not supported on \"{}\"!".format(THIS_SYSTEM))
     successMsg("Creating installation packages.")
 
+
 if __name__ == "__main__":
     colorama.init()
     prep_debs()
     build_alusus()
     if CREATE_PACKAGES == "yes":
-       create_packages()
+        create_packages()

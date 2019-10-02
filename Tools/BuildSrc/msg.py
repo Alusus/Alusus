@@ -1,6 +1,7 @@
 from __future__ import print_function
 from termcolor import colored
 
+
 def infoMsg(txt, newline=True):
     if newline:
         print('{0} {1}'.format(colored("INFO:", "blue"), txt))

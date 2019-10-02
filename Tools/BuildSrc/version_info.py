@@ -1,18 +1,3 @@
-#!/bin/bash
-# This file extracts version information from GIT using tag and branch names.
-# It looks for the latest tag reachable from the current commit and uses the
-# version number in that tag. The tag name must be in this format: v1.0.0
-# If the current commit is on the tag then no revision will be printed,
-# otherwise the following criteria is followed in determining the revision:
-# * If the current branch's name starts with 'rb' followed by the version
-#   number the revision will be a number equivalent to the number of commits
-#   on top of that tag.
-# * Otherwise the revision is 'GIT' followed by the first 6 letters of the
-#   current commit's SHA.
-# The date of the release will be equivalent to the date of the current GIT
-# commit in UTC.
-
-
 import os
 import sys
 import subprocess
@@ -32,7 +17,8 @@ def get_version_info(prefix):
     hijri_date = None
 
     try:
-        release_string = subprocess.check_output("git describe --tags".split()).decode("utf-8").rstrip()
+        release_string = subprocess.check_output(
+            "git describe --tags".split()).decode("utf-8").rstrip()
         version = release_string.split("-")[0][1:]
         distance = str(int(release_string.split("-")[1]) + 1)
         commit = release_string.split("-")[2][1:]
@@ -42,7 +28,8 @@ def get_version_info(prefix):
         else:
             distance = None
         if distance:
-            current_branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD".split()).decode("utf-8").rstrip()
+            current_branch = subprocess.check_output(
+                "git rev-parse --abbrev-ref HEAD".split()).decode("utf-8").rstrip()
             if current_branch == "vb{}".format(version):
                 revision = distance
             else:
@@ -53,11 +40,13 @@ def get_version_info(prefix):
         revision = "DEV"
 
     now = datetime.datetime.now()
-    date = "{0}-{1}-{2}".format(now.year, str(now.month).rjust(2, '0'), str(now.day).rjust(2, '0'))
+    date = "{0}-{1}-{2}".format(now.year, str(now.month).rjust(2,
+                                                               '0'), str(now.day).rjust(2, '0'))
     add_local_site_packages_to_path(prefix)
     from ummalqura.hijri_date import HijriDate
     islamic_date_now = HijriDate(now.year, now.month, now.day, gr=True)
-    hijri_date = "{0}-{1}-{2}".format(int(islamic_date_now.year), str(int(islamic_date_now.month)).rjust(2, '0'), str(int(islamic_date_now.day)).rjust(2, '0'))
+    hijri_date = "{0}-{1}-{2}".format(int(islamic_date_now.year), str(int(
+        islamic_date_now.month)).rjust(2, '0'), str(int(islamic_date_now.day)).rjust(2, '0'))
     os.chdir(original_path)
     return version, revision, date, hijri_date
 
