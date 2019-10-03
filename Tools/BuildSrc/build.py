@@ -506,98 +506,37 @@ def copy_dep(dep_dir, dep_name, to_check_string, mingw_dir):
         return False
 
 
-def ldd_parser(filepath):
-    libs = []
-    output = ''
-    with open(os.devnull, 'w') as devnull:
-        output = subprocess.check_output(
-            ["ldd", filepath], stderr=devnull).decode('utf8')
-    result = output.split('\n')
-    for line in result:
-        s = line.split()
-        to_append = ''
-        if "=>" in line:
-            if len(s) == 3:  # virtual library
-                pass
-            else:
-                to_append = s[2]
-        else:
-            if len(s) == 2:
-                to_append = s[0]
-        if to_append:
-            windows_path = ''
-            with open(os.devnull, 'w') as devnull:
-                windows_path = subprocess.check_output(
-                    ['cygpath', '-w', to_append], stderr=devnull).decode('utf8').strip()
-            libs.append(windows_path)
-    return libs
-
-
+# Copying MinGW DLL's to make a portable Alusus that does not rely on a MinGW install.
 def copy_mingw_dlls():
     global INSTALL_PATH
     global THIS_SYSTEM
+    global BUILD_TYPE
 
-    # Copying MinGW DLL's to make a portable Alusus that does not rely on MinGW install.
     if THIS_SYSTEM != "Windows":
         return
 
     infoMsg("Copying MinGW DLL's...")
 
-    # Get the paths to all EXE's in the installed "Bin" folder.
-    bin_directory = os.path.join(INSTALL_PATH, 'Bin')
-    exe_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory)
-                 if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.exe']
+    ldd_output = subprocess.check_output(
+        ['ldd', os.path.join(
+            INSTALL_PATH, 'Bin', 'alusus.exe' if BUILD_TYPE == 'release' else 'alusus.dbg.exe')]
+    ).decode('utf8').strip().split('\n')
 
-    # Get the path to the used MinGW (DO NOT mix and match MinGW 32 bit and 64 bit packages).
-    minGW_dir = os.path.realpath(os.path.dirname(
-        os.path.dirname(subprocess.check_output(
-            ['where', 'gcc']).decode('utf8').split('\r\n')[0])
-    ))
-    mingw_bin_dir = os.path.join(minGW_dir, 'bin')
-    mingw_lib_dir = os.path.join(minGW_dir, 'lib')
-    processed_deps = set()
-    for exe_path in exe_paths:
-        deps = ldd_parser(exe_path)
-        for dep_path in deps:
-            dep_dir = os.path.dirname(dep_path)
-            dep_name = os.path.basename(dep_path)
+    ignored_dirs = [
+        subprocess.check_output(['cygpath', 'C:\\Windows\\System32']).decode(
+            'utf8').strip().lower(),  # Default Windows DLL's.
+        subprocess.check_output(['cygpath', os.path.join(INSTALL_PATH, 'Bin')]).decode(
+            'utf8').strip().lower()  # Installation directory DLL's.
+    ]
 
-            copy_dep(dep_dir, dep_name, '\\mingw64\\bin', mingw_bin_dir)
-            copy_dep(dep_dir, dep_name, '\\mingw64\\lib', mingw_lib_dir)
-            copy_dep(dep_dir, dep_name, '\\mingw32\\bin', mingw_bin_dir)
-            copy_dep(dep_dir, dep_name, '\\mingw32\\lib', mingw_lib_dir)
-
-    # Copy the dependencies of the dependencies.
-    dep_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory)
-                 if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.dll']
-    i = 0
-    while i < len(dep_paths):
-        current_dep_path = dep_paths[i]
-        if current_dep_path in processed_deps:
-            i += 1
-            continue
-        processed_deps.add(current_dep_path)
-        deps = ldd_parser(exe_path)
-        is_reset = False
-        for dep_path in deps:
-            dep_dir = os.path.dirname(dep_path)
-            dep_name = os.path.basename(dep_path)
-
-            retval = copy_dep(dep_dir, dep_name,
-                              '\\mingw64\\bin', mingw_bin_dir)
-            retval = retval or copy_dep(
-                dep_dir, dep_name, '\\mingw64\\lib', mingw_lib_dir)
-            retval = retval or copy_dep(
-                dep_dir, dep_name, '\\mingw32\\bin', mingw_bin_dir)
-            retval = retval or copy_dep(
-                dep_dir, dep_name, '\\mingw32\\lib', mingw_lib_dir)
-            if retval:
-                dep_paths = [os.path.join(bin_directory, f) for f in os.listdir(bin_directory)
-                             if os.path.isfile(os.path.join(bin_directory, f)) and os.path.splitext(f)[1] == '.dll']
-                is_reset = True
-                i = 0
-        if not is_reset:
-            i += 1
+    for dependency in ldd_output:
+        unix_dll_path = dependency.split()[2]
+        windows_dll_path = subprocess.check_output(
+            ['cygpath', '-w', unix_dll_path]).decode('utf8').strip()
+        unix_dll_path_dir = subprocess.check_output(
+            ['cygpath', os.path.dirname(windows_dll_path)]).decode('utf8').strip()
+        if unix_dll_path_dir.lower() not in ignored_dirs:
+            shutil.copy2(windows_dll_path, os.path.join(INSTALL_PATH, 'Bin'))
 
     infoMsg("Finished Copying MinGW DLL's.")
 
@@ -646,7 +585,6 @@ def copy_other_installation_files():
         os.path.join(ALUSUS_ROOT, "license.txt"),
         os.path.join(INSTALL_PATH, "license.txt")
     )
-    copy_mingw_dlls()
     successMsg("Copying other installation files.")
 
 
@@ -703,6 +641,8 @@ def build_alusus():
 
         ret = subprocess.call(
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        if THIS_SYSTEM == "Windows":
+            copy_mingw_dlls()
         if ret != 0:
             failMsg("Building Alusus.")
             exit(1)
@@ -802,6 +742,12 @@ def create_packages():
 
 if __name__ == "__main__":
     colorama.init()
+    if THIS_SYSTEM == "Windows" and 'MINGW_HOST' not in os.environ:
+        errMsg('\"MINGW_HOST\" environment variable is not defined. Possible values are either \"i686-w64-mingw32\" or \"x86_64-w64-mingw32\".')
+        exit(1)
+    elif THIS_SYSTEM == "Windows" and os.environ['MINGW_HOST'] not in ['i686-w64-mingw32', 'x86_64-w64-mingw32']:
+        errMsg('Wrong value for \"MINGW_HOST\" environment variable is set. Possible values are either \"i686-w64-mingw32\" or \"x86_64-w64-mingw32\".')
+        exit(1)
     prep_debs()
     build_alusus()
     if CREATE_PACKAGES == "yes":
