@@ -517,11 +517,6 @@ def copy_mingw_dlls():
 
     infoMsg("Copying MinGW DLL's...")
 
-    ldd_output = subprocess.check_output(
-        ['ldd', os.path.join(
-            INSTALL_PATH, 'Bin', 'alusus.exe' if BUILD_TYPE == 'release' else 'alusus.dbg.exe')]
-    ).decode('utf8').strip().split('\n')
-
     ignored_dirs = [
         subprocess.check_output(['cygpath', 'C:\\Windows\\System32']).decode(
             'utf8').strip().lower(),  # Default Windows DLL's.
@@ -529,14 +524,30 @@ def copy_mingw_dlls():
             'utf8').strip().lower()  # Installation directory DLL's.
     ]
 
-    for dependency in ldd_output:
-        unix_dll_path = dependency.split()[2]
-        windows_dll_path = subprocess.check_output(
-            ['cygpath', '-w', unix_dll_path]).decode('utf8').strip()
-        unix_dll_path_dir = subprocess.check_output(
-            ['cygpath', os.path.dirname(windows_dll_path)]).decode('utf8').strip()
-        if unix_dll_path_dir.lower() not in ignored_dirs:
-            shutil.copy2(windows_dll_path, os.path.join(INSTALL_PATH, 'Bin'))
+    ldd_output = subprocess.check_output(
+        ['ldd', os.path.join(
+            INSTALL_PATH, 'Bin', 'alusus.exe' if BUILD_TYPE == 'release' else 'alusus.dbg.exe')]
+    ).decode('utf8').strip().split('\n')
+
+    i = 0
+    while i < len(ldd_output):
+        dependency = ldd_output[i]
+        try:
+            unix_dll_path = dependency.split()[2]
+            windows_dll_path = subprocess.check_output(
+                ['cygpath', '-w', unix_dll_path]).decode('utf8').strip()
+            unix_dll_path_dir = subprocess.check_output(
+                ['cygpath', os.path.dirname(windows_dll_path)]).decode('utf8').strip()
+            if unix_dll_path_dir.lower() not in ignored_dirs:
+                shutil.copy2(windows_dll_path, os.path.join(INSTALL_PATH, 'Bin'))
+            i += 1
+        except subprocess.CalledProcessError:
+            print('Running LDD again...')
+            ldd_output = subprocess.check_output(
+                ['ldd', os.path.join(
+                    INSTALL_PATH, 'Bin', 'alusus.exe' if BUILD_TYPE == 'release' else 'alusus.dbg.exe')]
+            ).decode('utf8').strip().split('\n')
+            i = 0
 
     infoMsg("Finished Copying MinGW DLL's.")
 
