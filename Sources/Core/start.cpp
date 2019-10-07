@@ -55,8 +55,8 @@ int main(int argCount, char * const args[])
 {
 #if defined(__MINGW32__) || defined(__MINGW64__)
   // Set the console's IO for Arabic text support.
-  SetConsoleCP(1256);
-  SetConsoleOutputCP(1256);
+  SetConsoleCP(CP_UTF8);
+  SetConsoleOutputCP(CP_UTF8);
   
   // Get args in wide character format, and then convert them back to multibyte format.
   wchar_t **wArgv = CommandLineToArgvW(GetCommandLineW(), &argCount);

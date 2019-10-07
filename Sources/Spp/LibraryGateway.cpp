@@ -221,6 +221,7 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       def argCount: Int;
       def args: ptr[array[ptr[array[Word[8]]]]];
       def language: ptr[array[Word[8]]];
+      def os: ptr[array[Word[8]]];
     };
     module Core {
       def rootManager: ptr;
@@ -285,9 +286,19 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   auto argCount = manager->getProcessArgCount();
   auto args = manager->getProcessArgs();
   auto language = manager->getLanguage().c_str();
+#if defined(__MINGW32__) // Windows under MinGW i686.
+  auto os = "Win32-i686";
+#elif defined(__MINGW64__) // Windows under MinGW X86 64Bit.
+  auto os = "Win32-x86_64";
+#elif defined(APPLE) // Apple (Mac OS, iOS, Apple Watch).
+  auto os = "Darwin";
+#else // Linux, Android, ...etc.
+  auto os = "Linux";
+#endif
   this->globalItemRepo->addItem(S("Process.argCount"), sizeof(argCount), &argCount);
   this->globalItemRepo->addItem(S("Process.args"), sizeof(args), &args);
   this->globalItemRepo->addItem(S("Process.language"), sizeof(language), &language);
+  this->globalItemRepo->addItem(S("Process.os"), sizeof(os), &os);
   this->globalItemRepo->addItem(S("Core.rootManager"), sizeof(void*), &manager);
   this->globalItemRepo->addItem(S("Core.parser"), sizeof(void*));
   this->globalItemRepo->addItem(S("Core.noticeStore"), sizeof(void*));

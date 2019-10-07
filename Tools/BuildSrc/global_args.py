@@ -79,6 +79,12 @@ def _process_args():
 
         # Install all deps.
         install_all_deps(global_args['pythonDepsPath'])
+        from version_info import get_version_info
+        version, revision, date, hijri_date = get_version_info(global_args['pythonDepsPath'])
+        global_args['version'] = version
+        global_args['revision'] = revision
+        global_args['date'] = date
+        global_args['hijri_date'] = hijri_date
 
     if args.g:
         global_args['installPath'] = global_args['releaseInstallPath']

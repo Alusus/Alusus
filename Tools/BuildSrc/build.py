@@ -33,7 +33,7 @@ DLFCN_WIN32_URL = "https://github.com/dlfcn-win32/dlfcn-win32/archive/v1.1.2.zip
 DLFCN_WIN32_VERSION = "1.1.2"
 DLFCN_WIN32_NAME = "dlfcn-win32"
 
-# Build Args
+# Build args
 MAKE_CMD = "mingw32-make" if platform.system() == "Windows" else "make"
 MAKE_THREAD_COUNT = global_args['numThreads']
 BUILD_TYPE = global_args['buildType']
@@ -53,13 +53,19 @@ PYTHON_DEPS_PATH = global_args['pythonDepsPath']
 PACKAGES_PATH = global_args['packagesPath']
 os.chdir(ORIGINAL_PATH)
 
-# Package Creation Args.
+# Package creation args.
 CREATE_PACKAGES = global_args['createPackages']
 ARCHITECTURE = "native"
 PACKAGE_NAME = "alusus"
 PACKAGE_DESCRIPTION = "Alusus Programming Language's core compilation system and standard libraries."
 PACKAGE_MAINTAINER = "Sarmad Khalid Abdullah <sarmad@alusus.org>"
 PACKAGE_URL = "http://alusus.net"
+
+# Version and date args.
+ALUSUS_VERSION = global_args['version']
+ALUSUS_REVERSION = global_args['revision']
+ALUSUS_DATE = global_args['date']
+ALUSUS_HIJRI_DATE = global_args['hijri_date']
 
 
 def build_llvm():
@@ -506,11 +512,22 @@ def copy_dep(dep_dir, dep_name, to_check_string, mingw_dir):
         return False
 
 
+def get_exe_and_dll_list():
+    global INSTALL_PATH
+
+    to_return = list()
+    for exec_file in os.listdir(os.path.join(INSTALL_PATH, "Bin")):
+        if exec_file.endswith(".exe") or exec_file.endswith(".dll"):
+            to_return.append(os.path.join(
+                os.path.join(INSTALL_PATH, "Bin", exec_file)))
+    return to_return
+
 # Copying MinGW DLL's to make a portable Alusus that does not rely on a MinGW install.
+
+
 def copy_mingw_dlls():
     global INSTALL_PATH
     global THIS_SYSTEM
-    global BUILD_TYPE
 
     if THIS_SYSTEM != "Windows":
         return
@@ -524,30 +541,45 @@ def copy_mingw_dlls():
             'utf8').strip().lower()  # Installation directory DLL's.
     ]
 
-    ldd_output = subprocess.check_output(
-        ['ldd', os.path.join(
-            INSTALL_PATH, 'Bin', 'alusus.exe' if BUILD_TYPE == 'release' else 'alusus.dbg.exe')]
-    ).decode('utf8').strip().split('\n')
-
+    exec_list = get_exe_and_dll_list()
     i = 0
-    while i < len(ldd_output):
-        dependency = ldd_output[i]
-        try:
-            unix_dll_path = dependency.split()[2]
-            windows_dll_path = subprocess.check_output(
-                ['cygpath', '-w', unix_dll_path]).decode('utf8').strip()
-            unix_dll_path_dir = subprocess.check_output(
-                ['cygpath', os.path.dirname(windows_dll_path)]).decode('utf8').strip()
-            if unix_dll_path_dir.lower() not in ignored_dirs:
-                shutil.copy2(windows_dll_path, os.path.join(INSTALL_PATH, 'Bin'))
+    while i < len(exec_list):
+        current_executable = exec_list[i]
+
+        ldd_output = subprocess.check_output(
+            ['ldd', current_executable]).decode('utf8').strip().split('\n')
+
+        updated = False
+        current_try = 1
+        max_tries = 5
+        j = 0
+        while j < len(ldd_output):
+            dependency = ldd_output[j]
+            try:
+                unix_dll_path = dependency.split()[2]
+                windows_dll_path = subprocess.check_output(
+                    ['cygpath', '-w', unix_dll_path]).decode('utf8').strip()
+                unix_dll_path_dir = subprocess.check_output(
+                    ['cygpath', os.path.dirname(windows_dll_path)]).decode('utf8').strip()
+                if unix_dll_path_dir.lower() not in ignored_dirs:
+                    shutil.copy2(windows_dll_path,
+                                 os.path.join(INSTALL_PATH, 'Bin'))
+                    i = 0
+                    exec_list = get_exe_and_dll_list()
+                    updated = True
+                j += 1
+            except subprocess.CalledProcessError:
+                if current_try <= max_tries:
+                    print('Error: running LDD again on \"{0}\" (try {1}/{2})...'.format(
+                        current_executable, current_try, max_tries))
+                    ldd_output = subprocess.check_output(
+                        ['ldd', current_executable]).decode('utf8').strip().split('\n')
+                    j = 0
+                    current_try += 1
+                else:
+                    j += 1
+        if not updated:
             i += 1
-        except subprocess.CalledProcessError:
-            print('Running LDD again...')
-            ldd_output = subprocess.check_output(
-                ['ldd', os.path.join(
-                    INSTALL_PATH, 'Bin', 'alusus.exe' if BUILD_TYPE == 'release' else 'alusus.dbg.exe')]
-            ).decode('utf8').strip().split('\n')
-            i = 0
 
     infoMsg("Finished Copying MinGW DLL's.")
 
@@ -666,9 +698,56 @@ def build_alusus():
     successMsg("Building Alusus.")
 
 
+def generate_iscc_script():
+    global BUILD_PATH
+    global INSTALL_PATH
+    global PACKAGES_PATH
+    global BUILD_TYPE
+    global ALUSUS_VERSION
+    global ALUSUS_ROOT
+
+    packages_path = os.path.join(
+        PACKAGES_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
+    script = "[Setup]\n" + \
+             "AppName=Alusus\n" + \
+             "AppVersion={}\n".format(ALUSUS_VERSION) + \
+             "AppCopyright=\"Copyright © 2014 Alusus Software Ltd.\"\n" + \
+             "WizardStyle=modern\n" + \
+             "WizardSmallImageFile=\"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'logo.en.bmp')) + \
+             "WizardImageFile=\"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'banner.bmp')) + \
+             "SetupIconFile=\"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
+             "UninstallDisplayIcon=\"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
+             "DefaultDirName=\"{}\\Alusus\"\n".format('C:\\Program Files' if os.environ['MINGW_HOST'] == 'x86_64-w64-mingw32' else 'C:\\Program Files (x86)') + \
+             "DefaultGroupName=Alusus\n" + \
+             "Compression=lzma2\n" + \
+             "SolidCompression=yes\n" + \
+             "OutputDir=\"{}\"\n".format(packages_path) + \
+             "OutputBaseFilename=alusus_{0}_{1}\n\n".format(ALUSUS_VERSION, os.environ['MINGW_HOST']) + \
+             "[Files]\n" + \
+             "Source: \"{}\"; DestDir: \"{{app}}\"; Flags: ignoreversion recursesubdirs\n\n".format(os.path.join(INSTALL_PATH, '*')) + \
+             "[Tasks]\n" + \
+             "Name: \"desktopicon\"; Description: \"{cm:CreateDesktopIcon}\"; GroupDescription: \"{cm:AdditionalIcons}\"; Flags: unchecked\n\n" + \
+             "[Icons]\n" + \
+             "Name: \"{{group}}\\Alusus (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
+             "Name: \"{{userdesktop}}\\Alusus (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{}\"; Tasks: desktopicon\n".format(
+                 os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico'))
+    with open(os.path.join(packages_path, 'alusus_{0}_{1}.iss'.format(ALUSUS_VERSION, os.environ['MINGW_HOST'])), 'w') as fd:
+        fd.write(script)
+
+
 def create_packages_windows():
-    # TODO: Implement Windows packaging.
-    raise NotImplementedError("Windows OS packaging is not implemented yet!")
+    global PACKAGES_PATH
+    global BUILD_TYPE
+    global ALUSUS_VERSION
+
+    generate_iscc_script()
+    packages_path = os.path.join(
+        PACKAGES_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
+    ret = subprocess.call(['ISCC', os.path.join(
+        packages_path, 'alusus_{0}_{1}.iss'.format(ALUSUS_VERSION, os.environ['MINGW_HOST']))])
+    if ret != 0:
+        failMsg("Creating EXE Package.")
+        exit(1)
 
 
 def create_packages_unix():
