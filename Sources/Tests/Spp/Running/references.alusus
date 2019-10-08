@@ -1,0 +1,124 @@
+import "Srl/Memory.alusus";
+
+@expname[printf] func print(fmt: ptr[Char], ...any) => Int;
+
+//
+// Use reference as pointer.
+//
+
+def ra: ref[array[Char]];
+ra~ptr = Srl.Memory.alloc(10)~cast[ptr[array[Char]]];
+ra(0) = 'a';
+ra(1) = 'l';
+ra(2) = 'u';
+ra(3) = 0;
+print("Reference as pointer. %s\n", ra~ptr);
+
+//
+// Pass reference to object.
+//
+
+function updateString(str: ref[array[Char]])
+{
+  str(0) = 's';
+  str(1) = 'u';
+  str(2) = 's';
+  str(3) = 0;
+};
+
+def a: array[Char, 10];
+updateString(a);
+print("Pass reference to object. %s\n", a~ptr);
+updateString(ra);
+print("Pass reference to object from another reference. %s\n", ra~ptr);
+
+//
+// Pass ref to ref to object.
+///
+
+function replaceString(str: ref[ref[array[Char]]])
+{
+  str~ptr = "world";
+};
+
+def rb: ref[array[Char]];
+rb~ptr = "hello";
+print("Before passing reference to reference. %s\n", rb~ptr);
+replaceString(rb);
+print("After passing reference to reference. %s\n", rb~ptr);
+
+//
+// References to function pointers.
+//
+
+function printMessage
+{
+  print("Reference to function pointer.\n");
+};
+
+function testFnRef1
+{
+  def pf: ptr[function];
+  def rf: ref[ptr[function]];
+  rf~ptr = pf~ptr;
+  rf = printMessage~ptr;
+  rf();
+  pf();
+};
+testFnRef1();
+
+//
+// Receive references to function pointers.
+//
+
+function getFn (fn: ref[ptr[function]])
+{
+  fn = printMessage~ptr;
+};
+
+function testFnRef2
+{
+  def pf: ptr[function];
+  getFn(pf);
+  pf();
+};
+testFnRef2();
+
+//
+// Pass reference as pointer.
+//
+
+function printNumPtr (pn: ptr[Int])
+{
+  print("%d\n", pn~cnt);
+};
+def i: Int;
+def ri: ref[Int];
+ri~ptr = i~ptr;
+i = 5;
+print("Passing ref[int] as ptr[int]. ");
+printNumPtr(ri~ptr);
+
+//
+// Pass ref[ref] as ptr[ptr].
+//
+
+function printNumPtrPtr (pn: ptr[ptr[Int]])
+{
+  print("%d\n", pn~cnt~cnt);
+};
+def rri: ref[ref[Int]];
+rri~ptr~ptr = ri~ptr~ptr;
+print("Passing ref[ref[int]] as ptr[ptr[int]]. ");
+printNumPtrPtr(rri~ptr~ptr);
+
+//
+// Get object from ref[ref]
+//
+
+function printNum (n: Int)
+{
+  print("%d\n", n);
+};
+print("Passing ref[ref[int]] as int. ");
+printNum(rri);

@@ -18,7 +18,7 @@ import "globals.alusus";
         };
 
         @expname[clock]
-        func getClock(): Int[32];
+        func getClock(): Int[64];
 
 
         @expname[time]

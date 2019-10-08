@@ -1,0 +1,168 @@
+import "Srl/Memory.alusus";
+
+@expname[printf] func print(fmt: ptr[Char], ...any) => Int;
+
+//
+// Use reference as pointer.
+//
+
+def ra: ref[array[Char]];
+function useRefAsPtr
+{
+  ra~ptr = Srl.Memory.alloc(10)~cast[ptr[array[Char]]];
+  ra(0) = 'a';
+  print("Reference as pointer. %s\n", ra~ptr);
+};
+
+Spp.dumpLlvmIrForElement(useRefAsPtr~ast);
+
+//
+// Pass reference to value.
+//
+
+function updateString(str: ref[array[Char]])
+{
+  str(0) = 's';
+};
+
+def a: array[Char, 10];
+
+function passRefToValue
+{
+  updateString(a);
+  print("Pass reference to object. %s\n", a~ptr);
+  updateString(ra);
+  print("Pass reference to object from another reference. %s\n", ra~ptr);
+};
+
+Spp.dumpLlvmIrForElement(passRefToValue~ast);
+
+//
+// Pass ref to ref to object.
+///
+
+function replaceString(str: ref[ref[array[Char]]])
+{
+  str~ptr = "world";
+};
+
+def rb: ref[array[Char]];
+
+function passRefToRefToValue
+{
+  rb~ptr = "hello";
+  print("Before passing reference to reference. %s\n", rb~ptr);
+  replaceString(rb);
+  print("After passing reference to reference. %s\n", rb~ptr);
+};
+
+Spp.dumpLlvmIrForElement(passRefToRefToValue~ast);
+
+//
+// References to function pointers.
+//
+
+function printMessage
+{
+  print("Reference to function pointer.\n");
+};
+
+function testFnRef1
+{
+  def pf: ptr[function];
+  def rf: ref[ptr[function]];
+  rf~ptr = pf~ptr;
+  rf = printMessage~ptr;
+  rf();
+  pf();
+};
+
+Spp.dumpLlvmIrForElement(testFnRef1~ast);
+
+//
+// Receive references to function pointers.
+//
+
+function getFn (fn: ref[ptr[function]])
+{
+  fn = printMessage~ptr;
+};
+
+function testFnRef2
+{
+  def pf: ptr[function];
+  getFn(pf);
+  pf();
+};
+
+Spp.dumpLlvmIrForElement(testFnRef2~ast);
+
+//
+// Pass reference as pointer.
+//
+
+function printNumPtr (pn: ptr[Int])
+{
+  print("%d\n", pn~cnt);
+};
+def i: Int;
+def ri: ref[Int];
+
+function passRefAsPtr
+{
+  ri~ptr = i~ptr;
+  i = 5;
+  printNumPtr(ri~ptr);
+};
+
+Spp.dumpLlvmIrForElement(passRefAsPtr~ast);
+
+//
+// Pass ref[ref] as ptr[ptr].
+//
+
+function printNumPtrPtr (pn: ptr[ptr[Int]])
+{
+  print("%d\n", pn~cnt~cnt);
+};
+def rri: ref[ref[Int]];
+
+function passRefRefAsPtrPtr
+{
+  rri~ptr~ptr = ri~ptr~ptr;
+  printNumPtrPtr(rri~ptr~ptr);
+};
+
+Spp.dumpLlvmIrForElement(passRefRefAsPtrPtr~ast);
+
+//
+// Get object from ref[ref]
+//
+
+function printNum (n: Int)
+{
+  print("%d\n", n);
+};
+
+function getObjectFromRefRef
+{
+  printNum(rri);
+};
+
+Spp.dumpLlvmIrForElement(getObjectFromRefRef~ast);
+
+//
+// Error cases
+//
+
+function errorCases
+{
+  def rf: ref[Float];
+  rf~ptr = i~ptr;
+  rri~ptr~ptr = ri;
+  rri~ptr~ptr = i~ptr;
+  rf = "abc";
+  rf = 5.0;
+};
+
+Spp.dumpLlvmIrForElement(errorCases~ast);

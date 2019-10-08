@@ -1,0 +1,11 @@
+Reference as pointer. alu
+Pass reference to object. sus
+Pass reference to object from another reference. sus
+Before passing reference to reference. hello
+After passing reference to reference. world
+Reference to function pointer.
+Reference to function pointer.
+Reference to function pointer.
+Passing ref[int] as ptr[int]. 5
+Passing ref[ref[int]] as ptr[ptr[int]]. 5
+Passing ref[ref[int]] as int. 5

@@ -515,7 +515,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   );
 
   public: Bool dereferenceIfNeeded(
-    Spp::Ast::Type *astType, TiObject *tgValue, GenDeps const &deps, GenResult &result
+    Spp::Ast::Type *astType, TiObject *tgValue, Bool valueNeeded, GenDeps const &deps, GenResult &result
   );
 
   private: Bool castLogicalOperand(

@@ -468,7 +468,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     if (!expGenerator->generateVarReference(astNode, callee, g, deps, funcPtrResult)) return false;
     GenResult derefResult;
     if (!expGenerator->dereferenceIfNeeded(
-      funcPtrResult.astType, funcPtrResult.targetData.get(), deps, derefResult
+      funcPtrResult.astType, funcPtrResult.targetData.get(), true, deps, derefResult
     )) return false;
     TiObject *tgFuncPtrType = getCodeGenData<TiObject>(derefResult.astType);
     // Generate the call.
@@ -562,7 +562,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnMember(
     // Dereference the member variable.
     GenResult derefResult;
     if (!expGenerator->dereferenceIfNeeded(
-      prevResult->astType, prevResult->targetData.get(), deps, derefResult
+      prevResult->astType, prevResult->targetData.get(), true, deps, derefResult
     )) return false;
     auto astFuncType = expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(derefResult.astType);
     if (astFuncType != 0) {
@@ -716,7 +716,7 @@ Bool ExpressionGenerator::_generateOperator(
       function->getType().get(), g, deps, &paramAstNodes, &paramAstTypes, &paramTgValues
     )) return false;
 
-    // Generate the functionc all.
+    // Generate the function call.
     return expGenerator->generateFunctionCall(
       astNode, function, &paramAstTypes, &paramTgValues, g, deps, result
     );
@@ -840,10 +840,10 @@ Bool ExpressionGenerator::_generateArithmeticOp(
 
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), deps, param1
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, deps, param1
   )) return false;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), deps, param2
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, deps, param2
   )) return false;
   Ast::Type *astTargetType = 0;
 
@@ -956,10 +956,10 @@ Bool ExpressionGenerator::_generateBinaryOp(
 
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), deps, param1
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, deps, param1
   )) return false;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), deps, param2
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, deps, param2
   )) return false;
   Ast::Type *astTargetType = 0;
 
@@ -1059,10 +1059,10 @@ Bool ExpressionGenerator::_generateComparisonOp(
   Bool equality = astNode->getType() == S("==") || astNode->getType() == S("!=");
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), deps, param1
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, deps, param1
   )) return false;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), deps, param2
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, deps, param2
   )) return false;
   Ast::Type *astTargetType = 0;
 
@@ -1206,16 +1206,21 @@ Bool ExpressionGenerator::_generateAssignOp(
     );
   }
 
-  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, deps, target
+  )) return false;
+  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
   }
+
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), deps, param
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, deps, param
   )) return false;
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
@@ -1255,7 +1260,7 @@ Bool ExpressionGenerator::_generateAssignOp(
   if (astNode->getType() == S("=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateAssign(
-        deps.tgContext, tgContentType, param.targetData.get(), paramTgValues->getElement(0), result.targetData
+        deps.tgContext, tgContentType, param.targetData.get(), target.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1279,7 +1284,11 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
     );
   }
 
-  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, deps, target
+  )) return false;
+  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
@@ -1288,7 +1297,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   }
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), deps, param
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, deps, param
   )) return false;
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
@@ -1316,7 +1325,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   if (astNode->getType() == S("+=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateAddAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1324,7 +1333,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   } else if (astNode->getType() == S("-=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateSubAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1332,7 +1341,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   } else if (astNode->getType() == S("*=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateMulAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1340,7 +1349,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   } else if (astNode->getType() == S("/=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateDivAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1348,7 +1357,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   } else if (astNode->getType() == S("%=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateRemAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1372,7 +1381,11 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
     );
   }
 
-  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, deps, target
+  )) return false;
+  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
@@ -1381,7 +1394,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   }
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), deps, param
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, deps, param
   )) return false;
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
@@ -1406,7 +1419,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   if (astNode->getType() == S(">>=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateShrAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1414,7 +1427,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   } else if (astNode->getType() == S("<<=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateShlAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1422,7 +1435,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   } else if (astNode->getType() == S("&=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateAndAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1430,7 +1443,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   } else if (astNode->getType() == S("|=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateOrAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1438,7 +1451,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   } else if (astNode->getType() == S("$=")) {
     if (deps.tgContext != 0) {
       if (!deps.tg->generateXorAssign(
-        deps.tgContext, tgContentType, paramTgValues->getElement(0), param.targetData.get(), result.targetData
+        deps.tgContext, tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
       )) return false;
     }
     result.astType = astRefType;
@@ -1464,7 +1477,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
 
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), deps, param
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, deps, param
   )) return false;
   if (astNode->getType() == S("+")) {
     // This is a no-op.
@@ -1525,7 +1538,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
 
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), deps, param
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, deps, param
   )) return false;
 
   Ast::IntegerType *astTargetType = 0;
@@ -1587,6 +1600,10 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
     );
   }
 
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, deps, target
+  )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
   if (astRefType == 0) {
     expGenerator->noticeStore->add(
@@ -1612,7 +1629,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
     if (astNode->getType() == S("--")) {
       if (deps.tgContext != 0) {
         if (!deps.tg->generateEarlyDec(
-          deps.tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+          deps.tgContext, tgContentType, target.targetData.get(), result.targetData
         )) return false;
       }
       result.astType = astContentType;
@@ -1620,7 +1637,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
     } else if (astNode->getType() == S("++")) {
       if (deps.tgContext != 0) {
         if (!deps.tg->generateEarlyInc(
-          deps.tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+          deps.tgContext, tgContentType, target.targetData.get(), result.targetData
         )) return false;
       }
       result.astType = astContentType;
@@ -1632,7 +1649,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
     if (astNode->getType() == S("--")) {
       if (deps.tgContext != 0) {
         if (!deps.tg->generateLateDec(
-          deps.tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+          deps.tgContext, tgContentType, target.targetData.get(), result.targetData
         )) return false;
       }
       result.astType = astContentType;
@@ -1640,7 +1657,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
     } else if (astNode->getType() == S("++")) {
       if (deps.tgContext != 0) {
         if (!deps.tg->generateLateInc(
-          deps.tgContext, tgContentType, paramTgValues->getElement(0), result.targetData
+          deps.tgContext, tgContentType, target.targetData.get(), result.targetData
         )) return false;
       }
       result.astType = astContentType;
@@ -1698,7 +1715,9 @@ Bool ExpressionGenerator::_generatePointerOp(
     }
 
     // Get the pointer type.
-    result.astType = expGenerator->astHelper->getPointerTypeForReferenceType(operandRefAstType);
+    result.astType = expGenerator->astHelper->swichInnerReferenceTypeWithPointerType(operandRefAstType);
+    TiObject *tgType;
+    if (!g->getGeneratedType(result.astType, deps.tg, tgType, 0)) return false;
     if (result.astType == 0) return false;
     result.targetData = operandResult.targetData;
     return true;
@@ -1764,7 +1783,7 @@ Bool ExpressionGenerator::_generateContentOp(
   // Get the pointer itself, not a reference to a pointer.
   GenResult derefResult;
   if (!expGenerator->dereferenceIfNeeded(
-    operandResult.astType, operandResult.targetData.get(), deps, derefResult
+    operandResult.astType, operandResult.targetData.get(), true, deps, derefResult
   )) return false;
 
   // Did we end up with a pointer type?
@@ -1806,7 +1825,7 @@ Bool ExpressionGenerator::_generateCastOp(
   // Get the value itself, not a reference to it.
   GenResult derefResult;
   if (!expGenerator->dereferenceIfNeeded(
-    operandResult.astType, operandResult.targetData.get(), deps, derefResult
+    operandResult.astType, operandResult.targetData.get(), true, deps, derefResult
   )) return false;
 
   // Get the target type.
@@ -1861,9 +1880,7 @@ Bool ExpressionGenerator::_generateSizeOp(
   }
 
   // Dereference if needed.
-  if (astType->isDerivedFrom<Ast::ReferenceType>()) {
-    astType = static_cast<Ast::ReferenceType*>(astType)->getContentType(expGenerator->astHelper);
-  }
+  astType = expGenerator->astHelper->tryGetDeepReferenceContentType(astType);
 
   // Get the allocation size.
   auto sourceLocation = Core::Data::Ast::findSourceLocation(operand).get();
@@ -2130,10 +2147,14 @@ Bool ExpressionGenerator::_generateMemberReference(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
+  // Get the deepest reference.
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(astType, tgValue, false, deps, target)) return false;
+
   // Prepare the struct type.
   Ast::Type *astStructType;
   TiObject *tgStructType;
-  auto astRefType = ti_cast<Ast::ReferenceType>(astType);
+  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     if (!g->getGeneratedType(astType, deps.tg, tgStructType, &astStructType)) return false;
   } else {
@@ -2192,7 +2213,7 @@ Bool ExpressionGenerator::_generateMemberReference(
   // Generate member access.
   if (deps.tgContext != 0) {
     if (!deps.tg->generateMemberVarReference(
-      deps.tgContext, tgStructType, tgMemberType, tgMemberVar, tgValue, result.targetData
+      deps.tgContext, tgStructType, tgMemberType, tgMemberVar, target.targetData.get(), result.targetData
     )) {
       return false;
     }
@@ -2219,9 +2240,13 @@ Bool ExpressionGenerator::_generateArrayReference(
     }
   }
 
+  // Get the deepest reference.
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(astType, tgValue, false, deps, target)) return false;
+
   // Prepare the array type.
   TiObject *tgArrayType;
-  auto astRefType = ti_cast<Ast::ReferenceType>(astType);
+  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     if (!g->getGeneratedType(astType, deps.tg, tgArrayType, &astType)) return false;
   } else {
@@ -2244,7 +2269,7 @@ Bool ExpressionGenerator::_generateArrayReference(
   // Generate member access.
   if (deps.tgContext != 0) {
     if (!deps.tg->generateArrayElementReference(
-      deps.tgContext, tgArrayType, tgElementType, tgCastedIndex.get(), tgValue, result.targetData)) {
+      deps.tgContext, tgArrayType, tgElementType, tgCastedIndex.get(), target.targetData.get(), result.targetData)) {
       return false;
     }
   }
@@ -2391,7 +2416,7 @@ Bool ExpressionGenerator::prepareFunctionParams(
     } else {
       // For var args we need to send values, not references.
       GenResult result;
-      if (!this->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), deps, result)) {
+      if (!this->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, deps, result)) {
         throw EXCEPTION(GenericException, S("Unexpected error."));
       }
       paramTgVals->set(i, result.targetData);
@@ -2402,22 +2427,23 @@ Bool ExpressionGenerator::prepareFunctionParams(
 
 
 Bool ExpressionGenerator::dereferenceIfNeeded(
-  Spp::Ast::Type *astType, TiObject *tgValue, GenDeps const &deps, GenResult &result
+  Spp::Ast::Type *astType, TiObject *tgValue, Bool valueNeeded, GenDeps const &deps, GenResult &result
 ) {
   auto refType = ti_cast<Spp::Ast::ReferenceType>(astType);
   if (refType != 0) {
-    result.astType = refType->getContentType(this->astHelper);
-    auto tgContentType = getCodeGenData<TiObject>(result.astType);
-    if (deps.tgContext != 0) {
-      return deps.tg->generateDereference(deps.tgContext, tgContentType, tgValue, result.targetData);
-    } else {
-      return true;
+    Spp::Ast::Type *derefAstType = refType->getContentType(this->astHelper);
+    if (ti_cast<Spp::Ast::ReferenceType>(derefAstType) != 0 || valueNeeded) {
+      TioSharedPtr derefTgValue;
+      if (deps.tgContext != 0) {
+        auto tgContentType = getCodeGenData<TiObject>(derefAstType);
+        if (!deps.tg->generateDereference(deps.tgContext, tgContentType, tgValue, derefTgValue)) return false;
+      }
+      return this->dereferenceIfNeeded(derefAstType, derefTgValue.get(), valueNeeded, deps, result);
     }
-  } else {
-    result.astType = astType;
-    result.targetData = getSharedPtr(tgValue);
-    return true;
   }
+  result.astType = astType;
+  result.targetData = getSharedPtr(tgValue);
+  return true;
 }
 
 
