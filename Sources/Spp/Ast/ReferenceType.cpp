@@ -18,7 +18,7 @@ namespace Spp::Ast
 //==============================================================================
 // Member Functions
 
-DataType* ReferenceType::getContentType(Helper *helper) const
+Type* ReferenceType::getContentType(Helper *helper) const
 {
   if (this->contentTypeRef == 0) {
     this->contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
@@ -27,7 +27,7 @@ DataType* ReferenceType::getContentType(Helper *helper) const
     helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
   );
   if (typeBox == 0) return 0;
-  auto type = typeBox->get().ti_cast_get<Spp::Ast::DataType>();
+  auto type = typeBox->get().ti_cast_get<Spp::Ast::Type>();
   if (type == 0) {
     throw EXCEPTION(GenericException, S("Invalid reference content type found."));
   }
@@ -52,11 +52,11 @@ TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper,
     }
     auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
     if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;
-    else if (status == TypeMatchStatus::AGGREGATION) return TypeMatchStatus::IMPLICIT_CAST;
+    else if (status == TypeMatchStatus::AGGREGATION) return TypeMatchStatus::AGGREGATION;
   }
 
   auto matchStatus = thisContentType->matchTargetType(type, helper, ec);
-  if (matchStatus >= TypeMatchStatus::DEREFERENCE) return TypeMatchStatus::DEREFERENCE;
+  if (matchStatus >= TypeMatchStatus::AGGREGATION) return TypeMatchStatus::DEREFERENCE;
   else return matchStatus;
 }
 

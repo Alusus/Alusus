@@ -46,7 +46,7 @@ class ReferenceType : public DataType
   //============================================================================
   // Member Functions
 
-  public: DataType* getContentType(Helper *helper) const;
+  public: Type* getContentType(Helper *helper) const;
 
   public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 

@@ -182,7 +182,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getArrayTypeFor, ArrayType*, (TiObject*));
   private: static ArrayType* _getArrayTypeFor(TiObject *self, TiObject *type);
 
-  public: PointerType* getPointerTypeForReferenceType(ReferenceType *type);
+  public: Type* swichInnerReferenceTypeWithPointerType(ReferenceType *type);
 
   public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (TiObject*));
   private: static Type* _getValueTypeFor(TiObject *self, TiObject *type);
@@ -227,10 +227,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
     auto refType = ti_cast<ReferenceType>(type);
     if (refType == 0) return false;
-    else {
-      auto contentType = refType->getContentType(this);
-      return contentType->isDerivedFrom<T>();
-    }
+    else return this->isTypeOrRefTypeOf<T>(refType->getContentType(this));
   }
 
   public: template<class T> T* tryGetPointerContentType(TiObject *type)
@@ -242,6 +239,13 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     auto ptrType = ti_cast<PointerType>(type);
     if (ptrType == 0) return 0;
     else return ti_cast<T>(ptrType->getContentType(this));
+  }
+
+  public: Type* tryGetDeepReferenceContentType(Type *type)
+  {
+    auto refType = ti_cast<ReferenceType>(type);
+    if (refType == 0) return type;
+    else return this->tryGetDeepReferenceContentType(refType->getContentType(this));
   }
 
   public: METHOD_BINDING_CACHE(resolveNodePath, Str, (Core::Data::Node const*));

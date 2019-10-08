@@ -97,6 +97,7 @@
       <keyword>return</keyword>
       <keyword>dump_ast</keyword>
       <keyword>ptr</keyword>
+      <keyword>ref</keyword>
       <keyword>array</keyword>
       <keyword>any</keyword>
       <keyword>alias</keyword>
@@ -128,6 +129,7 @@
       <keyword>ارجع</keyword>
       <keyword>أدرج_ش_ب_م</keyword>
       <keyword>مؤشر</keyword>
+      <keyword>سند</keyword>
       <keyword>مصفوفة</keyword>
       <keyword>أي</keyword>
       <keyword>لقب</keyword>

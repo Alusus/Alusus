@@ -124,6 +124,11 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
     TiObject *self, Spp::Ast::PointerType *astType, Generation *g, TargetGeneration *tg
   );
 
+  public: METHOD_BINDING_CACHE(generateReferenceType, Bool, (Spp::Ast::ReferenceType*, Generation*, TargetGeneration*));
+  private: static Bool _generateReferenceType(
+    TiObject *self, Spp::Ast::ReferenceType *astType, Generation *g, TargetGeneration *tg
+  );
+
   public: METHOD_BINDING_CACHE(generateArrayType, Bool, (Spp::Ast::ArrayType*, Generation*, TargetGeneration*));
   private: static Bool _generateArrayType(
     TiObject *self, Spp::Ast::ArrayType *astType, Generation *g, TargetGeneration *tg
