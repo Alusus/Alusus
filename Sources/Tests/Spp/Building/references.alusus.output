@@ -1,0 +1,304 @@
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@ra = global [1 x i8]* null
+@"#anonymous0" = private constant [26 x i8] c"Reference as pointer. %s\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"useRefAsPtr()"() {
+"#block1":
+  %0 = call i8* @malloc(i64 10)
+  %1 = bitcast i8* %0 to [1 x i8]*
+  store [1 x i8]* %1, [1 x i8]** @ra
+  %2 = load [1 x i8]*, [1 x i8]** @ra
+  %3 = getelementptr [1 x i8], [1 x i8]* %2, i32 0, i64 0
+  store i8 97, i8* %3
+  %4 = load [1 x i8]*, [1 x i8]** @ra
+  %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([26 x i8], [26 x i8]* @"#anonymous0", i32 0, i32 0), [1 x i8]* %4)
+  ret void
+}
+
+declare i8* @malloc(i64)
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@a = global [10 x i8] zeroinitializer
+@"#anonymous0" = private constant [30 x i8] c"Pass reference to object. %s\0A\00", align 1
+@ra = global [1 x i8]* null
+@"#anonymous1" = private constant [53 x i8] c"Pass reference to object from another reference. %s\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"passRefToValue()"() {
+"#block1":
+  call void @"updateString(ref[array[Word[8],1]])"([1 x i8]* bitcast ([10 x i8]* @a to [1 x i8]*))
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([30 x i8], [30 x i8]* @"#anonymous0", i32 0, i32 0), [10 x i8]* @a)
+  %1 = load [1 x i8]*, [1 x i8]** @ra
+  call void @"updateString(ref[array[Word[8],1]])"([1 x i8]* %1)
+  %2 = load [1 x i8]*, [1 x i8]** @ra
+  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([53 x i8], [53 x i8]* @"#anonymous1", i32 0, i32 0), [1 x i8]* %2)
+  ret void
+}
+
+define void @"updateString(ref[array[Word[8],1]])"([1 x i8]* %str) {
+"#block2":
+  %str1 = alloca [1 x i8]*
+  store [1 x i8]* %str, [1 x i8]** %str1
+  %0 = load [1 x i8]*, [1 x i8]** %str1
+  %1 = getelementptr [1 x i8], [1 x i8]* %0, i32 0, i64 0
+  store i8 115, i8* %1
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@rb = global [1 x i8]* null
+@"#anonymous0" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous1" = private constant [43 x i8] c"Before passing reference to reference. %s\0A\00", align 1
+@"#anonymous2" = private constant [6 x i8] c"world\00", align 1
+@"#anonymous3" = private constant [42 x i8] c"After passing reference to reference. %s\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"passRefToRefToValue()"() {
+"#block1":
+  store [1 x i8]* bitcast ([6 x i8]* @"#anonymous0" to [1 x i8]*), [1 x i8]** @rb
+  %0 = load [1 x i8]*, [1 x i8]** @rb
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([43 x i8], [43 x i8]* @"#anonymous1", i32 0, i32 0), [1 x i8]* %0)
+  call void @"replaceString(ref[ref[array[Word[8],1]]])"([1 x i8]** @rb)
+  %2 = load [1 x i8]*, [1 x i8]** @rb
+  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([42 x i8], [42 x i8]* @"#anonymous3", i32 0, i32 0), [1 x i8]* %2)
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+
+define void @"replaceString(ref[ref[array[Word[8],1]]])"([1 x i8]** %str) {
+"#block2":
+  %str1 = alloca [1 x i8]**
+  store [1 x i8]** %str, [1 x i8]*** %str1
+  %0 = load [1 x i8]**, [1 x i8]*** %str1
+  store [1 x i8]* bitcast ([6 x i8]* @"#anonymous2" to [1 x i8]*), [1 x i8]** %0
+  ret void
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"testFnRef1()"() {
+"#block1":
+  %pf = alloca void ()*
+  %rf = alloca void ()**
+  store void ()** %pf, void ()*** %rf
+  %0 = load void ()**, void ()*** %rf
+  store void ()* @"printMessage()", void ()** %0
+  %1 = load void ()**, void ()*** %rf
+  %2 = load void ()*, void ()** %1
+  call void %2()
+  %3 = load void ()*, void ()** %pf
+  call void %3()
+  ret void
+}
+
+define void @"printMessage()"() {
+"#block2":
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([32 x i8], [32 x i8]* @"#anonymous0", i32 0, i32 0))
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"testFnRef2()"() {
+"#block1":
+  %pf = alloca void ()*
+  call void @"getFn(ref[ptr[()]])"(void ()** %pf)
+  %0 = load void ()*, void ()** %pf
+  call void %0()
+  ret void
+}
+
+define void @"getFn(ref[ptr[()]])"(void ()** %fn) {
+"#block2":
+  %fn1 = alloca void ()**
+  store void ()** %fn, void ()*** %fn1
+  %0 = load void ()**, void ()*** %fn1
+  store void ()* @"printMessage()", void ()** %0
+  ret void
+}
+
+define void @"printMessage()"() {
+"#block3":
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([32 x i8], [32 x i8]* @"#anonymous0", i32 0, i32 0))
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@ri = global i32* null
+@i = global i32 0
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"passRefAsPtr()"() {
+"#block1":
+  store i32* @i, i32** @ri
+  store i32 5, i32* @i
+  %0 = load i32*, i32** @ri
+  call void @"printNumPtr(ptr[Int[32]])"(i32* %0)
+  ret void
+}
+
+define void @"printNumPtr(ptr[Int[32]])"(i32* %pn) {
+"#block2":
+  %pn1 = alloca i32*
+  store i32* %pn, i32** %pn1
+  %0 = load i32*, i32** %pn1
+  %1 = load i32, i32* %0
+  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous0", i32 0, i32 0), i32 %1)
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@rri = global i32** null
+@ri = global i32* null
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"passRefRefAsPtrPtr()"() {
+"#block1":
+  store i32** @ri, i32*** @rri
+  %0 = load i32**, i32*** @rri
+  call void @"printNumPtrPtr(ptr[ptr[Int[32]]])"(i32** %0)
+  ret void
+}
+
+define void @"printNumPtrPtr(ptr[ptr[Int[32]]])"(i32** %pn) {
+"#block2":
+  %pn1 = alloca i32**
+  store i32** %pn, i32*** %pn1
+  %0 = load i32**, i32*** %pn1
+  %1 = load i32*, i32** %0
+  %2 = load i32, i32* %1
+  %3 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous0", i32 0, i32 0), i32 %2)
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@rri = global i32** null
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"getObjectFromRefRef()"() {
+"#block1":
+  %0 = load i32**, i32*** @rri
+  %1 = load i32*, i32** %0
+  %2 = load i32, i32* %1
+  call void @"printNum(Int[32])"(i32 %2)
+  ret void
+}
+
+define void @"printNum(Int[32])"(i32 %n) {
+"#block2":
+  %n1 = alloca i32
+  store i32 %n, i32* %n1
+  %0 = load i32, i32* %n1
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous0", i32 0, i32 0), i32 %0)
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+ERROR SPPG1015 @ (161,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (162,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (163,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (164,3): Incompatible types for the given operator.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@i = global i32 0
+@rri = global i32** null
+@ri = global i32* null
+@"#anonymous0" = private constant [4 x i8] c"abc\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"errorCases()"() {
+"#block1":
+  %rf = alloca float*
+  %0 = load i32*, i32** @ri
+  %1 = load i32, i32* %0
+  %2 = load float*, float** %rf
+  %3 = load float*, float** %rf
+  store float 5.000000e+00, float* %3
+  ret void
+}
+------------------------------------------------------------

@@ -196,6 +196,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
       }
     }
     auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(obj, obj));
+    objType = helper->tryGetDeepReferenceContentType(objType);
     if (objType == 0) {
       notice = std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
     } else if (objType->isDerivedFrom<ArrayType>()) {
@@ -436,13 +437,19 @@ ArrayType* Helper::_getArrayTypeFor(TiObject *self, TiObject *type)
 }
 
 
-PointerType* Helper::getPointerTypeForReferenceType(ReferenceType *type)
+Type* Helper::swichInnerReferenceTypeWithPointerType(ReferenceType *type)
 {
   if (type == 0) {
     throw EXCEPTION(InvalidArgumentException, S("type"), S("Cannot be null."));
   }
 
-  return this->getPointerTypeFor(type->getContentType(this));
+  auto contentType = type->getContentType(this);
+  auto innerRefType = ti_cast<ReferenceType>(contentType);
+  if (innerRefType != 0) {
+    return this->getReferenceTypeFor(this->swichInnerReferenceTypeWithPointerType(innerRefType));
+  } else {
+    return this->getPointerTypeFor(contentType);
+  }
 }
 
 

@@ -687,7 +687,7 @@ hljs.registerLanguage('alusus', function(hljs) {
       'switch continue inline delete alignof finally and or not ' +
       'noexcept nullptr static_assert thread_local restrict alias dump_ast ' +
       'اشمل عرف عرّف وحدة دالة دالّة هيكل إذا بينما لكل أرجع ارجع مؤشر محتوى مصفوفة أي  لقب ' +
-      'صنف وإلا اقطع أكمل أدرج_ش_ب_م و أو ليس ماكرو استخدم';
+      'صنف وإلا اقطع أكمل أدرج_ش_ب_م و أو ليس ماكرو استخدم سند';
   return {
     aliases: ['alusus'],
     keywords: KEYWORDS,

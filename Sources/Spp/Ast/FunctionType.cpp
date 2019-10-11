@@ -217,6 +217,7 @@ TypeMatchStatus FunctionType::matchNextArg(
       }
     } else {
       Type *wantedType = helper->traceType(nextArg);
+      if (wantedType == 0) return TypeMatchStatus::NONE;
       auto status = providedType->matchTargetType(wantedType, helper, ec);
       if (status >= TypeMatchStatus::IMPLICIT_CAST) {
         matchContext.type = wantedType;
