@@ -40,47 +40,24 @@ class StdCharInStream : public TiObject, public CharInStreaming
   // Constructors & Destructor
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-  public: StdCharInStream(FILE* fd) : fd(fd)
-  {
-    VALIDATE_NOT_NULL(fd);
+  public: StdCharInStream(FILE* fd);
 #else
-  public: StdCharInStream(InStream *s) : stream(s)
-  {
-    VALIDATE_NOT_NULL(s);
+  public: StdCharInStream(InStream *s);
 #endif
-  }
 
-  public: virtual ~StdCharInStream()
-  {
-  }
+  public: virtual ~StdCharInStream();
 
 
   //============================================================================
   // Member Functions
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-  public: virtual WChar get()
-  {
-    WChar c;
-    fread(&c, sizeof(c), 1, this->fd);
-    return c;
+  public: virtual WChar get();
 #else
-  public: virtual Char get()
-  {
-    Char c;
-    this->stream->get(c);
-    return c;
+  public: virtual Char get();
 #endif
-  }
 
-  public: virtual Bool isEof()
-  {
-#if defined(__MINGW32__) || defined(__MINGW64__)
-    return feof(this->fd);
-#else
-    return this->stream->eof();
-#endif
-  }
+  public: virtual Bool isEof();
 
 }; // class
 

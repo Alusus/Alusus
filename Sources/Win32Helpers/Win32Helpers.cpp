@@ -30,11 +30,3 @@ std::wstring utf8Decode(const std::string &str) {
   MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], sizeNeeded);
   return wstrTo;
 }
-
-// Read wchar_t from console.
-wchar_t readWCharFromConsole() {
-  DWORD numRead = 0;
-  wchar_t c;
-  ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE), &c, 1, &numRead, NULL);
-  return c;
-}

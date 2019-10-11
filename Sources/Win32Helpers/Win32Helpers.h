@@ -17,8 +17,5 @@ std::string utf8Encode(const std::wstring &wstr);
 // Convert a UTF8 string to a wide Unicode String.
 std::wstring utf8Decode(const std::string &str);
 
-// Read wchar_t from console.
-wchar_t readWCharFromConsole();
-
 #endif
 #endif

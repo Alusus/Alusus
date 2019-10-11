@@ -33,46 +33,30 @@ class InteractiveCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Variables
 
-  public: Int lineNumber;
+  private: Int lineNumber;
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  private: Bool isPreviousLF;
+#endif
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: InteractiveCharInStream() : lineNumber(1)
-  {
-    outStream << this->lineNumber << S("> ");
-  }
+  public: InteractiveCharInStream();
 
-  public: virtual ~InteractiveCharInStream()
-  {
-  }
+  public: virtual ~InteractiveCharInStream();
 
 
   //============================================================================
   // Member Functions
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-  public: virtual WChar get()
-  {
-    WChar c = readWCharFromConsole();
-    if (c == L'\n') {
+  public: virtual WChar get();
 #else
-  public: virtual Char get()
-  {
-    Char c;
-    inStream.get(c);
-    if (c == C('\n')) {
+  public: virtual Char get();
 #endif
-      outStream << ++this->lineNumber << S("> ");
-    }
-    return c;
-  }
 
-  public: virtual Bool isEof()
-  {
-    return inStream.eof();
-  }
+  public: virtual Bool isEof();
 
 }; // class
 

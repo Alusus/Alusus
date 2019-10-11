@@ -684,11 +684,11 @@ def build_alusus():
 
         ret = subprocess.call(
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
-        if THIS_SYSTEM == "Windows":
-            copy_mingw_dlls()
         if ret != 0:
             failMsg("Building Alusus.")
             exit(1)
+        if THIS_SYSTEM == "Windows":
+            copy_mingw_dlls()
 
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))

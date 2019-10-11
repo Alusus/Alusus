@@ -17,6 +17,8 @@
 #if defined(__MINGW32__) || defined(__MINGW64__)
 #include "Win32Helpers.h"
 #include <Windows.h>
+#include <fcntl.h>
+#include <io.h>
 #endif
 
 /**
@@ -54,9 +56,12 @@ Str getSystemLanguage()
 int main(int argCount, char * const args[])
 {
 #if defined(__MINGW32__) || defined(__MINGW64__)
-  // Set the console's IO for Arabic text support.
+  // Set the console's IO for unicode text support.
   SetConsoleCP(CP_UTF8);
   SetConsoleOutputCP(CP_UTF8);
+
+  // The the standard input to UTF-16.
+  _setmode(_fileno(stdin), _O_U16TEXT);
   
   // Get args in wide character format, and then convert them back to multibyte format.
   wchar_t **wArgv = CommandLineToArgvW(GetCommandLineW(), &argCount);
