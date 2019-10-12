@@ -1,4 +1,5 @@
 #include "InteractiveCharInStream.h"
+#include "CharInStreaming.h"
 
 namespace Core::Processing
 {
@@ -45,7 +46,16 @@ Char InteractiveCharInStream::get()
 
 Bool InteractiveCharInStream::isEof()
 {
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  return feof(stdin);
+#else
   return inStream.eof();
+#endif
+}
+
+CharInStreaming::CharInStreamingType InteractiveCharInStream::getType()
+{
+  return CharInStreaming::CharInStreamingType::INTERACTIVE_CHAR_IN_STREAM;
 }
 
 } // namespace

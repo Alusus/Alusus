@@ -129,12 +129,20 @@ SharedPtr<TiObject> Engine::processStream(CharInStreaming *is, Char const *strea
   sourceLocation.column = 1;
 #if defined(__MINGW32__) || defined(__MINGW64__)
   WChar c = is->get();
+  Bool isPrevLF = c == L'\n'; // To check for a second line feed on interactive mode in Windows.
 #else
   Char c = is->get();
 #endif
   while (!is->isEof()) {
     lexer.handleNewChar(c, sourceLocation);
     c = is->get();
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    // Skipping the second line feed in interactive mode in Windows.
+    if (isPrevLF && c == L'\n' && is->getType() == CharInStreaming::CharInStreamingType::INTERACTIVE_CHAR_IN_STREAM) {
+      c = is->get();
+      isPrevLF = c == L'\n';
+    }
+#endif
   }
 
   auto endLine = sourceLocation.line;

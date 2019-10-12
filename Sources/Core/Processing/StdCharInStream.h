@@ -59,6 +59,8 @@ class StdCharInStream : public TiObject, public CharInStreaming
 
   public: virtual Bool isEof();
 
+  public: virtual CharInStreaming::CharInStreamingType getType();
+
 }; // class
 
 } // namespace

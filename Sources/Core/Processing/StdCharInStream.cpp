@@ -1,4 +1,5 @@
 #include "StdCharInStream.h"
+#include "CharInStreaming.h"
 
 namespace Core::Processing
 {
@@ -38,6 +39,11 @@ Bool StdCharInStream::isEof()
 #else
   return this->stream->eof();
 #endif
+}
+
+CharInStreaming::CharInStreamingType StdCharInStream::getType()
+{
+  return CharInStreaming::CharInStreamingType::STD_CHAR_IN_STREAM;
 }
 
 } // namespace

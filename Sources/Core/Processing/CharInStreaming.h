@@ -18,6 +18,10 @@ namespace Core::Processing
 
 class CharInStreaming : public TiInterface
 {
+  public: enum CharInStreamingType {
+    STD_CHAR_IN_STREAM,
+    INTERACTIVE_CHAR_IN_STREAM
+  };
   //============================================================================
   // Type Info
 
@@ -33,6 +37,8 @@ class CharInStreaming : public TiInterface
   public: virtual Char get() = 0;
 #endif
   public: virtual Bool isEof() = 0;
+
+  public: virtual CharInStreamingType getType() = 0;
 
 };
 
