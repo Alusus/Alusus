@@ -60,6 +60,9 @@ set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
 set_target_properties(AlususSpp PROPERTIES DEBUG_OUTPUT_NAME alusus_spp.dbg)
 set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
+if (NOT MINGW)
+  set_target_properties(AlususSpp PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../Lib/")
+endif()
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
 target_link_libraries(AlususSpp AlususCoreLib)
