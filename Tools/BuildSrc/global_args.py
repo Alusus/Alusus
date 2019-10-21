@@ -5,6 +5,7 @@ from install_all_deps import install_all_deps
 from install_dep import get_local_site_packages
 from threading import Lock
 import sys
+import platform
 import multiprocessing
 
 global_args = None
@@ -17,7 +18,7 @@ def _process_args():
     global_args = dict()
 
     global_args['releaseInstallPath'] = os.path.join(
-        '/', 'opt', 'Alusus') if os.name == "posix" else os.path.join('/', 'Alusus')
+        '/', 'opt', 'Alusus') if platform.system() != "Windows" else os.path.join('c:\\', 'Alusus')
 
     parser = argparse.ArgumentParser(add_help=False,
                                      formatter_class=argparse.RawTextHelpFormatter)
