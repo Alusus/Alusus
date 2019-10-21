@@ -50,7 +50,11 @@ void GrammarFactory::createGrammar(
     S("cnt"), S("محتوى"),
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
-    S("ast"), S("شبم")
+    S("ast"), S("شبم"),
+    S("this_type"), S("هذا_الصنف"),
+    S("on"), S("عند"),
+    S("this"), S("هذا"),
+    S("value"), S("قيمة")
   });
 
   // Add translation for shared modifier.
@@ -212,6 +216,25 @@ void GrammarFactory::createGrammar(
     }
     state->setData(returnStatement);
   }));
+
+  //// TypeOp = "on" + Exp + Statement
+  this->createCommand(S("root.Main.TypeOp"), {{
+    Map::create({}, { { S("on"), 0 }, { S("عند"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Expression")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.BlockStatements.Stmt")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::TypeOpParsingHandler>());
 
   // Create inner commands.
 
@@ -428,6 +451,39 @@ void GrammarFactory::createGrammar(
     {S("subject"), PARSE_REF(S("module.owner.BlockSubject"))}
   }).get());
 
+  // Keywords
+  this->createCommand(S("root.Main.Keywords"), {{
+    Map::create({}, {
+      { S("this"), 0 },
+      { S("هذا"), std::make_shared<TiStr>(("this")) },
+      { S("value"), 0 },
+      { S("قيمة"), std::make_shared<TiStr>(("value")) }
+    }),
+    {
+    }
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto current = state->getData().ti_cast_get<Core::Data::Ast::Token>();
+    SharedPtr<Core::Data::Ast::Text> newObj = std::make_shared<Core::Data::Ast::Identifier>();
+    newObj->setValue(current->getText());
+    newObj->setProdId(current->getProdId());
+    newObj->setSourceLocation(current->findSourceLocation());
+    state->setData(newObj);
+  }));
+
+  // this_type
+  this->createCommand(S("root.Main.ThisTypeRef"), {{
+    Map::create({}, { { S("this_type"), 0 }, { S("هذا_الصنف"), 0 } }),
+    {
+    }
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto thisTypeRef = Ast::ThisTypeRef::create({
+      { "prodId", metadata->getProdId() },
+      { "sourceLocation", metadata->findSourceLocation() }
+    });
+    state->setData(thisTypeRef);
+  }));
+
   // Create tilde commands.
 
   // ~ptr
@@ -490,7 +546,8 @@ void GrammarFactory::createGrammar(
     PARSE_REF(S("module.For")),
     PARSE_REF(S("module.Continue")),
     PARSE_REF(S("module.Break")),
-    PARSE_REF(S("module.Return"))
+    PARSE_REF(S("module.Return")),
+    PARSE_REF(S("module.TypeOp"))
   });
 
   this->addProdsToGroup(S("root.Main.PostfixTildeCmdGrp"), {
@@ -505,7 +562,9 @@ void GrammarFactory::createGrammar(
     PARSE_REF(S("module.Module")),
     PARSE_REF(S("module.Type")),
     PARSE_REF(S("module.Function")),
-    PARSE_REF(S("module.Macro"))
+    PARSE_REF(S("module.Macro")),
+    PARSE_REF(S("module.Keywords")),
+    PARSE_REF(S("module.ThisTypeRef"))
   });
 }
 
@@ -534,7 +593,11 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("cnt"), S("محتوى"),
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
-    S("ast"), S("شبم")
+    S("ast"), S("شبم"),
+    S("this_type"), S("هذا_الصنف"),
+    S("on"), S("عند"),
+    S("this"), S("هذا"),
+    S("value"), S("قيمة")
   });
 
   // Add translation for static modifier.
@@ -556,7 +619,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.For"),
     S("module.Continue"),
     S("module.Break"),
-    S("module.Return")
+    S("module.Return"),
+    S("module.TypeOp")
   });
 
   // Remove command from inner commands list.
@@ -564,7 +628,9 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.Module"),
     S("module.Type"),
     S("module.Function"),
-    S("module.Macro")
+    S("module.Macro"),
+    S("module.Keywords"),
+    S("module.ThisTypeRef")
   });
 
   // Delete tilde command definitions.
@@ -582,6 +648,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.Continue"));
   this->tryRemove(S("root.Main.Break"));
   this->tryRemove(S("root.Main.Return"));
+  this->tryRemove(S("root.Main.TypeOp"));
 
   // Delete inner command definitions.
   this->tryRemove(S("root.Main.Module"));
@@ -593,6 +660,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.FuncSigSubject"));
   this->tryRemove(S("root.Main.Macro"));
   this->tryRemove(S("root.Main.MacroSignature"));
+  this->tryRemove(S("root.Main.Keywords"));
+  this->tryRemove(S("root.Main.ThisTypeRef"));
 
   // Delete block definitions.
   this->tryRemove(S("root.Main.BlockSet"));

@@ -110,6 +110,9 @@ DEFINE_NOTICE(InvalidBreakStatementNotice, "Spp.Notices", "Spp", "alusus.org", "
 DEFINE_NOTICE(InvalidMacroArgDefNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1013", 1,
   "Invalid macro argumnet definition."
 );
+DEFINE_NOTICE(InvalidOnStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1014", 1,
+  "Invalid on statement."
+);
 
 } // namespace
 

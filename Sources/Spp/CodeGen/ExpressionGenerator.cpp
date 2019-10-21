@@ -635,33 +635,33 @@ Bool ExpressionGenerator::_generateOperator(
   OpType opType = OpType::INVALID;
   if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
-    if (infixOp->getType() == S("+")) { funcName = S("__add"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == S("-")) { funcName = S("__sub"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == S("*")) { funcName = S("__mul"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == S("/")) { funcName = S("__div"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == S("%")) { funcName = S("__rem"); opType = OpType::ARITHMETIC; }
-    else if (infixOp->getType() == S(">>")) { funcName = S("__shr"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == S("<<")) { funcName = S("__shl"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == S("&")) { funcName = S("__and"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == S("|")) { funcName = S("__or"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == S("$")) { funcName = S("__xor"); opType = OpType::BINARY; }
-    else if (infixOp->getType() == S("==")) { funcName = S("__equal"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == S("!=")) { funcName = S("__notEqual"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == S(">")) { funcName = S("__greaterThan"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == S(">=")) { funcName = S("__greaterThanOrEqual"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == S("<")) { funcName = S("__lessThan"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == S("<=")) { funcName = S("__lessThanOrEqual"); opType = OpType::COMPARISON; }
-    else if (infixOp->getType() == S("=")) { funcName = S("__assign"); opType = OpType::ASSIGN; }
-    else if (infixOp->getType() == S("+=")) { funcName = S("__addAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == S("-=")) { funcName = S("__subAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == S("*=")) { funcName = S("__mulAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == S("/=")) { funcName = S("__divAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == S("%=")) { funcName = S("__remAssign"); opType = OpType::ARITHMETIC_ASSIGN; }
-    else if (infixOp->getType() == S(">>=")) { funcName = S("__shrAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == S("<<=")) { funcName = S("__shlAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == S("&=")) { funcName = S("__andAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == S("|=")) { funcName = S("__orAssign"); opType = OpType::BINARY_ASSIGN; }
-    else if (infixOp->getType() == S("$=")) { funcName = S("__xorAssign"); opType = OpType::BINARY_ASSIGN; }
+    if (infixOp->getType() == S("+")) { funcName = S("+"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("-")) { funcName = S("-"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("*")) { funcName = S("*"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("/")) { funcName = S("/"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S("%")) { funcName = S("%"); opType = OpType::ARITHMETIC; }
+    else if (infixOp->getType() == S(">>")) { funcName = S(">>"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("<<")) { funcName = S("<<"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("&")) { funcName = S("&"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("|")) { funcName = S("|"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("$")) { funcName = S("$"); opType = OpType::BINARY; }
+    else if (infixOp->getType() == S("==")) { funcName = S("=="); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("!=")) { funcName = S("!="); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S(">")) { funcName = S(">"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S(">=")) { funcName = S(">="); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("<")) { funcName = S("<"); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("<=")) { funcName = S("<="); opType = OpType::COMPARISON; }
+    else if (infixOp->getType() == S("=")) { funcName = S("="); opType = OpType::ASSIGN; }
+    else if (infixOp->getType() == S("+=")) { funcName = S("+="); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("-=")) { funcName = S("-="); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("*=")) { funcName = S("*="); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("/=")) { funcName = S("/="); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S("%=")) { funcName = S("%="); opType = OpType::ARITHMETIC_ASSIGN; }
+    else if (infixOp->getType() == S(">>=")) { funcName = S(">>="); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("<<=")) { funcName = S("<<="); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("&=")) { funcName = S("&="); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("|=")) { funcName = S("|="); opType = OpType::BINARY_ASSIGN; }
+    else if (infixOp->getType() == S("$=")) { funcName = S("$="); opType = OpType::BINARY_ASSIGN; }
     else if (infixOp->getType() == S("||") || infixOp->getType() == S("or")) {
       return expGenerator->generateLogicalOp(infixOp, g, deps, result);
     } else if (infixOp->getType() == S("&&") || infixOp->getType() == S("and")) {
@@ -701,13 +701,19 @@ Bool ExpressionGenerator::_generateOperator(
   )) return false;
 
   // Look for a matching function to call.
+  auto param0AstContentType = expGenerator->astHelper->tryGetDeepReferenceContentType(
+    ti_cast<Ast::Type>(paramAstTypes.getElement(0))
+  );
+  if (param0AstContentType == 0) {
+    throw EXCEPTION(GenericException, S("Unexpected AST type for first operator parameter."));
+  }
   TiObject *callee;
   Ast::Type *calleeType;
   Ast::Function *function = 0;
   SharedPtr<Core::Notices::Notice> notice;
   if (expGenerator->astHelper->lookupCalleeByName(
-    funcName, Core::Data::Ast::findSourceLocation(astNode), astNode->getOwner(), true,
-    &paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
+    funcName, Core::Data::Ast::findSourceLocation(astNode), param0AstContentType,
+    true, &paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
   )) function = ti_cast<Ast::Function>(callee);
 
   if (function != 0) {

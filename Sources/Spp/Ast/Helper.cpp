@@ -92,7 +92,8 @@ Bool Helper::_isAstReference(TiObject *self, TiObject *obj)
   return
     obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
     obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
-    obj->isDerivedFrom<Core::Data::Ast::Identifier>();
+    obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
+    obj->isDerivedFrom<Spp::Ast::ThisTypeRef>();
 }
 
 

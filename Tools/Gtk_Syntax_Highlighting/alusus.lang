@@ -105,6 +105,10 @@
       <keyword>or</keyword>
       <keyword>not</keyword>
       <keyword>use</keyword>
+      <keyword>on</keyword>
+      <keyword>this</keyword>
+      <keyword>this_type</keyword>
+      <keyword>value</keyword>
     </context>
 
     <context id="ar-def-keyword" style-ref="def-keyword">
@@ -137,6 +141,10 @@
       <keyword>أو</keyword>
       <keyword>ليس</keyword>
       <keyword>استخدم</keyword>
+      <keyword>عند</keyword>
+      <keyword>هذا</keyword>
+      <keyword>هذا_الصنف</keyword>
+      <keyword>قيمة</keyword>
     </context>
 
     <context id="constant" style-ref="constant">

@@ -40,6 +40,8 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, 
     extension->foreachByParamPass_routing.set(&SeekerExtension::_foreachByParamPass_routing).get();
   overrides->foreachByParamPass_templateRef =
     extension->foreachByParamPass_template.set(&SeekerExtension::_foreachByParamPass_template).get();
+  overrides->foreachByThisTypeRefRef =
+    extension->foreachByThisTypeRef.set(&SeekerExtension::_foreachByThisTypeRef).get();
 
   return overrides;
 }
@@ -56,6 +58,7 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
   extension->foreachByParamPass.reset(overrides->foreachByParamPassRef);
   extension->foreachByParamPass_routing.reset(overrides->foreachByParamPass_routingRef);
   extension->foreachByParamPass_template.reset(overrides->foreachByParamPass_templateRef);
+  extension->foreachByThisTypeRef.reset(overrides->foreachByThisTypeRefRef);
 
   seeker->removeDynamicInterface<SeekerExtension>();
   delete overrides;
@@ -72,6 +75,9 @@ Core::Data::Seeker::Verb SeekerExtension::_foreach(
   if (ref->isA<Data::Ast::ParamPass>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreachByParamPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb, flags);
+  } else if (ref->isA<Spp::Ast::ThisTypeRef>()) {
+    PREPARE_SELF(seekerExtension, SeekerExtension);
+    return seekerExtension->foreachByThisTypeRef(target, cb, flags);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
     return seeker->foreach.useCallee(base)(ref, target, cb, flags);
@@ -169,6 +175,20 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
     if (notice != 0) return cb(0, notice);
     else return Core::Data::Seeker::Verb::MOVE;
   }
+}
+
+
+Core::Data::Seeker::Verb SeekerExtension::_foreachByThisTypeRef(
+  TiObject *self, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
+) {
+  auto node = static_cast<Core::Data::Node*>(data);
+  while (node != 0) {
+    if (node->isDerivedFrom<Spp::Ast::DataType>()) {
+      return cb(node, 0);
+    }
+    node = node->getOwner();
+  }
+  return Core::Data::Seeker::Verb::MOVE;
 }
 
 } // namespace

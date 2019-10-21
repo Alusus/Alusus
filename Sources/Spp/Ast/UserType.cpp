@@ -30,7 +30,10 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Exec
           if (obj != 0 && helper->isAstReference(obj)) {
             auto memberType = helper->traceType(obj);
             auto memberMatchStatus = memberType->matchTargetType(type, helper, ec);
-            if (memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION) {
+            if (
+              memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION ||
+              memberMatchStatus == TypeMatchStatus::REF_AGGREGATION
+            ) {
               return TypeMatchStatus::AGGREGATION;
             }
           }

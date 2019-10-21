@@ -36,6 +36,7 @@ class SeekerExtension : public ObjTiInterface
     TiFunctionBase *foreachByParamPassRef;
     TiFunctionBase *foreachByParamPass_routingRef;
     TiFunctionBase *foreachByParamPass_templateRef;
+    TiFunctionBase *foreachByThisTypeRefRef;
   };
 
   public: s_enum(Flags, SKIP_USES = (1<<16), SKIP_OWNERS_AND_USES = (1<<16) | 1);
@@ -58,7 +59,8 @@ class SeekerExtension : public ObjTiInterface
       &this->foreachByIdentifier_dataType,
       &this->foreachByParamPass,
       &this->foreachByParamPass_routing,
-      &this->foreachByParamPass_template
+      &this->foreachByParamPass_template,
+      &this->foreachByThisTypeRef
     });
   }
 
@@ -152,6 +154,13 @@ class SeekerExtension : public ObjTiInterface
   private: static Core::Data::Seeker::Verb _foreachByParamPass_template(
     TiObject *self, TiObject *param, Spp::Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb,
     Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreachByThisTypeRef,
+    Core::Data::Seeker::Verb, (TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+  );
+  private: static Core::Data::Seeker::Verb _foreachByThisTypeRef(
+    TiObject *self, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
   /// @}
