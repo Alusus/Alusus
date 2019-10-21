@@ -52,11 +52,8 @@ endif(MSVC)
 
 # Create AlususSpp library project.
 add_library(AlususSpp SHARED ${AlususSpp_SOURCE_FILES})
-set_target_properties(AlususSpp
-  PROPERTIES
-  COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}"
-  COTIRE_CXX_PREFIX_HEADER_INIT "spp.h"
-)
+set_target_properties(AlususSpp PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
+add_precompiled_header(AlususSpp "spp.h")
 
 # Set output names.
 set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
@@ -65,19 +62,13 @@ set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
-if(MINGW)
-  target_link_libraries(AlususSpp Win32Helpers)
-endif()
-target_link_libraries(AlususSpp "LLVM-7")
 target_link_libraries(AlususSpp AlususCoreLib)
-target_link_libraries(AlususSpp AlususStorage)
-cotire(AlususSpp)
 
 # Copy libary header files to installation directory.
 install_files("/Include/Spp" FILES
   spp.h
   LibraryGateway.h
-  )
+)
 foreach (dir ${AlususSpp_SOURCE_SUBDIRS})
   file(GLOB headers ${dir}/*.h)
   install_files("/Include/Spp/${dir}" FILES ${headers})

@@ -24,21 +24,21 @@ InteractiveCharInStream::~InteractiveCharInStream() {}
 WChar InteractiveCharInStream::get()
 {
   WChar c = getwchar();
+  // Print a new line only on the first line feed.
   if (c == L'\n' && this->isPreviousLF) {
     this->isPreviousLF = false;
+    outStream << ++this->lineNumber << S("> ");
+  }
+  else if (c == L'\n') {
+    this->isPreviousLF = true;
+  }
 #else
 Char InteractiveCharInStream::get()
 {
   Char c;
   inStream.get(c);
   if (c == C('\n')) {
-#endif
     outStream << ++this->lineNumber << S("> ");
-  }
-#if defined(__MINGW32__) || defined(__MINGW64__)
-  else if (c == L'\n')
-  {
-    this->isPreviousLF = true;
   }
 #endif
   return c;

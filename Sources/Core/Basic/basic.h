@@ -325,11 +325,7 @@ namespace Core { namespace Basic
  * should only be used in cases where the allocated memory is relatively
  * small.
  */
-#if defined(__MINGW32__) || defined(__MINGW64__)
-  #define SALLOC(s) alloca(s)
-#else
-  #define SALLOC(s) alloca(s)
-#endif
+#define SALLOC(s) alloca(s)
 
 /**
  * @def SFREE

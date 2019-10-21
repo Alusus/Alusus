@@ -74,7 +74,7 @@ include(LLVMConfig)
 
 # Macro for generating pre-compiled headers.
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${Alusus_SOURCE_DIR}")
-include(cotire.cmake)
+include(precompiled_headers.cmake)
 
 # Enable testing
 enable_testing()

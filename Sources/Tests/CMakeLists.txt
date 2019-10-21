@@ -48,10 +48,7 @@ set_target_properties(AlususTests PROPERTIES VERSION ${AlususVersion})
 
 
 # Finally, we link Alusus libraries to our UnitTests project.
-if(MINGW)
-  target_link_libraries(AlususTests Win32Helpers "stdc++fs")
-endif()
-target_link_libraries(AlususTests AlususCoreLib AlususStorage "dl" "LLVM-7")
+target_link_libraries(AlususTests AlususCoreLib)
 
 add_test(NAME AlususTests
   COMMAND AlususTests

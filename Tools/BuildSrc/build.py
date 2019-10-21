@@ -282,11 +282,12 @@ def build_libcurl():
         if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
-            os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "bin",
-                         "libcurl-4.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", LIB_DIR.lower(),
+                         "libcurl{0}.{1}".format("-4" if THIS_SYSTEM == "Windows" else "", SHARED_LIBS_EXT)),
             os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR,
                          "libcurl.{}".format(SHARED_LIBS_EXT))
         )
+
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
         failMsg("Building libcurl.")
@@ -494,24 +495,6 @@ def prep_debs():
     successMsg("Building dependencies.")
 
 
-def copy_dep(dep_dir, dep_name, to_check_string, mingw_dir):
-    global INSTALL_PATH
-    try:
-        index = dep_dir.index(to_check_string)
-        if index != -1 and (index + len(to_check_string)) == len(dep_dir):
-            dllfile = os.path.join(mingw_dir, dep_name)
-            installed_dllfile = os.path.realpath(
-                os.path.join(INSTALL_PATH, 'Bin', dep_name))
-            if not os.path.exists(installed_dllfile):
-                shutil.copy2(
-                    dllfile,
-                    installed_dllfile
-                )
-            return True
-    except ValueError:
-        return False
-
-
 def get_exe_and_dll_list():
     global INSTALL_PATH
 
@@ -522,9 +505,8 @@ def get_exe_and_dll_list():
                 os.path.join(INSTALL_PATH, "Bin", exec_file)))
     return to_return
 
+
 # Copying MinGW DLL's to make a portable Alusus that does not rely on a MinGW install.
-
-
 def copy_mingw_dlls():
     global INSTALL_PATH
     global THIS_SYSTEM

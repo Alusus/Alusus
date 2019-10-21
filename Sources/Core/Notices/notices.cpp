@@ -12,6 +12,13 @@
 
 #include "core.h"
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#include <stdio.h>
+#include <conio.h>
+#include <iostream>
+#include <windows.h>
+#endif
+
 namespace Core::Notices
 {
 
@@ -21,6 +28,37 @@ void printNotice(Notice const *msg)
   if (Data::getSourceLocationRecordCount(msg->getSourceLocation().get()) == 0) return;
 
   // Print severity.
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  // Get STDOUT handle.
+  HANDLE h = GetStdHandle (STD_OUTPUT_HANDLE);
+  WORD wOldColorAttrs;
+  CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+
+  // Save the current color information.
+  GetConsoleScreenBufferInfo(h, &csbiInfo);
+  wOldColorAttrs = csbiInfo.wAttributes;
+
+  // Set the console color and print the severity type of the message.
+  switch (msg->getSeverity()) {
+    case 0:
+      SetConsoleTextAttribute(h, FOREGROUND_INTENSITY | FOREGROUND_RED); // Red.
+      outStream << L18nDictionary::getSingleton()->get(S("BLOCKER"), S("BLOCKER")) << S(" ");
+      break;
+    case 1:
+      SetConsoleTextAttribute(h, FOREGROUND_INTENSITY | FOREGROUND_RED); // Red.
+      outStream << L18nDictionary::getSingleton()->get(S("ERROR"), S("ERROR")) << S(" ");
+      break;
+    case 2:
+    case 3:
+      SetConsoleTextAttribute(h, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN); // Yellow.
+      outStream << L18nDictionary::getSingleton()->get(S("WARNING"), S("WARNING")) << S(" ");
+      break;
+    case 4:
+      SetConsoleTextAttribute(h, FOREGROUND_INTENSITY | FOREGROUND_BLUE); // Blue.
+      outStream << L18nDictionary::getSingleton()->get(S("ATTN"), S("ATTN")) << S(" ");
+      break;
+  }
+#else
   switch (msg->getSeverity()) {
     case 0:
       outStream << S("\033[0;31m") << L18nDictionary::getSingleton()->get(S("BLOCKER"), S("BLOCKER")) << S(" ");
@@ -36,6 +74,8 @@ void printNotice(Notice const *msg)
       outStream << S("\033[0;34m") << L18nDictionary::getSingleton()->get(S("ATTN"), S("ATTN")) << S(" ");
       break;
   }
+#endif
+
   // Print msg code.
   outStream << msg->getCode() << " @ ";
   // Print location.
@@ -56,6 +96,11 @@ void printNotice(Notice const *msg)
   outStream << S(": ");
   // Print description.
   outStream << msg->getDescription() << S("\033[0m") << NEW_LINE;
+
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  // Restore the original text color.
+  SetConsoleTextAttribute(h, wOldColorAttrs);
+#endif
 }
 
 } // namespace

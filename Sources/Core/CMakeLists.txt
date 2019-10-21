@@ -24,7 +24,9 @@ set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
 set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
 if(MINGW)
-  target_link_libraries(AlususStorage Win32Helpers)
+  target_link_libraries(AlususStorage "LLVM-7" "stdc++fs" "dl" Win32Helpers)
+else()
+  target_link_libraries(AlususStorage "LLVM-7" "stdc++fs" "dl")
 endif()
 
 # Add a target for Alusus core library.
@@ -37,33 +39,19 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
   source_group("SourceFiles\\${DIR}" FILES ${sources})
   set(AlususCoreLib_Source_Files ${AlususCoreLib_Source_Files} ${sources} ${headers})
 endforeach(DIR)
-add_library(AlususCoreLib SHARED ${AlususCoreLib_Source_Files})
-set_target_properties(AlususCoreLib
-  PROPERTIES
-  COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}"
-  COTIRE_CXX_PREFIX_HEADER_INIT "core.h"
-)
-if(MINGW)
-  target_link_libraries(AlususCoreLib Win32Helpers)
-endif()
-target_link_libraries(AlususCoreLib AlususStorage "stdc++fs" "dl")
-cotire(AlususCoreLib)
+add_library(AlususCoreLib STATIC ${AlususCoreLib_Source_Files})
+set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
+add_precompiled_header(AlususCoreLib "core.h")
+target_link_libraries(AlususCoreLib AlususStorage)
 
 # Add a target for Alusus core executable.
 set(AlususCore_Source_Files start.cpp)
 add_executable(AlususCore ${AlususCore_Source_Files})
-set_target_properties(AlususCore
-  PROPERTIES
-  COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}"
-  COTIRE_CXX_PREFIX_HEADER_INIT "core.h"
-)
+set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
+add_precompiled_header(AlususCore "core.h")
 
 # Finally, we link the executable to the libraries.
-if(MINGW)
-  target_link_libraries(AlususCore Win32Helpers)
-endif()
-target_link_libraries(AlususCore AlususCoreLib "LLVM-7" "stdc++fs")
-cotire(AlususCore)
+target_link_libraries(AlususCore AlususCoreLib)
 
 # Set library and executable output names.
 # NOTE: For alusus_storage, we'll use the same filename for both debug and
