@@ -1,0 +1,35 @@
+import "Srl/Console.alusus";
+
+type T {
+  def i: Int;
+
+  @shared func construct (this: ref[T]) {
+    Srl.Console.print("init!\n");
+    this.i = 7;
+  };
+
+  @shared func construct (this: ref[T], a: Int) {
+    Srl.Console.print("init: %d\n", a);
+    this.i = a;
+  };
+
+  @shared func construct (this: ref[T], a: Int, b: Int) {
+    Srl.Console.print("init: %d, %d\n", a, b);
+    this.i = a;
+  };
+};
+
+def a: T;
+a~init();
+a~init(5);
+a~init(6, 8);
+
+def pa: ptr[T];
+pa = Srl.Memory.alloc(T~size)~cast[ptr[T]];
+pa~cnt~init();
+Srl.Console.print("pa.i = %d\n", pa~cnt.i);
+Srl.Memory.free(pa);
+
+def i: Int;
+i~init(8);
+Srl.Console.print("i = %d\n", i);

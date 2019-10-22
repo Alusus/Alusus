@@ -1,0 +1,7 @@
+init!
+init!
+init: 5
+init: 6, 8
+init!
+pa.i = 7
+i = 8

@@ -17,7 +17,7 @@ define void @"testNoReturn()"() {
 "#block1":
   %a = alloca %A
   call void @A.__autoConstruct__(%A* %a)
-  call void @"A.construct(ptr[A])"(%A* %a)
+  call void @"A.construct(ref[A])"(%A* %a)
   %0 = getelementptr %A, %A* %a, i32 0, i32 0
   %1 = load i32, i32* %0
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @"#anonymous1", i32 0, i32 0), i32 %1)
@@ -36,7 +36,7 @@ define void @A.__autoDestruct__(%A* %this) {
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block4":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -79,7 +79,7 @@ define void @"testReturnVoid()"() {
 "#block1":
   %a = alloca %A
   call void @A.__autoConstruct__(%A* %a)
-  call void @"A.construct(ptr[A])"(%A* %a)
+  call void @"A.construct(ref[A])"(%A* %a)
   %0 = getelementptr %A, %A* %a, i32 0, i32 0
   %1 = load i32, i32* %0
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous1", i32 0, i32 0), i32 %1)
@@ -99,7 +99,7 @@ define void @A.__autoDestruct__(%A* %this) {
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block4":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -142,7 +142,7 @@ define i32 @"testReturnNonVoid()=>(Int[32])"() {
 "#block1":
   %a = alloca %A
   call void @A.__autoConstruct__(%A* %a)
-  call void @"A.construct(ptr[A])"(%A* %a)
+  call void @"A.construct(ref[A])"(%A* %a)
   %0 = getelementptr %A, %A* %a, i32 0, i32 0
   %1 = load i32, i32* %0
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @"#anonymous1", i32 0, i32 0), i32 %1)
@@ -163,7 +163,7 @@ define void @A.__autoDestruct__(%A* %this) {
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block4":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -228,17 +228,17 @@ define void @"getA()=>(A)"(%A* %"#ret") {
 "#block4":
   %a = alloca %A
   call void @A.__autoConstruct__(%A* %a)
-  call void @"A.construct(ptr[A])"(%A* %a)
+  call void @"A.construct(ref[A])"(%A* %a)
   %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @"#anonymous1", i32 0, i32 0))
   call void @A.__autoConstruct__(%A* %"#ret")
-  call void @"A.construct(ptr[A],ptr[A])"(%A* %"#ret", %A* %a)
+  call void @"A.construct(ref[A],ref[A])"(%A* %"#ret", %A* %a)
   call void @"A.destruct(ptr[A])"(%A* %a)
   call void @A.__autoDestruct__(%A* %a)
   ret void
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block5":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -251,7 +251,7 @@ define void @"A.construct(ptr[A])"(%A* %this) {
 
 declare i32 @printf(i8*, ...)
 
-define void @"A.construct(ptr[A],ptr[A])"(%A* %this, %A* %that) {
+define void @"A.construct(ref[A],ref[A])"(%A* %this, %A* %that) {
 "#block6":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -309,7 +309,7 @@ define void @"testLoop()"() {
 
 "#block3":                                        ; preds = %"#block2"
   call void @A.__autoConstruct__(%A* %a)
-  call void @"A.construct(ptr[A])"(%A* %a)
+  call void @"A.construct(ref[A])"(%A* %a)
   %2 = getelementptr %A, %A* %a, i32 0, i32 0
   %3 = load i32, i32* %2
   %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous1", i32 0, i32 0), i32 %3)
@@ -335,7 +335,7 @@ define void @A.__autoDestruct__(%A* %this) {
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block7":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -388,7 +388,7 @@ define void @"testBreak()"() {
 
 "#block3":                                        ; preds = %"#block2"
   call void @A.__autoConstruct__(%A* %a)
-  call void @"A.construct(ptr[A])"(%A* %a)
+  call void @"A.construct(ref[A])"(%A* %a)
   %0 = getelementptr %A, %A* %a, i32 0, i32 0
   %1 = load i32, i32* %0
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous1", i32 0, i32 0), i32 %1)
@@ -415,7 +415,7 @@ define void @"testBreak()"() {
 
 "#block12":                                       ; preds = %"#block11"
   call void @A.__autoConstruct__(%A* %a1)
-  call void @"A.construct(ptr[A])"(%A* %a1)
+  call void @"A.construct(ref[A])"(%A* %a1)
   br label %"#block14"
 
 "#block13":                                       ; preds = %"#block11", %"#block15"
@@ -427,7 +427,7 @@ define void @"testBreak()"() {
 
 "#block15":                                       ; preds = %"#block14"
   call void @A.__autoConstruct__(%A* %b)
-  call void @"A.construct(ptr[A])"(%A* %b)
+  call void @"A.construct(ref[A])"(%A* %b)
   %5 = getelementptr %A, %A* %a1, i32 0, i32 0
   %6 = getelementptr %A, %A* %b, i32 0, i32 0
   %7 = load i32, i32* %5
@@ -456,7 +456,7 @@ define void @A.__autoDestruct__(%A* %this) {
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block7":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -519,7 +519,7 @@ define void @"testContinue()"() {
 
 "#block4":                                        ; preds = %"#block2"
   call void @A.__autoConstruct__(%A* %a)
-  call void @"A.construct(ptr[A])"(%A* %a)
+  call void @"A.construct(ref[A])"(%A* %a)
   %4 = getelementptr %A, %A* %a, i32 0, i32 0
   %5 = load i32, i32* %4
   %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @"#anonymous1", i32 0, i32 0), i32 %5)
@@ -557,7 +557,7 @@ define void @"testContinue()"() {
 
 "#block14":                                       ; preds = %"#block12"
   call void @A.__autoConstruct__(%A* %a1)
-  call void @"A.construct(ptr[A])"(%A* %a1)
+  call void @"A.construct(ref[A])"(%A* %a1)
   br label %"#block16"
 
 "#block15":                                       ; preds = %"#block12"
@@ -569,7 +569,7 @@ define void @"testContinue()"() {
 
 "#block17":                                       ; preds = %"#block16"
   call void @A.__autoConstruct__(%A* %b)
-  call void @"A.construct(ptr[A])"(%A* %b)
+  call void @"A.construct(ref[A])"(%A* %b)
   %15 = getelementptr %A, %A* %a1, i32 0, i32 0
   %16 = getelementptr %A, %A* %b, i32 0, i32 0
   %17 = load i32, i32* %15
@@ -598,7 +598,7 @@ define void @A.__autoDestruct__(%A* %this) {
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block8":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -667,14 +667,14 @@ define void @B.__autoConstruct__(%B* %this) {
 "#block4":
   %0 = getelementptr %B, %B* %this, i32 0, i32 0
   call void @A.__autoConstruct__(%A* %0)
-  call void @"A.construct(ptr[A])"(%A* %0)
+  call void @"A.construct(ref[A])"(%A* %0)
   %1 = getelementptr %B, %B* %this, i32 0, i32 1
   call void @A.__autoConstruct__(%A* %1)
-  call void @"A.construct(ptr[A])"(%A* %1)
+  call void @"A.construct(ref[A])"(%A* %1)
   ret void
 }
 
-define void @"A.construct(ptr[A])"(%A* %this) {
+define void @"A.construct(ref[A])"(%A* %this) {
 "#block5":
   %this1 = alloca %A*
   store %A* %this, %A** %this1

@@ -593,16 +593,6 @@ Bool Generator::_generateVarInitialization(
 
   // Do we have custom initialization?
   if (varAstType->hasCustomInitialization(generator->getAstHelper(), deps.tg->getExecutionContext())) {
-    // If we have only one arg and it's a reference of the same type, then we should pass a pointer rather than the
-    // value. This is to avoid infinite recursion due to needing to call the constructor to construct the constructor's
-    // value-type argument.
-    if (paramAstTypes->getCount() == 1) {
-      auto firstArgType = ti_cast<Ast::Type>(paramAstTypes->get(0));
-      if (generator->getAstHelper()->isReferenceTypeFor(firstArgType, varAstType, deps.tg->getExecutionContext())) {
-        paramAstTypes->set(0, generator->getAstHelper()->getPointerTypeFor(varAstType));
-      }
-    }
-
     // Call automatic constructors, if any.
     auto tgAutoCtor = tryGetAutoCtor<TiObject>(varAstType);
     if (tgAutoCtor != 0) {
@@ -612,7 +602,7 @@ Bool Generator::_generateVarInitialization(
     }
 
     // Add `this` to parameter list.
-    auto varPtrAstType = generator->getAstHelper()->getPointerTypeFor(varAstType);
+    auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType);
     paramAstTypes->insertElement(0, varPtrAstType);
     paramTgValues->insertElement(0, tgVarRef);
 

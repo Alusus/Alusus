@@ -90,6 +90,7 @@ ti_s_enum(DefinitionDomain,
 #include "CastOp.h"
 #include "SizeOp.h"
 #include "AstRefOp.h"
+#include "InitOp.h"
 // Misc
 #include "ArgPack.h"
 #include "ThisTypeRef.h"

@@ -812,7 +812,7 @@ Int Parser::determineMultiplyRoute(Data::Token const *token, ParserState *state)
     // Check if we have previously cached the decision.
     if (token->isKeyword()) {
       // For keywords we need to check against the text of the token rather than just the category to which the token
-      // beongs.
+      // belongs.
       auto i = multiplyTerm->getInnerTextBasedDecisionCache()->find(token->getText());
       if (i != multiplyTerm->getInnerTextBasedDecisionCache()->end()) {
         return i->second;

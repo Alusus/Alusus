@@ -195,6 +195,9 @@ DEFINE_NOTICE(InvalidModifierDataNotice, "Spp.Notices", "Spp", "alusus.org", "SP
 DEFINE_NOTICE(UninitializedLocalVariableNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1024", 1,
   "Trying to access a local variable before it's initialized."
 );
+DEFINE_NOTICE(InvalidInitOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1025", 1,
+  "Invalid operand for ~init operator."
+);
 
 } // namespace
 
