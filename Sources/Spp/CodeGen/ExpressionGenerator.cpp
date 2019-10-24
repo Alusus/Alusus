@@ -49,6 +49,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateCastOp,
     &this->generateSizeOp,
     &this->generateInitOp,
+    &this->generateTerminateOp,
     &this->generateStringLiteral,
     &this->generateCharLiteral,
     &this->generateIntegerLiteral,
@@ -91,6 +92,7 @@ void ExpressionGenerator::initBindings()
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
   this->generateInitOp = &ExpressionGenerator::_generateInitOp;
+  this->generateTerminateOp = &ExpressionGenerator::_generateTerminateOp;
   this->generateStringLiteral = &ExpressionGenerator::_generateStringLiteral;
   this->generateCharLiteral = &ExpressionGenerator::_generateCharLiteral;
   this->generateIntegerLiteral = &ExpressionGenerator::_generateIntegerLiteral;
@@ -145,6 +147,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::InitOp>()) {
     auto initOp = static_cast<Spp::Ast::InitOp*>(astNode);
     return expGenerator->generateInitOp(initOp, g, deps, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::TerminateOp>()) {
+    auto terminateOp = static_cast<Spp::Ast::TerminateOp*>(astNode);
+    return expGenerator->generateTerminateOp(terminateOp, g, deps, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return expGenerator->generateStringLiteral(stringLiteral, g, deps, result);
@@ -1963,6 +1968,47 @@ Bool ExpressionGenerator::_generateInitOp(
     if (!g->generateVarInitialization(
       astContentType, target.targetData.get(), astNode, &paramAstTypes, &paramTgValues, deps
     )) return false;
+  }
+  result = target;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateTerminateOp(
+  TiObject *self, Spp::Ast::TerminateOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, S("ContentOp operand is missing."));
+  }
+  GenResult operandResult;
+  if (!expGenerator->generate(operand, g, deps, operandResult)) return false;
+  if (operandResult.astType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidTerminateOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
+
+  // Dereference and get content type.
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(
+    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, deps, target
+  )) return false;
+  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
+  if (astRefType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidTerminateOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
+  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
+
+  if (deps.tgContext != 0) {
+    if (!g->generateVarDestruction(astContentType, target.targetData.get(), astNode, deps)) return false;
   }
   result = target;
   return true;

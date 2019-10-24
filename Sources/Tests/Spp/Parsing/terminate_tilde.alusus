@@ -1,0 +1,10 @@
+import "libalusus_spp.so";
+
+def a: aa~terminate();
+dump_ast a;
+
+def b: bb~terminate(1);
+
+def d: dd~terminate;
+
+def e: ee~terminate[];

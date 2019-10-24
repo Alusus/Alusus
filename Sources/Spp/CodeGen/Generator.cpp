@@ -726,7 +726,7 @@ Bool Generator::_generateVarDestruction(
   // Prepare param list.
   PlainList<TiObject> paramTgValues;
   PlainList<TiObject> paramAstTypes;
-  auto ptrAstType = generator->getAstHelper()->getPointerTypeFor(varAstType);
+  auto ptrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType);
   paramAstTypes.insertElement(0, ptrAstType);
   paramTgValues.insertElement(0, tgVarRef);
 

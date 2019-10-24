@@ -55,7 +55,8 @@ void GrammarFactory::createGrammar(
     S("on"), S("عند"),
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
-    S("init"), S("هيئ")
+    S("init"), S("هيئ"),
+    S("terminate"), S("اتلف")
   });
 
   // Add translation for shared modifier.
@@ -565,6 +566,33 @@ void GrammarFactory::createGrammar(
       {S("fltr"), std::make_shared<TiInt>(1)}
     })}
   }).get());
+  // ~terminate
+  this->createCommand(S("root.Main.TerminateTilde"), {{
+    Map::create({}, { { S("terminate"), 0 }, { S("اتلف"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.TerminateTildeSubject")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::TerminateOp>::create());
+  this->set(S("root.Main.TerminateTildeSubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
+  }).get());
+  this->set(S("root.Main.TerminateTildeSubject.Sbj"), SymbolDefinition::create({
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
+  }, {
+    {S("vars"), Map::create({}, {
+      {S("sbj1"), PARSE_REF(S("module.expression"))},
+      {S("sbj2"), PARSE_REF(S("module.expression"))},
+      {S("sbj3"), PARSE_REF(S("module.expression"))},
+      {S("frc2"), std::make_shared<TiInt>(0)},
+      {S("frc3"), std::make_shared<TiInt>(0)},
+      {S("fltr"), std::make_shared<TiInt>(1)}
+    })}
+  }).get());
 
   // Add command references.
 
@@ -584,7 +612,8 @@ void GrammarFactory::createGrammar(
     PARSE_REF(S("module.CastTilde")),
     PARSE_REF(S("module.ContentTilde")),
     PARSE_REF(S("module.PointerTilde")),
-    PARSE_REF(S("module.InitTilde"))
+    PARSE_REF(S("module.InitTilde")),
+    PARSE_REF(S("module.TerminateTilde"))
   });
 
   this->addProdsToGroup(S("root.Main.SubjectCmdGrp"), {
@@ -627,7 +656,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("on"), S("عند"),
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
-    S("init"), S("هيئ")
+    S("init"), S("هيئ"),
+    S("terminate"), S("اتلف")
   });
 
   // Add translation for static modifier.
@@ -640,7 +670,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.CastTilde"),
     S("module.ContentTilde"),
     S("module.PointerTilde"),
-    S("module.InitTilde")
+    S("module.InitTilde"),
+    S("module.TerminateTilde")
   });
 
   // Remove commands from leading commands list.
@@ -673,6 +704,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.AstRefTilde"));
   this->tryRemove(S("root.Main.InitTilde"));
   this->tryRemove(S("root.Main.InitTildeSubject"));
+  this->tryRemove(S("root.Main.TerminateTilde"));
+  this->tryRemove(S("root.Main.TerminateTildeSubject"));
 
   // Delete leading command definitions.
   this->tryRemove(S("root.Main.If"));

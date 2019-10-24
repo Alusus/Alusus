@@ -14,8 +14,8 @@ type A
     this.i = that.i * 2;
   };
 
-  @shared func destruct (this: ptr[A]) {
-    this~cnt.i = 0;
+  @shared func destruct (this: ref[A]) {
+    this.i = 0;
     Srl.Console.print("destructed!\n");
   };
 };

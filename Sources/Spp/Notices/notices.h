@@ -198,6 +198,9 @@ DEFINE_NOTICE(UninitializedLocalVariableNotice, "Spp.Notices", "Spp", "alusus.or
 DEFINE_NOTICE(InvalidInitOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1025", 1,
   "Invalid operand for ~init operator."
 );
+DEFINE_NOTICE(InvalidTerminateOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1026", 1,
+  "Invalid operand for ~terminate operator."
+);
 
 } // namespace
 

@@ -1,4 +1,4 @@
-import "Srl/Console.alusus";
+import "libalusus_spp.so";
 
 type T {
   def i: Int;

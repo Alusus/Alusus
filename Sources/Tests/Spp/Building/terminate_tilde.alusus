@@ -1,0 +1,26 @@
+import "libalusus_spp.so";
+
+type T {
+  def i: Int;
+
+  @shared func construct (this: ref[T]) {
+  };
+
+  @shared func destruct (this: ref[T]) {
+  };
+};
+
+func test {
+  def a: T;
+  a~terminate();
+
+  def pa: ptr[T];
+  pa~cnt~terminate();
+
+  def i: Int;
+  i~terminate();
+
+  T~terminate();
+};
+
+Spp.dumpLlvmIrForElement(test~ast);
