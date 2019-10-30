@@ -607,7 +607,7 @@ Bool Generator::_generateVarInitialization(
     paramTgValues->insertElement(0, tgVarRef);
 
     // Do we have constructors matching the given vars?
-    static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("construct")) }});
+    static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
     TiObject *callee;
     Ast::Type *calleeType;
     SharedPtr<Core::Notices::Notice> notice;
@@ -731,7 +731,7 @@ Bool Generator::_generateVarDestruction(
   paramTgValues.insertElement(0, tgVarRef);
 
   // Find the destructor.
-  static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("destruct")) }});
+  static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
   TiObject *callee;
   Ast::Type *calleeType;
   SharedPtr<Core::Notices::Notice> notice;

@@ -47,6 +47,10 @@ void TypeOpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     this->createComparisonHandler(state, static_cast<Core::Data::Ast::ComparisonOperator*>(expr), body);
   } else if (expr->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     this->createInfixOpHandler(state, static_cast<Core::Data::Ast::LinkOperator*>(expr), body);
+  } else if (expr->isDerivedFrom<Spp::Ast::InitOp>()) {
+    this->createInitOpHandler(state, static_cast<Spp::Ast::InitOp*>(expr), body);
+  } else if (expr->isDerivedFrom<Spp::Ast::TerminateOp>()) {
+    this->createTerminateOpHandler(state, static_cast<Spp::Ast::TerminateOp*>(expr), body);
   } else {
     state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
@@ -175,6 +179,75 @@ void TypeOpParsingHandler::createInfixOpHandler(
 }
 
 
+void TypeOpParsingHandler::createInitOpHandler(
+  Processing::ParserState *state, Spp::Ast::InitOp *initOp,
+  SharedPtr<Core::Data::Ast::Scope> const &body
+) {
+  // Verify operand.
+  auto operand = initOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (operand == 0 || operand->getValue() != S("this")) {
+    state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(initOp->findSourceLocation()));
+    state->setData(SharedPtr<TiObject>(0));
+    return;
+  }
+
+  // Prepare params.
+  auto param = initOp->getParam();
+  Core::Data::Ast::List tempParams;
+  auto params = ti_cast<Core::Data::Ast::List>(param.get());
+  if (params == 0) {
+    if (param != 0) tempParams.add(param);
+    params = &tempParams;
+  }
+  auto argTypes = Core::Data::Ast::Map::create();
+  auto thisType = this->prepareThisType(operand->findSourceLocation());
+  argTypes->add(S("this"), thisType);
+  for (Int i = 0; i < params->getCount(); ++i) {
+    Char const *inputName;
+    TioSharedPtr inputType;
+    auto inputDef = params->get(i);
+    if (!this->prepareInputArg(state, inputDef, inputName, inputType)) return;
+    if (argTypes->findIndex(inputName) != -1) {
+      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(
+        Core::Data::Ast::findSourceLocation(inputDef.get())
+      ));
+      state->setData(SharedPtr<TiObject>(0));
+      return;
+    }
+    argTypes->add(inputName, inputType);
+  }
+
+  auto def = this->createFunction(
+    S("~init"), argTypes, TioSharedPtr::null, body, initOp->findSourceLocation()
+  );
+  state->setData(def);
+}
+
+
+void TypeOpParsingHandler::createTerminateOpHandler(
+  Processing::ParserState *state, Spp::Ast::TerminateOp *terminateOp,
+  SharedPtr<Core::Data::Ast::Scope> const &body
+) {
+  // Verify operand.
+  auto operand = terminateOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (operand == 0 || operand->getValue() != S("this")) {
+    state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(terminateOp->findSourceLocation()));
+    state->setData(SharedPtr<TiObject>(0));
+    return;
+  }
+
+  // Prepare params.
+  auto argTypes = Core::Data::Ast::Map::create();
+  auto thisType = this->prepareThisType(operand->findSourceLocation());
+  argTypes->add(S("this"), thisType);
+
+  auto def = this->createFunction(
+    S("~terminate"), argTypes, TioSharedPtr::null, body, terminateOp->findSourceLocation()
+  );
+  state->setData(def);
+}
+
+
 SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createBinaryOpFunction(
   Char const *funcName, TioSharedPtr const &thisType, Char const *inputName, TioSharedPtr const &inputType,
   TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
@@ -184,6 +257,14 @@ SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createBinaryOpFunct
   argTypes->add(S("this"), thisType);
   argTypes->add(inputName, inputType);
 
+  return this->createFunction(funcName, argTypes, retType, body, sourceLocation);
+}
+
+
+SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createFunction(
+  Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes,
+  TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+) {
   // Create the function type.
   auto funcType = Spp::Ast::FunctionType::create({}, {
     {S("argTypes"), argTypes},

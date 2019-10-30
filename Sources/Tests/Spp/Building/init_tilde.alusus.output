@@ -1,5 +1,5 @@
-ERROR SPPA1006 @ (30,3): No matches were found for the given callee.
-ERROR SPPG1025 @ (32,3): Invalid operand for ~init operator.
+ERROR SPPA1006 @ (27,3): No matches were found for the given callee.
+ERROR SPPG1025 @ (29,3): Invalid operand for ~init operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -16,23 +16,23 @@ define void @"test()"() {
 "#block1":
   %a = alloca %T
   call void @T.__autoConstruct__(%T* %a)
-  call void @"T.construct(ref[T])"(%T* %a)
+  call void @"T.~init(ref[T])"(%T* %a)
   call void @T.__autoConstruct__(%T* %a)
-  call void @"T.construct(ref[T])"(%T* %a)
+  call void @"T.~init(ref[T])"(%T* %a)
   call void @T.__autoConstruct__(%T* %a)
-  call void @"T.construct(ref[T],Int[32])"(%T* %a, i8 5)
+  call void @"T.~init(ref[T],Int[32])"(%T* %a, i8 5)
   call void @T.__autoConstruct__(%T* %a)
-  call void @"T.construct(ref[T],Int[32],Int[32])"(%T* %a, i8 6, i8 8)
+  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %a, i8 6, i8 8)
   %pa = alloca %T*
   %0 = load %T*, %T** %pa
   call void @T.__autoConstruct__(%T* %0)
-  call void @"T.construct(ref[T])"(%T* %0)
+  call void @"T.~init(ref[T])"(%T* %0)
   %1 = load %T*, %T** %pa
   call void @T.__autoConstruct__(%T* %1)
-  call void @"T.construct(ref[T],Int[32])"(%T* %1, i8 5)
+  call void @"T.~init(ref[T],Int[32])"(%T* %1, i8 5)
   %2 = load %T*, %T** %pa
   call void @T.__autoConstruct__(%T* %2)
-  call void @"T.construct(ref[T],Int[32],Int[32])"(%T* %2, i8 6, i8 8)
+  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %2, i8 6, i8 8)
   %i = alloca i32
   store i32 5, i32* %i
   ret void
@@ -43,14 +43,14 @@ define void @T.__autoConstruct__(%T* %this) {
   ret void
 }
 
-define void @"T.construct(ref[T])"(%T* %this) {
+define void @"T.~init(ref[T])"(%T* %this) {
 "#block3":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
   ret void
 }
 
-define void @"T.construct(ref[T],Int[32])"(%T* %this, i32 %a) {
+define void @"T.~init(ref[T],Int[32])"(%T* %this, i32 %a) {
 "#block4":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
@@ -59,7 +59,7 @@ define void @"T.construct(ref[T],Int[32])"(%T* %this, i32 %a) {
   ret void
 }
 
-define void @"T.construct(ref[T],Int[32],Int[32])"(%T* %this, i32 %a, i32 %b) {
+define void @"T.~init(ref[T],Int[32],Int[32])"(%T* %this, i32 %a, i32 %b) {
 "#block5":
   %this1 = alloca %T*
   store %T* %this, %T** %this1

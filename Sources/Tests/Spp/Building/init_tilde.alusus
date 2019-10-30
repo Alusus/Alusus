@@ -3,14 +3,11 @@ import "libalusus_spp.so";
 type T {
   def i: Int;
 
-  @shared func construct (this: ref[T]) {
-  };
+  on this~init() {};
 
-  @shared func construct (this: ref[T], a: Int) {
-  };
+  on this~init(a: Int) {};
 
-  @shared func construct (this: ref[T], a: Int, b: Int) {
-  };
+  on this~init(a: Int, b: Int) {};
 };
 
 func test {

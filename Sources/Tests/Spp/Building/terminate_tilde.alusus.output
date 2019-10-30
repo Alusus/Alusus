@@ -1,4 +1,4 @@
-ERROR SPPG1026 @ (23,3): Invalid operand for ~terminate operator.
+ERROR SPPG1026 @ (21,3): Invalid operand for ~terminate operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -15,15 +15,15 @@ define void @"test()"() {
 "#block1":
   %a = alloca %T
   call void @T.__autoConstruct__(%T* %a)
-  call void @"T.construct(ref[T])"(%T* %a)
-  call void @"T.destruct(ref[T])"(%T* %a)
+  call void @"T.~init(ref[T])"(%T* %a)
+  call void @"T.~terminate(ref[T])"(%T* %a)
   call void @T.__autoDestruct__(%T* %a)
   %pa = alloca %T*
   %0 = load %T*, %T** %pa
-  call void @"T.destruct(ref[T])"(%T* %0)
+  call void @"T.~terminate(ref[T])"(%T* %0)
   call void @T.__autoDestruct__(%T* %0)
   %i = alloca i32
-  call void @"T.destruct(ref[T])"(%T* %a)
+  call void @"T.~terminate(ref[T])"(%T* %a)
   call void @T.__autoDestruct__(%T* %a)
   ret void
 }
@@ -38,14 +38,14 @@ define void @T.__autoDestruct__(%T* %this) {
   ret void
 }
 
-define void @"T.construct(ref[T])"(%T* %this) {
+define void @"T.~init(ref[T])"(%T* %this) {
 "#block4":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
   ret void
 }
 
-define void @"T.destruct(ref[T])"(%T* %this) {
+define void @"T.~terminate(ref[T])"(%T* %this) {
 "#block5":
   %this1 = alloca %T*
   store %T* %this, %T** %this1

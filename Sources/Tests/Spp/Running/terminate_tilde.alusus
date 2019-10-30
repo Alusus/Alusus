@@ -3,10 +3,9 @@ import "Srl/Console.alusus";
 type T {
   def i: Int;
 
-  @shared func construct (this: ref[T]) {
-  };
+  on this~init() {};
 
-  @shared func destruct (this: ref[T]) {
+  on this~terminate() {
     Srl.Console.print("terminate! %d\n", this.i);
   };
 };

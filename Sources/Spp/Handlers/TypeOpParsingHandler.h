@@ -55,8 +55,23 @@ class TypeOpParsingHandler : public Core::Processing::Handlers::GenericParsingHa
     SharedPtr<Core::Data::Ast::Scope> const &body
   );
 
+  private: void createInitOpHandler(
+    Processing::ParserState *state, Spp::Ast::InitOp *initOp,
+    SharedPtr<Core::Data::Ast::Scope> const &body
+  );
+
+  private: void createTerminateOpHandler(
+    Processing::ParserState *state, Spp::Ast::TerminateOp *terminateOp,
+    SharedPtr<Core::Data::Ast::Scope> const &body
+  );
+
   private: SharedPtr<Core::Data::Ast::Definition> createBinaryOpFunction(
     Char const *funcName, TioSharedPtr const &thisType, Char const *inputName, TioSharedPtr const &inputType,
+    TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  );
+
+  private: SharedPtr<Core::Data::Ast::Definition> createFunction(
+    Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes,
     TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
   );
 

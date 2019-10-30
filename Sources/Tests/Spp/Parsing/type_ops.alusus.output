@@ -1,12 +1,64 @@
-ERROR SPPH1014 @ (28,6): Invalid on statement.
-ERROR SPPH1014 @ (29,6): Invalid on statement.
-ERROR SPPH1014 @ (30,6): Invalid on statement.
-ERROR SPPH1014 @ (32,13): Invalid on statement.
-ERROR SPPH1014 @ (33,14): Invalid on statement.
+ERROR SPPH1006 @ (8,19): Invalid function arg name.
+ERROR CP1001 @ (9,16): Parser syntax error.
+ERROR CP1001 @ (10,15): Parser syntax error.
+ERROR CP1001 @ (13,21): Parser syntax error.
+ERROR CP1001 @ (14,21): Parser syntax error.
+ERROR CP1001 @ (15,20): Parser syntax error.
+ERROR SPPH1014 @ (39,6): Invalid on statement.
+ERROR SPPH1014 @ (40,6): Invalid on statement.
+ERROR SPPH1014 @ (41,6): Invalid on statement.
+ERROR SPPH1014 @ (43,13): Invalid on statement.
+ERROR SPPH1014 @ (44,14): Invalid on statement.
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Scope [Main.BlockStatements.StmtList]
   Definition [Main.Def] i: Identifier: Int [Main.Subject.Identifier]
+  Definition [Main.LeadingCmdGrp] ~init
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Scope [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ~init
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       a: Identifier: Int [Main.Subject.Identifier]
+       b: Identifier: Float [Main.Subject.Identifier]
+      retType: NULL
+     body: Scope [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ~terminate
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Scope [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ~terminate
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Scope [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] =
    modifiers:
     Identifier: shared

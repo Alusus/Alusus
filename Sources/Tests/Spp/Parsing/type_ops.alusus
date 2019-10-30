@@ -3,6 +3,17 @@ import "libalusus_spp.so";
 type T {
   def i: Int;
 
+  on this~init() {};
+  on this~init(a: Int, b: Float) {};
+  on this~init(a, b) {};
+  on this~init {};
+  on this~init[] {};
+
+  on this~terminate() {};
+  on this~terminate(a: Int) {};
+  on this~terminate {};
+  on this~terminate[] {};
+
   on this = Int this.i = value;
   on this = (v:Int) this.i = v;
 

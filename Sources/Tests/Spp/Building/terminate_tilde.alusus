@@ -3,11 +3,9 @@ import "libalusus_spp.so";
 type T {
   def i: Int;
 
-  @shared func construct (this: ref[T]) {
-  };
+  on this~init() {};
 
-  @shared func destruct (this: ref[T]) {
-  };
+  on this~terminate() {};
 };
 
 func test {
