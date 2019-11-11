@@ -4,18 +4,18 @@ type A
 {
   def i: Int;
 
-  @shared func construct (this: ptr[A]) {
+  on this~init() {
     Srl.Console.print("constructed!\n");
-    this~cnt.i = 1;
+    this.i = 1;
   };
 
-  @shared func construct (this: ptr[A], that: ptr[A]) {
+  on this~init(that: ref[A]) {
     Srl.Console.print("constructed2!\n");
-    this~cnt.i = that~cnt.i * 2;
+    this.i = that.i * 2;
   };
 
-  @shared func destruct (this: ptr[A]) {
-    this~cnt.i = 0;
+  on this~terminate() {
+    this.i = 0;
     Srl.Console.print("destructed!\n");
   };
 };
@@ -57,7 +57,7 @@ function getA () => A
 {
   def a: A;
   Srl.Console.print("getA.\n");
-  return a~ptr;
+  return a;
 };
 
 function testReturnA

@@ -1,0 +1,20 @@
+import "libalusus_spp.so";
+
+type T1 {
+  def i: Int;
+  on this~cast[Int] return this.i;
+};
+
+type T2 {
+  def i: Int;
+  on this~cast[Int] {};
+};
+
+func test {
+  def t1: T1;
+  def t2: T2;
+  t1~cast[Int];
+  t2~cast[Int];
+};
+
+Spp.dumpLlvmIrForElement(test~ast);

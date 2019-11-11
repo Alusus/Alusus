@@ -110,6 +110,9 @@ DEFINE_NOTICE(InvalidBreakStatementNotice, "Spp.Notices", "Spp", "alusus.org", "
 DEFINE_NOTICE(InvalidMacroArgDefNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1013", 1,
   "Invalid macro argumnet definition."
 );
+DEFINE_NOTICE(InvalidOnStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1014", 1,
+  "Invalid on statement."
+);
 
 } // namespace
 
@@ -191,6 +194,12 @@ DEFINE_NOTICE(InvalidModifierDataNotice, "Spp.Notices", "Spp", "alusus.org", "SP
 );
 DEFINE_NOTICE(UninitializedLocalVariableNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1024", 1,
   "Trying to access a local variable before it's initialized."
+);
+DEFINE_NOTICE(InvalidInitOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1025", 1,
+  "Invalid operand for ~init operator."
+);
+DEFINE_NOTICE(InvalidTerminateOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1026", 1,
+  "Invalid operand for ~terminate operator."
 );
 
 } // namespace

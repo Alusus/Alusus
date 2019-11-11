@@ -8,8 +8,8 @@ type Point1 {
 type Point2 {
   def x: Int;
   def y: Int;
-  @shared function construct (this: ptr[Point2]) {};
-  @shared function construct (this: ptr[Point2], src: ptr[Point2]) {};
+  on this~init() {};
+  on this~init(src: ref[Point2]) {};
 };
 
 function convertPoint1 (p: Point1) => Point1 {

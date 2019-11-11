@@ -1,0 +1,54 @@
+ERROR SPPG1026 @ (21,3): Invalid operand for ~terminate operator.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%T = type { i32 }
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"test()"() {
+"#block1":
+  %a = alloca %T
+  call void @T.__autoConstruct__(%T* %a)
+  call void @"T.~init(ref[T])"(%T* %a)
+  call void @"T.~terminate(ref[T])"(%T* %a)
+  call void @T.__autoDestruct__(%T* %a)
+  %pa = alloca %T*
+  %0 = load %T*, %T** %pa
+  call void @"T.~terminate(ref[T])"(%T* %0)
+  call void @T.__autoDestruct__(%T* %0)
+  %i = alloca i32
+  call void @"T.~terminate(ref[T])"(%T* %a)
+  call void @T.__autoDestruct__(%T* %a)
+  ret void
+}
+
+define void @T.__autoConstruct__(%T* %this) {
+"#block2":
+  ret void
+}
+
+define void @T.__autoDestruct__(%T* %this) {
+"#block3":
+  ret void
+}
+
+define void @"T.~init(ref[T])"(%T* %this) {
+"#block4":
+  %this1 = alloca %T*
+  store %T* %this, %T** %this1
+  ret void
+}
+
+define void @"T.~terminate(ref[T])"(%T* %this) {
+"#block5":
+  %this1 = alloca %T*
+  store %T* %this, %T** %this1
+  ret void
+}
+------------------------------------------------------------

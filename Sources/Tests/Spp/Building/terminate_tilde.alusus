@@ -1,0 +1,24 @@
+import "libalusus_spp.so";
+
+type T {
+  def i: Int;
+
+  on this~init() {};
+
+  on this~terminate() {};
+};
+
+func test {
+  def a: T;
+  a~terminate();
+
+  def pa: ptr[T];
+  pa~cnt~terminate();
+
+  def i: Int;
+  i~terminate();
+
+  T~terminate();
+};
+
+Spp.dumpLlvmIrForElement(test~ast);

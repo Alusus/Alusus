@@ -1,0 +1,51 @@
+import "libalusus_spp.so";
+
+type T {
+  def i: Int;
+
+  on this~init() {};
+  on this~init(a: Int, b: Float) {};
+  on this~init(a, b) {};
+  on this~init {};
+  on this~init[] {};
+
+  on this~terminate() {};
+  on this~terminate(a: Int) {};
+  on this~terminate {};
+  on this~terminate[] {};
+
+  on this = Int this.i = value;
+  on this = (v:Int) this.i = v;
+
+  on this += Int this.i += value;
+  on this /= Int this.i /= value;
+
+  on this = ref[this_type] this.i = value.i;
+  on this = (v:ref[this_type]) this.i = v.i;
+
+  on this > Int return this.i > value;
+
+  on this - Int : Int return this.i - value;
+  on this * Int : A {
+    def ret: A;
+    ret.i = this.i * value;
+    return ret;
+  };
+
+  on this << Int : Int { return this.i << value };
+
+  on this $ Int : Int return this.i $ value;
+
+  on this~cast[Int] return this.i;
+  on this~cast return this.i;
+
+  on notThis = Int notThis.i += value;
+  on notThis == Int return notThis.i == value;
+  on notThis + Int: Int return notThis.i + value;
+  on notThis~cast[Int] return notThis.i;
+
+  on this = [v: Int] this.i = value;
+  on this = (this: Int) this.i = 5;
+};
+
+dump_ast T;

@@ -30,7 +30,10 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Exec
           if (obj != 0 && helper->isAstReference(obj)) {
             auto memberType = helper->traceType(obj);
             auto memberMatchStatus = memberType->matchTargetType(type, helper, ec);
-            if (memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION) {
+            if (
+              memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION ||
+              memberMatchStatus == TypeMatchStatus::REF_AGGREGATION
+            ) {
               return TypeMatchStatus::AGGREGATION;
             }
           }
@@ -70,7 +73,7 @@ Bool UserType::hasCustomInitialization(Helper *helper, ExecutionContext const *e
       if (def != 0) {
         if (def->getTarget() != 0) {
           if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
-            if (def->getName() == S("construct")) return true;
+            if (def->getName() == S("~init")) return true;
           } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
             auto type = helper->traceType(def->getTarget().get());
             if (type != 0 && type->hasCustomInitialization(helper, ec)) return true;
@@ -96,7 +99,7 @@ Bool UserType::hasCustomDestruction(Helper *helper, ExecutionContext const *ec) 
       if (def != 0) {
         if (def->getTarget() != 0) {
           if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
-            if (def->getName() == S("destruct")) return true;
+            if (def->getName() == S("~terminate")) return true;
           } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
             auto type = helper->traceType(def->getTarget().get());
             if (type != 0 && type->hasCustomDestruction(helper, ec)) return true;

@@ -37,7 +37,15 @@ class Type;
 /// @ingroup spp_ast
 ti_s_enum(TypeMatchStatus,
   TiInt, "Spp.Ast", "Spp", "alusus.org",
-  NONE = 0, EXPLICIT_CAST = 1, IMPLICIT_CAST = 2, PROMOTION = 3, AGGREGATION = 4, DEREFERENCE = 5, EXACT = 6
+  NONE = 0,
+  AGGREGATION = 1,
+  EXPLICIT_CAST = 2,
+  CUSTOM_CASTER = 3,
+  IMPLICIT_CAST = 4,
+  PROMOTION = 5,
+  REF_AGGREGATION = 6,
+  DEREFERENCE = 7,
+  EXACT = 8
 );
 
 /// @ingroup spp_ast
@@ -83,8 +91,11 @@ ti_s_enum(DefinitionDomain,
 #include "CastOp.h"
 #include "SizeOp.h"
 #include "AstRefOp.h"
+#include "InitOp.h"
+#include "TerminateOp.h"
 // Misc
 #include "ArgPack.h"
+#include "ThisTypeRef.h"
 
 // Helpers
 #include "Helper.h"

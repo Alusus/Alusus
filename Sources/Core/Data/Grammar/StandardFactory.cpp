@@ -1052,7 +1052,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::AssignmentOperator>>(false)}
+    {S("handler"), std::make_shared<InfixParsingHandler<Ast::AssignmentOperator>>(true)}
   }));
 
   // LogExp : @single @prefix(heap.Modifiers.LogModifierCmd)

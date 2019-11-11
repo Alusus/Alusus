@@ -404,6 +404,26 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::SizeOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateInitOp,
+    Bool, (
+      Spp::Ast::InitOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateInitOp(
+    TiObject *self, Spp::Ast::InitOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateTerminateOp,
+    Bool, (
+      Spp::Ast::TerminateOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateTerminateOp(
+    TiObject *self, Spp::Ast::TerminateOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateStringLiteral,
     Bool, (
       Core::Data::Ast::StringLiteral* /* astNode */, Generation* /* g */,
@@ -472,13 +492,13 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generateArrayReference,
     Bool, (
-      TiObject* /* tgValue */, Ast::Type* /* astType */, TiObject* /* tgIndexVal */, Ast::Type* /* astIndexType */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
+      Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Ast::Type* /* astType */, TiObject* /* tgIndexVal */,
+      Ast::Type* /* astIndexType */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateArrayReference(
-    TiObject *self, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal, Ast::Type *astIndexType,
-    Generation *g, GenDeps const &deps, GenResult &result
+    TiObject *self, Core::Data::Node *astNode, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal,
+    Ast::Type *astIndexType, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateFunctionCall,

@@ -1,0 +1,64 @@
+import "Srl/Console.alusus";
+use Srl.Console;
+
+type T {
+  def i: Int;
+
+  on this = Int this.i = value;
+
+  on this += (v:Int) this.i += v;
+  on this /= (v:Int) this.i /= v;
+
+  on this = ref[this_type] this.i = value.i;
+
+  on this < Int return this.i < value;
+
+  on this - Int : Int return this.i - value;
+  on this * Int : this_type {
+    def ret: this_type;
+    ret.i = this.i * value;
+    return ret;
+  };
+
+  on this << Int : Int { return this.i << value };
+
+  on this $ Int : Int return this.i $ value;
+
+  on this~cast[Int] return this.i;
+};
+
+def t: T;
+t = 3;
+print("t = 3 ==> t.i: %d\n", t.i);
+
+def t2: T = t;
+print("t2 = t ==> t2.i: %d\n", t2.i);
+
+t2 = t = 5;
+print("t2 = t = 5 ==> t.i: %d, t2.i: %d\n", t.i, t2.i);
+
+t += 3;
+print("t += 3 ==> t.i: %d\n", t.i);
+
+t /= 2;
+print("t /= 2 ==> t.i: %d\n", t.i);
+
+if t < 10 print("t is < 10\n");
+
+print("t - 3 ==> %d\n", t - 3);
+
+def t3: T = t * 3;
+print("t3 = t * 3 ==> t3.i: %d\n", t3.i);
+
+print("t << 2 ==> %d\n", t << 2);
+
+print("t $ 5 ==> %d\n", t $ 5);
+
+print("t~cast[Int] ==> %d\n", t~cast[Int]);
+def i: Int = t;
+print("i:Int = t ==> %d\n", i);
+
+function printInt (i: Int) {
+  print("printInt(t) ==> %d\n", i);
+};
+printInt(t);

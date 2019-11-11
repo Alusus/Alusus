@@ -155,6 +155,15 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *&callee, Type *&calleeType
   );
 
+  public: METHOD_BINDING_CACHE(lookupCustomCaster,
+    Function*, (
+      Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */
+    )
+  );
+  private: static Function* _lookupCustomCaster(
+    TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
+  );
+
   public: METHOD_BINDING_CACHE(traceType, Type*, (TiObject*));
   private: static Type* _traceType(TiObject *self, TiObject *ref);
 
@@ -164,6 +173,21 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*, ExecutionContext const*));
   private: static Bool _isImplicitlyCastableTo(
     TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+  );
+
+  public: METHOD_BINDING_CACHE(isExplicitlyCastableTo, Bool, (TiObject*, TiObject*, ExecutionContext const*));
+  private: static Bool _isExplicitlyCastableTo(
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+  );
+
+  public: METHOD_BINDING_CACHE(matchTargetType,
+    TypeMatchStatus, (
+      TiObject* /* srcTypeRef */, TiObject* /* targetTypeRef */, ExecutionContext const* /* ec */,
+      Function*& /* caster */
+    )
+  );
+  private: static TypeMatchStatus _matchTargetType(
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec, Function *&caster
   );
 
   public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*, ExecutionContext const*));

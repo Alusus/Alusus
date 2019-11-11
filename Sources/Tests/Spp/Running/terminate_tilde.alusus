@@ -1,0 +1,21 @@
+import "Srl/Console.alusus";
+
+type T {
+  def i: Int;
+
+  on this~init() {};
+
+  on this~terminate() {
+    Srl.Console.print("terminate! %d\n", this.i);
+  };
+};
+
+def a: T;
+a.i = 7;
+a~terminate();
+
+def pa: ptr[T];
+pa = Srl.Memory.alloc(T~size)~cast[ptr[T]];
+pa~cnt.i = 8;
+pa~cnt~terminate();
+Srl.Memory.free(pa);
