@@ -41,6 +41,7 @@ void Generator::initBindings()
   generation->generateStatement = &Generator::_generateStatement;
   generation->generateExpression = &Generator::_generateExpression;
   generation->generateCast = &Generator::_generateCast;
+  generation->generateFunctionCall = &Generator::_generateFunctionCall;
   generation->getGeneratedType = &Generator::_getGeneratedType;
   generation->getTypeAllocationSize = &Generator::_getTypeAllocationSize;
 }
@@ -632,20 +633,14 @@ Bool Generator::_generateVarInitialization(
       // Cast the value to var type.
       auto paramAstType = generator->getAstHelper()->traceType(paramAstTypes->getElement(0));
       ASSERT(paramAstType);
-      if (!paramAstType->isImplicitlyCastableTo(
-        varAstType, generator->astHelper, deps.tg->getExecutionContext()
-      )) {
+      TioSharedPtr tgCastedValue;
+      if (!generation->generateCast(
+        deps, paramAstType, varAstType, paramsAstNode, paramTgValues->getElement(0), true, tgCastedValue)
+      ) {
         generator->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidReturnValueNotice>(Core::Data::Ast::findSourceLocation(paramsAstNode))
         );
         return false;
-      }
-      TioSharedPtr tgCastedValue;
-      if (!generation->generateCast(
-        deps, paramAstType, varAstType, paramTgValues->getElement(0), tgCastedValue)
-      ) {
-        // This should not happen since non-castable calls should be filtered out earlier.
-        throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
       }
 
       // Copy the value into the var.
@@ -944,11 +939,23 @@ Bool Generator::_generateExpression(
 
 Bool Generator::_generateCast(
   TiObject *self, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
-  TiObject *tgValue, TioSharedPtr &tgCastedValue
+  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
 ) {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->generateCast(
-    ti_cast<Generation>(self), deps, srcType, destType, tgValue, tgCastedValue
+    ti_cast<Generation>(self), deps, srcType, destType, astNode, tgValue, implicit, tgCastedValue
+  );
+}
+
+
+Bool Generator::_generateFunctionCall(
+  TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
+  Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
+  GenDeps const &deps, GenResult &result
+) {
+  PREPARE_SELF(generator, Generator);
+  return generator->expressionGenerator->generateFunctionCall(
+    astNode, callee, paramAstTypes, paramTgValues, ti_cast<Generation>(self), deps, result
   );
 }
 

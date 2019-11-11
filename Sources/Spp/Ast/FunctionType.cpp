@@ -177,8 +177,9 @@ TypeMatchStatus FunctionType::matchNextArg(
           matchContext.subIndex++;
           return TypeMatchStatus::EXACT;
         } else {
-          auto status = providedType->matchTargetType(matchContext.type, helper, ec);
-          if (status >= TypeMatchStatus::IMPLICIT_CAST) {
+          Function *caster;
+          auto status = helper->matchTargetType(providedType, matchContext.type, ec, caster);
+          if (status >= TypeMatchStatus::CUSTOM_CASTER) {
             matchContext.subIndex++;
             return status;
           } else if (matchContext.subIndex + 1 < currentArgPack->getMin().get()) {
@@ -203,8 +204,9 @@ TypeMatchStatus FunctionType::matchNextArg(
         matchContext.subIndex = 0;
         return TypeMatchStatus::EXACT;
       } else {
-        auto status = providedType->matchTargetType(wantedType, helper, ec);
-        if (status >= TypeMatchStatus::IMPLICIT_CAST) {
+        Function *caster;
+        auto status = helper->matchTargetType(providedType, wantedType, ec, caster);
+        if (status >= TypeMatchStatus::CUSTOM_CASTER) {
           matchContext.type = wantedType;
           matchContext.index += steps;
           matchContext.subIndex = 0;
@@ -218,8 +220,9 @@ TypeMatchStatus FunctionType::matchNextArg(
     } else {
       Type *wantedType = helper->traceType(nextArg);
       if (wantedType == 0) return TypeMatchStatus::NONE;
-      auto status = providedType->matchTargetType(wantedType, helper, ec);
-      if (status >= TypeMatchStatus::IMPLICIT_CAST) {
+      Function *caster;
+      auto status = helper->matchTargetType(providedType, wantedType, ec, caster);
+      if (status >= TypeMatchStatus::CUSTOM_CASTER) {
         matchContext.type = wantedType;
         matchContext.index += steps;
         matchContext.subIndex = 0;

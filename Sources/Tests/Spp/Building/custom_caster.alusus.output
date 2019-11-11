@@ -1,0 +1,39 @@
+ERROR SPPG1022 @ (10,6): Missing a return statement for a non-void function.
+ERROR SPPG1005 @ (17,3): Invalid cast.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%T1 = type { i32 }
+%T2 = type { i32 }
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"test()"() {
+"#block1":
+  %t1 = alloca %T1
+  %t2 = alloca %T2
+  %0 = call i32 @"T1.~cast(ref[T1])=>(Int[32])"(%T1* %t1)
+  ret void
+}
+
+define i32 @"T1.~cast(ref[T1])=>(Int[32])"(%T1* %this) {
+"#block2":
+  %this1 = alloca %T1*
+  store %T1* %this, %T1** %this1
+  %0 = load %T1*, %T1** %this1
+  %1 = getelementptr %T1, %T1* %0, i32 0, i32 0
+  %2 = load i32, i32* %1
+  ret i32 %2
+}
+
+define i32 @"T2.~cast(ref[T2])=>(Int[32])"(%T2* %this) {
+"#block3":
+  %this1 = alloca %T2*
+  store %T2* %this, %T2** %this1
+}
+------------------------------------------------------------

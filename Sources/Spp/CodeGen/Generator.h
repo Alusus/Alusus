@@ -215,7 +215,13 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: static Bool _generateCast(
     TiObject *self, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
-    TiObject *tgValue, TioSharedPtr &tgCastedValue
+    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
+  );
+
+  private: static Bool _generateFunctionCall(
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
+    Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
+    GenDeps const &deps, GenResult &result
   );
 
   private: static Bool _getGeneratedType(

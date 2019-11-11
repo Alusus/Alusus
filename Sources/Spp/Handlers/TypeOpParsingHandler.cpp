@@ -51,6 +51,8 @@ void TypeOpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     this->createInitOpHandler(state, static_cast<Spp::Ast::InitOp*>(expr), body);
   } else if (expr->isDerivedFrom<Spp::Ast::TerminateOp>()) {
     this->createTerminateOpHandler(state, static_cast<Spp::Ast::TerminateOp*>(expr), body);
+  } else if (expr->isDerivedFrom<Spp::Ast::CastOp>()) {
+    this->createCastHandler(state, static_cast<Spp::Ast::CastOp*>(expr), body);
   } else {
     state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
@@ -244,6 +246,36 @@ void TypeOpParsingHandler::createTerminateOpHandler(
   auto def = this->createFunction(
     S("~terminate"), argTypes, TioSharedPtr::null, body, terminateOp->findSourceLocation()
   );
+  state->setData(def);
+}
+
+
+void TypeOpParsingHandler::createCastHandler(
+  Processing::ParserState *state, Spp::Ast::CastOp *castOp,
+  SharedPtr<Core::Data::Ast::Scope> const &body
+) {
+  // Verify operand.
+  auto operand = castOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (operand == 0 || operand->getValue() != S("this")) {
+    state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(castOp->findSourceLocation()));
+    state->setData(SharedPtr<TiObject>(0));
+    return;
+  }
+
+  // Prepare return type.
+  auto retType = castOp->getTargetType();
+  if (retType == 0) {
+    state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(castOp->findSourceLocation()));
+    state->setData(SharedPtr<TiObject>(0));
+    return;
+  }
+
+  // Prepare params.
+  auto argTypes = Core::Data::Ast::Map::create();
+  auto thisType = this->prepareThisType(operand->findSourceLocation());
+  argTypes->add(S("this"), thisType);
+
+  auto def = this->createFunction(S("~cast"), argTypes, retType, body, castOp->findSourceLocation());
   state->setData(def);
 }
 

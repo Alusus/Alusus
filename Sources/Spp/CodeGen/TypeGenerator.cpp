@@ -538,14 +538,29 @@ Bool TypeGenerator::_generateFunctionType(
 
 
 Bool TypeGenerator::_generateCast(
-    TiObject *self, Generation *g, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-    TiObject *tgValue, TioSharedPtr &tgCastedValue
+  TiObject *self, Generation *g, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
+  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  if (srcType->isEqual(targetType, typeGenerator->astHelper, deps.tg->getExecutionContext())) {
+  Ast::Function *caster;
+  auto matchType = typeGenerator->astHelper->matchTargetType(
+    srcType, targetType, deps.tg->getExecutionContext(), caster
+  );
+
+  if (matchType <= Ast::TypeMatchStatus::EXPLICIT_CAST && implicit) {
+    return false;
+  } else if (matchType == Ast::TypeMatchStatus::EXACT) {
     // Same type, return value as is.
     tgCastedValue = getSharedPtr(tgValue);
     return true;
+  } else if (matchType == Ast::TypeMatchStatus::CUSTOM_CASTER) {
+    // Call the caster.
+    GenResult result;
+    PlainList<TiObject> paramTgValues({ tgValue });
+    PlainList<TiObject> paramAstTypes({ srcType });
+    auto retVal = g->generateFunctionCall(astNode, caster, &paramAstTypes, &paramTgValues, deps, result);
+    tgCastedValue = result.targetData;
+    return retVal;
   } else if (srcType->isDerivedFrom<Spp::Ast::IntegerType>()) {
     // Casting from integer.
     auto srcIntegerType = static_cast<Spp::Ast::IntegerType*>(srcType);
@@ -626,9 +641,6 @@ Bool TypeGenerator::_generateCast(
     }
   } else if (srcType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
     // Casting from reference.
-    auto matchType = srcType->matchTargetType(
-      targetType, typeGenerator->astHelper, deps.tg->getExecutionContext()
-    );
     if (targetType->isDerivedFrom<Spp::Ast::ReferenceType>() && matchType != Ast::TypeMatchStatus::DEREFERENCE) {
       // Casting from reference to another reference
       auto targetReferenceType = static_cast<Spp::Ast::ReferenceType*>(targetType);
@@ -648,12 +660,11 @@ Bool TypeGenerator::_generateCast(
       TioSharedPtr tgDerefVal;
       if (!deps.tg->generateDereference(deps.tgContext, tgContentType, tgValue, tgDerefVal)) return false;
       return typeGenerator->generateCast(
-        g, deps, srcContentType, targetType, tgDerefVal.get(), tgCastedValue
+        g, deps, srcContentType, targetType, astNode, tgDerefVal.get(), implicit, tgCastedValue
       );
     }
   }
 
-  typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidCastNotice>());
   return false;
 }
 

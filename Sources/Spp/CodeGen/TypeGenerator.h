@@ -166,11 +166,13 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
   );
 
   public: METHOD_BINDING_CACHE(generateCast,
-    Bool, (Generation*, GenDeps const&, Spp::Ast::Type*, Spp::Ast::Type*, TiObject*, TioSharedPtr&)
+    Bool, (
+      Generation*, GenDeps const&, Spp::Ast::Type*, Spp::Ast::Type*, Core::Data::Node *, TiObject*, Bool, TioSharedPtr&
+    )
   );
   private: static Bool _generateCast(
     TiObject *self, Generation *g, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-    TiObject *tgValue, TioSharedPtr &tgCastedValue
+    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
   );
 
   public: METHOD_BINDING_CACHE(generateDefaultValue,

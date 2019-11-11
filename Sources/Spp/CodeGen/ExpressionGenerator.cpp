@@ -497,7 +497,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     if (!expGenerator->generateVarReference(astNode, callee, g, deps, arrayResult)) return false;
     // Reference array element.
     return expGenerator->generateArrayReference(
-      arrayResult.targetData.get(), arrayResult.astType,
+      astNode, arrayResult.targetData.get(), arrayResult.astType,
       paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)), g, deps, result
     );
   } else {
@@ -518,7 +518,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnResult(
     //// Reference element of an array result of the expression.
     ////
     return expGenerator->generateArrayReference(
-      prevResult->targetData.get(), prevResult->astType,
+      astNode, prevResult->targetData.get(), prevResult->astType,
       paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)), g, deps, result
     );
   } else {
@@ -564,7 +564,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnMember(
   if (expGenerator->astHelper->isTypeOrRefTypeOf<Ast::ArrayType>(prevResult->astType)) {
     //// Reference element of an array result of the expression.
     return expGenerator->generateArrayReference(
-      prevResult->targetData.get(), prevResult->astType,
+      linkOperator, prevResult->targetData.get(), prevResult->astType,
       paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)),
       g, deps, result
     );
@@ -898,11 +898,15 @@ Bool ExpressionGenerator::_generateArithmeticOp(
   }
 
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param1.astType, astTargetType, astNode, param1.targetData.get(), false, param1.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
-    if (!g->generateCast(deps, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param2.astType, astTargetType, astNode, param2.targetData.get(), false, param2.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
   }
 
@@ -1000,11 +1004,15 @@ Bool ExpressionGenerator::_generateBinaryOp(
   }
 
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param1.astType, astTargetType, astNode, param1.targetData.get(), false, param1.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
-    if (!g->generateCast(deps, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param2.astType, astTargetType, astNode, param2.targetData.get(), false, param2.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
   }
 
@@ -1142,11 +1150,15 @@ Bool ExpressionGenerator::_generateComparisonOp(
   }
 
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, param1.astType, astTargetType, param1.targetData.get(), param1.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param1.astType, astTargetType, astNode, param1.targetData.get(), false, param1.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
-    if (!g->generateCast(deps, param2.astType, astTargetType, param2.targetData.get(), param2.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param2.astType, astTargetType, astNode, param2.targetData.get(), false, param2.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
   }
 
@@ -1236,37 +1248,27 @@ Bool ExpressionGenerator::_generateAssignOp(
 
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, deps, param
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), false, deps, param
   )) return false;
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
-  if (
-    (!astContentType->isDerivedFrom<Ast::FloatType>() && !astContentType->isDerivedFrom<Ast::IntegerType>()) ||
-    (!param.astType->isDerivedFrom<Ast::FloatType>() && !param.astType->isDerivedFrom<Ast::IntegerType>())
-  ) {
-    if (!param.astType->isImplicitlyCastableTo(
-      astContentType, expGenerator->astHelper, deps.tg->getExecutionContext())
-    ) {
-      expGenerator->noticeStore->add(
-        std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
-      );
-      return false;
-    }
-  }
-
   // Cast the value to the destination type.
-  auto sourceLocation = Core::Data::Ast::findSourceLocation(astNode);
-  expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation.get());
   Bool retVal;
   if (deps.tgContext != 0) {
-    retVal = g->generateCast(deps, param.astType, astContentType, param.targetData.get(), param.targetData);
+    retVal = g->generateCast(
+      deps, param.astType, astContentType, astNode, param.targetData.get(), true, param.targetData
+    );
   } else {
-    retVal = true;
+    retVal = expGenerator->astHelper->isImplicitlyCastableTo(
+      param.astType, astContentType, deps.tg->getExecutionContext()
+    );
   }
-  expGenerator->noticeStore->popPrefixSourceLocation(
-    Core::Data::getSourceLocationRecordCount(sourceLocation.get())
-  );
-  if (!retVal) return false;
+  if (!retVal) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
 
   TiObject *tgContentType;
   if (!g->getGeneratedType(astContentType, deps.tg, tgContentType, 0)) {
@@ -1328,8 +1330,10 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   }
 
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, param.astType, astContentType, param.targetData.get(), param.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param.astType, astContentType, astNode, param.targetData.get(), false, param.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
   }
 
@@ -1422,8 +1426,10 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   }
 
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, param.astType, astContentType, param.targetData.get(), param.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param.astType, astContentType, astNode, param.targetData.get(), false, param.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
   }
 
@@ -1517,8 +1523,10 @@ Bool ExpressionGenerator::_generateUnaryValOp(
   }
 
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param.astType, astTargetType, astNode, param.targetData.get(), false, param.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
   }
 
@@ -1581,8 +1589,10 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
   }
 
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, param.astType, astTargetType, param.targetData.get(), param.targetData)) {
-      return false;
+    if (!g->generateCast(
+      deps, param.astType, astTargetType, astNode, param.targetData.get(), false, param.targetData
+    )) {
+      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
   }
 
@@ -1838,25 +1848,30 @@ Bool ExpressionGenerator::_generateCastOp(
     return false;
   }
 
-  // Get the value itself, not a reference to it.
+  // Get the deepest reference.
   GenResult derefResult;
   if (!expGenerator->dereferenceIfNeeded(
-    operandResult.astType, operandResult.targetData.get(), true, deps, derefResult
+    operandResult.astType, operandResult.targetData.get(), false, deps, derefResult
   )) return false;
 
   // Get the target type.
   auto targetAstType = expGenerator->astHelper->traceType(astNode->getTargetType().get());
   if (targetAstType == 0) return false;
-  if (!derefResult.astType->isExplicitlyCastableTo(targetAstType, expGenerator->astHelper, deps.tg->getExecutionContext())) {
-    expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidCastNotice>(astNode->getSourceLocation()));
-    return false;
-  }
 
   // Cast the value.
+  Bool retVal;
   if (deps.tgContext != 0) {
-    if (!g->generateCast(
-      deps, derefResult.astType, targetAstType, derefResult.targetData.get(), result.targetData
-    )) return false;
+    retVal = g->generateCast(
+      deps, derefResult.astType, targetAstType, astNode, derefResult.targetData.get(), false, result.targetData
+    );
+  } else {
+    retVal = expGenerator->astHelper->isExplicitlyCastableTo(
+      derefResult.astType, targetAstType, deps.tg->getExecutionContext()
+    );
+  }
+  if (!retVal) {
+    expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidCastNotice>(astNode->getSourceLocation()));
+    return false;
   }
   result.astType = targetAstType;
   return true;
@@ -2333,8 +2348,8 @@ Bool ExpressionGenerator::_generateMemberReference(
 
 
 Bool ExpressionGenerator::_generateArrayReference(
-  TiObject *self, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal, Ast::Type *astIndexType,
-  Generation *g, GenDeps const &deps, GenResult &result
+  TiObject *self, Core::Data::Node *astNode, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal,
+  Ast::Type *astIndexType, Generation *g, GenDeps const &deps, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2342,7 +2357,7 @@ Bool ExpressionGenerator::_generateArrayReference(
   TioSharedPtr tgCastedIndex;
   if (deps.tgContext != 0) {
     if (!g->generateCast(
-      deps, astIndexType, expGenerator->astHelper->getInt64Type(), tgIndexVal, tgCastedIndex
+      deps, astIndexType, expGenerator->astHelper->getInt64Type(), astNode, tgIndexVal, false, tgCastedIndex
     )) {
       // This should not happen since non-castable calls should be filtered out earlier.
       throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
@@ -2502,8 +2517,6 @@ Bool ExpressionGenerator::prepareFunctionParams(
 
     // Cast the value if needed.
     if (context.type != 0) {
-      auto sourceLocation = Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(i));
-      this->noticeStore->pushPrefixSourceLocation(sourceLocation.get());
       Ast::Type *neededAstType;
       if (context.type->hasCustomInitialization(this->astHelper, deps.tg->getExecutionContext())) {
         neededAstType = this->astHelper->getReferenceTypeFor(context.type);
@@ -2511,16 +2524,14 @@ Bool ExpressionGenerator::prepareFunctionParams(
         neededAstType = context.type;
       }
       TioSharedPtr tgCastedVal;
-      Bool castRes;
       if (deps.tgContext != 0) {
-        castRes = g->generateCast(deps, srcType, neededAstType, paramTgVals->getElement(i), tgCastedVal);
-      } else {
-        castRes = true;
+        if (!g->generateCast(
+          deps, srcType, neededAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(i)),
+          paramTgVals->getElement(i), false, tgCastedVal
+        )) {
+          throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
+        };
       }
-      this->noticeStore->popPrefixSourceLocation(
-        Core::Data::getSourceLocationRecordCount(sourceLocation.get())
-      );
-      if (!castRes) return false;
       paramTgVals->set(i, tgCastedVal);
     } else {
       // For var args we need to send values, not references.
@@ -2561,19 +2572,22 @@ Bool ExpressionGenerator::castLogicalOperand(
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();
-  if (astType == 0 || !astType->isImplicitlyCastableTo(boolType, this->astHelper, deps.tg->getExecutionContext())) {
-    this->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
-    );
+  if (astType == 0) {
+    this->noticeStore->add(std::make_shared<Spp::Notices::InvalidLogicalOperandNotice>());
     return false;
   }
   if (deps.tgContext != 0) {
-    if (!g->generateCast(deps, astType, this->astHelper->getBoolType(), tgValue, result)) {
+    if (!g->generateCast(deps, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, result)) {
       this->noticeStore->add(
         std::make_shared<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
       );
       return false;
     }
+  } else if (!this->astHelper->isImplicitlyCastableTo(astType, boolType, deps.tg->getExecutionContext())) {
+    this->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
+    return false;
   }
 
   return true;

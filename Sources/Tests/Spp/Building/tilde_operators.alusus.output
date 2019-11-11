@@ -70,17 +70,15 @@ define void @"Main.testPtrAndCnt()=>(Void)"() {
   %12 = load float, float* %11
   %13 = fptosi float %12 to i32
   store i32 %13, i32* %i
-  %14 = load i32, i32* %i
   store i32** %pi, i32*** %ppi
+  %14 = load i32**, i32*** %ppi
   %15 = load i32**, i32*** %ppi
   %16 = load i32*, i32** %15
-  %17 = load i32**, i32*** %ppi
-  %18 = load i32*, i32** %17
-  %19 = load i32, i32* %18
-  store i32 %19, i32* %i
+  %17 = load i32, i32* %16
+  store i32 %17, i32* %i
   store i32* @Other.i, i32** %pi
-  %20 = load i32*, i32** @Other.pi
-  store i32 10, i32* %20
+  %18 = load i32*, i32** @Other.pi
+  store i32 10, i32* %18
   ret void
 }
 
@@ -103,27 +101,25 @@ define void @"Main.testCast()=>(Void)"() {
   %7 = bitcast i32* %i to i8*
   store i8 1, i8* %7
   %8 = load i32*, i32** %pi
-  %9 = load i32*, i32** %pi
-  %10 = ptrtoint i32* %9 to i64
+  %9 = ptrtoint i32* %8 to i64
   store i32* inttoptr (i64 10 to i32*), i32** %pi
-  %11 = load i64, i64* %l
-  %12 = inttoptr i64 %11 to i32*
-  store i32* %12, i32** %pi
+  %10 = load i64, i64* %l
+  %11 = inttoptr i64 %10 to i32*
+  store i32* %11, i32** %pi
   store double 1.000000e+01, double* %d
-  %13 = load double, double* %d
-  %14 = fptrunc double %13 to float
-  store float %14, float* %f
-  %15 = load float, float* %f
-  %16 = fptosi float %15 to i32
-  store i32 %16, i32* %i
-  %17 = load i32, i32* %i
-  %18 = sitofp i32 %17 to float
-  store float %18, float* %f
-  %19 = load float, float* %f
-  %20 = load float, float* %f
-  %21 = load i32, i32* @Other.i
-  %22 = sitofp i32 %21 to float
-  store float %22, float* %f
+  %12 = load double, double* %d
+  %13 = fptrunc double %12 to float
+  store float %13, float* %f
+  %14 = load float, float* %f
+  %15 = fptosi float %14 to i32
+  store i32 %15, i32* %i
+  %16 = load i32, i32* %i
+  %17 = sitofp i32 %16 to float
+  store float %17, float* %f
+  %18 = load float, float* %f
+  %19 = load i32, i32* @Other.i
+  %20 = sitofp i32 %19 to float
+  store float %20, float* %f
   ret void
 }
 

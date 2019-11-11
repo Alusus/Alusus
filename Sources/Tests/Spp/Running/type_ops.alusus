@@ -23,6 +23,8 @@ type T {
   on this << Int : Int { return this.i << value };
 
   on this $ Int : Int return this.i $ value;
+
+  on this~cast[Int] return this.i;
 };
 
 def t: T;
@@ -51,3 +53,12 @@ print("t3 = t * 3 ==> t3.i: %d\n", t3.i);
 print("t << 2 ==> %d\n", t << 2);
 
 print("t $ 5 ==> %d\n", t $ 5);
+
+print("t~cast[Int] ==> %d\n", t~cast[Int]);
+def i: Int = t;
+print("i:Int = t ==> %d\n", i);
+
+function printInt (i: Int) {
+  print("printInt(t) ==> %d\n", i);
+};
+printInt(t);

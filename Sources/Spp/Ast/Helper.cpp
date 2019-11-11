@@ -24,9 +24,12 @@ void Helper::initBindingCaches()
     &this->isAstReference,
     &this->lookupCallee,
     &this->lookupCallee_iteration,
+    &this->lookupCustomCaster,
     &this->traceType,
     &this->isVoid,
     &this->isImplicitlyCastableTo,
+    &this->isExplicitlyCastableTo,
+    &this->matchTargetType,
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
@@ -57,9 +60,12 @@ void Helper::initBindings()
   this->isAstReference = &Helper::_isAstReference;
   this->lookupCallee = &Helper::_lookupCallee;
   this->lookupCallee_iteration = &Helper::_lookupCallee_iteration;
+  this->lookupCustomCaster = &Helper::_lookupCustomCaster;
   this->traceType = &Helper::_traceType;
   this->isVoid = &Helper::_isVoid;
   this->isImplicitlyCastableTo = &Helper::_isImplicitlyCastableTo;
+  this->isExplicitlyCastableTo = &Helper::_isExplicitlyCastableTo;
+  this->matchTargetType = &Helper::_matchTargetType;
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
@@ -160,7 +166,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     ms = f->getType()->matchCall(types, helper, ec);
     if (ms == TypeMatchStatus::NONE && matchStatus == TypeMatchStatus::NONE) {
       notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
-    } else if (ms >= TypeMatchStatus::IMPLICIT_CAST && matchStatus == TypeMatchStatus::NONE) {
+    } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && matchStatus == TypeMatchStatus::NONE) {
       notice.reset();
       callee = f;
       calleeType = f->getType().get();
@@ -185,7 +191,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     return Core::Data::Seeker::Verb::MOVE;
   } else if (obj != 0 && helper->isAstReference(obj)) {
     // Match variables
-    if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
+    if (matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
       if (
         obj != callee &&
         Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee)) ==
@@ -217,7 +223,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
       if (funcType != 0) {
         // We have a function pointer.
         auto ms = funcType->matchCall(types, helper, ec);
-        if (funcType->matchCall(types, helper, ec) >= TypeMatchStatus::IMPLICIT_CAST) {
+        if (funcType->matchCall(types, helper, ec) >= TypeMatchStatus::CUSTOM_CASTER) {
           notice.reset();
           callee = obj;
           calleeType = objType;
@@ -232,7 +238,7 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     return Core::Data::Seeker::Verb::STOP;
   } else {
     // Invalid
-    if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
+    if (matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
       if (
         obj != callee &&
         Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee)) ==
@@ -247,6 +253,44 @@ Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
     callee = 0;
     return Core::Data::Seeker::Verb::STOP;
   }
+}
+
+
+Function* Helper::_lookupCustomCaster(
+  TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
+) {
+  PREPARE_SELF(helper, Helper);
+
+  auto srcRefType = ti_cast<ReferenceType>(srcType);
+  if (srcRefType != 0) {
+    auto srcContentType = ti_cast<DataType>(srcRefType->getContentType(helper));
+    if (srcContentType != 0 && srcContentType->getBody() != 0) {
+      PlainList<TiObject> argTypes({ srcRefType });
+      static Core::Data::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
+      Function *callee = 0;
+      helper->getSeeker()->foreach(&ref, srcContentType->getBody().get(),
+        [=, &callee, &argTypes] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+        {
+          auto func = ti_cast<Function>(obj);
+          if (func != 0) {
+            auto funcType = func->getType().get();
+            auto match = funcType->matchCall(&argTypes, helper, ec);
+            if (match == TypeMatchStatus::EXACT) {
+              auto retType = funcType->traceRetType(helper);
+              if (retType->isImplicitlyCastableTo(targetType, helper, ec)) {
+                callee = func;
+                return Core::Data::Seeker::Verb::STOP;
+              }
+            }
+          }
+          return Core::Data::Seeker::Verb::MOVE;
+        },
+        SeekerExtension::Flags::SKIP_OWNERS_AND_USES
+      );
+      return callee;
+    }
+  }
+  return 0;
 }
 
 
@@ -332,20 +376,48 @@ Bool Helper::_isImplicitlyCastableTo(
   TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
 ) {
   PREPARE_SELF(helper, Helper);
+  Function *caster;
+  return helper->matchTargetType(srcTypeRef, targetTypeRef, ec, caster) >= TypeMatchStatus::CUSTOM_CASTER;
+}
+
+
+Bool Helper::_isExplicitlyCastableTo(
+  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+) {
+  PREPARE_SELF(helper, Helper);
+  Function *caster;
+  return helper->matchTargetType(srcTypeRef, targetTypeRef, ec, caster) >= TypeMatchStatus::EXPLICIT_CAST;
+}
+
+
+TypeMatchStatus Helper::_matchTargetType(
+  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec, Function *&caster
+) {
+  PREPARE_SELF(helper, Helper);
 
   auto srcType = ti_cast<Type>(srcTypeRef);
   if (srcType == 0) {
     srcType = helper->traceType(srcTypeRef);
-    if (srcType == 0) return false;
+    if (srcType == 0) return TypeMatchStatus::NONE;
   }
 
   auto targetType = ti_cast<Type>(targetTypeRef);
   if (targetType == 0) {
     targetType = helper->traceType(targetTypeRef);
-    if (targetType == 0) return false;
+    if (targetType == 0) return TypeMatchStatus::NONE;
   }
 
-  return srcType->isImplicitlyCastableTo(targetType, helper, ec);
+  auto matchType = srcType->matchTargetType(targetType, helper, ec);
+  if (matchType >= TypeMatchStatus::IMPLICIT_CAST) {
+    return matchType;
+  } else {
+    caster = helper->lookupCustomCaster(srcType, targetType, ec);
+    if (caster != 0) {
+      return TypeMatchStatus::CUSTOM_CASTER;
+    } else {
+      return matchType;
+    }
+  }
 }
 
 

@@ -8,3 +8,6 @@ t - 3 ==> 1
 t3 = t * 3 ==> t3.i: 12
 t << 2 ==> 16
 t $ 5 ==> 1
+t~cast[Int] ==> 4
+i:Int = t ==> 4
+printInt(t) ==> 4

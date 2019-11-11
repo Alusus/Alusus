@@ -36,9 +36,13 @@ type T {
 
   on this $ Int : Int return this.i $ value;
 
+  on this~cast[Int] return this.i;
+  on this~cast return this.i;
+
   on notThis = Int notThis.i += value;
   on notThis == Int return notThis.i == value;
   on notThis + Int: Int return notThis.i + value;
+  on notThis~cast[Int] return notThis.i;
 
   on this = [v: Int] this.i = value;
   on this = (this: Int) this.i = 5;

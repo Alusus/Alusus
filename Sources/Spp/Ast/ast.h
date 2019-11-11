@@ -40,11 +40,12 @@ ti_s_enum(TypeMatchStatus,
   NONE = 0,
   AGGREGATION = 1,
   EXPLICIT_CAST = 2,
-  IMPLICIT_CAST = 3,
-  PROMOTION = 4,
-  REF_AGGREGATION = 5,
-  DEREFERENCE = 6,
-  EXACT = 7
+  CUSTOM_CASTER = 3,
+  IMPLICIT_CAST = 4,
+  PROMOTION = 5,
+  REF_AGGREGATION = 6,
+  DEREFERENCE = 7,
+  EXACT = 8
 );
 
 /// @ingroup spp_ast

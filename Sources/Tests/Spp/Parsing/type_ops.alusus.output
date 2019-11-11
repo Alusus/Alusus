@@ -4,11 +4,13 @@ ERROR CP1001 @ (10,15): Parser syntax error.
 ERROR CP1001 @ (13,21): Parser syntax error.
 ERROR CP1001 @ (14,21): Parser syntax error.
 ERROR CP1001 @ (15,20): Parser syntax error.
-ERROR SPPH1014 @ (39,6): Invalid on statement.
-ERROR SPPH1014 @ (40,6): Invalid on statement.
-ERROR SPPH1014 @ (41,6): Invalid on statement.
-ERROR SPPH1014 @ (43,13): Invalid on statement.
-ERROR SPPH1014 @ (44,14): Invalid on statement.
+ERROR CP1001 @ (40,16): Parser syntax error.
+ERROR SPPH1014 @ (42,6): Invalid on statement.
+ERROR SPPH1014 @ (43,6): Invalid on statement.
+ERROR SPPH1014 @ (44,6): Invalid on statement.
+ERROR SPPH1014 @ (45,6): Invalid on statement.
+ERROR SPPH1014 @ (47,13): Invalid on statement.
+ERROR SPPH1014 @ (48,14): Invalid on statement.
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Scope [Main.BlockStatements.StmtList]
@@ -291,4 +293,19 @@ UserType [Main.Type]
          first: Identifier: this [Main.Keywords]
          second: Identifier: i [Main.Subject.Identifier]
         second: Identifier: value [Main.Keywords]
+  Definition [Main.LeadingCmdGrp] ~cast
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: Identifier: Int [Main.Subject.Identifier]
+     body: Scope
+      ReturnStatement [Main.Return]
+       operand: LinkOperator . [Main.Expression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.Subject.Identifier]
 ------------------------------------------------------

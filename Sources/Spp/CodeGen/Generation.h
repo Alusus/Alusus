@@ -54,6 +54,7 @@ class Generation : public ObjTiInterface
       &this->generateStatement,
       &this->generateExpression,
       &this->generateCast,
+      &this->generateFunctionCall,
       &this->getGeneratedType,
       &this->getTypeAllocationSize
     });
@@ -160,9 +161,16 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (
-      GenDeps const& /* deps */,
-      Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
-      TiObject* /* tgValue */, TioSharedPtr& /* tgCastedValue */
+      GenDeps const& /* deps */, Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
+      Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Bool /* implicit */, TioSharedPtr& /* tgCastedValue */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateFunctionCall,
+    Bool, (
+      Core::Data::Node* /* astNode */, Spp::Ast::Function* /* callee */,
+      Containing<TiObject>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
 
