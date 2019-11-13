@@ -62,3 +62,11 @@ destructed!
 
 C constructed!
 testInlinedInit: 3
+
+constructed!
+constructed!
+constructed3!
+constructed2!
+testInitRedirect: 13
+destructed!
+destructed!

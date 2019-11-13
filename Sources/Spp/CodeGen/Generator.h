@@ -174,8 +174,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _generateVarInitialization(
-    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *paramsAstNode,
-    PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode,
+    PlainList<TiObject>* paramsAstNode, PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
     GenDeps const &deps
   );
 
