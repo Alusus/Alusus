@@ -190,16 +190,20 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, G
       }
       SharedList<TiObject> initTgVals;
       PlainList<TiObject> initAstTypes;
+      PlainList<TiObject> initAstNodes;
       initTgVals.clear();
       initTgVals.add(tgVars.get(i));
       initAstTypes.clear();
       initAstTypes.add(argSourceAstType);
+      initAstNodes.clear();
+      initAstNodes.add(argType);
       TioSharedPtr argTgVarRef;
       if (!deps.tg->generateVarReference(tgContext.get(), argTgType, argTgVar.get(), argTgVarRef)) {
         return false;
       }
       if (!generation->generateVarInitialization(
-        argAstType, argTgVarRef.get(), ti_cast<Core::Data::Node>(argType), &initAstTypes, &initTgVals, childDeps
+        argAstType, argTgVarRef.get(), ti_cast<Core::Data::Node>(argType),
+        &initAstNodes, &initAstTypes, &initTgVals, childDeps
       )) {
         return false;
       }
@@ -389,8 +393,9 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
         SharedList<TiObject> initTgVals;
         PlainList<TiObject> initAstTypes;
+        PlainList<TiObject> initAstNodes;
         if (!generation->generateVarInitialization(
-          astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar), &initAstTypes, &initTgVals,
+          astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar), &initAstNodes, &initAstTypes, &initTgVals,
           GenDeps(deps, deps.tgGlobalConstructionContext, deps.globalDestructionStack)
         )) {
           return false;
@@ -407,8 +412,10 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         if (!deps.tg->generateVarReference(deps.tgContext, tgType, tgGlobalVar.get(), tgGlobalVarRef)) return false;
         SharedList<TiObject> initTgVals;
         PlainList<TiObject> initAstTypes;
+        PlainList<TiObject> initAstNodes;
         if (!generation->generateVarInitialization(
-          astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar), &initAstTypes, &initTgVals, deps
+          astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar),
+          &initAstNodes, &initAstTypes, &initTgVals, deps
         )) {
           return false;
         }
@@ -459,8 +466,9 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
         SharedList<TiObject> initTgVals;
         PlainList<TiObject> initAstTypes;
+        PlainList<TiObject> initAstNodes;
         if (!generation->generateVarInitialization(
-          astType, tgLocalVarRef.get(), definition, &initAstTypes, &initTgVals, deps
+          astType, tgLocalVarRef.get(), definition, &initAstNodes, &initAstTypes, &initTgVals, deps
         )) return false;
 
         generation->registerDestructor(
@@ -570,8 +578,9 @@ Bool Generator::_generateTempVar(
           }
           SharedList<TiObject> initTgVals;
           PlainList<TiObject> initAstTypes;
+          PlainList<TiObject> initAstNodes;
           if (!generation->generateVarInitialization(
-            astType, tgLocalVar.get(), astNode, &initAstTypes, &initTgVals, deps
+            astType, tgLocalVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, deps
           )) return false;
 
           generation->registerDestructor(astNode, astType, deps.tg->getExecutionContext(), deps.destructionStack);
@@ -585,8 +594,8 @@ Bool Generator::_generateTempVar(
 
 
 Bool Generator::_generateVarInitialization(
-  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *paramsAstNode,
-  PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
+  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode,
+  PlainList<TiObject> *paramAstNodes, PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
   GenDeps const &deps
 ) {
   PREPARE_SELF(generator, Generator);
@@ -604,6 +613,7 @@ Bool Generator::_generateVarInitialization(
 
     // Add `this` to parameter list.
     auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType);
+    paramAstNodes->insertElement(0, astNode);
     paramAstTypes->insertElement(0, varPtrAstType);
     paramTgValues->insertElement(0, tgVarRef);
 
@@ -615,16 +625,21 @@ Bool Generator::_generateVarInitialization(
     if (generator->astHelper->lookupCallee(
       &ref, varAstType, false, paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
     )) {
+      // Prepare the arguments to send.
+      if (!generator->getExpressionGenerator()->prepareFunctionParams(
+        static_cast<Ast::Function*>(callee)->getType().get(), generation, deps,
+        paramAstNodes, paramAstTypes, paramTgValues
+      )) return false;
       // Call the found constructor.
       GenResult result;
       return generator->getExpressionGenerator()->generateFunctionCall(
-        paramsAstNode, static_cast<Ast::Function*>(callee), paramAstTypes, paramTgValues, generation, deps, result
+        astNode, static_cast<Ast::Function*>(callee), paramAstTypes, paramTgValues, generation, deps, result
       );
     } else if (paramAstTypes->getCount() != 1) {
       // We have custom initialization but no constructors match the given params.
-      generator->noticeStore->add(
-        std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(paramsAstNode))
-      );
+      generator->noticeStore->add(std::make_shared<Spp::Notices::NoCalleeMatchNotice>(
+        Core::Data::Ast::findSourceLocation(astNode)
+      ));
       return false;
     }
   } else {
@@ -635,11 +650,12 @@ Bool Generator::_generateVarInitialization(
       ASSERT(paramAstType);
       TioSharedPtr tgCastedValue;
       if (!generation->generateCast(
-        deps, paramAstType, varAstType, paramsAstNode, paramTgValues->getElement(0), true, tgCastedValue)
+        deps, paramAstType, varAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(0)),
+        paramTgValues->getElement(0), true, tgCastedValue)
       ) {
-        generator->noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidReturnValueNotice>(Core::Data::Ast::findSourceLocation(paramsAstNode))
-        );
+        generator->noticeStore->add(std::make_shared<Spp::Notices::InvalidReturnValueNotice>(
+          Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(0))
+        ));
         return false;
       }
 
@@ -650,9 +666,9 @@ Bool Generator::_generateVarInitialization(
         return false;
       }
     } else if (paramAstTypes->getCount() > 0) {
-      generator->noticeStore->add(
-        std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(paramsAstNode))
-      );
+      generator->noticeStore->add(std::make_shared<Spp::Notices::NoCalleeMatchNotice>(
+        Core::Data::Ast::findSourceLocation(astNode)
+      ));
       return false;
     } else {
       // TODO: Else call automatic (inlined) constructors, if any?
@@ -698,8 +714,10 @@ Bool Generator::_generateMemberVarInitialization(
   // Initialize the member variable.
   SharedList<TiObject> initTgVals;
   PlainList<TiObject> initAstTypes;
+  PlainList<TiObject> initAstNodes;
   if (!generation->generateVarInitialization(
-    astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode), &initAstTypes, &initTgVals, deps
+    astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode),
+    &initAstNodes, &initAstTypes, &initTgVals, deps
   )) {
     return false;
   }

@@ -20,19 +20,19 @@ define void @"test()"() {
   call void @T.__autoConstruct__(%T* %a)
   call void @"T.~init(ref[T])"(%T* %a)
   call void @T.__autoConstruct__(%T* %a)
-  call void @"T.~init(ref[T],Int[32])"(%T* %a, i8 5)
+  call void @"T.~init(ref[T],Int[32])"(%T* %a, i32 5)
   call void @T.__autoConstruct__(%T* %a)
-  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %a, i8 6, i8 8)
+  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %a, i32 6, i32 8)
   %pa = alloca %T*
   %0 = load %T*, %T** %pa
   call void @T.__autoConstruct__(%T* %0)
   call void @"T.~init(ref[T])"(%T* %0)
   %1 = load %T*, %T** %pa
   call void @T.__autoConstruct__(%T* %1)
-  call void @"T.~init(ref[T],Int[32])"(%T* %1, i8 5)
+  call void @"T.~init(ref[T],Int[32])"(%T* %1, i32 5)
   %2 = load %T*, %T** %pa
   call void @T.__autoConstruct__(%T* %2)
-  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %2, i8 6, i8 8)
+  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %2, i32 6, i32 8)
   %i = alloca i32
   store i32 5, i32* %i
   ret void

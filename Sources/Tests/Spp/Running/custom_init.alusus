@@ -14,6 +14,12 @@ type A
     this.i = that.i * 2;
   };
 
+  on this~init(that: ref[A], extra: Int) {
+    Srl.Console.print("constructed3!\n");
+    this~init(that);
+    this.i += extra;
+  };
+
   on this~terminate() {
     this.i = 0;
     Srl.Console.print("destructed!\n");
@@ -130,6 +136,15 @@ function testInlinedInit
   Srl.Console.print("testInlinedInit: %d\n", gc.i);
 };
 
+function testInitRedirect
+{
+  def a1: A;
+  a1.i = 5;
+  def a2: A;
+  a2~init(a1, 3);
+  Srl.Console.print("testInitRedirect: %d\n", a2.i);
+};
+
 testNoReturn();
 Srl.Console.print("\n");
 
@@ -164,3 +179,6 @@ for i = 0, i < 2, ++i {
 Srl.Console.print("\n");
 
 testInlinedInit();
+Srl.Console.print("\n");
+
+testInitRedirect();

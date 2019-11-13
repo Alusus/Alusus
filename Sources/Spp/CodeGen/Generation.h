@@ -111,9 +111,9 @@ class Generation : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(generateVarInitialization, Bool, (
-    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* paramsAstNode */,
-    PlainList<TiObject>* /* paramAstTypes */, SharedList<TiObject>* /* paramTgValues */,
-    GenDeps const& /* deps */
+    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
+    PlainList<TiObject>* /* paramAstNodes */, PlainList<TiObject>* /* paramAstTypes */,
+    SharedList<TiObject>* /* paramTgValues */, GenDeps const& /* deps */
   ));
 
   public: METHOD_BINDING_CACHE(generateMemberVarInitialization,

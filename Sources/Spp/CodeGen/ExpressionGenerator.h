@@ -514,6 +514,19 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, GenDeps const &deps, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(prepareFunctionParams,
+    Bool, (
+      Spp::Ast::FunctionType* /* calleeType */, Generation* /* g */, GenDeps const& /* deps */,
+      DynamicContaining<TiObject>* /* paramAstNodes */, DynamicContaining<TiObject>* /* paramAstTypes */,
+      SharedList<TiObject>* /* paramTgVals */
+    )
+  );
+  private: static Bool _prepareFunctionParams(
+    TiObject *self, Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
+    DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes,
+    SharedList<TiObject> *paramTgVals
+  );
+
   /// @}
 
   /// @name Helper Functions
@@ -527,11 +540,6 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   private: Bool generateParamList(
     Containing<TiObject> *astNodes, Generation *g, GenDeps const &deps,
     DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
-  );
-
-  private: Bool prepareFunctionParams(
-    Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
-    DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
   );
 
   public: Bool dereferenceIfNeeded(

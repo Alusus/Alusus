@@ -71,11 +71,12 @@ Bool CommandGenerator::_generateReturnStatement(
 
       SharedList<TiObject> initTgVals;
       PlainList<TiObject> initAstTypes;
+      PlainList<TiObject> initAstNodes;
       initTgVals.add(operandResult.targetData);
       initAstTypes.add(operandResult.astType);
+      initAstNodes.add(ti_cast<Core::Data::Node>(operand));
       if (!g->generateVarInitialization(
-        retType, getCodeGenData<TiObject>(retTypeRef), retTypeRef,
-        &initAstTypes, &initTgVals, deps
+        retType, getCodeGenData<TiObject>(retTypeRef), astNode, &initAstNodes, &initAstTypes, &initTgVals, deps
       )) {
         return false;
       }

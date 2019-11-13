@@ -57,7 +57,8 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateVarReference,
     &this->generateMemberReference,
     &this->generateArrayReference,
-    &this->generateFunctionCall
+    &this->generateFunctionCall,
+    &this->prepareFunctionParams
   });
 }
 
@@ -101,6 +102,7 @@ void ExpressionGenerator::initBindings()
   this->generateMemberReference = &ExpressionGenerator::_generateMemberReference;
   this->generateArrayReference = &ExpressionGenerator::_generateArrayReference;
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
+  this->prepareFunctionParams = &ExpressionGenerator::_prepareFunctionParams;
 }
 
 
@@ -1981,7 +1983,7 @@ Bool ExpressionGenerator::_generateInitOp(
 
   if (deps.tgContext != 0) {
     if (!g->generateVarInitialization(
-      astContentType, target.targetData.get(), astNode, &paramAstTypes, &paramTgValues, deps
+      astContentType, target.targetData.get(), astNode, &paramAstNodes, &paramAstTypes, &paramTgValues, deps
     )) return false;
   }
   result = target;
@@ -2451,6 +2453,50 @@ Bool ExpressionGenerator::_generateFunctionCall(
 }
 
 
+Bool ExpressionGenerator::_prepareFunctionParams(
+  TiObject *self, Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
+  DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes,
+  SharedList<TiObject> *paramTgVals
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  Ast::FunctionType::ArgMatchContext context;
+  for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {
+    Ast::Type *srcType = static_cast<Ast::Type*>(paramAstTypes->getElement(i));
+    auto status = calleeType->matchNextArg(srcType, context, expGenerator->astHelper, deps.tg->getExecutionContext());
+    ASSERT(status != Ast::TypeMatchStatus::NONE);
+
+    // Cast the value if needed.
+    if (context.type != 0) {
+      Ast::Type *neededAstType;
+      if (context.type->hasCustomInitialization(expGenerator->astHelper, deps.tg->getExecutionContext())) {
+        neededAstType = expGenerator->astHelper->getReferenceTypeFor(context.type);
+      } else {
+        neededAstType = context.type;
+      }
+      TioSharedPtr tgCastedVal;
+      if (deps.tgContext != 0) {
+        if (!g->generateCast(
+          deps, srcType, neededAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(i)),
+          paramTgVals->getElement(i), false, tgCastedVal
+        )) {
+          throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
+        };
+      }
+      paramTgVals->set(i, tgCastedVal);
+    } else {
+      // For var args we need to send values, not references.
+      GenResult result;
+      if (!expGenerator->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, deps, result)) {
+        throw EXCEPTION(GenericException, S("Unexpected error."));
+      }
+      paramTgVals->set(i, result.targetData);
+    }
+  }
+  return true;
+}
+
+
 //==============================================================================
 // Helper Functions
 
@@ -2499,48 +2545,6 @@ Bool ExpressionGenerator::generateParamList(
     resultValues->add(result.targetData);
     resultTypes->addElement(result.astType);
     resultAstNodes->addElement(astNodes->getElement(i));
-  }
-  return true;
-}
-
-
-Bool ExpressionGenerator::prepareFunctionParams(
-  Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
-  DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes,
-  SharedList<TiObject> *paramTgVals
-) {
-  Ast::FunctionType::ArgMatchContext context;
-  for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {
-    Ast::Type *srcType = static_cast<Ast::Type*>(paramAstTypes->getElement(i));
-    auto status = calleeType->matchNextArg(srcType, context, this->astHelper, deps.tg->getExecutionContext());
-    ASSERT(status != Ast::TypeMatchStatus::NONE);
-
-    // Cast the value if needed.
-    if (context.type != 0) {
-      Ast::Type *neededAstType;
-      if (context.type->hasCustomInitialization(this->astHelper, deps.tg->getExecutionContext())) {
-        neededAstType = this->astHelper->getReferenceTypeFor(context.type);
-      } else {
-        neededAstType = context.type;
-      }
-      TioSharedPtr tgCastedVal;
-      if (deps.tgContext != 0) {
-        if (!g->generateCast(
-          deps, srcType, neededAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(i)),
-          paramTgVals->getElement(i), false, tgCastedVal
-        )) {
-          throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
-        };
-      }
-      paramTgVals->set(i, tgCastedVal);
-    } else {
-      // For var args we need to send values, not references.
-      GenResult result;
-      if (!this->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, deps, result)) {
-        throw EXCEPTION(GenericException, S("Unexpected error."));
-      }
-      paramTgVals->set(i, result.targetData);
-    }
   }
   return true;
 }
