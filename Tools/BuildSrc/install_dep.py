@@ -33,7 +33,7 @@ def install_pip(prefix, verbose=False):
         return True
     except (ModuleNotFoundError, ImportError):
         install_location_args = ['--prefix', prefix]
-        script_dir = os.path.dirname(os.path.realpath(__file__))
+        script_dir = os.path.dirname(os.path.abspath(__file__))
         cmd = [sys.executable, os.path.join(
             script_dir, 'get-pip.py'), '--ignore-installed'] + install_location_args
         ret = 0

@@ -12,6 +12,7 @@ from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
 import colorama
 import sys
 from version_info import get_version_info
+from create_dll import create_dll
 
 # Current system variables.
 THIS_SYSTEM = platform.system()
@@ -24,7 +25,7 @@ LIB_DIR = "Bin" if THIS_SYSTEM == "Windows" else "Lib"
 LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
 LLVM_NAME = "llvm-7.0.1"
 LLVM_SHARED_LIB_BUILD_NAME = "libLLVM-7" if THIS_SYSTEM != "Darwin" else "libLLVM"
-LLVM_SHARED_LIB_INSTALL_NAME = "libLLVM-7"
+LLVM_SHARED_LIB_INSTALL_NAME = "libLLVM"
 LIBCURL_SRC_URL = "https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
 LIBCURL_NAME = "curl-7.64.1"
 LIBZIP_SRC_URL = "https://github.com/kuba--/zip/archive/v0.1.14.zip"
@@ -40,8 +41,8 @@ BUILD_TYPE = global_args['buildType']
 
 # Paths.
 ALUSUS_ROOT = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.realpath(__file__))))
-ORIGINAL_PATH = os.path.realpath(os.getcwd())
+    os.path.dirname(os.path.abspath(__file__))))
+ORIGINAL_PATH = os.path.abspath(os.getcwd())
 os.chdir(ALUSUS_ROOT)
 PRODUCT_PATH = global_args['productPath']
 INSTALL_PATH = global_args['installPath']
@@ -91,7 +92,7 @@ def build_llvm():
     except OSError:
         pass
 
-    old_path = os.path.realpath(os.getcwd())
+    old_path = os.path.abspath(os.getcwd())
     os.chdir(DEPS_PATH)
 
     if not os.path.exists(os.path.join(LLVM_NAME + ".src", "EXTRACTED")):
@@ -109,7 +110,7 @@ def build_llvm():
     else:
         infoMsg("LLVM sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))):
+    if os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))):
         infoMsg("{} is already built and installed.".format(
             LLVM_SHARED_LIB_INSTALL_NAME))
         successMsg("Building LLVM.")
@@ -144,47 +145,44 @@ def build_llvm():
         ret = subprocess.call(cmake_cmd)
         if ret != 0:
             failMsg("Building LLVM.")
-            exit(1)
+            os._exit(1)
 
         ret = subprocess.call(
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building LLVM.")
-            exit(1)
+            os._exit(1)
 
-        # Now we create the "libLLVM" DLL for Windows MinGW.
+        if not os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR))
+
         if THIS_SYSTEM == "Windows":
+            # Force build shared library in Windows.
             infoMsg("Building {llvmDylibName}.{dylibExt} on Windows MinGW...".format(
-                llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
-            temp_path = os.getcwd()
-            script_dir = os.path.dirname(os.path.realpath(__file__))
-            os.chdir(os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib"))
+                    llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
+            if THIS_SYSTEM == "Windows":
+                try:
+                    os.remove(os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib", "libLLVM.dll.a"))
+                except OSError:
+                    pass
+                ret = create_dll(arg_dir=[os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib")],
+                        arg_output_dir=os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR),
+                        arg_output_name='LLVM', arg_link_lib=[
+                            'ole32', 'uuid', 'LLVMSupport', 'z'])
+                if ret[0]:
+                    failMsg("Building LLVM.")
+                    os._exit(1)
+        else:
             shutil.copy2(
-                os.path.join(script_dir, 'create_libLLVM_MinGW.sh'),
-                'create_libLLVM_MinGW.sh'
+                os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib",
+                            "{0}.{1}".format(LLVM_SHARED_LIB_BUILD_NAME, SHARED_LIBS_EXT)),
+                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(
+                    LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
             )
-            ret = subprocess.call(['bash', '-c', '{script} {arg}'.format(
-                script='./create_libLLVM_MinGW.sh', arg=LLVM_SHARED_LIB_INSTALL_NAME)])
-            if ret != 0:
-                failMsg("Building LLVM.")
-                exit(1)
-            os.remove('create_libLLVM_MinGW.sh')
-            os.chdir(temp_path)
-            infoMsg("Finished building {llvmDylibName}.{dylibExt} on Windows MinGW.".format(
-                llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
-
-        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
-            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
-        shutil.copy2(
-            os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib",
-                         "{0}.{1}".format(LLVM_SHARED_LIB_BUILD_NAME, SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(
-                LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
-        )
-    except (IOError, OSError, subprocess.CalledProcessError) as e:
+    except (IOError, OSError, subprocess.CalledProcessError, TypeError) as e:
         failMsg(str(e))
         failMsg("Building LLVM.")
-        exit(1)
+        os._exit(1)
     os.chdir(old_path)
     successMsg("Building LLVM.")
 
@@ -211,7 +209,7 @@ def build_libcurl():
     except OSError:
         pass
 
-    old_path = os.path.realpath(os.getcwd())
+    old_path = os.path.abspath(os.getcwd())
     os.chdir(DEPS_PATH)
 
     if not os.path.exists(os.path.join(LIBCURL_NAME + ".src", "EXTRACTED")):
@@ -230,7 +228,7 @@ def build_libcurl():
     else:
         infoMsg("libcurl sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libcurl.{}".format(SHARED_LIBS_EXT))):
+    if os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR, "libcurl.{}".format(SHARED_LIBS_EXT))):
         infoMsg("libcurl is already built and installed.")
         successMsg("Building libcurl.")
         return
@@ -242,9 +240,9 @@ def build_libcurl():
     os.chdir(LIBCURL_NAME + ".build")
 
     try:
-        configure_path = os.path.realpath(os.path.join(
+        configure_path = os.path.abspath(os.path.join(
             '..', LIBCURL_NAME + ".src", "configure"))
-        install_prefix_path = os.path.realpath(
+        install_prefix_path = os.path.abspath(
             os.path.join('..', LIBCURL_NAME + ".install"))
         # Convert the paths to UNIX based on Windows to run under MSYS2 shell.
         if THIS_SYSTEM == "Windows":
@@ -263,35 +261,55 @@ def build_libcurl():
         ret = subprocess.call(['bash', '-c', bash_cmd])
         if ret != 0:
             failMsg("Building libcurl.")
-            exit(1)
+            os._exit(1)
 
         # On Windows, we will be using MSYS2's "make" (not "mingw32-make") command, as we are going to build under MSYS2's UNIX shell.
         ret = subprocess.call(
             ['make', '-j{0}'.format(MAKE_THREAD_COUNT), 'install'])
         if ret != 0:
             failMsg("Building libcurl.")
-            exit(1)
+            os._exit(1)
 
-        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+
+        if not os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)):
             try:
                 os.makedirs(os.path.join(
-                    os.path.realpath(INSTALL_PATH), LIB_DIR))
+                    os.path.abspath(INSTALL_PATH), LIB_DIR))
             except:
                 failMsg(
-                    "Cannot create \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
-        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
-            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
-        shutil.copy2(
-            os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", LIB_DIR.lower(),
-                         "libcurl{0}.{1}".format("-4" if THIS_SYSTEM == "Windows" else "", SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR,
-                         "libcurl.{}".format(SHARED_LIBS_EXT))
-        )
+                    "Cannot create \"" + os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR) + "\" directory.")
+        if not os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR))
 
-    except (IOError, OSError, subprocess.CalledProcessError) as e:
+        if THIS_SYSTEM == "Windows":
+            # Force build shared library in Windows.
+            infoMsg("Building libcurl.{dylibExt} on Windows MinGW...".format(dylibExt=SHARED_LIBS_EXT))
+            if THIS_SYSTEM == "Windows":
+                try:
+                    os.remove(os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "lib", "libcurl.dll.a"))
+                except OSError:
+                    pass
+                ret = create_dll(arg_dir=[os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "lib")],
+                        arg_output_dir=os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR),
+                        arg_output_name='curl', arg_link_lib=[
+                            'ws2_32', 'ssl', 'psl', 'ole32', 'idn2', 'unistring', 'crypto', 'z',
+                            'intl', 'brotlidec-static', 'brotlicommon-static', 'nghttp2', 'iconv',
+                            'wldap32'])
+                if ret[0]:
+                    failMsg("Building libcurl.")
+                    os._exit(1)
+        else:
+            shutil.copy2(
+                os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", LIB_DIR.lower(),
+                            "libcurl.{0}".format(SHARED_LIBS_EXT)),
+                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR,
+                            "libcurl.{}".format(SHARED_LIBS_EXT))
+            )
+
+    except (IOError, OSError, subprocess.CalledProcessError, TypeError) as e:
         failMsg(str(e))
         failMsg("Building libcurl.")
-        exit(1)
+        os._exit(1)
     os.chdir(old_path)
     successMsg("Building libcurl.")
 
@@ -317,7 +335,7 @@ def build_libzip():
     except OSError:
         pass
 
-    old_path = os.path.realpath(os.getcwd())
+    old_path = os.path.abspath(os.getcwd())
     os.chdir(DEPS_PATH)
 
     if not os.path.exists(os.path.join(LIBZIP_NAME + ".src", "EXTRACTED")):
@@ -335,7 +353,7 @@ def build_libzip():
     else:
         infoMsg("libzip sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libzip.{}".format(SHARED_LIBS_EXT))):
+    if os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR, "libzip.{}".format(SHARED_LIBS_EXT))):
         infoMsg("libzip is already built and installed.")
         successMsg("Building libzip.")
         return
@@ -363,24 +381,31 @@ def build_libzip():
         ret = subprocess.call(cmake_cmd)
         if ret != 0:
             failMsg("Building libzip.")
-            exit(1)
+            os._exit(1)
         ret = subprocess.call(
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building libzip.")
-            exit(1)
-        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
-            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
+            os._exit(1)
+        if not os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR))
         shared_lib_dir = "bin" if THIS_SYSTEM == "Windows" else "lib"
         shutil.copy2(
             os.path.join(DEPS_PATH, LIBZIP_NAME + ".install",
                          shared_lib_dir, "libzip.{}".format(SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
+            os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
         )
+        # Copy import library to the install dirctory.
+        if THIS_SYSTEM == "Windows":
+            shutil.copy2(
+                os.path.join(DEPS_PATH, LIBZIP_NAME + ".install",
+                             "lib", "libzip.{}.a".format(SHARED_LIBS_EXT)),
+                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
+            )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
         failMsg("Building libzip.")
-        exit(1)
+        os._exit(1)
     os.chdir(old_path)
     successMsg("Building libzip.")
 
@@ -407,7 +432,7 @@ def build_dlfcn_win32():
     except OSError:
         pass
 
-    old_path = os.path.realpath(os.getcwd())
+    old_path = os.path.abspath(os.getcwd())
     os.chdir(DEPS_PATH)
 
     dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
@@ -426,7 +451,7 @@ def build_dlfcn_win32():
     else:
         infoMsg("dlfcn-win32 sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR, "libdl.{}".format(SHARED_LIBS_EXT))):
+    if os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR, "libdl.{}".format(SHARED_LIBS_EXT))):
         infoMsg("libdl is already built and installed.")
         successMsg("Building libdl.")
         return
@@ -453,32 +478,39 @@ def build_dlfcn_win32():
         ret = subprocess.call(cmake_cmd)
         if ret != 0:
             failMsg("Building libdl.")
-            exit(1)
+            os._exit(1)
         ret = subprocess.call(
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building libdl.")
-            exit(1)
+            os._exit(1)
 
-        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
+        if not os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)):
             try:
                 os.makedirs(os.path.join(
-                    os.path.realpath(INSTALL_PATH), LIB_DIR))
+                    os.path.abspath(INSTALL_PATH), LIB_DIR))
             except:
                 failMsg(
-                    "Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR) + "\" directory.")
-                exit(1)
-        if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)):
-            os.makedirs(os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR))
+                    "Cannot make \"" + os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR) + "\" directory.")
+                os._exit(1)
+        if not os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)):
+            os.makedirs(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR))
         shutil.copy2(
             os.path.join(DEPS_PATH, dlfcn_folder_name + ".install",
                          "bin", "libdl.{}".format(SHARED_LIBS_EXT)),
-            os.path.join(os.path.realpath(INSTALL_PATH), LIB_DIR)
+            os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
         )
+        # Copy import library to the install dirctory.
+        if THIS_SYSTEM == "Windows":
+            shutil.copy2(
+                os.path.join(DEPS_PATH, dlfcn_folder_name + ".install",
+                             "lib", "libdl.{}.a".format(SHARED_LIBS_EXT)),
+                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
+            )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
         failMsg("Building libdl.")
-        exit(1)
+        os._exit(1)
     os.chdir(old_path)
     successMsg("Building libdl.")
 
@@ -630,7 +662,7 @@ def build_alusus():
     infoMsg("Building Alusus...")
     if not os.path.isdir(BUILD_PATH):
         os.makedirs(BUILD_PATH)
-    old_path = os.path.realpath(os.getcwd())
+    old_path = os.path.abspath(os.getcwd())
     os.chdir(BUILD_PATH)
 
     try:
@@ -639,7 +671,7 @@ def build_alusus():
             cmake_cmd = ["cmake",
                          "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
                          "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
-                         "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
+                         "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH if THIS_SYSTEM != "Windows" else INSTALL_PATH.replace('\\', '/')),
                          "-DLLVM_PATH={}".format(
                              (os.path.join(DEPS_PATH, LLVM_NAME + ".install").replace('\\', '/') if THIS_SYSTEM == "Windows" else
                               os.path.join(DEPS_PATH, LLVM_NAME + ".install"))
@@ -659,7 +691,7 @@ def build_alusus():
             ret = subprocess.call(cmake_cmd)
             if ret != 0:
                 failMsg("Building Alusus.")
-                exit(1)
+                os._exit(1)
 
             with open('CMAKE_CHECKER', 'w') as fd:
                 fd.write("CMAKE GENERATOR CHECKER")
@@ -668,14 +700,14 @@ def build_alusus():
             "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
         if ret != 0:
             failMsg("Building Alusus.")
-            exit(1)
+            os._exit(1)
         if THIS_SYSTEM == "Windows":
             copy_mingw_dlls()
 
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
         failMsg("Building Alusus.")
-        exit(1)
+        os._exit(1)
     os.chdir(old_path)
     successMsg("Building Alusus.")
 
@@ -729,7 +761,7 @@ def create_packages_windows():
         packages_path, 'alusus_{0}_{1}.iss'.format(ALUSUS_VERSION, os.environ['MINGW_HOST']))])
     if ret != 0:
         failMsg("Creating EXE Package.")
-        exit(1)
+        os._exit(1)
 
 
 def create_packages_unix():
@@ -745,7 +777,7 @@ def create_packages_unix():
     global INSTALL_PATH
     global PYTHON_DEPS_PATH
 
-    old_path = os.path.realpath(os.getcwd())
+    old_path = os.path.abspath(os.getcwd())
     os.chdir(PACKAGES_PATH)
 
     input_type = "dir"
@@ -776,7 +808,7 @@ def create_packages_unix():
     if ret != 0:
         failMsg("Creating {} Package.".format(
             "DEB" if THIS_SYSTEM == "Linux" else "OSXPKG"))
-        exit(1)
+        os._exit(1)
 
     # Create additional package of type RPM for Linux systems.
     if THIS_SYSTEM == "Linux":
@@ -786,7 +818,7 @@ def create_packages_unix():
         ret = subprocess.call(current_cmd)
         if ret != 0:
             failMsg("Creating RPM Package.")
-            exit(1)
+            os._exit(1)
 
     os.chdir(old_path)
 
@@ -816,10 +848,10 @@ if __name__ == "__main__":
     colorama.init()
     if THIS_SYSTEM == "Windows" and 'MINGW_HOST' not in os.environ:
         errMsg('\"MINGW_HOST\" environment variable is not defined. Possible values are either \"i686-w64-mingw32\" or \"x86_64-w64-mingw32\".')
-        exit(1)
+        os._exit(1)
     elif THIS_SYSTEM == "Windows" and os.environ['MINGW_HOST'] not in ['i686-w64-mingw32', 'x86_64-w64-mingw32']:
         errMsg('Wrong value for \"MINGW_HOST\" environment variable is set. Possible values are either \"i686-w64-mingw32\" or \"x86_64-w64-mingw32\".')
-        exit(1)
+        os._exit(1)
     prep_debs()
     build_alusus()
     if CREATE_PACKAGES == "yes":

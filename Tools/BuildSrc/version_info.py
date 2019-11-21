@@ -8,8 +8,8 @@ from install_dep import add_local_site_packages_to_path
 
 
 def get_version_info(prefix):
-    original_path = os.path.realpath(os.getcwd())
-    os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    original_path = os.path.abspath(os.getcwd())
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     release_string = None
     version = None
     revision = ""

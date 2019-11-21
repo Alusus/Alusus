@@ -56,7 +56,7 @@ def _process_args():
     global_args['rerunCMake'] = args.reruncmake
 
     if args.bloc:
-        global_args['productPath'] = os.path.realpath(args.bloc)
+        global_args['productPath'] = os.path.abspath(args.bloc)
         if not os.path.isdir(global_args['productPath']):
             os.makedirs(global_args['productPath'])
         global_args['buildsPath'] = os.path.join(
@@ -93,7 +93,7 @@ def _process_args():
         os.makedirs(global_args['installPath'])
 
     if args.iloc:
-        global_args['installPath'] = os.path.realpath(args.iloc)
+        global_args['installPath'] = os.path.abspath(args.iloc)
 
     global_args['numThreads'] = args.numthreads
 
