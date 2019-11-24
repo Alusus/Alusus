@@ -201,6 +201,9 @@ DEFINE_NOTICE(InvalidInitOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPP
 DEFINE_NOTICE(InvalidTerminateOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1026", 1,
   "Invalid operand for ~terminate operator."
 );
+DEFINE_NOTICE(ThisRedefinedNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1027", 1,
+  "Invalid redefinition of `this` in function args."
+);
 
 } // namespace
 
