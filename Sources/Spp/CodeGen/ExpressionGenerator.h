@@ -168,41 +168,13 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnCallee,
     Bool, (
-      Core::Data::Node* /* astNode */, TiObject* /* callee */, Ast::Type* /* calleeType */,
+      Core::Data::Node* /* astNode */, GenResult const& /* callee */, GenResult const& /* thisArg */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
+      PlainList<TiObject>* /* paramAstNodes */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnCallee(
-    TiObject *self, Core::Data::Node *astNode, TiObject *callee, Ast::Type *calleeType,
-    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-    Generation *g, GenDeps const &deps, GenResult &result
-  );
-
-  public: METHOD_BINDING_CACHE(generateRoundParamPassOnResult,
-    Bool, (
-      Core::Data::Ast::ParamPass* /* astNode */, GenResult* /* prevResult */, SharedList<TiObject>* /* paramTgValues */,
-      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
-    )
-  );
-  private: static Bool _generateRoundParamPassOnResult(
-    TiObject *self, Core::Data::Ast::ParamPass *astNode, GenResult *prevResult,
-    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-    Generation *g, GenDeps const &deps, GenResult &result
-  );
-
-  public: METHOD_BINDING_CACHE(generateRoundParamPassOnMember,
-    Bool, (
-      Core::Data::Ast::LinkOperator* /* linkOperator */, GenResult* /* prevResult */,
-      SharedList<TiObject>* /* paramTgValues */,
-      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
-    )
-  );
-  private: static Bool _generateRoundParamPassOnMember(
-    TiObject *self, Core::Data::Ast::LinkOperator *linkOperator, GenResult *prevResult,
+    TiObject *self, Core::Data::Node *astNode, GenResult const &callee, GenResult const &thisArg,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
     Generation *g, GenDeps const &deps, GenResult &result
   );
@@ -490,6 +462,17 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, GenDeps const &deps, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateMemberVarReference,
+    Bool, (
+      Core::Data::Node* /* astNode */, TiObject* /* tgStructValue */, Ast::Type* /* astStructType */,
+      TiObject* /* astMemberVar */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateMemberVarReference(
+    TiObject *self, Core::Data::Node *astNode, TiObject *tgStructValue, Ast::Type * astStructType, TiObject *astMemberVar,
+    Generation *g, GenDeps const &deps, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateArrayReference,
     Bool, (
       Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Ast::Type* /* astType */, TiObject* /* tgIndexVal */,
@@ -525,6 +508,18 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
     DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes,
     SharedList<TiObject> *paramTgVals
+  );
+
+  public: METHOD_BINDING_CACHE(generateCalleeReferenceChain,
+    Bool, (
+      Ast::CalleeLookupResult const& /* calleeInfo */, Core::Data::Node* /* astNode */,
+      GenResult const& /* prevResult */, Generation* /* g */, GenDeps const& /* deps */,
+      GenResult& /* calleeResult */, GenResult& /* thisResult */
+    )
+  );
+  private: static Bool _generateCalleeReferenceChain(
+    TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Data::Node *astNode, GenResult const &prevResult,
+    Generation *g, GenDeps const &deps, GenResult &calleeResult, GenResult &thisResult
   );
 
   /// @}

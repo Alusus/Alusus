@@ -54,7 +54,22 @@ ti_s_enum(DefinitionDomain,
   FUNCTION = 0, OBJECT = 1, GLOBAL = 2
 );
 
+/// @ingroup spp_ast
+struct CalleeLookupResult
+{
+  PlainList<TiObject> stack;
+  Type *type = 0;
+  SharedPtr<Core::Notices::Notice> notice;
+  Int thisIndex = -2;
+};
+
 } // namespace
+
+
+//==============================================================================
+// Type Names
+
+DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupResult, "alusus.org/Spp/Spp.Ast.CalleeLookupResult");
 
 
 //==============================================================================

@@ -14,7 +14,7 @@
 #ifndef CORE_BASIC_BASIC_H
 #define CORE_BASIC_BASIC_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -724,7 +724,7 @@ extern std::istream &inStream;
  * @brief Wrapper definitions for basic exception classes.
  */
 
-} } // namespace
+} // namespace
 
 
 //==============================================================================
@@ -778,6 +778,7 @@ extern std::istream &inStream;
 #include "PlainMapBase.h"
 #include "PlainMap.h"
 #include "Box.h"
+#include "ContainerExtender.h"
 
 #include "TiNumber.h"
 #include "TiStr.h"

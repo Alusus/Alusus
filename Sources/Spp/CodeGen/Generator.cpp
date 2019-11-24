@@ -619,12 +619,11 @@ Bool Generator::_generateVarInitialization(
 
     // Do we have constructors matching the given vars?
     static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
-    TiObject *callee;
-    Ast::Type *calleeType;
-    SharedPtr<Core::Notices::Notice> notice;
+    Ast::CalleeLookupResult calleeResult;
     if (generator->astHelper->lookupCallee(
-      &ref, varAstType, false, paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
+      &ref, varAstType, false, 0, paramAstTypes, deps.tg->getExecutionContext(), calleeResult
     )) {
+      auto callee = calleeResult.stack.get(calleeResult.stack.getCount() - 1);
       // Prepare the arguments to send.
       if (!generator->getExpressionGenerator()->prepareFunctionParams(
         static_cast<Ast::Function*>(callee)->getType().get(), generation, deps,
@@ -745,16 +744,15 @@ Bool Generator::_generateVarDestruction(
 
   // Find the destructor.
   static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
-  TiObject *callee;
-  Ast::Type *calleeType;
-  SharedPtr<Core::Notices::Notice> notice;
+  Ast::CalleeLookupResult calleeResult;
   if (generator->astHelper->lookupCallee(
-    &ref, varAstType, false, &paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
+    &ref, varAstType, false, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
   )) {
+    auto callee = static_cast<Ast::Function*>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));
     // Call the destructor.
     GenResult result;
     if (!generator->getExpressionGenerator()->generateFunctionCall(
-      astNode, static_cast<Ast::Function*>(callee), &paramAstTypes, &paramTgValues, generation, deps, result
+      astNode, callee, &paramAstTypes, &paramTgValues, generation, deps, result
     )) return false;
   }
 

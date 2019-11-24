@@ -29,8 +29,6 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateParamPass,
     &this->generateRoundParamPass,
     &this->generateRoundParamPassOnCallee,
-    &this->generateRoundParamPassOnResult,
-    &this->generateRoundParamPassOnMember,
     &this->generateSquareParamPass,
     &this->generateOperator,
     &this->generateLogicalOp,
@@ -56,9 +54,11 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateFloatLiteral,
     &this->generateVarReference,
     &this->generateMemberReference,
+    &this->generateMemberVarReference,
     &this->generateArrayReference,
     &this->generateFunctionCall,
-    &this->prepareFunctionParams
+    &this->prepareFunctionParams,
+    &this->generateCalleeReferenceChain
   });
 }
 
@@ -73,8 +73,6 @@ void ExpressionGenerator::initBindings()
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateRoundParamPass = &ExpressionGenerator::_generateRoundParamPass;
   this->generateRoundParamPassOnCallee = &ExpressionGenerator::_generateRoundParamPassOnCallee;
-  this->generateRoundParamPassOnResult = &ExpressionGenerator::_generateRoundParamPassOnResult;
-  this->generateRoundParamPassOnMember = &ExpressionGenerator::_generateRoundParamPassOnMember;
   this->generateSquareParamPass = &ExpressionGenerator::_generateSquareParamPass;
   this->generateOperator = &ExpressionGenerator::_generateOperator;
   this->generateLogicalOp = &ExpressionGenerator::_generateLogicalOp;
@@ -100,9 +98,11 @@ void ExpressionGenerator::initBindings()
   this->generateFloatLiteral = &ExpressionGenerator::_generateFloatLiteral;
   this->generateVarReference = &ExpressionGenerator::_generateVarReference;
   this->generateMemberReference = &ExpressionGenerator::_generateMemberReference;
+  this->generateMemberVarReference = &ExpressionGenerator::_generateMemberVarReference;
   this->generateArrayReference = &ExpressionGenerator::_generateArrayReference;
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
   this->prepareFunctionParams = &ExpressionGenerator::_prepareFunctionParams;
+  this->generateCalleeReferenceChain = &ExpressionGenerator::_generateCalleeReferenceChain;
 }
 
 
@@ -354,24 +354,21 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     ////
     //// Call a member of the current scope.
     ////
-    TiObject *callee;
-    Ast::Type *calleeType;
-    SharedPtr<Core::Notices::Notice> notice;
+    Ast::CalleeLookupResult calleeResult;
     if (!expGenerator->astHelper->lookupCallee(
-      operand, astNode->getOwner(), true, &paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
+      operand, astNode->getOwner(), true, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
     )) {
-      expGenerator->noticeStore->add(notice);
+      expGenerator->noticeStore->add(calleeResult.notice);
       return false;
     }
-    // Make sure the var is not an object member.
-    if (expGenerator->getAstHelper()->getDefinitionDomain(callee) == Ast::DefinitionDomain::OBJECT) {
-      expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
-        Core::Data::Ast::findSourceLocation(astNode)
-      ));
+    GenResult prevResult;
+    GenResult callee;
+    GenResult thisArg;
+    if (!expGenerator->generateCalleeReferenceChain(calleeResult, astNode, prevResult, g, deps, callee, thisArg)) {
       return false;
     }
     return expGenerator->generateRoundParamPassOnCallee(
-      astNode, callee, calleeType, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
+      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
     );
   } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     ////
@@ -395,36 +392,47 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     }
 
     if (firstResult.astType != 0) {
-      //// Calling a member of another object instance.
-      GenResult prevResult;
-      if (!expGenerator->generateMemberReference(
-        firstResult.targetData.get(), firstResult.astType, second, g, deps, prevResult
+      auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(firstResult.astType);
+      auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType);
+      // Lookup the callee.
+      Ast::CalleeLookupResult calleeResult;
+      if (!expGenerator->astHelper->lookupCallee(
+        second, thisType, true, thisRefType, &paramAstTypes, deps.tg->getExecutionContext(),
+        calleeResult
+      )) {
+        expGenerator->noticeStore->add(calleeResult.notice);
+        return false;
+      }
+      // Trace through the chain.
+      GenResult callee;
+      GenResult thisArg;
+      if (!expGenerator->generateCalleeReferenceChain(
+        calleeResult, astNode, firstResult, g, deps, callee, thisArg
       )) return false;
-      return expGenerator->generateRoundParamPassOnMember(
-        linkOperator, &prevResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
+      // Make the call.
+      return expGenerator->generateRoundParamPassOnCallee(
+        astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
       );
     } else if (firstResult.astNode != 0) {
       //// Calling a global in another module.
       // Look for a matching callee.
-      TiObject *callee;
-      Ast::Type *calleeType;
-      SharedPtr<Core::Notices::Notice> notice;
+      Ast::CalleeLookupResult calleeResult;
       if (!expGenerator->astHelper->lookupCallee(
-        second, static_cast<Ast::Module*>(firstResult.astNode), false, &paramAstTypes, deps.tg->getExecutionContext(),
-        callee, calleeType, notice
+        second, static_cast<Ast::Module*>(firstResult.astNode), false, 0, &paramAstTypes,
+        deps.tg->getExecutionContext(), calleeResult
       )) {
-        expGenerator->noticeStore->add(notice);
+        expGenerator->noticeStore->add(calleeResult.notice);
         return false;
       }
-      // Make sure the var is not an object member.
-      if (expGenerator->getAstHelper()->getDefinitionDomain(callee) == Ast::DefinitionDomain::OBJECT) {
-        expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
-          Core::Data::Ast::findSourceLocation(second)
-        ));
+      // Prepare the callee and make the call.
+      GenResult prevResult;
+      GenResult callee;
+      GenResult thisArg;
+      if (!expGenerator->generateCalleeReferenceChain(calleeResult, astNode, prevResult, g, deps, callee, thisArg)) {
         return false;
       }
       return expGenerator->generateRoundParamPassOnCallee(
-        astNode, callee, calleeType, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
+        astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
       );
     } else {
       expGenerator->noticeStore->add(
@@ -436,172 +444,98 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     ////
     //// Param pass to the result of a previous expression.
     ////
+    GenResult thisArg;
     GenResult prevResult;
     if (!expGenerator->generate(operand, g, deps, prevResult)) return false;
-    return expGenerator->generateRoundParamPassOnResult(
-      astNode, &prevResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
+    return expGenerator->generateRoundParamPassOnCallee(
+      astNode, prevResult, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
     );
   }
 }
 
 
 Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
-  TiObject *self, Core::Data::Node *astNode, TiObject *callee, Ast::Type *calleeType,
+  TiObject *self, Core::Data::Node *astNode, GenResult const &callee, GenResult const &thisArg,
   SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
   Generation *g, GenDeps const &deps, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  if (callee->isDerivedFrom<Ast::Function>()) {
+  if (callee.astNode != 0 && callee.astNode->isDerivedFrom<Ast::Function>()) {
     //// Call a function.
     ////
     // Prepare the arguments to send.
+    if (thisArg.targetData != 0) {
+      paramAstNodes->insert(0, astNode);
+      paramAstTypes->insert(0, thisArg.astType);
+      paramTgValues->insert(0, thisArg.targetData);
+    }
     if (!expGenerator->prepareFunctionParams(
-      static_cast<Ast::Function*>(callee)->getType().get(), g, deps, paramAstNodes, paramAstTypes, paramTgValues
+      static_cast<Ast::Function*>(callee.astNode)->getType().get(), g, deps, paramAstNodes, paramAstTypes, paramTgValues
     )) return false;
     // Generate the function call.
     return expGenerator->generateFunctionCall(
-      astNode, static_cast<Ast::Function*>(callee), paramAstTypes, paramTgValues, g, deps, result
-    );
-  } else if (calleeType != 0 && calleeType->isDerivedFrom<Ast::PointerType>()) {
-    //// Call a function pointer.
-    ////
-    // Get function type.
-    auto astFuncType = expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(calleeType);
-    if (astFuncType == 0) {
-      throw EXCEPTION(GenericException, S("Invalid callee type."));
-    }
-    // Prepare the arguments to send.
-    if (!expGenerator->prepareFunctionParams(
-      astFuncType, g, deps, paramAstNodes, paramAstTypes, paramTgValues
-    )) return false;
-    // Get the target data of the pointer and its type.
-    GenResult funcPtrResult;
-    if (!expGenerator->generateVarReference(astNode, callee, g, deps, funcPtrResult)) return false;
-    GenResult derefResult;
-    if (!expGenerator->dereferenceIfNeeded(
-      funcPtrResult.astType, funcPtrResult.targetData.get(), true, deps, derefResult
-    )) return false;
-    TiObject *tgFuncPtrType = getCodeGenData<TiObject>(derefResult.astType);
-    // Generate the call.
-    if (deps.tgContext != 0) {
-      if (!deps.tg->generateFunctionPtrCall(
-        deps.tgContext, derefResult.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
-      )) return false;
-    }
-    result.astType = astFuncType->traceRetType(expGenerator->astHelper);
-    return true;
-  } else if (calleeType != 0 && calleeType->isDerivedFrom<Ast::ArrayType>()) {
-    //// Reference array element.
-    ////
-    // Get a reference to the array.
-    GenResult arrayResult;
-    if (!expGenerator->generateVarReference(astNode, callee, g, deps, arrayResult)) return false;
-    // Reference array element.
-    return expGenerator->generateArrayReference(
-      astNode, arrayResult.targetData.get(), arrayResult.astType,
-      paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)), g, deps, result
+      astNode, static_cast<Ast::Function*>(callee.astNode), paramAstTypes, paramTgValues, g, deps, result
     );
   } else {
-    throw EXCEPTION(GenericException, S("Invalid callee."));
-  }
-}
-
-
-Bool ExpressionGenerator::_generateRoundParamPassOnResult(
-  TiObject *self, Core::Data::Ast::ParamPass *astNode, GenResult *prevResult,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-  Generation *g, GenDeps const &deps, GenResult &result
-) {
-  PREPARE_SELF(expGenerator, ExpressionGenerator);
-
-  if (expGenerator->astHelper->isTypeOrRefTypeOf<Ast::ArrayType>(prevResult->astType)) {
-    ////
-    //// Reference element of an array result of the expression.
-    ////
-    return expGenerator->generateArrayReference(
-      astNode, prevResult->targetData.get(), prevResult->astType,
-      paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)), g, deps, result
-    );
-  } else {
-    auto astFuncType = expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevResult->astType);
-    if (astFuncType != 0) {
-      // Validate parameters.
+    auto contentType = expGenerator->astHelper->tryGetDeepReferenceContentType(callee.astType);
+    if (contentType != 0 && contentType->isDerivedFrom<Ast::PointerType>()) {
+      //// Call a function pointer.
+      ////
+      // Get function type.
+      auto astFuncType = expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(contentType);
+      if (astFuncType == 0) {
+        throw EXCEPTION(GenericException, S("Invalid callee type."));
+      }
+      // Prepare the arguments to send.
+      if (thisArg.targetData != 0) {
+        paramAstNodes->insert(0, astNode);
+        paramAstTypes->insert(0, thisArg.astType);
+        paramTgValues->insert(0, thisArg.targetData);
+      }
+      // Make sure the args match.
       if (astFuncType->matchCall(
         paramAstTypes, expGenerator->astHelper, deps.tg->getExecutionContext()
       ) == Ast::TypeMatchStatus::NONE) {
         expGenerator->noticeStore->add(
-          std::make_shared<Spp::Notices::ArgsMismatchNotice>(astNode->findSourceLocation())
+          std::make_shared<Spp::Notices::ArgsMismatchNotice>(Core::Data::Ast::findSourceLocation(astNode))
         );
         return false;
       }
-      // Call a function pointer from a previous expression.
+      // Cast funciton args if needed.
       if (!expGenerator->prepareFunctionParams(
         astFuncType, g, deps, paramAstNodes, paramAstTypes, paramTgValues
       )) return false;
-      TiObject *tgFuncPtrType;
-      if (!g->getGeneratedType(prevResult->astType, deps.tg, tgFuncPtrType, 0)) return false;
-      if (!deps.tg->generateFunctionPtrCall(
-        deps.tgContext, prevResult->targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
+      // Get the target data of the pointer and its type.
+      GenResult derefCallee;
+      if (!expGenerator->dereferenceIfNeeded(
+        callee.astType, callee.targetData.get(), true, deps, derefCallee
       )) return false;
-      result.astType = astFuncType->traceRetType(expGenerator->astHelper);
-      return true;
-    } else {
-      expGenerator->noticeStore->add(
-        std::make_shared<Spp::Notices::NoCalleeMatchNotice>(astNode->findSourceLocation())
-      );
-      return false;
-    }
-  }
-}
-
-
-Bool ExpressionGenerator::_generateRoundParamPassOnMember(
-  TiObject *self, Core::Data::Ast::LinkOperator *linkOperator, GenResult *prevResult,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-  Generation *g, GenDeps const &deps, GenResult &result
-) {
-  PREPARE_SELF(expGenerator, ExpressionGenerator);
-
-  if (expGenerator->astHelper->isTypeOrRefTypeOf<Ast::ArrayType>(prevResult->astType)) {
-    //// Reference element of an array result of the expression.
-    return expGenerator->generateArrayReference(
-      linkOperator, prevResult->targetData.get(), prevResult->astType,
-      paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)),
-      g, deps, result
-    );
-  } else {
-    // Dereference the member variable.
-    GenResult derefResult;
-    if (!expGenerator->dereferenceIfNeeded(
-      prevResult->astType, prevResult->targetData.get(), true, deps, derefResult
-    )) return false;
-    auto astFuncType = expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(derefResult.astType);
-    if (astFuncType != 0) {
-      // Validate and prepare parameters.
-      if (astFuncType->matchCall(
-        paramAstTypes, expGenerator->astHelper, deps.tg->getExecutionContext()
-      ) == Ast::TypeMatchStatus::NONE) {
-        expGenerator->noticeStore->add(
-          std::make_shared<Spp::Notices::ArgsMismatchNotice>(linkOperator->findSourceLocation())
-        );
-        return false;
-      }
-      if (!expGenerator->prepareFunctionParams(
-        astFuncType, g, deps, paramAstNodes, paramAstTypes, paramTgValues
-      )) return false;
+      TiObject *tgFuncPtrType = getCodeGenData<TiObject>(derefCallee.astType);
       // Generate the call.
-      TiObject *tgFuncPtrType = getCodeGenData<TiObject>(derefResult.astType);
       if (deps.tgContext != 0) {
         if (!deps.tg->generateFunctionPtrCall(
-          deps.tgContext, derefResult.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
+          deps.tgContext, derefCallee.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
         )) return false;
       }
       result.astType = astFuncType->traceRetType(expGenerator->astHelper);
       return true;
+    } else if (contentType != 0 && contentType->isDerivedFrom<Ast::ArrayType>()) {
+      //// Reference array element.
+      ////
+      // Get a reference to the array.
+      GenResult derefCallee;
+      if (!expGenerator->dereferenceIfNeeded(
+        callee.astType, callee.targetData.get(), false, deps, derefCallee
+      )) return false;
+      // Reference array element.
+      return expGenerator->generateArrayReference(
+        astNode, derefCallee.targetData.get(), derefCallee.astType,
+        paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)), g, deps, result
+      );
     } else {
       expGenerator->noticeStore->add(
-        std::make_shared<Spp::Notices::NoCalleeMatchNotice>(linkOperator->findSourceLocation())
+        std::make_shared<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -719,14 +653,12 @@ Bool ExpressionGenerator::_generateOperator(
   if (param0AstContentType == 0) {
     throw EXCEPTION(GenericException, S("Unexpected AST type for first operator parameter."));
   }
-  TiObject *callee;
-  Ast::Type *calleeType;
+  Ast::CalleeLookupResult calleeResult;
   Ast::Function *function = 0;
-  SharedPtr<Core::Notices::Notice> notice;
   if (expGenerator->astHelper->lookupCalleeByName(
     funcName, Core::Data::Ast::findSourceLocation(astNode), param0AstContentType,
-    true, &paramAstTypes, deps.tg->getExecutionContext(), callee, calleeType, notice
-  )) function = ti_cast<Ast::Function>(callee);
+    true, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
+  )) function = ti_cast<Ast::Function>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));
 
   if (function != 0) {
     // Prepare the arguments to send.
@@ -773,8 +705,8 @@ Bool ExpressionGenerator::_generateOperator(
       auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
       return expGenerator->generateUnaryVarOp(outfixOp, &paramTgValues, &paramAstTypes, g, deps, result);
     } else {
-      if (notice != 0) {
-        expGenerator->noticeStore->add(notice);
+      if (calleeResult.notice != 0) {
+        expGenerator->noticeStore->add(calleeResult.notice);
       } else {
         expGenerator->noticeStore->add(std::make_shared<Spp::Notices::NoCalleeMatchNotice>(
           Core::Data::Ast::findSourceLocation(astNode)
@@ -2279,18 +2211,18 @@ Bool ExpressionGenerator::_generateMemberReference(
 
   // Prepare the struct type.
   Ast::Type *astStructType;
-  TiObject *tgStructType;
+  Ast::Type *astStructValueType;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
-    if (!g->getGeneratedType(astType, deps.tg, tgStructType, &astStructType)) return false;
+    astStructValueType = target.astType;
+    astStructType = astStructValueType;
   } else {
-    astStructType = astRefType->getContentType(expGenerator->astHelper);
+    astStructValueType = astRefType->getContentType(expGenerator->astHelper);
     // TargetGenerator expects a pointer type as it doesn't have the concept of references, so we need to
     // get the pointer type for the given reference type.
-    auto astPtrType = expGenerator->astHelper->getPointerTypeFor(astStructType);
-    if (!g->getGeneratedType(astPtrType, deps.tg, tgStructType, 0)) return false;
+    astStructType = expGenerator->astHelper->getPointerTypeFor(astStructValueType);
   }
-  if (!astStructType->isDerivedFrom<Ast::DataType>()) {
+  if (!astStructValueType->isDerivedFrom<Ast::DataType>()) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidOperationNotice>(astNode->findSourceLocation())
     );
@@ -2298,7 +2230,7 @@ Bool ExpressionGenerator::_generateMemberReference(
   }
 
   // Find the member variable.
-  auto body = static_cast<Ast::DataType*>(astStructType)->getBody().get();
+  auto body = static_cast<Ast::DataType*>(astStructValueType)->getBody().get();
   if (body == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTypeMemberNotice>(astNode->findSourceLocation())
@@ -2314,6 +2246,7 @@ Bool ExpressionGenerator::_generateMemberReference(
     );
     return false;
   }
+  // Make sure the member is not an alias to a non-member.
   auto astMemberVarNode = ti_cast<Core::Data::Node>(astMemberVar);
   if (astMemberVarNode == 0 || astMemberVarNode->getOwner() == 0 || astMemberVarNode->getOwner()->getOwner() != body) {
     // The found member was probably an alias to a non member.
@@ -2322,8 +2255,24 @@ Bool ExpressionGenerator::_generateMemberReference(
     );
     return false;
   }
+
+  return expGenerator->generateMemberVarReference(
+    astNode, target.targetData.get(), astStructType, astMemberVar, g, deps, result
+  );
+}
+
+
+Bool ExpressionGenerator::_generateMemberVarReference(
+  TiObject *self, Core::Data::Node *astNode, TiObject *tgStructValue, Ast::Type * astStructType, TiObject *astMemberVar,
+  Generation *g, GenDeps const &deps, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  TiObject *tgStructType;
+  if (!g->getGeneratedType(astStructType, deps.tg, tgStructType, 0)) return false;
+
   // Make sure the var is an object member.
-  if (expGenerator->getAstHelper()->getDefinitionDomain(astMemberVarNode) != Ast::DefinitionDomain::OBJECT) {
+  if (expGenerator->getAstHelper()->getDefinitionDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
     expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidGlobalDefAccessNotice>(
       Core::Data::Ast::findSourceLocation(astNode)
     ));
@@ -2339,7 +2288,7 @@ Bool ExpressionGenerator::_generateMemberReference(
   // Generate member access.
   if (deps.tgContext != 0) {
     if (!deps.tg->generateMemberVarReference(
-      deps.tgContext, tgStructType, tgMemberType, tgMemberVar, target.targetData.get(), result.targetData
+      deps.tgContext, tgStructType, tgMemberType, tgMemberVar, tgStructValue, result.targetData
     )) {
       return false;
     }
@@ -2491,6 +2440,50 @@ Bool ExpressionGenerator::_prepareFunctionParams(
         throw EXCEPTION(GenericException, S("Unexpected error."));
       }
       paramTgVals->set(i, result.targetData);
+    }
+  }
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateCalleeReferenceChain(
+  TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Data::Node *astNode, GenResult const &prevResult,
+  Generation *g, GenDeps const &deps, GenResult &calleeResult, GenResult &thisResult
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  if (calleeInfo.thisIndex == -1) {
+    thisResult = prevResult;
+  } else {
+    thisResult.astNode = 0;
+    thisResult.astType = 0;
+    thisResult.targetData.reset();
+  }
+  calleeResult = prevResult;
+  for (Int i = 0; i < calleeInfo.stack.getCount(); ++i) {
+    auto item = calleeInfo.stack.get(i);
+    if (item->isDerivedFrom<Ast::Function>()) {
+      calleeResult.astNode = item;
+      calleeResult.astType = 0;
+      calleeResult.targetData.reset();
+      break;
+    } else {
+      if (calleeResult.astType != 0) {
+        // Generate member var reference.
+        GenResult structResult;
+        if (!expGenerator->dereferenceIfNeeded(
+          calleeResult.astType, calleeResult.targetData.get(), false, deps, structResult
+        )) return false;
+        if (!expGenerator->generateMemberVarReference(
+          astNode, structResult.targetData.get(), structResult.astType, item, g, deps, calleeResult
+        )) return false;
+      } else {
+        // Generate global var reference.
+        if (!expGenerator->generateVarReference(astNode, item, g, deps, calleeResult)) return false;
+      }
+      if (calleeInfo.thisIndex == i) {
+        thisResult = calleeResult;
+      }
     }
   }
   return true;
