@@ -126,33 +126,30 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: Bool lookupCalleeByName(
     Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-    Containing<TiObject> *types, ExecutionContext const *ec,
-    TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
+    TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee,
     Bool, (
       TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
-      Containing<TiObject>* /* types */, ExecutionContext const* /* ec */,
-      TiObject*& /* callee */, Type*& /* calleeType */, SharedPtr<Core::Notices::Notice>& /* notice */
+      TiObject* /* thisType */, Containing<TiObject>* /* types */, ExecutionContext const* /* ec */,
+      CalleeLookupResult& /* result */
     )
   );
   private: static Bool _lookupCallee(
     TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-    Containing<TiObject> *types, ExecutionContext const *ec,
-    TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
+    TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
   );
 
   public: METHOD_BINDING_CACHE(lookupCallee_iteration,
     Core::Data::Seeker::Verb, (
-      TiObject*, Containing<TiObject> *, ExecutionContext const*,
-      TypeMatchStatus&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
+      TiObject*, TiObject*, Containing<TiObject>*, ExecutionContext const*,
+      Word, CalleeLookupResult&, TypeMatchStatus&
     )
   );
   private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
-    TiObject *self, TiObject *obj, Containing<TiObject> *types, ExecutionContext const *ec,
-    TypeMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
-    TiObject *&callee, Type *&calleeType
+    TiObject *self, TiObject *obj, TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec,
+    Word currentStackSize, CalleeLookupResult &result, TypeMatchStatus &matchStatus
   );
 
   public: METHOD_BINDING_CACHE(lookupCustomCaster,

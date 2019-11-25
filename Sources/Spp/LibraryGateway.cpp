@@ -30,7 +30,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->astHelper = std::make_shared<Ast::Helper>(manager, this->nodePathResolver.get());
 
   // Create the preprocessor.
-  this->macroProcessor = std::make_shared<CodeGen::MacroProcessor>(this->astHelper.get());
+  this->astProcessor = std::make_shared<CodeGen::AstProcessor>(this->astHelper.get());
 
   // Create and initialize global item repo.
   this->globalItemRepo = std::make_shared<CodeGen::GlobalItemRepo>();
@@ -54,7 +54,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
   this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
   this->rootManagerExtensionOverrides = RootManagerExtension::extend(
-    manager, this->astHelper, this->macroProcessor, this->generator, this->targetGenerator
+    manager, this->astHelper, this->astProcessor, this->generator, this->targetGenerator
   );
 
   // Prepare the target generator.
@@ -63,7 +63,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Add the grammar.
   GrammarFactory factory;
   factory.createGrammar(
-    manager->getRootScope().get(), manager, this->astHelper.get(), this->macroProcessor.get(),
+    manager->getRootScope().get(), manager, this->astHelper.get(), this->astProcessor.get(),
     this->generator.get(), this->targetGenerator.get()
   );
 

@@ -1,6 +1,6 @@
 /**
- * @file Spp/CodeGen/MacroProcessor.cpp
- * Contains the implementation of class Spp::CodeGen::MacroProcessor.
+ * @file Spp/CodeGen/AstProcessor.cpp
+ * Contains the implementation of class Spp::CodeGen::AstProcessor.
  *
  * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
  *
@@ -18,12 +18,13 @@ namespace Spp::CodeGen
 //==============================================================================
 // Initialization Functions
 
-void MacroProcessor::initBindingCaches()
+void AstProcessor::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
-    &this->runMacroPass,
+    &this->runPass,
+    &this->process,
+    &this->processMemberFunction,
     &this->processMacro,
-    &this->processMacros,
     &this->applyMacroArgs,
     &this->applyMacroArgsIteration,
     &this->applyMacroArgsIteration_identifier,
@@ -38,46 +39,47 @@ void MacroProcessor::initBindingCaches()
 }
 
 
-void MacroProcessor::initBindings()
+void AstProcessor::initBindings()
 {
-  this->runMacroPass = &MacroProcessor::_runMacroPass;
-  this->processMacro = &MacroProcessor::_processMacro;
-  this->processMacros = &MacroProcessor::_processMacros;
-  this->applyMacroArgs = &MacroProcessor::_applyMacroArgs;
-  this->applyMacroArgsIteration = &MacroProcessor::_applyMacroArgsIteration;
-  this->applyMacroArgsIteration_identifier = &MacroProcessor::_applyMacroArgsIteration_identifier;
-  this->applyMacroArgsIteration_stringLiteral = &MacroProcessor::_applyMacroArgsIteration_stringLiteral;
-  this->applyMacroArgsIteration_tiStr = &MacroProcessor::_applyMacroArgsIteration_tiStr;
-  this->applyMacroArgsIteration_other = &MacroProcessor::_applyMacroArgsIteration_other;
-  this->applyMacroArgsIteration_binding = &MacroProcessor::_applyMacroArgsIteration_binding;
-  this->applyMacroArgsIteration_containing = &MacroProcessor::_applyMacroArgsIteration_containing;
-  this->applyMacroArgsIteration_dynContaining = &MacroProcessor::_applyMacroArgsIteration_dynContaining;
-  this->applyMacroArgsIteration_dynMapContaining = &MacroProcessor::_applyMacroArgsIteration_dynMapContaining;
+  this->runPass = &AstProcessor::_runPass;
+  this->process = &AstProcessor::_process;
+  this->processMemberFunction = &AstProcessor::_processMemberFunction;
+  this->processMacro = &AstProcessor::_processMacro;
+  this->applyMacroArgs = &AstProcessor::_applyMacroArgs;
+  this->applyMacroArgsIteration = &AstProcessor::_applyMacroArgsIteration;
+  this->applyMacroArgsIteration_identifier = &AstProcessor::_applyMacroArgsIteration_identifier;
+  this->applyMacroArgsIteration_stringLiteral = &AstProcessor::_applyMacroArgsIteration_stringLiteral;
+  this->applyMacroArgsIteration_tiStr = &AstProcessor::_applyMacroArgsIteration_tiStr;
+  this->applyMacroArgsIteration_other = &AstProcessor::_applyMacroArgsIteration_other;
+  this->applyMacroArgsIteration_binding = &AstProcessor::_applyMacroArgsIteration_binding;
+  this->applyMacroArgsIteration_containing = &AstProcessor::_applyMacroArgsIteration_containing;
+  this->applyMacroArgsIteration_dynContaining = &AstProcessor::_applyMacroArgsIteration_dynContaining;
+  this->applyMacroArgsIteration_dynMapContaining = &AstProcessor::_applyMacroArgsIteration_dynMapContaining;
 }
 
 
 //==============================================================================
 // Main Functions
 
-void MacroProcessor::preparePass(Core::Notices::Store *noticeStore)
+void AstProcessor::preparePass(Core::Notices::Store *noticeStore)
 {
   this->setNoticeStore(noticeStore);
   this->getAstHelper()->prepare(noticeStore);
 }
 
 
-Bool MacroProcessor::_runMacroPass(TiObject *self, Core::Data::Ast::Scope *root)
+Bool AstProcessor::_runPass(TiObject *self, Core::Data::Ast::Scope *root)
 {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   VALIDATE_NOT_NULL(root);
 
-  return macroProcessor->processMacros(root);
+  return astProcessor->process(root);
 }
 
 
-Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
+Bool AstProcessor::_process(TiObject *self, TiObject *owner)
 {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   VALIDATE_NOT_NULL(owner);
 
   if (owner == 0 || owner->isDerivedFrom<Core::Data::Grammar::Module>()) return true;
@@ -106,7 +108,7 @@ Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
 
         // Find matching macro.
         Ast::Macro *macro = 0;
-        macroProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), owner,
+        astProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), owner,
           [=, &macro] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
           {
             if (ntc != 0) {
@@ -114,7 +116,7 @@ Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
             }
 
             auto m = ti_cast<Ast::Macro>(obj);
-            if (m != 0 && m->matchCall(args, macroProcessor->astHelper)) {
+            if (m != 0 && m->matchCall(args, astProcessor->astHelper)) {
               macro = m;
               return Core::Data::Seeker::Verb::STOP;
             } else {
@@ -125,34 +127,80 @@ Bool MacroProcessor::_processMacros(TiObject *self, TiObject *owner)
 
         if (macro != 0) {
           auto sl = paramPass->findSourceLocation();
-          macroProcessor->noticeStore->pushPrefixSourceLocation(sl.get());
-          if (macroProcessor->processMacro(macro, args, owner, i, sl.get())) --i;
+          astProcessor->noticeStore->pushPrefixSourceLocation(sl.get());
+          if (astProcessor->processMacro(macro, args, owner, i, sl.get())) --i;
           else result = false;
-          macroProcessor->noticeStore->popPrefixSourceLocation(
+          astProcessor->noticeStore->popPrefixSourceLocation(
             Core::Data::getSourceLocationRecordCount(sl.get())
           );
         }
         continue;
       }
+    } else if (child->isDerivedFrom<Ast::Function>()) {
+      if (astProcessor->astHelper->getDefinitionDomain(child) == Ast::DefinitionDomain::OBJECT) {
+        if (!astProcessor->processMemberFunction(static_cast<Ast::Function*>(child))) result = false;
+      }
     }
-    if (!macroProcessor->processMacros(child)) result = false;
+    if (!astProcessor->process(child)) result = false;
   }
   return result;
 }
 
 
-Bool MacroProcessor::_processMacro(
+Bool AstProcessor::_processMemberFunction(TiObject *self, Spp::Ast::Function *func)
+{
+  PREPARE_SELF(astProcessor, AstProcessor);
+  auto def = ti_cast<Core::Data::Ast::Definition>(func->getOwner());
+  if (def == 0) {
+    throw EXCEPTION(GenericException, S("Could not find definition of a member function."));
+  }
+  auto funcType = func->getType().get();
+  if (funcType == 0) {
+    throw EXCEPTION(GenericException, S("Function is missing a function type."));
+  }
+  if (funcType->getArgTypes() == 0) {
+    funcType->setArgTypes(Core::Data::Ast::Map::create());
+  }
+  // Make sure we don't have an arg named `this`.
+  if (funcType->getArgTypes()->findIndex(S("this")) != -1) {
+    astProcessor->noticeStore->add(
+      std::make_shared<Spp::Notices::ThisRedefinedNotice>(func->findSourceLocation())
+    );
+    return false;
+  }
+  // Prepare this type.
+  auto thisType = Core::Data::Ast::ParamPass::create({
+    {S("sourceLocation"), func->findSourceLocation()},
+    {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+  }, {
+    {S("operand"), Core::Data::Ast::Identifier::create({
+      {S("sourceLocation"), func->findSourceLocation()},
+      {S("value"), TiStr(S("ref"))}
+    })},
+    {S("param"), Spp::Ast::ThisTypeRef::create()}
+  });
+  // Add this arg.
+  funcType->getArgTypes()->insert(0, S("this"), thisType);
+  // Mark the function as shared.
+  def->addModifier(Core::Data::Ast::Identifier::create({
+    {S("value"), TiStr(S("shared"))}
+  }));
+  return true;
+}
+
+
+Bool AstProcessor::_processMacro(
   TiObject *self, Spp::Ast::Macro *macro, Containing<TiObject> *args, TiObject *owner, TiInt indexInOwner,
   Core::Data::SourceLocation *sl
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   VALIDATE_NOT_NULL(macro, args, owner);
 
   // Apply macro args.
   TioSharedPtr macroInstance;
-  if (!macroProcessor->applyMacroArgs(macro, args, sl, macroInstance)) return false;
+  if (!astProcessor->applyMacroArgs(macro, args, sl, macroInstance)) return false;
   if (macroInstance == 0) {
-    macroProcessor->noticeStore->add(
+    astProcessor->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidMacroNotice>(macro->findSourceLocation())
     );
     return false;
@@ -187,56 +235,56 @@ Bool MacroProcessor::_processMacro(
 }
 
 
-Bool MacroProcessor::_applyMacroArgs(
+Bool AstProcessor::_applyMacroArgs(
   TiObject *self, Spp::Ast::Macro *macro, Containing<TiObject> *args, Core::Data::SourceLocation *sl,
   TioSharedPtr &result
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   VALIDATE_NOT_NULL(macro, args);
 
   if (macro->getArgCount() != args->getElementCount()) {
     throw EXCEPTION(GenericException, S("Invalid args passed to macro."));
   }
 
-  return macroProcessor->applyMacroArgsIteration(macro->getBody().get(), macro->getArgTypes().get(), args, sl, result);
+  return astProcessor->applyMacroArgsIteration(macro->getBody().get(), macro->getArgTypes().get(), args, sl, result);
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration(
+Bool AstProcessor::_applyMacroArgsIteration(
   TiObject *self, TiObject *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
 
   if (obj->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(obj);
-    return macroProcessor->applyMacroArgsIteration_identifier(identifier, argTypes, args, sl, result);
+    return astProcessor->applyMacroArgsIteration_identifier(identifier, argTypes, args, sl, result);
   }
 
   if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(obj);
-    return macroProcessor->applyMacroArgsIteration_stringLiteral(stringLiteral, argTypes, args, sl, result);
+    return astProcessor->applyMacroArgsIteration_stringLiteral(stringLiteral, argTypes, args, sl, result);
   }
 
   if (obj->isDerivedFrom<TiStr>()) {
     auto str = static_cast<TiStr*>(obj);
-    return macroProcessor->applyMacroArgsIteration_tiStr(str, argTypes, args, sl, result);
+    return astProcessor->applyMacroArgsIteration_tiStr(str, argTypes, args, sl, result);
   }
 
   // It's not a replacable identifier, so we'll proceed with cloning the tree.
-  return macroProcessor->applyMacroArgsIteration_other(obj, argTypes, args, sl, result);
+  return astProcessor->applyMacroArgsIteration_other(obj, argTypes, args, sl, result);
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_identifier(
+Bool AstProcessor::_applyMacroArgsIteration_identifier(
   TiObject *self, Core::Data::Ast::Identifier *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   Char var[1000];
   Word prefixSize = 0;
   Char const *suffix = 0;
-  macroProcessor->parseStringTemplate(obj->getValue().get(), var, 1000, prefixSize, suffix);
+  astProcessor->parseStringTemplate(obj->getValue().get(), var, 1000, prefixSize, suffix);
   auto index = argTypes->findIndex(var);
   if (index != -1) {
     auto arg = args->getElement(index);
@@ -244,7 +292,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_identifier(
       // We have an identifier string template, so we need the matching arg to be an identifier as well.
       if (arg->isDerivedFrom<Core::Data::Ast::Identifier>()) {
         Char newVar[1000];
-        macroProcessor->generateStringFromTemplate(
+        astProcessor->generateStringFromTemplate(
           obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Identifier*>(arg)->getValue().get(), suffix,
           newVar, 1000
         );
@@ -254,7 +302,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_identifier(
         });
         Core::Data::Ast::addSourceLocation(result.get(), sl);
       } else {
-        macroProcessor->noticeStore->add(
+        astProcessor->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
         );
         return false;
@@ -270,15 +318,15 @@ Bool MacroProcessor::_applyMacroArgsIteration_identifier(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_stringLiteral(
+Bool AstProcessor::_applyMacroArgsIteration_stringLiteral(
   TiObject *self, Core::Data::Ast::StringLiteral *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   Char var[1000];
   Word prefixSize = 0;
   Char const *suffix = 0;
-  macroProcessor->parseStringTemplate(obj->getValue().get(), var, 1000, prefixSize, suffix, S("{{"), S("}}"));
+  astProcessor->parseStringTemplate(obj->getValue().get(), var, 1000, prefixSize, suffix, S("{{"), S("}}"));
   auto index = argTypes->findIndex(var);
   if (index != -1) {
     auto arg = args->getElement(index);
@@ -286,7 +334,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_stringLiteral(
       // We have an identifier string template, so we need the matching arg to be an identifier as well.
       if (arg->isDerivedFrom<Core::Data::Ast::Identifier>() || arg->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
         Char newVar[1000];
-        macroProcessor->generateStringFromTemplate(
+        astProcessor->generateStringFromTemplate(
           obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Text*>(arg)->getValue().get(), suffix,
           newVar, 1000
         );
@@ -296,7 +344,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_stringLiteral(
         });
         Core::Data::Ast::addSourceLocation(result.get(), sl);
       } else {
-        macroProcessor->noticeStore->add(
+        astProcessor->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
         );
         return false;
@@ -312,24 +360,24 @@ Bool MacroProcessor::_applyMacroArgsIteration_stringLiteral(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_tiStr(
+Bool AstProcessor::_applyMacroArgsIteration_tiStr(
   TiObject *self, TiStr *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   Char var[1000];
   Word prefixSize = 0;
   Char const *suffix = 0;
-  macroProcessor->parseStringTemplate(obj->get(), var, 1000, prefixSize, suffix);
+  astProcessor->parseStringTemplate(obj->get(), var, 1000, prefixSize, suffix);
   auto index = argTypes->findIndex(var);
   if (index != -1) {
     auto arg = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
     if (arg != 0) {
       Char newVar[1000];
-      macroProcessor->generateStringFromTemplate(obj->get(), prefixSize, arg->getValue().get(), suffix, newVar, 1000);
+      astProcessor->generateStringFromTemplate(obj->get(), prefixSize, arg->getValue().get(), suffix, newVar, 1000);
       result = TiStr::create(newVar);
     } else {
-      macroProcessor->noticeStore->add(
+      astProcessor->noticeStore->add(
         std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
       );
       return false;
@@ -341,11 +389,11 @@ Bool MacroProcessor::_applyMacroArgsIteration_tiStr(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_other(
+Bool AstProcessor::_applyMacroArgsIteration_other(
   TiObject *self, TiObject *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, TioSharedPtr &result
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
 
   if (!obj->isDerivedFrom<Core::Data::Node>()) {
     // We won't clone basic data types.
@@ -363,13 +411,13 @@ Bool MacroProcessor::_applyMacroArgsIteration_other(
   auto srcBinding = ti_cast<Binding>(obj);
   auto binding = result.ti_cast_get<Binding>();
   if (binding != 0) {
-    if (!macroProcessor->applyMacroArgsIteration_binding(srcBinding, argTypes, args, sl, binding)) return false;
+    if (!astProcessor->applyMacroArgsIteration_binding(srcBinding, argTypes, args, sl, binding)) return false;
   }
 
   auto srcDynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(obj);
   auto dynMapContainer = result.ti_cast_get<DynamicMapContaining<TiObject>>();
   if (dynMapContainer != 0) {
-    if (!macroProcessor->applyMacroArgsIteration_dynMapContaining(
+    if (!astProcessor->applyMacroArgsIteration_dynMapContaining(
       srcDynMapContainer, argTypes, args, sl, dynMapContainer
     )) return false;
   }
@@ -377,7 +425,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_other(
   auto srcDynContainer = ti_cast<DynamicContaining<TiObject>>(obj);
   auto dynContainer = result.ti_cast_get<DynamicContaining<TiObject>>();
   if (dynContainer != 0) {
-    if (!macroProcessor->applyMacroArgsIteration_dynContaining(
+    if (!astProcessor->applyMacroArgsIteration_dynContaining(
       srcDynContainer, argTypes, args, sl, dynContainer
     )) return false;
   }
@@ -385,7 +433,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_other(
   auto srcContainer = ti_cast<Containing<TiObject>>(obj);
   auto container = result.ti_cast_get<Containing<TiObject>>();
   if (dynMapContainer == 0 && dynContainer == 0 && container != 0) {
-    if (!macroProcessor->applyMacroArgsIteration_containing(
+    if (!astProcessor->applyMacroArgsIteration_containing(
       srcContainer, argTypes, args, sl, container
     )) return false;
   }
@@ -394,30 +442,30 @@ Bool MacroProcessor::_applyMacroArgsIteration_other(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_binding(
+Bool AstProcessor::_applyMacroArgsIteration_binding(
   TiObject *self, Binding *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, Binding *destObj
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   for (Int i = 0; i < obj->getMemberCount(); ++i) {
     if (obj->getMemberHoldMode(i) == HoldMode::VALUE && obj->getMemberNeededType(i) == TiStr::getTypeInfo()) {
       // replace string, if possible.
       Char var[1000];
       Word prefixSize = 0;
       Char const *suffix = 0;
-      macroProcessor->parseStringTemplate(obj->refMember<TiStr>(i).get(), var, 1000, prefixSize, suffix);
+      astProcessor->parseStringTemplate(obj->refMember<TiStr>(i).get(), var, 1000, prefixSize, suffix);
       Int index = argTypes->findElementIndex(var);
       if (index != -1) {
         auto identifier = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
         if (identifier == 0) {
           auto elementSl = Core::Data::Ast::findSourceLocation(args->getElement(index));
-          macroProcessor->noticeStore->add(
+          astProcessor->noticeStore->add(
             std::make_shared<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
           );
           return false;
         }
         Char newVar[1000];
-        macroProcessor->generateStringFromTemplate(
+        astProcessor->generateStringFromTemplate(
           obj->refMember<TiStr>(i).get(), prefixSize, identifier->getValue().get(), suffix, newVar, 1000
         );
         destObj->refMember<TiStr>(i) = newVar;
@@ -429,7 +477,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_binding(
       TioSharedPtr newChild;
       TiObject *child = obj->getMember(i);
       if (child != 0) {
-        if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
+        if (!astProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
         destObj->setMember(i, newChild.get());
       }
     } else {
@@ -440,17 +488,17 @@ Bool MacroProcessor::_applyMacroArgsIteration_binding(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_containing(
+Bool AstProcessor::_applyMacroArgsIteration_containing(
   TiObject *self, Containing<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, Containing<TiObject> *destObj
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   for (Int i = 0; i < obj->getElementCount(); ++i) {
     if (obj->getElementHoldMode(i) == HoldMode::SHARED_REF) {
       TioSharedPtr newChild;
       TiObject *child = obj->getElement(i);
       if (child != 0) {
-        if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
+        if (!astProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
       }
       destObj->setElement(i, newChild.get());
     } else {
@@ -461,17 +509,17 @@ Bool MacroProcessor::_applyMacroArgsIteration_containing(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_dynContaining(
+Bool AstProcessor::_applyMacroArgsIteration_dynContaining(
   TiObject *self, DynamicContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, DynamicContaining<TiObject> *destObj
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   for (Int i = 0; i < obj->getElementCount(); ++i) {
     if (obj->getElementHoldMode(i) == HoldMode::SHARED_REF) {
       TioSharedPtr newChild;
       TiObject *child = obj->getElement(i);
       if (child != 0) {
-        if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
+        if (!astProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
       }
       destObj->addElement(newChild.get());
     } else {
@@ -482,29 +530,29 @@ Bool MacroProcessor::_applyMacroArgsIteration_dynContaining(
 }
 
 
-Bool MacroProcessor::_applyMacroArgsIteration_dynMapContaining(
+Bool AstProcessor::_applyMacroArgsIteration_dynMapContaining(
   TiObject *self, DynamicMapContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
   Core::Data::SourceLocation *sl, DynamicMapContaining<TiObject> *destObj
 ) {
-  PREPARE_SELF(macroProcessor, MacroProcessor);
+  PREPARE_SELF(astProcessor, AstProcessor);
   for (Int i = 0; i < obj->getElementCount(); ++i) {
     // Generate the new key value.
     Char key[1000];
     Char newKey[1000];
     Word prefixSize = 0;
     Char const *suffix = 0;
-    macroProcessor->parseStringTemplate(obj->getElementKey(i).c_str(), key, 1000, prefixSize, suffix);
+    astProcessor->parseStringTemplate(obj->getElementKey(i).c_str(), key, 1000, prefixSize, suffix);
     auto index = argTypes->findElementIndex(key);
     if (index != -1) {
       // The key can be replaced with the new key.
       auto arg = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
       if (arg != 0) {
-        macroProcessor->generateStringFromTemplate(
+        astProcessor->generateStringFromTemplate(
           obj->getElementKey(i).c_str(), prefixSize, arg->getValue().get(), suffix, newKey, 1000
         );
         // Make sure the new key isn't already used.
         if (obj->findElementIndex(newKey) != -1) {
-          macroProcessor->noticeStore->add(
+          astProcessor->noticeStore->add(
             std::make_shared<Spp::Notices::InvalidMacroArgNotice>(arg->findSourceLocation())
           );
           return false;
@@ -513,7 +561,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_dynMapContaining(
         obj->insertElement(index, newKey, value);
         obj->removeElement(index + 1);
       } else {
-        macroProcessor->noticeStore->add(
+        astProcessor->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
         );
         return false;
@@ -526,7 +574,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_dynMapContaining(
       TioSharedPtr newChild;
       TiObject *child = obj->getElement(i);
       if (child != 0) {
-        if (!macroProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
+        if (!astProcessor->applyMacroArgsIteration(child, argTypes, args, sl, newChild)) return false;
       }
       destObj->addElement(newKey, newChild.get());
     } else {
@@ -540,7 +588,7 @@ Bool MacroProcessor::_applyMacroArgsIteration_dynMapContaining(
 //==============================================================================
 // Helper Functions
 
-void MacroProcessor::parseStringTemplate(
+void AstProcessor::parseStringTemplate(
   Char const *str, Char *var, Word varBufSize, Word &prefixSize, Char const *&suffix,
   Char const *varOpening, Char const *varClosing
 ) {
@@ -560,7 +608,7 @@ void MacroProcessor::parseStringTemplate(
 }
 
 
-void MacroProcessor::generateStringFromTemplate(
+void AstProcessor::generateStringFromTemplate(
   Char const *prefix, Word prefixSize, Char const *var, Char const *suffix, Char *output, Word outputBufSize
 ) {
   SbStr &result = SBSTR(output);

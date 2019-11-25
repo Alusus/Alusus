@@ -25,7 +25,7 @@ using namespace Core::Processing::Handlers;
 
 void GrammarFactory::createGrammar(
   Core::Data::Ast::Scope *rootScope, Main::RootManager *manager, Ast::Helper *astHelper,
-  CodeGen::MacroProcessor *macroProcessor, CodeGen::Generator *generator,
+  CodeGen::AstProcessor *astProcessor, CodeGen::Generator *generator,
   LlvmCodeGen::TargetGenerator *targetGenerator
 ) {
   this->setRootScope(rootScope);

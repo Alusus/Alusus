@@ -320,7 +320,7 @@ class Generator;
 #include "Generation.h"
 
 // Preprocessing
-#include "MacroProcessor.h"
+#include "AstProcessor.h"
 
 // The Generator
 #include "TypeGenerator.h"

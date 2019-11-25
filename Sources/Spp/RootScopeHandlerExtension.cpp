@@ -67,8 +67,8 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
     // Process macros.
-    rootManagerExt->macroProcessor->preparePass(state->getNoticeStore());
-    if (!rootManagerExt->macroProcessor->runMacroPass(root)) return;
+    rootManagerExt->astProcessor->preparePass(state->getNoticeStore());
+    if (!rootManagerExt->astProcessor->runPass(root)) return;
 
     // Set global noticeStore var.
     auto globalNoticeStoreIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));
