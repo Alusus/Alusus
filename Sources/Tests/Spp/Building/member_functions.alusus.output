@@ -1,4 +1,7 @@
--------------------- Generated LLVM IR ---------------------
+ERROR SPPA1007 @ (83,10): Unknown symbol.
+ERROR SPPA1007 @ (84,13): Unknown symbol.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
@@ -6,6 +9,9 @@ source_filename = "AlususProgram"
 %B = type { %A, void ()* }
 
 @"#anonymous0" = private constant [13 x i8] c"this.i = %d\0A\00", align 1
+@"getARef()=>(ref[A]).a" = global %A zeroinitializer
+@"#anonymous1" = private constant [15 x i8] c"this.a.i = %d\0A\00", align 1
+@"getBRef()=>(ref[B]).b" = global %B zeroinitializer
 
 define void @__constructor__() {
 "#block0":
@@ -30,6 +36,19 @@ define void @"test()"() {
   %2 = call %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %b)
   %3 = getelementptr %B, %B* %2, i32 0, i32 0
   call void @"A.print(ref[A])"(%A* %3)
+  %4 = call %A @"getA()=>(A)"()
+  %"#temp1" = alloca %A
+  store %A %4, %A* %"#temp1"
+  call void @"A.print(ref[A])"(%A* %"#temp1")
+  %5 = call %A* @"getARef()=>(ref[A])"()
+  call void @"A.print(ref[A])"(%A* %5)
+  %"#temp2" = alloca %B
+  call void @"getB()=>(B)"(%B* %"#temp2")
+  call void @"B.printA(ref[B])"(%B* %"#temp2")
+  %6 = call %B* @"getBRef()=>(ref[B])"()
+  call void @"B.printA(ref[B])"(%B* %6)
+  %7 = call %A @"getA()=>(A)"()
+  %8 = call %A* @"getARef()=>(ref[A])"()
   ret void
 }
 
@@ -121,5 +140,54 @@ define %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %this) {
   %0 = load %B*, %B** %this1
   ret %B* %0
 }
+
+define %A @"getA()=>(A)"() {
+"#block10":
+  %a = alloca %A
+  %0 = getelementptr %A, %A* %a, i32 0, i32 0
+  store i32 11, i32* %0
+  %1 = load %A, %A* %a
+  ret %A %1
+}
+
+define %A* @"getARef()=>(ref[A])"() {
+"#block11":
+  store i32 12, i32* getelementptr inbounds (%A, %A* @"getARef()=>(ref[A]).a", i32 0, i32 0)
+  ret %A* @"getARef()=>(ref[A]).a"
+}
+
+define void @"getB()=>(B)"(%B* %"#ret") {
+"#block12":
+  %b = alloca %B
+  call void @B.__autoConstruct__(%B* %b)
+  call void @"B.~init(ref[B])"(%B* %b)
+  %0 = getelementptr %B, %B* %b, i32 0, i32 0
+  %1 = getelementptr %A, %A* %0, i32 0, i32 0
+  store i32 13, i32* %1
+  call void @B.__autoConstruct__(%B* %"#ret")
+  call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %b)
+  ret void
+  ret void
+}
+
+define void @"B.printA(ref[B])"(%B* %this) {
+"#block13":
+  %this1 = alloca %B*
+  store %B* %this, %B** %this1
+  %0 = load %B*, %B** %this1
+  %1 = getelementptr %B, %B* %0, i32 0, i32 0
+  %2 = getelementptr %A, %A* %1, i32 0, i32 0
+  %3 = load i32, i32* %2
+  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous1", i32 0, i32 0), i32 %3)
+  ret void
+}
+
+define %B* @"getBRef()=>(ref[B])"() {
+"#block14":
+  call void @B.__autoConstruct__(%B* @"getBRef()=>(ref[B]).b")
+  call void @"B.~init(ref[B])"(%B* @"getBRef()=>(ref[B]).b")
+  store i32 14, i32* getelementptr inbounds (%B, %B* @"getBRef()=>(ref[B]).b", i32 0, i32 0, i32 0)
+  ret %B* @"getBRef()=>(ref[B]).b"
+}
 ------------------------------------------------------------
-ERROR SPPG1027 @ (57,3): Invalid redefinition of `this` in function args.
+ERROR SPPG1027 @ (93,3): Invalid redefinition of `this` in function args.

@@ -403,6 +403,29 @@ Bool ExpressionGenerator::_generateRoundParamPass(
         expGenerator->noticeStore->add(calleeResult.notice);
         return false;
       }
+      if (deps.tgContext != 0) {
+        if (firstResult.astType->isEqual(thisType, expGenerator->astHelper, deps.tg->getExecutionContext())) {
+          // The previous expression returned a value rather than a ref, and member functions need a reference,
+          // so we'll create a temp var.
+          // This code path should not be reached with custom-initialization variables, so we don't need to
+          // register the destructor here.
+          if (!g->generateTempVar(astNode, thisType, deps, false)) return false;
+          PlainList<TiObject> thisParamAstNodes({ astNode });
+          PlainList<TiObject> thisParamAstTypes({ firstResult.astType });
+          SharedList<TiObject> thisParamTgValues({ firstResult.targetData });
+          if (!deps.tg->generateVarReference(
+            deps.tgContext, getCodeGenData<TiObject>(thisType), getCodeGenData<TiObject>(astNode),
+            firstResult.targetData
+          )) {
+            return false;
+          }
+          firstResult.astType = thisRefType;
+          if (!g->generateVarInitialization(
+            thisType, firstResult.targetData.get(), astNode,
+            &thisParamAstNodes, &thisParamAstTypes, &thisParamTgValues, deps
+          )) return false;
+        }
+      }
       // Trace through the chain.
       GenResult callee;
       GenResult thisArg;
