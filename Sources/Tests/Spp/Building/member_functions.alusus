@@ -34,6 +34,34 @@ type B
   func getMyRef ()=>ref[B] {
     return this;
   };
+
+  func printA {
+    print("this.a.i = %d\n", this.a.i);
+  };
+};
+
+function getA ():A {
+  def a: A;
+  a.i = 11;
+  return a;
+};
+
+function getARef ():ref[A] {
+  @shared def a: A;
+  a.i = 12;
+  return a;
+};
+
+function getB ():B {
+  def b: B;
+  b.a.i = 13;
+  return b;
+};
+
+function getBRef ():ref[B] {
+  @shared def b: B;
+  b.a.i = 14;
+  return b;
 };
 
 func test {
@@ -46,6 +74,14 @@ func test {
   b.a.print();
   b.getMyVal().a.print();
   b.getMyRef().a.print();
+
+  getA().print();
+  getARef().print();
+  getB().printA();
+  getBRef().printA();
+
+  getA().unknown();
+  getARef().unknown();
 };
 
 Spp.dumpLlvmIrForElement(test~ast);
@@ -59,9 +95,9 @@ type C
   };
 };
 
-func testError {
+func testPreprocessError {
   def c: C;
   c.setI(10);
 };
 
-Spp.dumpLlvmIrForElement(testError~ast);
+Spp.dumpLlvmIrForElement(testPreprocessError~ast);

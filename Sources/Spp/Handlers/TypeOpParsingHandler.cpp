@@ -43,20 +43,45 @@ void TypeOpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   auto expr = data->getElement(1);
   if (expr->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
     this->createAssignmentHandler(state, static_cast<Core::Data::Ast::AssignmentOperator*>(expr), body);
+    return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::ComparisonOperator>()) {
     this->createComparisonHandler(state, static_cast<Core::Data::Ast::ComparisonOperator*>(expr), body);
+    return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    this->createInfixOpHandler(state, static_cast<Core::Data::Ast::LinkOperator*>(expr), body);
+    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(expr);
+    if (linkOp->getType() == S(":") || linkOp->getType() == S("=>")) {
+      auto first = linkOp->getFirst().get();
+      if (first->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
+        auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(first);
+        if (paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+          this->createParensOpHandler(state, paramPass, body, linkOp->getSecond());
+          return;
+        }
+      } else if (first->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
+        auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(first);
+        this->createInfixOpHandler(state, infixOp, body, linkOp->getSecond());
+        return;
+      }
+    }
   } else if (expr->isDerivedFrom<Spp::Ast::InitOp>()) {
     this->createInitOpHandler(state, static_cast<Spp::Ast::InitOp*>(expr), body);
+    return;
   } else if (expr->isDerivedFrom<Spp::Ast::TerminateOp>()) {
     this->createTerminateOpHandler(state, static_cast<Spp::Ast::TerminateOp*>(expr), body);
+    return;
   } else if (expr->isDerivedFrom<Spp::Ast::CastOp>()) {
     this->createCastHandler(state, static_cast<Spp::Ast::CastOp*>(expr), body);
-  } else {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(exprMetadata->findSourceLocation()));
-    state->setData(SharedPtr<TiObject>(0));
+    return;
+  } else if (expr->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
+    auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(expr);
+    if (paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+      this->createParensOpHandler(state, paramPass, body, TioSharedPtr::null);
+      return;
+    }
   }
+
+  state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(exprMetadata->findSourceLocation()));
+  state->setData(SharedPtr<TiObject>(0));
 }
 
 
@@ -145,18 +170,9 @@ void TypeOpParsingHandler::createComparisonHandler(
 
 
 void TypeOpParsingHandler::createInfixOpHandler(
-  Processing::ParserState *state, Core::Data::Ast::LinkOperator *linkOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body
+  Processing::ParserState *state, Core::Data::Ast::InfixOperator *infixOp,
+  SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
 ) {
-  auto infixOp = linkOp->getFirst().ti_cast_get<Core::Data::Ast::InfixOperator>();
-  if (infixOp == 0) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(linkOp->findSourceLocation()));
-    state->setData(SharedPtr<TiObject>(0));
-    return;
-  }
-
-  auto retType = linkOp->getSecond();
-
   Char const *funcName = infixOp->getType();
 
   auto first = infixOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
@@ -175,7 +191,7 @@ void TypeOpParsingHandler::createInfixOpHandler(
   auto thisType = this->prepareThisType(first->findSourceLocation());
 
   auto def = this->createBinaryOpFunction(
-    funcName, thisType, inputName,  inputType, retType, body, linkOp->findSourceLocation()
+    funcName, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -280,6 +296,51 @@ void TypeOpParsingHandler::createCastHandler(
 }
 
 
+void TypeOpParsingHandler::createParensOpHandler(
+  Processing::ParserState *state, Core::Data::Ast::ParamPass *parensOp,
+  SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
+) {
+  // Verify operand.
+  auto operand = parensOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (operand == 0 || operand->getValue() != S("this")) {
+    state->addNotice(std::make_shared<Spp::Notices::InvalidOnStatementNotice>(parensOp->findSourceLocation()));
+    state->setData(SharedPtr<TiObject>(0));
+    return;
+  }
+
+  // Prepare params.
+  auto param = parensOp->getParam();
+  Core::Data::Ast::List tempParams;
+  auto params = ti_cast<Core::Data::Ast::List>(param.get());
+  if (params == 0) {
+    if (param != 0) tempParams.add(param);
+    params = &tempParams;
+  }
+  auto argTypes = Core::Data::Ast::Map::create();
+  auto thisType = this->prepareThisType(operand->findSourceLocation());
+  argTypes->add(S("this"), thisType);
+  for (Int i = 0; i < params->getCount(); ++i) {
+    Char const *inputName;
+    TioSharedPtr inputType;
+    auto inputDef = params->get(i);
+    if (!this->prepareInputArg(state, inputDef, inputName, inputType)) return;
+    if (argTypes->findIndex(inputName) != -1) {
+      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(
+        Core::Data::Ast::findSourceLocation(inputDef.get())
+      ));
+      state->setData(SharedPtr<TiObject>(0));
+      return;
+    }
+    argTypes->add(inputName, inputType);
+  }
+
+  auto def = this->createFunction(
+    S("()"), argTypes, retType, body, parensOp->findSourceLocation()
+  );
+  state->setData(def);
+}
+
+
 SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createBinaryOpFunction(
   Char const *funcName, TioSharedPtr const &thisType, Char const *inputName, TioSharedPtr const &inputType,
   TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
@@ -294,8 +355,8 @@ SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createBinaryOpFunct
 
 
 SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createFunction(
-  Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes,
-  TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes, TioSharedPtr const &retType,
+  TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   // Create the function type.
   auto funcType = Spp::Ast::FunctionType::create({}, {

@@ -51,8 +51,8 @@ class TypeOpParsingHandler : public Core::Processing::Handlers::GenericParsingHa
   );
 
   private: void createInfixOpHandler(
-    Processing::ParserState *state, Core::Data::Ast::LinkOperator *linkOp,
-    SharedPtr<Core::Data::Ast::Scope> const &body
+    Processing::ParserState *state, Core::Data::Ast::InfixOperator *infixOp,
+    SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
   );
 
   private: void createInitOpHandler(
@@ -68,6 +68,11 @@ class TypeOpParsingHandler : public Core::Processing::Handlers::GenericParsingHa
   private: void createCastHandler(
     Processing::ParserState *state, Spp::Ast::CastOp *castOp,
     SharedPtr<Core::Data::Ast::Scope> const &body
+  );
+
+  private: void createParensOpHandler(
+    Processing::ParserState *state, Core::Data::Ast::ParamPass *parensOp,
+    SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
   );
 
   private: SharedPtr<Core::Data::Ast::Definition> createBinaryOpFunction(

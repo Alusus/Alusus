@@ -57,6 +57,7 @@ ti_s_enum(DefinitionDomain,
 /// @ingroup spp_ast
 struct CalleeLookupResult
 {
+  TypeMatchStatus matchStatus = TypeMatchStatus::NONE;
   PlainList<TiObject> stack;
   Type *type = 0;
   SharedPtr<Core::Notices::Notice> notice;

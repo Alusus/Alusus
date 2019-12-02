@@ -2,3 +2,7 @@ this.i = 10
 this.i = 7
 this.i = 7
 this.i = 7
+this.i = 11
+this.i = 12
+this.a.i = 13
+this.a.i = 14

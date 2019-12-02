@@ -30,6 +30,10 @@ type B
   func getMyRef ()=>ref[B] {
     return this;
   };
+
+  func printA {
+    print("this.a.i = %d\n", this.a.i);
+  };
 };
 
 def a: A;
@@ -40,3 +44,32 @@ def b: B;
 b.a.print();
 b.getMyVal().a.print();
 b.getMyRef().a.print();
+
+function getA ():A {
+  def a: A;
+  a.i = 11;
+  return a;
+};
+
+function getARef ():ref[A] {
+  @shared def a: A;
+  a.i = 12;
+  return a;
+};
+
+function getB ():B {
+  def b: B;
+  b.a.i = 13;
+  return b;
+};
+
+function getBRef ():ref[B] {
+  @shared def b: B;
+  b.a.i = 14;
+  return b;
+};
+
+getA().print();
+getARef().print();
+getB().printA();
+getBRef().printA();
