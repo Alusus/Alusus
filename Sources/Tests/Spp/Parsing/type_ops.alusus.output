@@ -308,4 +308,59 @@ UserType [Main.Type]
        operand: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
         second: Identifier: i [Main.Subject.Identifier]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Scope
+      ReturnStatement [Main.Return]
+       operand: LinkOperator . [Main.Expression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.Subject.Identifier]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: NULL
+     body: Scope
+      AssignmentOperator += [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: Identifier: value [Main.Keywords]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       f: Identifier: float [Main.Subject.Identifier]
+      retType: ParamPass [] [Main.Expression.ParamPassExp]
+       operand: Identifier: Float [Main.Subject.Identifier]
+       param: IntegerLiteral: 64 [Main.Subject.Literal]
+     body: Scope [Main.BlockStatements.StmtList]
+      ReturnStatement [Main.Return]
+       operand: AdditionOperator + [Main.Expression.AddExp]
+        first: LinkOperator . [Main.Expression.LinkExp]
+         first: Identifier: this [Main.Keywords]
+         second: Identifier: i [Main.Subject.Identifier]
+        second: Bracket () [Main.Subject.Sbj]
+         operand: AdditionOperator + [Main.Expression.AddExp]
+          first: Identifier: f [Main.Subject.Identifier]
+          second: FloatLiteral: 0.5 [Main.Subject.Literal]
 ------------------------------------------------------

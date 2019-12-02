@@ -25,6 +25,14 @@ type T {
   on this $ Int : Int return this.i $ value;
 
   on this~cast[Int] return this.i;
+
+  on this():Int return this.i;
+
+  on this(Int) this.i += value;
+
+  on this(f: float) => Float[64] {
+    return this.i + f;
+  };
 };
 
 def t: T;
@@ -62,3 +70,19 @@ function printInt (i: Int) {
   print("printInt(t) ==> %d\n", i);
 };
 printInt(t);
+
+print("t() ==> %d\n", t());
+
+t(3);
+print("t(3) ==> t.i: %d\n", t.i);
+
+print("t(4.5) ==> %f\n", t(4.5));
+
+type Other {
+  def j: Int;
+};
+
+def o: Other;
+o();
+o(5);
+t(o);

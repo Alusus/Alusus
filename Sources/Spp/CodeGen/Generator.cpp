@@ -620,7 +620,7 @@ Bool Generator::_generateVarInitialization(
     // Do we have constructors matching the given vars?
     static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
     Ast::CalleeLookupResult calleeResult;
-    if (generator->astHelper->lookupCallee(
+    if (generator->astHelper->lookupCalleeInScope(
       &ref, varAstType, false, 0, paramAstTypes, deps.tg->getExecutionContext(), calleeResult
     )) {
       auto callee = calleeResult.stack.get(calleeResult.stack.getCount() - 1);
@@ -745,7 +745,7 @@ Bool Generator::_generateVarDestruction(
   // Find the destructor.
   static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
   Ast::CalleeLookupResult calleeResult;
-  if (generator->astHelper->lookupCallee(
+  if (generator->astHelper->lookupCalleeInScope(
     &ref, varAstType, false, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
   )) {
     auto callee = static_cast<Ast::Function*>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));

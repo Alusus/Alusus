@@ -355,7 +355,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     //// Call a member of the current scope.
     ////
     Ast::CalleeLookupResult calleeResult;
-    if (!expGenerator->astHelper->lookupCallee(
+    if (!expGenerator->astHelper->lookupCalleeInScope(
       operand, astNode->getOwner(), true, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
     )) {
       expGenerator->noticeStore->add(calleeResult.notice);
@@ -396,7 +396,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType);
       // Lookup the callee.
       Ast::CalleeLookupResult calleeResult;
-      if (!expGenerator->astHelper->lookupCallee(
+      if (!expGenerator->astHelper->lookupCalleeInScope(
         second, thisType, true, thisRefType, &paramAstTypes, deps.tg->getExecutionContext(),
         calleeResult
       )) {
@@ -440,7 +440,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       //// Calling a global in another module.
       // Look for a matching callee.
       Ast::CalleeLookupResult calleeResult;
-      if (!expGenerator->astHelper->lookupCallee(
+      if (!expGenerator->astHelper->lookupCalleeInScope(
         second, static_cast<Ast::Module*>(firstResult.astNode), false, 0, &paramAstTypes,
         deps.tg->getExecutionContext(), calleeResult
       )) {
@@ -467,11 +467,28 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     ////
     //// Param pass to the result of a previous expression.
     ////
-    GenResult thisArg;
     GenResult prevResult;
     if (!expGenerator->generate(operand, g, deps, prevResult)) return false;
+
+    // Lookup a callee on the result.
+    auto prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+    Ast::CalleeLookupResult calleeResult;
+    if (!expGenerator->astHelper->lookupCalleeOnObject(
+      prevAstType, 0, &paramAstTypes, deps.tg->getExecutionContext(), 0, calleeResult
+    )) {
+      calleeResult.notice->setSourceLocation(astNode->findSourceLocation());
+      expGenerator->noticeStore->add(calleeResult.notice);
+      return false;
+    }
+
+    // Make the call.
+    GenResult callee;
+    GenResult thisArg;
+    if (!expGenerator->generateCalleeReferenceChain(calleeResult, astNode, prevResult, g, deps, callee, thisArg)) {
+      return false;
+    }
     return expGenerator->generateRoundParamPassOnCallee(
-      astNode, prevResult, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
+      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
     );
   }
 }
@@ -678,7 +695,7 @@ Bool ExpressionGenerator::_generateOperator(
   }
   Ast::CalleeLookupResult calleeResult;
   Ast::Function *function = 0;
-  if (expGenerator->astHelper->lookupCalleeByName(
+  if (expGenerator->astHelper->lookupCalleeInScopeByName(
     funcName, Core::Data::Ast::findSourceLocation(astNode), param0AstContentType,
     true, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
   )) function = ti_cast<Ast::Function>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));
