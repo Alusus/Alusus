@@ -37,6 +37,14 @@ class TypeParsingHandler : public Core::Processing::Handlers::GenericParsingHand
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
+  private: Bool parseTemplateArgs(
+    Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::List> &result
+  );
+
+  private: Bool parseTemplateArg(
+    Core::Processing::ParserState *state, TiObject *astNode, SharedPtr<Core::Data::Ast::List> const &result
+  );
+
   public: virtual Bool onIncomingModifier(
     Core::Processing::Parser *parser, Core::Processing::ParserState *state,
     TioSharedPtr const &modifierData, Bool prodProcessingComplete

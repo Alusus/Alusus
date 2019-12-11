@@ -224,6 +224,11 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
     (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
     {
       symbolFound = true;
+
+      // Unbox if we have a box.
+      auto box = ti_cast<TioWeakBox>(obj);
+      if (box != 0) obj = box->get().lock().get();
+
       // Check if the found obj is a variable definition.
       if (expGenerator->astHelper->isAstReference(obj)) {
         // Make sure the var is not an object member.

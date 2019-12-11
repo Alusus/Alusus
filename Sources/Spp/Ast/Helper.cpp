@@ -132,6 +132,11 @@ Bool Helper::_lookupCalleeInScope(
           return Core::Data::Seeker::Verb::MOVE;
         }
         if (obj == 0) return Core::Data::Seeker::Verb::MOVE;
+
+        // Unbox if we have a box.
+        auto box = ti_cast<TioWeakBox>(obj);
+        if (box != 0) obj = box->get().lock().get();
+
         if (result.stack.getCount() > 0 && result.stack.getElement(result.stack.getCount() - 1) == obj) {
           return Core::Data::Seeker::Verb::MOVE;
         }
@@ -371,6 +376,10 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
           return Core::Data::Seeker::Verb::MOVE;
         }
 
+        // Unbox if we have a box.
+        auto box = ti_cast<TioWeakBox>(obj);
+        if (box != 0) obj = box->get().lock().get();
+
         // Do we have a type?
         type = ti_cast<Spp::Ast::Type>(obj);
         if (type != 0) {
@@ -397,7 +406,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     );
   }
 
-  if (type == 0) {
+  if (type == 0 && helper->noticeStore != 0) {
     if (notice != 0) helper->noticeStore->add(notice);
     helper->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))

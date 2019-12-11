@@ -1,0 +1,42 @@
+import "libalusus_spp.so";
+
+@expname[printf] function printf (s: ptr[Word[8]], ...any) => Int;
+
+type MyType [T: type, f: function, i: integer, s: string]
+{
+  def v: T;
+
+  function print()
+  {
+    printf(s, this.v, i);
+  };
+
+  function callAction
+  {
+    f();
+  };
+};
+
+function printOne
+{
+  printf("One\n");
+};
+
+function printTwo
+{
+  printf("Two\n");
+};
+
+def o1: MyType[Int, printOne, 3, "int: %d, i = %d\n"];
+o1.v = 5;
+o1.print();
+o1.callAction();
+
+def o2: MyType[Float[64], printTwo, 6, "float: %f, i = %d\n"];
+o2.v = 5.6;
+o2.print();
+o2.callAction();
+
+def o3: MyType[ptr[Word[8]], printTwo, 0, "hello %s\n"];
+o3.v = "world";
+o3.print();

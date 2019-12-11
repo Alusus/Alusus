@@ -56,7 +56,10 @@ void GrammarFactory::createGrammar(
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
     S("init"), S("هيئ"),
-    S("terminate"), S("اتلف")
+    S("terminate"), S("اتلف"),
+    S("integer"), S("صحيح"),
+    S("string"), S("محارف"),
+    S("any"), S("أيما")
   });
 
   // Add translation for shared modifier.
@@ -282,9 +285,9 @@ void GrammarFactory::createGrammar(
     Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } }),
     {
       {
-        PARSE_REF(S("module.Subject.Identifier")),
+        PARSE_REF(S("module.ParamOnlySubject")),
         TiInt::create(0),
-        TiInt::create(1),
+        TiInt::create(2),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
@@ -333,7 +336,7 @@ void GrammarFactory::createGrammar(
     {S("baseRef"), PARSE_REF(S("module.owner.Expression")) },
     {S("startRef"), PARSE_REF(S("module.LowerLinkExp"))}
   }, {
-    {S("subject"), PARSE_REF(S("module.owner.FuncSigSubject"))}
+    {S("subject"), PARSE_REF(S("module.owner.ParamOnlySubject"))}
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.LowerLinkExp"))},
@@ -369,21 +372,22 @@ void GrammarFactory::createGrammar(
     })},
   }).get());
 
-  this->set(S("root.Main.FuncSigSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
-  }).get());
-  this->set(S("root.Main.FuncSigSubject.Sbj"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
+  this->set(S("root.Main.ParamOnlyExpression"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Expression")) }
   }, {
-    {S("vars"), Map::create({}, {
-      {S("sbj1"), PARSE_REF(S("module.Parameter"))},
-      {S("sbj2"), PARSE_REF(S("module.expression"))},
-      {S("sbj3"), PARSE_REF(S("module.expression"))},
-      {S("frc2"), 0},
-      {S("frc3"), 0},
-      {S("fltr"), 0}
-    })}
+    {S("subject"), PARSE_REF(S("module.owner.ParamOnlySubject"))}
   }).get());
+
+  this->set(S("root.Main.ParamOnlySubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
+  }, {
+    {S("expression"), PARSE_REF(S("module.owner.ParamOnlyExpression"))},
+    {S("cmdGrp"), PARSE_REF(S("module.owner.Keywords"))}
+  }).get());
+  this->createProdGroup(S("root.Main.ParamOnlySubject.TermGroup"), {
+    PARSE_REF(S("module.cmdGrp")),
+    PARSE_REF(S("module.Parameter"))
+  });
 
   // Macro
   this->createCommand(S("root.Main.Macro"), {{
@@ -459,7 +463,17 @@ void GrammarFactory::createGrammar(
       { S("this"), 0 },
       { S("هذا"), std::make_shared<TiStr>(("this")) },
       { S("value"), 0 },
-      { S("قيمة"), std::make_shared<TiStr>(("value")) }
+      { S("قيمة"), std::make_shared<TiStr>(("value")) },
+      { S("type"), 0 },
+      { S("صنف"), std::make_shared<TiStr>(("type")) },
+      { S("function"), 0 },
+      { S("دالة"), std::make_shared<TiStr>(("function")) },
+      { S("integer"), 0 },
+      { S("صحيح"), std::make_shared<TiStr>(("integer")) },
+      { S("string"), 0 },
+      { S("محارف"), std::make_shared<TiStr>(("string")) },
+      { S("any"), 0 },
+      { S("أيما"), std::make_shared<TiStr>(("any")) }
     }),
     {
     }
@@ -657,7 +671,10 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
     S("init"), S("هيئ"),
-    S("terminate"), S("اتلف")
+    S("terminate"), S("اتلف"),
+    S("integer"), S("صحيح"),
+    S("string"), S("محارف"),
+    S("any"), S("أيما")
   });
 
   // Add translation for static modifier.
@@ -723,7 +740,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.Type"));
   this->tryRemove(S("root.Main.Function"));
   this->tryRemove(S("root.Main.FuncSigExpression"));
-  this->tryRemove(S("root.Main.FuncSigSubject"));
+  this->tryRemove(S("root.Main.ParamOnlyExpression"));
+  this->tryRemove(S("root.Main.ParamOnlySubject"));
   this->tryRemove(S("root.Main.Macro"));
   this->tryRemove(S("root.Main.MacroSignature"));
   this->tryRemove(S("root.Main.Keywords"));
