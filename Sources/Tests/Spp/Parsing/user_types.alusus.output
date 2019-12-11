@@ -16,7 +16,7 @@ Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] start: Function  [Main.Function]
   type: FunctionType [Main.Function]
    argTypes: NULL
-   retType: Identifier: Void [Main.FuncSigSubject.Identifier]
+   retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
   body: Scope [Main.BlockStatements.StmtList]
    Definition [Main.Def] v: Identifier: MyType [Main.Subject.Identifier]
    Definition [Main.Def] e: Identifier: EmptyType [Main.Subject.Identifier]

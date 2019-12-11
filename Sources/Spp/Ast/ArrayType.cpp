@@ -12,7 +12,7 @@
 
 #include "spp.h"
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 //==============================================================================
@@ -40,13 +40,13 @@ Word ArrayType::getSize(Helper *helper) const
   if (this->sizeRef == 0) {
     this->sizeRef = helper->getRootManager()->parseExpression(S("size"));
   }
-  auto size = ti_cast<TiInt>(
+  auto size = ti_cast<Core::Data::Ast::IntegerLiteral>(
     helper->getSeeker()->doGet(this->sizeRef.get(), this->getOwner())
   );
   if (size == 0) {
     throw EXCEPTION(GenericException, S("Could not find size value."));
   }
-  return size->get();
+  return std::stol(size->getValue().get());
 }
 
 
@@ -74,4 +74,4 @@ TypeMatchStatus ArrayType::matchTargetType(Type const *type, Helper *helper, Exe
   }
 }
 
-} } // namespace
+} // namespace

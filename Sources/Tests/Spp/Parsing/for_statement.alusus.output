@@ -5,7 +5,7 @@ ERROR CP1001 @ (28,40): Parser syntax error.
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: NULL
-  retType: Identifier: Void [Main.FuncSigSubject.Identifier]
+  retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
  body: Scope [Main.BlockStatements.StmtList]
   ForStatement [Main.For]
    initializer: AssignmentOperator = [Main.Expression.AssignmentExp]

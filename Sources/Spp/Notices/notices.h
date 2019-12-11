@@ -113,6 +113,15 @@ DEFINE_NOTICE(InvalidMacroArgDefNotice, "Spp.Notices", "Spp", "alusus.org", "SPP
 DEFINE_NOTICE(InvalidOnStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1014", 1,
   "Invalid on statement."
 );
+DEFINE_NOTICE(InvalidTypeElementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1015", 1,
+  "Invalid type element."
+);
+DEFINE_NOTICE(InvalidTemplateArgNameNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1016", 1,
+  "Invalid template arg name."
+);
+DEFINE_NOTICE(InvalidTemplateArgTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1017", 1,
+  "Invalid templatae arg type."
+);
 
 } // namespace
 

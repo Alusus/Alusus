@@ -12,7 +12,7 @@
 
 #include "spp.h"
 
-namespace Spp { namespace Ast
+namespace Spp::Ast
 {
 
 //==============================================================================
@@ -23,13 +23,13 @@ Word FloatType::getBitCount(Helper *helper) const
   if (this->bitCountRef == 0) {
     this->bitCountRef = helper->getRootManager()->parseExpression(S("bitCount"));
   }
-  auto bitCount = ti_cast<TiInt>(
+  auto bitCount = ti_cast<Core::Data::Ast::IntegerLiteral>(
     helper->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
   if (bitCount == 0) {
     throw EXCEPTION(GenericException, S("Could not find bitCount value."));
   }
-  return bitCount->get();
+  return std::stol(bitCount->getValue().get());
 }
 
 
@@ -52,4 +52,4 @@ TypeMatchStatus FloatType::matchTargetType(Type const *type, Helper *helper, Exe
   }
 }
 
-} } // namespace
+} // namespace

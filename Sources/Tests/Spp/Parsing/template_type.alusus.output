@@ -1,0 +1,26 @@
+------------------ Parsed Data Dump ------------------
+Template
+ -varDefs:
+  T: Type
+  F: Function
+  I: Integer
+  S: String
+ -body:
+  UserType [Main.Type]
+   body: Scope [Main.BlockStatements.StmtList]
+    Definition [Main.Def] t: Identifier: T [Main.Subject.Identifier]
+    ParamPass () [Main.BlockExpression.ParamPassExp]
+     operand: Identifier: F [Main.BlockSubject.Identifier]
+     param: NULL
+    ParamPass () [Main.BlockExpression.ParamPassExp]
+     operand: Identifier: print [Main.BlockSubject.Identifier]
+     param: Identifier: I [Main.Subject.Identifier]
+    ParamPass () [Main.BlockExpression.ParamPassExp]
+     operand: Identifier: print [Main.BlockSubject.Identifier]
+     param: Identifier: S [Main.Subject.Identifier]
+ -instances:
+------------------------------------------------------
+ERROR SPPA1002 @ (13,19): Invalid template argument.
+ERROR SPPA1002 @ (17,19): Invalid template argument.
+ERROR SPPH1017 @ (21,30): Invalid templatae arg type.
+ERROR SPPH1016 @ (25,29): Invalid template arg name.
