@@ -5,3 +5,4 @@ TerminateOp [Main.TerminateTilde]
 ERROR CP1001 @ (6,21): Parser syntax error.
 ERROR CP1001 @ (8,20): Parser syntax error.
 ERROR CP1001 @ (10,20): Parser syntax error.
+ERROR SPPG1002 @ (10,20): Invalid operation.

@@ -166,8 +166,9 @@ Bool ExpressionGenerator::_generate(
     return expGenerator->generateFloatLiteral(floatLiteral, g, deps, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(astNode);
-    if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
-      return expGenerator->generate(bracket->getOperand().get(), g, deps, result);
+    auto operand = bracket->getOperand().get();
+    if (bracket->getType() == Core::Data::Ast::BracketType::ROUND && operand != 0) {
+      return expGenerator->generate(operand, g, deps, result);
     } else {
       expGenerator->noticeStore->add(
         std::make_shared<Spp::Notices::InvalidOperationNotice>(bracket->findSourceLocation())

@@ -14,6 +14,7 @@ Scope [Main.Statements.StmtList]
     first: Identifier: b [Main.Subject.Identifier]
     second: Identifier: i [Main.Subject.Identifier]
   second: IntegerLiteral: 5 [Main.Subject.Literal]
+ StringLiteral: Hello World [Main.Subject.Literal]
  AssignmentOperator += [Main.Expression.AssignmentExp]
   first: Identifier: intVar [Main.Subject.Identifier]
   second: IntegerLiteral: 5 [Main.Subject.Literal]
@@ -72,6 +73,7 @@ Scope [Main.Statements.StmtList]
    Token: LexerDefs.Identifier ("do")
    Identifier: s [Main.Subject.Identifier]
   modifiers: NULL
+ IntegerLiteral: 10 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
   args: List
    Token: LexerDefs.Identifier ("do")
@@ -143,6 +145,7 @@ Scope [Main.Statements.StmtList]
       Token: LexerDefs.Identifier ("do")
       Identifier: s [Main.Subject.Identifier]
      modifiers: NULL
+    IntegerLiteral: 10 [Main.Subject.Literal]
   modifiers: NULL
  AssignmentOperator = [Main.Expression.AssignmentExp]
   first: Identifier: a [Main.Subject.Identifier]

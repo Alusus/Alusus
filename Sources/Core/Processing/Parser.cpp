@@ -191,6 +191,9 @@ SharedPtr<TiObject> Parser::endParsing(Data::SourceLocationRecord &endSourceLoca
         } else {
           TiInt *flags = this->state->getTermFlags();
           if ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ERROR_SYNC_TERM) {
+            // Here there is no point in waiting for tokens, so we'll jump out of the concat list
+            // regardless of the sync pos id.
+            this->popStateLevel(this->state.get(), false);
             break;
           }
         }
@@ -443,11 +446,6 @@ void Parser::processState(const Data::Token * token, ParserState *state)
       // Set the status back to IN_PROGRESS for now (we'll be setting it back to ERROR later).
       state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
     }
-  }
-
-  // Set the status back to error in case we overrode that during the attempt to sync with error position.
-  if (error) {
-    state->setProcessingStatus(ParserProcessingStatus::ERROR);
   }
 
   // Reset any THIS_PROCESSING_PASS flag found in term level indexes.

@@ -814,35 +814,31 @@ void StandardFactory::createStatementsProductionModule()
   this->set(S("root.Statements.StmtList"), SymbolDefinition::create({
     {S("flags"), TiInt::create(ParsingFlags::ENFORCE_PROD_OBJ)}
   }, {
-    {S("term"), ConcatTerm::create({
-      {S("errorSyncPosId"), TiInt(1)},
+    {S("term"), MultiplyTerm::create({
+      {S("flags"), TiInt::create(TermFlags::ERROR_SYNC_TERM)}
     }, {
-      {S("terms"), List::create({}, {
-        MultiplyTerm::create({
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM)},
-          {S("max"), std::make_shared<TiInt>(1)}
-        }, {
-          {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
-        }),
-        MultiplyTerm::create({
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM)}
-        }, {
-          {S("term"), ConcatTerm::create({}, {
-            {S("terms"), List::create({}, {
-              TokenTerm::create({
-                {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
-                {S("tokenText"), Map::create({}, {{S(";"),0},{S("؛"),0}})}
-              }),
-              MultiplyTerm::create({
-                {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-                {S("max"), std::make_shared<TiInt>(1)}
-              }, {
-                {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
-              })
+      {S("term"), ConcatTerm::create({
+        {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+        {S("errorSyncPosId"), TiInt(1)}
+      }, {
+        {S("terms"), List::create({}, {
+          MultiplyTerm::create({
+            {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+            {S("max"), std::make_shared<TiInt>(1)}
+          }, {
+            {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
+          }),
+          MultiplyTerm::create({
+            {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+            {S("max"), std::make_shared<TiInt>(1)}
+          }, {
+            {S("term"), TokenTerm::create({
+              {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
+              {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+              {S("tokenText"), Map::create({}, {{S(";"),0},{S("؛"),0}})}
             })}
-          })}
-        })
+          })
+        })}
       })}
     })},
     {S("handler"), ScopeParsingHandler<Data::Ast::Scope>::create()}

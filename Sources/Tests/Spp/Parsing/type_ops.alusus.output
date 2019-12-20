@@ -39,6 +39,10 @@ UserType [Main.Type]
        b: Identifier: Float [Main.Subject.Identifier]
       retType: NULL
      body: Scope [Main.BlockStatements.StmtList]
+  Scope [Main.BlockStatements.StmtList]
+  Bracket [] [Main.BlockSubject.Sbj]
+   operand: NULL
+  Scope [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ~terminate
    modifiers:
     Identifier: shared
@@ -61,6 +65,10 @@ UserType [Main.Type]
         param: ThisTypeRef
       retType: NULL
      body: Scope [Main.BlockStatements.StmtList]
+  Scope [Main.BlockStatements.StmtList]
+  Bracket [] [Main.BlockSubject.Sbj]
+   operand: NULL
+  Scope [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] =
    modifiers:
     Identifier: shared
@@ -308,6 +316,10 @@ UserType [Main.Type]
        operand: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
         second: Identifier: i [Main.Subject.Identifier]
+  ReturnStatement [Main.Return]
+   operand: LinkOperator . [Main.Expression.LinkExp]
+    first: Identifier: this [Main.Keywords]
+    second: Identifier: i [Main.Subject.Identifier]
   Definition [Main.LeadingCmdGrp] ()
    modifiers:
     Identifier: shared

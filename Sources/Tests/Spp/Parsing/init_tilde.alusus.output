@@ -17,3 +17,4 @@ InitOp [Main.InitTilde]
 ------------------------------------------------------
 ERROR CP1001 @ (12,15): Parser syntax error.
 ERROR CP1001 @ (14,15): Parser syntax error.
+ERROR SPPG1002 @ (14,15): Invalid operation.
