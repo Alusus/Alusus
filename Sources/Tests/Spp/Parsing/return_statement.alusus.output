@@ -1,4 +1,3 @@
-ERROR CP1001 @ (32,14): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] getInt: Function  [Main.Function]
@@ -55,4 +54,5 @@ Module [Main.ModuleStatements.StmtList]
   body: Scope [Main.BlockStatements.StmtList]
    ReturnStatement [Main.Return]
     operand: Identifier: a [Main.Subject.Identifier]
+   Identifier: b [Main.BlockSubject.Identifier]
 ------------------------------------------------------
