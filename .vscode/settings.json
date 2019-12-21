@@ -57,7 +57,18 @@
     "chrono": "cpp",
     "ratio": "cpp",
     "numeric": "cpp",
-    "thread": "cpp"
+    "thread": "cpp",
+    "variant": "cpp",
+    "bit": "cpp",
+    "condition_variable": "cpp",
+    "map": "cpp",
+    "algorithm": "cpp",
+    "iterator": "cpp",
+    "memory_resource": "cpp",
+    "random": "cpp",
+    "regex": "cpp",
+    "string": "cpp",
+    "shared_mutex": "cpp"
   },
   "files.exclude": {
     "**/.git": true,
@@ -70,5 +81,6 @@
     "Builds": true,
     "Bin": true
   },
-  "C_Cpp.errorSquiggles": "Disabled"
+  "C_Cpp.errorSquiggles": "Disabled",
+  "cmake.configureOnOpen": false
 }
