@@ -1610,7 +1610,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
   if (!expGenerator->dereferenceIfNeeded(
     static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, deps, target
   )) return false;
-  auto astRefType = ti_cast<Ast::ReferenceType>(paramAstTypes->get(0));
+  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
