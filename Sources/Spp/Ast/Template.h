@@ -17,7 +17,7 @@ namespace Spp::Ast
 {
 
 class Template : public Core::Data::Node,
-                 public Binding, public MapContaining<TiObject>,
+                 public Binding, public MapContaining<TiObject>, public Core::Data::Ast::Mergeable,
                  public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
@@ -25,7 +25,7 @@ class Template : public Core::Data::Node,
 
   TYPE_INFO(Template, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
+    Core::Data::Node, Binding, MapContaining<TiObject>, Core::Data::Ast::Mergeable,
     Core::Data::Ast::MetaHaving, Core::Data::Printable
   );
 
@@ -142,6 +142,12 @@ class Template : public Core::Data::Node,
   {
     return this->instances.get(index);
   }
+
+
+  //============================================================================
+  // Mergeable Implementation
+
+  public: virtual Bool merge(TiObject *src, Core::Notices::Store *noticeStore);
 
 
   //============================================================================
