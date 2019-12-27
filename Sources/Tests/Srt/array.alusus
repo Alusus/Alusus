@@ -1,0 +1,23 @@
+import "Srl/Console.alusus";
+import "Srl/Array.alusus";
+
+func test {
+  def a: Srl.Array[Int];
+  a.add(5);
+  a.add(3);
+  a.add(74);
+  a.add(5);
+  a.insert(2, 8);
+
+  def i: Int;
+  for i = 0, i < a.getLength(), ++i Srl.Console.print("a(%d) = %d\n", i, a(i));
+
+  a.remove(3);
+  Srl.Console.print("after removing item 3:\n");
+  for i = 0, i < a.getLength(), ++i Srl.Console.print("a(%d) = %d\n", i, a(i));
+
+  a.clear();
+  Srl.Console.print("length after clear: %d\n", a.getLength());
+};
+
+test();
