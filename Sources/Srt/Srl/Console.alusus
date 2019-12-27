@@ -1,5 +1,4 @@
 import "globals.alusus";
-import "Srl/String.alusus";
 
 @merge module Srl
 {
@@ -7,7 +6,7 @@ import "Srl/String.alusus";
   {
     @expname[getchar]
     func getChar(): Int[32];
-    
+
     @expname[putchar]
     func putChar(character: Int[32]): Int[32];
 
@@ -66,7 +65,7 @@ import "Srl/String.alusus";
       def BLINK: "\x1b[5m";
       def REVERSE: "\x1b[7m";
       def HIDDEN: "\x1b[8m";
-      
+
       // frontground
       def FG_BLACK: "\x1b[30m";
       def FG_RED: "\x1b[31m";

@@ -1,0 +1,16 @@
+import "Srl/Regex.alusus";
+import "Srl/Console.alusus";
+
+func test {
+    Srl.Console.print(
+      "regex match from string (\"phone: 050000000\") with pattern (\"([0-9]+)\"): %s\n",
+      Srl.Regex.match("([0-9]+)", "phone: 050000000", 1)(1).buf
+    );
+    Srl.Console.print(
+      "regex count from string (\"phone: 050000000\") with pattern (\"(123)\"): %d\n",
+      Srl.Regex.match("(123)", "phone: 050000000", 1).getLength()
+    );
+};
+
+test();
+

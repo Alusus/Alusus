@@ -1,0 +1,2 @@
+regex match from string ("phone: 050000000") with pattern ("([0-9]+)"): 050000000
+regex count from string ("phone: 050000000") with pattern ("(123)"): 0

@@ -1,0 +1,135 @@
+import "Srl/Memory.alusus";
+
+@merge module Srl
+{
+  type Array [T: type] {
+    def refCount: ref[Int];
+    def length: ref[Int];
+    def bufSize: ref[Int];
+    def buf: ref[array[T]];
+
+
+    // Initialization
+
+    on this~init() this._init();
+
+    on this~init(ary: ref[Array[T]]) {
+      this._init();
+      this.assign(ary);
+    };
+
+    on this~terminate() this._release();
+
+    // Member Functions
+
+    func _init {
+      this.refCount~ptr = 0;
+      this.length~ptr = 0;
+      this.bufSize~ptr = 0;
+      this.buf~ptr = 0;
+    };
+
+    func _alloc (length: Int) {
+      def size: Int = T~size * length + Int~size * 3;
+      this.refCount~ptr = Srl.Memory.alloc(size)~cast[ptr[Int]];
+      this.length~ptr = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[Int]];
+      this.bufSize~ptr = (this.length~ptr~cast[Int[64]] + this.length~size)~cast[ptr[Int]];
+      this.buf~ptr = (this.bufSize~ptr~cast[Int[64]] + this.bufSize~size)~cast[ptr[array[T]]];
+      this.bufSize = length;
+      this.length = 0;
+    };
+
+    func _realloc (newLength: Int[64]) {
+      def size: Int = T~size * newLength + Int~size * 3;
+      this.refCount~ptr = Srl.Memory.realloc(this.refCount~ptr, size)~cast[ptr[Int]];
+      this.length~ptr = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[Int]];
+      this.bufSize~ptr = (this.length~ptr~cast[Int[64]] + this.length~size)~cast[ptr[Int]];
+      this.buf~ptr = (this.bufSize~ptr~cast[Int[64]] + this.bufSize~size)~cast[ptr[array[T]]];
+      this.bufSize = newLength;
+    };
+
+    func _release {
+      if this.refCount~ptr != 0 {
+        --this.refCount;
+        if this.refCount == 0 Srl.Memory.free(this.refCount~ptr);
+        this._init();
+      };
+    };
+
+    func getLength (): Int[64] {
+      if this.length~ptr == 0 return 0
+      else return this.length;
+    };
+
+    func getBufSize (): Int[64] {
+      if this.bufSize~ptr == 0 return 0
+      else return this.bufSize;
+    };
+
+    func assign (ary: ref[Array[T]]) {
+      this._release();
+      this.refCount~ptr = ary.refCount~ptr;
+      this.length~ptr = ary.length~ptr;
+      this.bufSize~ptr = ary.bufSize~ptr;
+      this.buf~ptr = ary.buf~ptr;
+      if this.refCount~ptr != 0 {
+        ++this.refCount;
+      };
+    };
+
+    func _prepareToModify (enlarge: Bool) {
+      if this.refCount~ptr == 0 {
+        this._alloc(100)
+      } else if this.refCount == 1 {
+        if enlarge && this.length >= this.bufSize this._realloc(this.bufSize + 100);
+      } else {
+        def curLength: Int = this.length;
+        def curBuf: ptr[array[T]] = this.buf~ptr;
+        --this.refCount;
+        this._alloc(curLength + 100);
+        Memory.copy(this.buf~ptr, curBuf, T~size * curLength);
+        this.length = curLength;
+      };
+    };
+
+    func add (item: T) {
+      this._prepareToModify(true);
+      this.buf(this.length)~init(item);
+      ++this.length;
+    };
+
+    func insert (index: Int, item: T) {
+      if index < 0 || index >= this.getLength() {
+        this.add(item);
+      } else {
+        this._prepareToModify(true);
+        Memory.copy(this.buf(index + 1)~ptr, this.buf(index)~ptr, T~size * (this.length - index));
+        this.buf(index)~init(item);
+        ++this.length;
+      };
+    };
+
+    func remove (index: Int) {
+      if index >= 0 && index < this.getLength() {
+        this._prepareToModify(false);
+        if index < this.getLength() - 1 {
+          Memory.copy(this.buf(index)~ptr, this.buf(index + 1)~ptr, T~size * (this.length - index));
+        };
+        --this.length;
+      };
+    };
+
+    func clear {
+      this._release();
+    };
+
+    // Operators
+
+    on this = ref[Array[T]] this.assign(value);
+
+    on this(i: Int): ref[T] {
+      @shared def dummy: T;
+      if i >= 0 && i < this.getLength() return this.buf(i) else return dummy;
+    };
+  };
+};
