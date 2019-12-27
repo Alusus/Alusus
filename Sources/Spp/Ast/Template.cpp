@@ -278,6 +278,23 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
 
 
 //==============================================================================
+// Mergeable Implementation
+
+Bool Template::merge(TiObject *src, Core::Notices::Store *noticeStore)
+{
+  auto mergeable = this->body.ti_cast_get<Core::Data::Ast::Mergeable>();
+  if (mergeable != 0) {
+    return mergeable->merge(src, noticeStore);
+  } else {
+    noticeStore->add(
+      std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+    );
+    return false;
+  }
+}
+
+
+//==============================================================================
 // Printable Implementation
 
 void Template::print(OutStream &stream, Int indents) const
