@@ -11,19 +11,19 @@ import "Srl/Array.alusus";
 
     // Initialization
 
-    on this~init() this._init();
+    handler this~init() this._init();
 
-    on this~init(str: ref[String]) {
+    handler this~init(str: ref[String]) {
       this._init();
       this.assign(str);
     };
 
-    on this~init(buf: ptr[array[Char]]) {
+    handler this~init(buf: ptr[array[Char]]) {
       this._init();
       this.assign(buf);
     };
 
-    on this~terminate() this._release();
+    handler this~terminate() this._release();
 
     // Member Functions
 
@@ -272,32 +272,32 @@ import "Srl/Array.alusus";
 
     // Operators
 
-    on this = ref[String] this.assign(value);
-    on this = ptr[array[Char]] this.assign(value);
+    handler this = ref[String] this.assign(value);
+    handler this = ptr[array[Char]] this.assign(value);
 
-    on this~cast[ptr[array[Char]]] return this.buf;
-    on this~cast[ptr[Char]] return this.buf;
+    handler this~cast[ptr[array[Char]]] return this.buf;
+    handler this~cast[ptr[Char]] return this.buf;
 
-    on this + ptr[array[Char]]: String return this.concat(value);
-    on this + Char: String return this.concat(value);
-    on this + Int[64]: String return this.concat(value);
-    on this + Float[64]: String return this.concat(value);
+    handler this + ptr[array[Char]]: String return this.concat(value);
+    handler this + Char: String return this.concat(value);
+    handler this + Int[64]: String return this.concat(value);
+    handler this + Float[64]: String return this.concat(value);
 
-    on this += ptr[array[Char]] this.append(value);
-    on this += Char this.append(value);
-    on this += Int[64] this.append(value);
-    on this += Float[64] this.append(value);
+    handler this += ptr[array[Char]] this.append(value);
+    handler this += Char this.append(value);
+    handler this += Int[64] this.append(value);
+    handler this += Float[64] this.append(value);
 
-    on this(i: Int[64]): Char {
+    handler this(i: Int[64]): Char {
       if this.buf == 0 return 0
       else return this.buf~cnt(i);
     };
 
-    on this == ptr[array[Char]]: Bool return this.compare(value) == 0;
-    on this > ptr[array[Char]]: Bool return this.compare(value) > 0;
-    on this < ptr[array[Char]]: Bool return this.compare(value) < 0;
-    on this >= ptr[array[Char]]: Bool return this.compare(value) >= 0;
-    on this <= ptr[array[Char]]: Bool return this.compare(value) <= 0;
+    handler this == ptr[array[Char]]: Bool return this.compare(value) == 0;
+    handler this > ptr[array[Char]]: Bool return this.compare(value) > 0;
+    handler this < ptr[array[Char]]: Bool return this.compare(value) < 0;
+    handler this >= ptr[array[Char]]: Bool return this.compare(value) >= 0;
+    handler this <= ptr[array[Char]]: Bool return this.compare(value) <= 0;
 
     // Static Functions
 

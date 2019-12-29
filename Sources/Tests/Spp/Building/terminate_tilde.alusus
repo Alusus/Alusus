@@ -3,9 +3,9 @@ import "libalusus_spp.so";
 type T {
   def i: Int;
 
-  on this~init() {};
+  handler this~init() {};
 
-  on this~terminate() {};
+  handler this~terminate() {};
 };
 
 func test {

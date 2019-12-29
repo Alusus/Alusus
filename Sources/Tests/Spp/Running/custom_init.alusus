@@ -4,23 +4,23 @@ type A
 {
   def i: Int;
 
-  on this~init() {
+  handler this~init() {
     Srl.Console.print("constructed!\n");
     this.i = 1;
   };
 
-  on this~init(that: ref[A]) {
+  handler this~init(that: ref[A]) {
     Srl.Console.print("constructed2!\n");
     this.i = that.i * 2;
   };
 
-  on this~init(that: ref[A], extra: Int) {
+  handler this~init(that: ref[A], extra: Int) {
     Srl.Console.print("constructed3!\n");
     this~init(that);
     this.i += extra;
   };
 
-  on this~terminate() {
+  handler this~terminate() {
     this.i = 0;
     Srl.Console.print("destructed!\n");
   };
@@ -174,7 +174,7 @@ def ga: A;
 def i: Int;
 for i = 0, i < 2, ++i {
   def a: A;
-  Srl.Console.print("autCtor on the global scope: %d %d\n", a.i, ga.i);
+  Srl.Console.print("autoCtor on the global scope: %d %d\n", a.i, ga.i);
 };
 Srl.Console.print("\n");
 

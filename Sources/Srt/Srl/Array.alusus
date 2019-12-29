@@ -11,14 +11,14 @@ import "Srl/Memory.alusus";
 
     // Initialization
 
-    on this~init() this._init();
+    handler this~init() this._init();
 
-    on this~init(ary: ref[Array[T]]) {
+    handler this~init(ary: ref[Array[T]]) {
       this._init();
       this.assign(ary);
     };
 
-    on this~terminate() this._release();
+    handler this~terminate() this._release();
 
     // Member Functions
 
@@ -125,9 +125,9 @@ import "Srl/Memory.alusus";
 
     // Operators
 
-    on this = ref[Array[T]] this.assign(value);
+    handler this = ref[Array[T]] this.assign(value);
 
-    on this(i: Int): ref[T] {
+    handler this(i: Int): ref[T] {
       @shared def dummy: T;
       if i >= 0 && i < this.getLength() return this.buf(i) else return dummy;
     };

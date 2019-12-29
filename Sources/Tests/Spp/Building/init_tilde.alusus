@@ -3,11 +3,11 @@ import "libalusus_spp.so";
 type T {
   def i: Int;
 
-  on this~init() {};
+  handler this~init() {};
 
-  on this~init(a: Int) {};
+  handler this~init(a: Int) {};
 
-  on this~init(a: Int, b: Int) {};
+  handler this~init(a: Int, b: Int) {};
 };
 
 func test {

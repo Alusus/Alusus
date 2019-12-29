@@ -8,8 +8,8 @@ type Point1 {
 type Point2 {
   def x: Int;
   def y: Int;
-  on this~init() {};
-  on this~init(src: ref[Point2]) {};
+  handler this~init() {};
+  handler this~init(src: ref[Point2]) {};
 };
 
 function convertPoint1 (p: Point1) => Point1 {
