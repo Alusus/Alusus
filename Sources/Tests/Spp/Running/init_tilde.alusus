@@ -4,17 +4,17 @@ import "Srl/Memory.alusus";
 type T {
   def i: Int;
 
-  on this~init() {
+  handler this~init() {
     Srl.Console.print("init!\n");
     this.i = 7;
   };
 
-  on this~init(a: Int) {
+  handler this~init(a: Int) {
     Srl.Console.print("init: %d\n", a);
     this.i = a;
   };
 
-  on this~init(a: Int, b: Int) {
+  handler this~init(a: Int, b: Int) {
     Srl.Console.print("init: %d, %d\n", a, b);
     this.i = a;
   };

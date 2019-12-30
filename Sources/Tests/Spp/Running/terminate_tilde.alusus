@@ -4,9 +4,9 @@ import "Srl/Memory.alusus";
 type T {
   def i: Int;
 
-  on this~init() {};
+  handler this~init() {};
 
-  on this~terminate() {
+  handler this~terminate() {
     Srl.Console.print("terminate! %d\n", this.i);
   };
 };

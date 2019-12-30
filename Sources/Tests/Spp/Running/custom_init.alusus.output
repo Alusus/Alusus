@@ -54,10 +54,10 @@ destructed!
 
 constructed!
 constructed!
-autCtor on the global scope: 1 1
+autoCtor on the global scope: 1 1
 destructed!
 constructed!
-autCtor on the global scope: 1 1
+autoCtor on the global scope: 1 1
 destructed!
 
 C constructed!

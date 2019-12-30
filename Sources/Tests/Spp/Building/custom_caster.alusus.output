@@ -1,4 +1,4 @@
-ERROR SPPG1022 @ (10,6): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (10,11): Missing a return statement for a non-void function.
 ERROR SPPG1005 @ (17,3): Invalid cast.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------

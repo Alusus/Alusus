@@ -2,12 +2,12 @@ import "libalusus_spp.so";
 
 type T1 {
   def i: Int;
-  on this~cast[Int] return this.i;
+  handler this~cast[Int] return this.i;
 };
 
 type T2 {
   def i: Int;
-  on this~cast[Int] {};
+  handler this~cast[Int] {};
 };
 
 func test {

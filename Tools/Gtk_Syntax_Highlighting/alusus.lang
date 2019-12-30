@@ -82,7 +82,7 @@
       <keyword>func</keyword>
       <keyword>type</keyword>
       <keyword>macro</keyword>
-      <keyword>on</keyword>
+      <keyword>handler</keyword>
     </context>
 
     <context id="keyword" style-ref="keyword">
@@ -118,7 +118,7 @@
       <keyword>دالة</keyword>
       <keyword>ماكرو</keyword>
       <keyword>صنف</keyword>
-      <keyword>عند</keyword>
+      <keyword>عملية</keyword>
     </context>
 
     <context id="ar-keyword" style-ref="keyword">

@@ -4,17 +4,17 @@ type A
 {
   def i: Int;
 
-  on this~init() {
+  handler this~init() {
     Srl.Console.print("constructed!\n");
     this.i = 1;
   };
 
-  on this~init(that: ref[A]) {
+  handler this~init(that: ref[A]) {
     Srl.Console.print("constructed2!\n");
     this.i = that.i * 2;
   };
 
-  on this~terminate() {
+  handler this~terminate() {
     this.i = 0;
     Srl.Console.print("destructed!\n");
   };

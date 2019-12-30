@@ -52,7 +52,7 @@ void GrammarFactory::createGrammar(
     S("size"), S("حجم"),
     S("ast"), S("شبم"),
     S("this_type"), S("هذا_الصنف"),
-    S("on"), S("عند"),
+    S("handler"), S("عملية"),
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
     S("init"), S("هيئ"),
@@ -222,9 +222,9 @@ void GrammarFactory::createGrammar(
     state->setData(returnStatement);
   }));
 
-  //// TypeOp = "on" + Exp + Statement
+  //// TypeOp = "handler" + Exp + Statement
   this->createCommand(S("root.Main.TypeOp"), {{
-    Map::create({}, { { S("on"), 0 }, { S("عند"), 0 } }),
+    Map::create({}, { { S("handler"), 0 }, { S("عملية"), 0 } }),
     {
       {
         PARSE_REF(S("module.Expression")),
@@ -667,7 +667,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("size"), S("حجم"),
     S("ast"), S("شبم"),
     S("this_type"), S("هذا_الصنف"),
-    S("on"), S("عند"),
+    S("handler"), S("عملية"),
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
     S("init"), S("هيئ"),

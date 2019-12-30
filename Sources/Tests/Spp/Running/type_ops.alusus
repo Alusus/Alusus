@@ -4,33 +4,33 @@ use Srl.Console;
 type T {
   def i: Int;
 
-  on this = Int this.i = value;
+  handler this = Int this.i = value;
 
-  on this += (v:Int) this.i += v;
-  on this /= (v:Int) this.i /= v;
+  handler this += (v:Int) this.i += v;
+  handler this /= (v:Int) this.i /= v;
 
-  on this = ref[this_type] this.i = value.i;
+  handler this = ref[this_type] this.i = value.i;
 
-  on this < Int return this.i < value;
+  handler this < Int return this.i < value;
 
-  on this - Int : Int return this.i - value;
-  on this * Int : this_type {
+  handler this - Int : Int return this.i - value;
+  handler this * Int : this_type {
     def ret: this_type;
     ret.i = this.i * value;
     return ret;
   };
 
-  on this << Int : Int { return this.i << value };
+  handler this << Int : Int { return this.i << value };
 
-  on this $ Int : Int return this.i $ value;
+  handler this $ Int : Int return this.i $ value;
 
-  on this~cast[Int] return this.i;
+  handler this~cast[Int] return this.i;
 
-  on this():Int return this.i;
+  handler this():Int return this.i;
 
-  on this(Int) this.i += value;
+  handler this(Int) this.i += value;
 
-  on this(f: float) => Float[64] {
+  handler this(f: float) => Float[64] {
     return this.i + f;
   };
 };
