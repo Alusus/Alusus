@@ -9,6 +9,10 @@
       } else {
         Console.print(I18n.use_apm_local_install, Console.Style.FG_RED);
       }
+    } else if (argCount >= 4 && String.compare(argv~cnt(2), I18n.cmd_link) == 0) {
+      createLink(argv~cnt(3)~cast[ptr[array[Char]]], argv~cnt(4)~cast[ptr[array[Char]]]);
+    } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_unlink) == 0) {
+      removeLink(argv~cnt(3)~cast[ptr[array[Char]]]);
     } else if(argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_help) == 0) {
       def homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
       def pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
@@ -19,6 +23,10 @@
       Console.print(I18n.help_apm_install_tip, Console.Style.FG_WHITE, homeDirectory);
       Console.print(I18n.help_apm_install_local, Console.Style.FG_YELLOW);
       Console.print(I18n.help_apm_install_tip, Console.Style.FG_WHITE, pwdDirectory);
+      Console.print(I18n.help_apm_link, Console.Style.FG_YELLOW);
+      Console.print(I18n.help_apm_link_tip, Console.Style.FG_WHITE, pwdDirectory);
+      Console.print(I18n.help_apm_unlink, Console.Style.FG_YELLOW);
+      Console.print(I18n.help_apm_unlink_tip, Console.Style.FG_WHITE, pwdDirectory);
     } else if(argCount >= 3) {
       Console.print(I18n.unknown_command, Console.Style.FG_RED, argv~cnt(2));
     } else {
@@ -26,5 +34,67 @@
     };
 
     return 0;
+  };
+
+  func createLink (packageName: ptr[array[Char]], path: ptr[array[Char]]) {
+    removeLink(packageName);
+
+    def packageStr: String = packageName;
+    def packageInfo: Array[String] = packageStr.split("/");
+    if packageInfo.getLength() != 2 {
+      Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
+      return;
+    };
+
+    def absolutePath: array[Char, 256];
+    if Fs.getAbsolutePath(path, absolutePath~ptr) == 0 {
+      Console.print(I18n.invalidPath, Console.Style.FG_RED, path);
+      return;
+    };
+
+    // Create the author directory.
+    def authorDir: String = ".apm/";
+    authorDir += packageInfo(0);
+    def createDirCmd: String = "mkdir -p ";
+    createDirCmd += authorDir;
+    if System.exec(createDirCmd) != 0 {
+      Console.print(I18n.authorDirCreationFailed, Console.Style.FG_RED, authorDir);
+      return;
+    };
+
+    // Create the symlink.
+    def linkName: array[Char, 256];
+    String.assign(linkName~ptr, ".apm/%s", packageName);
+
+    def cmd: array[Char, 1000];
+    String.assign(cmd~ptr, "ln -s %s %s", absolutePath~ptr, linkName~ptr);
+    if System.exec(cmd~ptr) != 0 {
+      Console.print(I18n.linkCreationFailed, Console.Style.FG_RED, linkName~ptr);
+      return;
+    };
+
+    Console.print(I18n.linkCreated, Console.Style.FG_GREEN, linkName~ptr);
+  };
+
+  func removeLink (packageName: ptr[array[Char]]) {
+    def packageStr: String = packageName;
+    def packageInfo: Array[String] = packageStr.split("/");
+    if packageInfo.getLength() != 2 {
+      Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
+      return;
+    };
+
+    // Create the symlink.
+    def linkName: array[Char, 256];
+    String.assign(linkName~ptr, ".apm/%s", packageName);
+
+    def cmd: array[Char, 1000];
+    String.assign(cmd~ptr, "rm -f %s", linkName~ptr);
+    if System.exec(cmd~ptr) != 0 {
+      Console.print(I18n.linkRemovalFailed, Console.Style.FG_RED, linkName~ptr);
+      return;
+    };
+
+    Console.print(I18n.linkRemoved, Console.Style.FG_GREEN, linkName~ptr);
   };
 };
