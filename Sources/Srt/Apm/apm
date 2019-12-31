@@ -3,7 +3,6 @@ import "Apm.alusus";
 
 @merge module Apm {
   @merge module I18n {
-    def use_apm_install: "%suse: apm install <author>/<package>@<release>\n";
     def use_apm_local_install: "%suse: apm local install <author>/<package>@<release>\n";
     def help_commands: " %sCommands:- \n";
     def help_apm_help: "   %sapm help\t\t\t\t\t\t";
@@ -11,11 +10,17 @@ import "Apm.alusus";
     def help_apm_install: "   %sapm install <author>/<package>@<release>\t\t";
     def help_apm_install_tip: "%sinstall package in `%s/.apm`\n";
     def help_apm_install_local: "   %sapm local install <author>/<package>@<release>\t";
+    def help_apm_link: "   %sapm link <author>/<package>@<release> <path>\t\t";
+    def help_apm_link_tip: "%screate link to local package in `%s/.apm`\n";
+    def help_apm_unlink: "   %sapm unlink <author>/<package>@<release>\t\t";
+    def help_apm_unlink_tip: "%sremove link to local package from `%s/.apm`\n";
     def unknown_command: "%sUnknown command '%s'. Use 'apm help' for help.\n";
     def use_help_command: "%sUse 'apm help' for help.\n";
 
     def cmd_install: "install";
     def cmd_local: "local";
+    def cmd_link: "link";
+    def cmd_unlink: "unlink";
     def cmd_help: "help";
   };
 };

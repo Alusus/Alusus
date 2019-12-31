@@ -5,19 +5,24 @@
 
 @merge module Apm {
   @merge module I18n {
-    def use_apm_install: "%sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
     def use_apm_local_install: "%sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\ج";
     def help_commands: " %sالاوامر:- \ج";
     def help_apm_help: "   %sمحا مساعدة\t\t\t\t\t\t";
     def help_apm_help_tip: "%sقائمة الاوامر\ج";
-    def help_apm_install: "   %sاستخدم: محا تثبيت <المالك>/<الوحدة>@<الاصدار>\t";
+    def help_apm_install: "   %sمحا تثبيت <المالك>/<الوحدة>@<الاصدار>\t\t";
     def help_apm_install_tip: "%sتثبيت الوحدة في `%s/.apm`\ج";
-    def help_apm_install_local: "   %sاستخدم: محا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\t";
+    def help_apm_install_local: "   %sمحا محلي تثبيت <المالك>/<الوحدة>@<الاصدار>\t\t";
+    def help_apm_link: "   %sمحا اربط <المالك>/<الوحدة>@<الاصدار> <المسار>\t";
+    def help_apm_link_tip: "%sإنشاء رابط لنسخة محلية في `%s/.apm`\ج";
+    def help_apm_unlink: "   %sمحا افصل <المالك>/<الوحدة>@<الاصدار>\t\t\t";
+    def help_apm_unlink_tip: "%sإزالة رابط لنسخة محلية من `%s/.apm`\ج";
     def unknown_command: "%الامر التالي غير معرف '%s'. استخدم 'محا مساعدة' للمساعدة.\ج";
     def use_help_command: "%sاستخدم 'محا مساعدة' للمساعدة.\ج";
 
     def cmd_install: "تثبيت";
     def cmd_local: "محلي";
+    def cmd_link: "اربط";
+    def cmd_unlink: "افصل";
     def cmd_help: "مساعدة";
   };
 };

@@ -65,6 +65,10 @@ import "Srl/Memory.alusus";
 
     def seek: @expname[fseek] function (file: ptr[File], offset: Int, seek: Int) => Int[32];
 
+    def getAbsolutePath: @expname[realpath] function (
+      path: ptr[array[Char]], resolvedPath: ptr[array[Char]]
+    ): ptr[array[Char]];
+
     def createFile: function (filename: ptr[array[Char]], content: ptr, contentCount: Int) => Bool
     {
       def file: ptr[File];
