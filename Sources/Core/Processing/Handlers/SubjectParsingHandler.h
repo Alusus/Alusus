@@ -27,9 +27,15 @@ class SubjectParsingHandler : public GenericParsingHandler
 
 
   //============================================================================
+  // Member Variables
+
+  private: Word constTokenId;
+
+
+  //============================================================================
   // Constructor
 
-  public: SubjectParsingHandler()
+  public: SubjectParsingHandler(Word cti): constTokenId(cti)
   {
   }
 
@@ -40,7 +46,7 @@ class SubjectParsingHandler : public GenericParsingHandler
   public: virtual void onAlternateRouteDecision(
     Parser *parser, ParserState *state, Int route, Data::Token const *token)
   {
-    if (state->isAProdRoot(-1)) {
+    if (state->isAProdRoot(-1) && token->getId() == this->constTokenId) {
       if (token->getText() == S("(")) {
         auto bracket = Data::Ast::Bracket::create({
           { "sourceLocation", std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()) }
