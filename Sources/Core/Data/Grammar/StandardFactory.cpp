@@ -1513,7 +1513,7 @@ void StandardFactory::createSubjectProductionModule()
       {S("frc3"), 0},
       {S("fltr"), 0}
     })},
-    {S("handler"), std::make_shared<SubjectParsingHandler>()}
+    {S("handler"), std::make_shared<SubjectParsingHandler>(this->constTokenId)}
   }));
 
   // SbjGroup: (cmdGrp || Parameter || set)
