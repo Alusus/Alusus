@@ -36,7 +36,7 @@ void GrammarFactory::createGrammar(
   this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
     S("root.LexerDefs.Identifier.handler")
   )->addKeywords({
-    S("if"), S("إذا"),
+    S("if"), S("إذا"), S("else"), S("وإلا"),
     S("while"), S("بينما"),
     S("for"), S("لكل"),
     S("continue"), S("أكمل"),
@@ -79,7 +79,7 @@ void GrammarFactory::createGrammar(
           TiInt::create(ParsingFlags::PASS_ITEMS_UP)
         },
         {
-          PARSE_REF(S("module.BlockStatements.Stmt")),
+          PARSE_REF(S("module.BlockStatements.OuterStmt")),
           TiInt::create(1),
           TiInt::create(1),
           TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -92,7 +92,7 @@ void GrammarFactory::createGrammar(
       Map::create({}, { { S("else"), 0 }, { S("وإلا"), 0 } }),
       {
         {
-          PARSE_REF(S("module.BlockStatements.Stmt")),
+          PARSE_REF(S("module.BlockStatements.OuterStmt")),
           TiInt::create(1),
           TiInt::create(1),
           TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -115,7 +115,7 @@ void GrammarFactory::createGrammar(
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
-        PARSE_REF(S("module.BlockStatements.Stmt")),
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
         TiInt::create(1),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -134,7 +134,7 @@ void GrammarFactory::createGrammar(
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
-        PARSE_REF(S("module.BlockStatements.Stmt")),
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
         TiInt::create(1),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -233,7 +233,7 @@ void GrammarFactory::createGrammar(
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
-        PARSE_REF(S("module.BlockStatements.Stmt")),
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
         TiInt::create(1),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -444,6 +444,11 @@ void GrammarFactory::createGrammar(
   }, {
     {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
   }));
+  this->createProdGroup(S("root.Main.BlockStatements.OuterStmt"), {
+    PARSE_REF(S("module.owner.BlockSet")),
+    PARSE_REF(S("module.CmdVariation")),
+    PARSE_REF(S("module.ExpVariation"))
+  });
   // BlockSubject
   this->set(S("root.Main.BlockSubject"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
@@ -651,7 +656,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
     S("root.LexerDefs.Identifier.handler")
   )->removeKeywords({
-    S("if"), S("إذا"),
+    S("if"), S("إذا"), S("else"), S("وإلا"),
     S("while"), S("بينما"),
     S("for"), S("لكل"),
     S("continue"), S("أكمل"),
