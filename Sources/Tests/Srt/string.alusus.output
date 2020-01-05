@@ -31,3 +31,5 @@ Comparison successful!
 hello
 world
 hello - world
+ToUpperCase: HELLO - WORLD
+ToLowerCase: hello - world

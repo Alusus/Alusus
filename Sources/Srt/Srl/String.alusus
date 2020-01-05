@@ -230,6 +230,26 @@ import "Srl/Array.alusus";
       return str;
     };
 
+    func toUpperCase(): String {
+      def str: String = "";
+      def charIndex: int;
+      for charIndex=0, charIndex<this.getLength(), charIndex++ {
+        str += toUpper(this(charIndex)~cast[Char])~cast[Char];
+      };
+
+      return str;
+    }
+
+    func toLowerCase(): String {
+      def str: String = "";
+      def charIndex: int;
+      for charIndex=0, charIndex<this.getLength(), charIndex++ {
+        str += toLower(this(charIndex)~cast[Char])~cast[Char];
+      };
+
+      return str;
+    }
+
     func slice (begin: Int[64], count: Int[64]): String {
       def str: String;
       def l: Int[64] = this.getLength();
@@ -342,6 +362,12 @@ import "Srl/Array.alusus";
 
     @shared @expname[sscanf]
     func scan(target: ptr[Char], format: ptr[Word[8]], args: ...any): Int[32];
+
+    @shared @expname[toupper]
+    func toUpper(c: int): int;
+
+    @shared @expname[tolower]
+    func toLower(c: int): int;
 
     @shared
     func isSpace (c: Char): Bool {

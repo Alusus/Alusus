@@ -25,6 +25,8 @@
     عرف قطع: لقب split؛
     عرف ادمج: لقب merge؛
     عرف أهو_فراغ: لقب isSpace؛
+    عرف كبر: لقب toUpperCase؛
+    عرف صغر: لقب toLowerCase؛
   }؛
 }؛
 
