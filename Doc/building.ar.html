@@ -1,139 +1,153 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="rtl" lang="ar" style="height: 100%;">
-<head profile="http://gmpg.org/xfn/11">
- <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
- <title>البناء من المصدر - لغة الأسُس البرمجية</title>
-
- <link rel="stylesheet" href="Resources/main.css">
- <link rel="stylesheet" href="Resources/arabic_extras.css">
- <link rel="stylesheet" href="Resources/highlight.default.css">
-
- <script src="Resources/jquery-1.10.2.min.js"></script>
- <script src="Resources/highlight.pack.js"></script>
- <script src="Resources/main.js"></script>
+<head>
+    <title>بناء الأسس من الشفرة المصدرية | لغة الأسس البرمجية</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="Resources/rtl/bootstrap.min.css">
+    <link rel="stylesheet" href="Resources/font-awesome.min.css">
+    <link rel="stylesheet" href="Resources/style.css">
+    <link rel="stylesheet" href="Resources/highlight.default.css">
+    <script src="Resources/jquery.min.js"></script>
+    <script src="Resources/popper.min.js"></script>
+    <script src="Resources/bootstrap.min.js"></script>
 </head>
 
-<body style="background: grey; text-align:center; height:100%; padding-left: 10px; padding-right:10px;" alink="#00FFFF" link="#FFFFFF" text="#FFFFFF" vlink="#CCCCCC">
-<div style="border-left: solid 1px; border-right: solid 1px; background: white; min-width: 840px; max-width:1200px; width: 100%; min-height:100%; text-align: right; margin-left:auto; margin-right:auto;">
- <div style="width: 100%; height: 100px; padding-top:10px; text-align:center;">
-  <div style="float:right;"><img src="Resources/logo.gif" style="border:0;"/></div>
-  <img src="Resources/title.gif" style="border:0;"/>
-  <div style="padding: 10px 15px; width:120px; float:left; text-align:left;"><a style="text-decoration:none; color:black;" href="building.en.html"><b>English</b></a></div>
- </div>
- <div class="menu">
-  <span class="menuItem"><a href="https://alusus.org?lang=ar">لغة الأسُس</a> &#x276f; <a href="https://alusus.org/documentation?lang=ar">الوثائق</a></span>
- </div>
- <div id='rootdiv' style="padding-top:5px; padding-left:20px; padding-right:20px; padding-bottom:35px;">
- <h1>بناء لغة الأسُس من الشفرة المصدرية</h1>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="Resources/logo.gif" alt="Alusus Programming Language" class="site-logo"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+              <h3 style="padding-top: 0px; margin-top: 0px;">لغة الأسس - بناء الأسس من الشفرة المصدرية</h3>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <!--content-separator-->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card side-sticky">
+                    <div class="card-header">بناء الأسس من الشفرة المصدرية</div>
+                    <div class="card-content">
+                        <a href="#ExternalDependencies">الاعتماديات الخارجية</a><br>
+                        <a href="#BuildingUsingShellScript">البناء باستخدام build.sh</a><br>
+                        <a href="#BuildingManually">البناء يدوياً</a><br>
+                        <a href="#ExecutingAutomatedTests">تنفيذ الاختبارات الآلية</a><br>
+                        <a href="#UsingAlusus">استخدام لغة الأسُس</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="alert alert-warning" role="alert">ملفات البناء تعتمد على وسوم مستودع جت (GIT tags) لتحديد رقم الإصدار. إذا قمت بنسخ الملفات المصدرية خارج المستودع وقمت بالبناء من هناك فستحصل على 0.0.0-DEV كرقم للإصدار.</div>
+                <br>
+                <!-- ********************************************************************** -->
+                <h3 id="ExternalDependencies">الاعتماديات الخارجية</h3>
+                <hr> فيما يلي المكتبات التي يستخدمها المشروع والتي ستحتاج لتحميلها على نظامك قبل التمكن من بناء الشفرة المصدرية
 
- <span style="color:red;">ملاحظة: ملفات البناء تعتمد على وسوم مستودع جت (GIT tags) لتحديد رقم الإصدار. إذا قمت بنسخ الملفات المصدرية خارج المستودع وقمت بالبناء من هناك فستحصل على 0.0.0-DEV كرقم للإصدار.</span>
+                <p><a href="http://llvm.org/releases/download.html#7.0.1" target="__blank">LLVM 7.0.1</a></p>
 
- <!-- ********************************************************************** -->
- <h2>الاعتماديات الخارجية</h2>
- فيما يلي المكتبات التي يستخدمها المشروع والتي ستحتاج لتحميلها على نظامك قبل التمكن من بناء الشفرة المصدرية:
- <p><a href="http://llvm.org/releases/download.html#7.0.1" target="__blank">LLVM 7.0.1</a></p>
+                بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Python و Pip لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل zlib و valgrind والتي قد تضطر لتنصيبها يدويًا. ولاستخدام https في مكتبة التنفيذ المعيارية ستحتاج أيضاً إلى libssl-dev.<br/>                لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
+                <pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev</pre> For other distros you'll need to check their documentation on how to install these tools. Notice that the build
+                لتنصيب هذه الأدوات على توزيعات غير أوبونتو ستحتاج لمراجعة وثائق تلك التوزيعات. لاحظ أن شفرة البناء تفترض أن اسم مترجم بايثون python3 وهو الحال على توزيعة أوبونتو، فإن كنت على توزيعة أخرى قد تحتاج لإنشاء رابط أو تعديل الملف build.sh.<br/><br/>
+                <div class="alert alert-warning" role="alert">ستحتاج إلى الإصدار 7 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</div>
+                <!-- ********************************************************************** -->
+                <br>
+                <h3 id="BuildingUsingShellScript">البناء باستخدام build.sh</h3>
+                <hr> هذه هي الطريقة الأيسر للبناء والتي يُنصح بها.
+                <ul>
+                    <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
+                    <li>قم بتنصيب python3 التي يحتاجها الملف build.sh.</li>
+                    <li>لُج إلى مجلّد Tools ونفّذ الملف <span dir=ltr>build.sh</span>. سيقوم هذا الملف تلقائيا بتنزيل الاعتماديات وبناء LLVM وسيقوم بعدها ببناء الأسُس وتنصيبها. تنزيل الاعتماديات وبناء LLVM سيستغرق وقتاً طويلاً لكن ذلك يتم فقط عند التشغيل
+                        الأول لهذا البرنامج. تشغيله مجدداً لن يعيد تجهيز الاعتماديات وسيكون أسرع بكثير.
+                        <pre dir=ltr class="code nohighlight">$ cd &lt;path-to-Alusus&gt;
+$ ./Tools/build.sh --bloc . --iloc .</pre>
+                    </li>
+                </ul>
+                يوجد في ملف <code dir=ltr>build.sh</code> بعض المتغيرات التي يمكن التحكم بها منها MAKE_THREAD_COUNT وهو عدد خيوط التنفيذ المتوازي المستخدمة أثناء البناء. تم تحديد قيمة هذا المتغير بـ8 لتسريع البناء لكن يمكنك التحكم به إن واجهت مشاكل أو
+                لم يكن حاسوبك قادراً على تشغيل 8 خطوط تنفيذ معاً.<br/> إن واجهت أخطاءاً أثناء بناء LLVM فقد تضطر لتعديل الأمر cmake الخاص ببناء LLVM داخل ملف <span dir=ltr>build.sh</span> بإعطاء معطيات إضافية مثل <code dir=ltr>-DLLVM_TARGET_ARCH</code>.
 
- بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Python و Pip لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل zlib و valgrind والتي قد تضطر لتنصيبها يدويًا. ولاستخدام https في مكتبة التنفيذ المعيارية ستحتاج أيضاً إلى libssl-dev.<br/>
-  لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev</pre>
-  لتنصيب هذه الأدوات على توزيعات غير أوبونتو ستحتاج لمراجعة وثائق تلك التوزيعات. لاحظ أن شفرة البناء تفترض أن اسم مترجم بايثون python3 وهو الحال على توزيعة أوبونتو، فإن كنت على توزيعة أخرى قد تحتاج لإنشاء رابط أو تعديل الملف build.sh.<br/>
-  <span style="color:red;">ملاحظة: ستحتاج إلى الإصدار 7 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</span>
+                <!-- ********************************************************************** -->
+                <br>
+                <br>
+                <h3 id="BuildingManually">البناء يدوياً</h3>
+                <hr>
+                <ul>
+                    <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
 
- <!-- ********************************************************************** -->
- <h2>البناء باستخدام build.sh</h2>
- هذه هي الطريقة الأيسر للبناء والتي يُنصح بها.
- <ul>
-  <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
-  <li>قم بتنصيب python3 التي يحتاجها الملف build.sh.</li>
-  <li>لُج إلى مجلّد Tools ونفّذ الملف <span dir=ltr>build.sh</span>.
-  سيقوم هذا الملف تلقائيا بتنزيل الاعتماديات وبناء LLVM وسيقوم بعدها ببناء الأسُس وتنصيبها. تنزيل الاعتماديات وبناء LLVM سيستغرق وقتاً طويلاً لكن ذلك يتم فقط عند التشغيل الأول لهذا البرنامج. تشغيله مجدداً لن يعيد تجهيز الاعتماديات وسيكون أسرع بكثير.
-<pre dir=ltr class="code nohighlight">
-$ cd &lt;path-to-Alusus&gt;
-$ ./Tools/build.sh --bloc . --iloc .
-</pre>
-  </li>
- </ul>
- يوجد في ملف <span dir=ltr>build.sh</span> بعض المتغيرات التي يمكن التحكم بها منها MAKE_THREAD_COUNT وهو عدد خيوط التنفيذ المتوازي المستخدمة أثناء البناء. تم تحديد قيمة هذا المتغير بـ8 لتسريع البناء لكن يمكنك التحكم به إن واجهت مشاكل أو لم يكن حاسوبك قادراً على تشغيل 8 خطوط تنفيذ معاً.<br/>
- إن واجهت أخطاءاً أثناء بناء LLVM فقد تضطر لتعديل الأمر cmake الخاص ببناء LLVM داخل ملف <span dir=ltr>build.sh</span> بإعطاء معطيات إضافية مثل <span dir=ltr>-DLLVM_TARGET_ARCH</span>.
+                    <li>حمل الشفرة المصدرية للإصدارة المبينة أعلاه لLLVM وقم باستخراج ملفاتها.</li>
 
- <!-- ********************************************************************** -->
- <h2>البناء يدوياً</h2>
- <ul>
-  <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
-
-  <li>حمل الشفرة المصدرية للإصدارة المبينة أعلاه لLLVM وقم باستخراج ملفاتها.</li>
-
-  <li>قم ببناء وتثبيت LLVM كما يلي:
-   <ul>
-    <li>أنشئ مجلداً مخصصاً للبناء وسمّه ما شئت. مثلاً llvm.build.</li>
-    <li>لُج إلى مجلد بناء LLVM الذي أنشأته واكتب الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt;</pre>
-    قد تحتاج أيضاً لتحديد المعمارية يدوياً بتحديد قيمة LLVM_TARGET_ARCH. على سبيل المثال، لتحديد قيمة المعمارية في بيئة 32 بت استخدم الأمر التالي بدل الأمر أعلاه:
-<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=i386</pre>
-    ولتحديدها في بيئة 64 بت استخدم الأمر التالي:
-<pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=x86_64</pre>
-    </li>
-    <li>أكمل عملية البناء والتثبيت:
-<pre dir=ltr class="code nohighlight">
+                    <li>قم ببناء وتثبيت LLVM كما يلي:
+                        <ul>
+                            <li>أنشئ مجلداً مخصصاً للبناء وسمّه ما شئت. مثلاً llvm.build.</li>
+                            <li>لُج إلى مجلد بناء LLVM الذي أنشأته واكتب الأمر التالي:
+                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt;</pre> قد تحتاج أيضاً لتحديد المعمارية يدوياً بتحديد قيمة LLVM_TARGET_ARCH. على سبيل المثال، لتحديد
+                                قيمة المعمارية في بيئة 32 بت استخدم الأمر التالي بدل الأمر أعلاه:
+                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=i386</pre> ولتحديدها في بيئة 64 بت استخدم الأمر التالي:
+                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=x86_64</pre>
+                            </li>
+                            <li>أكمل عملية البناء والتثبيت:
+                                <pre dir=ltr class="code nohighlight">
 $ make
-$ make install
-</pre>
-    </li>
-   </ul>
-  </li>
+$ make install</pre>
+                            </li>
+                        </ul>
+                    </li>
 
-  <li>قُم ببناء شفرة الأسُس كما يلي:
-   <ul>
-    <li>أنشئ مجلداً للبناء وسمّه ما شئت. مثلاً Builds.</li>
-    <li>لُج إلى ذلك المجلد وأكمل عملية البناء كما يلي:
-<pre dir=ltr class="code nohighlight">
-$ cd &lt;path-to-Builds&gt;
+                    <li>قُم ببناء شفرة الأسُس كما يلي:
+                        <ul>
+                            <li>أنشئ مجلداً للبناء وسمّه ما شئت. مثلاً Builds.</li>
+                            <li>لُج إلى ذلك المجلد وأكمل عملية البناء كما يلي:
+                                <pre dir=ltr class="code nohighlight">$ cd &lt;path-to-Builds&gt;
 $ cmake &lt;path-to-Alusus-root&gt;/Sources -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
 $ make
-$ make install
-</pre>
-  العبارة الأخيرة (make install) تنسخ الملفات الناتجة إلى مجلدات Bin و Lib و Include تحت مجلد الأسُس المشار إليه أعلاه في معطى CMAKE_INSTALL_PREFIX وليس إلى نظام التشغيل. يمكنك اختيار مجلد آخر لخزن هذه الملفات كأن يكون <span dir=ltr>/opt/Alusus</span> وذلك بتغيير قيمة CMAKE_INSTALL_PREFIX في معطيات cmake أعلاه. أمر cmake أعلاه يجهز للبناء بصيغة التنقيح (debug) ولتغييرها إلى صيغة النشر (release) يجب تغيير المعطى CMAKE_BUILD_TYPE إلى release بدل debug.
-    </li>
-   </ul>
-  </li>
- </ul>
+$ make install</pre> العبارة الأخيرة (make install) تنسخ الملفات الناتجة إلى مجلدات Bin و Lib و Include تحت مجلد الأسُس المشار إليه أعلاه في معطى CMAKE_INSTALL_PREFIX وليس إلى نظام التشغيل. يمكنك اختيار مجلد آخر لخزن هذه
+                                الملفات كأن يكون <span dir=ltr>/opt/Alusus</span> وذلك بتغيير قيمة CMAKE_INSTALL_PREFIX في معطيات cmake أعلاه. أمر cmake أعلاه يجهز للبناء بصيغة التنقيح (debug) ولتغييرها إلى صيغة النشر (release) يجب تغيير المعطى CMAKE_BUILD_TYPE
+                                إلى release بدل debug.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
 
- <!-- ********************************************************************** -->
- <h2>تنفيذ الاختبارات الآلية</h2>
- تنفيذ الاختبارات يسير جداً كل ما عليك فعله هو تنفيذ الأمر التالي داخل مجلد بناء الأسُس (Builds في المثال أعلاه) بعد الانتهاء من البناء:
-<pre dir=ltr class="code nohighlight">
-$ make test
-</pre>
 
- <!-- ********************************************************************** -->
- <h2>استخدام لغة الأسُس</h2>
- بعد الانتهاء من البناء سيكون الملف التنفيذي داخل Bin وستكون المكتبات داخل Lib. تستطيع تنفيذ الأمثلة داخل المجلد Examples كما يلي:
-<pre dir=ltr class="code nohighlight">
-$ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
+                <!-- ********************************************************************** -->
+                <br>
+                <h3 id="ExecutingAutomatedTests">تنفيذ الاختبارات الآلية</h3>
+                <hr> تنفيذ الاختبارات يسير جداً كل ما عليك فعله هو تنفيذ الأمر التالي داخل مجلد بناء الأسُس (Builds في المثال أعلاه) بعد الانتهاء من البناء:
+                <pre dir=ltr class="code nohighlight">$ make test</pre>
+
+                <!-- ********************************************************************** -->
+                <br>
+                <h3 id="UsingAlusus">استخدام لغة الأسُس</h3>
+                <hr> بعد الانتهاء من البناء سيكون الملف التنفيذي داخل Bin وستكون المكتبات داخل Lib. تستطيع تنفيذ الأمثلة داخل المجلد Examples كما يلي:
+                <pre dir=ltr class="code nohighlight">$ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
 $ cd &lt;path-to-Alusus&gt;/Examples/General
-$ alusus hello_world.alusus
-</pre>
- اسم الملف التنفيذي عند البناء بصيغة التنقيح (debug) يكون alusus.dbg. لو تم بناؤها بصيغة النشر (release) فإن اسم الملف التنفيذي يكون alusus، أي بدون الإضافة dbg.
- <p>إذا تم بناء القلب بصيغة التنقيح (debug) فإن بالإمكان تدوين الأحداث (logging) وذلك بإضافة معطى log-- إلى البرنامج وإعطائه رقماً يحدد مستوى التفاصيل المرجو كما في المثال التالي:
-<pre dir=ltr class="code nohighlight">
-$ alusus helloworld.alusus --log 16
-</pre>
- مستوى التفاصيل يحدد بمرتبات ثنائية حيث تشير كل مرتبة إلى مستوى معين من التدوين يُمكّن إذا كانت قيمة تلك المرتبة 1 ويُعطّل إذا كانت قيمتها 0. الجدول التالي يوضح تفاصيل هذه المرتبات:<br/>
- المرمّز، المستوى الأدنى = 1،<br/>
- المرمّز، المستوى المتوسط = 2،<br/>
- المرمّز، المستوى العلوي = 4،<br/>
- المُعرب، المستوى الأدنى = 8،<br/>
- المُعرب، المستوى المتوسط = 16،<br/>
- المُعرب، المستوى العلوي = 32<br/>
- يُمكن دمج أكثر من مستوى في نفس الوقت. على سبيل المثال القيمة 7 تعني تدوين كل مستويات المرمّز.</p>
+$ alusus hello_world.alusus</pre> اسم الملف التنفيذي عند البناء بصيغة التنقيح (debug) يكون alusus.dbg. لو تم بناؤها بصيغة النشر (release) فإن اسم الملف التنفيذي يكون alusus، أي بدون الإضافة dbg.
+                <p>إذا تم بناء القلب بصيغة التنقيح (debug) فإن بالإمكان تدوين الأحداث (logging) وذلك بإضافة معطى log-- إلى البرنامج وإعطائه رقماً يحدد مستوى التفاصيل المرجو كما في المثال التالي:
+                    <pre dir=ltr class="code nohighlight">$ alusus helloworld.alusus --log 16</pre> مستوى التفاصيل يحدد بمرتبات ثنائية حيث تشير كل مرتبة إلى مستوى معين من التدوين يُمكّن إذا كانت قيمة تلك المرتبة 1 ويُعطّل إذا كانت قيمتها 0. الجدول التالي
+                    يوضح تفاصيل هذه المرتبات:<br/> المرمّز، المستوى الأدنى = 1،<br/> المرمّز، المستوى المتوسط = 2،<br/> المرمّز، المستوى العلوي = 4،<br/> المُعرب، المستوى الأدنى = 8،<br/> المُعرب، المستوى المتوسط = 16،<br/> المُعرب، المستوى العلوي = 32<br/>                    يُمكن دمج أكثر من مستوى في نفس الوقت. على سبيل المثال القيمة 7 تعني تدوين كل مستويات المرمّز.</p>
+            </div>
+        </div>
+        <!--content-separator-->
+        <footer class="footer">
+            <hr>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-8 pull-left1">
+                        <ul class="nav nav-pills.nav">
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2020م \ 1441هـ.</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="Resources/highlight.pack.js"></script>
+    <script src="Resources/index.js"></script>
 
- </div>
- <div style="border-top: solid 1px; text-align: right; font-size:90%; padding-left:20px; padding-right:20px; padding-bottom:10px;">
-  <p>جميع الحقوق محفوظة لـ <a href="http://sarmad-khalid.info/" style="color:black;" target="__blank">سرمد خالد عبداللّه</a> 2019م \ 1440هـ.<br/>
-نُشر هذا الملف برخصة الأسُس العامة (Alusus Public License)، الإصدار 1.0، والمضمّنة مع هذا الملف
-والمتوفرة أيضاً على الرابط <a style="white-space:nowrap;" href="https://alusus.org/alusus_license_1_0">https://alusus.org/alusus_license_1_0</a>. يرجى قراءة الرخصة للتعرف على شروط الاستخدام والنسخ.</p>
- </div>
-</div>
 </body>
+
 </html>
