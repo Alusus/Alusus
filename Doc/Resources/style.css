@@ -44,6 +44,10 @@
     font-weight: bold;
 }
 
+@font-face {
+  font-family: AlususMono;
+  src: url(./AlususMono.otf);
+}
 
 /* styles */
 
@@ -74,7 +78,7 @@ hr {
 
 .code,
 .samplecode {
-    font-family: UbuntuArabic, UbuntuMono, NotoSansArabic, 'Courier New', Courier, monospace;
+    font-family: AlususMono, UbuntuArabic, UbuntuMono, NotoSansArabic, 'Courier New', Courier, monospace;
     font-size: 1.1em;
 }
 

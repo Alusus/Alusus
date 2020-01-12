@@ -8,6 +8,7 @@ Visual Studio-like style based on original C# coloring by Jason Diamond <jason@d
 .hljs-quote,
 .hljs-variable {
     color: #008000;
+    font-family: AlususMono;
 }
 
 .hljs-keyword,
@@ -16,6 +17,7 @@ Visual Studio-like style based on original C# coloring by Jason Diamond <jason@d
 .hljs-name,
 .hljs-tag {
     color: #00f;
+    font-family: AlususMono;
 }
 
 .hljs-string,
@@ -28,6 +30,7 @@ Visual Studio-like style based on original C# coloring by Jason Diamond <jason@d
 .hljs-type,
 .hljs-addition {
     color: #a31515;
+    font-family: AlususMono;
 }
 
 .hljs-deletion,
@@ -35,26 +38,32 @@ Visual Studio-like style based on original C# coloring by Jason Diamond <jason@d
 .hljs-selector-pseudo,
 .hljs-meta {
     color: #2b91af;
+    font-family: AlususMono;
 }
 
 .hljs-doctag {
     color: #808080;
+    font-family: AlususMono;
 }
 
 .hljs-attr {
     color: #f00;
+    font-family: AlususMono;
 }
 
 .hljs-symbol,
 .hljs-bullet,
 .hljs-link {
     color: #00b0e8;
+    font-family: AlususMono;
 }
 
 .hljs-emphasis {
     font-style: italic;
+    font-family: AlususMono;
 }
 
 .hljs-strong {
     font-weight: bold;
+    font-family: AlususMono;
 }
