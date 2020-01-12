@@ -69,6 +69,9 @@ def Main: module
     s = Srl.String.merge(ss, " - ");
     Srl.Console.print(s);
     Srl.Console.print("\n");
+
+    Srl.Console.print("ToUpperCase: %s\n", s.toUpperCase().buf);
+    Srl.Console.print("ToLowerCase: %s", s.toLowerCase().buf);
   };
 };
 
