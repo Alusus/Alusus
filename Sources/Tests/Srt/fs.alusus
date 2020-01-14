@@ -81,13 +81,10 @@ def Main: module
 
   def testCreatingEntireFile: function (filename: ptr[array[Char]])
   {
-    def content: ptr[array[Char]];
-    content = "Writing an entire file in one call.\n";
+    def content: ptr[array[Char]] = "Writing an entire file in one call.\n";
     Srl.Fs.createFile(filename, content, Srl.String.getLength(content));
-    def buffer: ptr[array[Char]];
-    def size: Int;
-    buffer = Srl.Fs.readFile(filename, size~ptr);
-    Srl.Console.print("%s%d\n", buffer, size);
+    def reloadedContent: Srl.String = Srl.Fs.readFile(filename);
+    Srl.Console.print("%s%d\n", reloadedContent.buf, reloadedContent.getLength());
   };
 
   def testOpenDir: function (dirname: ptr[array[Char]])
