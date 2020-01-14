@@ -35,6 +35,7 @@ import "Srl/Array.alusus";
     func _alloc (length: Int[64]) {
       this.refCount~ptr = Srl.Memory.alloc(Int[32]~size + length + 1)~cast[ptr[Int[32]]];
       this.buf = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[array[Char]]];
+      this.refCount = 1;
     };
 
     func _realloc (newLength: Int[64]) {
@@ -55,6 +56,11 @@ import "Srl/Array.alusus";
       else return getLength(this.buf);
     };
 
+    func alloc (length: Int[64]) {
+      this._release();
+      this._alloc(length);
+    };
+
     func assign (str: ref[String]) {
       this._release();
       this.refCount~ptr = str.refCount~ptr;
@@ -68,7 +74,6 @@ import "Srl/Array.alusus";
       this._release();
       this._alloc(getLength(buf));
       copy(this.buf, buf);
-      this.refCount = 1;
     };
 
     func assign (buf: ptr[array[Char]], n: Int[64]) {
@@ -76,7 +81,6 @@ import "Srl/Array.alusus";
       this._alloc(n);
       copy(this.buf, buf, n);
       this.buf~cnt(n) = 0;
-      this.refCount = 1;
     };
 
     func append (buf: ptr[array[Char]]) {
@@ -93,7 +97,6 @@ import "Srl/Array.alusus";
         def currentBuf: ptr[array[Char]] = this.buf;
         --this.refCount;
         this._alloc(newLength);
-        this.refCount = 1;
         copy(this.buf, currentBuf);
         concat(this.buf, buf, n);
       } else {
@@ -272,7 +275,7 @@ import "Srl/Array.alusus";
           return ary;
         };
         def n: Int[64] = found~cast[Int[64]] - buf~cast[Int[64]];
-        str.assign(buf, n);
+        if n == 0 str = "" else str.assign(buf, n);
         ary.add(str);
         buf = (found~cast[Int[64]] + matchLength)~cast[ptr[array[Char]]];
       };
