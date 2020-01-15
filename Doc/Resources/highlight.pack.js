@@ -678,7 +678,7 @@ var hljs = new function() {
 hljs.registerLanguage('alusus', function(hljs) {
   var KEYWORDS =
       'trule prule prule_group module type macro integer string list map lexer start as ref in ' +
-      'prefix inherits self root dimension import def function output use cast cnt ptr array any ' +
+      'prefix inherits self root dimension import def function func output use cast cnt ptr array any ' +
       'null false while private catch export virtual operator sizeof ' +
       'dynamic_cast typedef const_cast|10 const struct for static_cast union namespace ' +
       'unsigned long throw volatile static protected template mutable if public friend ' +

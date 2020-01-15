@@ -1,49 +1,69 @@
 /*
 
-Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org>
+Visual Studio-like style based on original C# coloring by Jason Diamond <jason@diamond.name>
 
 */
 
-.hljs {
-  display: block;
-}
-
-.hljs,
-.hljs-subst,
-.hljs-tag .hljs-title,
-.lisp .hljs-title,
-.clojure .hljs-built_in,
-.hljs-identifier,
-.nginx .hljs-title {
-  color: black;
-}
-
-.smartquote,
 .hljs-comment,
-.hljs-annotation,
-.hljs-template_comment,
-.diff .hljs-header,
-.hljs-chunk,
-.asciidoc .hljs-blockquote,
-.markdown .hljs-blockquote {
-  font-style: italic;
-  color: #808
+.hljs-quote,
+.hljs-variable {
+    color: #008000;
+    font-family: AlususMono;
 }
 
-.hljs-attribute {
-  color: #770;
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+    color: #00f;
+    font-family: AlususMono;
 }
 
-.hljs-number,
-.hljs-string {
-  color: #080;
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+    color: #a31515;
+    font-family: AlususMono;
 }
 
-.hljs-type {
-  color: #844;
+.hljs-deletion,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-meta {
+    color: #2b91af;
+    font-family: AlususMono;
 }
 
-.hljs-keyword {
-  color: #00B
+.hljs-doctag {
+    color: #808080;
+    font-family: AlususMono;
 }
 
+.hljs-attr {
+    color: #f00;
+    font-family: AlususMono;
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+    color: #00b0e8;
+    font-family: AlususMono;
+}
+
+.hljs-emphasis {
+    font-style: italic;
+    font-family: AlususMono;
+}
+
+.hljs-strong {
+    font-weight: bold;
+    font-family: AlususMono;
+}
