@@ -17,3 +17,4 @@ t(4.5) ==> 11.500000
 ERROR SPPG1002 @ (86,1): Invalid operation.
 ERROR SPPG1002 @ (87,1): Invalid operation.
 ERROR SPPA1008 @ (88,1): Provided arguments do not match signature.
+ERROR SPPA1005 @ (93,3): Multiple matches were found for the given callee.

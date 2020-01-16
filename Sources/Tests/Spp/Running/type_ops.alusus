@@ -86,3 +86,14 @@ def o: Other;
 o();
 o(5);
 t(o);
+
+if 1 {
+  def t2: T;
+  def t2: T;
+  t2(5);
+};
+
+if 1 {
+  def t: T;
+  t(5);
+};
