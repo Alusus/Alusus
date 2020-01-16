@@ -8,7 +8,7 @@ import "libcurl.so";
   {
     type Curl {
       @shared
-      func exec(curlHandle: ptr[Curl], resultCount: ptr[Int]): ptr {
+      func exec(curlHandle: ptr[Curl], resultCount: ptr[Int], responseCode: ptr[Int]): ptr {
         def result: ptr = 0;
 
         def content: _Content;
@@ -20,7 +20,8 @@ import "libcurl.so";
         CurlEasy.setOpt(curlHandle, CurlOpt.WRITEFUNCTION, _getCallbackFunction~ptr);
         CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, content~ptr);
 
-        if CurlEasy.perform(curlHandle) == CurlCode.OK {
+        responseCode~cnt = CurlEasy.perform(curlHandle);
+        if responseCode~cnt == CurlCode.OK {
           // Zero terminate the data.
           result = Srl.Memory.realloc(content.data, content.size + 1);
           result~cast[ptr[array[Word[8]]]]~cnt(content.size) = 0;
@@ -31,10 +32,15 @@ import "libcurl.so";
         resultCount~cnt = 0;
         return null;
       }
-      
+
+      @shared
+      func exec(curlHandle: ptr[Curl], resultCount: ptr[Int]): ptr {
+        return exec(curlHandle, resultCount, 0);
+      }
+
       @shared
       func exec(curlHandle: ptr[Curl]): ptr {
-        return exec(curlHandle, 0);
+        return exec(curlHandle, 0, 0);
       }
     };
     type CurlInfo {};
