@@ -22,10 +22,9 @@ import "libcurl.so";
 
         responseCode~cnt = CurlEasy.perform(curlHandle);
         if responseCode~cnt == CurlCode.OK {
-          // Zero terminate the data.
           result = Srl.Memory.realloc(content.data, content.size + 1);
           result~cast[ptr[array[Word[8]]]]~cnt(content.size) = 0;
-          resultCount~cnt = data.size;
+          resultCount~cnt = content.size;
           return result;
         }
 
@@ -35,12 +34,15 @@ import "libcurl.so";
 
       @shared
       func exec(curlHandle: ptr[Curl], resultCount: ptr[Int]): ptr {
-        return exec(curlHandle, resultCount, 0);
+        def responseCode: Int = 0;
+        return exec(curlHandle, resultCount, responseCode~ptr);
       }
 
       @shared
       func exec(curlHandle: ptr[Curl]): ptr {
-        return exec(curlHandle, 0, 0);
+        def resultCount: Int = 0;
+        def responseCode: Int = 0;
+        return exec(curlHandle, resultCode~ptr, responseCode~ptr);
       }
     };
     type CurlInfo {};
