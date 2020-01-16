@@ -137,7 +137,10 @@ Bool Helper::_lookupCalleeInScope(
         auto box = ti_cast<TioWeakBox>(obj);
         if (box != 0) obj = box->get().lock().get();
 
-        if (result.stack.getCount() > 0 && result.stack.getElement(result.stack.getCount() - 1) == obj) {
+        if (
+          result.stack.getCount() > 0 && result.stack.getElement(result.stack.getCount() - 1) == obj &&
+          result.thisIndex < 0
+        ) {
           return Core::Data::Seeker::Verb::MOVE;
         }
 
@@ -147,7 +150,7 @@ Bool Helper::_lookupCalleeInScope(
           node != 0 && prevNode != 0 &&
           Core::Data::findOwner<Core::Data::Ast::Scope>(node)
             != Core::Data::findOwner<Core::Data::Ast::Scope>(prevNode) &&
-          result.matchStatus == TypeMatchStatus::EXACT
+          result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER
         ) return Core::Data::Seeker::Verb::STOP;
 
         if (helper->lookupCalleeOnObject(obj, thisType, types, ec, currentStackSize, result)) {
