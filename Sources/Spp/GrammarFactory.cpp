@@ -56,7 +56,7 @@ void GrammarFactory::createGrammar(
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
     S("init"), S("هيئ"),
-    S("terminate"), S("اتلف"),
+    S("terminate"), S("اتلف"), S("أتلف"),
     S("integer"), S("صحيح"),
     S("string"), S("محارف"),
     S("any"), S("أيما")
@@ -587,7 +587,7 @@ void GrammarFactory::createGrammar(
   }).get());
   // ~terminate
   this->createCommand(S("root.Main.TerminateTilde"), {{
-    Map::create({}, { { S("terminate"), 0 }, { S("اتلف"), 0 } }),
+    Map::create({}, { { S("terminate"), 0 }, { S("اتلف"), 0 }, { S("أتلف"), 0 } }),
     {
       {
         PARSE_REF(S("module.TerminateTildeSubject")),
@@ -676,7 +676,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("this"), S("هذا"),
     S("value"), S("قيمة"),
     S("init"), S("هيئ"),
-    S("terminate"), S("اتلف"),
+    S("terminate"), S("اتلف"), S("أتلف"),
     S("integer"), S("صحيح"),
     S("string"), S("محارف"),
     S("any"), S("أيما")
