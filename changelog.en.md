@@ -1,6 +1,58 @@
 # Alusus Changelog
 
+## Version 0.6.0 (2020-01-xx)
+
+### What's New:
+
+  * Added the type `ref` to simplify dealing with pointers.
+  * Initial support for object-oriented programming:
+    - Added support to member functions.
+    - Enabled customizing type initialization & destruction.
+    - Objects with custom initialization are automatically passed by reference.
+    - Added the tilde command `~init` to enable initializing dynamically allocated objects.
+    - Added the tilde command `~terminate` to enable destroying dynamically allocated objects.
+    - Added the command `handler` to enable operator overloading.
+  * Added support for template types.
+  * Additions to the Standard Runtime Library:
+    - `String` type to simplify working with dynamic strings.
+    - `Array` type to simplify working with dynamic arrays.
+  * Code in module scope or type scope is now being executed.
+  * Support for building executables.
+  * Made the grammar more tolerant to missing semicolons.
+  * Enabled passing multiple arguments to modifiers.
+  * User can now read values passed to modifiers.
+  * Improvements to Alusus Package Manager (APM):
+    - Enabled installing multiple packages with the same name at the same time if they belong to different authors.
+    - Enabled installing multiple versions of the same package at the same time.
+    - Added the commands `link` and `unlink` to simplify testing packages locally before pushing the changes upstream.
+    - Improvements to notifications.
+  * Big improvement to tokenizing and parsing performance.
+
+### Breaking Changes:
+
+  * Moved regular expressions fucntions to a separate module (Regex).
+  * Moved the function `dumpLlvmIrForElement` to `Spp` module.
+  * Renamed the type `Time` to `DetailedTime` in `Time` module.
+
+### Fixes:
+
+  * Fixed an issue when executing code at root scope.
+  * Fixed an issue with `Regex.match` function.
+  * Fixed few issues in APM.
+  * Fixed a performance issue with templates.
+  * Fixed an issue preventing macros from being used at root scope.
+  * Fixed an issue with parsing synchronization after syntax errors are encountered.
+  * Fixed an issue with parsing `"["` and `'['`.
+
+### Internal Changes:
+
+  * Removed state branching from the parser. This feature wasn't being used and was affecting performance.
+  * Simplified the code of the parser and the lexer.
+  * Renamed MacroProcessor to AstProcessor.
+
+
 ## Version 0.5.0 (2019-05-20)
+<details>
 
 ### What's New:
 
@@ -45,6 +97,7 @@
 
 That's in addition to many other smaller fixes and additions to the standard
 runtime liraries.
+</details>
 
 
 ## Version 0.4.1 (2019-03-13)
