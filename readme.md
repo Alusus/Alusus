@@ -71,7 +71,7 @@ Or help by donating to the project<br/>
 
 ## Copyright
 
-Copyright (C) 2019.
+Copyright (C) 2020.
 The copyright for this project is owned by Sarmad Khalid Abdullah.
 
 ## [LICENSE](license.txt)
