@@ -56,7 +56,7 @@ class ParserTermLevel
   // Constructors / Destructor
 
   /// Initialize all members to 0.
-  public: ParserTermLevel() : posId(0), term(0)
+  public: ParserTermLevel() : posId(0), term(0), param1(0), param2(0), flags(0)
   {
   }
 
