@@ -361,10 +361,10 @@ import "Srl/Array.alusus";
     func getLength(s: ptr[Char]): Int[64];
 
     @shared @expname[sprintf]
-    func assign(target: ptr[Char], format: ptr[Word[8]], args: ...any): Int[32];
+    func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];
 
     @shared @expname[sscanf]
-    func scan(target: ptr[Char], format: ptr[Word[8]], args: ...any): Int[32];
+    func scan(source: ptr[Char], format: ptr[Char], args: ...any): Int[32];
 
     @shared @expname[toupper]
     func toUpper(c: int): int;
