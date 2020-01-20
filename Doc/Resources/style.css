@@ -152,6 +152,10 @@ hr {
     padding: 0 10px;
 }
 
+.subsections li {
+    padding-top: 20px;
+}
+
 .social-network li {
     text-decoration: none;
     display: inline-block;
