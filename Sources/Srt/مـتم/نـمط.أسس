@@ -2,7 +2,7 @@
 اشمل "Srl/Regex.alusus"؛
 
 @دمج وحدة Srl {
-  عرّف تـنميط: لقب Regex؛
+  عرّف نـمط: لقب Regex؛
   @دمج عرف Regex: {
     عرف طابق: لقب match؛
   }؛

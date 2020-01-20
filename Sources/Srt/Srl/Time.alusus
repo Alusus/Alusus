@@ -20,7 +20,6 @@ import "globals.alusus";
         @expname[clock]
         func getClock(): Int[64];
 
-
         @expname[time]
         func getTimestamp(outerTimestamp: ptr[Word[64]]): Word[64];
 
