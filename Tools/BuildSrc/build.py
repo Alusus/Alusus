@@ -386,22 +386,18 @@ def copy_other_installation_files():
         os.path.join(ALUSUS_ROOT, "Doc"),
         os.path.join(INSTALL_PATH, "Doc")
     )
-    shutil.rmtree(os.path.join(INSTALL_PATH, "Notices_L18n"),
-                  ignore_errors=True)
+    shutil.rmtree(os.path.join(INSTALL_PATH, "Notices_L18n"), ignore_errors=True)
     shutil.copytree(
         os.path.join(ALUSUS_ROOT, "Notices_L18n"),
         os.path.join(INSTALL_PATH, "Notices_L18n")
     )
     try:
-        os.makedirs(os.path.join(INSTALL_PATH, "Tools",
-                                 "Gtk_Syntax_Highlighting"))
+        os.makedirs(os.path.join(INSTALL_PATH, "Tools", "Gtk_Syntax_Highlighting"))
     except OSError:
         pass
     shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus.lang"),
-        os.path.join(INSTALL_PATH, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus.lang")
+        os.path.join(ALUSUS_ROOT, "Tools", "Gtk_Syntax_Highlighting", "alusus.lang"),
+        os.path.join(INSTALL_PATH, "Tools", "Gtk_Syntax_Highlighting", "alusus.lang")
     )
     shutil.copy2(
         os.path.join(ALUSUS_ROOT, "changelog.en.md"),
