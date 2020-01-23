@@ -42,7 +42,7 @@ import "libcurl.so";
       func exec(curlHandle: ptr[Curl]): ptr {
         def resultCount: Int = 0;
         def responseCode: Int = 0;
-        return exec(curlHandle, resultCode~ptr, responseCode~ptr);
+        return exec(curlHandle, resultCount~ptr, responseCode~ptr);
       }
     };
     type CurlInfo {};
