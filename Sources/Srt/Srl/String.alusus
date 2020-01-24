@@ -317,6 +317,7 @@ import "Srl/Array.alusus";
     };
 
     handler this == ptr[array[Char]]: Bool return this.compare(value) == 0;
+    handler this != ptr[array[Char]]: Bool return this.compare(value) != 0;
     handler this > ptr[array[Char]]: Bool return this.compare(value) > 0;
     handler this < ptr[array[Char]]: Bool return this.compare(value) < 0;
     handler this >= ptr[array[Char]]: Bool return this.compare(value) >= 0;
