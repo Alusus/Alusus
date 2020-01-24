@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.6.0 (2020-01-xx)
+## Version 0.6.0 (2020-01-24)
 
 ### What's New:
 
