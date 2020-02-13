@@ -142,7 +142,6 @@ define i32 @"Main.unreachableCode2(Int[32])=>(Int[32])"(i32 %i) {
 define void @"Main.retVoid()=>(Void)"() {
 "#block23":
   ret void
-  ret void
 }
 
 define void @"Main.voidFunc()=>(Void)"() {

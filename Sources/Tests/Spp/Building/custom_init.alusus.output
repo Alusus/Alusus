@@ -86,7 +86,6 @@ define void @"testReturnVoid()"() {
   call void @"A.~terminate(ref[A])"(%A* %a)
   call void @A.__autoDestruct__(%A* %a)
   ret void
-  ret void
 }
 
 define void @A.__autoConstruct__(%A* %this) {
@@ -234,7 +233,6 @@ define void @"getA()=>(A)"(%A* %"#ret") {
   call void @"A.~init(ref[A],ref[A])"(%A* %"#ret", %A* %a)
   call void @"A.~terminate(ref[A])"(%A* %a)
   call void @A.__autoDestruct__(%A* %a)
-  ret void
   ret void
 }
 

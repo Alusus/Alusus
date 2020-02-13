@@ -115,7 +115,6 @@ define void @"B.getMyVal(ref[B])=>(B)"(%B* %"#ret", %B* %this) {
   %0 = load %B*, %B** %this1
   call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %0)
   ret void
-  ret void
 }
 
 define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
@@ -166,7 +165,6 @@ define void @"getB()=>(B)"(%B* %"#ret") {
   store i32 13, i32* %1
   call void @B.__autoConstruct__(%B* %"#ret")
   call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %b)
-  ret void
   ret void
 }
 

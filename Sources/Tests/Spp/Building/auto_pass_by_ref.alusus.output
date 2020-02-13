@@ -45,7 +45,6 @@ define void @"convertPoint2(Point1)=>(Point2)"(%Point2* %"#ret", %Point1 %p) {
   call void @Point2.__autoConstruct__(%Point2* %"#ret")
   call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
   ret void
-  ret void
 }
 
 define void @"Point2.~init(ref[Point2])"(%Point2* %this) {
@@ -126,7 +125,6 @@ define void @"convertPoint4(Point2)=>(Point2)"(%Point2* %"#ret", %Point2* %p) {
   call void @"Point2.~init(ref[Point2])"(%Point2* %r)
   call void @Point2.__autoConstruct__(%Point2* %"#ret")
   call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
-  ret void
   ret void
 }
 

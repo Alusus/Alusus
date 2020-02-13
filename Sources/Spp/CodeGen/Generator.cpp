@@ -207,6 +207,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, G
       )) {
         return false;
       }
+      generation->registerDestructor(
+        ti_cast<Core::Data::Node>(argType), argAstType, deps.tg->getExecutionContext(), childDeps.destructionStack
+      );
     }
 
     // Generate the function's statements.
@@ -221,6 +224,12 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, G
         std::make_shared<Spp::Notices::MissingReturnStatementNotice>(astFunc->findSourceLocation())
       );
       return false;
+    }
+
+    // If there wasn't a return statement then we should destruct the variables.
+    if (terminal != TerminalStatement::YES) {
+      // Destruct function args first, then return.
+      if (!generation->generateVarGroupDestruction(childDeps, 0)) return false;
     }
 
     // Finalize the body.
