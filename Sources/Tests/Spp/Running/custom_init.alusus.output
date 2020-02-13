@@ -70,3 +70,9 @@ constructed2!
 testInitRedirect: 13
 destructed!
 destructed!
+
+constructed!
+testTerminate
+constructed2!
+destructed!
+destructed!

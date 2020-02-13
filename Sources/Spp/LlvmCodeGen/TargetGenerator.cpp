@@ -445,8 +445,9 @@ Bool TargetGenerator::finishFunctionBody(
   TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
 ) {
   PREPARE_ARG(functionType, functionTypeWrapper, FunctionType);
+  PREPARE_ARG(context, block, Block);
   auto voidRetType = functionTypeWrapper->getRetType().ti_cast_get<VoidType>();
-  if (voidRetType != 0) {
+  if (!block->isTerminated() && voidRetType != 0) {
     return this->generateReturn(context, 0, 0);
   } else {
     return true;

@@ -66,6 +66,8 @@ function getA () => A
   return a;
 };
 
+function receiveA (a: A) {}
+
 function testReturnA
 {
   getA();
@@ -145,6 +147,13 @@ function testInitRedirect
   Srl.Console.print("testInitRedirect: %d\n", a2.i);
 };
 
+function testTerminate
+{
+  def a: A;
+  Srl.Console.print("testTerminate\n");
+  receiveA(a);
+};
+
 testNoReturn();
 Srl.Console.print("\n");
 
@@ -182,3 +191,6 @@ testInlinedInit();
 Srl.Console.print("\n");
 
 testInitRedirect();
+Srl.Console.print("\n");
+
+testTerminate();
