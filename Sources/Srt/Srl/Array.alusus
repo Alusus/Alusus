@@ -84,14 +84,14 @@ import "Srl/Memory.alusus";
 
     func _prepareToModify (enlarge: Bool) {
       if this.refCount~ptr == 0 {
-        this._alloc(100)
+        this._alloc(2)
       } else if this.refCount == 1 {
-        if enlarge && this.length >= this.bufSize this._realloc(this.bufSize + 100);
+        if enlarge && this.length >= this.bufSize this._realloc(this.bufSize + this.bufSize >> 1);
       } else {
         def curLength: Int = this.length;
         def curBuf: ptr[array[T]] = this.buf~ptr;
         --this.refCount;
-        this._alloc(curLength + 100);
+        this._alloc(curLength + curLength >> 1);
         def i: Int;
         for i = 0, i < curLength, ++i this.buf(i) = curBuf~cnt(i);
         this.length = curLength;
