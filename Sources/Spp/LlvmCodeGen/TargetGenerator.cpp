@@ -947,8 +947,8 @@ Bool TargetGenerator::generateAssign(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   PREPARE_ARG(destRef, cgDestRef, Value);
-  auto llvmResult = block->getIrBuilder()->CreateStore(cgSrcVal->getLlvmValue(), cgDestRef->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  block->getIrBuilder()->CreateStore(cgSrcVal->getLlvmValue(), cgDestRef->getLlvmValue());
+  result = getSharedPtr(destRef);
   return true;
 }
 
