@@ -13,8 +13,8 @@ module Factorial
   @expname[main] function start (argCount: Int, args: ptr[array[ptr[array[Char]]]]) => Int
   {
     def i: Int;
-    def lastArg: ptr[Char] = args~cnt(argCount - 1);
-    if lastArg~cnt >= '0' && lastArg~cnt <= '9' {
+    def lastArg: ptr[array[Char]] = args~cnt(argCount - 1);
+    if lastArg~cnt(0) >= '0' && lastArg~cnt(0) <= '9' {
       Srl.String.scan(lastArg, "%d", i~ptr);
       Srl.Console.print("Factorial of %d is %d\n", i, factorial(i));
     } else {
