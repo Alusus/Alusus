@@ -223,12 +223,15 @@ import "Srl/Array.alusus";
     func _trim (trimStart: Bool, trimEnd: Bool): String {
       def str: String;
       if this.buf == 0 return str;
+      if this.getLength() == 0 { str = ""; return str; };
       def begin: Int[64] = 0;
       def end: Int[64] = this.getLength() - 1;
       if trimStart while isSpace(this.buf~cnt(begin)) { ++begin };
       if trimEnd while isSpace(this.buf~cnt(end)) { --end };
       if end >= begin {
         str.assign((this.buf~cast[Int[64]] + begin)~cast[ptr[array[Char]]], end - begin + 1);
+      } else {
+        str = ""
       };
       return str;
     };

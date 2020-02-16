@@ -1,0 +1,38 @@
+import "Srl/Net.alusus";
+import "Srl/Console.alusus";
+import "Srl/Memory.alusus";
+import "Srl/String.alusus";
+import "Srl/Array.alusus";
+
+@expname[atoi] func parseInt(CharsPtr): Int;
+
+use Srl;
+
+func start {
+  def data: CharsPtr;
+  def size: Int;
+  if Net.get("https://people.sc.fsu.edu/~jburkardt/data/csv/homes.csv", data~ptr, size~ptr) {
+    Console.print("CSV fetched from web\n");
+    def str: String = data;
+    Memory.free(data);
+    def count: Int = countHousesNewerThan(20, str);
+    Console.print("Houses that are newer than 20 years: %d\n", count);
+  } else {
+    Console.print("Failed to fetch data from the web\n");
+  };
+}
+
+func countHousesNewerThan(age: Int, csv: String): Int {
+  def lines: Array[String] = csv.split("\n");
+  def count: Int = 0;
+  def i: Int;
+  // We will skip the header and start from the second line.
+  for i = 1, i < lines.getLength(), ++i {
+    if lines(i).trim() == "" continue;
+    if parseInt(lines(i).split(",")(6)) < age { ++count }
+  }
+  return count;
+}
+
+start();
+
