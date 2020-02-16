@@ -1,6 +1,6 @@
 import "Srl/Memory.alusus";
 
-@expname[printf] func print(fmt: ptr[Char], ...any) => Int;
+@expname[printf] func print(fmt: ptr[array[Char]], ...any) => Int;
 
 //
 // Operations on references.

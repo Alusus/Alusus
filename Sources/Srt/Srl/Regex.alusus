@@ -5,12 +5,12 @@ import "Srl/Memory.alusus";
 @merge module Srl {
   module Regex {
     type Context {
-      def buffer: ptr[Char];
+      def buffer: ptr[array[Char]];
       def allocated: Word[64];
       def used: Word[64];
       def syntax: Word[64];
-      def fastmap: ptr[Char];
-      def translate: ptr[Char];
+      def fastmap: ptr[array[Char]];
+      def translate: ptr[array[Char]];
       def re_nsub: Word[64];
       def flags: Word[64];
     };

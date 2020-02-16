@@ -24,7 +24,7 @@ import "globals.alusus";
         func getTimestamp(outerTimestamp: ptr[Word[64]]): Word[64];
 
         @expname[ctime]
-        func toString(timestamp: ptr[Word[64]]): ptr[Char];
+        func toString(timestamp: ptr[Word[64]]): ptr[array[Char]];
 
         @expname[localtime]
         func getDetailedTime(timestamp: ptr[Word[64]]): ptr[DetailedTime];
