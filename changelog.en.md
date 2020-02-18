@@ -1,6 +1,25 @@
 # Alusus Changelog
 
+## Version 0.6.1 (2020-02-18)
+
+### Fixes:
+
+  * Fixed a bug in the code generator resulting in destructors not being called on function arguments.
+  * Fixed a bug in the code generator causing a crash when chaining assignment operators (like: x = y = 0).
+  * Fixed a bug in function `String.trim`.
+
+### Additions and Changes
+
+  * Added `System.exit` function to SRL.
+  * Made the enlargement of Array buffer exponential rather than linear.
+
+### Breaking Changes:
+
+  * Unified all definitions of plain strings to `ptr[array[Char]]` instead of `ptr[Char]`.
+
+
 ## Version 0.6.0 (2020-01-24)
+<details>
 
 ### What's New:
 
@@ -49,6 +68,7 @@
   * Removed state branching from the parser. This feature wasn't being used and was affecting performance.
   * Simplified the code of the parser and the lexer.
   * Renamed MacroProcessor to AstProcessor.
+</details>
 
 
 ## Version 0.5.0 (2019-05-20)
