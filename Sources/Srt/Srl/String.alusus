@@ -401,7 +401,7 @@ import "Srl/Array.alusus";
 
     @shared
     func replace(chrs: ptr[array[Char]], fromCharacter: Char, toCharacter: Char): ptr[array[Char]] {
-      def pointer: ptr[array[Char]];
+      def pointer: ptr[Char];
 
       pointer = find(chrs, fromCharacter);
       while pointer != 0 {

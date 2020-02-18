@@ -288,22 +288,22 @@ import "libcurl.so";
     module CurlEasy {
       @expname[curl_easy_init]
       func init() => ptr[Curl];
-      
+
       @expname[curl_easy_cleanup]
       func cleanup(curl: ptr[Curl]): Int;
-      
+
       @expname[curl_easy_setopt]
       func setOpt(curl: ptr[Curl], option: Int, parameter: ...any): Int;
 
       @expname[curl_easy_escape]
-      func escape(curl: ptr[Curl], url: ptr[Char], urlSize: Int): ptr[Char];
-      
+      func escape(curl: ptr[Curl], url: ptr[array[Char]], urlSize: Int): ptr[array[Char]];
+
       @expname[curl_easy_perform]
       func perform(curl: ptr[Curl]): Int;
-      
+
       @expname[curl_easy_getinfo]
       func getInfo(curl: ptr[Curl], info: CurlInfo, arguments: ...any): Int;
-      
+
       @expname[curl_easy_reset]
       func reset(curl: ptr[Curl]);
     };
@@ -311,11 +311,11 @@ import "libcurl.so";
     type CurlSlist {
       @shared
       @expname[curl_slist_append]
-      func append(curlSlist: ptr[CurlSlist], string: ptr[Char]): ptr[CurlSlist];
+      func append(curlSlist: ptr[CurlSlist], string: ptr[array[Char]]): ptr[CurlSlist];
 
       @shared
       @expname[Curl_slist_append_nodup]
-      func appendNodup(curlSlist: ptr[CurlSlist], string: ptr[Char]): ptr[CurlSlist];
+      func appendNodup(curlSlist: ptr[CurlSlist], string: ptr[array[Char]]): ptr[CurlSlist];
 
       @shared
       @expname[slist_get_last]
