@@ -108,7 +108,7 @@ Bool TypeParsingHandler::parseTemplateArgs(
         state->addNotice(std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
         return false;
       }
-      if (!this->parseTemplateArg(state, arg, result)) false;
+      if (!this->parseTemplateArg(state, arg, result)) return false;
     }
     return true;
   } else {
