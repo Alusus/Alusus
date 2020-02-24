@@ -120,9 +120,11 @@ PtrWord LibraryManager::load(Char const *path, Str &error)
 
 void LibraryManager::unload(PtrWord id)
 {
-  void *handle = reinterpret_cast<void*>(id);
   this->removeLibrary(id);
-  dlclose(handle);
+  // We won't be unloading the library at this point because some AST elements might be dependent on functions in this
+  // library.
+  // void *handle = reinterpret_cast<void*>(id);
+  // dlclose(handle);
 }
 
 
