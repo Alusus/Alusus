@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
 from __future__ import print_function
+import colorama
+import wget
+import termcolor
+import argparse
 import site
 import os
 import multiprocessing
@@ -7,33 +12,10 @@ import tarfile
 from zipfile import ZipFile
 import subprocess
 import platform
+from urllib.request import urlretrieve
 from version_info import get_version_info
 from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
-try:
-    import install_dep
-except ImportError:
-    import sys
-    if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
-        sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-    import install_dep
-try:
-    install_dep.install_package('lzma')
-    import lzma
-except ImportError:
-    install_dep.install_package('backports.lzma')
-    from backports import lzma
-install_dep.install_package('argparse'); import argparse
-install_dep.install_package('termcolor'); import termcolor
-install_dep.install_package('wget'); import wget
-install_dep.install_package('colorama'); import colorama
-
-# Dependencies.
-LLVM_SRC_URL = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
-LLVM_NAME = "llvm-7.0.1"
-LIBCURL_SRC_URL="https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
-LIBCURL_NAME="curl-7.64.1"
-LIBZIP_SRC_URL="https://github.com/kuba--/zip/archive/v0.1.14.zip"
-LIBZIP_NAME="zip-0.1.14"
+import lzma
 
 # Build Args
 MAKE_THREAD_COUNT = multiprocessing.cpu_count()
@@ -65,16 +47,29 @@ PACKAGE_URL = "https://alusus.org"
 # Current system.
 THIS_SYSTEM = platform.system()
 
+
+def is_windows():
+    return THIS_SYSTEM == "Windows"
+
+
+def is_macos():
+    return THIS_SYSTEM == "Darwin"
+
+
+def is_linux():
+    return THIS_SYSTEM == "Linux"
+
+
 def get_lib_filename(name):
-  global THIS_SYSTEM
-  if THIS_SYSTEM == "Linux":
-    return "lib{}.so".format(name)
-  elif THIS_SYSTEM == "Darwin":
-    return "lib{}.dylib".format(name)
-  elif THIS_SYSTEM == "Windows":
-    return "{}.dll".format(name)
-  else:
-    raise NotImplementedError("Unsupported system.")
+    if is_linux():
+        return "lib{}.so".format(name)
+    elif is_macos():
+        return "lib{}.dylib".format(name)
+    elif is_windows():
+        return "{}.dll".format(name)
+    else:
+        raise NotImplementedError("Unsupported system.")
+
 
 def process_args():
     global BUILD_TYPE
@@ -133,67 +128,77 @@ def process_args():
         INSTALL_PATH = os.path.realpath(args.iloc)
 
 
-def build_llvm():
+def create_dirs():
+    """
+    Create the directories required during the build process. These are:
+    - the build directory: where Alusus is built.
+    - the dependencies directory: where Alusus's dependencies are built.
+    """
     global BUILD_PATH
     global DEPS_PATH
-    global LLVM_NAME
-    global LLVM_SRC_URL
+    os.makedirs(BUILD_PATH, exist_ok=True)
+    os.makedirs(DEPS_PATH, exist_ok=True)
+    os.makedirs(os.path.join(os.path.realpath(
+        INSTALL_PATH), "Lib"), exist_ok=True)
+
+
+def fetch_dep(dep_name, url, dir_name, filename):
+    if not os.path.exists(os.path.join(dir_name, "EXTRACTED")):
+        if not os.path.exists(filename):
+            infoMsg(f"Downloading {dep_name} from {url}...")
+            wget.download(url)
+        else:
+            infoMsg(f"{dep_name} already available at {filename}.")
+        with lzma.open(filename) as fd:
+            with tarfile.open(fileobj=fd) as tar:
+                infoMsg(f"Extracting {dep_name} sources from {filename}...")
+                tar.extractall()
+        os.remove(filename)
+        with open(os.path.join(dir_name, "EXTRACTED"), "w") as fd:
+            fd.write(f"{dep_name} EXTRACTED CHECKER")
+        infoMsg(f"Finished extracting {dep_name} sources.")
+    else:
+        infoMsg(f"{dep_name} sources are already available.")
+
+
+def build_llvm():
+    global DEPS_PATH
     global MAKE_THREAD_COUNT
-
-    try:
-        os.makedirs(BUILD_PATH)
-    except OSError:
-        pass
-
-    try:
-        os.makedirs(DEPS_PATH)
-    except OSError:
-        pass
+    url = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
+    filename = "llvm-7.0.1"
+    src_dir, build_dir, install_dir = "llvm-7.0.1.src", "llvm-7.0.1.build", "llvm-7.0.1.install"
 
     old_path = os.path.realpath(os.getcwd())
     os.chdir(DEPS_PATH)
 
-    if not os.path.exists(os.path.join(LLVM_NAME + ".src", "EXTRACTED")):
-        if not os.path.exists(LLVM_NAME + ".src.tar.xz"):
-            wget.download(LLVM_SRC_URL)
-        with lzma.open(LLVM_NAME + ".src.tar.xz") as fd:
-            with tarfile.open(fileobj=fd) as tar:
-                infoMsg("Extracting LLVM sources...")
-                tar.extractall()
-        os.remove(LLVM_NAME + ".src.tar.xz")
-        with open(os.path.join(LLVM_NAME + ".src", "EXTRACTED"), "w") as fd:
-            fd.write("LLVM EXTRACTED CHECKER")
-        infoMsg("Finished extracting LLVM sources.")
-    else:
-        infoMsg("LLVM sources are already available.")
+    fetch_dep("LLVM", url, src_dir, filename)
 
-    if os.path.exists(os.path.join(LLVM_NAME + ".install", "INSTALLED")):
+    if os.path.exists(os.path.join(install_dir, "INSTALLED")):
         infoMsg("LLVM is already built and installed.")
         successMsg("Building LLVM.")
-        return
+        return os.path.realpath(install_dir)
     try:
-        os.makedirs(LLVM_NAME + ".install")
+        os.makedirs(install_dir)
     except OSError:
         pass
-    if not os.path.exists(LLVM_NAME + ".build"):
+    if not os.path.exists(build_dir):
         try:
-            os.makedirs(LLVM_NAME + ".build")
+            os.makedirs(build_dir)
         except OSError:
             pass
-    os.chdir(LLVM_NAME + ".build")
+    os.chdir(build_dir)
 
     try:
-        cmake_cmd = ["cmake", os.path.join("..", LLVM_NAME + ".src"),
-                     "-DCMAKE_INSTALL_PREFIX={}".format(
-                         os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
-                     "-DCMAKE_BUILD_TYPE=MinSizeRel"]
-
-        ret = subprocess.call(cmake_cmd)
+        ret = subprocess.call([
+            "cmake",
+            os.path.join("..", src_dir),
+            f"-DCMAKE_INSTALL_PREFIX={os.path.join(DEPS_PATH, install_dir)}",
+            "-DCMAKE_BUILD_TYPE=MinSizeRel"])
         if ret != 0:
             failMsg("Building LLVM.")
             exit(1)
 
-        if THIS_SYSTEM == "Windows":
+        if is_windows():
             ret = subprocess.call(
                 "msbuild INSTALL.vcxproj /p:Configuration=MinSizeRel /m".split())
             if ret != 0:
@@ -207,7 +212,7 @@ def build_llvm():
                 exit(1)
 
         os.chdir(DEPS_PATH)
-        with open(os.path.join(LLVM_NAME + ".install", "INSTALLED"), "w") as fd:
+        with open(os.path.join(install_dir, "INSTALLED"), "w") as fd:
             fd.write("LLVM INSTALLED CHECKER")
 
     except (OSError, subprocess.CalledProcessError):
@@ -215,136 +220,95 @@ def build_llvm():
         exit(1)
     successMsg("Building LLVM.")
     os.chdir(old_path)
+    return os.path.realpath(install_dir)
 
 
 def build_libcurl():
-    global BUILD_PATH
     global DEPS_PATH
-    global LIBCURL_NAME
-    global LIBCURL_SRC_URL
     global MAKE_THREAD_COUNT
     global INSTALL_PATH
-
-    try:
-        os.makedirs(BUILD_PATH)
-    except OSError:
-        pass
-
-    try:
-        os.makedirs(DEPS_PATH)
-    except OSError:
-        pass
+    url = "https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
+    src_dir = "curl-7.64.1"
+    filename = "curl-7.64.1.tar.xz"
+    output = get_lib_filename("curl")
 
     old_path = os.path.realpath(os.getcwd())
     os.chdir(DEPS_PATH)
 
-    if not os.path.exists(os.path.join(LIBCURL_NAME, "EXTRACTED")):
-        if not os.path.exists(LIBCURL_NAME + ".tar.xz"):
-            wget.download(LIBCURL_SRC_URL)
-        with lzma.open(LIBCURL_NAME + ".tar.xz") as fd:
-            with tarfile.open(fileobj=fd) as tar:
-                infoMsg("Extracting libcurl sources...")
-                tar.extractall()
-        os.remove(LIBCURL_NAME + ".tar.xz")
-        with open(os.path.join(LIBCURL_NAME, "EXTRACTED"), "w") as fd:
-            fd.write("LIBCURL EXTRACTED CHECKER")
-        infoMsg("Finished extracting libcurl sources.")
-    else:
-        infoMsg("libcurl sources are already available.")
+    fetch_dep("libcurl", url, src_dir, filename)
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("curl"))):
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)):
         infoMsg("libcurl is already built and installed.")
         successMsg("Building libcurl.")
         return
 
-    os.chdir(LIBCURL_NAME)
+    os.chdir(src_dir)
 
     try:
-        if THIS_SYSTEM == "Windows":
+        if is_windows():
             # TODO: Build libcurl for windows.
-            raise NotImplementedError("Building libcurl for Windows OS is not implemented yet!")
+            raise NotImplementedError(
+                "Building libcurl for Windows OS is not implemented yet!")
         else:
             ret = subprocess.call("./configure")
             if ret != 0:
-                failMsg("Building libcurl.")
+                failMsg("Building libcurl (./configure).")
                 exit(1)
-            ret = subprocess.call("make -j{}".format(MAKE_THREAD_COUNT).split())
+            ret = subprocess.call(
+                "make -j{}".format(MAKE_THREAD_COUNT).split())
             if ret != 0:
-                failMsg("Building libcurl.")
+                failMsg("Building libcurl (make).")
                 exit(1)
-
-            if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib")):
-                try:
-                    os.mkdir(os.path.join(os.path.realpath(INSTALL_PATH), "Lib"))
-                except:
-                    failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), "Lib") + "\" directory.")
 
             shutil.copy2(
-                os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", get_lib_filename("curl")),
-                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("curl"))
+                os.path.join(DEPS_PATH, src_dir, "lib", ".libs", output),
+                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)
             )
             if ret != 0:
-                failMsg("Building libcurl.")
+                failMsg(f"Building libcurl. Couldn't copy {output}.")
                 exit(1)
 
-    except (OSError, subprocess.CalledProcessError):
-        failMsg("Building libcurl.")
+    except (OSError, subprocess.CalledProcessError) as e:
+        failMsg(f"Building libcurl. Exception: {e}")
         exit(1)
     successMsg("Building libcurl.")
     os.chdir(old_path)
 
 
 def build_libzip():
-    global BUILD_PATH
     global DEPS_PATH
-    global LIBZIP_NAME
-    global LIBZIP_SRC_URL
     global MAKE_THREAD_COUNT
     global INSTALL_PATH
 
-    try:
-        os.makedirs(BUILD_PATH)
-    except OSError:
-        pass
-
-    try:
-        os.makedirs(DEPS_PATH)
-    except OSError:
-        pass
+    url = "https://github.com/kuba--/zip/archive/v0.1.14.zip"
+    src_dir = "zip-0.1.14"
+    filename = "zip-0.1.14.zip"
+    output = get_lib_filename("zip")
 
     old_path = os.path.realpath(os.getcwd())
     os.chdir(DEPS_PATH)
 
-    if not os.path.exists(os.path.join(LIBZIP_NAME, "EXTRACTED")):
-        if not os.path.exists(LIBZIP_NAME + ".zip"):
-            wget.download(LIBZIP_SRC_URL)
-        with ZipFile(file=LIBZIP_NAME + ".zip", mode="r") as zip:
-            infoMsg("Extracting libzip sources...")
-            zip.extractall()
-        os.remove(LIBZIP_NAME + ".zip")
-        with open(os.path.join(LIBZIP_NAME, "EXTRACTED"), "w") as fd:
-            fd.write("LIBZIP EXTRACTED CHECKER")
-        infoMsg("Finished extracting libzip sources.")
-    else:
-        infoMsg("libzip sources are already available.")
+    fetch_dep("libzip", url, src_dir, filename)
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("zip"))):
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)):
         infoMsg("libzip is already built and installed.")
         successMsg("Building libzip.")
         return
 
-    os.chdir(LIBZIP_NAME)
+    os.chdir(src_dir)
 
     try:
-        if THIS_SYSTEM == "Windows":
+        if is_windows():
             # TODO: Build libzip for windows.
-            raise NotImplementedError("Building libzip for Windows OS is not implemented yet!")
+            raise NotImplementedError(
+                "Building libzip for Windows OS is not implemented yet!")
         else:
-            if not os.path.exists(os.path.join(DEPS_PATH, LIBZIP_NAME, "build")):
+            build_dir = os.path.join(DEPS_PATH, src_dir, "build")
+            if not os.path.exists(build_dir):
                 try:
-                    os.mkdir(os.path.join(DEPS_PATH, LIBZIP_NAME, "build"))
+                    os.mkdir(build_dir)
                 except:
-                    failMsg("Cannot make \"" + os.path.join(DEPS_PATH, LIBZIP_NAME, "build") + "\" directory.")
+                    failMsg(f'Cannot make "{build_dir}" directory.')
                     exit(1)
 
             os.chdir("build")
@@ -353,21 +317,15 @@ def build_libzip():
             if ret != 0:
                 failMsg("Building libzip.")
                 exit(1)
-            ret = subprocess.call("make -j{}".format(MAKE_THREAD_COUNT).split())
+            ret = subprocess.call(
+                "make -j{}".format(MAKE_THREAD_COUNT).split())
             if ret != 0:
                 failMsg("Building libzip.")
                 exit(1)
 
-            if not os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib")):
-                try:
-                    os.mkdir(os.path.join(os.path.realpath(INSTALL_PATH), "Lib"))
-                except:
-                    failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), "Lib") + "\" directory.")
-                    exit(1)
-
             shutil.copy2(
-                os.path.join(DEPS_PATH, LIBZIP_NAME, "build", get_lib_filename("zip")),
-                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("zip"))
+                os.path.join(DEPS_PATH, build_dir, output),
+                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)
             )
             if ret != 0:
                 failMsg("Building libzip.")
@@ -379,14 +337,6 @@ def build_libzip():
     os.chdir(old_path)
 
 
-def prep_debs():
-    infoMsg("Preparing dependencies...")
-    build_llvm()
-    build_libcurl()
-    build_libzip()
-    successMsg("Building dependencies.")
-
-
 def copy_other_installation_files():
     global ALUSUS_ROOT
     global INSTALL_PATH
@@ -396,18 +346,22 @@ def copy_other_installation_files():
         os.path.join(ALUSUS_ROOT, "Doc"),
         os.path.join(INSTALL_PATH, "Doc")
     )
-    shutil.rmtree(os.path.join(INSTALL_PATH, "Notices_L18n"), ignore_errors=True)
+    shutil.rmtree(os.path.join(INSTALL_PATH, "Notices_L18n"),
+                  ignore_errors=True)
     shutil.copytree(
         os.path.join(ALUSUS_ROOT, "Notices_L18n"),
         os.path.join(INSTALL_PATH, "Notices_L18n")
     )
     try:
-        os.makedirs(os.path.join(INSTALL_PATH, "Tools", "Gtk_Syntax_Highlighting"))
+        os.makedirs(os.path.join(INSTALL_PATH, "Tools",
+                                 "Gtk_Syntax_Highlighting"))
     except OSError:
         pass
     shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "Tools", "Gtk_Syntax_Highlighting", "alusus.lang"),
-        os.path.join(INSTALL_PATH, "Tools", "Gtk_Syntax_Highlighting", "alusus.lang")
+        os.path.join(ALUSUS_ROOT, "Tools",
+                     "Gtk_Syntax_Highlighting", "alusus.lang"),
+        os.path.join(INSTALL_PATH, "Tools",
+                     "Gtk_Syntax_Highlighting", "alusus.lang")
     )
     shutil.copy2(
         os.path.join(ALUSUS_ROOT, "changelog.en.md"),
@@ -428,36 +382,32 @@ def copy_other_installation_files():
     successMsg("Copying other installation files.")
 
 
-def build_alusus():
+def build_alusus(llvm_path):
     global BUILD_PATH
     global ALUSUS_ROOT
     global BUILD_TYPE
     global INSTALL_PATH
     global DEPS_PATH
-    global LLVM_NAME
     global MAKE_THREAD_COUNT
     global CREATE_PACKAGES
     global DLFCN_WIN32_NAME
-    global THIS_SYSTEM
 
     infoMsg("Building Alusus...")
-    if not os.path.isdir(BUILD_PATH):
-        os.makedirs(BUILD_PATH)
     old_path = os.path.realpath(os.getcwd())
     os.chdir(BUILD_PATH)
 
     try:
         cmake_cmd = ["cmake",
-                     "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
-                     "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
-                     "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH),
-                     "-DLLVM_PATH={}".format(os.path.join(DEPS_PATH, LLVM_NAME + ".install"))]
+                     os.path.join(ALUSUS_ROOT, "Sources"),
+                     f"-DCMAKE_BUILD_TYPE={BUILD_TYPE}".format(),
+                     f"-DCMAKE_INSTALL_PREFIX={INSTALL_PATH}".format(),
+                     f"-DLLVM_PATH={llvm_path}".format()]
 
         ret = subprocess.call(cmake_cmd)
         if ret != 0:
             failMsg("Building Alusus.")
             exit(1)
-        if THIS_SYSTEM == "Windows":
+        if is_windows():
             ret = subprocess.call("msbuild INSTALL.vcxproj /m".split())
             if ret != 0:
                 failMsg("Building Alusus.")
@@ -482,7 +432,6 @@ def create_packages_windows():
 
 
 def create_packages_unix():
-    global THIS_SYSTEM
     global ALUSUS_ROOT
     global PACKAGES_PATH
     global ARCHITECTURE
@@ -504,7 +453,7 @@ def create_packages_unix():
         ALUSUS_ROOT, "Tools", "BuildSrc", "Package_Scripts", "post_remove.sh")
 
     current_cmd = [
-        "fpm", "-s", input_type, "-t", "deb" if THIS_SYSTEM == "Linux" else "osxpkg", "-a", ARCHITECTURE,
+        "fpm", "-s", input_type, "-t", "deb" if is_linux() else "osxpkg", "-a", ARCHITECTURE,
         "-n", PACKAGE_NAME, "-v", version, "--description", PACKAGE_DESCRIPTION,
         "--url", PACKAGE_URL, "-m", PACKAGE_MAINTAINER,
         "--after-install", after_install_script,
@@ -523,11 +472,11 @@ def create_packages_unix():
     ret = subprocess.call(current_cmd)
     if ret != 0:
         failMsg("Creating {} Package.".format(
-            "DEB" if THIS_SYSTEM == "Linux" else "OSXPKG"))
+            "DEB" if is_linux() else "OSXPKG"))
         exit(1)
 
     # Create additional package of type RPM for Linux systems.
-    if THIS_SYSTEM == "Linux":
+    if is_linux():
         # Replace "deb" with "rpm".
         current_cmd[current_cmd.index("-t") + 1] = "rpm"
 
@@ -547,19 +496,26 @@ def create_packages():
     shutil.rmtree(PACKAGES_PATH, ignore_errors=True)
     os.makedirs(PACKAGES_PATH)
     copy_other_installation_files()
-    if THIS_SYSTEM == "Windows":
+    if is_windows():
         create_packages_windows()
-    elif THIS_SYSTEM == "Linux" or THIS_SYSTEM == "Darwin":
+    elif is_linux() or is_macos():
         create_packages_unix()
     else:
         raise NotImplementedError(
             "Packaging is not supported on \"{}\"!".format(THIS_SYSTEM))
     successMsg("Creating installation packages.")
 
+
 if __name__ == "__main__":
     colorama.init()
     process_args()
-    prep_debs()
-    build_alusus()
+
+    infoMsg("Building dependencies...")
+    create_dirs()
+    llvm_path = build_llvm()
+    build_libcurl()
+    build_libzip()
+    successMsg("Building dependencies.")
+    build_alusus(llvm_path)
     if CREATE_PACKAGES == "yes":
         create_packages()

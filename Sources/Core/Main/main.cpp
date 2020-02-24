@@ -12,6 +12,9 @@
 
 #include "core.h"
 #include <stdio.h>  /* defines FILENAME_MAX */
+#if __APPLE__
+  #include <mach-o/dyld.h>
+#endif
 #ifdef WINDOWS
   #include <direct.h>
   #include <windows.h>
@@ -56,6 +59,11 @@ std::string getModuleDirectory()
 
   #ifdef WINDOWS
     std::string path(currentPath.data(), GetModuleFileName(NULL, currentPath.data(), currentPath.size()));
+  #elif __APPLE__
+    uint32_t size = FILENAME_MAX;
+    // TODO: Check the result.
+    auto res = _NSGetExecutablePath(currentPath.data(), &size);
+    std::string path(currentPath.data());
   #else
     ssize_t count = readlink("/proc/self/exe", currentPath.data(), currentPath.size());
     std::string path(currentPath.data(), (count > 0) ? count : 0);

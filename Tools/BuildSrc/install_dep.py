@@ -17,7 +17,15 @@ def install_package(package, verbose=False):
     except ImportError:
         if not verbose:
             with open(os.devnull, "w") as f:
-                subprocess.call([sys.executable, '-m', 'pip', 'install', '--user', package], stdout=f, stderr=subprocess.STDOUT)
+                subprocess.call([sys.executable, '-m', 'pip', 'install',
+                                 '--user', package], stdout=f, stderr=subprocess.STDOUT)
         else:
-            subprocess.call([sys.executable, '-m', 'pip', 'install', '--user', package])
+            subprocess.call([sys.executable, '-m', 'pip',
+                             'install', '--user', package])
         reload(site)
+
+
+install_package('argparse')
+install_package('termcolor')
+install_package('wget')
+install_package('colorama')
