@@ -129,7 +129,7 @@ Bool FunctionParsingHandler::parseArgs(
         state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNotice>(bracket->findSourceLocation()));
         return false;
       }
-      if (!this->parseArg(state, arg, result)) false;
+      if (!this->parseArg(state, arg, result)) return false;
     }
     return true;
   } else {

@@ -65,6 +65,16 @@ PACKAGE_URL = "https://alusus.org"
 # Current system.
 THIS_SYSTEM = platform.system()
 
+def get_lib_filename(name):
+  global THIS_SYSTEM
+  if THIS_SYSTEM == "Linux":
+    return "lib{}.so".format(name)
+  elif THIS_SYSTEM == "Darwin":
+    return "lib{}.dylib".format(name)
+  elif THIS_SYSTEM == "Windows":
+    return "{}.dll".format(name)
+  else:
+    raise NotImplementedError("Unsupported system.")
 
 def process_args():
     global BUILD_TYPE
@@ -242,7 +252,7 @@ def build_libcurl():
     else:
         infoMsg("libcurl sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libcurl.so")):
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("curl"))):
         infoMsg("libcurl is already built and installed.")
         successMsg("Building libcurl.")
         return
@@ -270,8 +280,8 @@ def build_libcurl():
                     failMsg("Cannot make \"" + os.path.join(os.path.realpath(INSTALL_PATH), "Lib") + "\" directory.")
 
             shutil.copy2(
-                os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", "libcurl.so"),
-                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libcurl.so")
+                os.path.join(DEPS_PATH, LIBCURL_NAME, "lib", ".libs", get_lib_filename("curl")),
+                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("curl"))
             )
             if ret != 0:
                 failMsg("Building libcurl.")
@@ -318,7 +328,7 @@ def build_libzip():
     else:
         infoMsg("libzip sources are already available.")
 
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libzip.so")):
+    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("zip"))):
         infoMsg("libzip is already built and installed.")
         successMsg("Building libzip.")
         return
@@ -356,8 +366,8 @@ def build_libzip():
                     exit(1)
 
             shutil.copy2(
-                os.path.join(DEPS_PATH, LIBZIP_NAME, "build", "libzip.so"),
-                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", "libzip.so")
+                os.path.join(DEPS_PATH, LIBZIP_NAME, "build", get_lib_filename("zip")),
+                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", get_lib_filename("zip"))
             )
             if ret != 0:
                 failMsg("Building libzip.")

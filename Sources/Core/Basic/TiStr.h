@@ -95,7 +95,7 @@ template <class P> class TiStrBase : public P
     return this->value.c_str();
   }
 
-  public: Bool operator==(TiStrBase<P> const *s) const
+  public: Bool operator==(TiStrBase<P> const &s) const
   {
     return this->value.compare(s.value) == 0;
   }
@@ -115,7 +115,7 @@ template <class P> class TiStrBase : public P
     return this->value.compare(s.c_str()) == 0;
   }
 
-  public: Bool operator!=(TiStrBase<P> const *s) const
+  public: Bool operator!=(TiStrBase<P> const &s) const
   {
     return this->value.compare(s.value) != 0;
   }

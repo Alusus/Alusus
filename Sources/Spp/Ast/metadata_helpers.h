@@ -64,7 +64,7 @@ template <class OT,
           typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setAstType(OT *object, SharedPtr<Type> const &type)
 {
-  object->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
+  object->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr<Type>(type)));
 }
 
 template <class OT,
@@ -75,7 +75,7 @@ inline void setAstType(OT *object, SharedPtr<Type> const &type)
   if (metadata == 0) {
     throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
-  metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
+  metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr<Type>(type)));
 }
 
 template <class OT,

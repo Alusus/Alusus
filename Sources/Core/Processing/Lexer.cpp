@@ -837,6 +837,8 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
         case STOP:
           if (ret == UNKNOWN_ACTION) ret = STOP;
           break;
+        default:
+          break;
       }
     }
     // remove the added index
