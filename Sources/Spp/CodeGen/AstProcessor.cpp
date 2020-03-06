@@ -136,7 +136,7 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
         }
         continue;
       }
-    } else if (child->isDerivedFrom<Ast::Function>()) {
+    } else if (child->isDerivedFrom<Ast::Function>() && !isAstProcessed(static_cast<Ast::Function*>(child))) {
       if (astProcessor->astHelper->getDefinitionDomain(child) == Ast::DefinitionDomain::OBJECT) {
         if (!astProcessor->processMemberFunction(static_cast<Ast::Function*>(child))) result = false;
       }
@@ -181,10 +181,8 @@ Bool AstProcessor::_processMemberFunction(TiObject *self, Spp::Ast::Function *fu
   });
   // Add this arg.
   funcType->getArgTypes()->insert(0, S("this"), thisType);
-  // Mark the function as shared.
-  def->addModifier(Core::Data::Ast::Identifier::create({
-    {S("value"), TiStr(S("shared"))}
-  }));
+  // Mark the function as processed.
+  setAstProcessed(func, true);
   return true;
 }
 

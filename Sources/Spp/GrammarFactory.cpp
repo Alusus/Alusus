@@ -62,8 +62,9 @@ void GrammarFactory::createGrammar(
     S("any"), S("أيما")
   });
 
-  // Add translation for shared modifier.
+  // Add translations for def modifiers.
   this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
+  this->set(S("root.Main.Def.modifierTranslations.حقنة"), TiStr::create(S("injection")));
 
   // Create leading commands.
 
@@ -444,6 +445,11 @@ void GrammarFactory::createGrammar(
   }, {
     {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
   }));
+  this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
+  }, {
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create()}
+  }).get());
   this->createProdGroup(S("root.Main.BlockStatements.OuterStmt"), {
     PARSE_REF(S("module.owner.BlockSet")),
     PARSE_REF(S("module.CmdVariation")),
@@ -684,6 +690,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
 
   // Add translation for static modifier.
   this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
+  this->remove(S("root.Main.Def.modifierTranslations.حقنة"));
 
   // Remove commands from tilde commands list.
   this->removeProdsFromGroup(S("root.Main.PostfixTildeCmdGrp"), {

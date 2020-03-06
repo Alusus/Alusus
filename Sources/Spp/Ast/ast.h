@@ -77,6 +77,7 @@ DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupResult, "alusus.org/Spp/Spp.Ast.CalleeLoo
 // Classes
 
 //// AST Classes
+#include "Block.h"
 // Types
 #include "Type.h"
 #include "DataType.h"

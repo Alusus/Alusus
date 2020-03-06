@@ -522,6 +522,17 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, GenDeps const &deps, GenResult &calleeResult, GenResult &thisResult
   );
 
+  public: METHOD_BINDING_CACHE(generateReferenceChain,
+    Bool, (
+      PlainList<TiObject>& /* stack */, Core::Data::Node* /* astNode */, GenResult const& /* prevResult */,
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* calleeResult */
+    )
+  );
+  private: static Bool _generateReferenceChain(
+    TiObject *self, PlainList<TiObject> &stack, Core::Data::Node *astNode, GenResult const &prevResult,
+    Generation *g, GenDeps const &deps, GenResult &calleeResult
+  );
+
   /// @}
 
   /// @name Helper Functions

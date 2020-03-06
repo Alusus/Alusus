@@ -7,7 +7,7 @@ Template
   S: String
  -body:
   UserType [Main.Type]
-   body: Scope [Main.BlockStatements.StmtList]
+   body: Block [Main.BlockStatements.StmtList]
     Definition [Main.Def] t: Identifier: T [Main.Subject.Identifier]
     ParamPass () [Main.BlockExpression.ParamPassExp]
      operand: Identifier: F [Main.BlockSubject.Identifier]

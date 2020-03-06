@@ -160,6 +160,13 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
   );
 
+  public: METHOD_BINDING_CACHE(lookupReferenceTarget,
+    Bool, (TiObject*, Core::Data::Ast::Identifier*, Bool, PlainList<TiObject>&)
+  );
+  private: static Bool _lookupReferenceTarget(
+    TiObject *self, TiObject *astNode, Core::Data::Ast::Identifier *ref, Bool searchOwners, PlainList<TiObject> &stack
+  );
+
   public: METHOD_BINDING_CACHE(traceType, Type*, (TiObject*));
   private: static Type* _traceType(TiObject *self, TiObject *ref);
 

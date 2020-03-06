@@ -25,6 +25,7 @@ void Helper::initBindingCaches()
     &this->lookupCalleeInScope,
     &this->lookupCalleeOnObject,
     &this->lookupCustomCaster,
+    &this->lookupReferenceTarget,
     &this->traceType,
     &this->isVoid,
     &this->isImplicitlyCastableTo,
@@ -61,6 +62,7 @@ void Helper::initBindings()
   this->lookupCalleeInScope = &Helper::_lookupCalleeInScope;
   this->lookupCalleeOnObject = &Helper::_lookupCalleeOnObject;
   this->lookupCustomCaster = &Helper::_lookupCustomCaster;
+  this->lookupReferenceTarget = &Helper::_lookupReferenceTarget;
   this->traceType = &Helper::_traceType;
   this->isVoid = &Helper::_isVoid;
   this->isImplicitlyCastableTo = &Helper::_isImplicitlyCastableTo;
@@ -170,6 +172,32 @@ Bool Helper::_lookupCalleeInScope(
       },
       searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
   );
+
+  // Try the injections if we don't have an exact match yet.
+  if (result.matchStatus < TypeMatchStatus::DEREFERENCE) {
+    auto dataType = ti_cast<DataType>(astNode);
+    if (dataType != 0) {
+      auto block = dataType->getBody().get();
+      if (block != 0) {
+        for (Int i = 0; i < block->getInjectionCount(); ++i) {
+          auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
+          if (def == 0 || def->getTarget() == 0) continue;
+          if (!helper->isAstReference(def->getTarget().get())) continue;
+          auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
+          if (objType == 0) continue;
+          auto refType = helper->getReferenceTypeFor(objType);
+          objType = helper->tryGetDeepReferenceContentType(objType);
+          result.stack.add(def->getTarget().get());
+          if (helper->lookupCalleeInScope(ref, objType, false, refType, types, ec, result)) {
+            retVal = true;
+            if (result.matchStatus >= TypeMatchStatus::DEREFERENCE) break;
+          } else {
+            while (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
+          }
+        }
+      }
+    }
+  }
 
   // Did we have a matched callee?
   if (!retVal) {
@@ -346,6 +374,52 @@ Function* Helper::_lookupCustomCaster(
     }
   }
   return 0;
+}
+
+
+Bool Helper::_lookupReferenceTarget(
+  TiObject *self, TiObject *astNode, Core::Data::Ast::Identifier *ref, Bool searchOwners, PlainList<TiObject> &stack
+) {
+  PREPARE_SELF(helper, Helper);
+
+  Word currentStackSize = stack.getCount();
+  Bool symbolFound = false;
+  helper->getSeeker()->foreach(ref, astNode,
+    [=, &symbolFound, &stack] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
+    {
+      symbolFound = true;
+      stack.add(obj);
+      return Core::Data::Seeker::Verb::STOP;
+    },
+    searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
+  );
+
+  if (!symbolFound) {
+    Block *block = 0;
+    auto dataType = ti_cast<DataType>(astNode);
+    if (dataType != 0) block = dataType->getBody().get();
+    else block = Core::Data::findOwner<Block>(ti_cast<Core::Data::Node>(astNode));
+
+    if (block != 0) {
+      for (Int i = 0; i < block->getInjectionCount(); ++i) {
+        auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
+        if (def == 0 || def->getTarget() == 0) continue;
+        if (!helper->isAstReference(def->getTarget().get())) continue;
+        auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
+        if (objType == 0) continue;
+        objType = helper->tryGetDeepReferenceContentType(objType);
+        stack.add(def->getTarget().get());
+        if (helper->lookupReferenceTarget(objType, ref, false, stack)) {
+          symbolFound = true;
+          break;
+        } else {
+          while (stack.getCount() > currentStackSize) stack.remove(currentStackSize);
+        }
+      }
+    }
+  }
+
+  return symbolFound;
 }
 
 

@@ -13,7 +13,7 @@ ERROR SPPH1014 @ (47,18): Invalid handler statement.
 ERROR SPPH1014 @ (48,19): Invalid handler statement.
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
- body: Scope [Main.BlockStatements.StmtList]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] i: Identifier: Int [Main.Subject.Identifier]
   Definition [Main.LeadingCmdGrp] ~init
    modifiers:
@@ -25,7 +25,7 @@ UserType [Main.Type]
         operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
-     body: Scope [Main.BlockStatements.StmtList]
+     body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ~init
    modifiers:
     Identifier: shared
@@ -38,11 +38,11 @@ UserType [Main.Type]
        a: Identifier: Int [Main.Subject.Identifier]
        b: Identifier: Float [Main.Subject.Identifier]
       retType: NULL
-     body: Scope [Main.BlockStatements.StmtList]
-  Scope [Main.BlockStatements.StmtList]
+     body: Block [Main.BlockStatements.StmtList]
+  Block [Main.BlockStatements.StmtList]
   Bracket [] [Main.BlockSubject.Sbj]
    operand: NULL
-  Scope [Main.BlockStatements.StmtList]
+  Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ~terminate
    modifiers:
     Identifier: shared
@@ -53,7 +53,7 @@ UserType [Main.Type]
         operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
-     body: Scope [Main.BlockStatements.StmtList]
+     body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ~terminate
    modifiers:
     Identifier: shared
@@ -64,11 +64,11 @@ UserType [Main.Type]
         operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
-     body: Scope [Main.BlockStatements.StmtList]
-  Scope [Main.BlockStatements.StmtList]
+     body: Block [Main.BlockStatements.StmtList]
+  Block [Main.BlockStatements.StmtList]
   Bracket [] [Main.BlockSubject.Sbj]
    operand: NULL
-  Scope [Main.BlockStatements.StmtList]
+  Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] =
    modifiers:
     Identifier: shared
@@ -252,7 +252,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.Subject.Identifier]
       retType: Identifier: A [Main.Subject.Identifier]
-     body: Scope [Main.BlockStatements.StmtList]
+     body: Block [Main.BlockStatements.StmtList]
       Definition [Main.Def] ret: Identifier: A [Main.Subject.Identifier]
       AssignmentOperator = [Main.BlockExpression.AssignmentExp]
        first: LinkOperator . [Main.BlockExpression.LinkExp]
@@ -276,7 +276,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.Subject.Identifier]
       retType: Identifier: Int [Main.Subject.Identifier]
-     body: Scope [Main.BlockStatements.StmtList]
+     body: Block [Main.BlockStatements.StmtList]
       ReturnStatement [Main.Return]
        operand: BitwiseOperator << [Main.Expression.BitwiseExp]
         first: LinkOperator . [Main.Expression.LinkExp]
@@ -365,7 +365,7 @@ UserType [Main.Type]
       retType: ParamPass [] [Main.Expression.ParamPassExp]
        operand: Identifier: Float [Main.Subject.Identifier]
        param: IntegerLiteral: 64 [Main.Subject.Literal]
-     body: Scope [Main.BlockStatements.StmtList]
+     body: Block [Main.BlockStatements.StmtList]
       ReturnStatement [Main.Return]
        operand: AdditionOperator + [Main.Expression.AddExp]
         first: LinkOperator . [Main.Expression.LinkExp]

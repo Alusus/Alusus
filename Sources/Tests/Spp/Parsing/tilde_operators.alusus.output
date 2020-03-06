@@ -6,7 +6,7 @@ Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: NULL
   retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] i: ParamPass [] [Main.Expression.ParamPassExp]
    operand: Identifier: Int [Main.Subject.Identifier]
    param: IntegerLiteral: 32 [Main.Subject.Literal]
