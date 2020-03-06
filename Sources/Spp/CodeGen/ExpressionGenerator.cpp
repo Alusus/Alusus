@@ -58,7 +58,8 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateArrayReference,
     &this->generateFunctionCall,
     &this->prepareFunctionParams,
-    &this->generateCalleeReferenceChain
+    &this->generateCalleeReferenceChain,
+    &this->generateReferenceChain
   });
 }
 
@@ -103,6 +104,7 @@ void ExpressionGenerator::initBindings()
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
   this->prepareFunctionParams = &ExpressionGenerator::_prepareFunctionParams;
   this->generateCalleeReferenceChain = &ExpressionGenerator::_generateCalleeReferenceChain;
+  this->generateReferenceChain = &ExpressionGenerator::_generateReferenceChain;
 }
 
 
@@ -218,67 +220,67 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
+  PlainList<TiObject> stack;
+  if (!expGenerator->astHelper->lookupReferenceTarget(scope, astNode, searchOwners, stack)) {
+    expGenerator->noticeStore->add(std::make_shared<Spp::Notices::UnknownSymbolNotice>(astNode->findSourceLocation()));
+    return false;
+  }
+
   Bool retVal = false;
-  Bool symbolFound = false;
-  expGenerator->astHelper->getSeeker()->foreach(astNode, scope,
-    [=, &retVal, &symbolFound, &result]
-    (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
-    {
-      symbolFound = true;
+  TiObject *obj = stack.get(stack.getCount() - 1);
 
-      // Unbox if we have a box.
-      auto box = ti_cast<TioWeakBox>(obj);
-      if (box != 0) obj = box->get().lock().get();
+  // Unbox if we have a box.
+  auto box = ti_cast<TioWeakBox>(obj);
+  if (box != 0) obj = box->get().lock().get();
 
-      // Check if the found obj is a variable definition.
-      if (expGenerator->astHelper->isAstReference(obj)) {
-        // Make sure the var is not an object member.
-        if (expGenerator->getAstHelper()->getDefinitionDomain(obj) == Ast::DefinitionDomain::OBJECT) {
-          auto ownerType = static_cast<Core::Data::Node*>(obj)->findOwner<Spp::Ast::UserType>();
-          if (ownerType != 0 && ownerType == deps.astSelfType) {
-            // Generate a reference to a member variable.
-            auto astSelfPtrType = expGenerator->astHelper->getReferenceTypeFor(deps.astSelfType);
-            retVal = expGenerator->generateMemberReference(deps.tgSelf, astSelfPtrType, astNode, g, deps, result);
-          } else {
-            expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
-              Core::Data::Ast::findSourceLocation(astNode)
-            ));
-            retVal = false;
-          }
-        } else {
-          retVal = expGenerator->generateVarReference(astNode, obj, g, deps, result);
-        }
-      } else if (
-        obj->isDerivedFrom<Core::Data::Ast::Scope>() || obj->isDerivedFrom<Ast::Type>() ||
-        obj->isDerivedFrom<Ast::Template>() || obj->isDerivedFrom<Ast::Function>()
-      ) {
-        result.astNode = obj;
-        retVal = true;
-      } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
-        retVal = expGenerator->generateStringLiteral(
-          static_cast<Core::Data::Ast::StringLiteral*>(obj), g, deps, result
-        );
-      } else if (obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
-        retVal = expGenerator->generateIntegerLiteral(
-          static_cast<Core::Data::Ast::IntegerLiteral*>(obj), g, deps, result
-        );
-      } else if (obj->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
-        retVal = expGenerator->generateFloatLiteral(
-          static_cast<Core::Data::Ast::FloatLiteral*>(obj), g, deps, result
+  // Check if the found obj is a variable definition.
+  if (expGenerator->astHelper->isAstReference(obj)) {
+    // Make sure the var is not an object member.
+    if (expGenerator->getAstHelper()->getDefinitionDomain(obj) == Ast::DefinitionDomain::OBJECT) {
+      auto ownerType = static_cast<Core::Data::Node*>(stack.get(0))->findOwner<Spp::Ast::UserType>();
+      if (ownerType != 0 && ownerType == deps.astSelfType) {
+        // Generate a reference to a member variable.
+        GenResult firstResult;
+        firstResult.astType = expGenerator->getAstHelper()->getReferenceTypeFor(deps.astSelfType);
+        firstResult.targetData = deps.tgSelf;
+        GenResult callee;
+        if (!expGenerator->generateReferenceChain(stack, astNode, firstResult, g, deps, callee)) return false;
+        retVal = expGenerator->generateMemberReference(
+          callee.targetData.get(), callee.astType, astNode, g, deps, result
         );
       } else {
-        expGenerator->noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidReferenceNotice>(astNode->findSourceLocation())
-        );
+        expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
+          Core::Data::Ast::findSourceLocation(astNode)
+        ));
+        retVal = false;
       }
-      return Core::Data::Seeker::Verb::STOP;
-    },
-    searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
-  );
-
-  if (!symbolFound) {
-    expGenerator->noticeStore->add(std::make_shared<Spp::Notices::UnknownSymbolNotice>(astNode->findSourceLocation()));
+    } else {
+      retVal = expGenerator->generateVarReference(astNode, obj, g, deps, result);
+    }
+  } else if (
+    obj->isDerivedFrom<Core::Data::Ast::Scope>() || obj->isDerivedFrom<Ast::Type>() ||
+    obj->isDerivedFrom<Ast::Template>() || obj->isDerivedFrom<Ast::Function>()
+  ) {
+    result.astNode = obj;
+    retVal = true;
+  } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+    retVal = expGenerator->generateStringLiteral(
+      static_cast<Core::Data::Ast::StringLiteral*>(obj), g, deps, result
+    );
+  } else if (obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
+    retVal = expGenerator->generateIntegerLiteral(
+      static_cast<Core::Data::Ast::IntegerLiteral*>(obj), g, deps, result
+    );
+  } else if (obj->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
+    retVal = expGenerator->generateFloatLiteral(
+      static_cast<Core::Data::Ast::FloatLiteral*>(obj), g, deps, result
+    );
+  } else {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidReferenceNotice>(astNode->findSourceLocation())
+    );
   }
+
   return retVal;
 }
 
@@ -313,9 +315,22 @@ Bool ExpressionGenerator::_generateLinkOperator(
   }
 
   if (firstResult.astType != 0) {
+    // Lookup the target.
+    PlainList<TiObject> stack;
+    if (!expGenerator->astHelper->lookupReferenceTarget(
+      expGenerator->astHelper->tryGetDeepReferenceContentType(firstResult.astType), second, false, stack)
+    ) {
+      expGenerator->noticeStore->add(
+        std::make_shared<Spp::Notices::InvalidTypeMemberNotice>(second->findSourceLocation())
+      );
+      return false;
+    }
+    // Generate the reference chain.
+    GenResult callee;
+    if (!expGenerator->generateReferenceChain(stack, astNode, firstResult, g, deps, callee)) return false;
     // Generate the member reference.
     return expGenerator->generateMemberReference(
-      firstResult.targetData.get(), firstResult.astType, second, g, deps, result
+      callee.targetData.get(), callee.astType, second, g, deps, result
     );
   } else if (firstResult.astNode != 0) {
     // Generate a reference to a global in another module.
@@ -700,21 +715,27 @@ Bool ExpressionGenerator::_generateOperator(
     throw EXCEPTION(GenericException, S("Unexpected AST type for first operator parameter."));
   }
   Ast::CalleeLookupResult calleeResult;
-  Ast::Function *function = 0;
+  PlainList<TiObject> lookupParamAstTypes;
+  if (paramAstTypes.getCount() > 1) lookupParamAstTypes.add(paramAstTypes.get(1));
   if (expGenerator->astHelper->lookupCalleeInScopeByName(
     funcName, Core::Data::Ast::findSourceLocation(astNode), param0AstContentType,
-    true, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
-  )) function = ti_cast<Ast::Function>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));
+    true, paramAstTypes.get(0), &lookupParamAstTypes, deps.tg->getExecutionContext(), calleeResult
+  )) {
+    GenResult firstResult;
+    firstResult.astType = static_cast<Ast::Type*>(paramAstTypes.get(0));
+    firstResult.targetData = paramTgValues.get(0);
+    paramTgValues.remove(0);
+    paramAstTypes.remove(0);
+    paramAstNodes.remove(0);
 
-  if (function != 0) {
-    // Prepare the arguments to send.
-    if (!expGenerator->prepareFunctionParams(
-      function->getType().get(), g, deps, &paramAstNodes, &paramAstTypes, &paramTgValues
+    GenResult callee;
+    GenResult thisArg;
+    if (!expGenerator->generateCalleeReferenceChain(
+      calleeResult, astNode, firstResult, g, deps, callee, thisArg
     )) return false;
 
-    // Generate the function call.
-    return expGenerator->generateFunctionCall(
-      astNode, function, &paramAstTypes, &paramTgValues, g, deps, result
+    return expGenerator->generateRoundParamPassOnCallee(
+      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, deps, result
     );
   } else {
     // We have no function for this op, so fall back to default implementation.
@@ -2530,6 +2551,33 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
       if (calleeInfo.thisIndex == i) {
         thisResult = calleeResult;
       }
+    }
+  }
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateReferenceChain(
+  TiObject *self, PlainList<TiObject> &stack, Core::Data::Node *astNode, GenResult const &prevResult,
+  Generation *g, GenDeps const &deps, GenResult &calleeResult
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  calleeResult = prevResult;
+  for (Int i = 0; i < stack.getCount() - 1; ++i) {
+    auto item = stack.get(i);
+    if (calleeResult.astType != 0) {
+      // Generate member var reference.
+      GenResult structResult;
+      if (!expGenerator->dereferenceIfNeeded(
+        calleeResult.astType, calleeResult.targetData.get(), false, deps, structResult
+      )) return false;
+      if (!expGenerator->generateMemberVarReference(
+        astNode, structResult.targetData.get(), structResult.astType, item, g, deps, calleeResult
+      )) return false;
+    } else {
+      // Generate global var reference.
+      if (!expGenerator->generateVarReference(astNode, item, g, deps, calleeResult)) return false;
     }
   }
   return true;

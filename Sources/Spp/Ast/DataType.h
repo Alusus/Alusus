@@ -31,14 +31,14 @@ class DataType : public Type, public MapContaining<TiObject>
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Core::Data::Ast::Scope> body;
+  private: SharedPtr<Spp::Ast::Block> body;
 
 
   //============================================================================
   // Implementations
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (body, Core::Data::Ast::Scope, SHARED_REF, setBody(value), body.get())
+    (body, Spp::Ast::Block, SHARED_REF, setBody(value), body.get())
   );
 
 
@@ -54,16 +54,16 @@ class DataType : public Type, public MapContaining<TiObject>
   //============================================================================
   // Member Functions
 
-  public: void setBody(SharedPtr<Core::Data::Ast::Scope> const &b)
+  public: void setBody(SharedPtr<Spp::Ast::Block> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
-  private: void setBody(Core::Data::Ast::Scope *b)
+  private: void setBody(Spp::Ast::Block *b)
   {
     this->setBody(getSharedPtr(b));
   }
 
-  public: SharedPtr<Core::Data::Ast::Scope> const& getBody() const
+  public: SharedPtr<Spp::Ast::Block> const& getBody() const
   {
     return this->body;
   }

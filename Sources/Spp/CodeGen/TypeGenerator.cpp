@@ -313,6 +313,20 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
             result = false;
           }
           continue;
+        } else {
+          if (TypeGenerator::isInjection(def)) {
+            typeGenerator->noticeStore->add(
+              std::make_shared<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
+            );
+            result = false;
+          }
+        }
+      } else {
+        if (TypeGenerator::isInjection(def)) {
+          typeGenerator->noticeStore->add(
+            std::make_shared<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
+          );
+          result = false;
         }
       }
     }
@@ -372,7 +386,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   // Prepare dependencies.
   DestructionStack destructionStack;
   GenDeps deps(tg, tgContext.get(), &destructionStack, 0, 0);
-  deps.tgSelf = args.getElement(0);
+  deps.tgSelf = args.get(0);
   deps.astSelfType = astType;
 
   // Main loop.
@@ -448,7 +462,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
   // Prepare dependencies.
   DestructionStack destructionStack;
   GenDeps deps(tg, tgContext.get(), &destructionStack, 0, 0);
-  deps.tgSelf = args.getElement(0);
+  deps.tgSelf = args.get(0);
   deps.astSelfType = astType;
 
   // Main loop.
@@ -798,6 +812,22 @@ Bool TypeGenerator::_getTypeAllocationSize(
   if (!typeGenerator->getGeneratedType(astType, g, tg, tgType, 0)) return false;
   result = tg->getTypeAllocationSize(tgType);
   return true;
+}
+
+
+//==============================================================================
+// Helper Functions
+
+Bool TypeGenerator::isInjection(Core::Data::Ast::Definition *def)
+{
+  auto modifiers = def->getModifiers().get();
+  if (modifiers != 0) {
+    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
+      auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
+      if (identifier != 0 && identifier->getValue() == S("injection")) return true;
+    }
+  }
+  return false;
 }
 
 } } // namespace

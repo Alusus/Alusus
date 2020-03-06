@@ -213,6 +213,12 @@ DEFINE_NOTICE(InvalidTerminateOperandNotice, "Spp.Notices", "Spp", "alusus.org",
 DEFINE_NOTICE(ThisRedefinedNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1027", 1,
   "Invalid redefinition of `this` in function args."
 );
+DEFINE_NOTICE(SharedInjectionNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1028", 1,
+  "Trying to inject a shared definition."
+);
+DEFINE_NOTICE(InvalidInjectionTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1029", 1,
+  "Invalid type for an injected definition."
+);
 
 } // namespace
 

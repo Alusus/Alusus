@@ -1,0 +1,7 @@
+o.a=6, o.i=7, o.j=0, o.k=8
+o.getA()=1, o.getI()=2, o.getJ()=3, o()=5
+getO().getA()=17, getO().getI()=2, getO().j=3, getO().k=4, getO()()=5
+ERROR SPPG1028 @ (51,22)
+from (54,8): Trying to inject a shared definition.
+ERROR SPPG1029 @ (52,14)
+from (54,8): Invalid type for an injected definition.

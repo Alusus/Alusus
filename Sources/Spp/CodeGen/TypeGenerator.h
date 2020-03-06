@@ -203,6 +203,13 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
 
   /// @}
 
+  /// @name Helper Functions
+  /// @{
+
+  private: static Bool isInjection(Core::Data::Ast::Definition *def);
+
+  /// @}
+
 }; // class
 
 } } // namespace

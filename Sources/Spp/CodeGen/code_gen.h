@@ -37,7 +37,7 @@ struct GenDeps
   DestructionStack *destructionStack;
   TiObject *tgGlobalConstructionContext;
   DestructionStack *globalDestructionStack;
-  TiObject *tgSelf;
+  TioSharedPtr tgSelf;
   Ast::Type *astSelfType;
 
   GenDeps(
@@ -59,7 +59,7 @@ struct GenDeps
     , tgSelf(deps.tgSelf), astSelfType(deps.astSelfType)
   {}
 
-  GenDeps(GenDeps const &deps, TiObject *tgc, DestructionStack *ds, TiObject *tgs, Ast::Type *astst)
+  GenDeps(GenDeps const &deps, TiObject *tgc, DestructionStack *ds, TioSharedPtr const &tgs, Ast::Type *astst)
     : tg(deps.tg), tgContext(tgc), destructionStack(ds)
     , tgGlobalConstructionContext(deps.tgGlobalConstructionContext), globalDestructionStack(deps.globalDestructionStack)
     , tgSelf(tgs), astSelfType(astst)
@@ -167,6 +167,17 @@ inline void removeExtra(OT *object, Char const *name)
 DEFINE_EXTRA_ACCESSORS(CodeGenData);
 DEFINE_EXTRA_ACCESSORS(AutoCtor);
 DEFINE_EXTRA_ACCESSORS(AutoDtor);
+
+#define DEFINE_FLAG_ACCESSORS(name) \
+  template <class OT> inline Bool is##name(OT *object) { \
+    auto f = tryGetExtra<TiBool>(object, #name); return f && f->get(); \
+  } \
+  template <class OT> inline void set##name(OT *object, Bool f) { \
+    setExtra(object, #name, TiBool::create(f)); \
+  } \
+  template <class OT> inline void reset##name(OT *object) { removeExtra(object, #name); }
+
+DEFINE_FLAG_ACCESSORS(AstProcessed);
 
 // didCodeGenFail
 

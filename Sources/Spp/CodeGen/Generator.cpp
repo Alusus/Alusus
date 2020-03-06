@@ -631,7 +631,7 @@ Bool Generator::_generateVarInitialization(
     Ast::CalleeLookupResult calleeResult;
     if (generator->astHelper->lookupCalleeInScope(
       &ref, varAstType, false, 0, paramAstTypes, deps.tg->getExecutionContext(), calleeResult
-    )) {
+    ) && calleeResult.stack.getCount() == 1) {
       auto callee = calleeResult.stack.get(calleeResult.stack.getCount() - 1);
       // Prepare the arguments to send.
       if (!generator->getExpressionGenerator()->prepareFunctionParams(
@@ -714,7 +714,7 @@ Bool Generator::_generateMemberVarInitialization(
   // Generate member access.
   TioSharedPtr tgMemberVarRef;
   if (!deps.tg->generateMemberVarReference(
-    deps.tgContext, tgStructType, tgMemberType, tgMemberVar, deps.tgSelf, tgMemberVarRef
+    deps.tgContext, tgStructType, tgMemberType, tgMemberVar, deps.tgSelf.get(), tgMemberVarRef
   )) {
     return false;
   }
@@ -756,7 +756,7 @@ Bool Generator::_generateVarDestruction(
   Ast::CalleeLookupResult calleeResult;
   if (generator->astHelper->lookupCalleeInScope(
     &ref, varAstType, false, 0, &paramAstTypes, deps.tg->getExecutionContext(), calleeResult
-  )) {
+  ) && calleeResult.stack.getCount() == 1) {
     auto callee = static_cast<Ast::Function*>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));
     // Call the destructor.
     GenResult result;
@@ -804,7 +804,7 @@ Bool Generator::_generateMemberVarDestruction(
   // Generate member access.
   TioSharedPtr tgMemberVarRef;
   if (!deps.tg->generateMemberVarReference(
-    deps.tgContext, tgStructType, tgMemberType, tgMemberVar, deps.tgSelf, tgMemberVarRef
+    deps.tgContext, tgStructType, tgMemberType, tgMemberVar, deps.tgSelf.get(), tgMemberVarRef
   )) {
     return false;
   }
