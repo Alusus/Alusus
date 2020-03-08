@@ -64,6 +64,7 @@
                             <li><a href="#Types-customterminate">تخصيص إتلاف الكائنات</a></li>
                             <li><a href="#Types-initorder">تسلسل تهيئة الكائنات</a></li>
                             <li><a href="#Types-customops">تخصيص المؤثرات</a></li>
+                            <li><a href="#Types-injection">حقن التعريفات</a></li>
                           </ul>
                         <a href="#Pointers" class="top-level">المؤشرات</a><br>
                         <a href="#References" class="top-level">السندات</a><br>
@@ -956,6 +957,45 @@ ptr[the_type]</pre>
   def s: String;
   s = "!@#$";
   print(s(1)); // prints @
+</pre>
+
+                <h3 id="Types-injection">حقن التعريفات</h3>
+                خاصية حقن التعريفات تمكن المستخدم من جعل عناصر تعريف معين متوفرة مباشرة في المجال الخارجي، وهذه الخاصية من لبنات البناء الأساسية التي يمكن استخدامها لتوفير خاصيات أخرى مثل الوراثة (inheritance) أو المؤشرات الذكية أو غيرها. كل ما تحتاج لجعل عناصر تعريف متوفرة داخل مجال الصنف الحاوي أن تَسِم التعريف بالمبدل @حقنة (injection) كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف داخـلي {
+    عرف س: صحيح؛
+    دالة اطبع_س { ... }؛
+  }؛
+
+  صنف خـارجي {
+    @حقنة عرف د: داخـلي؛
+    عرف ص: صحيح؛
+    دالة اطبع_ص { ... }؛
+  }؛
+  
+  عرف خ: خـارجي؛
+  خ.س = 1؛ // يحولها المترجم إلى خ.د.س
+  خ.ص = 2؛
+  خ.اطبع_س()؛ // يحولها المترجم إلى خ.د.اطبع_س()
+  خ.اطبع_ص()؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Inner {
+    def x: Int;
+    func printX { ... };
+  };
+  
+  type Outer {
+    @injection def i: Inner;
+    def y: Int;
+    func printY { ... };
+  };
+  
+  def o: Outer;
+  o.x = 1; // compiler translates it to o.i.x
+  o.y = 2;
+  o.printX(); // compiler translates it to o.i.printX()
+  o.printY();
 </pre>
 
                 </div>
