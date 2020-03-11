@@ -14,17 +14,14 @@ import "Srl/Array.alusus";
             this.values = map.values;
         };
 
-        handler this~terminate() {
-            this.keys~terminate();
-            this.values~terminate();
-        };
-
         handler this(key: T1): T2 {
+            @shared
+            def dummy: T2;
             def arrInd: int = 0;
             for , arrInd<this.keys.getLength(), arrInd++
                 if this.keys(arrInd) == key
                     return this.values(arrInd)
-            return 0;
+            return dummy;
         };
 
         func set(key: T1, value: T2): ref[Map[T1, T2]] {
