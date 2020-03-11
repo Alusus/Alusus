@@ -47,6 +47,7 @@ import "Srl/Array.alusus";
         };
 
         func remove(index: Int): Bool {
+            if index < 0 || index >= this.keys.getLength() return false;
             this.keys.remove(index);
             this.values.remove(index);
             return true;
