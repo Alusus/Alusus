@@ -225,11 +225,11 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _getGeneratedType(
-    TiObject *self, TiObject *ref, TargetGeneration *tg, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+    TiObject *self, TiObject *ref, GenDeps const &deps, TiObject *&targetTypeResult, Ast::Type **astTypeResult
   );
 
   private: static Bool _getTypeAllocationSize(
-    TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
+    TiObject *self, Spp::Ast::Type *astType, GenDeps const &deps, Word &result
   );
 
   /// @}

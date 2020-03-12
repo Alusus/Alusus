@@ -418,7 +418,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       // Lookup the callee.
       Ast::CalleeLookupResult calleeResult;
       if (!expGenerator->astHelper->lookupCalleeInScope(
-        second, thisType, true, thisRefType, &paramAstTypes, deps.tg->getExecutionContext(),
+        second, thisType, false, thisRefType, &paramAstTypes, deps.tg->getExecutionContext(),
         calleeResult
       )) {
         expGenerator->noticeStore->add(calleeResult.notice);
@@ -719,7 +719,7 @@ Bool ExpressionGenerator::_generateOperator(
   if (paramAstTypes.getCount() > 1) lookupParamAstTypes.add(paramAstTypes.get(1));
   if (expGenerator->astHelper->lookupCalleeInScopeByName(
     funcName, Core::Data::Ast::findSourceLocation(astNode), param0AstContentType,
-    true, paramAstTypes.get(0), &lookupParamAstTypes, deps.tg->getExecutionContext(), calleeResult
+    false, paramAstTypes.get(0), &lookupParamAstTypes, deps.tg->getExecutionContext(), calleeResult
   )) {
     GenResult firstResult;
     firstResult.astType = static_cast<Ast::Type*>(paramAstTypes.get(0));
@@ -912,7 +912,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
   }
 
   TiObject *tgTargetType;
-  if (!g->getGeneratedType(astTargetType, deps.tg, tgTargetType, 0)) {
+  if (!g->getGeneratedType(astTargetType, deps, tgTargetType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1018,7 +1018,7 @@ Bool ExpressionGenerator::_generateBinaryOp(
   }
 
   TiObject *tgTargetType;
-  if (!g->getGeneratedType(astTargetType, deps.tg, tgTargetType, 0)) {
+  if (!g->getGeneratedType(astTargetType, deps, tgTargetType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1164,7 +1164,7 @@ Bool ExpressionGenerator::_generateComparisonOp(
   }
 
   TiObject *tgTargetType;
-  if (!g->getGeneratedType(astTargetType, deps.tg, tgTargetType, 0)) {
+  if (!g->getGeneratedType(astTargetType, deps, tgTargetType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1272,7 +1272,7 @@ Bool ExpressionGenerator::_generateAssignOp(
   }
 
   TiObject *tgContentType;
-  if (!g->getGeneratedType(astContentType, deps.tg, tgContentType, 0)) {
+  if (!g->getGeneratedType(astContentType, deps, tgContentType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1339,7 +1339,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   }
 
   TiObject *tgContentType;
-  if (!g->getGeneratedType(astContentType, deps.tg, tgContentType, 0)) {
+  if (!g->getGeneratedType(astContentType, deps, tgContentType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1435,7 +1435,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   }
 
   TiObject *tgContentType;
-  if (!g->getGeneratedType(astContentType, deps.tg, tgContentType, 0)) {
+  if (!g->getGeneratedType(astContentType, deps, tgContentType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1532,7 +1532,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
   }
 
   TiObject *tgTargetType;
-  if (!g->getGeneratedType(astTargetType, deps.tg, tgTargetType, 0)) {
+  if (!g->getGeneratedType(astTargetType, deps, tgTargetType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1598,7 +1598,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
   }
 
   TiObject *tgTargetType;
-  if (!g->getGeneratedType(astTargetType, deps.tg, tgTargetType, 0)) {
+  if (!g->getGeneratedType(astTargetType, deps, tgTargetType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1648,7 +1648,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
   }
 
   TiObject *tgContentType;
-  if (!g->getGeneratedType(astContentType, deps.tg, tgContentType, 0)) {
+  if (!g->getGeneratedType(astContentType, deps, tgContentType, 0)) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
@@ -1723,7 +1723,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     auto tgFunction = getCodeGenData<TiObject>(astFunction);
     auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
     TiObject *tgFunctionPointerType;
-    if (!g->getGeneratedType(astFunctionPointerType, deps.tg, tgFunctionPointerType, 0)) {
+    if (!g->getGeneratedType(astFunctionPointerType, deps, tgFunctionPointerType, 0)) {
       throw EXCEPTION(GenericException, S("Failed to generate function pointer type."));
     }
     if (deps.tgContext != 0) {
@@ -1744,7 +1744,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     // Get the pointer type.
     result.astType = expGenerator->astHelper->swichInnerReferenceTypeWithPointerType(operandRefAstType);
     TiObject *tgType;
-    if (!g->getGeneratedType(result.astType, deps.tg, tgType, 0)) return false;
+    if (!g->getGeneratedType(result.astType, deps, tgType, 0)) return false;
     if (result.astType == 0) return false;
     result.targetData = operandResult.targetData;
     return true;
@@ -1770,7 +1770,7 @@ Bool ExpressionGenerator::_generateAstRefOp(
     auto voidType = expGenerator->astHelper->getVoidType();
     auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
     TiObject *tgVoidPtrType;
-    if (!g->getGeneratedType(voidPtrType, deps.tg, tgVoidPtrType, 0)) {
+    if (!g->getGeneratedType(voidPtrType, deps, tgVoidPtrType, 0)) {
       return false;
     }
     // Generate a pointer literal.
@@ -1918,7 +1918,7 @@ Bool ExpressionGenerator::_generateSizeOp(
   auto sourceLocation = Core::Data::Ast::findSourceLocation(operand).get();
   if (sourceLocation != 0) expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
   Word size;
-  auto retVal = g->getTypeAllocationSize(astType, deps.tg, size);
+  auto retVal = g->getTypeAllocationSize(astType, deps, size);
   if (sourceLocation != 0) {
     expGenerator->noticeStore->popPrefixSourceLocation(Core::Data::getSourceLocationRecordCount(sourceLocation));
   }
@@ -2040,15 +2040,15 @@ Bool ExpressionGenerator::_generateStringLiteral(
 
   auto charAstType = expGenerator->astHelper->getCharType();
   TiObject *charTgType;
-  if (!g->getGeneratedType(charAstType, deps.tg, charTgType, 0)) return false;
+  if (!g->getGeneratedType(charAstType, deps, charTgType, 0)) return false;
 
   auto strAstType = expGenerator->astHelper->getCharArrayType(value->size() + 1);
   TiObject *strTgType;
-  if (!g->getGeneratedType(strAstType, deps.tg, strTgType, 0)) return false;
+  if (!g->getGeneratedType(strAstType, deps, strTgType, 0)) return false;
 
   auto strPtrAstType = expGenerator->astHelper->getPointerTypeFor(strAstType);
   TiObject *strPtrTgType;
-  if (!g->getGeneratedType(strPtrAstType, deps.tg, strPtrTgType, 0)) return false;
+  if (!g->getGeneratedType(strPtrAstType, deps, strPtrTgType, 0)) return false;
 
   if (deps.tgContext != 0) {
     if (expGenerator->offlineExecution) {
@@ -2071,7 +2071,7 @@ Bool ExpressionGenerator::_generateCharLiteral(
 
   auto charAstType = expGenerator->astHelper->getCharType();
   TiObject *charTgType;
-  if (!g->getGeneratedType(charAstType, deps.tg, charTgType, 0)) return false;
+  if (!g->getGeneratedType(charAstType, deps, charTgType, 0)) return false;
 
   auto bitCount = charAstType->getBitCount(expGenerator->astHelper);
 
@@ -2168,7 +2168,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   auto sourceLocation = astNode->findSourceLocation().get();
   expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
   TiObject *intTgType;
-  Bool retVal = g->getGeneratedType(astType, deps.tg, intTgType, 0);
+  Bool retVal = g->getGeneratedType(astType, deps, intTgType, 0);
   expGenerator->noticeStore->popPrefixSourceLocation(
     Core::Data::getSourceLocationRecordCount(sourceLocation)
   );
@@ -2213,7 +2213,7 @@ Bool ExpressionGenerator::_generateFloatLiteral(
   auto sourceLocation = astNode->findSourceLocation().get();
   expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
   TiObject *floatTgType;
-  Bool retVal = g->getGeneratedType(floatAstType, deps.tg, floatTgType, 0);
+  Bool retVal = g->getGeneratedType(floatAstType, deps, floatTgType, 0);
   expGenerator->noticeStore->popPrefixSourceLocation(
     Core::Data::getSourceLocationRecordCount(sourceLocation)
   );
@@ -2256,7 +2256,7 @@ Bool ExpressionGenerator::_generateVarReference(
 
   auto astType = Ast::getAstType(varAstNode);
   TiObject *tgType;
-  if (!g->getGeneratedType(astType, deps.tg, tgType, 0)) return false;
+  if (!g->getGeneratedType(astType, deps, tgType, 0)) return false;
 
   if (deps.tgContext != 0) {
     if (!deps.tg->generateVarReference(deps.tgContext, tgType, tgVar, result.targetData)) return false;
@@ -2336,7 +2336,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   TiObject *tgStructType;
-  if (!g->getGeneratedType(astStructType, deps.tg, tgStructType, 0)) return false;
+  if (!g->getGeneratedType(astStructType, deps, tgStructType, 0)) return false;
 
   // Make sure the var is an object member.
   if (expGenerator->getAstHelper()->getDefinitionDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
@@ -2350,7 +2350,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   auto tgMemberVar = getCodeGenData<TiObject>(astMemberVar);
   auto astMemberType = Ast::getAstType(astMemberVar);
   TiObject *tgMemberType;
-  if (!g->getGeneratedType(astMemberType, deps.tg, tgMemberType, 0)) return false;
+  if (!g->getGeneratedType(astMemberType, deps, tgMemberType, 0)) return false;
 
   // Generate member access.
   if (deps.tgContext != 0) {
@@ -2390,13 +2390,13 @@ Bool ExpressionGenerator::_generateArrayReference(
   TiObject *tgArrayType;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
-    if (!g->getGeneratedType(astType, deps.tg, tgArrayType, &astType)) return false;
+    if (!g->getGeneratedType(astType, deps, tgArrayType, &astType)) return false;
   } else {
     astType = astRefType->getContentType(expGenerator->astHelper);
     // TargetGenerator expects a pointer type as it doesn't have the concept of references, so we need to
     // get the pointer type for the given reference type.
     auto astPtrType = expGenerator->astHelper->getPointerTypeFor(astType);
-    if (!g->getGeneratedType(astPtrType, deps.tg, tgArrayType, 0)) return false;
+    if (!g->getGeneratedType(astPtrType, deps, tgArrayType, 0)) return false;
   }
   auto astArrayType = ti_cast<Ast::ArrayType>(astType);
   if (astArrayType == 0) {
@@ -2406,7 +2406,7 @@ Bool ExpressionGenerator::_generateArrayReference(
   // Find element type.
   auto astElementType = astArrayType->getContentType(expGenerator->astHelper);
   TiObject *tgElementType;
-  if (!g->getGeneratedType(astElementType, deps.tg, tgElementType, 0)) return false;
+  if (!g->getGeneratedType(astElementType, deps, tgElementType, 0)) return false;
 
   // Generate member access.
   if (deps.tgContext != 0) {

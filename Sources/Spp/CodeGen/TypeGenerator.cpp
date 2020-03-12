@@ -69,10 +69,10 @@ void TypeGenerator::initBindings()
 // Main Operation Functions
 
 Bool TypeGenerator::getGeneratedType(
-  TiObject *ref, Generation *g, TargetGeneration *tg, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+  TiObject *ref, Generation *g, GenDeps const &deps, TiObject *&targetTypeResult, Ast::Type **astTypeResult
 ) {
   Spp::Ast::Type *astType;
-  if (!this->_getGeneratedType(ref, g, tg, astType)) return false;
+  if (!this->_getGeneratedType(ref, g, deps, astType)) return false;
   targetTypeResult = getCodeGenData<TiObject>(astType);
   if (astTypeResult != 0) {
     *astTypeResult = astType;
@@ -82,11 +82,11 @@ Bool TypeGenerator::getGeneratedType(
 
 
 Bool TypeGenerator::getGeneratedVoidType(
-  Generation *g, TargetGeneration *tg, TiObject *&tgTypeResult, Ast::VoidType **astTypeResult
+  Generation *g, GenDeps const &deps, TiObject *&tgTypeResult, Ast::VoidType **astTypeResult
 ) {
   auto voidType = this->astHelper->getVoidType();
   Ast::Type *dummy;
-  if (!this->_getGeneratedType(voidType, g, tg, dummy)) return false;
+  if (!this->_getGeneratedType(voidType, g, deps, dummy)) return false;
   tgTypeResult = getCodeGenData<TiObject>(voidType);
   if (astTypeResult != 0) {
     *astTypeResult = voidType;
@@ -95,7 +95,7 @@ Bool TypeGenerator::getGeneratedVoidType(
 }
 
 
-Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, TargetGeneration *tg, Spp::Ast::Type *&type)
+Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, GenDeps const &deps, Spp::Ast::Type *&type)
 {
   auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(ref);
   if (metadata == 0) {
@@ -112,7 +112,7 @@ Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, TargetGenera
     sourceLocation = metadata->findSourceLocation().get();
     this->noticeStore->pushPrefixSourceLocation(sourceLocation);
   }
-  Bool result = this->generateType(type, g, tg);
+  Bool result = this->generateType(type, g, deps);
   if (shouldPushSl && sourceLocation != 0) {
     this->noticeStore->popPrefixSourceLocation(
       Core::Data::getSourceLocationRecordCount(sourceLocation)
@@ -126,7 +126,7 @@ Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, TargetGenera
 //==============================================================================
 // Code Generation Functions
 
-Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Generation *g, TargetGeneration *tg)
+Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Generation *g, GenDeps const &deps)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
@@ -134,21 +134,21 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
   if (cgType != 0) return true;
 
   if (astType->isDerivedFrom<Spp::Ast::VoidType>()) {
-    return typeGenerator->generateVoidType(static_cast<Spp::Ast::VoidType*>(astType), tg);
+    return typeGenerator->generateVoidType(static_cast<Spp::Ast::VoidType*>(astType), deps);
   } else if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
-    return typeGenerator->generateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType), tg);
+    return typeGenerator->generateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType), deps);
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
-    return typeGenerator->generateFloatType(static_cast<Spp::Ast::FloatType*>(astType), tg);
+    return typeGenerator->generateFloatType(static_cast<Spp::Ast::FloatType*>(astType), deps);
   } else if (astType->isDerivedFrom<Spp::Ast::PointerType>()) {
-    return typeGenerator->generatePointerType(static_cast<Spp::Ast::PointerType*>(astType), g, tg);
+    return typeGenerator->generatePointerType(static_cast<Spp::Ast::PointerType*>(astType), g, deps);
   } else if (astType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
-    return typeGenerator->generateReferenceType(static_cast<Spp::Ast::ReferenceType*>(astType), g, tg);
+    return typeGenerator->generateReferenceType(static_cast<Spp::Ast::ReferenceType*>(astType), g, deps);
   } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
-    return typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType), g, tg);
+    return typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType), g, deps);
   } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
-    return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType), g, tg);
+    return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType), g, deps);
   } else if (astType->isDerivedFrom<Spp::Ast::FunctionType>()) {
-    return typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), g, tg);
+    return typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), g, deps);
   } else {
     typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidTypeNotice>());
     return false;
@@ -156,16 +156,16 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
 }
 
 
-Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astType, TargetGeneration *tg)
+Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astType, GenDeps const &deps)
 {
   TioSharedPtr tgType;
-  if (!tg->generateVoidType(tgType)) return false;
+  if (!deps.tg->generateVoidType(tgType)) return false;
   setCodeGenData(astType, tgType);
   return true;
 }
 
 
-Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, TargetGeneration *tg)
+Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, GenDeps const &deps)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
@@ -175,13 +175,13 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
     return false;
   }
   TioSharedPtr tgType;
-  if (!tg->generateIntType(bitCount, astType->isSigned(), tgType)) return false;
+  if (!deps.tg->generateIntType(bitCount, astType->isSigned(), tgType)) return false;
   setCodeGenData(astType, tgType);
   return true;
 }
 
 
-Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astType, TargetGeneration *tg)
+Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astType, GenDeps const &deps)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
@@ -191,78 +191,78 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
     return false;
   }
   TioSharedPtr tgType;
-  if (!tg->generateFloatType(bitCount, tgType)) return false;
+  if (!deps.tg->generateFloatType(bitCount, tgType)) return false;
   setCodeGenData(astType, tgType);
   return true;
 }
 
 
 Bool TypeGenerator::_generatePointerType(
-  TiObject *self, Spp::Ast::PointerType *astType, Generation *g, TargetGeneration *tg
+  TiObject *self, Spp::Ast::PointerType *astType, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->astHelper);
   if (typeGenerator->astHelper->isVoid(contentAstType)) {
     contentAstType = typeGenerator->astHelper->getCharType();
   }
-  if (!typeGenerator->generateType(contentAstType, g, tg)) return false;
+  if (!typeGenerator->generateType(contentAstType, g, deps)) return false;
   TiObject *contentTgType = getCodeGenData<TiObject>(contentAstType);
   TioSharedPtr tgType;
-  if (!tg->generatePointerType(contentTgType, tgType)) return false;
+  if (!deps.tg->generatePointerType(contentTgType, tgType)) return false;
   setCodeGenData(astType, tgType);
   return true;
 }
 
 
 Bool TypeGenerator::_generateReferenceType(
-  TiObject *self, Spp::Ast::ReferenceType *astType, Generation *g, TargetGeneration *tg
+  TiObject *self, Spp::Ast::ReferenceType *astType, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->astHelper);
   if (typeGenerator->astHelper->isVoid(contentAstType)) {
     contentAstType = typeGenerator->astHelper->getCharType();
   }
-  if (!typeGenerator->generateType(contentAstType, g, tg)) return false;
+  if (!typeGenerator->generateType(contentAstType, g, deps)) return false;
   TiObject *contentTgType = getCodeGenData<TiObject>(contentAstType);
   TioSharedPtr tgType;
-  if (!tg->generatePointerType(contentTgType, tgType)) return false;
+  if (!deps.tg->generatePointerType(contentTgType, tgType)) return false;
   setCodeGenData(astType, tgType);
   return true;
 }
 
 
-Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType, Generation *g, TargetGeneration *tg)
+Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astType, Generation *g, GenDeps const &deps)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->astHelper);
-  if (!typeGenerator->generateType(contentAstType, g, tg)) return false;
+  if (!typeGenerator->generateType(contentAstType, g, deps)) return false;
   TiObject *contentTgType = getCodeGenData<TiObject>(contentAstType);
   auto size = astType->getSize(typeGenerator->astHelper);
   TioSharedPtr tgType;
-  if (!tg->generateArrayType(contentTgType, size, tgType)) return false;
+  if (!deps.tg->generateArrayType(contentTgType, size, tgType)) return false;
   setCodeGenData(astType, tgType);
   return true;
 }
 
 
-Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg)
+Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   Str name = std::regex_replace(
     typeGenerator->astHelper->resolveNodePath(astType), std::regex("[^a-zA-Z0-9_]"), S("_")
   );
   TioSharedPtr tgType;
-  if (!tg->generateStructTypeDecl(name.c_str(), tgType)) return false;
+  if (!deps.tg->generateStructTypeDecl(name.c_str(), tgType)) return false;
   setCodeGenData(astType, tgType);
-  if (!typeGenerator->generateUserTypeMemberVars(astType, g, tg)) return false;
-  if (!typeGenerator->generateUserTypeAutoConstructor(astType, g, tg)) return false;
-  if (!typeGenerator->generateUserTypeAutoDestructor(astType, g, tg)) return false;
+  if (!typeGenerator->generateUserTypeMemberVars(astType, g, deps)) return false;
+  if (!typeGenerator->generateUserTypeAutoConstructor(astType, g, deps)) return false;
+  if (!typeGenerator->generateUserTypeAutoDestructor(astType, g, deps)) return false;
   return true;
 }
 
 
 Bool TypeGenerator::_generateUserTypeMemberVars(
-  TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg
+  TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
@@ -301,7 +301,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         if (typeGenerator->astHelper->isAstReference(obj)) {
           TiObject *tgType;
           Ast::Type *astMemberType;
-          if (!typeGenerator->getGeneratedType(obj, g, tg, tgType, &astMemberType)) {
+          if (!typeGenerator->getGeneratedType(obj, g, deps, tgType, &astMemberType)) {
             result = false;
             continue;
           }
@@ -333,7 +333,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   }
   if (!result) return false;
 
-  if (!tg->generateStructTypeBody(tgType, &tgMemberTypes, &tgMembers)) return false;
+  if (!deps.tg->generateStructTypeBody(tgType, &tgMemberTypes, &tgMembers)) return false;
   if (tgMemberTypes.getElementCount() != tgMembers.getCount()) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating struct body."));
   }
@@ -347,47 +347,47 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
 
 
 Bool TypeGenerator::_generateUserTypeAutoConstructor(
-  TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg
+  TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
   // Validate that the type has custom initialization.
-  if (!astType->hasCustomInitialization(typeGenerator->astHelper, tg->getExecutionContext())) return true;
+  if (!astType->hasCustomInitialization(typeGenerator->astHelper, deps.tg->getExecutionContext())) return true;
 
   // Generate pointer type for the user type.
   auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
   TiObject *tgPtrType;
-  if (!typeGenerator->getGeneratedType(astPtrType, g, tg, tgPtrType, 0)) return false;
+  if (!typeGenerator->getGeneratedType(astPtrType, g, deps, tgPtrType, 0)) return false;
 
   // Generate function type.
   TioSharedPtr tgVoidType;
-  if (!tg->generateVoidType(tgVoidType)) {
+  if (!deps.tg->generateVoidType(tgVoidType)) {
     throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
   }
   PlainMap<TiObject> argTypes;
   argTypes.add(S("this"), tgPtrType);
   TioSharedPtr tgFuncType;
-  if (!tg->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
+  if (!deps.tg->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
     throw EXCEPTION(GenericException, S("Failed to generate function type for type constructor."));
   }
 
   // Prepare the constructor function.
   auto funcName = typeGenerator->astHelper->resolveNodePath(astType) + S(".__autoConstruct__");
   TioSharedPtr tgFunc;
-  if (!tg->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
+  if (!deps.tg->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for type constructor."));
   }
   TioSharedPtr tgContext;
   SharedList<TiObject> args;
-  if (!tg->prepareFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext)) {
+  if (!deps.tg->prepareFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext)) {
     throw EXCEPTION(GenericException, S("Failed to prepare function body for type constructor."));
   }
 
   // Prepare dependencies.
   DestructionStack destructionStack;
-  GenDeps deps(tg, tgContext.get(), &destructionStack, 0, 0);
-  deps.tgSelf = args.get(0);
-  deps.astSelfType = astType;
+  GenDeps childDeps(deps, tgContext.get(), &destructionStack);
+  childDeps.tgSelf = args.get(0);
+  childDeps.astSelfType = astType;
 
   // Main loop.
   auto body = astType->getBody().get();
@@ -401,17 +401,17 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
         typeGenerator->getAstHelper()->getDefinitionDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Initialize member variable.
-        if (!g->generateMemberVarInitialization(target, deps)) return false;
+        if (!g->generateMemberVarInitialization(target, childDeps)) return false;
       }
     } else {
       // Generate regular statement.
       TerminalStatement terminal;
-      if (!g->generateStatement(obj, deps, terminal)) return false;
+      if (!g->generateStatement(obj, childDeps, terminal)) return false;
     }
   }
 
   // Finish the function.
-  if (!tg->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
+  if (!childDeps.tg->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type constructor."));
   }
 
@@ -423,47 +423,47 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
 
 
 Bool TypeGenerator::_generateUserTypeAutoDestructor(
-  TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg
+  TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
   // Validate that the type has custom initialization.
-  if (!astType->hasCustomDestruction(typeGenerator->astHelper, tg->getExecutionContext())) return true;
+  if (!astType->hasCustomDestruction(typeGenerator->astHelper, deps.tg->getExecutionContext())) return true;
 
   // Generate pointer type for the user type.
   auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
   TiObject *tgPtrType;
-  if (!typeGenerator->getGeneratedType(astPtrType, g, tg, tgPtrType, 0)) return false;
+  if (!typeGenerator->getGeneratedType(astPtrType, g, deps, tgPtrType, 0)) return false;
 
   // Generate function type.
   TioSharedPtr tgVoidType;
-  if (!tg->generateVoidType(tgVoidType)) {
+  if (!deps.tg->generateVoidType(tgVoidType)) {
     throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
   }
   PlainMap<TiObject> argTypes;
   argTypes.add(S("this"), tgPtrType);
   TioSharedPtr tgFuncType;
-  if (!tg->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
+  if (!deps.tg->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
     throw EXCEPTION(GenericException, S("Failed to generate function type for type destructor."));
   }
 
   // Prepare the destructor function.
   auto funcName = typeGenerator->astHelper->resolveNodePath(astType) + S(".__autoDestruct__");
   TioSharedPtr tgFunc;
-  if (!tg->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
+  if (!deps.tg->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for type destructor."));
   }
   TioSharedPtr tgContext;
   SharedList<TiObject> args;
-  if (!tg->prepareFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext)) {
+  if (!deps.tg->prepareFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext)) {
     throw EXCEPTION(GenericException, S("Failed to prepare function body for type destructor."));
   }
 
   // Prepare dependencies.
   DestructionStack destructionStack;
-  GenDeps deps(tg, tgContext.get(), &destructionStack, 0, 0);
-  deps.tgSelf = args.get(0);
-  deps.astSelfType = astType;
+  GenDeps childDeps(deps, tgContext.get(), &destructionStack);
+  childDeps.tgSelf = args.get(0);
+  childDeps.astSelfType = astType;
 
   // Main loop.
   auto body = astType->getBody().get();
@@ -477,13 +477,13 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
         typeGenerator->getAstHelper()->getDefinitionDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Destruct member variable.
-        if (!g->generateMemberVarDestruction(target, deps)) return false;
+        if (!g->generateMemberVarDestruction(target, childDeps)) return false;
       }
     }
   }
 
   // Finish the function.
-  if (!tg->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
+  if (!childDeps.tg->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type destructor."));
   }
 
@@ -495,7 +495,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
 
 
 Bool TypeGenerator::_generateFunctionType(
-  TiObject *self, Spp::Ast::FunctionType *astType, Generation *g, TargetGeneration *tg
+  TiObject *self, Spp::Ast::FunctionType *astType, Generation *g, GenDeps const &deps
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
@@ -508,13 +508,13 @@ Bool TypeGenerator::_generateFunctionType(
     if (argType->isDerivedFrom<Ast::ArgPack>()) break;
     TiObject *tgType;
     Ast::Type *astType;
-    if (!typeGenerator->getGeneratedType(argType, g, tg, tgType, &astType)) {
+    if (!typeGenerator->getGeneratedType(argType, g, deps, tgType, &astType)) {
       return false;
     }
-    if (astType->hasCustomInitialization(typeGenerator->astHelper, tg->getExecutionContext())) {
+    if (astType->hasCustomInitialization(typeGenerator->astHelper, deps.tg->getExecutionContext())) {
       // This type has custom initialization, so we'll pass it by reference instead of by value.
       auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
-      if (!typeGenerator->getGeneratedType(astPtrType, g, tg, tgType, 0)) {
+      if (!typeGenerator->getGeneratedType(astPtrType, g, deps, tgType, 0)) {
         return false;
       }
     }
@@ -526,26 +526,26 @@ Bool TypeGenerator::_generateFunctionType(
   TiObject *tgRetType = 0;
   if (astType->getRetType() != 0) {
     Ast::Type *astRetType;
-    if (!typeGenerator->getGeneratedType(astType->getRetType().get(), g, tg, tgRetType, &astRetType)) {
+    if (!typeGenerator->getGeneratedType(astType->getRetType().get(), g, deps, tgRetType, &astRetType)) {
       return false;
     }
     Ast::setAstType(astType->getRetType().get(), astRetType);
-    if (astRetType->hasCustomInitialization(typeGenerator->astHelper, tg->getExecutionContext())) {
+    if (astRetType->hasCustomInitialization(typeGenerator->astHelper, deps.tg->getExecutionContext())) {
       // This type has custom initialization, so we'll pass it by reference instead of by value.
       auto astRetPtrType = typeGenerator->astHelper->getPointerTypeFor(astRetType);
-      if (!typeGenerator->getGeneratedType(astRetPtrType, g, tg, tgRetType, 0)) {
+      if (!typeGenerator->getGeneratedType(astRetPtrType, g, deps, tgRetType, 0)) {
         return false;
       }
       tgArgs.insert(0, S("#ret"), tgRetType);
-      if (!typeGenerator->getGeneratedVoidType(g, tg, tgRetType, 0)) return false;
+      if (!typeGenerator->getGeneratedVoidType(g, deps, tgRetType, 0)) return false;
     }
   } else {
-    if (!typeGenerator->getGeneratedVoidType(g, tg, tgRetType, 0)) return false;
+    if (!typeGenerator->getGeneratedVoidType(g, deps, tgRetType, 0)) return false;
   }
 
   // Generate the type.
   TioSharedPtr tgFuncType;
-  if (!tg->generateFunctionType(&tgArgs, tgRetType, astType->isVariadic(), tgFuncType)) return false;
+  if (!deps.tg->generateFunctionType(&tgArgs, tgRetType, astType->isVariadic(), tgFuncType)) return false;
   setCodeGenData(astType, tgFuncType);
   return true;
 }
@@ -579,19 +579,19 @@ Bool TypeGenerator::_generateCast(
     // Casting from integer.
     auto srcIntegerType = static_cast<Spp::Ast::IntegerType*>(srcType);
     TiObject *srcTgType;
-    if (!typeGenerator->getGeneratedType(srcIntegerType, g, deps.tg, srcTgType, 0)) return false;
+    if (!typeGenerator->getGeneratedType(srcIntegerType, g, deps, srcTgType, 0)) return false;
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast from integer to another integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
       TiObject *targetTgType;
-      if (!typeGenerator->getGeneratedType(targetIntegerType, g, deps.tg, targetTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(targetIntegerType, g, deps, targetTgType, 0)) return false;
       if (!deps.tg->generateCastIntToInt(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
       return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from integer to float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
       TiObject *targetTgType;
-      if (!typeGenerator->getGeneratedType(targetFloatType, g, deps.tg, targetTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(targetFloatType, g, deps, targetTgType, 0)) return false;
       if (!deps.tg->generateCastIntToFloat(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
       return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {
@@ -602,7 +602,7 @@ Bool TypeGenerator::_generateCast(
         srcIntegerType->getBitCount(typeGenerator->astHelper) == deps.tg->getExecutionContext()->getPointerBitCount()
       ) {
         TiObject *targetTgType;
-        if (!typeGenerator->getGeneratedType(targetPointerType, g, deps.tg, targetTgType, 0)) return false;
+        if (!typeGenerator->getGeneratedType(targetPointerType, g, deps, targetTgType, 0)) return false;
         if (!deps.tg->generateCastIntToPointer(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
         return true;
       }
@@ -611,19 +611,19 @@ Bool TypeGenerator::_generateCast(
     // Casting from float.
     auto srcFloatType = static_cast<Spp::Ast::FloatType*>(srcType);
     TiObject *srcTgType;
-    if (!typeGenerator->getGeneratedType(srcFloatType, g, deps.tg, srcTgType, 0)) return false;
+    if (!typeGenerator->getGeneratedType(srcFloatType, g, deps, srcTgType, 0)) return false;
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast from float to integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
       TiObject *targetTgType;
-      if (!typeGenerator->getGeneratedType(targetIntegerType, g, deps.tg, targetTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(targetIntegerType, g, deps, targetTgType, 0)) return false;
       if (!deps.tg->generateCastFloatToInt(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
       return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from float to another float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
       TiObject *targetTgType;
-      if (!typeGenerator->getGeneratedType(targetFloatType, g, deps.tg, targetTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(targetFloatType, g, deps, targetTgType, 0)) return false;
       if (!deps.tg->generateCastFloatToFloat(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
       return true;
     }
@@ -635,9 +635,9 @@ Bool TypeGenerator::_generateCast(
       Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper);
       if (deps.tg->getExecutionContext()->getPointerBitCount() == targetBitCount) {
         TiObject *srcTgType;
-        if (!typeGenerator->getGeneratedType(srcType, g, deps.tg, srcTgType, 0)) return false;
+        if (!typeGenerator->getGeneratedType(srcType, g, deps, srcTgType, 0)) return false;
         TiObject *targetTgType;
-        if (!typeGenerator->getGeneratedType(targetIntegerType, g, deps.tg, targetTgType, 0)) return false;
+        if (!typeGenerator->getGeneratedType(targetIntegerType, g, deps, targetTgType, 0)) return false;
         if (!deps.tg->generateCastPointerToInt(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
         return true;
       }
@@ -645,9 +645,9 @@ Bool TypeGenerator::_generateCast(
       // Cast pointer to another pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       TiObject *srcTgType;
-      if (!typeGenerator->getGeneratedType(srcType, g, deps.tg, srcTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(srcType, g, deps, srcTgType, 0)) return false;
       TiObject *targetTgType;
-      if (!typeGenerator->getGeneratedType(targetPointerType, g, deps.tg, targetTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(targetPointerType, g, deps, targetTgType, 0)) return false;
       if (!deps.tg->generateCastPointerToPointer(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) {
         return false;
       }
@@ -659,9 +659,9 @@ Bool TypeGenerator::_generateCast(
       // Casting from reference to another reference
       auto targetReferenceType = static_cast<Spp::Ast::ReferenceType*>(targetType);
       TiObject *srcTgType;
-      if (!typeGenerator->getGeneratedType(srcType, g, deps.tg, srcTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(srcType, g, deps, srcTgType, 0)) return false;
       TiObject *targetTgType;
-      if (!typeGenerator->getGeneratedType(targetReferenceType, g, deps.tg, targetTgType, 0)) return false;
+      if (!typeGenerator->getGeneratedType(targetReferenceType, g, deps, targetTgType, 0)) return false;
       if (!deps.tg->generateCastPointerToPointer(deps.tgContext, srcTgType, targetTgType, tgValue, tgCastedValue)) {
         return false;
       }
@@ -692,7 +692,7 @@ Bool TypeGenerator::_generateDefaultValue(
     // Generate integer 0
     auto tgType = tryGetCodeGenData<TiObject>(astType);
     if (tgType == 0) {
-      if (!typeGenerator->generateType(astType, g, deps.tg)) return false;
+      if (!typeGenerator->generateType(astType, g, deps)) return false;
       tgType = getCodeGenData<TiObject>(astType);
     }
 
@@ -703,7 +703,7 @@ Bool TypeGenerator::_generateDefaultValue(
     // Generate float 0
     auto tgType = tryGetCodeGenData<TiObject>(astType);
     if (tgType == 0) {
-      if (!typeGenerator->generateType(astType, g, deps.tg)) return false;
+      if (!typeGenerator->generateType(astType, g, deps)) return false;
       tgType = getCodeGenData<TiObject>(astType);
     }
 
@@ -714,7 +714,7 @@ Bool TypeGenerator::_generateDefaultValue(
     // Generate pointer null
     auto tgType = tryGetCodeGenData<TiObject>(astType);
     if (tgType == 0) {
-      if (!typeGenerator->generateType(astType, g, deps.tg)) return false;
+      if (!typeGenerator->generateType(astType, g, deps)) return false;
       tgType = getCodeGenData<TiObject>(astType);
     }
 
@@ -723,7 +723,7 @@ Bool TypeGenerator::_generateDefaultValue(
     // Generate pointer null
     auto tgType = tryGetCodeGenData<TiObject>(astType);
     if (tgType == 0) {
-      if (!typeGenerator->generateType(astType, g, deps.tg)) return false;
+      if (!typeGenerator->generateType(astType, g, deps)) return false;
       tgType = getCodeGenData<TiObject>(astType);
     }
 
@@ -747,14 +747,14 @@ Bool TypeGenerator::_generateDefaultArrayValue(
 
   auto tgType = tryGetCodeGenData<TiObject>(astType);
   if (tgType == 0) {
-    if (!typeGenerator->generateType(astType, g, deps.tg)) return false;
+    if (!typeGenerator->generateType(astType, g, deps)) return false;
     tgType = getCodeGenData<TiObject>(astType);
   }
 
   auto elementAstType = astType->getContentType(typeGenerator->astHelper);
   auto elementTgType = tryGetCodeGenData<TiObject>(elementAstType);
   if (elementTgType == 0) {
-    if (!typeGenerator->generateType(elementAstType, g, deps.tg)) return false;
+    if (!typeGenerator->generateType(elementAstType, g, deps)) return false;
     elementTgType = getCodeGenData<TiObject>(elementAstType);
   }
 
@@ -778,7 +778,7 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
 
   auto tgType = tryGetCodeGenData<TiObject>(astType);
   if (tgType == 0) {
-    if (!typeGenerator->generateType(astType, g, deps.tg)) return false;
+    if (!typeGenerator->generateType(astType, g, deps)) return false;
     tgType = getCodeGenData<TiObject>(astType);
   }
 
@@ -792,7 +792,7 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
       if (typeGenerator->getAstHelper()->isAstReference(obj)) {
         TiObject *tgMemberType;
         Ast::Type *astMemberType;
-        if (!typeGenerator->getGeneratedType(obj, g, deps.tg, tgMemberType, &astMemberType)) return false;
+        if (!typeGenerator->getGeneratedType(obj, g, deps, tgMemberType, &astMemberType)) return false;
         memberTypes.addElement(def->getName().get(), tgMemberType);
         TioSharedPtr memberVal;
         if (!typeGenerator->generateDefaultValue(astMemberType, g, deps, memberVal)) return false;
@@ -805,12 +805,12 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
 
 
 Bool TypeGenerator::_getTypeAllocationSize(
-  TiObject *self, Spp::Ast::Type *astType, Generation *g, TargetGeneration *tg, Word &result
+  TiObject *self, Spp::Ast::Type *astType, Generation *g, GenDeps const &deps, Word &result
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   TiObject *tgType;
-  if (!typeGenerator->getGeneratedType(astType, g, tg, tgType, 0)) return false;
-  result = tg->getTypeAllocationSize(tgType);
+  if (!typeGenerator->getGeneratedType(astType, g, deps, tgType, 0)) return false;
+  result = deps.tg->getTypeAllocationSize(tgType);
   return true;
 }
 
