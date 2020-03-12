@@ -176,13 +176,13 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(getGeneratedType,
     Bool, (
-      TiObject* /* ref */, TargetGeneration* /* tg */,
+      TiObject* /* ref */, GenDeps const& /* deps */,
       TiObject*& /* targetTypeResult */, Ast::Type** /* astTypeResult */
     )
   );
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize,
-    Bool, (Spp::Ast::Type* /* astType */, TargetGeneration* /* tg */, Word& /* result */)
+    Bool, (Spp::Ast::Type* /* astType */, GenDeps const& /* deps */, Word& /* result */)
   );
 
   /// @}

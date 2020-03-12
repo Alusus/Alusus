@@ -253,7 +253,7 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   // Generate function type.
   TiObject *tgFunctionType;
   if (!generator->typeGenerator->getGeneratedType(
-    astFunc->getType().get(), ti_cast<Generation>(self), deps.tg, tgFunctionType, 0
+    astFunc->getType().get(), ti_cast<Generation>(self), deps, tgFunctionType, 0
   )) {
     return false;
   }
@@ -280,7 +280,7 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   PREPARE_SELF(generation, Generation);
 
   TiObject *tgType;
-  if (!generator->typeGenerator->getGeneratedType(astType, generation, deps.tg, tgType, 0)) return false;
+  if (!generator->typeGenerator->getGeneratedType(astType, generation, deps, tgType, 0)) return false;
   ASSERT(tgType != 0);
 
   // Prepare struct members.
@@ -338,7 +338,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     // Generate the type of the variable.
     Ast::Type *astType;
     TiObject *tgType;
-    if (!generator->typeGenerator->getGeneratedType(astVar, generation, deps.tg, tgType, &astType)) {
+    if (!generator->typeGenerator->getGeneratedType(astVar, generation, deps, tgType, &astType)) {
       setCodeGenFailed(astVar, true);
       return false;
     }
@@ -349,7 +349,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
     }
     TiObject *tgRefType;
-    if (!generator->typeGenerator->getGeneratedType(astRefType, generation, deps.tg, tgRefType, 0)) {
+    if (!generator->typeGenerator->getGeneratedType(astRefType, generation, deps, tgRefType, 0)) {
       throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
     }
 
@@ -379,7 +379,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         if (generator->globalItemRepo->findItem(name.c_str()) == -1) {
           // Add an entry for the variable in the repo.
           Word size;
-          if (!generator->typeGenerator->getTypeAllocationSize(astType, generation, deps.tg, size)) {
+          if (!generator->typeGenerator->getTypeAllocationSize(astType, generation, deps, size)) {
             setCodeGenFailed(astVar, true);
             return false;
           }
@@ -502,7 +502,7 @@ Bool Generator::_generateTempVar(
   if (tgVar == 0) {
     // Generate the type of the variable.
     TiObject *tgType;
-    if (!generator->typeGenerator->getGeneratedType(astType, generation, deps.tg, tgType, 0)) return false;
+    if (!generator->typeGenerator->getGeneratedType(astType, generation, deps, tgType, 0)) return false;
 
     // Also generate the reference type of this type.
     Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);
@@ -510,7 +510,7 @@ Bool Generator::_generateTempVar(
       throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
     }
     TiObject *tgRefType;
-    if (!generator->typeGenerator->getGeneratedType(astRefType, generation, deps.tg, tgRefType, 0)) {
+    if (!generator->typeGenerator->getGeneratedType(astRefType, generation, deps, tgRefType, 0)) {
       throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
     }
 
@@ -704,12 +704,12 @@ Bool Generator::_generateMemberVarInitialization(
     return true;
   }
   TiObject *tgMemberType;
-  if (!generation->getGeneratedType(astMemberType, deps.tg, tgMemberType, 0)) return false;
+  if (!generation->getGeneratedType(astMemberType, deps, tgMemberType, 0)) return false;
 
   // Get the struct ptr TG type.
   TiObject *astSelfPtrType = generator->astHelper->getPointerTypeFor(deps.astSelfType);
   TiObject *tgStructType;
-  if (!generation->getGeneratedType(astSelfPtrType, deps.tg, tgStructType, 0)) return false;
+  if (!generation->getGeneratedType(astSelfPtrType, deps, tgStructType, 0)) return false;
 
   // Generate member access.
   TioSharedPtr tgMemberVarRef;
@@ -794,12 +794,12 @@ Bool Generator::_generateMemberVarDestruction(
     return true;
   }
   TiObject *tgMemberType;
-  if (!generation->getGeneratedType(astMemberType, deps.tg, tgMemberType, 0)) return false;
+  if (!generation->getGeneratedType(astMemberType, deps, tgMemberType, 0)) return false;
 
   // Get the struct ptr TG type.
   TiObject *astSelfPtrType = generator->astHelper->getPointerTypeFor(deps.astSelfType);
   TiObject *tgStructType;
-  if (!generation->getGeneratedType(astSelfPtrType, deps.tg, tgStructType, 0)) return false;
+  if (!generation->getGeneratedType(astSelfPtrType, deps, tgStructType, 0)) return false;
 
   // Generate member access.
   TioSharedPtr tgMemberVarRef;
@@ -986,19 +986,19 @@ Bool Generator::_generateFunctionCall(
 
 
 Bool Generator::_getGeneratedType(
-  TiObject *self, TiObject *ref, TargetGeneration *tg, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+  TiObject *self, TiObject *ref, GenDeps const &deps, TiObject *&targetTypeResult, Ast::Type **astTypeResult
 ) {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->getGeneratedType(
-    ref, ti_cast<Generation>(self), tg, targetTypeResult, astTypeResult
+    ref, ti_cast<Generation>(self), deps, targetTypeResult, astTypeResult
   );
 }
 
 
-Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result)
+Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, GenDeps const &deps, Word &result)
 {
   PREPARE_SELF(generator, Generator);
-  return generator->typeGenerator->getTypeAllocationSize(astType, ti_cast<Generation>(self), tg, result);
+  return generator->typeGenerator->getTypeAllocationSize(astType, ti_cast<Generation>(self), deps, result);
 }
 
 

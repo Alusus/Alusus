@@ -67,7 +67,7 @@ Bool CommandGenerator::_generateReturnStatement(
     if (retType->hasCustomInitialization(cmdGenerator->astHelper, deps.tg->getExecutionContext())) {
       // Assign value to ret reference.
       TiObject *retTgType;
-      if (!g->getGeneratedType(retType, deps.tg, retTgType, 0)) return false;
+      if (!g->getGeneratedType(retType, deps, retTgType, 0)) return false;
 
       SharedList<TiObject> initTgVals;
       PlainList<TiObject> initAstTypes;
