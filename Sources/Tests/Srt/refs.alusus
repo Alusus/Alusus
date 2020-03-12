@@ -1,0 +1,44 @@
+import "Srl/Refs.alusus";
+import "Srl/Console.alusus";
+
+use Srl;
+
+type Num {
+  def x: Int;
+  handler this~terminate() {
+    Console.print("Num %d is terminated.\n", this.x);
+  }
+}
+
+func test1 {
+  def n: SrdRef[Num];
+  n.alloc()~init();
+  n.x = 5;
+}
+
+func test2 {
+  def n1: SrdRef[Num] = SrdRef[Num].new();
+  def n2: SrdRef[Num] = n1;
+  n2.x = 7;
+}
+
+func test3 {
+  def n1: SrdRef[Num] = Memory.alloc(Num~size)~cast[ptr[Num]];
+  def n2: SrdRef[Num] = n1;
+  n2 = n1;
+  n2.x = 9;
+}
+
+func test4 {
+  def n: UnqRef[Num] = Memory.alloc(Num~size)~cast[ptr[Num]];
+  n.x = 11;
+}
+
+func testAll {
+  test1();
+  test2();
+  test3();
+  test4();
+}
+
+testAll();

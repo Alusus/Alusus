@@ -8,7 +8,6 @@ import "Srl/Memory.alusus";
     def bufSize: ref[Int];
     def buf: ref[array[T]];
 
-
     // Initialization
 
     handler this~init() this._init();
