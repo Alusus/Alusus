@@ -179,10 +179,13 @@ Bool Helper::_lookupCalleeInScope(
     if (dataType != 0) {
       auto block = dataType->getBody().get();
       if (block != 0) {
+        Word newStackSize = result.stack.getCount();
         for (Int i = 0; i < block->getInjectionCount(); ++i) {
           auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
           if (def == 0 || def->getTarget() == 0) continue;
           if (!helper->isAstReference(def->getTarget().get())) continue;
+          Bool isMember = helper->getDefinitionDomain(def) == DefinitionDomain::OBJECT;
+          if ((isMember && thisType == 0) || (!isMember && thisType != 0)) continue;
           auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
           if (objType == 0) continue;
           auto refType = helper->getReferenceTypeFor(objType);
@@ -192,7 +195,7 @@ Bool Helper::_lookupCalleeInScope(
             retVal = true;
             if (result.matchStatus >= TypeMatchStatus::DEREFERENCE) break;
           } else {
-            while (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
+            while (result.stack.getCount() > newStackSize) result.stack.remove(newStackSize);
           }
         }
       }
@@ -209,7 +212,7 @@ Bool Helper::_lookupCalleeInScope(
       result.notice = std::make_shared<Spp::Notices::UnknownSymbolNotice>();
     }
 
-    result.notice->setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
+    if (result.notice != 0) result.notice->setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
   }
 
   return retVal;

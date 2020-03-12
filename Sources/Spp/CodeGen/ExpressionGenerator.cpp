@@ -418,7 +418,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       // Lookup the callee.
       Ast::CalleeLookupResult calleeResult;
       if (!expGenerator->astHelper->lookupCalleeInScope(
-        second, thisType, true, thisRefType, &paramAstTypes, deps.tg->getExecutionContext(),
+        second, thisType, false, thisRefType, &paramAstTypes, deps.tg->getExecutionContext(),
         calleeResult
       )) {
         expGenerator->noticeStore->add(calleeResult.notice);
@@ -719,7 +719,7 @@ Bool ExpressionGenerator::_generateOperator(
   if (paramAstTypes.getCount() > 1) lookupParamAstTypes.add(paramAstTypes.get(1));
   if (expGenerator->astHelper->lookupCalleeInScopeByName(
     funcName, Core::Data::Ast::findSourceLocation(astNode), param0AstContentType,
-    true, paramAstTypes.get(0), &lookupParamAstTypes, deps.tg->getExecutionContext(), calleeResult
+    false, paramAstTypes.get(0), &lookupParamAstTypes, deps.tg->getExecutionContext(), calleeResult
   )) {
     GenResult firstResult;
     firstResult.astType = static_cast<Ast::Type*>(paramAstTypes.get(0));
