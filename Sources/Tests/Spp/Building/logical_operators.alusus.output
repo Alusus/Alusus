@@ -170,7 +170,8 @@ define void @"Main.testOr()=>(Void)"() {
   %33 = phi i1 [ %32, %"#block26" ], [ %29, %"#block24" ]
   store i1 %33, i1* %b
   %34 = load i32, i32* %i
-  %35 = icmp sgt i32 %34, 6
+  %35 = load i32, i32* %i
+  %36 = icmp sgt i32 %35, 6
   ret void
 
 "#block28":                                       ; No predecessors!
@@ -180,6 +181,7 @@ define void @"Main.testOr()=>(Void)"() {
 "#block30":                                       ; No predecessors!
 
 "#block31":                                       ; No predecessors!
+  %37 = load i32, i32* %j
 }
 
 define void @"Main.testAnd()=>(Void)"() {
@@ -303,7 +305,8 @@ define void @"Main.testAnd()=>(Void)"() {
   %33 = phi i1 [ %32, %"#block55" ], [ %29, %"#block53" ]
   store i1 %33, i1* %b
   %34 = load i32, i32* %i
-  %35 = icmp sgt i32 %34, 6
+  %35 = load i32, i32* %i
+  %36 = icmp sgt i32 %35, 6
   ret void
 
 "#block57":                                       ; No predecessors!
@@ -313,6 +316,7 @@ define void @"Main.testAnd()=>(Void)"() {
 "#block59":                                       ; No predecessors!
 
 "#block60":                                       ; No predecessors!
+  %37 = load i32, i32* %j
 }
 
 define void @"Main.testMixed()=>(Void)"() {

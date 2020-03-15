@@ -70,15 +70,17 @@ define void @"Main.testPtrAndCnt()=>(Void)"() {
   %12 = load float, float* %11
   %13 = fptosi float %12 to i32
   store i32 %13, i32* %i
+  %14 = load i32, i32* %i
   store i32** %pi, i32*** %ppi
-  %14 = load i32**, i32*** %ppi
   %15 = load i32**, i32*** %ppi
   %16 = load i32*, i32** %15
-  %17 = load i32, i32* %16
-  store i32 %17, i32* %i
+  %17 = load i32**, i32*** %ppi
+  %18 = load i32*, i32** %17
+  %19 = load i32, i32* %18
+  store i32 %19, i32* %i
   store i32* @Other.i, i32** %pi
-  %18 = load i32*, i32** @Other.pi
-  store i32 10, i32* %18
+  %20 = load i32*, i32** @Other.pi
+  store i32 10, i32* %20
   ret void
 }
 

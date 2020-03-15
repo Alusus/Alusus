@@ -69,7 +69,10 @@ print("i:Int = t ==> %d\n", i);
 function printInt (i: Int) {
   print("printInt(t) ==> %d\n", i);
 };
+def rt: ref[T];
+rt~ptr = t~ptr;
 printInt(t);
+printInt(rt);
 
 print("t() ==> %d\n", t());
 

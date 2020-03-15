@@ -174,7 +174,7 @@ Bool Helper::_lookupCalleeInScope(
   );
 
   // Try the injections if we don't have an exact match yet.
-  if (result.matchStatus < TypeMatchStatus::DEREFERENCE) {
+  if (result.matchStatus < TypeMatchStatus::EXACT) {
     auto dataType = ti_cast<DataType>(astNode);
     if (dataType != 0) {
       auto block = dataType->getBody().get();
@@ -193,7 +193,7 @@ Bool Helper::_lookupCalleeInScope(
           result.stack.add(def->getTarget().get());
           if (helper->lookupCalleeInScope(ref, objType, false, refType, types, ec, result)) {
             retVal = true;
-            if (result.matchStatus >= TypeMatchStatus::DEREFERENCE) break;
+            if (result.matchStatus == TypeMatchStatus::EXACT) break;
           } else {
             while (result.stack.getCount() > newStackSize) result.stack.remove(newStackSize);
           }
@@ -547,12 +547,16 @@ TypeMatchStatus Helper::_matchTargetType(
   if (matchType >= TypeMatchStatus::IMPLICIT_CAST) {
     return matchType;
   } else {
-    caster = helper->lookupCustomCaster(srcType, targetType, ec);
-    if (caster != 0) {
-      return TypeMatchStatus::CUSTOM_CASTER;
-    } else {
-      return matchType;
+    Int deref = 0;
+    while (srcType->isDerivedFrom<ReferenceType>()) {
+      caster = helper->lookupCustomCaster(srcType, targetType, ec);
+      if (caster != 0) {
+        return TypeMatchStatus(TypeMatchStatus::CUSTOM_CASTER, deref);
+      }
+      ++deref;
+      srcType = static_cast<ReferenceType*>(srcType)->getContentType(helper);
     }
+    return matchType;
   }
 }
 

@@ -295,9 +295,10 @@ define void @"errorCases()"() {
 "#block1":
   %rf = alloca float*
   %0 = load i32*, i32** @ri
-  %1 = load float*, float** %rf
+  %1 = load i32, i32* %0
   %2 = load float*, float** %rf
-  store float 5.000000e+00, float* %2
+  %3 = load float*, float** %rf
+  store float 5.000000e+00, float* %3
   ret void
 }
 ------------------------------------------------------------
