@@ -561,6 +561,21 @@ Bool TypeGenerator::_generateCast(
     srcType, targetType, deps.tg->getExecutionContext(), caster
   );
 
+  if (matchType.derefs > 0) {
+    // Dereference tgValue.
+    auto srcReferenceType = ti_cast<Spp::Ast::ReferenceType>(srcType);
+    if (srcReferenceType == 0) {
+      throw EXCEPTION(GenericException, S("Invalid TypeMatchStatus value."));
+    }
+    auto srcContentType = srcReferenceType->getContentType(typeGenerator->astHelper);
+    auto tgContentType = getCodeGenData<TiObject>(srcContentType);
+    TioSharedPtr tgDerefVal;
+    if (!deps.tg->generateDereference(deps.tgContext, tgContentType, tgValue, tgDerefVal)) return false;
+    return typeGenerator->generateCast(
+      g, deps, srcContentType, targetType, astNode, tgDerefVal.get(), implicit, tgCastedValue
+    );
+  }
+
   if (matchType <= Ast::TypeMatchStatus::EXPLICIT_CAST && implicit) {
     return false;
   } else if (matchType == Ast::TypeMatchStatus::EXACT) {
@@ -655,7 +670,7 @@ Bool TypeGenerator::_generateCast(
     }
   } else if (srcType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
     // Casting from reference.
-    if (targetType->isDerivedFrom<Spp::Ast::ReferenceType>() && matchType != Ast::TypeMatchStatus::DEREFERENCE) {
+    if (targetType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
       // Casting from reference to another reference
       auto targetReferenceType = static_cast<Spp::Ast::ReferenceType*>(targetType);
       TiObject *srcTgType;
@@ -666,16 +681,6 @@ Bool TypeGenerator::_generateCast(
         return false;
       }
       return true;
-    } else {
-      // Dereference then cast.
-      auto srcReferenceType = static_cast<Spp::Ast::ReferenceType*>(srcType);
-      auto srcContentType = srcReferenceType->getContentType(typeGenerator->astHelper);
-      auto tgContentType = getCodeGenData<TiObject>(srcContentType);
-      TioSharedPtr tgDerefVal;
-      if (!deps.tg->generateDereference(deps.tgContext, tgContentType, tgValue, tgDerefVal)) return false;
-      return typeGenerator->generateCast(
-        g, deps, srcContentType, targetType, astNode, tgDerefVal.get(), implicit, tgCastedValue
-      );
     }
   }
 

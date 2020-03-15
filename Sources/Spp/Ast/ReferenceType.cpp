@@ -51,13 +51,13 @@ TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper,
       throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
     }
     auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
-    if (status == TypeMatchStatus::AGGREGATION) return TypeMatchStatus::REF_AGGREGATION;
-    else if (status == TypeMatchStatus::EXACT || status == TypeMatchStatus::REF_AGGREGATION) return status;
+    if (status == TypeMatchStatus::AGGREGATION && status.derefs == 0) return TypeMatchStatus::REF_AGGREGATION;
+    else if (status >= TypeMatchStatus::REF_AGGREGATION) return status;
   }
 
   auto matchStatus = thisContentType->matchTargetType(type, helper, ec);
-  if (matchStatus >= TypeMatchStatus::REF_AGGREGATION) return TypeMatchStatus::DEREFERENCE;
-  else return matchStatus;
+  ++matchStatus.derefs;
+  return matchStatus;
 }
 
 } // namespace

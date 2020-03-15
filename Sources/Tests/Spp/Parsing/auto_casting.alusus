@@ -1,0 +1,20 @@
+import "libalusus_spp.so";
+
+type A {
+  def i: Int;
+}
+
+type B {
+  @injection def a: A;
+}
+
+func takeA (r: ref[A]) {
+}
+
+func test {
+  def b: ref[B];
+  takeA(b);
+  takeA(b~ptr~cast[ptr[A]]~cnt);
+}
+
+Spp.dumpLlvmIrForElement(test~ast);

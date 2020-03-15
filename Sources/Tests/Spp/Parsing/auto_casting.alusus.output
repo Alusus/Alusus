@@ -1,0 +1,31 @@
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%B = type { %A }
+%A = type { i32 }
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"test()"() {
+"#block1":
+  %b = alloca %B*
+  %0 = load %B*, %B** %b
+  %1 = bitcast %B* %0 to %A*
+  call void @"takeA(ref[A])"(%A* %1)
+  %2 = load %B*, %B** %b
+  %3 = bitcast %B* %2 to %A*
+  call void @"takeA(ref[A])"(%A* %3)
+  ret void
+}
+
+define void @"takeA(ref[A])"(%A* %r) {
+"#block2":
+  %r1 = alloca %A*
+  store %A* %r, %A** %r1
+  ret void
+}
+------------------------------------------------------------

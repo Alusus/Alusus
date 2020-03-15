@@ -91,6 +91,7 @@ define void @"Main.start()=>(Void)"() {
   br label %"#block7"
 
 "#block14":                                       ; No predecessors!
+  %20 = load i32, i32* %i
 
 "#block15":                                       ; No predecessors!
 
