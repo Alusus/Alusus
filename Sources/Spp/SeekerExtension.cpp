@@ -155,7 +155,10 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
     if (data->isDerivedFrom<Ast::Template>()) {
       return seekerExtension->foreachByParamPass_template(param, static_cast<Ast::Template*>(data), cb, flags);
     } else {
-      throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
+      auto notice = std::make_shared<Spp::Notices::InvalidSquareBracketOperandNotice>(
+        Core::Data::Ast::findSourceLocation(paramPass)
+      );
+      return cb(0, notice.get());
     }
   } else {
     throw EXCEPTION(InvalidArgumentException, S("paramPass"), S("Invalid bracket type."), paramPass->getType());
