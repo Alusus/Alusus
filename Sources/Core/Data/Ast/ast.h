@@ -79,7 +79,7 @@ class Definition;
 //==============================================================================
 // Global Functions
 
-SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj);
+SharedPtr<SourceLocation> const& findSourceLocation(TiObject const *obj);
 
 void addSourceLocation(TiObject *obj, SourceLocation *sl);
 

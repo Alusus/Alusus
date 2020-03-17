@@ -18,9 +18,9 @@ namespace Core::Data::Ast
 //============================================================================
 // Global Functions
 
-SharedPtr<SourceLocation> const& findSourceLocation(TiObject *obj)
+SharedPtr<SourceLocation> const& findSourceLocation(TiObject const *obj)
 {
-  auto metadata = ti_cast<MetaHaving>(obj);
+  auto metadata = ti_cast<MetaHaving const>(obj);
   if (metadata != 0) return metadata->findSourceLocation();
   else return SharedPtr<SourceLocation>::null;
 }

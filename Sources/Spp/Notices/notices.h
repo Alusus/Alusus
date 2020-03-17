@@ -61,6 +61,9 @@ DEFINE_NOTICE(ConflictingDefinitionsNotice, "Spp.Notices", "Spp", "alusus.org", 
 DEFINE_NOTICE(InvalidUseStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1010", 1,
   "Use statement not pointing to a valid target."
 );
+DEFINE_NOTICE(InvalidSquareBracketOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1011", 1,
+  "Invalid operand for [] operator."
+);
 
 } /// namespace
 
