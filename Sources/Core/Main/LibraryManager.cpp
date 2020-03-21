@@ -89,14 +89,9 @@ LibraryGateway* LibraryManager::getGateway(Char const *libId)
 
 PtrWord LibraryManager::load(Char const *path, Str &error)
 {
-  Str fullPath = this->root->findAbsolutePath(path);
-  if (fullPath.empty()) fullPath = path;
-
-  void *handle = dlopen(fullPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  void *handle = dlopen(path, RTLD_NOW|RTLD_GLOBAL);
   if (handle == 0) {
     if (!error.empty()) error += S("\n");
-    error += path;
-    error += S(": ");
     error += dlerror();
     return 0;
   }

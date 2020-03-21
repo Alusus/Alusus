@@ -1,4 +1,4 @@
-import "libalusus_spp.so";
+import "alusus_spp";
 
 @expname[printf] func print(format: ptr[Word[8]], args: ...any): Int[32];
 

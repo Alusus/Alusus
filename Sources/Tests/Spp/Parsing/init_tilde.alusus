@@ -1,4 +1,4 @@
-import "libalusus_spp.so";
+import "alusus_spp";
 
 def a: aa~init();
 dump_ast a;
