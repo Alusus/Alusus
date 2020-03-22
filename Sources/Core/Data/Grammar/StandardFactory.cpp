@@ -1811,7 +1811,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     this->createCommand(S("root.Main.Import"), {{
       Map::create({}, {{S("import"),0},{S("اشمل"),0}}),
       {{
-        PARSE_REF(S("module.Subject")),
+        PARSE_REF(S("module.Expression")),
         TiInt::create(1),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)

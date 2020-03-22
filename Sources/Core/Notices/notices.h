@@ -131,6 +131,9 @@ DEFINE_NOTICE(AmbiguityNotice, "Core.Notices", "Core", "alusus.org", "CP2004", 2
 DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Notices", "Core", "alusus.org", "CP1005", 1,
   "Unexpected modifier encountered."
 );
+DEFINE_NOTICE(InvalidImportNotice, "Core.Notices", "Core", "alusus.org", "CP1006", 1,
+  "Invalid import parameter."
+);
 
 } // namespace
 

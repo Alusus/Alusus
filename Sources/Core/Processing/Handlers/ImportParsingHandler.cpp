@@ -23,27 +23,59 @@ using namespace Data;
 
 void ImportParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
-  auto metadata = state->getData().ti_cast<Ast::MetaHaving>();
-  auto stringLiteral = ti_cast<Ast::StringLiteral>(
-    state->getData().ti_cast_get<Containing<TiObject>>()->getElement(1)
+  Str filenames;
+  Str errorDetails;
+  auto result = this->tryImport(
+    state->getData().ti_cast_get<Containing<TiObject>>()->getElement(1), filenames, errorDetails, state
   );
-  if (stringLiteral) {
-    auto filename = stringLiteral->getValue().get();
-    Str errorDetails;
-    if (!this->rootManager->tryImportFile(filename, errorDetails)) {
-      // Create a build msg.
-      state->addNotice(std::make_shared<Notices::ImportLoadFailedNotice>(
-        filename, errorDetails.c_str(), metadata->findSourceLocation()
-      ));
-    } else {
-      // TODO: Log the loaded library in the parent statement list in order to unload it when
-      //       the statement list is complete.
-    }
-  } else {
-    throw EXCEPTION(GenericException, S("Invalid data format."));
+  if (result == 0) {
+    // TODO: Log the loaded library in the parent statement list in order to unload it when
+    //       the statement list is complete.
+  } else if (result == 1) {
+    auto metadata = state->getData().ti_cast<Ast::MetaHaving>();
+    state->addNotice(std::make_shared<Notices::ImportLoadFailedNotice>(
+      filenames.c_str(), errorDetails.c_str(), metadata->findSourceLocation()
+    ));
   }
   // Reset parsed data because we are done with the command.
   state->setData(SharedPtr<TiObject>(0));
+}
+
+
+Int ImportParsingHandler::tryImport(TiObject *astNode, Str &filenames, Str &errorDetails, ParserState *state)
+{
+  auto stringLiteral = ti_cast<Ast::StringLiteral>(astNode);
+  if (stringLiteral != 0) {
+    auto filename = stringLiteral->getValue().get();
+    Str errorDetails;
+    if (this->rootManager->tryImportFile(filename, errorDetails)) {
+      return 0;
+    } else {
+      if (!filenames.empty()) filenames += S(" || ");
+      filenames += filename;
+      return 1;
+    }
+  } else {
+    auto logOperator = ti_cast<Ast::LogOperator>(astNode);
+    if (logOperator != 0) {
+      if (logOperator->getType() != "||" && logOperator->getType() != "or") {
+        state->addNotice(std::make_shared<Notices::InvalidImportNotice>(
+          Ast::findSourceLocation(astNode)
+        ));
+        return 2;
+      }
+      auto result = this->tryImport(logOperator->getFirst().get(), filenames, errorDetails, state);
+      if (result == 1) {
+        result = this->tryImport(logOperator->getSecond().get(), filenames, errorDetails, state);
+      }
+      return result;
+    } else {
+      state->addNotice(std::make_shared<Notices::InvalidImportNotice>(
+        Ast::findSourceLocation(astNode)
+      ));
+      return 2;
+    }
+  }
 }
 
 } // namespace

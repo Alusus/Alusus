@@ -46,6 +46,8 @@ class ImportParsingHandler : public GenericParsingHandler
   /// Load the referenced library.
   public: virtual void onProdEnd(Parser *parser, ParserState *state);
 
+  private: Int tryImport(TiObject *astNode, Str &filenames, Str &errorDetails, ParserState *state);
+
 }; // class
 
 } // namespace

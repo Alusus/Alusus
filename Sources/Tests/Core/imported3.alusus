@@ -1,0 +1,2 @@
+def i3: "imported3";
+dump_ast i3;
