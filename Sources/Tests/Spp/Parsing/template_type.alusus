@@ -1,4 +1,4 @@
-import "libalusus_spp.so";
+import "alusus_spp";
 
 type MyType [T: type, F: function, I: integer, S: string]
 {

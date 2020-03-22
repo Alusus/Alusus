@@ -204,10 +204,18 @@ int main(int argCount, char * const args[])
         outStream << NEW_LINE;
       }
     } catch (FileException &e) {
-      if (lang == S("ar")) {
-        outStream << S("الملف مفقود: ") << e.getFileName() << NEW_LINE;
+      if (e.getComment() == S("invalid")) {
+        if (lang == S("ar")) {
+          outStream << S("صنف الملف غير صالح: ") << e.getFileName() << NEW_LINE;
+        } else {
+          outStream << S("Invalid file type: ") << e.getFileName() << NEW_LINE;
+        }
       } else {
-        outStream << S("File not found: ") << e.getFileName() << NEW_LINE;
+        if (lang == S("ar")) {
+          outStream << S("الملف مفقود: ") << e.getFileName() << NEW_LINE;
+        } else {
+          outStream << S("File not found: ") << e.getFileName() << NEW_LINE;
+        }
       }
       return EXIT_FAILURE;
     } catch (Exception &e) {

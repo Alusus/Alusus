@@ -1,4 +1,4 @@
-import "libalusus_spp.so";
+import "alusus_spp";
 
 def Module1: module {
   def a1: 1;

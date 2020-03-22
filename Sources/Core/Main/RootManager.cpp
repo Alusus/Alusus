@@ -11,11 +11,20 @@
 //==============================================================================
 
 #include "core.h"
+#include <sys/stat.h>
 #include <stdlib.h>
-#include <limits.h>
 
 namespace Core::Main
 {
+
+Char const *sourceExtensions[] = {
+  S(".alusus"),
+  S(".source"),
+  S(".الأسس"),
+  S(".أسس"),
+  S(".مصدر")
+};
+
 
 //==============================================================================
 // Constructor
@@ -94,34 +103,47 @@ SharedPtr<TiObject> RootManager::processString(Char const *str, Char const *name
 
 SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowReprocess)
 {
-  // Find the absolute path of the file.
-  Str fullPath = this->findAbsolutePath(filename);
-  if (fullPath.empty()) {
+  // Find the absolute path of the requested file.
+  thread_local static std::array<Char,PATH_MAX> resultFilename;
+  if (this->findFile(filename, resultFilename)) {
+    for (Int i = 0; i < sizeof(sourceExtensions) / sizeof(sourceExtensions[0]); ++i) {
+      if (compareStrSuffix(resultFilename.data(), sourceExtensions[i])) {
+        return this->_processFile(resultFilename.data(), allowReprocess);
+      }
+    }
+    throw EXCEPTION(FileException, filename, C('r'), S("invalid"));
+  } else {
     throw EXCEPTION(FileException, filename, C('r'));
   }
+}
 
+
+SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowReprocess)
+{
   // Do not reprocess if already processed.
   if (!allowReprocess) {
-    if (this->processedFiles.findIndex(fullPath.c_str()) != -1) return TioSharedPtr::null;
+    if (this->processedFiles.findIndex(fullPath) != -1) return TioSharedPtr::null;
   }
-  this->processedFiles.add(fullPath.c_str(), TioSharedPtr::null);
+  this->processedFiles.add(fullPath, TioSharedPtr::null);
 
   // Extract the directory part and add it to the current paths.
-  Int pos;
   Str searchPath;
-  if ((pos = fullPath.rfind(C('/'))) != Str::npos) {
-    searchPath = Str(fullPath, 0, pos+1);
+  Char const *dirEnd = strrchr(fullPath, C('/'));
+  if (dirEnd != 0) {
+    searchPath = Str(fullPath, 0, dirEnd - fullPath + 1);
     this->pushSearchPath(searchPath.c_str());
   }
-  // Process the file
+
+  // Process the file.
   Processing::Engine engine(this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
-  auto result = engine.processFile(fullPath.c_str());
+  auto result = engine.processFile(fullPath);
+
   // Remove the added path, if any.
   if (!searchPath.empty()) {
     this->popSearchPath(searchPath.c_str());
   }
-  // Return final results.
+
   return result;
 }
 
@@ -136,52 +158,37 @@ SharedPtr<TiObject> RootManager::processStream(Processing::CharInStreaming *is, 
 
 Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 {
-  // Check the file type.
-  if (
-    compareStrSuffix(filename, S(".source")) || compareStrSuffix(filename, S(".alusus")) ||
-    compareStrSuffix(filename, S(".مصدر")) || compareStrSuffix(filename, S(".الأسس")) ||
-    compareStrSuffix(filename, S(".أسس"))
-  ) {
+  // Lookup the file in the search paths.
+  Bool loadSource = false;
+  thread_local static std::array<Char,PATH_MAX> resultFilename;
+  if (this->findFile(filename, resultFilename)) {
+    filename = resultFilename.data();
+    for (Int i = 0; i < sizeof(sourceExtensions) / sizeof(sourceExtensions[0]); ++i) {
+      if (compareStrSuffix(filename, sourceExtensions[i])) {
+        loadSource = true;
+        break;
+      }
+    }
+  }
+
+  if (loadSource) {
+    // Load a source file.
     try {
       LOG(LogLevel::PARSER_MAJOR, S("Importing source file: ") << filename);
 
-      this->processFile(filename);
+      this->_processFile(filename);
+      return true;
     } catch (...) {
       return false;
     }
   } else {
+    // Load a library.
     LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << filename);
 
-    // Import library and return.
-    PtrWord id = 0;
+    PtrWord id = this->getLibraryManager()->load(filename, errorDetails);
 
-    #ifndef RELEASE
-      // We are running in debug mode, so we will look first for a debug verion.
-      // Find the first '.' after the last '/'.
-      thread_local static std::array<Char,FILENAME_MAX> dbgFilename;
-      Char const *dotPos = strrchr(filename, C('/'));
-      if (dotPos == 0) dotPos = filename;
-      dotPos = strchr(dotPos, C('.'));
-      if (dotPos == 0) {
-        // The filename has no extension, so we'll attach .dbg to the end.
-        copyStr(filename, dbgFilename.data());
-        copyStr(S(".dbg"), dbgFilename.data()+getStrLen(filename));
-        id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
-      } else if (compareStr(dotPos, S(".dbg."), 5) != 0) {
-        // The position of the file's extension is found, and it doesn't already have
-        // the .dbg extension, so we'll attach it.
-        Int dotIndex = dotPos - filename;
-        copyStr(filename, dbgFilename.data(), dotIndex);
-        copyStr(S(".dbg"), dbgFilename.data()+dotIndex);
-        copyStr(dotPos, dbgFilename.data()+dotIndex+4);
-        id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
-      }
-    #endif
-    if (id == 0) id = this->getLibraryManager()->load(filename, errorDetails);
-    // Did we fail the loading?
-    if (id == 0) return false;
+    return id != 0;
   }
-  return true;
 }
 
 
@@ -236,38 +243,113 @@ void RootManager::popSearchPath(Char const *path)
 }
 
 
-Str RootManager::findAbsolutePath(Char const *filename)
+Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resultFilename)
 {
   if (filename == 0 || *filename == C('\0')) {
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("Argument is null or empty string."));
   }
 
+  thread_local static std::array<Char,PATH_MAX> tmpFilename;
+
   // Is the filename an absolute path already?
   if (filename[0] == C('/')) {
-    Char canonicalPath[PATH_MAX];
-    realpath(filename, canonicalPath);
-    return Str(canonicalPath);
-  }
+    if (this->tryFileName(filename, resultFilename)) {
+      return true;
+    }
+  } else {
+    // Try all current paths.
+    thread_local static std::array<Char,PATH_MAX> fullPath;
+    for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
+      Int len = this->searchPaths[i].size();
+      copyStr(this->searchPaths[i].c_str(), fullPath.data());
+      if (fullPath.data()[len - 1] != C('/')) {
+        copyStr(S("/"), fullPath.data() + len);
+        ++len;
+      }
+      copyStr(filename, fullPath.data() + len);
 
-  // Try all current paths.
-  Str fullPath;
-  std::ifstream fin;
-  for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
-    fullPath = this->searchPaths[i];
-    if (fullPath.back() != C('/')) fullPath += C('/');
-    fullPath += filename;
-
-    // Check if the file exists.
-    fin.open(fullPath);
-    if (!fin.fail()) {
-      Char canonicalPath[PATH_MAX];
-      realpath(fullPath.c_str(), canonicalPath);
-      return Str(canonicalPath);
+      if (this->tryFileName(fullPath.data(), tmpFilename)) {
+        #ifdef WINDOWS
+          _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
+        #else
+          realpath(tmpFilename.data(), resultFilename.data());
+        #endif
+        return true;
+      }
     }
   }
 
   // No file was found with that name.
-  return Str();
+  return false;
+}
+
+
+Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resultFilename)
+{
+  if (this->doesFileExist(path)) {
+    copyStr(path, resultFilename.data());
+    return true;
+  }
+
+  auto pathLen = getStrLen(path);
+
+  // Try source extensions.
+  for (Int i = 0; i < sizeof(sourceExtensions) / sizeof(sourceExtensions[0]); ++i) {
+    copyStr(path, resultFilename.data());
+    copyStr(sourceExtensions[i], resultFilename.data()+pathLen);
+    if (this->doesFileExist(resultFilename.data())) return true;
+  }
+
+  Char const *filename = strrchr(path, C('/'));
+  if (filename == 0) filename = path;
+  else ++filename;
+  Int fnIndex = filename - path;
+  Int fnLen = pathLen - fnIndex;
+
+  #ifndef RELEASE
+    // Try debug library extension.
+    #ifdef WINDOWS
+      copyStr(path, resultFilename.data());
+      copyStr(S(".dbg.dll"), resultFilename.data()+pathLen);
+    #elif __APPLE__
+      copyStr(path, resultFilename.data(), fnIndex);
+      copyStr(S("lib"), resultFilename.data()+fnIndex);
+      copyStr(filename, resultFilename.data()+fnIndex+3);
+      copyStr(S(".dbg.dylib"), resultFilename.data()+fnIndex+3+fnLen);
+    #else
+      copyStr(path, resultFilename.data(), fnIndex);
+      copyStr(S("lib"), resultFilename.data()+fnIndex);
+      copyStr(filename, resultFilename.data()+fnIndex+3);
+      copyStr(S(".dbg.so"), resultFilename.data()+fnIndex+3+fnLen);
+    #endif
+    if (this->doesFileExist(resultFilename.data())) return true;
+  #endif
+
+  // Try normal lib.
+  #ifdef WINDOWS
+    copyStr(path, resultFilename.data());
+    copyStr(S(".dll"), resultFilename.data()+pathLen);
+  #elif __APPLE__
+    copyStr(path, resultFilename.data(), fnIndex);
+    copyStr(S("lib"), resultFilename.data()+fnIndex);
+    copyStr(filename, resultFilename.data()+fnIndex+3);
+    copyStr(S(".dylib"), resultFilename.data()+fnIndex+3+fnLen);
+  #else
+    copyStr(path, resultFilename.data(), fnIndex);
+    copyStr(S("lib"), resultFilename.data()+fnIndex);
+    copyStr(filename, resultFilename.data()+fnIndex+3);
+    copyStr(S(".so"), resultFilename.data()+fnIndex+3+fnLen);
+  #endif
+  if (this->doesFileExist(resultFilename.data())) return true;
+
+  return false;
+}
+
+
+Bool RootManager::doesFileExist(Char const *filename)
+{
+  struct stat buffer;
+  return (stat (filename, &buffer) == 0);
 }
 
 } // namespace

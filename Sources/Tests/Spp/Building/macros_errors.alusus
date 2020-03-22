@@ -1,4 +1,4 @@
-import "libalusus_spp.so";
+import "alusus_spp";
 
 def power2: macro [n] __n__1 * __n__1;
 def defInt: macro [n] { def n: Int };
