@@ -29,6 +29,8 @@ set(AlususSpp_SOURCE_FILES
   LibraryGateway.h
   LibraryGateway.cpp
   ExecutionContext.h
+  BuildManager.h
+  BuildManager.cpp
   SeekerExtension.h
   SeekerExtension.cpp
   RootScopeHandlerExtension.h

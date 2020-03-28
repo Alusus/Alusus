@@ -31,11 +31,12 @@ namespace Spp
 
 #include "Notices/notices.h"
 
-
 #include "CodeGen/code_gen.h"
 #include "LlvmCodeGen/llvm_code_gen.h"
 
 #include "Handlers/handlers.h"
+
+#include "BuildManager.h"
 
 #include "SeekerExtension.h"
 #include "RootScopeHandlerExtension.h"

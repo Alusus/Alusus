@@ -38,6 +38,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;
   private: SharedPtr<CodeGen::Generator> generator;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
+  private: SharedPtr<BuildManager> buildManager;
 
 
   //============================================================================

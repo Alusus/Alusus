@@ -49,12 +49,19 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     this->expressionGenerator.get()
   );
   this->targetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
+  this->buildManager = std::make_shared<BuildManager>(
+    manager,
+    this->astHelper.get(),
+    this->astProcessor.get(),
+    this->generator.get(),
+    this->targetGenerator.get()
+  );
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
   this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
   this->rootManagerExtensionOverrides = RootManagerExtension::extend(
-    manager, this->astHelper, this->astProcessor, this->generator, this->targetGenerator
+    manager, this->astHelper, this->astProcessor, this->generator, this->targetGenerator, this->buildManager
   );
 
   // Prepare the target generator.

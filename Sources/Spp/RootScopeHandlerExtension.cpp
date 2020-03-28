@@ -88,7 +88,7 @@ void RootScopeHandlerExtension::_addNewElement(
     rootManagerExt->prepareRootScopeExecution(state->getNoticeStore());
 
     Bool execute = true;
-\
+
     // First, let's run all the modules initializations.
     for (Int i = 0; i < start; ++i) {
       auto def = ti_cast<Core::Data::Ast::Definition>(root->get(i));
