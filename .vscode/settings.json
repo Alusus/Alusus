@@ -68,7 +68,9 @@
     "random": "cpp",
     "regex": "cpp",
     "string": "cpp",
-    "shared_mutex": "cpp"
+    "shared_mutex": "cpp",
+    "set": "cpp",
+    "mutex": "cpp"
   },
   "files.exclude": {
     "**/.git": true,

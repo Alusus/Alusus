@@ -106,12 +106,7 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowRep
   // Find the absolute path of the requested file.
   thread_local static std::array<Char,PATH_MAX> resultFilename;
   if (this->findFile(filename, resultFilename)) {
-    for (Int i = 0; i < sizeof(sourceExtensions) / sizeof(sourceExtensions[0]); ++i) {
-      if (compareStrSuffix(resultFilename.data(), sourceExtensions[i])) {
-        return this->_processFile(resultFilename.data(), allowReprocess);
-      }
-    }
-    throw EXCEPTION(FileException, filename, C('r'), S("invalid"));
+    return this->_processFile(resultFilename.data(), allowReprocess);
   } else {
     throw EXCEPTION(FileException, filename, C('r'));
   }
