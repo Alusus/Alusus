@@ -43,11 +43,11 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: CodeGen::Generator *generator;
   private: LlvmCodeGen::TargetGenerator *targetGenerator;
 
-  private: TioSharedPtr rootExecTgFuncType;
-  private: TioSharedPtr rootCtorTgFunc;
-  private: TioSharedPtr rootCtorTgContext;
-  private: TioSharedPtr rootStmtTgFunc;
-  private: TioSharedPtr rootStmtTgContext;
+  private: TioSharedPtr globalTgFuncType;
+  private: TioSharedPtr globalCtorTgFunc;
+  private: TioSharedPtr globalCtorTgContext;
+  private: TioSharedPtr globalProcTgFunc;
+  private: TioSharedPtr globalProcTgContext;
 
 
   //============================================================================
@@ -123,14 +123,38 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(prepareRootScopeExecution, void, (Core::Notices::Store*));
-  private: static void _prepareRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore);
+  public: METHOD_BINDING_CACHE(prepareExecution,
+    void, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, Char const* /* globalFuncName */)
+  );
+  private: static void _prepareExecution(
+    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName
+  );
 
-  public: METHOD_BINDING_CACHE(addRootScopeExecutionElement, Bool, (TioSharedPtr const&));
-  private: static Bool _addRootScopeExecutionElement(TiObject *self, TioSharedPtr const &element);
+  public: METHOD_BINDING_CACHE(prepareBuild,
+    void, (
+      Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, Char const* /* globalFuncName */,
+      Bool /* offlineExecution */
+    )
+  );
+  private: static void _prepareBuild(
+    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName,
+    Bool offlineExecution
+  );
 
-  public: METHOD_BINDING_CACHE(finalizeRootScopeExecution, void, (Core::Notices::Store*, Bool));
-  private: static void _finalizeRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore, Bool execute);
+  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject*));
+  private: static Bool _addElementToBuild(TiObject *self, TiObject *element);
+
+  public: METHOD_BINDING_CACHE(finalizeBuild,
+    void, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */)
+  );
+  private: static void _finalizeBuild(TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement);
+
+  public: METHOD_BINDING_CACHE(execute,
+    Bool, (Core::Notices::Store* /* noticeStore */, Char const* /* funcName */)
+  );
+  private: static Bool _execute(
+    TiObject *self, Core::Notices::Store *noticeStore, Char const *funcName
+  );
 
   public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
     void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)
@@ -146,6 +170,9 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
     Core::Processing::Parser *parser
   );
+
+  public: METHOD_BINDING_CACHE(resetBuild, void);
+  private: static void _resetBuild(TiObject *self);
 
   public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*));
   private: static void _resetBuildData(TiObject *self, TiObject *obj);

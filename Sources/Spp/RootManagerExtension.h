@@ -29,9 +29,6 @@ class RootManagerExtension : public ObjTiInterface
 
   public: struct Overrides
   {
-    TiFunctionBase *prepareRootScopeExecutionRef;
-    TiFunctionBase *addRootScopeExecutionElementRef;
-    TiFunctionBase *finalizeRootScopeExecutionRef;
     TiFunctionBase *dumpLlvmIrForElementRef;
     TiFunctionBase *buildObjectFileForElementRef;
     TiFunctionBase *importFileRef;
@@ -51,9 +48,6 @@ class RootManagerExtension : public ObjTiInterface
   public: RootManagerExtension(TiObject *o) : owner(o)
   {
     Basic::initBindingCaches(this->owner, {
-      &this->prepareRootScopeExecution,
-      &this->addRootScopeExecutionElement,
-      &this->finalizeRootScopeExecution,
       &this->dumpLlvmIrForElement,
       &this->buildObjectFileForElement,
       &this->importFile,
@@ -110,15 +104,6 @@ class RootManagerExtension : public ObjTiInterface
 
   /// @name Main Functions
   /// @{
-
-  public: METHOD_BINDING_CACHE(prepareRootScopeExecution, void, (Core::Notices::Store*));
-  private: static void _prepareRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore);
-
-  public: METHOD_BINDING_CACHE(addRootScopeExecutionElement, Bool, (TioSharedPtr const&));
-  private: static Bool _addRootScopeExecutionElement(TiObject *self, TioSharedPtr const &element);
-
-  public: METHOD_BINDING_CACHE(finalizeRootScopeExecution, void, (Core::Notices::Store*, Bool));
-  private: static void _finalizeRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore, Bool execute);
 
   public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
     void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)

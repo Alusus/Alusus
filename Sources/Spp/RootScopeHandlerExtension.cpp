@@ -85,7 +85,11 @@ void RootScopeHandlerExtension::_addNewElement(
     auto globalParser = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalParserIndex);
     *((Core::Processing::Parser**)globalParser) = parser;
 
-    rootManagerExt->prepareRootScopeExecution(state->getNoticeStore());
+    auto rootFuncName = S("__rootstatement__");
+
+    rootManagerExt->buildManager->prepareExecution(
+      state->getNoticeStore(), rootManager->getRootScope().get(), rootFuncName
+    );
 
     Bool execute = true;
 
@@ -95,7 +99,7 @@ void RootScopeHandlerExtension::_addNewElement(
       if (def != 0) {
         auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {
-          if (!rootManagerExt->addRootScopeExecutionElement(def)) execute = false;
+          if (!rootManagerExt->buildManager->addElementToBuild(def.get())) execute = false;
         }
       }
     }
@@ -103,10 +107,13 @@ void RootScopeHandlerExtension::_addNewElement(
     // Now run all new statements.
     for (Int i = start; i <= end; ++i) {
       auto childData = root->get(i);
-      if (!rootManagerExt->addRootScopeExecutionElement(childData)) execute = false;
+      if (!rootManagerExt->buildManager->addElementToBuild(childData.get())) execute = false;
     }
 
-    rootManagerExt->finalizeRootScopeExecution(state->getNoticeStore(), execute);
+    rootManagerExt->buildManager->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get());
+    if (execute) {
+      rootManagerExt->buildManager->execute(state->getNoticeStore(), rootFuncName);
+    }
   }
 }
 

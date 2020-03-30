@@ -21,11 +21,14 @@ namespace Spp
 void BuildManager::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
-    &this->prepareRootScopeExecution,
-    &this->addRootScopeExecutionElement,
-    &this->finalizeRootScopeExecution,
+    &this->prepareExecution,
+    &this->prepareBuild,
+    &this->addElementToBuild,
+    &this->finalizeBuild,
+    &this->execute,
     &this->dumpLlvmIrForElement,
     &this->buildObjectFileForElement,
+    &this->resetBuild,
     &this->resetBuildData
   });
 }
@@ -33,11 +36,14 @@ void BuildManager::initBindingCaches()
 
 void BuildManager::initBindings()
 {
-  this->prepareRootScopeExecution = &BuildManager::_prepareRootScopeExecution;
-  this->addRootScopeExecutionElement = &BuildManager::_addRootScopeExecutionElement;
-  this->finalizeRootScopeExecution = &BuildManager::_finalizeRootScopeExecution;
+  this->prepareExecution = &BuildManager::_prepareExecution;
+  this->prepareBuild = &BuildManager::_prepareBuild;
+  this->addElementToBuild = &BuildManager::_addElementToBuild;
+  this->finalizeBuild = &BuildManager::_finalizeBuild;
+  this->execute = &BuildManager::_execute;
   this->dumpLlvmIrForElement = &BuildManager::_dumpLlvmIrForElement;
   this->buildObjectFileForElement = &BuildManager::_buildObjectFileForElement;
+  this->resetBuild = &BuildManager::_resetBuild;
   this->resetBuildData = &BuildManager::_resetBuildData;
 }
 
@@ -45,11 +51,10 @@ void BuildManager::initBindings()
 //==============================================================================
 // Build Functions
 
-void BuildManager::_prepareRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore)
-{
+void BuildManager::_prepareExecution(
+  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName
+) {
   PREPARE_SELF(buildMgr, BuildManager);
-
-  auto root = buildMgr->rootManager->getRootScope().get();
 
   if (buildMgr->rootManager->isInteractive()) {
     // If we are running in an interactive mode and we faced previous errors, we'll try to clear the errors and start
@@ -59,38 +64,42 @@ void BuildManager::_prepareRootScopeExecution(TiObject *self, Core::Notices::Sto
     if ((minSeverity >= 0 && minSeverity <= 1) || (thisMinSeverity >= 0 && thisMinSeverity <= 1)) {
       buildMgr->rootManager->resetMinNoticeSeverityEncountered();
       noticeStore->resetMinEncounteredSeverity();
-      buildMgr->resetBuildData(root);
-      buildMgr->targetGenerator->resetBuild();
-      buildMgr->rootExecTgFuncType = TioSharedPtr::null;
-      buildMgr->rootCtorTgFunc = TioSharedPtr::null;
-      buildMgr->rootCtorTgContext = TioSharedPtr::null;
-      buildMgr->rootStmtTgFunc = TioSharedPtr::null;
-      buildMgr->rootStmtTgContext = TioSharedPtr::null;
+      buildMgr->resetBuild();
     }
   }
+
+  buildMgr->prepareBuild(noticeStore, globalFuncElement, globalFuncName, false);
+}
+
+
+void BuildManager::_prepareBuild(
+  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName,
+  Bool offlineExecution
+) {
+  PREPARE_SELF(buildMgr, BuildManager);
 
   // Build the IR code.
   buildMgr->targetGenerator->setGlobalItemRepo(buildMgr->generator->getGlobalItemRepo());
   buildMgr->targetGenerator->setNoticeStore(noticeStore);
-  buildMgr->generator->prepareBuild(noticeStore, false);
+  buildMgr->generator->prepareBuild(noticeStore, offlineExecution);
 
   // If there was previous root functions, delete them now.
-  if (buildMgr->rootCtorTgFunc != 0) {
-    if (!buildMgr->targetGenerator->deleteFunction(buildMgr->rootCtorTgFunc.get())) {
+  if (buildMgr->globalCtorTgFunc != 0) {
+    if (!buildMgr->targetGenerator->deleteFunction(buildMgr->globalCtorTgFunc.get())) {
       throw EXCEPTION(GenericException, S("Failed to delete root constructor function."));
     }
-    buildMgr->rootCtorTgFunc = TioSharedPtr::null;
+    buildMgr->globalCtorTgFunc = TioSharedPtr::null;
   }
-  if (buildMgr->rootStmtTgFunc != 0) {
-    if (!buildMgr->targetGenerator->deleteFunction(buildMgr->rootStmtTgFunc.get())) {
+  if (buildMgr->globalProcTgFunc != 0) {
+    if (!buildMgr->targetGenerator->deleteFunction(buildMgr->globalProcTgFunc.get())) {
       throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
     }
-    buildMgr->rootStmtTgFunc = TioSharedPtr::null;
+    buildMgr->globalProcTgFunc = TioSharedPtr::null;
   }
 
   // Generate function type.
-  if (buildMgr->rootExecTgFuncType == 0) {
-    buildMgr->rootExecTgFuncType = buildMgr->getVoidNoArgsFuncTgType();
+  if (buildMgr->globalTgFuncType == 0) {
+    buildMgr->globalTgFuncType = buildMgr->getVoidNoArgsFuncTgType();
   }
 
   // Prepare the constructor function.
@@ -98,23 +107,24 @@ void BuildManager::_prepareRootScopeExecution(TiObject *self, Core::Notices::Sto
   TioSharedPtr ctorTgContext;
   TioSharedPtr ctorTgFunc;
   buildMgr->prepareFunction(
-    ctorFuncName, buildMgr->rootExecTgFuncType.get(), ctorTgContext, ctorTgFunc
+    ctorFuncName, buildMgr->globalTgFuncType.get(), ctorTgContext, ctorTgFunc
   );
-  buildMgr->rootCtorTgFunc = ctorTgFunc;
-  buildMgr->rootCtorTgContext = ctorTgContext;
+  buildMgr->globalCtorTgFunc = ctorTgFunc;
+  buildMgr->globalCtorTgContext = ctorTgContext;
 
-  // Prepare the execution function.
-  auto funcName = S("__rootstatement__");
-  TioSharedPtr tgContext;
-  TioSharedPtr tgFunc;
-  buildMgr->prepareFunction(funcName, buildMgr->rootExecTgFuncType.get(), tgContext, tgFunc);
-  buildMgr->rootStmtTgFunc = tgFunc;
-  buildMgr->rootStmtTgContext = tgContext;
-  CodeGen::setCodeGenData(root, tgContext);
+  if (globalFuncElement != 0) {
+    // Prepare the execution function.
+    TioSharedPtr tgContext;
+    TioSharedPtr tgFunc;
+    buildMgr->prepareFunction(globalFuncName, buildMgr->globalTgFuncType.get(), tgContext, tgFunc);
+    buildMgr->globalProcTgFunc = tgFunc;
+    buildMgr->globalProcTgContext = tgContext;
+    CodeGen::setCodeGenData(globalFuncElement, tgContext);
+  }
 }
 
 
-Bool BuildManager::_addRootScopeExecutionElement(TiObject *self, TioSharedPtr const &element)
+Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element)
 {
   PREPARE_SELF(buildMgr, BuildManager);
 
@@ -126,47 +136,66 @@ Bool BuildManager::_addRootScopeExecutionElement(TiObject *self, TioSharedPtr co
   CodeGen::DestructionStack destructionStack;
   CodeGen::DestructionStack globalDestructionStack;
   CodeGen::GenDeps deps(
-    targetGeneration, buildMgr->rootStmtTgContext.get(), &destructionStack,
-    buildMgr->rootCtorTgContext.get(), &globalDestructionStack
+    targetGeneration, buildMgr->globalProcTgContext.get(), &destructionStack,
+    buildMgr->globalCtorTgContext.get(), &globalDestructionStack
   );
-  Bool result = generation->generateStatement(element.get(), deps, terminal);
-  if (!generation->generateVarGroupDestruction(deps, 0)) result = false;
+  Bool result;
+  if (element->isDerivedFrom<Ast::Module>()) {
+    result = generation->generateModule(static_cast<Ast::Module*>(element), deps);
+    CodeGen::GenDeps initDeps(deps, buildMgr->globalCtorTgContext.get(), &globalDestructionStack);
+    if (!generation->generateModuleInit(static_cast<Ast::Module*>(element), initDeps)) result = false;
+    // TODO: Set attribute for the global constructor in the generated object file.
+  } else if (element->isDerivedFrom<Ast::Function>()) {
+    result = generation->generateFunction(static_cast<Ast::Function*>(element), deps);
+  } else {
+    result = generation->generateStatement(element, deps, terminal);
+    if (!generation->generateVarGroupDestruction(deps, 0)) result = false;
+  }
   return result;
 }
 
 
-void BuildManager::_finalizeRootScopeExecution(
-  TiObject *self, Core::Notices::Store *noticeStore, Bool execute
+void BuildManager::_finalizeBuild(
+  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement
 ) {
   PREPARE_SELF(buildMgr, BuildManager);
 
-  auto root = buildMgr->rootManager->getRootScope().get();
-
-  // Finalize the two functions.
   SharedList<TiObject> args;
+
   if (!buildMgr->targetGenerator->finishFunctionBody(
-    buildMgr->rootCtorTgFunc.get(), buildMgr->rootExecTgFuncType.get(), &args,
-    buildMgr->rootCtorTgContext.get()
+    buildMgr->globalCtorTgFunc.get(), buildMgr->globalTgFuncType.get(), &args,
+    buildMgr->globalCtorTgContext.get()
   )) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
   }
-  if (!buildMgr->targetGenerator->finishFunctionBody(
-    buildMgr->rootStmtTgFunc.get(), buildMgr->rootExecTgFuncType.get(), &args,
-    buildMgr->rootStmtTgContext.get()
-  )) {
-    throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
-  }
 
-  // Execute
+  if (globalFuncElement != 0) {
+    if (!buildMgr->targetGenerator->finishFunctionBody(
+      buildMgr->globalProcTgFunc.get(), buildMgr->globalTgFuncType.get(), &args,
+      buildMgr->globalProcTgContext.get()
+    )) {
+      throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
+    }
+    CodeGen::removeCodeGenData(globalFuncElement);
+  }
+}
+
+
+Bool BuildManager::_execute(
+  TiObject *self, Core::Notices::Store *noticeStore, Char const *funcName
+) {
+  PREPARE_SELF(buildMgr, BuildManager);
+
   auto ctorFuncName = S("__constructor__");
-  auto funcName = S("__rootstatement__");
   auto minSeverity = buildMgr->rootManager->getMinNoticeSeverityEncountered();
   auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
-  if (execute && (minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
+  if ((minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
     buildMgr->targetGenerator->execute(ctorFuncName);
     buildMgr->targetGenerator->execute(funcName);
+    return true;
+  } else {
+    return false;
   }
-  CodeGen::removeCodeGenData(root);
 }
 
 
@@ -176,56 +205,10 @@ void BuildManager::_dumpLlvmIrForElement(
   VALIDATE_NOT_NULL(element, noticeStore);
   PREPARE_SELF(buildMgr, BuildManager);
 
-  auto root = buildMgr->rootManager->getRootScope().get();
-  buildMgr->resetBuildData(root);
-  buildMgr->targetGenerator->resetBuild();
-  buildMgr->rootExecTgFuncType = TioSharedPtr::null;
-  buildMgr->rootCtorTgFunc = TioSharedPtr::null;
-  buildMgr->rootCtorTgContext = TioSharedPtr::null;
-  buildMgr->rootStmtTgFunc = TioSharedPtr::null;
-  buildMgr->rootStmtTgContext = TioSharedPtr::null;
-
-  // Preprocessing.
-  buildMgr->astProcessor->preparePass(noticeStore);
-  if (!buildMgr->astProcessor->runPass(root)) return;
-
-  // Prepare for the build.
-  buildMgr->targetGenerator->setGlobalItemRepo(buildMgr->generator->getGlobalItemRepo());
-  buildMgr->targetGenerator->setNoticeStore(noticeStore);
-  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(buildMgr->targetGenerator);
-  buildMgr->generator->prepareBuild(noticeStore, true);
-  auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
-
-  // Generate function type.
-  TioSharedPtr tgFuncType = buildMgr->getVoidNoArgsFuncTgType();
-
-  // Prepare the constructor function.
-  auto ctorFuncName = S("__constructor__");
-  TioSharedPtr ctorContext;
-  TioSharedPtr ctorTgFunc;
-  buildMgr->prepareFunction(ctorFuncName, tgFuncType.get(), ctorContext, ctorTgFunc);
-
-  // Generate the element.
-  CodeGen::DestructionStack globalDestructionStack;
-  CodeGen::GenDeps deps(targetGeneration, 0, 0, ctorContext.get(), &globalDestructionStack);
-  Bool result;
-  if (element->isDerivedFrom<Ast::Module>()) {
-    result = generation->generateModule(static_cast<Ast::Module*>(element), deps);
-    CodeGen::GenDeps initDeps(deps, ctorContext.get(), &globalDestructionStack);
-    if (!generation->generateModuleInit(static_cast<Ast::Module*>(element), initDeps)) result = false;
-  } else if (element->isDerivedFrom<Ast::Function>()) {
-    result = generation->generateFunction(static_cast<Ast::Function*>(element), deps);
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid argument type."));
-  }
-
-  // Finalize the root constructor.
-  SharedList<TiObject> args;
-  if (!buildMgr->targetGenerator->finishFunctionBody(
-    ctorTgFunc.get(), tgFuncType.get(), &args, ctorContext.get()
-  )) {
-    throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
-  }
+  buildMgr->resetBuild();
+  buildMgr->prepareBuild(noticeStore, 0, 0, true);
+  auto result = buildMgr->addElementToBuild(element);
+  buildMgr->finalizeBuild(noticeStore, 0);
 
   // Dump the IR code.
   StrStream ir;
@@ -251,63 +234,31 @@ Bool BuildManager::_buildObjectFileForElement(
   VALIDATE_NOT_NULL(element, noticeStore);
   PREPARE_SELF(buildMgr, BuildManager);
 
-  auto root = buildMgr->rootManager->getRootScope().get();
-  buildMgr->resetBuildData(root);
-  buildMgr->targetGenerator->resetBuild();
-  buildMgr->rootExecTgFuncType = TioSharedPtr::null;
-  buildMgr->rootCtorTgFunc = TioSharedPtr::null;
-  buildMgr->rootCtorTgContext = TioSharedPtr::null;
-  buildMgr->rootStmtTgFunc = TioSharedPtr::null;
-  buildMgr->rootStmtTgContext = TioSharedPtr::null;
-
-  // Preprocessing.
-  buildMgr->astProcessor->preparePass(noticeStore);
-  if (!buildMgr->astProcessor->runPass(root)) return false;
-
-  // Prepare for the build.
-  buildMgr->targetGenerator->setGlobalItemRepo(buildMgr->generator->getGlobalItemRepo());
-  buildMgr->targetGenerator->setNoticeStore(noticeStore);
-  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(buildMgr->targetGenerator);
-  buildMgr->generator->prepareBuild(noticeStore, true);
-  auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
-
-  // Generate function type.
-  TioSharedPtr tgFuncType = buildMgr->getVoidNoArgsFuncTgType();
-
-  // Prepare the constructor function.
-  auto ctorFuncName = S("__constructor__");
-  TioSharedPtr ctorContext;
-  TioSharedPtr ctorTgFunc;
-  buildMgr->prepareFunction(ctorFuncName, tgFuncType.get(), ctorContext, ctorTgFunc);
-
-  // Generate the element.
-  CodeGen::DestructionStack globalDestructionStack;
-  CodeGen::GenDeps deps(targetGeneration, 0, 0, ctorContext.get(), &globalDestructionStack);
-  Bool result;
-  if (element->isDerivedFrom<Ast::Module>()) {
-    result = generation->generateModule(static_cast<Ast::Module*>(element), deps);
-    CodeGen::GenDeps initDeps(deps, ctorContext.get(), &globalDestructionStack);
-    if (!generation->generateModuleInit(static_cast<Ast::Module*>(element), initDeps)) result = false;
-    // TODO: Set attribute for the global constructor in the generated object file.
-  } else if (element->isDerivedFrom<Ast::Function>()) {
-    result = generation->generateFunction(static_cast<Ast::Function*>(element), deps);
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid argument type."));
-  }
-
-  // Finalize the root constructor.
-  SharedList<TiObject> args;
-  if (!buildMgr->targetGenerator->finishFunctionBody(
-    ctorTgFunc.get(), tgFuncType.get(), &args, ctorContext.get()
-  )) {
-    throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
-  }
+  buildMgr->resetBuild();
+  buildMgr->prepareBuild(noticeStore, 0, 0, true);
+  auto result = buildMgr->addElementToBuild(element);
+  buildMgr->finalizeBuild(noticeStore, 0);
 
   if (result) {
     buildMgr->targetGenerator->buildObjectFile(objectFilename);
   }
 
   return result;
+}
+
+
+void BuildManager::_resetBuild(TiObject *self)
+{
+  PREPARE_SELF(buildMgr, BuildManager);
+
+  auto root = buildMgr->rootManager->getRootScope().get();
+  buildMgr->resetBuildData(root);
+  buildMgr->targetGenerator->resetBuild();
+  buildMgr->globalTgFuncType = TioSharedPtr::null;
+  buildMgr->globalCtorTgFunc = TioSharedPtr::null;
+  buildMgr->globalCtorTgContext = TioSharedPtr::null;
+  buildMgr->globalProcTgFunc = TioSharedPtr::null;
+  buildMgr->globalProcTgContext = TioSharedPtr::null;
 }
 
 

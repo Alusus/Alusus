@@ -34,15 +34,6 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   extension->targetGenerator = targetGenerator;
   extension->buildManager = buildManager;
 
-  overrides->prepareRootScopeExecutionRef = extension->prepareRootScopeExecution.set(
-    &RootManagerExtension::_prepareRootScopeExecution
-  ).get();
-  overrides->addRootScopeExecutionElementRef = extension->addRootScopeExecutionElement.set(
-    &RootManagerExtension::_addRootScopeExecutionElement
-  ).get();
-  overrides->finalizeRootScopeExecutionRef = extension->finalizeRootScopeExecution.set(
-    &RootManagerExtension::_finalizeRootScopeExecution
-  ).get();
   overrides->dumpLlvmIrForElementRef = extension->dumpLlvmIrForElement.set(
     &RootManagerExtension::_dumpLlvmIrForElement
   ).get();
@@ -59,9 +50,6 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
 void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overrides *overrides)
 {
   auto extension = ti_cast<RootManagerExtension>(rootManager);
-  extension->prepareRootScopeExecution.reset(overrides->prepareRootScopeExecutionRef);
-  extension->addRootScopeExecutionElement.reset(overrides->addRootScopeExecutionElementRef);
-  extension->finalizeRootScopeExecution.reset(overrides->finalizeRootScopeExecutionRef);
   extension->dumpLlvmIrForElement.reset(overrides->dumpLlvmIrForElementRef);
   extension->buildObjectFileForElement.reset(overrides->buildObjectFileForElementRef);
   extension->importFile.reset(overrides->importFileRef);
@@ -78,28 +66,6 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
 
 //==============================================================================
 // Main Functions
-
-void RootManagerExtension::_prepareRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore)
-{
-  PREPARE_SELF(rootManagerExt, RootManagerExtension);
-  rootManagerExt->buildManager->prepareRootScopeExecution(noticeStore);
-}
-
-
-Bool RootManagerExtension::_addRootScopeExecutionElement(TiObject *self, TioSharedPtr const &element)
-{
-  PREPARE_SELF(rootManagerExt, RootManagerExtension);
-  return rootManagerExt->buildManager->addRootScopeExecutionElement(element);
-}
-
-
-void RootManagerExtension::_finalizeRootScopeExecution(
-  TiObject *self, Core::Notices::Store *noticeStore, Bool execute
-) {
-  PREPARE_SELF(rootManagerExt, RootManagerExtension);
-  rootManagerExt->buildManager->finalizeRootScopeExecution(noticeStore, execute);
-}
-
 
 void RootManagerExtension::_dumpLlvmIrForElement(
   TiObject *self, TiObject *element, Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
