@@ -119,7 +119,7 @@ void BuildManager::_prepareBuild(
     buildMgr->prepareFunction(globalFuncName, buildMgr->globalTgFuncType.get(), tgContext, tgFunc);
     buildMgr->globalProcTgFunc = tgFunc;
     buildMgr->globalProcTgContext = tgContext;
-    CodeGen::setCodeGenData(globalFuncElement, tgContext);
+    buildMgr->extraDataAccessor.setCodeGenData(globalFuncElement, tgContext);
   }
 }
 
@@ -135,21 +135,21 @@ Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element)
   CodeGen::TerminalStatement terminal;
   CodeGen::DestructionStack destructionStack;
   CodeGen::DestructionStack globalDestructionStack;
-  CodeGen::GenDeps deps(
-    targetGeneration, buildMgr->globalProcTgContext.get(), &destructionStack,
+  CodeGen::Session session(
+    &buildMgr->extraDataAccessor, targetGeneration, buildMgr->globalProcTgContext.get(), &destructionStack,
     buildMgr->globalCtorTgContext.get(), &globalDestructionStack
   );
   Bool result;
   if (element->isDerivedFrom<Ast::Module>()) {
-    result = generation->generateModule(static_cast<Ast::Module*>(element), deps);
-    CodeGen::GenDeps initDeps(deps, buildMgr->globalCtorTgContext.get(), &globalDestructionStack);
-    if (!generation->generateModuleInit(static_cast<Ast::Module*>(element), initDeps)) result = false;
+    result = generation->generateModule(static_cast<Ast::Module*>(element), &session);
+    CodeGen::Session initSession(&session, buildMgr->globalCtorTgContext.get(), &globalDestructionStack);
+    if (!generation->generateModuleInit(static_cast<Ast::Module*>(element), &initSession)) result = false;
     // TODO: Set attribute for the global constructor in the generated object file.
   } else if (element->isDerivedFrom<Ast::Function>()) {
-    result = generation->generateFunction(static_cast<Ast::Function*>(element), deps);
+    result = generation->generateFunction(static_cast<Ast::Function*>(element), &session);
   } else {
-    result = generation->generateStatement(element, deps, terminal);
-    if (!generation->generateVarGroupDestruction(deps, 0)) result = false;
+    result = generation->generateStatement(element, &session, terminal);
+    if (!generation->generateVarGroupDestruction(&session, 0)) result = false;
   }
   return result;
 }
@@ -176,7 +176,7 @@ void BuildManager::_finalizeBuild(
     )) {
       throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
     }
-    CodeGen::removeCodeGenData(globalFuncElement);
+    buildMgr->extraDataAccessor.removeCodeGenData(globalFuncElement);
   }
 }
 
@@ -271,11 +271,11 @@ void BuildManager::_resetBuildData(TiObject *self, TiObject *obj)
 
   auto metahaving = ti_cast<Core::Data::Ast::MetaHaving>(obj);
   if (metahaving != 0) {
-    CodeGen::removeCodeGenData(metahaving);
-    CodeGen::removeAutoCtor(metahaving);
-    CodeGen::removeAutoDtor(metahaving);
-    CodeGen::resetCodeGenFailed(metahaving);
-    CodeGen::resetInitStatementsGenIndex(metahaving);
+    buildMgr->extraDataAccessor.removeCodeGenData(metahaving);
+    buildMgr->extraDataAccessor.removeAutoCtor(metahaving);
+    buildMgr->extraDataAccessor.removeAutoDtor(metahaving);
+    buildMgr->extraDataAccessor.resetCodeGenFailed(metahaving);
+    buildMgr->extraDataAccessor.resetInitStatementsGenIndex(metahaving);
   }
 
   auto container = ti_cast<Core::Basic::Containing<TiObject>>(obj);

@@ -50,6 +50,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   );
   this->targetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
   this->buildManager = std::make_shared<BuildManager>(
+    S("root"),
     manager,
     this->astHelper.get(),
     this->astProcessor.get(),

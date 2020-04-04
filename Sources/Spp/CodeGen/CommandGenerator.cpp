@@ -46,7 +46,7 @@ void CommandGenerator::initBindings()
 // Code Generation Functions
 
 Bool CommandGenerator::_generateReturnStatement(
-  TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, GenDeps const &deps
+  TiObject *self, Spp::Ast::ReturnStatement *astNode, Generation *g, Session *session
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
@@ -62,12 +62,12 @@ Bool CommandGenerator::_generateReturnStatement(
   if (operand != 0) {
     // Generate the expression to return.
     GenResult operandResult;
-    if (!g->generateExpression(operand, deps, operandResult)) return false;
+    if (!g->generateExpression(operand, session, operandResult)) return false;
     // Generate the return statement.
-    if (retType->hasCustomInitialization(cmdGenerator->astHelper, deps.tg->getExecutionContext())) {
+    if (retType->hasCustomInitialization(cmdGenerator->astHelper, session->getTg()->getExecutionContext())) {
       // Assign value to ret reference.
       TiObject *retTgType;
-      if (!g->getGeneratedType(retType, deps, retTgType, 0)) return false;
+      if (!g->getGeneratedType(retType, session, retTgType, 0)) return false;
 
       SharedList<TiObject> initTgVals;
       PlainList<TiObject> initAstTypes;
@@ -76,21 +76,22 @@ Bool CommandGenerator::_generateReturnStatement(
       initAstTypes.add(operandResult.astType);
       initAstNodes.add(ti_cast<Core::Data::Node>(operand));
       if (!g->generateVarInitialization(
-        retType, getCodeGenData<TiObject>(retTypeRef), astNode, &initAstNodes, &initAstTypes, &initTgVals, deps
+        retType, session->getEda()->getCodeGenData<TiObject>(retTypeRef), astNode, &initAstNodes, &initAstTypes, &initTgVals,
+        session
       )) {
         return false;
       }
       // Destruct variables.
-      if (!g->generateVarGroupDestruction(deps, 0)) return false;
+      if (!g->generateVarGroupDestruction(session, 0)) return false;
       // Return
-      deps.tg->generateReturn(deps.tgContext, getCodeGenData<TiObject>(retType), 0);
+      session->getTg()->generateReturn(session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(retType), 0);
     } else {
       // Return the value itself.
 
       // Cast the returned value, if needed.
       TioSharedPtr tgCastedValue;
       if (!g->generateCast(
-        deps, operandResult.astType, retType, astNode, operandResult.targetData.get(), true, tgCastedValue)
+        session, operandResult.astType, retType, astNode, operandResult.targetData.get(), true, tgCastedValue)
       ) {
         cmdGenerator->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
@@ -98,9 +99,11 @@ Bool CommandGenerator::_generateReturnStatement(
         return false;
       }
       // Destruct variables.
-      if (!g->generateVarGroupDestruction(deps, 0)) return false;
+      if (!g->generateVarGroupDestruction(session, 0)) return false;
       // Return
-      deps.tg->generateReturn(deps.tgContext, getCodeGenData<TiObject>(retType), tgCastedValue.get());
+      session->getTg()->generateReturn(
+        session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(retType), tgCastedValue.get()
+      );
     }
   } else {
     // Make sure return type is void.
@@ -111,9 +114,9 @@ Bool CommandGenerator::_generateReturnStatement(
       return false;
     }
     // Destruct variables.
-    if (!g->generateVarGroupDestruction(deps, 0)) return false;
+    if (!g->generateVarGroupDestruction(session, 0)) return false;
     // Generate a void return statement.
-    deps.tg->generateReturn(deps.tgContext, getCodeGenData<TiObject>(retType), 0);
+    session->getTg()->generateReturn(session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(retType), 0);
   }
 
   return true;
@@ -121,7 +124,7 @@ Bool CommandGenerator::_generateReturnStatement(
 
 
 Bool CommandGenerator::_generateIfStatement(
-  TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, GenDeps const &deps,
+  TiObject *self, Spp::Ast::IfStatement *astNode, Generation *g, Session *session,
   TerminalStatement &terminal
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
@@ -132,66 +135,69 @@ Bool CommandGenerator::_generateIfStatement(
   terminal = TerminalStatement::UNKNOWN;
 
   SharedPtr<IfTgContext> ifTgContext;
-  if (!deps.tg->prepareIfStatement(deps.tgContext, elseBody != 0, ifTgContext)) return false;
-  setCodeGenData(astNode, ifTgContext);
+  if (!session->getTg()->prepareIfStatement(session->getTgContext(), elseBody != 0, ifTgContext)) return false;
+  session->getEda()->setCodeGenData(astNode, ifTgContext);
 
   // Generate condition.
   GenResult conditionResult;
-  if (!g->generateExpression(
-    astNode->getCondition().get(), GenDeps(deps, ifTgContext->getConditionContext()), conditionResult
-  )) return false;
+  Session condSession(session, ifTgContext->getConditionContext());
+  if (!g->generateExpression(astNode->getCondition().get(), &condSession, conditionResult)) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, GenDeps(deps, ifTgContext->getConditionContext()), astNode->getCondition().get(), conditionResult.astType,
+    g, &condSession, astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
 
   // Generate ifBody.
   TerminalStatement terminalBody = TerminalStatement::UNKNOWN;
+  Session bodySession(session, ifTgContext->getBodyContext());
   if (ifBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    setCodeGenData(static_cast<Core::Data::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext()));
+    session->getEda()->setCodeGenData(
+      static_cast<Core::Data::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext())
+    );
     if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(ifBody), GenDeps(deps, ifTgContext->getBodyContext()), terminalBody)
+      static_cast<Core::Data::Ast::Scope*>(ifBody), &bodySession, terminalBody)
     ) {
       return false;
     }
   } else {
-    deps.destructionStack->pushScope();
-    if (!g->generateStatement(ifBody, GenDeps(deps, ifTgContext->getBodyContext()), terminalBody)) {
+    session->getDestructionStack()->pushScope();
+    if (!g->generateStatement(ifBody, &bodySession, terminalBody)) {
       return false;
     }
     Bool result = true;
     if (terminalBody != TerminalStatement::YES) {
       if (!g->generateVarGroupDestruction(
-        GenDeps(deps, ifTgContext->getBodyContext()), deps.destructionStack->getScopeStartIndex(-1)
+        &bodySession, session->getDestructionStack()->getScopeStartIndex(-1)
       )) result = false;
     }
-    deps.destructionStack->popScope();
+    session->getDestructionStack()->popScope();
     if (!result) return false;
   }
 
   // Generate elseBody, if needed.
   TerminalStatement terminalElse = TerminalStatement::UNKNOWN;
+  Session elseSession(session, ifTgContext->getElseContext());
   if (elseBody != 0) {
     if (elseBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
-      setCodeGenData(static_cast<Core::Data::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext()));
+      session->getEda()->setCodeGenData(static_cast<Core::Data::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext()));
       if (!g->generateStatements(
-        static_cast<Core::Data::Ast::Scope*>(elseBody), GenDeps(deps, ifTgContext->getElseContext()), terminalElse
+        static_cast<Core::Data::Ast::Scope*>(elseBody), &elseSession, terminalElse
       )) {
         return false;
       }
     } else {
-      deps.destructionStack->pushScope();
-      if (!g->generateStatement(elseBody, GenDeps(deps, ifTgContext->getElseContext()), terminalElse)) {
+      session->getDestructionStack()->pushScope();
+      if (!g->generateStatement(elseBody, &elseSession, terminalElse)) {
         return false;
       }
       Bool result = true;
       if (terminalBody != TerminalStatement::YES) {
         if (!g->generateVarGroupDestruction(
-          GenDeps(deps, ifTgContext->getElseContext()), deps.destructionStack->getScopeStartIndex(-1)
+          &elseSession, session->getDestructionStack()->getScopeStartIndex(-1)
         )) result = false;
       }
-      deps.destructionStack->popScope();
+      session->getDestructionStack()->popScope();
       if (!result) return false;
     }
   }
@@ -200,141 +206,150 @@ Bool CommandGenerator::_generateIfStatement(
     TerminalStatement::YES :
     TerminalStatement::NO;
 
-  return deps.tg->finishIfStatement(deps.tgContext, ifTgContext.get(), castResult.get());
+  return session->getTg()->finishIfStatement(session->getTgContext(), ifTgContext.get(), castResult.get());
 }
 
 
 Bool CommandGenerator::_generateWhileStatement(
-  TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, GenDeps const &deps
+  TiObject *self, Spp::Ast::WhileStatement *astNode, Generation *g, Session *session
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   SharedPtr<LoopTgContext> loopTgContext;
-  if (!deps.tg->prepareWhileStatement(deps.tgContext, loopTgContext)) return false;
-  setCodeGenData(astNode, loopTgContext);
+  if (!session->getTg()->prepareWhileStatement(session->getTgContext(), loopTgContext)) return false;
+  session->getEda()->setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
-  deps.destructionStack->pushScope();
+  session->getDestructionStack()->pushScope();
   GenResult conditionResult;
+  Session condSession(session, loopTgContext->getConditionContext());
   if (!g->generateExpression(
-    astNode->getCondition().get(), GenDeps(deps, loopTgContext->getConditionContext()), conditionResult
+    astNode->getCondition().get(), &condSession, conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, GenDeps(deps, loopTgContext->getConditionContext()), astNode->getCondition().get(), conditionResult.astType,
+    g, &condSession, astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
   Bool result = true;
   if (!g->generateVarGroupDestruction(
-    GenDeps(deps, loopTgContext->getConditionContext()), deps.destructionStack->getScopeStartIndex(-1)
+    &condSession, session->getDestructionStack()->getScopeStartIndex(-1)
   )) result = false;
-  deps.destructionStack->popScope();
+  session->getDestructionStack()->popScope();
   if (!result) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
+  Session bodySession(session, loopTgContext->getBodyContext());
   if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    setCodeGenData(static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext()));
+    session->getEda()->setCodeGenData(
+      static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
+    );
     TerminalStatement terminal;
     if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(body), GenDeps(deps, loopTgContext->getBodyContext()), terminal)
+      static_cast<Core::Data::Ast::Scope*>(body), &bodySession, terminal)
     ) {
       return false;
     }
   } else {
-    deps.destructionStack->pushScope();
+    session->getDestructionStack()->pushScope();
     TerminalStatement terminal;
-    if (!g->generateStatement(body, GenDeps(deps, loopTgContext->getBodyContext()), terminal)) {
+    if (!g->generateStatement(body, &bodySession, terminal)) {
       return false;
     }
     if (terminal != TerminalStatement::YES) {
       if (!g->generateVarGroupDestruction(
-        GenDeps(deps, loopTgContext->getBodyContext()), deps.destructionStack->getScopeStartIndex(-1)
+        &bodySession, session->getDestructionStack()->getScopeStartIndex(-1)
       )) result = false;
     }
-    deps.destructionStack->popScope();
+    session->getDestructionStack()->popScope();
     if (!result) return false;
   }
 
-  return deps.tg->finishWhileStatement(deps.tgContext, loopTgContext.get(), castResult.get());
+  return session->getTg()->finishWhileStatement(session->getTgContext(), loopTgContext.get(), castResult.get());
 }
 
 
 Bool CommandGenerator::_generateForStatement(
-  TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, GenDeps const &deps
+  TiObject *self, Spp::Ast::ForStatement *astNode, Generation *g, Session *session
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   if (astNode->getInitializer().get() != 0) {
     TerminalStatement terminal;
-    if (!g->generateStatement(astNode->getInitializer().get(), deps, terminal)) return false;
+    if (!g->generateStatement(astNode->getInitializer().get(), session, terminal)) return false;
   }
 
   SharedPtr<LoopTgContext> loopTgContext;
-  if (!deps.tg->prepareForStatement(deps.tgContext, loopTgContext)) return false;
-  setCodeGenData(astNode, loopTgContext);
+  if (!session->getTg()->prepareForStatement(session->getTgContext(), loopTgContext)) return false;
+  session->getEda()->setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
-  deps.destructionStack->pushScope();
+  session->getDestructionStack()->pushScope();
   GenResult conditionResult;
+  Session condSession(session, loopTgContext->getConditionContext());
   if (!g->generateExpression(
-    astNode->getCondition().get(), GenDeps(deps, loopTgContext->getConditionContext()), conditionResult
+    astNode->getCondition().get(), &condSession, conditionResult
   )) return false;
   TioSharedPtr castResult;
   if (!cmdGenerator->castCondition(
-    g, GenDeps(deps, loopTgContext->getConditionContext()), astNode->getCondition().get(), conditionResult.astType,
+    g, &condSession, astNode->getCondition().get(), conditionResult.astType,
     conditionResult.targetData.get(), castResult
   )) return false;
   Bool result = true;
   if (!g->generateVarGroupDestruction(
-    GenDeps(deps, loopTgContext->getConditionContext()), deps.destructionStack->getScopeStartIndex(-1)
+    &condSession, session->getDestructionStack()->getScopeStartIndex(-1)
   )) result = false;
-  deps.destructionStack->popScope();
+  session->getDestructionStack()->popScope();
   if (!result) return false;
 
   // Generate the updater.
-  deps.destructionStack->pushScope();
+  session->getDestructionStack()->pushScope();
   GenResult updateResult;
+  Session updaterSession(session, loopTgContext->getUpdaterContext());
   if (!g->generateExpression(
-    astNode->getUpdater().get(), GenDeps(deps, loopTgContext->getUpdaterContext()), updateResult
+    astNode->getUpdater().get(), &updaterSession, updateResult
   )) return false;
   if (!g->generateVarGroupDestruction(
-    GenDeps(deps, loopTgContext->getUpdaterContext()), deps.destructionStack->getScopeStartIndex(-1)
+    &updaterSession, session->getDestructionStack()->getScopeStartIndex(-1)
   )) result = false;
-  deps.destructionStack->popScope();
+  session->getDestructionStack()->popScope();
   if (!result) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
+  Session bodySession(session, loopTgContext->getBodyContext());
   if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    setCodeGenData(static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext()));
+    session->getEda()->setCodeGenData(
+      static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
+    );
     TerminalStatement terminal;
     if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(body), GenDeps(deps, loopTgContext->getBodyContext()), terminal)
+      static_cast<Core::Data::Ast::Scope*>(body), &bodySession, terminal)
     ) {
       return false;
     }
   } else {
-    deps.destructionStack->pushScope();
+    session->getDestructionStack()->pushScope();
     TerminalStatement terminal;
-    if (!g->generateStatement(body, GenDeps(deps, loopTgContext->getBodyContext()), terminal)) {
+    if (!g->generateStatement(body, &bodySession, terminal)) {
       return false;
     }
     if (terminal != TerminalStatement::YES) {
       if (!g->generateVarGroupDestruction(
-        GenDeps(deps, loopTgContext->getBodyContext()), deps.destructionStack->getScopeStartIndex(-1)
+        &bodySession, session->getDestructionStack()->getScopeStartIndex(-1)
       )) result = false;
     }
-    deps.destructionStack->popScope();
+    session->getDestructionStack()->popScope();
     if (!result) return false;
   }
 
-  return deps.tg->finishForStatement(deps.tgContext, loopTgContext.get(), castResult.get());
+  return session->getTg()->finishForStatement(session->getTgContext(), loopTgContext.get(), castResult.get());
 }
 
 
 Bool CommandGenerator::_generateContinueStatement(
-  TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, GenDeps const &deps
+  TiObject *self, Spp::Ast::ContinueStatement *astNode, Generation *g, Session *session
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
@@ -374,15 +389,15 @@ Bool CommandGenerator::_generateContinueStatement(
     loopNode = loopNode->getOwner();
   }
 
-  if (!g->generateVarGroupDestruction(deps, deps.destructionStack->getScopeStartIndex(-scopeCount))) return false;
+  if (!g->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-scopeCount))) return false;
 
-  auto loopTgContext = getCodeGenData<LoopTgContext>(loopNode);
-  return deps.tg->generateContinue(deps.tgContext, loopTgContext);
+  auto loopTgContext = session->getEda()->getCodeGenData<LoopTgContext>(loopNode);
+  return session->getTg()->generateContinue(session->getTgContext(), loopTgContext);
 }
 
 
 Bool CommandGenerator::_generateBreakStatement(
-  TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, GenDeps const &deps
+  TiObject *self, Spp::Ast::BreakStatement *astNode, Generation *g, Session *session
 ) {
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
@@ -422,10 +437,10 @@ Bool CommandGenerator::_generateBreakStatement(
     loopNode = loopNode->getOwner();
   }
 
-  if (!g->generateVarGroupDestruction(deps, deps.destructionStack->getScopeStartIndex(-scopeCount))) return false;
+  if (!g->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-scopeCount))) return false;
 
-  auto loopTgContext = getCodeGenData<LoopTgContext>(loopNode);
-  return deps.tg->generateBreak(deps.tgContext, loopTgContext);
+  auto loopTgContext = session->getEda()->getCodeGenData<LoopTgContext>(loopNode);
+  return session->getTg()->generateBreak(session->getTgContext(), loopTgContext);
 }
 
 
@@ -433,11 +448,11 @@ Bool CommandGenerator::_generateBreakStatement(
 // Helper Functions
 
 Bool CommandGenerator::castCondition(
-  Generation *g, GenDeps const &deps, TiObject *astNode, Spp::Ast::Type *astType,
+  Generation *g, Session *session, TiObject *astNode, Spp::Ast::Type *astType,
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();
-  if (!g->generateCast(deps, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, result)) {
+  if (!g->generateCast(session, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, result)) {
     this->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );

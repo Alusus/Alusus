@@ -37,6 +37,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   //============================================================================
   // Member Variables
 
+  private: CodeGen::ExtraDataAccessor extraDataAccessor;
   private: Core::Main::RootManager *rootManager;
   private: Ast::Helper *astHelper;
   private: CodeGen::AstProcessor *astProcessor;
@@ -54,12 +55,14 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   // Constructors & Destructor
 
   public: BuildManager(
+    Char const *extraDataPrefix,
     Core::Main::RootManager *rm,
     Ast::Helper *helper,
     CodeGen::AstProcessor *astP,
     CodeGen::Generator *gen,
     LlvmCodeGen::TargetGenerator *tGen
   ) :
+    extraDataAccessor(extraDataPrefix),
     rootManager(rm),
     astHelper(helper),
     astProcessor(astP),
@@ -76,6 +79,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
 
+    this->extraDataAccessor.setIdPrefix(parent->getExtraDataAccessor()->getIdPrefix().c_str());
     this->rootManager = parent->getRootManager();
     this->astHelper = parent->getAstHelper();
     this->astProcessor = parent->getAstProcessor();
@@ -96,6 +100,11 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
 
   private: void initBindingCaches();
   private: void initBindings();
+
+  public: CodeGen::ExtraDataAccessor const* getExtraDataAccessor() const
+  {
+    return &this->extraDataAccessor;
+  }
 
   public: Core::Main::RootManager* getRootManager() const
   {
