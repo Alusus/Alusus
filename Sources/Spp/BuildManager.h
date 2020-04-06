@@ -69,6 +69,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     generator(gen),
     targetGenerator(tGen)
   {
+    this->addDynamicInterface(std::make_shared<Building>(this));
     this->initBindingCaches();
     this->initBindings();
   }
@@ -132,35 +133,19 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(prepareExecution,
-    void, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, Char const* /* globalFuncName */)
-  );
   private: static void _prepareExecution(
     TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName
   );
 
-  public: METHOD_BINDING_CACHE(prepareBuild,
-    void, (
-      Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, Char const* /* globalFuncName */,
-      Bool /* offlineExecution */
-    )
-  );
   private: static void _prepareBuild(
     TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName,
     Bool offlineExecution
   );
 
-  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject*));
   private: static Bool _addElementToBuild(TiObject *self, TiObject *element);
 
-  public: METHOD_BINDING_CACHE(finalizeBuild,
-    void, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */)
-  );
   private: static void _finalizeBuild(TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement);
 
-  public: METHOD_BINDING_CACHE(execute,
-    Bool, (Core::Notices::Store* /* noticeStore */, Char const* /* funcName */)
-  );
   private: static Bool _execute(
     TiObject *self, Core::Notices::Store *noticeStore, Char const *funcName
   );

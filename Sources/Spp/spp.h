@@ -26,6 +26,7 @@ namespace Spp
 // Alusus's SPP base header files
 
 #include "ExecutionContext.h"
+#include "Building.h"
 
 #include "Ast/ast.h"
 

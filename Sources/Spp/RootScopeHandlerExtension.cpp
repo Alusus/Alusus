@@ -87,7 +87,9 @@ void RootScopeHandlerExtension::_addNewElement(
 
     auto rootFuncName = S("__rootstatement__");
 
-    rootManagerExt->buildManager->prepareExecution(
+    auto building = ti_cast<Building>(rootManagerExt->buildManager.get());
+
+    building->prepareExecution(
       state->getNoticeStore(), rootManager->getRootScope().get(), rootFuncName
     );
 
@@ -99,7 +101,7 @@ void RootScopeHandlerExtension::_addNewElement(
       if (def != 0) {
         auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {
-          if (!rootManagerExt->buildManager->addElementToBuild(def.get())) execute = false;
+          if (!building->addElementToBuild(def.get())) execute = false;
         }
       }
     }
@@ -107,12 +109,12 @@ void RootScopeHandlerExtension::_addNewElement(
     // Now run all new statements.
     for (Int i = start; i <= end; ++i) {
       auto childData = root->get(i);
-      if (!rootManagerExt->buildManager->addElementToBuild(childData.get())) execute = false;
+      if (!building->addElementToBuild(childData.get())) execute = false;
     }
 
-    rootManagerExt->buildManager->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get());
+    building->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get());
     if (execute) {
-      rootManagerExt->buildManager->execute(state->getNoticeStore(), rootFuncName);
+      building->execute(state->getNoticeStore(), rootFuncName);
     }
   }
 }

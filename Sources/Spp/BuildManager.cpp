@@ -21,11 +21,6 @@ namespace Spp
 void BuildManager::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
-    &this->prepareExecution,
-    &this->prepareBuild,
-    &this->addElementToBuild,
-    &this->finalizeBuild,
-    &this->execute,
     &this->dumpLlvmIrForElement,
     &this->buildObjectFileForElement,
     &this->resetBuild,
@@ -36,11 +31,14 @@ void BuildManager::initBindingCaches()
 
 void BuildManager::initBindings()
 {
-  this->prepareExecution = &BuildManager::_prepareExecution;
-  this->prepareBuild = &BuildManager::_prepareBuild;
-  this->addElementToBuild = &BuildManager::_addElementToBuild;
-  this->finalizeBuild = &BuildManager::_finalizeBuild;
-  this->execute = &BuildManager::_execute;
+  auto building = ti_cast<Building>(this);
+
+  building->prepareExecution = &BuildManager::_prepareExecution;
+  building->prepareBuild = &BuildManager::_prepareBuild;
+  building->addElementToBuild = &BuildManager::_addElementToBuild;
+  building->finalizeBuild = &BuildManager::_finalizeBuild;
+  building->execute = &BuildManager::_execute;
+
   this->dumpLlvmIrForElement = &BuildManager::_dumpLlvmIrForElement;
   this->buildObjectFileForElement = &BuildManager::_buildObjectFileForElement;
   this->resetBuild = &BuildManager::_resetBuild;
@@ -55,6 +53,7 @@ void BuildManager::_prepareExecution(
   TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName
 ) {
   PREPARE_SELF(buildMgr, BuildManager);
+  PREPARE_SELF(building, Building);
 
   if (buildMgr->rootManager->isInteractive()) {
     // If we are running in an interactive mode and we faced previous errors, we'll try to clear the errors and start
@@ -68,7 +67,7 @@ void BuildManager::_prepareExecution(
     }
   }
 
-  buildMgr->prepareBuild(noticeStore, globalFuncElement, globalFuncName, false);
+  building->prepareBuild(noticeStore, globalFuncElement, globalFuncName, false);
 }
 
 
@@ -204,11 +203,12 @@ void BuildManager::_dumpLlvmIrForElement(
 ) {
   VALIDATE_NOT_NULL(element, noticeStore);
   PREPARE_SELF(buildMgr, BuildManager);
+  PREPARE_SELF(building, Building);
 
   buildMgr->resetBuild();
-  buildMgr->prepareBuild(noticeStore, 0, 0, true);
-  auto result = buildMgr->addElementToBuild(element);
-  buildMgr->finalizeBuild(noticeStore, 0);
+  building->prepareBuild(noticeStore, 0, 0, true);
+  auto result = building->addElementToBuild(element);
+  building->finalizeBuild(noticeStore, 0);
 
   // Dump the IR code.
   StrStream ir;
@@ -233,11 +233,12 @@ Bool BuildManager::_buildObjectFileForElement(
 ) {
   VALIDATE_NOT_NULL(element, noticeStore);
   PREPARE_SELF(buildMgr, BuildManager);
+  PREPARE_SELF(building, Building);
 
   buildMgr->resetBuild();
-  buildMgr->prepareBuild(noticeStore, 0, 0, true);
-  auto result = buildMgr->addElementToBuild(element);
-  buildMgr->finalizeBuild(noticeStore, 0);
+  building->prepareBuild(noticeStore, 0, 0, true);
+  auto result = building->addElementToBuild(element);
+  building->finalizeBuild(noticeStore, 0);
 
   if (result) {
     buildMgr->targetGenerator->buildObjectFile(objectFilename);

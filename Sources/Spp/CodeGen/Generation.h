@@ -21,7 +21,7 @@ class Generation : public ObjTiInterface
   //============================================================================
   // Type Info
 
-  OBJ_INTERFACE_INFO(Generation, ObjTiInterface, "Spp", "CodeGen", "alusus.org");
+  OBJ_INTERFACE_INFO(Generation, ObjTiInterface, "Spp.CodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
