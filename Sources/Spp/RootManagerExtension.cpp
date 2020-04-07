@@ -20,19 +20,17 @@ namespace Spp
 
 RootManagerExtension::Overrides* RootManagerExtension::extend(
   Core::Main::RootManager *rootManager,
-  SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::AstProcessor> const &astProcessor,
-  SharedPtr<CodeGen::Generator> const &generator, SharedPtr<LlvmCodeGen::TargetGenerator> const &targetGenerator,
-  SharedPtr<BuildManager> const &buildManager
+  SharedPtr<BuildManager> const &rootExecBuildManager,
+  SharedPtr<BuildManager> const &outputBuildManager,
+  SharedPtr<BuildManager> const &astProcessingBuildManager
 ) {
   auto extension = std::make_shared<RootManagerExtension>(rootManager);
   rootManager->addDynamicInterface(extension);
 
   auto overrides = new Overrides();
-  extension->astHelper = astHelper;
-  extension->astProcessor = astProcessor;
-  extension->generator = generator;
-  extension->targetGenerator = targetGenerator;
-  extension->buildManager = buildManager;
+  extension->rootExecBuildManager = rootExecBuildManager;
+  extension->outputBuildManager = outputBuildManager;
+  extension->astProcessingBuildManager = astProcessingBuildManager;
 
   overrides->dumpLlvmIrForElementRef = extension->dumpLlvmIrForElement.set(
     &RootManagerExtension::_dumpLlvmIrForElement
@@ -54,11 +52,9 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   extension->buildObjectFileForElement.reset(overrides->buildObjectFileForElementRef);
   extension->importFile.reset(overrides->importFileRef);
   extension->getModifierStrings.reset(overrides->getModifierStringsRef);
-  extension->astHelper.remove();
-  extension->astProcessor.remove();
-  extension->generator.remove();
-  extension->targetGenerator.remove();
-  extension->buildManager.remove();
+  extension->rootExecBuildManager.remove();
+  extension->outputBuildManager.remove();
+  extension->astProcessingBuildManager.remove();
   rootManager->removeDynamicInterface<RootManagerExtension>();
   delete overrides;
 }
@@ -71,7 +67,7 @@ void RootManagerExtension::_dumpLlvmIrForElement(
   TiObject *self, TiObject *element, Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
 ) {
   PREPARE_SELF(rootManagerExt, RootManagerExtension);
-  rootManagerExt->buildManager->dumpLlvmIrForElement(element, noticeStore, parser);
+  rootManagerExt->outputBuildManager->dumpLlvmIrForElement(element, noticeStore, parser);
 }
 
 
@@ -80,7 +76,7 @@ Bool RootManagerExtension::_buildObjectFileForElement(
   Core::Processing::Parser *parser
 ) {
   PREPARE_SELF(rootManagerExt, RootManagerExtension);
-  return rootManagerExt->buildManager->buildObjectFileForElement(element, objectFilename, noticeStore, parser);
+  return rootManagerExt->outputBuildManager->buildObjectFileForElement(element, objectFilename, noticeStore, parser);
 }
 
 

@@ -37,8 +37,12 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;
   private: SharedPtr<CodeGen::Generator> generator;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
-  private: SharedPtr<BuildManager> buildManager;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> rootExecTargetGenerator;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> outputTargetGenerator;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> astProcessingTargetGenerator;
+  private: SharedPtr<BuildManager> rootExecBuildManager;
+  private: SharedPtr<BuildManager> outputBuildManager;
+  private: SharedPtr<BuildManager> astProcessingBuildManager;
 
 
   //============================================================================

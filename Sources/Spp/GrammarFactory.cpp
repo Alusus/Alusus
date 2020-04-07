@@ -23,11 +23,7 @@ using namespace Core::Processing::Handlers;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void GrammarFactory::createGrammar(
-  Core::Data::Ast::Scope *rootScope, Main::RootManager *manager, Ast::Helper *astHelper,
-  CodeGen::AstProcessor *astProcessor, CodeGen::Generator *generator,
-  LlvmCodeGen::TargetGenerator *targetGenerator
-) {
+void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
   this->setRootScope(rootScope);
 
   Core::Data::clearCaches(this->context.getRoot());

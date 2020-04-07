@@ -40,9 +40,9 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: CodeGen::ExtraDataAccessor extraDataAccessor;
   private: Core::Main::RootManager *rootManager;
   private: Ast::Helper *astHelper;
-  private: CodeGen::AstProcessor *astProcessor;
   private: CodeGen::Generator *generator;
   private: LlvmCodeGen::TargetGenerator *targetGenerator;
+  private: CodeGen::AstProcessor *astProcessor = 0;
 
   private: TioSharedPtr globalTgFuncType;
   private: TioSharedPtr globalCtorTgFunc;
@@ -58,14 +58,12 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     Char const *extraDataPrefix,
     Core::Main::RootManager *rm,
     Ast::Helper *helper,
-    CodeGen::AstProcessor *astP,
     CodeGen::Generator *gen,
     LlvmCodeGen::TargetGenerator *tGen
   ) :
     extraDataAccessor(extraDataPrefix),
     rootManager(rm),
     astHelper(helper),
-    astProcessor(astP),
     generator(gen),
     targetGenerator(tGen)
   {
@@ -74,18 +72,18 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     this->initBindings();
   }
 
-  public: BuildManager(BuildManager *parent)
+  public: BuildManager(
+    BuildManager *parent, Char const *extraDataPrefix, LlvmCodeGen::TargetGenerator *tGen
+  ) : extraDataAccessor(extraDataPrefix)
   {
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
 
-    this->extraDataAccessor.setIdPrefix(parent->getExtraDataAccessor()->getIdPrefix().c_str());
     this->rootManager = parent->getRootManager();
     this->astHelper = parent->getAstHelper();
-    this->astProcessor = parent->getAstProcessor();
     this->generator = parent->getGenerator();
-    this->targetGenerator = parent->getTargetGenerator();
+    this->targetGenerator = tGen;
   }
 
   public: virtual ~BuildManager()
@@ -116,15 +114,22 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     return this->astHelper;
   }
 
-  public: CodeGen::AstProcessor* getAstProcessor() {
+  public: void setAstProcessor(CodeGen::AstProcessor *astP) {
+    this->astProcessor = astP;
+  }
+
+  public: CodeGen::AstProcessor* getAstProcessor() const
+  {
     return this->astProcessor;
   }
 
-  public: CodeGen::Generator* getGenerator() {
+  public: CodeGen::Generator* getGenerator() const
+  {
     return this->generator;
   }
 
-  public: LlvmCodeGen::TargetGenerator* getTargetGenerator() {
+  public: LlvmCodeGen::TargetGenerator* getTargetGenerator() const
+  {
     return this->targetGenerator;
   }
 

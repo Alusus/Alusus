@@ -29,9 +29,6 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->nodePathResolver = std::make_shared<Ast::NodePathResolver>();
   this->astHelper = std::make_shared<Ast::Helper>(manager, this->nodePathResolver.get());
 
-  // Create the preprocessor.
-  this->astProcessor = std::make_shared<CodeGen::AstProcessor>(this->astHelper.get());
-
   // Create and initialize global item repo.
   this->globalItemRepo = std::make_shared<CodeGen::GlobalItemRepo>();
   this->initializeGlobalItemRepo(manager);
@@ -48,32 +45,51 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     this->commandGenerator.get(),
     this->expressionGenerator.get()
   );
-  this->targetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
-  this->buildManager = std::make_shared<BuildManager>(
-    S("root"),
+
+  this->astProcessingTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
+  this->astProcessingBuildManager = std::make_shared<BuildManager>(
+    S("ast"),
     manager,
     this->astHelper.get(),
-    this->astProcessor.get(),
     this->generator.get(),
-    this->targetGenerator.get()
+    this->rootExecTargetGenerator.get()
   );
+
+  this->rootExecTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
+    this->astProcessingTargetGenerator.get()
+  );
+  this->rootExecBuildManager = std::make_shared<BuildManager>(
+    this->astProcessingBuildManager.get(), S("root"), this->rootExecTargetGenerator.get()
+  );
+
+  this->outputTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
+    this->astProcessingTargetGenerator.get()
+  );
+  this->outputBuildManager = std::make_shared<BuildManager>(
+    this->rootExecBuildManager.get(), S("out"), this->outputTargetGenerator.get()
+  );
+
+  this->astProcessor = std::make_shared<CodeGen::AstProcessor>(
+    this->astHelper.get(), this->astProcessingBuildManager.ti_cast_get<Building>()
+  );
+  this->rootExecBuildManager->setAstProcessor(this->astProcessor.get());
+  this->outputBuildManager->setAstProcessor(this->astProcessor.get());
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
   this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
   this->rootManagerExtensionOverrides = RootManagerExtension::extend(
-    manager, this->astHelper, this->astProcessor, this->generator, this->targetGenerator, this->buildManager
+    manager, this->rootExecBuildManager, this->outputBuildManager, this->astProcessingBuildManager
   );
 
   // Prepare the target generator.
-  this->targetGenerator->prepareBuild();
+  this->astProcessingTargetGenerator->prepareBuild();
+  this->rootExecTargetGenerator->prepareBuild();
+  this->outputTargetGenerator->prepareBuild();
 
   // Add the grammar.
   GrammarFactory factory;
-  factory.createGrammar(
-    manager->getRootScope().get(), manager, this->astHelper.get(), this->astProcessor.get(),
-    this->generator.get(), this->targetGenerator.get()
-  );
+  factory.createGrammar(manager->getRootScope().get());
 
   this->createBuiltInTypes(manager);
   this->createGlobalDefs(manager);
@@ -91,7 +107,13 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->rootManagerExtensionOverrides = 0;
 
   // Reset generators.
-  this->targetGenerator.reset();
+  this->outputBuildManager.reset();
+  this->outputTargetGenerator.reset();
+  this->rootExecBuildManager.reset();
+  this->rootExecTargetGenerator.reset();
+  this->astProcessor.reset();
+  this->astProcessingBuildManager.reset();
+  this->astProcessingTargetGenerator.reset();
   this->generator.reset();
   this->commandGenerator.reset();
   this->expressionGenerator.reset();

@@ -38,13 +38,14 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: Building *building;
   private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h) : astHelper(h)
+  public: AstProcessor(Ast::Helper *h, Building *b) : astHelper(h), building(b)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -56,6 +57,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->building = parent->getBuilding();
   }
 
   public: virtual ~AstProcessor()
@@ -75,6 +77,11 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: Building* getBuilding() const
+  {
+    return this->building;
   }
 
   public: void setNoticeStore(Core::Notices::Store *ns)

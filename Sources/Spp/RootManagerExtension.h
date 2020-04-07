@@ -52,11 +52,9 @@ class RootManagerExtension : public ObjTiInterface
       &this->buildObjectFileForElement,
       &this->importFile,
       &this->getModifierStrings,
-      &this->astHelper,
-      &this->astProcessor,
-      &this->generator,
-      &this->targetGenerator,
-      &this->buildManager
+      &this->rootExecBuildManager,
+      &this->outputBuildManager,
+      &this->astProcessingBuildManager
     });
   }
 
@@ -64,11 +62,9 @@ class RootManagerExtension : public ObjTiInterface
   //============================================================================
   // Member Properties
 
-  public: BINDING_CACHE(astHelper, Ast::Helper);
-  public: BINDING_CACHE(astProcessor, CodeGen::AstProcessor);
-  public: BINDING_CACHE(generator, CodeGen::Generator);
-  public: BINDING_CACHE(targetGenerator, LlvmCodeGen::TargetGenerator);
-  public: BINDING_CACHE(buildManager, BuildManager);
+  public: BINDING_CACHE(rootExecBuildManager, BuildManager);
+  public: BINDING_CACHE(outputBuildManager, BuildManager);
+  public: BINDING_CACHE(astProcessingBuildManager, BuildManager);
 
 
   //============================================================================
@@ -94,9 +90,9 @@ class RootManagerExtension : public ObjTiInterface
 
   public: static Overrides* extend(
     Core::Main::RootManager *rootManager,
-    SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::AstProcessor> const &astProcessor,
-    SharedPtr<CodeGen::Generator> const &generator, SharedPtr<LlvmCodeGen::TargetGenerator> const &targetGenerator,
-    SharedPtr<BuildManager> const &buildManager
+    SharedPtr<BuildManager> const &rootExecBuildManager,
+    SharedPtr<BuildManager> const &outputBuildManager,
+    SharedPtr<BuildManager> const &astProcessingBuildManager
   );
   public: static void unextend(Core::Main::RootManager *rootManager, Overrides *overrides);
 

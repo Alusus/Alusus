@@ -67,27 +67,30 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
     // Process macros.
-    rootManagerExt->astProcessor->preparePass(state->getNoticeStore());
-    if (!rootManagerExt->astProcessor->runPass(root)) return;
+    auto astProcessor = rootManagerExt->rootExecBuildManager->getAstProcessor();
+    astProcessor->preparePass(state->getNoticeStore());
+    if (!astProcessor->runPass(root)) return;
+
+    auto generator = rootManagerExt->rootExecBuildManager->getGenerator();
 
     // Set global noticeStore var.
-    auto globalNoticeStoreIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));
+    auto globalNoticeStoreIndex = generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));
     if (globalNoticeStoreIndex == -1) {
       throw EXCEPTION(GenericException, S("Core.noticeStore global variable is missing from the global repo."));
     }
-    auto globalNoticeStore = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalNoticeStoreIndex);
+    auto globalNoticeStore = generator->getGlobalItemRepo()->getItemPtr(globalNoticeStoreIndex);
     *((Core::Notices::Store**)globalNoticeStore) = state->getNoticeStore();
     // Set global parser var.
-    auto globalParserIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.parser"));
+    auto globalParserIndex = generator->getGlobalItemRepo()->findItem(S("Core.parser"));
     if (globalParserIndex == -1) {
       throw EXCEPTION(GenericException, S("Core.parser global variable is missing from the global repo."));
     }
-    auto globalParser = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalParserIndex);
+    auto globalParser = generator->getGlobalItemRepo()->getItemPtr(globalParserIndex);
     *((Core::Processing::Parser**)globalParser) = parser;
 
     auto rootFuncName = S("__rootstatement__");
 
-    auto building = ti_cast<Building>(rootManagerExt->buildManager.get());
+    auto building = ti_cast<Building>(rootManagerExt->rootExecBuildManager.get());
 
     building->prepareExecution(
       state->getNoticeStore(), rootManager->getRootScope().get(), rootFuncName
