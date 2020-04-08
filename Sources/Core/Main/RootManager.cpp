@@ -17,7 +17,7 @@
 #include <filesystem>
 
 // Get the shared library extention by OS.
-#if defined(_WIN32)
+#ifdef _WIN32
 #include "Win32Helpers.h"
 #include <windows.h>
 #endif
@@ -63,15 +63,30 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->pushSearchPath(path1.c_str());
   this->pushSearchPath(path2.c_str());
   this->pushSearchPath(path3.c_str());
-  // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
-  Char *alususLibs = getenv(S("ALUSUS_LIBS"));
+  // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':' on Unix, or ';' on Windows.
+#ifdef _WIN32
+  // Load the environment variables as wide characters, then convert them to multibyte characters, on Windows.
+  const Char *alususLibs = nullptr;
+  WChar *wAlususLibs = _wgetenv(L"ALUSUS_LIBS");
+  Str alususLibsStr;
+  if (wAlususLibs != nullptr) {
+    alususLibsStr = utf8Encode(WStr(wAlususLibs));
+    alususLibs = alususLibsStr.c_str();
+  }
+#else
+  const Char *alususLibs = getenv(S("ALUSUS_LIBS"));
+#endif
   if (alususLibs != nullptr) {
     Str envPath = alususLibs;
     Int endPos = -1;
     Str path;
     while (endPos < static_cast<Int>(envPath.size())) {
       Int startPos = endPos+1;
+#ifdef _WIN32
+      endPos = envPath.find(C(';'), startPos);
+#else
       endPos = envPath.find(C(':'), startPos);
+#endif
       if (endPos == Str::npos) endPos = envPath.size();
       path.assign(envPath, startPos, endPos-startPos);
       path = std::filesystem::u8path(path.c_str()).string();
@@ -286,7 +301,7 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
       Int len = this->searchPaths[i].size();
       copyStr(this->searchPaths[i].c_str(), fullPath.data());
       if (fullPath.data()[len - 1] != std::filesystem::path::preferred_separator) {
-#if defined(_WIN32)
+#ifdef _WIN32
         Str tmpStr = utf8Encode(WStr(&std::filesystem::path::preferred_separator));
         for (Char c : tmpStr) {
           copyStr(&c, fullPath.data() + len);
@@ -300,7 +315,7 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
       copyStr(filename, fullPath.data() + len);
 
       if (this->tryFileName(fullPath.data(), tmpFilename)) {
-        #if defined(_WIN32)
+        #ifdef _WIN32
           _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
         #else
           realpath(tmpFilename.data(), resultFilename.data());
@@ -340,7 +355,7 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
 
   #ifndef RELEASE
     // Try debug library extension.
-    #if defined(_WIN32)
+    #ifdef _WIN32
       copyStr(path, resultFilename.data(), fnIndex);
       copyStr(S("lib"), resultFilename.data()+fnIndex);
       copyStr(filename, resultFilename.data()+fnIndex+3);
@@ -360,7 +375,7 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
   #endif
 
   // Try normal lib.
-  #if defined(_WIN32)
+  #ifdef _WIN32
     copyStr(path, resultFilename.data(), fnIndex);
     copyStr(S("lib"), resultFilename.data()+fnIndex);
     copyStr(filename, resultFilename.data()+fnIndex+3);

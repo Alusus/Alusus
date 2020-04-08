@@ -13,7 +13,7 @@
 #include "core.h"
 #include <stdio.h>  /* defines FILENAME_MAX */
 #include <filesystem>
-#if defined(_WIN32)
+#ifdef _WIN32
 #include "Win32Helpers.h"
 #include <Windows.h>
 #include <direct.h>
@@ -27,7 +27,7 @@ namespace Core::Main
 
 using namespace Data;
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #define _wgetWorkingDirectory _wgetcwd
 #else
 #define _getWorkingDirectory getcwd
@@ -39,7 +39,7 @@ using namespace Data;
 
 std::string getWorkingDirectory()
 {
-  #if defined(_WIN32)
+  #ifdef _WIN32
   thread_local static std::array<WChar,FILENAME_MAX> currentPath;
   if (!_wgetWorkingDirectory(currentPath.data(), currentPath.size()))
   #else
@@ -50,7 +50,7 @@ std::string getWorkingDirectory()
     throw EXCEPTION(GenericException, S("Couldn't obtain the current working directory."));
   }
 
-  #if defined(_WIN32)
+  #ifdef _WIN32
   std::string path(utf8Encode(std::wstring(currentPath.data())));
   #else
   std::string path(currentPath.data());
@@ -62,7 +62,7 @@ std::string getWorkingDirectory()
 
 std::string getModuleDirectory()
 {
-  #if defined(_WIN32)
+  #ifdef _WIN32
   thread_local static std::array<WChar,FILENAME_MAX> currentPath;
   int count = GetModuleFileNameW(NULL, currentPath.data(), currentPath.size());
   // TODO: Add count testing here.

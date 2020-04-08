@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include "Win32Helpers.h"
 #include <Windows.h>
 #include <fcntl.h>
@@ -55,7 +55,7 @@ Str getSystemLanguage()
  */
 int main(int argCount, char * const args[])
 {
-#if defined(_WIN32)
+#ifdef _WIN32
   // Set the console's IO for unicode text support.
   SetConsoleCP(CP_UTF8);
   SetConsoleOutputCP(CP_UTF8);

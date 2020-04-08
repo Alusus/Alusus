@@ -1,4 +1,4 @@
-#if defined(_WIN32)
+#ifdef _WIN32
 
 #ifndef WIN32HELPERS_H
 #define WIN32HELPERS_H

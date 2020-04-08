@@ -29,7 +29,7 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Variables
 
-#if defined(_WIN32)
+#ifdef _WIN32
   private: FILE *fd;
 #else
   private: InStream *stream;
@@ -39,7 +39,7 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Constructors & Destructor
 
-#if defined(_WIN32)
+#ifdef _WIN32
   public: StdCharInStream(FILE* fd);
 #else
   public: StdCharInStream(InStream *s);
@@ -51,7 +51,7 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Functions
 
-#if defined(_WIN32)
+#ifdef _WIN32
   public: virtual WChar get();
 #else
   public: virtual Char get();

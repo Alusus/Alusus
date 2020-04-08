@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_INTERACTIVECHARINSTREAM_H
 #define CORE_PROCESSING_INTERACTIVECHARINSTREAM_H
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include "Win32Helpers.h"
 #endif
 
@@ -34,7 +34,7 @@ class InteractiveCharInStream : public TiObject, public CharInStreaming
   // Member Variables
 
   private: Int lineNumber;
-#if defined(_WIN32)
+#ifdef _WIN32
   private: Bool isPreviousLF;
 #endif
 
@@ -50,7 +50,7 @@ class InteractiveCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Functions
 
-#if defined(_WIN32)
+#ifdef _WIN32
   public: virtual WChar get();
 #else
   public: virtual Char get();

@@ -24,7 +24,7 @@ std::ostream & outStream = std::cout;
 std::istream & inStream = std::cin;
 
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <windows.h>
 #else
 typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
@@ -49,7 +49,7 @@ void convertStr(
   Char const *input, int inputLength, WChar *output, int outputSize,
   int &processedInputLength, int &resultedOutputLength
 ) {
-#if defined(_WIN32)
+#ifdef _WIN32
   int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, input, inputLength, NULL, 0);
   resultedOutputLength = sizeNeeded < outputSize ? sizeNeeded : outputSize;
   processedInputLength = MultiByteToWideChar(CP_UTF8, 0, input, inputLength, output, resultedOutputLength);
@@ -71,7 +71,7 @@ void convertStr(
   WChar const *input, int inputLength, Char *output, int outputSize,
   int &processedInputLength, int &resultedOutputLength
 ) {
-#if defined(_WIN32)
+#ifdef _WIN32
   int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, input, inputLength, NULL, 0, NULL, NULL);
   resultedOutputLength = sizeNeeded < outputSize ? sizeNeeded : outputSize;
   processedInputLength = WideCharToMultiByte(CP_UTF8, 0, input, inputLength, output, resultedOutputLength, NULL, NULL);

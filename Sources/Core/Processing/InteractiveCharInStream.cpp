@@ -5,7 +5,7 @@ namespace Core::Processing
 {
 
 
-#if defined(_WIN32)
+#ifdef _WIN32
 InteractiveCharInStream::InteractiveCharInStream() : lineNumber(1), isPreviousLF(false)
 #else
 InteractiveCharInStream::InteractiveCharInStream() : lineNumber(1)
@@ -20,7 +20,7 @@ InteractiveCharInStream::~InteractiveCharInStream() {}
   //============================================================================
   // Member Functions
 
-#if defined(_WIN32)
+#ifdef _WIN32
 WChar InteractiveCharInStream::get()
 {
   WChar c = getwchar();
@@ -46,7 +46,7 @@ Char InteractiveCharInStream::get()
 
 Bool InteractiveCharInStream::isEof()
 {
-#if defined(_WIN32)
+#ifdef _WIN32
   return feof(stdin);
 #else
   return inStream.eof();

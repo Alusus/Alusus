@@ -31,7 +31,7 @@ class CharInStreaming : public TiInterface
   //============================================================================
   // Member Functions
 
-#if defined(_WIN32)
+#ifdef _WIN32
   public: virtual WChar get() = 0;
 #else
   public: virtual Char get() = 0;

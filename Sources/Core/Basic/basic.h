@@ -333,7 +333,7 @@ namespace Core::Basic
  * @ingroup basic_macros
  * @sa SALLOC
  */
-#if defined(_WIN32)
+#ifdef _WIN32
   #define SFREE(p) _freea(p);
 #else
   #define SFREE(p)

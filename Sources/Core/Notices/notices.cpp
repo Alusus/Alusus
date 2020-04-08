@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #include <stdio.h>
 #include <conio.h>
 #include <iostream>
@@ -28,7 +28,7 @@ void printNotice(Notice const *msg)
   if (Data::getSourceLocationRecordCount(msg->getSourceLocation().get()) == 0) return;
 
   // Print severity.
-#if defined(_WIN32)
+#ifdef _WIN32
   // Get STDOUT handle.
   HANDLE h = GetStdHandle (STD_OUTPUT_HANDLE);
   WORD wOldColorAttrs;
@@ -97,7 +97,7 @@ void printNotice(Notice const *msg)
   // Print description.
   outStream << msg->getDescription() << S("\033[0m") << NEW_LINE;
 
-#if defined(_WIN32)
+#ifdef _WIN32
   // Restore the original text color.
   SetConsoleTextAttribute(h, wOldColorAttrs);
 #endif
