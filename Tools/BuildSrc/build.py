@@ -745,6 +745,11 @@ def generate_iscc_script():
              "Name: \"desktopicon\"; Description: \"{cm:CreateDesktopIcon}\"; GroupDescription: \"{cm:AdditionalIcons}\"; Flags: unchecked\n\n" + \
              "[Icons]\n" + \
              "Name: \"{{group}}\\Alusus (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
+             "Name: \"{group}\\Readme\"; Filename: \"https://github.com/Alusus/Alusus/blob/master/readme.md\"\n" + \
+             "Name: \"{group}\\Changelog (English)\"; Filename: \"{app}\\changelog.en.md\"; WorkingDir: \"{app}\"\n" + \
+             "Name: \"{group}\\Changelog (Arabic)\"; Filename: \"{app}\\changelog.ar.md\"; WorkingDir: \"{app}\"\n" + \
+             "Name: \"{group}\\License (PDF)\"; Filename: \"{app}\\license.pdf\"; WorkingDir: \"{app}\"\n" + \
+             "Name: \"{group}\\License (TXT)\"; Filename: \"{app}\\license.txt\"; WorkingDir: \"{app}\"\n" + \
              "Name: \"{{userdesktop}}\\Alusus (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{}\"; Tasks: desktopicon\n".format(
                  os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico'))
     with open(os.path.join(packages_path, 'alusus_{0}_{1}.iss'.format(ALUSUS_VERSION, os.environ['MINGW_HOST'])), 'w') as fd:
