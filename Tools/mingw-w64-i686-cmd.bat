@@ -8,7 +8,7 @@ if "%MSYS_DIR%"=="" (
 )
 
 if "%INNO_SETUP_DIR%"=="" (
-    set INNO_SETUP_DIR=C:\Program Files (x86)\Inno Setup 6
+    set INNO_SETUP_DIR=C:\Program Files ^(x86^)\Inno Setup 6
 ) else (
     set INNO_SETUP_DIR=%INNO_SETUP_DIR%
 )
