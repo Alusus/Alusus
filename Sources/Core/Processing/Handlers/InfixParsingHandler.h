@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/InfixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::InfixParsingHandler
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -51,10 +51,13 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
       if (currentData != 0) {
         // Either a child data was set into this level, or this level was visited more than once
         // causing an infix obj to be created.
-        if (this->forward && state->refTermLevel(levelIndex).getPosId() > 2) {
+        if (
+          this->forward && currentData->isDerivedFrom<TYPE>() &&
+          currentData.s_cast_get<TYPE>()->getProdId() == UNKNOWN_ID
+        ) {
           // We want to attach the new object to the right leaf of the already
           // existing infix tree.
-          auto leaf = this->findRightLeaf(state->getData(levelIndex).s_cast_get<TYPE>());
+          auto leaf = this->findRightLeaf(currentData.s_cast_get<TYPE>());
           leaf->setSecond(this->createInfixObj(leaf->getSecond(), data));
         } else {
           state->setData(this->createInfixObj(currentData, data), levelIndex);

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.h
  * Contains the header of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -168,41 +168,13 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnCallee,
     Bool, (
-      Core::Data::Node* /* astNode */, TiObject* /* callee */, Ast::Type* /* calleeType */,
+      Core::Data::Node* /* astNode */, GenResult const& /* callee */, GenResult const& /* thisArg */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<TiObject>* /* paramAstTypes */,
-      PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
+      PlainList<TiObject>* /* paramAstNodes */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnCallee(
-    TiObject *self, Core::Data::Node *astNode, TiObject *callee, Ast::Type *calleeType,
-    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-    Generation *g, GenDeps const &deps, GenResult &result
-  );
-
-  public: METHOD_BINDING_CACHE(generateRoundParamPassOnResult,
-    Bool, (
-      Core::Data::Ast::ParamPass* /* astNode */, GenResult* /* prevResult */, SharedList<TiObject>* /* paramTgValues */,
-      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
-    )
-  );
-  private: static Bool _generateRoundParamPassOnResult(
-    TiObject *self, Core::Data::Ast::ParamPass *astNode, GenResult *prevResult,
-    SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
-    Generation *g, GenDeps const &deps, GenResult &result
-  );
-
-  public: METHOD_BINDING_CACHE(generateRoundParamPassOnMember,
-    Bool, (
-      Core::Data::Ast::LinkOperator* /* linkOperator */, GenResult* /* prevResult */,
-      SharedList<TiObject>* /* paramTgValues */,
-      PlainList<TiObject>* /* paramAstTypes */, PlainList<TiObject>* /* paramAstNodes */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
-    )
-  );
-  private: static Bool _generateRoundParamPassOnMember(
-    TiObject *self, Core::Data::Ast::LinkOperator *linkOperator, GenResult *prevResult,
+    TiObject *self, Core::Data::Node *astNode, GenResult const &callee, GenResult const &thisArg,
     SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
     Generation *g, GenDeps const &deps, GenResult &result
   );
@@ -404,6 +376,26 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::SizeOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateInitOp,
+    Bool, (
+      Spp::Ast::InitOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateInitOp(
+    TiObject *self, Spp::Ast::InitOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateTerminateOp,
+    Bool, (
+      Spp::Ast::TerminateOp* /* astNode */, Generation* /* g */,
+      GenDeps const& /* deps */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateTerminateOp(
+    TiObject *self, Spp::Ast::TerminateOp *astNode, Generation *g, GenDeps const &deps, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateStringLiteral,
     Bool, (
       Core::Data::Ast::StringLiteral* /* astNode */, Generation* /* g */,
@@ -470,15 +462,26 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, GenDeps const &deps, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateMemberVarReference,
+    Bool, (
+      Core::Data::Node* /* astNode */, TiObject* /* tgStructValue */, Ast::Type* /* astStructType */,
+      TiObject* /* astMemberVar */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateMemberVarReference(
+    TiObject *self, Core::Data::Node *astNode, TiObject *tgStructValue, Ast::Type * astStructType, TiObject *astMemberVar,
+    Generation *g, GenDeps const &deps, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateArrayReference,
     Bool, (
-      TiObject* /* tgValue */, Ast::Type* /* astType */, TiObject* /* tgIndexVal */, Ast::Type* /* astIndexType */,
-      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
+      Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Ast::Type* /* astType */, TiObject* /* tgIndexVal */,
+      Ast::Type* /* astIndexType */, Generation* /* g */, GenDeps const& /* deps */, GenResult& /* result */
     )
   );
   private: static Bool _generateArrayReference(
-    TiObject *self, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal, Ast::Type *astIndexType,
-    Generation *g, GenDeps const &deps, GenResult &result
+    TiObject *self, Core::Data::Node *astNode, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal,
+    Ast::Type *astIndexType, Generation *g, GenDeps const &deps, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateFunctionCall,
@@ -494,6 +497,42 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, GenDeps const &deps, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(prepareFunctionParams,
+    Bool, (
+      Spp::Ast::FunctionType* /* calleeType */, Generation* /* g */, GenDeps const& /* deps */,
+      DynamicContaining<TiObject>* /* paramAstNodes */, DynamicContaining<TiObject>* /* paramAstTypes */,
+      SharedList<TiObject>* /* paramTgVals */
+    )
+  );
+  private: static Bool _prepareFunctionParams(
+    TiObject *self, Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
+    DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes,
+    SharedList<TiObject> *paramTgVals
+  );
+
+  public: METHOD_BINDING_CACHE(generateCalleeReferenceChain,
+    Bool, (
+      Ast::CalleeLookupResult const& /* calleeInfo */, Core::Data::Node* /* astNode */,
+      GenResult const& /* prevResult */, Generation* /* g */, GenDeps const& /* deps */,
+      GenResult& /* calleeResult */, GenResult& /* thisResult */
+    )
+  );
+  private: static Bool _generateCalleeReferenceChain(
+    TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Data::Node *astNode, GenResult const &prevResult,
+    Generation *g, GenDeps const &deps, GenResult &calleeResult, GenResult &thisResult
+  );
+
+  public: METHOD_BINDING_CACHE(generateReferenceChain,
+    Bool, (
+      PlainList<TiObject>& /* stack */, Core::Data::Node* /* astNode */, GenResult const& /* prevResult */,
+      Generation* /* g */, GenDeps const& /* deps */, GenResult& /* calleeResult */
+    )
+  );
+  private: static Bool _generateReferenceChain(
+    TiObject *self, PlainList<TiObject> &stack, Core::Data::Node *astNode, GenResult const &prevResult,
+    Generation *g, GenDeps const &deps, GenResult &calleeResult
+  );
+
   /// @}
 
   /// @name Helper Functions
@@ -507,11 +546,6 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   private: Bool generateParamList(
     Containing<TiObject> *astNodes, Generation *g, GenDeps const &deps,
     DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
-  );
-
-  private: Bool prepareFunctionParams(
-    Spp::Ast::FunctionType *calleeType, Generation *g, GenDeps const &deps,
-    DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgVals
   );
 
   public: Bool dereferenceIfNeeded(

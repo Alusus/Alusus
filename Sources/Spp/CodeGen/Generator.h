@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.h
  * Contains the header of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -174,8 +174,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _generateVarInitialization(
-    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *paramsAstNode,
-    PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode,
+    PlainList<TiObject>* paramsAstNode, PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
     GenDeps const &deps
   );
 
@@ -215,15 +215,21 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: static Bool _generateCast(
     TiObject *self, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
-    TiObject *tgValue, TioSharedPtr &tgCastedValue
+    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
+  );
+
+  private: static Bool _generateFunctionCall(
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
+    Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
+    GenDeps const &deps, GenResult &result
   );
 
   private: static Bool _getGeneratedType(
-    TiObject *self, TiObject *ref, TargetGeneration *tg, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+    TiObject *self, TiObject *ref, GenDeps const &deps, TiObject *&targetTypeResult, Ast::Type **astTypeResult
   );
 
   private: static Bool _getTypeAllocationSize(
-    TiObject *self, Spp::Ast::Type *astType, TargetGeneration *tg, Word &result
+    TiObject *self, Spp::Ast::Type *astType, GenDeps const &deps, Word &result
   );
 
   /// @}

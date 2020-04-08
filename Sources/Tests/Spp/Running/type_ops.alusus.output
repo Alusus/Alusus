@@ -1,0 +1,21 @@
+t = 3 ==> t.i: 3
+t2 = t ==> t2.i: 3
+t2 = t = 5 ==> t.i: 5, t2.i: 5
+t += 3 ==> t.i: 8
+t /= 2 ==> t.i: 4
+t is < 10
+t - 3 ==> 1
+t3 = t * 3 ==> t3.i: 12
+t << 2 ==> 16
+t $ 5 ==> 1
+t~cast[Int] ==> 4
+i:Int = t ==> 4
+printInt(t) ==> 4
+printInt(t) ==> 4
+t() ==> 4
+t(3) ==> t.i: 7
+t(4.5) ==> 11.500000
+ERROR SPPG1002 @ (89,1): Invalid operation.
+ERROR SPPG1002 @ (90,1): Invalid operation.
+ERROR SPPA1008 @ (91,1): Provided arguments do not match signature.
+ERROR SPPA1005 @ (96,3): Multiple matches were found for the given callee.

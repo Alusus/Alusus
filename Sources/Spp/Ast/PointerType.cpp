@@ -2,7 +2,7 @@
  * @file Spp/Ast/PointerType.cpp
  * Contains the implementation of class Spp::Ast::PointerType.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -46,13 +46,14 @@ TypeMatchStatus PointerType::matchTargetType(Type const *type, Helper *helper, E
     // We will use AGGREGATION for castings that require no automatic conversion in order to enable more implicit
     // casting in cases of pointers to pointers.
     if (targetContentType == 0 && thisContentType == 0) return TypeMatchStatus::EXACT;
-    else if (targetContentType == 0 || helper->isVoid(targetContentType)) return TypeMatchStatus::AGGREGATION;
+    else if (targetContentType == 0 || helper->isVoid(targetContentType)) return TypeMatchStatus::REF_AGGREGATION;
     else if (thisContentType == 0) return TypeMatchStatus::EXPLICIT_CAST;
     else {
       auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
       if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;
-      else if (status == TypeMatchStatus::AGGREGATION) return TypeMatchStatus::AGGREGATION;
-      else return TypeMatchStatus::EXPLICIT_CAST;
+      else if (status == TypeMatchStatus::AGGREGATION || status == TypeMatchStatus::REF_AGGREGATION) {
+        return TypeMatchStatus::REF_AGGREGATION;
+      } else return TypeMatchStatus::EXPLICIT_CAST;
     }
   }
 

@@ -2,7 +2,7 @@
  * @file Core/Data/Grammar/StandardFactory.cpp
  * Contains the implementation of class Core::Data::Grammar::StandardFactory.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -814,35 +814,31 @@ void StandardFactory::createStatementsProductionModule()
   this->set(S("root.Statements.StmtList"), SymbolDefinition::create({
     {S("flags"), TiInt::create(ParsingFlags::ENFORCE_PROD_OBJ)}
   }, {
-    {S("term"), ConcatTerm::create({
-      {S("errorSyncPosId"), TiInt(1)},
+    {S("term"), MultiplyTerm::create({
+      {S("flags"), TiInt::create(TermFlags::ERROR_SYNC_TERM)}
     }, {
-      {S("terms"), List::create({}, {
-        MultiplyTerm::create({
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM)},
-          {S("max"), std::make_shared<TiInt>(1)}
-        }, {
-          {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
-        }),
-        MultiplyTerm::create({
-          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP|TermFlags::ERROR_SYNC_TERM)}
-        }, {
-          {S("term"), ConcatTerm::create({}, {
-            {S("terms"), List::create({}, {
-              TokenTerm::create({
-                {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
-                {S("tokenText"), Map::create({}, {{S(";"),0},{S("؛"),0}})}
-              }),
-              MultiplyTerm::create({
-                {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-                {S("max"), std::make_shared<TiInt>(1)}
-              }, {
-                {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
-              })
+      {S("term"), ConcatTerm::create({
+        {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+        {S("errorSyncPosId"), TiInt(1)}
+      }, {
+        {S("terms"), List::create({}, {
+          MultiplyTerm::create({
+            {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+            {S("max"), std::make_shared<TiInt>(1)}
+          }, {
+            {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
+          }),
+          MultiplyTerm::create({
+            {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+            {S("max"), std::make_shared<TiInt>(1)}
+          }, {
+            {S("term"), TokenTerm::create({
+              {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
+              {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+              {S("tokenText"), Map::create({}, {{S(";"),0},{S("؛"),0}})}
             })}
-          })}
-        })
+          })
+        })}
       })}
     })},
     {S("handler"), ScopeParsingHandler<Data::Ast::Scope>::create()}
@@ -1052,7 +1048,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::AssignmentOperator>>(false)}
+    {S("handler"), std::make_shared<InfixParsingHandler<Ast::AssignmentOperator>>(true)}
   }));
 
   // LogExp : @single @prefix(heap.Modifiers.LogModifierCmd)
@@ -1517,7 +1513,7 @@ void StandardFactory::createSubjectProductionModule()
       {S("frc3"), 0},
       {S("fltr"), 0}
     })},
-    {S("handler"), std::make_shared<SubjectParsingHandler>()}
+    {S("handler"), std::make_shared<SubjectParsingHandler>(this->constTokenId)}
   }));
 
   // SbjGroup: (cmdGrp || Parameter || set)
@@ -1815,7 +1811,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     this->createCommand(S("root.Main.Import"), {{
       Map::create({}, {{S("import"),0},{S("اشمل"),0}}),
       {{
-        PARSE_REF(S("module.Subject")),
+        PARSE_REF(S("module.Expression")),
         TiInt::create(1),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)

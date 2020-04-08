@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserTermLevel.h
  * Contains the header of class Core::Processing::ParserTermLevel.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -56,7 +56,7 @@ class ParserTermLevel
   // Constructors / Destructor
 
   /// Initialize all members to 0.
-  public: ParserTermLevel() : posId(0), term(0)
+  public: ParserTermLevel() : posId(0), term(0), param1(0), param2(0), flags(0)
   {
   }
 

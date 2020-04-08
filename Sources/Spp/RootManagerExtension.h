@@ -2,7 +2,7 @@
  * @file Spp/RootManagerExtension.h
  * Contains the header of class Spp::RootManagerExtension.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -61,7 +61,7 @@ class RootManagerExtension : public ObjTiInterface
       &this->importFile,
       &this->getModifierStrings,
       &this->astHelper,
-      &this->macroProcessor,
+      &this->astProcessor,
       &this->generator,
       &this->targetGenerator,
       &this->rootExecTgFuncType,
@@ -77,7 +77,7 @@ class RootManagerExtension : public ObjTiInterface
   // Member Properties
 
   public: BINDING_CACHE(astHelper, Ast::Helper);
-  public: BINDING_CACHE(macroProcessor, CodeGen::MacroProcessor);
+  public: BINDING_CACHE(astProcessor, CodeGen::AstProcessor);
   public: BINDING_CACHE(generator, CodeGen::Generator);
   public: BINDING_CACHE(targetGenerator, LlvmCodeGen::TargetGenerator);
   public: BINDING_CACHE(rootExecTgFuncType, TiObject);
@@ -110,7 +110,7 @@ class RootManagerExtension : public ObjTiInterface
 
   public: static Overrides* extend(
     Core::Main::RootManager *rootManager,
-    SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::MacroProcessor> const &macroProcessor,
+    SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::AstProcessor> const &astProcessor,
     SharedPtr<CodeGen::Generator> const &generator, SharedPtr<LlvmCodeGen::TargetGenerator> const &targetGenerator
   );
   public: static void unextend(Core::Main::RootManager *rootManager, Overrides *overrides);

@@ -2,7 +2,7 @@
  * @file Core/Notices/notices.h
  * Contains the definitions and include statements of all user notices.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -130,6 +130,9 @@ DEFINE_NOTICE(AmbiguityNotice, "Core.Notices", "Core", "alusus.org", "CP2004", 2
 );
 DEFINE_NOTICE(UnexpectedModifierNotice, "Core.Notices", "Core", "alusus.org", "CP1005", 1,
   "Unexpected modifier encountered."
+);
+DEFINE_NOTICE(InvalidImportNotice, "Core.Notices", "Core", "alusus.org", "CP1006", 1,
+  "Invalid import parameter."
 );
 
 } // namespace

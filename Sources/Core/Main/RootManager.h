@@ -2,7 +2,7 @@
  * @file Core/Main/RootManager.h
  * Contains the header of class Core::Main::RootManager.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -121,6 +121,8 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   public: virtual SharedPtr<TiObject> processFile(Char const *filename, Bool allowReprocess = false);
 
+  private: virtual SharedPtr<TiObject> _processFile(Char const *fullPath, Bool allowReprocess = false);
+
   public: virtual SharedPtr<TiObject> processStream(Processing::CharInStreaming *is, Char const *streamName);
 
   public: virtual Bool tryImportFile(Char const *filename, Str &errorDetails);
@@ -129,7 +131,11 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   public: virtual void popSearchPath(Char const *path);
 
-  public: virtual Str findAbsolutePath(Char const *filename);
+  private: virtual Bool findFile(Char const *filename, std::array<Char,PATH_MAX> &resultFilename);
+
+  private: virtual Bool tryFileName(Char const *path, std::array<Char,PATH_MAX> &resultFilename);
+
+  private: virtual Bool doesFileExist(Char const *filename);
 
   public: void resetMinNoticeSeverityEncountered()
   {

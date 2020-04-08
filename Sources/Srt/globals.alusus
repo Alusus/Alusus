@@ -1,4 +1,4 @@
-import "libalusus_spp";
+import "alusus_spp";
 
 def int: alias Int;
 def word: alias Word;

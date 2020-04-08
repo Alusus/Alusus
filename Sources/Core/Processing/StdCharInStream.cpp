@@ -4,7 +4,7 @@
 namespace Core::Processing
 {
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 StdCharInStream::StdCharInStream(FILE* fd) : fd(fd)
 {
   VALIDATE_NOT_NULL(fd);
@@ -17,7 +17,7 @@ StdCharInStream::StdCharInStream(InStream *s) : stream(s)
 
 StdCharInStream::~StdCharInStream() {}
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 WChar StdCharInStream::get()
 {
   WChar c;
@@ -34,7 +34,7 @@ Char StdCharInStream::get()
 
 Bool StdCharInStream::isEof()
 {
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   return feof(this->fd);
 #else
   return this->stream->eof();

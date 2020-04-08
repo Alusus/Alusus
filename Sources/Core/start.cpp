@@ -2,7 +2,7 @@
  * @file Core/main.cpp
  * Contains the program's entry point.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 #include "Win32Helpers.h"
 #include <Windows.h>
 #include <fcntl.h>
@@ -55,7 +55,7 @@ Str getSystemLanguage()
  */
 int main(int argCount, char * const args[])
 {
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   // Set the console's IO for unicode text support.
   SetConsoleCP(CP_UTF8);
   SetConsoleOutputCP(CP_UTF8);
@@ -124,7 +124,7 @@ int main(int argCount, char * const args[])
     // Check if the command line was in English by detecting if the first character is ASCII.
     if (lang == S("ar")) {
       // Write Arabic help.
-      outStream << S("قلب الأسُس\n"
+      outStream << S("لغة الأسُس\n"
                      "الإصدار (" ALUSUS_VERSION ALUSUS_REVISION ")\n(" ALUSUS_RELEASE_DATE " م)\n(" ALUSUS_HIJRI_RELEASE_DATE " هـ)\n"
                      "جميع الحقوق محفوظة لـ سرمد خالد عبدالله (" << alususReleaseYear << " م) \\ (" << alususHijriReleaseYear << " هـ)\n\n");
       outStream << S("نُشر هذا البرنامج برخصة الأسُس العامة، الإصدار 1.0، والمتوفرة على الرابط أدناه.\n"
@@ -152,7 +152,7 @@ int main(int argCount, char * const args[])
       #endif
     } else {
       // Write English help.
-      outStream << S("Alusus Core\n"
+      outStream << S("Alusus Language\n"
                      "Version " ALUSUS_VERSION ALUSUS_REVISION " (" ALUSUS_RELEASE_DATE ")\n"
                      "Copyright (C) " << alususReleaseYear << " Sarmad Khalid Abdullah\n\n");
       outStream << S("This software is released under Alusus Public License, Version 1.0.\n"
@@ -231,10 +231,18 @@ int main(int argCount, char * const args[])
         outStream << NEW_LINE;
       }
     } catch (FileException &e) {
-      if (lang == S("ar")) {
-        outStream << S("الملف مفقود: ") << e.getFileName() << NEW_LINE;
+      if (e.getComment() == S("invalid")) {
+        if (lang == S("ar")) {
+          outStream << S("صنف الملف غير صالح: ") << e.getFileName() << NEW_LINE;
+        } else {
+          outStream << S("Invalid file type: ") << e.getFileName() << NEW_LINE;
+        }
       } else {
-        outStream << S("File not found: ") << e.getFileName() << NEW_LINE;
+        if (lang == S("ar")) {
+          outStream << S("الملف مفقود: ") << e.getFileName() << NEW_LINE;
+        } else {
+          outStream << S("File not found: ") << e.getFileName() << NEW_LINE;
+        }
       }
       return EXIT_FAILURE;
     } catch (Exception &e) {

@@ -1,4 +1,4 @@
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 
 #ifndef WIN32HELPERS_H
 #define WIN32HELPERS_H

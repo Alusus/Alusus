@@ -2,7 +2,7 @@
  * @file Spp/Handlers/TildeOpParsingHandler.h
  * Contains the header of class Spp::Handlers::TildeOpParsingHandler
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -71,7 +71,15 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
           operand = data.get();
         }
         // The operand which is at index 0 will be set by the parent production, so we'll skip that.
-        currentData->setElement(1, operand);
+        if (operand != 0) {
+          if (currentData->getElementCount() >= 2) {
+            currentData->setElement(1, operand);
+          } else {
+            state->addNotice(std::make_shared<Core::Notices::SyntaxErrorNotice>(
+              Core::Data::Ast::findSourceLocation(operand)
+            ));
+          }
+        }
         return;
       }
     }

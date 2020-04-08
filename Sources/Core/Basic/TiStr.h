@@ -2,7 +2,7 @@
  * @file Core/Basic/TiStr.h
  * Contains the header of class Core::Basic::TiStr.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -95,7 +95,7 @@ template <class P> class TiStrBase : public P
     return this->value.c_str();
   }
 
-  public: Bool operator==(TiStrBase<P> const *s) const
+  public: Bool operator==(TiStrBase<P> const &s) const
   {
     return this->value.compare(s.value) == 0;
   }
@@ -115,7 +115,7 @@ template <class P> class TiStrBase : public P
     return this->value.compare(s.c_str()) == 0;
   }
 
-  public: Bool operator!=(TiStrBase<P> const *s) const
+  public: Bool operator!=(TiStrBase<P> const &s) const
   {
     return this->value.compare(s.value) != 0;
   }

@@ -1,0 +1,58 @@
+import "alusus_spp";
+
+type T {
+  def i: Int;
+
+  handler this~init() {};
+  handler this~init(a: Int, b: Float) {};
+  handler this~init(a, b) {};
+  handler this~init {};
+  handler this~init[] {};
+
+  handler this~terminate() {};
+  handler this~terminate(a: Int) {};
+  handler this~terminate {};
+  handler this~terminate[] {};
+
+  handler this = Int this.i = value;
+  handler this = (v:Int) this.i = v;
+
+  handler this += Int this.i += value;
+  handler this /= Int this.i /= value;
+
+  handler this = ref[this_type] this.i = value.i;
+  handler this = (v:ref[this_type]) this.i = v.i;
+
+  handler this > Int return this.i > value;
+
+  handler this - Int : Int return this.i - value;
+  handler this * Int : A {
+    def ret: A;
+    ret.i = this.i * value;
+    return ret;
+  };
+
+  handler this << Int : Int { return this.i << value };
+
+  handler this $ Int : Int return this.i $ value;
+
+  handler this~cast[Int] return this.i;
+  handler this~cast return this.i;
+
+  handler notThis = Int notThis.i += value;
+  handler notThis == Int return notThis.i == value;
+  handler notThis + Int: Int return notThis.i + value;
+  handler notThis~cast[Int] return notThis.i;
+
+  handler this = [v: Int] this.i = value;
+  handler this = (this: Int) this.i = 5;
+
+
+  handler this() return this.i;
+  handler this(Int) this.i += value;
+  handler this(f: float) => Float[64] {
+    return this.i + (f+0.5);
+  };
+};
+
+dump_ast T;

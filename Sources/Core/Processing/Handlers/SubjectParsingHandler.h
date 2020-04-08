@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/SubjectParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::SubjectParsingHandler
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,9 +27,15 @@ class SubjectParsingHandler : public GenericParsingHandler
 
 
   //============================================================================
+  // Member Variables
+
+  private: Word constTokenId;
+
+
+  //============================================================================
   // Constructor
 
-  public: SubjectParsingHandler()
+  public: SubjectParsingHandler(Word cti): constTokenId(cti)
   {
   }
 
@@ -40,7 +46,7 @@ class SubjectParsingHandler : public GenericParsingHandler
   public: virtual void onAlternateRouteDecision(
     Parser *parser, ParserState *state, Int route, Data::Token const *token)
   {
-    if (state->isAProdRoot(-1)) {
+    if (state->isAProdRoot(-1) && token->getId() == this->constTokenId) {
       if (token->getText() == S("(")) {
         auto bracket = Data::Ast::Bracket::create({
           { "sourceLocation", std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()) }

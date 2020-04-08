@@ -1,0 +1,66 @@
+import "Srl/Array.alusus";
+
+@merge module Srl
+{
+    type Map [T1: type, T2: type] {
+        use Srl;
+        def keys: Array[T1];
+        def values: Array[T2];
+
+        handler this~init() {};
+        
+        handler this~init(map: ref[Map[T1, T2]]) {
+            this.keys = map.keys;
+            this.values = map.values;
+        };
+
+        handler this(key: T1): T2 {
+            @shared
+            def dummy: T2;
+            def arrInd: int = 0;
+            for , arrInd<this.keys.getLength(), arrInd++
+                if this.keys(arrInd) == key
+                    return this.values(arrInd)
+            return dummy;
+        };
+
+        func set(key: T1, value: T2): ref[Map[T1, T2]] {
+            def arrInd: int = 0;
+            for , arrInd<this.keys.getLength(), arrInd++ {
+                if this.keys(arrInd) == key {
+                    this.values(arrInd) = value
+                    return this;
+                };
+            };
+            
+            this.keys.add(key);
+            this.values.add(value);
+            return this;
+        };
+
+        func remove(key: T1): Bool {
+            def arrInd: int = 0;
+            for , arrInd<this.keys.getLength(), arrInd++
+                if this.keys(arrInd) == key
+                return this.remove(arrInd)
+            return false;
+        };
+
+        func remove(index: Int): Bool {
+            if index < 0 || index >= this.keys.getLength() return false;
+            this.keys.remove(index);
+            this.values.remove(index);
+            return true;
+        };
+
+        func clear(): Bool {
+            this.keys.clear();
+            this.values.clear();
+            return true;
+        };
+
+        func getLength(): Int {
+            return this.keys.getLength();
+        };
+    };
+};

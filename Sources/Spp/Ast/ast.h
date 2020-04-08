@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Ast
  * namespace.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,10 +35,43 @@ class Type;
 // Types
 
 /// @ingroup spp_ast
-ti_s_enum(TypeMatchStatus,
-  TiInt, "Spp.Ast", "Spp", "alusus.org",
-  NONE = 0, EXPLICIT_CAST = 1, IMPLICIT_CAST = 2, PROMOTION = 3, AGGREGATION = 4, DEREFERENCE = 5, EXACT = 6
-);
+class TypeMatchStatus : public TiObject
+{
+  TYPE_INFO(TypeMatchStatus, TiObject, "Spp.Ast", "Spp", "alusus.org");
+  public:
+  enum Status {
+    NONE = 0,
+    AGGREGATION = 1,
+    EXPLICIT_CAST = 2,
+    CUSTOM_CASTER = 3,
+    IMPLICIT_CAST = 4,
+    PROMOTION = 5,
+    REF_AGGREGATION = 6,
+    EXACT = 7
+  };
+  Int value;
+  Int derefs;
+  TypeMatchStatus() : value(0), derefs(0) {}
+  TypeMatchStatus(Status v, Int d = 0) : value(v), derefs(d) {}
+  TypeMatchStatus const& operator=(Status v) { this->value = v; return *this; }
+  TypeMatchStatus const& operator=(TypeMatchStatus const &v) {
+    this->value = v.value;
+    this->derefs = v.derefs;
+    return *this;
+  }
+  bool operator ==(TypeMatchStatus const &v) const { return this->value == v.value && this->derefs == v.derefs; }
+  bool operator !=(TypeMatchStatus const &v) const { return this->value != v.value || this->derefs != v.derefs; }
+  bool operator ==(Status v) const { return this->value == v; }
+  bool operator !=(Status v) const { return this->value != v; }
+  bool operator >(TypeMatchStatus const &v) const { return this->value > v.value; }
+  bool operator >=(TypeMatchStatus const &v) const { return this->value >= v.value; }
+  bool operator >(Status v) const { return this->value > v; }
+  bool operator >=(Status v) const { return this->value >= v; }
+  bool operator <(TypeMatchStatus const &v) const { return this->value < v.value; }
+  bool operator <=(TypeMatchStatus const &v) const { return this->value <= v.value; }
+  bool operator <(Status v) const { return this->value < v; }
+  bool operator <=(Status v) const { return this->value <= v; }
+};
 
 /// @ingroup spp_ast
 ti_s_enum(DefinitionDomain,
@@ -46,13 +79,30 @@ ti_s_enum(DefinitionDomain,
   FUNCTION = 0, OBJECT = 1, GLOBAL = 2
 );
 
+/// @ingroup spp_ast
+struct CalleeLookupResult
+{
+  TypeMatchStatus matchStatus = TypeMatchStatus::NONE;
+  PlainList<TiObject> stack;
+  Type *type = 0;
+  SharedPtr<Core::Notices::Notice> notice;
+  Int thisIndex = -2;
+};
+
 } // namespace
+
+
+//==============================================================================
+// Type Names
+
+DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupResult, "alusus.org/Spp/Spp.Ast.CalleeLookupResult");
 
 
 //==============================================================================
 // Classes
 
 //// AST Classes
+#include "Block.h"
 // Types
 #include "Type.h"
 #include "DataType.h"
@@ -83,8 +133,11 @@ ti_s_enum(DefinitionDomain,
 #include "CastOp.h"
 #include "SizeOp.h"
 #include "AstRefOp.h"
+#include "InitOp.h"
+#include "TerminateOp.h"
 // Misc
 #include "ArgPack.h"
+#include "ThisTypeRef.h"
 
 // Helpers
 #include "Helper.h"

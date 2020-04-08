@@ -2,7 +2,7 @@
  * @file Core/Main/RootManager.cpp
  * Contains the implementation of class Core::Main::RootManager.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -11,23 +11,28 @@
 //==============================================================================
 
 #include "core.h"
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <filesystem>
 
 // Get the shared library extention by OS.
-#if defined(__MINGW32__) || defined(__MINGW64__) // Windows under MinGW.
+#if defined(_WIN32)
 #include "Win32Helpers.h"
 #include <windows.h>
-Str SHARED_LIB_EXT = "dll";
-#elif defined(APPLE) // Apple (Mac OS, iOS, Apple Watch).
-Str SHARED_LIB_EXT = "dylib";
-#else // Linux, Android, ...etc.
-Str SHARED_LIB_EXT = "so";
 #endif
 
 namespace Core::Main
 {
+
+Char const *sourceExtensions[] = {
+  S(".alusus"),
+  S(".source"),
+  S(".الأسس"),
+  S(".أسس"),
+  S(".مصدر")
+};
+
 
 //==============================================================================
 // Constructor
@@ -110,34 +115,47 @@ SharedPtr<TiObject> RootManager::processString(Char const *str, Char const *name
 
 SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowReprocess)
 {
-  // Find the absolute path of the file.
-  Str fullPath = this->findAbsolutePath(filename);
-  if (fullPath.empty()) {
+  // Find the absolute path of the requested file.
+  thread_local static std::array<Char,PATH_MAX> resultFilename;
+  if (this->findFile(filename, resultFilename)) {
+    for (Int i = 0; i < sizeof(sourceExtensions) / sizeof(sourceExtensions[0]); ++i) {
+      if (compareStrSuffix(resultFilename.data(), sourceExtensions[i])) {
+        return this->_processFile(resultFilename.data(), allowReprocess);
+      }
+    }
+    throw EXCEPTION(FileException, filename, C('r'), S("invalid"));
+  } else {
     throw EXCEPTION(FileException, filename, C('r'));
   }
+}
 
+
+SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowReprocess)
+{
   // Do not reprocess if already processed.
   if (!allowReprocess) {
-    if (this->processedFiles.findIndex(fullPath.c_str()) != -1) return TioSharedPtr::null;
+    if (this->processedFiles.findIndex(fullPath) != -1) return TioSharedPtr::null;
   }
-  this->processedFiles.add(fullPath.c_str(), TioSharedPtr::null);
+  this->processedFiles.add(fullPath, TioSharedPtr::null);
 
   // Extract the directory part and add it to the current paths.
-  Int pos;
   Str searchPath;
-  if ((pos = fullPath.rfind(std::filesystem::path::preferred_separator)) != Str::npos) {
-    searchPath = Str(fullPath, 0, pos+1);
+  Char const *dirEnd = strrchr(fullPath, std::filesystem::path::preferred_separator);
+  if (dirEnd != 0) {
+    searchPath = Str(fullPath, 0, dirEnd - fullPath + 1);
     this->pushSearchPath(searchPath.c_str());
   }
-  // Process the file
+
+  // Process the file.
   Processing::Engine engine(this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
-  auto result = engine.processFile(fullPath.c_str());
+  auto result = engine.processFile(fullPath);
+
   // Remove the added path, if any.
   if (!searchPath.empty()) {
     this->popSearchPath(searchPath.c_str());
   }
-  // Return final results.
+
   return result;
 }
 
@@ -156,55 +174,37 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
   Str newFileNameCppStr = std::filesystem::u8path(filename).make_preferred().string();
   Char const *newFileName = newFileNameCppStr.c_str();
 
-  // Check the file type.
-  if (
-    compareStrSuffix(newFileName, S(".source")) || compareStrSuffix(newFileName, S(".alusus")) ||
-    compareStrSuffix(newFileName, S(".مصدر")) || compareStrSuffix(newFileName, S(".الأسس")) ||
-    compareStrSuffix(newFileName, S(".أسس"))
-  ) {
+  // Lookup the file in the search paths.
+  Bool loadSource = false;
+  thread_local static std::array<Char,PATH_MAX> resultFilename;
+  if (this->findFile(newFileName, resultFilename)) {
+    newFileName = resultFilename.data();
+    for (Int i = 0; i < sizeof(sourceExtensions) / sizeof(sourceExtensions[0]); ++i) {
+      if (compareStrSuffix(newFileName, sourceExtensions[i])) {
+        loadSource = true;
+        break;
+      }
+    }
+  }
+
+  if (loadSource) {
+    // Load a source file.
     try {
       LOG(LogLevel::PARSER_MAJOR, S("Importing source file: ") << newFileName);
 
-      this->processFile(newFileName);
+      this->_processFile(newFileName);
+      return true;
     } catch (...) {
       return false;
     }
   } else {
-    Str tempStr = newFileName + Str(".") + SHARED_LIB_EXT;
-    Char const* sharedLibFileName = tempStr.c_str();
+    // Load a library.
+    LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << newFileName);
 
-    LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << sharedLibFileName);
+    PtrWord id = this->getLibraryManager()->load(newFileName, errorDetails);
 
-    // Import library and return.
-    PtrWord id = 0;
-
-    #ifndef RELEASE
-      // We are running in debug mode, so we will look first for a debug verion.
-      // Find the first '.' after the last '/'.
-      thread_local static std::array<Char,FILENAME_MAX> dbgFilename;
-      Char const *dotPos = strrchr(sharedLibFileName, std::filesystem::path::preferred_separator);
-      if (dotPos == 0) dotPos = sharedLibFileName;
-      dotPos = strchr(dotPos, C('.'));
-      if (dotPos == 0) {
-        // The filename has no extension, so we'll attach .dbg to the end.
-        copyStr(sharedLibFileName, dbgFilename.data());
-        copyStr(S(".dbg"), dbgFilename.data()+getStrLen(sharedLibFileName));
-        id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
-      } else if (compareStr(dotPos, S(".dbg."), 5) != 0) {
-        // The position of the file's extension is found, and it doesn't already have
-        // the .dbg extension, so we'll attach it.
-        Int dotIndex = dotPos - sharedLibFileName;
-        copyStr(sharedLibFileName, dbgFilename.data(), dotIndex);
-        copyStr(S(".dbg"), dbgFilename.data()+dotIndex);
-        copyStr(dotPos, dbgFilename.data()+dotIndex+4);
-        id = this->getLibraryManager()->load(dbgFilename.data(), errorDetails);
-      }
-    #endif
-    if (id == 0) id = this->getLibraryManager()->load(sharedLibFileName, errorDetails);
-    // Did we fail the loading?
-    if (id == 0) return false;
+    return id != 0;
   }
-  return true;
 }
 
 
@@ -220,7 +220,7 @@ void RootManager::pushSearchPath(Char const *path)
   if (!thisPath.is_absolute()) {
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Path must be an absolute path."));
   }
-  
+
   thisPath /= ""; // Append the directory seperator.
 
   // Only add the path if it doesn't already exists.
@@ -267,52 +267,125 @@ void RootManager::popSearchPath(Char const *path)
 }
 
 
-Str RootManager::findAbsolutePath(Char const *filename)
+Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resultFilename)
 {
   if (filename == 0 || *filename == C('\0')) {
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("Argument is null or empty string."));
   }
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
-  std::wifstream fin;
-#else
-  std::ifstream fin;
-#endif
+  thread_local static std::array<Char,PATH_MAX> tmpFilename;
 
   // Is the filename an absolute path already?
-  if (std::filesystem::u8path(filename).is_absolute()) {
-    // Check if the file exists.
-#if defined(__MINGW32__) || defined(__MINGW64__)
-    WStr tempStr = utf8Decode(std::string(filename));
-    fin.open(tempStr.c_str());
-#else
-    fin.open(filename);
+  std::filesystem::path p(filename);
+  if (p.is_absolute()) {
+    return this->tryFileName(filename, resultFilename);
+  } else {
+    // Try all current paths.
+    thread_local static std::array<Char,PATH_MAX> fullPath;
+    for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
+      Int len = this->searchPaths[i].size();
+      copyStr(this->searchPaths[i].c_str(), fullPath.data());
+      if (fullPath.data()[len - 1] != std::filesystem::path::preferred_separator) {
+#if defined(_WIN32)
+        Str tmpStr = utf8Encode(WStr(&std::filesystem::path::preferred_separator));
+        for (Char c : tmpStr) {
+          copyStr(&c, fullPath.data() + len);
+          ++len;
+        }
+#else       
+        copyStr(std::filesystem::path::preferred_separator, fullPath.data() + len);
+        ++len;
 #endif
-    if (fin.is_open()) {
-      return std::filesystem::canonical(std::filesystem::u8path(filename)).string();
-    }
-  }
+      }
+      copyStr(filename, fullPath.data() + len);
 
-  // Try all current paths.
-  Str fullPath;
-  for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
-    fullPath = this->searchPaths[i];
-    if (fullPath.back() != std::filesystem::path::preferred_separator) fullPath += std::filesystem::path::preferred_separator;
-    fullPath += filename;
-
-    // Check if the file exists.
-#if defined(__MINGW32__) || defined(__MINGW64__)
-    fin.open(utf8Decode(fullPath).c_str());
-#else
-    fin.open(fullPath.c_str());
-#endif
-    if (fin.is_open()) {
-      return std::filesystem::canonical(std::filesystem::u8path(fullPath.c_str())).string();
+      if (this->tryFileName(fullPath.data(), tmpFilename)) {
+        #if defined(_WIN32)
+          _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
+        #else
+          realpath(tmpFilename.data(), resultFilename.data());
+        #endif
+        return true;
+      }
     }
   }
 
   // No file was found with that name.
-  return Str();
+  return false;
+}
+
+
+Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resultFilename)
+{
+  if (this->doesFileExist(path)) {
+    copyStr(path, resultFilename.data());
+    return true;
+  }
+
+  auto pathLen = getStrLen(path);
+
+  // Try source extensions.
+  for (Int i = 0; i < sizeof(sourceExtensions) / sizeof(sourceExtensions[0]); ++i) {
+    copyStr(path, resultFilename.data());
+    copyStr(sourceExtensions[i], resultFilename.data()+pathLen);
+    if (this->doesFileExist(resultFilename.data())) return true;
+  }
+
+  Char const *filename = strrchr(path, std::filesystem::path::preferred_separator);
+  if (filename == 0) filename = path;
+  else ++filename;
+  Int fnIndex = filename - path;
+
+  Int fnLen = pathLen - fnIndex;
+
+  #ifndef RELEASE
+    // Try debug library extension.
+    #if defined(_WIN32)
+      copyStr(path, resultFilename.data(), fnIndex);
+      copyStr(S("lib"), resultFilename.data()+fnIndex);
+      copyStr(filename, resultFilename.data()+fnIndex+3);
+      copyStr(S(".dbg.dll"), resultFilename.data()+fnIndex+3+fnLen);
+    #elif __APPLE__
+      copyStr(path, resultFilename.data(), fnIndex);
+      copyStr(S("lib"), resultFilename.data()+fnIndex);
+      copyStr(filename, resultFilename.data()+fnIndex+3);
+      copyStr(S(".dbg.dylib"), resultFilename.data()+fnIndex+3+fnLen);
+    #else
+      copyStr(path, resultFilename.data(), fnIndex);
+      copyStr(S("lib"), resultFilename.data()+fnIndex);
+      copyStr(filename, resultFilename.data()+fnIndex+3);
+      copyStr(S(".dbg.so"), resultFilename.data()+fnIndex+3+fnLen);
+    #endif
+    if (this->doesFileExist(resultFilename.data())) return true;
+  #endif
+
+  // Try normal lib.
+  #if defined(_WIN32)
+    copyStr(path, resultFilename.data(), fnIndex);
+    copyStr(S("lib"), resultFilename.data()+fnIndex);
+    copyStr(filename, resultFilename.data()+fnIndex+3);
+    copyStr(S(".dll"), resultFilename.data()+fnIndex+3+fnLen);
+  #elif __APPLE__
+    copyStr(path, resultFilename.data(), fnIndex);
+    copyStr(S("lib"), resultFilename.data()+fnIndex);
+    copyStr(filename, resultFilename.data()+fnIndex+3);
+    copyStr(S(".dylib"), resultFilename.data()+fnIndex+3+fnLen);
+  #else
+    copyStr(path, resultFilename.data(), fnIndex);
+    copyStr(S("lib"), resultFilename.data()+fnIndex);
+    copyStr(filename, resultFilename.data()+fnIndex+3);
+    copyStr(S(".so"), resultFilename.data()+fnIndex+3+fnLen);
+  #endif
+  if (this->doesFileExist(resultFilename.data())) return true;
+
+  return false;
+}
+
+
+Bool RootManager::doesFileExist(Char const *filename)
+{
+  std::filesystem::path p = std::filesystem::u8path(filename);
+  return std::filesystem::exists(p);
 }
 
 } // namespace

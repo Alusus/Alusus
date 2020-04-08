@@ -2,7 +2,7 @@
  * @file Spp/GrammarFactory.h
  * Contains the header of class Spp::GrammarFactory.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -36,7 +36,7 @@ class GrammarFactory : public Core::Data::Grammar::Factory
   /// Create the entire core grammar.
   public: void createGrammar(
     Core::Data::Ast::Scope *rootScope, Main::RootManager *manager, Ast::Helper *astHelper,
-    CodeGen::MacroProcessor *macroProcessor, CodeGen::Generator *generator,
+    CodeGen::AstProcessor *astProcessor, CodeGen::Generator *generator,
     LlvmCodeGen::TargetGenerator *targetGenerator
   );
 

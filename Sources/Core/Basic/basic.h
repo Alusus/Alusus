@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -14,7 +14,7 @@
 #ifndef CORE_BASIC_BASIC_H
 #define CORE_BASIC_BASIC_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -333,7 +333,7 @@ namespace Core { namespace Basic
  * @ingroup basic_macros
  * @sa SALLOC
  */
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   #define SFREE(p) _freea(p);
 #else
   #define SFREE(p)
@@ -723,7 +723,7 @@ extern std::istream &inStream;
  * @brief Wrapper definitions for basic exception classes.
  */
 
-} } // namespace
+} // namespace
 
 
 //==============================================================================
@@ -777,6 +777,7 @@ extern std::istream &inStream;
 #include "PlainMapBase.h"
 #include "PlainMap.h"
 #include "Box.h"
+#include "ContainerExtender.h"
 
 #include "TiNumber.h"
 #include "TiStr.h"

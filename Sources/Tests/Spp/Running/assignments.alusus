@@ -1,0 +1,24 @@
+import "Srl/Console.alusus";
+use Srl.Console;
+
+func test {
+  def i: int;
+  def j: int;
+
+  i = 0;
+  while ++i != 10 print("%d\n", i);
+
+  i = j = 3;
+  print("%d\n", i);
+
+  i = j += 2;
+  print("%d\n", i);
+
+  i += j = 10;
+  print("%d\n", i);
+
+  j = 0;
+  while (j++, i = j * 2) < 10 print("%d, %d\n", i, j);
+}
+
+test();

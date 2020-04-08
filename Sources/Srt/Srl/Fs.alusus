@@ -1,5 +1,6 @@
 import "globals.alusus";
 import "Srl/Memory.alusus";
+import "Srl/String.alusus";
 
 @merge def Srl : module
 {
@@ -65,6 +66,10 @@ import "Srl/Memory.alusus";
 
     def seek: @expname[fseek] function (file: ptr[File], offset: Int, seek: Int) => Int[32];
 
+    def getAbsolutePath: @expname[realpath] function (
+      path: ptr[array[Char]], resolvedPath: ptr[array[Char]]
+    ): ptr[array[Char]];
+
     def createFile: function (filename: ptr[array[Char]], content: ptr, contentCount: Int) => Bool
     {
       def file: ptr[File];
@@ -103,13 +108,21 @@ import "Srl/Memory.alusus";
       return buffer;
     };
 
-    def readFile: function (filename: ptr[array[Char]]) => ptr[array[Char]]
+    def readFile: function (filename: ptr[array[Char]]): String
     {
+      def content: String;
       def file: ptr[File];
-      def buffer: ptr[array[Char]];
-      def size: ptr[Int];
-      if !readFile(filename, buffer~ptr~cast[ptr[ptr]], size) return null;
-      return buffer;
+      if exists(filename) {
+        file = openFile(filename, "rb");
+        seek(file, 0, Seek.END);
+        def size: Int = tell(file);
+        content.alloc(size);
+        seek(file, 0, Seek.SET);
+        read(content.buf, size, 1, file);
+        closeFile(file);
+        content.buf~cnt(size) = 0;
+      };
+      return content;
     };
 
     // DIRECTORY FUNCTIONS

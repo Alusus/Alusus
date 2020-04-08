@@ -2,7 +2,7 @@
 <!--
  Alusus Language Sytnax Highlighting
  Author: Sarmad Khalid Abdullah <sarmad@alusus.org>
- Copyright (C) 2019 Sarmad Khalid Abdullah <sarmad@alusus.org>
+ Copyright (C) 2020 Sarmad Khalid Abdullah <sarmad@alusus.org>
 -->
 <language id="alusus" _name="Alusus" version="2.0" _section="Sources">
   <metadata>
@@ -82,6 +82,7 @@
       <keyword>func</keyword>
       <keyword>type</keyword>
       <keyword>macro</keyword>
+      <keyword>handler</keyword>
     </context>
 
     <context id="keyword" style-ref="keyword">
@@ -105,6 +106,10 @@
       <keyword>or</keyword>
       <keyword>not</keyword>
       <keyword>use</keyword>
+      <keyword>this</keyword>
+      <keyword>this_type</keyword>
+      <keyword>value</keyword>
+      <keyword>init</keyword>
     </context>
 
     <context id="ar-def-keyword" style-ref="def-keyword">
@@ -113,6 +118,7 @@
       <keyword>دالة</keyword>
       <keyword>ماكرو</keyword>
       <keyword>صنف</keyword>
+      <keyword>عملية</keyword>
     </context>
 
     <context id="ar-keyword" style-ref="keyword">
@@ -137,6 +143,10 @@
       <keyword>أو</keyword>
       <keyword>ليس</keyword>
       <keyword>استخدم</keyword>
+      <keyword>هذا</keyword>
+      <keyword>هذا_الصنف</keyword>
+      <keyword>قيمة</keyword>
+      <keyword>هيئ</keyword>
     </context>
 
     <context id="constant" style-ref="constant">

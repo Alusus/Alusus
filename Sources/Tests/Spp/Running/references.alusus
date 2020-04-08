@@ -1,6 +1,17 @@
 import "Srl/Memory.alusus";
 
-@expname[printf] func print(fmt: ptr[Char], ...any) => Int;
+@expname[printf] func print(fmt: ptr[array[Char]], ...any) => Int;
+
+//
+// Operations on references.
+//
+
+def i: Int[32];
+def ri: ref[Int[32]];
+ri~ptr = i~ptr;
+i = 5;
+--ri;
+print("Operations on references. %d\n", i);
 
 //
 // Use reference as pointer.

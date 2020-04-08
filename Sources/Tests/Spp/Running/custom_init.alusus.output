@@ -54,11 +54,25 @@ destructed!
 
 constructed!
 constructed!
-autCtor on the global scope: 1 1
+autoCtor on the global scope: 1 1
 destructed!
 constructed!
-autCtor on the global scope: 1 1
+autoCtor on the global scope: 1 1
 destructed!
 
 C constructed!
 testInlinedInit: 3
+
+constructed!
+constructed!
+constructed3!
+constructed2!
+testInitRedirect: 13
+destructed!
+destructed!
+
+constructed!
+testTerminate
+constructed2!
+destructed!
+destructed!

@@ -1,0 +1,75 @@
+import "alusus_spp";
+
+@expname[printf] func print(format: ptr[Word[8]], args: ...any): Int[32];
+
+type A
+{
+  def i: Int;
+
+  func print {
+    print("this.i = %d\n", this.i);
+  };
+
+  func setI (i: Int) {
+    this.i = i;
+  };
+};
+
+type B
+{
+  def a: A;
+  def f: ptr[function];
+
+  handler this~init() this.a.i = 7;
+  handler this~init(that: ref[this_type]) this.a = that.a;
+
+  func getMyVal ()=>B {
+    return this;
+  };
+
+  func getMyRef ()=>ref[B] {
+    return this;
+  };
+
+  func printA {
+    print("this.a.i = %d\n", this.a.i);
+  };
+};
+
+def a: A;
+a.setI(10);
+a.print();
+
+def b: B;
+b.a.print();
+b.getMyVal().a.print();
+b.getMyRef().a.print();
+
+function getA ():A {
+  def a: A;
+  a.i = 11;
+  return a;
+};
+
+function getARef ():ref[A] {
+  @shared def a: A;
+  a.i = 12;
+  return a;
+};
+
+function getB ():B {
+  def b: B;
+  b.a.i = 13;
+  return b;
+};
+
+function getBRef ():ref[B] {
+  @shared def b: B;
+  b.a.i = 14;
+  return b;
+};
+
+getA().print();
+getARef().print();
+getB().printA();
+getBRef().printA();

@@ -678,16 +678,16 @@ var hljs = new function() {
 hljs.registerLanguage('alusus', function(hljs) {
   var KEYWORDS =
       'trule prule prule_group module type macro integer string list map lexer start as ref in ' +
-      'prefix inherits self root dimension import def function output use cast cnt ptr array any ' +
+      'prefix inherits self root dimension import def function func output use cast cnt ptr array any ' +
       'null false while private catch export virtual operator sizeof ' +
       'dynamic_cast typedef const_cast|10 const struct for static_cast union namespace ' +
       'unsigned long throw volatile static protected template mutable if public friend ' +
       'do return goto auto enum else break new extern using true class case typeid ' +
       'short reinterpret_cast default double register explicit signed typename try this ' +
-      'switch continue inline delete alignof finally and or not ' +
-      'noexcept nullptr static_assert thread_local restrict alias dump_ast ' +
+      'switch continue inline delete alignof finally and or not handler this this_type value ' +
+      'noexcept nullptr static_assert thread_local restrict alias dump_ast init ' +
       'اشمل عرف عرّف وحدة دالة دالّة هيكل إذا بينما لكل أرجع ارجع مؤشر محتوى مصفوفة أي  لقب ' +
-      'صنف وإلا اقطع أكمل أدرج_ش_ب_م و أو ليس ماكرو استخدم سند';
+      'صنف وإلا اقطع أكمل أدرج_ش_ب_م و أو ليس ماكرو استخدم سند عملية هذا هذا_الصنف قيمة هيئ';
   return {
     aliases: ['alusus'],
     keywords: KEYWORDS,

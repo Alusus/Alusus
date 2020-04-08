@@ -1,7 +1,7 @@
 /**
  * @file Spp/Ast/metadata_helpers.h
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -64,7 +64,7 @@ template <class OT,
           typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
 inline void setAstType(OT *object, SharedPtr<Type> const &type)
 {
-  object->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
+  object->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr<Type>(type)));
 }
 
 template <class OT,
@@ -75,7 +75,7 @@ inline void setAstType(OT *object, SharedPtr<Type> const &type)
   if (metadata == 0) {
     throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
   }
-  metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr(type)));
+  metadata->setExtra(META_EXTRA_AST_TYPE, Box<WeakPtr<Type>>::create(WeakPtr<Type>(type)));
 }
 
 template <class OT,

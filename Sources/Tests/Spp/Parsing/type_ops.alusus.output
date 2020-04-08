@@ -1,0 +1,378 @@
+ERROR SPPH1006 @ (8,24): Invalid function arg name.
+ERROR CP1001 @ (9,21): Parser syntax error.
+ERROR CP1001 @ (10,20): Parser syntax error.
+ERROR CP1001 @ (13,26): Parser syntax error.
+ERROR CP1001 @ (14,26): Parser syntax error.
+ERROR CP1001 @ (15,25): Parser syntax error.
+ERROR CP1001 @ (40,21): Parser syntax error.
+ERROR SPPH1014 @ (42,11): Invalid handler statement.
+ERROR SPPH1014 @ (43,11): Invalid handler statement.
+ERROR SPPH1014 @ (44,11): Invalid handler statement.
+ERROR SPPH1014 @ (45,11): Invalid handler statement.
+ERROR SPPH1014 @ (47,18): Invalid handler statement.
+ERROR SPPH1014 @ (48,19): Invalid handler statement.
+------------------ Parsed Data Dump ------------------
+UserType [Main.Type]
+ body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.Def] i: Identifier: Int [Main.Subject.Identifier]
+  Definition [Main.LeadingCmdGrp] ~init
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ~init
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       a: Identifier: Int [Main.Subject.Identifier]
+       b: Identifier: Float [Main.Subject.Identifier]
+      retType: NULL
+     body: Block [Main.BlockStatements.StmtList]
+  Block [Main.BlockStatements.StmtList]
+  Bracket [] [Main.BlockSubject.Sbj]
+   operand: NULL
+  Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ~terminate
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ~terminate
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Block [Main.BlockStatements.StmtList]
+  Block [Main.BlockStatements.StmtList]
+  Bracket [] [Main.BlockSubject.Sbj]
+   operand: NULL
+  Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] =
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: ParamPass []
+       operand: Identifier: ref
+       param: ThisTypeRef
+     body: Scope
+      AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: Identifier: value [Main.Keywords]
+      ReturnStatement
+       operand: Identifier: this
+  Definition [Main.LeadingCmdGrp] =
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       v: Identifier: Int [Main.Subject.Identifier]
+      retType: ParamPass []
+       operand: Identifier: ref
+       param: ThisTypeRef
+     body: Scope
+      AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: Identifier: v [Main.BlockSubject.Identifier]
+      ReturnStatement
+       operand: Identifier: this
+  Definition [Main.LeadingCmdGrp] +=
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: ParamPass []
+       operand: Identifier: ref
+       param: ThisTypeRef
+     body: Scope
+      AssignmentOperator += [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: Identifier: value [Main.Keywords]
+      ReturnStatement
+       operand: Identifier: this
+  Definition [Main.LeadingCmdGrp] /=
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: ParamPass []
+       operand: Identifier: ref
+       param: ThisTypeRef
+     body: Scope
+      AssignmentOperator /= [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: Identifier: value [Main.Keywords]
+      ReturnStatement
+       operand: Identifier: this
+  Definition [Main.LeadingCmdGrp] =
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: ParamPass [] [Main.Expression.ParamPassExp]
+        operand: Identifier: ref [Main.Subject.Identifier]
+        param: ThisTypeRef [Main.ThisTypeRef]
+      retType: ParamPass []
+       operand: Identifier: ref
+       param: ThisTypeRef
+     body: Scope
+      AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: value [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+      ReturnStatement
+       operand: Identifier: this
+  Definition [Main.LeadingCmdGrp] =
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       v: ParamPass [] [Main.Expression.ParamPassExp]
+        operand: Identifier: ref [Main.Subject.Identifier]
+        param: ThisTypeRef [Main.ThisTypeRef]
+      retType: ParamPass []
+       operand: Identifier: ref
+       param: ThisTypeRef
+     body: Scope
+      AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: v [Main.BlockSubject.Identifier]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+      ReturnStatement
+       operand: Identifier: this
+  Definition [Main.LeadingCmdGrp] >
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: ParamPass []
+       operand: Identifier: Word
+       param: IntegerLiteral: 1
+     body: Scope
+      ReturnStatement [Main.Return]
+       operand: ComparisonOperator > [Main.Expression.ComparisonExp]
+        first: LinkOperator . [Main.Expression.LinkExp]
+         first: Identifier: this [Main.Keywords]
+         second: Identifier: i [Main.Subject.Identifier]
+        second: Identifier: value [Main.Keywords]
+  Definition [Main.LeadingCmdGrp] -
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: Identifier: Int [Main.Subject.Identifier]
+     body: Scope
+      ReturnStatement [Main.Return]
+       operand: AdditionOperator - [Main.Expression.AddExp]
+        first: LinkOperator . [Main.Expression.LinkExp]
+         first: Identifier: this [Main.Keywords]
+         second: Identifier: i [Main.Subject.Identifier]
+        second: Identifier: value [Main.Keywords]
+  Definition [Main.LeadingCmdGrp] *
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: Identifier: A [Main.Subject.Identifier]
+     body: Block [Main.BlockStatements.StmtList]
+      Definition [Main.Def] ret: Identifier: A [Main.Subject.Identifier]
+      AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: ret [Main.BlockSubject.Identifier]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: MultiplicationOperator * [Main.BlockExpression.MulExp]
+        first: LinkOperator . [Main.BlockExpression.LinkExp]
+         first: Identifier: this [Main.Keywords]
+         second: Identifier: i [Main.BlockSubject.Identifier]
+        second: Identifier: value [Main.Keywords]
+      ReturnStatement [Main.Return]
+       operand: Identifier: ret [Main.Subject.Identifier]
+  Definition [Main.LeadingCmdGrp] <<
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: Identifier: Int [Main.Subject.Identifier]
+     body: Block [Main.BlockStatements.StmtList]
+      ReturnStatement [Main.Return]
+       operand: BitwiseOperator << [Main.Expression.BitwiseExp]
+        first: LinkOperator . [Main.Expression.LinkExp]
+         first: Identifier: this [Main.Keywords]
+         second: Identifier: i [Main.Subject.Identifier]
+        second: Identifier: value [Main.Keywords]
+  Definition [Main.LeadingCmdGrp] $
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: Identifier: Int [Main.Subject.Identifier]
+     body: Scope
+      ReturnStatement [Main.Return]
+       operand: BitwiseOperator $ [Main.Expression.BitwiseExp]
+        first: LinkOperator . [Main.Expression.LinkExp]
+         first: Identifier: this [Main.Keywords]
+         second: Identifier: i [Main.Subject.Identifier]
+        second: Identifier: value [Main.Keywords]
+  Definition [Main.LeadingCmdGrp] ~cast
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: Identifier: Int [Main.Subject.Identifier]
+     body: Scope
+      ReturnStatement [Main.Return]
+       operand: LinkOperator . [Main.Expression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.Subject.Identifier]
+  ReturnStatement [Main.Return]
+   operand: LinkOperator . [Main.Expression.LinkExp]
+    first: Identifier: this [Main.Keywords]
+    second: Identifier: i [Main.Subject.Identifier]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+      retType: NULL
+     body: Scope
+      ReturnStatement [Main.Return]
+       operand: LinkOperator . [Main.Expression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.Subject.Identifier]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       value: Identifier: Int [Main.Subject.Identifier]
+      retType: NULL
+     body: Scope
+      AssignmentOperator += [Main.BlockExpression.AssignmentExp]
+       first: LinkOperator . [Main.BlockExpression.LinkExp]
+        first: Identifier: this [Main.Keywords]
+        second: Identifier: i [Main.BlockSubject.Identifier]
+       second: Identifier: value [Main.Keywords]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    Identifier: shared
+   target: Function 
+     type: FunctionType
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       f: Identifier: float [Main.Subject.Identifier]
+      retType: ParamPass [] [Main.Expression.ParamPassExp]
+       operand: Identifier: Float [Main.Subject.Identifier]
+       param: IntegerLiteral: 64 [Main.Subject.Literal]
+     body: Block [Main.BlockStatements.StmtList]
+      ReturnStatement [Main.Return]
+       operand: AdditionOperator + [Main.Expression.AddExp]
+        first: LinkOperator . [Main.Expression.LinkExp]
+         first: Identifier: this [Main.Keywords]
+         second: Identifier: i [Main.Subject.Identifier]
+        second: Bracket () [Main.Subject.Sbj]
+         operand: AdditionOperator + [Main.Expression.AddExp]
+          first: Identifier: f [Main.Subject.Identifier]
+          second: FloatLiteral: 0.5 [Main.Subject.Literal]
+------------------------------------------------------

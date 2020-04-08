@@ -1,0 +1,32 @@
+import "alusus_spp";
+
+type T {
+  def i: Int;
+
+  handler this~init() {};
+
+  handler this~init(a: Int) {};
+
+  handler this~init(a: Int, b: Int) {};
+};
+
+func test {
+  def a: T;
+  a~init();
+  a~init(5);
+  a~init(6, 8);
+
+  def pa: ptr[T];
+  pa~cnt~init();
+  pa~cnt~init(5);
+  pa~cnt~init(6, 8);
+
+  def i: Int;
+  i~init();
+  i~init(5);
+  i~init(5, 3);
+
+  T~init();
+};
+
+Spp.dumpLlvmIrForElement(test~ast);

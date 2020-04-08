@@ -1,0 +1,24 @@
+import "alusus_spp";
+
+type T {
+  def i: Int;
+
+  handler this~init() {};
+
+  handler this~terminate() {};
+};
+
+func test {
+  def a: T;
+  a~terminate();
+
+  def pa: ptr[T];
+  pa~cnt~terminate();
+
+  def i: Int;
+  i~terminate();
+
+  T~terminate();
+};
+
+Spp.dumpLlvmIrForElement(test~ast);

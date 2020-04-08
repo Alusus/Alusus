@@ -2,7 +2,7 @@
  * @file Spp/Ast/NodePathResolver.cpp
  * Contains the implementation of class Spp::Ast::NodePathResolver.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -145,17 +145,17 @@ void NodePathResolver::_resolveTemplateInstance(
     if (i > 0) path << C(',');
     auto obj = Ast::Template::getTemplateVar(block, varDef->getName().get());
     if (varDef->getType() == Ast::TemplateVarType::INTEGER) {
-      auto integer = ti_cast<TiInt>(obj);
+      auto integer = ti_cast<Core::Data::Ast::IntegerLiteral>(obj);
       if (integer == 0) {
         throw EXCEPTION(GenericException, S("Invalid template argument."));
       }
-      path << integer->get();
+      path << integer->getValue().get();
     } else if (varDef->getType() == Ast::TemplateVarType::STRING) {
-      auto str = ti_cast<TiStr>(obj);
+      auto str = ti_cast<Core::Data::Ast::StringLiteral>(obj);
       if (str == 0) {
         throw EXCEPTION(GenericException, S("Invalid template argument."));
       }
-      path << str->get();
+      path << str->getValue().get();
     } else {
       path << resolver->doResolve(ti_cast<Core::Data::Node>(obj), helper);
     }

@@ -1,0 +1,14 @@
+import "alusus_spp";
+
+def a: aa~init();
+dump_ast a;
+
+def b: bb~init(1);
+dump_ast b;
+
+def c: cc~init(1, 2);
+dump_ast c;
+
+def d: dd~init;
+
+def e: ee~init[];

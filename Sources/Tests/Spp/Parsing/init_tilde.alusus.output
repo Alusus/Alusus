@@ -1,0 +1,20 @@
+------------------ Parsed Data Dump ------------------
+InitOp [Main.InitTilde]
+ operand: Identifier: aa [Main.Subject.Identifier]
+ param: NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+InitOp [Main.InitTilde]
+ operand: Identifier: bb [Main.Subject.Identifier]
+ param: IntegerLiteral: 1 [Main.Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+InitOp [Main.InitTilde]
+ operand: Identifier: cc [Main.Subject.Identifier]
+ param: List [Main.Expression.ListExp]
+  IntegerLiteral: 1 [Main.Subject.Literal]
+  IntegerLiteral: 2 [Main.Subject.Literal]
+------------------------------------------------------
+ERROR CP1001 @ (12,15): Parser syntax error.
+ERROR CP1001 @ (14,15): Parser syntax error.
+ERROR SPPG1002 @ (14,15): Invalid operation.

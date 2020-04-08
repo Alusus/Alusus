@@ -2,7 +2,7 @@
  * @file Core/Main/LibraryManager.cpp
  * Contains the implementation of class Core::Main::LibraryManager.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -89,14 +89,9 @@ LibraryGateway* LibraryManager::getGateway(Char const *libId)
 
 PtrWord LibraryManager::load(Char const *path, Str &error)
 {
-  Str fullPath = this->root->findAbsolutePath(path);
-  if (fullPath.empty()) fullPath = path;
-
-  void *handle = dlopen(fullPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  void *handle = dlopen(path, RTLD_NOW|RTLD_GLOBAL);
   if (handle == 0) {
     if (!error.empty()) error += S("\n");
-    error += path;
-    error += S(": ");
     error += dlerror();
     return 0;
   }
@@ -120,9 +115,11 @@ PtrWord LibraryManager::load(Char const *path, Str &error)
 
 void LibraryManager::unload(PtrWord id)
 {
-  void *handle = reinterpret_cast<void*>(id);
   this->removeLibrary(id);
-  dlclose(handle);
+  // We won't be unloading the library at this point because some AST elements might be dependent on functions in this
+  // library.
+  // void *handle = reinterpret_cast<void*>(id);
+  // dlclose(handle);
 }
 
 

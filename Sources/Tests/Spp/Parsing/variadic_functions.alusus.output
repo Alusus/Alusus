@@ -1,66 +1,72 @@
 ERROR SPPH1007 @ (27,31): Invalid function arg type.
+ERROR CD1003 @ (27,1): Invalid 'def' command.
 ERROR SPPH1007 @ (31,34): Invalid function arg type.
+ERROR CD1003 @ (31,1): Invalid 'def' command.
 ERROR SPPH1007 @ (35,35): Invalid function arg type.
+ERROR CD1003 @ (35,1): Invalid 'def' command.
 ERROR SPPH1007 @ (39,34): Invalid function arg type.
+ERROR CD1003 @ (39,1): Invalid 'def' command.
 ERROR SPPH1007 @ (43,40): Invalid function arg type.
+ERROR CD1003 @ (43,1): Invalid 'def' command.
 ERROR SPPH1007 @ (47,39): Invalid function arg type.
+ERROR CD1003 @ (47,1): Invalid 'def' command.
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.Subject.Identifier]
+   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Main.Subject.Identifier]
-  retType: Identifier: void [Main.FuncSigSubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
+    argType: Identifier: Int [Main.ParamOnlySubject.Identifier]
+  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.Subject.Identifier]
-   args: ArgPack 0 0
-    argType: NULL
-  retType: Identifier: void [Main.FuncSigSubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
-------------------------------------------------------
------------------- Parsed Data Dump ------------------
-Function  [Main.Function]
- type: FunctionType [Main.Function]
-  argTypes: Map
-   x: Identifier: Int [Main.Subject.Identifier]
-   args: ArgPack 0 0
-    argType: Identifier: Int [Main.Subject.Identifier]
-  retType: Identifier: void [Main.FuncSigSubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
-------------------------------------------------------
------------------- Parsed Data Dump ------------------
-Function  [Main.Function]
- type: FunctionType [Main.Function]
-  argTypes: Map
-   x: Identifier: Int [Main.Subject.Identifier]
+   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
     argType: NULL
-  retType: Identifier: void [Main.FuncSigSubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
+  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.Subject.Identifier]
+   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Main.ParamOnlySubject.Identifier]
+  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: Map
+   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
+   args: ArgPack 0 0
+    argType: NULL
+  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: Map
+   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 1 5
-    argType: Identifier: Int [Main.Subject.Identifier]
-  retType: Identifier: void [Main.FuncSigSubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
+    argType: Identifier: Int [Main.ParamOnlySubject.Identifier]
+  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.Subject.Identifier]
+   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 1 5
     argType: NULL
-  retType: Identifier: void [Main.FuncSigSubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
+  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------

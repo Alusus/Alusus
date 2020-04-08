@@ -1,0 +1,55 @@
+import "Srl/Console.alusus";
+
+use Srl.Console;
+
+type InnerMost {
+  def a: Int;
+  func getA ():Int { return this.a }
+  handler this=Int { this.a = value };
+}
+
+def im: InnerMost;
+
+type Inner {
+  @injection def rim: ref[InnerMost];
+  rim~ptr = im~ptr;
+
+  def i: Int;
+  def j: Int;
+  func getI ():Int { return this.i };
+  func getJ ():Int { return this.j };
+  handler this(): Int { return this.i + this.j }
+}
+
+type Outer {
+  @injection def inner: Inner;
+  def k: Int;
+  a = 6;
+  i = 7;
+  k = 8;
+}
+
+def o: Outer;
+print("o.a=%d, o.i=%d, o.j=%d, o.k=%d\n", o.a, o.i, o.j, o.k);
+
+o.a = 1;
+o.i = 2;
+o.j = 3;
+print("o.getA()=%d, o.getI()=%d, o.getJ()=%d, o()=%d\n", o.getA(), o.getI(), o.getJ(), o());
+
+o.k = 4;
+o = 17;
+
+func getO ():ref[Outer] { return o }
+print(
+  "getO().getA()=%d, getO().getI()=%d, getO().j=%d, getO().k=%d, getO()()=%d\n",
+  getO().getA(), getO().getI(), getO().j, getO().k, getO()()
+);
+
+type Wrong {
+  def i: Int;
+  @shared @injection def o: Outer;
+  @injection func test {}
+};
+def w: Wrong;
+print("w.i=%d\n", w.i);

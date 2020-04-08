@@ -1,4 +1,4 @@
-import "libalusus_spp";
+import "alusus_spp";
 
 def main: function ()=>Void
 {

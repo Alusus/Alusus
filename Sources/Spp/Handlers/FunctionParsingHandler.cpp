@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.cpp
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -129,7 +129,7 @@ Bool FunctionParsingHandler::parseArgs(
         state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNotice>(bracket->findSourceLocation()));
         return false;
       }
-      if (!this->parseArg(state, arg, result)) false;
+      if (!this->parseArg(state, arg, result)) return false;
     }
     return true;
   } else {

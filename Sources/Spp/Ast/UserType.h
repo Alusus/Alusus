@@ -2,7 +2,7 @@
  * @file Spp/Ast/UserType.h
  * Contains the header of class Spp::Ast::UserType.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,15 +44,15 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
 
   public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
+  public: virtual Bool hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const;
+
+  public: virtual Bool hasCustomDestruction(Helper *helper, ExecutionContext const *ec) const;
+
 
   //============================================================================
   // Mergeable Implementation
 
   public: virtual Bool merge(TiObject *src, Core::Notices::Store *noticeStore);
-
-  public: virtual Bool hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const;
-
-  public: virtual Bool hasCustomDestruction(Helper *helper, ExecutionContext const *ec) const;
 
 }; // class
 

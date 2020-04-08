@@ -3,24 +3,18 @@ import "Srl/String.alusus";
 
 def Main: module
 {
-  def start: function () => Void
-  {
+  func testStatics {
     // Search
-    Srl.Console.print("findChar '-': %s\n", Srl.String.findChar("123 - 456 - 789", '-'));
-    Srl.Console.print("findChar '-', 4: %d\n", Srl.String.findChar("123 - 456 - 789", '-', 4)~cast[Int[64]] != 0);
-    Srl.Console.print("findChar '-', 5: %d\n", Srl.String.findChar("123 - 456 - 789", '-', 5)~cast[Int[64]] != 0);
-    Srl.Console.print("findLastChar '-': %s\n", Srl.String.findLastChar("123 - 456 - 789", '-'));
-    Srl.Console.print("findString \"124\": %s\n", Srl.String.findString("123 - 124 - 125", "124"));
+    Srl.Console.print("find '-': %s\n", Srl.String.find("123 - 456 - 789", '-'));
+    Srl.Console.print("find '-', 4: %d\n", Srl.String.find("123 - 456 - 789", '-', 4)~cast[Int[64]] != 0);
+    Srl.Console.print("find '-', 5: %d\n", Srl.String.find("123 - 456 - 789", '-', 5)~cast[Int[64]] != 0);
+    Srl.Console.print("findLast '-': %s\n", Srl.String.findLast("123 - 456 - 789", '-'));
+    Srl.Console.print("find \"124\": %s\n", Srl.String.find("123 - 124 - 125", "124"));
 
     // Compare
     Srl.Console.print("compare \"123\" to \"123\": %d\n", Srl.String.compare("123", "123"));
     Srl.Console.print("compare \"123\" to \"1234\": %d\n", Srl.String.compare("123", "1234"));
     Srl.Console.print("compare 3 \"123\" to \"1234\": %d\n", Srl.String.compare("123", "1234", 3));
-
-    // equal
-    Srl.Console.print("equal \"123\" to \"123\": %d\n", Srl.String.equal("123", "123"));
-    Srl.Console.print("equal \"1234\" to \"123\": %d\n", Srl.String.equal("1234", "123"));
-    Srl.Console.print("equal \"123\" to \"1234\": %d\n", Srl.String.equal("123", "1234"));
 
     // Copy
     def buf: array[Char, 100];
@@ -35,14 +29,51 @@ def Main: module
     Srl.String.concat(buf~ptr, "!!!!!", 2);
     Srl.Console.print("concat 2: %s\n", buf~ptr);
 
-    // Lenght
+    // Length
     Srl.Console.print("getLength: %d\n", Srl.String.getLength(buf~ptr));
+  };
 
-    // Regex
-    Srl.Console.print("regex number from string (\"phone: 050000000\") with pattern (\"([0-9]+)\"): %s\n", Srl.String.regex("([0-9]+)", "phone: 050000000", 1)~cnt.matches(1)~ptr);
-    Srl.Console.print("regex count from string (\"phone: 050000000\") with pattern (\"(123)\"): %d\n", Srl.String.regex("(123)", "phone: 050000000", 1)~cnt.count);
-  
+  func testType {
+    def s: Srl.String;
+    s = "Alusus";
+    Srl.Console.print(s);
+    Srl.Console.print("\nlength: %d\n", s.getLength());
+
+    def i: Int;
+    for i = 0, i < s.getLength(), ++i Srl.Console.print("s(%d) = %c\n", i, s(i));
+
+    Srl.Console.print(s + " Language\n");
+
+    s = "Hello {name}. Do you want to use {name} as your username?\n";
+    Srl.Console.print(s.replace("{name}", "Yusuf"));
+
+    s = "  \n\t\r hello world \n\r ";
+    Srl.Console.print("trim:");
+    Srl.Console.print(s.trim());
+    Srl.Console.print("\ntrimStart:");
+    Srl.Console.print(s.trimStart());
+    Srl.Console.print("\ntrimEnd:");
+    Srl.Console.print(s.trimEnd());
+    Srl.Console.print("\nslice:");
+    Srl.Console.print(s.slice(5, 6));
+    Srl.Console.print("\n");
+
+    if s.slice(12, 5) == "world" Srl.Console.print("Comparison successful!\n");
+
+    def ss: Srl.Array[Srl.String] = s.trim().split(" ");
+    for i = 0, i < ss.getLength(), ++i {
+      Srl.Console.print(ss(i));
+      Srl.Console.print("\n");
+    };
+
+    s = Srl.String.merge(ss, " - ");
+    Srl.Console.print(s);
+    Srl.Console.print("\n");
+
+    Srl.Console.print("ToUpperCase: %s\n", s.toUpperCase().buf);
+    Srl.Console.print("ToLowerCase: %s", s.toLowerCase().buf);
   };
 };
 
-Main.start();
+Main.testStatics();
+Main.testType();

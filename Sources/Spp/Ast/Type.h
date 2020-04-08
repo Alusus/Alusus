@@ -2,7 +2,7 @@
  * @file Spp/Ast/Type.h
  * Contains the header of class Spp::Ast::Type.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -61,7 +61,7 @@ class Type : public Core::Data::Node,
 
   public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
-    return this->matchTargetType(type, helper, ec) == TypeMatchStatus::EXACT;
+    return this->matchTargetType(type, helper, ec) == TypeMatchStatus(TypeMatchStatus::EXACT);
   }
 
   public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const

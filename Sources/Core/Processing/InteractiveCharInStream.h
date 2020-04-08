@@ -2,7 +2,7 @@
  * @file Core/Processing/InteractiveCharInStream.h
  * Contains the header of class Core::Processing::InteractiveCharInStream.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #ifndef CORE_PROCESSING_INTERACTIVECHARINSTREAM_H
 #define CORE_PROCESSING_INTERACTIVECHARINSTREAM_H
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 #include "Win32Helpers.h"
 #endif
 
@@ -34,7 +34,7 @@ class InteractiveCharInStream : public TiObject, public CharInStreaming
   // Member Variables
 
   private: Int lineNumber;
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   private: Bool isPreviousLF;
 #endif
 
@@ -50,7 +50,7 @@ class InteractiveCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Functions
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   public: virtual WChar get();
 #else
   public: virtual Char get();

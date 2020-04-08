@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.cpp
  * Contains the implementation of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,11 +22,15 @@ void Helper::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
     &this->isAstReference,
-    &this->lookupCallee,
-    &this->lookupCallee_iteration,
+    &this->lookupCalleeInScope,
+    &this->lookupCalleeOnObject,
+    &this->lookupCustomCaster,
+    &this->lookupReferenceTarget,
     &this->traceType,
     &this->isVoid,
     &this->isImplicitlyCastableTo,
+    &this->isExplicitlyCastableTo,
+    &this->matchTargetType,
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
@@ -55,11 +59,15 @@ void Helper::initBindingCaches()
 void Helper::initBindings()
 {
   this->isAstReference = &Helper::_isAstReference;
-  this->lookupCallee = &Helper::_lookupCallee;
-  this->lookupCallee_iteration = &Helper::_lookupCallee_iteration;
+  this->lookupCalleeInScope = &Helper::_lookupCalleeInScope;
+  this->lookupCalleeOnObject = &Helper::_lookupCalleeOnObject;
+  this->lookupCustomCaster = &Helper::_lookupCustomCaster;
+  this->lookupReferenceTarget = &Helper::_lookupReferenceTarget;
   this->traceType = &Helper::_traceType;
   this->isVoid = &Helper::_isVoid;
   this->isImplicitlyCastableTo = &Helper::_isImplicitlyCastableTo;
+  this->isExplicitlyCastableTo = &Helper::_isExplicitlyCastableTo;
+  this->matchTargetType = &Helper::_matchTargetType;
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
@@ -92,160 +100,329 @@ Bool Helper::_isAstReference(TiObject *self, TiObject *obj)
   return
     obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
     obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
-    obj->isDerivedFrom<Core::Data::Ast::Identifier>();
+    obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
+    obj->isDerivedFrom<Spp::Ast::ThisTypeRef>();
 }
 
 
-Bool Helper::lookupCalleeByName(
+Bool Helper::lookupCalleeInScopeByName(
   Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-  Containing<TiObject> *types, ExecutionContext const *ec,
-  TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
+  TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
 ) {
   Core::Data::Ast::Identifier identifier;
   identifier.setValue(name);
   identifier.setSourceLocation(sl);
-  return this->lookupCallee(&identifier, astNode, searchOwners, types, ec, callee, calleeType, notice);
+  return this->lookupCalleeInScope(&identifier, astNode, searchOwners, thisType, types, ec, result);
 }
 
 
-Bool Helper::_lookupCallee(
+Bool Helper::_lookupCalleeInScope(
   TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-  Containing<TiObject> *types, ExecutionContext const *ec,
-  TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
+  TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
 ) {
   PREPARE_SELF(helper, Helper);
 
-  callee = 0;
-  calleeType = 0;
-  TypeMatchStatus matchStatus = TypeMatchStatus::NONE;
+  Word currentStackSize = result.stack.getCount();
+  Core::Data::Node *prevNode = 0;
+  Bool retVal = false;
   helper->getSeeker()->foreach(ref, astNode,
-    [=, &callee, &calleeType, &matchStatus, &notice]
+    [=, &result, &prevNode, &retVal]
       (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
-          if (notice == 0 && callee == 0) notice = getSharedPtr(ntc);
+          if (result.notice == 0 && result.stack.getCount() == currentStackSize) result.notice = getSharedPtr(ntc);
+          return Core::Data::Seeker::Verb::MOVE;
+        }
+        if (obj == 0) return Core::Data::Seeker::Verb::MOVE;
+
+        // Unbox if we have a box.
+        auto box = ti_cast<TioWeakBox>(obj);
+        if (box != 0) obj = box->get().lock().get();
+
+        if (
+          result.stack.getCount() > 0 && result.stack.getElement(result.stack.getCount() - 1) == obj &&
+          result.thisIndex < 0
+        ) {
           return Core::Data::Seeker::Verb::MOVE;
         }
 
-        return helper->lookupCallee_iteration(obj, types, ec, matchStatus, notice, callee, calleeType);
+        // There is no need to continue searching if we already have an exact match and we are jumping to another scope.
+        auto node = ti_cast<Core::Data::Node>(obj);
+        if (
+          node != 0 && prevNode != 0 &&
+          Core::Data::findOwner<Core::Data::Ast::Scope>(node)
+            != Core::Data::findOwner<Core::Data::Ast::Scope>(prevNode) &&
+          result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER
+        ) return Core::Data::Seeker::Verb::STOP;
+
+        if (helper->lookupCalleeOnObject(obj, thisType, types, ec, currentStackSize, result)) {
+          retVal = true;
+        } else {
+          if (result.notice != 0 && result.notice->isDerivedFrom<Spp::Notices::MultipleCalleeMatchNotice>()) {
+            retVal = false;
+            if (result.matchStatus == TypeMatchStatus::EXACT) {
+              // There is no need to continue searching if we found multiple exact matches.
+              return Core::Data::Seeker::Verb::STOP;
+            }
+          }
+        }
+
+        prevNode = node;
+        return Core::Data::Seeker::Verb::MOVE;
       },
       searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
   );
+
+  // Try the injections if we don't have an exact match yet.
+  if (result.matchStatus < TypeMatchStatus::EXACT) {
+    auto dataType = ti_cast<DataType>(astNode);
+    if (dataType != 0) {
+      auto block = dataType->getBody().get();
+      if (block != 0) {
+        Word newStackSize = result.stack.getCount();
+        for (Int i = 0; i < block->getInjectionCount(); ++i) {
+          auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
+          if (def == 0 || def->getTarget() == 0) continue;
+          if (!helper->isAstReference(def->getTarget().get())) continue;
+          Bool isMember = helper->getDefinitionDomain(def) == DefinitionDomain::OBJECT;
+          if ((isMember && thisType == 0) || (!isMember && thisType != 0)) continue;
+          auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
+          if (objType == 0) continue;
+          auto refType = helper->getReferenceTypeFor(objType);
+          objType = helper->tryGetDeepReferenceContentType(objType);
+          result.stack.add(def->getTarget().get());
+          if (helper->lookupCalleeInScope(ref, objType, false, refType, types, ec, result)) {
+            retVal = true;
+            if (result.matchStatus == TypeMatchStatus::EXACT) break;
+          } else {
+            while (result.stack.getCount() > newStackSize) result.stack.remove(newStackSize);
+          }
+        }
+      }
+    }
+  }
+
   // Did we have a matched callee?
-  if (callee != 0) {
-    return true;
-  } else {
-    if (notice != 0) {
-      if (notice->getSourceLocation() == 0) notice->setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
+  if (!retVal) {
+    // Remove any extra items we added to the stack.
+    while (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
+
+    // If we have no notice it means the symbol was not found in the first place.
+    if (result.notice == 0 && result.matchStatus == TypeMatchStatus::NONE) {
+      result.notice = std::make_shared<Spp::Notices::UnknownSymbolNotice>();
+    }
+
+    if (result.notice != 0) result.notice->setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
+  }
+
+  return retVal;
+}
+
+
+Bool Helper::_lookupCalleeOnObject(
+  TiObject *self, TiObject *obj, TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec,
+  Word currentStackSize, CalleeLookupResult &result
+) {
+  PREPARE_SELF(helper, Helper);
+
+  ContainerExtender<TiObject, 1, 0> extTypes(types);
+  extTypes.setPreItem(0, thisType);
+
+  if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
+    // Match functions.
+    auto f = static_cast<Ast::Function*>(obj);
+    TypeMatchStatus ms;
+
+    Bool useThis = thisType != 0;
+
+    ms = f->getType()->matchCall(useThis ? &extTypes : types, helper, ec);
+    if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
+      result.notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
+      return false;
+    } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms > result.matchStatus) {
+      result.matchStatus = ms;
+      result.notice.reset();
+      result.thisIndex = currentStackSize - 1;
+      if (result.stack.getCount() == currentStackSize) result.stack.add(f);
+      else result.stack.set(currentStackSize, f);
+      result.type = f->getType().get();
+      return true;
+    } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
+      result.notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
+      return false;
     } else {
-      notice = std::make_shared<Spp::Notices::UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(ref));
+      return false;
+    }
+  } else if (obj != 0 && obj->isDerivedFrom<ArrayType>()) {
+    if (
+      types != 0 && types->getElementCount() == 1 &&
+      helper->isImplicitlyCastableTo(types->getElement(0), helper->getInt64Type(), ec)
+    ) {
+      if (result.matchStatus < TypeMatchStatus::EXACT) {
+        result.matchStatus = TypeMatchStatus::EXACT;
+        result.type = static_cast<ArrayType*>(obj);
+        result.notice.reset();
+        return true;
+      } else {
+        result.notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
+        return false;
+      }
+    } else {
+      if (result.matchStatus == TypeMatchStatus::NONE) result.notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
+      return false;
+    }
+  } else if (obj != 0 && obj->isDerivedFrom<Type>()) {
+    auto funcType = helper->tryGetPointerContentType<FunctionType>(obj);
+    if (funcType != 0) {
+      // We have a function pointer.
+      auto ms = funcType->matchCall(types, helper, ec);
+      if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
+        result.notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
+        return false;
+      } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms > result.matchStatus) {
+        result.matchStatus = ms;
+        result.notice.reset();
+        result.thisIndex = -2;
+        result.type = funcType;
+        return true;
+      } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
+        result.notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
+        return false;
+      } else {
+        return false;
+      }
+    } else {
+      // Lookup custom parens operators.
+      auto objRefType = helper->getReferenceTypeFor(obj);
+      static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("()"))} });
+      if (helper->lookupCalleeInScope(
+        &ref, static_cast<Core::Data::Node*>(obj), false, objRefType, types, ec, result
+      )) {
+        return true;
+      } else {
+        // If the ref symbol we provided here was not found we'll provide a better error message to the user since
+        // the user didn't manually provide this symbol.
+        if (result.notice != 0 && result.notice->isA<Spp::Notices::UnknownSymbolNotice>()) {
+          result.notice = std::make_shared<Spp::Notices::InvalidOperationNotice>();
+        }
+        return false;
+      }
+    }
+  } else if (obj != 0 && helper->isAstReference(obj)) {
+    // Match variables
+    auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(obj, obj));
+    objType = helper->tryGetDeepReferenceContentType(objType);
+    if (objType == 0) {
+      if (result.matchStatus == TypeMatchStatus::NONE) {
+        result.notice = std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
+      }
+      return false;
+    } else {
+      TiObject *prevVal = 0;
+      if (result.stack.getCount() == currentStackSize) result.stack.add(obj);
+      else {
+        prevVal = result.stack.get(currentStackSize);
+        result.stack.set(currentStackSize, obj);
+      }
+      if (helper->lookupCalleeOnObject(objType, 0, types, ec, currentStackSize, result)) {
+        return true;
+      } else {
+        if (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
+        else result.stack.set(currentStackSize, prevVal);
+        return false;
+      }
+    }
+  } else {
+    // Invalid
+    if (result.matchStatus == TypeMatchStatus::NONE) {
+      result.notice = std::make_shared<Spp::Notices::InvalidOperationNotice>();
     }
     return false;
   }
 }
 
 
-Core::Data::Seeker::Verb Helper::_lookupCallee_iteration(
-  TiObject *self, TiObject *obj, Containing<TiObject> *types, ExecutionContext const *ec,
-  TypeMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
-  TiObject *&callee, Type *&calleeType
+Function* Helper::_lookupCustomCaster(
+  TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
 ) {
   PREPARE_SELF(helper, Helper);
 
-  if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
-    // Match functions.
-    auto f = static_cast<Ast::Function*>(obj);
-    TypeMatchStatus ms;
-    ms = f->getType()->matchCall(types, helper, ec);
-    if (ms == TypeMatchStatus::NONE && matchStatus == TypeMatchStatus::NONE) {
-      notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
-    } else if (ms >= TypeMatchStatus::IMPLICIT_CAST && matchStatus == TypeMatchStatus::NONE) {
-      notice.reset();
-      callee = f;
-      calleeType = f->getType().get();
-      matchStatus = ms;
-    } else if (ms == matchStatus) {
-      if (
-        f != callee &&
-        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee))
-        == Core::Data::findOwner<Core::Data::Ast::Scope>(f)
-      ) {
-        callee = 0;
-        notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
-      }
-      // If this was an exact match there is no point in searching more.
-      if (ms == TypeMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
-    } else if (ms > matchStatus) {
-      notice.reset();
-      callee  = f;
-      calleeType = f->getType().get();
-      matchStatus = ms;
+  auto srcRefType = ti_cast<ReferenceType>(srcType);
+  if (srcRefType != 0) {
+    auto srcContentType = ti_cast<DataType>(srcRefType->getContentType(helper));
+    if (srcContentType != 0 && srcContentType->getBody() != 0) {
+      PlainList<TiObject> argTypes({ srcRefType });
+      static Core::Data::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
+      Function *callee = 0;
+      helper->getSeeker()->foreach(&ref, srcContentType->getBody().get(),
+        [=, &callee, &argTypes] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+        {
+          auto func = ti_cast<Function>(obj);
+          if (func != 0) {
+            auto funcType = func->getType().get();
+            auto match = funcType->matchCall(&argTypes, helper, ec);
+            if (match == TypeMatchStatus::EXACT) {
+              auto retType = funcType->traceRetType(helper);
+              if (retType->isImplicitlyCastableTo(targetType, helper, ec)) {
+                callee = func;
+                return Core::Data::Seeker::Verb::STOP;
+              }
+            }
+          }
+          return Core::Data::Seeker::Verb::MOVE;
+        },
+        SeekerExtension::Flags::SKIP_OWNERS_AND_USES
+      );
+      return callee;
     }
-    return Core::Data::Seeker::Verb::MOVE;
-  } else if (obj != 0 && helper->isAstReference(obj)) {
-    // Match variables
-    if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
-      if (
-        obj != callee &&
-        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee)) ==
-        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(obj))
-      ) {
-        notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
-        callee = 0;
-        return Core::Data::Seeker::Verb::STOP;
-      }
-    }
-    auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(obj, obj));
-    objType = helper->tryGetDeepReferenceContentType(objType);
-    if (objType == 0) {
-      notice = std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
-    } else if (objType->isDerivedFrom<ArrayType>()) {
-      if (
-        types != 0 && types->getElementCount() == 1 &&
-        helper->isImplicitlyCastableTo(types->getElement(0), helper->getInt64Type(), ec)
-      ) {
-        notice.reset();
-        callee = obj;
-        calleeType = objType;
-        matchStatus = TypeMatchStatus::EXACT;
-      } else {
-        notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
-      }
-    } else {
-      auto funcType = helper->tryGetPointerContentType<FunctionType>(objType);
-      if (funcType != 0) {
-        // We have a function pointer.
-        auto ms = funcType->matchCall(types, helper, ec);
-        if (funcType->matchCall(types, helper, ec) >= TypeMatchStatus::IMPLICIT_CAST) {
-          notice.reset();
-          callee = obj;
-          calleeType = objType;
-          matchStatus = ms;
-        } else {
-          notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
-        }
-      } else {
-        notice = std::make_shared<Spp::Notices::InvalidOperationNotice>();
-      }
-    }
-    return Core::Data::Seeker::Verb::STOP;
-  } else {
-    // Invalid
-    if (matchStatus >= TypeMatchStatus::IMPLICIT_CAST) {
-      if (
-        obj != callee &&
-        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(callee)) ==
-        Core::Data::findOwner<Core::Data::Ast::Scope>(static_cast<Core::Data::Node*>(obj))
-      ) {
-        notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
-        callee = 0;
-        return Core::Data::Seeker::Verb::STOP;
-      }
-    }
-    notice = std::make_shared<Spp::Notices::InvalidOperationNotice>();
-    callee = 0;
-    return Core::Data::Seeker::Verb::STOP;
   }
+  return 0;
+}
+
+
+Bool Helper::_lookupReferenceTarget(
+  TiObject *self, TiObject *astNode, Core::Data::Ast::Identifier *ref, Bool searchOwners, PlainList<TiObject> &stack
+) {
+  PREPARE_SELF(helper, Helper);
+
+  Word currentStackSize = stack.getCount();
+  Bool symbolFound = false;
+  helper->getSeeker()->foreach(ref, astNode,
+    [=, &symbolFound, &stack] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
+    {
+      symbolFound = true;
+      stack.add(obj);
+      return Core::Data::Seeker::Verb::STOP;
+    },
+    searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
+  );
+
+  if (!symbolFound) {
+    Block *block = 0;
+    auto dataType = ti_cast<DataType>(astNode);
+    if (dataType != 0) block = dataType->getBody().get();
+    else block = Core::Data::findOwner<Block>(ti_cast<Core::Data::Node>(astNode));
+
+    if (block != 0) {
+      for (Int i = 0; i < block->getInjectionCount(); ++i) {
+        auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
+        if (def == 0 || def->getTarget() == 0) continue;
+        if (!helper->isAstReference(def->getTarget().get())) continue;
+        auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
+        if (objType == 0) continue;
+        objType = helper->tryGetDeepReferenceContentType(objType);
+        stack.add(def->getTarget().get());
+        if (helper->lookupReferenceTarget(objType, ref, false, stack)) {
+          symbolFound = true;
+          break;
+        } else {
+          while (stack.getCount() > currentStackSize) stack.remove(currentStackSize);
+        }
+      }
+    }
+  }
+
+  return symbolFound;
 }
 
 
@@ -279,6 +456,10 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
           return Core::Data::Seeker::Verb::MOVE;
         }
 
+        // Unbox if we have a box.
+        auto box = ti_cast<TioWeakBox>(obj);
+        if (box != 0) obj = box->get().lock().get();
+
         // Do we have a type?
         type = ti_cast<Spp::Ast::Type>(obj);
         if (type != 0) {
@@ -305,7 +486,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     );
   }
 
-  if (type == 0) {
+  if (type == 0 && helper->noticeStore != 0) {
     if (notice != 0) helper->noticeStore->add(notice);
     helper->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
@@ -331,20 +512,52 @@ Bool Helper::_isImplicitlyCastableTo(
   TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
 ) {
   PREPARE_SELF(helper, Helper);
+  Function *caster;
+  return helper->matchTargetType(srcTypeRef, targetTypeRef, ec, caster) >= TypeMatchStatus::CUSTOM_CASTER;
+}
+
+
+Bool Helper::_isExplicitlyCastableTo(
+  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+) {
+  PREPARE_SELF(helper, Helper);
+  Function *caster;
+  return helper->matchTargetType(srcTypeRef, targetTypeRef, ec, caster) >= TypeMatchStatus::EXPLICIT_CAST;
+}
+
+
+TypeMatchStatus Helper::_matchTargetType(
+  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec, Function *&caster
+) {
+  PREPARE_SELF(helper, Helper);
 
   auto srcType = ti_cast<Type>(srcTypeRef);
   if (srcType == 0) {
     srcType = helper->traceType(srcTypeRef);
-    if (srcType == 0) return false;
+    if (srcType == 0) return TypeMatchStatus::NONE;
   }
 
   auto targetType = ti_cast<Type>(targetTypeRef);
   if (targetType == 0) {
     targetType = helper->traceType(targetTypeRef);
-    if (targetType == 0) return false;
+    if (targetType == 0) return TypeMatchStatus::NONE;
   }
 
-  return srcType->isImplicitlyCastableTo(targetType, helper, ec);
+  auto matchType = srcType->matchTargetType(targetType, helper, ec);
+  if (matchType >= TypeMatchStatus::IMPLICIT_CAST) {
+    return matchType;
+  } else {
+    Int deref = 0;
+    while (srcType->isDerivedFrom<ReferenceType>()) {
+      caster = helper->lookupCustomCaster(srcType, targetType, ec);
+      if (caster != 0) {
+        return TypeMatchStatus(TypeMatchStatus::CUSTOM_CASTER, deref);
+      }
+      ++deref;
+      srcType = static_cast<ReferenceType*>(srcType)->getContentType(helper);
+    }
+    return matchType;
+  }
 }
 
 

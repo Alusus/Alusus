@@ -2,7 +2,7 @@
  * @file Core/Basic/basic.cpp
  * Contains the global implementations of Basic namespace's declarations.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,11 +24,11 @@ std::ostream & outStream = std::cout;
 std::istream & inStream = std::cin;
 
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 #include <windows.h>
 #else
 typedef std::codecvt<WChar,Char,std::mbstate_t> FacetType;
-static std::locale utf8Locale("en_US.UTF8");
+static std::locale utf8Locale("en_US.UTF-8");
 static const FacetType& utf8Facet = std::use_facet<FacetType>(utf8Locale);
 #endif
 
@@ -49,7 +49,7 @@ void convertStr(
   Char const *input, int inputLength, WChar *output, int outputSize,
   int &processedInputLength, int &resultedOutputLength
 ) {
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, input, inputLength, NULL, 0);
   resultedOutputLength = sizeNeeded < outputSize ? sizeNeeded : outputSize;
   processedInputLength = MultiByteToWideChar(CP_UTF8, 0, input, inputLength, output, resultedOutputLength);
@@ -71,7 +71,7 @@ void convertStr(
   WChar const *input, int inputLength, Char *output, int outputSize,
   int &processedInputLength, int &resultedOutputLength
 ) {
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, input, inputLength, NULL, 0, NULL, NULL);
   resultedOutputLength = sizeNeeded < outputSize ? sizeNeeded : outputSize;
   processedInputLength = WideCharToMultiByte(CP_UTF8, 0, input, inputLength, output, resultedOutputLength, NULL, NULL);

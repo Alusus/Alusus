@@ -1,8 +1,8 @@
 /**
- * @file Spp/CodeGen/MacroProcessor.h
- * Contains the header of class Spp::CodeGen::MacroProcessor.
+ * @file Spp/CodeGen/AstProcessor.h
+ * Contains the header of class Spp::CodeGen::AstProcessor.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,12 +16,12 @@
 namespace Spp::CodeGen
 {
 
-class MacroProcessor : public TiObject, public DynamicBinding, public DynamicInterfacing
+class AstProcessor : public TiObject, public DynamicBinding, public DynamicInterfacing
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(MacroProcessor, TiObject, "Spp.CodeGen", "Spp", "alusus.org", (
+  TYPE_INFO(AstProcessor, TiObject, "Spp.CodeGen", "Spp", "alusus.org", (
     INHERITANCE_INTERFACES(DynamicBinding, DynamicInterfacing),
     OBJECT_INTERFACE_LIST(interfaceList)
   ));
@@ -44,13 +44,13 @@ class MacroProcessor : public TiObject, public DynamicBinding, public DynamicInt
   //============================================================================
   // Constructors & Destructor
 
-  public: MacroProcessor(Ast::Helper *h) : astHelper(h)
+  public: AstProcessor(Ast::Helper *h) : astHelper(h)
   {
     this->initBindingCaches();
     this->initBindings();
   }
 
-  public: MacroProcessor(MacroProcessor *parent)
+  public: AstProcessor(AstProcessor *parent)
   {
     this->initBindingCaches();
     this->inheritBindings(parent);
@@ -58,7 +58,7 @@ class MacroProcessor : public TiObject, public DynamicBinding, public DynamicInt
     this->astHelper = parent->getAstHelper();
   }
 
-  public: virtual ~MacroProcessor()
+  public: virtual ~AstProcessor()
   {
   }
 
@@ -94,11 +94,14 @@ class MacroProcessor : public TiObject, public DynamicBinding, public DynamicInt
 
   public: void preparePass(Core::Notices::Store *noticeStore);
 
-  public: METHOD_BINDING_CACHE(runMacroPass, Bool, (Core::Data::Ast::Scope* /* root */));
-  private: static Bool _runMacroPass(TiObject *self, Core::Data::Ast::Scope *root);
+  public: METHOD_BINDING_CACHE(runPass, Bool, (Core::Data::Ast::Scope* /* root */));
+  private: static Bool _runPass(TiObject *self, Core::Data::Ast::Scope *root);
 
-  public: METHOD_BINDING_CACHE(processMacros, Bool, (TiObject* /* owner */));
-  private: static Bool _processMacros(TiObject *self, TiObject *owner);
+  public: METHOD_BINDING_CACHE(process, Bool, (TiObject* /* owner */));
+  private: static Bool _process(TiObject *self, TiObject *owner);
+
+  public: METHOD_BINDING_CACHE(processMemberFunction, Bool, (Spp::Ast::Function* /* func */));
+  private: static Bool _processMemberFunction(TiObject *self, Spp::Ast::Function *func);
 
   public: METHOD_BINDING_CACHE(processMacro,
     Bool, (

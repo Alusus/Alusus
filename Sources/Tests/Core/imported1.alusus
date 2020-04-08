@@ -1,0 +1,2 @@
+def i1: "imported1";
+dump_ast i1;

@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/ImportParsingHandler.h
  * Contains the header of class Core::Processing::Handleres::ImportParsingHandler.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,6 +45,8 @@ class ImportParsingHandler : public GenericParsingHandler
 
   /// Load the referenced library.
   public: virtual void onProdEnd(Parser *parser, ParserState *state);
+
+  private: Int tryImport(TiObject *astNode, Str &filenames, Str &errorDetails, ParserState *state);
 
 }; // class
 

@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.h
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,7 +32,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<Ast::Helper> astHelper;
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
   private: SharedPtr<CodeGen::GlobalItemRepo> globalItemRepo;
-  private: SharedPtr<CodeGen::MacroProcessor> macroProcessor;
+  private: SharedPtr<CodeGen::AstProcessor> astProcessor;
   private: SharedPtr<CodeGen::TypeGenerator> typeGenerator;
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;

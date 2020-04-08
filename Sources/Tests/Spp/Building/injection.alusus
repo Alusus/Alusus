@@ -1,0 +1,46 @@
+import "Srl/Console.alusus";
+
+use Srl.Console;
+
+type InnerMost {
+  def a: Int;
+  func getA ():Int { return this.a }
+  handler this=Int { this.a = value };
+}
+
+type Inner {
+  @injection def rim: ref[InnerMost];
+
+  def i: Int;
+  func getI ():Int { return this.i };
+  handler this(): Int { return this.i * 2 }
+}
+
+type Outer {
+  @injection def inner: Inner;
+  def k: Int;
+  a = 6;
+  i = 7;
+  k = 8;
+}
+
+def o: Outer;
+func getO ():ref[Outer] { return o }
+
+func test {
+  print("o.a=%d, o.i=%d, o.k=%d\n", o.a, o.i, o.k);
+
+  o.a = 1;
+  o.i = 2;
+  print("o.getA()=%d, o.getI()=%d, o()=%d\n", o.getA(), o.getI(), o());
+
+  o.k = 4;
+  o = 17;
+
+  print(
+    "getO().getA()=%d, getO().getI()=%d, getO().i=%d, getO().k=%d, getO()()=%d\n",
+    getO().getA(), getO().getI(), getO().i, getO().k, getO()()
+  );
+};
+
+Spp.dumpLlvmIrForElement(test~ast);

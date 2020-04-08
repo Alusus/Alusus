@@ -2,7 +2,7 @@
  * @file Core/Notices/notices.cpp
  * Contains the global implementations of Notices namespace's declarations.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 #include <stdio.h>
 #include <conio.h>
 #include <iostream>
@@ -28,7 +28,7 @@ void printNotice(Notice const *msg)
   if (Data::getSourceLocationRecordCount(msg->getSourceLocation().get()) == 0) return;
 
   // Print severity.
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   // Get STDOUT handle.
   HANDLE h = GetStdHandle (STD_OUTPUT_HANDLE);
   WORD wOldColorAttrs;
@@ -97,7 +97,7 @@ void printNotice(Notice const *msg)
   // Print description.
   outStream << msg->getDescription() << S("\033[0m") << NEW_LINE;
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   // Restore the original text color.
   SetConsoleTextAttribute(h, wOldColorAttrs);
 #endif

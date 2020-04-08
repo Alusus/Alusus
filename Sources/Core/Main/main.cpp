@@ -2,7 +2,7 @@
  * @file Core/Main/main.cpp
  * Contains the global implementations of Main namespace's declarations.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #include "core.h"
 #include <stdio.h>  /* defines FILENAME_MAX */
 #include <filesystem>
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 #include "Win32Helpers.h"
 #include <Windows.h>
 #include <direct.h>
@@ -27,7 +27,7 @@ namespace Core::Main
 
 using namespace Data;
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 #define _wgetWorkingDirectory _wgetcwd
 #else
 #define _getWorkingDirectory getcwd
@@ -39,7 +39,7 @@ using namespace Data;
 
 std::string getWorkingDirectory()
 {
-  #if defined(__MINGW32__) || defined(__MINGW64__)
+  #if defined(_WIN32)
   thread_local static std::array<WChar,FILENAME_MAX> currentPath;
   if (!_wgetWorkingDirectory(currentPath.data(), currentPath.size()))
   #else
@@ -50,7 +50,7 @@ std::string getWorkingDirectory()
     throw EXCEPTION(GenericException, S("Couldn't obtain the current working directory."));
   }
 
-  #if defined(__MINGW32__) || defined(__MINGW64__)
+  #if defined(_WIN32)
   std::string path(utf8Encode(std::wstring(currentPath.data())));
   #else
   std::string path(currentPath.data());
@@ -62,7 +62,7 @@ std::string getWorkingDirectory()
 
 std::string getModuleDirectory()
 {
-  #if defined(__MINGW32__) || defined(__MINGW64__)
+  #if defined(_WIN32)
   thread_local static std::array<WChar,FILENAME_MAX> currentPath;
   int count = GetModuleFileNameW(NULL, currentPath.data(), currentPath.size());
   // TODO: Add count testing here.

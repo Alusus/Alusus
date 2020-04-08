@@ -6,7 +6,45 @@ import "libcurl";
 {
   def Net: module
   {
-    type Curl {};
+    type Curl {
+      @shared
+      func exec(curlHandle: ptr[Curl], resultCount: ptr[Int], responseCode: ptr[Int]): ptr {
+        def result: ptr = 0;
+
+        def content: _Content;
+        content.data = 0;
+        content.size = 0;
+
+        if (curlHandle == 0) return null;
+
+        CurlEasy.setOpt(curlHandle, CurlOpt.WRITEFUNCTION, _getCallbackFunction~ptr);
+        CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, content~ptr);
+
+        responseCode~cnt = CurlEasy.perform(curlHandle);
+        if responseCode~cnt == CurlCode.OK {
+          result = Srl.Memory.realloc(content.data, content.size + 1);
+          result~cast[ptr[array[Word[8]]]]~cnt(content.size) = 0;
+          resultCount~cnt = content.size;
+          return result;
+        }
+
+        resultCount~cnt = 0;
+        return null;
+      }
+
+      @shared
+      func exec(curlHandle: ptr[Curl], resultCount: ptr[Int]): ptr {
+        def responseCode: Int = 0;
+        return exec(curlHandle, resultCount, responseCode~ptr);
+      }
+
+      @shared
+      func exec(curlHandle: ptr[Curl]): ptr {
+        def resultCount: Int = 0;
+        def responseCode: Int = 0;
+        return exec(curlHandle, resultCount~ptr, responseCode~ptr);
+      }
+    };
     type CurlInfo {};
 
     module CurlOpt {
@@ -250,22 +288,22 @@ import "libcurl";
     module CurlEasy {
       @expname[curl_easy_init]
       func init() => ptr[Curl];
-      
+
       @expname[curl_easy_cleanup]
       func cleanup(curl: ptr[Curl]): Int;
-      
+
       @expname[curl_easy_setopt]
       func setOpt(curl: ptr[Curl], option: Int, parameter: ...any): Int;
 
       @expname[curl_easy_escape]
-      func escape(curl: ptr[Curl], url: ptr[Char], urlSize: Int): ptr[Char];
-      
+      func escape(curl: ptr[Curl], url: ptr[array[Char]], urlSize: Int): ptr[array[Char]];
+
       @expname[curl_easy_perform]
       func perform(curl: ptr[Curl]): Int;
-      
+
       @expname[curl_easy_getinfo]
       func getInfo(curl: ptr[Curl], info: CurlInfo, arguments: ...any): Int;
-      
+
       @expname[curl_easy_reset]
       func reset(curl: ptr[Curl]);
     };
@@ -273,11 +311,11 @@ import "libcurl";
     type CurlSlist {
       @shared
       @expname[curl_slist_append]
-      func append(curlSlist: ptr[CurlSlist], string: ptr[Char]): ptr[CurlSlist];
+      func append(curlSlist: ptr[CurlSlist], string: ptr[array[Char]]): ptr[CurlSlist];
 
       @shared
       @expname[Curl_slist_append_nodup]
-      func appendNodup(curlSlist: ptr[CurlSlist], string: ptr[Char]): ptr[CurlSlist];
+      func appendNodup(curlSlist: ptr[CurlSlist], string: ptr[array[Char]]): ptr[CurlSlist];
 
       @shared
       @expname[slist_get_last]

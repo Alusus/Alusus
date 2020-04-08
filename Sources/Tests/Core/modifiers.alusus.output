@@ -1,8 +1,6 @@
 ERROR CP1005 @ (17,4): Unexpected modifier encountered.
-ERROR CP1001 @ (17,14): Parser syntax error.
 ERROR CP1001 @ (18,8): Parser syntax error.
 ERROR CP1005 @ (18,4): Unexpected modifier encountered.
-ERROR CP1001 @ (19,40): Parser syntax error.
 ERROR CP1001 @ (20,33): Parser syntax error.
 ERROR CP1005 @ (22,4): Unexpected modifier encountered.
 ERROR CP1005 @ (23,8): Unexpected modifier encountered.
@@ -82,17 +80,31 @@ Scope [Main.Statements.StmtList]
  GenericCommand do [Main.Do]
   args: List
    Token: LexerDefs.Identifier ("do")
+   StringLiteral: leading err - bracket [Main.Subject.Literal]
+  modifiers: NULL
+ Identifier: first [Main.Subject.Identifier]
+ GenericCommand do [Main.Do]
+  args: List
+   Token: LexerDefs.Identifier ("do")
+   StringLiteral: leading err - dot [Main.Subject.Literal]
+  modifiers: NULL
+ GenericCommand do [Main.Do]
+  args: List
+   Token: LexerDefs.Identifier ("do")
    StringLiteral: trailing err - bracket [Main.Subject.Literal]
   modifiers: List
    ParamPass () [Modifier.Expression.ParamPassExp]
     operand: Identifier: test [Modifier.Subject.Identifier]
     param: IntegerLiteral: 1 [Main.Subject.Literal]
+ Bracket () [Main.Subject.Sbj]
+  operand: NULL
  GenericCommand do [Main.Do]
   args: List
    Token: LexerDefs.Identifier ("do")
    StringLiteral: trailing err - dot [Main.Subject.Literal]
   modifiers: List
    Identifier: test [Modifier.Subject.Identifier]
+ Identifier: first [Main.Subject.Identifier]
  AssignmentOperator = [Main.Expression.AssignmentExp]
   first: Identifier: a [Main.Subject.Identifier]
   second: AdditionOperator + [Main.Expression.AddExp]

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/CommandGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -67,15 +67,16 @@ Bool CommandGenerator::_generateReturnStatement(
     if (retType->hasCustomInitialization(cmdGenerator->astHelper, deps.tg->getExecutionContext())) {
       // Assign value to ret reference.
       TiObject *retTgType;
-      if (!g->getGeneratedType(retType, deps.tg, retTgType, 0)) return false;
+      if (!g->getGeneratedType(retType, deps, retTgType, 0)) return false;
 
       SharedList<TiObject> initTgVals;
       PlainList<TiObject> initAstTypes;
+      PlainList<TiObject> initAstNodes;
       initTgVals.add(operandResult.targetData);
       initAstTypes.add(operandResult.astType);
+      initAstNodes.add(ti_cast<Core::Data::Node>(operand));
       if (!g->generateVarInitialization(
-        retType, getCodeGenData<TiObject>(retTypeRef), retTypeRef,
-        &initAstTypes, &initTgVals, deps
+        retType, getCodeGenData<TiObject>(retTypeRef), astNode, &initAstNodes, &initAstTypes, &initTgVals, deps
       )) {
         return false;
       }
@@ -87,20 +88,14 @@ Bool CommandGenerator::_generateReturnStatement(
       // Return the value itself.
 
       // Cast the returned value, if needed.
-      if (!operandResult.astType->isImplicitlyCastableTo(
-        retType, cmdGenerator->astHelper, deps.tg->getExecutionContext()
-      )) {
+      TioSharedPtr tgCastedValue;
+      if (!g->generateCast(
+        deps, operandResult.astType, retType, astNode, operandResult.targetData.get(), true, tgCastedValue)
+      ) {
         cmdGenerator->noticeStore->add(
           std::make_shared<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
         );
         return false;
-      }
-      TioSharedPtr tgCastedValue;
-      if (!g->generateCast(
-        deps, operandResult.astType, retType, operandResult.targetData.get(), tgCastedValue)
-      ) {
-        // This should not happen since non-castable calls should be filtered out earlier.
-        throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));
       }
       // Destruct variables.
       if (!g->generateVarGroupDestruction(deps, 0)) return false;
@@ -442,13 +437,7 @@ Bool CommandGenerator::castCondition(
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();
-  if (!astType->isImplicitlyCastableTo(boolType, this->astHelper, deps.tg->getExecutionContext())) {
-    this->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
-    );
-    return false;
-  }
-  if (!g->generateCast(deps, astType, this->astHelper->getBoolType(), tgValue, result)) {
+  if (!g->generateCast(deps, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, result)) {
     this->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );

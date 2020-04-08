@@ -2,7 +2,7 @@
  * @file Core/Processing/Engine.cpp
  * Contains the implementation of class Core::Processing::Engine.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
 #include "Win32Helpers.h"
 #endif
 
@@ -92,7 +92,7 @@ SharedPtr<TiObject> Engine::processString(WChar const *str, Char const *name)
 SharedPtr<TiObject> Engine::processFile(Char const *filename)
 {
   // Open the file.
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   WStr wFilename = utf8Decode(Str(filename));
   FILE* fd = _wfopen(wFilename.c_str(), L"r, ccs=UTF-8");
   if (!fd) {
@@ -127,7 +127,7 @@ SharedPtr<TiObject> Engine::processStream(CharInStreaming *is, Char const *strea
   sourceLocation.filename = std::make_shared<Str>(streamName);
   sourceLocation.line = 1;
   sourceLocation.column = 1;
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   WChar c = is->get();
   Bool isPrevLF = c == L'\n'; // To check for a second line feed on interactive mode in Windows.
 #else
@@ -136,7 +136,7 @@ SharedPtr<TiObject> Engine::processStream(CharInStreaming *is, Char const *strea
   while (!is->isEof()) {
     lexer.handleNewChar(c, sourceLocation);
     c = is->get();
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
     // Skipping the second line feed in interactive mode in Windows.
     if (isPrevLF && c == L'\n' && is->getType() == CharInStreaming::CharInStreamingType::INTERACTIVE_CHAR_IN_STREAM) {
       c = is->get();

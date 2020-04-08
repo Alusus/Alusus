@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <title>مرجع الاستخدام | لغة الأسس البرمجية</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="Resources/rtl/bootstrap.min.css">
+    <link rel="stylesheet" href="Resources/font-awesome.min.css">
+    <link rel="stylesheet" href="Resources/style.css">
+    <link rel="stylesheet" href="Resources/highlight.default.css">
+    <script src="Resources/jquery.min.js"></script>
+    <script src="Resources/popper.min.js"></script>
+    <script src="Resources/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="Resources/logo.gif" alt="Alusus Programming Language" class="site-logo"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+              <h3 style="padding-top: 0px; margin-top: 0px;">لغة الأسس - مرجع استخدام اللغة</h3>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <!--content-separator-->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card side-sticky">
+                    <div class="card-header">مرجع الاستخدام</div>
+                    <div class="card-content">
+                        <a href="#General" class="top-level">مفاهيم عامة</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#General-definitions">التعريفات</a></li>
+                            <li><a href="#General-structure">الهيكل العام للبرنامج</a></li>
+                            <li><a href="#General-comments">التعليقات</a></li>
+                            <li><a href="#General-modifiers">المبدلات</a></li>
+                          </ul>
+                        <a href="#BasicTypes" class="top-level">الأصناف الأساسية للمتغيرات</a><br>
+                        <a href="#OperatorsAndOperations" class="top-level">التراكيب والمؤثرات</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#OperatorsAndOperations-operators">المؤثرات</a></li>
+                            <li><a href="#OperatorsAndOperations-priorities">التحكم بالأسبقية</a></li>
+                            <li><a href="#OperatorsAndOperations-literals">الرموز الحرفية</a></li>
+                          </ul>
+                        <a href="#Commands" class="top-level">أوامر التحكم</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#Commands-conditionals">الجمل الشرطية</a></li>
+                            <li><a href="#Commands-loops">الحلقات</a></li>
+                            <li><a href="#Commands-continue">الأمر `أكمل` (continue)</a></li>
+                            <li><a href="#Commands-break">الأمر `اقطع` (break)</a></li>
+                          </ul>
+                        <a href="#Functions" class="top-level">الدالّات</a><br>
+                        <a href="#Types" class="top-level">أصناف المستخدم</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#Types-templates">قوالب الأصناف</a></li>
+                            <li><a href="#Types-methods">الوظائف (methods)</a></li>
+                            <li><a href="#Types-sharedmembers">العناصر المشتركة</a></li>
+                            <li><a href="#Types-custominit">تخصيص تهيئة الكائنات</a></li>
+                            <li><a href="#Types-customterminate">تخصيص إتلاف الكائنات</a></li>
+                            <li><a href="#Types-initorder">تسلسل تهيئة الكائنات</a></li>
+                            <li><a href="#Types-customops">تخصيص المؤثرات</a></li>
+                            <li><a href="#Types-injection">حقن التعريفات</a></li>
+                          </ul>
+                        <a href="#Pointers" class="top-level">المؤشرات</a><br>
+                        <a href="#References" class="top-level">السندات</a><br>
+                        <a href="#Arrays" class="top-level">المصفوفات</a><br>
+                        <a href="#Casting" class="top-level">تمثيل الأصناف</a><br>
+                        <a href="#Dynamicinit" class="top-level">حجز وتهيئة الكائنات ديناميكيا</a><br>
+                        <a href="#Alias" class="top-level">الألقاب</a><br>
+                        <a href="#Modules" class="top-level">الوحدات</a><br>
+                        <a href="#Macros" class="top-level">الماكروهات</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#Macros-strtemplates">القوالب في المعرفات وسلاسل المحارف</a></li>
+                            <li><a href="#Macros-cmacrocomparison">مقارنة مع ماكرو لغة السي</a></li>
+                          </ul>
+                        <a href="#Merge" class="top-level">تجزئة التعريفات</a><br>
+                        <a href="#Import" class="top-level">شمل مكتبات أو ملفات مصدرية</a><br>
+                        <a href="#Spp" class="top-level">دليل الوحدة `نـبم`</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#Spp-dumpLlvmIrForElement">أدرج_تو_لعنصر (dumpLlvmIrForElement)</a></li>
+                            <li><a href="#Spp-buildObjectFileForElement">أنشء_ملفا_رقميا_لعنصر (buildObjectFileForElement)</a></li>
+                            <li><a href="#Spp-getModifierStrings">هات_محارف_مبدل (getModifierStrings؛)</a></li>
+                          </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <p>
+                    يضم هذا المرجع تعليمات البرمجة الإجرائية باستخدام مكتبة نمط البرمجة المعياري (Standard Programming Paradigm).
+                </p>
+
+                <!-- ********************************************************************** -->
+                <h3 id="General">مفاهيم عامة</h3>
+                <hr>
+                <div>
+                    <h4>المعرّفات (identifiers)</h4>
+                    المعرّفات تستخدم للإشارة إلى دالة أو متغير أو صنف وتبدأ بحرف هجائي عربي أو انجليزي أو بالرمز _. يمكن للمعرفات أن تحتوي أيضاً على الأرقام 0-9 وعلى الحركات والشدّة أيضاً.
+
+                    <h4>الفصل بين الجمل</h4>
+                    تستخدم الفاصلة المنقوطة للفصل بين الجمل بطريقة مشابهة للفاصلة الإعتيادية التي تفصل بين الحدود داخل القوائم. بمعنى آخر فإن الفاصلة المنقوطة ليست جزءاً من الجملة ويُمكن إهمالها إن لم يأت بعدها جملة أخرى.
+
+                    <h4>الأقواس الهلالية والأقواس المعقوفة</h4>
+                    تستخدم الأقواس الهلالية في الأمور التي تُعالج أثناء تنفيذ البرنامج مثل جمع الحدود داخل التراكيب أو إرسال المدخلات إلى الدالّات، بينما تستخدم الأقواس المعقوفة في الأمور التي تُعالج أثناء الترجمة مثل تحديد نوع المؤشر أو المصفوفة. بمعنى آخر، إن كانت المعلومة
+                    مرسلةً إلى المترجم نفسه تُسخدم الأقواس المعقوفة، وإلا فالأقواس الهلالية.
+
+                    <h4>الأقواس الحاصرة</h4>
+                    تستخدم الأقواس الحاصرة لحصر مجموعة من الجمل في كتلة واحدة. وتستخدم هذه الكتل في جواب الجمل الشرطية ومتون الحلقات والهياكل والدالات والوحدات.
+
+                    <h4 id="General-definitions">التعريفات</h4>
+                    كل التعريفات تتم باستخدام الأمر "عرّف" (def) ويأخذ الصيغة التالية:
+                    <pre dir=rtl class="code" style="text-align:right;">
+  عرّف &lt;معرِّف&gt; : &lt;تعريف&gt;</pre>
+                    <pre dir=ltr class="code">
+  def &lt;identifier&gt; : &lt;definition&gt;</pre> التعريف يمكن أن يكون اسم أحد الأصناف وينتج عن التعريف متغير من ذلك الصنف، أو يكون أحد الأوامر التعريفية الأخرى مثل الدالات والهياكل. المثال التالي يعرّف متغيراً من صنف الأعداد الصحيحة:
+                    <pre dir=rtl class="samplecode" style="text-align:right;">
+  عرّف م : العدد_الصحيح</pre>
+                    <pre dir=ltr class="samplecode">
+  def i : Int</pre> يمكن أيضاً تعريف الثوابت بنفس الطريقة وذلك بوضع القيمة نفسها بدل الصنف ويمكن هذا مع الأعداد الصحيحة والعائمة بالإضافة إلى سلاسل المحارف، كما في المثال التالي:
+                    <pre dir=rtl class="samplecode" style="text-align:right;">
+  عرّف البسملة: "بسم الله الرحمن الرحيم"؛
+  عرف النسبة_الثابتة: 3.141592؛
+  عرف عدد_أيام_الاسبوع: 7؛</pre>
+                    <pre dir=ltr class="samplecode">
+  def hello: "Hello World";
+  def pi: 3.141592;
+  def daysPerWeek: 7;</pre>
+
+                    <br/>
+                    <h4 id="General-structure">الهيكل العام للبرنامج</h4>
+                    كل برنامج بلغة الأسُس يجب أن يشمل المكتبة "libalusus_spp.so" إما بشكل مباشر أو بشكل غير مباشر وذلك لأن هذه المكتبة هي التي تحتوي على تعريفات الأوامر الأساسية المتعلقة بالبرمجة الإجرائية. لذلك يبدأ كل برنامج بالأمر "اشمل" أو "import".
+                    <pre class="code" dir=ltr>
+  import "libalusus_spp.so";</pre> غالباً لن تحتاج لشمل مكتبة البناء المعيارية مباشرة، وإنما تشمل ملفات تعريفية أخرى تقوم بدورها بشمل مكتبة البناء المعيارية. على سبيل المثال:
+                    <pre class="code" dir=ltr>
+  import "Srl/Console.alusus";</pre> أو:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  اشمل "مـتم/طـرفية.أسس"؛</pre> يحتوي كل برنامج على تعريف لوحدة وهذه الوحدة هي التي تحتوي على تعريفات البرنامج.
+                    <pre dir=ltr class="samplecode">
+  def HelloWorld : module
+  {
+    ...
+  }</pre>
+                    <pre dir=rtl class="samplecode" style="text-align:right;">
+  عرّف الـبسملة : وحدة
+  {
+    ...
+  }</pre> بعد ذلك يجب أن يضم البرنامج الأمر نفّذ (run) لتنفيذ البرنامج. السبب في ذلك يكمن في قدرة المبرمج على الاختيار بين التنفيذ المباشر (JIT compilation) أو التحويل إلى ملف تشغيلي (عبر الأمر build). خاصية التحويل إلى ملف تنفيذي
+                    ليست مكتملة بعد وسيتم إكمالها في إصدار آخر. الأمر "نفّذ" يكتب بالشكل التالي:
+                    <pre dir=rtl class="code" style="text-align:right;">
+  نفّذ &lt;اسم_وحدة&gt.&lt;اسم_الدالة&gt؛</pre>
+                    <pre dir=ltr class="code">
+  run &lt;module_name&gt;.&lt;function_name&gt;</pre>
+
+                    <h4 id="General-comments">التعليقات</h4>
+                    التعليقات في لغة الأسُس تبدأ بالرمز // وتنتهي عند نهاية السطر، أي أنها مشابهة للتعليقات مفردة السطر (single line comment) في لغة سي++ أو جافا.
+
+                <h4 id="General-modifiers">المبدلات</h4>
+                يمكن وسم عناصر الشفرة المصدرية بمبدلات تستخدم لاحقا في مجالات مختلفة. المبدل يمكن أن يغير طريقة ترجمة وتنفيذ الشفرة الموسومة ويمكن أن لا يفعل سوى إضافة بيانات وصفية. المبدل له النسق التالي:
+<pre class="code" dir=rtl style="text-align:right;">
+  @&lt;كلمة_تعريفية&gt; &lt;تعريف_العنصر_المراد_وسمه&gt;
+  @&lt;كلمة_تعريفية&gt;[&lt;معطيات&gt;] &lt;تعريف_العنصر_المراد_وسمه&gt;
+</pre>
+<pre class="code" dir=ltr>
+  @&lt;keyword&gt; &lt;def_of_element_to_be_tagged&gt;
+  @&lt;keyword&gt;[&lt;arguments&gt;] &lt;def_of_element_to_be_tagged&gt;
+</pre>
+                يعتمد المترجم على مبدلات معرفة مسبقا لإضافة خواص معينة على التعريفات المختلفة كما هو موضح في مواضع عدة من هذه الوثيقة. وبإمكان المستخدم إضافة مبدلات خاصة وقراءتها لاحقا باستخدام دالة `نـبم.هات_محارف_مبدل`.
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  @مبدلي["معطى1"، "معطى2"] دالة دالتي { ... }؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  @mymodifier["arg1", "arg2"] func myFunc { ... };
+</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="BasicTypes">الأصناف الأساسية للمتغيرات</h3>
+                <hr>
+                <div>
+                    <ul>
+                        <li><b>صـحيح (Int)</b><br/> عدد صحيح. يتم تحديد عدد البتات بين أقواس معقوفة. تحديد عدد البتات اختياري وبدونه يكون العدد الافتراضي للبتات 32.
+                            <pre dir=rtl class="code" style="text-align:right;">
+صـحيح // 32 بتة
+صـحيح[1]
+صـحيح[8]
+صـحيح[16]
+صـحيح[32]
+صـحيح[64]</pre>
+                            <pre dir=ltr class="code">
+Int // 32 bits
+Int[1]
+Int[8]
+Int[16]
+Int[32]
+Int[64]</pre>
+                        </li>
+                        <br/>
+
+                        <li><b>طـبيعي (Word)</b><br/> عدد صحيح موجب. يتم تحديد عدد البتات بين أقواس معقوفة. تحديد عدد البتات اختياري وبدونه يكون العدد الافتراضي للبتات 32.
+                            <pre dir=rtl class="code" style="text-align:right;">
+طـبيعي // 32 بتة
+طـبيعي[1]
+طـبيعي[8]
+طـبيعي[16]
+طـبيعي[32]
+طـبيعي[64]</pre>
+                            <pre dir=ltr class="code">
+Word // 32 bits
+Word[1]
+Word[8]
+Word[16]
+Word[32]
+Word[64]</pre>
+                        </li>
+                        <br/>
+
+                        <li><b>عـائم (Float)</b><br/> عدد عائم. يتم تحديد عدد البتات بين أقواس معقوفة. تحديد عدد البتات اختياري وبدونه يكون العدد الافتراضي للبتات 32.
+                            <pre dir=rtl class="code" style="text-align:right;">
+عـائم // 32 بتة
+عـائم[32]
+عـائم[64]</pre>
+                            <pre dir=ltr class="code">
+Float // 32 bits
+Float[32]
+Float[64]</pre>
+                        </li>
+                        <br/>
+
+                        <li><b>مـحرف (Char)</b><br/> محرف، وهو مجرد لقب للصنف `طـبيعي[8]`.
+                        </li>
+                        <br/>
+
+                        <li><b>ثـنائي (Bool)</b><br/> قيمية ثنائية، وهو مجرب لقب للصنف `طـبيعي[1]`.
+                        </li>
+                        <br/>
+
+                        <li><b>مصفوفة (array)</b><br/> مصفوفة من المتغيرات. تُعرف بتحديد صنف المتغيرات وعدد الخانات بين أقواس معقوفة كما يلي:
+                            <pre dir=rtl class="code" style="text-align:right;">
+مصفوفة[الصنف، عدد_الخانات]</pre>
+                            <pre dir=ltr class="code">
+array[the_type, element_count]</pre>
+                        </li>
+                        <br/>
+
+                        <li><b>مؤشر (ptr)</b><br/> مؤشر إلى متغير. صنف المتغير يحدد بين أقواس معقوفة، كما يلي:
+                            <pre dir=rtl class="code" style="text-align:right;">
+مؤشر[الصنف]</pre>
+                            <pre dir=ltr class="code">
+ptr[the_type]</pre>
+                        </li>
+                        <br/>
+
+                    </ul>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="OperatorsAndOperations">التراكيب والمؤثرات</h3>
+                <hr>
+                <div>
+                    <h4 id="OperatorsAndOperations-operators">المؤثرات</h4>
+                    فيما يلي قائمة المؤثرات مرتبة تصاعدياً حسب الأسبقية، أي أن العناصر الأولى بأسبقية أقل:<br/>
+                    <b>ملاحظة: </b> بعض هذه المؤثرات غير مدعومة بعد وسيتم دعمها في إصدار لاحق.
+                    <ul>
+                        <li><b>مؤثرات التعيين</b><br/>
+                            <table class="dict">
+                                <tr>
+                                    <td dir=ltr>=</td>
+                                    <td>تحديد قيمة جديدة</tr>
+                                <tr>
+                                    <td dir=ltr>+=</td>
+                                    <td>إضافة قيمة للقيمة الحالية</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>-=</td>
+                                    <td>طرح قيمة من القيمة الحالية</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>*=</td>
+                                    <td>ضرب القيمة الحالية بقيمة أخرى</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>/=</td>
+                                    <td>تقسيم القيمة الحالية على قيمة أخرى</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>%=</td>
+                                    <td>تقسيم القيمة الحالية على قيمة أخرى والاحتفاظ بالباقي بدل نتيجة القسمة</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&=</td>
+                                    <td>تطبيق عملية 'و' المنطقية على القيمة الحالية</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>|=</td>
+                                    <td>تطبيق عملية 'أو' المنطقية على القيمة الحالية</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>$=</td>
+                                    <td>تطبيق عملية xor المنطقية على القيمة الحالية</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&lt;&lt;=</td>
+                                    <td>تزحيف جميع البتّات يساراً مراتباَ بتعداد القيمة المعطاة</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>=&gt;&gt;</td>
+                                    <td>تزحيف جميع البتّات يميناً مراتباً بتعداد القيمة المعطاة</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><b>مؤثرات العمليات المنطقية</b><br/>
+                            <table class="dict">
+                                <tr>
+                                    <td dir=ltr>و</td>
+                                    <td>عملية `و` المنطقية، ويمكن كتابتها and ايضاً</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>أو</td>
+                                    <td>عملية `أو` المنطقية، ويمكن كتابتها or أيضاً</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>||</td>
+                                    <td>صيغة رمزية ل or</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&&</td>
+                                    <td>صيغة رمزية ل and</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><b>مؤثرات المقارنة</b><br/>
+                            <table class="dict">
+                                <tr>
+                                    <td dir=ltr>==</td>
+                                    <td>فحص مساواة</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>!=</td>
+                                    <td>فحص عدم المساواة</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&lt;</td>
+                                    <td>فحص أصغر</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&gt;</td>
+                                    <td>فحص أكبر</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&lt;=</td>
+                                    <td>فحص أصغر أو يساوي</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&gt;=</td>
+                                    <td>فحص أكبر أو يساوي</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><b>مؤثرات الجمع والطرح</b><br/>
+                            <table class="dict">
+                                <tr>
+                                    <td dir=ltr>+</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>-</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><b>مؤثرات الضرب والقسمة</b><br/>
+                            <table class="dict">
+                                <tr>
+                                    <td dir=ltr>*</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>/</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>%</td>
+                                    <td>تحصيل باقي القسمة</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><b>مؤثرات العمليات البتّية</b><br/> هذه المؤثرات لتطبيق عمليات منطقية على مستوى البتّات، أي تطبيق العمليات على كل بت وما يقابله، بالإضافة إلى عمليات تزحيف البتّات.
+                            <table class="dict">
+                                <tr>
+                                    <td dir=ltr>|</td>
+                                    <td>عملية 'أو'</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>$</td>
+                                    <td>عملية xor</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&</td>
+                                    <td>عملية 'و'</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&lt;&lt;</td>
+                                    <td>تزحيف البتّات يميناً مراتباً بتعداد القيمة المعطاة</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>&gt;&gt;</td>
+                                    <td>تزحيف البتّات يساراً مراتباً بتعداد القيمة المعطاة</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><b>المؤثرات الأحادية السابقة</b>
+                            <table class="dict">
+                                <tr>
+                                    <td>++</td>
+                                    <td>زيادة بواحد</td>
+                                </tr>
+                                <tr>
+                                    <td>--</td>
+                                    <td>إنقاص بواحد</td>
+                                </tr>
+                                <tr>
+                                    <td>+</td>
+                                    <td>إشارة الرقم الموجب</td>
+                                </tr>
+                                <tr>
+                                    <td>-</td>
+                                    <td>إشارة الرقم السالب</td>
+                                </tr>
+                                <tr>
+                                    <td>!</td>
+                                    <td>علامة النفي البتّية (عكس قيمة البتّات)</td>
+                                </tr>
+                                <tr>
+                                    <td>!!</td>
+                                    <td>علامة النفي المنطقية</td>
+                                </tr>
+                            </table>
+                        </li>
+                        <li><b>المؤثرات الأحادية اللاحقة</b>
+                            <table class="dict">
+                                <tr>
+                                    <td>++</td>
+                                    <td>زيادة بواحد</td>
+                                </tr>
+                                <tr>
+                                    <td>--</td>
+                                    <td>إنقاص بواحد</td>
+                                </tr>
+                            </table>
+                        </li>
+                    </ul>
+
+                    <h4 id="OperatorsAndOperations-priorities">التحكم بالأسبقية</h4>
+                    تستخدم الأقواس الهلالية للتحكم بالأسبقية في التراكيب. على سبيل المثال التركيب التالي ينفذ عملية الضرب قبل الجمع:
+                    <pre class="samplecode" style="text-align:right;">
+  س = ص + ع * م</pre> بينما التركيب التالي ينفذ الجمع قبل الضرب:
+                    <pre class="samplecode" style="text-align:right;">
+  س = (ص + ع) * م</pre>
+
+                    <h4 id="OperatorsAndOperations-literals">الرموز الحرفية</h4>
+                    بالإضافة للمتغيرات، بالإمكان استخدام الرموز الحرفي في التراكيب. وهذه قائمة الرموز الحرفية المدعومة في لغة الأسُس:
+                    <ul>
+                        <li><b>الأعداد الصحيحة</b><br/> تكتب كعدد عشري وتُمثل ب32 بت. مثلا: 132
+                        </li>
+                        <li><b>أعداد الفاصلة العائمة</b><br/> تكتب كعدد حقيقي وتُمثل ب32 بت. مثلا: 1.32
+                        </li>
+                        <li><b>سلاسل المحارف</b><br/> سلاسل المحارف تُحصر بعلامتي اقتباس، كما في المثال التالي:
+                            <pre class="samplecode" style="text-align:right;">
+  "بسم الله الرحمن الرحيم"</pre> يمكن كتابة الرموز الخاصة باستخدام علامة \ وفيما يلي قائمة الرموز الخاصة:
+                            <table class="dict">
+                                <tr>
+                                    <td dir=ltr>\n</td>
+                                    <td>\ج</td>
+                                    <td>بداية سطر جديد</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>\r</td>
+                                    <td>\ر</td>
+                                    <td>رجوع إلى بداية السطر</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>\t</td>
+                                    <td>\ت</td>
+                                    <td>إدراج علامة تاب (tab)</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>\"</td>
+                                    <td></td>
+                                    <td>إدراج علامة اقتباس</td>
+                                </tr>
+                                <tr>
+                                    <td dir=ltr>\\</td>
+                                    <td></td>
+                                    <td>إدراج علامة \</td>
+                                </tr>
+                            </table>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Commands">أوامر التحكم</h3>
+                <hr>
+                <div>
+                    <h4 id="Commands-conditionals">الجمل الشرطية</h4>
+                    تكتب الجمل الشرطية بالصيغة التالية:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  إذا &lt;تركيب شرطي&gt; &lt;جملة&gt;
+  إذا &lt;تركيب شرطي&gt; { &lt;مجموعة جمل&gt; }
+  إذا &lt;تركيب شرطي&gt; &lt;جملة_أو_كتلة&gt; وإلا &lt;جملة_أو_كتلة&gt;</pre>
+                    <pre class="code" dir=ltr>
+  if &lt;condition expression&gt; &lt;statement&gt;
+  if &lt;condition expression&gt; { &lt;group of statements&gt; }
+  if &lt;condition expression&gt; &lt;statement_or_block&gt; else &lt;statement_or_block&gt;</pre> ليس مشروطاً حصر تركيب الشرط بأقواس هلالية لكن ذلك متاح.
+
+                    <h4 id="Commands-loops">الحلقات</h4>
+                    تكتب الحلقات بالصيغ التالية:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  بينما &lt;تركيب شرطي&gt; &lt;جملة&gt;
+  بينما &lt;تركيب شرطي&gt; { &lt;مجموعة جمل&gt; }
+  لكل &lt;تهيئة عداد&gt;، &lt;تركيب شرطي&gt;، &lt;تحديث عداد&gt; &lt;جملة&gt;
+  لكل &lt;تهيئة عداد&gt;، &lt;تركيب شرطي&gt;، &lt;تحديث عداد&gt; { &lt;مجموعة جمل&gt; }</pre>
+                    <pre class="code" dir=ltr>
+  while &lt;condition expression&gt; &lt;statement&gt;
+  while &lt;condition expression&gt; { &lt;group of statements&gt; }
+  for &lt;counter initialization&gt;, &lt;condition expression&gt;, &lt;counter update&gt; &lt;statement&gt;
+  for &lt;counter initialization&gt;, &lt;condition expression&gt;, &lt;counter update&gt; { &lt;group of statement&gt; }</pre> مثلما هو الحال مع الجمل الشرطية، ليس مشترطاً حصر التركيب الشرطي في "بينما" أو التراكيب الثلاث المتعلقة
+                    بالعداد في "لكل" بأقواس هلالية، لكن ذلك متاح. مثال:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  بينما ن!=0 ن=قم_بعملية()؛
+  بينما ن!=0 { ن = قم_بعملية() }؛
+  لكل ع=0، ع<10، ع++ اطبع("%d\ج"، ع)؛
+  لكل (ع=0، ع<10، ع++) اطبع("%d\ج"، ع)؛
+  لكل ع=0، ع<10، ع++ { اطبع("%d\ج"، ع) }؛</pre>
+                    <pre class="samplecode" dir=ltr>
+  while r!=0 r=performOperation();
+  while r!=0 { r = performOperation() }
+  for i=0, i&lt;10, i++ print("%d\n", i);
+  for (i=0, i&lt;10, i++) print("%d\n", i);
+  for i=0, i&lt;10, i++ { print("%d\n", i) };</pre>
+
+                    <h4 id="Commands-continue">الأمر `أكمل` (continue)</h4>
+                    يستخدم لتجاوز ما تبقى من الدورة الحالية للحلقة والبدء بدورة جديدة. يمكن تحديد رقم الحلقة المراد تجاوز دورتها في حالة الحلقات المتداخلة.
+                    <pre class="code" dir=rtl style="text-align:right;">
+  أكمل؛ // بدء دورة جديدة من الحلقة الحالية.
+  أكمل 2؛ // الخروج من الحلقة الحالية وبدء دورة جديدة من الحلقة الخارجية.</pre>
+                    <pre class="code" dir=ltr>
+  continue;
+  continue 2;</pre>
+
+                    <h4 id="Commands-break">الأمر `اقطع` (break)</h4>
+                    الخروج من الحلقة. يمكن تحديد رقم الحلقة المراد الخروج منها في حالة الحلقات المتداخلة.
+                    <pre class="code" dir=rtl style="text-align:right;">
+  اقطع؛ // الخروج من الحلقة الحالية.
+  اقطع 2؛ // الخروج من الحلقة الحالية والخارجية</pre>
+                    <pre class="code" dir=ltr>
+  break;
+  break 2;</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Functions">الدالّات</h3>
+                <hr>
+                <div>
+                    تعرّف الدالات باستخدام الأمر "دالّة" كتعريف في الأمر "عرّف":
+                    <pre class="code" dir=rtl style="text-align:right;">
+  عرّف &lt;اسم_الدالة&gt; : دالّة (&lt;معطيات&gt;) =&gt; &lt;صنف_النتيجة&gt; { &lt;متن_الدالة&gt; }</pre>
+                    <pre class="code" dir=ltr>
+  def &lt;func name&gt; : function (&lt;arguments&gt;) =&gt; &lt;return_type&gt; { &lt;function_body&gt; }</pre> وتكون المعطيات بالصيغة التالية:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  &lt;اسم_المعطى&gt;:&lt;نوع_المعطى&gt;، &lt;اسم_المعطى&gt;:&lt;نوع_المعطى&gt; ...</pre>
+                    <pre class="code" dir=ltr>
+  &lt;arg_name&gt;:&lt;arg_type&gt;, &lt;arg_name&gt;:&lt;arg_type&gt; ...</pre> كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف مضروب : دالّة (ع:العدد_الصحيح) => العدد_الصحيح
+  {
+    إذا ع==1 ارجع 1؛
+    ارجع ع * مضروب(ع-1)؛
+  }</pre>
+                    <pre class="samplecode" dir=ltr>
+  def factorial : function (i:Int) => Int
+  {
+    if i==1 return 1;
+    return i*factorial(i-1);
+  }</pre> يمكن أيضًا استخدام الصيغة المختصرة دون الحاجة للأمر "عرف" كما لي:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  دالة &lt;اسم_الدالة&gt; (&lt;معطيات&gt;) =&gt; &lt;صنف_النتيجة&gt; { &lt;متن_الدالة&gt; }</pre>
+                    <pre class="code" dir=ltr>
+  function &lt;func name&gt; (&lt;arguments&gt;) =&gt; &lt;return_type&gt; { &lt;function_body&gt; }</pre> كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  دالة مضروب (ع:العدد_الصحيح) => العدد_الصحيح
+  {
+    إذا ع==1 أرجع 1؛
+    أرجع ع * مضروب(ع-1)؛
+  }</pre>
+                    <pre class="samplecode" dir=ltr>
+  function factorial (i:Int) => Int
+  {
+    if i==1 return 1;
+    return i*factorial(i-1);
+  }</pre> استدعاء الدوال يتم باستخدام اسم الدالة يليه قائمة المعطيات بين قوسين هلاليين. إن لم تكن للدالة أي معطيات فيجب إتباع اسمها بقوسين هلاليين فارغين.
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  س = إقرأ_رقماً()؛
+  ص = إقرأ_رقماً()؛
+  ارسم_نقطة(س، ص)؛</pre>
+                    <pre class="samplecode" dir=ltr>
+  x = readNumber();
+  y = readNumber();
+  drawPoint(x, y);</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Types">أصناف المستخدم</h3>
+                <hr>
+                <div>
+                    تعرّف الهياكل باستخدام الأمر "صنف" كتعريف في الأمر "عرّف":
+<pre class="code" dir=rtl style="text-align:right;">
+  عرّف &lt;اسم_الصنف&gt; : صنف { &lt;مجموعة_تعريفات&gt; }
+</pre>
+<pre class="code" dir=ltr>
+  def &lt;type_name&gt; : type { &lt;definition_statements&gt; }
+</pre>
+ بعد تعريف الصنف يصبح الصنف متوفراً لتعريف المتغيرات. الولوج إلى عناصر الهيكل يتم باستخدام مؤثر النقطة. مثال:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف النقطة : صنف {
+    عرّف س : العدد_الحقيقي؛
+    عرّف ص : العدد_الحقيقي؛
+  }؛
+  .
+  .
+  عرّف ن : النقطة؛
+  ن.س = إقرأ_قيمة()؛
+  ن.ص = إقرأ_قيمة()؛</pre>
+<pre class="samplecode" dir=ltr>
+  def Point : type {
+    def x : Float;
+    def y : Float
+  };
+  .
+  .
+  def p : Point;
+  p.x = readValue();
+  p.y = readValue();
+</pre>
+ يمكن أيضًا استخدام الصيغة المختصرة التي تغنيك عن استعمال الأمر "عرف"، كما يلي:
+<pre class="code" dir=rtl style="text-align:right;">
+  صنف &lt;اسم_الصنف&gt; { &lt;مجموعة_تعريفات&gt; }
+</pre>
+<pre class="code" dir=ltr>
+  type &lt;type_name&gt; { &lt;definition_statements&gt; }
+</pre>
+ كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف النقطة {
+    عرّف س : العدد_الحقيقي؛
+    عرّف ص : العدد_الحقيقي؛
+  }؛
+  .
+  .
+  عرّف ن : النقطة؛
+  ن.س = إقرأ_قيمة()؛
+  ن.ص = إقرأ_قيمة()؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point {
+    def x : Float;
+    def y : Float
+  };
+  .
+  .
+  def p : Point;
+  p.x = readValue();
+  p.y = readValue();
+</pre>
+                <h4 id="Types-templates">قوالب الأصناف</h4>
+                يمكن تعريف قوالب الأصناف بتعريف معطيات يستخدمها الصنف في متنه ويتم تمرير هذا المعطى أثناء تعريف متغير من ذلك الصنف. التعريف والاستخدام يأخذان الصيغة التالية:
+<pre class="code" dir=rtl style="text-align:right;">
+  صنف &lt;اسم_الصنف&gt; [&lt;تعريف_معطيات_القالب&gt;] { &lt;متن_الصنف&gt; }
+
+  عرف &lt;اسم_المتغير&gt;: &lt;اسم_الصنف&gt;[&lt;معطيات_القالب&gt;]؛
+</pre>
+<pre class="code" dir=ltr>
+  type &lt;type_name&gt; [&lt;template_arg_defs&gt;] { &lt;type_body&gt; }
+
+  def &lt;var_name&gt;: &lt;type_name&gt;[&lt;template_args&gt;];
+</pre>
+                كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة [نوع: صنف] {
+    عرف س: نوع؛
+    عرف ص: نوع؛
+  }؛
+
+  عرف موقع_صحيح: نـقطة[صحيح]؛
+  عرف موقع_عائم: نـقطة[عائم]؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point [T: type] {
+    def x: T;
+    def y: T;
+  };
+
+  def intPoint: Point[int];
+  def floatPoint: Point[float];
+</pre>
+                معطيات القوالب يمكن أن تكون من أربعة أنواع:
+                <ul>
+                 <li>صنف type</li>
+                 <li>دالة function</li>
+                 <li>صحيح integer</li>
+                 <li>محارف string</li>
+                </ul>
+
+                <h4 id="Types-methods">الوظائف (methods)</h4>
+                الوظائف هي دالات تعرف داخل الأصناف ويتم استدعاؤها باستخدام كائن من ذلك الصنف. يمكن تعريف الوظائف كما تعرف أي دالة، فتعريف الدالة داخل متن صنف يجعلها وظيفة لذلك الصنف.
+<pre class="code" dir=rtl style="text-align:right;">
+  صنف &lt;اسم_الصنف&gt; {
+    دالة &lt;اسم_الوظيفة&gt; (&lt;تعريفات_المعطيات&gt;): &lt;صنف_الإرجاع&gt; { &lt;متن_الوظيفة&gt; }؛
+  }؛
+
+  &lt;اسم_الكائن&gt;.&lt;اسم_الوظيفة&gt;(&lt;المعطيات&gt;)؛
+</pre>
+<pre class="code" dir=ltr>
+  type &lt;type_name&gt; {
+    func &lt;method_name&gt; (&lt;arg_definitions&gt;): &lt;return_type&gt; { &lt;method_body&gt; };
+  };
+
+  &lt;object_name&gt;.&lt;method_name&gt;(&lt;arguments&gt;);
+</pre>
+                داخل الوظيفة يمكنك الوصول إلى الكائن المرتبط بذلك الاستدعاء باستخدام الكلمة المفتاحية `هذا` (this) كما لو كان المستخدم قد مرر ذلك الكائن إلى الدالة كمعطى باسم `هذا`. مثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    عرف س: عائم؛
+    عرف ص: عائم؛
+    دالة هات_المسافة (): عائم {
+      ارجع ريـاضيات.جذر(هذا.س * هذا.س + هذا.ص * هذا.ص)؛
+    }؛
+  }؛
+  عرف ن: نـقطة؛
+  ن.س = 3؛
+  ن.ص = 4؛
+  اطبع(ن.هات_المسافة())؛ // سيطبع 5
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point {
+    def x: float;
+    def y: float;
+    func getDistance ():float {
+      return Math.sqrt(this.x * this.x + this.y * this.y);
+    };
+  }:
+  def p: Point;
+  p.x = 3;
+  p.y = 4;
+  print(p.getDistance()); // prints 5
+</pre>
+
+                <h4 id="Types-sharedmembers">العناصر المشتركة</h4>
+                يمكن تعريف متغيرات ودالات مشتركة داخل أصناف المستخدم، وهذه العناصر المشتركة تكون غير مرتبطة بأي كائن من هذا الصنف وإنما تتصرف كأنها دالات ومتغيرات عمومية وفرقها الوحيد عن تلك المتغيرات والدالات العمومية أنها معرفة داخل مجال مختلف ولاستدعائها تحتاج أن تسبق اسمها باسم ذلك الصنف، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    @مشترك عرف عدد: صحيح = 0؛
+    عرف س: صحيح؛
+    عرف ص: صحيح؛
+    @مشترك دالة أنشئ_نقطة (ا: صحيح، ب: صحيح): نـقطة {
+      ++عدد؛
+      س = ا؛ // خطأ
+      ص = ب؛ // خطأ
+      عرف ن: نـقطة؛
+      ن.س = ا؛
+      ن.ص = ب؛
+      ارجع ن؛
+    }؛
+  }؛
+  عرف ن: نـقطة = نـقطة.أنشئ_نقطة(1، 2)؛
+  اطبع(نـقطة.عدد)؛ // يطبع 1
+  اطبع(ن.عدد)؛ // خطأ
+  اطبع(نـقطة.س)؛ // خطأ
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point {
+    @shared def count: int;
+    def x: int;
+    def y: int;
+    @shared func getPoint (a: int, b: int): Point {
+      ++count;
+      x = a; // error
+      y = b; // error
+      def p: Point;
+      p.x = a;
+      p.y = b;
+      return p;
+    };
+  }:
+  def p: Point = Point.getPoint(1, 2);
+  print(Point.count); // prints 1
+  print(p.count); // error
+  print(Point.x); // error
+</pre>
+
+                <h4 id="Types-custominit">تخصيص تهيئة الكائنات</h4>
+                يمكن للمستخدم تخصيص عملية تهيئة الكائنات باستخدام الأمر `عملية` (handler) وهذه صيغته:
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا~هيئ (&lt;معطيات&gt;) { &lt;متن_الدالة&gt; }؛
+</pre>
+<pre class="code" dir=ltr>
+  handler this~init (&lt;argument_definitions&gt;) { &lt;body&gt; };
+</pre>
+                عند تعريف هذه العملية داخل الصنف يقوم المترجم باستدعاء هذه الدالة كلما احتاج لتهيئة كائن جديد. يمكن تعريف معطيات لهذه الدالة إذا أردت تهيئة الكائن من كائن آخر كما هو الحال عند إرجاع هذا الكائن من دالة كقيمة أو استلامه في الدالة كمعطى. فعند تهيئة العنصر في إحدى هذه الحالات يقوم المترجم باستدعاء هذه الدالة وتمرير العنصر الأصلي كي تقوم الدلة بنسخه لـ`هذا`. أما في حالة عدم تخصيص عملية التهيئة فإن المترجم في هذه الحالات يقوم بنسخ ذاكرة الكائن.<br>
+                <b>ملاحظة: </b> عند تعريف أي عملية لتخصيص التهيئة يمتنع المترجم عن التهيئة الافتراضية في كل الحالات وبالتالي تحتاج لتعريف كل حالات التهيئة، أي حالة التهيئة بدون معطيات وحالة التهيئة من كائن آخر.<br>
+                المثال التالي يوضح تخصيص التهيئة:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    عرف س: صحيح؛
+    عرف ص: صحيح؛
+
+    عملية هذا~هيئ() {
+      هذا.س = 0؛
+      هذا.ص = 0؛
+    }؛
+    عملية هذا~هيئ(مصدر: سند[نـقطة]) {
+      هذا.س = مصدر.س؛
+      هذا.ص = مصدر.ص؛
+    }؛
+  }؛
+
+  عرف ن: نـقطة: // يستدعي عملية التهيئة دون معطيات.
+  دالة هات_نقطة (): نـقطة {
+    عرف ن: نقطة؛
+    ارجع ن: // يستدعي عملية التهيئة بالمعطى لتهيئة العنصر الذي سيستلم ن
+  }؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point {
+    def x: int;
+    def y: int;
+
+    handler this~init() {
+      this.x = 0;
+      this.y = 0;
+    };
+    handler this~init(src: ref[Point]) {
+      this.x = src.x;
+      this.y = src.y;
+    };
+  }:
+
+  def p: Point; // calls this~init()
+  func getPoint (): Point {
+    def p: Point;
+    return p; // calls this~init(src)
+  };
+</pre>
+                يمكن أيضا تخصيص التهيئة بدون معطيات بكتابة عمليات تلك التهيئة مباشرة داخل متن الصنف، وهذا مطابق لتعريف `عملية هذا~هيئ()`، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    عرف س: صحيح؛
+    عرف ص: صحيح؛
+
+    هذا.س = 0؛ // مطابق لفعلها داخل عملية هذا~هيئ()
+    هذا.ص = 0؛ // مطابق لفعلها داخل عملية هذا~هيئ()
+
+    عملية هذا~هيئ(مصدر: سند[نـقطة]) {
+      هذا.س = مصدر.س؛
+      هذا.ص = مصدر.ص؛
+    }؛
+  }؛
+
+  عرف ن: نـقطة: // يستدعي عملية التهيئة دون معطيات.
+  دالة هات_نقطة (): نـقطة {
+    عرف ن: نقطة؛
+    ارجع ن: // يستدعي عملية التهيئة بالمعطى لتهيئة العنصر الذي سيستلم ن
+  }؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point {
+    def x: int;
+    def y: int;
+
+    this.x = 0;
+    this.y = 0;
+
+    handler this~init(src: ref[Point]) {
+      this.x = src.x;
+      this.y = src.y;
+    };
+  }:
+</pre>
+                <b>ملاحظة: </b>إذا احتوى الصنف على متغيرات من صنف ذي تهيئة مخصصة، فإن الصنف الخارجي يعتبر ذا تهيئة مخصصة أيضا حتى لو لم يعرف المستخدم علميات تهيئة لذلك الصنف. السبب في ذلك أن المترجم تلقائيا يعرف دالات تهيئة لتهيئة العناصر الداخلية.
+
+                <h4 id="Types-customterminate">تخصيص إتلاف الكائنات</h4>
+                مثلما هو الحال مع تهيئة الكائنات، يمكن للمستخدم تخصيص عملية إتلاف الكائن وذلك بإضافة التعريف التالي إلى الصنف:
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا~أتلف () { &lt;متن_الدالة&gt; }؛
+</pre>
+<pre class="code" dir=ltr>
+  handler this~terminate () { &lt;body&gt; };
+</pre>
+                عند خروج التنفيذ من أي مجال فإن المترجم يقوم تلقائيا باستدعاء هذه الدالة لكل العناصر المعرفة ضمن ذلك المجال. يمكن استخدام هذه الدالة لتحرير أي موارد تم حجزها من قبل ذلك الكائن.
+
+                <h3 id="Types-initorder">تسلسل تهيئة الكائنات</h3>
+                عند تهيئة كائن ذي تهيئة مخصصة فإن المترجم يبدأ أولا بتهيئة كل متغير من متغيرات الكائن تهيئة كاملة قبل أن يستدعي دالة التهيئة التابعة للكائن نفسه. والتسلسل نفسه يتبع عند تهيئة كل متغير من المتغيرات إذا كان هو الآخر يحتوي على متغيرات بتهيئة مخصصة. بمعنى آخر التهيئة تتم دائما من الأطراف إلى الجذر، أما عملية الإتلاف فتكون بشكل عكسي، أي يبدأ الإتلاف من الجذر إلى الأطراف، أي بتنفيذ دالة الإتلاف للكائن الرئيسي ثم للعناصر الداخلية ثم العناصر الأعمق وهكذا بشكل مشابه لخوارزية بحث العمق أولا.
+
+                <h3 id="Types-customops">تخصيص المؤثرات</h3>
+                يمكن للمستخدم أيضا تخصيص المؤثرات المطبقة على الكائنات باستخدام الأمر `عملية` (handler) بطريقة مشابهة لتخصيص التهيئة مع استخدام المؤثر المطلوب بدل الأمر `~هيئ`. المثال التالي يوضح تخصيص مؤثر المساواة على كائن:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـص {
+    ...
+    عملية هذا = مؤشر[مصفوفة[محرف]] {
+      هذا.انسخ_محارف(قيمة)؛
+    }؛
+    عملية هذا == مؤشر[مصفوفة[محرف]] {
+      ارجع هذا.قارن(قيمة)؛
+    }؛
+  }؛
+
+  عرف ن: نـص؛
+  ن = "بسم الله"؛
+  إذا ن == "بسم الله" اطبع("النص مطابق")؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type String {
+    ...
+    handler this = ptr[array[char]] {
+      this.copyChars(value);
+    };
+    handler this == ptr[array[char]] {
+      return this.compare(value);
+    };
+  };
+
+  def s: String;
+  s = "hello world";
+  if s == "hello world" print("text is identical");
+</pre>
+                يمكن باستخدام هذه الطريقة تخصيص كل المؤثرات، أي تخصيص أي من مؤثرات المقارنة أو العمليات الرياضية أو العمليات البتية كما يمكن أيضا تخصيص الأقواس كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـص {
+    ...
+    عملية هذا(موقع: صحيح): محرف {
+      ارجع هذا.هات_محرف(موقع)؛
+    }؛
+  }؛
+
+  عرف ن: نـص؛
+  ن = "!@#$"؛
+  اطبع(ن(1))؛ // سيطبع @
+</pre>
+<pre class="samplecode" dir=ltr>
+  type String {
+    ...
+    handler this(pos: int): char {
+      return this.getChar(pos);
+    };
+  };
+
+  def s: String;
+  s = "!@#$";
+  print(s(1)); // prints @
+</pre>
+
+                <h3 id="Types-injection">حقن التعريفات</h3>
+                خاصية حقن التعريفات تمكن المستخدم من جعل عناصر تعريف معين متوفرة مباشرة في المجال الخارجي، وهذه الخاصية من لبنات البناء الأساسية التي يمكن استخدامها لتوفير خاصيات أخرى مثل الوراثة (inheritance) أو المؤشرات الذكية أو غيرها. كل ما تحتاج لجعل عناصر تعريف متوفرة داخل مجال الصنف الحاوي أن تَسِم التعريف بالمبدل @حقنة (injection) كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف داخـلي {
+    عرف س: صحيح؛
+    دالة اطبع_س { ... }؛
+  }؛
+
+  صنف خـارجي {
+    @حقنة عرف د: داخـلي؛
+    عرف ص: صحيح؛
+    دالة اطبع_ص { ... }؛
+  }؛
+  
+  عرف خ: خـارجي؛
+  خ.س = 1؛ // يحولها المترجم إلى خ.د.س
+  خ.ص = 2؛
+  خ.اطبع_س()؛ // يحولها المترجم إلى خ.د.اطبع_س()
+  خ.اطبع_ص()؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Inner {
+    def x: Int;
+    func printX { ... };
+  };
+  
+  type Outer {
+    @injection def i: Inner;
+    def y: Int;
+    func printY { ... };
+  };
+  
+  def o: Outer;
+  o.x = 1; // compiler translates it to o.i.x
+  o.y = 2;
+  o.printX(); // compiler translates it to o.i.printX()
+  o.printY();
+</pre>
+
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Pointers">المؤشرات</h3>
+                <hr>
+                <div>
+                    المؤشرات تستخدم للإشارة إلى مواقع في الذاكرة والتحكم بمحتويات تلك المواقع. تُعرّف المؤشرات باستخدام الصنف "مؤشر" (ptr) متبوعاً بقوسين معقوفين بينهما صنف محتوى الذاكرة المشار إليه بالمؤشر:
+<pre class="code" dir=rtl style="text-align:right;">
+  عرّف &lt;اسم_المؤشر&gt; : مؤشر[&lt;صنف_المحتوى&gt;]
+</pre>
+<pre class="code" dir=ltr>
+  def &lt;ptr_name&gt; : ptr[&lt;content_type&gt;]
+</pre>
+                    يمكن الولوج إلى المحتوى المشار إليه بالمؤشر عن طريق المؤثر "~محتوى" (~cnt) ويمكن الحصول على موقع أي متغير عن طريق المؤثر "~مؤشر" (~ptr) كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف م : مؤشر[العدد_الصحيح]؛
+  عرّف س : العدد_الصحيح؛
+  س = 5؛
+  م = س~مؤشر؛
+  م~محتوى = 1؛
+  // قيمة س الآن 1 وليس 5.</pre>
+                    <pre class="samplecode" dir=ltr>
+  def p : ptr[Int];
+  def x : Int;
+  x = 5;
+  p = x~ptr;
+  p~cnt = 1;
+  // x is now equal to 1, not 5.</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="References">السندات</h3>
+                <hr>
+                <div>
+                السندات مشابهة لعمل المؤشرات إلا أنها أبسط في التعامل من المؤشرات حيث لا تتطلب منك سوى تعريف المتغير على أنه سند ومن ثم التعامل معه بنفس طريقة التعامل مع متغيرات اعتيادية، اي الوصول إلى المحتوى دون الحاجة لاستخدام المؤثر `~محتوى`.
+<pre class="code" dir=rtl style="text-align:right;">
+  عرّف &lt;اسم_السند&gt; : سند[&lt;صنف_المحتوى&gt;]
+</pre>
+<pre class="code" dir=ltr>
+  def &lt;ref_name&gt; : ref[&lt;content_type&gt;]
+</pre>
+                قبل استخدام السند تحتاج لتحديد قيمة المؤشر لذلك السند ويختلف ذلك فيما لو كان السند أحد معطيات دالة أم لا. إذا كان السند معطى لدالة فكل ما تحتاج لفعله تمرير متغير من صنف محتوى السند لتلك الدالة ويتولى المترجم تلقائيا تمرير مؤشر المتغير واستخدامه لذلك السند كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  دالة ضاعف (سم: سند[صحيح]) { سم *= 2 }؛
+
+  عرف م: صحيح = 5؛
+  افعل(م)؛
+  // الآن م == 10
+</pre>
+<pre class="samplecode" dir=ltr>
+  func twice (ri: ref[int]) { ri *= 2 };
+
+  def i: int = 5;
+  twice(i);
+  // now i == 10
+</pre>
+                في حالة كون السند معرفا كمتغير اعتيادي وليس معطى لدالة فتحتاج لتحديد مؤشره يدويا كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف سم: سند[صحيح]؛
+  عرف م: صحيح؛
+  سم~مؤشر = م~مؤشر؛
+  سم = 3؛
+  // الآن م == 3
+</pre>
+<pre class="samplecode" dir=ltr>
+  def ri: ref[Int];
+  def i: Int;
+  ri~ptr = i~ptr;
+  ri = 3;
+  // now i == 3
+</pre>
+                بالإمكان أيضا استخدام المؤثر `~مؤشر` لجعل السند يشير إلى حجز ديناميكي للذاكرة:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف سم: سند[صـنفي]؛
+  سم~مؤشر = ذاكـرة.احجز(صـنفي~حجم)~مثل[مؤشر[صـنفي]]؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  def r: ref[MyType];
+  r~ptr = Memory.alloc(MyType~size)~cast[ptr[MyType]];
+</pre>
+                كما يمكنك تعريف سند لسند كما في المثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف سسم: سند[سند[صحيح]]؛
+  عرف سم: سند[صحيح]؛
+  عرف م: صحيح؛
+  سم~مؤشر = م~مؤشر؛
+  سسم~مؤشر~مؤشر = سم~مؤشر~مؤشر؛
+  سسم = 3؛
+  // الآن م == 3
+</pre>
+<pre class="samplecode" dir=ltr>
+  def rri: ref[ref[Int]];
+  def ri: ref[Int];
+  def i: Int;
+  ri~ptr = i~ptr;
+  rri~ptr~ptr = ri~ptr~ptr;
+  rri = 3;
+  // now i == 3
+</pre>
+                لاحظ أن المؤثر `~مؤشر` يبدأ دائما من المحتوى. بمعنى آخر لو عرفنا سسص على أنه `سند[سند[صحيح]]` وعرفنا سص على أنه `سند[صحيح]` فإن `سسص~مؤشر` و `سص~مؤشر` كلاهما يرجعان مؤشرا على صحيح. كما أن العمليات التي نطبقها على السند دائما تطبق على المحتوى بغض النظر عن عمق السند، لذا فإن `سسص = 5` و `سص = 5` كلاهما يعدلان المحتوى رغم أن الأول سند مزدوج.
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Arrays">المصفوفات</h3>
+                <hr>
+                <div>
+                    تعرّف المصفوفات باستخدام الصنف "مصفوفة" (array) متبوعاً بأقواس معقوفة تحتوي صنف عناصر المصفوفة وعددها:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  عرّف &lt;اسم_المصفوفة&gt; : مصفوفة[&lt;صنف_العناصر&gt;، &lt;عدد_العناصر&gt;]</pre>
+                    <pre class="code" dir=ltr>
+  def &lt;array_name&gt; : array[&lt;element_type&gt;, &lt;element_count&gt;]</pre> يمكن الدخول إلى عناصر المصفوفة بإعطاء رقم العنصر المعني بين قوسين معقوفين. مثال:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف مصفوفتي : مصفوفة[صحيح، 10]؛
+  عرّف ع : صحيح؛
+  لكل ع=0، ع&lt;10، ع++ {
+    مصفوفتي[ع] = مضروب(ع)
+  }</pre>
+                    <pre class="samplecode" dir=ltr>
+  def myArray : array[Int, 10];
+  def i : Int;
+  for i=0, i&lt;10, i++ {
+    myArray[i] = factorial(i)
+  }</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Casting">تمثيل الأصناف</h3>
+                <hr>
+                <div>
+                    يمكن تمثيل المتغيرات بصنف غير صنفها الحقيقي باستخدام المؤثر "~مثّل" (~cast) متبوعاً بقوسين معقوفين بينهما الصنف المراد تمثيله، كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف ح : عـائم؛
+  إطبع_عددا_صحيحا(ح~مثّل[صحيح])؛</pre>
+                    <pre class="samplecode" dir=ltr>
+  def f : Float;
+  printInteger(f~cast[Int]);</pre> في الوقت الحالي عملية التمثيل محدودة ومازالت قيد التطوير، لكنها قريباً ستدعم تمثيل الأصناف دون قيود، مثل تمثيل عدد صحيح كمؤشر أو تمثيل مؤشر لصنف ما كمؤشر لصنف آخر.
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Dynamicinit">حجز وتهيئة الكائنات ديناميكيا</h3>
+                <hr>
+                <div>
+                يمكن للمستخدم أن يهيئ الكائنات المنشأة ديناميكيًا باستخدام الأمر `~هيئ` (~init) كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    عملية هذا~هيئ() { ... }؛
+    عملية هذا~أتلف() { ... }؛
+    ...
+  }؛
+
+  عرف ن: سند[نـقطة]؛
+  ن~مؤشر = ذاكـرة.احجز(نـقطة~حجم)~مثل[مؤشر[نـقطة]]؛
+  ن~هيئ()؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point {
+    handler this~init() { ... };
+    handler this~terminate() { ... };
+    ...
+  };
+
+  def p: ref[Point];
+  p~ptr = Memory.alloc(Point~size)~cast[ptr[Point]];
+  p~init();
+</pre>
+                الفرق بين استخدام الأمر `~هيئ` واستدعاء دالة مستخدم عادية مخصصة للتهيئة أن استخدام `~هيئ` يضمن لك أيضا تهيئة المتغيرات الداخلية لهذا الصنف (إذا كانت هي الأخرى ذات تهيئة مخصصة). أي أن الأمر `~هيئ` يضمن تهيئة شجرة المتغيرات كاملة بكل الأعماق بدل أن تحتاج أن تهيئ كل متغير يدويا. مثلاً، إذا كان الصنف نـقطة يحتوي على متغير من صنف مخصص التهيئة ويحتوي هو الآخر على متغيرات من أصناف مخصصة التهيئة فإن الأمر `~هيئ` يضمن لك تهيئة كل هذه العناصر وبالتسلسل المطلوب.<br>
+                كما هو الحال ما تهيئة الكائنات، يمكن للمستخدم استدعاء دالة الإتلاف يدويا لإتلاف الكائنات المحجوزة ديناميكيا، وبهذه الصيغة:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  ن~أتلف()؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  p~terminate();
+</pre>
+
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Alias">الألقاب</h3>
+                <hr>
+                <div>
+                    لتيسير استخدام المكتبات المكتوبة بالانجليزية داخل برامج مكتوبة بالعربية (أو العكس) يمكن إنشاء ألقاب للدالّات والأصناف والمتغيرات وذلك باستخدام الأمر "لقب" (alias) كتعريف للأمر "عرّف". بعد ذلك يمكن استخدام الأسم الأصلي أو اللقب كيفما يشاء المستخدم فكلاهما
+                    يشيران إلى نفس المعرّف. على سبيل المثال الصنف "العدد_الصحيح" هو لقب للصنف "Int" والدالة "اطبع" هي لقب للدالة "printf" وقد تم تعريف هذه الألقاب مسبقاً في الملف "متم.أسس" كما يلي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف العدد_الصحيح : لقب int؛
+  عرّف اطبع : لقب printf؛</pre> إنشاء الألقاب لا يشترط أن يكون بين لغتين، فيمكن تعريف لقب انجليزي لمعرّف انجليزي على سبيل المثال، كما في الصنف Int الذي هو لقب لـint.
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Modules">الوحدات</h3>
+                <hr>
+                <div>
+                    الوحدة مجال يمكن وضع التعريفات داخله. يمكن للوحدة أن تحتوي دالات أو متغيرات أو أصناف كما يمكن للوحدة أن تحتوي وحدات أخرى. تساعد الوحدات في تجنب الاصطدام الناتج من التشابه بين أسماء التعريفات حيث أن التعريفات داخل أي وحدة غير مرئية داخل الوحدات الأخرى
+                    ما لم تتم الإشارة إليها بشكل صريح.<br> يمكن تعريف الوحدة باستخدام الأمر `وحدة` (module) كما يلي:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  عرّف &lt;اسم_الوحدة&gt; : وحدة { &lt;التعريفات&gt; }؛</pre>
+                    <pre class="code" dir=ltr>
+  def &lt;module_name&gt; : module { &lt;definitions&gt; };</pre> يمكن الوصول إلى تعريفات داخل وحدة أخرى بأحد الطرق التالية:
+                    <ul>
+                        <li>أن تكون الوحدة الحالية نفسها داخل الوحدة التي تحتوي التعريف المطلوب كما في المثال التالي:
+                            <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف الـخارجية: وحدة {
+    عرف م: صـحيح؛
+
+    عرف الـداخلية: وحدة {
+      عرف اطبع_م: دالة {
+        اطبع(م)؛
+      }
+    }
+  }</pre>
+                            <pre class="samplecode" dir=ltr>
+  def Outer: module {
+    def v: Int;
+
+    def Inner: module {
+      def printV: function {
+        print(v);
+      }
+    }
+  }</pre>
+                        </li>
+                        <li>أن يتم ذكر المجال الكامل للتعريف المراد الوصول إليه، ابتداءًا من أي مجال مشترك كما في المثال التالي:
+                            <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف الـخارجية: وحدة {
+    عرف الـداخلية1: وحدة {
+      عرف م: صـحيح؛
+    }؛
+
+    عرف الـداخلية2: وحدة {
+      عرف اطبع_م: دالة {
+        اطبع(الـداخلية1.م)؛
+      }
+    }
+  }</pre>
+                            <pre class="samplecode" dir=ltr>
+  def Outer: module {
+    def Inner1: module {
+      def v: Int;
+    };
+
+    def Inner2: module {
+      def printV: function {
+        print(Inner1.v);
+      }
+    }
+  }</pre>
+                        </li>
+                        <li>باستخدام الأمر `استخدم` (use). يستخدم هذا الأمر لجعل مجال معين متوفرًا داخل المجال الحالي وصيغته كما يلي:
+                            <pre class="code" dir=rtl style="text-align:right;">
+  استخدم &lt;المجال_الكامل_للوحدة_المستهدفة&gt;؛</pre>
+                            <pre class="code" dir=ltr>
+  use &lt;full_path_of_targetted_module&gt;;</pre> هذا الأمر مفيد لتجنب الحاجة لتكرار ذكر المجال الكامل. يمكن استخدام هذا الأمر داخل وحدة أخرى أو داخل دالة ولا يمكن استخدامه في المجال الرئيسي خارج الوحدات. المثال التالي يوضح
+                            استخدام الأمر:
+                            <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف الـخارجية: وحدة {
+    عرف الـداخلية1: وحدة {
+      عرف الـداخلية2: وحدة {
+        عرف م: صـحيح؛
+      }؛
+    }؛
+
+    استخدم الـداخلية1.الـداخلية2؛
+
+    عرف اطبع_م: دالة {
+      اطبع(م)؛
+    }
+  }</pre>
+                            <pre class="samplecode" dir=ltr>
+  def Outer: module {
+    def Inner1: module {
+      def Inner2: module {
+        def v: Int;
+      };
+    };
+
+    use Inner1.Inner2;
+
+    def printV: function {
+      print(v);
+    }
+  }</pre>
+                        </li>
+                    </ul>
+                    يمكن أيضًا استخدام الصيغة المختصرة التي تغنيك عن الأمر "عرف":
+                    <pre class="code" dir=rtl style="text-align:right;">
+  وحدة &lt;اسم_الوحدة&gt; { &lt;التعريفات&gt; }؛</pre>
+                    <pre class="code" dir=ltr>
+  module &lt;module_name&gt; { &lt;definitions&gt; };</pre> كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  وحدة الـخارجية {
+    وحدة الـداخلية1 {
+      وحدة الـداخلية2 {
+        عرف م: صـحيح؛
+      }؛
+    }؛
+  }</pre>
+                    <pre class="samplecode" dir=ltr>
+  module Outer {
+    module Inner1 {
+      module Inner2 {
+        def v: Int;
+      };
+    };
+  }</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Macros">الماكروهات</h3>
+                <hr>
+                <div>
+                    الماكرو هو مجموعة من الأوامر يمكن تكرارها بسهولة في أي مكان من البرنامج. يتم تعريف الماكرو كما يلي:
+                    <pre class="code" dir=rtl style="text-align:right;">
+  عرّف &lt;اسم_الماكرو&gt; : ماكرو [&lt;قائمة_المدخلات&gt;] &lt;متن_الماكرو&gt;</pre>
+                    <pre class="code" dir=ltr>
+  def &lt;macro_name&gt; : macro [&lt;arg_list&gt;] &lt;macro_body&gt;</pre> متن الماكرو يمكن أن يكون سطراً واحداً أو مجموعة أسطر بين أقواس حاصرة. ثم يُستخدم الماكرو لاحقاً في البرنامج بكتابة اسمه متبوعاً بالمعطيات بين أقواس معقوفة،
+                    كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف تربيع: ماكرو [م] م * م؛
+  .
+  .
+  ص = تربيع[س]؛</pre>
+                    <pre class="samplecode" dir=ltr>
+  def power2: macro [n] n * n;
+  .
+  .
+  s = power2[a];</pre> يمكن كذلك استخدام الصيغة المختصرة التي تغنيك عن استخدام الأمر "عرف":
+                    <pre class="code" dir=rtl style="text-align:right;">
+  ماكرو &lt;اسم_الماكرو&gt; [&lt;قائمة_المدخلات&gt;] &lt;متن_الماكرو&gt;</pre>
+                    <pre class="code" dir=ltr>
+  macro &lt;macro_name&gt; [&lt;arg_list&gt;] &lt;macro_body&gt;</pre> كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  ماكرو تربيع [م] م * م؛
+  .
+  .
+  ص = تربيع[س]؛</pre>
+                    <pre class="samplecode" dir=ltr>
+  macro power2 [n] n * n;
+  .
+  .
+  s = power2[a];</pre>
+                    <h4 id="Macros-strtemplates">القوالب في المعرفات وسلاسل المحارف</h4>
+                    يمكن استخدام القوالب مع المعرفات وسلاسل المحارف داخل الماكرو ويتم ذلك في المعرفات بحصر القسم المتغير من المعرف بين شارحتين سفليتين متتاليتين من كل جانب، أما في سلاسل المحارف فيتم حصر القسم المتغير بين قوسين حاصرين مزدوجين، كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف اطبع_متغيرات: ماكرو [م] {
+    اطبع("{{م}}1 = %d\ج"، __م__1)؛
+    اطبع("{{م}}2 = %d\ج"، __م__2)؛
+  }؛
+  .
+  .
+  س1 = 5؛
+  س2 = 6؛
+  اطبع_متغيرات[س]؛
+
+  // سيطبع التالي:
+  //  س1 = 5
+  //  س2 = 6</pre>
+                    <pre class="samplecode" dir=ltr>
+  def print_vars: macro [v] {
+    print("{{v}}1 = %d\n", __v__1);
+    print("{{v}}2 = %d\n", __v__2);
+  };
+  .
+  .
+  s1 = 5;
+  s2 = 6;
+  print_vars[s];
+
+  // will print:
+  //  s1 = 5
+  //  s2 = 6</pre>
+                    <h4 id="Macros-cmacrocomparison">الفرق بين ماكرو لغة الأسُس وماكرو لغة السي</h4>
+                    الماكرو في لغة الأسُس مختلف عن نظيره في لغة السي في طريقة المعالجة. في لغة السي الماكرو يعالج نصياً في مرحلة تسبق الإعراب بينما في لغة الأسُس الماكرو يعالج أثناء مرحلة الإعراب نفسها وهذا يؤدي إلى الفروقات التالية:
+                    <ul>
+                        <li>في لغة الأسُس الماكرو تأثيره محدود ضمن مجال تعريفه بعكس الماكر في لغة السي حيث يكون غير محدود بأي مجال. بمعنى آخر، في لغة الأسُس إذا عرفت ماكرو داخل مجال معين وحاولت استخدامه داخل مجال آخر فسيمنعك المترجم من ذلك.</li>
+                        <li>يمكن في لغة الأسُس تعريف عدة ماكروهات بنفس الاسم طالما أنها معرفة ضمن مجالات مختلفة، وهذا غير ممكن في لغة السي.</li>
+                        <li>في لغة الأسُس الأخطاء الإعرابية داخل الماكرو يتم استشعارها مباشرة بعكس لغة السي حيث لا تُستشعر الأخطاء الإعرابية إلا بعد انتهاء معالجة الماكرو والبدء بمرحلة الإعراب.</li>
+                        <li>في لغة الأسُس لا يمكن تعريف ماكرو يحتوي متنه على أجزاء غير مكتملة من القواعد بعكس لغة السي التي تتيح ذلك. مثلاً، في لغة السي يمكن تعريف ماكرو يحتوي على جزء غير مكتمل من القواعد ويقوم المستخدم يتجميع ماكروهات متعددة للحصول على برنامج
+                            صحيح قواعدياً وهذا الأمر غير ممكن في لغة الأسُس التي تمنع أن يكون متن أي ماكرو غير مكتمل قواعدياً.</li>
+                    </ul>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Merge">تجزئة التعريفات</h3>
+                <hr>
+                <div>
+                    بعض التعريفات يمكن تجزئتها إلى عدة أجزاء تدمج لاحقاً عند البناء في تعريف واحد. تمكن هذه الخاصية المستخدم من توزيع التعريفات الكبيرة مثل الوحدات إلى عدة ملفات كما تمكن أيضاً من إلحاق إضافات إلى تعريفات مسبقة. تتم التجزئة باستخدام المبدل `@دمج` (@merge)
+                    كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف نـقطة: صنف {
+    عرف س: صـحيح؛
+  }؛
+  .
+  .
+  @دمج عرف نـقطة: صنف {
+    عرف ص: صحيح؛
+  }؛
+  .
+  .
+  عرف ابدأ: دالة {
+    عرف ن: نـطقة؛
+    ن.س = 10؛
+    ن.ص = 12؛
+    .
+    .
+  }؛</pre>
+                    <pre class="samplecode" dir=ltr>
+  def Point: type {
+    def x: Int;
+  };
+  .
+  .
+  @merge def Point: type {
+    def y: Int;
+  };
+  .
+  .
+  def start: function {
+    def p: Point;
+    p.x = 10;
+    p.y = 12;
+    .
+    .
+  };</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Import">شمل مكتبات أو ملفات مصدرية</h3>
+                <hr>
+                <div>
+                    الأمر "اشمل" (import) يستخدم لتحميل ملف مصدري أو مكتبة واستخدامها في البرنامج. الأمر يميز تلقائياً بين الملف المصدري والمكتبة. في الوقت الحالي يدعم هذا الأمر ثلاث أنواع من الملفات: ملفات مصدرية ومكتبات متحركة (dynamic) عامة ومكتبات بناء مثل libalusus_scg.
+                    يمكن تحميل أي مكتبة متحركة مهما كانت اللغة التي كتبت بها وعند تحميلها تكون كل دالّاتها العمومية متوفرة للاستخدام من داخل برنامج الأسُس، لكن ستحتاج لتعريف تلك الدوال يدوياً باستخدام الأمر `دالة` مع إضافة المبدل `@تصدير` (@expname) كما
+                    هو مبين في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  اشمل "libmath.so"؛
+  عرف جا: @تصدير[sin] دالة (ر: عـائم) => عـائم؛
+  .
+  .
+  ج = جا(ز)؛</pre>
+                    <pre class="samplecode" dir=ltr>
+  import "libmath.so";
+  def sin: @expname[sin] function (f: Float) => Float;
+  .
+  .
+  s = sin(r);</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Spp">دليل الوحدة `نـبم`</h3>
+                <hr>
+                <div>
+                <p>
+                  الوحدة `نـبم` (نمط البرمجة المعياري) تحتوي على دالات للتعامل مباشرة مع مكتبة spp، وهي المكتبة المسؤولة عن دعم نمط البرمجة المعياري. دالات هذه الوحدة تمكن المستخدم من التعامل مباشرة مع المترجم من خلال برنامجه.
+                </p>
+
+                    <h4 id="Spp-dumpLlvmIrForElement">أدرج_تو_لعنصر (dumpLlvmIrForElement)</h4>
+                    <hr>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+  دالة أدرج_تو_لعنصر (عنصر: مؤشر)
+</pre>
+                    دالة `أدرج_تو_لعنصر` تقوم بطبع الترميز الوسطي لعنصر معين من الشفرة المصدرية. الترميز الوسطي المطبوع هو ترميز LLVM IR. تستقبل الدالة معطى واحد وهو مؤشر على شبكة البنية المجردة لذلك العنصر (Abstract Syntax Tree). يمكنك الحصول على هذا المؤشر باستخدام الأمر `~شبم` كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  نـبم.أدرج_تو_لعنصر(دالتي~شبم)
+</pre>
+                    </div>
+
+                    <h4 id="Spp-buildObjectFileForElement">أنشء_ملفا_رقميا_لعنصر (buildObjectFileForElement)</h4>
+                    <hr>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+  دالة أنشء_ملفا_رقميا_لعنصر (عنصر: مؤشر، اسم_الملف: مؤشر[مصفوفة[محرف]]): ثنائي
+</pre>
+                    تنشئ هذه الدالة ملف شفرة مترجمة للعنصر المعني (object file). يمكن لاحقا تمرير هذا الملف إلى رابط (linker) لإنشاء ملف تنفيذي. ترجع الدالة 1 في حال نجح البناء، وبعكسه ترجع 0.
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  نـبم.أنشء_ملفا_رقميا_لعنصر(وحـدتي~شبم، "اسم_الملف_الناتج")
+</pre>
+                    </div>
+
+                    <h4 id="Spp-getModifierStrings">هات_محارف_مبدل (getModifierStrings)</h4>
+                    <hr>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+  دالة هات_محارف_مبدل (
+    عنصر: مؤشر، الكلمة_التعريفية_للمبدل: مؤشر[مصفوفة[محرف]]،
+    الناتج: مؤشر[مؤشر[مصفوفة[مؤشر[مصفوفة[محرف]]]]]، حجم_الناتج: مؤشر[طبيعي]
+  ): ثنائي
+</pre>
+                    ترجع هذه الدالة معطيات مبدل محدد على عنصر محدد. هذه المعطيات يجب أن تكون سلاسل محارف وتقوم الدالة بإرجاع مصفوفة مؤشرات على سلاسل محارف وإرجاع عدد العناصر في هذه المصفوفة. تستلم الدالة مؤشرا على شبكة البنية المجردة لعنصر ومؤشرا على سلسلة محارف تحتوي الكلمة التعريفية (الكلمة المفتاحية) للمبدل المطلوب البحث عنه ومؤشرا على مؤشر لمصفوفة من سلاسل المحارف بالإضافة إلى مؤشر على رقم صحيح. تقوم الدالة بوضع المؤشر على المصفوفة المحجوزة داخل `الناتج` ووضع حجمها داخل `حجم_الناتج`. يحتاج المستخدم لتحرير الذاكرة المحجوزة في `الناتج` بعد الانتهاء.
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  @مبدل_خاص["معطى1"، "معطى2"] وحدة رئـيسية { ... }؛
+  عرف معطيات: مؤشر[مصفوفة[مؤشر[مصفوفة[محرف]]]]؛
+  عرف حجم_المعطيات: طبيعي؛
+  إذا نـبم.هات_محارف_مبدل(رئـيسية~شبم، "مبدل_خاص"، معطيات~مؤشر، حجم_المعطيات~مؤشر) {
+    // الدالة ترجع في معطيات القيم: "معطى1"، "معطى2"
+  } وإلا {
+    طـرفية.اطبع("حدث خلل")؛
+  }
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--content-separator-->
+        <footer class="footer">
+            <hr>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-8 pull-left1">
+                        <ul class="nav nav-pills.nav">
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2020م \ 1441هـ.</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="Resources/highlight.pack.js"></script>
+    <script src="Resources/index.js"></script>
+
+</body>
+
+</html>

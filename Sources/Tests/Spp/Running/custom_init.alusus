@@ -4,18 +4,24 @@ type A
 {
   def i: Int;
 
-  @shared func construct (this: ptr[A]) {
+  handler this~init() {
     Srl.Console.print("constructed!\n");
-    this~cnt.i = 1;
+    this.i = 1;
   };
 
-  @shared func construct (this: ptr[A], that: ptr[A]) {
+  handler this~init(that: ref[A]) {
     Srl.Console.print("constructed2!\n");
-    this~cnt.i = that~cnt.i * 2;
+    this.i = that.i * 2;
   };
 
-  @shared func destruct (this: ptr[A]) {
-    this~cnt.i = 0;
+  handler this~init(that: ref[A], extra: Int) {
+    Srl.Console.print("constructed3!\n");
+    this~init(that);
+    this.i += extra;
+  };
+
+  handler this~terminate() {
+    this.i = 0;
     Srl.Console.print("destructed!\n");
   };
 };
@@ -57,8 +63,10 @@ function getA () => A
 {
   def a: A;
   Srl.Console.print("getA.\n");
-  return a~ptr;
+  return a;
 };
+
+function receiveA (a: A) {}
 
 function testReturnA
 {
@@ -130,6 +138,22 @@ function testInlinedInit
   Srl.Console.print("testInlinedInit: %d\n", gc.i);
 };
 
+function testInitRedirect
+{
+  def a1: A;
+  a1.i = 5;
+  def a2: A;
+  a2~init(a1, 3);
+  Srl.Console.print("testInitRedirect: %d\n", a2.i);
+};
+
+function testTerminate
+{
+  def a: A;
+  Srl.Console.print("testTerminate\n");
+  receiveA(a);
+};
+
 testNoReturn();
 Srl.Console.print("\n");
 
@@ -159,8 +183,14 @@ def ga: A;
 def i: Int;
 for i = 0, i < 2, ++i {
   def a: A;
-  Srl.Console.print("autCtor on the global scope: %d %d\n", a.i, ga.i);
+  Srl.Console.print("autoCtor on the global scope: %d %d\n", a.i, ga.i);
 };
 Srl.Console.print("\n");
 
 testInlinedInit();
+Srl.Console.print("\n");
+
+testInitRedirect();
+Srl.Console.print("\n");
+
+testTerminate();

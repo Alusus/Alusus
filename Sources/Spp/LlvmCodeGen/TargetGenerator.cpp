@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/TargetGenerator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::TargetGenerator.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -445,8 +445,9 @@ Bool TargetGenerator::finishFunctionBody(
   TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
 ) {
   PREPARE_ARG(functionType, functionTypeWrapper, FunctionType);
+  PREPARE_ARG(context, block, Block);
   auto voidRetType = functionTypeWrapper->getRetType().ti_cast_get<VoidType>();
-  if (voidRetType != 0) {
+  if (!block->isTerminated() && voidRetType != 0) {
     return this->generateReturn(context, 0, 0);
   } else {
     return true;
@@ -946,8 +947,8 @@ Bool TargetGenerator::generateAssign(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   PREPARE_ARG(destRef, cgDestRef, Value);
-  auto llvmResult = block->getIrBuilder()->CreateStore(cgSrcVal->getLlvmValue(), cgDestRef->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  block->getIrBuilder()->CreateStore(cgSrcVal->getLlvmValue(), cgDestRef->getLlvmValue());
+  result = getSharedPtr(destRef);
   return true;
 }
 

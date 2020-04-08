@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.h
  * Contains the header of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -93,84 +93,86 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
   /// @{
 
   public: Bool getGeneratedType(
-    TiObject *ref, Generation *g, TargetGeneration *tg, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+    TiObject *ref, Generation *g, GenDeps const &deps, TiObject *&targetTypeResult, Ast::Type **astTypeResult
   );
 
   public: Bool getGeneratedVoidType(
-    Generation *g, TargetGeneration *tg, TiObject *&tgTypeResult, Ast::VoidType **astTypeResult
+    Generation *g, GenDeps const &deps, TiObject *&tgTypeResult, Ast::VoidType **astTypeResult
   );
 
-  private: Bool _getGeneratedType(TiObject *ref, Generation *g, TargetGeneration *tg, Spp::Ast::Type *&type);
+  private: Bool _getGeneratedType(TiObject *ref, Generation *g, GenDeps const &deps, Spp::Ast::Type *&type);
 
   /// @}
 
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateType, Bool, (Spp::Ast::Type*, Generation*, TargetGeneration*));
-  private: static Bool _generateType(TiObject *self, Spp::Ast::Type *astType, Generation *g, TargetGeneration *tg);
+  public: METHOD_BINDING_CACHE(generateType, Bool, (Spp::Ast::Type*, Generation*, GenDeps const&));
+  private: static Bool _generateType(TiObject *self, Spp::Ast::Type *astType, Generation *g, GenDeps const &deps);
 
-  public: METHOD_BINDING_CACHE(generateVoidType, Bool, (Spp::Ast::VoidType*, TargetGeneration*));
-  private: static Bool _generateVoidType(TiObject *self, Spp::Ast::VoidType *astType, TargetGeneration *tg);
+  public: METHOD_BINDING_CACHE(generateVoidType, Bool, (Spp::Ast::VoidType*, GenDeps const&));
+  private: static Bool _generateVoidType(TiObject *self, Spp::Ast::VoidType *astType, GenDeps const &deps);
 
-  public: METHOD_BINDING_CACHE(generateIntegerType, Bool, (Spp::Ast::IntegerType*, TargetGeneration*));
-  private: static Bool _generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, TargetGeneration *tg);
+  public: METHOD_BINDING_CACHE(generateIntegerType, Bool, (Spp::Ast::IntegerType*, GenDeps const&));
+  private: static Bool _generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, GenDeps const &deps);
 
-  public: METHOD_BINDING_CACHE(generateFloatType, Bool, (Spp::Ast::FloatType*, TargetGeneration*));
-  private: static Bool _generateFloatType(TiObject *self, Spp::Ast::FloatType *astType, TargetGeneration *tg);
+  public: METHOD_BINDING_CACHE(generateFloatType, Bool, (Spp::Ast::FloatType*, GenDeps const&));
+  private: static Bool _generateFloatType(TiObject *self, Spp::Ast::FloatType *astType, GenDeps const &deps);
 
-  public: METHOD_BINDING_CACHE(generatePointerType, Bool, (Spp::Ast::PointerType*, Generation*, TargetGeneration*));
+  public: METHOD_BINDING_CACHE(generatePointerType, Bool, (Spp::Ast::PointerType*, Generation*, GenDeps const&));
   private: static Bool _generatePointerType(
-    TiObject *self, Spp::Ast::PointerType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::PointerType *astType, Generation *g, GenDeps const &deps
   );
 
-  public: METHOD_BINDING_CACHE(generateReferenceType, Bool, (Spp::Ast::ReferenceType*, Generation*, TargetGeneration*));
+  public: METHOD_BINDING_CACHE(generateReferenceType, Bool, (Spp::Ast::ReferenceType*, Generation*, GenDeps const&));
   private: static Bool _generateReferenceType(
-    TiObject *self, Spp::Ast::ReferenceType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::ReferenceType *astType, Generation *g, GenDeps const &deps
   );
 
-  public: METHOD_BINDING_CACHE(generateArrayType, Bool, (Spp::Ast::ArrayType*, Generation*, TargetGeneration*));
+  public: METHOD_BINDING_CACHE(generateArrayType, Bool, (Spp::Ast::ArrayType*, Generation*, GenDeps const&));
   private: static Bool _generateArrayType(
-    TiObject *self, Spp::Ast::ArrayType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::ArrayType *astType, Generation *g, GenDeps const &deps
   );
 
-  public: METHOD_BINDING_CACHE(generateUserType, Bool, (Spp::Ast::UserType*, Generation*, TargetGeneration*));
+  public: METHOD_BINDING_CACHE(generateUserType, Bool, (Spp::Ast::UserType*, Generation*, GenDeps const&));
   private: static Bool _generateUserType(
-    TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateUserTypeMemberVars,
-    Bool, (Spp::Ast::UserType*, Generation *, TargetGeneration*)
+    Bool, (Spp::Ast::UserType*, Generation *, GenDeps const&)
   );
   private: static Bool _generateUserTypeMemberVars(
-    TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateUserTypeAutoConstructor,
-    Bool, (Spp::Ast::UserType*, Generation*, TargetGeneration*)
+    Bool, (Spp::Ast::UserType*, Generation*, GenDeps const&)
   );
   private: static Bool _generateUserTypeAutoConstructor(
-    TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateUserTypeAutoDestructor,
-    Bool, (Spp::Ast::UserType*, Generation*, TargetGeneration*)
+    Bool, (Spp::Ast::UserType*, Generation*, GenDeps const&)
   );
   private: static Bool _generateUserTypeAutoDestructor(
-    TiObject *self, Spp::Ast::UserType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps
   );
 
-  public: METHOD_BINDING_CACHE(generateFunctionType, Bool, (Spp::Ast::FunctionType*, Generation*, TargetGeneration*));
+  public: METHOD_BINDING_CACHE(generateFunctionType, Bool, (Spp::Ast::FunctionType*, Generation*, GenDeps const&));
   private: static Bool _generateFunctionType(
-    TiObject *self, Spp::Ast::FunctionType *astType, Generation *g, TargetGeneration *tg
+    TiObject *self, Spp::Ast::FunctionType *astType, Generation *g, GenDeps const &deps
   );
 
   public: METHOD_BINDING_CACHE(generateCast,
-    Bool, (Generation*, GenDeps const&, Spp::Ast::Type*, Spp::Ast::Type*, TiObject*, TioSharedPtr&)
+    Bool, (
+      Generation*, GenDeps const&, Spp::Ast::Type*, Spp::Ast::Type*, Core::Data::Node *, TiObject*, Bool, TioSharedPtr&
+    )
   );
   private: static Bool _generateCast(
     TiObject *self, Generation *g, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-    TiObject *tgValue, TioSharedPtr &tgCastedValue
+    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
   );
 
   public: METHOD_BINDING_CACHE(generateDefaultValue,
@@ -194,10 +196,17 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
     TiObject *self, Spp::Ast::UserType *astType, Generation *g, GenDeps const &deps, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(getTypeAllocationSize, Bool, (Spp::Ast::Type*, Generation*, TargetGeneration*, Word&));
+  public: METHOD_BINDING_CACHE(getTypeAllocationSize, Bool, (Spp::Ast::Type*, Generation*, GenDeps const&, Word&));
   private: static Bool _getTypeAllocationSize(
-    TiObject *self, Spp::Ast::Type *astType, Generation *g, TargetGeneration *tg, Word &result
+    TiObject *self, Spp::Ast::Type *astType, Generation *g, GenDeps const &deps, Word &result
   );
+
+  /// @}
+
+  /// @name Helper Functions
+  /// @{
+
+  private: static Bool isInjection(Core::Data::Ast::Definition *def);
 
   /// @}
 

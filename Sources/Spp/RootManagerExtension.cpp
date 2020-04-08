@@ -2,7 +2,7 @@
  * @file Spp/RootManagerExtension.cpp
  * Contains the implementation of class Spp::RootManagerExtension.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Spp
 
 RootManagerExtension::Overrides* RootManagerExtension::extend(
   Core::Main::RootManager *rootManager,
-  SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::MacroProcessor> const &macroProcessor,
+  SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::AstProcessor> const &astProcessor,
   SharedPtr<CodeGen::Generator> const &generator, SharedPtr<LlvmCodeGen::TargetGenerator> const &targetGenerator
 ) {
   auto extension = std::make_shared<RootManagerExtension>(rootManager);
@@ -28,7 +28,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
 
   auto overrides = new Overrides();
   extension->astHelper = astHelper;
-  extension->macroProcessor = macroProcessor;
+  extension->astProcessor = astProcessor;
   extension->generator = generator;
   extension->targetGenerator = targetGenerator;
   extension->rootExecTgFuncType = TioSharedPtr::null;
@@ -71,7 +71,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   extension->importFile.reset(overrides->importFileRef);
   extension->getModifierStrings.reset(overrides->getModifierStringsRef);
   extension->astHelper.remove();
-  extension->macroProcessor.remove();
+  extension->astProcessor.remove();
   extension->generator.remove();
   extension->targetGenerator.remove();
   extension->rootExecTgFuncType.remove();
@@ -232,8 +232,8 @@ void RootManagerExtension::_dumpLlvmIrForElement(
   rootManagerExt->rootStmtTgContext = TioSharedPtr::null;
 
   // Preprocessing.
-  rootManagerExt->macroProcessor->preparePass(noticeStore);
-  if (!rootManagerExt->macroProcessor->runMacroPass(root)) return;
+  rootManagerExt->astProcessor->preparePass(noticeStore);
+  if (!rootManagerExt->astProcessor->runPass(root)) return;
 
   // Prepare for the build.
   rootManagerExt->targetGenerator->setGlobalItemRepo(rootManagerExt->generator->getGlobalItemRepo());
@@ -308,8 +308,8 @@ Bool RootManagerExtension::_buildObjectFileForElement(
   rootManagerExt->rootStmtTgContext = TioSharedPtr::null;
 
   // Preprocessing.
-  rootManagerExt->macroProcessor->preparePass(noticeStore);
-  if (!rootManagerExt->macroProcessor->runMacroPass(root)) return false;
+  rootManagerExt->astProcessor->preparePass(noticeStore);
+  if (!rootManagerExt->astProcessor->runPass(root)) return false;
 
   // Prepare for the build.
   rootManagerExt->targetGenerator->setGlobalItemRepo(rootManagerExt->generator->getGlobalItemRepo());

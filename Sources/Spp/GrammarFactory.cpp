@@ -1,7 +1,7 @@
 /**
  * @file Spp/GrammarFactory.cpp
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,7 +25,7 @@ using namespace Core::Processing::Handlers;
 
 void GrammarFactory::createGrammar(
   Core::Data::Ast::Scope *rootScope, Main::RootManager *manager, Ast::Helper *astHelper,
-  CodeGen::MacroProcessor *macroProcessor, CodeGen::Generator *generator,
+  CodeGen::AstProcessor *astProcessor, CodeGen::Generator *generator,
   LlvmCodeGen::TargetGenerator *targetGenerator
 ) {
   this->setRootScope(rootScope);
@@ -36,7 +36,7 @@ void GrammarFactory::createGrammar(
   this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
     S("root.LexerDefs.Identifier.handler")
   )->addKeywords({
-    S("if"), S("إذا"),
+    S("if"), S("إذا"), S("else"), S("وإلا"),
     S("while"), S("بينما"),
     S("for"), S("لكل"),
     S("continue"), S("أكمل"),
@@ -50,11 +50,21 @@ void GrammarFactory::createGrammar(
     S("cnt"), S("محتوى"),
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
-    S("ast"), S("شبم")
+    S("ast"), S("شبم"),
+    S("this_type"), S("هذا_الصنف"),
+    S("handler"), S("عملية"),
+    S("this"), S("هذا"),
+    S("value"), S("قيمة"),
+    S("init"), S("هيئ"),
+    S("terminate"), S("اتلف"), S("أتلف"),
+    S("integer"), S("صحيح"),
+    S("string"), S("محارف"),
+    S("any"), S("أيما")
   });
 
-  // Add translation for shared modifier.
+  // Add translations for def modifiers.
   this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
+  this->set(S("root.Main.Def.modifierTranslations.حقنة"), TiStr::create(S("injection")));
 
   // Create leading commands.
 
@@ -70,7 +80,7 @@ void GrammarFactory::createGrammar(
           TiInt::create(ParsingFlags::PASS_ITEMS_UP)
         },
         {
-          PARSE_REF(S("module.BlockStatements.Stmt")),
+          PARSE_REF(S("module.BlockStatements.OuterStmt")),
           TiInt::create(1),
           TiInt::create(1),
           TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -83,7 +93,7 @@ void GrammarFactory::createGrammar(
       Map::create({}, { { S("else"), 0 }, { S("وإلا"), 0 } }),
       {
         {
-          PARSE_REF(S("module.BlockStatements.Stmt")),
+          PARSE_REF(S("module.BlockStatements.OuterStmt")),
           TiInt::create(1),
           TiInt::create(1),
           TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -106,7 +116,7 @@ void GrammarFactory::createGrammar(
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
-        PARSE_REF(S("module.BlockStatements.Stmt")),
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
         TiInt::create(1),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -125,7 +135,7 @@ void GrammarFactory::createGrammar(
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
-        PARSE_REF(S("module.BlockStatements.Stmt")),
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
         TiInt::create(1),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -213,6 +223,25 @@ void GrammarFactory::createGrammar(
     state->setData(returnStatement);
   }));
 
+  //// TypeOp = "handler" + Exp + Statement
+  this->createCommand(S("root.Main.TypeOp"), {{
+    Map::create({}, { { S("handler"), 0 }, { S("عملية"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.Expression")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<Handlers::TypeOpParsingHandler>());
+
   // Create inner commands.
 
   //// module = "module" + Set
@@ -257,9 +286,9 @@ void GrammarFactory::createGrammar(
     Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } }),
     {
       {
-        PARSE_REF(S("module.Subject.Identifier")),
+        PARSE_REF(S("module.ParamOnlySubject")),
         TiInt::create(0),
-        TiInt::create(1),
+        TiInt::create(2),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
@@ -308,7 +337,7 @@ void GrammarFactory::createGrammar(
     {S("baseRef"), PARSE_REF(S("module.owner.Expression")) },
     {S("startRef"), PARSE_REF(S("module.LowerLinkExp"))}
   }, {
-    {S("subject"), PARSE_REF(S("module.owner.FuncSigSubject"))}
+    {S("subject"), PARSE_REF(S("module.owner.ParamOnlySubject"))}
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.LowerLinkExp"))},
@@ -344,21 +373,22 @@ void GrammarFactory::createGrammar(
     })},
   }).get());
 
-  this->set(S("root.Main.FuncSigSubject"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
-  }).get());
-  this->set(S("root.Main.FuncSigSubject.Sbj"), SymbolDefinition::create({
-    {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
+  this->set(S("root.Main.ParamOnlyExpression"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Expression")) }
   }, {
-    {S("vars"), Map::create({}, {
-      {S("sbj1"), PARSE_REF(S("module.Parameter"))},
-      {S("sbj2"), PARSE_REF(S("module.expression"))},
-      {S("sbj3"), PARSE_REF(S("module.expression"))},
-      {S("frc2"), 0},
-      {S("frc3"), 0},
-      {S("fltr"), 0}
-    })}
+    {S("subject"), PARSE_REF(S("module.owner.ParamOnlySubject"))}
   }).get());
+
+  this->set(S("root.Main.ParamOnlySubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
+  }, {
+    {S("expression"), PARSE_REF(S("module.owner.ParamOnlyExpression"))},
+    {S("cmdGrp"), PARSE_REF(S("module.owner.Keywords"))}
+  }).get());
+  this->createProdGroup(S("root.Main.ParamOnlySubject.TermGroup"), {
+    PARSE_REF(S("module.cmdGrp")),
+    PARSE_REF(S("module.Parameter"))
+  });
 
   // Macro
   this->createCommand(S("root.Main.Macro"), {{
@@ -415,6 +445,16 @@ void GrammarFactory::createGrammar(
   }, {
     {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
   }));
+  this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
+  }, {
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create()}
+  }).get());
+  this->createProdGroup(S("root.Main.BlockStatements.OuterStmt"), {
+    PARSE_REF(S("module.owner.BlockSet")),
+    PARSE_REF(S("module.CmdVariation")),
+    PARSE_REF(S("module.ExpVariation"))
+  });
   // BlockSubject
   this->set(S("root.Main.BlockSubject"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
@@ -427,6 +467,49 @@ void GrammarFactory::createGrammar(
   }, {
     {S("subject"), PARSE_REF(S("module.owner.BlockSubject"))}
   }).get());
+
+  // Keywords
+  this->createCommand(S("root.Main.Keywords"), {{
+    Map::create({}, {
+      { S("this"), 0 },
+      { S("هذا"), std::make_shared<TiStr>(("this")) },
+      { S("value"), 0 },
+      { S("قيمة"), std::make_shared<TiStr>(("value")) },
+      { S("type"), 0 },
+      { S("صنف"), std::make_shared<TiStr>(("type")) },
+      { S("function"), 0 },
+      { S("دالة"), std::make_shared<TiStr>(("function")) },
+      { S("integer"), 0 },
+      { S("صحيح"), std::make_shared<TiStr>(("integer")) },
+      { S("string"), 0 },
+      { S("محارف"), std::make_shared<TiStr>(("string")) },
+      { S("any"), 0 },
+      { S("أيما"), std::make_shared<TiStr>(("any")) }
+    }),
+    {
+    }
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto current = state->getData().ti_cast_get<Core::Data::Ast::Token>();
+    SharedPtr<Core::Data::Ast::Text> newObj = std::make_shared<Core::Data::Ast::Identifier>();
+    newObj->setValue(current->getText());
+    newObj->setProdId(current->getProdId());
+    newObj->setSourceLocation(current->findSourceLocation());
+    state->setData(newObj);
+  }));
+
+  // this_type
+  this->createCommand(S("root.Main.ThisTypeRef"), {{
+    Map::create({}, { { S("this_type"), 0 }, { S("هذا_الصنف"), 0 } }),
+    {
+    }
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto thisTypeRef = Ast::ThisTypeRef::create({
+      { "prodId", metadata->getProdId() },
+      { "sourceLocation", metadata->findSourceLocation() }
+    });
+    state->setData(thisTypeRef);
+  }));
 
   // Create tilde commands.
 
@@ -481,6 +564,60 @@ void GrammarFactory::createGrammar(
     {
     }
   }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::AstRefOp>::create());
+  // ~init
+  this->createCommand(S("root.Main.InitTilde"), {{
+    Map::create({}, {{S("init"), 0}, {S("هيئ"), 0}}),
+    {
+      {
+        PARSE_REF(S("module.InitTildeSubject")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::InitOp>::create());
+  this->set(S("root.Main.InitTildeSubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
+  }).get());
+  this->set(S("root.Main.InitTildeSubject.Sbj"), SymbolDefinition::create({
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
+  }, {
+    {S("vars"), Map::create({}, {
+      {S("sbj1"), PARSE_REF(S("module.expression"))},
+      {S("sbj2"), PARSE_REF(S("module.expression"))},
+      {S("sbj3"), PARSE_REF(S("module.expression"))},
+      {S("frc2"), std::make_shared<TiInt>(0)},
+      {S("frc3"), std::make_shared<TiInt>(0)},
+      {S("fltr"), std::make_shared<TiInt>(1)}
+    })}
+  }).get());
+  // ~terminate
+  this->createCommand(S("root.Main.TerminateTilde"), {{
+    Map::create({}, { { S("terminate"), 0 }, { S("اتلف"), 0 }, { S("أتلف"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.TerminateTildeSubject")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::TerminateOp>::create());
+  this->set(S("root.Main.TerminateTildeSubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
+  }).get());
+  this->set(S("root.Main.TerminateTildeSubject.Sbj"), SymbolDefinition::create({
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
+  }, {
+    {S("vars"), Map::create({}, {
+      {S("sbj1"), PARSE_REF(S("module.expression"))},
+      {S("sbj2"), PARSE_REF(S("module.expression"))},
+      {S("sbj3"), PARSE_REF(S("module.expression"))},
+      {S("frc2"), std::make_shared<TiInt>(0)},
+      {S("frc3"), std::make_shared<TiInt>(0)},
+      {S("fltr"), std::make_shared<TiInt>(1)}
+    })}
+  }).get());
 
   // Add command references.
 
@@ -490,7 +627,8 @@ void GrammarFactory::createGrammar(
     PARSE_REF(S("module.For")),
     PARSE_REF(S("module.Continue")),
     PARSE_REF(S("module.Break")),
-    PARSE_REF(S("module.Return"))
+    PARSE_REF(S("module.Return")),
+    PARSE_REF(S("module.TypeOp"))
   });
 
   this->addProdsToGroup(S("root.Main.PostfixTildeCmdGrp"), {
@@ -498,14 +636,18 @@ void GrammarFactory::createGrammar(
     PARSE_REF(S("module.SizeTilde")),
     PARSE_REF(S("module.CastTilde")),
     PARSE_REF(S("module.ContentTilde")),
-    PARSE_REF(S("module.PointerTilde"))
+    PARSE_REF(S("module.PointerTilde")),
+    PARSE_REF(S("module.InitTilde")),
+    PARSE_REF(S("module.TerminateTilde"))
   });
 
   this->addProdsToGroup(S("root.Main.SubjectCmdGrp"), {
     PARSE_REF(S("module.Module")),
     PARSE_REF(S("module.Type")),
     PARSE_REF(S("module.Function")),
-    PARSE_REF(S("module.Macro"))
+    PARSE_REF(S("module.Macro")),
+    PARSE_REF(S("module.Keywords")),
+    PARSE_REF(S("module.ThisTypeRef"))
   });
 }
 
@@ -520,7 +662,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
     S("root.LexerDefs.Identifier.handler")
   )->removeKeywords({
-    S("if"), S("إذا"),
+    S("if"), S("إذا"), S("else"), S("وإلا"),
     S("while"), S("بينما"),
     S("for"), S("لكل"),
     S("continue"), S("أكمل"),
@@ -534,11 +676,21 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("cnt"), S("محتوى"),
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
-    S("ast"), S("شبم")
+    S("ast"), S("شبم"),
+    S("this_type"), S("هذا_الصنف"),
+    S("handler"), S("عملية"),
+    S("this"), S("هذا"),
+    S("value"), S("قيمة"),
+    S("init"), S("هيئ"),
+    S("terminate"), S("اتلف"), S("أتلف"),
+    S("integer"), S("صحيح"),
+    S("string"), S("محارف"),
+    S("any"), S("أيما")
   });
 
   // Add translation for static modifier.
   this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
+  this->remove(S("root.Main.Def.modifierTranslations.حقنة"));
 
   // Remove commands from tilde commands list.
   this->removeProdsFromGroup(S("root.Main.PostfixTildeCmdGrp"), {
@@ -546,7 +698,9 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.SizeTilde"),
     S("module.CastTilde"),
     S("module.ContentTilde"),
-    S("module.PointerTilde")
+    S("module.PointerTilde"),
+    S("module.InitTilde"),
+    S("module.TerminateTilde")
   });
 
   // Remove commands from leading commands list.
@@ -556,7 +710,8 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.For"),
     S("module.Continue"),
     S("module.Break"),
-    S("module.Return")
+    S("module.Return"),
+    S("module.TypeOp")
   });
 
   // Remove command from inner commands list.
@@ -564,7 +719,9 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.Module"),
     S("module.Type"),
     S("module.Function"),
-    S("module.Macro")
+    S("module.Macro"),
+    S("module.Keywords"),
+    S("module.ThisTypeRef")
   });
 
   // Delete tilde command definitions.
@@ -574,6 +731,10 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.CastSubject"));
   this->tryRemove(S("root.Main.SizeTilde"));
   this->tryRemove(S("root.Main.AstRefTilde"));
+  this->tryRemove(S("root.Main.InitTilde"));
+  this->tryRemove(S("root.Main.InitTildeSubject"));
+  this->tryRemove(S("root.Main.TerminateTilde"));
+  this->tryRemove(S("root.Main.TerminateTildeSubject"));
 
   // Delete leading command definitions.
   this->tryRemove(S("root.Main.If"));
@@ -582,6 +743,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.Continue"));
   this->tryRemove(S("root.Main.Break"));
   this->tryRemove(S("root.Main.Return"));
+  this->tryRemove(S("root.Main.TypeOp"));
 
   // Delete inner command definitions.
   this->tryRemove(S("root.Main.Module"));
@@ -590,9 +752,12 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.Type"));
   this->tryRemove(S("root.Main.Function"));
   this->tryRemove(S("root.Main.FuncSigExpression"));
-  this->tryRemove(S("root.Main.FuncSigSubject"));
+  this->tryRemove(S("root.Main.ParamOnlyExpression"));
+  this->tryRemove(S("root.Main.ParamOnlySubject"));
   this->tryRemove(S("root.Main.Macro"));
   this->tryRemove(S("root.Main.MacroSignature"));
+  this->tryRemove(S("root.Main.Keywords"));
+  this->tryRemove(S("root.Main.ThisTypeRef"));
 
   // Delete block definitions.
   this->tryRemove(S("root.Main.BlockSet"));

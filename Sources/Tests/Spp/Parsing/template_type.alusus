@@ -1,0 +1,27 @@
+import "alusus_spp";
+
+type MyType [T: type, F: function, I: integer, S: string]
+{
+  def t: T;
+  F();
+  print(I);
+  print(S);
+};
+
+dump_ast MyType;
+
+type MyWrongType1 []
+{
+};
+
+type MyWrongType2 [T: type, ]
+{
+};
+
+type MyWrongType3 [T1: type, T2: wrong]
+{
+};
+
+type MyWrongType4 [T: type, T: function]
+{
+};

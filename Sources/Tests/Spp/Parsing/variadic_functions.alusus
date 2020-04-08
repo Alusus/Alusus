@@ -1,4 +1,4 @@
-import "libalusus_spp";
+import "alusus_spp";
 
 def f1: function (x:Int, args:...Int)=>void
 {

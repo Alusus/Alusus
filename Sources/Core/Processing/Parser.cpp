@@ -2,7 +2,7 @@
  * @file Core/Processing/Parser.cpp
  * Contains the implementation of class Core::Processing::Parser.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -191,6 +191,9 @@ SharedPtr<TiObject> Parser::endParsing(Data::SourceLocationRecord &endSourceLoca
         } else {
           TiInt *flags = this->state->getTermFlags();
           if ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ERROR_SYNC_TERM) {
+            // Here there is no point in waiting for tokens, so we'll jump out of the concat list
+            // regardless of the sync pos id.
+            this->popStateLevel(this->state.get(), false);
             break;
           }
         }
@@ -396,55 +399,53 @@ void Parser::processState(const Data::Token * token, ParserState *state)
       }
     }
     // Did the state error out?
-    if (state->getProcessingStatus() == ParserProcessingStatus::ERROR && error == false) {
+    if (
+      state->getPrevProcessingStatus() != ParserProcessingStatus::ERROR &&
+      state->getProcessingStatus() == ParserProcessingStatus::ERROR &&
+      error == false
+    ) {
       error = true;
-      // Raise error notification event if we haven't already.
-      if (state->getPrevProcessingStatus() != ParserProcessingStatus::ERROR) {
-        if (!this->getTopParsingHandler(this->state.get())->onErrorToken(this, state, token)) {
-          state->addNotice(std::make_shared<Notices::SyntaxErrorNotice>(
-            std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
-          ));
-        }
-        // Move the state to an error sync position.
-        while (state->getTermLevelCount() > 1) {
-          LOG(LogLevel::PARSER_MINOR, S("Error Synching: Checking prod (") <<
-              ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId()) <<
-              S(") at level ") << (state->getTopProdTermLevelCount() - 1));
-          if (state->refTopTermLevel().getTerm()->isA<Data::Grammar::ConcatTerm>()) {
-            Int errorSyncPosId =
-                static_cast<Data::Grammar::ConcatTerm*>
-                (state->refTopTermLevel().getTerm())->getErrorSyncPosId();
-            auto posId = static_cast<Int>(state->refTopTermLevel().getPosId() & (~THIS_PROCESSING_PASS));
-            auto thisProcessingPass = (posId == 0) || (state->refTopTermLevel().getPosId() & THIS_PROCESSING_PASS);
-            if (!thisProcessingPass && errorSyncPosId >= posId) {
-              Int cnt = state->getListTermChildCount();
-              if (errorSyncPosId > cnt) errorSyncPosId = cnt;
-              state->setTopTermPosId(errorSyncPosId);
-              break;
-            }
-          } else {
-            TiInt *flags = state->getTermFlags();
-            if ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ERROR_SYNC_TERM) {
-              break;
-            }
-          }
-          this->popStateLevel(state, false);
-        }
-        LOG(LogLevel::PARSER_MINOR, S("Error Synching: Synched at prod (") <<
+
+      if (!this->getTopParsingHandler(this->state.get())->onErrorToken(this, state, token)) {
+        state->addNotice(std::make_shared<Notices::SyntaxErrorNotice>(
+          std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
+        ));
+      }
+      // Move the state to an error sync position.
+      while (state->getTermLevelCount() > 1) {
+        LOG(LogLevel::PARSER_MINOR, S("Error Synching: Checking prod (") <<
             ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId()) <<
             S(") at level ") << (state->getTopProdTermLevelCount() - 1));
-        // We need to match the error block pairs in case the error token itself is the opening of
-        // a block (a bracket for example).
-        this->matchErrorSyncBlockPairs(state, token);
+        if (state->refTopTermLevel().getTerm()->isA<Data::Grammar::ConcatTerm>()) {
+          Int errorSyncPosId =
+              static_cast<Data::Grammar::ConcatTerm*>
+              (state->refTopTermLevel().getTerm())->getErrorSyncPosId();
+          auto posId = static_cast<Int>(state->refTopTermLevel().getPosId() & (~THIS_PROCESSING_PASS));
+          auto thisProcessingPass = (posId == 0) || (state->refTopTermLevel().getPosId() & THIS_PROCESSING_PASS);
+          if (!thisProcessingPass && errorSyncPosId >= posId) {
+            Int cnt = state->getListTermChildCount();
+            if (errorSyncPosId > cnt) errorSyncPosId = cnt;
+            state->setTopTermPosId(errorSyncPosId);
+            break;
+          }
+        } else {
+          TiInt *flags = state->getTermFlags();
+          if ((flags == 0 ? 0 : flags->get()) & Data::Grammar::TermFlags::ERROR_SYNC_TERM) {
+            break;
+          }
+        }
+        this->popStateLevel(state, false);
       }
+      LOG(LogLevel::PARSER_MINOR, S("Error Synching: Synched at prod (") <<
+          ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId()) <<
+          S(") at level ") << (state->getTopProdTermLevelCount() - 1));
+      // We need to match the error block pairs in case the error token itself is the opening of
+      // a block (a bracket for example).
+      this->matchErrorSyncBlockPairs(state, token);
+
       // Set the status back to IN_PROGRESS for now (we'll be setting it back to ERROR later).
       state->setProcessingStatus(ParserProcessingStatus::IN_PROGRESS);
     }
-  }
-
-  // Set the status back to error in case we overrode that during the attempt to sync with error position.
-  if (error) {
-    state->setProcessingStatus(ParserProcessingStatus::ERROR);
   }
 
   // Reset any THIS_PROCESSING_PASS flag found in term level indexes.
@@ -812,7 +813,7 @@ Int Parser::determineMultiplyRoute(Data::Token const *token, ParserState *state)
     // Check if we have previously cached the decision.
     if (token->isKeyword()) {
       // For keywords we need to check against the text of the token rather than just the category to which the token
-      // beongs.
+      // belongs.
       auto i = multiplyTerm->getInnerTextBasedDecisionCache()->find(token->getText());
       if (i != multiplyTerm->getInnerTextBasedDecisionCache()->end()) {
         return i->second;

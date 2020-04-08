@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.cpp
  * Contains the implementation of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -174,7 +174,7 @@ Bool Template::matchTemplateVar(
 ) {
   switch (varDef->getType().get()) {
     case TemplateVarType::INTEGER: {
-      auto var = ti_cast<TiInt>(
+      auto var = ti_cast<Core::Data::Ast::IntegerLiteral>(
         Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
@@ -182,11 +182,11 @@ Bool Template::matchTemplateVar(
       }
       auto newVar = static_cast<Core::Data::Ast::IntegerLiteral*>(templateInput);
       ASSERT(newVar != 0);
-      return std::stol(newVar->getValue().get()) == var->get();
+      return std::stol(newVar->getValue().get()) == std::stol(var->getValue().get());
     }
 
     case TemplateVarType::STRING: {
-      auto var = ti_cast<TiStr>(
+      auto var = ti_cast<Core::Data::Ast::StringLiteral>(
         Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
@@ -194,7 +194,7 @@ Bool Template::matchTemplateVar(
       }
       auto newVar = static_cast<Core::Data::Ast::StringLiteral*>(templateInput);
       ASSERT(newVar != 0);
-      return newVar->getValue() == var->get();
+      return newVar->getValue() == var->getValue();
     }
 
     default: {
@@ -219,12 +219,8 @@ Bool Template::assignTemplateVars(
     auto var = templateInputs->getElement(i);
     auto def = Core::Data::Ast::Definition::create();
     def->setName(varDef->getName().get());
-    if (varDef->getType() == TemplateVarType::INTEGER) {
-      auto intLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(var);
-      def->setTarget(TiInt::create(std::stol(intLiteral->getValue().get())));
-    } else if (varDef->getType() == TemplateVarType::STRING) {
-      auto strLiteral = static_cast<Core::Data::Ast::StringLiteral*>(var);
-      def->setTarget(std::make_shared<TiStr>(strLiteral->getValue().get()));
+    if (varDef->getType() == TemplateVarType::INTEGER || varDef->getType() == TemplateVarType::STRING) {
+      def->setTarget(Core::Data::Ast::clone(getSharedPtr(var)));
     } else {
       def->setTarget(std::make_shared<TioWeakBox>(getWeakPtr(var)));
     }
@@ -282,6 +278,23 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
 
 
 //==============================================================================
+// Mergeable Implementation
+
+Bool Template::merge(TiObject *src, Core::Notices::Store *noticeStore)
+{
+  auto mergeable = this->body.ti_cast_get<Core::Data::Ast::Mergeable>();
+  if (mergeable != 0) {
+    return mergeable->merge(src, noticeStore);
+  } else {
+    noticeStore->add(
+      std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+    );
+    return false;
+  }
+}
+
+
+//==============================================================================
 // Printable Implementation
 
 void Template::print(OutStream &stream, Int indents) const
@@ -304,8 +317,8 @@ void Template::print(OutStream &stream, Int indents) const
     printIndents(stream, indents+2);
     stream << varDef->getName() << S(": ");
     switch (varDef->getType().get()) {
-      case TemplateVarType::INTEGER: stream << S("TiInt"); break;
-      case TemplateVarType::STRING: stream << S("TiStr"); break;
+      case TemplateVarType::INTEGER: stream << S("Integer"); break;
+      case TemplateVarType::STRING: stream << S("String"); break;
       case TemplateVarType::TYPE: stream << S("Type"); break;
       case TemplateVarType::FUNCTION: stream << S("Function"); break;
     }

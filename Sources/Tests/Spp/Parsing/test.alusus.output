@@ -9,13 +9,13 @@ Scope [Main.Statements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
- body: Scope [Main.BlockStatements.StmtList]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] x: Identifier: float [Main.Subject.Identifier]
   Definition [Main.Def] y: Identifier: float [Main.Subject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
- body: Scope [Main.BlockStatements.StmtList]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] x: Identifier: float [Main.Subject.Identifier]
   Definition [Main.Def] y: Identifier: float [Main.Subject.Identifier]
 ------------------------------------------------------
@@ -23,10 +23,10 @@ UserType [Main.Type]
 Function  [Main.Function]
  type: FunctionType [Main.Function]
   argTypes: Map
-   x: Identifier: int [Main.Subject.Identifier]
-   y: Identifier: int [Main.Subject.Identifier]
-  retType: Identifier: int [Main.FuncSigSubject.Identifier]
- body: Scope [Main.BlockStatements.StmtList]
+   x: Identifier: int [Main.ParamOnlySubject.Identifier]
+   y: Identifier: int [Main.ParamOnlySubject.Identifier]
+  retType: Identifier: int [Main.ParamOnlySubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
   AdditionOperator + [Main.BlockExpression.AddExp]
    first: Identifier: x [Main.BlockSubject.Identifier]
    second: Identifier: y [Main.BlockSubject.Identifier]
@@ -41,7 +41,7 @@ Function  [Main.Function]
    condition: ComparisonOperator == [Main.Expression.ComparisonExp]
     first: Identifier: y [Main.Subject.Identifier]
     second: IntegerLiteral: 3 [Main.Subject.Literal]
-   body: Scope [Main.BlockStatements.StmtList]
+   body: Block [Main.BlockStatements.StmtList]
     ParamPass () [Main.BlockExpression.ParamPassExp]
      operand: Identifier: doSomething1 [Main.BlockSubject.Identifier]
      param: NULL
@@ -51,7 +51,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
- body: Scope [Main.BlockStatements.StmtList]
+ body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] i: Identifier: float [Main.Subject.Identifier]
   Definition [Main.Def] j: Identifier: float [Main.Subject.Identifier]
 ------------------------------------------------------

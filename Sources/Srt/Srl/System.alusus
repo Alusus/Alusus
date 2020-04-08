@@ -4,14 +4,17 @@ import "globals.alusus";
   module System {
     @expname[system]
     func exec(filename: ptr[Word[8]]): Int;
-    
+
     @expname[usleep]
     func sleep(d: Word): Void;
-    
+
     @expname[setenv]
     func setEnv(name: ptr[Word[8]], value: ptr[Word[8]], overwrite: Int): Int;
-    
+
     @expname[getenv]
     func getEnv(name: ptr[Word[8]]): ptr[Word[8]];
+
+    @expname[exit]
+    func exit(Int);
   };
 };

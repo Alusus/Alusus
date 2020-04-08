@@ -6,7 +6,7 @@
   عرّف وقـت: لقب Time؛
   @دمج عرف Time: وحدة
   {
-    عرّف الوقت_المفصل: لقب DetailedTime؛
+    عرّف وقـت_مفصل: لقب DetailedTime؛
     @دمج عرّف DetailedTime: {
       عرف ثانية: لقب second؛
       عرف دقيقة: لقب minute؛
@@ -23,7 +23,7 @@
     عرف هات_الساعة: لقب getClock؛
     عرف هات_الختم_الزمني: لقب getTimestamp؛
     عرف الى_نص: لقب toString؛
-    عرف هات_الوقت_المفصل: لقب getDetailedTime؛
+    عرف هات_وقـت_مفصل: لقب getDetailedTime؛
   }؛
 }؛
 

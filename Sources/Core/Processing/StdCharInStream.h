@@ -2,7 +2,7 @@
  * @file Core/Processing/StdCharInStream.h
  * Contains the header of class Core::Processing::StdCharInStream.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,7 +29,7 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Variables
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   private: FILE *fd;
 #else
   private: InStream *stream;
@@ -39,7 +39,7 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Constructors & Destructor
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   public: StdCharInStream(FILE* fd);
 #else
   public: StdCharInStream(InStream *s);
@@ -51,7 +51,7 @@ class StdCharInStream : public TiObject, public CharInStreaming
   //============================================================================
   // Member Functions
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(_WIN32)
   public: virtual WChar get();
 #else
   public: virtual Char get();

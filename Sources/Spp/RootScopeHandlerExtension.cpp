@@ -2,7 +2,7 @@
  * @file Spp/RootScopeHandlerExtension.cpp
  * Contains the implementation of class Spp::RootScopeHandlerExtension.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -67,8 +67,8 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
     // Process macros.
-    rootManagerExt->macroProcessor->preparePass(state->getNoticeStore());
-    if (!rootManagerExt->macroProcessor->runMacroPass(root)) return;
+    rootManagerExt->astProcessor->preparePass(state->getNoticeStore());
+    if (!rootManagerExt->astProcessor->runPass(root)) return;
 
     // Set global noticeStore var.
     auto globalNoticeStoreIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));

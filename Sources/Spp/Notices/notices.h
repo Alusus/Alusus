@@ -2,7 +2,7 @@
  * @file Spp/Notices/notices.h
  * Contains the definitions and include statements of all user notices.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -61,6 +61,9 @@ DEFINE_NOTICE(ConflictingDefinitionsNotice, "Spp.Notices", "Spp", "alusus.org", 
 DEFINE_NOTICE(InvalidUseStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1010", 1,
   "Use statement not pointing to a valid target."
 );
+DEFINE_NOTICE(InvalidSquareBracketOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1011", 1,
+  "Invalid operand for [] operator."
+);
 
 } /// namespace
 
@@ -109,6 +112,18 @@ DEFINE_NOTICE(InvalidBreakStatementNotice, "Spp.Notices", "Spp", "alusus.org", "
 );
 DEFINE_NOTICE(InvalidMacroArgDefNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1013", 1,
   "Invalid macro argumnet definition."
+);
+DEFINE_NOTICE(InvalidHandlerStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1014", 1,
+  "Invalid handler statement."
+);
+DEFINE_NOTICE(InvalidTypeElementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1015", 1,
+  "Invalid type element."
+);
+DEFINE_NOTICE(InvalidTemplateArgNameNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1016", 1,
+  "Invalid template arg name."
+);
+DEFINE_NOTICE(InvalidTemplateArgTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1017", 1,
+  "Invalid templatae arg type."
 );
 
 } // namespace
@@ -191,6 +206,21 @@ DEFINE_NOTICE(InvalidModifierDataNotice, "Spp.Notices", "Spp", "alusus.org", "SP
 );
 DEFINE_NOTICE(UninitializedLocalVariableNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1024", 1,
   "Trying to access a local variable before it's initialized."
+);
+DEFINE_NOTICE(InvalidInitOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1025", 1,
+  "Invalid operand for ~init operator."
+);
+DEFINE_NOTICE(InvalidTerminateOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1026", 1,
+  "Invalid operand for ~terminate operator."
+);
+DEFINE_NOTICE(ThisRedefinedNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1027", 1,
+  "Invalid redefinition of `this` in function args."
+);
+DEFINE_NOTICE(SharedInjectionNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1028", 1,
+  "Trying to inject a shared definition."
+);
+DEFINE_NOTICE(InvalidInjectionTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1029", 1,
+  "Invalid type for an injected definition."
 );
 
 } // namespace

@@ -2,7 +2,7 @@
  * @file Core/Processing/Lexer.cpp
  * Contains the implementation of Processing::Lexer.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -868,6 +868,8 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
           break;
         case STOP:
           if (ret == UNKNOWN_ACTION) ret = STOP;
+          break;
+        default:
           break;
       }
     }

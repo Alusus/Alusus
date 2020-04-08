@@ -55,12 +55,27 @@ endif()
 
 # Prepare compile and link flags.
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
-set(CXX_STD_FLAG "-std=c++17")
-set(Alusus_COMPILE_FLAGS "${CXX_STD_FLAG} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
-set(CMAKE_SKIP_RPATH TRUE)
-if(NOT MINGW)
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
+
+if (NOT MINGW)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # CLang options
+    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-const-variable -Wno-unused-result -fno-rtti")
+    set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
+    set(CMAKE_SKIP_RPATH TRUE)
+    set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # GCC options
+    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
+    set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
+    set(CMAKE_SKIP_RPATH TRUE)
+    set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
+  endif()
+else ()
+  set(CXX_STD_FLAG "-std=c++17")
+  set(Alusus_COMPILE_FLAGS "${CXX_STD_FLAG} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
+  set(CMAKE_SKIP_RPATH TRUE)
 endif()
+
 
 # Clear CMAKE_CXX_FLAGS_* because we are going to provide our own compilation
 # flags here.

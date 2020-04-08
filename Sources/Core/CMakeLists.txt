@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Sarmad Khalid Abdullah
+# Copyright (C) 2020 Sarmad Khalid Abdullah
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
@@ -24,9 +24,9 @@ set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
 set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
 if(MINGW)
-  target_link_libraries(AlususStorage "LLVM-7" "stdc++fs" "dl" Win32Helpers)
+  target_link_libraries(AlususStorage "LLVM" "dl" Win32Helpers "z")
 else()
-  target_link_libraries(AlususStorage "LLVM-7" "stdc++fs" "dl")
+  target_link_libraries(AlususStorage "LLVM" "stdc++fs" "dl" "z")
 endif()
 
 # Add a target for Alusus core library.

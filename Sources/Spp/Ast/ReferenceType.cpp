@@ -2,7 +2,7 @@
  * @file Spp/Ast/ReferenceType.cpp
  * Contains the implementation of class Spp::Ast::ReferenceType.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -51,13 +51,13 @@ TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper,
       throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
     }
     auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
-    if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;
-    else if (status == TypeMatchStatus::AGGREGATION) return TypeMatchStatus::AGGREGATION;
+    if (status == TypeMatchStatus::AGGREGATION && status.derefs == 0) return TypeMatchStatus::REF_AGGREGATION;
+    else if (status >= TypeMatchStatus::REF_AGGREGATION) return status;
   }
 
   auto matchStatus = thisContentType->matchTargetType(type, helper, ec);
-  if (matchStatus >= TypeMatchStatus::AGGREGATION) return TypeMatchStatus::DEREFERENCE;
-  else return matchStatus;
+  ++matchStatus.derefs;
+  return matchStatus;
 }
 
 } // namespace

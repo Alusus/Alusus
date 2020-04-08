@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generation.h
  * Contains the header of class Spp::CodeGen::Generation.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -54,6 +54,7 @@ class Generation : public ObjTiInterface
       &this->generateStatement,
       &this->generateExpression,
       &this->generateCast,
+      &this->generateFunctionCall,
       &this->getGeneratedType,
       &this->getTypeAllocationSize
     });
@@ -110,9 +111,9 @@ class Generation : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(generateVarInitialization, Bool, (
-    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* paramsAstNode */,
-    PlainList<TiObject>* /* paramAstTypes */, SharedList<TiObject>* /* paramTgValues */,
-    GenDeps const& /* deps */
+    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
+    PlainList<TiObject>* /* paramAstNodes */, PlainList<TiObject>* /* paramAstTypes */,
+    SharedList<TiObject>* /* paramTgValues */, GenDeps const& /* deps */
   ));
 
   public: METHOD_BINDING_CACHE(generateMemberVarInitialization,
@@ -160,21 +161,28 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (
-      GenDeps const& /* deps */,
-      Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
-      TiObject* /* tgValue */, TioSharedPtr& /* tgCastedValue */
+      GenDeps const& /* deps */, Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
+      Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Bool /* implicit */, TioSharedPtr& /* tgCastedValue */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateFunctionCall,
+    Bool, (
+      Core::Data::Node* /* astNode */, Spp::Ast::Function* /* callee */,
+      Containing<TiObject>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
+      GenDeps const& /* deps */, GenResult& /* result */
     )
   );
 
   public: METHOD_BINDING_CACHE(getGeneratedType,
     Bool, (
-      TiObject* /* ref */, TargetGeneration* /* tg */,
+      TiObject* /* ref */, GenDeps const& /* deps */,
       TiObject*& /* targetTypeResult */, Ast::Type** /* astTypeResult */
     )
   );
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize,
-    Bool, (Spp::Ast::Type* /* astType */, TargetGeneration* /* tg */, Word& /* result */)
+    Bool, (Spp::Ast::Type* /* astType */, GenDeps const& /* deps */, Word& /* result */)
   );
 
   /// @}

@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.h
  * Contains the header of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2019 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -124,35 +124,47 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(isAstReference, Bool, (TiObject*));
   private: static Bool _isAstReference(TiObject *self, TiObject *obj);
 
-  public: Bool lookupCalleeByName(
+  public: Bool lookupCalleeInScopeByName(
     Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-    Containing<TiObject> *types, ExecutionContext const *ec,
-    TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
+    TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
   );
 
-  public: METHOD_BINDING_CACHE(lookupCallee,
+  public: METHOD_BINDING_CACHE(lookupCalleeInScope,
     Bool, (
       TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
-      Containing<TiObject>* /* types */, ExecutionContext const* /* ec */,
-      TiObject*& /* callee */, Type*& /* calleeType */, SharedPtr<Core::Notices::Notice>& /* notice */
+      TiObject* /* thisType */, Containing<TiObject>* /* types */, ExecutionContext const* /* ec */,
+      CalleeLookupResult& /* result */
     )
   );
-  private: static Bool _lookupCallee(
+  private: static Bool _lookupCalleeInScope(
     TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-    Containing<TiObject> *types, ExecutionContext const *ec,
-    TiObject *&callee, Type *&calleeType, SharedPtr<Core::Notices::Notice> &notice
+    TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
   );
 
-  public: METHOD_BINDING_CACHE(lookupCallee_iteration,
-    Core::Data::Seeker::Verb, (
-      TiObject*, Containing<TiObject> *, ExecutionContext const*,
-      TypeMatchStatus&, SharedPtr<Core::Notices::Notice>&, TiObject*&, Type*&
+  public: METHOD_BINDING_CACHE(lookupCalleeOnObject,
+    Bool, (
+      TiObject*, TiObject*, Containing<TiObject>*, ExecutionContext const*, Word, CalleeLookupResult&
     )
   );
-  private: static Core::Data::Seeker::Verb _lookupCallee_iteration(
-    TiObject *self, TiObject *obj, Containing<TiObject> *types, ExecutionContext const *ec,
-    TypeMatchStatus &matchStatus, SharedPtr<Core::Notices::Notice> &notice,
-    TiObject *&callee, Type *&calleeType
+  private: static Bool _lookupCalleeOnObject(
+    TiObject *self, TiObject *obj, TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec,
+    Word currentStackSize, CalleeLookupResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(lookupCustomCaster,
+    Function*, (
+      Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */
+    )
+  );
+  private: static Function* _lookupCustomCaster(
+    TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
+  );
+
+  public: METHOD_BINDING_CACHE(lookupReferenceTarget,
+    Bool, (TiObject*, Core::Data::Ast::Identifier*, Bool, PlainList<TiObject>&)
+  );
+  private: static Bool _lookupReferenceTarget(
+    TiObject *self, TiObject *astNode, Core::Data::Ast::Identifier *ref, Bool searchOwners, PlainList<TiObject> &stack
   );
 
   public: METHOD_BINDING_CACHE(traceType, Type*, (TiObject*));
@@ -164,6 +176,21 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*, ExecutionContext const*));
   private: static Bool _isImplicitlyCastableTo(
     TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+  );
+
+  public: METHOD_BINDING_CACHE(isExplicitlyCastableTo, Bool, (TiObject*, TiObject*, ExecutionContext const*));
+  private: static Bool _isExplicitlyCastableTo(
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+  );
+
+  public: METHOD_BINDING_CACHE(matchTargetType,
+    TypeMatchStatus, (
+      TiObject* /* srcTypeRef */, TiObject* /* targetTypeRef */, ExecutionContext const* /* ec */,
+      Function*& /* caster */
+    )
+  );
+  private: static TypeMatchStatus _matchTargetType(
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec, Function *&caster
   );
 
   public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*, ExecutionContext const*));
