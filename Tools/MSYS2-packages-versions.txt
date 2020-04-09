@@ -126,6 +126,7 @@ mingw-w64-i686-mpfr 4.0.2-2
 mingw-w64-i686-ncurses 6.1.20180908-1
 mingw-w64-i686-nettle 3.4.1-1
 mingw-w64-i686-nghttp2 1.38.0-1
+mingw-w64-i686-ntldd-git r15.e7622f6-2
 mingw-w64-i686-openssl 1.1.1.b-1
 mingw-w64-i686-p11-kit 0.23.16.1-1
 mingw-w64-i686-pkg-config 0.29.2-1
@@ -194,6 +195,7 @@ mingw-w64-x86_64-mpfr 4.0.2-2
 mingw-w64-x86_64-ncurses 6.1.20180908-1
 mingw-w64-x86_64-nettle 3.4.1-1
 mingw-w64-x86_64-nghttp2 1.38.0-1
+mingw-w64-x86_64-ntldd-git r15.e7622f6-2
 mingw-w64-x86_64-openssl 1.1.1.b-1
 mingw-w64-x86_64-p11-kit 0.23.16.1-1
 mingw-w64-x86_64-pkg-config 0.29.2-1

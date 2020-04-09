@@ -546,10 +546,8 @@ def copy_mingw_dlls():
     infoMsg("Copying MinGW DLL's...")
 
     ignored_dirs = [
-        subprocess.check_output(['cygpath', 'C:\\Windows\\System32']).decode(
-            'utf8').strip().lower(),  # Default Windows DLL's.
-        subprocess.check_output(['cygpath', os.path.join(INSTALL_PATH, 'Bin')]).decode(
-            'utf8').strip().lower()  # Installation directory DLL's.
+        'C:\\Windows\\System32'.lower(),  # Default Windows DLL's.
+        os.path.join(INSTALL_PATH, 'Bin').lower()  # Installation's "Bin" directory.
     ]
 
     exec_list = get_exe_and_dll_list()
@@ -558,7 +556,7 @@ def copy_mingw_dlls():
         current_executable = exec_list[i]
 
         ldd_output = subprocess.check_output(
-            ['ldd', current_executable]).decode('utf8').strip().split('\n')
+            ['ntldd', current_executable]).decode('utf8').strip().split('\n')
 
         updated = False
         current_try = 1
@@ -567,12 +565,8 @@ def copy_mingw_dlls():
         while j < len(ldd_output):
             dependency = ldd_output[j]
             try:
-                unix_dll_path = dependency.split()[2]
-                windows_dll_path = subprocess.check_output(
-                    ['cygpath', '-w', unix_dll_path]).decode('utf8').strip()
-                unix_dll_path_dir = subprocess.check_output(
-                    ['cygpath', os.path.dirname(windows_dll_path)]).decode('utf8').strip()
-                if unix_dll_path_dir.lower() not in ignored_dirs:
+                windows_dll_path = dependency.split()[2]
+                if os.path.dirname(windows_dll_path).lower() not in ignored_dirs:
                     shutil.copy2(windows_dll_path,
                                  os.path.join(INSTALL_PATH, 'Bin'))
                     i = 0
@@ -581,10 +575,10 @@ def copy_mingw_dlls():
                 j += 1
             except subprocess.CalledProcessError:
                 if current_try <= max_tries:
-                    print('Error: running LDD again on \"{0}\" (try {1}/{2})...'.format(
+                    print('Error: running \"ntldd\" on \"{0}\" (try {1}/{2})...'.format(
                         current_executable, current_try, max_tries))
                     ldd_output = subprocess.check_output(
-                        ['ldd', current_executable]).decode('utf8').strip().split('\n')
+                        ['ntldd', current_executable]).decode('utf8').strip().split('\n')
                     j = 0
                     current_try += 1
                 else:
