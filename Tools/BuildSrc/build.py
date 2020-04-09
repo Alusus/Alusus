@@ -764,7 +764,7 @@ def generate_iscc_script():
     packages_path = os.path.join(
         PACKAGES_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
     script = "[Setup]\n" + \
-             "AppName=Alusus\n" + \
+             "AppName=Alusus {}\n".format(os.environ['MINGW_HOST']) + \
              "AppVersion={}\n".format(ALUSUS_VERSION) + \
              "AppCopyright=\"Copyright © 2014 Alusus Software Ltd.\"\n" + \
              "WizardStyle=modern\n" + \
@@ -772,8 +772,8 @@ def generate_iscc_script():
              "WizardImageFile=\"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'banner.bmp')) + \
              "SetupIconFile=\"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
              "UninstallDisplayIcon=\"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
-             "DefaultDirName=\"{}\\Alusus\"\n".format('C:\\Program Files' if os.environ['MINGW_HOST'] == 'x86_64-w64-mingw32' else 'C:\\Program Files (x86)') + \
-             "DefaultGroupName=Alusus\n" + \
+             "DefaultDirName=\"{0}\\Alusus {1}\"\n".format('C:\\Program Files' if os.environ['MINGW_HOST'] == 'x86_64-w64-mingw32' else 'C:\\Program Files (x86)', os.environ['MINGW_HOST']) + \
+             "DefaultGroupName=Alusus {}\n".format(os.environ['MINGW_HOST']) + \
              "Compression=lzma2\n" + \
              "SolidCompression=yes\n" + \
              "OutputDir=\"{}\"\n".format(packages_path) + \
@@ -783,7 +783,7 @@ def generate_iscc_script():
              "[Tasks]\n" + \
              "Name: \"desktopicon\"; Description: \"{cm:CreateDesktopIcon}\"; GroupDescription: \"{cm:AdditionalIcons}\"; Flags: unchecked\n\n" + \
              "[Icons]\n" + \
-             "Name: \"{{group}}\\Alusus (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
+             "Name: \"{{group}}\\Alusus {0} (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{1}\"\n".format(os.environ['MINGW_HOST'], os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
              "Name: \"{group}\\Changelog (English)\"; Filename: \"{app}\\changelog.en.md\"; WorkingDir: \"{app}\"\n" + \
              "Name: \"{group}\\Changelog (Arabic)\"; Filename: \"{app}\\changelog.ar.md\"; WorkingDir: \"{app}\"\n" + \
              "Name: \"{group}\\Readme (English)\"; Filename: \"{app}\\readme.md\"; WorkingDir: \"{app}\"\n" + \
