@@ -14,39 +14,42 @@ endif()
 link_directories(${InstallLibDir})
 
 # Read version info from version file.
-execute_process(COMMAND python3 version_info.py ${PYTHON_PREFIX}
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
-                OUTPUT_VARIABLE VersionInfo)
-string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})
-set(AlususVersion ${CMAKE_MATCH_1})
-string(REGEX MATCH "^[0-9]+\\.[0-9]+" AlususSoVersion ${AlususVersion})
-string(REGEX MATCH "REVISION: ([A-Za-z0-9]+)" _dummy_ ${VersionInfo})
-set(AlususRevision ${CMAKE_MATCH_1})
-if (NOT ${AlususRevision} STREQUAL "")
-  set(AlususRevision "-${AlususRevision}")
-endif()
-string(REGEX MATCH "DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
-set(AlususReleaseDate ${CMAKE_MATCH_1})
-string(REGEX MATCH "HIJRI_DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
-set(AlususHijriReleaseDate ${CMAKE_MATCH_1})
-message(STATUS "Alusus Version: " ${AlususVersion})
-message(STATUS "Alusus Revision: " ${AlususRevision})
-message(STATUS "Alusus So Version: " ${AlususSoVersion})
-message(STATUS "Alusus Release Date: " ${AlususReleaseDate})
-message(STATUS "Alusus Hijri Release Date: " ${AlususHijriReleaseDate})
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${AlususVersion}"
-                                                           ALUSUS_REVISION="${AlususRevision}"
-                                                           ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
-                                                           ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
+if(PYTHON_PREFIX)
+  execute_process(COMMAND ${PYTHON_EXECUTABLE} version_info.py ${PYTHON_PREFIX}
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
+                  OUTPUT_VARIABLE VersionInfo)
+  string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})
+  set(AlususVersion ${CMAKE_MATCH_1})
+  string(REGEX MATCH "^[0-9]+\\.[0-9]+" AlususSoVersion ${AlususVersion})
+  string(REGEX MATCH "REVISION: ([A-Za-z0-9]+)" _dummy_ ${VersionInfo})
+  set(AlususRevision ${CMAKE_MATCH_1})
+  if (NOT ${AlususRevision} STREQUAL "")
+    set(AlususRevision "-${AlususRevision}")
+  endif()
+  string(REGEX MATCH "DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
+  set(AlususReleaseDate ${CMAKE_MATCH_1})
+  string(REGEX MATCH "HIJRI_DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
+  set(AlususHijriReleaseDate ${CMAKE_MATCH_1})
+  message(STATUS "Alusus Version: " ${AlususVersion})
+  message(STATUS "Alusus Revision: " ${AlususRevision})
+  message(STATUS "Alusus So Version: " ${AlususSoVersion})
+  message(STATUS "Alusus Release Date: " ${AlususReleaseDate})
+  message(STATUS "Alusus Hijri Release Date: " ${AlususHijriReleaseDate})
+
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${AlususVersion}"
+                                                            ALUSUS_REVISION="${AlususRevision}"
+                                                            ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
+                                                            ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
+endif()
 
 # LLVM path
-set(LLVM_PATH "" CACHE PATH "Path to LLVM root folder.")
-if (NOT EXISTS "${LLVM_PATH}/include/llvm")
-  message(SEND_ERROR "Please specify the path to LLVM root folder in LLVM_PATH.")
-else()
-  message(STATUS "The following LLVM path was provided: " ${LLVM_PATH} ".")
-endif()
+# set(LLVM_PATH "" CACHE PATH "Path to LLVM root folder.")
+# if (NOT EXISTS "${LLVM_PATH}/include/llvm")
+#  message(SEND_ERROR "Please specify the path to LLVM root folder in LLVM_PATH.")
+# else()
+#  message(STATUS "The following LLVM path was provided: " ${LLVM_PATH} ".")
+# endif()
 
 # DLFCN-32 include directory for Win32
 if(MINGW)
@@ -84,8 +87,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "")
 set(CMAKE_CXX_FLAGS "")
 
 # Incorporate the CMake features provided by LLVM:
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${LLVM_PATH}/lib/cmake/llvm")
-include(LLVMConfig)
+# set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${LLVM_PATH}/lib/cmake/llvm")
+# include(LLVMConfig)
 
 # Macro for generating pre-compiled headers.
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${Alusus_SOURCE_DIR}")

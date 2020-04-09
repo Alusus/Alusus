@@ -11,8 +11,8 @@ cmake_minimum_required(VERSION 2.8)
 set(AlususTests_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
 
 # Header and library files paths for LLVM
-include_directories("${LLVM_INCLUDE_DIRS}")
-add_definitions(${LLVM_DEFINITIONS})
+#include_directories("${LLVM_INCLUDE_DIRS}")
+#add_definitions(${LLVM_DEFINITIONS})
 
 # Make sure the compiler finds the source files.
 include_directories("${AlususCore_SOURCE_DIR}")

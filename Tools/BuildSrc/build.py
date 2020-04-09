@@ -132,7 +132,7 @@ def build_llvm():
         cmake_cmd = ["cmake", os.path.join("..", LLVM_NAME + ".src"),
                      "-DCMAKE_INSTALL_PREFIX={}".format(
                          os.path.join(DEPS_PATH, LLVM_NAME + ".install")),
-                     "-DCMAKE_BUILD_TYPE=MinSizeRel",
+                     "-DCMAKE_BUILD_TYPE=Release",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable)]
 
         if THIS_SYSTEM == "Windows":
@@ -159,7 +159,8 @@ def build_llvm():
             os.makedirs(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR))
 
         if THIS_SYSTEM == "Windows":
-            # Force build shared library in Windows.
+            # Force build the shared library in Windows, since CMake is unable to automatically create the shared
+            # library for Windows.
             infoMsg("Building {llvmDylibName}.{dylibExt} on Windows MinGW...".format(
                     llvmDylibName=LLVM_SHARED_LIB_INSTALL_NAME, dylibExt=SHARED_LIBS_EXT))
             if THIS_SYSTEM == "Windows":
@@ -168,19 +169,24 @@ def build_llvm():
                 except OSError:
                     pass
                 ret = create_dll(arg_dir=[os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib")],
-                        arg_output_dir=os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR),
+                        arg_output_dir=os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib"),
                         arg_output_name='LLVM', arg_link_lib=[
                             'ole32', 'uuid', 'LLVMSupport', 'z'])
                 if ret[0]:
                     failMsg("Building LLVM.")
                     os._exit(1)
-        else:
-            shutil.copy2(
-                os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib",
-                            "{0}.{1}".format(LLVM_SHARED_LIB_BUILD_NAME, SHARED_LIBS_EXT)),
-                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(
-                    LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
-            )
+                shutil.move(
+                    os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib",
+                            "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT)),
+                    os.path.join(DEPS_PATH, LLVM_NAME + ".install", "bin",
+                            "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
+                )
+        shutil.copy2(
+            os.path.join(DEPS_PATH, LLVM_NAME + ".install", LIB_DIR.lower(),
+                        "{0}.{1}".format(LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT)),
+            os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR, "{0}.{1}".format(
+                LLVM_SHARED_LIB_INSTALL_NAME, SHARED_LIBS_EXT))
+        )
     except (IOError, OSError, subprocess.CalledProcessError, TypeError) as e:
         failMsg(str(e))
         failMsg("Building LLVM.")
@@ -284,7 +290,8 @@ def build_libcurl():
             os.makedirs(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR))
 
         if THIS_SYSTEM == "Windows":
-            # Force build shared library in Windows.
+            # Force build the shared library in Windows, since autoconf has issues building the shared library
+            # automatically.
             infoMsg("Building libcurl.{dylibExt} on Windows MinGW...".format(dylibExt=SHARED_LIBS_EXT))
             if THIS_SYSTEM == "Windows":
                 try:
@@ -292,7 +299,7 @@ def build_libcurl():
                 except OSError:
                     pass
                 ret = create_dll(arg_dir=[os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "lib")],
-                        arg_output_dir=os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR),
+                        arg_output_dir=os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "lib"),
                         arg_output_name='curl', arg_link_lib=[
                             'ws2_32', 'ssl', 'psl', 'ole32', 'idn2', 'unistring', 'crypto', 'z',
                             'intl', 'brotlidec-static', 'brotlicommon-static', 'nghttp2', 'iconv',
@@ -300,13 +307,18 @@ def build_libcurl():
                 if ret[0]:
                     failMsg("Building libcurl.")
                     os._exit(1)
-        else:
-            shutil.copy2(
-                os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", LIB_DIR.lower(),
-                            "libcurl.{0}".format(SHARED_LIBS_EXT)),
-                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR,
+                shutil.move(
+                    os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "lib",
+                            "libcurl.{}".format(SHARED_LIBS_EXT)),
+                    os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "bin",
                             "libcurl.{}".format(SHARED_LIBS_EXT))
-            )
+                )
+        shutil.copy2(
+            os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", LIB_DIR.lower(),
+                        "libcurl.{}".format(SHARED_LIBS_EXT)),
+            os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR,
+                        "libcurl.{}".format(SHARED_LIBS_EXT))
+        )
 
     except (IOError, OSError, subprocess.CalledProcessError, TypeError) as e:
         failMsg(str(e))
@@ -369,7 +381,7 @@ def build_libzip():
 
         cmake_cmd = ["cmake",
                      "-DBUILD_SHARED_LIBS=ON",
-                     "-DCMAKE_BUILD_TYPE=MinSizeRel",
+                     "-DCMAKE_BUILD_TYPE=Release",
                      "-DCMAKE_DISABLE_TESTING=\"\"",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                      "-DCMAKE_INSTALL_PREFIX={}".format(
@@ -391,19 +403,11 @@ def build_libzip():
             os._exit(1)
         if not os.path.exists(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)):
             os.makedirs(os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR))
-        shared_lib_dir = "bin" if THIS_SYSTEM == "Windows" else "lib"
         shutil.copy2(
             os.path.join(DEPS_PATH, LIBZIP_NAME + ".install",
-                         shared_lib_dir, "libzip.{}".format(SHARED_LIBS_EXT)),
+                         LIB_DIR.lower(), "libzip.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
         )
-        # Copy import library to the install dirctory.
-        if THIS_SYSTEM == "Windows":
-            shutil.copy2(
-                os.path.join(DEPS_PATH, LIBZIP_NAME + ".install",
-                             "lib", "libzip.{}.a".format(SHARED_LIBS_EXT)),
-                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
-            )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
         failMsg("Building libzip.")
@@ -467,7 +471,7 @@ def build_dlfcn_win32():
 
         cmake_cmd = ["cmake",
                      "-DBUILD_SHARED_LIBS=ON",
-                     "-DCMAKE_BUILD_TYPE=MinSizeRel",
+                     "-DCMAKE_BUILD_TYPE=Release",
                      "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                      "-DCMAKE_INSTALL_PREFIX={}".format(os.path.join(
                          DEPS_PATH, dlfcn_folder_name + ".install")),
@@ -502,13 +506,6 @@ def build_dlfcn_win32():
                          "bin", "libdl.{}".format(SHARED_LIBS_EXT)),
             os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
         )
-        # Copy import library to the install dirctory.
-        if THIS_SYSTEM == "Windows":
-            shutil.copy2(
-                os.path.join(DEPS_PATH, dlfcn_folder_name + ".install",
-                             "lib", "libdl.{}.a".format(SHARED_LIBS_EXT)),
-                os.path.join(os.path.abspath(INSTALL_PATH), LIB_DIR)
-            )
     except (IOError, OSError, subprocess.CalledProcessError) as e:
         failMsg(str(e))
         failMsg("Building libdl.")
@@ -637,6 +634,14 @@ def copy_other_installation_files():
         os.path.join(INSTALL_PATH, "changelog.ar.md")
     )
     shutil.copy2(
+        os.path.join(ALUSUS_ROOT, "readme.md"),
+        os.path.join(INSTALL_PATH, "readme.md")
+    )
+    shutil.copy2(
+        os.path.join(ALUSUS_ROOT, "readme.ar.md"),
+        os.path.join(INSTALL_PATH, "readme.ar.md")
+    )
+    shutil.copy2(
         os.path.join(ALUSUS_ROOT, "license.pdf"),
         os.path.join(INSTALL_PATH, "license.pdf")
     )
@@ -646,6 +651,41 @@ def copy_other_installation_files():
     )
     successMsg("Copying other installation files.")
 
+
+def get_deps_environ():
+    environ_cpy = os.environ.copy()
+
+    dlfcn_folder_name = DLFCN_WIN32_NAME + '-' + DLFCN_WIN32_VERSION
+    seperator = ':' if THIS_SYSTEM != 'Windows' else ';'
+
+    path_var = os.path.join(DEPS_PATH, LLVM_NAME + ".install", "bin") + seperator + \
+               os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "bin") + seperator + \
+               os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", "bin")
+    if THIS_SYSTEM == "Windows":
+        path_var += seperator + os.path.join(DEPS_PATH, dlfcn_folder_name + ".install", "bin")
+    if 'PATH' in environ_cpy:
+        path_var += seperator + environ_cpy['PATH']
+    environ_cpy['PATH'] = path_var
+    
+    library_path_var = os.path.join(DEPS_PATH, LLVM_NAME + ".install", "lib") + seperator + \
+               os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "lib") + seperator + \
+               os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", "lib")
+    if THIS_SYSTEM == "Windows":
+        library_path_var += seperator + os.path.join(DEPS_PATH, dlfcn_folder_name + ".install", "lib")
+    if 'LIBRARY_PATH' in environ_cpy:
+        library_path_var += seperator + environ_cpy['LIBRARY_PATH']
+    environ_cpy['LIBRARY_PATH'] = library_path_var
+    
+    cpath_var = os.path.join(DEPS_PATH, LLVM_NAME + ".install", "include") + seperator + \
+               os.path.join(DEPS_PATH, LIBCURL_NAME + ".install", "include") + seperator + \
+               os.path.join(DEPS_PATH, LIBZIP_NAME + ".install", "include")
+    if THIS_SYSTEM == "Windows":
+        cpath_var += seperator + os.path.join(DEPS_PATH, dlfcn_folder_name + ".install", "include")
+    if 'CPATH' in environ_cpy:
+        cpath_var += seperator + environ_cpy['CPATH']
+    environ_cpy['CPATH'] = cpath_var
+    
+    return environ_cpy
 
 def build_alusus():
     global BUILD_PATH
@@ -668,16 +708,13 @@ def build_alusus():
     os.chdir(BUILD_PATH)
 
     try:
+        new_environ = get_deps_environ()
         # CMake will not run everytime by default to reduce build time.
         if (not os.path.exists('CMAKE_CHECKER')) or global_args['rerunCMake']:
             cmake_cmd = ["cmake",
                          "{}".format(os.path.join(ALUSUS_ROOT, "Sources")),
                          "-DCMAKE_BUILD_TYPE={}".format(BUILD_TYPE),
                          "-DCMAKE_INSTALL_PREFIX={}".format(INSTALL_PATH if THIS_SYSTEM != "Windows" else INSTALL_PATH.replace('\\', '/')),
-                         "-DLLVM_PATH={}".format(
-                             (os.path.join(DEPS_PATH, LLVM_NAME + ".install").replace('\\', '/') if THIS_SYSTEM == "Windows" else
-                              os.path.join(DEPS_PATH, LLVM_NAME + ".install"))
-                         ),
                          "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                          "-DPYTHON_PREFIX={}".format(PYTHON_DEPS_PATH)]
 
@@ -690,7 +727,8 @@ def build_alusus():
                         DEPS_PATH, dlfcn_folder_name + ".install").replace('\\', '/'))
                 ]
 
-            ret = subprocess.call(cmake_cmd)
+            p = subprocess.Popen(cmake_cmd, env=new_environ)
+            ret = p.wait()
             if ret != 0:
                 failMsg("Building Alusus.")
                 os._exit(1)
@@ -698,8 +736,9 @@ def build_alusus():
             with open('CMAKE_CHECKER', 'w') as fd:
                 fd.write("CMAKE GENERATOR CHECKER")
 
-        ret = subprocess.call(
-            "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split())
+        p = subprocess.Popen(
+            "{0} install -j{1}".format(MAKE_CMD, MAKE_THREAD_COUNT).split(), env=new_environ)
+        ret = p.wait()
         if ret != 0:
             failMsg("Building Alusus.")
             os._exit(1)
@@ -745,9 +784,10 @@ def generate_iscc_script():
              "Name: \"desktopicon\"; Description: \"{cm:CreateDesktopIcon}\"; GroupDescription: \"{cm:AdditionalIcons}\"; Flags: unchecked\n\n" + \
              "[Icons]\n" + \
              "Name: \"{{group}}\\Alusus (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{}\"\n".format(os.path.join(ALUSUS_ROOT, 'Tools', 'Res', 'icon.en.ico')) + \
-             "Name: \"{group}\\Readme\"; Filename: \"https://github.com/Alusus/Alusus/blob/master/readme.md\"\n" + \
              "Name: \"{group}\\Changelog (English)\"; Filename: \"{app}\\changelog.en.md\"; WorkingDir: \"{app}\"\n" + \
              "Name: \"{group}\\Changelog (Arabic)\"; Filename: \"{app}\\changelog.ar.md\"; WorkingDir: \"{app}\"\n" + \
+             "Name: \"{group}\\Readme (English)\"; Filename: \"{app}\\readme.md\"; WorkingDir: \"{app}\"\n" + \
+             "Name: \"{group}\\Readme (Arabic)\"; Filename: \"{app}\\readme.ar.md\"; WorkingDir: \"{app}\"\n" + \
              "Name: \"{group}\\License (PDF)\"; Filename: \"{app}\\license.pdf\"; WorkingDir: \"{app}\"\n" + \
              "Name: \"{group}\\License (TXT)\"; Filename: \"{app}\\license.txt\"; WorkingDir: \"{app}\"\n" + \
              "Name: \"{{userdesktop}}\\Alusus (Interactive Mode)\"; Filename: \"{{app}}\\Bin\\alusus.exe\"; WorkingDir: \"{{app}}\"; Parameters: \"-i\"; IconFilename: \"{}\"; Tasks: desktopicon\n".format(

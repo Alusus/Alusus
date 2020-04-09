@@ -65,6 +65,10 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->pushSearchPath(path3.c_str());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':' on Unix, or ';' on Windows.
 #ifdef _WIN32
+  // Add the Bin folder too, as it contains the actual DLLs.
+  Str path4 = (std::filesystem::u8path(getModuleDirectory().c_str()) / ".." / "Bin").string();
+  this->pushSearchPath(path4.c_str());
+
   // Load the environment variables as wide characters, then convert them to multibyte characters, on Windows.
   const Char *alususLibs = nullptr;
   WChar *wAlususLibs = _wgetenv(L"ALUSUS_LIBS");

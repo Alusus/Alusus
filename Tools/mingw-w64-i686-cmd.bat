@@ -14,18 +14,18 @@ if "%INNO_SETUP_DIR%"=="" (
 )
 
 if "%PATH:)=^)%"=="" (
-    set Path=!MSYS_DIR!\mingw64\bin;!MSYS_DIR!\mingw64\x86_64-w64-mingw32\bin;!MSYS_DIR!\usr\bin;!MSYS_DIR!\mingw64\lib;!MSYS_DIR!\mingw64\x86_64-w64-mingw32\lib;!MSYS_DIR!\usr\lib;!INNO_SETUP_DIR!
+    set Path=!MSYS_DIR!\mingw32\bin;!MSYS_DIR!\mingw32\i686-w64-mingw32\bin;!MSYS_DIR!\usr\bin;!MSYS_DIR!\mingw32\lib;!MSYS_DIR!\mingw32\i686-w64-mingw32\lib;!MSYS_DIR!\usr\lib;!INNO_SETUP_DIR!
 ) else (
-    set Path=!MSYS_DIR!\mingw64\bin;!MSYS_DIR!\mingw64\x86_64-w64-mingw32\bin;!MSYS_DIR!\usr\bin;!MSYS_DIR!\mingw64\lib;!MSYS_DIR!\mingw64\x86_64-w64-mingw32\lib;!MSYS_DIR!\usr\lib;!INNO_SETUP_DIR!;%PATH:)=^)%
+    set Path=!MSYS_DIR!\mingw32\bin;!MSYS_DIR!\mingw32\i686-w64-mingw32\bin;!MSYS_DIR!\usr\bin;!MSYS_DIR!\mingw32\lib;!MSYS_DIR!\mingw32\i686-w64-mingw32\lib;!MSYS_DIR!\usr\lib;!INNO_SETUP_DIR!;%PATH:)=^)%
 )
 
 if "%LIBRARY_PATH%"=="" (
-    set LIBRARY_PATH=!MSYS_DIR!\mingw64\lib;!MSYS_DIR!\mingw64\x86_64-w64-mingw32\lib;!MSYS_DIR!\usr\lib;
+    set LIBRARY_PATH=!MSYS_DIR!\mingw32\lib;!MSYS_DIR!\mingw32\i686-w64-mingw32\lib;!MSYS_DIR!\usr\lib;
 ) else (
-    set LIBRARY_PATH=!MSYS_DIR!\mingw64\lib;!MSYS_DIR!\mingw64\x86_64-w64-mingw32\lib;!MSYS_DIR!\usr\lib;%LIBRARY_PATH%
+    set LIBRARY_PATH=!MSYS_DIR!\mingw32\lib;!MSYS_DIR!\mingw32\i686-w64-mingw32\lib;!MSYS_DIR!\usr\lib;%LIBRARY_PATH%
 )
 
-set MINGW_HOST=x86_64-w64-mingw32
+set MINGW_HOST=i686-w64-mingw32
 
 if "%MINGW_SHELL%" == "" (
     set MINGW_SHELL=C:\Windows\System32\cmd.exe

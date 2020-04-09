@@ -8,8 +8,8 @@ project(AlususSpp)
 cmake_minimum_required(VERSION 2.8)
 
 # Header paths for LLVM
-include_directories("${LLVM_INCLUDE_DIRS}")
-add_definitions(${LLVM_DEFINITIONS})
+#include_directories("${LLVM_INCLUDE_DIRS}")
+#add_definitions(${LLVM_DEFINITIONS})
 
 # Header and library files paths for AlususCore
 include_directories("${AlususCore_SOURCE_DIR}")
@@ -80,8 +80,8 @@ endforeach(dir)
 if(MINGW)
   install(TARGETS AlususSpp
     RUNTIME DESTINATION Bin
-    LIBRARY DESTINATION Bin
-    ARCHIVE DESTINATION Bin
+    LIBRARY DESTINATION Lib
+    ARCHIVE DESTINATION Lib
   )
 else()
   install(TARGETS AlususSpp

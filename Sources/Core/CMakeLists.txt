@@ -85,8 +85,8 @@ endforeach(DIR)
 if(MINGW)
   install(TARGETS AlususStorage AlususCoreLib AlususCore
     RUNTIME DESTINATION Bin
-    LIBRARY DESTINATION Bin
-    ARCHIVE DESTINATION Bin
+    LIBRARY DESTINATION Lib
+    ARCHIVE DESTINATION Lib
   )
 else()
   install(TARGETS AlususStorage AlususCoreLib AlususCore
