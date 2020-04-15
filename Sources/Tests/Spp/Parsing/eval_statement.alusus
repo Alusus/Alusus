@@ -1,0 +1,13 @@
+import "alusus_spp";
+
+function start {
+  print("hello");
+  eval doSomething();
+  eval {
+    doSomething1();
+    doSomething2();
+  }
+  print("world");
+};
+
+dump_ast start;

@@ -2055,9 +2055,15 @@ Bool ExpressionGenerator::_generateStringLiteral(
 
   if (session->getTgContext() != 0) {
     if (expGenerator->offlineExecution) {
-      if (!session->getTg()->generateStringLiteral(session->getTgContext(), value->c_str(), charTgType, strTgType, result.targetData)) return false;
+      if (!session->getTg()->generateStringLiteral(
+        session->getTgContext(), value->c_str(), charTgType, strTgType, result.targetData
+      )) return false;
     } else {
-      if (!session->getTg()->generatePointerLiteral(session->getTgContext(), strPtrTgType, (void*)value->c_str(), result.targetData)) return false;
+      Int strIndex = expGenerator->stringLiteralRepo->addString(value->c_str());
+      Char const *strValue = expGenerator->stringLiteralRepo->getString(strIndex);
+      if (!session->getTg()->generatePointerLiteral(
+        session->getTgContext(), strPtrTgType, (void*)strValue, result.targetData
+      )) return false;
     }
   }
   result.astType =  strPtrAstType;

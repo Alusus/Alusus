@@ -1,0 +1,20 @@
+import "Srl/Console.alusus";
+
+func evalTest {
+  use Srl.Console;
+  eval {
+    Srl.Console.print("Eval block.\n");
+  }
+  eval {
+    Srl.Console.print("Eval block 2.\n");
+  }
+  Srl.Console.print("Hello");
+  eval Srl.Console.print("Eval statement.\n");
+  Srl.Console.print(" World!\n");
+  eval {
+    print("Multiline\n");
+    print("eval block\n");
+  }
+}
+
+Spp.dumpLlvmIrForElement(evalTest~ast);

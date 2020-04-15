@@ -38,6 +38,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: StringLiteralRepo *stringLiteralRepo;
   private: Core::Notices::Store *noticeStore = 0;
   private: Bool offlineExecution = false;
 
@@ -45,7 +46,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   //============================================================================
   // Constructors & Destructor
 
-  public: ExpressionGenerator(Ast::Helper *h) : astHelper(h)
+  public: ExpressionGenerator(Ast::Helper *h, StringLiteralRepo *slr) : astHelper(h), stringLiteralRepo(slr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -57,6 +58,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->stringLiteralRepo = parent->getStringLiteralRepo();
   }
 
   public: virtual ~ExpressionGenerator()
@@ -76,6 +78,11 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: StringLiteralRepo* getStringLiteralRepo() const
+  {
+    return this->stringLiteralRepo;
   }
 
   public: void setNoticeStore(Core::Notices::Store *ns)

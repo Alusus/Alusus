@@ -1,0 +1,26 @@
+Eval block.
+Eval block 2.
+Eval statement.
+Multiline
+eval block
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+@"#anonymous0" = private constant [6 x i8] c"Hello\00", align 1
+@"#anonymous1" = private constant [9 x i8] c" World!\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"evalTest()"() {
+"#block1":
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous0", i32 0, i32 0))
+  %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @"#anonymous1", i32 0, i32 0))
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------

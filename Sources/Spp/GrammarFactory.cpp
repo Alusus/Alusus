@@ -42,6 +42,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
     S("macro"), S("ماكرو"),
+    S("eval"), S("تقييم"),
     S("ptr"), S("مؤشر"),
     S("cnt"), S("محتوى"),
     S("cast"), S("مثّل"), S("مثل"),
@@ -427,6 +428,32 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     })}
   }).get());
 
+  //// Eval = "eval" + Statement
+  this->createCommand(S("root.Main.Eval"), {{
+    Map::create({}, { { S("eval"), 0 }, { S("تقييم"), 0 } }),
+    {
+      {
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    if (currentList->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, S("Unexpected error while parsing `eval` statement."));
+    }
+    auto evalStatement = Ast::EvalStatement::create({
+      { S("prodId"), metadata->getProdId() },
+      { S("sourceLocation"), metadata->findSourceLocation() }
+    }, {
+      { S("body"), currentList->getElement(1) }
+    });
+    state->setData(evalStatement);
+  }));
+
   // BlockSet
   this->set(S("root.Main.BlockSet"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
@@ -642,6 +669,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     PARSE_REF(S("module.Type")),
     PARSE_REF(S("module.Function")),
     PARSE_REF(S("module.Macro")),
+    PARSE_REF(S("module.Eval")),
     PARSE_REF(S("module.Keywords")),
     PARSE_REF(S("module.ThisTypeRef"))
   });
@@ -668,6 +696,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
     S("macro"), S("ماكرو"),
+    S("eval"), S("تقييم"),
     S("ptr"), S("مؤشر"),
     S("cnt"), S("محتوى"),
     S("cast"), S("مثّل"), S("مثل"),
@@ -716,6 +745,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.Type"),
     S("module.Function"),
     S("module.Macro"),
+    S("module.Eval"),
     S("module.Keywords"),
     S("module.ThisTypeRef")
   });
@@ -752,6 +782,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.ParamOnlySubject"));
   this->tryRemove(S("root.Main.Macro"));
   this->tryRemove(S("root.Main.MacroSignature"));
+  this->tryRemove(S("root.Main.Eval"));
   this->tryRemove(S("root.Main.Keywords"));
   this->tryRemove(S("root.Main.ThisTypeRef"));
 

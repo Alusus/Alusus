@@ -23,6 +23,7 @@ void AstProcessor::initBindingCaches()
   Basic::initBindingCaches(this, {
     &this->runPass,
     &this->process,
+    &this->processEvalStatement,
     &this->processMemberFunction,
     &this->processMacro,
     &this->applyMacroArgs,
@@ -43,6 +44,7 @@ void AstProcessor::initBindings()
 {
   this->runPass = &AstProcessor::_runPass;
   this->process = &AstProcessor::_process;
+  this->processEvalStatement = &AstProcessor::_processEvalStatement;
   this->processMemberFunction = &AstProcessor::_processMemberFunction;
   this->processMacro = &AstProcessor::_processMacro;
   this->applyMacroArgs = &AstProcessor::_applyMacroArgs;
@@ -140,9 +142,56 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
       if (astProcessor->astHelper->getDefinitionDomain(child) == Ast::DefinitionDomain::OBJECT) {
         if (!astProcessor->processMemberFunction(static_cast<Ast::Function*>(child))) result = false;
       }
+    } else if (child->isDerivedFrom<Ast::EvalStatement>()) {
+      if (!astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) result = false;
+      --i;
+      continue;
     }
     if (!astProcessor->process(child)) result = false;
   }
+  return result;
+}
+
+
+Bool AstProcessor::_processEvalStatement(
+  TiObject *self, Spp::Ast::EvalStatement *eval, TiObject *owner, TiInt indexInOwner
+) {
+  PREPARE_SELF(astProcessor, AstProcessor);
+
+  // Build the eval statement.
+  auto funcName = S("__evalstatement__");
+  astProcessor->building->prepareExecution(astProcessor->getNoticeStore(), eval, funcName);
+  Bool result = true;
+  auto block = eval->getBody().ti_cast_get<Ast::Block>();
+  if (block != 0) {
+    for (Int i = 0; i < block->getElementCount(); ++i) {
+      auto childData = block->getElement(i);
+      if (!astProcessor->building->addElementToBuild(childData)) result = false;
+    }
+  } else {
+      if (!astProcessor->building->addElementToBuild(eval->getBody().get())) result = false;
+  }
+  astProcessor->building->finalizeBuild(astProcessor->getNoticeStore(), eval);
+
+  // Remove the eval statement.
+  DynamicContaining<TiObject> *dynContainer;
+  DynamicMapContaining<TiObject> *dynMapContainer;
+  Containing<TiObject> *container;
+  if ((dynContainer = ti_cast<DynamicContaining<TiObject>>(owner)) != 0) {
+    dynContainer->removeElement(indexInOwner);
+  } else if ((dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(owner)) != 0) {
+    dynMapContainer->removeElement(indexInOwner);
+  } else if ((container = ti_cast<Containing<TiObject>>(owner)) != 0) {
+    container->setElement(indexInOwner, 0);
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
+  }
+
+  // Execute the eval statement.
+  if (result) {
+    astProcessor->building->execute(astProcessor->getNoticeStore(), funcName);
+  }
+
   return result;
 }
 
@@ -609,7 +658,7 @@ void AstProcessor::parseStringTemplate(
 void AstProcessor::generateStringFromTemplate(
   Char const *prefix, Word prefixSize, Char const *var, Char const *suffix, Char *output, Word outputBufSize
 ) {
-  SbStr &result = SBSTR(output);
+  SbStr result(output);
   result.assign(S(""), outputBufSize);
   if (prefixSize > 0) result.append(prefix, prefixSize, outputBufSize);
   result.append(var, outputBufSize);

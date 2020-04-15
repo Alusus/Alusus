@@ -31,11 +31,15 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 
   // Create and initialize global item repo.
   this->globalItemRepo = std::make_shared<CodeGen::GlobalItemRepo>();
+  this->stringLiteralRepo = std::make_shared<CodeGen::StringLiteralRepo>();
   this->initializeGlobalItemRepo(manager);
 
   // Create the generator.
   this->typeGenerator = std::make_shared<CodeGen::TypeGenerator>(this->astHelper.get());
-  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(this->astHelper.get());
+  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(
+    this->astHelper.get(),
+    this->stringLiteralRepo.get()
+  );
   this->commandGenerator = std::make_shared<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = std::make_shared<CodeGen::Generator>(
     manager,
@@ -52,7 +56,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     manager,
     this->astHelper.get(),
     this->generator.get(),
-    this->rootExecTargetGenerator.get()
+    this->astProcessingTargetGenerator.get()
   );
 
   this->rootExecTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
@@ -118,6 +122,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->commandGenerator.reset();
   this->expressionGenerator.reset();
   this->typeGenerator.reset();
+  this->stringLiteralRepo.reset();
   this->globalItemRepo.reset();
   this->nodePathResolver.reset();
   this->astHelper.reset();
