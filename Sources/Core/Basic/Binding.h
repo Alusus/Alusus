@@ -79,7 +79,7 @@ class Binding : public TiInterface
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
-  public: virtual SbStr const& getMemberKey(Int index) const
+  public: virtual SbStr const getMemberKey(Int index) const
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }

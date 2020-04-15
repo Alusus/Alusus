@@ -51,7 +51,7 @@ template<class CTYPE> class MapContaining : public Containing<CTYPE>
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Element not found"), key);
   }
 
-  public: virtual SbStr const& getElementKey(Int index) const
+  public: virtual SbStr const getElementKey(Int index) const
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }

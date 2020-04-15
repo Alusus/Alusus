@@ -211,7 +211,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     return this->base->get(index);
   }
 
-  private: SbStr const& getKeyFromBase(Int index)
+  private: SbStr const getKeyFromBase(Int index)
   {
     return this->base->getKey(index);
   }
@@ -471,7 +471,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     return this->list[index].second;
   }
 
-  public: SbStr const& getKey(Int index) const
+  public: SbStr const getKey(Int index) const
   {
     if (static_cast<Word>(index) >= this->list.size()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
@@ -584,7 +584,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     return this->get(key);
   }
 
-  public: virtual SbStr const& getElementKey(Int index) const
+  public: virtual SbStr const getElementKey(Int index) const
   {
     return this->getKey(index);
   }

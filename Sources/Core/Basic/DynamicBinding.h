@@ -85,7 +85,7 @@ class DynamicBinding : public Binding
     return HoldMode::SHARED_REF;
   }
 
-  public: virtual SbStr const& getMemberKey(Int index) const
+  public: virtual SbStr const getMemberKey(Int index) const
   {
     return this->getBindingMap()->getKey(index);
   }

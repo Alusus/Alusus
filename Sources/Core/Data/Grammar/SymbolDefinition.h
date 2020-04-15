@@ -343,7 +343,7 @@ class SymbolDefinition : public Node,
     return this->modifierTranslations;
   }
 
-  public: SbStr const& getTranslatedModifierKeyword(Char const *keyword) const;
+  public: SbStr const getTranslatedModifierKeyword(Char const *keyword) const;
 
   /**
      * @brief Set the operation handler object.

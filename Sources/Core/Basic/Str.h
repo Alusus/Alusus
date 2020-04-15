@@ -2,7 +2,7 @@
  * @file Core/Basic/Str.h
  * Contains the header of class Core::Basic::Str.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_STR_H
 #define CORE_BASIC_STR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -157,13 +157,13 @@ class Str : public std::string
     SFREE(buffer);
   }
 
-  public: SbStr const& sbstr() const
+  public: SbStr const sbstr() const
   {
     return sbstr_cast(this->c_str());
   }
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -175,7 +175,7 @@ class Context : public TiObject, public MapContaining<TiObject>
     return HoldMode::PLAIN_REF;
   }
 
-  public: virtual SbStr const& getElementKey(Int index) const;
+  public: virtual SbStr const getElementKey(Int index) const;
 
   public: virtual Int findElementIndex(Char const *key) const;
 

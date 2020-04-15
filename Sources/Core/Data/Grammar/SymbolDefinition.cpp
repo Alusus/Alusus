@@ -135,7 +135,7 @@ void SymbolDefinition::onParentElementChanged(SymbolDefinition *obj, SymbolDefin
 }
 
 
-SbStr const& SymbolDefinition::getTranslatedModifierKeyword(Char const *keyword) const
+SbStr const SymbolDefinition::getTranslatedModifierKeyword(Char const *keyword) const
 {
   if (this->modifierTranslations == 0) return sbstr_cast(keyword);
   auto index = this->modifierTranslations->findIndex(keyword);

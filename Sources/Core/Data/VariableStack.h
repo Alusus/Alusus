@@ -163,7 +163,7 @@ class VariableStack : public TiObject, public DynamicMapContaining<TiObject>
 
   public: TiObject* get(Int index, Int levelIndex) const;
 
-  public: const SbStr& getKey(Int index, Int levelIndex) const;
+  public: const SbStr getKey(Int index, Int levelIndex) const;
 
   public: Int getIndex(Char const *key, Int levelIndex = -1) const;
 
@@ -214,7 +214,7 @@ class VariableStack : public TiObject, public DynamicMapContaining<TiObject>
     return this->get(key, -1);
   }
 
-  public: virtual const SbStr& getElementKey(Int index) const
+  public: virtual const SbStr getElementKey(Int index) const
   {
     return this->getKey(index, -1);
   }

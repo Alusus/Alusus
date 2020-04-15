@@ -369,7 +369,7 @@ TiObject* Context::getElement(Char const *key) const
 }
 
 
-SbStr const& Context::getElementKey(Int index) const
+SbStr const Context::getElementKey(Int index) const
 {
   switch(index) {
     case 0: return SBSTR(S("root"));

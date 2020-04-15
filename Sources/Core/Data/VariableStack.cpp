@@ -344,7 +344,7 @@ TiObject* VariableStack::get(Int index, Int levelIndex) const
 }
 
 
-const SbStr& VariableStack::getKey(Int index, Int levelIndex) const
+const SbStr VariableStack::getKey(Int index, Int levelIndex) const
 {
   if (this->getLevelCount() == 0) {
     throw EXCEPTION(GenericException, S("No levels added yet."));

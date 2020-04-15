@@ -2,7 +2,7 @@
  * @file Core/Basic/WStr.h
  * Contains the header of class Core::Basic::WStr.
  *
- * @copyright Copyright (C) 2015 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_WSTR_H
 #define CORE_BASIC_WSTR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -142,13 +142,13 @@ class WStr : public std::wstring
     SFREE(buffer);
   }
 
-  public: SbWStr const& sbwstr() const
+  public: SbWStr const sbwstr() const
   {
     return sbwstr_cast(this->c_str());
   }
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

@@ -413,7 +413,7 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
     _IMPLEMENT_BINDING_INDEXGETHOLDMODE(parent, __VA_ARGS__); \
     return parent::getMemberHoldMode(index); \
   } \
-  public: virtual const SbStr& getMemberKey(Int index) const \
+  public: virtual const SbStr getMemberKey(Int index) const \
   { \
     _IMPLEMENT_BINDING_GETKEY(parent, __VA_ARGS__); \
     return parent::getMemberKey(index); \
