@@ -112,13 +112,13 @@ import "Srl/Array.alusus";
     func append (i: Int[64]) {
       def buf: array[Char, 20];
       assign(buf~ptr, "%ld", i);
-      this.append(buf);
+      this.append(buf~ptr);
     };
 
     func append (f: Float[64]) {
       def buf: array[Char, 20];
       assign(buf~ptr, "%f", f);
-      this.append(buf);
+      this.append(buf~ptr);
     };
 
     func concat (buf: ptr[array[Char]]): String {
