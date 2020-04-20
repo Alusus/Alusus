@@ -251,6 +251,9 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
   Str name = std::regex_replace(
     typeGenerator->astHelper->resolveNodePath(astType), std::regex("[^a-zA-Z0-9_]"), S("_")
   );
+
+  if (!typeGenerator->astProcessor->processTypeBody(astType)) return false;
+
   TioSharedPtr tgType;
   if (!session->getTg()->generateStructTypeDecl(name.c_str(), tgType)) return false;
   session->getEda()->setCodeGenData(astType, tgType);

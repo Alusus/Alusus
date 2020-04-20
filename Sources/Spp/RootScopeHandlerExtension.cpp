@@ -69,7 +69,7 @@ void RootScopeHandlerExtension::_addNewElement(
     // Process macros.
     auto astProcessor = rootManagerExt->rootExecBuildManager->getAstProcessor();
     astProcessor->preparePass(state->getNoticeStore());
-    if (!astProcessor->runPass(root)) return;
+    if (!astProcessor->process(root)) return;
 
     auto generator = rootManagerExt->rootExecBuildManager->getGenerator();
 

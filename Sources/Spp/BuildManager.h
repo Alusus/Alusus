@@ -49,6 +49,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: TioSharedPtr globalCtorTgContext;
   private: TioSharedPtr globalProcTgFunc;
   private: TioSharedPtr globalProcTgContext;
+  private: Bool offlineExecution;
 
 
   //============================================================================

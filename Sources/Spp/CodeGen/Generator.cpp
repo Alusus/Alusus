@@ -50,7 +50,7 @@ void Generator::initBindings()
 //==============================================================================
 // Main Operation Functions
 
-void Generator::prepareBuild(Core::Notices::Store *noticeStore, Bool offlineExecution)
+void Generator::prepareBuild(Core::Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(noticeStore);
 
@@ -61,9 +61,6 @@ void Generator::prepareBuild(Core::Notices::Store *noticeStore, Bool offlineExec
   this->typeGenerator->setNoticeStore(this->noticeStore);
   this->commandGenerator->setNoticeStore(this->noticeStore);
   this->expressionGenerator->setNoticeStore(this->noticeStore);
-
-  this->offlineExecution = offlineExecution;
-  this->expressionGenerator->setOfflineExecution(offlineExecution);
 }
 
 
@@ -105,6 +102,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Ses
         if (!generation->generateFunction(static_cast<Spp::Ast::Function*>(target), session)) result = false;
       } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
         if (!generation->generateUserTypeBody(static_cast<Spp::Ast::UserType*>(target), session)) result = false;
+        // TODO: Generate member functions and sub-types.
       } else if (generator->getAstHelper()->isAstReference(target)) {
         // Generate global variable.
         if (!generation->generateVarDef(def, session)) {
@@ -145,6 +143,10 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
   if (tgFunc == 0) {
     if (!generation->generateFunctionDecl(astFunc, session)) return false;
     tgFunc = session->getEda()->getCodeGenData<TiObject>(astFunc);
+  }
+
+  if (generator->astProcessor != 0) {
+    if (!generator->astProcessor->processFunctionBody(astFunc)) return false;
   }
 
   auto astBlock = astFunc->getBody().get();
@@ -365,7 +367,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
       // Generate the default value.
       TioSharedPtr tgDefaultValue;
-      if (generator->offlineExecution) {
+      if (session->isOfflineExecution()) {
         if (!generator->typeGenerator->generateDefaultValue(astType, generation, session, tgDefaultValue)) {
           session->getEda()->setCodeGenFailed(astVar, true);
           return false;
@@ -378,7 +380,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       }
       session->getEda()->setCodeGenData(astVar, tgGlobalVar);
 
-      if (!generator->offlineExecution) {
+      if (!session->isOfflineExecution()) {
         if (generator->globalItemRepo->findItem(name.c_str()) == -1) {
           // Add an entry for the variable in the repo.
           Word size;
@@ -528,7 +530,7 @@ Bool Generator::_generateTempVar(
     //   // Generate a global or a static variable.
     //   Str name = generator->getTempVarName();
     //   TioSharedPtr tgGlobalVar;
-    //   if (generator->offlineExecution) {
+    //   if (session->isOfflineExecution()) {
     //     // Generate the default value.
     //     TioSharedPtr tgDefaultValue;
     //     if (!generator->typeGenerator->generateDefaultValue(

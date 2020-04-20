@@ -78,6 +78,8 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   );
   this->rootExecBuildManager->setAstProcessor(this->astProcessor.get());
   this->outputBuildManager->setAstProcessor(this->astProcessor.get());
+  this->generator->setAstProcessor(this->astProcessor.get());
+  this->typeGenerator->setAstProcessor(this->astProcessor.get());
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);

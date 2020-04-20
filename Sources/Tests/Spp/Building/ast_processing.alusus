@@ -1,0 +1,43 @@
+import "Srl/Console.alusus";
+use Srl.Console;
+
+macro defInt [n] { def n: Int; }
+
+module MyMod {
+  defInt[z];
+  eval {
+    print("MyMod eval\n");
+  }
+};
+
+type Point {
+  defInt[x];
+  func getDouble { return this.x * 2 }
+  eval {
+    print("Point eval\n");
+  }
+}
+
+func test {
+  defInt[abc];
+  abc = 51;
+  print("%d\n", abc);
+
+  def p: Point;
+  p.x = 21;
+  print("%d\n", p.x);
+
+  eval {
+    print("test eval\n");
+  }
+}
+
+dump_ast MyMod;
+dump_ast Point;
+dump_ast test;
+
+test();
+
+dump_ast MyMod;
+dump_ast Point;
+dump_ast test;

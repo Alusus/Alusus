@@ -21,10 +21,12 @@ namespace Spp::CodeGen
 void AstProcessor::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
-    &this->runPass,
     &this->process,
+    &this->processParamPass,
     &this->processEvalStatement,
-    &this->processMemberFunction,
+    &this->processMemberFunctionSig,
+    &this->processFunctionBody,
+    &this->processTypeBody,
     &this->processMacro,
     &this->applyMacroArgs,
     &this->applyMacroArgsIteration,
@@ -42,10 +44,12 @@ void AstProcessor::initBindingCaches()
 
 void AstProcessor::initBindings()
 {
-  this->runPass = &AstProcessor::_runPass;
   this->process = &AstProcessor::_process;
+  this->processParamPass = &AstProcessor::_processParamPass;
   this->processEvalStatement = &AstProcessor::_processEvalStatement;
-  this->processMemberFunction = &AstProcessor::_processMemberFunction;
+  this->processMemberFunctionSig = &AstProcessor::_processMemberFunctionSig;
+  this->processFunctionBody = &AstProcessor::_processFunctionBody;
+  this->processTypeBody = &AstProcessor::_processTypeBody;
   this->processMacro = &AstProcessor::_processMacro;
   this->applyMacroArgs = &AstProcessor::_applyMacroArgs;
   this->applyMacroArgsIteration = &AstProcessor::_applyMacroArgsIteration;
@@ -70,15 +74,6 @@ void AstProcessor::preparePass(Core::Notices::Store *noticeStore)
 }
 
 
-Bool AstProcessor::_runPass(TiObject *self, Core::Data::Ast::Scope *root)
-{
-  PREPARE_SELF(astProcessor, AstProcessor);
-  VALIDATE_NOT_NULL(root);
-
-  return astProcessor->process(root);
-}
-
-
 Bool AstProcessor::_process(TiObject *self, TiObject *owner)
 {
   PREPARE_SELF(astProcessor, AstProcessor);
@@ -93,63 +88,87 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
   for (Int i = 0; i < container->getElementCount(); ++i) {
     auto child = container->getElement(i);
     if (child == 0) continue;
+
     if (child->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
-      auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(child);
-      if (paramPass->getType() == Core::Data::Ast::BracketType::SQUARE) {
-        // Extract args.
-        PlainList<TiObject> argsList;
-        auto param = paramPass->getParam().get();
-        Containing<TiObject> *args = &argsList;
-        if (param) {
-          if (param->isDerivedFrom<Core::Data::Ast::List>()) {
-            args = static_cast<Core::Data::Ast::List*>(param);
-          } else {
-            argsList.add(param);
-          }
-        }
-
-        // Find matching macro.
-        Ast::Macro *macro = 0;
-        astProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), owner,
-          [=, &macro] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
-          {
-            if (ntc != 0) {
-              return Core::Data::Seeker::Verb::MOVE;
-            }
-
-            auto m = ti_cast<Ast::Macro>(obj);
-            if (m != 0 && m->matchCall(args, astProcessor->astHelper)) {
-              macro = m;
-              return Core::Data::Seeker::Verb::STOP;
-            } else {
-              return Core::Data::Seeker::Verb::MOVE;
-            }
-          }, 0
-        );
-
-        if (macro != 0) {
-          auto sl = paramPass->findSourceLocation();
-          astProcessor->noticeStore->pushPrefixSourceLocation(sl.get());
-          if (astProcessor->processMacro(macro, args, owner, i, sl.get())) --i;
-          else result = false;
-          astProcessor->noticeStore->popPrefixSourceLocation(
-            Core::Data::getSourceLocationRecordCount(sl.get())
-          );
-        }
-        continue;
+      Bool replaced = false;
+      if (!astProcessor->processParamPass(static_cast<Core::Data::Ast::ParamPass*>(child), i, replaced)) result = false;
+      if (replaced) --i;
+    } else if (child->isDerivedFrom<Ast::Function>()) {
+      if (
+        astProcessor->astHelper->getDefinitionDomain(child) == Ast::DefinitionDomain::OBJECT &&
+        !isAstProcessed(static_cast<Ast::Function*>(child))
+      ) {
+        if (!astProcessor->processMemberFunctionSig(static_cast<Ast::Function*>(child))) result = false;
       }
-    } else if (child->isDerivedFrom<Ast::Function>() && !isAstProcessed(static_cast<Ast::Function*>(child))) {
-      if (astProcessor->astHelper->getDefinitionDomain(child) == Ast::DefinitionDomain::OBJECT) {
-        if (!astProcessor->processMemberFunction(static_cast<Ast::Function*>(child))) result = false;
-      }
+    } else if (child->isDerivedFrom<Ast::Type>()) {
+      // if (!astProcessor->processTypeMethodSigs(static_cast<Ast::UserType*>(child))) result = false;
+      continue;
     } else if (child->isDerivedFrom<Ast::EvalStatement>()) {
       if (!astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) result = false;
       --i;
-      continue;
+    } else {
+      if (!astProcessor->process(child)) result = false;
     }
-    if (!astProcessor->process(child)) result = false;
   }
+
   return result;
+}
+
+
+Bool AstProcessor::_processParamPass(
+  TiObject *self, Core::Data::Ast::ParamPass *paramPass, TiInt indexInOwner, Bool &replaced
+) {
+  PREPARE_SELF(astProcessor, AstProcessor);
+  VALIDATE_NOT_NULL(paramPass);
+
+  replaced = false;
+
+  if (paramPass->getType() == Core::Data::Ast::BracketType::SQUARE) {
+    // Extract args.
+    PlainList<TiObject> argsList;
+    auto param = paramPass->getParam().get();
+    Containing<TiObject> *args = &argsList;
+    if (param) {
+      if (param->isDerivedFrom<Core::Data::Ast::List>()) {
+        args = static_cast<Core::Data::Ast::List*>(param);
+      } else {
+        argsList.add(param);
+      }
+    }
+
+    // Find matching macro.
+    Ast::Macro *macro = 0;
+    astProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), paramPass->getOwner(),
+      [=, &macro] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+      {
+        if (ntc != 0) {
+          return Core::Data::Seeker::Verb::MOVE;
+        }
+
+        auto m = ti_cast<Ast::Macro>(obj);
+        if (m != 0 && m->matchCall(args, astProcessor->astHelper)) {
+          macro = m;
+          return Core::Data::Seeker::Verb::STOP;
+        } else {
+          return Core::Data::Seeker::Verb::MOVE;
+        }
+      }, 0
+    );
+
+    Bool result = true;
+    if (macro != 0) {
+      auto sl = paramPass->findSourceLocation();
+      astProcessor->noticeStore->pushPrefixSourceLocation(sl.get());
+      if (astProcessor->processMacro(macro, args, paramPass->getOwner(), indexInOwner, sl.get())) replaced = true;
+      else result = false;
+      astProcessor->noticeStore->popPrefixSourceLocation(
+        Core::Data::getSourceLocationRecordCount(sl.get())
+      );
+    }
+    return result;
+  } else{
+    return astProcessor->process(paramPass);
+  }
 }
 
 
@@ -196,7 +215,7 @@ Bool AstProcessor::_processEvalStatement(
 }
 
 
-Bool AstProcessor::_processMemberFunction(TiObject *self, Spp::Ast::Function *func)
+Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::Function *func)
 {
   PREPARE_SELF(astProcessor, AstProcessor);
   auto def = ti_cast<Core::Data::Ast::Definition>(func->getOwner());
@@ -233,6 +252,32 @@ Bool AstProcessor::_processMemberFunction(TiObject *self, Spp::Ast::Function *fu
   // Mark the function as processed.
   setAstProcessed(func, true);
   return true;
+}
+
+
+Bool AstProcessor::_processFunctionBody(TiObject *self, Spp::Ast::Function *func)
+{
+  PREPARE_SELF(astProcessor, AstProcessor);
+  VALIDATE_NOT_NULL(func);
+  auto body = func->getBody().get();
+  if (body == 0) return true;
+  if (isAstProcessed(body)) return true;
+  Bool result = astProcessor->process(body);
+  setAstProcessed(body, true);
+  return result;
+}
+
+
+Bool AstProcessor::_processTypeBody(TiObject *self, Spp::Ast::UserType *type)
+{
+  PREPARE_SELF(astProcessor, AstProcessor);
+  VALIDATE_NOT_NULL(type);
+  auto body = type->getBody().get();
+  if (body == 0) return true;
+  if (isAstProcessed(body)) return true;
+  Bool result = astProcessor->process(body);
+  setAstProcessed(body, true);
+  return result;
 }
 
 

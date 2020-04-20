@@ -64,6 +64,15 @@ function getBRef ():ref[B] {
   return b;
 };
 
+type C
+{
+  def i: Int;
+
+  func setI (this: ref[this_type], i: Int) {
+    this.i = i;
+  };
+};
+
 func test {
   def a: A;
   a.setI(10);
@@ -82,22 +91,9 @@ func test {
 
   getA().unknown();
   getARef().unknown();
-};
 
-Spp.dumpLlvmIrForElement(test~ast);
-
-type C
-{
-  def i: Int;
-
-  func setI (this: ref[this_type], i: Int) {
-    this.i = i;
-  };
-};
-
-func testPreprocessError {
   def c: C;
   c.setI(10);
 };
 
-Spp.dumpLlvmIrForElement(testPreprocessError~ast);
+Spp.dumpLlvmIrForElement(test~ast);

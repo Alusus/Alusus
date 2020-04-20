@@ -1,0 +1,134 @@
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatements.StmtList]
+ ParamPass [] [Main.Expression.ParamPassExp]
+  operand: Identifier: defInt [Main.Subject.Identifier]
+  param: Identifier: z [Main.Subject.Identifier]
+ EvalStatement [Main.Eval]
+  body: Block [Main.BlockStatements.StmtList]
+   ParamPass () [Main.BlockExpression.ParamPassExp]
+    operand: Identifier: print [Main.BlockSubject.Identifier]
+    param: StringLiteral: MyMod eval
+ [Main.Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+UserType [Main.Type]
+ body: Block [Main.BlockStatements.StmtList]
+  ParamPass [] [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: defInt [Main.BlockSubject.Identifier]
+   param: Identifier: x [Main.Subject.Identifier]
+  Definition [Main.Function] getDouble: Function  [Main.Function]
+   type: FunctionType [Main.Function]
+    argTypes: NULL
+    retType: NULL
+   body: Block [Main.BlockStatements.StmtList]
+    ReturnStatement [Main.Return]
+     operand: MultiplicationOperator * [Main.Expression.MulExp]
+      first: LinkOperator . [Main.Expression.LinkExp]
+       first: Identifier: this [Main.Keywords]
+       second: Identifier: x [Main.Subject.Identifier]
+      second: IntegerLiteral: 2 [Main.Subject.Literal]
+  EvalStatement [Main.Eval]
+   body: Block [Main.BlockStatements.StmtList]
+    ParamPass () [Main.BlockExpression.ParamPassExp]
+     operand: Identifier: print [Main.BlockSubject.Identifier]
+     param: StringLiteral: Point eval
+ [Main.Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
+  ParamPass [] [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: defInt [Main.BlockSubject.Identifier]
+   param: Identifier: abc [Main.Subject.Identifier]
+  AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+   first: Identifier: abc [Main.BlockSubject.Identifier]
+   second: IntegerLiteral: 51 [Main.BlockSubject.Literal]
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: print [Main.BlockSubject.Identifier]
+   param: List [Main.Expression.ListExp]
+    StringLiteral: %d
+ [Main.Subject.Literal]
+    Identifier: abc [Main.Subject.Identifier]
+  Definition [Main.Def] p: Identifier: Point [Main.Subject.Identifier]
+  AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+   first: LinkOperator . [Main.BlockExpression.LinkExp]
+    first: Identifier: p [Main.BlockSubject.Identifier]
+    second: Identifier: x [Main.BlockSubject.Identifier]
+   second: IntegerLiteral: 21 [Main.BlockSubject.Literal]
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: print [Main.BlockSubject.Identifier]
+   param: List [Main.Expression.ListExp]
+    StringLiteral: %d
+ [Main.Subject.Literal]
+    LinkOperator . [Main.Expression.LinkExp]
+     first: Identifier: p [Main.Subject.Identifier]
+     second: Identifier: x [Main.Subject.Identifier]
+  EvalStatement [Main.Eval]
+   body: Block [Main.BlockStatements.StmtList]
+    ParamPass () [Main.BlockExpression.ParamPassExp]
+     operand: Identifier: print [Main.BlockSubject.Identifier]
+     param: StringLiteral: test eval
+ [Main.Subject.Literal]
+------------------------------------------------------
+MyMod eval
+test eval
+Point eval
+51
+21
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatements.StmtList]
+ Definition [Main.Def] z: Identifier: Int [Main.Subject.Identifier]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+UserType [Main.Type]
+ body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.Def] x: Identifier: Int [Main.Subject.Identifier]
+  Definition [Main.Function] getDouble: Function  [Main.Function]
+   type: FunctionType [Main.Function]
+    argTypes: Map
+     this: ParamPass []
+      operand: Identifier: ref
+      param: ThisTypeRef
+    retType: NULL
+   body: Block [Main.BlockStatements.StmtList]
+    ReturnStatement [Main.Return]
+     operand: MultiplicationOperator * [Main.Expression.MulExp]
+      first: LinkOperator . [Main.Expression.LinkExp]
+       first: Identifier: this [Main.Keywords]
+       second: Identifier: x [Main.Subject.Identifier]
+      second: IntegerLiteral: 2 [Main.Subject.Literal]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function test() [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.Def] abc: Identifier: Int [Main.Subject.Identifier]
+  AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+   first: Identifier: abc [Main.BlockSubject.Identifier]
+   second: IntegerLiteral: 51 [Main.BlockSubject.Literal]
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: print [Main.BlockSubject.Identifier]
+   param: List [Main.Expression.ListExp]
+    StringLiteral: %d
+ [Main.Subject.Literal]
+    Identifier: abc [Main.Subject.Identifier]
+  Definition [Main.Def] p: Identifier: Point [Main.Subject.Identifier]
+  AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+   first: LinkOperator . [Main.BlockExpression.LinkExp]
+    first: Identifier: p [Main.BlockSubject.Identifier]
+    second: Identifier: x [Main.BlockSubject.Identifier]
+   second: IntegerLiteral: 21 [Main.BlockSubject.Literal]
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: print [Main.BlockSubject.Identifier]
+   param: List [Main.Expression.ListExp]
+    StringLiteral: %d
+ [Main.Subject.Literal]
+    LinkOperator . [Main.Expression.LinkExp]
+     first: Identifier: p [Main.Subject.Identifier]
+     second: Identifier: x [Main.Subject.Identifier]
+------------------------------------------------------

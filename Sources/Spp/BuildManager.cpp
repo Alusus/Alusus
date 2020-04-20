@@ -80,7 +80,8 @@ void BuildManager::_prepareBuild(
   // Build the IR code.
   buildMgr->targetGenerator->setGlobalItemRepo(buildMgr->generator->getGlobalItemRepo());
   buildMgr->targetGenerator->setNoticeStore(noticeStore);
-  buildMgr->generator->prepareBuild(noticeStore, offlineExecution);
+  buildMgr->generator->prepareBuild(noticeStore);
+  buildMgr->offlineExecution = offlineExecution;
 
   // If there was previous root functions, delete them now.
   if (buildMgr->globalCtorTgFunc != 0) {
@@ -136,7 +137,7 @@ Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element)
   CodeGen::DestructionStack globalDestructionStack;
   CodeGen::Session session(
     &buildMgr->extraDataAccessor, targetGeneration, buildMgr->globalProcTgContext.get(), &destructionStack,
-    buildMgr->globalCtorTgContext.get(), &globalDestructionStack
+    buildMgr->globalCtorTgContext.get(), &globalDestructionStack, buildMgr->offlineExecution
   );
   Bool result;
   if (element->isDerivedFrom<Ast::Module>()) {

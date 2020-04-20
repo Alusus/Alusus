@@ -33,6 +33,7 @@ class Session : public TiObject
   private: DestructionStack *destructionStack;
   private: TiObject *tgGlobalConstructionContext;
   private: DestructionStack *globalDestructionStack;
+  private: Bool offlineExecution;
   private: TioSharedPtr tgSelf;
   private: Ast::Type *astSelfType;
 
@@ -42,16 +43,17 @@ class Session : public TiObject
 
   public: Session(
     ExtraDataAccessor *eda, TargetGeneration *tg, TiObject *tgc, DestructionStack *ds,
-    TiObject *tgGcc, DestructionStack *gds
+    TiObject *tgGcc, DestructionStack *gds, Bool offlineExec
   ) : eda(eda), tg(tg), tgContext(tgc), destructionStack(ds)
     , tgGlobalConstructionContext(tgGcc), globalDestructionStack(gds)
-    , tgSelf(0), astSelfType(0)
+    , offlineExecution(offlineExec), tgSelf(0), astSelfType(0)
   {}
 
   public: Session(Session *session, TiObject *tgc)
     : eda(session->getEda()), tg(session->getTg()), tgContext(tgc), destructionStack(session->getDestructionStack())
     , tgGlobalConstructionContext(session->getTgGlobalConstructionContext())
     , globalDestructionStack(session->getGlobalDestructionStack())
+    , offlineExecution(session->isOfflineExecution())
     , tgSelf(session->getTgSelf()), astSelfType(session->getAstSelfType())
   {}
 
@@ -59,6 +61,7 @@ class Session : public TiObject
     : eda(session->getEda()), tg(session->getTg()), tgContext(tgc), destructionStack(ds)
     , tgGlobalConstructionContext(session->getTgGlobalConstructionContext())
     , globalDestructionStack(session->getGlobalDestructionStack())
+    , offlineExecution(session->isOfflineExecution())
     , tgSelf(session->getTgSelf()), astSelfType(session->getAstSelfType())
   {}
 
@@ -67,6 +70,7 @@ class Session : public TiObject
   ) : eda(session->getEda()), tg(session->getTg()), tgContext(tgc), destructionStack(ds)
     , tgGlobalConstructionContext(session->getTgGlobalConstructionContext())
     , globalDestructionStack(session->getGlobalDestructionStack())
+    , offlineExecution(session->isOfflineExecution())
     , tgSelf(tgs), astSelfType(astst)
   {}
 
@@ -96,6 +100,10 @@ class Session : public TiObject
 
   public: DestructionStack* getGlobalDestructionStack() {
     return this->globalDestructionStack;
+  }
+
+  public: Bool isOfflineExecution() {
+    return this->offlineExecution;
   }
 
   public: void setTgSelf(TioSharedPtr const &tgs) {

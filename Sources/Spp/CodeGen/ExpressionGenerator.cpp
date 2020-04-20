@@ -2054,7 +2054,7 @@ Bool ExpressionGenerator::_generateStringLiteral(
   if (!g->getGeneratedType(strPtrAstType, session, strPtrTgType, 0)) return false;
 
   if (session->getTgContext() != 0) {
-    if (expGenerator->offlineExecution) {
+    if (session->isOfflineExecution()) {
       if (!session->getTg()->generateStringLiteral(
         session->getTgContext(), value->c_str(), charTgType, strTgType, result.targetData
       )) return false;
