@@ -39,6 +39,8 @@ namespace Spp
 
 #include "BuildManager.h"
 
+#include "Rt/rt.h"
+
 #include "SeekerExtension.h"
 #include "RootScopeHandlerExtension.h"
 #include "RootManagerExtension.h"

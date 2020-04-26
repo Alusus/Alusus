@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 @expname[printf] func print(format: ptr[Word[8]], args: ...any): Int[32];
 
@@ -96,4 +96,4 @@ func test {
   c.setI(10);
 };
 
-Spp.dumpLlvmIrForElement(test~ast);
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

@@ -66,27 +66,16 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManager = extension->rootManagerBox->get();
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
+    // Prepare rtAstMgr & rtBuildMgr
+    rootManagerExt->rtAstMgr->setParser(parser);
+    rootManagerExt->rtAstMgr->setNoticeStore(state->getNoticeStore());
+    rootManagerExt->rtBuildMgr->setParser(parser);
+    rootManagerExt->rtBuildMgr->setNoticeStore(state->getNoticeStore());
+
     // Process macros.
     auto astProcessor = rootManagerExt->rootExecBuildManager->getAstProcessor();
     astProcessor->preparePass(state->getNoticeStore());
     if (!astProcessor->process(root)) return;
-
-    auto generator = rootManagerExt->rootExecBuildManager->getGenerator();
-
-    // Set global noticeStore var.
-    auto globalNoticeStoreIndex = generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));
-    if (globalNoticeStoreIndex == -1) {
-      throw EXCEPTION(GenericException, S("Core.noticeStore global variable is missing from the global repo."));
-    }
-    auto globalNoticeStore = generator->getGlobalItemRepo()->getItemPtr(globalNoticeStoreIndex);
-    *((Core::Notices::Store**)globalNoticeStore) = state->getNoticeStore();
-    // Set global parser var.
-    auto globalParserIndex = generator->getGlobalItemRepo()->findItem(S("Core.parser"));
-    if (globalParserIndex == -1) {
-      throw EXCEPTION(GenericException, S("Core.parser global variable is missing from the global repo."));
-    }
-    auto globalParser = generator->getGlobalItemRepo()->getItemPtr(globalParserIndex);
-    *((Core::Processing::Parser**)globalParser) = parser;
 
     auto rootFuncName = S("__rootstatement__");
 

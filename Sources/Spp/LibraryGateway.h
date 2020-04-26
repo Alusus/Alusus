@@ -33,6 +33,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
   private: SharedPtr<CodeGen::GlobalItemRepo> globalItemRepo;
   private: SharedPtr<CodeGen::StringLiteralRepo> stringLiteralRepo;
+  private: SharedPtr<SharedList<TiObject>> astLiteralRepo;
   private: SharedPtr<CodeGen::AstProcessor> astProcessor;
   private: SharedPtr<CodeGen::TypeGenerator> typeGenerator;
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
@@ -44,6 +45,8 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<BuildManager> rootExecBuildManager;
   private: SharedPtr<BuildManager> outputBuildManager;
   private: SharedPtr<BuildManager> astProcessingBuildManager;
+  private: SharedPtr<Rt::AstMgr> rtAstMgr;
+  private: SharedPtr<Rt::BuildMgr> rtBuildMgr;
 
 
   //============================================================================

@@ -1,3 +1,4 @@
+import "Spp";
 import "Srl/Console.alusus";
 
 type A
@@ -130,12 +131,12 @@ function testInlinedInit
   Srl.Console.print("testInlinedInit: %d\n", gc.i);
 };
 
-Spp.dumpLlvmIrForElement(testNoReturn~ast);
-Spp.dumpLlvmIrForElement(testReturnVoid~ast);
-Spp.dumpLlvmIrForElement(testReturnNonVoid~ast);
-Spp.dumpLlvmIrForElement(testReturnA~ast);
-Spp.dumpLlvmIrForElement(testLoop~ast);
-Spp.dumpLlvmIrForElement(testBreak~ast);
-Spp.dumpLlvmIrForElement(testContinue~ast);
-Spp.dumpLlvmIrForElement(testAutoInit~ast);
-Spp.dumpLlvmIrForElement(testInlinedInit~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testNoReturn~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testReturnVoid~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testReturnNonVoid~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testReturnA~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testLoop~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testBreak~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testContinue~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testAutoInit~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testInlinedInit~ast);

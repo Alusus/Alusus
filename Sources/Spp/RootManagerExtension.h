@@ -29,10 +29,7 @@ class RootManagerExtension : public ObjTiInterface
 
   public: struct Overrides
   {
-    TiFunctionBase *dumpLlvmIrForElementRef;
-    TiFunctionBase *buildObjectFileForElementRef;
     TiFunctionBase *importFileRef;
-    TiFunctionBase *getModifierStringsRef;
   };
 
 
@@ -48,13 +45,10 @@ class RootManagerExtension : public ObjTiInterface
   public: RootManagerExtension(TiObject *o) : owner(o)
   {
     Basic::initBindingCaches(this->owner, {
-      &this->dumpLlvmIrForElement,
-      &this->buildObjectFileForElement,
       &this->importFile,
-      &this->getModifierStrings,
       &this->rootExecBuildManager,
-      &this->outputBuildManager,
-      &this->astProcessingBuildManager
+      &this->rtAstMgr,
+      &this->rtBuildMgr
     });
   }
 
@@ -63,8 +57,8 @@ class RootManagerExtension : public ObjTiInterface
   // Member Properties
 
   public: BINDING_CACHE(rootExecBuildManager, BuildManager);
-  public: BINDING_CACHE(outputBuildManager, BuildManager);
-  public: BINDING_CACHE(astProcessingBuildManager, BuildManager);
+  public: BINDING_CACHE(rtAstMgr, Rt::AstMgr);
+  public: BINDING_CACHE(rtBuildMgr, Rt::BuildMgr);
 
 
   //============================================================================
@@ -91,8 +85,8 @@ class RootManagerExtension : public ObjTiInterface
   public: static Overrides* extend(
     Core::Main::RootManager *rootManager,
     SharedPtr<BuildManager> const &rootExecBuildManager,
-    SharedPtr<BuildManager> const &outputBuildManager,
-    SharedPtr<BuildManager> const &astProcessingBuildManager
+    SharedPtr<Rt::AstMgr> const &astM,
+    SharedPtr<Rt::BuildMgr> const &buildM
   );
   public: static void unextend(Core::Main::RootManager *rootManager, Overrides *overrides);
 
@@ -101,31 +95,8 @@ class RootManagerExtension : public ObjTiInterface
   /// @name Main Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
-    void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
-  public: static void _dumpLlvmIrForElement(
-    TiObject *self, TiObject *element, Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
-  );
-
-  public: METHOD_BINDING_CACHE(buildObjectFileForElement,
-    Bool, (TiObject*, Char const*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
-  public: static Bool _buildObjectFileForElement(
-    TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
-    Core::Processing::Parser *parser
-  );
-
   public: METHOD_BINDING_CACHE(importFile, void, (Char const*));
   public: static void _importFile(TiObject *self, Char const *filename);
-
-  public: METHOD_BINDING_CACHE(getModifierStrings,
-    Bool, (TiObject*, Char const*, Char const***, Word*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
-  public: static Bool _getModifierStrings(
-    TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount,
-    Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
-  );
 
   /// @}
 

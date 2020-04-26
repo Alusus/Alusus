@@ -1,4 +1,5 @@
 import "Srl/Console.alusus";
+import "Spp";
 
 @deps["dep1", "dep2"] def Lib1: module {
 };
@@ -10,7 +11,7 @@ def deps: ptr[array[CharsPtr]];
 def depCount: Word;
 def i: Word;
 
-if Spp.getModifierStrings(Lib1~ast, "deps", deps~ptr, depCount~ptr) {
+if Spp.astMgr.getModifierStrings(Lib1~ast, "deps", deps~ptr, depCount~ptr) {
   Srl.Console.print("Lib1 has %d deps.", depCount);
   for i = 0, i < depCount, ++i {
     Srl.Console.print(" %s", deps~cnt(i));
@@ -20,7 +21,7 @@ if Spp.getModifierStrings(Lib1~ast, "deps", deps~ptr, depCount~ptr) {
   Srl.Console.print("Error fetching Lib1 deps.\n");
 };
 
-if Spp.getModifierStrings(Lib1~ast, "dependencies", deps~ptr, depCount~ptr) {
+if Spp.astMgr.getModifierStrings(Lib1~ast, "dependencies", deps~ptr, depCount~ptr) {
   Srl.Console.print("Lib1 has %d dependencies.", depCount);
   for i = 0, i < depCount, ++i {
     Srl.Console.print(" %s", deps~cnt(i));
@@ -30,7 +31,7 @@ if Spp.getModifierStrings(Lib1~ast, "dependencies", deps~ptr, depCount~ptr) {
   Srl.Console.print("Error fetching Lib1 dependencies.\n");
 };
 
-if Spp.getModifierStrings(Lib2~ast, "deps", deps~ptr, depCount~ptr) {
+if Spp.astMgr.getModifierStrings(Lib2~ast, "deps", deps~ptr, depCount~ptr) {
   Srl.Console.print("Lib2 has %d deps.", depCount);
   for i = 0, i < depCount, ++i {
     Srl.Console.print(" %s", deps~cnt(i));
@@ -40,7 +41,7 @@ if Spp.getModifierStrings(Lib2~ast, "deps", deps~ptr, depCount~ptr) {
   Srl.Console.print("Error fetching Lib2 deps.\n");
 };
 
-if Spp.getModifierStrings(Lib2~ast, "dependencies", deps~ptr, depCount~ptr) {
+if Spp.astMgr.getModifierStrings(Lib2~ast, "dependencies", deps~ptr, depCount~ptr) {
   Srl.Console.print("Lib2 has %d deps.", depCount);
   for i = 0, i < depCount, ++i {
     Srl.Console.print(" %s", deps~cnt(i));

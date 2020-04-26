@@ -272,10 +272,10 @@ define void @"printNum(Int[32])"(i32 %n) {
 
 declare i32 @printf([1 x i8]*, ...)
 ------------------------------------------------------------
-ERROR SPPG1015 @ (161,3): Incompatible types for the given operator.
 ERROR SPPG1015 @ (162,3): Incompatible types for the given operator.
 ERROR SPPG1015 @ (163,3): Incompatible types for the given operator.
 ERROR SPPG1015 @ (164,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (165,3): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
