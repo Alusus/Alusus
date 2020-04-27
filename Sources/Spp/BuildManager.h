@@ -43,13 +43,9 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: CodeGen::Generator *generator;
   private: LlvmCodeGen::TargetGenerator *targetGenerator;
   private: CodeGen::AstProcessor *astProcessor = 0;
+  private: Int funcNameIndex = 0;
 
   private: TioSharedPtr globalTgFuncType;
-  private: TioSharedPtr globalCtorTgFunc;
-  private: TioSharedPtr globalCtorTgContext;
-  private: TioSharedPtr globalProcTgFunc;
-  private: TioSharedPtr globalProcTgContext;
-  private: Bool offlineExecution;
 
 
   //============================================================================
@@ -140,21 +136,25 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   /// @{
 
   private: static void _prepareExecution(
-    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName
+    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession &buildSession
   );
 
   private: static void _prepareBuild(
-    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, Char const *globalFuncName,
-    Bool offlineExecution
+    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement,
+    Bool offlineExecution, BuildSession &buildSession
   );
 
-  private: static Bool _addElementToBuild(TiObject *self, TiObject *element);
+  private: static Bool _addElementToBuild(TiObject *self, TiObject *element, BuildSession &buildSession);
 
-  private: static void _finalizeBuild(TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement);
+  private: static void _finalizeBuild(
+    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession &buildSession
+  );
 
   private: static Bool _execute(
-    TiObject *self, Core::Notices::Store *noticeStore, Char const *funcName
+    TiObject *self, Core::Notices::Store *noticeStore, BuildSession &buildSession
   );
+
+  private: static void _deleteTempFunctions(TiObject *self, BuildSession &buildSession);
 
   public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
     void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)

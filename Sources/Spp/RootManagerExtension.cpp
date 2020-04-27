@@ -20,7 +20,7 @@ namespace Spp
 
 RootManagerExtension::Overrides* RootManagerExtension::extend(
   Core::Main::RootManager *rootManager,
-  SharedPtr<BuildManager> const &rootExecBuildManager,
+  SharedPtr<BuildManager> const &jitBuildManager,
   SharedPtr<Rt::AstMgr> const &astM,
   SharedPtr<Rt::BuildMgr> const &buildM
 ) {
@@ -28,7 +28,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   rootManager->addDynamicInterface(extension);
 
   auto overrides = new Overrides();
-  extension->rootExecBuildManager = rootExecBuildManager;
+  extension->jitBuildManager = jitBuildManager;
   extension->rtAstMgr = astM;
   extension->rtBuildMgr = buildM;
 
@@ -42,7 +42,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
 {
   auto extension = ti_cast<RootManagerExtension>(rootManager);
   extension->importFile.reset(overrides->importFileRef);
-  extension->rootExecBuildManager.remove();
+  extension->jitBuildManager.remove();
   extension->rtAstMgr.remove();
   extension->rtBuildMgr.remove();
   rootManager->removeDynamicInterface<RootManagerExtension>();

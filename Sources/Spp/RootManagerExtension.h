@@ -46,7 +46,7 @@ class RootManagerExtension : public ObjTiInterface
   {
     Basic::initBindingCaches(this->owner, {
       &this->importFile,
-      &this->rootExecBuildManager,
+      &this->jitBuildManager,
       &this->rtAstMgr,
       &this->rtBuildMgr
     });
@@ -56,7 +56,7 @@ class RootManagerExtension : public ObjTiInterface
   //============================================================================
   // Member Properties
 
-  public: BINDING_CACHE(rootExecBuildManager, BuildManager);
+  public: BINDING_CACHE(jitBuildManager, BuildManager);
   public: BINDING_CACHE(rtAstMgr, Rt::AstMgr);
   public: BINDING_CACHE(rtBuildMgr, Rt::BuildMgr);
 
@@ -84,7 +84,7 @@ class RootManagerExtension : public ObjTiInterface
 
   public: static Overrides* extend(
     Core::Main::RootManager *rootManager,
-    SharedPtr<BuildManager> const &rootExecBuildManager,
+    SharedPtr<BuildManager> const &jitBuildManager,
     SharedPtr<Rt::AstMgr> const &astM,
     SharedPtr<Rt::BuildMgr> const &buildM
   );

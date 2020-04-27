@@ -177,20 +177,23 @@ Bool AstProcessor::_processEvalStatement(
 ) {
   PREPARE_SELF(astProcessor, AstProcessor);
 
+  if (!astProcessor->process(eval->getBody().get())) return false;
+
+  BuildSession buildSession;
+
   // Build the eval statement.
-  auto funcName = S("__evalstatement__");
-  astProcessor->building->prepareExecution(astProcessor->getNoticeStore(), eval, funcName);
+  astProcessor->building->prepareExecution(astProcessor->getNoticeStore(), eval, buildSession);
   Bool result = true;
   auto block = eval->getBody().ti_cast_get<Ast::Block>();
   if (block != 0) {
     for (Int i = 0; i < block->getElementCount(); ++i) {
       auto childData = block->getElement(i);
-      if (!astProcessor->building->addElementToBuild(childData)) result = false;
+      if (!astProcessor->building->addElementToBuild(childData, buildSession)) result = false;
     }
   } else {
-      if (!astProcessor->building->addElementToBuild(eval->getBody().get())) result = false;
+      if (!astProcessor->building->addElementToBuild(eval->getBody().get(), buildSession)) result = false;
   }
-  astProcessor->building->finalizeBuild(astProcessor->getNoticeStore(), eval);
+  astProcessor->building->finalizeBuild(astProcessor->getNoticeStore(), eval, buildSession);
 
   // Remove the eval statement.
   DynamicContaining<TiObject> *dynContainer;
@@ -208,8 +211,10 @@ Bool AstProcessor::_processEvalStatement(
 
   // Execute the eval statement.
   if (result) {
-    astProcessor->building->execute(astProcessor->getNoticeStore(), funcName);
+    astProcessor->building->execute(astProcessor->getNoticeStore(), buildSession);
   }
+
+  astProcessor->building->deleteTempFunctions(buildSession);
 
   return result;
 }

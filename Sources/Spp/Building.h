@@ -40,7 +40,8 @@ class Building : public ObjTiInterface
       &this->prepareBuild,
       &this->addElementToBuild,
       &this->finalizeBuild,
-      &this->execute
+      &this->execute,
+      &this->deleteTempFunctions
     });
   }
 
@@ -67,25 +68,29 @@ class Building : public ObjTiInterface
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareExecution,
-    void, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, Char const* /* globalFuncName */)
+    void, (
+      Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, BuildSession& /* buildSession */
+    )
   );
 
   public: METHOD_BINDING_CACHE(prepareBuild,
     void, (
-      Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, Char const* /* globalFuncName */,
-      Bool /* offlineExecution */
+      Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */,
+      Bool /* offlineExecution */, BuildSession& /* buildSession */
     )
   );
 
-  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject*));
+  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession& /* buildSession */));
 
   public: METHOD_BINDING_CACHE(finalizeBuild,
-    void, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */)
+    void, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, BuildSession& /* buildSession */)
   );
 
   public: METHOD_BINDING_CACHE(execute,
-    Bool, (Core::Notices::Store* /* noticeStore */, Char const* /* funcName */)
+    Bool, (Core::Notices::Store* /* noticeStore */, BuildSession& /* buildSession */)
   );
+
+  public: METHOD_BINDING_CACHE(deleteTempFunctions, void, (BuildSession& /* buildSession */));
 
   /// @}
 

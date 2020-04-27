@@ -73,16 +73,16 @@ void RootScopeHandlerExtension::_addNewElement(
     rootManagerExt->rtBuildMgr->setNoticeStore(state->getNoticeStore());
 
     // Process macros.
-    auto astProcessor = rootManagerExt->rootExecBuildManager->getAstProcessor();
+    auto astProcessor = rootManagerExt->jitBuildManager->getAstProcessor();
     astProcessor->preparePass(state->getNoticeStore());
     if (!astProcessor->process(root)) return;
 
-    auto rootFuncName = S("__rootstatement__");
+    auto building = ti_cast<Building>(rootManagerExt->jitBuildManager.get());
 
-    auto building = ti_cast<Building>(rootManagerExt->rootExecBuildManager.get());
+    BuildSession buildSession;
 
     building->prepareExecution(
-      state->getNoticeStore(), rootManager->getRootScope().get(), rootFuncName
+      state->getNoticeStore(), rootManager->getRootScope().get(), buildSession
     );
 
     Bool execute = true;
@@ -93,7 +93,7 @@ void RootScopeHandlerExtension::_addNewElement(
       if (def != 0) {
         auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {
-          if (!building->addElementToBuild(def.get())) execute = false;
+          if (!building->addElementToBuild(def.get(), buildSession)) execute = false;
         }
       }
     }
@@ -101,13 +101,15 @@ void RootScopeHandlerExtension::_addNewElement(
     // Now run all new statements.
     for (Int i = start; i <= end; ++i) {
       auto childData = root->get(i);
-      if (!building->addElementToBuild(childData.get())) execute = false;
+      if (!building->addElementToBuild(childData.get(), buildSession)) execute = false;
     }
 
-    building->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get());
+    building->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get(), buildSession);
     if (execute) {
-      building->execute(state->getNoticeStore(), rootFuncName);
+      building->execute(state->getNoticeStore(), buildSession);
     }
+
+    building->deleteTempFunctions(buildSession);
   }
 }
 
