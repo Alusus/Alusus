@@ -92,7 +92,7 @@ import "Srl/Memory.alusus";
         --this.refCount;
         this._alloc(curLength + curLength >> 1);
         def i: Int;
-        for i = 0, i < curLength, ++i this.buf(i) = curBuf~cnt(i);
+        for i = 0, i < curLength, ++i this.buf(i)~init(curBuf~cnt(i));
         this.length = curLength;
       };
     };
@@ -117,9 +117,9 @@ import "Srl/Memory.alusus";
     func remove (index: Int) {
       if index >= 0 && index < this.getLength() {
         this._prepareToModify(false);
+        this.buf(index)~terminate();
         if index < this.getLength() - 1 {
-          this.buf(index)~terminate();
-          Memory.copy(this.buf(index)~ptr, this.buf(index + 1)~ptr, T~size * (this.length - index));
+          Memory.copy(this.buf(index)~ptr, this.buf(index + 1)~ptr, T~size * (this.length - (index + 1)));
         };
         --this.length;
       };
