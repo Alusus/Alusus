@@ -594,6 +594,8 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
   if (mergeLlvmBlock != 0) {
     block->getIrBuilder()->SetInsertPoint(mergeLlvmBlock);
     block->setLlvmBlock(mergeLlvmBlock);
+  } else {
+    block->setTerminated(true);
   }
 
   return true;
