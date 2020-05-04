@@ -207,9 +207,9 @@ define void @"testReturnA()"() {
 "#block1":
   %"#temp0" = alloca %A
   call void @"getA()=>(A)"(%A* %"#temp0")
-  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous4", i32 0, i32 0))
   call void @"A.~terminate(ref[A])"(%A* %"#temp0")
   call void @A.__autoDestruct__(%A* %"#temp0")
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous4", i32 0, i32 0))
   ret void
 }
 
@@ -740,4 +740,69 @@ define void @C.__autoConstruct__(%C* %this) {
 }
 
 declare i32 @printf(i8*, ...)
+------------------------------------------------------------
+ERROR SPPG1030 @ (138,3): Assignment failed. This type needs an assignment operator.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+%A = type { i32 }
+
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
+@"#anonymous1" = private constant [13 x i8] c"destructed!\0A\00", align 1
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+define void @"testMissingAssignOp()"() {
+"#block1":
+  %a1 = alloca %A
+  call void @A.__autoConstruct__(%A* %a1)
+  call void @"A.~init(ref[A])"(%A* %a1)
+  %a2 = alloca %A
+  call void @A.__autoConstruct__(%A* %a2)
+  call void @"A.~init(ref[A])"(%A* %a2)
+  call void @"A.~terminate(ref[A])"(%A* %a1)
+  call void @A.__autoDestruct__(%A* %a1)
+  call void @"A.~terminate(ref[A])"(%A* %a2)
+  call void @A.__autoDestruct__(%A* %a2)
+  ret void
+}
+
+define void @A.__autoConstruct__(%A* %this) {
+"#block2":
+  ret void
+}
+
+define void @A.__autoDestruct__(%A* %this) {
+"#block3":
+  ret void
+}
+
+define void @"A.~init(ref[A])"(%A* %this) {
+"#block4":
+  %this1 = alloca %A*
+  store %A* %this, %A** %this1
+  %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous0", i32 0, i32 0))
+  %1 = load %A*, %A** %this1
+  %2 = getelementptr %A, %A* %1, i32 0, i32 0
+  store i32 1, i32* %2
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+
+define void @"A.~terminate(ref[A])"(%A* %this) {
+"#block5":
+  %this1 = alloca %A*
+  store %A* %this, %A** %this1
+  %0 = load %A*, %A** %this1
+  %1 = getelementptr %A, %A* %0, i32 0, i32 0
+  store i32 0, i32* %1
+  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous1", i32 0, i32 0))
+  ret void
+}
 ------------------------------------------------------------

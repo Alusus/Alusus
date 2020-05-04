@@ -131,6 +131,13 @@ function testInlinedInit
   Srl.Console.print("testInlinedInit: %d\n", gc.i);
 };
 
+function testMissingAssignOp
+{
+  def a1: A;
+  def a2: A;
+  a1 = a2;
+}
+
 Spp.buildMgr.dumpLlvmIrForElement(testNoReturn~ast);
 Spp.buildMgr.dumpLlvmIrForElement(testReturnVoid~ast);
 Spp.buildMgr.dumpLlvmIrForElement(testReturnNonVoid~ast);
@@ -140,3 +147,4 @@ Spp.buildMgr.dumpLlvmIrForElement(testBreak~ast);
 Spp.buildMgr.dumpLlvmIrForElement(testContinue~ast);
 Spp.buildMgr.dumpLlvmIrForElement(testAutoInit~ast);
 Spp.buildMgr.dumpLlvmIrForElement(testInlinedInit~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testMissingAssignOp~ast);
