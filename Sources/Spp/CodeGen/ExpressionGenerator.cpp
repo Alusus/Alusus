@@ -2563,7 +2563,13 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
           astNode, structResult.targetData.get(), structResult.astType, item, g, session, calleeResult
         )) return false;
       } else {
-        // Generate global var reference.
+        // Generate non-member var reference.
+        if (expGenerator->astHelper->getDefinitionDomain(item) == Ast::DefinitionDomain::OBJECT) {
+          expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidObjectMemberAccessNotice>(
+            Core::Data::Ast::findSourceLocation(astNode)
+          ));
+          return false;
+        }
         if (!expGenerator->generateVarReference(astNode, item, g, session, calleeResult)) return false;
       }
       if (calleeInfo.thisIndex == i) {
