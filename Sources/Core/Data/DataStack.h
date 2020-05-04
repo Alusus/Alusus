@@ -56,6 +56,11 @@ class DataStack : public TiObject, public DynamicContaining<TiObject>
   /// @name Data Functions
   /// @{
 
+  public: void reserve(Int size)
+  {
+    this->stack.reserve(size);
+  }
+
   public: void push(SharedPtr<TiObject> const &obj)
   {
     this->stack.add(obj);

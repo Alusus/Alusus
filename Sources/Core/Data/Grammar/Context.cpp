@@ -260,13 +260,6 @@ void Context::setElement(Int index, TiObject *val)
       break;
     }
     case 2: {
-      if (val != 0 && !val->isA<VariableStack>()) {
-        throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type VariableStack."));
-      }
-      this->stack = static_cast<VariableStack*>(val);
-      break;
-    }
-    case 3: {
       this->args = val;
       break;
     }
@@ -292,15 +285,9 @@ Int Context::setElement(Char const *key, TiObject *val)
     }
     this->module = static_cast<Module*>(val);
     return 1;
-  } else if (name == S("stack")) {
-    if (val != 0 && !val->isA<VariableStack>()) {
-      throw EXCEPTION(InvalidArgumentException, S("val"), S("Must be of type VariableStack."));
-    }
-    this->stack = static_cast<VariableStack*>(val);
-    return 2;
   } else if (name == S("args")) {
     this->args = val;
-    return 3;
+    return 2;
   } else {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Invalid key."));
   }
@@ -312,8 +299,7 @@ TypeInfo* Context::getElementNeededType(Int index) const
   switch(index) {
     case 0: return Module::getTypeInfo();
     case 1: return Module::getTypeInfo();
-    case 2: return VariableStack::getTypeInfo();
-    case 3: return TiObject::getTypeInfo();
+    case 2: return TiObject::getTypeInfo();
     default: {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
     }
@@ -328,8 +314,6 @@ TypeInfo* Context::getElementNeededType(Char const *key) const
     return Module::getTypeInfo();
   } else if (name == S("module")) {
     return Module::getTypeInfo();
-  } else if (name == S("stack")) {
-    return VariableStack::getTypeInfo();
   } else if (name == S("args")) {
     return TiObject::getTypeInfo();
   } else {
@@ -343,8 +327,7 @@ TiObject* Context::getElement(Int index) const
   switch(index) {
     case 0: return this->root;
     case 1: return this->module;
-    case 2: return this->stack;
-    case 3: return this->args;
+    case 2: return this->args;
     default: {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
     }
@@ -359,8 +342,6 @@ TiObject* Context::getElement(Char const *key) const
     return this->root;
   } else if (name == S("module")) {
     return this->module;
-  } else if (name == S("stack")) {
-    return this->stack;
   } else if (name == S("args")) {
     return this->args;
   } else {
@@ -374,8 +355,7 @@ SbStr const Context::getElementKey(Int index) const
   switch(index) {
     case 0: return SBSTR(S("root"));
     case 1: return SBSTR(S("module"));
-    case 2: return SBSTR(S("stack"));
-    case 3: return SBSTR(S("args"));
+    case 2: return SBSTR(S("args"));
     default: {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."));
     }
@@ -389,10 +369,8 @@ Int Context::findElementIndex(Char const *key) const
     return 0;
   } else if (SBSTR(key) == S("module")) {
     return 1;
-  } else if (SBSTR(key) == S("stack")) {
-    return 2;
   } else if (SBSTR(key) == S("args")) {
-    return 3;
+    return 2;
   } else {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Invalid key."), key);
   }

@@ -193,7 +193,6 @@ Word getSourceLocationRecordCount(SourceLocation const *sl);
 // Containers
 #include "NbList.h"
 #include "NbMap.h"
-#include "VariableStack.h"
 #include "DataStack.h"
 
 // Other Classes
