@@ -1248,12 +1248,20 @@ Bool ExpressionGenerator::_generateAssignOp(
     );
     return false;
   }
+  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
+
+  // Raise an error if custom initialization is enabled on this type to avoid possible resource mismanagement.
+  if (astContentType->hasCustomInitialization(expGenerator->astHelper, session->getTg()->getExecutionContext())) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::TypeMissingAssignOpNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
 
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
     static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), false, session, param
   )) return false;
-  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
   // Cast the value to the destination type.
   Bool retVal;

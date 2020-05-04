@@ -623,7 +623,9 @@ Bool Generator::_generateVarInitialization(
     if (tgAutoCtor != 0) {
       PlainList<TiObject> autoTgValues({ tgVarRef });
       TioSharedPtr dummy;
-      if (!session->getTg()->generateFunctionCall(session->getTgContext(), tgAutoCtor, &autoTgValues, dummy)) return false;
+      if (!session->getTg()->generateFunctionCall(session->getTgContext(), tgAutoCtor, &autoTgValues, dummy)) {
+        return false;
+      }
     }
 
     // Add `this` to parameter list.
@@ -651,7 +653,7 @@ Bool Generator::_generateVarInitialization(
       );
     } else if (paramAstTypes->getCount() != 1) {
       // We have custom initialization but no constructors match the given params.
-      generator->noticeStore->add(std::make_shared<Spp::Notices::NoCalleeMatchNotice>(
+      generator->noticeStore->add(std::make_shared<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       return false;
@@ -667,7 +669,7 @@ Bool Generator::_generateVarInitialization(
         session, paramAstType, varAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(0)),
         paramTgValues->getElement(0), true, tgCastedValue)
       ) {
-        generator->noticeStore->add(std::make_shared<Spp::Notices::InvalidReturnValueNotice>(
+        generator->noticeStore->add(std::make_shared<Spp::Notices::TypeMissingMatchingInitOpNotice>(
           Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(0))
         ));
         return false;
@@ -676,16 +678,16 @@ Bool Generator::_generateVarInitialization(
       // Copy the value into the var.
       auto varTgType = session->getEda()->getCodeGenData<TiObject>(varAstType);
       TioSharedPtr assignTgRes;
-      if (!session->getTg()->generateAssign(session->getTgContext(), varTgType, tgCastedValue.get(), tgVarRef, assignTgRes)) {
+      if (!session->getTg()->generateAssign(
+        session->getTgContext(), varTgType, tgCastedValue.get(), tgVarRef, assignTgRes
+      )) {
         return false;
       }
     } else if (paramAstTypes->getCount() > 0) {
-      generator->noticeStore->add(std::make_shared<Spp::Notices::NoCalleeMatchNotice>(
+      generator->noticeStore->add(std::make_shared<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       return false;
-    } else {
-      // TODO: Else call automatic (inlined) constructors, if any?
     }
   }
 
