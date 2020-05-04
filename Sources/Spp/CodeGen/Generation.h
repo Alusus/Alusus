@@ -50,7 +50,7 @@ class Generation : public ObjTiInterface
       &this->generateMemberVarDestruction,
       &this->registerDestructor,
       &this->generateVarGroupDestruction,
-      &this->generateStatements,
+      &this->generateStatementBlock,
       &this->generateStatement,
       &this->generateExpression,
       &this->generateCast,
@@ -142,9 +142,9 @@ class Generation : public ObjTiInterface
     Bool, (Session* /* session */, Int /* index */)
   );
 
-  public: METHOD_BINDING_CACHE(generateStatements,
+  public: METHOD_BINDING_CACHE(generateStatementBlock,
     Bool, (
-      Core::Data::Ast::Scope* /* astBlock */, Session* /* session */,
+      TiObject* /* astBlock */, Session* /* session */,
       TerminalStatement& /* terminal */
     )
   );

@@ -210,8 +210,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     TiObject *self, Session *session, Int index
   );
 
-  private: static Bool _generateStatements(
-    TiObject *self, Core::Data::Ast::Scope *astBlock, Session *session,
+  private: static Bool _generateStatementBlock(
+    TiObject *self, TiObject *astBlock, Session *session,
     TerminalStatement &terminal
   );
 

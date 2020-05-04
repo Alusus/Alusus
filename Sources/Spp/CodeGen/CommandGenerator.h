@@ -152,6 +152,8 @@ class CommandGenerator : public TiObject, public DynamicBinding, public DynamicI
   /// @name Helper Functions
   /// @{
 
+  private: Bool generateCondition(TiObject *astNode, Generation *g, Session *session, GenResult &result);
+
   private: Bool castCondition(
     Generation *g, Session *session, TiObject *astNode, Spp::Ast::Type *astType,
     TiObject *tgValue, TioSharedPtr &result

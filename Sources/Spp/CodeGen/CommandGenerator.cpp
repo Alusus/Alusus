@@ -141,12 +141,7 @@ Bool CommandGenerator::_generateIfStatement(
   // Generate condition.
   GenResult conditionResult;
   Session condSession(session, ifTgContext->getConditionContext());
-  if (!g->generateExpression(astNode->getCondition().get(), &condSession, conditionResult)) return false;
-  TioSharedPtr castResult;
-  if (!cmdGenerator->castCondition(
-    g, &condSession, astNode->getCondition().get(), conditionResult.astType,
-    conditionResult.targetData.get(), castResult
-  )) return false;
+  if (!cmdGenerator->generateCondition(astNode->getCondition().get(), g, &condSession, conditionResult)) return false;
 
   // Generate ifBody.
   TerminalStatement terminalBody = TerminalStatement::UNKNOWN;
@@ -155,58 +150,28 @@ Bool CommandGenerator::_generateIfStatement(
     session->getEda()->setCodeGenData(
       static_cast<Core::Data::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext())
     );
-    if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(ifBody), &bodySession, terminalBody)
-    ) {
-      return false;
-    }
-  } else {
-    session->getDestructionStack()->pushScope();
-    if (!g->generateStatement(ifBody, &bodySession, terminalBody)) {
-      return false;
-    }
-    Bool result = true;
-    if (terminalBody != TerminalStatement::YES) {
-      if (!g->generateVarGroupDestruction(
-        &bodySession, session->getDestructionStack()->getScopeStartIndex(-1)
-      )) result = false;
-    }
-    session->getDestructionStack()->popScope();
-    if (!result) return false;
   }
+  if (!g->generateStatementBlock(ifBody, &bodySession, terminalBody)) return false;
 
   // Generate elseBody, if needed.
   TerminalStatement terminalElse = TerminalStatement::UNKNOWN;
   Session elseSession(session, ifTgContext->getElseContext());
   if (elseBody != 0) {
     if (elseBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
-      session->getEda()->setCodeGenData(static_cast<Core::Data::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext()));
-      if (!g->generateStatements(
-        static_cast<Core::Data::Ast::Scope*>(elseBody), &elseSession, terminalElse
-      )) {
-        return false;
-      }
-    } else {
-      session->getDestructionStack()->pushScope();
-      if (!g->generateStatement(elseBody, &elseSession, terminalElse)) {
-        return false;
-      }
-      Bool result = true;
-      if (terminalBody != TerminalStatement::YES) {
-        if (!g->generateVarGroupDestruction(
-          &elseSession, session->getDestructionStack()->getScopeStartIndex(-1)
-        )) result = false;
-      }
-      session->getDestructionStack()->popScope();
-      if (!result) return false;
+      session->getEda()->setCodeGenData(
+        static_cast<Core::Data::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext())
+      );
     }
+    if (!g->generateStatementBlock(elseBody, &elseSession, terminalElse)) return false;
   }
 
   terminal = terminalBody == TerminalStatement::YES && terminalElse == TerminalStatement::YES ?
     TerminalStatement::YES :
     TerminalStatement::NO;
 
-  return session->getTg()->finishIfStatement(session->getTgContext(), ifTgContext.get(), castResult.get());
+  return session->getTg()->finishIfStatement(
+    session->getTgContext(), ifTgContext.get(), conditionResult.targetData.get()
+  );
 }
 
 
@@ -220,23 +185,9 @@ Bool CommandGenerator::_generateWhileStatement(
   session->getEda()->setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
-  session->getDestructionStack()->pushScope();
   GenResult conditionResult;
   Session condSession(session, loopTgContext->getConditionContext());
-  if (!g->generateExpression(
-    astNode->getCondition().get(), &condSession, conditionResult
-  )) return false;
-  TioSharedPtr castResult;
-  if (!cmdGenerator->castCondition(
-    g, &condSession, astNode->getCondition().get(), conditionResult.astType,
-    conditionResult.targetData.get(), castResult
-  )) return false;
-  Bool result = true;
-  if (!g->generateVarGroupDestruction(
-    &condSession, session->getDestructionStack()->getScopeStartIndex(-1)
-  )) result = false;
-  session->getDestructionStack()->popScope();
-  if (!result) return false;
+  if (!cmdGenerator->generateCondition(astNode->getCondition().get(), g, &condSession, conditionResult)) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
@@ -245,28 +196,13 @@ Bool CommandGenerator::_generateWhileStatement(
     session->getEda()->setCodeGenData(
       static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
     );
-    TerminalStatement terminal;
-    if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(body), &bodySession, terminal)
-    ) {
-      return false;
-    }
-  } else {
-    session->getDestructionStack()->pushScope();
-    TerminalStatement terminal;
-    if (!g->generateStatement(body, &bodySession, terminal)) {
-      return false;
-    }
-    if (terminal != TerminalStatement::YES) {
-      if (!g->generateVarGroupDestruction(
-        &bodySession, session->getDestructionStack()->getScopeStartIndex(-1)
-      )) result = false;
-    }
-    session->getDestructionStack()->popScope();
-    if (!result) return false;
   }
+  TerminalStatement terminal;
+  if (!g->generateStatementBlock(body, &bodySession, terminal)) return false;
 
-  return session->getTg()->finishWhileStatement(session->getTgContext(), loopTgContext.get(), castResult.get());
+  return session->getTg()->finishWhileStatement(
+    session->getTgContext(), loopTgContext.get(), conditionResult.targetData.get()
+  );
 }
 
 
@@ -285,23 +221,11 @@ Bool CommandGenerator::_generateForStatement(
   session->getEda()->setCodeGenData(astNode, loopTgContext);
 
   // Generate the condition.
-  session->getDestructionStack()->pushScope();
   GenResult conditionResult;
   Session condSession(session, loopTgContext->getConditionContext());
-  if (!g->generateExpression(
-    astNode->getCondition().get(), &condSession, conditionResult
-  )) return false;
-  TioSharedPtr castResult;
-  if (!cmdGenerator->castCondition(
-    g, &condSession, astNode->getCondition().get(), conditionResult.astType,
-    conditionResult.targetData.get(), castResult
-  )) return false;
+  if (!cmdGenerator->generateCondition(astNode->getCondition().get(), g, &condSession, conditionResult)) return false;
+
   Bool result = true;
-  if (!g->generateVarGroupDestruction(
-    &condSession, session->getDestructionStack()->getScopeStartIndex(-1)
-  )) result = false;
-  session->getDestructionStack()->popScope();
-  if (!result) return false;
 
   // Generate the updater.
   session->getDestructionStack()->pushScope();
@@ -323,28 +247,13 @@ Bool CommandGenerator::_generateForStatement(
     session->getEda()->setCodeGenData(
       static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
     );
-    TerminalStatement terminal;
-    if (!g->generateStatements(
-      static_cast<Core::Data::Ast::Scope*>(body), &bodySession, terminal)
-    ) {
-      return false;
-    }
-  } else {
-    session->getDestructionStack()->pushScope();
-    TerminalStatement terminal;
-    if (!g->generateStatement(body, &bodySession, terminal)) {
-      return false;
-    }
-    if (terminal != TerminalStatement::YES) {
-      if (!g->generateVarGroupDestruction(
-        &bodySession, session->getDestructionStack()->getScopeStartIndex(-1)
-      )) result = false;
-    }
-    session->getDestructionStack()->popScope();
-    if (!result) return false;
   }
+  TerminalStatement terminal;
+  if (!g->generateStatementBlock(body, &bodySession, terminal)) return false;
 
-  return session->getTg()->finishForStatement(session->getTgContext(), loopTgContext.get(), castResult.get());
+  return session->getTg()->finishForStatement(
+    session->getTgContext(), loopTgContext.get(), conditionResult.targetData.get()
+  );
 }
 
 
@@ -437,7 +346,9 @@ Bool CommandGenerator::_generateBreakStatement(
     loopNode = loopNode->getOwner();
   }
 
-  if (!g->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-scopeCount))) return false;
+  if (!g->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-scopeCount))) {
+    return false;
+  }
 
   auto loopTgContext = session->getEda()->getCodeGenData<LoopTgContext>(loopNode);
   return session->getTg()->generateBreak(session->getTgContext(), loopTgContext);
@@ -446,6 +357,24 @@ Bool CommandGenerator::_generateBreakStatement(
 
 //==============================================================================
 // Helper Functions
+
+Bool CommandGenerator::generateCondition(TiObject *astNode, Generation *g, Session *session, GenResult &result)
+{
+  Bool retVal = true;
+  session->getDestructionStack()->pushScope();
+  GenResult conditionResult;
+  if (!g->generateExpression(astNode, session, conditionResult)) retVal = false;
+  if (retVal) {
+    if (!this->castCondition(
+      g, session, astNode, conditionResult.astType,conditionResult.targetData.get(), result.targetData
+    )) retVal = false;
+    result.astType = this->astHelper->getBoolType();
+  }
+  if (!g->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) retVal = false;
+  session->getDestructionStack()->popScope();
+  return retVal;
+}
+
 
 Bool CommandGenerator::castCondition(
   Generation *g, Session *session, TiObject *astNode, Spp::Ast::Type *astType,

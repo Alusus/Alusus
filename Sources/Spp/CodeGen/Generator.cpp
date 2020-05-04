@@ -37,7 +37,7 @@ void Generator::initBindings()
   generation->generateMemberVarDestruction = &Generator::_generateMemberVarDestruction;
   generation->registerDestructor = &Generator::_registerDestructor;
   generation->generateVarGroupDestruction = &Generator::_generateVarGroupDestruction;
-  generation->generateStatements = &Generator::_generateStatements;
+  generation->generateStatementBlock = &Generator::_generateStatementBlock;
   generation->generateStatement = &Generator::_generateStatement;
   generation->generateExpression = &Generator::_generateExpression;
   generation->generateCast = &Generator::_generateCast;
@@ -219,7 +219,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
 
     // Generate the function's statements.
     TerminalStatement terminal;
-    auto retVal = generation->generateStatements(astBlock, &childSession, terminal);
+    auto retVal = generation->generateStatementBlock(astBlock, &childSession, terminal);
 
     // Does this function need to return a value?
     if (!generator->astHelper->isVoid(astRetType) && terminal != TerminalStatement::YES) {
@@ -870,24 +870,28 @@ Bool Generator::_generateVarGroupDestruction(
 }
 
 
-Bool Generator::_generateStatements(
-  TiObject *self, Core::Data::Ast::Scope *astBlock, Session *session, TerminalStatement &terminal
+Bool Generator::_generateStatementBlock(
+  TiObject *self, TiObject *astBlock, Session *session, TerminalStatement &terminal
 ) {
   PREPARE_SELF(generation, Generation);
   Bool result = true;
   terminal = TerminalStatement::UNKNOWN;
   session->getDestructionStack()->pushScope();
-  for (Int i = 0; i < astBlock->getCount(); ++i) {
-    auto astNode = astBlock->getElement(i);
-    if (terminal == TerminalStatement::YES) {
-      // Unreachable code.
-      PREPARE_SELF(generator, Generator);
-      generator->noticeStore->add(
-        std::make_shared<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(astNode))
-      );
-      return false;
+  if (astBlock->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    for (Int i = 0; i < static_cast<Core::Data::Ast::Scope*>(astBlock)->getCount(); ++i) {
+      auto astNode = static_cast<Core::Data::Ast::Scope*>(astBlock)->getElement(i);
+      if (terminal == TerminalStatement::YES) {
+        // Unreachable code.
+        PREPARE_SELF(generator, Generator);
+        generator->noticeStore->add(
+          std::make_shared<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(astNode))
+        );
+        return false;
+      }
+      if (!generation->generateStatement(astNode, session, terminal)) result = false;
     }
-    if (!generation->generateStatement(astNode, session, terminal)) result = false;
+  } else {
+    if (!generation->generateStatement(astBlock, session, terminal)) result = false;
   }
   if (terminal != TerminalStatement::YES) {
     if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
@@ -957,9 +961,17 @@ Bool Generator::_generateStatement(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Bridge>()) {
     retVal = generator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(astNode));
   } else {
+    session->getDestructionStack()->pushScope();
+
     GenResult result;
     retVal = generation->generateExpression(astNode, session, result);
+
+    if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
+      retVal = false;
+    }
+    session->getDestructionStack()->popScope();
   }
+
   return retVal;
 }
 
