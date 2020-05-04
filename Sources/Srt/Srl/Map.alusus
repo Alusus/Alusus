@@ -8,13 +8,18 @@ import "Srl/Array.alusus";
         def values: Array[T2];
 
         handler this~init() {};
-        
+
         handler this~init(map: ref[Map[T1, T2]]) {
             this.keys = map.keys;
             this.values = map.values;
         };
 
-        handler this(key: T1): T2 {
+        handler this = ref[Map[T1, T2]] {
+            this.keys = value.keys;
+            this.values = value.values;
+        };
+
+        handler this(key: T1): ref[T2] {
             @shared
             def dummy: T2;
             def arrInd: int = 0;
@@ -32,7 +37,7 @@ import "Srl/Array.alusus";
                     return this;
                 };
             };
-            
+
             this.keys.add(key);
             this.values.add(value);
             return this;
