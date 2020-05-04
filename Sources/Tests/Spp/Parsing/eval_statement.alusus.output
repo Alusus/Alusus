@@ -1,0 +1,25 @@
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: print [Main.BlockSubject.Identifier]
+   param: StringLiteral: hello [Main.Subject.Literal]
+  EvalStatement [Main.Eval]
+   body: ParamPass () [Main.BlockExpression.ParamPassExp]
+    operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+    param: NULL
+  EvalStatement [Main.Eval]
+   body: Block [Main.BlockStatements.StmtList]
+    ParamPass () [Main.BlockExpression.ParamPassExp]
+     operand: Identifier: doSomething1 [Main.BlockSubject.Identifier]
+     param: NULL
+    ParamPass () [Main.BlockExpression.ParamPassExp]
+     operand: Identifier: doSomething2 [Main.BlockSubject.Identifier]
+     param: NULL
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: print [Main.BlockSubject.Identifier]
+   param: StringLiteral: world [Main.Subject.Literal]
+------------------------------------------------------

@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 type T {
   def i: Int;
@@ -29,4 +29,4 @@ func test {
   T~init();
 };
 
-Spp.dumpLlvmIrForElement(test~ast);
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

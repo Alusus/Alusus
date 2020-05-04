@@ -29,16 +29,17 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->nodePathResolver = std::make_shared<Ast::NodePathResolver>();
   this->astHelper = std::make_shared<Ast::Helper>(manager, this->nodePathResolver.get());
 
-  // Create the preprocessor.
-  this->astProcessor = std::make_shared<CodeGen::AstProcessor>(this->astHelper.get());
-
-  // Create and initialize global item repo.
+  // Create global repos.
+  this->stringLiteralRepo = std::make_shared<CodeGen::StringLiteralRepo>();
+  this->astLiteralRepo = std::make_shared<SharedList<TiObject>>();
   this->globalItemRepo = std::make_shared<CodeGen::GlobalItemRepo>();
-  this->initializeGlobalItemRepo(manager);
 
   // Create the generator.
   this->typeGenerator = std::make_shared<CodeGen::TypeGenerator>(this->astHelper.get());
-  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(this->astHelper.get());
+  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(
+    this->astHelper.get(),
+    this->stringLiteralRepo.get()
+  );
   this->commandGenerator = std::make_shared<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = std::make_shared<CodeGen::Generator>(
     manager,
@@ -48,27 +49,53 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     this->commandGenerator.get(),
     this->expressionGenerator.get()
   );
-  this->targetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
+
+  this->jitTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
+  this->jitBuildManager = std::make_shared<BuildManager>(
+    S("jit"),
+    manager,
+    this->astHelper.get(),
+    this->generator.get(),
+    this->jitTargetGenerator.get()
+  );
+
+  this->outputTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
+    this->jitTargetGenerator.get()
+  );
+  this->outputBuildManager = std::make_shared<BuildManager>(
+    this->jitBuildManager.get(), S("out"), this->outputTargetGenerator.get()
+  );
+
+  this->astProcessor = std::make_shared<CodeGen::AstProcessor>(
+    this->astHelper.get(), this->jitBuildManager.ti_cast_get<Building>()
+  );
+  this->jitBuildManager->setAstProcessor(this->astProcessor.get());
+  this->outputBuildManager->setAstProcessor(this->astProcessor.get());
+  this->generator->setAstProcessor(this->astProcessor.get());
+  this->typeGenerator->setAstProcessor(this->astProcessor.get());
+
+  // Prepare run-time objects.
+  this->rtAstMgr = std::make_shared<Rt::AstMgr>();
+  this->rtBuildMgr = std::make_shared<Rt::BuildMgr>(this->outputBuildManager.get());
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
   this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
   this->rootManagerExtensionOverrides = RootManagerExtension::extend(
-    manager, this->astHelper, this->astProcessor, this->generator, this->targetGenerator
+    manager, this->jitBuildManager, this->rtAstMgr, this->rtBuildMgr
   );
 
   // Prepare the target generator.
-  this->targetGenerator->prepareBuild();
+  this->jitTargetGenerator->prepareBuild();
+  this->outputTargetGenerator->prepareBuild();
 
   // Add the grammar.
   GrammarFactory factory;
-  factory.createGrammar(
-    manager->getRootScope().get(), manager, this->astHelper.get(), this->astProcessor.get(),
-    this->generator.get(), this->targetGenerator.get()
-  );
+  factory.createGrammar(manager->getRootScope().get());
 
   this->createBuiltInTypes(manager);
   this->createGlobalDefs(manager);
+  this->initializeGlobalItemRepo(manager);
 }
 
 
@@ -82,12 +109,21 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   RootManagerExtension::unextend(manager, this->rootManagerExtensionOverrides);
   this->rootManagerExtensionOverrides = 0;
 
+  // Reset run-time objects.
+  this->rtAstMgr.reset();
+  this->rtBuildMgr.reset();
+
   // Reset generators.
-  this->targetGenerator.reset();
+  this->outputBuildManager.reset();
+  this->outputTargetGenerator.reset();
+  this->jitBuildManager.reset();
+  this->jitTargetGenerator.reset();
+  this->astProcessor.reset();
   this->generator.reset();
   this->commandGenerator.reset();
   this->expressionGenerator.reset();
   this->typeGenerator.reset();
+  this->stringLiteralRepo.reset();
   this->globalItemRepo.reset();
   this->nodePathResolver.reset();
   this->astHelper.reset();
@@ -233,33 +269,6 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
         _importFile(rootManager, filename);
       };
     };
-    module Spp {
-      def _dumpLlvmIrForElement: @expname[RootManager_dumpLlvmIrForElement] function (
-        rootManager: ptr, element: ptr, noticeStore: ptr, parser: ptr
-      );
-      function dumpLlvmIrForElement (element: ptr) {
-        _dumpLlvmIrForElement(Core.rootManager, element, Core.noticeStore, Core.parser);
-      };
-      def _buildObjectFileForElement: @expname[RootManager_buildObjectFileForElement] function (
-        rootManager: ptr, element: ptr, filename: ptr[array[Word[8]]], noticeStore: ptr, parser: ptr
-      ) => Word[1];
-      function buildObjectFileForElement (element: ptr, filename: ptr[array[Word[8]]]) => Word[1] {
-        return _buildObjectFileForElement(Core.rootManager, element, filename, Core.noticeStore, Core.parser);
-      };
-      def _getModifierStrings: @expname[RootManager_getModifierStrings] function (
-        rootManager: ptr, element: ptr, modifierKwd: ptr[array[Word[8]]],
-        resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]], resultCount: ptr[Word],
-        noticeStore: ptr, parser: ptr
-      ) => Word[1];
-      function getModifierStrings(
-        element: ptr, modifierKwd: ptr[array[Word[8]]],
-        resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]], resultCount: ptr[Word]
-      ) => Word[1] {
-        return _getModifierStrings(
-          Core.rootManager, element, modifierKwd, resultStrs, resultCount, Core.noticeStore, Core.parser
-        );
-      };
-    };
   )SRC"), S("spp"));
 }
 
@@ -289,20 +298,11 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   this->globalItemRepo->addItem(S("Process.args"), sizeof(args), &args);
   this->globalItemRepo->addItem(S("Process.language"), sizeof(language), &language);
   this->globalItemRepo->addItem(S("Core.rootManager"), sizeof(void*), &manager);
-  this->globalItemRepo->addItem(S("Core.parser"), sizeof(void*));
-  this->globalItemRepo->addItem(S("Core.noticeStore"), sizeof(void*));
-  this->globalItemRepo->addItem(
-    S("RootManager_dumpLlvmIrForElement"), (void*)&RootManagerExtension::_dumpLlvmIrForElement
-  );
-  this->globalItemRepo->addItem(
-    S("RootManager_buildObjectFileForElement"), (void*)&RootManagerExtension::_buildObjectFileForElement
-  );
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
   );
-  this->globalItemRepo->addItem(
-    S("RootManager_getModifierStrings"), (void*)&RootManagerExtension::_getModifierStrings
-  );
+  Rt::AstMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtAstMgr.get());
+  Rt::BuildMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtBuildMgr.get());
 }
 
 } // namespace

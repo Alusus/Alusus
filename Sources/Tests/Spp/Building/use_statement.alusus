@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 def Std: module
 {
@@ -59,7 +59,7 @@ def Main: module
   }
 };
 
-Spp.dumpLlvmIrForElement(Main~ast);
+Spp.buildMgr.dumpLlvmIrForElement(Main~ast);
 
 module Other4 {
   use Wrong1;
@@ -69,4 +69,4 @@ module Other4 {
   }
 };
 
-Spp.dumpLlvmIrForElement(Other4~ast);
+Spp.buildMgr.dumpLlvmIrForElement(Other4~ast);

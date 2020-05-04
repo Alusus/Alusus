@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 def power2: macro [n] __n__1 * __n__1;
 def defInt: macro [n] { def n: Int };
@@ -11,7 +11,10 @@ def defGetMin: macro [n, T] {
 
 def Main: module
 {
-  defGetMin[b, Int];
+  def MyType: type
+  {
+    defGetMin[b, Int];
+  }
 
   def start: function ()=>Void
   {
@@ -21,4 +24,4 @@ def Main: module
   }
 };
 
-Spp.dumpLlvmIrForElement(Main.start~ast);
+Spp.buildMgr.dumpLlvmIrForElement(Main~ast);

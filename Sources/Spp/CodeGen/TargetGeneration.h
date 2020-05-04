@@ -21,7 +21,7 @@ class TargetGeneration : public ObjTiInterface
   //============================================================================
   // Type Info
 
-  OBJ_INTERFACE_INFO(TargetGeneration, ObjTiInterface, "Spp", "CodeGen", "alusus.org");
+  OBJ_INTERFACE_INFO(TargetGeneration, ObjTiInterface, "Spp.CodeGen", "Spp", "alusus.org");
 
 
   //============================================================================

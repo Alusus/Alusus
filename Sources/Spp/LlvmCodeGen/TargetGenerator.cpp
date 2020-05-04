@@ -225,6 +225,11 @@ void TargetGenerator::execute(Char const *entry)
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
   }
 
+  // Detach all incomplete functions.
+  for (Int i = 0; i < this->incompleteFunctions.size(); ++i) {
+    this->incompleteFunctions[i]->removeFromParent();
+  }
+
   auto engineBuilder = llvm::EngineBuilder(llvm::CloneModule(*this->llvmModule));
   std::string errorStr;
   engineBuilder.setErrorStr(&errorStr);
@@ -249,6 +254,11 @@ void TargetGenerator::execute(Char const *entry)
   funcPtr();
 
   delete ee;
+
+  // Re-attach all incomplete functions.
+  for (Int i = 0; i < this->incompleteFunctions.size(); ++i) {
+    this->llvmModule->getFunctionList().push_back(this->incompleteFunctions[i]);
+  }
 }
 
 
@@ -422,6 +432,7 @@ Bool TargetGenerator::prepareFunctionBody(
   // Create the block
   PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
   auto llvmFunc = funcWrapper->get();
+  this->incompleteFunctions.push_back(llvmFunc);
   auto block = std::make_shared<Block>();
   block->setLlvmBlock(llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), llvmFunc));
   block->setIrBuilder(new llvm::IRBuilder<>(block->getLlvmBlock()));
@@ -446,6 +457,16 @@ Bool TargetGenerator::finishFunctionBody(
 ) {
   PREPARE_ARG(functionType, functionTypeWrapper, FunctionType);
   PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
+
+  auto llvmFunc = funcWrapper->get();
+  for (Int i = 0; i < this->incompleteFunctions.size(); ++i) {
+    if (this->incompleteFunctions[i] == llvmFunc) {
+      this->incompleteFunctions.erase(this->incompleteFunctions.begin() + i);
+      break;
+    }
+  }
+
   auto voidRetType = functionTypeWrapper->getRetType().ti_cast_get<VoidType>();
   if (!block->isTerminated() && voidRetType != 0) {
     return this->generateReturn(context, 0, 0);
@@ -573,6 +594,8 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
   if (mergeLlvmBlock != 0) {
     block->getIrBuilder()->SetInsertPoint(mergeLlvmBlock);
     block->setLlvmBlock(mergeLlvmBlock);
+  } else {
+    block->setTerminated(true);
   }
 
   return true;

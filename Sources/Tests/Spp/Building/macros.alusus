@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 def power2: macro [n] n * n;
 def defInt: macro [n] { def n: Int };
@@ -64,4 +64,4 @@ def Main: module
   };
 };
 
-Spp.dumpLlvmIrForElement(Main.start~ast);
+Spp.buildMgr.dumpLlvmIrForElement(Main.start~ast);

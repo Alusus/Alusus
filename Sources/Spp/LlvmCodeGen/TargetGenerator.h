@@ -40,6 +40,7 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
   private: Core::Notices::Store *noticeStore = 0;
   private: SharedPtr<ExecutionContext> executionContext;
+  private: std::vector<llvm::Function*> incompleteFunctions;
   private: std::unique_ptr<llvm::Module> llvmModule;
   private: SharedPtr<llvm::DataLayout> llvmDataLayout;
   private: SharedPtr<llvm::LLVMContext> llvmContext;

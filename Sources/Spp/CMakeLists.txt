@@ -23,12 +23,14 @@ llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native linker)
 include_directories("${AlususSpp_SOURCE_DIR}")
 
 # Create the list of files to be added to the project.
-set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers CodeGen LlvmCodeGen)
+set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers CodeGen LlvmCodeGen Rt)
 set(AlususSpp_SOURCE_FILES
   spp.h
   LibraryGateway.h
   LibraryGateway.cpp
   ExecutionContext.h
+  BuildManager.h
+  BuildManager.cpp
   SeekerExtension.h
   SeekerExtension.cpp
   RootScopeHandlerExtension.h

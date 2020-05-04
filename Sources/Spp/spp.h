@@ -26,16 +26,21 @@ namespace Spp
 // Alusus's SPP base header files
 
 #include "ExecutionContext.h"
+#include "BuildSession.h"
+#include "Building.h"
 
 #include "Ast/ast.h"
 
 #include "Notices/notices.h"
 
-
 #include "CodeGen/code_gen.h"
 #include "LlvmCodeGen/llvm_code_gen.h"
 
 #include "Handlers/handlers.h"
+
+#include "BuildManager.h"
+
+#include "Rt/rt.h"
 
 #include "SeekerExtension.h"
 #include "RootScopeHandlerExtension.h"

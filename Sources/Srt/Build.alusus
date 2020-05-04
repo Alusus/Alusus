@@ -1,3 +1,4 @@
+import "Spp";
 import "globals.alusus";
 import "Srl/Console.alusus";
 import "Srl/String.alusus";
@@ -32,14 +33,14 @@ if Srl.String.compare(Process.language, "ar") == 0 {
       def depCount: Word;
       def i: Word;
 
-      if !Spp.getModifierStrings(e, "deps", deps~ptr, depCount~ptr) return false;
+      if !Spp.astMgr.getModifierStrings(e, "deps", deps~ptr, depCount~ptr) return false;
       for i = 0, i < depCount, ++i {
         Srl.String.concat(exe~cnt.deps~ptr, " -l:");
         Srl.String.concat(exe~cnt.deps~ptr, deps~cnt(i));
       };
       Srl.Memory.free(deps);
 
-      if !Spp.getModifierStrings(e, "اعتماديات", deps~ptr, depCount~ptr) return false;
+      if !Spp.astMgr.getModifierStrings(e, "اعتماديات", deps~ptr, depCount~ptr) return false;
       for i = 0, i < depCount, ++i {
         Srl.String.concat(exe~cnt.deps~ptr, " -l:");
         Srl.String.concat(exe~cnt.deps~ptr, deps~cnt(i));
@@ -51,7 +52,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
     @shared function generate (exe: ptr[Exe]) => Bool
     {
-      if !Spp.buildObjectFileForElement(exe~cnt.element, "/tmp/output.o") {
+      if !Spp.buildMgr.buildObjectFileForElement(exe~cnt.element, "/tmp/output.o") {
         Srl.Console.print(I18n.objectGenerationError, Srl.Console.Style.FG_RED, exe~cnt.outputFilename);
         return false;
       };

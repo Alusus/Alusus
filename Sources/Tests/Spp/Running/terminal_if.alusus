@@ -1,0 +1,22 @@
+import "Srl/Console.alusus";
+
+func test {
+  def i: int;
+  for i = 0, i < 10, ++i {
+    if i == 5 {
+      Srl.Console.print(">>> %d\n", i);
+    } else if i == 6 {
+      Srl.Console.print("<<< %d\n", i);
+    } else if i == 7 {
+      Srl.Console.print("xxx %d\n", i);
+      continue;
+    } else {
+      Srl.Console.print("*** %d\n", i);
+      continue;
+    }
+
+    Srl.Console.print("%d\n", i);
+  }
+}
+
+test();

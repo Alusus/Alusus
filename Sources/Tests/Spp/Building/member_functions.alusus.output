@@ -1,5 +1,8 @@
-ERROR SPPA1007 @ (83,10): Unknown symbol.
-ERROR SPPA1007 @ (84,13): Unknown symbol.
+ERROR SPPA1007 @ (92,10): Unknown symbol.
+ERROR SPPA1007 @ (93,13): Unknown symbol.
+ERROR SPPG1027 @ (71,3)
+from (95,10): Invalid redefinition of `this` in function args.
+ERROR SPPG1024 @ (96,3): Trying to access a local variable before it's initialized.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -188,4 +191,3 @@ define %B* @"getBRef()=>(ref[B])"() {
   ret %B* @"getBRef()=>(ref[B]).b"
 }
 ------------------------------------------------------------
-ERROR SPPG1027 @ (93,3): Invalid redefinition of `this` in function args.

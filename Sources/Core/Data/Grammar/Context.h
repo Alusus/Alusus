@@ -31,7 +31,6 @@ class Context : public TiObject, public MapContaining<TiObject>
 
   private: Module *root = 0;
   private: Module *module = 0;
-  private: VariableStack *stack = 0;
   private: TiObject *args = 0;
 
 
@@ -53,7 +52,6 @@ class Context : public TiObject, public MapContaining<TiObject>
   {
     this->root = context->getRoot();
     this->module = context->getModule();
-    this->stack = context->getStack();
     this->args = context->getArgs();
   }
 
@@ -75,16 +73,6 @@ class Context : public TiObject, public MapContaining<TiObject>
   public: Module* getModule() const
   {
     return this->module;
-  }
-
-  public: void setStack(VariableStack *s)
-  {
-    this->stack = s;
-  }
-
-  public: VariableStack* getStack() const
-  {
-    return this->stack;
   }
 
   public: void setArgs(TiObject *a)
@@ -175,7 +163,7 @@ class Context : public TiObject, public MapContaining<TiObject>
     return HoldMode::PLAIN_REF;
   }
 
-  public: virtual SbStr const& getElementKey(Int index) const;
+  public: virtual SbStr const getElementKey(Int index) const;
 
   public: virtual Int findElementIndex(Char const *key) const;
 

@@ -27,22 +27,23 @@ void BindingMap::setBase(BindingMap *base)
   if (base != 0) {
     // Inheirt new.
     base->destroyNotifier.connect(this->baseDestroySlot);
-    SharedMap<TiObject>::setBase(base);
     base->changeNotifier.connect(this->baseChangeSlot);
+    SharedMap<TiObject>::setBase(base);
   }
 }
 
 
 void BindingMap::onBaseContentChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int index)
 {
-  if (this->isInherited(index)) return;
   if (op == ContentChangeOp::WILL_UPDATE || op == ContentChangeOp::WILL_REMOVE) {
+    if (this->isInherited(index)) return;
     auto superFunc = src->get(index).ti_cast_get<TiFunctionBase>();
     auto func = this->get(index).ti_cast<TiFunctionBase>();
     if (superFunc != 0 && func != 0) {
       this->resetFunctionChain(this->getKey(index).c_str(), superFunc);
     }
   } else if (op == ContentChangeOp::ADDED || op == ContentChangeOp::UPDATED) {
+    if (this->isInherited(index)) return;
     auto superFunc = src->get(index).ti_cast<TiFunctionBase>();
     auto func = this->get(index).ti_cast<TiFunctionBase>();
     if (superFunc != 0 && func != 0) {

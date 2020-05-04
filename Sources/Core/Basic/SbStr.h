@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_SBSTR_H
 #define CORE_BASIC_SBSTR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -28,30 +28,20 @@ namespace Core { namespace Basic
 class SbStr
 {
   //============================================================================
+  // Member Variables
+
+  private: Char *buf;
+
+
+  //============================================================================
   // Constructors
 
-  public: SbStr()
+  public: SbStr(Char *b) : buf(b)
   {
   }
 
-  public: SbStr(Char const *str, Word n, Word bufferSize)
+  public: SbStr(Byte *b) : buf(reinterpret_cast<Char*>(b))
   {
-    this->assign(str, n, bufferSize);
-  }
-
-  public: SbStr(Char const *str, Word bufferSize)
-  {
-    this->assign(str, bufferSize);
-  }
-
-  public: SbStr(WChar const *str, Word n, Word bufferSize)
-  {
-    this->assign(str, n, bufferSize);
-  }
-
-  public: SbStr(WChar const *str, Word bufferSize)
-  {
-    this->assign(str, bufferSize);
   }
 
 
@@ -192,7 +182,12 @@ class SbStr
 
   public: Char const* c_str() const
   {
-    return reinterpret_cast<Char const*>(this);
+    return this->buf;
+  }
+
+  public: Char* c_str()
+  {
+    return this->buf;
   }
 
   /// @}
@@ -204,9 +199,9 @@ class SbStr
  * @brief Cast any const buffer into a const SbStr object.
  * @ingroup basic_datatypes
  */
-template <class T> SbStr const& sbstr_cast(T const *b)
+template <class T> SbStr const sbstr_cast(T const *b)
 {
-  return *reinterpret_cast<SbStr const*>(b);
+  return SbStr(const_cast<T*>(b));
 }
 
 
@@ -214,9 +209,9 @@ template <class T> SbStr const& sbstr_cast(T const *b)
  * @brief Cast any buffer into a SbStr object.
  * @ingroup basic_datatypes
  */
-template <class T> SbStr& sbstr_cast(T *b)
+template <class T> SbStr sbstr_cast(T *b)
 {
-  return *reinterpret_cast<SbStr*>(b);
+  return SbStr(b);
 }
 
 
@@ -231,6 +226,6 @@ template <class T> SbStr& sbstr_cast(T *b)
  */
 #define SBSTR(x)    Core::Basic::sbstr_cast(x)
 
-} } // namespace
+} // namespace
 
 #endif
