@@ -208,7 +208,7 @@ void TargetGenerator::buildObjectFile(Char const *filename)
   }
 
   llvm::legacy::PassManager pass;
-  auto fileType = llvm::TargetMachine::CGFT_ObjectFile;
+  auto fileType = llvm::CGFT_ObjectFile;
 
   if (theTargetMachine->addPassesToEmitFile(pass, dest, nullptr, fileType)) {
     throw EXCEPTION(GenericException, S("TheTargetMachine can't emit a file of this type"));
@@ -1947,7 +1947,8 @@ Bool TargetGenerator::generateStringLiteral(
     *(this->llvmModule.get()), cgStrType->getLlvmType(), true,
     llvm::GlobalValue::PrivateLinkage, llvmStrConst, this->getAnonymouseVarName().c_str()
   );
-  llvmVar->setAlignment(1);
+  // TODO: Do we need this setAlignment call? It's marked as deprecated in LLVM 10.0.0.
+  // llvmVar->setAlignment(1);
 
   destVal = std::make_shared<Value>(llvmVar, true);
   return true;

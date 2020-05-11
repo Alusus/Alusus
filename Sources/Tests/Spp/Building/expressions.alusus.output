@@ -7,104 +7,104 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [8 x i8] c"1+1=%d\0A\00", align 1
-@"#anonymous1" = private constant [8 x i8] c"5-2=%d\0A\00", align 1
-@"#anonymous2" = private constant [8 x i8] c"7*3=%d\0A\00", align 1
-@"#anonymous3" = private constant [9 x i8] c"10/2=%d\0A\00", align 1
-@"#anonymous4" = private constant [8 x i8] c"9%2=%d\0A\00", align 1
-@"#anonymous5" = private constant [9 x i8] c"8>>2=%d\0A\00", align 1
-@"#anonymous6" = private constant [9 x i8] c"8<<2=%d\0A\00", align 1
-@"#anonymous7" = private constant [8 x i8] c"7&2=%d\0A\00", align 1
-@"#anonymous8" = private constant [8 x i8] c"4|2=%d\0A\00", align 1
-@"#anonymous9" = private constant [9 x i8] c"7$12=%d\0A\00", align 1
-@"#anonymous10" = private constant [7 x i8] c"!1=%d\0A\00", align 1
-@"#anonymous11" = private constant [8 x i8] c"-34=%d\0A\00", align 1
-@"#anonymous12" = private constant [8 x i8] c"+34=%d\0A\00", align 1
-@"#anonymous13" = private constant [10 x i8] c"1+2*3=%d\0A\00", align 1
-@"#anonymous14" = private constant [11 x i8] c"10-6/2=%d\0A\00", align 1
-@"#anonymous15" = private constant [12 x i8] c"(1+2)*3=%d\0A\00", align 1
-@"#anonymous16" = private constant [13 x i8] c"(10-6)/2=%d\0A\00", align 1
-@"#anonymous17" = private constant [13 x i8] c"(10-1)%2=%d\0A\00", align 1
-@"#anonymous18" = private constant [14 x i8] c"(10-2)>>2=%d\0A\00", align 1
-@"#anonymous19" = private constant [14 x i8] c"(10-2)<<2=%d\0A\00", align 1
-@"#anonymous20" = private constant [13 x i8] c"(10-3)&2=%d\0A\00", align 1
-@"#anonymous21" = private constant [13 x i8] c"(10-6)|2=%d\0A\00", align 1
-@"#anonymous22" = private constant [14 x i8] c"(10-3)$12=%d\0A\00", align 1
-@"#anonymous23" = private constant [12 x i8] c"!(10-9)=%d\0A\00", align 1
-@"#anonymous24" = private constant [14 x i8] c"-(10 * 2)=%d\0A\00", align 1
-@"#anonymous25" = private constant [14 x i8] c"+(10 * 2)=%d\0A\00", align 1
-@"#anonymous26" = private constant [12 x i8] c"++i32 = %d\0A\00", align 1
-@"#anonymous27" = private constant [12 x i8] c"++i64 = %d\0A\00", align 1
-@"#anonymous28" = private constant [12 x i8] c"--i32 = %d\0A\00", align 1
-@"#anonymous29" = private constant [12 x i8] c"--i64 = %d\0A\00", align 1
-@"#anonymous30" = private constant [12 x i8] c"i32++ = %d\0A\00", align 1
-@"#anonymous31" = private constant [12 x i8] c"i64++ = %d\0A\00", align 1
-@"#anonymous32" = private constant [12 x i8] c"i32-- = %d\0A\00", align 1
-@"#anonymous33" = private constant [12 x i8] c"i64-- = %d\0A\00", align 1
-@"#anonymous34" = private constant [16 x i8] c"i32 += 7 => %d\0A\00", align 1
-@"#anonymous35" = private constant [16 x i8] c"i32 -= 2 => %d\0A\00", align 1
-@"#anonymous36" = private constant [16 x i8] c"i32 *= 2 => %d\0A\00", align 1
-@"#anonymous37" = private constant [16 x i8] c"i32 /= 5 => %d\0A\00", align 1
-@"#anonymous38" = private constant [16 x i8] c"i32 %= 2 => %d\0A\00", align 1
-@"#anonymous39" = private constant [17 x i8] c"i32 >>= 2 => %d\0A\00", align 1
-@"#anonymous40" = private constant [17 x i8] c"i32 <<= 2 => %d\0A\00", align 1
-@"#anonymous41" = private constant [16 x i8] c"i32 &= 2 => %d\0A\00", align 1
-@"#anonymous42" = private constant [16 x i8] c"i32 |= 2 => %d\0A\00", align 1
-@"#anonymous43" = private constant [17 x i8] c"i32 $= 12 => %d\0A\00", align 1
-@"#anonymous44" = private constant [16 x i8] c"i64 += 7 => %d\0A\00", align 1
-@"#anonymous45" = private constant [16 x i8] c"i64 -= 2 => %d\0A\00", align 1
-@"#anonymous46" = private constant [16 x i8] c"i64 *= 2 => %d\0A\00", align 1
-@"#anonymous47" = private constant [16 x i8] c"i64 /= 5 => %d\0A\00", align 1
-@"#anonymous48" = private constant [16 x i8] c"i64 %= 2 => %d\0A\00", align 1
-@"#anonymous49" = private constant [17 x i8] c"i64 >>= 2 => %d\0A\00", align 1
-@"#anonymous50" = private constant [17 x i8] c"i64 <<= 2 => %d\0A\00", align 1
-@"#anonymous51" = private constant [16 x i8] c"i64 &= 2 => %d\0A\00", align 1
-@"#anonymous52" = private constant [16 x i8] c"i64 |= 2 => %d\0A\00", align 1
-@"#anonymous53" = private constant [17 x i8] c"i64 $= 12 => %d\0A\00", align 1
-@"#anonymous54" = private constant [12 x i8] c"1.2+1.2=%f\0A\00", align 1
-@"#anonymous55" = private constant [12 x i8] c"5.5-2.5=%f\0A\00", align 1
-@"#anonymous56" = private constant [12 x i8] c"7.2*3.5=%f\0A\00", align 1
-@"#anonymous57" = private constant [13 x i8] c"10.4/2.0=%f\0A\00", align 1
-@"#anonymous58" = private constant [9 x i8] c"-3.4=%f\0A\00", align 1
-@"#anonymous59" = private constant [9 x i8] c"+3.4=%f\0A\00", align 1
-@"#anonymous60" = private constant [16 x i8] c"1.0+2.0*3.0=%f\0A\00", align 1
-@"#anonymous61" = private constant [17 x i8] c"10.0-6.0/2.0=%f\0A\00", align 1
-@"#anonymous62" = private constant [18 x i8] c"(1.0+2.0)*3.0=%f\0A\00", align 1
-@"#anonymous63" = private constant [19 x i8] c"(10.0-6.0)/2.0=%f\0A\00", align 1
-@"#anonymous64" = private constant [18 x i8] c"-(10.0 * 2.3)=%d\0A\00", align 1
-@"#anonymous65" = private constant [18 x i8] c"+(10.0 * 2.3)=%d\0A\00", align 1
-@"#anonymous66" = private constant [12 x i8] c"++f32 = %f\0A\00", align 1
-@"#anonymous67" = private constant [12 x i8] c"++f64 = %f\0A\00", align 1
-@"#anonymous68" = private constant [12 x i8] c"--f32 = %f\0A\00", align 1
-@"#anonymous69" = private constant [12 x i8] c"--f64 = %f\0A\00", align 1
-@"#anonymous70" = private constant [12 x i8] c"f32++ = %f\0A\00", align 1
-@"#anonymous71" = private constant [12 x i8] c"f64++ = %f\0A\00", align 1
-@"#anonymous72" = private constant [12 x i8] c"f32-- = %f\0A\00", align 1
-@"#anonymous73" = private constant [12 x i8] c"f64-- = %f\0A\00", align 1
-@"#anonymous74" = private constant [18 x i8] c"f32 += 0.7 => %f\0A\00", align 1
-@"#anonymous75" = private constant [18 x i8] c"f32 -= 0.2 => %f\0A\00", align 1
-@"#anonymous76" = private constant [18 x i8] c"f32 *= 2.0 => %f\0A\00", align 1
-@"#anonymous77" = private constant [19 x i8] c"f32 /= 0.05 => %f\0A\00", align 1
-@"#anonymous78" = private constant [19 x i8] c"f64 += 0.07 => %f\0A\00", align 1
-@"#anonymous79" = private constant [19 x i8] c"f64 -= 0.02 => %f\0A\00", align 1
-@"#anonymous80" = private constant [18 x i8] c"f64 *= 2.0 => %f\0A\00", align 1
-@"#anonymous81" = private constant [18 x i8] c"f64 /= 0.5 => %f\0A\00", align 1
-@"#anonymous82" = private constant [16 x i8] c"1i8 + 1i8 = %d\0A\00", align 1
-@"#anonymous83" = private constant [18 x i8] c"1i64 + 1i64 = %d\0A\00", align 1
-@"#anonymous84" = private constant [17 x i8] c"1i8 + 1i64 = %d\0A\00", align 1
-@"#anonymous85" = private constant [17 x i8] c"1i64 + 1i8 = %d\0A\00", align 1
-@"#anonymous86" = private constant [18 x i8] c"1f32 + 1f32 = %f\0A\00", align 1
-@"#anonymous87" = private constant [18 x i8] c"1f64 + 1f64 = %f\0A\00", align 1
-@"#anonymous88" = private constant [18 x i8] c"1f64 + 1f32 = %f\0A\00", align 1
-@"#anonymous89" = private constant [18 x i8] c"1f32 + 1f64 = %f\0A\00", align 1
-@"#anonymous90" = private constant [18 x i8] c"1i32 + 1f32 = %f\0A\00", align 1
-@"#anonymous91" = private constant [18 x i8] c"1f32 + 1i32 = %f\0A\00", align 1
-@"#anonymous92" = private constant [18 x i8] c"1i64 + 1f32 = %f\0A\00", align 1
-@"#anonymous93" = private constant [18 x i8] c"1f32 + 1i64 = %f\0A\00", align 1
-@"#anonymous94" = private constant [17 x i8] c"1i32 + ptr = %f\0A\00", align 1
-@"#anonymous95" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous96" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous97" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous0" = private constant [8 x i8] c"1+1=%d\0A\00"
+@"#anonymous1" = private constant [8 x i8] c"5-2=%d\0A\00"
+@"#anonymous2" = private constant [8 x i8] c"7*3=%d\0A\00"
+@"#anonymous3" = private constant [9 x i8] c"10/2=%d\0A\00"
+@"#anonymous4" = private constant [8 x i8] c"9%2=%d\0A\00"
+@"#anonymous5" = private constant [9 x i8] c"8>>2=%d\0A\00"
+@"#anonymous6" = private constant [9 x i8] c"8<<2=%d\0A\00"
+@"#anonymous7" = private constant [8 x i8] c"7&2=%d\0A\00"
+@"#anonymous8" = private constant [8 x i8] c"4|2=%d\0A\00"
+@"#anonymous9" = private constant [9 x i8] c"7$12=%d\0A\00"
+@"#anonymous10" = private constant [7 x i8] c"!1=%d\0A\00"
+@"#anonymous11" = private constant [8 x i8] c"-34=%d\0A\00"
+@"#anonymous12" = private constant [8 x i8] c"+34=%d\0A\00"
+@"#anonymous13" = private constant [10 x i8] c"1+2*3=%d\0A\00"
+@"#anonymous14" = private constant [11 x i8] c"10-6/2=%d\0A\00"
+@"#anonymous15" = private constant [12 x i8] c"(1+2)*3=%d\0A\00"
+@"#anonymous16" = private constant [13 x i8] c"(10-6)/2=%d\0A\00"
+@"#anonymous17" = private constant [13 x i8] c"(10-1)%2=%d\0A\00"
+@"#anonymous18" = private constant [14 x i8] c"(10-2)>>2=%d\0A\00"
+@"#anonymous19" = private constant [14 x i8] c"(10-2)<<2=%d\0A\00"
+@"#anonymous20" = private constant [13 x i8] c"(10-3)&2=%d\0A\00"
+@"#anonymous21" = private constant [13 x i8] c"(10-6)|2=%d\0A\00"
+@"#anonymous22" = private constant [14 x i8] c"(10-3)$12=%d\0A\00"
+@"#anonymous23" = private constant [12 x i8] c"!(10-9)=%d\0A\00"
+@"#anonymous24" = private constant [14 x i8] c"-(10 * 2)=%d\0A\00"
+@"#anonymous25" = private constant [14 x i8] c"+(10 * 2)=%d\0A\00"
+@"#anonymous26" = private constant [12 x i8] c"++i32 = %d\0A\00"
+@"#anonymous27" = private constant [12 x i8] c"++i64 = %d\0A\00"
+@"#anonymous28" = private constant [12 x i8] c"--i32 = %d\0A\00"
+@"#anonymous29" = private constant [12 x i8] c"--i64 = %d\0A\00"
+@"#anonymous30" = private constant [12 x i8] c"i32++ = %d\0A\00"
+@"#anonymous31" = private constant [12 x i8] c"i64++ = %d\0A\00"
+@"#anonymous32" = private constant [12 x i8] c"i32-- = %d\0A\00"
+@"#anonymous33" = private constant [12 x i8] c"i64-- = %d\0A\00"
+@"#anonymous34" = private constant [16 x i8] c"i32 += 7 => %d\0A\00"
+@"#anonymous35" = private constant [16 x i8] c"i32 -= 2 => %d\0A\00"
+@"#anonymous36" = private constant [16 x i8] c"i32 *= 2 => %d\0A\00"
+@"#anonymous37" = private constant [16 x i8] c"i32 /= 5 => %d\0A\00"
+@"#anonymous38" = private constant [16 x i8] c"i32 %= 2 => %d\0A\00"
+@"#anonymous39" = private constant [17 x i8] c"i32 >>= 2 => %d\0A\00"
+@"#anonymous40" = private constant [17 x i8] c"i32 <<= 2 => %d\0A\00"
+@"#anonymous41" = private constant [16 x i8] c"i32 &= 2 => %d\0A\00"
+@"#anonymous42" = private constant [16 x i8] c"i32 |= 2 => %d\0A\00"
+@"#anonymous43" = private constant [17 x i8] c"i32 $= 12 => %d\0A\00"
+@"#anonymous44" = private constant [16 x i8] c"i64 += 7 => %d\0A\00"
+@"#anonymous45" = private constant [16 x i8] c"i64 -= 2 => %d\0A\00"
+@"#anonymous46" = private constant [16 x i8] c"i64 *= 2 => %d\0A\00"
+@"#anonymous47" = private constant [16 x i8] c"i64 /= 5 => %d\0A\00"
+@"#anonymous48" = private constant [16 x i8] c"i64 %= 2 => %d\0A\00"
+@"#anonymous49" = private constant [17 x i8] c"i64 >>= 2 => %d\0A\00"
+@"#anonymous50" = private constant [17 x i8] c"i64 <<= 2 => %d\0A\00"
+@"#anonymous51" = private constant [16 x i8] c"i64 &= 2 => %d\0A\00"
+@"#anonymous52" = private constant [16 x i8] c"i64 |= 2 => %d\0A\00"
+@"#anonymous53" = private constant [17 x i8] c"i64 $= 12 => %d\0A\00"
+@"#anonymous54" = private constant [12 x i8] c"1.2+1.2=%f\0A\00"
+@"#anonymous55" = private constant [12 x i8] c"5.5-2.5=%f\0A\00"
+@"#anonymous56" = private constant [12 x i8] c"7.2*3.5=%f\0A\00"
+@"#anonymous57" = private constant [13 x i8] c"10.4/2.0=%f\0A\00"
+@"#anonymous58" = private constant [9 x i8] c"-3.4=%f\0A\00"
+@"#anonymous59" = private constant [9 x i8] c"+3.4=%f\0A\00"
+@"#anonymous60" = private constant [16 x i8] c"1.0+2.0*3.0=%f\0A\00"
+@"#anonymous61" = private constant [17 x i8] c"10.0-6.0/2.0=%f\0A\00"
+@"#anonymous62" = private constant [18 x i8] c"(1.0+2.0)*3.0=%f\0A\00"
+@"#anonymous63" = private constant [19 x i8] c"(10.0-6.0)/2.0=%f\0A\00"
+@"#anonymous64" = private constant [18 x i8] c"-(10.0 * 2.3)=%d\0A\00"
+@"#anonymous65" = private constant [18 x i8] c"+(10.0 * 2.3)=%d\0A\00"
+@"#anonymous66" = private constant [12 x i8] c"++f32 = %f\0A\00"
+@"#anonymous67" = private constant [12 x i8] c"++f64 = %f\0A\00"
+@"#anonymous68" = private constant [12 x i8] c"--f32 = %f\0A\00"
+@"#anonymous69" = private constant [12 x i8] c"--f64 = %f\0A\00"
+@"#anonymous70" = private constant [12 x i8] c"f32++ = %f\0A\00"
+@"#anonymous71" = private constant [12 x i8] c"f64++ = %f\0A\00"
+@"#anonymous72" = private constant [12 x i8] c"f32-- = %f\0A\00"
+@"#anonymous73" = private constant [12 x i8] c"f64-- = %f\0A\00"
+@"#anonymous74" = private constant [18 x i8] c"f32 += 0.7 => %f\0A\00"
+@"#anonymous75" = private constant [18 x i8] c"f32 -= 0.2 => %f\0A\00"
+@"#anonymous76" = private constant [18 x i8] c"f32 *= 2.0 => %f\0A\00"
+@"#anonymous77" = private constant [19 x i8] c"f32 /= 0.05 => %f\0A\00"
+@"#anonymous78" = private constant [19 x i8] c"f64 += 0.07 => %f\0A\00"
+@"#anonymous79" = private constant [19 x i8] c"f64 -= 0.02 => %f\0A\00"
+@"#anonymous80" = private constant [18 x i8] c"f64 *= 2.0 => %f\0A\00"
+@"#anonymous81" = private constant [18 x i8] c"f64 /= 0.5 => %f\0A\00"
+@"#anonymous82" = private constant [16 x i8] c"1i8 + 1i8 = %d\0A\00"
+@"#anonymous83" = private constant [18 x i8] c"1i64 + 1i64 = %d\0A\00"
+@"#anonymous84" = private constant [17 x i8] c"1i8 + 1i64 = %d\0A\00"
+@"#anonymous85" = private constant [17 x i8] c"1i64 + 1i8 = %d\0A\00"
+@"#anonymous86" = private constant [18 x i8] c"1f32 + 1f32 = %f\0A\00"
+@"#anonymous87" = private constant [18 x i8] c"1f64 + 1f64 = %f\0A\00"
+@"#anonymous88" = private constant [18 x i8] c"1f64 + 1f32 = %f\0A\00"
+@"#anonymous89" = private constant [18 x i8] c"1f32 + 1f64 = %f\0A\00"
+@"#anonymous90" = private constant [18 x i8] c"1i32 + 1f32 = %f\0A\00"
+@"#anonymous91" = private constant [18 x i8] c"1f32 + 1i32 = %f\0A\00"
+@"#anonymous92" = private constant [18 x i8] c"1i64 + 1f32 = %f\0A\00"
+@"#anonymous93" = private constant [18 x i8] c"1f32 + 1i64 = %f\0A\00"
+@"#anonymous94" = private constant [17 x i8] c"1i32 + ptr = %f\0A\00"
+@"#anonymous95" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous96" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous97" = private constant [4 x i8] c"%d\0A\00"
 
 define void @__constructor__() {
 "#block0":

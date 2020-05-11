@@ -9,16 +9,16 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [7 x i8] c"%s %s\0A\00", align 1
-@"#anonymous1" = private constant [6 x i8] c"Hello\00", align 1
-@"#anonymous2" = private constant [6 x i8] c"World\00", align 1
-@"#anonymous3" = private constant [39 x i8] c"days-per-week: %d, days-per-month: %d\0A\00", align 1
-@"#anonymous4" = private constant [20 x i8] c"pi: %f, planck: %e\0A\00", align 1
-@"#anonymous5" = private constant [43 x i8] c"days-per-week/2: %d, days-per-month/2: %d\0A\00", align 1
-@"#anonymous6" = private constant [24 x i8] c"pi*2: %f, planck*2: %e\0A\00", align 1
-@"#anonymous7" = private constant [36 x i8] c"days-combined: %d, pi-trippled: %f\0A\00", align 1
-@"#anonymous8" = private constant [6 x i8] c"Hello\00", align 1
-@"#anonymous9" = private constant [6 x i8] c"World\00", align 1
+@"#anonymous0" = private constant [7 x i8] c"%s %s\0A\00"
+@"#anonymous1" = private constant [6 x i8] c"Hello\00"
+@"#anonymous2" = private constant [6 x i8] c"World\00"
+@"#anonymous3" = private constant [39 x i8] c"days-per-week: %d, days-per-month: %d\0A\00"
+@"#anonymous4" = private constant [20 x i8] c"pi: %f, planck: %e\0A\00"
+@"#anonymous5" = private constant [43 x i8] c"days-per-week/2: %d, days-per-month/2: %d\0A\00"
+@"#anonymous6" = private constant [24 x i8] c"pi*2: %f, planck*2: %e\0A\00"
+@"#anonymous7" = private constant [36 x i8] c"days-combined: %d, pi-trippled: %f\0A\00"
+@"#anonymous8" = private constant [6 x i8] c"Hello\00"
+@"#anonymous9" = private constant [6 x i8] c"World\00"
 
 define void @__constructor__() {
 "#block0":

@@ -2,8 +2,8 @@
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [21 x i8] c"while-statement: %d\0A\00", align 1
-@"#anonymous1" = private constant [17 x i8] c"while-block: %d\0A\00", align 1
+@"#anonymous0" = private constant [21 x i8] c"while-statement: %d\0A\00"
+@"#anonymous1" = private constant [17 x i8] c"while-block: %d\0A\00"
 
 define void @__constructor__() {
 "#block0":

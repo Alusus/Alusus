@@ -4,13 +4,13 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [12 x i8] c"1.2+1.2=%f\0A\00", align 1
-@"#anonymous1" = private constant [10 x i8] c"1.0e2=%f\0A\00", align 1
-@"#anonymous2" = private constant [11 x i8] c"1.0e+2=%f\0A\00", align 1
-@"#anonymous3" = private constant [11 x i8] c"1.0e-2=%f\0A\00", align 1
-@"#anonymous4" = private constant [17 x i8] c"32bit float: %f\0A\00", align 1
-@"#anonymous5" = private constant [17 x i8] c"64bit float: %f\0A\00", align 1
-@"#anonymous6" = private constant [19 x i8] c"invalid float: %f\0A\00", align 1
+@"#anonymous0" = private constant [12 x i8] c"1.2+1.2=%f\0A\00"
+@"#anonymous1" = private constant [10 x i8] c"1.0e2=%f\0A\00"
+@"#anonymous2" = private constant [11 x i8] c"1.0e+2=%f\0A\00"
+@"#anonymous3" = private constant [11 x i8] c"1.0e-2=%f\0A\00"
+@"#anonymous4" = private constant [17 x i8] c"32bit float: %f\0A\00"
+@"#anonymous5" = private constant [17 x i8] c"64bit float: %f\0A\00"
+@"#anonymous6" = private constant [19 x i8] c"invalid float: %f\0A\00"
 
 define void @__constructor__() {
 "#block0":
