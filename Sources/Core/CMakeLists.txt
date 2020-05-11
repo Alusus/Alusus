@@ -64,7 +64,20 @@ set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususCore PROPERTIES OUTPUT_NAME alusus)
 set_target_properties(AlususCore PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
 set_target_properties(AlususCore PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../Lib/")
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # macOS has a different mechanism for RPATH than Linux and requires special
+  # handling. More information can be found here:
+  #
+  # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+  #
+  # The following article also has a good explanation:
+  #
+  # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../Lib/")
+else()
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,$ORIGIN,-rpath,$ORIGIN/../Lib/")
+endif()
 
 # Copy libary header files to installation directory.
 install_files("/Include/Core" FILES core.h core_global_storage.h)

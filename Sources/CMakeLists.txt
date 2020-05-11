@@ -43,15 +43,29 @@ endif()
 # Prepare compile and link flags.
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  message(STATUS "Using Clang")
   # CLang options
   set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-const-variable -Wno-unused-result -fno-rtti")
   set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
-  set(CMAKE_SKIP_RPATH TRUE)
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # GCC options
+  message(STATUS "Using GCC")
   set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
   set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
+endif()
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # macOS has a different mechanism for RPATH than Linux and requires special
+  # handling. More information can be found here:
+  #
+  # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+  #
+  # The following article also has a good explanation:
+  #
+  # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
+  set(CMAKE_MACOSX_RPATH TRUE)
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,@executable_path")
+else()
   set(CMAKE_SKIP_RPATH TRUE)
   set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
 endif()
