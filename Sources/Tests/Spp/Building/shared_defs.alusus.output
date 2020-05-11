@@ -12,11 +12,11 @@ source_filename = "AlususProgram"
 @Main.MyType.y = global i32 0
 @Main.MyType.t = global %Main_MyType zeroinitializer
 @"Main.MyType.printIt().z" = global i32 0
-@"#anonymous0" = private constant [8 x i8] c"x = %d\0A\00", align 1
-@"#anonymous1" = private constant [8 x i8] c"x = %d\0A\00", align 1
-@"#anonymous2" = private constant [8 x i8] c"y = %d\0A\00", align 1
-@"#anonymous3" = private constant [10 x i8] c"t.x = %d\0A\00", align 1
-@"#anonymous4" = private constant [8 x i8] c"z = %d\0A\00", align 1
+@"#anonymous0" = private constant [8 x i8] c"x = %d\0A\00"
+@"#anonymous1" = private constant [8 x i8] c"x = %d\0A\00"
+@"#anonymous2" = private constant [8 x i8] c"y = %d\0A\00"
+@"#anonymous3" = private constant [10 x i8] c"t.x = %d\0A\00"
+@"#anonymous4" = private constant [8 x i8] c"z = %d\0A\00"
 @Main.t = global %Main_MyType zeroinitializer
 
 define void @__constructor__() {

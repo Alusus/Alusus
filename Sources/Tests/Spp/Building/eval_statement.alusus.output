@@ -7,8 +7,8 @@ eval block
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [6 x i8] c"Hello\00", align 1
-@"#anonymous1" = private constant [9 x i8] c" World!\0A\00", align 1
+@"#anonymous0" = private constant [6 x i8] c"Hello\00"
+@"#anonymous1" = private constant [9 x i8] c" World!\0A\00"
 
 define void @__constructor__() {
 "#block0":

@@ -6,10 +6,10 @@ source_filename = "AlususProgram"
 %Inner = type { %InnerMost*, i32 }
 %InnerMost = type { i32 }
 
-@"#anonymous0" = private constant [24 x i8] c"o.a=%d, o.i=%d, o.k=%d\0A\00", align 1
+@"#anonymous0" = private constant [24 x i8] c"o.a=%d, o.i=%d, o.k=%d\0A\00"
 @o = global %Outer zeroinitializer
-@"#anonymous1" = private constant [34 x i8] c"o.getA()=%d, o.getI()=%d, o()=%d\0A\00", align 1
-@"#anonymous2" = private constant [75 x i8] c"getO().getA()=%d, getO().getI()=%d, getO().i=%d, getO().k=%d, getO()()=%d\0A\00", align 1
+@"#anonymous1" = private constant [34 x i8] c"o.getA()=%d, o.getI()=%d, o()=%d\0A\00"
+@"#anonymous2" = private constant [75 x i8] c"getO().getA()=%d, getO().getI()=%d, getO().i=%d, getO().k=%d, getO()()=%d\0A\00"
 
 define void @__constructor__() {
 "#block0":

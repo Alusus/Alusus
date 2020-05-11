@@ -149,10 +149,14 @@ def fetch_dep(dep_name, url, dir_name, filename):
             wget.download(url)
         else:
             infoMsg(f"{dep_name} already available at {filename}.")
-        with lzma.open(filename) as fd:
-            with tarfile.open(fileobj=fd) as tar:
-                infoMsg(f"Extracting {dep_name} sources from {filename}...")
-                tar.extractall()
+        if filename.endswith(".zip"):
+            with ZipFile(filename,"r") as zip_ref:
+                zip_ref.extractall(".")
+        else:
+            with lzma.open(filename) as fd:
+                with tarfile.open(fileobj=fd) as tar:
+                    infoMsg(f"Extracting {dep_name} sources from {filename}...")
+                    tar.extractall()
         os.remove(filename)
         with open(os.path.join(dir_name, "EXTRACTED"), "w") as fd:
             fd.write(f"{dep_name} EXTRACTED CHECKER")
@@ -164,9 +168,9 @@ def fetch_dep(dep_name, url, dir_name, filename):
 def build_llvm():
     global DEPS_PATH
     global MAKE_THREAD_COUNT
-    url = "http://releases.llvm.org/7.0.1/llvm-7.0.1.src.tar.xz"
-    filename = "llvm-7.0.1"
-    src_dir, build_dir, install_dir = "llvm-7.0.1.src", "llvm-7.0.1.build", "llvm-7.0.1.install"
+    url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.0/llvm-10.0.0.src.tar.xz"
+    filename = "llvm-10.0.0.src.tar.xz"
+    src_dir, build_dir, install_dir = "llvm-10.0.0.src", "llvm-10.0.0.build", "llvm-10.0.0.install"
 
     old_path = os.path.realpath(os.getcwd())
     os.chdir(DEPS_PATH)
@@ -227,9 +231,9 @@ def build_libcurl():
     global DEPS_PATH
     global MAKE_THREAD_COUNT
     global INSTALL_PATH
-    url = "https://github.com/curl/curl/releases/download/curl-7_64_1/curl-7.64.1.tar.xz"
-    src_dir = "curl-7.64.1"
-    filename = "curl-7.64.1.tar.xz"
+    url = "https://github.com/curl/curl/releases/download/curl-7_70_0/curl-7.70.0.tar.xz"
+    src_dir = "curl-7.70.0"
+    filename = "curl-7.70.0.tar.xz"
     output = get_lib_filename("curl")
 
     old_path = os.path.realpath(os.getcwd())
@@ -280,9 +284,9 @@ def build_libzip():
     global MAKE_THREAD_COUNT
     global INSTALL_PATH
 
-    url = "https://github.com/kuba--/zip/archive/v0.1.14.zip"
-    src_dir = "zip-0.1.14"
-    filename = "zip-0.1.14.zip"
+    url = "https://github.com/kuba--/zip/archive/v0.1.19.zip"
+    src_dir = "zip-0.1.19"
+    filename = "zip-0.1.19.zip"
     output = get_lib_filename("zip")
 
     old_path = os.path.realpath(os.getcwd())

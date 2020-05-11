@@ -11,9 +11,9 @@ source_filename = "AlususProgram"
 %A = type { i32 }
 %B = type { %A, void ()* }
 
-@"#anonymous0" = private constant [13 x i8] c"this.i = %d\0A\00", align 1
+@"#anonymous0" = private constant [13 x i8] c"this.i = %d\0A\00"
 @"getARef()=>(ref[A]).a" = global %A zeroinitializer
-@"#anonymous1" = private constant [15 x i8] c"this.a.i = %d\0A\00", align 1
+@"#anonymous1" = private constant [15 x i8] c"this.a.i = %d\0A\00"
 @"getBRef()=>(ref[B]).b" = global %B zeroinitializer
 
 define void @__constructor__() {

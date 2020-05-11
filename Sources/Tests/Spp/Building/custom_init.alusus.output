@@ -4,9 +4,9 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [18 x i8] c"testNoReturn: %d\0A\00", align 1
-@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [18 x i8] c"testNoReturn: %d\0A\00"
+@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -66,9 +66,9 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [20 x i8] c"testReturnVoid: %d\0A\00", align 1
-@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [20 x i8] c"testReturnVoid: %d\0A\00"
+@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -128,9 +128,9 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [23 x i8] c"testReturnNonVoid: %d\0A\00", align 1
-@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [23 x i8] c"testReturnNonVoid: %d\0A\00"
+@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -192,11 +192,11 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [7 x i8] c"getA.\0A\00", align 1
-@"#anonymous2" = private constant [15 x i8] c"constructed2!\0A\00", align 1
-@"#anonymous3" = private constant [13 x i8] c"destructed!\0A\00", align 1
-@"#anonymous4" = private constant [14 x i8] c"testReturnA.\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [7 x i8] c"getA.\0A\00"
+@"#anonymous2" = private constant [15 x i8] c"constructed2!\0A\00"
+@"#anonymous3" = private constant [13 x i8] c"destructed!\0A\00"
+@"#anonymous4" = private constant [14 x i8] c"testReturnA.\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -283,10 +283,10 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [14 x i8] c"testLoop: %d\0A\00", align 1
-@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00", align 1
-@"#anonymous3" = private constant [15 x i8] c"testLoop-out.\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [14 x i8] c"testLoop: %d\0A\00"
+@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00"
+@"#anonymous3" = private constant [15 x i8] c"testLoop-out.\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -363,13 +363,13 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [15 x i8] c"testBreak: %d\0A\00", align 1
-@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00", align 1
-@"#anonymous3" = private constant [18 x i8] c"testBreak-after.\0A\00", align 1
-@"#anonymous4" = private constant [26 x i8] c"testBreak-nested: %d, %d\0A\00", align 1
-@"#anonymous5" = private constant [23 x i8] c"testBreak-afterOuter.\0A\00", align 1
-@"#anonymous6" = private constant [16 x i8] c"testBreak-out.\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [15 x i8] c"testBreak: %d\0A\00"
+@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00"
+@"#anonymous3" = private constant [18 x i8] c"testBreak-after.\0A\00"
+@"#anonymous4" = private constant [26 x i8] c"testBreak-nested: %d, %d\0A\00"
+@"#anonymous5" = private constant [23 x i8] c"testBreak-afterOuter.\0A\00"
+@"#anonymous6" = private constant [16 x i8] c"testBreak-out.\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -484,13 +484,13 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [18 x i8] c"testContinue: %d\0A\00", align 1
-@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00", align 1
-@"#anonymous3" = private constant [21 x i8] c"testContinue-after.\0A\00", align 1
-@"#anonymous4" = private constant [29 x i8] c"testContinue-nested: %d, %d\0A\00", align 1
-@"#anonymous5" = private constant [26 x i8] c"testContinue-afterOuter.\0A\00", align 1
-@"#anonymous6" = private constant [19 x i8] c"testContinue-out.\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [18 x i8] c"testContinue: %d\0A\00"
+@"#anonymous2" = private constant [13 x i8] c"destructed!\0A\00"
+@"#anonymous3" = private constant [21 x i8] c"testContinue-after.\0A\00"
+@"#anonymous4" = private constant [29 x i8] c"testContinue-nested: %d, %d\0A\00"
+@"#anonymous5" = private constant [26 x i8] c"testContinue-afterOuter.\0A\00"
+@"#anonymous6" = private constant [19 x i8] c"testContinue-out.\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -627,9 +627,9 @@ source_filename = "AlususProgram"
 %B = type { %A, %A }
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [13 x i8] c"destructed!\0A\00", align 1
-@"#anonymous2" = private constant [22 x i8] c"testAutoInit: %d, %d\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [13 x i8] c"destructed!\0A\00"
+@"#anonymous2" = private constant [22 x i8] c"testAutoInit: %d, %d\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -713,8 +713,8 @@ source_filename = "AlususProgram"
 
 %C = type { i32 }
 
-@"#anonymous0" = private constant [16 x i8] c"C constructed!\0A\00", align 1
-@"#anonymous1" = private constant [21 x i8] c"testInlinedInit: %d\0A\00", align 1
+@"#anonymous0" = private constant [16 x i8] c"C constructed!\0A\00"
+@"#anonymous1" = private constant [21 x i8] c"testInlinedInit: %d\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -749,8 +749,8 @@ source_filename = "AlususProgram"
 
 %A = type { i32 }
 
-@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00", align 1
-@"#anonymous1" = private constant [13 x i8] c"destructed!\0A\00", align 1
+@"#anonymous0" = private constant [14 x i8] c"constructed!\0A\00"
+@"#anonymous1" = private constant [13 x i8] c"destructed!\0A\00"
 
 define void @__constructor__() {
 "#block0":

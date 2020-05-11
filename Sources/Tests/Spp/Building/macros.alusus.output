@@ -7,20 +7,20 @@ source_filename = "AlususProgram"
 
 %Main_Coordinates = type { double, double }
 
-@"#anonymous0" = private constant [8 x i8] c"a = %d\0A\00", align 1
-@"#anonymous1" = private constant [18 x i8] c"b1 = %d, b2 = %d\0A\00", align 1
-@"#anonymous2" = private constant [12 x i8] c"__n__ = %d\0A\00", align 1
-@"#anonymous3" = private constant [10 x i8] c"a*a = %d\0A\00", align 1
-@"#anonymous4" = private constant [19 x i8] c"min of 5 & 7 = %d\0A\00", align 1
-@"#anonymous5" = private constant [23 x i8] c"min of 5.0 & 7.0 = %d\0A\00", align 1
-@"#anonymous6" = private constant [4 x i8] c"%d \00", align 1
-@"#anonymous7" = private constant [2 x i8] c"\0A\00", align 1
-@"#anonymous8" = private constant [14 x i8] c"Hello Alusus\0A\00", align 1
-@"#anonymous9" = private constant [14 x i8] c"Hello Alusus\0A\00", align 1
-@"#anonymous10" = private constant [13 x i8] c"Hello {{n}}\0A\00", align 1
-@"#anonymous11" = private constant [13 x i8] c"Hello {{n}}\0A\00", align 1
-@"#anonymous12" = private constant [13 x i8] c"Hello World\0A\00", align 1
-@"#anonymous13" = private constant [14 x i8] c"p = (%f, %f)\0A\00", align 1
+@"#anonymous0" = private constant [8 x i8] c"a = %d\0A\00"
+@"#anonymous1" = private constant [18 x i8] c"b1 = %d, b2 = %d\0A\00"
+@"#anonymous2" = private constant [12 x i8] c"__n__ = %d\0A\00"
+@"#anonymous3" = private constant [10 x i8] c"a*a = %d\0A\00"
+@"#anonymous4" = private constant [19 x i8] c"min of 5 & 7 = %d\0A\00"
+@"#anonymous5" = private constant [23 x i8] c"min of 5.0 & 7.0 = %d\0A\00"
+@"#anonymous6" = private constant [4 x i8] c"%d \00"
+@"#anonymous7" = private constant [2 x i8] c"\0A\00"
+@"#anonymous8" = private constant [14 x i8] c"Hello Alusus\0A\00"
+@"#anonymous9" = private constant [14 x i8] c"Hello Alusus\0A\00"
+@"#anonymous10" = private constant [13 x i8] c"Hello {{n}}\0A\00"
+@"#anonymous11" = private constant [13 x i8] c"Hello {{n}}\0A\00"
+@"#anonymous12" = private constant [13 x i8] c"Hello World\0A\00"
+@"#anonymous13" = private constant [14 x i8] c"p = (%f, %f)\0A\00"
 
 define void @__constructor__() {
 "#block0":
