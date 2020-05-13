@@ -69,6 +69,9 @@ set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
 target_link_libraries(AlususSpp ${REQ_LLVM_LIBRARIES})
 target_link_libraries(AlususSpp AlususCoreLib)
 target_link_libraries(AlususSpp AlususStorage)
+# Prevent the exporting of LLVM symbols
+set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
+target_link_libraries(AlususSpp ${LinkerVersionScript})
 
 # Copy libary header files to installation directory.
 install_files("/Include/Spp" FILES
