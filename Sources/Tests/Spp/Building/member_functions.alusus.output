@@ -18,6 +18,8 @@ source_filename = "AlususProgram"
 
 define void @__constructor__() {
 "#block0":
+  call void @B.__autoConstruct__(%B* @"getBRef()=>(ref[B]).b")
+  call void @"B.~init(ref[B])"(%B* @"getBRef()=>(ref[B]).b")
   ret void
 }
 
@@ -185,8 +187,6 @@ define void @"B.printA(ref[B])"(%B* %this) {
 
 define %B* @"getBRef()=>(ref[B])"() {
 "#block14":
-  call void @B.__autoConstruct__(%B* @"getBRef()=>(ref[B]).b")
-  call void @"B.~init(ref[B])"(%B* @"getBRef()=>(ref[B]).b")
   store i32 14, i32* getelementptr inbounds (%B, %B* @"getBRef()=>(ref[B]).b", i32 0, i32 0, i32 0)
   ret %B* @"getBRef()=>(ref[B]).b"
 }

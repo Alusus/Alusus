@@ -970,6 +970,12 @@ DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *ob
       return helper->isSharedDef(def) ? DefinitionDomain::GLOBAL : DefinitionDomain::FUNCTION;
     } else if (owner->isDerivedFrom<EvalStatement>()) {
       return DefinitionDomain::FUNCTION;
+    } else if (owner->isDerivedFrom<WhileStatement>()) {
+      return DefinitionDomain::FUNCTION;
+    } else if (owner->isDerivedFrom<ForStatement>()) {
+      return DefinitionDomain::FUNCTION;
+    } else if (owner->isDerivedFrom<IfStatement>()) {
+      return DefinitionDomain::FUNCTION;
     }
     owner = owner->getOwner();
   }
