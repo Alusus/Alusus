@@ -365,26 +365,6 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
     TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
   );
 
-  public: Bool generateAddAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateSubAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateMulAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateDivAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateRemAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
   public: Bool generateShrAssign(
     TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );

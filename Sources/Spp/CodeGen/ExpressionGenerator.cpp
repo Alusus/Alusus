@@ -918,7 +918,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == S("+")) {
+  if (*astNode->getType().get() == C('+')) {
     if (session->getTgContext() != 0) {
       if (!session->getTg()->generateAdd(
         session->getTgContext(), tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
@@ -926,7 +926,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     }
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == S("-")) {
+  } else if (*astNode->getType().get() == C('-')) {
     if (session->getTgContext() != 0) {
       if (!session->getTg()->generateSub(
         session->getTgContext(), tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
@@ -934,7 +934,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     }
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == S("*")) {
+  } else if (*astNode->getType().get() == S('*')) {
     if (session->getTgContext() != 0) {
       if (!session->getTg()->generateMul(
         session->getTgContext(), tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
@@ -942,7 +942,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     }
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == S("/")) {
+  } else if (*astNode->getType().get() == S('/')) {
     if (session->getTgContext() != 0) {
       if (!session->getTg()->generateDiv(
         session->getTgContext(), tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
@@ -950,7 +950,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     }
     result.astType = astTargetType;
     return true;
-  } else if (astNode->getType() == S("%")) {
+  } else if (*astNode->getType().get() == S('%')) {
     if (session->getTgContext() != 0) {
       if (!session->getTg()->generateRem(
         session->getTgContext(), tgTargetType, param1.targetData.get(), param2.targetData.get(), result.targetData
@@ -1286,7 +1286,10 @@ Bool ExpressionGenerator::_generateAssignOp(
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->getType() == S("=")) {
+  if (
+    astNode->getType() == S("=") ||
+    (astNode->getType().getStr().size() > 1 && astNode->getType().get()[1] == C('='))
+  ) {
     if (session->getTgContext() != 0) {
       if (!session->getTg()->generateAssign(
         session->getTgContext(), tgContentType, param.targetData.get(), target.targetData.get(), result.targetData
@@ -1313,89 +1316,17 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
     );
   }
 
-  GenResult target;
-  if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, session, target
-  )) return false;
-  auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
-  if (astRefType == 0) {
-    expGenerator->noticeStore->add(
-      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
-    );
+  GenResult arithmeticResult;
+  if (!expGenerator->generateArithmeticOp(astNode, paramTgValues, paramAstTypes, g, session, arithmeticResult)) {
     return false;
   }
-  GenResult param;
-  if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, session, param
-  )) return false;
-  Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
-
-  if (
-    (!astContentType->isDerivedFrom<Ast::FloatType>() && !astContentType->isDerivedFrom<Ast::IntegerType>()) ||
-    (!param.astType->isDerivedFrom<Ast::FloatType>() && !param.astType->isDerivedFrom<Ast::IntegerType>())
-  ) {
-    expGenerator->noticeStore->add(
-      std::make_shared<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
-    );
-    return false;
-  }
-
-  if (session->getTgContext() != 0) {
-    if (!g->generateCast(
-      session, param.astType, astContentType, astNode, param.targetData.get(), false, param.targetData
-    )) {
-      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
-    }
-  }
-
-  TiObject *tgContentType;
-  if (!g->getGeneratedType(astContentType, session, tgContentType, 0)) {
-    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
-  }
-
-  if (astNode->getType() == S("+=")) {
-    if (session->getTgContext() != 0) {
-      if (!session->getTg()->generateAddAssign(
-        session->getTgContext(), tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
-      )) return false;
-    }
-    result.astType = astRefType;
-    return true;
-  } else if (astNode->getType() == S("-=")) {
-    if (session->getTgContext() != 0) {
-      if (!session->getTg()->generateSubAssign(
-        session->getTgContext(), tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
-      )) return false;
-    }
-    result.astType = astRefType;
-    return true;
-  } else if (astNode->getType() == S("*=")) {
-    if (session->getTgContext() != 0) {
-      if (!session->getTg()->generateMulAssign(
-        session->getTgContext(), tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
-      )) return false;
-    }
-    result.astType = astRefType;
-    return true;
-  } else if (astNode->getType() == S("/=")) {
-    if (session->getTgContext() != 0) {
-      if (!session->getTg()->generateDivAssign(
-        session->getTgContext(), tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
-      )) return false;
-    }
-    result.astType = astRefType;
-    return true;
-  } else if (astNode->getType() == S("%=")) {
-    if (session->getTgContext() != 0) {
-      if (!session->getTg()->generateRemAssign(
-        session->getTgContext(), tgContentType, target.targetData.get(), param.targetData.get(), result.targetData
-      )) return false;
-    }
-    result.astType = astRefType;
-    return true;
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
-  }
+  SharedList<TiObject> assignParamTgValues;
+  assignParamTgValues.add(paramTgValues->get(0));
+  assignParamTgValues.add(arithmeticResult.targetData);
+  PlainList<TiObject> assignParamAstTypes;
+  assignParamAstTypes.add(paramAstTypes->get(0));
+  assignParamAstTypes.add(arithmeticResult.astType);
+  return expGenerator->generateAssignOp(astNode, &assignParamTgValues, &assignParamAstTypes, g, session, result);
 }
 
 
