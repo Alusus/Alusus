@@ -21,12 +21,14 @@ include_directories("${AlususCore_SOURCE_DIR}")
 include_directories("${AlususSpp_SOURCE_DIR}")
 
 # Create the list of files to be added to the project.
-set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers CodeGen LlvmCodeGen)
+set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers CodeGen LlvmCodeGen Rt)
 set(AlususSpp_SOURCE_FILES
   spp.h
   LibraryGateway.h
   LibraryGateway.cpp
   ExecutionContext.h
+  BuildManager.h
+  BuildManager.cpp
   SeekerExtension.h
   SeekerExtension.cpp
   RootScopeHandlerExtension.h
@@ -66,6 +68,10 @@ endif()
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
 target_link_libraries(AlususSpp AlususCoreLib)
+target_link_libraries(AlususSpp AlususStorage)
+# Prevent the exporting of LLVM symbols
+#set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
+#target_link_libraries(AlususSpp ${LinkerVersionScript})
 
 # Copy libary header files to installation directory.
 install_files("/Include/Spp" FILES

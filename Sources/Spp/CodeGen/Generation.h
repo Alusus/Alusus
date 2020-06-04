@@ -21,7 +21,7 @@ class Generation : public ObjTiInterface
   //============================================================================
   // Type Info
 
-  OBJ_INTERFACE_INFO(Generation, ObjTiInterface, "Spp", "CodeGen", "alusus.org");
+  OBJ_INTERFACE_INFO(Generation, ObjTiInterface, "Spp.CodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -50,7 +50,7 @@ class Generation : public ObjTiInterface
       &this->generateMemberVarDestruction,
       &this->registerDestructor,
       &this->generateVarGroupDestruction,
-      &this->generateStatements,
+      &this->generateStatementBlock,
       &this->generateStatement,
       &this->generateExpression,
       &this->generateCast,
@@ -82,53 +82,53 @@ class Generation : public ObjTiInterface
   /// @name Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateModules, Bool, (Core::Data::Ast::Scope* /* root */, GenDeps const& /* deps */));
+  public: METHOD_BINDING_CACHE(generateModules, Bool, (Core::Data::Ast::Scope* /* root */, Session* /* session */));
 
-  public: METHOD_BINDING_CACHE(generateModule, Bool, (Spp::Ast::Module* /* astModule */, GenDeps const& /* deps */));
+  public: METHOD_BINDING_CACHE(generateModule, Bool, (Spp::Ast::Module* /* astModule */, Session* /* session */));
 
   public: METHOD_BINDING_CACHE(generateModuleInit,
-    Bool, (Spp::Ast::Module* /* astModule */, GenDeps const& /* deps */)
+    Bool, (Spp::Ast::Module* /* astModule */, Session* /* session */)
   );
 
-  public: METHOD_BINDING_CACHE(generateFunction, Bool, (Spp::Ast::Function* /* astFunc */, GenDeps const& /* deps */));
+  public: METHOD_BINDING_CACHE(generateFunction, Bool, (Spp::Ast::Function* /* astFunc */, Session* /* session */));
 
   public: METHOD_BINDING_CACHE(generateFunctionDecl,
-    Bool, (Spp::Ast::Function* /* astFunc */, GenDeps const& /* deps */)
+    Bool, (Spp::Ast::Function* /* astFunc */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(generateUserTypeBody,
-    Bool, (Spp::Ast::UserType* /* astType */, GenDeps const& /* deps */)
+    Bool, (Spp::Ast::UserType* /* astType */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(generateVarDef,
-    Bool, (Core::Data::Ast::Definition* /* def */, GenDeps const& /* deps */)
+    Bool, (Core::Data::Ast::Definition* /* def */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(generateTempVar,
     Bool, (
-      Core::Data::Node* /* astNode */, Spp::Ast::Type* /* astType */, GenDeps const& /* deps */, Bool /* initialize */
+      Core::Data::Node* /* astNode */, Spp::Ast::Type* /* astType */, Session* /* session */, Bool /* initialize */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateVarInitialization, Bool, (
     Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
     PlainList<TiObject>* /* paramAstNodes */, PlainList<TiObject>* /* paramAstTypes */,
-    SharedList<TiObject>* /* paramTgValues */, GenDeps const& /* deps */
+    SharedList<TiObject>* /* paramTgValues */, Session* /* session */
   ));
 
   public: METHOD_BINDING_CACHE(generateMemberVarInitialization,
-    Bool, (TiObject* /* astMemberNode */, GenDeps const& /* deps */)
+    Bool, (TiObject* /* astMemberNode */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(generateVarDestruction,
     Bool, (
       Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
-      GenDeps const& /* deps */
+      Session* /* session */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateMemberVarDestruction,
-    Bool, (TiObject* /* astMemberNode */, GenDeps const& /* deps */)
+    Bool, (TiObject* /* astMemberNode */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(registerDestructor,
@@ -139,29 +139,29 @@ class Generation : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(generateVarGroupDestruction,
-    Bool, (GenDeps const& /* deps */, Int /* index */)
+    Bool, (Session* /* session */, Int /* index */)
   );
 
-  public: METHOD_BINDING_CACHE(generateStatements,
+  public: METHOD_BINDING_CACHE(generateStatementBlock,
     Bool, (
-      Core::Data::Ast::Scope* /* astBlock */, GenDeps const& /* deps */,
+      TiObject* /* astBlock */, Session* /* session */,
       TerminalStatement& /* terminal */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateStatement,
     Bool, (
-      TiObject* /* astNode */, GenDeps const& /* deps */, TerminalStatement& /* terminal */
+      TiObject* /* astNode */, Session* /* session */, TerminalStatement& /* terminal */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateExpression,
-    Bool, (TiObject* /* astNode */, GenDeps const& /* deps */, GenResult& /* result */)
+    Bool, (TiObject* /* astNode */, Session* /* session */, GenResult& /* result */)
   );
 
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (
-      GenDeps const& /* deps */, Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
+      Session* /* session */, Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
       Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Bool /* implicit */, TioSharedPtr& /* tgCastedValue */
     )
   );
@@ -170,19 +170,19 @@ class Generation : public ObjTiInterface
     Bool, (
       Core::Data::Node* /* astNode */, Spp::Ast::Function* /* callee */,
       Containing<TiObject>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
-      GenDeps const& /* deps */, GenResult& /* result */
+      Session* /* session */, GenResult& /* result */
     )
   );
 
   public: METHOD_BINDING_CACHE(getGeneratedType,
     Bool, (
-      TiObject* /* ref */, GenDeps const& /* deps */,
+      TiObject* /* ref */, Session* /* session */,
       TiObject*& /* targetTypeResult */, Ast::Type** /* astTypeResult */
     )
   );
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize,
-    Bool, (Spp::Ast::Type* /* astType */, GenDeps const& /* deps */, Word& /* result */)
+    Bool, (Spp::Ast::Type* /* astType */, Session* /* session */, Word& /* result */)
   );
 
   /// @}

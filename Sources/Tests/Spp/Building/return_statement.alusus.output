@@ -11,11 +11,11 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [11 x i8] c"getInt: %d\00", align 1
-@"#anonymous1" = private constant [13 x i8] c"getFloat: %f\00", align 1
-@"#anonymous2" = private constant [19 x i8] c"getFloatCasted: %f\00", align 1
-@"#anonymous3" = private constant [16 x i8] c"getAddition: %d\00", align 1
-@"#anonymous4" = private constant [19 x i8] c"getIntIndirect: %d\00", align 1
+@"#anonymous0" = private constant [11 x i8] c"getInt: %d\00"
+@"#anonymous1" = private constant [13 x i8] c"getFloat: %f\00"
+@"#anonymous2" = private constant [19 x i8] c"getFloatCasted: %f\00"
+@"#anonymous3" = private constant [16 x i8] c"getAddition: %d\00"
+@"#anonymous4" = private constant [19 x i8] c"getIntIndirect: %d\00"
 
 define void @__constructor__() {
 "#block0":

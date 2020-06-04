@@ -13,6 +13,7 @@ def Main: module
   {
     testIf(0);
     testIf(1);
+    testIfDestructors(1);
   };
 
   def testIf: function (i: Word[1]) => Void
@@ -33,6 +34,30 @@ def Main: module
     if i { print("if-block/else-block") }
     else { print("else-block") };
   };
+
+  type A
+  {
+    def i: Int;
+    handler this~terminate() {
+      printf("A~terminate %d\n", this.i);
+    }
+  }
+
+  function getA (i: Int): A
+  {
+    def a:A;
+    a.i = i;
+    return a;
+  }
+
+  def testIfDestructors: function (i: Word[1])
+  {
+    print("\ntestIfDestructors");
+    if i == 1 getA(32);
+    if i == 0 getA(33) else getA(34);
+    if getA(2).i == 2 print("getA(2).i == 2");
+    print("testIfDestructors complete");
+  }
 };
 
 Main.start();

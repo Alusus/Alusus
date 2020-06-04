@@ -40,6 +40,7 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
   private: Core::Notices::Store *noticeStore = 0;
   private: SharedPtr<ExecutionContext> executionContext;
+  private: std::vector<llvm::Function*> incompleteFunctions;
   private: std::unique_ptr<llvm::Module> llvmModule;
   private: SharedPtr<llvm::DataLayout> llvmDataLayout;
   private: SharedPtr<llvm::LLVMContext> llvmContext;
@@ -362,26 +363,6 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   public: Bool generateLateDec(
     TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
-  );
-
-  public: Bool generateAddAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateSubAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateMulAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateDivAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-  );
-
-  public: Bool generateRemAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );
 
   public: Bool generateShrAssign(

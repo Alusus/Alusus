@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 def Main: module
 {
@@ -51,7 +51,9 @@ def Main: module
     i32 += 7; print("i32 += 7 => %d\n", i32);
     i32 -= 2; print("i32 -= 2 => %d\n", i32);
     i32 *= 2; print("i32 *= 2 => %d\n", i32);
+    i32 *= 2.5; print("i32 *= 2.5 => %d\n", i32);
     i32 /= 5; print("i32 /= 5 => %d\n", i32);
+    i32 /= 5.5; print("i32 /= 5.5 => %d\n", i32);
     i32 = 9; i32 %= 2; print("i32 %= 2 => %d\n", i32);
     i32 = 8; i32 >>= 2; print("i32 >>= 2 => %d\n", i32);
     i32 = 8; i32 <<= 2; print("i32 <<= 2 => %d\n", i32);
@@ -154,4 +156,4 @@ def Other2: module
 {
 };
 
-Spp.dumpLlvmIrForElement(Main.start~ast);
+Spp.buildMgr.dumpLlvmIrForElement(Main.start~ast);

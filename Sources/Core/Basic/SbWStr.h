@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_SBWSTR_H
 #define CORE_BASIC_SBWSTR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -28,30 +28,20 @@ namespace Core { namespace Basic
 class SbWStr
 {
   //============================================================================
+  // Member Variables
+
+  private: WChar *buf;
+
+
+  //============================================================================
   // Constructors
 
-  public: SbWStr()
+  public: SbWStr(WChar *b) : buf(b)
   {
   }
 
-  public: SbWStr(WChar const *str, Word n, Word bufferSize)
+  public: SbWStr(Word *b) : buf(reinterpret_cast<WChar*>(b))
   {
-    this->assign(str, n, bufferSize);
-  }
-
-  public: SbWStr(WChar const *str, Word bufferSize)
-  {
-    this->assign(str, bufferSize);
-  }
-
-  public: SbWStr(Char const *str, Word n, Word bufferSize)
-  {
-    this->assign(str, n, bufferSize);
-  }
-
-  public: SbWStr(Char const *str, Word bufferSize)
-  {
-    this->assign(str, bufferSize);
   }
 
 
@@ -155,7 +145,12 @@ class SbWStr
 
   public: WChar const* c_str() const
   {
-    return reinterpret_cast<WChar const*>(this);
+    return this->buf;
+  }
+
+  public: WChar* c_str()
+  {
+    return this->buf;
   }
 
   /// @}
@@ -167,9 +162,9 @@ class SbWStr
  * @brief Cast any const buffer into a const SbWStr object.
  * @ingroup basic_datatypes
  */
-template <class T> SbWStr const& sbwstr_cast(T const *b)
+template <class T> SbWStr const sbwstr_cast(T const *b)
 {
-  return *reinterpret_cast<SbWStr const*>(b);
+  return SbWStr(const_cast<T*>(b));
 }
 
 
@@ -177,9 +172,9 @@ template <class T> SbWStr const& sbwstr_cast(T const *b)
  * @brief Cast any buffer into a SbWStr object.
  * @ingroup basic_datatypes
  */
-template <class T> SbWStr& sbwstr_cast(T *b)
+template <class T> SbWStr sbwstr_cast(T *b)
 {
-  return *reinterpret_cast<SbWStr*>(b);
+  return SbWStr(b);
 }
 
 
@@ -194,6 +189,6 @@ template <class T> SbWStr& sbwstr_cast(T *b)
  */
 #define SBWSTR(x)    Core::Basic::sbwstr_cast(x)
 
-} } // namespace
+} // namespace
 
 #endif

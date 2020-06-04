@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 def Main: module
 {
@@ -101,4 +101,4 @@ def Other2: module
 {
 };
 
-Spp.dumpLlvmIrForElement(Main.start~ast);
+Spp.buildMgr.dumpLlvmIrForElement(Main.start~ast);

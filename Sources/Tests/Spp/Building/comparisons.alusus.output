@@ -10,52 +10,52 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [12 x i8] c"1 == 1: %d\0A\00", align 1
-@"#anonymous1" = private constant [12 x i8] c"1 == 2: %d\0A\00", align 1
-@"#anonymous2" = private constant [11 x i8] c"1 > 1: %d\0A\00", align 1
-@"#anonymous3" = private constant [11 x i8] c"1 > 0: %d\0A\00", align 1
-@"#anonymous4" = private constant [12 x i8] c"1 >= 1: %d\0A\00", align 1
-@"#anonymous5" = private constant [12 x i8] c"1 >= 2: %d\0A\00", align 1
-@"#anonymous6" = private constant [11 x i8] c"1 < 1: %d\0A\00", align 1
-@"#anonymous7" = private constant [11 x i8] c"1 < 2: %d\0A\00", align 1
-@"#anonymous8" = private constant [12 x i8] c"1 <= 1: %d\0A\00", align 1
-@"#anonymous9" = private constant [12 x i8] c"2 <= 1: %d\0A\00", align 1
-@"#anonymous10" = private constant [16 x i8] c"1.0 == 1.0: %d\0A\00", align 1
-@"#anonymous11" = private constant [16 x i8] c"1.0 == 2.0: %d\0A\00", align 1
-@"#anonymous12" = private constant [15 x i8] c"1.0 > 1.0: %d\0A\00", align 1
-@"#anonymous13" = private constant [15 x i8] c"1.0 > 0.0: %d\0A\00", align 1
-@"#anonymous14" = private constant [16 x i8] c"1.0 >= 1.0: %d\0A\00", align 1
-@"#anonymous15" = private constant [16 x i8] c"1.0 >= 2.0: %d\0A\00", align 1
-@"#anonymous16" = private constant [15 x i8] c"1.0 < 1.0: %d\0A\00", align 1
-@"#anonymous17" = private constant [15 x i8] c"1.0 < 2.0: %d\0A\00", align 1
-@"#anonymous18" = private constant [16 x i8] c"1.0 <= 1.0: %d\0A\00", align 1
-@"#anonymous19" = private constant [16 x i8] c"2.0 <= 1.0: %d\0A\00", align 1
-@"#anonymous20" = private constant [16 x i8] c"1i8 == 1i8: %d\0A\00", align 1
-@"#anonymous21" = private constant [18 x i8] c"1i64 == 1i64: %d\0A\00", align 1
-@"#anonymous22" = private constant [17 x i8] c"1i8 == 1i64: %d\0A\00", align 1
-@"#anonymous23" = private constant [17 x i8] c"1i64 == 1i8: %d\0A\00", align 1
-@"#anonymous24" = private constant [18 x i8] c"1f32 == 1f32: %d\0A\00", align 1
-@"#anonymous25" = private constant [18 x i8] c"1f64 == 1f64: %d\0A\00", align 1
-@"#anonymous26" = private constant [18 x i8] c"1f64 == 1f32: %d\0A\00", align 1
-@"#anonymous27" = private constant [18 x i8] c"1f32 == 1f64: %d\0A\00", align 1
-@"#anonymous28" = private constant [18 x i8] c"1i32 == 1f32: %d\0A\00", align 1
-@"#anonymous29" = private constant [18 x i8] c"1f32 == 1i32: %d\0A\00", align 1
-@"#anonymous30" = private constant [18 x i8] c"1i64 == 1f32: %d\0A\00", align 1
-@"#anonymous31" = private constant [18 x i8] c"1f32 == 1i64: %d\0A\00", align 1
-@"#anonymous32" = private constant [17 x i8] c"1i32 == ptr: %d\0A\00", align 1
-@"#anonymous33" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous34" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous35" = private constant [18 x i8] c"ptr1 == ptr2: %d\0A\00", align 1
-@"#anonymous36" = private constant [18 x i8] c"ptr1 != ptr2: %d\0A\00", align 1
-@"#anonymous37" = private constant [23 x i8] c"non-null ptr == 0: %d\0A\00", align 1
-@"#anonymous38" = private constant [19 x i8] c"null ptr == 0: %d\0A\00", align 1
-@"#anonymous39" = private constant [15 x i8] c"ptr > ptr: %d\0A\00", align 1
-@"#anonymous40" = private constant [16 x i8] c"ptr >= ptr: %d\0A\00", align 1
-@"#anonymous41" = private constant [15 x i8] c"ptr < ptr: %d\0A\00", align 1
-@"#anonymous42" = private constant [16 x i8] c"ptr <= ptr: %d\0A\00", align 1
-@"#anonymous43" = private constant [16 x i8] c"ptr == i64: %d\0A\00", align 1
-@"#anonymous44" = private constant [20 x i8] c"Received positive.\0A\00", align 1
-@"#anonymous45" = private constant [20 x i8] c"Received negative.\0A\00", align 1
+@"#anonymous0" = private constant [12 x i8] c"1 == 1: %d\0A\00"
+@"#anonymous1" = private constant [12 x i8] c"1 == 2: %d\0A\00"
+@"#anonymous2" = private constant [11 x i8] c"1 > 1: %d\0A\00"
+@"#anonymous3" = private constant [11 x i8] c"1 > 0: %d\0A\00"
+@"#anonymous4" = private constant [12 x i8] c"1 >= 1: %d\0A\00"
+@"#anonymous5" = private constant [12 x i8] c"1 >= 2: %d\0A\00"
+@"#anonymous6" = private constant [11 x i8] c"1 < 1: %d\0A\00"
+@"#anonymous7" = private constant [11 x i8] c"1 < 2: %d\0A\00"
+@"#anonymous8" = private constant [12 x i8] c"1 <= 1: %d\0A\00"
+@"#anonymous9" = private constant [12 x i8] c"2 <= 1: %d\0A\00"
+@"#anonymous10" = private constant [16 x i8] c"1.0 == 1.0: %d\0A\00"
+@"#anonymous11" = private constant [16 x i8] c"1.0 == 2.0: %d\0A\00"
+@"#anonymous12" = private constant [15 x i8] c"1.0 > 1.0: %d\0A\00"
+@"#anonymous13" = private constant [15 x i8] c"1.0 > 0.0: %d\0A\00"
+@"#anonymous14" = private constant [16 x i8] c"1.0 >= 1.0: %d\0A\00"
+@"#anonymous15" = private constant [16 x i8] c"1.0 >= 2.0: %d\0A\00"
+@"#anonymous16" = private constant [15 x i8] c"1.0 < 1.0: %d\0A\00"
+@"#anonymous17" = private constant [15 x i8] c"1.0 < 2.0: %d\0A\00"
+@"#anonymous18" = private constant [16 x i8] c"1.0 <= 1.0: %d\0A\00"
+@"#anonymous19" = private constant [16 x i8] c"2.0 <= 1.0: %d\0A\00"
+@"#anonymous20" = private constant [16 x i8] c"1i8 == 1i8: %d\0A\00"
+@"#anonymous21" = private constant [18 x i8] c"1i64 == 1i64: %d\0A\00"
+@"#anonymous22" = private constant [17 x i8] c"1i8 == 1i64: %d\0A\00"
+@"#anonymous23" = private constant [17 x i8] c"1i64 == 1i8: %d\0A\00"
+@"#anonymous24" = private constant [18 x i8] c"1f32 == 1f32: %d\0A\00"
+@"#anonymous25" = private constant [18 x i8] c"1f64 == 1f64: %d\0A\00"
+@"#anonymous26" = private constant [18 x i8] c"1f64 == 1f32: %d\0A\00"
+@"#anonymous27" = private constant [18 x i8] c"1f32 == 1f64: %d\0A\00"
+@"#anonymous28" = private constant [18 x i8] c"1i32 == 1f32: %d\0A\00"
+@"#anonymous29" = private constant [18 x i8] c"1f32 == 1i32: %d\0A\00"
+@"#anonymous30" = private constant [18 x i8] c"1i64 == 1f32: %d\0A\00"
+@"#anonymous31" = private constant [18 x i8] c"1f32 == 1i64: %d\0A\00"
+@"#anonymous32" = private constant [17 x i8] c"1i32 == ptr: %d\0A\00"
+@"#anonymous33" = private constant [6 x i8] c"hello\00"
+@"#anonymous34" = private constant [6 x i8] c"world\00"
+@"#anonymous35" = private constant [18 x i8] c"ptr1 == ptr2: %d\0A\00"
+@"#anonymous36" = private constant [18 x i8] c"ptr1 != ptr2: %d\0A\00"
+@"#anonymous37" = private constant [23 x i8] c"non-null ptr == 0: %d\0A\00"
+@"#anonymous38" = private constant [19 x i8] c"null ptr == 0: %d\0A\00"
+@"#anonymous39" = private constant [15 x i8] c"ptr > ptr: %d\0A\00"
+@"#anonymous40" = private constant [16 x i8] c"ptr >= ptr: %d\0A\00"
+@"#anonymous41" = private constant [15 x i8] c"ptr < ptr: %d\0A\00"
+@"#anonymous42" = private constant [16 x i8] c"ptr <= ptr: %d\0A\00"
+@"#anonymous43" = private constant [16 x i8] c"ptr == i64: %d\0A\00"
+@"#anonymous44" = private constant [20 x i8] c"Received positive.\0A\00"
+@"#anonymous45" = private constant [20 x i8] c"Received negative.\0A\00"
 
 define void @__constructor__() {
 "#block0":

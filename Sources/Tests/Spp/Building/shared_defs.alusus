@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 def Std: module
 {
@@ -12,6 +12,7 @@ def Main: module
   def MyType: type
   {
     def x: Int;
+    def ax: array[Int, 1];
     @shared def y: Int;
 
     @shared def t: MyType;
@@ -20,6 +21,7 @@ def Main: module
     {
       @shared def z: Int;
       print("x = %d\n", x);
+      print("x = %d\n", ax(0));
       print("y = %d\n", y);
       print("t.x = %d\n", t.x);
       print("z = %d\n", z);
@@ -39,4 +41,4 @@ def Main: module
   }
 };
 
-Spp.dumpLlvmIrForElement(Main~ast);
+Spp.buildMgr.dumpLlvmIrForElement(Main~ast);

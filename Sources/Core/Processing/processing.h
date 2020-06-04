@@ -41,31 +41,6 @@ namespace Core::Processing
  */
 #define THIS_TESTING_PASS 0x20000000
 
-/**
- * @brief The number of preallocated parser state variable levels.
- * @ingroup core_processing
- *
- * These state variable levels are preallocated when the state is instantiated.
- * It's done for performance purposes.
- */
-#define RESERVED_VARIABLE_LEVEL_COUNT 100
-
-/**
- * @brief The number of parser's preallocated variable stack records.
- * @ingroup core_processing
- *
- * This value is used for state variable stacks.
- */
-#define RESERVED_VARIABLE_COUNT 1000
-
-/**
- * @brief The maximum number of characters allowed for variable names.
- * @ingroup core_processing
- *
- * This value is used for state variable stacks.
- */
-#define VARIABLE_NAME_MAX_LENGTH 256
-
 
 //==============================================================================
 // Lexer Definitions

@@ -222,6 +222,12 @@ DEFINE_NOTICE(SharedInjectionNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG10
 DEFINE_NOTICE(InvalidInjectionTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1029", 1,
   "Invalid type for an injected definition."
 );
+DEFINE_NOTICE(TypeMissingAssignOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1030", 1,
+  "Assignment failed. This type needs an assignment operator."
+);
+DEFINE_NOTICE(TypeMissingMatchingInitOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1031", 1,
+  "Variable initialization failed. Custom init op matching the given data is needed for this type."
+);
 
 } // namespace
 

@@ -13,6 +13,8 @@
 #ifndef CORE_DATA_GRAMMAR_LEXERMODULE_H
 #define CORE_DATA_GRAMMAR_LEXERMODULE_H
 
+#include <unordered_map>
+
 namespace Core::Data::Grammar
 {
 

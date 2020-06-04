@@ -386,7 +386,7 @@ namespace Core { namespace Basic
     _IMPLEMENT_MAP_CONTAINING_INDEXGETHOLDMODE(parent, __VA_ARGS__); \
     return parent::getElementHoldMode(index); \
   } \
-  public: virtual const SbStr& getElementKey(Int index) const \
+  public: virtual const SbStr getElementKey(Int index) const \
   { \
     _IMPLEMENT_MAP_CONTAINING_GETKEY(parent, __VA_ARGS__); \
     return parent::getElementKey(index); \

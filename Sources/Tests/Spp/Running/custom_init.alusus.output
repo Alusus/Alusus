@@ -15,8 +15,8 @@ constructed!
 getA.
 constructed2!
 destructed!
-testReturnA.
 destructed!
+testReturnA.
 
 constructed!
 testLoop: 1

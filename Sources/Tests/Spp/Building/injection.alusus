@@ -1,3 +1,4 @@
+import "Spp";
 import "Srl/Console.alusus";
 
 use Srl.Console;
@@ -43,4 +44,4 @@ func test {
   );
 };
 
-Spp.dumpLlvmIrForElement(test~ast);
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

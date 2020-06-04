@@ -8,10 +8,10 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [12 x i8] c"hello world\00", align 1
-@"#anonymous1" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous2" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous3" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous0" = private constant [12 x i8] c"hello world\00"
+@"#anonymous1" = private constant [6 x i8] c"hello\00"
+@"#anonymous2" = private constant [6 x i8] c"world\00"
+@"#anonymous3" = private constant [6 x i8] c"hello\00"
 
 define void @__constructor__() {
 "#block0":

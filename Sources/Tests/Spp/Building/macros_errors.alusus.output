@@ -1,8 +1,20 @@
-ERROR SPPG1017 @ (14,13)
-from (14,3): Invalid macro argument.
-ERROR SPPG1017 @ (18,12)
-from (18,5): Invalid macro argument.
-ERROR SPPG1017 @ (19,13)
-from (19,5): Invalid macro argument.
-ERROR SPPG1017 @ (20,12)
-from (20,5): Invalid macro argument.
+ERROR SPPG1017 @ (16,15)
+from (16,5): Invalid macro argument.
+ERROR SPPG1017 @ (21,12)
+from (21,5): Invalid macro argument.
+ERROR SPPG1017 @ (22,13)
+from (22,5): Invalid macro argument.
+ERROR SPPG1017 @ (23,12)
+from (23,5): Invalid macro argument.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+
+define void @__constructor__() {
+"#block0":
+  ret void
+}
+
+declare void @"Main.start()=>(Void)"()
+------------------------------------------------------------

@@ -66,36 +66,34 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManager = extension->rootManagerBox->get();
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
+    // Prepare rtAstMgr & rtBuildMgr
+    rootManagerExt->rtAstMgr->setParser(parser);
+    rootManagerExt->rtAstMgr->setNoticeStore(state->getNoticeStore());
+    rootManagerExt->rtBuildMgr->setParser(parser);
+    rootManagerExt->rtBuildMgr->setNoticeStore(state->getNoticeStore());
+
     // Process macros.
-    rootManagerExt->astProcessor->preparePass(state->getNoticeStore());
-    if (!rootManagerExt->astProcessor->runPass(root)) return;
+    auto astProcessor = rootManagerExt->jitBuildManager->getAstProcessor();
+    astProcessor->preparePass(state->getNoticeStore());
+    if (!astProcessor->process(root)) return;
 
-    // Set global noticeStore var.
-    auto globalNoticeStoreIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.noticeStore"));
-    if (globalNoticeStoreIndex == -1) {
-      throw EXCEPTION(GenericException, S("Core.noticeStore global variable is missing from the global repo."));
-    }
-    auto globalNoticeStore = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalNoticeStoreIndex);
-    *((Core::Notices::Store**)globalNoticeStore) = state->getNoticeStore();
-    // Set global parser var.
-    auto globalParserIndex = rootManagerExt->generator->getGlobalItemRepo()->findItem(S("Core.parser"));
-    if (globalParserIndex == -1) {
-      throw EXCEPTION(GenericException, S("Core.parser global variable is missing from the global repo."));
-    }
-    auto globalParser = rootManagerExt->generator->getGlobalItemRepo()->getItemPtr(globalParserIndex);
-    *((Core::Processing::Parser**)globalParser) = parser;
+    auto building = ti_cast<Building>(rootManagerExt->jitBuildManager.get());
 
-    rootManagerExt->prepareRootScopeExecution(state->getNoticeStore());
+    BuildSession buildSession;
+
+    building->prepareExecution(
+      state->getNoticeStore(), rootManager->getRootScope().get(), buildSession
+    );
 
     Bool execute = true;
-\
+
     // First, let's run all the modules initializations.
     for (Int i = 0; i < start; ++i) {
       auto def = ti_cast<Core::Data::Ast::Definition>(root->get(i));
       if (def != 0) {
         auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {
-          if (!rootManagerExt->addRootScopeExecutionElement(def)) execute = false;
+          if (!building->addElementToBuild(def.get(), buildSession)) execute = false;
         }
       }
     }
@@ -103,10 +101,15 @@ void RootScopeHandlerExtension::_addNewElement(
     // Now run all new statements.
     for (Int i = start; i <= end; ++i) {
       auto childData = root->get(i);
-      if (!rootManagerExt->addRootScopeExecutionElement(childData)) execute = false;
+      if (!building->addElementToBuild(childData.get(), buildSession)) execute = false;
     }
 
-    rootManagerExt->finalizeRootScopeExecution(state->getNoticeStore(), execute);
+    building->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get(), buildSession);
+    if (execute) {
+      building->execute(state->getNoticeStore(), buildSession);
+    }
+
+    building->deleteTempFunctions(buildSession);
   }
 }
 

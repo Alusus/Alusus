@@ -29,14 +29,7 @@ class RootManagerExtension : public ObjTiInterface
 
   public: struct Overrides
   {
-    TiFunctionBase *prepareRootScopeExecutionRef;
-    TiFunctionBase *addRootScopeExecutionElementRef;
-    TiFunctionBase *finalizeRootScopeExecutionRef;
-    TiFunctionBase *dumpLlvmIrForElementRef;
-    TiFunctionBase *buildObjectFileForElementRef;
-    TiFunctionBase *resetBuildDataRef;
     TiFunctionBase *importFileRef;
-    TiFunctionBase *getModifierStringsRef;
   };
 
 
@@ -52,23 +45,10 @@ class RootManagerExtension : public ObjTiInterface
   public: RootManagerExtension(TiObject *o) : owner(o)
   {
     Basic::initBindingCaches(this->owner, {
-      &this->prepareRootScopeExecution,
-      &this->addRootScopeExecutionElement,
-      &this->finalizeRootScopeExecution,
-      &this->dumpLlvmIrForElement,
-      &this->buildObjectFileForElement,
-      &this->resetBuildData,
       &this->importFile,
-      &this->getModifierStrings,
-      &this->astHelper,
-      &this->astProcessor,
-      &this->generator,
-      &this->targetGenerator,
-      &this->rootExecTgFuncType,
-      &this->rootCtorTgFunc,
-      &this->rootCtorTgContext,
-      &this->rootStmtTgFunc,
-      &this->rootStmtTgContext
+      &this->jitBuildManager,
+      &this->rtAstMgr,
+      &this->rtBuildMgr
     });
   }
 
@@ -76,15 +56,9 @@ class RootManagerExtension : public ObjTiInterface
   //============================================================================
   // Member Properties
 
-  public: BINDING_CACHE(astHelper, Ast::Helper);
-  public: BINDING_CACHE(astProcessor, CodeGen::AstProcessor);
-  public: BINDING_CACHE(generator, CodeGen::Generator);
-  public: BINDING_CACHE(targetGenerator, LlvmCodeGen::TargetGenerator);
-  public: BINDING_CACHE(rootExecTgFuncType, TiObject);
-  public: BINDING_CACHE(rootCtorTgFunc, TiObject);
-  public: BINDING_CACHE(rootCtorTgContext, TiObject);
-  public: BINDING_CACHE(rootStmtTgFunc, TiObject);
-  public: BINDING_CACHE(rootStmtTgContext, TiObject);
+  public: BINDING_CACHE(jitBuildManager, BuildManager);
+  public: BINDING_CACHE(rtAstMgr, Rt::AstMgr);
+  public: BINDING_CACHE(rtBuildMgr, Rt::BuildMgr);
 
 
   //============================================================================
@@ -110,8 +84,9 @@ class RootManagerExtension : public ObjTiInterface
 
   public: static Overrides* extend(
     Core::Main::RootManager *rootManager,
-    SharedPtr<Ast::Helper> const &astHelper, SharedPtr<CodeGen::AstProcessor> const &astProcessor,
-    SharedPtr<CodeGen::Generator> const &generator, SharedPtr<LlvmCodeGen::TargetGenerator> const &targetGenerator
+    SharedPtr<BuildManager> const &jitBuildManager,
+    SharedPtr<Rt::AstMgr> const &astM,
+    SharedPtr<Rt::BuildMgr> const &buildM
   );
   public: static void unextend(Core::Main::RootManager *rootManager, Overrides *overrides);
 
@@ -120,54 +95,8 @@ class RootManagerExtension : public ObjTiInterface
   /// @name Main Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(prepareRootScopeExecution, void, (Core::Notices::Store*));
-  private: static void _prepareRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore);
-
-  public: METHOD_BINDING_CACHE(addRootScopeExecutionElement, Bool, (TioSharedPtr const&));
-  private: static Bool _addRootScopeExecutionElement(TiObject *self, TioSharedPtr const &element);
-
-  public: METHOD_BINDING_CACHE(finalizeRootScopeExecution, void, (Core::Notices::Store*, Bool));
-  private: static void _finalizeRootScopeExecution(TiObject *self, Core::Notices::Store *noticeStore, Bool execute);
-
-  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
-    void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
-  public: static void _dumpLlvmIrForElement(
-    TiObject *self, TiObject *element, Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
-  );
-
-  public: METHOD_BINDING_CACHE(buildObjectFileForElement,
-    void, (TiObject*, Char const*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
-  public: static Bool _buildObjectFileForElement(
-    TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
-    Core::Processing::Parser *parser
-  );
-
-  public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*));
-  private: static void _resetBuildData(TiObject *self, TiObject *obj);
-
   public: METHOD_BINDING_CACHE(importFile, void, (Char const*));
   public: static void _importFile(TiObject *self, Char const *filename);
-
-  public: METHOD_BINDING_CACHE(getModifierStrings,
-    Bool, (TiObject*, Char const*, Char const***, Word*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
-  public: static Bool _getModifierStrings(
-    TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount,
-    Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
-  );
-
-  /// @}
-
-  /// @name Helper Functions
-  /// @{
-
-  private: TioSharedPtr getVoidNoArgsFuncTgType();
-
-  private: void prepareFunction(
-    Char const *funcName, TiObject *tgFuncType, TioSharedPtr &context, TioSharedPtr &tgFunc
-  );
 
   /// @}
 

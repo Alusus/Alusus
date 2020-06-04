@@ -9,26 +9,26 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous1" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous2" = private constant [7 x i8] c"world!\00", align 1
-@"#anonymous3" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous4" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous5" = private constant [4 x i8] c"...\00", align 1
-@"#anonymous6" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous7" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous8" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous9" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous10" = private constant [6 x i8] c"again\00", align 1
-@"#anonymous11" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous12" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous13" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous14" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous15" = private constant [4 x i8] c"yet\00", align 1
-@"#anonymous16" = private constant [6 x i8] c"again\00", align 1
-@"#anonymous17" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous18" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous19" = private constant [6 x i8] c"hello\00", align 1
+@"#anonymous0" = private constant [6 x i8] c"hello\00"
+@"#anonymous1" = private constant [6 x i8] c"hello\00"
+@"#anonymous2" = private constant [7 x i8] c"world!\00"
+@"#anonymous3" = private constant [6 x i8] c"hello\00"
+@"#anonymous4" = private constant [6 x i8] c"world\00"
+@"#anonymous5" = private constant [4 x i8] c"...\00"
+@"#anonymous6" = private constant [6 x i8] c"hello\00"
+@"#anonymous7" = private constant [6 x i8] c"world\00"
+@"#anonymous8" = private constant [6 x i8] c"hello\00"
+@"#anonymous9" = private constant [6 x i8] c"world\00"
+@"#anonymous10" = private constant [6 x i8] c"again\00"
+@"#anonymous11" = private constant [6 x i8] c"hello\00"
+@"#anonymous12" = private constant [6 x i8] c"hello\00"
+@"#anonymous13" = private constant [6 x i8] c"hello\00"
+@"#anonymous14" = private constant [6 x i8] c"world\00"
+@"#anonymous15" = private constant [4 x i8] c"yet\00"
+@"#anonymous16" = private constant [6 x i8] c"again\00"
+@"#anonymous17" = private constant [6 x i8] c"hello\00"
+@"#anonymous18" = private constant [6 x i8] c"world\00"
+@"#anonymous19" = private constant [6 x i8] c"hello\00"
 
 define void @__constructor__() {
 "#block0":

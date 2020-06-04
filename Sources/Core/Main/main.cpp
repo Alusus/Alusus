@@ -13,7 +13,10 @@
 #include "core.h"
 #include <stdio.h>  /* defines FILENAME_MAX */
 #include <filesystem>
-#ifdef _WIN32
+#if __APPLE__
+#include <mach-o/dyld.h>
+#endif
+#ifdef WINDOWS
 #include "Win32Helpers.h"
 #include <Windows.h>
 #include <direct.h>
@@ -62,17 +65,22 @@ std::string getWorkingDirectory()
 
 std::string getModuleDirectory()
 {
-  #ifdef _WIN32
+#ifdef _WIN32
   thread_local static std::array<WChar,FILENAME_MAX> currentPath;
   int count = GetModuleFileNameW(NULL, currentPath.data(), currentPath.size());
   // TODO: Add count testing here.
   std::string path(utf8Encode(std::wstring(currentPath.data())));
-  #else
+#elif __APPLE__
+  thread_local static std::array<Char,FILENAME_MAX> currentPath;
+  uint32_t size = FILENAME_MAX;
+  // TODO: Check the result.
+  auto res = _NSGetExecutablePath(currentPath.data(), &size);
+  std::string path(currentPath.data());
+#else
   thread_local static std::array<Char,FILENAME_MAX> currentPath;
   ssize_t count = readlink("/proc/self/exe", currentPath.data(), currentPath.size());
   std::string path(currentPath.data(), (count > 0) ? count : 0);
-  #endif
-
+#endif
   Int pos = path.rfind(std::filesystem::path::preferred_separator);
   return std::filesystem::u8path(std::string(path, 0, pos+1)).string();
 }

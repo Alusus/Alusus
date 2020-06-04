@@ -21,22 +21,22 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [8 x i8] c"i = %d\0A\00", align 1
-@"#anonymous1" = private constant [13 x i8] c"pi~cnt = %d\0A\00", align 1
+@"#anonymous0" = private constant [8 x i8] c"i = %d\0A\00"
+@"#anonymous1" = private constant [13 x i8] c"pi~cnt = %d\0A\00"
 @Other.i = global i32 0
 @Other.pi = global i32* null
-@"#anonymous2" = private constant [8 x i8] c"f = %f\0A\00", align 1
-@"#anonymous3" = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00", align 1
-@"#anonymous4" = private constant [16 x i8] c"Main~size = %d\0A\00", align 1
-@"#anonymous5" = private constant [19 x i8] c"unknown~size = %d\0A\00", align 1
-@"#anonymous6" = private constant [13 x i8] c"i~size = %d\0A\00", align 1
-@"#anonymous7" = private constant [14 x i8] c"pi~size = %d\0A\00", align 1
-@"#anonymous8" = private constant [13 x i8] c"5~size = %d\0A\00", align 1
-@"#anonymous9" = private constant [22 x i8] c"(i + 5i64)~size = %d\0A\00", align 1
-@"#anonymous10" = private constant [19 x i8] c"Int[32]~size = %d\0A\00", align 1
-@"#anonymous11" = private constant [19 x i8] c"Int[62]~size = %d\0A\00", align 1
-@"#anonymous12" = private constant [24 x i8] c"ptr[Int[32]]~size = %d\0A\00", align 1
-@"#anonymous13" = private constant [24 x i8] c"ptr[Int[62]]~size = %d\0A\00", align 1
+@"#anonymous2" = private constant [8 x i8] c"f = %f\0A\00"
+@"#anonymous3" = private constant [24 x i8] c"f~cast[Float[64]] = %f\0A\00"
+@"#anonymous4" = private constant [16 x i8] c"Main~size = %d\0A\00"
+@"#anonymous5" = private constant [19 x i8] c"unknown~size = %d\0A\00"
+@"#anonymous6" = private constant [13 x i8] c"i~size = %d\0A\00"
+@"#anonymous7" = private constant [14 x i8] c"pi~size = %d\0A\00"
+@"#anonymous8" = private constant [13 x i8] c"5~size = %d\0A\00"
+@"#anonymous9" = private constant [22 x i8] c"(i + 5i64)~size = %d\0A\00"
+@"#anonymous10" = private constant [19 x i8] c"Int[32]~size = %d\0A\00"
+@"#anonymous11" = private constant [19 x i8] c"Int[62]~size = %d\0A\00"
+@"#anonymous12" = private constant [24 x i8] c"ptr[Int[32]]~size = %d\0A\00"
+@"#anonymous13" = private constant [24 x i8] c"ptr[Int[62]]~size = %d\0A\00"
 
 define void @__constructor__() {
 "#block0":

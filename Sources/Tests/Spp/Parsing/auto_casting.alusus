@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 type A {
   def i: Int;
@@ -17,4 +17,4 @@ func test {
   takeA(b~ptr~cast[ptr[A]]~cnt);
 }
 
-Spp.dumpLlvmIrForElement(test~ast);
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

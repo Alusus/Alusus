@@ -4,9 +4,9 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous1" = private constant [5 x i8] c"%d: \00", align 1
-@"#anonymous2" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous1" = private constant [5 x i8] c"%d: \00"
+@"#anonymous2" = private constant [4 x i8] c"%d\0A\00"
 
 define void @__constructor__() {
 "#block0":

@@ -13,6 +13,10 @@ type Point2 {
     this.x = src.x;
     this.y = src.y;
   };
+  handler this = (src: ref[Point2]) {
+    this.x = src.x;
+    this.y = src.y;
+  };
 };
 
 function convertPoint1 (p: Point1) => Point1 {

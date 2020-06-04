@@ -57,9 +57,9 @@ void Parser::initialize(SharedPtr<Data::Ast::Scope> rootScope)
   }
 
   // Initialize the tempState used for path testing.
-  this->tempState.initialize(RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT,
-                             VARIABLE_NAME_MAX_LENGTH, RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT,
-                             this->grammarRoot.get());
+  this->tempState.initialize(
+    RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT, this->grammarRoot.get()
+  );
 }
 
 
@@ -93,8 +93,7 @@ void Parser::beginParsing()
 
   // Create the new state.
   this->state = std::make_shared<ParserState>(
-    RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT, VARIABLE_NAME_MAX_LENGTH,
-    RESERVED_VARIABLE_COUNT, RESERVED_VARIABLE_LEVEL_COUNT, this->grammarRoot.get()
+    RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT, this->grammarRoot.get()
   );
   this->state->setPrevProcessingStatus(ParserProcessingStatus::COMPLETE);
   this->state->setProcessingStatus(ParserProcessingStatus::COMPLETE);

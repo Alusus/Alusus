@@ -1,0 +1,19 @@
+اشمل "Spp"؛
+
+عرف نـبم: لقب Spp؛
+@دمج عرف Spp: وحدة
+{
+  عرف مدير_شبم: لقب astMgr؛
+  عرف مـدير_شبم: لقب AstMgr؛
+  @دمج صنف AstMgr {
+    عرف هات_محارف_مبدل: لقب getModifierStrings؛
+  }
+
+  عرف مدير_البناء: لقب buildMgr؛
+  عرف مـدير_البناء: لقب BuildMgr؛
+  @دمج صنف BuildMgr {
+    عرف أدرج_تو_لعنصر: لقب dumpLlvmIrForElement؛
+    عرف أنشء_ملفا_رقميا_لعنصر: لقب buildObjectFileForElement؛
+  }
+}
+

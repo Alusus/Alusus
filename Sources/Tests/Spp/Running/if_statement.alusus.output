@@ -8,3 +8,10 @@ if-statement/else-statement
 if-block/else-statement
 if-statement/else-block
 if-block/else-block
+
+testIfDestructors
+A~terminate 32
+A~terminate 34
+A~terminate 2
+getA(2).i == 2
+testIfDestructors complete

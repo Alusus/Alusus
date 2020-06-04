@@ -33,12 +33,10 @@ ParserState::ParserState() :
 {
   this->grammarContext.setRoot(0);
   this->grammarContext.setModule(0);
-  this->grammarContext.setStack(&this->variableStack);
 }
 
 
-ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-             Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule) :
+ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Data::Grammar::Module *rootModule) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
@@ -48,22 +46,22 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   topProdLevelCache(0),
   termStack(reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
-  variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
   errorSyncBlockPairs(0)
 {
+  this->dataStack.reserve(reservedTermLevelCount),
   this->termStack.resize(0);
   this->prodStack.resize(0);
   this->grammarContext.setRoot(rootModule);
   this->grammarContext.setModule(rootModule);
-  this->grammarContext.setStack(&this->variableStack);
 }
 
 
-ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-             Word reservedVarCount, Word reservedVarLevelCount, const Data::Grammar::Context *context) :
+ParserState::ParserState(
+  Word reservedTermLevelCount, Word reservedProdLevelCount, const Data::Grammar::Context *context
+) :
   trunkState(0),
   tempTrunkTermStackIndex(-1),
   tempTrunkProdStackIndex(-1),
@@ -73,16 +71,15 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
   topProdLevelCache(0),
   termStack(reservedTermLevelCount),
   prodStack(reservedProdLevelCount),
-  variableStack(maxVarNameLength, reservedVarCount, reservedVarLevelCount),
   processingStatus(ParserProcessingStatus::IN_PROGRESS),
   prevProcessingStatus(ParserProcessingStatus::IN_PROGRESS),
   tokensToLive(-1),
   errorSyncBlockPairs(0)
 {
+  this->dataStack.reserve(reservedTermLevelCount),
   this->termStack.resize(0);
   this->prodStack.resize(0);
   this->grammarContext.copyFrom(context);
-  this->grammarContext.setStack(&this->variableStack);
 }
 
 
@@ -90,49 +87,39 @@ ParserState::ParserState(Word reservedTermLevelCount, Word reservedProdLevelCoun
 // Term Stack Member Functions
 
 void ParserState::initialize(
-  Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-  Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule
+  Word reservedTermLevelCount, Word reservedProdLevelCount, Data::Grammar::Module *rootModule
 ) {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
-  ASSERT(maxVarNameLength > 1);
-  ASSERT(reservedVarCount > 0);
-  ASSERT(reservedVarLevelCount > 0);
 
   this->termStack.reserve(reservedTermLevelCount);
+  this->dataStack.reserve(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
   this->errorSyncBlockStack.clear();
-  this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.setRoot(rootModule);
   this->grammarContext.setModule(rootModule);
-  this->grammarContext.setStack(&this->variableStack);
   this->grammarContext.setArgs(0);
 }
 
 
 void ParserState::initialize(
-  Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-  Word reservedVarCount, Word reservedVarLevelCount,
+  Word reservedTermLevelCount, Word reservedProdLevelCount,
   const Data::Grammar::Context *context
 ) {
   ASSERT(reservedTermLevelCount > 0);
   ASSERT(reservedProdLevelCount > 0);
-  ASSERT(maxVarNameLength > 1);
-  ASSERT(reservedVarCount > 0);
-  ASSERT(reservedVarLevelCount > 0);
 
   this->termStack.reserve(reservedTermLevelCount);
+  this->dataStack.reserve(reservedTermLevelCount);
   this->prodStack.reserve(reservedProdLevelCount);
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
   this->errorSyncBlockStack.clear();
-  this->variableStack.initialize(maxVarNameLength, reservedVarCount, reservedVarLevelCount);
   this->grammarContext.copyFrom(context);
-  this->grammarContext.setStack(&this->variableStack);
 }
 
 
@@ -146,7 +133,6 @@ void ParserState::reset()
   this->termStack.clear();
   this->dataStack.clear();
   this->prodStack.clear();
-  this->variableStack.clear();
   this->noticeStore.clear();
   this->trunkState = 0;
   this->tempTrunkTermStackIndex = -1;
@@ -348,7 +334,6 @@ void ParserState::pushProdLevel(Data::Grammar::Module *module, Data::Grammar::Sy
   this->topProdLevelCache->setProd(prod);
   this->topProdLevelCache->setTermStackIndex(this->getTermLevelCount());
   this->topProdLevelCache->setFlags(this->grammarContext.getSymbolFlags(prod));
-  this->variableStack.pushLevel();
   this->grammarContext.setModule(module);
   this->grammarContext.setArgs(this->grammarContext.getSymbolVars(prod));
   auto term = prod->getTerm().get();
@@ -363,9 +348,6 @@ void ParserState::popProdLevel()
 {
   // We only allow popping production levels when only the root term level is remaining.
   ASSERT(this->isAtProdRoot());
-
-  // Pop the associated variable level, if any.
-  this->variableStack.popLevel();
 
   // Pop the production level itself.
   if (this->prodStack.size() > 0) {
@@ -615,17 +597,13 @@ void ParserState::setBranchingInfo(ParserState *ts, Int ttl, Int tsi, Int psi)
   }
   if (psi >= 0) {
     this->topProdLevelCache = &this->refProdLevel(psi);
-    this->variableStack.setBranchingInfo(ts->getVariableStack(), psi);
     if (ts->getProdLevelCount() == psi+1) {
       this->grammarContext.copyFrom(ts->getGrammarContext());
-      this->grammarContext.setStack(&this->variableStack);
     } else {
       this->grammarContext.setModule(this->topProdLevelCache->getModule());
       Data::Grammar::Map *vars = this->grammarContext.getSymbolVars(this->topProdLevelCache->getProd());
       this->grammarContext.setArgs(vars);
     }
-  } else {
-    this->variableStack.setBranchingInfo(0, -1);
   }
   this->noticeStore.setTrunkStore(ts == 0 ? 0 : ts->getNoticeStore());
   this->tokensToLive = ttl;
@@ -704,7 +682,6 @@ void ParserState::copyProdLevel(ParserState *src, Int offset)
   this->topProdLevelCache->setModule(srcLevel.getModule());
   this->topProdLevelCache->setProd(srcLevel.getProd());
   this->topProdLevelCache->setTermStackIndex(this->getTermLevelCount());
-  this->variableStack.copyLevel(src->getVariableStack(), offset);
   this->grammarContext.setModule(srcLevel.getModule());
   Data::Grammar::Map *vars = this->grammarContext.getSymbolVars(srcLevel.getProd());
   this->grammarContext.setArgs(vars);

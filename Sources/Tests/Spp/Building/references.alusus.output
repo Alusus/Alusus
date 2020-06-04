@@ -3,7 +3,7 @@
 source_filename = "AlususProgram"
 
 @ra = global [1 x i8]* null
-@"#anonymous0" = private constant [26 x i8] c"Reference as pointer. %s\0A\00", align 1
+@"#anonymous0" = private constant [26 x i8] c"Reference as pointer. %s\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -32,9 +32,9 @@ declare i32 @printf([1 x i8]*, ...)
 source_filename = "AlususProgram"
 
 @a = global [10 x i8] zeroinitializer
-@"#anonymous0" = private constant [30 x i8] c"Pass reference to object. %s\0A\00", align 1
+@"#anonymous0" = private constant [30 x i8] c"Pass reference to object. %s\0A\00"
 @ra = global [1 x i8]* null
-@"#anonymous1" = private constant [53 x i8] c"Pass reference to object from another reference. %s\0A\00", align 1
+@"#anonymous1" = private constant [53 x i8] c"Pass reference to object from another reference. %s\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -69,10 +69,10 @@ declare i32 @printf([1 x i8]*, ...)
 source_filename = "AlususProgram"
 
 @rb = global [1 x i8]* null
-@"#anonymous0" = private constant [6 x i8] c"hello\00", align 1
-@"#anonymous1" = private constant [43 x i8] c"Before passing reference to reference. %s\0A\00", align 1
-@"#anonymous2" = private constant [6 x i8] c"world\00", align 1
-@"#anonymous3" = private constant [42 x i8] c"After passing reference to reference. %s\0A\00", align 1
+@"#anonymous0" = private constant [6 x i8] c"hello\00"
+@"#anonymous1" = private constant [43 x i8] c"Before passing reference to reference. %s\0A\00"
+@"#anonymous2" = private constant [6 x i8] c"world\00"
+@"#anonymous3" = private constant [42 x i8] c"After passing reference to reference. %s\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -105,7 +105,7 @@ define void @"replaceString(ref[ref[array[Word[8],1]]])"([1 x i8]** %str) {
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00", align 1
+@"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -139,7 +139,7 @@ declare i32 @printf([1 x i8]*, ...)
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00", align 1
+@"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -178,7 +178,7 @@ source_filename = "AlususProgram"
 
 @ri = global i32* null
 @i = global i32 0
-@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -212,7 +212,7 @@ source_filename = "AlususProgram"
 
 @rri = global i32** null
 @ri = global i32* null
-@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -245,7 +245,7 @@ declare i32 @printf([1 x i8]*, ...)
 source_filename = "AlususProgram"
 
 @rri = global i32** null
-@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
 
 define void @__constructor__() {
 "#block0":
@@ -272,10 +272,10 @@ define void @"printNum(Int[32])"(i32 %n) {
 
 declare i32 @printf([1 x i8]*, ...)
 ------------------------------------------------------------
-ERROR SPPG1015 @ (161,3): Incompatible types for the given operator.
 ERROR SPPG1015 @ (162,3): Incompatible types for the given operator.
 ERROR SPPG1015 @ (163,3): Incompatible types for the given operator.
 ERROR SPPG1015 @ (164,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (165,3): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -284,7 +284,7 @@ source_filename = "AlususProgram"
 @i = global i32 0
 @rri = global i32** null
 @ri = global i32* null
-@"#anonymous0" = private constant [4 x i8] c"abc\00", align 1
+@"#anonymous0" = private constant [4 x i8] c"abc\00"
 
 define void @__constructor__() {
 "#block0":

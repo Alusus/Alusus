@@ -99,11 +99,6 @@ void TargetGenerator::initBindings()
   targetGeneration->generateEarlyDec = &TargetGenerator::generateEarlyDec;
   targetGeneration->generateLateInc = &TargetGenerator::generateLateInc;
   targetGeneration->generateLateDec = &TargetGenerator::generateLateDec;
-  targetGeneration->generateAddAssign = &TargetGenerator::generateAddAssign;
-  targetGeneration->generateSubAssign = &TargetGenerator::generateSubAssign;
-  targetGeneration->generateMulAssign = &TargetGenerator::generateMulAssign;
-  targetGeneration->generateDivAssign = &TargetGenerator::generateDivAssign;
-  targetGeneration->generateRemAssign = &TargetGenerator::generateRemAssign;
   targetGeneration->generateShrAssign = &TargetGenerator::generateShrAssign;
   targetGeneration->generateShlAssign = &TargetGenerator::generateShlAssign;
   targetGeneration->generateAndAssign = &TargetGenerator::generateAndAssign;
@@ -208,7 +203,7 @@ void TargetGenerator::buildObjectFile(Char const *filename)
   }
 
   llvm::legacy::PassManager pass;
-  auto fileType = llvm::TargetMachine::CGFT_ObjectFile;
+  auto fileType = llvm::CGFT_ObjectFile;
 
   if (theTargetMachine->addPassesToEmitFile(pass, dest, nullptr, fileType)) {
     throw EXCEPTION(GenericException, S("TheTargetMachine can't emit a file of this type"));
@@ -223,6 +218,11 @@ void TargetGenerator::execute(Char const *entry)
 {
   if (this->llvmModule == 0) {
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
+  }
+
+  // Detach all incomplete functions.
+  for (Int i = 0; i < this->incompleteFunctions.size(); ++i) {
+    this->incompleteFunctions[i]->removeFromParent();
   }
 
   auto engineBuilder = llvm::EngineBuilder(llvm::CloneModule(*this->llvmModule));
@@ -249,6 +249,11 @@ void TargetGenerator::execute(Char const *entry)
   funcPtr();
 
   delete ee;
+
+  // Re-attach all incomplete functions.
+  for (Int i = 0; i < this->incompleteFunctions.size(); ++i) {
+    this->llvmModule->getFunctionList().push_back(this->incompleteFunctions[i]);
+  }
 }
 
 
@@ -422,6 +427,7 @@ Bool TargetGenerator::prepareFunctionBody(
   // Create the block
   PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
   auto llvmFunc = funcWrapper->get();
+  this->incompleteFunctions.push_back(llvmFunc);
   auto block = std::make_shared<Block>();
   block->setLlvmBlock(llvm::BasicBlock::Create(this->llvmModule->getContext(), this->getNewBlockName(), llvmFunc));
   block->setIrBuilder(new llvm::IRBuilder<>(block->getLlvmBlock()));
@@ -446,6 +452,16 @@ Bool TargetGenerator::finishFunctionBody(
 ) {
   PREPARE_ARG(functionType, functionTypeWrapper, FunctionType);
   PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(function, funcWrapper, Box<llvm::Function*>);
+
+  auto llvmFunc = funcWrapper->get();
+  for (Int i = 0; i < this->incompleteFunctions.size(); ++i) {
+    if (this->incompleteFunctions[i] == llvmFunc) {
+      this->incompleteFunctions.erase(this->incompleteFunctions.begin() + i);
+      break;
+    }
+  }
+
   auto voidRetType = functionTypeWrapper->getRetType().ti_cast_get<VoidType>();
   if (!block->isTerminated() && voidRetType != 0) {
     return this->generateReturn(context, 0, 0);
@@ -573,6 +589,8 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
   if (mergeLlvmBlock != 0) {
     block->getIrBuilder()->SetInsertPoint(mergeLlvmBlock);
     block->setLlvmBlock(mergeLlvmBlock);
+  } else {
+    block->setTerminated(true);
   }
 
   return true;
@@ -1513,136 +1531,6 @@ Bool TargetGenerator::generateLateDec(
 }
 
 
-Bool TargetGenerator::generateAddAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(destVar, destVarBox, Value);
-  PREPARE_ARG(srcVal, srcValBox, Value);
-  PREPARE_ARG(type, tgType, Type);
-  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
-  llvm::Value *llvmResult;
-  if (tgType->isDerivedFrom<IntegerType>()) {
-    if (static_cast<IntegerType*>(tgType)->isSigned()) {
-      llvmResult = block->getIrBuilder()->CreateNSWAdd(llvmVal, srcValBox->getLlvmValue());
-    } else {
-      llvmResult = block->getIrBuilder()->CreateAdd(llvmVal, srcValBox->getLlvmValue());
-    }
-  } else if (tgType->isDerivedFrom<FloatType>()) {
-    llvmResult = block->getIrBuilder()->CreateFAdd(llvmVal, srcValBox->getLlvmValue());
-  } else {
-    throw EXCEPTION(GenericException, S("Invalid operation."));
-  }
-  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = getSharedPtr(destVar);
-  return true;
-}
-
-
-Bool TargetGenerator::generateSubAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(destVar, destVarBox, Value);
-  PREPARE_ARG(srcVal, srcValBox, Value);
-  PREPARE_ARG(type, tgType, Type);
-  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
-  llvm::Value *llvmResult;
-  if (tgType->isDerivedFrom<IntegerType>()) {
-    if (static_cast<IntegerType*>(tgType)->isSigned()) {
-      llvmResult = block->getIrBuilder()->CreateNSWSub(llvmVal, srcValBox->getLlvmValue());
-    } else {
-      llvmResult = block->getIrBuilder()->CreateSub(llvmVal, srcValBox->getLlvmValue());
-    }
-  } else if (tgType->isDerivedFrom<FloatType>()) {
-    llvmResult = block->getIrBuilder()->CreateFSub(llvmVal, srcValBox->getLlvmValue());
-  } else {
-    throw EXCEPTION(GenericException, S("Invalid operation."));
-  }
-  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = getSharedPtr(destVar);
-  return true;
-}
-
-
-Bool TargetGenerator::generateMulAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(destVar, destVarBox, Value);
-  PREPARE_ARG(srcVal, srcValBox, Value);
-  PREPARE_ARG(type, tgType, Type);
-  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
-  llvm::Value *llvmResult;
-  if (tgType->isDerivedFrom<IntegerType>()) {
-    if (static_cast<IntegerType*>(tgType)->isSigned()) {
-      llvmResult = block->getIrBuilder()->CreateNSWMul(llvmVal, srcValBox->getLlvmValue());
-    } else {
-      llvmResult = block->getIrBuilder()->CreateMul(llvmVal, srcValBox->getLlvmValue());
-    }
-  } else if (tgType->isDerivedFrom<FloatType>()) {
-    llvmResult = block->getIrBuilder()->CreateFMul(llvmVal, srcValBox->getLlvmValue());
-  } else {
-    throw EXCEPTION(GenericException, S("Invalid operation."));
-  }
-  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = getSharedPtr(destVar);
-  return true;
-}
-
-
-Bool TargetGenerator::generateDivAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(destVar, destVarBox, Value);
-  PREPARE_ARG(srcVal, srcValBox, Value);
-  PREPARE_ARG(type, tgType, Type);
-  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
-  llvm::Value *llvmResult;
-  if (tgType->isDerivedFrom<IntegerType>()) {
-    if (static_cast<IntegerType*>(tgType)->isSigned()) {
-      llvmResult = block->getIrBuilder()->CreateSDiv(llvmVal, srcValBox->getLlvmValue());
-    } else {
-      llvmResult = block->getIrBuilder()->CreateUDiv(llvmVal, srcValBox->getLlvmValue());
-    }
-  } else if (tgType->isDerivedFrom<FloatType>()) {
-    llvmResult = block->getIrBuilder()->CreateFDiv(llvmVal, srcValBox->getLlvmValue());
-  } else {
-    throw EXCEPTION(GenericException, S("Invalid operation."));
-  }
-  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = getSharedPtr(destVar);
-  return true;
-}
-
-
-Bool TargetGenerator::generateRemAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
-) {
-  PREPARE_ARG(context, block, Block);
-  PREPARE_ARG(destVar, destVarBox, Value);
-  PREPARE_ARG(srcVal, srcValBox, Value);
-  PREPARE_ARG(type, tgType, Type);
-  auto llvmVal = block->getIrBuilder()->CreateLoad(destVarBox->getLlvmValue());
-  llvm::Value *llvmResult;
-  if (tgType->isDerivedFrom<IntegerType>()) {
-    if (static_cast<IntegerType*>(tgType)->isSigned()) {
-      llvmResult = block->getIrBuilder()->CreateSRem(llvmVal, srcValBox->getLlvmValue());
-    } else {
-      llvmResult = block->getIrBuilder()->CreateURem(llvmVal, srcValBox->getLlvmValue());
-    }
-  } else if (tgType->isDerivedFrom<FloatType>()) {
-    llvmResult = block->getIrBuilder()->CreateFRem(llvmVal, srcValBox->getLlvmValue());
-  } else {
-    throw EXCEPTION(GenericException, S("Invalid operation."));
-  }
-  block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = getSharedPtr(destVar);
-  return true;
-}
-
-
 Bool TargetGenerator::generateShrAssign(
   TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
 ) {
@@ -1924,7 +1812,8 @@ Bool TargetGenerator::generateStringLiteral(
     *(this->llvmModule.get()), cgStrType->getLlvmType(), true,
     llvm::GlobalValue::PrivateLinkage, llvmStrConst, this->getAnonymouseVarName().c_str()
   );
-  llvmVar->setAlignment(1);
+  // TODO: Do we need this setAlignment call? It's marked as deprecated in LLVM 10.0.0.
+  // llvmVar->setAlignment(1);
 
   destVal = std::make_shared<Value>(llvmVar, true);
   return true;

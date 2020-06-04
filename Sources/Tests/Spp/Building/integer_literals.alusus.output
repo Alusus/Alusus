@@ -4,15 +4,15 @@ Build Failed...
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 
-@"#anonymous0" = private constant [8 x i8] c"1+1=%d\0A\00", align 1
-@"#anonymous1" = private constant [9 x i8] c"0b10=%d\0A\00", align 1
-@"#anonymous2" = private constant [9 x i8] c"0o10=%d\0A\00", align 1
-@"#anonymous3" = private constant [9 x i8] c"0h10=%d\0A\00", align 1
-@"#anonymous4" = private constant [18 x i8] c"8bit integer: %d\0A\00", align 1
-@"#anonymous5" = private constant [19 x i8] c"16bit integer: %d\0A\00", align 1
-@"#anonymous6" = private constant [19 x i8] c"32bit integer: %d\0A\00", align 1
-@"#anonymous7" = private constant [19 x i8] c"64bit integer: %d\0A\00", align 1
-@"#anonymous8" = private constant [21 x i8] c"invalid integer: %d\0A\00", align 1
+@"#anonymous0" = private constant [8 x i8] c"1+1=%d\0A\00"
+@"#anonymous1" = private constant [9 x i8] c"0b10=%d\0A\00"
+@"#anonymous2" = private constant [9 x i8] c"0o10=%d\0A\00"
+@"#anonymous3" = private constant [9 x i8] c"0h10=%d\0A\00"
+@"#anonymous4" = private constant [18 x i8] c"8bit integer: %d\0A\00"
+@"#anonymous5" = private constant [19 x i8] c"16bit integer: %d\0A\00"
+@"#anonymous6" = private constant [19 x i8] c"32bit integer: %d\0A\00"
+@"#anonymous7" = private constant [19 x i8] c"64bit integer: %d\0A\00"
+@"#anonymous8" = private constant [21 x i8] c"invalid integer: %d\0A\00"
 
 define void @__constructor__() {
 "#block0":

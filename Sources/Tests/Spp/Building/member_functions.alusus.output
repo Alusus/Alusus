@@ -1,5 +1,8 @@
-ERROR SPPA1007 @ (83,10): Unknown symbol.
-ERROR SPPA1007 @ (84,13): Unknown symbol.
+ERROR SPPA1007 @ (92,10): Unknown symbol.
+ERROR SPPA1007 @ (93,13): Unknown symbol.
+ERROR SPPG1027 @ (71,3)
+from (95,10): Invalid redefinition of `this` in function args.
+ERROR SPPG1024 @ (96,3): Trying to access a local variable before it's initialized.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -8,13 +11,15 @@ source_filename = "AlususProgram"
 %A = type { i32 }
 %B = type { %A, void ()* }
 
-@"#anonymous0" = private constant [13 x i8] c"this.i = %d\0A\00", align 1
+@"#anonymous0" = private constant [13 x i8] c"this.i = %d\0A\00"
 @"getARef()=>(ref[A]).a" = global %A zeroinitializer
-@"#anonymous1" = private constant [15 x i8] c"this.a.i = %d\0A\00", align 1
+@"#anonymous1" = private constant [15 x i8] c"this.a.i = %d\0A\00"
 @"getBRef()=>(ref[B]).b" = global %B zeroinitializer
 
 define void @__constructor__() {
 "#block0":
+  call void @B.__autoConstruct__(%B* @"getBRef()=>(ref[B]).b")
+  call void @"B.~init(ref[B])"(%B* @"getBRef()=>(ref[B]).b")
   ret void
 }
 
@@ -182,10 +187,7 @@ define void @"B.printA(ref[B])"(%B* %this) {
 
 define %B* @"getBRef()=>(ref[B])"() {
 "#block14":
-  call void @B.__autoConstruct__(%B* @"getBRef()=>(ref[B]).b")
-  call void @"B.~init(ref[B])"(%B* @"getBRef()=>(ref[B]).b")
   store i32 14, i32* getelementptr inbounds (%B, %B* @"getBRef()=>(ref[B]).b", i32 0, i32 0, i32 0)
   ret %B* @"getBRef()=>(ref[B]).b"
 }
 ------------------------------------------------------------
-ERROR SPPG1027 @ (93,3): Invalid redefinition of `this` in function args.

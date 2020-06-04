@@ -114,7 +114,10 @@ template<class T> class BindingCache : public BindingCacheBase
     this->bindingMap = bindings->getBindingMap();
     this->bindingChangeSlot.disconnect();
     this->bindingMap->changeNotifier.connect(this->bindingChangeSlot);
-    this->update();
+
+    this->index = -1;
+    auto i = this->bindingMap->findIndex(this->name);
+    this->onBindingChanged(this->bindingMap, ContentChangeOp::ADDED, i);
   }
 
   protected: virtual void onBindingChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)

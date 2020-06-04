@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Spp";
 
 def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
@@ -22,4 +22,4 @@ for i = 0, i < 5, ++i {
   print("%d\n", factorial(i));
 };
 
-Spp.dumpLlvmIrForElement(fnWithErrors~ast);
+Spp.buildMgr.dumpLlvmIrForElement(fnWithErrors~ast);

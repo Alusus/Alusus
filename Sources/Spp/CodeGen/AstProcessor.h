@@ -38,13 +38,14 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: Building *building;
   private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h) : astHelper(h)
+  public: AstProcessor(Ast::Helper *h, Building *b) : astHelper(h), building(b)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -56,6 +57,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->building = parent->getBuilding();
   }
 
   public: virtual ~AstProcessor()
@@ -77,6 +79,11 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->astHelper;
   }
 
+  public: Building* getBuilding() const
+  {
+    return this->building;
+  }
+
   public: void setNoticeStore(Core::Notices::Store *ns)
   {
     this->noticeStore = ns;
@@ -94,14 +101,33 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
 
   public: void preparePass(Core::Notices::Store *noticeStore);
 
-  public: METHOD_BINDING_CACHE(runPass, Bool, (Core::Data::Ast::Scope* /* root */));
-  private: static Bool _runPass(TiObject *self, Core::Data::Ast::Scope *root);
-
   public: METHOD_BINDING_CACHE(process, Bool, (TiObject* /* owner */));
   private: static Bool _process(TiObject *self, TiObject *owner);
 
-  public: METHOD_BINDING_CACHE(processMemberFunction, Bool, (Spp::Ast::Function* /* func */));
-  private: static Bool _processMemberFunction(TiObject *self, Spp::Ast::Function *func);
+  public: METHOD_BINDING_CACHE(processParamPass,
+    Bool, (Core::Data::Ast::ParamPass* /* paramPass */, TiInt /* indexInOwner */, Bool& /* replaced */)
+  );
+  private: static Bool _processParamPass(
+    TiObject *self, Core::Data::Ast::ParamPass *paramPass, TiInt indexInOwner, Bool &replaced
+  );
+
+  public: METHOD_BINDING_CACHE(processEvalStatement,
+    Bool, (
+      Spp::Ast::EvalStatement* /* eval */, TiObject* /* owner */, TiInt /* indexInOwner */
+    )
+  );
+  private: static Bool _processEvalStatement(
+    TiObject *self, Spp::Ast::EvalStatement *eval, TiObject *owner, TiInt indexInOwner
+  );
+
+  public: METHOD_BINDING_CACHE(processMemberFunctionSig, Bool, (Spp::Ast::Function* /* func */));
+  private: static Bool _processMemberFunctionSig(TiObject *self, Spp::Ast::Function *func);
+
+  public: METHOD_BINDING_CACHE(processFunctionBody, Bool, (Spp::Ast::Function* /* func */));
+  private: static Bool _processFunctionBody(TiObject *self, Spp::Ast::Function *func);
+
+  public: METHOD_BINDING_CACHE(processTypeBody, Bool, (Spp::Ast::UserType* /* type */));
+  private: static Bool _processTypeBody(TiObject *self, Spp::Ast::UserType *type);
 
   public: METHOD_BINDING_CACHE(processMacro,
     Bool, (

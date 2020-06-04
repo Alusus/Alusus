@@ -50,8 +50,6 @@ class ParserState
   private: std::vector<ParserModifierLevel> leadingModifierStack;
   private: std::vector<ParserModifierLevel> trailingModifierStack;
 
-  private: Data::VariableStack variableStack;
-
   private: Data::DataStack dataStack;
 
   private: Data::Grammar::Context grammarContext;
@@ -137,11 +135,9 @@ class ParserState
 
   public: ParserState();
 
-  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                         Word reservedVarCount, Word reservedVarLevelCount, Data::Grammar::Module *rootModule);
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Data::Grammar::Module *rootModule);
 
-  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                         Word reservedVarCount, Word reservedVarLevelCount, const Data::Grammar::Context *context);
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, const Data::Grammar::Context *context);
 
   public: ~ParserState()
   {
@@ -156,13 +152,13 @@ class ParserState
   /// @name Main Functions
   /// @{
 
-  protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                             Word reservedVarCount, Word reservedVarLevelCount,
-                             Data::Grammar::Module *rootModule);
+  protected: void initialize(
+    Word reservedTermLevelCount, Word reservedProdLevelCount, Data::Grammar::Module *rootModule
+  );
 
-  protected: void initialize(Word reservedTermLevelCount, Word reservedProdLevelCount, Word maxVarNameLength,
-                             Word reservedVarCount, Word reservedVarLevelCount,
-                             const Data::Grammar::Context *context);
+  protected: void initialize(
+    Word reservedTermLevelCount, Word reservedProdLevelCount, const Data::Grammar::Context *context
+  );
 
   /// Reset the object to an empty state.
   protected: void reset();
@@ -364,36 +360,6 @@ class ParserState
   }
 
   public: TiInt* getProdFlags(Int levelOffset = -1) const;
-
-  /// @}
-
-  /// @name Variable Stack Functions
-  /// @{
-
-  protected: Data::VariableStack* getVariableStack()
-  {
-    return &this->variableStack;
-  }
-
-  public: const Data::VariableStack* getVariableStack() const
-  {
-    return &this->variableStack;
-  }
-
-  public: Word getMaxVarNameLength() const
-  {
-    return this->variableStack.getMaxStrSize();
-  }
-
-  public: Word getReservedVariableCount() const
-  {
-    return this->variableStack.getReservedRecordCount();
-  }
-
-  public: Word getReservedVariableLevelCount() const
-  {
-    return this->variableStack.getReservedLevelCount();
-  }
 
   /// @}
 

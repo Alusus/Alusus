@@ -1,0 +1,7 @@
+ALUSUS {
+  global:
+    get_library_gateway;
+
+  local:
+    *;
+};

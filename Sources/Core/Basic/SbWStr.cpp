@@ -12,7 +12,7 @@
 
 #include "core.h"
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 //==============================================================================
@@ -25,8 +25,7 @@ void SbWStr::assign(WChar const *str, Word n, Word bufferSize)
   }
   if (n == 0) n = getStrLen(str);
   Word size = std::min(n, bufferSize-1);
-  WChar *buf = reinterpret_cast<WChar*>(this);
-  copyStr(str, buf, size);
+  copyStr(str, this->buf, size);
   buf[size] = STRING_TERMINATOR;
 }
 
@@ -37,8 +36,7 @@ void SbWStr::append(WChar const *str, Word strSize, Word bufferSize)
   Word destSize = this->size();
   if (destSize >= bufferSize-1) return;
   if (strSize+destSize > bufferSize-1) strSize = bufferSize - 1 - destSize;
-  WChar *buf = reinterpret_cast<WChar*>(this);
-  copyStr(str, buf+destSize, strSize);
+  copyStr(str, this->buf+destSize, strSize);
   buf[destSize+strSize] = STRING_TERMINATOR;
 }
 
@@ -64,4 +62,4 @@ void SbWStr::append(Char const *str, Word srcSize, Word bufferSize)
   SFREE(buffer);
 }
 
-} } // namespace
+} // namespace

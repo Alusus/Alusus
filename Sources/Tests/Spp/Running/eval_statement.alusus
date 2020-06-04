@@ -1,0 +1,44 @@
+import "Srl/Console.alusus";
+
+func evalTest {
+  use Srl.Console;
+  eval {
+    Srl.Console.print("Eval block.\n");
+  }
+  eval {
+    Srl.Console.print("Eval block 2.\n");
+  }
+  Srl.Console.print("Hello");
+  eval Srl.Console.print("Eval statement.\n");
+  Srl.Console.print(" World!\n");
+  eval {
+    print("Multiline\n");
+    print("eval block\n");
+  }
+}
+
+evalTest();
+
+Srl.Console.print("\n");
+
+func deepEvalTest1 {
+  Srl.Console.print("Hello ");
+  eval {
+    Srl.Console.print("Eval 1\n");
+    deepEvalTest2();
+  }
+  Srl.Console.print("World 1\n");
+}
+
+func deepEvalTest2 {
+  Srl.Console.print("Hello ");
+  eval {
+    Srl.Console.print("Eval 2\n");
+    eval {
+      Srl.Console.print("Nested eval\n");
+    }
+  }
+  Srl.Console.print("World 2\n");
+}
+
+deepEvalTest1();

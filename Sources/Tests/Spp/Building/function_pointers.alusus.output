@@ -9,21 +9,21 @@ source_filename = "AlususProgram"
 
 %Main_Rec = type { i32 ()*, i32 (i32)* }
 
-@"#anonymous0" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
 @Main.pget2 = global i32 ()* null
-@"#anonymous1" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous2" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous3" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous4" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous1" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous2" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous3" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous4" = private constant [4 x i8] c"%d\0A\00"
 @Main.pmul2 = global i32 (i32)* null
-@"#anonymous5" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous6" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous7" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous8" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous9" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous10" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous11" = private constant [4 x i8] c"%d\0A\00", align 1
-@"#anonymous12" = private constant [4 x i8] c"%d\0A\00", align 1
+@"#anonymous5" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous6" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous7" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous8" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous9" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous10" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous11" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous12" = private constant [4 x i8] c"%d\0A\00"
 
 define void @__constructor__() {
 "#block0":

@@ -44,8 +44,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   private: CommandGenerator *commandGenerator;
   private: ExpressionGenerator *expressionGenerator;
 
+  private: AstProcessor *astProcessor = 0;
   private: Core::Notices::Store *noticeStore = 0;
-  private: Bool offlineExecution = false;
   private: Int tempVarIndex = 0;
 
 
@@ -141,54 +141,64 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     return this->noticeStore;
   }
 
+  public: void setAstProcessor(AstProcessor *ap)
+  {
+    this->astProcessor = ap;
+  }
+
+  public: AstProcessor* getAstProcessor() const
+  {
+    return this->astProcessor;
+  }
+
   /// @}
 
   /// @name Main Operation Functions
   /// @{
 
-  public: void prepareBuild(Core::Notices::Store *noticeStore, Bool offlineExecution);
+  public: void prepareBuild(Core::Notices::Store *noticeStore);
 
   /// @}
 
   /// @name Code Generation Functions
   /// @{
 
-  private: static Bool _generateModules(TiObject *self, Core::Data::Ast::Scope *root, GenDeps const &deps);
+  private: static Bool _generateModules(TiObject *self, Core::Data::Ast::Scope *root, Session *session);
 
-  private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule, GenDeps const &deps);
+  private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule, Session *session);
 
-  private: static Bool _generateModuleInit(TiObject *self, Spp::Ast::Module *astModule, GenDeps const &deps);
+  private: static Bool _generateModuleInit(TiObject *self, Spp::Ast::Module *astModule, Session *session);
 
-  private: static Bool _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, GenDeps const &deps);
+  private: static Bool _generateFunction(TiObject *self, Spp::Ast::Function *astFunc, Session *session);
 
-  private: static Bool _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, GenDeps const &deps);
+  private: static Bool _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, Session *session);
 
-  private: static Bool _generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astType, GenDeps const &deps);
+  private: static Bool _generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astType, Session *session);
 
   private: static Bool _generateVarDef(
-    TiObject *self, Core::Data::Ast::Definition *definition, GenDeps const &deps
+    TiObject *self, Core::Data::Ast::Definition *definition, Session *session
   );
 
   private: static Bool _generateTempVar(
-    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, GenDeps const &deps, Bool initialize
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize
   );
 
   private: static Bool _generateVarInitialization(
     TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode,
     PlainList<TiObject>* paramsAstNode, PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
-    GenDeps const &deps
+    Session *session
   );
 
   private: static Bool _generateMemberVarInitialization(
-    TiObject *self, TiObject *astMemberNode, GenDeps const &deps
+    TiObject *self, TiObject *astMemberNode, Session *session
   );
 
   private: static Bool _generateVarDestruction(
-    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, GenDeps const &deps
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, Session *session
   );
 
   private: static Bool _generateMemberVarDestruction(
-    TiObject *self, TiObject *astMemberNode, GenDeps const &deps
+    TiObject *self, TiObject *astMemberNode, Session *session
   );
 
   private: static void _registerDestructor(
@@ -197,39 +207,39 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _generateVarGroupDestruction(
-    TiObject *self, GenDeps const &deps, Int index
+    TiObject *self, Session *session, Int index
   );
 
-  private: static Bool _generateStatements(
-    TiObject *self, Core::Data::Ast::Scope *astBlock, GenDeps const &deps,
+  private: static Bool _generateStatementBlock(
+    TiObject *self, TiObject *astBlock, Session *session,
     TerminalStatement &terminal
   );
 
   private: static Bool _generateStatement(
-    TiObject *self, TiObject *astNode, GenDeps const &deps, TerminalStatement &terminal
+    TiObject *self, TiObject *astNode, Session *session, TerminalStatement &terminal
   );
 
   private: static Bool _generateExpression(
-    TiObject *self, TiObject *astNode, GenDeps const &deps, GenResult &result
+    TiObject *self, TiObject *astNode, Session *session, GenResult &result
   );
 
   private: static Bool _generateCast(
-    TiObject *self, GenDeps const &deps, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
+    TiObject *self, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
     Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
   );
 
   private: static Bool _generateFunctionCall(
     TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
     Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
-    GenDeps const &deps, GenResult &result
+    Session *session, GenResult &result
   );
 
   private: static Bool _getGeneratedType(
-    TiObject *self, TiObject *ref, GenDeps const &deps, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+    TiObject *self, TiObject *ref, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
   );
 
   private: static Bool _getTypeAllocationSize(
-    TiObject *self, Spp::Ast::Type *astType, GenDeps const &deps, Word &result
+    TiObject *self, Spp::Ast::Type *astType, Session *session, Word &result
   );
 
   /// @}
