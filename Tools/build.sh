@@ -33,7 +33,7 @@ fi
 "$ALUSUS_PYTHON_INTERP" -c "import pkg_resources; pkg_resources.require(\"pip==20.1.1\")" &> /dev/null
 if [ $? -ne 0 ]; then
     # Download the "get-pip.py" script
-    "$ALUSUS_PYTHON_INTERP" "$ALUSUS_BUILD_SCRIPT_DIR/build_src/download_get_pip.py" "$ALUSUS_PYTHONPATH"
+    "$ALUSUS_PYTHON_INTERP" "$ALUSUS_BUILD_SCRIPT_DIR/BuildSrc/download_get_pip.py" "$ALUSUS_PYTHONPATH"
     
     # Install Pip 20.1.1.
     "$ALUSUS_PYTHON_INTERP" "$ALUSUS_PYTHONPATH/get-pip.py" "pip==20.1.1" --target "$ALUSUS_PYTHONPATH"
@@ -60,6 +60,6 @@ if [ $? -ne 0 ]; then
     "$ALUSUS_PYTHON_INTERP" -m pip install whichcraft==0.6.1 --target "$ALUSUS_PYTHONPATH"
 fi
 
-"$ALUSUS_PYTHON_INTERP" "$ALUSUS_BUILD_SCRIPT_DIR/build_src/build.py" "$@"
+"$ALUSUS_PYTHON_INTERP" "$ALUSUS_BUILD_SCRIPT_DIR/BuildSrc/build.py" "$@"
 
 exit $?

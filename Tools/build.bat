@@ -45,7 +45,7 @@ REM Install Pip.
 !ALUSUS_PYTHON_INTERP! -c "import pkg_resources; pkg_resources.require(""pip==20.1.1"")" >nul 2>&1
 if !ERRORLEVEL! NEQ 0 (
     REM Download the "get-pip.py" script.
-    !ALUSUS_PYTHON_INTERP! "!ALUSUS_BUILD_SCRIPT_DIR!\build_src\download_get_pip.py" "!ALUSUS_PYTHONPATH!"
+    !ALUSUS_PYTHON_INTERP! "!ALUSUS_BUILD_SCRIPT_DIR!\BuildSrc\download_get_pip.py" "!ALUSUS_PYTHONPATH!"
 
     REM Install Pip 20.1.1.
     !ALUSUS_PYTHON_INTERP! "!ALUSUS_PYTHONPATH!\get-pip.py" "pip==20.1.1" --target "!ALUSUS_PYTHONPATH!"
@@ -80,5 +80,5 @@ if !ERRORLEVEL! NEQ 0 (
     !ALUSUS_PYTHON_INTERP! -m pip install whichcraft==0.6.1 --target "!ALUSUS_PYTHONPATH!"
 )
 
-!ALUSUS_PYTHON_INTERP! "!ALUSUS_BUILD_SCRIPT_DIR!\build_src\build.py" %*
+!ALUSUS_PYTHON_INTERP! "!ALUSUS_BUILD_SCRIPT_DIR!\BuildSrc\build.py" %*
 exit /b !ERRORLEVEL!

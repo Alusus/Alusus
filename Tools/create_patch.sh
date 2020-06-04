@@ -10,6 +10,6 @@ if [ -z "$ALUSUS_PYTHON_INTERP" ]; then
     export ALUSUS_PYTHON_INTERP=python3
 fi
 
-"$ALUSUS_PYTHON_INTERP" "$ALUSUS_BUILD_SCRIPT_DIR/build_src/create_patch.py" "$@"
+"$ALUSUS_PYTHON_INTERP" "$ALUSUS_BUILD_SCRIPT_DIR/BuildSrc/create_patch.py" "$@"
 
 exit $?
