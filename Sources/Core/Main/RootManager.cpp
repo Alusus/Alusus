@@ -14,12 +14,16 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <filesystem>
 
-// Get the shared library extention by OS.
+
 #ifdef _WIN32
 #include "Win32Helpers.h"
 #include <windows.h>
+#include <ghc/filesystem.hpp>
+namespace fs = ghc::filesystem; 
+#else
+#include <filesystem>
+namespace fs = std::filesystem; 
 #endif
 
 namespace Core::Main
@@ -57,16 +61,16 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->processArgs = 0;
 
   // Initialize current paths.
-  Str path1 = std::filesystem::u8path(getModuleDirectory().c_str()).string();
-  Str path2 = (std::filesystem::u8path(getModuleDirectory().c_str()) / ".." / "Lib").string();
-  Str path3 = std::filesystem::u8path(getWorkingDirectory().c_str()).string();
+  Str path1 = fs::u8path(getModuleDirectory().c_str()).string();
+  Str path2 = (fs::u8path(getModuleDirectory().c_str()) / ".." / "Lib").string();
+  Str path3 = fs::u8path(getWorkingDirectory().c_str()).string();
   this->pushSearchPath(path1.c_str());
   this->pushSearchPath(path2.c_str());
   this->pushSearchPath(path3.c_str());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':' on Unix, or ';' on Windows.
 #ifdef _WIN32
   // Add the Bin folder too, as it contains the actual DLLs.
-  Str path4 = (std::filesystem::u8path(getModuleDirectory().c_str()) / ".." / "Bin").string();
+  Str path4 = (fs::u8path(getModuleDirectory().c_str()) / ".." / "Bin").string();
   this->pushSearchPath(path4.c_str());
 
   // Load the environment variables as wide characters, then convert them to multibyte characters, on Windows.
@@ -93,7 +97,7 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
 #endif
       if (endPos == Str::npos) endPos = envPath.size();
       path.assign(envPath, startPos, endPos-startPos);
-      path = std::filesystem::u8path(path.c_str()).string();
+      path = fs::u8path(path.c_str()).string();
       if (path.size() > 0) {
         this->pushSearchPath(path.c_str());
       }
@@ -154,7 +158,7 @@ SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowRe
 
   // Extract the directory part and add it to the current paths.
   Str searchPath;
-  Char const *dirEnd = strrchr(fullPath, std::filesystem::path::preferred_separator);
+  Char const *dirEnd = strrchr(fullPath, fs::path::preferred_separator);
   if (dirEnd != 0) {
     searchPath = Str(fullPath, 0, dirEnd - fullPath + 1);
     this->pushSearchPath(searchPath.c_str());
@@ -185,7 +189,7 @@ SharedPtr<TiObject> RootManager::processStream(Processing::CharInStreaming *is, 
 Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 {
   // Convert Unix path to Windows path in Windows OS.
-  Str newFileNameCppStr = std::filesystem::u8path(filename).make_preferred().string();
+  Str newFileNameCppStr = fs::u8path(filename).make_preferred().string();
   Char const *newFileName = newFileNameCppStr.c_str();
 
   // Lookup the file in the search paths.
@@ -228,7 +232,7 @@ void RootManager::pushSearchPath(Char const *path)
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
 
-  std::filesystem::path thisPath = std::filesystem::u8path(path);
+  fs::path thisPath = fs::u8path(path);
 
   // Only accept absolute paths.
   if (!thisPath.is_absolute()) {
@@ -256,7 +260,7 @@ void RootManager::popSearchPath(Char const *path)
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Argument is null or empty string."));
   }
 
-  std::filesystem::path thisPath = std::filesystem::u8path(path);
+  fs::path thisPath = fs::u8path(path);
 
   // Only accept absolute paths.
   if (!thisPath.is_absolute()) {
@@ -290,7 +294,7 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
   thread_local static std::array<Char,PATH_MAX> tmpFilename;
 
   // Is the filename an absolute path already?
-  std::filesystem::path p(filename);
+  fs::path p(filename);
   if (p.is_absolute()) {
     return this->tryFileName(filename, resultFilename);
   } else {
@@ -299,15 +303,15 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
     for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
       Int len = this->searchPaths[i].size();
       copyStr(this->searchPaths[i].c_str(), fullPath.data());
-      if (fullPath.data()[len - 1] != std::filesystem::path::preferred_separator) {
+      if (fullPath.data()[len - 1] != fs::path::preferred_separator) {
 #ifdef _WIN32
-        Str tmpStr = utf8Encode(WStr(&std::filesystem::path::preferred_separator));
+        Str tmpStr = utf8Encode(WStr(&fs::path::preferred_separator));
         for (Char c : tmpStr) {
           copyStr(&c, fullPath.data() + len);
           ++len;
         }
 #else       
-        copyStr(std::filesystem::path::preferred_separator, fullPath.data() + len);
+        copyStr(&fs::path::preferred_separator, fullPath.data() + len);
         ++len;
 #endif
       }
@@ -345,7 +349,7 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
     if (this->doesFileExist(resultFilename.data())) return true;
   }
 
-  Char const *filename = strrchr(path, std::filesystem::path::preferred_separator);
+  Char const *filename = strrchr(path, fs::path::preferred_separator);
   if (filename == 0) filename = path;
   else ++filename;
   Int fnIndex = filename - path;
@@ -398,8 +402,8 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
 
 Bool RootManager::doesFileExist(Char const *filename)
 {
-  std::filesystem::path p = std::filesystem::u8path(filename);
-  return std::filesystem::exists(p);
+  fs::path p = fs::u8path(filename);
+  return fs::exists(p);
 }
 
 } // namespace

@@ -5,19 +5,29 @@
 project(Alusus)
 cmake_minimum_required(VERSION 3.1)
 
-if(MINGW)
-  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Bin")
+if(WIN32)
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_BIN_DIR}")
   include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32Helpers")
 else()
-  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/Lib")
+  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_LIB_DIR}")
 endif()
 link_directories(${InstallLibDir})
 
 # Read version info from version file.
 
-if(PYTHON_PREFIX)
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} version_info.py ${PYTHON_PREFIX}
-                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
+if (NOT ALUSUS_INSTALL_INCLUDE_DIR)
+  set(ALUSUS_INSTALL_INCLUDE_DIR "include")
+endif()
+if (NOT ALUSUS_INSTALL_LIB_DIR)
+  set(ALUSUS_INSTALL_LIB_DIR "lib")
+endif()
+if (NOT ALUSUS_INSTALL_BIN_DIR)
+  set(ALUSUS_INSTALL_BIN_DIR "bin")
+endif()
+
+if(ALUSUS_PRINT_VERSION_INFO)
+  execute_process(COMMAND ${PYTHON_EXECUTABLE} version_info.py
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/build_src
                   OUTPUT_VARIABLE VersionInfo)
   string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})
   set(AlususVersion ${CMAKE_MATCH_1})
@@ -51,11 +61,6 @@ endif()
 #  message(STATUS "The following LLVM path was provided: " ${LLVM_PATH} ".")
 # endif()
 
-# DLFCN-32 include directory for Win32
-if(MINGW)
-  include_directories(${DLFCN_WIN32_PATH}/include)
-endif()
-
 # Prepare compile and link flags.
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 if(NOT WIN32)
@@ -75,7 +80,7 @@ else()
   set(Alusus_COMPILE_FLAGS "${CXX_STD_FLAG} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
   # macOS has a different mechanism for RPATH than Linux and requires special
   # handling. More information can be found here:
   #
@@ -86,8 +91,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
   set(CMAKE_MACOSX_RPATH TRUE)
   set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,@executable_path")
-else()
-  set(CMAKE_SKIP_RPATH TRUE)
 endif()
 
 
@@ -120,7 +123,7 @@ if (NOT CUSTOM_OUTPUT_PATH STREQUAL "")
 endif()
 
 # Add projects
-if(MINGW)
+if(WIN32)
   add_subdirectory(Win32Helpers)
 endif()
 add_subdirectory(Core)

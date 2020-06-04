@@ -22,11 +22,12 @@ set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")
 # Add a target for Alusus global storage.
 set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
-set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
-if(MINGW)
-  target_link_libraries(AlususStorage "LLVM" "dl" Win32Helpers "z")
+if(WIN32)
+  set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
+  target_link_libraries(AlususStorage "LLVM" "dl" Win32Helpers)
 else()
-  target_link_libraries(AlususStorage "LLVM" "stdc++fs" "dl" "z")
+  set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
+  target_link_libraries(AlususStorage "LLVM")
 endif()
 
 # Add a target for Alusus core library.
@@ -40,7 +41,11 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
   set(AlususCoreLib_Source_Files ${AlususCoreLib_Source_Files} ${sources} ${headers})
 endforeach(DIR)
 add_library(AlususCoreLib STATIC ${AlususCoreLib_Source_Files})
-set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
+if(WIN32)
+  set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
+else()
+  set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
+endif()
 add_precompiled_header(AlususCoreLib "core.h")
 target_link_libraries(AlususCoreLib AlususStorage)
 
@@ -71,7 +76,7 @@ set_target_properties(AlususCore PROPERTIES OUTPUT_NAME alusus)
 set_target_properties(AlususCore PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
 set_target_properties(AlususCore PROPERTIES VERSION ${AlususVersion})
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
   # macOS has a different mechanism for RPATH than Linux and requires special
   # handling. More information can be found here:
   #
@@ -80,40 +85,40 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # The following article also has a good explanation:
   #
   # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
-  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../Lib/")
-else if(NOT WIN32)
-  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,$ORIGIN,-rpath,$ORIGIN/../Lib/")
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+else if(NOT WIN32 AND ALUSUS_SET_RPATH)
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
 endif()
 
 # Copy libary header files to installation directory.
-install_files("/Include/Core" FILES core.h core_global_storage.h)
+install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Core" FILES core.h core_global_storage.h)
 foreach (DIR ${AlususCoreLib_Source_Subdirs})
   file(GLOB headers ${DIR}/*.h)
-  install_files("/Include/Core/${DIR}" FILES ${headers})
+  install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Core/${DIR}" FILES ${headers})
 endforeach(DIR)
 
 # Install library and executable files.
-if(MINGW)
+if(WIN32)
   install(TARGETS AlususStorage AlususCoreLib AlususCore
-    RUNTIME DESTINATION Bin
-    LIBRARY DESTINATION Lib
-    ARCHIVE DESTINATION Lib
+    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+    LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
   )
 else()
   install(TARGETS AlususStorage AlususCoreLib AlususCore
-    RUNTIME DESTINATION Bin
-    LIBRARY DESTINATION Lib
-    ARCHIVE DESTINATION Lib
+    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+    LIBRARY DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+    ARCHIVE DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
   )
 endif()
 
 # Add an install command to create the Arabic symbolic link.
 if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
-  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/Bin/الأسس)
-  set(AlususArabicLinkTarget ${CMAKE_INSTALL_PREFIX}/Bin/alusus)
+  set(AlususArabicLink "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_BIN_DIR}/الأسس")
+  set(AlususArabicLinkTarget "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_BIN_DIR}/alusus")
 else()
-  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/Bin/الأسس.نقح)
-  set(AlususArabicLinkTarget ${CMAKE_INSTALL_PREFIX}/Bin/alusus.dbg)
+  set(AlususArabicLink "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_BIN_DIR}/الأسس.نقح")
+  set(AlususArabicLinkTarget "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_BIN_DIR}/alusus.dbg")
 endif()
 string(REPLACE "//" "/" AlususArabicLink ${AlususArabicLink})
 string(REPLACE "//" "/" AlususArabicLinkTarget ${AlususArabicLinkTarget})

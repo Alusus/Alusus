@@ -62,8 +62,8 @@ set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
 set_target_properties(AlususSpp PROPERTIES DEBUG_OUTPUT_NAME alusus_spp.dbg)
 set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
-if (NOT MINGW)
-  set_target_properties(AlususSpp PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../Lib/")
+if (NOT MINGW AND ALUSUS_SET_RPATH)
+  set_target_properties(AlususSpp PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
 endif()
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
@@ -74,25 +74,17 @@ target_link_libraries(AlususSpp AlususStorage)
 #target_link_libraries(AlususSpp ${LinkerVersionScript})
 
 # Copy libary header files to installation directory.
-install_files("/Include/Spp" FILES
+install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp" FILES
   spp.h
   LibraryGateway.h
 )
 foreach (dir ${AlususSpp_SOURCE_SUBDIRS})
   file(GLOB headers ${dir}/*.h)
-  install_files("/Include/Spp/${dir}" FILES ${headers})
+  install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp/${dir}" FILES ${headers})
 endforeach(dir)
 
-if(MINGW)
-  install(TARGETS AlususSpp
-    RUNTIME DESTINATION Bin
-    LIBRARY DESTINATION Lib
-    ARCHIVE DESTINATION Lib
-  )
-else()
-  install(TARGETS AlususSpp
-    RUNTIME DESTINATION Bin
-    LIBRARY DESTINATION Lib
-    ARCHIVE DESTINATION Lib
-  )
-endif()
+install(TARGETS AlususSpp
+  RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+  LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+  ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+)

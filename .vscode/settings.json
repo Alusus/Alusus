@@ -70,7 +70,27 @@
     "string": "cpp",
     "shared_mutex": "cpp",
     "set": "cpp",
-    "mutex": "cpp"
+    "mutex": "cpp",
+    "filesystem": "cpp",
+    "xlocale": "cpp",
+    "xstring": "cpp",
+    "xutility": "cpp",
+    "complex": "cpp",
+    "concepts": "cpp",
+    "ios": "cpp",
+    "locale": "cpp",
+    "xfacet": "cpp",
+    "xhash": "cpp",
+    "xiosbase": "cpp",
+    "xlocbuf": "cpp",
+    "xlocinfo": "cpp",
+    "xlocmes": "cpp",
+    "xlocmon": "cpp",
+    "xlocnum": "cpp",
+    "xloctime": "cpp",
+    "xmemory": "cpp",
+    "xstddef": "cpp",
+    "xtr1common": "cpp"
   },
   "files.exclude": {
     "**/.git": true,
@@ -84,5 +104,6 @@
     "Bin": true
   },
   "C_Cpp.errorSquiggles": "Disabled",
-  "cmake.configureOnOpen": false
+  "cmake.configureOnOpen": false,
+  "python.pythonPath": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
 }

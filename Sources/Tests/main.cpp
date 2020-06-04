@@ -19,7 +19,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+#include <ghc/filesystem.hpp>
+namespace fs = ghc::filesystem; 
+#else
 #include <filesystem>
+namespace fs = std::filesystem; 
+#endif
 
 using Core::Notices::Notice;
 using Core::Data::Ast::List;
@@ -290,7 +297,7 @@ int main(int argc, char **argv)
   if (tempPath == 0) tempPath = getenv("TEMPDIR");
   if (tempPath == 0) tempPath = "/tmp/";
   resultFilename = tempPath;
-  if (resultFilename.back() != std::filesystem::path::preferred_separator) resultFilename += std::filesystem::path::preferred_separator;
+  if (resultFilename.back() != fs::path::preferred_separator) resultFilename += fs::path::preferred_separator;
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
@@ -299,7 +306,7 @@ int main(int argc, char **argv)
   if (!runEndToEndTests("./Srt")) ret = EXIT_FAILURE;
 
   std::string l18nPath = Core::Main::getModuleDirectory();
-  l18nPath += (std::filesystem::u8path("..") / ".." / ".." / "Notices_L18n" / "").string();
+  l18nPath += (fs::u8path("..") / ".." / ".." / "Notices_L18n" / "").string();
   Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath.c_str());
   if (!runEndToEndTests("./Arabic")) ret = EXIT_FAILURE;
 

@@ -11,7 +11,14 @@
 //==============================================================================
 
 #include "core.h"
+
+#ifdef _WIN32
+#include <ghc/filesystem.hpp>
+namespace fs = ghc::filesystem; 
+#else
 #include <filesystem>
+namespace fs = std::filesystem; 
+#endif
 
 namespace Core::Notices
 {
@@ -27,7 +34,7 @@ void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
     filename = l18nPath;
   } else {
     filename = Main::getModuleDirectory();
-    filename += (std::filesystem::u8path("..") / "Notices_L18n" / "").string();
+    filename += (fs::u8path("..") / "Notices_L18n" / "").string();
   }
   filename += locale;
   filename += ".txt";
