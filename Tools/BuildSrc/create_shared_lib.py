@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import shutil
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from utils import get_host_cxx_arch, shell_split, shell_join  # noqa
@@ -91,15 +92,20 @@ def create_dll(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=
     output_dll_path = os.path.join(
         arg_output_dir, "lib" + arg_output_name + ".dll")
     p = subprocess.Popen(
-        cxx + [dllmain_object_file_path, "-shared", "-fpic", "-o",
-               output_dll_path] + link_libs +
-        link_lib_paths + ["-Wl,--enable-auto-import", "-fvisibility=default",
-                          "-Wl,--whole-archive"] + list(static_libs) + ["-Wl,--no-whole-archive"], env=new_environ)
+        cxx + [dllmain_object_file_path, "-shared", "-o", output_dll_path] + link_libs +
+        link_lib_paths + ["-Wl,--out-implib,{import_lib_path}".format(
+            import_lib_path=os.path.join(
+                arg_output_dir, "lib" + arg_output_name + ".lib")
+        ), "-fvisibility=default", "-Wl,--whole-archive"] + list(static_libs) + ["-Wl,--no-whole-archive"], env=new_environ)
     ret = p.wait()
     if ret:
         return (1, "Failed to execute {cxx}.".format(cxx=shell_join(cxx)))
-    os.rename(os.path.join(arg_output_dir, "lib" + arg_output_name + ".lib"),
-              os.path.join(arg_output_dir, "lib" + arg_output_name + ".dll.a"))
+
+    # Create both ".lib" and ".dll.a" files.
+    shutil.copy2(
+        os.path.join(arg_output_dir, "lib" + arg_output_name + ".lib"),
+        os.path.join(arg_output_dir, "lib" + arg_output_name + ".dll.a")
+    )
 
     # Remove temporary files.
     os.remove(dllmain_path)
@@ -141,7 +147,7 @@ def create_dylib(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_di
     p = subprocess.Popen(
         cxx + ["-shared", "-fpic", "-o",
                output_dylib_path] + link_libs +
-        link_lib_paths + ["-fvisibility=default", "-Wl,-all_load"] + list(static_libs) + ["-Wl,-noall_load"], env=new_environ)
+        link_lib_paths + ["-fPIC", "-fvisibility=default", "-Wl,-all_load"] + list(static_libs) + ["-Wl,-noall_load"], env=new_environ)
     ret = p.wait()
     if ret:
         return (1, "Failed to execute {cxx}.".format(cxx=shell_join(cxx)))
@@ -181,7 +187,7 @@ def create_so(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=o
         arg_output_dir, "lib" + arg_output_name + ".so")
     p = subprocess.Popen(
         cxx + link_libs +
-        link_lib_paths + ["-fvisibility=default", "-Wl,--whole-archive"] + list(static_libs) + ["-Wl,--no-whole-archive"] +
+        link_lib_paths + ["-fPIC", "-fvisibility=default", "-Wl,--whole-archive"] + list(static_libs) + ["-Wl,--no-whole-archive"] +
         ["-shared", "-o", output_so_path], env=new_environ)
     ret = p.wait()
     if ret:
