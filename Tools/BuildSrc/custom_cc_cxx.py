@@ -112,6 +112,6 @@ if __name__ == "__main__":
         os.environ.pop("CPATH")
     if "ALUSUS_CC_CXX_USE_FPIC" in os.environ and os.environ["ALUSUS_CC_CXX_USE_FPIC"] == "1":
         bin_args.insert(0, "-fPIC")
-    bin_args.insert(0, "-Wno-unused-command-line-argument")
+    bin_args.insert(1, "-Wno-unused-command-line-argument")
     os._exit(subprocess.call([bin_arg] + bin_args +
                              include_paths_args + lib_paths_args))
