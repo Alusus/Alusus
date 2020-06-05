@@ -99,20 +99,52 @@ class build_zlib(template_build.template_build):
             new_environ["NM"] = new_environ["ALUSUS_HOST_NM"] if "ALUSUS_HOST_NM" in new_environ else "nm"
             new_environ["STRIP"] = new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip"
             new_environ["LD"] = new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld"
+            if platform.system() == "Windows":
+                new_environ["RC"] = new_environ["ALUSUS_HOST_RC"] if "ALUSUS_HOST_RC" in new_environ else "windres"
+            if "ALUSUS_HOST_LIBRARY_PATH" in new_environ:
+                new_environ["LIBRARY_PATH"] = new_environ["ALUSUS_HOST_LIBRARY_PATH"]
+            else:
+                try:
+                    del new_environ["LIBRARY_PATH"]
+                except KeyError:
+                    pass
+            if "ALUSUS_HOST_CPATH" in new_environ:
+                new_environ["CPATH"] = new_environ["ALUSUS_HOST_CPATH"]
+            else:
+                try:
+                    del new_environ["CPATH"]
+                except KeyError:
+                    pass
+            if "ALUSUS_HOST_C_INCLUDE_PATH" in new_environ:
+                new_environ["C_INCLUDE_PATH"] = new_environ["ALUSUS_HOST_C_INCLUDE_PATH"]
+            else:
+                try:
+                    del new_environ["C_INCLUDE_PATH"]
+                except KeyError:
+                    pass
+            if "ALUSUS_HOST_CPLUS_INCLUDE_PATH" in new_environ:
+                new_environ["CPLUS_INCLUDE_PATH"] = new_environ["ALUSUS_HOST_CPLUS_INCLUDE_PATH"]
+            else:
+                try:
+                    del new_environ["CPLUS_INCLUDE_PATH"]
+                except KeyError:
+                    pass
+            host_target_system = "windows" if (platform.system() == "Windows") else (
+                "linux" if (platform.system() == "Linux") else "macos")
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=target_system)
+                new_environ, target_system=host_target_system)
             cmake_cmd = ["cmake",
                          os.path.join(deps_path, "zlib-1.2.11.src"),
                          "-DCMAKE_BUILD_TYPE=Release",
                          "-DCMAKE_INSTALL_PREFIX={}".format(
                              os.path.join(deps_path, "zlib-1.2.11.host.install")),
-                         "-DCMAKE_RANLIB={}".format(
-                             which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
-                         "-DCMAKE_AR={}".format(
-                             which(new_environ["AR"] if "AR" in new_environ else "ar")),
-                         "-DCMAKE_LINKER={}".format(
-                             which(new_environ["LD"] if "LD" in new_environ else "ld")),
-                         "-DCMAKE_STRIP={}".format(which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))]
+                         "-DCMAKE_RANLIB={}".format(which(
+                             new_environ["ALUSUS_HOST_RANLIB"] if "ALUSUS_HOST_RANLIB" in new_environ else "ranlib")),
+                         "-DCMAKE_AR={}".format(which(
+                             new_environ["ALUSUS_HOST_AR"] if "ALUSUS_HOST_AR" in new_environ else "ar")),
+                         "-DCMAKE_LINKER={}".format(which(
+                             new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld")),
+                         "-DCMAKE_STRIP={}".format(which(new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip"))]
             if platform.system() == "Windows":
                 cmake_cmd += [
                     "-G", "MinGW Makefiles",
@@ -149,19 +181,23 @@ class build_zlib(template_build.template_build):
             cmake_cmd += [
                 "-DCMAKE_CROSSCOMPILING=TRUE",
                 "-DCMAKE_SYSTEM_NAME={}".format(cmake_system_name),
-                "-DCMAKE_SYSTEM_PROCESSOR={}".format(host_cxx_arch),
-                "-DCMAKE_RANLIB={}".format(
-                    which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
-                "-DCMAKE_AR={}".format(
-                    which(new_environ["AR"] if "AR" in new_environ else "ar")),
-                "-DCMAKE_LINKER={}".format(
-                    which(new_environ["LD"] if "LD" in new_environ else "ld")),
-                "-DCMAKE_STRIP={}".format(
-                    which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
+                "-DCMAKE_SYSTEM_PROCESSOR={}".format(host_cxx_arch)
             ]
             cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_INSTALL_PREFIX")][0]] =\
                 "-DCMAKE_INSTALL_PREFIX={}".format(
                     os.path.join(deps_path, "zlib-1.2.11.target.install"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_RANLIB")][0]] =\
+                "-DCMAKE_RANLIB={}".format(
+                    which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_AR")][0]] =\
+                "-DCMAKE_AR={}".format(
+                    which(new_environ["AR"] if "AR" in new_environ else "ar"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_LINKER")][0]] =\
+                "-DCMAKE_LINKER={}".format(
+                    which(new_environ["LD"] if "LD" in new_environ else "ld"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_STRIP")][0]] =\
+                "-DCMAKE_STRIP={}".format(
+                    which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
             if target_system == "windows":
                 cmake_cmd.append("-DCMAKE_RC_COMPILER={}".format(
                     which(new_environ["RC"] if "RC" in new_environ else "windres")))
@@ -285,7 +321,7 @@ class build_zlib(template_build.template_build):
         new_environ = os.environ.copy()
         if target_system != None:
             if platform.system() == "Windows":
-                new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "zlib-1.2.11.host.install", "lib") +\
+                new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "zlib-1.2.11.host.install", "bin") +\
                     ("" if ("ALUSUS_HOST_PATH" not in new_environ) else
                      (host_sep + new_environ["ALUSUS_HOST_PATH"]))
             else:

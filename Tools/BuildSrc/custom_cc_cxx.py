@@ -9,9 +9,11 @@ import os
 import subprocess
 import shutil
 import platform
+from whichcraft import which
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(SOURCE_LOCATION))
 from parse_path_envvar import parse_path_envvar  # noqa
+from utils import shell_join  # noqa
 
 
 def _get_cc_cxx_wrappers_tmp_dir():
@@ -67,9 +69,11 @@ if __name__ == "__main__":
 
     bin_arg = None
     if bin_type == "CC":
-        bin_arg = os.environ["ALUSUS_CC_BIN"] if "ALUSUS_CC_BIN" in os.environ else "clang"
+        bin_arg = which(os.environ["ALUSUS_CC_BIN"]
+                        if "ALUSUS_CC_BIN" in os.environ else "clang")
     else:
-        bin_arg = os.environ["ALUSUS_CXX_BIN"] if "ALUSUS_CXX_BIN" in os.environ else "clang++"
+        bin_arg = which(os.environ["ALUSUS_CXX_BIN"]
+                        if "ALUSUS_CXX_BIN" in os.environ else "clang++")
 
     bin_args = sys.argv[1:]
     lib_paths_args = list()
@@ -78,7 +82,7 @@ if __name__ == "__main__":
         for lib_path in lib_paths:
             if len(lib_path) > 0:
                 lib_paths_args += [
-                    "-L", lib_path
+                    "-L{}".format(os.path.abspath(lib_path))
                 ]
         os.environ.pop("LIBRARY_PATH")
     include_paths_args = list()
@@ -87,7 +91,7 @@ if __name__ == "__main__":
         for include_path in include_paths:
             if len(include_path) > 0:
                 include_paths_args += [
-                    "-I", include_path
+                    "-I{}".format(os.path.abspath(include_path))
                 ]
         os.environ.pop("C_INCLUDE_PATH")
     if "CPLUS_INCLUDE_PATH" in os.environ:
@@ -95,7 +99,7 @@ if __name__ == "__main__":
         for include_path in include_paths:
             if len(include_path) > 0:
                 include_paths_args += [
-                    "-I", include_path
+                    "-I{}".format(os.path.abspath(include_path))
                 ]
         os.environ.pop("CPLUS_INCLUDE_PATH")
     if "CPATH" in os.environ:
@@ -103,11 +107,11 @@ if __name__ == "__main__":
         for include_path in include_paths:
             if len(include_path) > 0:
                 include_paths_args += [
-                    "-I", include_path
+                    "-I{}".format(os.path.abspath(include_path))
                 ]
         os.environ.pop("CPATH")
     if "ALUSUS_CC_CXX_USE_FPIC" in os.environ and os.environ["ALUSUS_CC_CXX_USE_FPIC"] == "1":
-        bin_args.append("-fPIC")
-    bin_args.append("-Wno-unused-command-line-argument")
+        bin_args.insert(0, "-fPIC")
+    bin_args.insert(0, "-Wno-unused-command-line-argument")
     os._exit(subprocess.call([bin_arg] + bin_args +
                              include_paths_args + lib_paths_args))

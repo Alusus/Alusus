@@ -6,10 +6,36 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from utils import get_host_cxx_arch, shell_split, shell_join  # noqa
 
 
-def create_dll(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=os.getcwd(),
-               arg_output_name="tmp", arg_link_lib=None, arg_link_lib_path=None, new_environ=os.environ):
+def _get_static_libs(arg_file=None, arg_dir=None, arg_dir_recurs=None):
     static_libs = set()
 
+    # Add all static files in `--file` argument.
+    if arg_file:
+        for static_lib in arg_file:
+            if os.path.splitext(static_lib)[1] == ".a":
+                static_libs.add(os.path.abspath(static_lib))
+
+    # Add all static files in `--dir` argument.
+    if arg_dir:
+        for static_lib_dir in arg_dir:
+            for static_lib_name in os.listdir(static_lib_dir):
+                if os.path.splitext(static_lib_name)[1] == ".a":
+                    static_lib = os.path.abspath(
+                        os.path.join(static_lib_dir, static_lib_name))
+                    static_libs.add(static_lib)
+
+    # Add all static files in `--dir-recurs` argument.
+    if arg_dir_recurs:
+        for static_lib_dir_recurs in arg_dir_recurs:
+            tmp_static_libs = [os.path.abspath(os.path.join(dp, f)) for dp, dn, filenames in os.walk(
+                static_lib_dir_recurs) for f in filenames if os.path.splitext(f)[1] == ".a"]
+            static_libs.update(tmp_static_libs)
+
+    return static_libs
+
+
+def create_dll(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=os.getcwd(),
+               arg_output_name="tmp", arg_link_lib=None, arg_link_lib_path=None, new_environ=os.environ):
     try:
         os.remove(os.path.join(arg_output_dir,
                                "lib" + arg_output_name + ".dll.a"))
@@ -22,26 +48,8 @@ def create_dll(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=
     except FileNotFoundError:
         pass
 
-    # Add all static files in `--file` argument.
-    if arg_file:
-        for static_lib in arg_file:
-            if os.path.splitext(static_lib)[1] == ".a":
-                static_libs.add(static_lib)
-
-    # Add all static files in `--dir` argument.
-    if arg_dir:
-        for static_lib_dir in arg_dir:
-            for static_lib_name in os.listdir(static_lib_dir):
-                if os.path.splitext(static_lib_name)[1] == ".a":
-                    static_lib = os.path.join(static_lib_dir, static_lib_name)
-                    static_libs.add(static_lib)
-
-    # Add all static files in `--dir-recurs` argument.
-    if arg_dir_recurs:
-        for static_lib_dir_recurs in arg_dir_recurs:
-            tmp_static_libs = [os.path.join(dp, f) for dp, dn, filenames in os.walk(
-                static_lib_dir_recurs) for f in filenames if os.path.splitext(f)[1] == ".a"]
-            static_libs.update(tmp_static_libs)
+    static_libs = _get_static_libs(
+        arg_file=arg_file, arg_dir=arg_dir, arg_dir_recurs=arg_dir_recurs)
 
     if len(static_libs) == 0:
         return (1, "You need to specify static library files to be added to the import library. " +
@@ -101,7 +109,6 @@ def create_dll(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=
 
 def create_dylib(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=os.getcwd(),
                  arg_output_name="tmp", arg_link_lib=None, arg_link_lib_path=None, new_environ=os.environ):
-    static_libs = set()
 
     try:
         os.remove(os.path.join(arg_output_dir,
@@ -109,26 +116,8 @@ def create_dylib(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_di
     except FileNotFoundError:
         pass
 
-    # Add all static files in `--file` argument.
-    if arg_file:
-        for static_lib in arg_file:
-            if os.path.splitext(static_lib)[1] == ".a":
-                static_libs.add(static_lib)
-
-    # Add all static files in `--dir` argument.
-    if arg_dir:
-        for static_lib_dir in arg_dir:
-            for static_lib_name in os.listdir(static_lib_dir):
-                if os.path.splitext(static_lib_name)[1] == ".a":
-                    static_lib = os.path.join(static_lib_dir, static_lib_name)
-                    static_libs.add(static_lib)
-
-    # Add all static files in `--dir-recurs` argument.
-    if arg_dir_recurs:
-        for static_lib_dir_recurs in arg_dir_recurs:
-            tmp_static_libs = [os.path.join(dp, f) for dp, dn, filenames in os.walk(
-                static_lib_dir_recurs) for f in filenames if os.path.splitext(f)[1] == ".a"]
-            static_libs.update(tmp_static_libs)
+    static_libs = _get_static_libs(
+        arg_file=arg_file, arg_dir=arg_dir, arg_dir_recurs=arg_dir_recurs)
 
     if len(static_libs) == 0:
         return (1, "You need to specify static library files to be added to the import library. " +
@@ -161,7 +150,6 @@ def create_dylib(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_di
 
 def create_so(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=os.getcwd(),
               arg_output_name="tmp", arg_link_lib=None, arg_link_lib_path=None, new_environ=os.environ):
-    static_libs = set()
 
     try:
         os.remove(os.path.join(arg_output_dir,
@@ -169,26 +157,8 @@ def create_so(arg_file=None, arg_dir=None, arg_dir_recurs=None, arg_output_dir=o
     except FileNotFoundError:
         pass
 
-    # Add all static files in `--file` argument.
-    if arg_file:
-        for static_lib in arg_file:
-            if os.path.splitext(static_lib)[1] == ".a":
-                static_libs.add(static_lib)
-
-    # Add all static files in `--dir` argument.
-    if arg_dir:
-        for static_lib_dir in arg_dir:
-            for static_lib_name in os.listdir(static_lib_dir):
-                if os.path.splitext(static_lib_name)[1] == ".a":
-                    static_lib = os.path.join(static_lib_dir, static_lib_name)
-                    static_libs.add(static_lib)
-
-    # Add all static files in `--dir-recurs` argument.
-    if arg_dir_recurs:
-        for static_lib_dir_recurs in arg_dir_recurs:
-            tmp_static_libs = [os.path.join(dp, f) for dp, dn, filenames in os.walk(
-                static_lib_dir_recurs) for f in filenames if os.path.splitext(f)[1] == ".a"]
-            static_libs.update(tmp_static_libs)
+    static_libs = _get_static_libs(
+        arg_file=arg_file, arg_dir=arg_dir, arg_dir_recurs=arg_dir_recurs)
 
     if len(static_libs) == 0:
         return (1, "You need to specify static library files to be added to the import library. " +

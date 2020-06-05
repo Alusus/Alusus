@@ -111,25 +111,53 @@ class build_llvm(template_build.template_build):
             os.makedirs("llvm-10.0.0.host.install", exist_ok=True)
             os.chdir("llvm-10.0.0.host.build")
             new_environ = os.environ.copy()
-            new_environ["CC"] = new_environ["ALUSUS_HOST_CC"] if "ALUSUS_HOST_CC" in new_environ else "clang"
-            new_environ["CXX"] = new_environ["ALUSUS_HOST_CXX"] if "ALUSUS_HOST_CXX" in new_environ else "clang++"
-            new_environ["AR"] = new_environ["ALUSUS_HOST_AR"] if "ALUSUS_HOST_AR" in new_environ else "ar"
-            new_environ["AS"] = new_environ["ALUSUS_HOST_AS"] if "ALUSUS_HOST_AS" in new_environ else "as"
-            new_environ["RANLIB"] = new_environ["ALUSUS_HOST_RANLIB"] if "ALUSUS_HOST_RANLIB" in new_environ else "ranlib"
-            new_environ["NM"] = new_environ["ALUSUS_HOST_NM"] if "ALUSUS_HOST_NM" in new_environ else "nm"
-            new_environ["STRIP"] = new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip"
-            new_environ["LD"] = new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld"
+            new_environ["CC"] = which(
+                new_environ["ALUSUS_HOST_CC"] if "ALUSUS_HOST_CC" in new_environ else "clang")
+            new_environ["CXX"] = which(
+                new_environ["ALUSUS_HOST_CXX"] if "ALUSUS_HOST_CXX" in new_environ else "clang++")
+            new_environ["AR"] = which(
+                new_environ["ALUSUS_HOST_AR"] if "ALUSUS_HOST_AR" in new_environ else "ar")
+            new_environ["AS"] = which(
+                new_environ["ALUSUS_HOST_AS"] if "ALUSUS_HOST_AS" in new_environ else "as")
+            new_environ["RANLIB"] = which(
+                new_environ["ALUSUS_HOST_RANLIB"] if "ALUSUS_HOST_RANLIB" in new_environ else "ranlib")
+            new_environ["NM"] = which(
+                new_environ["ALUSUS_HOST_NM"] if "ALUSUS_HOST_NM" in new_environ else "nm")
+            new_environ["STRIP"] = which(
+                new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip")
+            new_environ["LD"] = which(
+                new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld")
+            if platform.system() == "Windows":
+                new_environ["RC"] = which(
+                    new_environ["ALUSUS_HOST_RC"] if "ALUSUS_HOST_RC" in new_environ else "windres")
             new_environ["LIBRARY_PATH"] = zlib_environ["ALUSUS_HOST_LIBRARY_PATH"] +\
-                ("" if ("LIBRARY_PATH" not in new_environ) else
-                 (host_sep + new_environ["LIBRARY_PATH"]))
+                ("" if ("ALUSUS_HOST_LIBRARY_PATH" not in new_environ) else
+                 (host_sep + new_environ["ALUSUS_HOST_LIBRARY_PATH"]))
             new_environ["CPATH"] = zlib_environ["ALUSUS_HOST_CPATH"] +\
-                ("" if ("CPATH" not in new_environ) else
-                 (host_sep + new_environ["CPATH"]))
+                ("" if ("ALUSUS_HOST_CPATH" not in new_environ) else
+                 (host_sep + new_environ["ALUSUS_HOST_CPATH"]))
+            if "ALUSUS_HOST_C_INCLUDE_PATH" in new_environ:
+                new_environ["C_INCLUDE_PATH"] = new_environ["ALUSUS_HOST_C_INCLUDE_PATH"]
+            else:
+                try:
+                    del new_environ["C_INCLUDE_PATH"]
+                except KeyError:
+                    pass
+            if "ALUSUS_HOST_CPLUS_INCLUDE_PATH" in new_environ:
+                new_environ["CPLUS_INCLUDE_PATH"] = new_environ["ALUSUS_HOST_CPLUS_INCLUDE_PATH"]
+            else:
+                try:
+                    del new_environ["CPLUS_INCLUDE_PATH"]
+                except KeyError:
+                    pass
             new_environ["PKG_CONFIG_PATH"] = zlib_environ["ALUSUS_HOST_PKG_CONFIG_PATH"] +\
                 ("" if ("PKG_CONFIG_PATH" not in new_environ) else
                  (host_sep + new_environ["PKG_CONFIG_PATH"]))
+
+            host_target_system = "windows" if (platform.system() == "Windows") else (
+                "linux" if (platform.system() == "Linux") else "macos")
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=target_system)
+                new_environ, target_system=host_target_system)
             cmake_cmd = ["cmake",
                          os.path.join(deps_path, "llvm-10.0.0.src"),
                          "-DCMAKE_BUILD_TYPE=Release",
@@ -137,13 +165,13 @@ class build_llvm(template_build.template_build):
                          "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                          "-DCMAKE_INSTALL_PREFIX={}".format(
                              os.path.join(deps_path, "llvm-10.0.0.host.install")),
-                         "-DCMAKE_RANLIB={}".format(
-                             which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
-                         "-DCMAKE_AR={}".format(
-                             which(new_environ["AR"] if "AR" in new_environ else "ar")),
-                         "-DCMAKE_LINKER={}".format(
-                             which(new_environ["LD"] if "LD" in new_environ else "ld")),
-                         "-DCMAKE_STRIP={}".format(which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))]
+                         "-DCMAKE_RANLIB={}".format(which(
+                             new_environ["ALUSUS_HOST_RANLIB"] if "ALUSUS_HOST_RANLIB" in new_environ else "ranlib")),
+                         "-DCMAKE_AR={}".format(which(
+                             new_environ["ALUSUS_HOST_AR"] if "ALUSUS_HOST_AR" in new_environ else "ar")),
+                         "-DCMAKE_LINKER={}".format(which(
+                             new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld")),
+                         "-DCMAKE_STRIP={}".format(which(new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip"))]
             if platform.system() == "Windows":
                 cmake_cmd += [
                     "-G", "MinGW Makefiles",
@@ -228,21 +256,25 @@ class build_llvm(template_build.template_build):
                 "-DLLVM_INCLUDE_BENCHMARKS=OFF",
                 "-DLLVM_INCLUDE_UTILS=OFF",
                 "-DLLVM_HOST_TRIPLE={}".format(cxx_host_triple),
-                "-DLLVM_DEFAULT_TARGET_TRIPLE={}".format(cxx_host_triple),
-                "-DCMAKE_RANLIB={}".format(
-                    which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
-                "-DCMAKE_AR={}".format(
-                    which(new_environ["AR"] if "AR" in new_environ else "ar")),
-                "-DCMAKE_LINKER={}".format(
-                    which(new_environ["LD"] if "LD" in new_environ else "ld")),
-                "-DCMAKE_STRIP={}".format(
-                    which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
+                "-DLLVM_DEFAULT_TARGET_TRIPLE={}".format(cxx_host_triple)
                 # "-DLLVM_ENABLE_PIC={}".format("FALSE" if (
                 #     (llvm_target_arch == "AArch64") or (llvm_target_arch == "ARM")) else "TRUE")  # Disabling PIC on ARM based backends, based on hack "1." from https://llvm.org/docs/HowToCrossCompileLLVM.html#hacks.
             ]
             cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_INSTALL_PREFIX")][0]] =\
                 "-DCMAKE_INSTALL_PREFIX={}".format(
                     os.path.join(deps_path, "llvm-10.0.0.target.install"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_RANLIB")][0]] =\
+                "-DCMAKE_RANLIB={}".format(
+                    which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_AR")][0]] =\
+                "-DCMAKE_AR={}".format(
+                    which(new_environ["AR"] if "AR" in new_environ else "ar"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_LINKER")][0]] =\
+                "-DCMAKE_LINKER={}".format(
+                    which(new_environ["LD"] if "LD" in new_environ else "ld"))
+            cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_STRIP")][0]] =\
+                "-DCMAKE_STRIP={}".format(
+                    which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
             p = subprocess.Popen(cmake_cmd, env=new_environ)
             ret = p.wait()
             if ret:
@@ -459,7 +491,7 @@ class build_llvm(template_build.template_build):
         new_environ = os.environ.copy()
         if target_system != None:
             if platform.system() == "Windows":
-                new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "llvm-10.0.0.host.install", "lib") + host_sep +\
+                new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "llvm-10.0.0.host.install", "bin") + host_sep +\
                     build_zlib.build_zlib.get_dep_environ(deps_path, target_system=target_system)["ALUSUS_HOST_PATH"] +\
                     ("" if ("ALUSUS_HOST_PATH" not in new_environ) else
                      (host_sep + new_environ["ALUSUS_HOST_PATH"]))
