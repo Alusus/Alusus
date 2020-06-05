@@ -13,7 +13,6 @@ from whichcraft import which
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(SOURCE_LOCATION))
 from parse_path_envvar import parse_path_envvar  # noqa
-from utils import shell_join  # noqa
 
 
 def _get_cc_cxx_wrappers_tmp_dir():
