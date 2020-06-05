@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -103,7 +103,7 @@ int main(int argCount, char * const args[])
       outStream << S("نُشر هذا البرنامج برخصة الأسُس العامة، الإصدار 1.0، والمتوفرة على الرابط أدناه.\n"
                      "يرجى قراءة الرخصة قبل استخدام البرنامج. استخدامك لهذا البرنامج أو أي من الملفات\n"
                      "المرفقة معه إقرار منك أنك قرأت هذه الرخصة ووافقت على جميع فقراتها.\n");
-      outStream << S("\nAlusus Public License: <https://alusus.org/alusus_license_1_0>\n");
+      outStream << S("\nAlusus Public License: <https://alusus.org/ar/license.html>\n");
       outStream << S("\nطريقة الاستخدام:\n");
       outStream << S("الأسُس [<خيارات القلب>] <الشفرة المصدرية> [<خيارات البرنامج>]\n");
       outStream << S("الشفرة المصدرية = اسم الملف الحاوي على الشفرة المصدرية\n");
@@ -130,7 +130,7 @@ int main(int argCount, char * const args[])
                      "Copyright (C) " << alususReleaseYear << " Sarmad Khalid Abdullah\n\n");
       outStream << S("This software is released under Alusus Public License, Version 1.0.\n"
                      "For details on usage and copying conditions read the full license at\n"
-                     "<https://alusus.org/alusus_license_1_0>. By using this software you acknowledge\n"
+                     "<https://alusus.org/license.html>. By using this software you acknowledge\n"
                      "that you have read the terms in the license and agree with and accept all such\n"
                      "terms.\n\n");
       outStream << S("Usage: alusus [<Core options>] <source> [<program options>]\n");
