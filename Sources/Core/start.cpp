@@ -16,7 +16,7 @@
 
 #ifdef _WIN32
 #include "Win32Helpers.h"
-#include <Windows.h>
+#include <windows.h>
 #include <fcntl.h>
 #include <io.h>
 #endif

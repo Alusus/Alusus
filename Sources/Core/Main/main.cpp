@@ -17,7 +17,7 @@
 #endif
 #ifdef _WIN32
 #include "Win32Helpers.h"
-#include <Windows.h>
+#include <windows.h>
 #include <direct.h>
 #include <ghc/filesystem.hpp>
 namespace fs = ghc::filesystem; 

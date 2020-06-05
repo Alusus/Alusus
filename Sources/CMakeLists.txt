@@ -6,12 +6,8 @@ project(Alusus)
 cmake_minimum_required(VERSION 3.1)
 
 if(WIN32)
-  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_BIN_DIR}")
   include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32Helpers")
-else()
-  set(InstallLibDir "${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_LIB_DIR}")
 endif()
-link_directories(${InstallLibDir})
 
 # Read version info from version file.
 
@@ -72,12 +68,12 @@ if(NOT WIN32)
   elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # GCC options
     message(STATUS "Using GCC")
-    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
+    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-parameter -Wno-unused-result -fno-rtti")
     set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
   endif()
 else()
   set(CXX_STD_FLAG "-std=c++17")
-  set(Alusus_COMPILE_FLAGS "${CXX_STD_FLAG} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-but-set-parameter -Wunused-but-set-variable -Wno-unused-result -fno-rtti")
+  set(Alusus_COMPILE_FLAGS "${CXX_STD_FLAG} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-parameter -Wno-unused-result -fno-rtti")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)

@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tarfile
 import platform
+import distutils.dir_util
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from build_deps import template_build, build_openssl, build_zlib  # noqa
@@ -88,6 +89,16 @@ class build_libssh2(template_build.template_build):
                 os.remove("libssh2-1.9.0.tar.gz")
             except FileNotFoundError:
                 pass
+
+            # Apply the patch(es).
+            patches_path = os.path.join(os.path.dirname(
+                os.path.dirname(os.path.dirname(SOURCE_LOCATION))), "Patches")
+            distutils.dir_util.copy_tree(
+                os.path.join(
+                    patches_path, "libssh2-1.9.0.src"),
+                "libssh2-1.9.0.src"
+            )
+
             with open(os.path.join("libssh2-1.9.0.src", "EXTRACTED"), "w") as fd:
                 fd.write("EXTRACTED CHECKER")
             success_msg("libssh2 1.9.0 sources have been downloaded.")

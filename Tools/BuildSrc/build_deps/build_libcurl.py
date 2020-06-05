@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tarfile
 import platform
+import distutils.dir_util
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from build_deps import template_build, build_zlib, build_openssl, build_nghttp2, build_libssh2, build_brotli  # noqa
@@ -103,6 +104,16 @@ class build_libcurl(template_build.template_build):
                 os.remove("curl-7.70.0.tar.gz")
             except FileNotFoundError:
                 pass
+
+            # Apply the patch(es).
+            patches_path = os.path.join(os.path.dirname(
+                os.path.dirname(os.path.dirname(SOURCE_LOCATION))), "Patches")
+            distutils.dir_util.copy_tree(
+                os.path.join(
+                    patches_path, "curl-7.70.0.src"),
+                "curl-7.70.0.src"
+            )
+
             with open(os.path.join("curl-7.70.0.src", "EXTRACTED"), "w") as fd:
                 fd.write("EXTRACTED CHECKER")
             success_msg("libcurl 7.70.0 sources have been downloaded.")
