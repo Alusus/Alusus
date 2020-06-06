@@ -39,14 +39,21 @@ def copy_cc_cxx_wrapppers_to_tmp_dir(this_platform=platform.system()):
     )
 
 
-def create_new_environ_with_custom_cc_cxx(environ, target_system=None, this_platform=platform.system()):
+def create_new_environ_with_custom_cc_cxx(environ, target_system=None, this_platform=platform.system(), rpaths=list()):
     global SOURCE_LOCATION
 
     new_environ = environ.copy()
     if not (target_system == "windows" or this_platform == "Windows" and not target_system):
+        if rpaths:
+            rpaths_arg = "-Wl"
+            for rpath in rpaths:
+                rpaths_arg += ",-rpath={rpath}".format(rpath=rpath)
+            new_environ["ALUSUS_CC_CXX_RPATHS_ARG"] = rpaths_arg
+            print("rpaths_arg={}".format(rpaths_arg))
         new_environ["ALUSUS_CC_CXX_USE_FPIC"] = "1"
     else:
         new_environ["ALUSUS_CC_CXX_USE_FPIC"] = "0"
+
     new_environ["ALUSUS_CUSTOM_CC_CXX_PYTHON_SCRIPT_PATH"] = SOURCE_LOCATION
     new_environ["ALUSUS_CC_BIN"] = new_environ["CC"] if "CC" in new_environ else "clang"
     new_environ["ALUSUS_CXX_BIN"] = new_environ["CXX"] if "CXX" in new_environ else "clang++"
@@ -110,9 +117,9 @@ if __name__ == "__main__":
                 ]
         os.environ.pop("CPATH")
     if "ALUSUS_CC_CXX_USE_FPIC" in os.environ and os.environ["ALUSUS_CC_CXX_USE_FPIC"] == "1":
-        bin_args.insert(0, "-fPIC")
-        bin_args.insert(1, "-Wno-unused-command-line-argument")
-    else:
-        bin_args.insert(0, "-Wno-unused-command-line-argument")
+        bin_args.append("-fPIC")
+    if "ALUSUS_CC_CXX_RPATHS_ARG" in os.environ:
+        bin_args.append(os.environ["ALUSUS_CC_CXX_RPATHS_ARG"])
+    bin_args.append("-Wno-unused-command-line-argument")
     os._exit(subprocess.call([bin_arg] + bin_args +
                              include_paths_args + lib_paths_args))

@@ -113,7 +113,7 @@ def build_deps(deps_path, install_path, num_threads=multiprocessing.cpu_count(),
 
 
 def post_build_alusus(install_path, target_system=None):
-    if target_system == "windows":
+    if target_system == "windows" or platform.system() == "Windows" and not target_system:
         host_cxx_arch = get_host_cxx_arch()
         llvm_mingw_dir = os.path.join(
             os.path.dirname(subprocess.check_output(

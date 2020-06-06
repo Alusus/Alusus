@@ -87,7 +87,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
   # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
   set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
 elseif(NOT WIN32 AND ALUSUS_SET_RPATH)
-  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
 endif()
 
 # Copy libary header files to installation directory.

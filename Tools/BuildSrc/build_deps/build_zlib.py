@@ -12,7 +12,7 @@ SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from msg import info_msg, success_msg, fail_msg  # noqa
 from build_deps import template_build  # noqa
-from utils import get_host_cxx_arch, unix_copy2  # noqa
+from utils import get_host_cxx_arch, unix_copy2, get_local_rpaths  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx  # noqa
 
 
@@ -132,7 +132,7 @@ class build_zlib(template_build.template_build):
             host_target_system = "windows" if (platform.system() == "Windows") else (
                 "linux" if (platform.system() == "Linux") else "macos")
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=host_target_system)
+                new_environ, target_system=host_target_system, rpaths=get_local_rpaths(target_system=host_target_system))
             cmake_cmd = ["cmake",
                          os.path.join(deps_path, "zlib-1.2.11.src"),
                          "-DCMAKE_BUILD_TYPE=Release",
@@ -169,7 +169,7 @@ class build_zlib(template_build.template_build):
             # Build zlib for the target now.
             new_environ = os.environ.copy()
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=target_system)
+                new_environ, target_system=target_system, rpaths=get_local_rpaths(target_system=target_system))
             host_cxx_arch = get_host_cxx_arch()
             info_msg("Building zlib 1.2.11 for the target...")
             os.chdir("..")
@@ -219,7 +219,7 @@ class build_zlib(template_build.template_build):
             # Build zlib for the host only.
             new_environ = os.environ.copy()
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=target_system)
+                new_environ, target_system=target_system, rpaths=get_local_rpaths(target_system=target_system))
             info_msg("Building zlib 1.2.11 for the host...")
             os.makedirs("zlib-1.2.11.build", exist_ok=True)
             os.makedirs("zlib-1.2.11.install", exist_ok=True)

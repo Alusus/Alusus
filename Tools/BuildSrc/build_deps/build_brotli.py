@@ -11,7 +11,7 @@ SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from build_deps import template_build  # noqa
 from msg import info_msg, success_msg, fail_msg  # noqa
-from utils import get_host_cxx_arch, unix_copy2  # noqa
+from utils import get_host_cxx_arch, unix_copy2, get_local_rpaths  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx  # noqa
 
 
@@ -105,7 +105,7 @@ class build_brotli(template_build.template_build):
 
         new_environ = os.environ.copy()
         new_environ = create_new_environ_with_custom_cc_cxx(
-            new_environ, target_system=target_system)
+            new_environ, target_system=target_system, rpaths=get_local_rpaths(target_system=target_system))
         cmake_cmd = [
             "cmake",
             os.path.join(deps_path, "brotli-1.0.7.src"),
