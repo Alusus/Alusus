@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from build_deps import template_build, build_zlib  # noqa
 from msg import info_msg, success_msg, fail_msg  # noqa
 from create_shared_lib import create_dll, create_so, create_dylib  # noqa
-from utils import get_host_cxx_arch, get_host_cxx_triple, unix_copy2, get_local_rpaths  # noqa
+from utils import get_host_cxx_arch, get_host_cxx_triple, unix_copy2  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx  # noqa
 
 
@@ -157,7 +157,7 @@ class build_llvm(template_build.template_build):
             host_target_system = "windows" if (platform.system() == "Windows") else (
                 "linux" if (platform.system() == "Linux") else "macos")
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=host_target_system, rpaths=get_local_rpaths(target_system=host_target_system))
+                new_environ, target_system=host_target_system)
             cmake_cmd = ["cmake",
                          os.path.join(deps_path, "llvm-10.0.0.src"),
                          "-DCMAKE_BUILD_TYPE=Release",
@@ -216,7 +216,7 @@ class build_llvm(template_build.template_build):
                     ("" if ("LD_LIBRARY_PATH" not in new_environ) else
                      (host_sep + new_environ["LD_LIBRARY_PATH"]))
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=target_system, rpaths=get_local_rpaths(target_system=target_system))
+                new_environ, target_system=target_system)
             host_cxx_arch = get_host_cxx_arch(new_environ=new_environ)
             llvm_target_arch = None
             if host_cxx_arch == "aarch64":
@@ -314,7 +314,7 @@ class build_llvm(template_build.template_build):
                 ("" if ("PKG_CONFIG_PATH" not in new_environ) else
                  (host_sep + new_environ["PKG_CONFIG_PATH"]))
             new_environ = create_new_environ_with_custom_cc_cxx(
-                new_environ, target_system=target_system, rpaths=get_local_rpaths(target_system=target_system))
+                new_environ, target_system=target_system)
             host_cxx_arch = get_host_cxx_arch(new_environ=new_environ)
             llvm_target_arch = None
             if host_cxx_arch == "aarch64":
@@ -386,7 +386,7 @@ class build_llvm(template_build.template_build):
                 static_lib.endswith(".dll.a") or static_lib.endswith(".lib"))]
             create_dll_out = create_dll(arg_file=static_libs, arg_output_dir=".", arg_output_name="LLVM-10",
                                         arg_link_lib=[
-                                            "ole32", "uuid", "z"],
+                                            "ole32", "uuid", "z", "pthread"],
                                         new_environ=new_environ)
             if create_dll_out[0]:
                 fail_msg("Building LLVM 10.0.0.")
@@ -404,7 +404,7 @@ class build_llvm(template_build.template_build):
             os.chdir(os.path.join("..", ("llvm-10.0.0.target.install" if (
                 target_system == "macos") else "llvm-10.0.0.install"), "lib"))
             create_so_out = create_so(arg_file=os.listdir("."), arg_output_dir=".", arg_output_name="LLVM-10",
-                                      arg_link_lib=["z"],
+                                      arg_link_lib=["z", "pthread"],
                                       new_environ=new_environ)
             if create_so_out[0]:
                 fail_msg("Building LLVM 10.0.0.")
@@ -417,7 +417,8 @@ class build_llvm(template_build.template_build):
             os.chdir(os.path.join("..", ("llvm-10.0.0.target.install" if (
                 target_system == "macos") else "llvm-10.0.0.install"), "lib"))
             create_dylib_out = create_dylib(arg_file=os.listdir("."), arg_output_dir=".", arg_output_name="LLVM-10",
-                                            arg_link_lib=["z", "clang_rt.osx"],
+                                            arg_link_lib=[
+                                                "z", "clang_rt.osx", "pthread"],
                                             new_environ=new_environ)
             if create_dylib_out[0]:
                 fail_msg("Building LLVM 10.0.0.")

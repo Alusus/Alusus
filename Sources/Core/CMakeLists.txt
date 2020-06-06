@@ -27,7 +27,7 @@ if(WIN32)
   target_link_libraries(AlususStorage "LLVM" "dl" Win32Helpers)
 else()
   set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
-  target_link_libraries(AlususStorage "LLVM")
+  target_link_libraries(AlususStorage "LLVM" "dl")
 endif()
 
 # Add a target for Alusus core library.
@@ -40,7 +40,7 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
   source_group("SourceFiles\\${DIR}" FILES ${sources})
   set(AlususCoreLib_Source_Files ${AlususCoreLib_Source_Files} ${sources} ${headers})
 endforeach(DIR)
-add_library(AlususCoreLib STATIC ${AlususCoreLib_Source_Files})
+add_library(AlususCoreLib SHARED ${AlususCoreLib_Source_Files})
 if(WIN32)
   set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
 else()
@@ -98,19 +98,11 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
 endforeach(DIR)
 
 # Install library and executable files.
-if(WIN32)
-  install(TARGETS AlususStorage AlususCoreLib AlususCore
-    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
-    LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
-    ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
-  )
-else()
-  install(TARGETS AlususStorage AlususCoreLib AlususCore
-    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
-    LIBRARY DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
-    ARCHIVE DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
-  )
-endif()
+install(TARGETS AlususStorage AlususCoreLib AlususCore
+  RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+  LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+  ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+)
 
 # Add an install command to create the Arabic symbolic link.
 if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")

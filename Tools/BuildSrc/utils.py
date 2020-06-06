@@ -58,16 +58,3 @@ def unix_copy2(src, dst):
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
-
-
-def get_local_rpaths(target_system=None):
-    rpaths = list()
-    if not (target_system == "windows" or platform.system() == "Windows" and not target_system):
-        exec_path_var = "@executable_path"
-        if target_system == "linux" or platform.system() == "Linux" and not target_system:
-            exec_path_var = "$ORIGIN"
-        rpaths += [
-            exec_path_var,
-            "{exec_path_var}/../Lib".format(exec_path_var=exec_path_var)
-        ]
-    return rpaths
