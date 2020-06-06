@@ -97,14 +97,14 @@ def build_deps(deps_path, install_path, num_threads=multiprocessing.cpu_count(),
         deps_path, install_path, num_threads=num_threads, target_system=target_system)
     if not ret:
         return ret
-    if platform.system() == "Windows" and not target_system or target_system == "windows":
-        # Building external filesystem library, as Clang under MinGW doesn't support
-        # "std::filesystem" yet.
-        ret = build_ghc_filesystem.build_ghc_filesystem.build(
-            deps_path, install_path, num_threads=num_threads, target_system=target_system)
-        if not ret:
-            return ret
 
+    # In case a toolchain doesn't support std::filesystem yet (e.g. LLVM MinGW toolchain).
+    ret = build_ghc_filesystem.build_ghc_filesystem.build(
+        deps_path, install_path, num_threads=num_threads, target_system=target_system)
+    if not ret:
+        return ret
+
+    if platform.system() == "Windows" and not target_system or target_system == "windows":
         ret = build_dlfcn_win32.build_dlfcn_win32.build(
             deps_path, install_path, num_threads=num_threads, target_system=target_system)
         if not ret:
@@ -174,18 +174,18 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
     # Set the required build environment variables.
     new_environ = os.environ.copy()
     host_sep = ":" if platform.system() != "Windows" else ";"
+    ghc_filesystem_environ = build_ghc_filesystem.build_ghc_filesystem.get_dep_environ(
+        deps_path, target_system=target_system)
     llvm_environ = build_llvm.build_llvm.get_dep_environ(
         deps_path, target_system=target_system)
-    new_cpath_value = llvm_environ["CPATH"]
+    new_cpath_value = llvm_environ["CPATH"] + \
+        host_sep + ghc_filesystem_environ["CPATH"]
     new_library_path_value = llvm_environ["LIBRARY_PATH"]
     if target_system == "windows" or platform.system() == "Windows" and not target_system:
         dlfcn_win32_environ = build_dlfcn_win32.build_dlfcn_win32.get_dep_environ(
             deps_path, target_system=target_system)
-        ghc_filesystem_environ = build_ghc_filesystem.build_ghc_filesystem.get_dep_environ(
-            deps_path, target_system=target_system)
         new_cpath_value += host_sep + \
-            dlfcn_win32_environ["CPATH"] + host_sep + \
-            ghc_filesystem_environ["CPATH"]
+            dlfcn_win32_environ["CPATH"]
         new_library_path_value += host_sep + \
             dlfcn_win32_environ["LIBRARY_PATH"]
     new_environ["CPATH"] = new_cpath_value + \
