@@ -22,17 +22,18 @@ _CURL_SRC_URL = "https://curl.haxx.se/download/curl-7.70.0.tar.gz"
 class build_libcurl(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Bin", "libcurl.dll")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libcurl.dll")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libcurl.dll.a"))
+                    install_path["root"], install_path["lib"], "libcurl.dll.a"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libcurl.so.4.6.0")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libcurl.so.4")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libcurl.so"))
-        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libcurl.4.dylib")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcurl.so.4.6.0")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcurl.so.4")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libcurl.dylib"))
+                    install_path["root"], install_path["lib"], "libcurl.so"))
+        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcurl.4.dylib")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libcurl.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -75,7 +76,7 @@ class build_libcurl(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -191,7 +192,8 @@ class build_libcurl(template_build.template_build):
                     deps_path, "curl-7.70.0.src", "configure"),
                 "--prefix={}".format(os.path.join(deps_path,
                                                   "curl-7.70.0.install")),
-                "--with-libssh2"
+                "--with-libssh2",
+                "--disable-ldap"
             ]
         )
         if target_system != None:
@@ -236,7 +238,7 @@ class build_libcurl(template_build.template_build):
                     deps_path, "curl-7.70.0.install", "lib"),
                 arg_output_name="curl",
                 arg_link_lib=["z", "crypto", "ssl",
-                                "ws2_32", "pthread", "wldap32",
+                                "ws2_32", "pthread",
                                 "nghttp2", "ssh2", "brotlidec"],
                 new_environ=new_environ
             )
@@ -252,43 +254,54 @@ class build_libcurl(template_build.template_build):
                              "bin", "libcurl.dll")
             )
 
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy2(
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "bin", "libcurl.dll"),
-                os.path.join(install_path, "Bin", "libcurl.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libcurl.dll")
             )
             shutil.copy2(
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "lib", "libcurl.dll.a"),
-                os.path.join(install_path, "Lib", "libcurl.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcurl.dll.a")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "lib", "libcurl.so.4.6.0"),
-                os.path.join(install_path, "Lib", "libcurl.so.4.6.0")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcurl.so.4.6.0")
             )
             unix_copy2(
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "lib", "libcurl.so.4"),
-                os.path.join(install_path, "Lib", "libcurl.so.4")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcurl.so.4")
             )
             unix_copy2(
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "lib", "libcurl.so"),
-                os.path.join(install_path, "Lib", "libcurl.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcurl.so")
             )
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "lib", "libcurl.4.dylib"),
-                os.path.join(install_path, "Lib", "libcurl.4.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcurl.4.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "lib", "libcurl.dylib"),
-                os.path.join(install_path, "Lib", "libcurl.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcurl.dylib")
             )
 
         success_msg("Building libcurl 7.70.0.")

@@ -21,9 +21,9 @@ _DLFCN_WIN32_URL = "https://github.com/dlfcn-win32/dlfcn-win32/archive/v1.2.0.ta
 class build_dlfcn_win32(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libdl.dll.a")) and \
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libdl.dll.a")) and \
                 os.path.exists(os.path.join(
-                    install_path, "Bin", "libdl.dll"))
+                    install_path["root"], install_path["bin"], "libdl.dll"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -36,7 +36,7 @@ class build_dlfcn_win32(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -120,16 +120,22 @@ class build_dlfcn_win32(template_build.template_build):
             os.chdir(original_dir)
             return False
 
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if platform.system() == "Windows" and not target_system or target_system == "windows":
             shutil.copy2(
                 os.path.join(deps_path, "dlfcn-win32-1.2.0.install",
                              "lib", "libdl.dll.a"),
-                os.path.join(install_path, "Lib", "libdl.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libdl.dll.a")
             )
             shutil.copy2(
                 os.path.join(deps_path, "dlfcn-win32-1.2.0.install",
                              "bin", "libdl.dll"),
-                os.path.join(install_path, "Bin", "libdl.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libdl.dll")
             )
 
         success_msg("Building dlfcn-win32 1.2.0.")

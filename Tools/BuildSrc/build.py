@@ -14,7 +14,7 @@ from build_deps import build_ghc_filesystem, build_dlfcn_win32, build_libcurl, b
 from version_info import get_version_info  # noqa
 from msg import info_msg, success_msg, fail_msg  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx, copy_cc_cxx_wrapppers_to_tmp_dir  # noqa
-from utils import get_host_cxx_arch, delete_tmp_dir  # noqa
+from utils import get_host_cxx_arch, delete_tmp_dir, get_lib_path, get_to_copy_libs  # noqa
 
 
 def parse_args():
@@ -28,31 +28,35 @@ def parse_args():
                         "    d (default): debug build.\n" +
                         "    r: release build.",
                         choices=["d", "r"], required=False, default="d")
-    parser.add_argument("--build-packages", help="Create installable package(s) (default: False).",
+    parser.add_argument("--build-packages", help="Create installable package(s) and packaged archives (default: False).",
                         action="store_true", required=False, default=False)
     parser.add_argument("--install-path", metavar="INSTALL_PATH", help="Set the install path (default: {}).".format(
         shlex.quote(os.path.join("[build-path]",
                                  "LocalInstall", "[Debug|Release]"))
     ),
         required=False, default=None)
+    parser.add_argument("--install-include-name", metavar="INSTALL_INCLUDE_NAME", help="Set the install include directory name (default: Include).",
+                        required=False, default="Include")
+    parser.add_argument("--install-lib-name", metavar="INSTALL_LIB_NAME", help="Set the install library directory name (default: Lib).",
+                        required=False, default="Lib")
+    parser.add_argument("--install-bin-name", metavar="INSTALL_BIN_NAME", help="Set the install binary directory name (default: Bin).",
+                        required=False, default="Bin")
     parser.add_argument("--num-threads", metavar="NUM_THREADS",
                         help="Specify a custom number of threads to use when building dependencies " +
                              "and Alusus (default: {}).".format(
                                  multiprocessing.cpu_count()),
                         type=int, required=False, default=multiprocessing.cpu_count())
 
-    # This is an exclusive feature for Linux hosts for now to be used when cross-compiling to other platforms.
-    if platform.system() == "Linux":
-        parser.add_argument("--target", metavar="TARGET", help="Cross compile target host name. Choose one of the following:\n" +
-                            "    1. linux (default): Build for Linux.\n" +
-                            "    2. windows: Build for Windows.\n" +
-                            "    3. macos: Build for Mac OS.",
-                            required=False, default=None, choices=["linux", "windows", "macos"])
+    parser.add_argument("--target", metavar="TARGET", help="Cross compile target host name. Choose one of the following:\n" +
+                        "    1. linux: Build for Linux.\n" +
+                        "    2. windows: Build for Windows.\n" +
+                        "    3. macos: Build for macOS.",
+                        required=False, default=None, choices=["linux", "windows", "macos"])
     args = parser.parse_args()
     if "target" not in args:
         args.target = None
 
-    # No need to cross-compile to the same architecture we are currently running in. We can natively build
+    # No need to cross-compile to the same architecture we are currently running the build script in. We can natively build
     # instead to speedup build time.
     if args.target and\
        ((args.target == "windows" and platform.system() == "Windows") or
@@ -63,8 +67,22 @@ def parse_args():
     del(args.__dict__["build-path"])
     args.build_path = os.path.abspath(args.build_path)
     if not args.install_path:
-        args.install_path = os.path.join(
-            args.build_path, "LocalInstall", "Debug" if args.build_type == "d" else "Release")
+        args.install_path = {
+            "root": os.path.join(args.build_path, "LocalInstall", "Debug" if args.build_type == "d" else "Release"),
+            "include": args.install_include_name,
+            "lib": args.install_lib_name,
+            "bin": args.install_bin_name
+        }
+    else:
+        args.install_path = {
+            "root": args.install_path,
+            "include": args.install_include_name,
+            "lib": args.install_lib_name,
+            "bin": args.install_bin_name
+        }
+    del args.install_include_name
+    del args.install_lib_name
+    del args.install_bin_name
     return args
 
 
@@ -112,40 +130,25 @@ def build_deps(deps_path, install_path, num_threads=multiprocessing.cpu_count(),
     return True
 
 
-def post_build_alusus(install_path, target_system=None):
-    if target_system == "windows" or platform.system() == "Windows" and not target_system:
-        host_cxx_arch = get_host_cxx_arch()
-        llvm_mingw_dir = os.path.join(
-            os.path.dirname(subprocess.check_output(
-                ["which", os.environ["CXX"]]).decode().strip()),
-            ".."
-        )
-        arch_bin_dir = os.path.join(
-            llvm_mingw_dir,
-            "{}-w64-mingw32".format(host_cxx_arch),
-            "bin"
-        )
-        arch_lib_dir = os.path.join(
-            llvm_mingw_dir,
-            "{}-w64-mingw32".format(host_cxx_arch),
-            "lib"
-        )
-        shutil.copy2(
-            os.path.join(arch_bin_dir, "libc++.dll"),
-            os.path.join(install_path, "Bin")
-        )
-        shutil.copy2(
-            os.path.join(arch_lib_dir, "libc++.dll.a"),
-            os.path.join(install_path, "Lib")
-        )
-        shutil.copy2(
-            os.path.join(arch_bin_dir, "libunwind.dll"),
-            os.path.join(install_path, "Bin")
-        )
-        shutil.copy2(
-            os.path.join(arch_lib_dir, "libunwind.dll.a"),
-            os.path.join(install_path, "Lib")
-        )
+def post_build_alusus(install_path, target_system=None, environ=os.environ):
+    # Copy the libraries pointed by "ALUSUS_TO_COPY_LIBS".
+    libs = get_to_copy_libs(environ=environ)
+    for lib in libs:
+        paths = get_lib_path(
+            lib, target_system=target_system, environ=environ)
+        if paths:
+            shutil.copy2(
+                os.path.abspath(paths["lib_path"]),
+                os.path.abspath(os.path.join(
+                    install_path["root"], install_path["lib"]))
+            )
+            if "dll_paths" in paths:
+                for dll_path in paths["dll_paths"]:
+                    shutil.copy2(
+                        os.path.abspath(dll_path),
+                        os.path.abspath(os.path.join(
+                            install_path["root"], install_path["bin"]))
+                    )
 
 
 def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_type, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -166,7 +169,7 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
 
     os.makedirs(deps_path, exist_ok=True)
     os.makedirs(builds_path, exist_ok=True)
-    os.makedirs(install_path, exist_ok=True)
+    os.makedirs(install_path["root"], exist_ok=True)
 
     original_dir = os.getcwd()
     os.chdir(builds_path)
@@ -197,15 +200,25 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
     new_environ = create_new_environ_with_custom_cc_cxx(
         new_environ, target_system=target_system)
 
+    os.makedirs(os.path.join(
+        install_path["root"], install_path["lib"]), exist_ok=True)
+    os.makedirs(os.path.join(
+        install_path["root"], install_path["bin"]), exist_ok=True)
+    os.makedirs(os.path.join(
+        install_path["root"], install_path["include"]), exist_ok=True)
     cmake_cmd = ["cmake",
                  os.path.join(alusus_root_path, "Sources"),
+                 "-Wno-dev",
                  "-DCMAKE_BUILD_TYPE={}".format(
                      "Release" if build_type == "r" else "Debug"),
                  "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-                 "-DCMAKE_INSTALL_PREFIX={}".format(install_path),
-                 "-DALUSUS_INSTALL_BIN_DIR=Bin",
-                 "-DALUSUS_INSTALL_LIB_DIR=Lib",
-                 "-DALUSUS_INSTALL_INCLUDE_DIR=Include",
+                 "-DCMAKE_INSTALL_PREFIX={}".format(install_path["root"]),
+                 "-DALUSUS_INSTALL_BIN_DIR={}".format(install_path["bin"]),
+                 "-DALUSUS_INSTALL_LIB_DIR={}".format(install_path["lib"]),
+                 "-DALUSUS_INSTALL_INCLUDE_DIR={}".format(
+                     install_path["include"]),
+                 "-DALUSUS_BUILD_STATIC_LIBS=TRUE",
+                 "-DALUSUS_LINK_SHARED_LIBS=TRUE",
                  "-DALUSUS_SET_RPATH=TRUE",
                  "-DALUSUS_PRINT_VERSION_INFO=TRUE",
                  "-DCMAKE_RANLIB={}".format(
@@ -242,7 +255,8 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
         delete_tmp_dir()
         return False
 
-    post_build_alusus(install_path, target_system=target_system)
+    post_build_alusus(
+        install_path, target_system=target_system, environ=new_environ)
 
     success_msg("Building Alusus {}.".format(current_version_info[0]))
     os.chdir(original_dir)

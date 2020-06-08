@@ -9,8 +9,6 @@ if(WIN32)
   include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32Helpers")
 endif()
 
-# Read version info from version file.
-
 if (NOT ALUSUS_INSTALL_INCLUDE_DIR)
   set(ALUSUS_INSTALL_INCLUDE_DIR "include")
 endif()
@@ -21,6 +19,27 @@ if (NOT ALUSUS_INSTALL_BIN_DIR)
   set(ALUSUS_INSTALL_BIN_DIR "bin")
 endif()
 
+# Turning shared libraries linking automatically turns building of the shared libraries.
+if (ALUSUS_LINK_SHARED_LIBS)
+  set(ALUSUS_BUILD_SHARED_LIBS "TRUE")
+endif()
+
+if (ALUSUS_BUILD_STATIC_LIBS AND NOT ALUSUS_BUILD_SHARED_LIBS)
+  set(ALUSUS_LINK_SHARED_LIBS "FALSE")
+endif()
+
+# Making sure we are linking with shared libraries if we are not building with static libraries.
+if (ALUSUS_BUILD_SHARED_LIBS AND NOT ALUSUS_BUILD_STATIC_LIBS)
+  set(ALUSUS_LINK_SHARED_LIBS "TRUE")
+endif()
+
+# Build and link shared libraries if none of shared nor static libraries were selected.
+if (NOT ALUSUS_BUILD_SHARED_LIBS AND NOT ALUSUS_BUILD_STATIC_LIBS)
+  set(ALUSUS_BUILD_SHARED_LIBS "TRUE")
+  set(ALUSUS_LINK_SHARED_LIBS "TRUE")
+endif()
+
+# Read version info from version file.
 if(ALUSUS_PRINT_VERSION_INFO)
   execute_process(COMMAND ${PYTHON_EXECUTABLE} version_info.py
                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
@@ -58,22 +77,22 @@ endif()
 # endif()
 
 # Prepare compile and link flags.
+set(CXX_STD_FLAG "-std=c++17")
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 if(NOT WIN32)
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Using Clang")
     # CLang options
-    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-const-variable -Wno-unused-result -fno-rtti")
-    set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
+    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Wfatal-errors -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wunused-const-variable -Wno-unused-result -fno-rtti")
+    set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} ${CXX_STD_FLAG}")
   elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # GCC options
     message(STATUS "Using GCC")
-    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wno-unused-result -fno-rtti")
-    set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -std=c++17")
+    set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Wfatal-errors -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wno-unused-result -fno-rtti")
+    set(Alusus_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} ${CXX_STD_FLAG}")
   endif()
 else()
-  set(CXX_STD_FLAG "-std=c++17")
-  set(Alusus_COMPILE_FLAGS "${CXX_STD_FLAG} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wno-unused-result -fno-rtti")
+  set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} ${CXX_STD_FLAG} -Wfatal-errors -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wno-unused-result -fno-rtti")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)

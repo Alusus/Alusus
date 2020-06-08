@@ -22,18 +22,20 @@ _ZLIB_SRC_URL = "https://sourceforge.net/projects/libpng/files/zlib/1.2.11/zlib-
 class build_zlib(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libzlib.dll.a")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libz.dll.a")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libzlib.dll.a")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libz.dll.a")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Bin", "libzlib.dll"))
+                    install_path["root"], install_path["bin"], "libzlib.dll"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libz.so.1.2.11")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libz.so.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libz.so"))
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libz.so.1.2.11")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libz.so.1")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libz.so"))
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libz.1.2.11.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libz.1.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libz.dylib"))
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libz.1.2.11.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libz.1.dylib")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libz.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -46,7 +48,7 @@ class build_zlib(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
         original_dir = os.getcwd()
         os.chdir(deps_path)
 
@@ -255,13 +257,16 @@ class build_zlib(template_build.template_build):
                 os.chdir(original_dir)
                 return False
 
-        os.makedirs(os.path.join(install_path, "Lib"), exist_ok=True)
-        os.makedirs(os.path.join(install_path, "Bin"), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "windows") else "zlib-1.2.11.install"), "lib", "libzlib.dll.a"),
-                os.path.join(install_path, "Lib", "libzlib.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzlib.dll.a")
             )
             shutil.copy2(
                 os.path.join(
@@ -272,44 +277,52 @@ class build_zlib(template_build.template_build):
             shutil.copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "windows") else "zlib-1.2.11.install"), "lib", "libz.dll.a"),
-                os.path.join(install_path, "Lib", "libz.dll.a"),
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libz.dll.a"),
             )
             shutil.copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "windows") else "zlib-1.2.11.install"), "bin", "libzlib.dll"),
-                os.path.join(install_path, "Bin", "libzlib.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libzlib.dll")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "linux") else "zlib-1.2.11.install"), "lib", "libz.so.1.2.11"),
-                os.path.join(install_path, "Lib", "libz.so.1.2.11")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libz.so.1.2.11")
             )
             unix_copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "linux") else "zlib-1.2.11.install"), "lib", "libz.so.1"),
-                os.path.join(install_path, "Lib", "libz.so.1")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libz.so.1")
             )
             unix_copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "linux") else "zlib-1.2.11.install"), "lib", "libz.so"),
-                os.path.join(install_path, "Lib", "libz.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libz.so")
             )
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             unix_copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "macos") else "zlib-1.2.11.install"), "lib", "libz.1.2.11.dylib"),
-                os.path.join(install_path, "Lib", "libz.1.2.11.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libz.1.2.11.dylib")
             )
             unix_copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "macos") else "zlib-1.2.11.install"), "lib", "libz.1.dylib"),
-                os.path.join(install_path, "Lib", "libz.1.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libz.1.dylib")
             )
             unix_copy2(
                 os.path.join(
                     deps_path, ("zlib-1.2.11.target.install" if (target_system == "macos") else "zlib-1.2.11.install"), "lib", "libz.dylib"),
-                os.path.join(install_path, "Lib", "libz.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libz.dylib")
             )
 
         success_msg("Building zlib 1.2.11.")
@@ -320,14 +333,12 @@ class build_zlib(template_build.template_build):
         host_sep = ":" if platform.system() != "Windows" else ";"
         new_environ = os.environ.copy()
         if target_system != None:
-            if platform.system() == "Windows":
-                new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "zlib-1.2.11.host.install", "bin") +\
-                    ("" if ("ALUSUS_HOST_PATH" not in new_environ) else
-                     (host_sep + new_environ["ALUSUS_HOST_PATH"]))
-            else:
-                new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"] = os.path.join(deps_path, "zlib-1.2.11.host.install", "lib") +\
-                    ("" if ("ALUSUS_HOST_LD_LIBRARY_PATH" not in new_environ) else
-                     (host_sep + new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"]))
+            new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "zlib-1.2.11.host.install", "bin") +\
+                ("" if ("ALUSUS_HOST_PATH" not in new_environ) else
+                    (host_sep + new_environ["ALUSUS_HOST_PATH"]))
+            new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"] = os.path.join(deps_path, "zlib-1.2.11.host.install", "lib") +\
+                ("" if ("ALUSUS_HOST_LD_LIBRARY_PATH" not in new_environ) else
+                    (host_sep + new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"]))
             new_environ["ALUSUS_HOST_LIBRARY_PATH"] = os.path.join(deps_path, "zlib-1.2.11.host.install", "lib") +\
                 ("" if ("ALUSUS_HOST_LIBRARY_PATH" not in new_environ) else
                  (host_sep + new_environ["ALUSUS_HOST_LIBRARY_PATH"]))

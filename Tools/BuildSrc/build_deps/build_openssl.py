@@ -21,22 +21,23 @@ _SSL_SRC_URL = "https://codeload.github.com/tatsuhiro-t/openssl/tar.gz/5332ff475
 class build_openssl(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Bin", "libcrypto-1_1.dll")) and\
-                os.path.exists(os.path.join(install_path, "Bin", "libssl-1_1.dll")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libcrypto.dll.a")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libcrypto-1_1.dll")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libssl-1_1.dll")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcrypto.dll.a")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libssl.dll.a"))
+                    install_path["root"], install_path["lib"], "libssl.dll.a"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libcrypto.so.1.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libssl.so.1.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libcrypto.so")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libssl.so"))
-        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libcrypto.1.1.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libssl.1.1.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libcrypto.dylib")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcrypto.so.1.1")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libssl.so.1.1")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcrypto.so")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libssl.dylib"))
+                    install_path["root"], install_path["lib"], "libssl.so"))
+        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcrypto.1.1.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libssl.1.1.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libcrypto.dylib")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libssl.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -53,7 +54,7 @@ class build_openssl(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -176,68 +177,84 @@ class build_openssl(template_build.template_build):
             os.chdir(original_dir)
             return False
 
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "bin", "libcrypto-1_1.dll"),
-                os.path.join(install_path, "Bin", "libcrypto-1_1.dll")
+                os.path.join(
+                    install_path["root"], install_path["bin"], "libcrypto-1_1.dll")
             )
             shutil.copy(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "bin", "libssl-1_1.dll"),
-                os.path.join(install_path, "Bin", "libssl-1_1.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libssl-1_1.dll")
             )
             shutil.copy(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libcrypto.dll.a"),
-                os.path.join(install_path, "Lib", "libcrypto.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcrypto.dll.a")
             )
             shutil.copy(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libssl.dll.a"),
-                os.path.join(install_path, "Lib", "libssl.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssl.dll.a")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libcrypto.so.1.1"),
-                os.path.join(install_path, "Lib", "libcrypto.so.1.1")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcrypto.so.1.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libssl.so.1.1"),
-                os.path.join(install_path, "Lib", "libssl.so.1.1")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssl.so.1.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libcrypto.so"),
-                os.path.join(install_path, "Lib", "libcrypto.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcrypto.so")
             )
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libssl.so"),
-                os.path.join(install_path, "Lib", "libssl.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssl.so")
             )
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libcrypto.1.1.dylib"),
-                os.path.join(install_path, "Lib", "libcrypto.1.1.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libcrypto.1.1.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libssl.1.1.dylib"),
-                os.path.join(install_path, "Lib", "libssl.1.1.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssl.1.1.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libcrypto.dylib"),
-                os.path.join(install_path, "Lib", "libcrypto.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libcrypto.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "openssl-5332ff475df45a123e654aded3406737c6232335.install",
                              "lib", "libssl.dylib"),
-                os.path.join(install_path, "Lib", "libssl.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssl.dylib")
             )
 
         success_msg(

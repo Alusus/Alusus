@@ -53,38 +53,81 @@ if(MSVC)
 endif(MSVC)
 
 # Create AlususSpp library project.
-add_library(AlususSpp SHARED ${AlususSpp_SOURCE_FILES})
-set_target_properties(AlususSpp PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
-add_precompiled_header(AlususSpp "spp.h")
+if (ALUSUS_BUILD_STATIC_LIBS)
+  add_library(AlususSppStatic STATIC ${AlususSpp_SOURCE_FILES})
+  set_target_properties(AlususSppStatic PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
+  add_precompiled_header(AlususSppStatic "spp.h")
 
-# Set output names.
-set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
-set_target_properties(AlususSpp PROPERTIES DEBUG_OUTPUT_NAME alusus_spp.dbg)
-set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
-if (NOT MINGW AND ALUSUS_SET_RPATH)
-  set_target_properties(AlususSpp PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  # Set output names.
+  set_target_properties(AlususSppStatic PROPERTIES OUTPUT_NAME alusus_spp_static)
+  set_target_properties(AlususSppStatic PROPERTIES DEBUG_OUTPUT_NAME alusus_spp_static.dbg)
+  set_target_properties(AlususSppStatic PROPERTIES VERSION ${AlususVersion})
+  set_target_properties(AlususSppStatic PROPERTIES SOVERSION ${AlususSoVersion})
+  if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin" AND ALUSUS_SET_RPATH)
+    set_target_properties(AlususSppStatic PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+  elseif (NOT WIN32 AND ALUSUS_SET_RPATH)
+    set_target_properties(AlususSppStatic PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  endif()
+
+  # Finally, we link the LLVM and AlususCore libraries to our library.
+  target_link_libraries(AlususSppStatic AlususCoreLibStatic)
+  target_link_libraries(AlususSppStatic AlususStorageStatic)
+  # Prevent the exporting of LLVM symbols
+  #set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
+  #target_link_libraries(AlususSppStatic ${LinkerVersionScript})
+
+  # Copy libary header files to installation directory.
+  install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp" FILES
+    spp.h
+    LibraryGateway.h
+  )
+  foreach (dir ${AlususSppStatic_SOURCE_SUBDIRS})
+    file(GLOB headers ${dir}/*.h)
+    install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp/${dir}" FILES ${headers})
+  endforeach(dir)
+
+  install(TARGETS AlususSppStatic
+    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+    LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+  )
 endif()
+if (ALUSUS_BUILD_SHARED_LIBS)
+  add_library(AlususSpp SHARED ${AlususSpp_SOURCE_FILES})
+  set_target_properties(AlususSpp PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
+  add_precompiled_header(AlususSpp "spp.h")
 
-# Finally, we link the LLVM and AlususCore libraries to our library.
-target_link_libraries(AlususSpp AlususCoreLib)
-target_link_libraries(AlususSpp AlususStorage)
-# Prevent the exporting of LLVM symbols
-#set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
-#target_link_libraries(AlususSpp ${LinkerVersionScript})
+  # Set output names.
+  set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
+  set_target_properties(AlususSpp PROPERTIES DEBUG_OUTPUT_NAME alusus_spp.dbg)
+  set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
+  set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
+  if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin" AND ALUSUS_SET_RPATH)
+    set_target_properties(AlususSpp PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+  elseif (NOT WIN32 AND ALUSUS_SET_RPATH)
+    set_target_properties(AlususSpp PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  endif()
 
-# Copy libary header files to installation directory.
-install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp" FILES
-  spp.h
-  LibraryGateway.h
-)
-foreach (dir ${AlususSpp_SOURCE_SUBDIRS})
-  file(GLOB headers ${dir}/*.h)
-  install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp/${dir}" FILES ${headers})
-endforeach(dir)
+  # Finally, we link the LLVM and AlususCore libraries to our library.
+  target_link_libraries(AlususSpp AlususCoreLib)
+  target_link_libraries(AlususSpp AlususStorage)
+  # Prevent the exporting of LLVM symbols
+  #set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
+  #target_link_libraries(AlususSpp ${LinkerVersionScript})
 
-install(TARGETS AlususSpp
-  RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
-  LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
-  ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
-)
+  # Copy libary header files to installation directory.
+  install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp" FILES
+    spp.h
+    LibraryGateway.h
+  )
+  foreach (dir ${AlususSpp_SOURCE_SUBDIRS})
+    file(GLOB headers ${dir}/*.h)
+    install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Spp/${dir}" FILES ${headers})
+  endforeach(dir)
+
+  install(TARGETS AlususSpp
+    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+    LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+  )
+endif()

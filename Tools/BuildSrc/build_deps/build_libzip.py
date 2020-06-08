@@ -22,13 +22,19 @@ _LIBZIP_SRC_URL = "https://libzip.org/download/libzip-1.6.1.tar.gz"
 class build_libzip(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Bin", "libzip.dll")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libzip.dll")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libzip.dll.a"))
+                    install_path["root"], install_path["lib"], "libzip.dll.a"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libzip.so.5.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libzip.so.5")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libzip.so"))
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libzip.so.5.1")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libzip.so.5")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libzip.so"))
+        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libzip.5.1.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libzip.5.dylib")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libzip.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -56,7 +62,7 @@ class build_libzip(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -173,32 +179,60 @@ class build_libzip(template_build.template_build):
             os.chdir(original_dir)
             return False
 
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy2(
                 os.path.join(deps_path, "libzip-1.6.1.install",
                              "bin", "libzip.dll"),
-                os.path.join(install_path, "Bin", "libzip.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libzip.dll")
             )
             shutil.copy2(
                 os.path.join(deps_path, "libzip-1.6.1.install",
                              "lib", "libzip.dll.a"),
-                os.path.join(install_path, "Lib", "libzip.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzip.dll.a")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "libzip-1.6.1.install",
                              "lib", "libzip.so.5.1"),
-                os.path.join(install_path, "Lib", "libzip.so.5.1")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzip.so.5.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "libzip-1.6.1.install",
                              "lib", "libzip.so.5"),
-                os.path.join(install_path, "Lib", "libzip.so.5")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzip.so.5")
             )
             unix_copy2(
                 os.path.join(deps_path, "libzip-1.6.1.install",
                              "lib", "libzip.so"),
-                os.path.join(install_path, "Lib", "libzip.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzip.so")
+            )
+        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            unix_copy2(
+                os.path.join(deps_path, "libzip-1.6.1.install",
+                             "lib", "libzip.5.1.dylib"),
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzip.5.1.dylib")
+            )
+            unix_copy2(
+                os.path.join(deps_path, "libzip-1.6.1.install",
+                             "lib", "libzip.5.dylib"),
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzip.5.dylib")
+            )
+            unix_copy2(
+                os.path.join(deps_path, "libzip-1.6.1.install",
+                             "lib", "libzip.dylib"),
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libzip.dylib")
             )
 
         success_msg("Building libzip 1.6.1.")

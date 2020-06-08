@@ -8,7 +8,7 @@ project(AlususCore)
 cmake_minimum_required(VERSION 2.8)
 
 # Prepare compile flags.
-set(AlususCore_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
+set(AlususCore_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
 if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS RELEASE)
 else()
@@ -21,13 +21,25 @@ set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")
 
 # Add a target for Alusus global storage.
 set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
-add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
-if(WIN32)
-  set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
-  target_link_libraries(AlususStorage "LLVM" "dl" Win32Helpers)
-else()
-  set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
-  target_link_libraries(AlususStorage "LLVM" "dl")
+if (ALUSUS_BUILD_STATIC_LIBS)
+  add_library(AlususStorageStatic STATIC ${AlususStorage_Source_Files})
+  if(WIN32)
+    set_target_properties(AlususStorageStatic PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS} -fvisibility=hidden")
+    target_link_libraries(AlususStorageStatic "LLVM" "dl" Win32Helpers)
+  else()
+    set_target_properties(AlususStorageStatic PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS} -fvisibility=hidden")
+    target_link_libraries(AlususStorageStatic "LLVM" "dl")
+  endif()
+endif()
+if (ALUSUS_BUILD_SHARED_LIBS)
+  add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
+  if(WIN32)
+    set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
+    target_link_libraries(AlususStorage "LLVM" "dl" Win32Helpers)
+  else()
+    set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
+    target_link_libraries(AlususStorage "LLVM" "dl")
+  endif()
 endif()
 
 # Add a target for Alusus core library.
@@ -40,14 +52,26 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
   source_group("SourceFiles\\${DIR}" FILES ${sources})
   set(AlususCoreLib_Source_Files ${AlususCoreLib_Source_Files} ${sources} ${headers})
 endforeach(DIR)
-add_library(AlususCoreLib SHARED ${AlususCoreLib_Source_Files})
-if(WIN32)
-  set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
-else()
-  set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
+if (ALUSUS_BUILD_STATIC_LIBS)
+  add_library(AlususCoreLibStatic STATIC ${AlususCoreLib_Source_Files})
+  if(WIN32)
+    set_target_properties(AlususCoreLibStatic PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS} -fvisibility=hidden")
+  else()
+    set_target_properties(AlususCoreLibStatic PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS} -fvisibility=hidden")
+  endif()
+  add_precompiled_header(AlususCoreLibStatic "core.h")
+  target_link_libraries(AlususCoreLibStatic AlususStorageStatic)
 endif()
-add_precompiled_header(AlususCoreLib "core.h")
-target_link_libraries(AlususCoreLib AlususStorage)
+if (ALUSUS_BUILD_SHARED_LIBS)
+  add_library(AlususCoreLib SHARED ${AlususCoreLib_Source_Files})
+  if(WIN32)
+    set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
+  else()
+    set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
+  endif()
+  add_precompiled_header(AlususCoreLib "core.h")
+  target_link_libraries(AlususCoreLib AlususStorage)
+endif()
 
 # Add a target for Alusus core executable.
 set(AlususCore_Source_Files start.cpp)
@@ -56,7 +80,11 @@ set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_
 add_precompiled_header(AlususCore "core.h")
 
 # Finally, we link the executable to the libraries.
-target_link_libraries(AlususCore AlususCoreLib)
+if (ALUSUS_LINK_SHARED_LIBS)
+  target_link_libraries(AlususCore AlususCoreLib)
+else()
+  target_link_libraries(AlususCore AlususCoreLibStatic)
+endif()
 
 # Set library and executable output names.
 # NOTE: For alusus_storage, we'll use the same filename for both debug and
@@ -65,13 +93,24 @@ target_link_libraries(AlususCore AlususCoreLib)
 #       library that also need to link to alusus_storage. We should only have
 #       one alusus_storage loaded so that there is only one global storage.
 #       Having two separate global storages may result in undefined behavior.
-set_target_properties(AlususStorage PROPERTIES OUTPUT_NAME alusus_storage)
-set_target_properties(AlususStorage PROPERTIES DEBUG_OUTPUT_NAME alusus_storage)
-set_target_properties(AlususStorage PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususStorage PROPERTIES SOVERSION ${AlususSoVersion})
-set_target_properties(AlususCoreLib PROPERTIES OUTPUT_NAME alusus)
-set_target_properties(AlususCoreLib PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
-set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})
+if (ALUSUS_BUILD_STATIC_LIBS)
+  set_target_properties(AlususStorageStatic PROPERTIES OUTPUT_NAME alusus_storage_static)
+  set_target_properties(AlususStorageStatic PROPERTIES DEBUG_OUTPUT_NAME alusus_storage_static)
+  set_target_properties(AlususStorageStatic PROPERTIES VERSION ${AlususVersion})
+  set_target_properties(AlususStorageStatic PROPERTIES SOVERSION ${AlususSoVersion})
+  set_target_properties(AlususCoreLibStatic PROPERTIES OUTPUT_NAME alusus_static)
+  set_target_properties(AlususCoreLibStatic PROPERTIES DEBUG_OUTPUT_NAME alusus_static.dbg)
+  set_target_properties(AlususCoreLibStatic PROPERTIES VERSION ${AlususVersion})
+endif()
+if (ALUSUS_BUILD_SHARED_LIBS)
+  set_target_properties(AlususStorage PROPERTIES OUTPUT_NAME alusus_storage)
+  set_target_properties(AlususStorage PROPERTIES DEBUG_OUTPUT_NAME alusus_storage)
+  set_target_properties(AlususStorage PROPERTIES VERSION ${AlususVersion})
+  set_target_properties(AlususStorage PROPERTIES SOVERSION ${AlususSoVersion})
+  set_target_properties(AlususCoreLib PROPERTIES OUTPUT_NAME alusus)
+  set_target_properties(AlususCoreLib PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
+  set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})
+endif()
 set_target_properties(AlususCore PROPERTIES OUTPUT_NAME alusus)
 set_target_properties(AlususCore PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
 set_target_properties(AlususCore PROPERTIES VERSION ${AlususVersion})
@@ -97,12 +136,26 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
   install_files("/${ALUSUS_INSTALL_INCLUDE_DIR}/Core/${DIR}" FILES ${headers})
 endforeach(DIR)
 
-# Install library and executable files.
-install(TARGETS AlususStorage AlususCoreLib AlususCore
+# Install the libraries and executable files.
+install(TARGETS AlususCore
   RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
   LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
   ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
 )
+if (ALUSUS_BUILD_STATIC_LIBS)
+  install(TARGETS AlususStorageStatic AlususCoreLibStatic
+    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+    LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+  )
+endif()
+if (ALUSUS_BUILD_SHARED_LIBS)
+  install(TARGETS AlususStorage AlususCoreLib
+    RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
+    LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+    ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
+  )
+endif()
 
 # Add an install command to create the Arabic symbolic link.
 if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")

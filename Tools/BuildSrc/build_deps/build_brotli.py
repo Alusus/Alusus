@@ -21,35 +21,35 @@ _BROTLI_SRC_URL = "https://github.com/google/brotli/archive/v1.0.7.tar.gz"
 class build_brotli(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Bin", "libbrotlicommon.dll")) and\
-                os.path.exists(os.path.join(install_path, "Bin", "libbrotlidec.dll")) and\
-                os.path.exists(os.path.join(install_path, "Bin", "libbrotlienc.dll")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlicommon.dll.a")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlidec.dll.a")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libbrotlicommon.dll")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libbrotlidec.dll")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libbrotlienc.dll")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlicommon.dll.a")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlidec.dll.a")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libbrotlienc.dll.a"))
+                    install_path["root"], install_path["lib"], "libbrotlienc.dll.a"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libbrotlicommon.so.1.0.7")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlidec.so.1.0.7")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlienc.so.1.0.7")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlicommon.so.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlidec.so.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlienc.so.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlicommon.so")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlidec.so")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlicommon.so.1.0.7")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlidec.so.1.0.7")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlienc.so.1.0.7")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlicommon.so.1")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlidec.so.1")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlienc.so.1")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlicommon.so")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlidec.so")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libbrotlienc.so"))
+                    install_path["root"], install_path["lib"], "libbrotlienc.so"))
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libbrotlicommon.1.0.7.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlidec.1.0.7.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlienc.1.0.7.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlicommon.1.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlidec.1.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlienc.1.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlicommon.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libbrotlidec.dylib")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlicommon.1.0.7.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlidec.1.0.7.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlienc.1.0.7.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlicommon.1.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlidec.1.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlienc.1.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlicommon.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libbrotlidec.dylib")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libbrotlienc.dylib"))
+                    install_path["root"], install_path["lib"], "libbrotlienc.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -63,7 +63,7 @@ class build_brotli(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -145,129 +145,156 @@ class build_brotli(template_build.template_build):
             os.chdir(original_dir)
             return False
 
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "bin", "libbrotlicommon.dll"),
-                os.path.join(install_path, "Bin", "libbrotlicommon.dll")
+                os.path.join(
+                    install_path["root"], install_path["bin"], "libbrotlicommon.dll")
             )
             shutil.copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "bin", "libbrotlidec.dll"),
-                os.path.join(install_path, "Bin", "libbrotlidec.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libbrotlidec.dll")
             )
             shutil.copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "bin", "libbrotlienc.dll"),
-                os.path.join(install_path, "Bin", "libbrotlienc.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libbrotlienc.dll")
             )
             shutil.copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlicommon.dll.a"),
-                os.path.join(install_path, "Lib", "libbrotlicommon.dll.a")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlicommon.dll.a")
             )
             shutil.copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlidec.dll.a"),
-                os.path.join(install_path, "Lib", "libbrotlidec.dll.a")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlidec.dll.a")
             )
             shutil.copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlienc.dll.a"),
-                os.path.join(install_path, "Lib", "libbrotlienc.dll.a")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlienc.dll.a")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlicommon.so.1.0.7"),
-                os.path.join(install_path, "Lib", "libbrotlicommon.so.1.0.7")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlicommon.so.1.0.7")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlidec.so.1.0.7"),
-                os.path.join(install_path, "Lib", "libbrotlidec.so.1.0.7")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlidec.so.1.0.7")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlienc.so.1.0.7"),
-                os.path.join(install_path, "Lib", "libbrotlienc.so.1.0.7")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlienc.so.1.0.7")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlicommon.so.1"),
-                os.path.join(install_path, "Lib", "libbrotlicommon.so.1")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlicommon.so.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlidec.so.1"),
-                os.path.join(install_path, "Lib", "libbrotlidec.so.1")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlidec.so.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlienc.so.1"),
-                os.path.join(install_path, "Lib", "libbrotlienc.so.1")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlienc.so.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlicommon.so"),
-                os.path.join(install_path, "Lib", "libbrotlicommon.so")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlicommon.so")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlidec.so"),
-                os.path.join(install_path, "Lib", "libbrotlidec.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libbrotlidec.so")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlienc.so"),
-                os.path.join(install_path, "Lib", "libbrotlienc.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libbrotlienc.so")
             )
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlicommon.1.0.7.dylib"),
-                os.path.join(install_path, "Lib",
+                os.path.join(install_path["root"], install_path["lib"],
                              "libbrotlicommon.1.0.7.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlidec.1.0.7.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlidec.1.0.7.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlidec.1.0.7.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlienc.1.0.7.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlienc.1.0.7.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlienc.1.0.7.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlicommon.1.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlicommon.1.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlicommon.1.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlidec.1.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlidec.1.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlidec.1.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlienc.1.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlienc.1.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlienc.1.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlicommon.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlicommon.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlicommon.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlidec.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlidec.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlidec.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "brotli-1.0.7.install",
                              "lib", "libbrotlienc.dylib"),
-                os.path.join(install_path, "Lib", "libbrotlienc.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libbrotlienc.dylib")
             )
 
         success_msg("Building Brotli 1.0.7.")

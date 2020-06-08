@@ -19,7 +19,7 @@ class build_ghc_filesystem(template_build.template_build):
         global _GHC_FILESYSTEM_URL
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)

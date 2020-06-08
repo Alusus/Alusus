@@ -21,19 +21,19 @@ _NGHTTP2_SRC_URL = "https://github.com/nghttp2/nghttp2/archive/v1.40.0.tar.gz"
 class build_nghttp2(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Bin", "libnghttp2.dll")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libnghttp2.dll")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libnghttp2.dll.a"))
+                    install_path["root"], install_path["lib"], "libnghttp2.dll.a"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libnghttp2.so.14.19.0")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libnghttp2.so.14")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libnghttp2.so.14.19.0")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libnghttp2.so.14")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libnghttp2.so"))
+                    install_path["root"], install_path["lib"], "libnghttp2.so"))
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libnghttp2.14.19.0.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libnghttp2.14.dylib")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libnghttp2.14.19.0.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libnghttp2.14.dylib")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libnghttp2.dylib"))
+                    install_path["root"], install_path["lib"], "libnghttp2.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -61,7 +61,7 @@ class build_nghttp2(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -170,48 +170,60 @@ class build_nghttp2(template_build.template_build):
             os.chdir(original_dir)
             return False
 
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "bin", "libnghttp2.dll"),
-                os.path.join(install_path, "Bin", "libnghttp2.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libnghttp2.dll")
             )
             shutil.copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "lib", "libnghttp2.dll.a"),
-                os.path.join(install_path, "Lib", "libnghttp2.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libnghttp2.dll.a")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "lib", "libnghttp2.so.14.19.0"),
-                os.path.join(install_path, "Lib", "libnghttp2.so.14.19.0")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libnghttp2.so.14.19.0")
             )
             unix_copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "lib", "libnghttp2.so.14"),
-                os.path.join(install_path, "Lib", "libnghttp2.so.14")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libnghttp2.so.14")
             )
             unix_copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "lib", "libnghttp2.so"),
-                os.path.join(install_path, "Lib", "libnghttp2.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libnghttp2.so")
             )
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "lib", "libnghttp2.14.19.0.dylib"),
-                os.path.join(install_path, "Lib", "libnghttp2.14.19.0.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libnghttp2.14.19.0.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "lib", "libnghttp2.14.dylib"),
-                os.path.join(install_path, "Lib", "libnghttp2.14.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libnghttp2.14.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "nghttp2-1.40.0.install",
                              "lib", "libnghttp2.dylib"),
-                os.path.join(install_path, "Lib", "libnghttp2.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libnghttp2.dylib")
             )
 
         success_msg("Building nghttp2 1.40.0.")

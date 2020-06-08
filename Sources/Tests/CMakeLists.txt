@@ -8,7 +8,7 @@ project(AlususTests)
 cmake_minimum_required(VERSION 2.8)
 
 # Prepare compile flags.
-set(AlususTests_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
+set(AlususTests_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
 
 # Header and library files paths for LLVM
 #include_directories("${LLVM_INCLUDE_DIRS}")
@@ -46,9 +46,12 @@ set_target_properties(AlususTests PROPERTIES OUTPUT_NAME alusus_tests)
 set_target_properties(AlususTests PROPERTIES DEBUG_OUTPUT_NAME alusus_tests.dbg)
 set_target_properties(AlususTests PROPERTIES VERSION ${AlususVersion})
 
-
 # Finally, we link Alusus libraries to our UnitTests project.
-target_link_libraries(AlususTests AlususCoreLib)
+if (ALUSUS_LINK_SHARED_LIBS)
+  target_link_libraries(AlususTests AlususCoreLib)
+else()
+  target_link_libraries(AlususTests AlususCoreLibStatic)
+endif()
 
 add_test(NAME AlususTests
   COMMAND AlususTests

@@ -22,17 +22,18 @@ _LIBSSH2_SRC_URL = "https://www.libssh2.org/download/libssh2-1.9.0.tar.gz"
 class build_libssh2(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Bin", "libssh2.dll")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libssh2.dll")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libssh2.dll.a"))
+                    install_path["root"], install_path["lib"], "libssh2.dll.a"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libssh2.so.1.0.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libssh2.so.1")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libssh2.so"))
-        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libssh2.1.dylib")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libssh2.so.1.0.1")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libssh2.so.1")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libssh2.dylib"))
+                    install_path["root"], install_path["lib"], "libssh2.so"))
+        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libssh2.1.dylib")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libssh2.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -60,7 +61,7 @@ class build_libssh2(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -216,43 +217,54 @@ class build_libssh2(template_build.template_build):
                              "lib", "libssh2.a")
             )
 
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy2(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "bin", "libssh2.dll"),
-                os.path.join(install_path, "Bin", "libssh2.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libssh2.dll")
             )
             shutil.copy2(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "lib", "libssh2.dll.a"),
-                os.path.join(install_path, "Lib", "libssh2.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssh2.dll.a")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "lib", "libssh2.so.1.0.1"),
-                os.path.join(install_path, "Lib", "libssh2.so.1.0.1")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssh2.so.1.0.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "lib", "libssh2.so.1"),
-                os.path.join(install_path, "Lib", "libssh2.so.1")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssh2.so.1")
             )
             unix_copy2(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "lib", "libssh2.so"),
-                os.path.join(install_path, "Lib", "libssh2.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssh2.so")
             )
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "lib", "libssh2.1.dylib"),
-                os.path.join(install_path, "Lib", "libssh2.1.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssh2.1.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "lib", "libssh2.dylib"),
-                os.path.join(install_path, "Lib", "libssh2.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libssh2.dylib")
             )
         success_msg("Building libssh2 1.9.0.")
         os.chdir(original_dir)

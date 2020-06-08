@@ -23,20 +23,21 @@ _LLVM_SRC_URL = "https://github.com/llvm/llvm-project/releases/download/llvmorg-
 class build_llvm(template_build.template_build):
     def _check_built(install_path, target_system=None):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libLLVM-10.dll.a")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libLLVM-10.0.0.dll.a")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libLLVM.dll.a")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libLLVM-10.dll.a")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libLLVM-10.0.0.dll.a")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libLLVM.dll.a")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Bin", "libLLVM-10.dll"))
+                    install_path["root"], install_path["bin"], "libLLVM-10.dll"))
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libLLVM-10.so")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libLLVM-10.0.0.so")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libLLVM.so"))
-        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
-            return os.path.exists(os.path.join(install_path, "Lib", "libLLVM-10.dylib")) and\
-                os.path.exists(os.path.join(install_path, "Lib", "libLLVM-10.0.0.dylib")) and\
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libLLVM-10.so")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libLLVM-10.0.0.so")) and\
                 os.path.exists(os.path.join(
-                    install_path, "Lib", "libLLVM.dylib"))
+                    install_path["root"], install_path["lib"], "libLLVM.so"))
+        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libLLVM-10.dylib")) and\
+                os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libLLVM-10.0.0.dylib")) and\
+                os.path.exists(os.path.join(
+                    install_path["root"], install_path["lib"], "libLLVM.dylib"))
         return False
 
     def build(deps_path, install_path, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -57,7 +58,7 @@ class build_llvm(template_build.template_build):
             return True
 
         os.makedirs(deps_path, exist_ok=True)
-        os.makedirs(install_path, exist_ok=True)
+        os.makedirs(install_path["root"], exist_ok=True)
 
         original_dir = os.getcwd()
         os.chdir(deps_path)
@@ -207,14 +208,12 @@ class build_llvm(template_build.template_build):
             new_environ["PKG_CONFIG_PATH"] = zlib_environ["PKG_CONFIG_PATH"] +\
                 ("" if ("PKG_CONFIG_PATH" not in new_environ) else
                  (host_sep + new_environ["PKG_CONFIG_PATH"]))
-            if platform.system() == "Windows":
-                new_environ["PATH"] = zlib_environ["ALUSUS_HOST_PATH"] +\
-                    ("" if ("PATH" not in new_environ) else
-                     (host_sep + new_environ["PATH"]))
-            else:
-                new_environ["LD_LIBRARY_PATH"] = zlib_environ["ALUSUS_HOST_LD_LIBRARY_PATH"] +\
-                    ("" if ("LD_LIBRARY_PATH" not in new_environ) else
-                     (host_sep + new_environ["LD_LIBRARY_PATH"]))
+            new_environ["PATH"] = zlib_environ["ALUSUS_HOST_PATH"] +\
+                ("" if ("PATH" not in new_environ) else
+                    (host_sep + new_environ["PATH"]))
+            new_environ["LD_LIBRARY_PATH"] = zlib_environ["ALUSUS_HOST_LD_LIBRARY_PATH"] +\
+                ("" if ("LD_LIBRARY_PATH" not in new_environ) else
+                    (host_sep + new_environ["LD_LIBRARY_PATH"]))
             new_environ = create_new_environ_with_custom_cc_cxx(
                 new_environ, target_system=target_system)
             host_cxx_arch = get_host_cxx_arch(new_environ=new_environ)
@@ -427,60 +426,72 @@ class build_llvm(template_build.template_build):
             os.symlink("libLLVM-10.dylib", "libLLVM-10.0.0.dylib")
             os.symlink("libLLVM-10.dylib", "libLLVM.dylib")
 
-        os.makedirs(os.path.join(install_path, "Lib"), exist_ok=True)
-        os.makedirs(os.path.join(install_path, "Bin"), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["lib"]), exist_ok=True)
+        os.makedirs(os.path.join(
+            install_path["root"], install_path["bin"]), exist_ok=True)
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             shutil.copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "windows") else "llvm-10.0.0.install"),
                              "lib", "libLLVM-10.dll.a"),
-                os.path.join(install_path, "Lib", "libLLVM-10.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libLLVM-10.dll.a")
             )
             shutil.copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "windows") else "llvm-10.0.0.install"),
                              "lib", "libLLVM-10.0.0.dll.a"),
-                os.path.join(install_path, "Lib", "libLLVM-10.0.0.dll.a")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libLLVM-10.0.0.dll.a")
             )
             shutil.copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "windows") else "llvm-10.0.0.install"),
                              "lib", "libLLVM.dll.a"),
-                os.path.join(install_path, "Lib", "libLLVM.dll.a")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libLLVM.dll.a")
             )
             shutil.copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "windows") else "llvm-10.0.0.install"),
                              "bin", "libLLVM-10.dll"),
-                os.path.join(install_path, "Bin", "libLLVM-10.dll")
+                os.path.join(install_path["root"],
+                             install_path["bin"], "libLLVM-10.dll")
             )
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "linux") else "llvm-10.0.0.install"),
                              "lib", "libLLVM-10.so"),
-                os.path.join(install_path, "Lib", "libLLVM-10.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libLLVM-10.so")
             )
             unix_copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "linux") else "llvm-10.0.0.install"),
                              "lib", "libLLVM-10.0.0.so"),
-                os.path.join(install_path, "Lib", "libLLVM-10.0.0.so")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libLLVM-10.0.0.so")
             )
             unix_copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "linux") else "llvm-10.0.0.install"),
                              "lib", "libLLVM.so"),
-                os.path.join(install_path, "Lib", "libLLVM.so")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libLLVM.so")
             )
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             unix_copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "macos") else "llvm-10.0.0.install"),
                              "lib", "libLLVM-10.dylib"),
-                os.path.join(install_path, "Lib", "libLLVM-10.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libLLVM-10.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "macos") else "llvm-10.0.0.install"),
                              "lib", "libLLVM-10.0.0.dylib"),
-                os.path.join(install_path, "Lib", "libLLVM-10.0.0.dylib")
+                os.path.join(
+                    install_path["root"], install_path["lib"], "libLLVM-10.0.0.dylib")
             )
             unix_copy2(
                 os.path.join(deps_path, ("llvm-10.0.0.target.install" if (target_system == "macos") else "llvm-10.0.0.install"),
                              "lib", "libLLVM.dylib"),
-                os.path.join(install_path, "Lib", "libLLVM.dylib")
+                os.path.join(install_path["root"],
+                             install_path["lib"], "libLLVM.dylib")
             )
 
         success_msg("Building LLVM 10.0.0.")
@@ -491,16 +502,14 @@ class build_llvm(template_build.template_build):
         host_sep = ":" if platform.system() != "Windows" else ";"
         new_environ = os.environ.copy()
         if target_system != None:
-            if platform.system() == "Windows":
-                new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "llvm-10.0.0.host.install", "bin") + host_sep +\
-                    build_zlib.build_zlib.get_dep_environ(deps_path, target_system=target_system)["ALUSUS_HOST_PATH"] +\
-                    ("" if ("ALUSUS_HOST_PATH" not in new_environ) else
-                     (host_sep + new_environ["ALUSUS_HOST_PATH"]))
-            else:
-                new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"] = os.path.join(deps_path, "llvm-10.0.0.host.install", "lib") + host_sep +\
-                    build_zlib.build_zlib.get_dep_environ(deps_path, target_system=target_system)["ALUSUS_HOST_LD_LIBRARY_PATH"] +\
-                    ("" if ("ALUSUS_HOST_LD_LIBRARY_PATH" not in new_environ) else
-                     (host_sep + new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"]))
+            new_environ["ALUSUS_HOST_PATH"] = os.path.join(deps_path, "llvm-10.0.0.host.install", "bin") + host_sep +\
+                build_zlib.build_zlib.get_dep_environ(deps_path, target_system=target_system)["ALUSUS_HOST_PATH"] +\
+                ("" if ("ALUSUS_HOST_PATH" not in new_environ) else
+                    (host_sep + new_environ["ALUSUS_HOST_PATH"]))
+            new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"] = os.path.join(deps_path, "llvm-10.0.0.host.install", "lib") + host_sep +\
+                build_zlib.build_zlib.get_dep_environ(deps_path, target_system=target_system)["ALUSUS_HOST_LD_LIBRARY_PATH"] +\
+                ("" if ("ALUSUS_HOST_LD_LIBRARY_PATH" not in new_environ) else
+                    (host_sep + new_environ["ALUSUS_HOST_LD_LIBRARY_PATH"]))
             new_environ["ALUSUS_HOST_LIBRARY_PATH"] = os.path.join(deps_path, "llvm-10.0.0.host.install", "lib") +\
                 ("" if ("ALUSUS_HOST_LIBRARY_PATH" not in new_environ) else
                  (host_sep + new_environ["ALUSUS_HOST_LIBRARY_PATH"]))
