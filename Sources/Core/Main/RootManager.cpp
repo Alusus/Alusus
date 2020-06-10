@@ -179,9 +179,9 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
 #if defined(_WIN32)
   Str path4 = (fs::u8path(getModuleDirectory().c_str()) / ".." / "Bin").string();
   this->binSearchPathsMutex.lock();
-  this->binSearchPaths.push_back(path1.c_str());
-  this->binSearchPaths.push_back(path4.c_str());
-  this->binSearchPaths.push_back(path3.c_str());
+  this->binSearchPaths.push_back(fs::absolute(fs::path(path1.c_str())).u8string());
+  this->binSearchPaths.push_back(fs::absolute(fs::path(path4.c_str())).u8string());
+  this->binSearchPaths.push_back(fs::absolute(fs::path(path3.c_str())).u8string());
   this->binSearchPathsMutex.unlock();
 #endif
 
@@ -236,7 +236,7 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
       // TODO: Ignore empty paths for now.
       if (path.size() > 0) {
         this->binSearchPathsMutex.lock();
-        this->binSearchPaths.push_back(path);
+        this->binSearchPaths.push_back(fs::absolute(fs::path(path.c_str())).u8string());
         this->binSearchPathsMutex.unlock();
       }
     }
@@ -364,7 +364,7 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
     this->loadedImportLibsMutex.lock();
 
     // No need to reload the import library again.
-    if (this->loadedImportLibs.find(newFileName) == this->loadedImportLibs.end()) {
+    if (this->loadedImportLibs.find(newFileName) != this->loadedImportLibs.end()) {
       this->loadedImportLibsMutex.unlock();
       return true;
     }
@@ -388,8 +388,8 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 
       // Load the DLL.
       newFileName = resultFilename.data();
-      if (this->getLibraryManager()->load(newFileName, errorDetails)) {
-        errorDetails = "Error loading: " + Str(newFileName);
+      PtrWord id = this->getLibraryManager()->load(newFileName, errorDetails);
+      if (id == 0) {
         this->loadedImportLibsMutex.unlock();
         return false;
       }
@@ -402,7 +402,8 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
     this->loadedImportLibsMutex.unlock();
     return true;
 #else
-    return !this->getLibraryManager()->load(newFileName, errorDetails);
+    PtrWord id = this->getLibraryManager()->load(newFileName, errorDetails);
+    return id != 0;
 #endif
   }
 }

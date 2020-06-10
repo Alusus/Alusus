@@ -1,6 +1,6 @@
 import "Srl/Memory.alusus";
 import "Srl/Fs.alusus";
-import "libcurl";
+import "curl";
 
 @merge def Srl : module
 {

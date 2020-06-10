@@ -1,5 +1,5 @@
 import "Srl/Fs.alusus";
-import "libzip";
+import "zip";
 
 def Zip: module {
   def zip_t: type {};
