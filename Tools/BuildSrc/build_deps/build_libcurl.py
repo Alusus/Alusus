@@ -231,6 +231,16 @@ class build_libcurl(template_build.template_build):
 
         # We will create libcurl shared library for Windows now.
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
+            try:
+                os.remove(os.path.join(
+                    deps_path, "curl-7.70.0.install", "lib", "libcurl.dll"))
+            except OSError:
+                pass
+            try:
+                os.remove(os.path.join(
+                    deps_path, "curl-7.70.0.install", "lib", "libcurl.dll.a"))
+            except OSError:
+                pass
             ret = create_dll(
                 arg_dir=[os.path.join(
                     deps_path, "curl-7.70.0.install", "lib")],

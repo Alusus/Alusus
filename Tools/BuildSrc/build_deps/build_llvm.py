@@ -381,6 +381,22 @@ class build_llvm(template_build.template_build):
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             os.chdir(os.path.join("..", ("llvm-10.0.0.target.install" if (
                 target_system == "windows") else "llvm-10.0.0.install"), "lib"))
+            try:
+                os.remove("libLLVM-10.dll.a")
+            except OSError:
+                pass
+            try:
+                os.remove("libLLVM-10.0.0.dll.a")
+            except OSError:
+                pass
+            try:
+                os.remove("libLLVM.dll.a")
+            except OSError:
+                pass
+            try:
+                os.remove("libLLVM-10.dll")
+            except OSError:
+                pass
             static_libs = [static_lib for static_lib in os.listdir(".") if not (
                 static_lib.endswith(".dll.a") or static_lib.endswith(".lib"))]
             create_dll_out = create_dll(arg_file=static_libs, arg_output_dir=".", arg_output_name="LLVM-10",
@@ -402,6 +418,18 @@ class build_llvm(template_build.template_build):
         elif target_system == "linux" or platform.system() == "Linux" and not target_system:
             os.chdir(os.path.join("..", ("llvm-10.0.0.target.install" if (
                 target_system == "macos") else "llvm-10.0.0.install"), "lib"))
+            try:
+                os.remove("libLLVM-10.so")
+            except OSError:
+                pass
+            try:
+                os.remove("libLLVM-10.0.0.so")
+            except OSError:
+                pass
+            try:
+                os.remove("libLLVM-10.0.0.so")
+            except OSError:
+                pass
             create_so_out = create_so(arg_file=os.listdir("."), arg_output_dir=".", arg_output_name="LLVM-10",
                                       arg_link_lib=["z", "pthread"],
                                       new_environ=new_environ)
@@ -410,11 +438,23 @@ class build_llvm(template_build.template_build):
                 os.chdir(original_dir)
                 return False
             os.symlink("libLLVM-10.so", "libLLVM-10.0.0.so")
-            os.symlink("libLLVM-10.so", "libLLVM.so")
+            os.symlink("libLLVM-10.so", "libLLVM-10.0.0.so")
         # Manually create the DYLIB for libLLVM-10 for the macOS target or platform.
         elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
             os.chdir(os.path.join("..", ("llvm-10.0.0.target.install" if (
                 target_system == "macos") else "llvm-10.0.0.install"), "lib"))
+            try:
+                os.remove("libLLVM-10.dylib")
+            except OSError:
+                pass
+            try:
+                os.remove("libLLVM-10.0.0.dylib")
+            except OSError:
+                pass
+            try:
+                os.remove("libLLVM-10.0.0.dylib")
+            except OSError:
+                pass
             create_dylib_out = create_dylib(arg_file=os.listdir("."), arg_output_dir=".", arg_output_name="LLVM-10",
                                             arg_link_lib=[
                                                 "z", "clang_rt.osx", "pthread"],

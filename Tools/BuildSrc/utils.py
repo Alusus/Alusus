@@ -101,11 +101,12 @@ def get_lib_path(libname, target_system=None, environ=os.environ):
                 )
                 dll_paths = set()
                 for dll in dlls:
-                    for path in paths:
-                        dll_path = os.path.abspath(os.path.join(path, dll))
-                        if os.path.exists(dll_path):
-                            dll_paths.add(dll_path)
-                            break
+                    if len(dll) > 0 and dll.endswith(".dll"):
+                        for path in paths:
+                            dll_path = os.path.abspath(os.path.join(path, dll))
+                            if os.path.exists(dll_path):
+                                dll_paths.add(dll_path)
+                                break
                 if len(dll_paths) > 0:
                     to_return["dll_paths"] = list(dll_paths)
                 else:
@@ -115,8 +116,8 @@ def get_lib_path(libname, target_system=None, environ=os.environ):
     return to_return
 
 
-# Parse "ALUSUS_TO_COPY_LIBS". These are ','-seperated libraries to be copied into the final installation directory,
-# and you can escape the ',' and '\' characters by prefixing them with '\'.
+# Parse "ALUSUS_TO_COPY_LIBS". These are ","-seperated libraries to be copied into the final installation directory,
+# and you can escape the "," and "\" characters by prefixing them with "\"".
 def get_to_copy_libs(environ=os.environ):
     to_return = set()
     if "ALUSUS_TO_COPY_LIBS" not in environ:

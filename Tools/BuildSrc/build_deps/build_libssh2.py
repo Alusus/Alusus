@@ -178,6 +178,16 @@ class build_libssh2(template_build.template_build):
         # We will create libssh2 shared library for Windows now (for some reason, the build script
         # fails to create shared library for Windows).
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
+            try:
+                os.remove(os.path.join(
+                    deps_path, "libssh2-1.9.0.install", "lib", "libssh2.dll"))
+            except OSError:
+                pass
+            try:
+                os.remove(os.path.join(
+                    deps_path, "libssh2-1.9.0.install", "lib", "libssh2.dll.a"))
+            except OSError:
+                pass
             shutil.move(
                 os.path.join(deps_path, "libssh2-1.9.0.install",
                              "lib", "libssh2.a"),

@@ -13,6 +13,14 @@
 #ifndef CORE_MAIN_ROOTMANAGER_H
 #define CORE_MAIN_ROOTMANAGER_H
 
+#include <utility>
+#include <vector>
+
+#if defined(_WIN32)
+#include <mutex>
+#include <set>
+#endif
+
 namespace Core::Main
 {
 
@@ -49,6 +57,16 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   private: std::vector<Str> searchPaths;
   private: std::vector<Int> searchPathCounts;
+
+#if defined(_WIN32)
+  // Search paths for DLLs.
+  std::mutex binSearchPathsMutex;
+  private: std::vector<Str> binSearchPaths;
+
+  // To store all loaded import libraries to prevent reloading.
+  std::mutex loadedImportLibsMutex;
+  private: std::set<Str> loadedImportLibs;
+#endif
 
   private: Data::Seeker seeker;
 
@@ -121,6 +139,10 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   public: virtual SharedPtr<TiObject> processFile(Char const *filename, Bool allowReprocess = false);
 
+  private: virtual std::vector<std::pair<Bool, Str>> tokenizePathEnvVar(Str pathEnvVar);
+
+  private: virtual std::vector<Str> parsePathEnvVar(Str pathEnvVar, Str emptyPath = "");
+
   private: virtual SharedPtr<TiObject> _processFile(Char const *fullPath, Bool allowReprocess = false);
 
   public: virtual SharedPtr<TiObject> processStream(Processing::CharInStreaming *is, Char const *streamName);
@@ -132,6 +154,16 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   public: virtual void popSearchPath(Char const *path);
 
   private: virtual Bool findFile(Char const *filename, std::array<Char,PATH_MAX> &resultFilename);
+
+#if defined(_WIN32)
+  // Find the DLL's full path from the binary search paths.
+  private: virtual Bool findBinFile(Char const *filename, std::array<Char,PATH_MAX> &resultFilename);
+
+  private: virtual Bool hasEnding (Str const &fullString, Str const &ending);
+
+  // Get the DLL names in the import library.
+  private: virtual std::vector<Str> getDLLNames(Str const &filename, Bool &errorCheck);
+#endif
 
   private: virtual Bool tryFileName(Char const *path, std::array<Char,PATH_MAX> &resultFilename);
 

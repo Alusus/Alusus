@@ -58,7 +58,7 @@ if(ALUSUS_PRINT_VERSION_INFO)
   set(AlususHijriReleaseDate ${CMAKE_MATCH_1})
   message(STATUS "Alusus Version: " ${AlususVersion})
   message(STATUS "Alusus Revision: " ${AlususRevision})
-  message(STATUS "Alusus So Version: " ${AlususSoVersion})
+  message(STATUS "Alusus Shared Version: " ${AlususSoVersion})
   message(STATUS "Alusus Release Date: " ${AlususReleaseDate})
   message(STATUS "Alusus Hijri Release Date: " ${AlususHijriReleaseDate})
 

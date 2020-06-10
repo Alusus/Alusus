@@ -10,15 +10,35 @@
  */
 //==============================================================================
 
-#include "core.h"
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <utility>
+#include <set>
+#include <vector>
 
+#include "core.h"
 
-#ifdef _WIN32
-#include "Win32Helpers.h"
+#if defined(_WIN32)
+
+#undef C
+
+// For parsing archive files.
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/ErrorOr.h>
+#include <llvm/Support/Errc.h>
+#include <llvm/Support/Error.h>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Object/Archive.h>
+
+#undef C
+#define C(x)	u8##x
+
+#include <system_error>
+#include <memory>
 #include <windows.h>
+
+#include "Win32Helpers.h"
 #endif
 
 // #if defined(__cplusplus) && __cplusplus >= 201703L && defined(__has_include)
@@ -47,6 +67,85 @@ Char const *sourceExtensions[] = {
   S(".مصدر")
 };
 
+#if defined(_WIN32)
+#define PATH_SEP ';'
+#else
+#define PATH_SEP ':'
+#endif
+
+std::vector<std::pair<Bool, Str>> RootManager::tokenizePathEnvVar(Str pathEnvVar) {
+  std::vector<std::pair<Bool, Str>> tokens;
+  size_t i = 0;
+  while (i < pathEnvVar.size()) {
+    Char currChar = pathEnvVar[i];
+    if (currChar == PATH_SEP) {
+      tokens.push_back(std::make_pair(true, Str())); // Setting "true" for the first item of the pair
+                                                     // to indicate a separator.
+      i++;
+    }
+#if defined(_WIN32)
+    // Windows can also escape the path separator by enclosing the entire path token in double quotes.
+    else if (currChar == '\"') {
+      Str currToken;
+      i++; // Skip the first double quote character.
+      if (i < pathEnvVar.size()) {
+        currChar = pathEnvVar[i];
+        while (currChar != '\"' && i < pathEnvVar.size()) {
+          currToken += currChar;
+          i++;
+          if (i < pathEnvVar.size()) {
+            currChar = pathEnvVar[i];
+          }
+        }
+        tokens.push_back(std::make_pair(false, currToken));
+        i++; // Skip the second double quote character.
+      }
+    }
+#endif
+    else {
+      Str currToken;
+      while (currChar != PATH_SEP && i < pathEnvVar.size()) {
+        currToken += currToken;
+        i++;
+        if (i < pathEnvVar.size()) {
+          currChar = pathEnvVar[i];
+        }
+      }
+      tokens.push_back(std::make_pair(false, currToken));
+    }
+  }
+  return tokens;
+}
+
+std::vector<Str> RootManager::parsePathEnvVar(Str pathEnvVar, Str emptyPath) {
+  auto tokens = tokenizePathEnvVar(pathEnvVar);
+  std::vector<Str> paths;
+  std::set<Str> addedPaths;
+  Bool expectedPath = true;
+
+  for (auto token : tokens) {
+    // This is a separator token.
+    if (token.first) {
+      if (expectedPath) {
+        if (addedPaths.find(emptyPath) == addedPaths.end()) {
+          addedPaths.insert(emptyPath);
+          paths.push_back(emptyPath);
+        }
+      }
+      expectedPath = true;
+    } 
+    
+    // This is a text token.
+    else {
+      if (addedPaths.find(token.second) == addedPaths.end()) {
+        addedPaths.insert(token.second);
+        paths.push_back(token.second);
+      }
+      expectedPath = false;
+    }
+  }
+  return paths;
+}
 
 //==============================================================================
 // Constructor
@@ -77,13 +176,18 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->pushSearchPath(path1.c_str());
   this->pushSearchPath(path2.c_str());
   this->pushSearchPath(path3.c_str());
-  // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':' on Unix, or ';' on Windows.
-#ifdef _WIN32
-  // Add the Bin folder too, as it contains the actual DLLs.
+#if defined(_WIN32)
   Str path4 = (fs::u8path(getModuleDirectory().c_str()) / ".." / "Bin").string();
-  this->pushSearchPath(path4.c_str());
+  this->binSearchPathsMutex.lock();
+  this->binSearchPaths.push_back(path1.c_str());
+  this->binSearchPaths.push_back(path4.c_str());
+  this->binSearchPaths.push_back(path3.c_str());
+  this->binSearchPathsMutex.unlock();
+#endif
 
-  // Load the environment variables as wide characters, then convert them to multibyte characters, on Windows.
+  // Add the paths from ALUSUS_LIBS environment variable.
+#if defined(_WIN32)
+  // Load the environment variable as wide characters, then convert them to multibyte characters, on Windows.
   const Char *alususLibs = nullptr;
   WChar *wAlususLibs = _wgetenv(L"ALUSUS_LIBS");
   Str alususLibsStr;
@@ -94,25 +198,51 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
 #else
   const Char *alususLibs = getenv(S("ALUSUS_LIBS"));
 #endif
+
   if (alususLibs != nullptr) {
-    Str envPath = alususLibs;
-    Int endPos = -1;
-    Str path;
-    while (endPos < static_cast<Int>(envPath.size())) {
-      Int startPos = endPos+1;
-#ifdef _WIN32
-      endPos = envPath.find(C(';'), startPos);
-#else
-      endPos = envPath.find(C(':'), startPos);
-#endif
-      if (endPos == Str::npos) endPos = envPath.size();
-      path.assign(envPath, startPos, endPos-startPos);
-      path = fs::u8path(path.c_str()).string();
+    // TODO: What do we do with empty paths in the environment variable
+    // (e.g. "path1:::path2::path3" in Unix or "path1;;;path2;;path3" in Windows)?
+    // Do we ignore it, for example, or add the current working directory in place of the empty path
+    // (e.g. "path1:<cwd>:<cwd>:path2:<cwd>:path3" in Unix or "path1;<cwd>;<cwd>;path2;<cwd>;path3"
+    // in Windows, where "<cwd>" is the current working directory)?
+    std::vector<Str> paths = parsePathEnvVar(Str(alususLibs));
+    for (auto path : paths) {
+      // TODO: Ignore empty paths for now.
       if (path.size() > 0) {
         this->pushSearchPath(path.c_str());
       }
     }
   }
+
+#if defined(_WIN32)
+  // Add the DLL paths in "ALUSUS_BINS" environment variable.
+  // Load the environment variable as wide characters, then convert them to multibyte characters, on Windows.
+  const Char *alususBins = nullptr;
+  WChar *wAlususBins = _wgetenv(L"ALUSUS_BINS");
+  Str alususBinsStr;
+  if (wAlususBins != nullptr) {
+    alususBinsStr = utf8Encode(WStr(wAlususBins));
+    alususBins = alususBinsStr.c_str();
+  }
+
+  if (alususBins != nullptr) {
+    // TODO: What do we do with empty paths in the environment variable
+    // (e.g. "path1:::path2::path3" in Unix or "path1;;;path2;;path3" in Windows)?
+    // Do we ignore it, for example, or add the current working directory in place of the empty path
+    // (e.g. "path1:<cwd>:<cwd>:path2:<cwd>:path3" in Unix or "path1;<cwd>;<cwd>;path2;<cwd>;path3"
+    // in Windows, where "<cwd>" is the current working directory)?
+    std::vector<Str> paths = parsePathEnvVar(Str(alususBins));
+    for (auto path : paths) {
+      // TODO: Ignore empty paths for now.
+      if (path.size() > 0) {
+        this->binSearchPathsMutex.lock();
+        this->binSearchPaths.push_back(path);
+        this->binSearchPathsMutex.unlock();
+      }
+    }
+  }
+#endif
+
   // TODO: Do we need to add the paths from LD_LIBRARY_PATH env variable?
 }
 
@@ -228,10 +358,52 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
   } else {
     // Load a library.
     LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << newFileName);
+#if defined(_WIN32)
+    // Load all DLLs found in the import library.
 
-    PtrWord id = this->getLibraryManager()->load(newFileName, errorDetails);
+    this->loadedImportLibsMutex.lock();
 
-    return id != 0;
+    // No need to reload the import library again.
+    if (this->loadedImportLibs.find(newFileName) == this->loadedImportLibs.end()) {
+      this->loadedImportLibsMutex.unlock();
+      return true;
+    }
+
+    // Get DLL names from the import library.
+    Bool errorCheck;
+    auto dllNames = this->getDLLNames(newFileName, errorCheck);
+    if (errorCheck) {
+      errorDetails = "Couldn't parse import library.";
+      this->loadedImportLibsMutex.unlock();
+      return false;
+    }
+
+    for (auto dllName : dllNames) {
+      // Get the DLL's full path.
+      if (!this->findBinFile(dllName.c_str(), resultFilename)) {
+        errorDetails = "DLL not found: " + dllName;
+        this->loadedImportLibsMutex.unlock();
+        return false;
+      }
+
+      // Load the DLL.
+      newFileName = resultFilename.data();
+      if (this->getLibraryManager()->load(newFileName, errorDetails)) {
+        errorDetails = "Error loading: " + Str(newFileName);
+        this->loadedImportLibsMutex.unlock();
+        return false;
+      }
+    }
+
+    // All DLLs have been loaded successfully, and we can cache this import library
+    // so we don't need to load it again.
+    this->loadedImportLibs.insert(newFileName);
+
+    this->loadedImportLibsMutex.unlock();
+    return true;
+#else
+    return !this->getLibraryManager()->load(newFileName, errorDetails);
+#endif
   }
 }
 
@@ -295,6 +467,93 @@ void RootManager::popSearchPath(Char const *path)
 }
 
 
+#if defined(_WIN32)
+
+Bool RootManager::findBinFile(Char const *filename, std::array<Char,PATH_MAX> &resultFilename)
+{
+  if (filename == 0 || *filename == C('\0')) {
+    throw EXCEPTION(InvalidArgumentException, S("filename"), S("Argument is null or empty string."));
+  }
+
+  thread_local static std::array<Char,PATH_MAX> tmpFilename;
+
+  // Is the filename an absolute path already?
+  fs::path p(filename);
+  if (p.is_absolute()) {
+    return this->tryFileName(filename, resultFilename);
+  } else {
+    // Try all current paths.
+    thread_local static std::array<Char,PATH_MAX> fullPath;
+    this->binSearchPathsMutex.lock();
+    for (Int i = this->binSearchPaths.size()-1; i >= 0; --i) {
+      Int len = this->binSearchPaths[i].size();
+      copyStr(this->binSearchPaths[i].c_str(), fullPath.data());
+      if (fullPath.data()[len - 1] != fs::path::preferred_separator) {
+        Str tmpStr = utf8Encode(WStr(&fs::path::preferred_separator));
+        for (Char c : tmpStr) {
+          copyStr(&c, fullPath.data() + len);
+          ++len;
+        }
+      }
+      copyStr(filename, fullPath.data() + len);
+
+      if (this->tryFileName(fullPath.data(), tmpFilename)) {
+        _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
+        this->binSearchPathsMutex.unlock();
+        return true;
+      }
+    }
+    this->binSearchPathsMutex.unlock();
+  }
+
+  // No file was found with that name.
+  return false;
+}
+
+Bool RootManager::hasEnding(Str const &fullString, Str const &ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
+
+std::vector<Str> RootManager::getDLLNames(Str const &filename, Bool &errorCheck) {
+  std::vector<Str> dlls;
+  std::set<Str> addedDLLs;
+
+  // Create or open the archive object.
+  llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buf = llvm::MemoryBuffer::getFile(filename, -1, false);
+  std::error_code ec = buf.getError();
+  if (ec && ec != llvm::errc::no_such_file_or_directory) {
+    errorCheck = true;
+    return std::vector<Str>();
+  }
+
+  if (!ec) {
+    // Iterate through all objects in the archive to get the DLL names from it.
+    llvm::Error err = llvm::Error::success();
+    llvm::object::Archive archive(buf.get()->getMemBufferRef(), err);
+    for (auto &c : archive.children(err)) {
+      llvm::Expected<llvm::StringRef> nameOrErr = c.getName();
+      llvm::StringRef name = nameOrErr.get();
+      if (name.str().size() > 0 && this->hasEnding(name.str(), ".dll")) {
+        if (addedDLLs.find(name.str()) == addedDLLs.end()) {
+          addedDLLs.insert(name.str());
+          dlls.push_back(name.str());
+        }
+      }
+    }
+  } else {
+    errorCheck = true;
+    return std::vector<Str>();
+  }
+  return dlls;
+}
+
+#endif
+
+
 Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resultFilename)
 {
   if (filename == 0 || *filename == C('\0')) {
@@ -314,7 +573,7 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
       Int len = this->searchPaths[i].size();
       copyStr(this->searchPaths[i].c_str(), fullPath.data());
       if (fullPath.data()[len - 1] != fs::path::preferred_separator) {
-#ifdef _WIN32
+#if defined(_WIN32)
         Str tmpStr = utf8Encode(WStr(&fs::path::preferred_separator));
         for (Char c : tmpStr) {
           copyStr(&c, fullPath.data() + len);
@@ -328,11 +587,11 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
       copyStr(filename, fullPath.data() + len);
 
       if (this->tryFileName(fullPath.data(), tmpFilename)) {
-        #ifdef _WIN32
-          _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
-        #else
-          realpath(tmpFilename.data(), resultFilename.data());
-        #endif
+#if defined(_WIN32)
+        _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
+#else
+        realpath(tmpFilename.data(), resultFilename.data());
+#endif
         return true;
       }
     }
@@ -366,45 +625,64 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
 
   Int fnLen = pathLen - fnIndex;
 
-  #ifndef RELEASE
-    // Try debug library extension.
-    #ifdef _WIN32
-      copyStr(path, resultFilename.data(), fnIndex);
-      copyStr(S("lib"), resultFilename.data()+fnIndex);
-      copyStr(filename, resultFilename.data()+fnIndex+3);
-      copyStr(S(".dbg.dll"), resultFilename.data()+fnIndex+3+fnLen);
-    #elif __APPLE__
-      copyStr(path, resultFilename.data(), fnIndex);
-      copyStr(S("lib"), resultFilename.data()+fnIndex);
-      copyStr(filename, resultFilename.data()+fnIndex+3);
-      copyStr(S(".dbg.dylib"), resultFilename.data()+fnIndex+3+fnLen);
-    #else
-      copyStr(path, resultFilename.data(), fnIndex);
-      copyStr(S("lib"), resultFilename.data()+fnIndex);
-      copyStr(filename, resultFilename.data()+fnIndex+3);
-      copyStr(S(".dbg.so"), resultFilename.data()+fnIndex+3+fnLen);
-    #endif
-    if (this->doesFileExist(resultFilename.data())) return true;
-  #endif
+#ifndef RELEASE
+  // Try the debug library version first.
+#if defined(_WIN32)
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".dbg.lib"), resultFilename.data()+fnIndex+3+fnLen);
+#elif __APPLE__
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".dbg.dylib"), resultFilename.data()+fnIndex+3+fnLen);
+#else
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".dbg.so"), resultFilename.data()+fnIndex+3+fnLen);
+#endif
+  if (this->doesFileExist(resultFilename.data())) return true;
+#endif
 
   // Try normal lib.
-  #ifdef _WIN32
-    copyStr(path, resultFilename.data(), fnIndex);
-    copyStr(S("lib"), resultFilename.data()+fnIndex);
-    copyStr(filename, resultFilename.data()+fnIndex+3);
-    copyStr(S(".dll"), resultFilename.data()+fnIndex+3+fnLen);
-  #elif __APPLE__
-    copyStr(path, resultFilename.data(), fnIndex);
-    copyStr(S("lib"), resultFilename.data()+fnIndex);
-    copyStr(filename, resultFilename.data()+fnIndex+3);
-    copyStr(S(".dylib"), resultFilename.data()+fnIndex+3+fnLen);
-  #else
-    copyStr(path, resultFilename.data(), fnIndex);
-    copyStr(S("lib"), resultFilename.data()+fnIndex);
-    copyStr(filename, resultFilename.data()+fnIndex+3);
-    copyStr(S(".so"), resultFilename.data()+fnIndex+3+fnLen);
-  #endif
+#if defined(_WIN32)
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".lib"), resultFilename.data()+fnIndex+3+fnLen);
+#elif __APPLE__
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".dylib"), resultFilename.data()+fnIndex+3+fnLen);
+#else
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".so"), resultFilename.data()+fnIndex+3+fnLen);
+#endif
+
   if (this->doesFileExist(resultFilename.data())) return true;
+
+#if defined(_WIN32)
+// Try once more with ".dll.a" on Windows.
+#ifndef RELEASE
+  // Try debug library extension.
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".dbg.dll.a"), resultFilename.data()+fnIndex+3+fnLen);
+  if (this->doesFileExist(resultFilename.data())) return true;
+#endif
+  // Try normal lib.
+  copyStr(path, resultFilename.data(), fnIndex);
+  copyStr(S("lib"), resultFilename.data()+fnIndex);
+  copyStr(filename, resultFilename.data()+fnIndex+3);
+  copyStr(S(".dll.a"), resultFilename.data()+fnIndex+3+fnLen);
+  if (this->doesFileExist(resultFilename.data())) return true;
+#endif
 
   return false;
 }
