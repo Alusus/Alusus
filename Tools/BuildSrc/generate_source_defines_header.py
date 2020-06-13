@@ -7,7 +7,7 @@ if __name__ == "__main__":
     host_tripple = subprocess.check_output([
         (os.environ["CC"] if "CC" in os.environ else "clang"),
         "-dumpmachine"
-    ]).strip()
+    ]).strip().decode()
     install_include_dir = sys.argv[2]
     install_bin_dir = sys.argv[3]
     install_lib_dir = sys.argv[4]
