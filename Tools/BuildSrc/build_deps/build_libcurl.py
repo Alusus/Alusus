@@ -21,6 +21,9 @@ _CURL_SRC_URL = "https://curl.haxx.se/download/curl-7.70.0.tar.gz"
 
 class build_libcurl(template_build.template_build):
     def _check_built(install_path, target_system=None):
+        # Check for unfinished RPATHs updating process exists.
+        if os.path.exists(os.path.join(os.environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS")):
+            return False
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libcurl.dll")) and\
                 os.path.exists(os.path.join(

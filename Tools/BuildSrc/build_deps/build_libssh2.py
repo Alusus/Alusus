@@ -21,6 +21,9 @@ _LIBSSH2_SRC_URL = "https://www.libssh2.org/download/libssh2-1.9.0.tar.gz"
 
 class build_libssh2(template_build.template_build):
     def _check_built(install_path, target_system=None):
+        # Check for unfinished RPATHs updating process exists.
+        if os.path.exists(os.path.join(os.environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS")):
+            return False
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libssh2.dll")) and\
                 os.path.exists(os.path.join(

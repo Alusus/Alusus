@@ -3,4 +3,6 @@ Srl.Console.print("Hello, world (from \"");
 Srl.Console.print(Process.os);
 Srl.Console.print(" - ");
 Srl.Console.print(Process.cpu);
+Srl.Console.print(" - ");
+Srl.Console.print(Process.hostTripple);
 Srl.Console.print("\")!!\n");

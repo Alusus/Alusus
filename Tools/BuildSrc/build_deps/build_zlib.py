@@ -21,6 +21,9 @@ _ZLIB_SRC_URL = "https://sourceforge.net/projects/libpng/files/zlib/1.2.11/zlib-
 
 class build_zlib(template_build.template_build):
     def _check_built(install_path, target_system=None):
+        # Check for unfinished RPATHs updating process exists.
+        if os.path.exists(os.path.join(os.environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS")):
+            return False
         if target_system == "windows" or platform.system == "Windows" and not target_system:
             return os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libzlib.dll.a")) and\
                 os.path.exists(os.path.join(install_path["root"], install_path["lib"], "libz.dll.a")) and\
@@ -103,6 +106,11 @@ class build_zlib(template_build.template_build):
             new_environ["LD"] = new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld"
             if platform.system() == "Windows":
                 new_environ["RC"] = new_environ["ALUSUS_HOST_RC"] if "ALUSUS_HOST_RC" in new_environ else "windres"
+            if platform.system() == "Darwin":
+                new_environ["INSTALL_NAME_TOOL"] = which(
+                    new_environ["ALUSUS_HOST_INSTALL_NAME_TOOL"] if "ALUSUS_HOST_INSTALL_NAME_TOOL" in new_environ else "install_name_tool")
+                new_environ["OTOOL"] = which(
+                    new_environ["ALUSUS_HOST_OTOOL"] if "ALUSUS_HOST_OTOOL" in new_environ else "otool")
             if "ALUSUS_HOST_LIBRARY_PATH" in new_environ:
                 new_environ["LIBRARY_PATH"] = new_environ["ALUSUS_HOST_LIBRARY_PATH"]
             else:
@@ -141,14 +149,23 @@ class build_zlib(template_build.template_build):
                          "-DCMAKE_INSTALL_PREFIX={}".format(
                              os.path.join(deps_path, "zlib-1.2.11.host.install")),
                          "-DCMAKE_RANLIB={}".format(which(
-                             new_environ["ALUSUS_HOST_RANLIB"] if "ALUSUS_HOST_RANLIB" in new_environ else "ranlib")),
+                             new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
                          "-DCMAKE_AR={}".format(which(
-                             new_environ["ALUSUS_HOST_AR"] if "ALUSUS_HOST_AR" in new_environ else "ar")),
+                             new_environ["AR"] if "AR" in new_environ else "ar")),
                          "-DCMAKE_LINKER={}".format(which(
-                             new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld")),
-                         "-DCMAKE_STRIP={}".format(which(new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip"))]
+                             new_environ["LD"] if "LD" in new_environ else "ld")),
+                         "-DCMAKE_STRIP={}".format(which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))]
+            if platform.system() == "Darwin":
+                cmake_cmd += [
+                    "-DCMAKE_INSTALL_NAME_TOOL={}".format(which(
+                        new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
+                    "-DCMAKE_OTOOL={}".format(which(
+                        new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                ]
             if platform.system() == "Windows":
                 cmake_cmd += [
+                    "-DCMAKE_RC_COMPILER={}".format(which(
+                        new_environ["RC"] if "RC" in new_environ else "windres")),
                     "-G", "MinGW Makefiles",
                     "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
                 ]
@@ -200,9 +217,17 @@ class build_zlib(template_build.template_build):
             cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_STRIP")][0]] =\
                 "-DCMAKE_STRIP={}".format(
                     which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
+            if target_system == "macos":
+                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_INSTALL_NAME_TOOL")][0]] =\
+                    "-DCMAKE_INSTALL_NAME_TOOL={}".format(
+                        which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool"))
+                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_OTOOL")][0]] =\
+                    "-DCMAKE_OTOOL={}".format(
+                        which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
             if target_system == "windows":
-                cmake_cmd.append("-DCMAKE_RC_COMPILER={}".format(
-                    which(new_environ["RC"] if "RC" in new_environ else "windres")))
+                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_RC_COMPILER")][0]] =\
+                    "-DCMAKE_RC_COMPILER={}".format(
+                        which(new_environ["RC"] if "RC" in new_environ else "windres"))
             p = subprocess.Popen(cmake_cmd, env=new_environ)
             ret = p.wait()
             if ret:
@@ -238,8 +263,17 @@ class build_zlib(template_build.template_build):
                          "-DCMAKE_LINKER={}".format(
                              which(new_environ["LD"] if "LD" in new_environ else "ld")),
                          "-DCMAKE_STRIP={}".format(which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))]
+            if platform.system() == "Darwin":
+                cmake_cmd += [
+                    "-DCMAKE_INSTALL_NAME_TOOL={}".format(which(
+                        new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
+                    "-DCMAKE_OTOOL={}".format(which(
+                        new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                ]
             if platform.system() == "Windows":
                 cmake_cmd += [
+                    "-DCMAKE_RC_COMPILER={}".format(which(
+                        new_environ["RC"] if "RC" in new_environ else "windres")),
                     "-G", "MinGW Makefiles",
                     "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
                 ]

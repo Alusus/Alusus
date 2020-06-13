@@ -15,6 +15,7 @@
 
 #include "core.h"
 #include "spp.h"
+#include "AlususCompileDefines.h"
 
 namespace Spp
 {
@@ -263,6 +264,7 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       def language: ptr[array[Word[8]]];
       def os: ptr[array[Word[8]]];
       def cpu: ptr[array[Word[8]]];
+      def hostTripple: ptr[array[Word[8]]];
     };
     module Core {
       def rootManager: ptr;
@@ -294,6 +296,25 @@ void LibraryGateway::removeGlobalDefs(Core::Main::RootManager *manager)
   manager->getSeeker()->tryRemove(&identifier, root);
 }
 
+#if defined(_WIN32) // Windows.
+static Char const* os = "Win32";
+#elif defined(__APPLE__) // Apple (macOS, iOS, Apple Watch OS).
+static Char const* os = "Darwin";
+#elif defined(__linux__) && !defined(__ANDROID__) // Linux kernel based OSes except Android OS.
+static Char const* os = "Linux";
+#elif defined(__ANDROID__) // Android OS.
+static Char const* os = "Android";
+#endif
+#if defined(__i386__) // X86 32 bit CPU.
+static Char const* cpu = "X86";
+#elif defined(__x86_64__) // X86 64 bit CPU.
+static Char const* cpu = "X86_64";
+#elif defined(__arm__) // ARM 32 bit CPU.
+static Char const* cpu = "ARM";
+#elif defined(__aarch64__) // ARM 64 bit CPU.
+static Char const* cpu = "ARM64";
+#endif
+static Char const* hostTripple = ALUSUS_HOST_TRIPPLE;
 
 void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
 {
@@ -301,32 +322,12 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   auto args = manager->getProcessArgs();
   auto language = manager->getLanguage().c_str();
 
-#if defined(_WIN32) // Windows.
-  auto os = "Win32";
-#elif defined(__APPLE__) // Apple (macOS, iOS, Apple Watch OS).
-  auto os = "Darwin";
-#elif defined(__linux__) && !defined(__ANDROID__) // Linux kernel based OSes except Android OS.
-  auto os = "Linux";
-#elif defined(__ANDROID__) // Android OS.
-  auto os = "Android"; 
-#endif
-
-#if defined(__i386__) // X86 32 bit CPU.
-  auto cpu = "X86";
-#elif defined(__x86_64__) // X86 64 bit CPU.
-  auto cpu = "X86_64";
-#elif defined(__arm__) // ARM 32 bit CPU.
-  auto cpu = "ARM";
-#elif defined(__aarch64__) // ARM 64 bit CPU.
-  auto cpu = "ARM64"; 
-#endif
-
-
   this->globalItemRepo->addItem(S("Process.argCount"), sizeof(argCount), &argCount);
   this->globalItemRepo->addItem(S("Process.args"), sizeof(args), &args);
   this->globalItemRepo->addItem(S("Process.language"), sizeof(language), &language);
   this->globalItemRepo->addItem(S("Process.os"), sizeof(os), &os);
   this->globalItemRepo->addItem(S("Process.cpu"), sizeof(cpu), &cpu);
+  this->globalItemRepo->addItem(S("Process.hostTripple"), sizeof(hostTripple), &hostTripple);
   this->globalItemRepo->addItem(S("Core.rootManager"), sizeof(void*), &manager);
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile

@@ -23,6 +23,11 @@ set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")
 set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 if (ALUSUS_BUILD_STATIC_LIBS)
   add_library(AlususStorageStatic STATIC ${AlususStorage_Source_Files})
+  #if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususStorageStatic PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path/ -Wl,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #elseif(NOT WIN32 AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususStorageStatic PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN/ -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #endif()
   if(WIN32)
     set_target_properties(AlususStorageStatic PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS} -fvisibility=hidden")
     target_link_libraries(AlususStorageStatic "LLVM" "dl" Win32Helpers)
@@ -33,6 +38,11 @@ if (ALUSUS_BUILD_STATIC_LIBS)
 endif()
 if (ALUSUS_BUILD_SHARED_LIBS)
   add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
+  #if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususStorage PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path/ -Wl,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #elseif(NOT WIN32 AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususStorage PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN/ -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #endif()
   if(WIN32)
     set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
     target_link_libraries(AlususStorage "LLVM" "dl" Win32Helpers)
@@ -60,6 +70,11 @@ if (ALUSUS_BUILD_STATIC_LIBS)
     set_target_properties(AlususCoreLibStatic PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS} -fvisibility=hidden")
   endif()
   add_precompiled_header(AlususCoreLibStatic "core.h")
+  #if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususCoreLibStatic PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path/ -Wl,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #elseif(NOT WIN32 AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususCoreLibStatic PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN/ -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #endif()
   target_link_libraries(AlususCoreLibStatic AlususStorageStatic)
 endif()
 if (ALUSUS_BUILD_SHARED_LIBS)
@@ -70,6 +85,11 @@ if (ALUSUS_BUILD_SHARED_LIBS)
     set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fPIC ${AlususCore_COMPILE_FLAGS}")
   endif()
   add_precompiled_header(AlususCoreLib "core.h")
+  #if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususCoreLib PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path/ -Wl,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #elseif(NOT WIN32 AND ALUSUS_SET_RPATH)
+  #  set_target_properties(AlususCoreLib PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN/ -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+  #endif()
   target_link_libraries(AlususCoreLib AlususStorage)
 endif()
 
@@ -78,13 +98,6 @@ set(AlususCore_Source_Files start.cpp)
 add_executable(AlususCore ${AlususCore_Source_Files})
 set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
 add_precompiled_header(AlususCore "core.h")
-
-# Finally, we link the executable to the libraries.
-if (ALUSUS_LINK_SHARED_LIBS)
-  target_link_libraries(AlususCore AlususCoreLib)
-else()
-  target_link_libraries(AlususCore AlususCoreLibStatic)
-endif()
 
 # Set library and executable output names.
 # NOTE: For alusus_storage, we'll use the same filename for both debug and
@@ -115,18 +128,25 @@ set_target_properties(AlususCore PROPERTIES OUTPUT_NAME alusus)
 set_target_properties(AlususCore PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
 set_target_properties(AlususCore PROPERTIES VERSION ${AlususVersion})
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
-  # macOS has a different mechanism for RPATH than Linux and requires special
-  # handling. More information can be found here:
-  #
-  # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
-  #
-  # The following article also has a good explanation:
-  #
-  # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
-  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
-elseif(NOT WIN32 AND ALUSUS_SET_RPATH)
-  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+#if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
+#  # macOS has a different mechanism for RPATH than Linux and requires special
+#  # handling. More information can be found here:
+#  #
+#  # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+#  #
+#  # The following article also has a good explanation:
+#  #
+#  # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
+#  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path/ -Wl,-rpath,@executable_path/../${ALUSUS_INSTALL_LIB_DIR}/")
+#elseif(NOT WIN32 AND ALUSUS_SET_RPATH)
+#  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath=$ORIGIN/ -Wl,-rpath=$ORIGIN/../${ALUSUS_INSTALL_LIB_DIR}/")
+#endif()
+
+# Finally, we link the executable to the libraries.
+if (ALUSUS_LINK_SHARED_LIBS)
+  target_link_libraries(AlususCore AlususCoreLib)
+else()
+  target_link_libraries(AlususCore AlususCoreLibStatic)
 endif()
 
 # Copy libary header files to installation directory.

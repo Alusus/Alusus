@@ -12,9 +12,10 @@ SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(SOURCE_LOCATION))
 from build_deps import build_ghc_filesystem, build_dlfcn_win32, build_libcurl, build_libzip, build_llvm  # noqa
 from version_info import get_version_info  # noqa
-from msg import info_msg, success_msg, fail_msg  # noqa
+from msg import info_msg, success_msg, fail_msg, warn_msg  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx, copy_cc_cxx_wrapppers_to_tmp_dir  # noqa
 from utils import get_host_cxx_arch, delete_tmp_dir, get_lib_path, get_to_copy_libs  # noqa
+from set_rpath import set_rpath
 
 
 def parse_args():
@@ -149,6 +150,41 @@ def post_build_alusus(install_path, target_system=None, environ=os.environ):
                         os.path.abspath(os.path.join(
                             install_path["root"], install_path["bin"]))
                     )
+    if not (platform.system() == "Windows" and not target_system or target_system == "windows"):
+        # To indicate it is currently updating the RPATHs.
+        warn_msg("Updating the RPATHs of the shared libraries (DO NOT interrupt the build process)...")
+        with open(os.path.join(environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS"), "w") as fd:
+            fd.write("SETTING RPATH INDICATOR")
+        if platform.system() == "Darwin" and not target_system or target_system == "macos":
+            set_rpath(
+                arg_dir=[
+                    os.path.join(os.path.join(install_path["root"], install_path["lib"])),
+                    os.path.join(os.path.join(install_path["root"], install_path["bin"])),
+                ],
+                arg_rpath=[
+                    "@executable_path/",
+                    "@executable_path/../{}/".format(install_path["lib"])
+                ],
+                target_system=target_system,
+                environ=environ
+            )
+        elif platform.system() == "Linux" and not target_system or target_system == "linux":
+            set_rpath(
+                arg_dir=[
+                    os.path.join(os.path.join(install_path["root"], install_path["lib"])),
+                    os.path.join(os.path.join(install_path["root"], install_path["bin"])),
+                ],
+                arg_rpath=[
+                    "$ORIGIN/",
+                    "$ORIGIN/../{}/".format(install_path["lib"])
+                ],
+                target_system=target_system,
+                environ=environ
+            )
+
+        # To indicate it has done updating the RPATHs.
+        os.remove(os.path.join(environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS"))
+        success_msg("Updating the RPATHs of the shared libraries.")
 
 
 def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_type, num_threads=multiprocessing.cpu_count(), target_system=None):
@@ -206,9 +242,15 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
         install_path["root"], install_path["bin"]), exist_ok=True)
     os.makedirs(os.path.join(
         install_path["root"], install_path["include"]), exist_ok=True)
+    cmake_system_name = "Windows" if (target_system == "windows" or platform.system() == "Windows" and not target_system) else (
+        "Darwin" if (target_system == "macos" or platform.system() == "Darwin" and not target_system) else "Linux")
     cmake_cmd = ["cmake",
                  os.path.join(alusus_root_path, "Sources"),
                  "-Wno-dev",
+                 "-DCMAKE_CROSSCOMPILING=TRUE",
+                 "-DCMAKE_SYSTEM_NAME={}".format(cmake_system_name),
+                 "-DCMAKE_SYSTEM_PROCESSOR={}".format(
+                     get_host_cxx_arch(new_environ=new_environ)),
                  "-DCMAKE_BUILD_TYPE={}".format(
                      "Release" if build_type == "r" else "Debug"),
                  "-DPYTHON_EXECUTABLE={}".format(sys.executable),
@@ -228,17 +270,23 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
                  "-DCMAKE_LINKER={}".format(
                      which(new_environ["LD"] if "LD" in new_environ else "ld")),
                  "-DCMAKE_STRIP={}".format(which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))]
-    if target_system != None:
-        host_cxx_arch = subprocess.check_output(
-            [os.environ["CXX"], "-dumpmachine"]).decode().strip().split("-")[0]
-        cmake_system_name = "Windows" if (target_system == "windows") else (
-            "Darwin" if (target_system == "macos") else "Linux")
+    if target_system == "macos" or platform.system() == "Darwin" and not target_system:
         cmake_cmd += [
-            "-DCMAKE_CROSSCOMPILING=TRUE",
-            "-DCMAKE_SYSTEM_NAME={}".format(cmake_system_name),
-            "-DCMAKE_SYSTEM_PROCESSOR={}".format(host_cxx_arch)
+            "-DCMAKE_INSTALL_NAME_TOOL={}".format(which(
+                new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
+            "-DCMAKE_OTOOL={}".format(which(
+                new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
         ]
-
+    if target_system == "windows" or platform.system() == "Windows" and not target_system:
+        cmake_cmd += [
+            "-DCMAKE_RC_COMPILER={}".format(which(
+                new_environ["RC"] if "RC" in new_environ else "windres"))
+        ]
+        if platform.system() == "Windows" and not target_system:
+            cmake_cmd += [
+                "-G", "MinGW Makefiles",
+                "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
+            ]
     p = subprocess.Popen(cmake_cmd, env=new_environ)
     ret = p.wait()
     if ret:

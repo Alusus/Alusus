@@ -21,6 +21,9 @@ _LIBZIP_SRC_URL = "https://libzip.org/download/libzip-1.6.1.tar.gz"
 
 class build_libzip(template_build.template_build):
     def _check_built(install_path, target_system=None):
+        # Check for unfinished RPATHs updating process exists.
+        if os.path.exists(os.path.join(os.environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS")):
+            return False
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libzip.dll")) and\
                 os.path.exists(os.path.join(
@@ -139,12 +142,15 @@ class build_libzip(template_build.template_build):
         new_environ = create_new_environ_with_custom_cc_cxx(
             new_environ, target_system=target_system)
 
+        cmake_system_name = "Windows" if (target_system == "windows" or platform.system() == "Windows" and not target_system) else (
+            "Darwin" if (target_system == "macos" or platform.system() == "Darwin" and not target_system) else "Linux")
         cmake_cmd = [
             "cmake",
             os.path.join(deps_path, "libzip-1.6.1.src"),
             "-DCMAKE_INSTALL_PREFIX={}".format(
                 os.path.join(deps_path, "libzip-1.6.1.install")),
             "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_SYSTEM_NAME={}".format(cmake_system_name),
             "-DCMAKE_SYSTEM_PROCESSOR={}".format(
                 get_host_cxx_arch(new_environ=new_environ)),
             "-DCMAKE_CROSSCOMPILING=TRUE",
@@ -159,12 +165,23 @@ class build_libzip(template_build.template_build):
             "-DCMAKE_STRIP={}".format(
                 which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
         ]
-        if target_system != None:
-            cmake_system_name = "Windows" if (target_system == "windows") else (
-                "Darwin" if (target_system == "macos") else "Linux")
-            cmake_cmd.append(
-                "-DCMAKE_SYSTEM_NAME={}".format(cmake_system_name)
-            )
+        if target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            cmake_cmd += [
+                "-DCMAKE_INSTALL_NAME_TOOL={}".format(which(
+                    new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
+                "-DCMAKE_OTOOL={}".format(which(
+                    new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+            ]
+        if target_system == "windows" or platform.system() == "Windows" and not target_system:
+            cmake_cmd += [
+                "-DCMAKE_RC_COMPILER={}".format(which(
+                    new_environ["RC"] if "RC" in new_environ else "windres"))
+            ]
+            if platform.system() == "Windows" and not target_system:
+                cmake_cmd += [
+                    "-G", "MinGW Makefiles",
+                    "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
+                ]
         p = subprocess.Popen(cmake_cmd, env=new_environ)
         ret = p.wait()
         if ret:

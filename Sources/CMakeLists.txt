@@ -39,6 +39,10 @@ if (NOT ALUSUS_BUILD_SHARED_LIBS AND NOT ALUSUS_BUILD_STATIC_LIBS)
   set(ALUSUS_LINK_SHARED_LIBS "TRUE")
 endif()
 
+if (NOT PYTHON_EXECUTABLE)
+  set(PYTHON_EXECUTABLE python3)
+endif()
+
 # Read version info from version file.
 if(ALUSUS_PRINT_VERSION_INFO)
   execute_process(COMMAND ${PYTHON_EXECUTABLE} version_info.py
@@ -95,19 +99,32 @@ else()
   set(Alusus_COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}} ${CXX_STD_FLAG} -Wfatal-errors -Werror=return-type -Wunused-variable -Winit-self -Wuninitialized -Wno-unused-result -fno-rtti")
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ALUSUS_SET_RPATH)
-  # macOS has a different mechanism for RPATH than Linux and requires special
-  # handling. More information can be found here:
-  #
-  # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
-  #
-  # The following article also has a good explanation:
-  #
-  # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
-  set(CMAKE_MACOSX_RPATH TRUE)
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,@executable_path")
-endif()
+# Set Alusus compile time defines header.
+set(ALUSUS_DEFINES_INCLUDE_PATH "${CMAKE_BINARY_DIR}/AlususDefinesHeader/${ALUSUS_INSTALL_INCLUDE_DIR}")
+execute_process(
+  COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc/generate_source_defines_header.py"
+                                 "${ALUSUS_DEFINES_INCLUDE_PATH}"
+                                 "${ALUSUS_INSTALL_INCLUDE_DIR}"
+                                 "${ALUSUS_INSTALL_BIN_DIR}"
+                                 "${ALUSUS_INSTALL_LIB_DIR}"
+)
+include_directories(${ALUSUS_DEFINES_INCLUDE_PATH})
 
+#if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+#  # macOS has a different mechanism for RPATH than Linux and requires special
+#  # handling. More information can be found here:
+#  #
+#  # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+#  #
+#  # The following article also has a good explanation:
+#  #
+#  # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
+#  set(CMAKE_MACOSX_RPATH TRUE)
+#  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,@executable_path")
+#else()
+#  set(CMAKE_SKIP_RPATH TRUE)
+#  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,'$ORIGIN',--enable-new-dtags")
+#endif()
 
 # Clear CMAKE_CXX_FLAGS_* because we are going to provide our own compilation
 # flags here.

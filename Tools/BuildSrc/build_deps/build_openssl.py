@@ -20,6 +20,9 @@ _SSL_SRC_URL = "https://codeload.github.com/tatsuhiro-t/openssl/tar.gz/5332ff475
 
 class build_openssl(template_build.template_build):
     def _check_built(install_path, target_system=None):
+        # Check for unfinished RPATHs updating process exists.
+        if os.path.exists(os.path.join(os.environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS")):
+            return False
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libcrypto-1_1.dll")) and\
                 os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libssl-1_1.dll")) and\

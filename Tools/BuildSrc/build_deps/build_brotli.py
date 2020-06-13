@@ -20,6 +20,9 @@ _BROTLI_SRC_URL = "https://github.com/google/brotli/archive/v1.0.7.tar.gz"
 
 class build_brotli(template_build.template_build):
     def _check_built(install_path, target_system=None):
+        # Check for unfinished RPATHs updating process exists.
+        if os.path.exists(os.path.join(os.environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS")):
+            return False
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             return os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libbrotlicommon.dll")) and\
                 os.path.exists(os.path.join(install_path["root"], install_path["bin"], "libbrotlidec.dll")) and\
@@ -106,13 +109,17 @@ class build_brotli(template_build.template_build):
         new_environ = os.environ.copy()
         new_environ = create_new_environ_with_custom_cc_cxx(
             new_environ, target_system=target_system)
+        cmake_system_name = "Windows" if (target_system == "windows" or platform.system() == "Windows" and not target_system) else (
+            "Darwin" if (target_system == "macos" or platform.system() == "Darwin" and not target_system) else "Linux")
         cmake_cmd = [
             "cmake",
             os.path.join(deps_path, "brotli-1.0.7.src"),
             "-DCMAKE_INSTALL_PREFIX={}".format(
                 os.path.join(deps_path, "brotli-1.0.7.install")),
             "-DCMAKE_BUILD_TYPE=Release",
-            "-DCMAKE_SYSTEM_PROCESSOR={}".format(get_host_cxx_arch()),
+            "-DCMAKE_SYSTEM_NAME={}".format(cmake_system_name),
+            "-DCMAKE_SYSTEM_PROCESSOR={}".format(
+                get_host_cxx_arch(new_environ=new_environ)),
             "-DCMAKE_CROSSCOMPILING=TRUE",
             "-DCMAKE_RANLIB={}".format(
                 which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
@@ -123,12 +130,23 @@ class build_brotli(template_build.template_build):
             "-DCMAKE_STRIP={}".format(
                 which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
         ]
-
-        if target_system != None:
-            cmake_system_name = "Windows" if (target_system == "windows") else (
-                "Darwin" if (target_system == "macos") else "Linux")
-            cmake_cmd.append(
-                "-DCMAKE_SYSTEM_NAME={}".format(cmake_system_name))
+        if target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            cmake_cmd += [
+                "-DCMAKE_INSTALL_NAME_TOOL={}".format(which(
+                    new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
+                "-DCMAKE_OTOOL={}".format(which(
+                    new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+            ]
+        if target_system == "windows" or platform.system() == "Windows" and not target_system:
+            cmake_cmd += [
+                "-DCMAKE_RC_COMPILER={}".format(which(
+                    new_environ["RC"] if "RC" in new_environ else "windres"))
+            ]
+            if platform.system() == "Windows" and not target_system:
+                cmake_cmd += [
+                    "-G", "MinGW Makefiles",
+                    "-DCMAKE_SH=CMAKE_SH-NOTFOUND"
+                ]
 
         p = subprocess.Popen(cmake_cmd, env=new_environ)
         ret = p.wait()

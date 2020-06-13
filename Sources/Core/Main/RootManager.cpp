@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "core.h"
+#include "AlususCompileDefines.h"
 
 #if defined(_WIN32)
 
@@ -171,13 +172,13 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
 
   // Initialize current paths.
   Str path1 = fs::u8path(getModuleDirectory().c_str()).string();
-  Str path2 = (fs::u8path(getModuleDirectory().c_str()) / ".." / "Lib").string();
+  Str path2 = (fs::u8path(getModuleDirectory().c_str()) / ".." / ALUSUS_INSTALL_LIB_DIR).string();
   Str path3 = fs::u8path(getWorkingDirectory().c_str()).string();
   this->pushSearchPath(path1.c_str());
   this->pushSearchPath(path2.c_str());
   this->pushSearchPath(path3.c_str());
 #if defined(_WIN32)
-  Str path4 = (fs::u8path(getModuleDirectory().c_str()) / ".." / "Bin").string();
+  Str path4 = (fs::u8path(getModuleDirectory().c_str()) / ".." / ALUSUS_INSTALL_BIN_DIR).string();
   this->binSearchPathsMutex.lock();
   this->binSearchPaths.push_back(fs::absolute(fs::path(path1.c_str())).u8string());
   this->binSearchPaths.push_back(fs::absolute(fs::path(path4.c_str())).u8string());
