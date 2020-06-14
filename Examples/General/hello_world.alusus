@@ -4,5 +4,5 @@ Srl.Console.print(Process.os);
 Srl.Console.print(" - ");
 Srl.Console.print(Process.cpu);
 Srl.Console.print(" - ");
-Srl.Console.print(Process.hostTripple);
+Srl.Console.print(Process.hostTriple);
 Srl.Console.print("\")!!\n");

@@ -32,7 +32,7 @@ def Main: module
     if i > 6  || b print("binary type check 1");
     if b || i > 6 print("binary type check 2");
 
-    if i > 6 || j > 10 || b print("tripple check");
+    if i > 6 || j > 10 || b print("triple check");
 
     b = i > 6 || j > 10;
     b = i > 6 || j > 10 || i == j;
@@ -56,7 +56,7 @@ def Main: module
     if i > 6  && b print("binary type check 1");
     if b && i > 6 print("binary type check 2");
 
-    if i > 6 && j > 10 && b print("tripple check");
+    if i > 6 && j > 10 && b print("triple check");
 
     b = i > 6 && j > 10;
     b = i > 6 && j > 10 && i == j;

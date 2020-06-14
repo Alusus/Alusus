@@ -4,17 +4,17 @@ import subprocess
 
 if __name__ == "__main__":
     alusus_defines_include_dir = sys.argv[1]
-    host_tripple = subprocess.check_output([
+    host_triple = subprocess.check_output([
         (os.environ["CC"] if "CC" in os.environ else "clang"),
         "-dumpmachine"
     ]).decode().strip()
-    host_tripple_parts = host_tripple.split("-", 1)
-    host_tripple_arch = host_tripple_parts[0]
-    host_tripple_system = host_tripple_parts[1]
+    host_triple_parts = host_triple.split("-", 1)
+    host_triple_arch = host_triple_parts[0]
+    host_triple_system = host_triple_parts[1]
     # Convert "w64-mingw32" to "w64-windows-gnu", since both mean the same thing.
-    if host_tripple_system == "w64-mingw32":
-        host_tripple_system = "w64-windows-gnu"
-    host_tripple = host_tripple_arch + "-" + host_tripple_system
+    if host_triple_system == "w64-mingw32":
+        host_triple_system = "w64-windows-gnu"
+    host_triple = host_triple_arch + "-" + host_triple_system
     install_include_dir = sys.argv[2]
     install_bin_dir = sys.argv[3]
     install_lib_dir = sys.argv[4]
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     to_write_text =\
         "#ifndef ALUSUS_COMPILE_DEFINES_H{}".format(os.linesep) +\
         "#define ALUSUS_COMPILE_DEFINES_H{}".format(os.linesep) +\
-        "#define ALUSUS_HOST_TRIPPLE \"{0}\"{1}".format(host_tripple, os.linesep) +\
+        "#define ALUSUS_HOST_TRIPLE \"{0}\"{1}".format(host_triple, os.linesep) +\
         "#define ALUSUS_INSTALL_INCLUDE_DIR \"{0}\"{1}".format(install_include_dir, os.linesep) +\
         "#define ALUSUS_INSTALL_BIN_DIR \"{0}\"{1}".format(install_bin_dir, os.linesep) +\
         "#define ALUSUS_INSTALL_LIB_DIR \"{0}\"{1}".format(install_lib_dir, os.linesep) +\

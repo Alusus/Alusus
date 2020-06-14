@@ -264,7 +264,7 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       def language: ptr[array[Word[8]]];
       def os: ptr[array[Word[8]]];
       def cpu: ptr[array[Word[8]]];
-      def hostTripple: ptr[array[Word[8]]];
+      def hostTriple: ptr[array[Word[8]]];
     };
     module Core {
       def rootManager: ptr;
@@ -314,7 +314,7 @@ static Char const* cpu = "ARM";
 #elif defined(__aarch64__) // ARM 64 bit CPU.
 static Char const* cpu = "ARM64";
 #endif
-static Char const* hostTripple = ALUSUS_HOST_TRIPPLE;
+static Char const* hostTriple = ALUSUS_HOST_TRIPLE;
 
 void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
 {
@@ -327,7 +327,7 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   this->globalItemRepo->addItem(S("Process.language"), sizeof(language), &language);
   this->globalItemRepo->addItem(S("Process.os"), sizeof(os), &os);
   this->globalItemRepo->addItem(S("Process.cpu"), sizeof(cpu), &cpu);
-  this->globalItemRepo->addItem(S("Process.hostTripple"), sizeof(hostTripple), &hostTripple);
+  this->globalItemRepo->addItem(S("Process.hostTriple"), sizeof(hostTriple), &hostTriple);
   this->globalItemRepo->addItem(S("Core.rootManager"), sizeof(void*), &manager);
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
