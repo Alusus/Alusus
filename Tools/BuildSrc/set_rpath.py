@@ -8,7 +8,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from utils import eprint  # noqa
 
 
-# TODO: Add optional dependencies detection such as "machotools" and "elftools" to set RPATHs without needing external tools.
+# TODO: Add optional dependencies detection such as "machotools" and "elftools" to set RPATHs as
+# an alternative to needing "install_name_tool" and "otool" for macOS or "patchelf" for Linux.
 
 
 def _is_elf(test_file, patchelf=None):

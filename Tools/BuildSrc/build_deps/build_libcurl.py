@@ -13,7 +13,7 @@ from build_deps import template_build, build_zlib, build_openssl, build_nghttp2,
 from msg import info_msg, success_msg, fail_msg  # noqa
 from utils import shell_join, shell_split, get_host_cxx_arch, get_host_cxx_triple, unix_copy2  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx  # noqa
-from create_shared_lib import create_dll  # noqa
+from create_shared_lib import create_dll, create_dylib  # noqa
 
 
 _CURL_SRC_URL = "https://curl.haxx.se/download/curl-7.70.0.tar.gz"
@@ -207,8 +207,9 @@ class build_libcurl(template_build.template_build):
                             "windows" else "-".join(get_host_cxx_triple(new_environ=new_environ).split("-")[1:]))
                 )
             ])
-        # Will build the shared library later. There's an issue with shared library building for Windows target.
-        if target_system == "windows" or platform.system() == "Windows" and not target_system:
+        # Will build the shared library later. There's an issue with shared library building for Windows and macOS targets.
+        if (target_system == "windows" or platform.system() == "Windows" and not target_system) or\
+            (target_system == "macos" or platform.system() == "Darwin" and not target_system):
             autoconf_cmd = shell_join(shell_split(
                 autoconf_cmd) + ["--disable-shared"])
         bash_cmd = ["bash", "-c", autoconf_cmd]
@@ -232,7 +233,7 @@ class build_libcurl(template_build.template_build):
             os.chdir(original_dir)
             return False
 
-        # We will create libcurl shared library for Windows now.
+        # We will create libcurl shared library for Windows and macOS targets now.
         if target_system == "windows" or platform.system() == "Windows" and not target_system:
             try:
                 os.remove(os.path.join(
@@ -265,6 +266,39 @@ class build_libcurl(template_build.template_build):
                              "lib", "libcurl.dll"),
                 os.path.join(deps_path, "curl-7.70.0.install",
                              "bin", "libcurl.dll")
+            )
+        elif target_system == "macos" or platform.system() == "Darwin" and not target_system:
+            try:
+                os.remove(os.path.join(
+                    deps_path, "curl-7.70.0.install", "lib", "libcurl.4.dylib"))
+            except OSError:
+                pass
+            try:
+                os.remove(os.path.join(
+                    deps_path, "curl-7.70.0.install", "lib", "libcurl.dylib"))
+            except OSError:
+                pass
+            ret = create_dylib(
+                arg_dir=[os.path.join(
+                    deps_path, "curl-7.70.0.install", "lib")],
+                arg_output_dir=os.path.join(
+                    deps_path, "curl-7.70.0.install", "lib"),
+                arg_output_name="curl.4",
+                arg_link_lib=["z", "crypto", "ssl", "pthread",
+                                "nghttp2", "ssh2", "brotlidec",
+                                "clang_rt.osx"],
+                new_environ=new_environ
+            )
+            if ret[0]:
+                fail_msg(ret[1])
+                fail_msg("Building libcurl 7.70.0.")
+                os.chdir(original_dir)
+                return False
+            os.symlink(
+                os.path.join(deps_path, "curl-7.70.0.install",
+                             "lib", "libcurl.4.dylib"),
+                os.path.join(deps_path, "curl-7.70.0.install",
+                             "lib", "libcurl.dylib")
             )
 
         os.makedirs(os.path.join(
