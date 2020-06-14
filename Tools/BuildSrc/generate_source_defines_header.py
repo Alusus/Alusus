@@ -8,6 +8,13 @@ if __name__ == "__main__":
         (os.environ["CC"] if "CC" in os.environ else "clang"),
         "-dumpmachine"
     ]).decode().strip()
+    host_tripple_parts = host_tripple.split("-", 1)
+    host_tripple_arch = host_tripple_parts[0]
+    host_tripple_system = host_tripple_parts[1]
+    # Convert "w64-mingw32" to "w64-windows-gnu", since both mean the same thing.
+    if host_tripple_system == "w64-mingw32":
+        host_tripple_system = "w64-windows-gnu"
+    host_tripple = host_tripple_arch + "-" + host_tripple_system
     install_include_dir = sys.argv[2]
     install_bin_dir = sys.argv[3]
     install_lib_dir = sys.argv[4]
