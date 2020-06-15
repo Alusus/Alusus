@@ -2,24 +2,15 @@ import subprocess
 import os
 import shutil
 import platform
-import whichcraft
 import sys
-if platform.system() == "Windows":
-    from mslex import quote, split
-else:
-    from shlex import quote, split
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
+import whichcraft  # noqa
+if platform.system() == "Windows":  # noqa
+    from mslex import quote, split  # noqa
+else:  # noqa
+    from shlex import quote, split  # noqa
 from parse_path_envvar import parse_path_envvar  # noqa
-
-
-def get_host_cxx_triple(new_environ=os.environ):
-    return subprocess.check_output(
-        [new_environ["CXX"] if "CXX" in new_environ else "clang++", "-dumpmachine"], env=new_environ).decode().strip()
-
-
-def get_host_cxx_arch(new_environ=os.environ):
-    return get_host_cxx_triple().split("-")[0]
 
 
 def shell_split(cmd):
@@ -30,6 +21,22 @@ def shell_join(cmd_parts):
     return " ".join(
         [quote(cmd_part) for cmd_part in cmd_parts]
     )
+
+
+def which(cmd):
+    cmd = shell_split(cmd)
+    cmd = [whichcraft.which(cmd[0])] + cmd[1:]
+    cmd = shell_join(cmd)
+    return cmd
+
+
+def get_host_cxx_triple(new_environ=os.environ):
+    return subprocess.check_output(
+        shell_split(which(new_environ["CXX"] if "CXX" in new_environ else "clang++")) + ["-dumpmachine"], env=new_environ).decode().strip()
+
+
+def get_host_cxx_arch(new_environ=os.environ):
+    return get_host_cxx_triple().split("-")[0]
 
 
 def create_tmp_dir():
@@ -145,9 +152,3 @@ def get_to_copy_libs(environ=os.environ):
         to_return.add(curr_str)
         curr_str = ""
     return to_return
-
-def which(cmd):
-    cmd = shell_split(cmd)
-    cmd = [whichcraft.which(cmd[0])] + cmd[1:]
-    cmd = shell_join(cmd)
-    return cmd

@@ -1,13 +1,14 @@
 import os
 import sys
 import subprocess
+SOURCE_LOCATION = os.path.abspath(__file__)
+sys.path.insert(0, os.path.dirname(SOURCE_LOCATION))
+from utils import get_host_cxx_triple  # noqa
+
 
 if __name__ == "__main__":
     alusus_defines_include_dir = sys.argv[1]
-    host_triple = subprocess.check_output([
-        (os.environ["CC"] if "CC" in os.environ else "clang"),
-        "-dumpmachine"
-    ]).decode().strip()
+    host_triple = get_host_cxx_triple()
     host_triple_parts = host_triple.split("-", 1)
     host_triple_arch = host_triple_parts[0]
     host_triple_system = host_triple_parts[1]
