@@ -67,17 +67,9 @@ if !ERRORLEVEL! NEQ 0 (
 if !ERRORLEVEL! NEQ 0 (
     !ALUSUS_PYTHON_INTERP! -m pip install termcolor==1.1.0 --target "!ALUSUS_PYTHONPATH!"
 )
-!ALUSUS_PYTHON_INTERP! -c "import pkg_resources; pkg_resources.require(""mslex==0.3.0"")" >nul 2>&1
-if !ERRORLEVEL! NEQ 0 (
-    !ALUSUS_PYTHON_INTERP! -m pip install mslex==0.3.0 --target "!ALUSUS_PYTHONPATH!"
-)
 !ALUSUS_PYTHON_INTERP! -c "import pkg_resources; pkg_resources.require(""wget==3.2"")" >nul 2>&1
 if !ERRORLEVEL! NEQ 0 (
     !ALUSUS_PYTHON_INTERP! -m pip install wget==3.2 --target "!ALUSUS_PYTHONPATH!"
-)
-!ALUSUS_PYTHON_INTERP! -c "import pkg_resources; pkg_resources.require(""whichcraft==0.6.1"")" >nul 2>&1
-if !ERRORLEVEL! NEQ 0 (
-    !ALUSUS_PYTHON_INTERP! -m pip install whichcraft==0.6.1 --target "!ALUSUS_PYTHONPATH!"
 )
 
 !ALUSUS_PYTHON_INTERP! "!ALUSUS_BUILD_SCRIPT_DIR!\BuildSrc\build.py" %*

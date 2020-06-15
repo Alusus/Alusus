@@ -55,10 +55,6 @@ fi
 if [ $? -ne 0 ]; then
     "$ALUSUS_PYTHON_INTERP" -m pip install wget==3.2 --target "$ALUSUS_PYTHONPATH"
 fi
-"$ALUSUS_PYTHON_INTERP" -c "import pkg_resources; pkg_resources.require(\"whichcraft==0.6.1\")" &> /dev/null
-if [ $? -ne 0 ]; then
-    "$ALUSUS_PYTHON_INTERP" -m pip install whichcraft==0.6.1 --target "$ALUSUS_PYTHONPATH"
-fi
 
 "$ALUSUS_PYTHON_INTERP" "$ALUSUS_BUILD_SCRIPT_DIR/BuildSrc/build.py" "$@"
 
