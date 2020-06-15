@@ -9,10 +9,10 @@ import os
 import subprocess
 import shutil
 import platform
-from whichcraft import which
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(SOURCE_LOCATION))
 from parse_path_envvar import parse_path_envvar  # noqa
+from utils import shell_split, which  # noqa
 
 
 def _get_cc_cxx_wrappers_tmp_dir():
@@ -69,11 +69,9 @@ if __name__ == "__main__":
 
     bin_arg = None
     if bin_type == "CC":
-        bin_arg = which(os.environ["ALUSUS_CC_BIN"]
-                        if "ALUSUS_CC_BIN" in os.environ else "clang")
+        bin_arg = shell_split(which(os.environ["ALUSUS_CC_BIN"] if "ALUSUS_CC_BIN" in os.environ else "clang"))
     else:
-        bin_arg = which(os.environ["ALUSUS_CXX_BIN"]
-                        if "ALUSUS_CXX_BIN" in os.environ else "clang++")
+        bin_arg = shell_split(which(os.environ["ALUSUS_CXX_BIN"] if "ALUSUS_CXX_BIN" in os.environ else "clang++"))
 
     bin_args = sys.argv[1:]
     lib_paths_args = list()
@@ -113,5 +111,5 @@ if __name__ == "__main__":
     if "ALUSUS_CC_CXX_USE_FPIC" in os.environ and os.environ["ALUSUS_CC_CXX_USE_FPIC"] == "1":
         bin_args.append("-fPIC")
     bin_args.append("-Wno-unused-command-line-argument")
-    os._exit(subprocess.call([bin_arg] + bin_args +
+    os._exit(subprocess.call(bin_arg + bin_args +
                              include_paths_args + lib_paths_args))

@@ -7,14 +7,13 @@ import multiprocessing
 import hashlib
 import subprocess
 import shutil
-from whichcraft import which
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(SOURCE_LOCATION))
 from build_deps import build_ghc_filesystem, build_dlfcn_win32, build_libcurl, build_libzip, build_llvm  # noqa
 from version_info import get_version_info  # noqa
 from msg import info_msg, success_msg, fail_msg, warn_msg  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx, copy_cc_cxx_wrapppers_to_tmp_dir  # noqa
-from utils import get_host_cxx_arch, delete_tmp_dir, get_lib_path, get_to_copy_libs  # noqa
+from utils import get_host_cxx_arch, delete_tmp_dir, get_lib_path, get_to_copy_libs, which  # noqa
 from set_rpath import set_rpath
 
 

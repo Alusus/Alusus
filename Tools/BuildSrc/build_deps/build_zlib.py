@@ -7,12 +7,11 @@ import subprocess
 import wget
 import platform
 import stat
-from whichcraft import which
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from msg import info_msg, success_msg, fail_msg  # noqa
 from build_deps import template_build  # noqa
-from utils import get_host_cxx_arch, unix_copy2  # noqa
+from utils import get_host_cxx_arch, unix_copy2, shell_join, shell_split, which  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx  # noqa
 
 
@@ -96,16 +95,25 @@ class build_zlib(template_build.template_build):
             os.makedirs("zlib-1.2.11.host.install", exist_ok=True)
             os.chdir("zlib-1.2.11.host.build")
             new_environ = os.environ.copy()
-            new_environ["CC"] = new_environ["ALUSUS_HOST_CC"] if "ALUSUS_HOST_CC" in new_environ else "clang"
-            new_environ["CXX"] = new_environ["ALUSUS_HOST_CXX"] if "ALUSUS_HOST_CXX" in new_environ else "clang++"
-            new_environ["AR"] = new_environ["ALUSUS_HOST_AR"] if "ALUSUS_HOST_AR" in new_environ else "ar"
-            new_environ["AS"] = new_environ["ALUSUS_HOST_AS"] if "ALUSUS_HOST_AS" in new_environ else "as"
-            new_environ["RANLIB"] = new_environ["ALUSUS_HOST_RANLIB"] if "ALUSUS_HOST_RANLIB" in new_environ else "ranlib"
-            new_environ["NM"] = new_environ["ALUSUS_HOST_NM"] if "ALUSUS_HOST_NM" in new_environ else "nm"
-            new_environ["STRIP"] = new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip"
-            new_environ["LD"] = new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld"
+            new_environ["CC"] = which(
+                new_environ["ALUSUS_HOST_CC"] if "ALUSUS_HOST_CC" in new_environ else "clang")
+            new_environ["CXX"] = which(
+                new_environ["ALUSUS_HOST_CXX"] if "ALUSUS_HOST_CXX" in new_environ else "clang++")
+            new_environ["AR"] = which(
+                new_environ["ALUSUS_HOST_AR"] if "ALUSUS_HOST_AR" in new_environ else "ar")
+            new_environ["AS"] = which(
+                new_environ["ALUSUS_HOST_AS"] if "ALUSUS_HOST_AS" in new_environ else "as")
+            new_environ["RANLIB"] = which(
+                new_environ["ALUSUS_HOST_RANLIB"] if "ALUSUS_HOST_RANLIB" in new_environ else "ranlib")
+            new_environ["NM"] = which(
+                new_environ["ALUSUS_HOST_NM"] if "ALUSUS_HOST_NM" in new_environ else "nm")
+            new_environ["STRIP"] = which(
+                new_environ["ALUSUS_HOST_STRIP"] if "ALUSUS_HOST_STRIP" in new_environ else "strip")
+            new_environ["LD"] = which(
+                new_environ["ALUSUS_HOST_LD"] if "ALUSUS_HOST_LD" in new_environ else "ld")
             if platform.system() == "Windows":
-                new_environ["RC"] = new_environ["ALUSUS_HOST_RC"] if "ALUSUS_HOST_RC" in new_environ else "windres"
+                new_environ["RC"] = which(
+                    new_environ["ALUSUS_HOST_RC"] if "ALUSUS_HOST_RC" in new_environ else "windres")
             if platform.system() == "Darwin":
                 new_environ["INSTALL_NAME_TOOL"] = which(
                     new_environ["ALUSUS_HOST_INSTALL_NAME_TOOL"] if "ALUSUS_HOST_INSTALL_NAME_TOOL" in new_environ else "install_name_tool")
@@ -137,6 +145,13 @@ class build_zlib(template_build.template_build):
             else:
                 try:
                     del new_environ["CPLUS_INCLUDE_PATH"]
+                except KeyError:
+                    pass
+            if "ALUSUS_HOST_PKG_CONFIG_PATH" in new_environ:
+                new_environ["PKG_CONFIG_PATH"] = new_environ["ALUSUS_HOST_PKG_CONFIG_PATH"]
+            else:
+                try:
+                    del new_environ["PKG_CONFIG_PATH"]
                 except KeyError:
                     pass
             host_target_system = "windows" if (platform.system() == "Windows") else (
@@ -218,16 +233,30 @@ class build_zlib(template_build.template_build):
                 "-DCMAKE_STRIP={}".format(
                     which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
             if target_system == "macos":
-                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_INSTALL_NAME_TOOL")][0]] =\
-                    "-DCMAKE_INSTALL_NAME_TOOL={}".format(
-                        which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool"))
-                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_OTOOL")][0]] =\
-                    "-DCMAKE_OTOOL={}".format(
-                        which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                if platform.system() == "Darwin":
+                    cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_INSTALL_NAME_TOOL")][0]] =\
+                        "-DCMAKE_INSTALL_NAME_TOOL={}".format(
+                            which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool"))
+                    cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_OTOOL")][0]] =\
+                        "-DCMAKE_OTOOL={}".format(
+                            which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                else:
+                    cmake_cmd += [
+                        "-DCMAKE_INSTALL_NAME_TOOL={}".format(
+                            which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
+                        "-DCMAKE_OTOOL={}".format(
+                            which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                    ]
             if target_system == "windows":
-                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_RC_COMPILER")][0]] =\
-                    "-DCMAKE_RC_COMPILER={}".format(
-                        which(new_environ["RC"] if "RC" in new_environ else "windres"))
+                if platform.system() == "Windows":
+                    cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_RC_COMPILER")][0]] =\
+                        "-DCMAKE_RC_COMPILER={}".format(
+                            which(new_environ["RC"] if "RC" in new_environ else "windres"))
+                else:
+                    cmake_cmd += [
+                        "-DCMAKE_RC_COMPILER={}".format(
+                            which(new_environ["RC"] if "RC" in new_environ else "windres"))
+                    ]
             p = subprocess.Popen(cmake_cmd, env=new_environ)
             ret = p.wait()
             if ret:

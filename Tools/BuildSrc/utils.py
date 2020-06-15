@@ -2,7 +2,7 @@ import subprocess
 import os
 import shutil
 import platform
-from whichcraft import which
+import whichcraft
 import sys
 if platform.system() == "Windows":
     from mslex import quote, split
@@ -145,3 +145,9 @@ def get_to_copy_libs(environ=os.environ):
         to_return.add(curr_str)
         curr_str = ""
     return to_return
+
+def which(cmd):
+    cmd = shell_split(cmd)
+    cmd = [whichcraft.which(cmd[0])] + cmd[1:]
+    cmd = shell_join(cmd)
+    return cmd

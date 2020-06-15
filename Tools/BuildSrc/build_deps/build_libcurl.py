@@ -285,8 +285,7 @@ class build_libcurl(template_build.template_build):
                     deps_path, "curl-7.70.0.install", "lib"),
                 arg_output_name="curl.4",
                 arg_link_lib=["z", "crypto", "ssl", "pthread",
-                                "nghttp2", "ssh2", "brotlidec",
-                                "clang_rt.osx"],
+                                "nghttp2", "ssh2", "brotlidec"],
                 new_environ=new_environ
             )
             if ret[0]:

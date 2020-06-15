@@ -7,13 +7,12 @@ import platform
 import subprocess
 import multiprocessing
 import distutils.dir_util
-from whichcraft import which
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(os.path.dirname(SOURCE_LOCATION)))
 from build_deps import template_build, build_zlib  # noqa
 from msg import info_msg, success_msg, fail_msg  # noqa
 from create_shared_lib import create_dll, create_so, create_dylib  # noqa
-from utils import get_host_cxx_arch, get_host_cxx_triple, unix_copy2  # noqa
+from utils import get_host_cxx_arch, get_host_cxx_triple, unix_copy2, shell_split, shell_join, which  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx  # noqa
 
 
@@ -295,16 +294,30 @@ class build_llvm(template_build.template_build):
                 "-DCMAKE_STRIP={}".format(
                     which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))
             if target_system == "macos":
-                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_INSTALL_NAME_TOOL")][0]] =\
-                    "-DCMAKE_INSTALL_NAME_TOOL={}".format(
-                        which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool"))
-                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_OTOOL")][0]] =\
-                    "-DCMAKE_OTOOL={}".format(
-                        which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                if platform.system() == "Darwin":
+                    cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_INSTALL_NAME_TOOL")][0]] =\
+                        "-DCMAKE_INSTALL_NAME_TOOL={}".format(
+                            which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool"))
+                    cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_OTOOL")][0]] =\
+                        "-DCMAKE_OTOOL={}".format(
+                            which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                else:
+                    cmake_cmd += [
+                        "-DCMAKE_INSTALL_NAME_TOOL={}".format(
+                            which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
+                        "-DCMAKE_OTOOL={}".format(
+                            which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                    ]
             if target_system == "windows":
-                cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_RC_COMPILER")][0]] =\
-                    "-DCMAKE_RC_COMPILER={}".format(
-                        which(new_environ["RC"] if "RC" in new_environ else "windres"))
+                if platform.system() == "Windows":
+                    cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_RC_COMPILER")][0]] =\
+                        "-DCMAKE_RC_COMPILER={}".format(
+                            which(new_environ["RC"] if "RC" in new_environ else "windres"))
+                else:
+                    cmake_cmd += [
+                        "-DCMAKE_RC_COMPILER={}".format(
+                            which(new_environ["RC"] if "RC" in new_environ else "windres"))
+                    ]
             p = subprocess.Popen(cmake_cmd, env=new_environ)
             ret = p.wait()
             if ret:
@@ -504,8 +517,7 @@ class build_llvm(template_build.template_build):
             except OSError:
                 pass
             create_dylib_out = create_dylib(arg_file=os.listdir("."), arg_output_dir=".", arg_output_name="LLVM-10",
-                                            arg_link_lib=[
-                                                "z", "clang_rt.osx", "pthread"],
+                                            arg_link_lib=["z", "pthread"],
                                             new_environ=new_environ)
             if create_dylib_out[0]:
                 fail_msg("Building LLVM 10.0.0.")
