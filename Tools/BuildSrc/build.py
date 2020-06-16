@@ -1,3 +1,4 @@
+from set_rpath import set_rpath
 import os
 import platform
 import sys
@@ -7,14 +8,15 @@ import multiprocessing
 import hashlib
 import subprocess
 import shutil
+import tarfile
+import zipfile
 SOURCE_LOCATION = os.path.abspath(__file__)
 sys.path.insert(0, os.path.dirname(SOURCE_LOCATION))
 from build_deps import build_ghc_filesystem, build_dlfcn_win32, build_libcurl, build_libzip, build_llvm  # noqa
 from version_info import get_version_info  # noqa
 from msg import info_msg, success_msg, fail_msg, warn_msg  # noqa
 from custom_cc_cxx import create_new_environ_with_custom_cc_cxx, copy_cc_cxx_wrapppers_to_tmp_dir  # noqa
-from utils import get_host_cxx_arch, delete_tmp_dir, get_lib_path, get_to_copy_libs, which  # noqa
-from set_rpath import set_rpath
+from utils import get_host_cxx_arch, get_host_cxx_triple, delete_tmp_dir, get_lib_path, get_to_copy_libs, which  # noqa
 
 
 def parse_args():
@@ -151,14 +153,17 @@ def post_build_alusus(install_path, target_system=None, environ=os.environ):
                     )
     if not (platform.system() == "Windows" and not target_system or target_system == "windows"):
         # To indicate it is currently updating the RPATHs.
-        warn_msg("Updating the RPATHs of the shared libraries (DO NOT interrupt the build process)...")
+        warn_msg(
+            "Updating the RPATHs of the shared libraries (DO NOT interrupt the build process)...")
         with open(os.path.join(environ["ALUSUS_TMP_DIR"], "UPDATING_RPATHS"), "w") as fd:
             fd.write("SETTING RPATH INDICATOR")
         if platform.system() == "Darwin" and not target_system or target_system == "macos":
             set_rpath(
                 arg_dir=[
-                    os.path.join(os.path.join(install_path["root"], install_path["lib"])),
-                    os.path.join(os.path.join(install_path["root"], install_path["bin"])),
+                    os.path.join(os.path.join(
+                        install_path["root"], install_path["lib"])),
+                    os.path.join(os.path.join(
+                        install_path["root"], install_path["bin"])),
                 ],
                 arg_rpath=[
                     "@executable_path/",
@@ -170,8 +175,10 @@ def post_build_alusus(install_path, target_system=None, environ=os.environ):
         elif platform.system() == "Linux" and not target_system or target_system == "linux":
             set_rpath(
                 arg_dir=[
-                    os.path.join(os.path.join(install_path["root"], install_path["lib"])),
-                    os.path.join(os.path.join(install_path["root"], install_path["bin"])),
+                    os.path.join(os.path.join(
+                        install_path["root"], install_path["lib"])),
+                    os.path.join(os.path.join(
+                        install_path["root"], install_path["bin"])),
                 ],
                 arg_rpath=[
                     "$ORIGIN/",
@@ -187,17 +194,14 @@ def post_build_alusus(install_path, target_system=None, environ=os.environ):
 
 
 def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_type, num_threads=multiprocessing.cpu_count(), target_system=None):
-    copy_cc_cxx_wrapppers_to_tmp_dir()
-
     current_version_info = get_version_info()
     info_msg("Building Alusus {}...".format(current_version_info[0]))
 
-    info_msg("Building dependencies for Alusus {}...".format(
+    info_msg("Building Alusus {} dependencies...".format(
         current_version_info[0]))
     ret = build_deps(deps_path, install_path,
                      num_threads=num_threads, target_system=target_system)
     if not ret:
-        delete_tmp_dir()
         return ret
     success_msg("Building dependencies for Alusus {}.".format(
         current_version_info[0]))
@@ -291,7 +295,6 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
     if ret:
         fail_msg("Building Alusus {}.".format(current_version_info[0]))
         os.chdir(original_dir)
-        delete_tmp_dir()
         return False
     p = subprocess.Popen(
         [("mingw32-make" if (platform.system() == "Windows") else "make"), "-j{}".format(num_threads), "install"], env=new_environ)
@@ -299,7 +302,6 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
     if ret:
         fail_msg("Building Alusus {}.".format(current_version_info[0]))
         os.chdir(original_dir)
-        delete_tmp_dir()
         return False
 
     post_build_alusus(
@@ -307,11 +309,28 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
 
     success_msg("Building Alusus {}.".format(current_version_info[0]))
     os.chdir(original_dir)
-    delete_tmp_dir()
     return True
 
 
-def build_packages(pkgs_path, install_path):
+def build_packages(pkgs_path, install_path, build_type, target_system=None):
+    global SOURCE_LOCATION
+
+    # First, create the compressed archives.
+    os.makedirs(pkgs_path, exist_ok=True)
+    new_environ = os.environ.copy()
+    new_environ = create_new_environ_with_custom_cc_cxx(
+        new_environ, target_system=target_system)
+    host_cxx_tripple = get_host_cxx_triple(new_environ=new_environ)
+    package_name = host_cxx_tripple + "-alusus"
+    if build_type == "d":
+        package_name += "-debug"
+    # Only TAR files will be created, since ZIP doesn't support storing symlinks.
+    with tarfile.open(os.path.join(pkgs_path, "{}.tar.gz".format(package_name)), "w:gz") as tar:
+        tar.add(install_path["root"], arcname=package_name)
+    with tarfile.open(os.path.join(pkgs_path, "{}.tar.xz".format(package_name)), "w:xz") as tar:
+        tar.add(install_path["root"], arcname=package_name)
+
+    # TODO: Then, create the OS specific installers (if available).
     return True
 
 
@@ -322,16 +341,23 @@ def main():
         target_system = args.target
 
     paths = generate_paths(args.build_path, args.install_path, args.build_type)
+    copy_cc_cxx_wrapppers_to_tmp_dir()
     ret = build_alusus(paths["deps_path"], paths["builds_path"],
                        paths["alusus_root_path"], paths["install_path"],
                        args.build_type, num_threads=args.num_threads,
                        target_system=target_system)
     if not ret:
+        delete_tmp_dir()
         return ret
     if args.build_packages:
-        ret = build_packages(paths["pkgs_paths"], paths["install_path"])
+        ret = build_packages(paths["pkgs_path"], paths["install_path"],
+                             args.build_type, target_system=target_system)
         if not ret:
+            delete_tmp_dir()
             return ret
+
+    delete_tmp_dir()
+    return True
 
 
 if __name__ == "__main__":
