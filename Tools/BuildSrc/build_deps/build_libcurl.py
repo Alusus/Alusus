@@ -293,12 +293,8 @@ class build_libcurl(template_build.template_build):
                 fail_msg("Building libcurl 7.70.0.")
                 os.chdir(original_dir)
                 return False
-            os.symlink(
-                os.path.join(deps_path, "curl-7.70.0.install",
-                             "lib", "libcurl.4.dylib"),
-                os.path.join(deps_path, "curl-7.70.0.install",
-                             "lib", "libcurl.dylib")
-            )
+            os.chdir(os.path.join(deps_path, "curl-7.70.0.install", "lib"))
+            os.symlink("libcurl.4.dylib", "libcurl.dylib")
 
         os.makedirs(os.path.join(
             install_path["root"], install_path["lib"]), exist_ok=True)

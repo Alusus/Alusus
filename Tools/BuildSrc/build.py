@@ -264,7 +264,7 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
                      install_path["include"]),
                  "-DALUSUS_BUILD_STATIC_LIBS=TRUE",
                  "-DALUSUS_LINK_SHARED_LIBS=TRUE",
-                 "-DALUSUS_SET_RPATH=TRUE",
+                 "-DALUSUS_SET_RPATH=FALSE", # Will set the RPATHs later on by the build script.
                  "-DALUSUS_PRINT_VERSION_INFO=TRUE",
                  "-DCMAKE_RANLIB={}".format(
                      which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
