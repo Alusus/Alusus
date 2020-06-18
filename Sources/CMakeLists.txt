@@ -3,7 +3,8 @@
 # accompanying license file or at <https://alusus.org/alusus_license_1_0>.
 
 project(Alusus)
-cmake_minimum_required(VERSION 3.1)
+# We are using a minimum version of 3.16, because we are using "target_precompile_headers" feature of CMake.
+cmake_minimum_required(VERSION 3.16)
 
 if(WIN32)
   include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32Helpers")

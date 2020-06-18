@@ -56,7 +56,7 @@ endif(MSVC)
 if (ALUSUS_BUILD_STATIC_LIBS)
   add_library(AlususSppStatic STATIC ${AlususSpp_SOURCE_FILES})
   set_target_properties(AlususSppStatic PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
-  add_precompiled_header(AlususSppStatic "spp.h")
+  target_precompile_headers(AlususSppStatic PUBLIC "spp.h")
 
   # Set output names.
   set_target_properties(AlususSppStatic PROPERTIES OUTPUT_NAME alusus_spp_static)
@@ -95,7 +95,7 @@ endif()
 if (ALUSUS_BUILD_SHARED_LIBS)
   add_library(AlususSpp SHARED ${AlususSpp_SOURCE_FILES})
   set_target_properties(AlususSpp PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
-  add_precompiled_header(AlususSpp "spp.h")
+  target_precompile_headers(AlususSpp PUBLIC "spp.h")
 
   # Set output names.
   set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)

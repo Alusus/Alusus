@@ -258,13 +258,16 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
                      "Release" if build_type == "r" else "Debug"),
                  "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                  "-DCMAKE_INSTALL_PREFIX={}".format(install_path["root"]),
+                 # CMake 3.16 feature for faster builds.
+                 "-DCMAKE_UNITY_BUILD=TRUE",
                  "-DALUSUS_INSTALL_BIN_DIR={}".format(install_path["bin"]),
                  "-DALUSUS_INSTALL_LIB_DIR={}".format(install_path["lib"]),
                  "-DALUSUS_INSTALL_INCLUDE_DIR={}".format(
                      install_path["include"]),
                  "-DALUSUS_BUILD_STATIC_LIBS=TRUE",
                  "-DALUSUS_LINK_SHARED_LIBS=TRUE",
-                 "-DALUSUS_SET_RPATH=FALSE", # Will set the RPATHs later on by the build script.
+                 # Will set the RPATHs later on by the build script.
+                 "-DALUSUS_SET_RPATH=FALSE",
                  "-DALUSUS_PRINT_VERSION_INFO=TRUE",
                  "-DCMAKE_RANLIB={}".format(
                      which(new_environ["RANLIB"] if "RANLIB" in new_environ else "ranlib")),
@@ -315,7 +318,10 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
 def build_packages(pkgs_path, install_path, build_type, target_system=None):
     global SOURCE_LOCATION
 
+    info_msg("Building packages...")
+
     # First, create the compressed archives.
+    info_msg("Building compressed archives...")
     os.makedirs(pkgs_path, exist_ok=True)
     new_environ = os.environ.copy()
     new_environ = create_new_environ_with_custom_cc_cxx(
@@ -329,8 +335,14 @@ def build_packages(pkgs_path, install_path, build_type, target_system=None):
         tar.add(install_path["root"], arcname=package_name)
     with tarfile.open(os.path.join(pkgs_path, "{}.tar.xz".format(package_name)), "w:xz") as tar:
         tar.add(install_path["root"], arcname=package_name)
+    success_msg("Building compressed archives.")
 
+    info_msg("Building host specific installer(s)...")
     # TODO: Then, create the OS specific installers (if available).
+    warn_msg("No host installer has been built.")
+    success_msg("Building host specific installer(s).")
+
+    success_msg("Building packages.")
     return True
 
 

@@ -209,7 +209,7 @@ class build_libcurl(template_build.template_build):
             ])
         # Will build the shared library later. There's an issue with shared library building for Windows and macOS targets.
         if (target_system == "windows" or platform.system() == "Windows" and not target_system) or\
-            (target_system == "macos" or platform.system() == "Darwin" and not target_system):
+                (target_system == "macos" or platform.system() == "Darwin" and not target_system):
             autoconf_cmd = shell_join(shell_split(
                 autoconf_cmd) + ["--disable-shared"])
         bash_cmd = ["bash", "-c", autoconf_cmd]

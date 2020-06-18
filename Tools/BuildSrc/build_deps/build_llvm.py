@@ -169,7 +169,6 @@ class build_llvm(template_build.template_build):
             cmake_cmd = ["cmake",
                          os.path.join(deps_path, "llvm-10.0.0.src"),
                          "-DCMAKE_BUILD_TYPE=Release",
-                         "-DLLVM_ENABLE_LIBXAR=OFF",
                          "-DPYTHON_EXECUTABLE={}".format(sys.executable),
                          "-DCMAKE_INSTALL_PREFIX={}".format(
                              os.path.join(deps_path, "llvm-10.0.0.host.install")),
@@ -182,6 +181,7 @@ class build_llvm(template_build.template_build):
                          "-DCMAKE_STRIP={}".format(which(new_environ["STRIP"] if "STRIP" in new_environ else "strip"))]
             if platform.system() == "Darwin":
                 cmake_cmd += [
+                    "-DLLVM_ENABLE_LIBXAR=ON",
                     "-DCMAKE_INSTALL_NAME_TOOL={}".format(which(
                         new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
                     "-DCMAKE_OTOOL={}".format(which(
@@ -255,7 +255,6 @@ class build_llvm(template_build.template_build):
                 "Darwin" if (target_system == "macos") else "Linux")
             cmake_cmd += [
                 "-DCMAKE_CROSSCOMPILING=TRUE",
-                "-DLLVM_ENABLE_LIBXAR=ON",
                 "-DLLVM_ENABLE_LIBXML2=OFF",
                 "-DLLVM_ENABLE_LIBEDIT=OFF",
                 "-DLLVM_ENABLE_TERMINFO=OFF",
@@ -301,8 +300,11 @@ class build_llvm(template_build.template_build):
                     cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DCMAKE_OTOOL")][0]] =\
                         "-DCMAKE_OTOOL={}".format(
                             which(new_environ["OTOOL"] if "OTOOL" in new_environ else "otool"))
+                    cmake_cmd[[cmake_cmd.index(item) for item in cmake_cmd if item.startswith("-DLLVM_ENABLE_LIBXAR")][0]] =\
+                        "-DLLVM_ENABLE_LIBXAR=ON"
                 else:
                     cmake_cmd += [
+                        "-DLLVM_ENABLE_LIBXAR=ON",
                         "-DCMAKE_INSTALL_NAME_TOOL={}".format(
                             which(new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
                         "-DCMAKE_OTOOL={}".format(
@@ -372,7 +374,6 @@ class build_llvm(template_build.template_build):
                 "cmake",
                 os.path.join(deps_path, "llvm-10.0.0.src"),
                 "-DCMAKE_BUILD_TYPE=Release",
-                "-DLLVM_ENABLE_LIBXAR=ON",
                 "-DLLVM_ENABLE_LIBXML2=OFF",
                 "-DLLVM_ENABLE_LIBEDIT=OFF",
                 "-DLLVM_ENABLE_TERMINFO=OFF",
@@ -404,6 +405,7 @@ class build_llvm(template_build.template_build):
             ]
             if platform.system() == "Darwin":
                 cmake_cmd += [
+                    "-DLLVM_ENABLE_LIBXAR=ON",
                     "-DCMAKE_INSTALL_NAME_TOOL={}".format(which(
                         new_environ["INSTALL_NAME_TOOL"] if "INSTALL_NAME_TOOL" in new_environ else "install_name_tool")),
                     "-DCMAKE_OTOOL={}".format(which(

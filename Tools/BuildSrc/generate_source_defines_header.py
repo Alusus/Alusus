@@ -12,9 +12,9 @@ if __name__ == "__main__":
     host_triple_parts = host_triple.split("-", 1)
     host_triple_arch = host_triple_parts[0]
     host_triple_system = host_triple_parts[1]
-    # Convert "w64-mingw32" to "w64-windows-gnu", since both mean the same thing.
-    if host_triple_system == "w64-mingw32":
-        host_triple_system = "w64-windows-gnu"
+    # # Convert "w64-mingw32" to "w64-windows-gnu", since both mean the same thing.
+    # if host_triple_system == "w64-mingw32":
+    #     host_triple_system = "w64-windows-gnu"
     host_triple = host_triple_arch + "-" + host_triple_system
     install_include_dir = sys.argv[2]
     install_bin_dir = sys.argv[3]

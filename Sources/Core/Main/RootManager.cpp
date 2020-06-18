@@ -362,11 +362,11 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 #if defined(_WIN32)
     // Load all DLLs found in the import library.
 
-    this->loadedImportLibsMutex.lock();
+    this->loadedImportLibsAndBinsMutex.lock();
 
     // No need to reload the import library again.
     if (this->loadedImportLibs.find(newFileName) != this->loadedImportLibs.end()) {
-      this->loadedImportLibsMutex.unlock();
+      this->loadedImportLibsAndBinsMutex.unlock();
       return true;
     }
 
@@ -375,32 +375,39 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
     auto dllNames = this->getDLLNames(newFileName, errorCheck);
     if (errorCheck) {
       errorDetails = "Couldn't parse import library.";
-      this->loadedImportLibsMutex.unlock();
+      this->loadedImportLibsAndBinsMutex.unlock();
       return false;
     }
 
     for (auto dllName : dllNames) {
+      if (this->loadedBins.find(dllName) != this->loadedBins.end()) {
+        continue;
+      }
+
       // Get the DLL's full path.
       if (!this->findBinFile(dllName.c_str(), resultFilename)) {
         errorDetails = "DLL not found: " + dllName;
-        this->loadedImportLibsMutex.unlock();
+        this->loadedImportLibsAndBinsMutex.unlock();
         return false;
       }
 
       // Load the DLL.
-      newFileName = resultFilename.data();
-      PtrWord id = this->getLibraryManager()->load(newFileName, errorDetails);
+      errorDetails = "";
+      PtrWord id = this->getLibraryManager()->load(resultFilename.data(), errorDetails);
       if (id == 0) {
-        this->loadedImportLibsMutex.unlock();
+        this->loadedImportLibsAndBinsMutex.unlock();
         return false;
       }
+
+      // Cache the DLL name.
+      this->loadedBins.insert(dllName);
     }
 
-    // All DLLs have been loaded successfully, and we can cache this import library
-    // so we don't need to load it again.
+    // All DLLs pointed by this import library have been loaded successfully,
+    // and we can cache it as it has been loaded so we don't need to load it again.
     this->loadedImportLibs.insert(newFileName);
 
-    this->loadedImportLibsMutex.unlock();
+    this->loadedImportLibsAndBinsMutex.unlock();
     return true;
 #else
     PtrWord id = this->getLibraryManager()->load(newFileName, errorDetails);
