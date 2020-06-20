@@ -186,18 +186,18 @@ def set_rpath(arg_rpath=None, arg_file=None, arg_dir=None, arg_dir_recurs=None, 
     return (0, )
 
 
-# if __name__ == "__main__":
-#     # Parse args.
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument("--rpath", action="append")
-#     parser.add_argument("--file", action="append")
-#     parser.add_argument("--dir", action="append")
-#     parser.add_argument("--dir-recurs", action="append")
-#     parser.add_argument("--target-system", default=None)
-#     args = parser.parse_args()
+if __name__ == "__main__":
+    # Parse args.
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--rpath", action="append")
+    parser.add_argument("--file", action="append")
+    parser.add_argument("--dir", action="append")
+    parser.add_argument("--dir-recurs", action="append")
+    parser.add_argument("--target-system", default=None)
+    args = parser.parse_args()
 
-#     ret = set_rpath(arg_rpath=args.rpath, arg_file=args.file, arg_dir=args.dir,
-#                     arg_dir_recurs=args.dir_recurs, target_system=args.target_system)
-#     if ret[0]:
-#         eprint(ret[1])
-#     os._exit(ret[0])
+    ret = set_rpath(arg_rpath=args.rpath, arg_file=args.file, arg_dir=args.dir,
+                    arg_dir_recurs=args.dir_recurs, target_system=args.target_system)
+    if ret[0]:
+        eprint(ret[1])
+    os._exit(ret[0])

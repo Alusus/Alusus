@@ -163,3 +163,24 @@ add_subdirectory(Core)
 add_subdirectory(Spp)
 add_subdirectory(Srt)
 add_subdirectory(Tests)
+
+# Set the RPATHs for libraries and binaries for non-Windows targets.
+if (ALUSUS_SET_RPATH AND NOT WIN32)
+  if(Darwin)
+    set(ALUSUS_TARGET_RPATH "@executable_path")
+    set(ALUSUS_TARGET_SYSTEM "macos")
+  else()
+    set(ALUSUS_TARGET_RPATH "\$ORIGIN")
+    set(ALUSUS_TARGET_SYSTEM "linux")
+  endif()
+  install(CODE
+          "
+    execute_process(COMMAND
+                    \"${PYTHON_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc/set_rpath.py\"
+                    \"--rpath\" \"${ALUSUS_TARGET_RPATH}/\"
+                    \"--rpath\" \"${ALUSUS_TARGET_RPATH}/../${ALUSUS_INSTALL_LIB_DIR}/\"
+                    \"--dir\" \"${CMAKE_INSTALL_PREFIX}/${ALUSUS_INSTALL_LIB_DIR}/\"
+                    \"--target-system\" \"${ALUSUS_TARGET_SYSTEM}\")
+          "
+  )
+endif()
