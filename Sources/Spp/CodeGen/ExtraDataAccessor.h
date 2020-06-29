@@ -44,7 +44,9 @@ class ExtraDataAccessor : public TiObject
   private: Str idPrefix;
   private: Str idCodeGenData;
   private: Str idAutoCtor;
+  private: Str idAutoCtorType;
   private: Str idAutoDtor;
+  private: Str idAutoDtorType;
   private: Str idCodeGenFailed;
   private: Str idInitStatementGenIndex;
 
@@ -66,7 +68,9 @@ class ExtraDataAccessor : public TiObject
     this->idPrefix = prefix;
     this->idCodeGenData = this->idPrefix + S("codeGenData");
     this->idAutoCtor = this->idPrefix + S("autoCtor");
+    this->idAutoCtorType = this->idPrefix + S("autoCtorType");
     this->idAutoDtor = this->idPrefix + S("autoDtor");
+    this->idAutoDtorType = this->idPrefix + S("autoDtorType");
     this->idCodeGenFailed = this->idPrefix + S("codeGenFailed");
     this->idInitStatementGenIndex = this->idPrefix + S("initStatementGenIndex");
   }
@@ -78,7 +82,9 @@ class ExtraDataAccessor : public TiObject
 
   DEFINE_EXTRA_ACCESSORS(CodeGenData);
   DEFINE_EXTRA_ACCESSORS(AutoCtor);
+  DEFINE_EXTRA_ACCESSORS(AutoCtorType);
   DEFINE_EXTRA_ACCESSORS(AutoDtor);
+  DEFINE_EXTRA_ACCESSORS(AutoDtorType);
 
   // didCodeGenFail
 

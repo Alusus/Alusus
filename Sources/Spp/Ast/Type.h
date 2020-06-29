@@ -74,14 +74,14 @@ class Type : public Core::Data::Node,
     return this->matchTargetType(type, helper, ec) >= TypeMatchStatus::EXPLICIT_CAST;
   }
 
-  public: virtual Bool hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const
+  public: virtual TypeInitMethod getInitializationMethod(Helper *helper, ExecutionContext const *ec) const
   {
-    return false;
+    return TypeInitMethod::NONE;
   }
 
-  public: virtual Bool hasCustomDestruction(Helper *helper, ExecutionContext const *ec) const
+  public: virtual TypeInitMethod getDestructionMethod(Helper *helper, ExecutionContext const *ec) const
   {
-    return false;
+    return TypeInitMethod::NONE;
   }
 
 }; // class

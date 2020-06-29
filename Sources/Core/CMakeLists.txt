@@ -9,11 +9,6 @@ cmake_minimum_required(VERSION 2.8)
 
 # Prepare compile flags.
 set(AlususCore_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
-if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS RELEASE)
-else()
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_LOGS)
-endif()
 
 # Make sure the compiler finds the source files.
 include_directories("${AlususCore_SOURCE_DIR}")

@@ -44,9 +44,9 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
 
   public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeInitMethod getInitializationMethod(Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool hasCustomDestruction(Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeInitMethod getDestructionMethod(Helper *helper, ExecutionContext const *ec) const;
 
 
   //============================================================================

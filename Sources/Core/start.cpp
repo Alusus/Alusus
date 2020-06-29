@@ -68,9 +68,9 @@ int main(int argCount, char * const args[])
     else if (strcmp(args[i], S("--log")) == 0 || strcmp(args[i], S("--تدوين")) == 0) {
       if (i < argCount-1) {
         ++i;
-        Logger::filter = atoi(args[i]);
+        Logger::setFilter(atoi(args[i]));
       } else {
-        Logger::filter = 0;
+        Logger::setFilter(0);
       }
     }
 #endif

@@ -7,30 +7,26 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
 %A = type { i32 }
 %B = type { %A, void ()* }
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @"#anonymous0" = private constant [13 x i8] c"this.i = %d\0A\00"
 @"getARef()=>(ref[A]).a" = global %A zeroinitializer
 @"#anonymous1" = private constant [15 x i8] c"this.a.i = %d\0A\00"
 @"getBRef()=>(ref[B]).b" = global %B zeroinitializer
-
-define void @__constructor__() {
-"#block0":
-  call void @B.__autoConstruct__(%B* @"getBRef()=>(ref[B]).b")
-  call void @"B.~init(ref[B])"(%B* @"getBRef()=>(ref[B]).b")
-  ret void
-}
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__3, i32* null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"test()"() {
-"#block1":
+"#block0":
   %a = alloca %A
   call void @"A.setI(ref[A],Int[32])"(%A* %a, i32 10)
   call void @"A.setI2(ref[A],Int[32])"(%A* %a, i32 10)
   call void @"A.print(ref[A])"(%A* %a)
   %b = alloca %B
-  call void @B.__autoConstruct__(%B* %b)
   call void @"B.~init(ref[B])"(%B* %b)
   %0 = getelementptr %B, %B* %b, i32 0, i32 0
   call void @"A.print(ref[A])"(%A* %0)
@@ -58,7 +54,7 @@ define void @"test()"() {
 }
 
 define void @"A.setI(ref[A],Int[32])"(%A* %this, i32 %i) {
-"#block2":
+"#block1":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
   %i2 = alloca i32
@@ -71,7 +67,7 @@ define void @"A.setI(ref[A],Int[32])"(%A* %this, i32 %i) {
 }
 
 define void @"A.setI2(ref[A],Int[32])"(%A* %this, i32 %i) {
-"#block3":
+"#block2":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
   %i2 = alloca i32
@@ -84,7 +80,7 @@ define void @"A.setI2(ref[A],Int[32])"(%A* %this, i32 %i) {
 }
 
 define void @"A.print(ref[A])"(%A* %this) {
-"#block4":
+"#block3":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
   %0 = load %A*, %A** %this1
@@ -94,15 +90,8 @@ define void @"A.print(ref[A])"(%A* %this) {
   ret void
 }
 
-declare i32 @printf(i8*, ...)
-
-define void @B.__autoConstruct__(%B* %this) {
-"#block5":
-  ret void
-}
-
 define void @"B.~init(ref[B])"(%B* %this) {
-"#block6":
+"#block4":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
   %0 = load %B*, %B** %this1
@@ -113,17 +102,70 @@ define void @"B.~init(ref[B])"(%B* %this) {
 }
 
 define void @"B.getMyVal(ref[B])=>(B)"(%B* %"#ret", %B* %this) {
-"#block7":
+"#block5":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
-  call void @B.__autoConstruct__(%B* %"#ret")
   %0 = load %B*, %B** %this1
   call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %0)
   ret void
 }
 
-define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
+define %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %this) {
+"#block6":
+  %this1 = alloca %B*
+  store %B* %this, %B** %this1
+  %0 = load %B*, %B** %this1
+  ret %B* %0
+}
+
+define %A @"getA()=>(A)"() {
+"#block7":
+  %a = alloca %A
+  %0 = getelementptr %A, %A* %a, i32 0, i32 0
+  store i32 11, i32* %0
+  %1 = load %A, %A* %a
+  ret %A %1
+}
+
+define %A* @"getARef()=>(ref[A])"() {
 "#block8":
+  store i32 12, i32* getelementptr inbounds (%A, %A* @"getARef()=>(ref[A]).a", i32 0, i32 0)
+  ret %A* @"getARef()=>(ref[A]).a"
+}
+
+define void @"getB()=>(B)"(%B* %"#ret") {
+"#block9":
+  %b = alloca %B
+  call void @"B.~init(ref[B])"(%B* %b)
+  %0 = getelementptr %B, %B* %b, i32 0, i32 0
+  %1 = getelementptr %A, %A* %0, i32 0, i32 0
+  store i32 13, i32* %1
+  call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %b)
+  ret void
+}
+
+define void @"B.printA(ref[B])"(%B* %this) {
+"#block10":
+  %this1 = alloca %B*
+  store %B* %this, %B** %this1
+  %0 = load %B*, %B** %this1
+  %1 = getelementptr %B, %B* %0, i32 0, i32 0
+  %2 = getelementptr %A, %A* %1, i32 0, i32 0
+  %3 = load i32, i32* %2
+  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous1", i32 0, i32 0), i32 %3)
+  ret void
+}
+
+define %B* @"getBRef()=>(ref[B])"() {
+"#block11":
+  store i32 14, i32* getelementptr inbounds (%B, %B* @"getBRef()=>(ref[B]).b", i32 0, i32 0, i32 0)
+  ret %B* @"getBRef()=>(ref[B]).b"
+}
+
+declare i32 @printf(i8*, ...)
+
+define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
+"#block12":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
   %that2 = alloca %B*
@@ -137,57 +179,9 @@ define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
   ret void
 }
 
-define %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %this) {
-"#block9":
-  %this1 = alloca %B*
-  store %B* %this, %B** %this1
-  %0 = load %B*, %B** %this1
-  ret %B* %0
-}
-
-define %A @"getA()=>(A)"() {
-"#block10":
-  %a = alloca %A
-  %0 = getelementptr %A, %A* %a, i32 0, i32 0
-  store i32 11, i32* %0
-  %1 = load %A, %A* %a
-  ret %A %1
-}
-
-define %A* @"getARef()=>(ref[A])"() {
-"#block11":
-  store i32 12, i32* getelementptr inbounds (%A, %A* @"getARef()=>(ref[A]).a", i32 0, i32 0)
-  ret %A* @"getARef()=>(ref[A]).a"
-}
-
-define void @"getB()=>(B)"(%B* %"#ret") {
-"#block12":
-  %b = alloca %B
-  call void @B.__autoConstruct__(%B* %b)
-  call void @"B.~init(ref[B])"(%B* %b)
-  %0 = getelementptr %B, %B* %b, i32 0, i32 0
-  %1 = getelementptr %A, %A* %0, i32 0, i32 0
-  store i32 13, i32* %1
-  call void @B.__autoConstruct__(%B* %"#ret")
-  call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %b)
-  ret void
-}
-
-define void @"B.printA(ref[B])"(%B* %this) {
+define void @__constructor__3() {
 "#block13":
-  %this1 = alloca %B*
-  store %B* %this, %B** %this1
-  %0 = load %B*, %B** %this1
-  %1 = getelementptr %B, %B* %0, i32 0, i32 0
-  %2 = getelementptr %A, %A* %1, i32 0, i32 0
-  %3 = load i32, i32* %2
-  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous1", i32 0, i32 0), i32 %3)
+  call void @"B.~init(ref[B])"(%B* @"getBRef()=>(ref[B]).b")
   ret void
-}
-
-define %B* @"getBRef()=>(ref[B])"() {
-"#block14":
-  store i32 14, i32* getelementptr inbounds (%B, %B* @"getBRef()=>(ref[B]).b", i32 0, i32 0, i32 0)
-  ret %B* @"getBRef()=>(ref[B]).b"
 }
 ------------------------------------------------------------

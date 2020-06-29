@@ -17,7 +17,7 @@ include_directories("${AlususCore_SOURCE_DIR}")
 
 # Let's suppose we want to build a JIT compiler with support for
 # binary code (no interpreter):
-llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native linker)
+llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native orcjit)
 
 # Make sure the compiler finds the source files.
 include_directories("${AlususSpp_SOURCE_DIR}")

@@ -58,7 +58,11 @@ void RootScopeHandlerExtension::_addNewElement(
 
   Bool execute = false;
   for (Int i = start; i <= end; ++i) {
-    if (root->get(i) != 0 && !root->get(i)->isDerivedFrom<Core::Data::Ast::Definition>()) execute = true;
+    if (
+      root->get(i) != 0 &&
+      !root->get(i)->isDerivedFrom<Core::Data::Ast::Definition>() &&
+      !root->get(i)->isDerivedFrom<Core::Data::Ast::Bridge>()
+    ) execute = true;
   }
 
   if (execute) {
@@ -73,16 +77,14 @@ void RootScopeHandlerExtension::_addNewElement(
     rootManagerExt->rtBuildMgr->setNoticeStore(state->getNoticeStore());
 
     // Process macros.
-    auto astProcessor = rootManagerExt->jitBuildManager->getAstProcessor();
+    auto astProcessor = rootManagerExt->astProcessor.get();
     astProcessor->preparePass(state->getNoticeStore());
     if (!astProcessor->process(root)) return;
 
-    auto building = ti_cast<Building>(rootManagerExt->jitBuildManager.get());
+    auto executing = ti_cast<Executing>(rootManagerExt->buildManager.get());
 
-    BuildSession buildSession;
-
-    building->prepareExecution(
-      state->getNoticeStore(), rootManager->getRootScope().get(), buildSession
+    SharedPtr<BuildSession> buildSession = executing->prepareBuild(
+      state->getNoticeStore(), BuildManager::BuildType::JIT, rootManager->getRootScope().get()
     );
 
     Bool execute = true;
@@ -93,7 +95,7 @@ void RootScopeHandlerExtension::_addNewElement(
       if (def != 0) {
         auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {
-          if (!building->addElementToBuild(def.get(), buildSession)) execute = false;
+          if (!executing->addElementToBuild(def.get(), buildSession.get())) execute = false;
         }
       }
     }
@@ -101,15 +103,13 @@ void RootScopeHandlerExtension::_addNewElement(
     // Now run all new statements.
     for (Int i = start; i <= end; ++i) {
       auto childData = root->get(i);
-      if (!building->addElementToBuild(childData.get(), buildSession)) execute = false;
+      if (!executing->addElementToBuild(childData.get(), buildSession.get())) execute = false;
     }
 
-    building->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get(), buildSession);
+    executing->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get(), buildSession.get());
     if (execute) {
-      building->execute(state->getNoticeStore(), buildSession);
+      executing->execute(state->getNoticeStore(), buildSession.get());
     }
-
-    building->deleteTempFunctions(buildSession);
   }
 }
 

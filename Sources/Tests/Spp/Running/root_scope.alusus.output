@@ -4,6 +4,7 @@
 2
 6
 24
+factorial of 6 using function pointer: 720
 ERROR SPPA1003 @ (13,10): No valid match was found for the given type.
 ERROR SPPG1024 @ (14,3): Trying to access a local variable before it's initialized.
 ERROR SPPG1024 @ (15,10): Trying to access a local variable before it's initialized.
@@ -11,14 +12,15 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"fnWithErrors()"() {
-"#block1":
+"#block0":
   ret void
 }
 ------------------------------------------------------------

@@ -14,27 +14,40 @@
 #define SCG_CODEGENUNIT_H
 
 #undef C
+#undef S
 
 #include <llvm/IR/IRPrintingPasses.h>
-#include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/GenericValue.h>
-#include <llvm/ExecutionEngine/MCJIT.h>
-#include <llvm/IR/Attributes.h>
+#include <llvm/IR/Mangler.h>
+#include <llvm/IR/DataLayout.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/GlobalVariable.h>
-#include <llvm/Linker/Linker.h>
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/DiagnosticInfo.h>
+#include <llvm/IR/DiagnosticPrinter.h>
 #include <llvm/Support/TargetSelect.h>
-#include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Support/TargetRegistry.h>
-#include <llvm/Transforms/Utils/Cloning.h>
+#include <llvm/Support/ThreadPool.h>
+#include <llvm/Transforms/IPO.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/ExecutionEngine/Orc/CompileUtils.h>
+#include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
+#include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>
+#include <llvm/ExecutionEngine/Orc/IRTransformLayer.h>
+#include <llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h>
+#include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
+#include <llvm/ExecutionEngine/Orc/CompileOnDemandLayer.h>
+#include <llvm/ExecutionEngine/Orc/ObjectTransformLayer.h>
+#include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
+#include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
 
-#undef C
 #define C(x)	u8##x
+#define S(x)	u8##x
 
 
 DEFINE_TYPE_NAME(llvm::Module, "llvm.org/LLVM/llvm.Module");

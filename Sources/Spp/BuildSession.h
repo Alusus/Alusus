@@ -27,14 +27,99 @@ class BuildSession : public TiObject
   //============================================================================
   // Member Variables
 
-  public: TioSharedPtr globalCtorTgFunc;
-  public: TioSharedPtr globalCtorTgContext;
-  public: TioSharedPtr globalEntryTgFunc;
-  public: TioSharedPtr globalEntryTgContext;
-  public: SharedPtr<SharedMap<TiObject>> extraInfo;
-  public: Bool offlineExecution;
-  public: Str globalCtorName;
-  public: Str globalEntryName;
+  private: DependencyList<Core::Data::Node> globalVarInitializationDeps;
+  private: DependencyList<Core::Data::Node> globalVarDestructionDeps;
+  private: DependencyList<Ast::Function> funcDeps;
+
+  private: Word buildType;
+  private: TioSharedPtr globalEntryTgFunc;
+  private: TioSharedPtr globalEntryTgContext;
+  private: Str globalEntryName;
+
+  private: std::vector<Str> globalCtorNames;
+  private: std::vector<Str> globalDtorNames;
+
+  private: ExecutionContext execContext;
+  private: CodeGen::DestructionStack destructionStack;
+  private: CodeGen::Session codeGenSession;
+
+
+  //============================================================================
+  // Constructor
+
+  public: BuildSession(
+    CodeGen::ExtraDataAccessor *eda, CodeGen::TargetGeneration *tg, Bool offlineExec, Word pointerBc,
+    Word bType, TioSharedPtr const &geTgFunc, TioSharedPtr const &geTgContext, Char const *geName
+  ) : buildType(bType)
+    , globalEntryTgFunc(geTgFunc)
+    , globalEntryTgContext(geTgContext)
+    , globalEntryName(geName)
+    , execContext(pointerBc)
+    , codeGenSession(
+      eda, tg, &execContext, geTgContext.get(), &destructionStack, &globalVarInitializationDeps, &globalVarDestructionDeps,
+      &funcDeps, offlineExec
+    )
+  {}
+
+
+  //============================================================================
+  // Member Variables
+
+  public: DependencyList<Core::Data::Node>* getGlobalVarInitializationDeps()
+  {
+    return &this->globalVarInitializationDeps;
+  }
+
+  public: DependencyList<Core::Data::Node>* getGlobalVarDestructionDeps()
+  {
+    return &this->globalVarDestructionDeps;
+  }
+
+  public: DependencyList<Ast::Function>* getFuncDeps()
+  {
+    return &this->funcDeps;
+  }
+
+  public: Word getBuildType() const
+  {
+    return this->buildType;
+  }
+
+  public: TioSharedPtr const& getGlobalEntryTgFunc() const
+  {
+    return this->globalEntryTgFunc;
+  }
+
+  public: TioSharedPtr const& getGlobalEntryTgContext() const
+  {
+    return this->globalEntryTgContext;
+  }
+
+  public: Str const& getGlobalEntryName() const
+  {
+    return this->globalEntryName;
+  }
+
+  public: std::vector<Str>* getGlobalCtorNames()
+  {
+    return &this->globalCtorNames;
+  }
+
+  public: std::vector<Str>* getGlobalDtorNames()
+  {
+    return &this->globalDtorNames;
+  }
+
+
+  public: CodeGen::DestructionStack* getDestructionStack()
+  {
+    return &this->destructionStack;
+  }
+
+  public: CodeGen::Session* getCodeGenSession()
+  {
+    return &this->codeGenSession;
+  }
 
 }; // class
 

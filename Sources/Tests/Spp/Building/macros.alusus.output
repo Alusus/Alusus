@@ -4,7 +4,9 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %Main_Coordinates = type { double, double }
 
 @"#anonymous0" = private constant [8 x i8] c"a = %d\0A\00"
@@ -21,14 +23,11 @@ source_filename = "AlususProgram"
 @"#anonymous11" = private constant [13 x i8] c"Hello {{n}}\0A\00"
 @"#anonymous12" = private constant [13 x i8] c"Hello World\0A\00"
 @"#anonymous13" = private constant [14 x i8] c"p = (%f, %f)\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"Main.start()=>(Void)"() {
-"#block1":
+"#block0":
   %a = alloca i32
   %b1 = alloca i32
   %b2 = alloca i32
@@ -53,25 +52,25 @@ define void @"Main.start()=>(Void)"() {
   %13 = call float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float 5.000000e+00, float 7.000000e+00)
   %14 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([23 x i8], [23 x i8]* @"#anonymous5", i32 0, i32 0), float %13)
   store i32 0, i32* %a
-  br label %"#block8"
+  br label %"#block1"
 
-"#block8":                                        ; preds = %"#block9", %"#block1"
+"#block1":                                        ; preds = %"#block2", %"#block0"
   %15 = load i32, i32* %a
   %16 = icmp sle i32 %15, 9
-  br i1 %16, label %"#block10", label %"#block11"
+  br i1 %16, label %"#block3", label %"#block4"
 
-"#block9":                                        ; preds = %"#block10"
+"#block2":                                        ; preds = %"#block3"
   %17 = load i32, i32* %a
   %18 = add nsw i32 %17, 1
   store i32 %18, i32* %a
-  br label %"#block8"
+  br label %"#block1"
 
-"#block10":                                       ; preds = %"#block8"
+"#block3":                                        ; preds = %"#block1"
   %19 = load i32, i32* %a
   %20 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous6", i32 0, i32 0), i32 %19)
-  br label %"#block9"
+  br label %"#block2"
 
-"#block11":                                       ; preds = %"#block8"
+"#block4":                                        ; preds = %"#block1"
   %21 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @"#anonymous7", i32 0, i32 0))
   %22 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous8", i32 0, i32 0))
   %23 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @"#anonymous9", i32 0, i32 0))
@@ -94,7 +93,7 @@ define void @"Main.start()=>(Void)"() {
 declare i64 @printf(i8*, ...)
 
 define i32 @"Main.getMin(Int[32],Int[32])=>(Int[32])"(i32 %a, i32 %b) {
-"#block2":
+"#block5":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca i32
@@ -102,19 +101,19 @@ define i32 @"Main.getMin(Int[32],Int[32])=>(Int[32])"(i32 %a, i32 %b) {
   %0 = load i32, i32* %a1
   %1 = load i32, i32* %b2
   %2 = icmp sle i32 %0, %1
-  br i1 %2, label %"#block3", label %"#block4"
+  br i1 %2, label %"#block6", label %"#block7"
 
-"#block3":                                        ; preds = %"#block2"
+"#block6":                                        ; preds = %"#block5"
   %3 = load i32, i32* %a1
   ret i32 %3
 
-"#block4":                                        ; preds = %"#block2"
+"#block7":                                        ; preds = %"#block5"
   %4 = load i32, i32* %b2
   ret i32 %4
 }
 
 define float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float %a, float %b) {
-"#block5":
+"#block8":
   %a1 = alloca float
   store float %a, float* %a1
   %b2 = alloca float
@@ -122,13 +121,13 @@ define float @"Main.getMin(Float[32],Float[32])=>(Float[32])"(float %a, float %b
   %0 = load float, float* %a1
   %1 = load float, float* %b2
   %2 = fcmp ole float %0, %1
-  br i1 %2, label %"#block6", label %"#block7"
+  br i1 %2, label %"#block9", label %"#block10"
 
-"#block6":                                        ; preds = %"#block5"
+"#block9":                                        ; preds = %"#block8"
   %3 = load float, float* %a1
   ret float %3
 
-"#block7":                                        ; preds = %"#block5"
+"#block10":                                       ; preds = %"#block8"
   %4 = load float, float* %b2
   ret float %4
 }

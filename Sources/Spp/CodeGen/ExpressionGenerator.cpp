@@ -377,7 +377,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     ////
     Ast::CalleeLookupResult calleeResult;
     if (!expGenerator->astHelper->lookupCalleeInScope(
-      operand, astNode->getOwner(), true, 0, &paramAstTypes, session->getTg()->getExecutionContext(), calleeResult
+      operand, astNode->getOwner(), true, 0, &paramAstTypes, session->getExecutionContext(), calleeResult
     )) {
       expGenerator->noticeStore->add(calleeResult.notice);
       return false;
@@ -418,14 +418,14 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       // Lookup the callee.
       Ast::CalleeLookupResult calleeResult;
       if (!expGenerator->astHelper->lookupCalleeInScope(
-        second, thisType, false, thisRefType, &paramAstTypes, session->getTg()->getExecutionContext(),
+        second, thisType, false, thisRefType, &paramAstTypes, session->getExecutionContext(),
         calleeResult
       )) {
         expGenerator->noticeStore->add(calleeResult.notice);
         return false;
       }
       if (session->getTgContext() != 0) {
-        if (firstResult.astType->isEqual(thisType, expGenerator->astHelper, session->getTg()->getExecutionContext())) {
+        if (firstResult.astType->isEqual(thisType, expGenerator->astHelper, session->getExecutionContext())) {
           // The previous expression returned a value rather than a ref, and member functions need a reference,
           // so we'll create a temp var.
           // This code path should not be reached with custom-initialization variables, so we don't need to
@@ -463,7 +463,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
       Ast::CalleeLookupResult calleeResult;
       if (!expGenerator->astHelper->lookupCalleeInScope(
         second, static_cast<Ast::Module*>(firstResult.astNode), false, 0, &paramAstTypes,
-        session->getTg()->getExecutionContext(), calleeResult
+        session->getExecutionContext(), calleeResult
       )) {
         expGenerator->noticeStore->add(calleeResult.notice);
         return false;
@@ -495,7 +495,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     auto prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
     Ast::CalleeLookupResult calleeResult;
     if (!expGenerator->astHelper->lookupCalleeOnObject(
-      prevAstType, 0, &paramAstTypes, session->getTg()->getExecutionContext(), 0, calleeResult
+      prevAstType, 0, &paramAstTypes, session->getExecutionContext(), 0, calleeResult
     )) {
       calleeResult.notice->setSourceLocation(astNode->findSourceLocation());
       expGenerator->noticeStore->add(calleeResult.notice);
@@ -556,7 +556,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       }
       // Make sure the args match.
       if (astFuncType->matchCall(
-        paramAstTypes, expGenerator->astHelper, session->getTg()->getExecutionContext()
+        paramAstTypes, expGenerator->astHelper, session->getExecutionContext()
       ) == Ast::TypeMatchStatus::NONE) {
         expGenerator->noticeStore->add(
           std::make_shared<Spp::Notices::ArgsMismatchNotice>(Core::Data::Ast::findSourceLocation(astNode))
@@ -719,7 +719,7 @@ Bool ExpressionGenerator::_generateOperator(
   if (paramAstTypes.getCount() > 1) lookupParamAstTypes.add(paramAstTypes.get(1));
   if (expGenerator->astHelper->lookupCalleeInScopeByName(
     funcName, Core::Data::Ast::findSourceLocation(astNode), param0AstContentType,
-    false, paramAstTypes.get(0), &lookupParamAstTypes, session->getTg()->getExecutionContext(), calleeResult
+    false, paramAstTypes.get(0), &lookupParamAstTypes, session->getExecutionContext(), calleeResult
   )) {
     GenResult firstResult;
     firstResult.astType = static_cast<Ast::Type*>(paramAstTypes.get(0));
@@ -1251,7 +1251,9 @@ Bool ExpressionGenerator::_generateAssignOp(
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
   // Raise an error if custom initialization is enabled on this type to avoid possible resource mismanagement.
-  if (astContentType->hasCustomInitialization(expGenerator->astHelper, session->getTg()->getExecutionContext())) {
+  if (astContentType->getInitializationMethod(
+    expGenerator->astHelper, session->getExecutionContext()
+  ) != Ast::TypeInitMethod::NONE) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::TypeMissingAssignOpNotice>(astNode->findSourceLocation())
     );
@@ -1271,7 +1273,7 @@ Bool ExpressionGenerator::_generateAssignOp(
     );
   } else {
     retVal = expGenerator->astHelper->isImplicitlyCastableTo(
-      param.astType, astContentType, session->getTg()->getExecutionContext()
+      param.astType, astContentType, session->getExecutionContext()
     );
   }
   if (!retVal) {
@@ -1660,7 +1662,9 @@ Bool ExpressionGenerator::_generatePointerOp(
       return false;
     }
     // Generate a function pointer.
-    if (!g->generateFunction(astFunction, session)) return false;
+    if (!g->generateFunctionDecl(astFunction, session)) return false;
+    session->getFuncDeps()->add(astFunction);
+
     auto tgFunction = session->getEda()->getCodeGenData<TiObject>(astFunction);
     auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
     TiObject *tgFunctionPointerType;
@@ -1808,7 +1812,7 @@ Bool ExpressionGenerator::_generateCastOp(
     );
   } else {
     retVal = expGenerator->astHelper->isExplicitlyCastableTo(
-      derefResult.astType, targetAstType, session->getTg()->getExecutionContext()
+      derefResult.astType, targetAstType, session->getExecutionContext()
     );
   }
   if (!retVal) {
@@ -1993,17 +1997,9 @@ Bool ExpressionGenerator::_generateStringLiteral(
   if (!g->getGeneratedType(strPtrAstType, session, strPtrTgType, 0)) return false;
 
   if (session->getTgContext() != 0) {
-    if (session->isOfflineExecution()) {
-      if (!session->getTg()->generateStringLiteral(
-        session->getTgContext(), value->c_str(), charTgType, strTgType, result.targetData
-      )) return false;
-    } else {
-      Int strIndex = expGenerator->stringLiteralRepo->addString(value->c_str());
-      Char const *strValue = expGenerator->stringLiteralRepo->getString(strIndex);
-      if (!session->getTg()->generatePointerLiteral(
-        session->getTgContext(), strPtrTgType, (void*)strValue, result.targetData
-      )) return false;
-    }
+    if (!session->getTg()->generateStringLiteral(
+      session->getTgContext(), value->c_str(), charTgType, strTgType, result.targetData
+    )) return false;
   }
   result.astType =  strPtrAstType;
   return true;
@@ -2379,13 +2375,16 @@ Bool ExpressionGenerator::_generateFunctionCall(
     // TODO: Generate inlined function body.
     throw EXCEPTION(GenericException, S("Inline function generation is not implemented yet."));
   } else {
-    // Build called funcion.
-    if (!g->generateFunction(callee, session)) return false;
+    // Build called funcion declaration.
+    if (!g->generateFunctionDecl(callee, session)) return false;
+    session->getFuncDeps()->add(callee);
     auto tgFunction = session->getEda()->getCodeGenData<TiObject>(callee);
 
     // Create function call.
     auto astRetType = callee->getType()->traceRetType(expGenerator->astHelper);
-    if (astRetType->hasCustomInitialization(expGenerator->astHelper, session->getTg()->getExecutionContext())) {
+    if (astRetType->getInitializationMethod(
+      expGenerator->astHelper, session->getExecutionContext()
+    ) != Ast::TypeInitMethod::NONE) {
       if (session->getTgContext() != 0) {
         // Pass a reference to the return value.
         if (!g->generateTempVar(astNode, astRetType, session, false)) return false;
@@ -2401,15 +2400,21 @@ Bool ExpressionGenerator::_generateFunctionCall(
         for (Int i = 0; i < paramTgValues->getElementCount(); ++i) {
           paramTgValuesWithRet.add(paramTgValues->getElement(i));
         }
-        if (!session->getTg()->generateFunctionCall(session->getTgContext(), tgFunction, &paramTgValuesWithRet, result.targetData)) return false;
+        if (!session->getTg()->generateFunctionCall(
+          session->getTgContext(), tgFunction, &paramTgValuesWithRet, result.targetData
+        )) return false;
         result.targetData = tgResult;
         // Register temp var for destruction.
-        g->registerDestructor(astNode, astRetType, session->getTg()->getExecutionContext(), session->getDestructionStack());
+        g->registerDestructor(
+          astNode, astRetType, session->getExecutionContext(), session->getDestructionStack()
+        );
       }
       result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType);
     } else {
       if (session->getTgContext() != 0) {
-        if (!session->getTg()->generateFunctionCall(session->getTgContext(), tgFunction, paramTgValues, result.targetData)) return false;
+        if (!session->getTg()->generateFunctionCall(
+          session->getTgContext(), tgFunction, paramTgValues, result.targetData
+        )) return false;
       }
       result.astType = astRetType;
     }
@@ -2428,13 +2433,15 @@ Bool ExpressionGenerator::_prepareFunctionParams(
   Ast::FunctionType::ArgMatchContext context;
   for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {
     Ast::Type *srcType = static_cast<Ast::Type*>(paramAstTypes->getElement(i));
-    auto status = calleeType->matchNextArg(srcType, context, expGenerator->astHelper, session->getTg()->getExecutionContext());
+    auto status = calleeType->matchNextArg(srcType, context, expGenerator->astHelper, session->getExecutionContext());
     ASSERT(status != Ast::TypeMatchStatus::NONE);
 
     // Cast the value if needed.
     if (context.type != 0) {
       Ast::Type *neededAstType;
-      if (context.type->hasCustomInitialization(expGenerator->astHelper, session->getTg()->getExecutionContext())) {
+      if (context.type->getInitializationMethod(
+        expGenerator->astHelper, session->getExecutionContext()
+      ) != Ast::TypeInitMethod::NONE) {
         neededAstType = expGenerator->astHelper->getReferenceTypeFor(context.type);
       } else {
         neededAstType = context.type;
@@ -2631,7 +2638,7 @@ Bool ExpressionGenerator::castLogicalOperand(
       );
       return false;
     }
-  } else if (!this->astHelper->isImplicitlyCastableTo(astType, boolType, session->getTg()->getExecutionContext())) {
+  } else if (!this->astHelper->isImplicitlyCastableTo(astType, boolType, session->getExecutionContext())) {
     this->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );

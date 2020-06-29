@@ -89,6 +89,14 @@ struct CalleeLookupResult
   Int thisIndex = -2;
 };
 
+/// @ingroup spp_ast
+s_enum(TypeInitMethod,
+  NONE = 0,
+  AUTO = 1,
+  USER = 2,
+  BOTH = 3
+);
+
 } // namespace
 
 

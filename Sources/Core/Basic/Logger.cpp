@@ -20,7 +20,23 @@ namespace Core { namespace Basic
 //==============================================================================
 // Static Variables
 
-Int Logger::filter = 0;
+Word *Logger::filter = 0;
+
+
+//==============================================================================
+// Static Functions
+
+Word* Logger::getFilterPtr()
+{
+  if (Logger::filter == 0) {
+    Logger::filter = reinterpret_cast<Word*>(GLOBAL_STORAGE->getObject(S("Core::Basic::Logger::filter")));
+    if (Logger::filter == 0) {
+      Logger::filter = new Word;
+      GLOBAL_STORAGE->setObject(S("Core::Basic::Logger::filter"), reinterpret_cast<void*>(Logger::filter));
+    }
+  }
+  return Logger::filter;
+}
 
 } } // namespace
 

@@ -14,7 +14,9 @@
 #ifndef SPP_LLVMCODEGEN_LLVMCODEGEN_H
 #define SPP_LLVMCODEGEN_LLVMCODEGEN_H
 
-namespace Spp { namespace LlvmCodeGen
+#include "llvm_dependencies.h"
+
+namespace Spp::LlvmCodeGen
 {
 
 /**
@@ -23,16 +25,22 @@ namespace Spp { namespace LlvmCodeGen
  * @brief Classes for providing an LLVM build target.
  */
 
-} } // namespace
+
+// Forward Declarations
+class BuildTarget;
+
+// Global Functions
+void llvmDiagnosticCallback(const llvm::DiagnosticInfo &di, void *context);
+
+} // namespace
 
 
 //==============================================================================
 // Classes
 
-#include "llvm_dependencies.h"
-
 // Build Data
 #include "types.h"
+#include "Function.h"
 #include "Block.h"
 #include "Variable.h"
 #include "Value.h"
@@ -40,6 +48,10 @@ namespace Spp { namespace LlvmCodeGen
 #include "LoopContext.h"
 
 // The Generator
+#include "jit_engines.h"
 #include "TargetGenerator.h"
+#include "BuildTarget.h"
+#include "LazyJitBuildTarget.h"
+#include "OfflineBuildTarget.h"
 
 #endif

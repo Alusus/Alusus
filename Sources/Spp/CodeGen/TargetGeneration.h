@@ -36,7 +36,6 @@ class TargetGeneration : public ObjTiInterface
   public: TargetGeneration(TiObject *o) : owner(o)
   {
     initBindingCaches(this->owner, {
-      &this->getExecutionContext,
       &this->generateVoidType,
       &this->generateIntType,
       &this->generateFloatType,
@@ -132,13 +131,6 @@ class TargetGeneration : public ObjTiInterface
   {
     return this->owner;
   }
-
-  /// @}
-
-  /// @name Property Getters
-  /// @{
-
-  public: METHOD_BINDING_CACHE(getExecutionContext, ExecutionContext const*);
 
   /// @}
 

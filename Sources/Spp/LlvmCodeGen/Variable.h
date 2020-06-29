@@ -13,7 +13,7 @@
 #ifndef SPP_LLVMCODEGEN_VARIABLE_H
 #define SPP_LLVMCODEGEN_VARIABLE_H
 
-namespace Spp { namespace LlvmCodeGen
+namespace Spp::LlvmCodeGen
 {
 
 class Variable : public TiObject
@@ -27,6 +27,8 @@ class Variable : public TiObject
   //============================================================================
   // Member Variables
 
+  private: Str name;
+  private: Type *type;
   private: Int llvmStructIndex = -1;
   private: llvm::AllocaInst *llvmAllocaInst = 0;
   private: llvm::GlobalVariable *llvmGlobalVariable = 0;
@@ -42,6 +44,26 @@ class Variable : public TiObject
 
   //============================================================================
   // Member Functions
+
+  public: void setName(Char const *n)
+  {
+    this->name = n;
+  }
+
+  public: Str const& getName() const
+  {
+    return this->name;
+  }
+
+  public: void setType(Type *t)
+  {
+    this->type = t;
+  }
+
+  public: Type* getType() const
+  {
+    return this->type;
+  }
 
   public: void setLlvmStructIndex(Int i)
   {
@@ -75,6 +97,6 @@ class Variable : public TiObject
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

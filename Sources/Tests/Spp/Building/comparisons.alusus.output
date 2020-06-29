@@ -9,6 +9,9 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @"#anonymous0" = private constant [12 x i8] c"1 == 1: %d\0A\00"
 @"#anonymous1" = private constant [12 x i8] c"1 == 2: %d\0A\00"
@@ -56,22 +59,22 @@ source_filename = "AlususProgram"
 @"#anonymous43" = private constant [16 x i8] c"ptr == i64: %d\0A\00"
 @"#anonymous44" = private constant [20 x i8] c"Received positive.\0A\00"
 @"#anonymous45" = private constant [20 x i8] c"Received negative.\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"Main.start()=>(Void)"() {
-"#block1":
+"#block0":
   call void @"Main.testInteger()=>(Void)"()
   call void @"Main.testFloat()=>(Void)"()
+  call void @"Main.testMixed()=>(Void)"()
+  call void @"Main.testPointers()=>(Void)"()
+  call void @"Main.testIfStatement(Int[64])=>(Void)"(i64 5)
   call void @"Main.testIfStatement(Int[64])=>(Void)"(i64 -5)
   ret void
 }
 
 define void @"Main.testInteger()=>(Void)"() {
-"#block2":
+"#block1":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"#anonymous0", i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"#anonymous1", i32 0, i32 0), i64 0)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @"#anonymous2", i32 0, i32 0), i64 0)
@@ -85,10 +88,8 @@ define void @"Main.testInteger()=>(Void)"() {
   ret void
 }
 
-declare i64 @printf(i8*, ...)
-
 define void @"Main.testFloat()=>(Void)"() {
-"#block3":
+"#block2":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous10", i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous11", i32 0, i32 0), i64 0)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous12", i32 0, i32 0), i64 0)
@@ -103,7 +104,7 @@ define void @"Main.testFloat()=>(Void)"() {
 }
 
 define void @"Main.testMixed()=>(Void)"() {
-"#block4":
+"#block3":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous20", i32 0, i32 0), i64 1)
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @"#anonymous21", i32 0, i32 0), i64 1)
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([17 x i8], [17 x i8]* @"#anonymous22", i32 0, i32 0), i64 1)
@@ -120,7 +121,7 @@ define void @"Main.testMixed()=>(Void)"() {
 }
 
 define void @"Main.testPointers()=>(Void)"() {
-"#block5":
+"#block4":
   %i = alloca i8*
   %j = alloca i8*
   %n = alloca i8*
@@ -158,24 +159,26 @@ define void @"Main.testPointers()=>(Void)"() {
 }
 
 define void @"Main.testIfStatement(Int[64])=>(Void)"(i64 %i) {
-"#block6":
+"#block5":
   %i1 = alloca i64
   store i64 %i, i64* %i1
   %0 = load i64, i64* %i1
   %1 = icmp sge i64 %0, 0
-  br i1 %1, label %"#block7", label %"#block8"
+  br i1 %1, label %"#block6", label %"#block7"
 
-"#block7":                                        ; preds = %"#block6"
+"#block6":                                        ; preds = %"#block5"
   %2 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous44", i32 0, i32 0))
-  br label %"#block9"
+  br label %"#block8"
 
-"#block8":                                        ; preds = %"#block6"
+"#block7":                                        ; preds = %"#block5"
   %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @"#anonymous45", i32 0, i32 0))
-  br label %"#block9"
+  br label %"#block8"
 
-"#block9":                                        ; preds = %"#block8", %"#block7"
+"#block8":                                        ; preds = %"#block7", %"#block6"
   ret void
 
-"#block10":                                       ; No predecessors!
+"#block9":                                        ; No predecessors!
 }
+
+declare i64 @printf(i8*, ...)
 ------------------------------------------------------------

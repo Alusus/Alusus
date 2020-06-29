@@ -47,14 +47,14 @@ void BuildMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo
 void BuildMgr::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
 {
   PREPARE_SELF(buildMgr, BuildMgr);
-  buildMgr->outputBuildManager->dumpLlvmIrForElement(element, buildMgr->noticeStore, buildMgr->parser);
+  buildMgr->buildManager->dumpLlvmIrForElement(element, buildMgr->noticeStore, buildMgr->parser);
 }
 
 
 Bool BuildMgr::_buildObjectFileForElement(TiObject *self, TiObject *element, Char const *objectFilename)
 {
   PREPARE_SELF(buildMgr, BuildMgr);
-  return buildMgr->outputBuildManager->buildObjectFileForElement(
+  return buildMgr->buildManager->buildObjectFileForElement(
     element, objectFilename, buildMgr->noticeStore, buildMgr->parser
   );
 }

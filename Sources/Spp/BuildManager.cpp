@@ -21,6 +21,11 @@ namespace Spp
 void BuildManager::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
+    &this->prepareBuild,
+    &this->addElementToBuild,
+    &this->finalizeBuild,
+    &this->buildDependencies,
+    &this->execute,
     &this->dumpLlvmIrForElement,
     &this->buildObjectFileForElement,
     &this->resetBuild,
@@ -31,15 +36,18 @@ void BuildManager::initBindingCaches()
 
 void BuildManager::initBindings()
 {
-  auto building = ti_cast<Building>(this);
+  auto executing = ti_cast<Executing>(this);
 
-  building->prepareExecution = &BuildManager::_prepareExecution;
-  building->prepareBuild = &BuildManager::_prepareBuild;
-  building->addElementToBuild = &BuildManager::_addElementToBuild;
-  building->finalizeBuild = &BuildManager::_finalizeBuild;
-  building->execute = &BuildManager::_execute;
-  building->deleteTempFunctions = &BuildManager::_deleteTempFunctions;
+  executing->prepareBuild = &BuildManager::_prepareBuild;
+  executing->addElementToBuild = &BuildManager::_addElementToBuild;
+  executing->finalizeBuild = &BuildManager::_finalizeBuild;
+  executing->execute = &BuildManager::_execute;
 
+  this->prepareBuild = &BuildManager::_prepareBuild;
+  this->addElementToBuild = &BuildManager::_addElementToBuild;
+  this->finalizeBuild = &BuildManager::_finalizeBuild;
+  this->buildDependencies = &BuildManager::_buildDependencies;
+  this->execute = &BuildManager::_execute;
   this->dumpLlvmIrForElement = &BuildManager::_dumpLlvmIrForElement;
   this->buildObjectFileForElement = &BuildManager::_buildObjectFileForElement;
   this->resetBuild = &BuildManager::_resetBuild;
@@ -47,16 +55,41 @@ void BuildManager::initBindings()
 }
 
 
+void BuildManager::initTargets()
+{
+  this->jitEda.setIdPrefix("jit");
+  // TODO: Use JitBuildTarget build target.
+  this->jitBuildTarget = std::make_shared<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
+  this->jitTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), true);
+  this->jitTargetGenerator->setupBuild();
+
+  this->evalEda.setIdPrefix("eval");
+  this->evalBuildTarget = std::make_shared<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
+  this->evalTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
+    this->jitTargetGenerator.get(), this->evalBuildTarget.get(), true
+  );
+  this->evalTargetGenerator->setupBuild();
+
+  this->offlineEda.setIdPrefix("ofln");
+  this->offlineBuildTarget = std::make_shared<LlvmCodeGen::OfflineBuildTarget>();
+  this->offlineTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
+    this->jitTargetGenerator.get(), this->offlineBuildTarget.get(), false
+  );
+  this->offlineTargetGenerator->setupBuild();
+}
+
+
 //==============================================================================
 // Build Functions
 
-void BuildManager::_prepareExecution(
-  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession &buildSession
+SharedPtr<BuildSession> BuildManager::_prepareBuild(
+  TiObject *self, Core::Notices::Store *noticeStore, Int buildType, TiObject *globalFuncElement
 ) {
   PREPARE_SELF(buildMgr, BuildManager);
-  PREPARE_SELF(building, Building);
 
-  if (buildMgr->rootManager->isInteractive()) {
+  if (buildType == BuildManager::BuildType::OFFLINE) {
+      buildMgr->resetBuild(buildType);
+  } else if (buildMgr->rootManager->isInteractive()) {
     // If we are running in an interactive mode and we faced previous errors, we'll try to clear the errors and start
     // fresh to give the user a chance to correct the errors if possible.
     auto minSeverity = buildMgr->rootManager->getMinNoticeSeverityEncountered();
@@ -64,135 +97,132 @@ void BuildManager::_prepareExecution(
     if ((minSeverity >= 0 && minSeverity <= 1) || (thisMinSeverity >= 0 && thisMinSeverity <= 1)) {
       buildMgr->rootManager->resetMinNoticeSeverityEncountered();
       noticeStore->resetMinEncounteredSeverity();
-      buildMgr->resetBuild();
+      buildMgr->resetBuild(buildType);
     }
   }
 
-  building->prepareBuild(noticeStore, globalFuncElement, false, buildSession);
-}
-
-
-void BuildManager::_prepareBuild(
-  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement,
-  Bool offlineExecution, BuildSession &buildSession
-) {
-  PREPARE_SELF(buildMgr, BuildManager);
+  CodeGen::ExtraDataAccessor *eda;
+  LlvmCodeGen::TargetGenerator *targetGen;
+  Word pointerBc;
+  Bool offlineExec;
+  if (buildType == BuildType::JIT) {
+    targetGen = buildMgr->jitTargetGenerator.get();
+    eda = &buildMgr->jitEda;
+    offlineExec = false;
+    pointerBc = buildMgr->jitBuildTarget->getPointerBitCount();
+  } else if (buildType == BuildType::EVAL) {
+    targetGen = buildMgr->evalTargetGenerator.get();
+    eda = &buildMgr->evalEda;
+    offlineExec = false;
+    pointerBc = buildMgr->evalBuildTarget->getPointerBitCount();
+  } else if (buildType == BuildType::OFFLINE) {
+    targetGen = buildMgr->offlineTargetGenerator.get();
+    eda = &buildMgr->offlineEda;
+    offlineExec = true;
+    pointerBc = 64; // buildMgr->offlineBuildTarget->getPointerBitCount();
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("buildType"), S("Unexpected build type."), buildType);
+  }
 
   buildMgr->funcNameIndex++;
-  StrStream globalCtorName;
-  globalCtorName << S("__constructor__");
   StrStream globalEntryName;
   globalEntryName << S("__entry__");
-
-  if (!offlineExecution) {
-    globalCtorName << buildMgr->funcNameIndex;
-    globalEntryName << buildMgr->funcNameIndex;
-  }
-
-  buildSession.globalCtorName = globalCtorName.str();
-  buildSession.globalEntryName = globalEntryName.str();
+  if (!offlineExec) globalEntryName << buildMgr->funcNameIndex;
 
   // Build the IR code.
-  buildMgr->targetGenerator->setGlobalItemRepo(buildMgr->generator->getGlobalItemRepo());
-  buildMgr->targetGenerator->setNoticeStore(noticeStore);
+  targetGen->setNoticeStore(noticeStore);
   buildMgr->generator->prepareBuild(noticeStore);
-  buildSession.offlineExecution = offlineExecution;
 
-  // Generate function type.
-  if (buildMgr->globalTgFuncType == 0) {
-    buildMgr->globalTgFuncType = buildMgr->getVoidNoArgsFuncTgType();
-  }
+  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(targetGen);
 
-  // Prepare the constructor function.
-  TioSharedPtr ctorTgContext;
-  TioSharedPtr ctorTgFunc;
-  buildMgr->prepareFunction(
-    buildSession.globalCtorName.c_str(), buildMgr->globalTgFuncType.get(), ctorTgContext, ctorTgFunc
-  );
-  buildSession.globalCtorTgFunc = ctorTgFunc;
-  buildSession.globalCtorTgContext = ctorTgContext;
-
+  TioSharedPtr tgContext;
+  TioSharedPtr tgFunc;
   if (globalFuncElement != 0) {
     // Prepare the execution function.
-    TioSharedPtr tgContext;
-    TioSharedPtr tgFunc;
     buildMgr->prepareFunction(
-      buildSession.globalEntryName.c_str(), buildMgr->globalTgFuncType.get(), tgContext, tgFunc
+      targetGeneration, globalEntryName.str().c_str(), buildMgr->getVoidNoArgsFuncTgType(buildType), tgContext, tgFunc
     );
-    buildSession.globalEntryTgFunc = tgFunc;
-    buildSession.globalEntryTgContext = tgContext;
-    buildMgr->extraDataAccessor.setCodeGenData(globalFuncElement, tgContext);
+    eda->setCodeGenData(globalFuncElement, tgContext);
   }
+
+  return std::make_shared<BuildSession>(
+    eda, targetGeneration, offlineExec, pointerBc, buildType, tgFunc, tgContext, globalEntryName.str().c_str()
+  );
 }
 
 
-Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element, BuildSession &buildSession)
+Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element, BuildSession *buildSession)
 {
   PREPARE_SELF(buildMgr, BuildManager);
 
-  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(buildMgr->targetGenerator);
   auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
 
   // Generate the statement.
   CodeGen::TerminalStatement terminal;
-  CodeGen::DestructionStack destructionStack;
-  CodeGen::DestructionStack globalDestructionStack;
-  CodeGen::Session session(
-    &buildMgr->extraDataAccessor, targetGeneration, buildSession.globalEntryTgContext.get(), &destructionStack,
-    buildSession.globalCtorTgContext.get(), &globalDestructionStack, buildSession.offlineExecution
-  );
-  Bool result;
+  Bool result = true;
   if (element->isDerivedFrom<Ast::Module>()) {
-    result = generation->generateModule(static_cast<Ast::Module*>(element), &session);
-    CodeGen::Session initSession(&session, buildSession.globalCtorTgContext.get(), &globalDestructionStack);
-    if (!generation->generateModuleInit(static_cast<Ast::Module*>(element), &initSession)) result = false;
-    // TODO: Set attribute for the global constructor in the generated object file.
+    if (!generation->generateModuleInit(static_cast<Ast::Module*>(element), buildSession->getCodeGenSession())) {
+      result = false;
+    }
+    if (buildSession->getCodeGenSession()->isOfflineExecution()) {
+      if (!generation->generateModule(static_cast<Ast::Module*>(element), buildSession->getCodeGenSession())) {
+        result = false;
+      }
+    }
   } else if (element->isDerivedFrom<Ast::Function>()) {
-    result = generation->generateFunction(static_cast<Ast::Function*>(element), &session);
-  } else {
-    result = generation->generateStatement(element, &session, terminal);
-    if (!generation->generateVarGroupDestruction(&session, 0)) result = false;
+    result = generation->generateFunction(static_cast<Ast::Function*>(element), buildSession->getCodeGenSession());
+  } else if (!element->isDerivedFrom<Core::Data::Ast::Bridge>()) {
+    result = generation->generateStatement(element, buildSession->getCodeGenSession(), terminal);
+    if (!generation->generateVarGroupDestruction(buildSession->getCodeGenSession(), 0)) result = false;
   }
   return result;
 }
 
 
-void BuildManager::_finalizeBuild(
-  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession &buildSession
+Bool BuildManager::_finalizeBuild(
+  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession *buildSession
 ) {
   PREPARE_SELF(buildMgr, BuildManager);
 
-  SharedList<TiObject> args;
-
-  if (!buildMgr->targetGenerator->finishFunctionBody(
-    buildSession.globalCtorTgFunc.get(), buildMgr->globalTgFuncType.get(), &args,
-    buildSession.globalCtorTgContext.get()
-  )) {
-    throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
-  }
-
   if (globalFuncElement != 0) {
-    if (!buildMgr->targetGenerator->finishFunctionBody(
-      buildSession.globalEntryTgFunc.get(), buildMgr->globalTgFuncType.get(), &args,
-      buildSession.globalEntryTgContext.get()
+    SharedList<TiObject> args;
+    if (!buildSession->getCodeGenSession()->getTg()->finishFunctionBody(
+      buildSession->getGlobalEntryTgFunc().get(), buildMgr->getVoidNoArgsFuncTgType(buildSession->getBuildType()),
+      &args, buildSession->getGlobalEntryTgContext().get()
     )) {
       throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
     }
-    buildMgr->extraDataAccessor.removeCodeGenData(globalFuncElement);
+    buildSession->getCodeGenSession()->getEda()->removeCodeGenData(globalFuncElement);
   }
+
+  return buildMgr->buildDependencies(noticeStore, buildSession);
 }
 
 
-Bool BuildManager::_execute(
-  TiObject *self, Core::Notices::Store *noticeStore, BuildSession &buildSession
-) {
+Bool BuildManager::_execute(TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession)
+{
   PREPARE_SELF(buildMgr, BuildManager);
 
   auto minSeverity = buildMgr->rootManager->getMinNoticeSeverityEncountered();
   auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
   if ((minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
-    buildMgr->targetGenerator->execute(buildSession.globalCtorName.c_str());
-    buildMgr->targetGenerator->execute(buildSession.globalEntryName.c_str());
+    if (buildSession->getBuildType() == BuildType::JIT) {
+      // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
+      // are generated after the immediate dependencies.
+      for (Int i = buildSession->getGlobalCtorNames()->size() - 1; i >= 0; --i) {
+        buildMgr->jitBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i).c_str());
+      }
+      buildMgr->jitBuildTarget->execute(buildSession->getGlobalEntryName().c_str());
+    } else if (buildSession->getBuildType() == BuildType::EVAL) {
+      // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
+      // are generated after the immediate dependencies.
+      for (Int i = buildSession->getGlobalCtorNames()->size() - 1; i >= 0; --i) {
+        buildMgr->evalBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i).c_str());
+      }
+      buildMgr->evalBuildTarget->execute(buildSession->getGlobalEntryName().c_str());
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
+    }
     return true;
   } else {
     return false;
@@ -200,20 +230,139 @@ Bool BuildManager::_execute(
 }
 
 
-void BuildManager::_deleteTempFunctions(TiObject *self, BuildSession &buildSession)
+Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession)
 {
   PREPARE_SELF(buildMgr, BuildManager);
+  auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
 
-  if (buildSession.globalCtorTgFunc != 0) {
-    if (!buildMgr->targetGenerator->deleteFunction(buildSession.globalCtorTgFunc.get())) {
-      throw EXCEPTION(GenericException, S("Failed to delete root constructor function."));
+  Bool result = true;
+
+  // Dependencies can themselves have other dependencies, which in turn can also have their own dependencies, so we'll
+  // need to loop until there are no more dependencies.
+  Int funcDepsIndex = 0;
+  Int globalVarInitializationIndex = 0;
+  Int globalVarDestructionIndex = 0;
+  while (
+    funcDepsIndex < buildSession->getFuncDeps()->getCount() ||
+    globalVarInitializationIndex < buildSession->getGlobalVarInitializationDeps()->getCount() ||
+    globalVarDestructionIndex < buildSession->getGlobalVarDestructionDeps()->getCount()
+  ) {
+    // Build function dependencies.
+    for (; funcDepsIndex < buildSession->getFuncDeps()->getCount(); ++funcDepsIndex) {
+      auto astFunc = static_cast<Ast::Function*>(buildSession->getFuncDeps()->get(funcDepsIndex));
+      if (!generation->generateFunction(astFunc, buildSession->getCodeGenSession())) result = false;
+    }
+
+    // Build global var dependencies.
+    if (globalVarInitializationIndex < buildSession->getGlobalVarInitializationDeps()->getCount()) {
+      buildMgr->funcNameIndex++;
+
+      // Build the constructor function.
+      StrStream ctorNameStream;
+      ctorNameStream << S("__constructor__") << buildMgr->funcNameIndex;
+      Str ctorName = ctorNameStream.str();
+      if (buildMgr->buildGlobalCtorOrDtor(
+        buildSession, buildSession->getGlobalVarInitializationDeps(), globalVarInitializationIndex, ctorName.c_str(),
+        [=](
+          Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, CodeGen::Session *childSession
+        )->Bool {
+          SharedList<TiObject> initTgVals;
+          PlainList<TiObject> initAstTypes;
+          PlainList<TiObject> initAstNodes;
+          return generation->generateVarInitialization(
+            varAstType, varTgRef, varAstNode, &initAstNodes, &initAstTypes, &initTgVals, childSession
+          );
+        }
+      )) {
+        buildSession->getGlobalCtorNames()->push_back(ctorName);
+      } else {
+        result = false;
+      }
+
+      globalVarInitializationIndex = buildSession->getGlobalVarInitializationDeps()->getCount();
+    }
+
+    if (globalVarDestructionIndex < buildSession->getGlobalVarDestructionDeps()->getCount()) {
+      buildMgr->funcNameIndex++;
+
+      // Build the destructor function.
+      StrStream dtorNameStream;
+      dtorNameStream << S("__destructor__") << buildMgr->funcNameIndex;
+      Str dtorName = dtorNameStream.str();
+      if (buildMgr->buildGlobalCtorOrDtor(
+        buildSession, buildSession->getGlobalVarDestructionDeps(), globalVarDestructionIndex, dtorName.c_str(),
+        [=](
+          Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, CodeGen::Session *childSession
+        )->Bool {
+          return generation->generateVarDestruction(varAstType, varTgRef, varAstNode, childSession);
+        }
+      )) {
+        buildSession->getGlobalDtorNames()->push_back(dtorName);
+      } else {
+        result = false;
+      }
+
+      globalVarDestructionIndex = buildSession->getGlobalVarDestructionDeps()->getCount();
     }
   }
-  if (buildSession.globalEntryTgFunc != 0) {
-    if (!buildMgr->targetGenerator->deleteFunction(buildSession.globalEntryTgFunc.get())) {
-      throw EXCEPTION(GenericException, S("Failed to delete root statement function."));
+
+  return result;
+}
+
+
+Bool BuildManager::buildGlobalCtorOrDtor(
+  BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Int depsIndex, Char const *funcName,
+  std::function<Bool(
+    Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, CodeGen::Session *session
+  )> varOpCallback
+) {
+  auto generation = ti_cast<CodeGen::Generation>(this->generator);
+
+  // Prepare the function.
+  TioSharedPtr tgContext;
+  TioSharedPtr tgFunc;
+  this->prepareFunction(
+    buildSession->getCodeGenSession()->getTg(), funcName, this->getVoidNoArgsFuncTgType(buildSession->getBuildType()),
+    tgContext, tgFunc
+  );
+  CodeGen::DestructionStack destructionStack;
+  CodeGen::Session session(buildSession->getCodeGenSession(), tgContext.get(), &destructionStack);
+
+  Bool result = true;
+
+  for (; depsIndex < deps->getCount(); ++depsIndex) {
+    auto astVar = deps->get(depsIndex);
+    TiObject *tgVar = session.getEda()->getCodeGenData<TiObject>(astVar);
+
+    // Get the type of the variable.
+    TiObject *tgType;
+    Ast::Type *astType;
+    if (!generation->getGeneratedType(astVar, &session, tgType, &astType)) {
+      result = false;
+      continue;
+    }
+
+    // Init the var
+    TioSharedPtr tgVarRef;
+    if (!session.getTg()->generateVarReference(tgContext.get(), tgType, tgVar, tgVarRef)) {
+      result = false;
+      continue;
+    }
+    if (!varOpCallback(astType, tgVarRef.get(), astVar, &session)) {
+      result = false;
+      continue;
     }
   }
+
+  // Finalize function.
+  SharedList<TiObject> args;
+  if (!buildSession->getCodeGenSession()->getTg()->finishFunctionBody(
+    tgFunc.get(), this->getVoidNoArgsFuncTgType(buildSession->getBuildType()), &args, tgContext.get()
+  )) {
+    throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
+  }
+
+  return result;
 }
 
 
@@ -222,27 +371,35 @@ void BuildManager::_dumpLlvmIrForElement(
 ) {
   VALIDATE_NOT_NULL(element, noticeStore);
   PREPARE_SELF(buildMgr, BuildManager);
-  PREPARE_SELF(building, Building);
 
-  buildMgr->resetBuild();
+  TiObject *globalFuncElement = 0;
+  if (element->isDerivedFrom<Ast::Module>()) globalFuncElement = element;
 
-  BuildSession buildSession;
-  building->prepareBuild(noticeStore, 0, true, buildSession);
-  auto result = building->addElementToBuild(element, buildSession);
-  building->finalizeBuild(noticeStore, 0, buildSession);
+  SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(
+    noticeStore, BuildManager::BuildType::OFFLINE, globalFuncElement
+  );
+  auto result = buildMgr->addElementToBuild(element, buildSession.get());
+  if (!buildMgr->finalizeBuild(noticeStore, globalFuncElement, buildSession.get())) result = false;
+
+  if (element->isDerivedFrom<Ast::Module>()) {
+    buildSession->getGlobalCtorNames()->insert(
+      buildSession->getGlobalCtorNames()->begin(), buildSession->getGlobalEntryName()
+    );
+  }
 
   // Dump the IR code.
-  StrStream ir;
-  buildMgr->targetGenerator->dumpIr(ir);
+  Str ir = buildMgr->offlineBuildTarget->generateLlvmIr(
+    buildSession->getGlobalCtorNames(), buildSession->getGlobalDtorNames()
+  );
   if (result) {
     outStream << S("-------------------- Generated LLVM IR ---------------------\n");
-    outStream << ir.str();
+    outStream << ir;
     outStream << S("------------------------------------------------------------\n");
   } else {
     parser->flushApprovedNotices();
     outStream << S("Build Failed...\n");
     outStream << S("--------------------- Partial LLVM IR ----------------------\n");
-    outStream << ir.str();
+    outStream << ir;
     outStream << S("------------------------------------------------------------\n");
   }
 }
@@ -254,35 +411,56 @@ Bool BuildManager::_buildObjectFileForElement(
 ) {
   VALIDATE_NOT_NULL(element, noticeStore);
   PREPARE_SELF(buildMgr, BuildManager);
-  PREPARE_SELF(building, Building);
 
-  buildMgr->resetBuild();
+  TiObject *globalFuncElement = 0;
+  if (element->isDerivedFrom<Ast::Module>()) globalFuncElement = element;
 
-  BuildSession buildSession;
-  building->prepareBuild(noticeStore, 0, true, buildSession);
-  auto result = building->addElementToBuild(element, buildSession);
-  building->finalizeBuild(noticeStore, 0, buildSession);
+  SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(
+    noticeStore, BuildManager::BuildType::OFFLINE, globalFuncElement
+  );
+  auto result = buildMgr->addElementToBuild(element, buildSession.get());
+  if (!buildMgr->finalizeBuild(noticeStore, globalFuncElement, buildSession.get())) result = false;
+
+  if (element->isDerivedFrom<Ast::Module>()) {
+    buildSession->getGlobalCtorNames()->insert(
+      buildSession->getGlobalCtorNames()->begin(), buildSession->getGlobalEntryName()
+    );
+  }
 
   if (result) {
-    buildMgr->targetGenerator->buildObjectFile(objectFilename);
+    buildMgr->offlineBuildTarget->generateObjectFile(
+      objectFilename, buildSession->getGlobalCtorNames(), buildSession->getGlobalDtorNames()
+    );
   }
 
   return result;
 }
 
 
-void BuildManager::_resetBuild(TiObject *self)
+void BuildManager::_resetBuild(TiObject *self, Int buildType)
 {
   PREPARE_SELF(buildMgr, BuildManager);
 
   auto root = buildMgr->rootManager->getRootScope().get();
-  buildMgr->resetBuildData(root);
-  buildMgr->targetGenerator->resetBuild();
-  buildMgr->globalTgFuncType = TioSharedPtr::null;
+  if (buildType == BuildType::JIT) {
+    buildMgr->resetBuildData(root, &buildMgr->jitEda);
+    buildMgr->jitTargetGenerator->setupBuild();
+    buildMgr->jitGlobalTgFuncType = TioSharedPtr::null;
+  } else if (buildType == BuildType::EVAL) {
+    buildMgr->resetBuildData(root, &buildMgr->evalEda);
+    buildMgr->evalTargetGenerator->setupBuild();
+    buildMgr->evalGlobalTgFuncType = TioSharedPtr::null;
+  } else if (buildType == BuildType::OFFLINE) {
+    buildMgr->resetBuildData(root, &buildMgr->offlineEda);
+    buildMgr->offlineTargetGenerator->setupBuild();
+    buildMgr->offlineGlobalTgFuncType = TioSharedPtr::null;
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("buildType"), S("Unexpected build type."), buildType);
+  }
 }
 
 
-void BuildManager::_resetBuildData(TiObject *self, TiObject *obj)
+void BuildManager::_resetBuildData(TiObject *self, TiObject *obj, CodeGen::ExtraDataAccessor *eda)
 {
   if (obj == 0) return;
   if (obj->isDerivedFrom<Core::Data::Grammar::Module>()) return;
@@ -291,31 +469,31 @@ void BuildManager::_resetBuildData(TiObject *self, TiObject *obj)
 
   auto metahaving = ti_cast<Core::Data::Ast::MetaHaving>(obj);
   if (metahaving != 0) {
-    buildMgr->extraDataAccessor.removeCodeGenData(metahaving);
-    buildMgr->extraDataAccessor.removeAutoCtor(metahaving);
-    buildMgr->extraDataAccessor.removeAutoDtor(metahaving);
-    buildMgr->extraDataAccessor.resetCodeGenFailed(metahaving);
-    buildMgr->extraDataAccessor.resetInitStatementsGenIndex(metahaving);
+    eda->removeCodeGenData(metahaving);
+    eda->removeAutoCtor(metahaving);
+    eda->removeAutoDtor(metahaving);
+    eda->resetCodeGenFailed(metahaving);
+    eda->resetInitStatementsGenIndex(metahaving);
   }
 
   auto container = ti_cast<Core::Basic::Containing<TiObject>>(obj);
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
-      buildMgr->resetBuildData(container->getElement(i));
+      buildMgr->resetBuildData(container->getElement(i), eda);
     }
   }
 
   auto binding = ti_cast<Core::Basic::Binding>(obj);
   if (binding != 0) {
     for (Int i = 0; i < binding->getMemberCount(); ++i) {
-      buildMgr->resetBuildData(binding->getMember(i));
+      buildMgr->resetBuildData(binding->getMember(i), eda);
     }
   }
 
   auto tpl = ti_cast<Ast::Template>(obj);
   if (tpl != 0) {
     for (Int i = 0; i < tpl->getInstanceCount(); ++i) {
-      buildMgr->resetBuildData(tpl->getInstance(i).get());
+      buildMgr->resetBuildData(tpl->getInstance(i).get(), eda);
     }
   }
 }
@@ -324,16 +502,40 @@ void BuildManager::_resetBuildData(TiObject *self, TiObject *obj)
 //==============================================================================
 // Helper Functions
 
-TioSharedPtr BuildManager::getVoidNoArgsFuncTgType()
+
+TiObject* BuildManager::getVoidNoArgsFuncTgType(Int buildType)
+{
+  if (buildType == BuildType::JIT) {
+    if (this->jitGlobalTgFuncType == 0) {
+      this->jitGlobalTgFuncType = this->createVoidNoArgsFuncTgType(this->jitTargetGenerator.get());
+    }
+    return this->jitGlobalTgFuncType.get();
+  } else if (buildType == BuildType::EVAL) {
+    if (this->evalGlobalTgFuncType == 0) {
+      this->evalGlobalTgFuncType = this->createVoidNoArgsFuncTgType(this->evalTargetGenerator.get());
+    }
+    return this->evalGlobalTgFuncType.get();
+  } else if (buildType == BuildType::OFFLINE) {
+    if (this->offlineGlobalTgFuncType == 0) {
+      this->offlineGlobalTgFuncType = this->createVoidNoArgsFuncTgType(this->offlineTargetGenerator.get());
+    }
+    return this->offlineGlobalTgFuncType.get();
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("buildType"), S("Unexpected build type."), buildType);
+  }
+}
+
+
+TioSharedPtr BuildManager::createVoidNoArgsFuncTgType(LlvmCodeGen::TargetGenerator *targetGen)
 {
   // Generate function type.
   TioSharedPtr tgVoidType;
-  if (!this->targetGenerator->generateVoidType(tgVoidType)) {
+  if (!targetGen->generateVoidType(tgVoidType)) {
     throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
   }
   SharedMap<TiObject> argTypes;
   TioSharedPtr tgFuncType;
-  if (!this->targetGenerator->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
+  if (!targetGen->generateFunctionType(&argTypes, tgVoidType.get(), false, tgFuncType)) {
     throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
   }
   return tgFuncType;
@@ -341,13 +543,14 @@ TioSharedPtr BuildManager::getVoidNoArgsFuncTgType()
 
 
 void BuildManager::prepareFunction(
-  Char const *funcName, TiObject *tgFuncType, TioSharedPtr &context, TioSharedPtr &tgFunc
+  CodeGen::TargetGeneration *targetGen, Char const *funcName, TiObject *tgFuncType,
+  TioSharedPtr &context, TioSharedPtr &tgFunc
 ) {
-  if (!this->targetGenerator->generateFunctionDecl(funcName, tgFuncType, tgFunc)) {
+  if (!targetGen->generateFunctionDecl(funcName, tgFuncType, tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for root scope execution."));
   }
   SharedList<TiObject> args;
-  if (!this->targetGenerator->prepareFunctionBody(
+  if (!targetGen->prepareFunctionBody(
     tgFunc.get(), tgFuncType, &args, context)
   ) {
     throw EXCEPTION(GenericException, S("Failed to prepare function body for root scope execution."));

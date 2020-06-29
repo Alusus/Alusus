@@ -9,7 +9,6 @@
  */
 //==============================================================================
 
-#include "core.h"
 #include "spp.h"
 
 namespace Spp
@@ -50,44 +49,34 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     this->expressionGenerator.get()
   );
 
-  this->jitTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>();
-  this->jitBuildManager = std::make_shared<BuildManager>(
-    S("jit"),
+  // Initialize LLVM.
+  llvm::InitializeNativeTarget();
+  LLVMInitializeNativeAsmPrinter();
+  LLVMInitializeNativeAsmParser();
+
+  this->buildManager = std::make_shared<BuildManager>(
     manager,
     this->astHelper.get(),
     this->generator.get(),
-    this->jitTargetGenerator.get()
-  );
-
-  this->outputTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
-    this->jitTargetGenerator.get()
-  );
-  this->outputBuildManager = std::make_shared<BuildManager>(
-    this->jitBuildManager.get(), S("out"), this->outputTargetGenerator.get()
+    this->globalItemRepo.get()
   );
 
   this->astProcessor = std::make_shared<CodeGen::AstProcessor>(
-    this->astHelper.get(), this->jitBuildManager.ti_cast_get<Building>()
+    this->astHelper.get(), this->buildManager.ti_cast_get<Executing>()
   );
-  this->jitBuildManager->setAstProcessor(this->astProcessor.get());
-  this->outputBuildManager->setAstProcessor(this->astProcessor.get());
   this->generator->setAstProcessor(this->astProcessor.get());
   this->typeGenerator->setAstProcessor(this->astProcessor.get());
 
   // Prepare run-time objects.
   this->rtAstMgr = std::make_shared<Rt::AstMgr>();
-  this->rtBuildMgr = std::make_shared<Rt::BuildMgr>(this->outputBuildManager.get());
+  this->rtBuildMgr = std::make_shared<Rt::BuildMgr>(this->buildManager.get());
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
   this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
   this->rootManagerExtensionOverrides = RootManagerExtension::extend(
-    manager, this->jitBuildManager, this->rtAstMgr, this->rtBuildMgr
+    manager, this->buildManager, this->astProcessor, this->rtAstMgr, this->rtBuildMgr
   );
-
-  // Prepare the target generator.
-  this->jitTargetGenerator->prepareBuild();
-  this->outputTargetGenerator->prepareBuild();
 
   // Add the grammar.
   GrammarFactory factory;
@@ -114,10 +103,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->rtBuildMgr.reset();
 
   // Reset generators.
-  this->outputBuildManager.reset();
-  this->outputTargetGenerator.reset();
-  this->jitBuildManager.reset();
-  this->jitTargetGenerator.reset();
+  this->buildManager.reset();
   this->astProcessor.reset();
   this->generator.reset();
   this->commandGenerator.reset();

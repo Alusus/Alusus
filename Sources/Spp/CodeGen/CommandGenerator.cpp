@@ -64,7 +64,9 @@ Bool CommandGenerator::_generateReturnStatement(
     GenResult operandResult;
     if (!g->generateExpression(operand, session, operandResult)) return false;
     // Generate the return statement.
-    if (retType->hasCustomInitialization(cmdGenerator->astHelper, session->getTg()->getExecutionContext())) {
+    if (retType->getInitializationMethod(
+      cmdGenerator->astHelper, session->getExecutionContext()
+    ) != Ast::TypeInitMethod::NONE) {
       // Assign value to ret reference.
       TiObject *retTgType;
       if (!g->getGeneratedType(retType, session, retTgType, 0)) return false;
@@ -76,15 +78,17 @@ Bool CommandGenerator::_generateReturnStatement(
       initAstTypes.add(operandResult.astType);
       initAstNodes.add(ti_cast<Core::Data::Node>(operand));
       if (!g->generateVarInitialization(
-        retType, session->getEda()->getCodeGenData<TiObject>(retTypeRef), astNode, &initAstNodes, &initAstTypes, &initTgVals,
-        session
+        retType, session->getEda()->getCodeGenData<TiObject>(retTypeRef), astNode,
+        &initAstNodes, &initAstTypes, &initTgVals, session
       )) {
         return false;
       }
       // Destruct variables.
       if (!g->generateVarGroupDestruction(session, 0)) return false;
       // Return
-      session->getTg()->generateReturn(session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(retType), 0);
+      session->getTg()->generateReturn(
+        session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(retType), 0
+      );
     } else {
       // Return the value itself.
 

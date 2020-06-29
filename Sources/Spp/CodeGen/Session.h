@@ -29,10 +29,12 @@ class Session : public TiObject
 
   private: ExtraDataAccessor *eda;
   private: TargetGeneration *tg;
+  private: ExecutionContext *execContext;
   private: TiObject *tgContext;
   private: DestructionStack *destructionStack;
-  private: TiObject *tgGlobalConstructionContext;
-  private: DestructionStack *globalDestructionStack;
+  private: DependencyList<Core::Data::Node> *globalVarInitializationDeps;
+  private: DependencyList<Core::Data::Node> *globalVarDestructionDeps;
+  private: DependencyList<Ast::Function> *funcDeps;
   private: Bool offlineExecution;
   private: TioSharedPtr tgSelf;
   private: Ast::Type *astSelfType;
@@ -42,36 +44,63 @@ class Session : public TiObject
   // Constructor & Destructor
 
   public: Session(
-    ExtraDataAccessor *eda, TargetGeneration *tg, TiObject *tgc, DestructionStack *ds,
-    TiObject *tgGcc, DestructionStack *gds, Bool offlineExec
-  ) : eda(eda), tg(tg), tgContext(tgc), destructionStack(ds)
-    , tgGlobalConstructionContext(tgGcc), globalDestructionStack(gds)
-    , offlineExecution(offlineExec), tgSelf(0), astSelfType(0)
+    ExtraDataAccessor *eda, TargetGeneration *tg, ExecutionContext *ec, TiObject *tgc, DestructionStack *ds,
+    DependencyList<Core::Data::Node> *gvInitDeps, DependencyList<Core::Data::Node> *gvDestDeps,
+    DependencyList<Ast::Function> *fDeps, Bool offlineExec
+  ) : eda(eda)
+    , tg(tg)
+    , execContext(ec)
+    , tgContext(tgc)
+    , destructionStack(ds)
+    , globalVarInitializationDeps(gvInitDeps)
+    , globalVarDestructionDeps(gvDestDeps)
+    , funcDeps(fDeps)
+    , offlineExecution(offlineExec)
+    , tgSelf(0)
+    , astSelfType(0)
   {}
 
   public: Session(Session *session, TiObject *tgc)
-    : eda(session->getEda()), tg(session->getTg()), tgContext(tgc), destructionStack(session->getDestructionStack())
-    , tgGlobalConstructionContext(session->getTgGlobalConstructionContext())
-    , globalDestructionStack(session->getGlobalDestructionStack())
+    : eda(session->getEda())
+    , tg(session->getTg())
+    , execContext(session->getExecutionContext())
+    , tgContext(tgc)
+    , destructionStack(session->getDestructionStack())
+    , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
+    , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
+    , funcDeps(session->getFuncDeps())
     , offlineExecution(session->isOfflineExecution())
-    , tgSelf(session->getTgSelf()), astSelfType(session->getAstSelfType())
+    , tgSelf(session->getTgSelf())
+    , astSelfType(session->getAstSelfType())
   {}
 
   public: Session(Session *session, TiObject *tgc, DestructionStack *ds)
-    : eda(session->getEda()), tg(session->getTg()), tgContext(tgc), destructionStack(ds)
-    , tgGlobalConstructionContext(session->getTgGlobalConstructionContext())
-    , globalDestructionStack(session->getGlobalDestructionStack())
+    : eda(session->getEda())
+    , tg(session->getTg())
+    , execContext(session->getExecutionContext())
+    , tgContext(tgc)
+    , destructionStack(ds)
+    , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
+    , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
+    , funcDeps(session->getFuncDeps())
     , offlineExecution(session->isOfflineExecution())
-    , tgSelf(session->getTgSelf()), astSelfType(session->getAstSelfType())
+    , tgSelf(session->getTgSelf())
+    , astSelfType(session->getAstSelfType())
   {}
 
   public: Session(
     Session *session, TiObject *tgc, DestructionStack *ds, TioSharedPtr const &tgs, Ast::Type *astst
-  ) : eda(session->getEda()), tg(session->getTg()), tgContext(tgc), destructionStack(ds)
-    , tgGlobalConstructionContext(session->getTgGlobalConstructionContext())
-    , globalDestructionStack(session->getGlobalDestructionStack())
+  ) : eda(session->getEda())
+    , tg(session->getTg())
+    , execContext(session->getExecutionContext())
+    , tgContext(tgc)
+    , destructionStack(ds)
+    , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
+    , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
+    , funcDeps(session->getFuncDeps())
     , offlineExecution(session->isOfflineExecution())
-    , tgSelf(tgs), astSelfType(astst)
+    , tgSelf(tgs)
+    , astSelfType(astst)
   {}
 
 
@@ -86,6 +115,10 @@ class Session : public TiObject
     return this->tg;
   }
 
+  public: ExecutionContext* getExecutionContext() {
+    return this->execContext;
+  }
+
   public: TiObject* getTgContext() {
     return this->tgContext;
   }
@@ -94,12 +127,16 @@ class Session : public TiObject
     return this->destructionStack;
   }
 
-  public: TiObject* getTgGlobalConstructionContext() {
-    return this->tgGlobalConstructionContext;
+  public: DependencyList<Core::Data::Node>* getGlobalVarInitializationDeps() {
+    return this->globalVarInitializationDeps;
   }
 
-  public: DestructionStack* getGlobalDestructionStack() {
-    return this->globalDestructionStack;
+  public: DependencyList<Core::Data::Node>* getGlobalVarDestructionDeps() {
+    return this->globalVarDestructionDeps;
+  }
+
+  public: DependencyList<Ast::Function>* getFuncDeps() {
+    return this->funcDeps;
   }
 
   public: Bool isOfflineExecution() {

@@ -354,8 +354,9 @@ Function* Helper::_lookupCustomCaster(
       PlainList<TiObject> argTypes({ srcRefType });
       static Core::Data::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
       Function *callee = 0;
+      TypeMatchStatus retMatch;
       helper->getSeeker()->foreach(&ref, srcContentType->getBody().get(),
-        [=, &callee, &argTypes] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+        [=, &retMatch, &callee, &argTypes] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
         {
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
@@ -363,9 +364,11 @@ Function* Helper::_lookupCustomCaster(
             auto match = funcType->matchCall(&argTypes, helper, ec);
             if (match == TypeMatchStatus::EXACT) {
               auto retType = funcType->traceRetType(helper);
-              if (retType->isImplicitlyCastableTo(targetType, helper, ec)) {
+              auto rmatch = retType->matchTargetType(targetType, helper, ec);
+              if (rmatch >= TypeMatchStatus::IMPLICIT_CAST && rmatch > retMatch) {
+                retMatch = rmatch;
                 callee = func;
-                return Core::Data::Seeker::Verb::STOP;
+                if (rmatch == TypeMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
               }
             }
           }
