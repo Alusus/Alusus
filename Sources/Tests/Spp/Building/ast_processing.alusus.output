@@ -46,6 +46,19 @@ Function  [Main.Function]
   AssignmentOperator = [Main.BlockExpression.AssignmentExp]
    first: Identifier: abc [Main.BlockSubject.Identifier]
    second: IntegerLiteral: 51 [Main.BlockSubject.Literal]
+  AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+   first: Identifier: pf [Main.BlockSubject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: Identifier: pointedFunction [Main.BlockSubject.Identifier]
+  Definition [Main.Def] pf2: ParamPass [] [Main.Expression.ParamPassExp]
+   operand: Identifier: ptr [Main.Subject.Identifier]
+   param: FunctionType [Main.Function]
+    argTypes: NULL
+    retType: NULL
+  AssignmentOperator = [Main.Def]
+   first: Identifier: pf2 [Main.Subject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: Identifier: pointedFunction [Main.Subject.Identifier]
   ParamPass () [Main.BlockExpression.ParamPassExp]
    operand: Identifier: print [Main.BlockSubject.Identifier]
    param: List [Main.Expression.ListExp]
@@ -72,12 +85,20 @@ Function  [Main.Function]
      operand: Identifier: print [Main.BlockSubject.Identifier]
      param: StringLiteral: test eval
  [Main.Subject.Literal]
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: pf [Main.BlockSubject.Identifier]
+   param: NULL
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: pf2 [Main.BlockSubject.Identifier]
+   param: NULL
 ------------------------------------------------------
 MyMod eval
 test eval
 Point eval
 51
 21
+pointedFunction
+pointedFunction
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] z: Identifier: Int [Main.Subject.Identifier]
@@ -111,6 +132,19 @@ Function test() [Main.Function]
   AssignmentOperator = [Main.BlockExpression.AssignmentExp]
    first: Identifier: abc [Main.BlockSubject.Identifier]
    second: IntegerLiteral: 51 [Main.BlockSubject.Literal]
+  AssignmentOperator = [Main.BlockExpression.AssignmentExp]
+   first: Identifier: pf [Main.BlockSubject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: Identifier: pointedFunction [Main.BlockSubject.Identifier]
+  Definition [Main.Def] pf2: ParamPass [] [Main.Expression.ParamPassExp]
+   operand: Identifier: ptr [Main.Subject.Identifier]
+   param: FunctionType [Main.Function]
+    argTypes: NULL
+    retType: NULL
+  AssignmentOperator = [Main.Def]
+   first: Identifier: pf2 [Main.Subject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: Identifier: pointedFunction [Main.Subject.Identifier]
   ParamPass () [Main.BlockExpression.ParamPassExp]
    operand: Identifier: print [Main.BlockSubject.Identifier]
    param: List [Main.Expression.ListExp]
@@ -131,4 +165,10 @@ Function test() [Main.Function]
     LinkOperator . [Main.Expression.LinkExp]
      first: Identifier: p [Main.Subject.Identifier]
      second: Identifier: x [Main.Subject.Identifier]
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: pf [Main.BlockSubject.Identifier]
+   param: NULL
+  ParamPass () [Main.BlockExpression.ParamPassExp]
+   operand: Identifier: pf2 [Main.BlockSubject.Identifier]
+   param: NULL
 ------------------------------------------------------

@@ -5,7 +5,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -39,10 +39,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;
   private: SharedPtr<CodeGen::Generator> generator;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> jitTargetGenerator;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> outputTargetGenerator;
-  private: SharedPtr<BuildManager> jitBuildManager;
-  private: SharedPtr<BuildManager> outputBuildManager;
+  private: SharedPtr<BuildManager> buildManager;
   private: SharedPtr<Rt::AstMgr> rtAstMgr;
   private: SharedPtr<Rt::BuildMgr> rtBuildMgr;
 

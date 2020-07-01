@@ -6,14 +6,14 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
 #ifndef SPP_LLVMCODEGEN_TARGETGENERATOR_H
 #define SPP_LLVMCODEGEN_TARGETGENERATOR_H
 
-namespace Spp { namespace LlvmCodeGen
+namespace Spp::LlvmCodeGen
 {
 
 class TargetGenerator : public TiObject, public DynamicBinding, public DynamicInterfacing
@@ -37,13 +37,10 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   //============================================================================
   // Member Variables
 
-  private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
   private: Core::Notices::Store *noticeStore = 0;
-  private: SharedPtr<ExecutionContext> executionContext;
-  private: std::vector<llvm::Function*> incompleteFunctions;
-  private: std::unique_ptr<llvm::Module> llvmModule;
-  private: SharedPtr<llvm::DataLayout> llvmDataLayout;
-  private: SharedPtr<llvm::LLVMContext> llvmContext;
+  private: BuildTarget *buildTarget = 0;
+  private: Bool perFunctionModules = false;
+
   private: Int blockIndex = 0;
   private: Int anonymousVarIndex = 0;
 
@@ -51,23 +48,17 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   //============================================================================
   // Constructors & Destructor
 
-  public: TargetGenerator()
+  public: TargetGenerator(BuildTarget *bt, Bool perFnMods) : buildTarget(bt), perFunctionModules(perFnMods)
   {
     this->addDynamicInterface(std::make_shared<Spp::CodeGen::TargetGeneration>(this));
     this->initBindings();
   }
 
-  public: TargetGenerator(TargetGenerator *parent)
+  public: TargetGenerator(TargetGenerator *parent, BuildTarget *bt, Bool perFnMods)
+    : buildTarget(bt), perFunctionModules(perFnMods)
   {
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-  }
-
-  public: virtual ~TargetGenerator()
-  {
-    // The llvm module should we always be released before the context, so we'll need to manually release the
-    // module before the default destructors are triggered.
-    this->llvmModule.reset();
   }
 
 
@@ -79,35 +70,12 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   private: void initBindings();
 
-  /// @}
-
-  /// @name Main Operation Functions
-  /// @{
-
-  public: void prepareBuild();
-
-  public: void resetBuild();
-
-  public: void dumpIr(OutStream &out);
-
-  public: void buildObjectFile(Char const *filename);
-
-  public: void execute(Char const *entry);
+  public: void setupBuild();
 
   /// @}
 
-  /// @name Property Getters
+  /// @name Property Getters and Setters
   /// @{
-
-  public: void setGlobalItemRepo(CodeGen::GlobalItemRepo *vr)
-  {
-    this->globalItemRepo = vr;
-  }
-
-  public: CodeGen::GlobalItemRepo* getGlobalItemRepo() const
-  {
-    return this->globalItemRepo;
-  }
 
   public: void setNoticeStore(Core::Notices::Store *ns)
   {
@@ -117,11 +85,6 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   public: Core::Notices::Store* getNoticeStore() const
   {
     return this->noticeStore;
-  }
-
-  public: ExecutionContext const* getExecutionContext()
-  {
-    return this->executionContext.get();
   }
 
   /// @}
@@ -460,6 +423,6 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

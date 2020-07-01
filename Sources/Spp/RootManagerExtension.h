@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -46,7 +46,8 @@ class RootManagerExtension : public ObjTiInterface
   {
     Basic::initBindingCaches(this->owner, {
       &this->importFile,
-      &this->jitBuildManager,
+      &this->buildManager,
+      &this->astProcessor,
       &this->rtAstMgr,
       &this->rtBuildMgr
     });
@@ -56,7 +57,8 @@ class RootManagerExtension : public ObjTiInterface
   //============================================================================
   // Member Properties
 
-  public: BINDING_CACHE(jitBuildManager, BuildManager);
+  public: BINDING_CACHE(buildManager, BuildManager);
+  public: BINDING_CACHE(astProcessor, CodeGen::AstProcessor);
   public: BINDING_CACHE(rtAstMgr, Rt::AstMgr);
   public: BINDING_CACHE(rtBuildMgr, Rt::BuildMgr);
 
@@ -84,7 +86,8 @@ class RootManagerExtension : public ObjTiInterface
 
   public: static Overrides* extend(
     Core::Main::RootManager *rootManager,
-    SharedPtr<BuildManager> const &jitBuildManager,
+    SharedPtr<BuildManager> const &buildManager,
+    SharedPtr<CodeGen::AstProcessor> const &astProcessor,
     SharedPtr<Rt::AstMgr> const &astM,
     SharedPtr<Rt::BuildMgr> const &buildM
   );

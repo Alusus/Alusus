@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -63,8 +63,9 @@ Bool UserType::merge(TiObject *src, Core::Notices::Store *noticeStore)
 }
 
 
-Bool UserType::hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const
+TypeInitMethod UserType::getInitializationMethod(Helper *helper, ExecutionContext const *ec) const
 {
+  TypeInitMethod method = TypeInitMethod::NONE;
   auto body = this->getBody().get();
   if (body != 0) {
     for (Int i = 0; i < body->getCount(); ++i) {
@@ -73,24 +74,32 @@ Bool UserType::hasCustomInitialization(Helper *helper, ExecutionContext const *e
       if (def != 0) {
         if (def->getTarget() != 0) {
           if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
-            if (def->getName() == S("~init")) return true;
+            if (def->getName() == S("~init")) {
+              method |= TypeInitMethod::USER;
+              if (method == TypeInitMethod::BOTH) break;
+            }
           } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
             auto type = helper->traceType(def->getTarget().get());
-            if (type != 0 && type->hasCustomInitialization(helper, ec)) return true;
+            if (type != 0 && type->getInitializationMethod(helper, ec) != TypeInitMethod::NONE) {
+              method |= TypeInitMethod::AUTO;
+              if (method == TypeInitMethod::BOTH) break;
+            }
           }
         }
       } else if (statement != 0) {
         // If we have any non-definition statement then it must be initialization code.
-        return true;
+        method |= TypeInitMethod::AUTO;
+        if (method == TypeInitMethod::BOTH) break;
       }
     }
   }
-  return false;
+  return method;
 }
 
 
-Bool UserType::hasCustomDestruction(Helper *helper, ExecutionContext const *ec) const
+TypeInitMethod UserType::getDestructionMethod(Helper *helper, ExecutionContext const *ec) const
 {
+  TypeInitMethod method = TypeInitMethod::NONE;
   auto body = this->getBody().get();
   if (body != 0) {
     for (Int i = 0; i < body->getCount(); ++i) {
@@ -99,16 +108,22 @@ Bool UserType::hasCustomDestruction(Helper *helper, ExecutionContext const *ec) 
       if (def != 0) {
         if (def->getTarget() != 0) {
           if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
-            if (def->getName() == S("~terminate")) return true;
+            if (def->getName() == S("~terminate")) {
+              method |= TypeInitMethod::USER;
+              if (method == TypeInitMethod::BOTH) break;
+            }
           } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
             auto type = helper->traceType(def->getTarget().get());
-            if (type != 0 && type->hasCustomDestruction(helper, ec)) return true;
+            if (type != 0 && type->getDestructionMethod(helper, ec) != TypeInitMethod::NONE) {
+              method |= TypeInitMethod::AUTO;
+              if (method == TypeInitMethod::BOTH) break;
+            }
           }
         }
       }
     }
   }
-  return false;
+  return method;
 }
 
 } // namespace

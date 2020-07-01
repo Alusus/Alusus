@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -38,14 +38,14 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   // Member Variables
 
   private: Ast::Helper *astHelper;
-  private: Building *building;
+  private: Executing *executing;
   private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h, Building *b) : astHelper(h), building(b)
+  public: AstProcessor(Ast::Helper *h, Executing *b) : astHelper(h), executing(b)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -57,7 +57,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
-    this->building = parent->getBuilding();
+    this->executing = parent->getExecuting();
   }
 
   public: virtual ~AstProcessor()
@@ -79,9 +79,9 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->astHelper;
   }
 
-  public: Building* getBuilding() const
+  public: Executing* getExecuting() const
   {
-    return this->building;
+    return this->executing;
   }
 
   public: void setNoticeStore(Core::Notices::Store *ns)

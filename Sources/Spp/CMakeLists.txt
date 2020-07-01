@@ -2,7 +2,7 @@
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
-# accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+# accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususSpp)
 cmake_minimum_required(VERSION 2.8)
@@ -17,7 +17,7 @@ include_directories("${AlususCore_SOURCE_DIR}")
 
 # Let's suppose we want to build a JIT compiler with support for
 # binary code (no interpreter):
-llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native linker)
+llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native orcjit)
 
 # Make sure the compiler finds the source files.
 include_directories("${AlususSpp_SOURCE_DIR}")

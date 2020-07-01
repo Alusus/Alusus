@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -184,7 +184,7 @@ void StandardFactory::createCharGroupDefinitions()
 
   // Spacing : char " \n\r\t";
   this->set(S("root.LexerDefs.Spacing"), CharGroupDefinition::create(
-    RandomCharGroupUnit::create(S(" \r\n\t"))
+    RandomCharGroupUnit::create(S(" \r\n\t\u200F"))
   ));
 }
 

@@ -1,28 +1,28 @@
 ERROR SPPG1022 @ (10,11): Missing a return statement for a non-void function.
-ERROR SPPG1005 @ (17,3): Invalid cast.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %T1 = type { i32 }
 %T2 = type { i32 }
 
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"test()"() {
-"#block1":
+"#block0":
   %t1 = alloca %T1
   %t2 = alloca %T2
   %0 = call i32 @"T1.~cast(ref[T1])=>(Int[32])"(%T1* %t1)
+  %1 = call i32 @"T2.~cast(ref[T2])=>(Int[32])"(%T2* %t2)
   ret void
 }
 
 define i32 @"T1.~cast(ref[T1])=>(Int[32])"(%T1* %this) {
-"#block2":
+"#block1":
   %this1 = alloca %T1*
   store %T1* %this, %T1** %this1
   %0 = load %T1*, %T1** %this1
@@ -32,7 +32,7 @@ define i32 @"T1.~cast(ref[T1])=>(Int[32])"(%T1* %this) {
 }
 
 define i32 @"T2.~cast(ref[T2])=>(Int[32])"(%T2* %this) {
-"#block3":
+"#block2":
   %this1 = alloca %T2*
   store %T2* %this, %T2** %this1
 }

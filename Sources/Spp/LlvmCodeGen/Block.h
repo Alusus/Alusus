@@ -6,14 +6,14 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
 #ifndef SPP_LLVMCODEGEN_BLOCK_H
 #define SPP_LLVMCODEGEN_BLOCK_H
 
-namespace Spp { namespace LlvmCodeGen
+namespace Spp::LlvmCodeGen
 {
 
 class Block : public TiObject
@@ -32,7 +32,7 @@ class Block : public TiObject
 
   private: llvm::IRBuilder<> *irBuilder;
 
-  private: llvm::Function *llvmFunc;
+  private: Function *function;
 
   private: Bool terminated;
 
@@ -40,7 +40,7 @@ class Block : public TiObject
   //============================================================================
   // Constructor & Destructor
 
-  public: Block() : llvmEntryBlock(0), llvmBlock(0), irBuilder(0), llvmFunc(0), terminated(false)
+  public: Block() : llvmEntryBlock(0), llvmBlock(0), irBuilder(0), function(0), terminated(false)
   {
   }
 
@@ -71,13 +71,13 @@ class Block : public TiObject
     return this->irBuilder;
   }
 
-  public: void setLlvmFunction(llvm::Function *f)
+  public: void setFunction(Function *f)
   {
-    this->llvmFunc = f;
+    this->function = f;
   }
-  public: llvm::Function* getLlvmFunction() const
+  public: Function* getFunction() const
   {
-    return this->llvmFunc;
+    return this->function;
   }
 
   public: void setTerminated(Bool t = true)
@@ -91,6 +91,6 @@ class Block : public TiObject
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

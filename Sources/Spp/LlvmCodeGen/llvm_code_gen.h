@@ -7,14 +7,16 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
 #ifndef SPP_LLVMCODEGEN_LLVMCODEGEN_H
 #define SPP_LLVMCODEGEN_LLVMCODEGEN_H
 
-namespace Spp { namespace LlvmCodeGen
+#include "llvm_dependencies.h"
+
+namespace Spp::LlvmCodeGen
 {
 
 /**
@@ -23,16 +25,22 @@ namespace Spp { namespace LlvmCodeGen
  * @brief Classes for providing an LLVM build target.
  */
 
-} } // namespace
+
+// Forward Declarations
+class BuildTarget;
+
+// Global Functions
+void llvmDiagnosticCallback(const llvm::DiagnosticInfo &di, void *context);
+
+} // namespace
 
 
 //==============================================================================
 // Classes
 
-#include "llvm_dependencies.h"
-
 // Build Data
 #include "types.h"
+#include "Function.h"
 #include "Block.h"
 #include "Variable.h"
 #include "Value.h"
@@ -40,6 +48,11 @@ namespace Spp { namespace LlvmCodeGen
 #include "LoopContext.h"
 
 // The Generator
+#include "jit_engines.h"
 #include "TargetGenerator.h"
+#include "BuildTarget.h"
+#include "JitBuildTarget.h"
+#include "LazyJitBuildTarget.h"
+#include "OfflineBuildTarget.h"
 
 #endif

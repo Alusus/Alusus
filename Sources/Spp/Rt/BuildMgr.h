@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -37,7 +37,7 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
   //============================================================================
   // Member Variables
 
-  private: BuildManager *outputBuildManager;
+  private: BuildManager *buildManager;
   private: Core::Notices::Store *noticeStore;
   private: Core::Processing::Parser *parser;
 
@@ -45,7 +45,7 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
   //============================================================================
   // Constructor & Destructor
 
-  public: BuildMgr(BuildManager *obm) : outputBuildManager(obm)
+  public: BuildMgr(BuildManager *bm) : buildManager(bm)
   {
   }
 
@@ -54,7 +54,7 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->outputBuildManager = parent->getOutputBuildManager();
+    this->buildManager = parent->getBuildManager();
   }
 
   public: virtual ~BuildMgr()
@@ -73,9 +73,9 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
 
   public: static void initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, BuildMgr *buildMgr);
 
-  public: BuildManager* getOutputBuildManager() const
+  public: BuildManager* getBuildManager() const
   {
-    return this->outputBuildManager;
+    return this->buildManager;
   }
 
   public: void setNoticeStore(Core::Notices::Store *store)

@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -20,7 +20,8 @@ namespace Spp
 
 RootManagerExtension::Overrides* RootManagerExtension::extend(
   Core::Main::RootManager *rootManager,
-  SharedPtr<BuildManager> const &jitBuildManager,
+  SharedPtr<BuildManager> const &buildManager,
+  SharedPtr<CodeGen::AstProcessor> const &astProcessor,
   SharedPtr<Rt::AstMgr> const &astM,
   SharedPtr<Rt::BuildMgr> const &buildM
 ) {
@@ -28,7 +29,8 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   rootManager->addDynamicInterface(extension);
 
   auto overrides = new Overrides();
-  extension->jitBuildManager = jitBuildManager;
+  extension->buildManager = buildManager;
+  extension->astProcessor = astProcessor;
   extension->rtAstMgr = astM;
   extension->rtBuildMgr = buildM;
 
@@ -42,7 +44,8 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
 {
   auto extension = ti_cast<RootManagerExtension>(rootManager);
   extension->importFile.reset(overrides->importFileRef);
-  extension->jitBuildManager.remove();
+  extension->buildManager.remove();
+  extension->astProcessor.remove();
   extension->rtAstMgr.remove();
   extension->rtBuildMgr.remove();
   rootManager->removeDynamicInterface<RootManagerExtension>();

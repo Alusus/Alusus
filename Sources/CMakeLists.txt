@@ -1,6 +1,6 @@
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
-# accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+# accompanying license file or at <https://alusus.org/license.html>.
 
 project(Alusus)
 cmake_minimum_required(VERSION 3.1)
@@ -31,6 +31,11 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${Alu
                                                            ALUSUS_REVISION="${AlususRevision}"
                                                            ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
                                                            ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
+if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS RELEASE)
+else()
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_LOGS)
+endif()
 
 # LLVM path
 set(LLVM_PATH "" CACHE PATH "Path to LLVM root folder.")

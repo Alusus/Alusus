@@ -84,5 +84,8 @@
     "Bin": true
   },
   "C_Cpp.errorSquiggles": "Disabled",
-  "cmake.configureOnOpen": false
+  "cmake.configureOnOpen": false,
+  "[alusus]": {
+    "editor.tabSize": 4
+  }
 }

@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -179,21 +179,21 @@ Bool AstProcessor::_processEvalStatement(
 
   if (!astProcessor->process(eval->getBody().get())) return false;
 
-  BuildSession buildSession;
-
   // Build the eval statement.
-  astProcessor->building->prepareExecution(astProcessor->getNoticeStore(), eval, buildSession);
+  SharedPtr<BuildSession> buildSession = astProcessor->executing->prepareBuild(
+    astProcessor->getNoticeStore(), BuildManager::BuildType::EVAL, eval
+  );
   Bool result = true;
   auto block = eval->getBody().ti_cast_get<Ast::Block>();
   if (block != 0) {
     for (Int i = 0; i < block->getElementCount(); ++i) {
       auto childData = block->getElement(i);
-      if (!astProcessor->building->addElementToBuild(childData, buildSession)) result = false;
+      if (!astProcessor->executing->addElementToBuild(childData, buildSession.get())) result = false;
     }
   } else {
-      if (!astProcessor->building->addElementToBuild(eval->getBody().get(), buildSession)) result = false;
+      if (!astProcessor->executing->addElementToBuild(eval->getBody().get(), buildSession.get())) result = false;
   }
-  astProcessor->building->finalizeBuild(astProcessor->getNoticeStore(), eval, buildSession);
+  astProcessor->executing->finalizeBuild(astProcessor->getNoticeStore(), eval, buildSession.get());
 
   // Remove the eval statement.
   DynamicContaining<TiObject> *dynContainer;
@@ -211,10 +211,8 @@ Bool AstProcessor::_processEvalStatement(
 
   // Execute the eval statement.
   if (result) {
-    astProcessor->building->execute(astProcessor->getNoticeStore(), buildSession);
+    astProcessor->executing->execute(astProcessor->getNoticeStore(), buildSession.get());
   }
-
-  astProcessor->building->deleteTempFunctions(buildSession);
 
   return result;
 }

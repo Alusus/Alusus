@@ -22,4 +22,7 @@ for i = 0, i < 5, ++i {
   print("%d\n", factorial(i));
 };
 
+def pf: ptr[function (Int):Int] = factorial~ptr;
+print("factorial of 6 using function pointer: %d\n", pf(6));
+
 Spp.buildMgr.dumpLlvmIrForElement(fnWithErrors~ast);

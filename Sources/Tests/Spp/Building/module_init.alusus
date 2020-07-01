@@ -2,7 +2,11 @@ import "Spp";
 
 module Main
 {
-  def i: Int = 7;
+  def var: Int = 7;
+
+  func setVarTo2 {
+    var = 2
+  }
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(Main~ast);
