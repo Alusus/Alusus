@@ -51,6 +51,7 @@ void llvmDiagnosticCallback(const llvm::DiagnosticInfo &di, void *context);
 #include "jit_engines.h"
 #include "TargetGenerator.h"
 #include "BuildTarget.h"
+#include "JitBuildTarget.h"
 #include "LazyJitBuildTarget.h"
 #include "OfflineBuildTarget.h"
 

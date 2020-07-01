@@ -58,8 +58,7 @@ void BuildManager::initBindings()
 void BuildManager::initTargets()
 {
   this->jitEda.setIdPrefix("jit");
-  // TODO: Use JitBuildTarget build target.
-  this->jitBuildTarget = std::make_shared<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
+  this->jitBuildTarget = std::make_shared<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
   this->jitTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), true);
   this->jitTargetGenerator->setupBuild();
 

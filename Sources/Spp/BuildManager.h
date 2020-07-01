@@ -48,21 +48,20 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: CodeGen::Generator *generator;
   private: CodeGen::GlobalItemRepo *globalItemRepo;
 
-  private: CodeGen::ExtraDataAccessor offlineEda;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> offlineTargetGenerator;
-  private: SharedPtr<LlvmCodeGen::OfflineBuildTarget> offlineBuildTarget;
-  private: TioSharedPtr offlineGlobalTgFuncType;
-
   private: CodeGen::ExtraDataAccessor jitEda;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> jitTargetGenerator;
-  private: SharedPtr<LlvmCodeGen::LazyJitBuildTarget> jitBuildTarget;
-  // private: SharedPtr<LlvmCodeGen::JitBuildTarget> jitBuildTarget;
+  private: SharedPtr<LlvmCodeGen::JitBuildTarget> jitBuildTarget;
   private: TioSharedPtr jitGlobalTgFuncType;
 
   private: CodeGen::ExtraDataAccessor evalEda;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> evalTargetGenerator;
   private: SharedPtr<LlvmCodeGen::LazyJitBuildTarget> evalBuildTarget;
   private: TioSharedPtr evalGlobalTgFuncType;
+
+  private: CodeGen::ExtraDataAccessor offlineEda;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> offlineTargetGenerator;
+  private: SharedPtr<LlvmCodeGen::OfflineBuildTarget> offlineBuildTarget;
+  private: TioSharedPtr offlineGlobalTgFuncType;
 
   private: Int funcNameIndex = 0;
 
