@@ -1,20 +1,12 @@
-import "Srl/Net.alusus";
-import "Srl/Console.alusus";
+import "Srl/Net";
+import "Srl/Console";
+use Srl;
 
-module Main
-{
-  function start
-  {
-    def data: ptr;
-    def size: Int;
-    if Srl.Net.get("https://example.org", data~ptr, size~ptr) {
-      Srl.Console.print("%s\n", data);
-      Srl.Memory.free(data);
-    } else {
-      Srl.Console.print("Error!\n");
-    };
-  };
-};
-
-Main.start();
-
+def data: ptr;
+def size: Int;
+if Net.get("https://example.org", data~ptr, size~ptr) {
+  Console.print("%s\n", data);
+  Memory.free(data);
+} else {
+  Console.print("Error!\n");
+}

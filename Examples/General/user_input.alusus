@@ -1,46 +1,36 @@
 import "Srl/Console.alusus";
-
-def UserInput: module
-{
-  use Srl.Console;
+use Srl.Console;
  
-  def start: function
-  {
-    print("Enter some chars then press Enter (Press Enter twice to end editing): ");
-    def c: Word;
-    def prevC: Word;
-    prevC = 0;
-    c = getChar();
-    while c != '\n' || prevC != '\n' {
-      putChar(c);
-      prevC = c;
-      c = getChar();
-    };
-
-    def f: Float;
-    print("Enter a float: ");
-    f = getFloat();
-    print("Enter duplications: ");
-    c = getInt();
-    while c > 0 {
-      print(f);
-      putChar('\n');
-      --c;
-    };
-
-    getChar(); // remove the \n from the input buffer.
-    print("Enter string to duplicate: ");
-    def s: array[Char, 100];
-    getString(s~ptr, 100);
-    print("Enter duplications: ");
-    c = getInt();
-    while c > 0 {
-      print(s~ptr);
-      putChar('\n');
-      --c;
-    };
-  }
+print("Enter some chars then press Enter (Press Enter twice to end editing): ");
+def c: Word;
+def prevC: Word;
+prevC = 0;
+c = getChar();
+while c != '\n' || prevC != '\n' {
+  putChar(c);
+  prevC = c;
+  c = getChar();
 };
 
-UserInput.start();
+def f: Float;
+print("Enter a float: ");
+f = getFloat();
+print("Enter duplications: ");
+c = getInt();
+while c > 0 {
+  print(f);
+  putChar('\n');
+  --c;
+};
 
+getChar(); // remove the \n from the input buffer.
+print("Enter string to duplicate: ");
+def s: array[Char, 100];
+getString(s~ptr, 100);
+print("Enter duplications: ");
+c = getInt();
+while c > 0 {
+  print(s~ptr);
+  putChar('\n');
+  --c;
+};
