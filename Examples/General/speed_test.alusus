@@ -1,39 +1,30 @@
-import "Srl/Console.alusus";
+import "Srl/Console";
+import "Srl/Time";
+use Srl;
 
-module SpeedTest
-{
-  def clock: @expname[clock] function (): Int[64];
+func isPrime(number: Int[64]): Bool {
+  def prime: Bool = true;
+  def i: int[64];
+  for i=2, i<= (number/2), i++ {
+    if((number % i) == 0)  {
+      prime = false;
+      break;
+    }
+  }
 
-  func start
-  {
-    def number: int[64] = 6673214311;
-    def startTime: int[64] = clock();
-    Srl.Console.print("%ld is ", number);
-    if (isPrime(number)){
-      Srl.Console.print("prime\n");
-    } else {
-      Srl.Console.print("not prime\n");
-    };
+  return prime;
+}
 
-    def endTime: int[64] = clock();
-    def elapsed: int[64] = (endTime - startTime);
-    Srl.Console.print("Operation took %d seconds\n", (elapsed/1000000));
-  };
-
-  func isPrime(number: Int[64]): Bool
-  {
-    def prime: Bool = 1;
-    def i: int[64];
-    for i=2, i<= (number/2), i++ {
-      if((number % i) == 0)  {
-        prime = 0;
-        break;
-      }
-    };
-
-    return prime;
-  };
+def number: int[64] = 6673214311;
+def startTime: int[64] = Time.getClock();
+Console.print("%ld is ", number);
+if (isPrime(number)){
+  Console.print("prime\n");
+} else {
+  Console.print("not prime\n");
 };
 
-SpeedTest.start();
+def endTime: int[64] = Time.getClock();
+def elapsed: int[64] = (endTime - startTime);
+Console.print("Operation took %d seconds\n", (elapsed/1000000));
 
