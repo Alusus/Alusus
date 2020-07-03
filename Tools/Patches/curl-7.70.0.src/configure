@@ -30004,15 +30004,15 @@ int main()
 }
 
 _ACEOF
-if ac_fn_c_try_run "$LINENO"; then :
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: fine" >&5
-$as_echo "fine" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: failed" >&5
-$as_echo "failed" >&6; }
-    as_fn_error $? "one or more libs available at link-time are not available run-time. Libs used at link-time: $LIBS" "$LINENO" 5
-
-fi
+#if ac_fn_c_try_run "$LINENO"; then :
+#  { $as_echo "$as_me:${as_lineno-$LINENO}: result: fine" >&5
+#$as_echo "fine" >&6; }
+#else
+#  { $as_echo "$as_me:${as_lineno-$LINENO}: result: failed" >&5
+#$as_echo "failed" >&6; }
+#    as_fn_error $? "one or more libs available at link-time are not available run-time. Libs used at link-time: $LIBS" "$LINENO" 5
+#
+#fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
