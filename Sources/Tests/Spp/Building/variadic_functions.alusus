@@ -12,6 +12,8 @@ def Main: module
 
     f3("hello", "world", "again");
 
+    f5(5, 1, 2, -3, 7, 9);
+
     // errors:
     f1("hello");
     f2("hello");
@@ -46,7 +48,14 @@ def Main: module
 
   def f4: function (a: ptr[Word[8]], args:...[Word[8]])
   {
+      5~next_arg[Int];
   };
+
+  def f5: function (count: Int, args:...Int): Int
+  {
+      while --count > 0 if args~next_arg[Int] > 0 return count;
+      return count;
+  }
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(Main~ast);

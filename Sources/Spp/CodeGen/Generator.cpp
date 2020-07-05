@@ -179,6 +179,12 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     session->getEda()->setCodeGenData(astBlock, tgContext);
     for (Int i = 0; i < tgVars.getCount(); ++i) {
       auto argType = astArgs->getElement(i);
+      if (argType->isDerivedFrom<Ast::ArgPack>()) {
+        // If this is the var arg pack, then it should already be initialized for us.
+        session->getEda()->setCodeGenData(argType, tgVars.get(i));
+        Ast::setAstType(argType, generator->astHelper->getCharType());
+        break;
+      }
       auto argAstType = Ast::getAstType(argType);
       auto argTgType = session->getEda()->getCodeGenData<TiObject>(argAstType);
       TioSharedPtr argTgVar;

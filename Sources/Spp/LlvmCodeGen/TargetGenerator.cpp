@@ -100,6 +100,7 @@ void TargetGenerator::initBindings()
   targetGeneration->generateAndAssign = &TargetGenerator::generateAndAssign;
   targetGeneration->generateOrAssign = &TargetGenerator::generateOrAssign;
   targetGeneration->generateXorAssign = &TargetGenerator::generateXorAssign;
+  targetGeneration->generateNextArg = &TargetGenerator::generateNextArg;
 
   // Comparison Ops Generation Functions
   targetGeneration->generateEqual = &TargetGenerator::generateEqual;
@@ -127,6 +128,7 @@ void TargetGenerator::setupBuild()
 {
   this->blockIndex = 0;
   this->anonymousVarIndex = 0;
+  this->vaStartEndFnType = 0;
 
   this->buildTarget->setupBuild();
 }
@@ -240,6 +242,24 @@ Word TargetGenerator::getTypeAllocationSize(TiObject *type)
 }
 
 
+llvm::FunctionType* TargetGenerator::getVaStartEndFnType()
+{
+  if (this->vaStartEndFnType == 0) {
+    auto int8Type = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), 8);
+    auto int8PtrType = int8Type->getPointerTo();
+
+    // Prepare args and ret type.
+    std::vector<llvm::Type*> argTypes;
+    argTypes.push_back(int8PtrType);
+    auto retType = llvm::Type::getVoidTy(*this->buildTarget->getLlvmContext());
+
+    // Create the function.
+    this->vaStartEndFnType = llvm::FunctionType::get(retType, argTypes, false);
+  }
+  return this->vaStartEndFnType;
+}
+
+
 //==============================================================================
 // Function Generation Functions
 
@@ -303,6 +323,7 @@ Bool TargetGenerator::prepareFunctionBody(
   VALIDATE_NOT_NULL(function, args);
   PREPARE_ARG(function, funcWrapper, Function);
 
+  llvm::Module *llvmModule;
   llvm::Function *llvmFunc;
   if (this->perFunctionModules) {
     funcWrapper->llvmModule = std::make_unique<llvm::Module>("function_module", *this->buildTarget->getLlvmContext());
@@ -313,8 +334,10 @@ Bool TargetGenerator::prepareFunctionBody(
       funcWrapper->getName().c_str(), funcWrapper->llvmModule.get()
     );
     funcWrapper->setLlvmFunction(llvmFunc);
+    llvmModule = funcWrapper->llvmModule.get();
   } else {
     llvmFunc = funcWrapper->getLlvmFunction();
+    llvmModule = this->buildTarget->getGlobalLlvmModule();
   }
 
   // Create the block
@@ -332,6 +355,30 @@ Bool TargetGenerator::prepareFunctionBody(
   for (auto iter = llvmFunc->arg_begin(); i != argTypes->getElementCount(); ++iter, ++i) {
     iter->setName(argTypes->getElementKey(i).c_str());
     args->add(std::make_shared<Value>(iter, false));
+  }
+
+  // Is this a variadic funciton?
+  if (funcWrapper->getFunctionType()->isVariadic()) {
+    // Declare va_list var.
+    funcWrapper->llvmVaList = block->getIrBuilder()->CreateAlloca(this->buildTarget->getVaListType(), 0, "__vaList");
+    // Add declaration for llvm.va_start function.
+    llvm::Function *llvmVaStartFunc = llvmModule->getFunction("llvm.va_start");
+    if (llvmVaStartFunc == 0) {
+      // This function is in a different module, so we'll have to define it.
+      llvmVaStartFunc = llvm::Function::Create(
+        this->getVaStartEndFnType(), llvm::Function::ExternalLinkage, "llvm.va_start", llvmModule
+      );
+    }
+    // Call llvm.va_start.
+    auto int8Type = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), 8);
+    auto int8PtrType = int8Type->getPointerTo();
+    std::vector<llvm::Value*> vaArgs;
+    vaArgs.push_back(block->getIrBuilder()->CreateBitCast(funcWrapper->llvmVaList, int8PtrType));
+    block->getIrBuilder()->CreateCall(llvmVaStartFunc, vaArgs);
+    // Attach the variable to the var list.
+    SharedPtr<Variable> arg = std::make_shared<Variable>();
+    arg->setLlvmAllocaInst(funcWrapper->llvmVaList);
+    args->add(arg);
   }
 
   context = block;
@@ -967,6 +1014,27 @@ Bool TargetGenerator::generateReturn(
   TiObject *context, TiObject *retType, TiObject *retVal
 ) {
   PREPARE_ARG(context, block, Block);
+
+  // Is this a variadic function?
+  if (block->getFunction()->getFunctionType()->isVariadic()) {
+    llvm::Module *llvmModule = this->perFunctionModules ?
+      block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
+    // Add declaration for llvm.va_end function.
+    llvm::Function *llvmVaEndFunc = llvmModule->getFunction("llvm.va_end");
+    if (llvmVaEndFunc == 0) {
+      // This function is in a different module, so we'll have to define it.
+      llvmVaEndFunc = llvm::Function::Create(
+        this->getVaStartEndFnType(), llvm::Function::ExternalLinkage, "llvm.va_end", llvmModule
+      );
+    }
+    // Call llvm.va_end.
+    auto int8Type = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), 8);
+    auto int8PtrType = int8Type->getPointerTo();
+    std::vector<llvm::Value*> vaArgs;
+    vaArgs.push_back(block->getIrBuilder()->CreateBitCast(block->getFunction()->llvmVaList, int8PtrType));
+    block->getIrBuilder()->CreateCall(llvmVaEndFunc, vaArgs);
+  }
+
   if (retVal != 0) {
     PREPARE_ARG(retVal, retValBox, Value);
     block->getIrBuilder()->CreateRet(retValBox->getLlvmValue());
@@ -1545,6 +1613,18 @@ Bool TargetGenerator::generateXorAssign(
   llvmResult = block->getIrBuilder()->CreateXor(llvmVal, srcValBox->getLlvmValue());
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
   result = getSharedPtr(destVar);
+  return true;
+}
+
+
+Bool TargetGenerator::generateNextArg(
+  TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+) {
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(srcVal, srcValBox, Value);
+  PREPARE_ARG(type, tgType, Type);
+  auto llvmResult = block->getIrBuilder()->CreateVAArg(srcValBox->getLlvmValue(), tgType->getLlvmType());
+  result = std::make_shared<Value>(llvmResult, false);
   return true;
 }
 

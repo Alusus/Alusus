@@ -144,6 +144,7 @@ DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupResult, "alusus.org/Spp/Spp.Ast.CalleeLoo
 #include "AstRefOp.h"
 #include "InitOp.h"
 #include "TerminateOp.h"
+#include "NextArgOp.h"
 // Misc
 #include "ArgPack.h"
 #include "ThisTypeRef.h"

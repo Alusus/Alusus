@@ -1,0 +1,13 @@
+import "Srl/Console.alusus";
+
+func test (pairCount: Int[32], vArgs: ...any) {
+    def i: int;
+    while (pairCount > 0) {
+        def iarg: Int = vArgs~next_arg[Int];
+        def farg: Float = vArgs~next_arg[Float];
+        Srl.Console.print("%d, %f\n", iarg, farg~cast[Float[64]]);
+        --pairCount;
+    }
+}
+
+test(3, 6, 7.3, 18, 9.7, 1, 110.1);

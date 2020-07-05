@@ -23,11 +23,19 @@ class BuildTarget : public TiObject
 
   TYPE_INFO(BuildTarget, TiObject, "Spp.LlvmCodeGen", "Spp", "alusus.org");
 
+  //============================================================================
+  // Member Variables
+
+  private: llvm::StructType *vaListType = 0;
+
 
   //============================================================================
   // Member Functions
 
-  public: virtual void setupBuild() = 0;
+  public: virtual void setupBuild()
+  {
+    this->vaListType = 0;
+  }
 
   public: virtual llvm::DataLayout* getLlvmDataLayout() = 0;
 
@@ -41,6 +49,8 @@ class BuildTarget : public TiObject
   }
 
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module) = 0;
+
+  public: virtual llvm::Type* getVaListType();
 
 }; // class
 

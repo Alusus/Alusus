@@ -281,7 +281,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
   if (operand == 0) return false;
   auto symbolDef = state->refTopProdLevel().getProd();
   if (symbolDef->getTranslatedModifierKeyword(operand->getValue().get()) != S("expname")) return false;
-  auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Identifier>();
+  auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Text>();
   if (param == 0) return false;
 
   // If we have generated a definition object in this state, clone it then get the clone.

@@ -99,6 +99,7 @@ class TargetGeneration : public ObjTiInterface
       &this->generateAndAssign,
       &this->generateOrAssign,
       &this->generateXorAssign,
+      &this->generateNextArg,
       &this->generateEqual,
       &this->generateNotEqual,
       &this->generateGreaterThan,
@@ -549,6 +550,12 @@ class TargetGeneration : public ObjTiInterface
     Bool, (
       TiObject* /* context */, TiObject* /* type */,
       TiObject* /* destVar */, TiObject* /* srcVal */, TioSharedPtr& /* result */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(generateNextArg,
+    Bool, (
+      TiObject* /* context */, TiObject* /* type */, TiObject* /* srcVal */, TioSharedPtr& /* result */
     )
   );
 

@@ -48,6 +48,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateSizeOp,
     &this->generateInitOp,
     &this->generateTerminateOp,
+    &this->generateNextArgOp,
     &this->generateStringLiteral,
     &this->generateCharLiteral,
     &this->generateIntegerLiteral,
@@ -93,6 +94,7 @@ void ExpressionGenerator::initBindings()
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
   this->generateInitOp = &ExpressionGenerator::_generateInitOp;
   this->generateTerminateOp = &ExpressionGenerator::_generateTerminateOp;
+  this->generateNextArgOp = &ExpressionGenerator::_generateNextArgOp;
   this->generateStringLiteral = &ExpressionGenerator::_generateStringLiteral;
   this->generateCharLiteral = &ExpressionGenerator::_generateCharLiteral;
   this->generateIntegerLiteral = &ExpressionGenerator::_generateIntegerLiteral;
@@ -154,6 +156,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::TerminateOp>()) {
     auto terminateOp = static_cast<Spp::Ast::TerminateOp*>(astNode);
     return expGenerator->generateTerminateOp(terminateOp, g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::NextArgOp>()) {
+    auto nextArgOp = static_cast<Spp::Ast::NextArgOp*>(astNode);
+    return expGenerator->generateNextArgOp(nextArgOp, g, session, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return expGenerator->generateStringLiteral(stringLiteral, g, session, result);
@@ -257,6 +262,8 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
     } else {
       retVal = expGenerator->generateVarReference(astNode, obj, g, session, result);
     }
+  } else if (ti_cast<Ast::ArgPack>(obj) != 0) {
+    retVal = expGenerator->generateVarReference(astNode, obj, g, session, result);
   } else if (
     obj->isDerivedFrom<Core::Data::Ast::Scope>() || obj->isDerivedFrom<Ast::Type>() ||
     obj->isDerivedFrom<Ast::Template>() || obj->isDerivedFrom<Ast::Function>()
@@ -1783,7 +1790,7 @@ Bool ExpressionGenerator::_generateCastOp(
   // Generate the operand.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
-    throw EXCEPTION(GenericException, S("ContentOp operand is missing."));
+    throw EXCEPTION(GenericException, S("CastOp operand is missing."));
   }
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult)) return false;
@@ -1973,6 +1980,57 @@ Bool ExpressionGenerator::_generateTerminateOp(
     if (!g->generateVarDestruction(astContentType, target.targetData.get(), astNode, session)) return false;
   }
   result = target;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateNextArgOp(
+  TiObject *self, Spp::Ast::NextArgOp *astNode, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, S("ContentOp operand is missing."));
+  }
+  GenResult operandResult;
+  if (!expGenerator->generate(operand, g, session, operandResult)) return false;
+  if (operandResult.astType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
+
+  // Get the deepest reference.
+  GenResult derefResult;
+  if (!expGenerator->dereferenceIfNeeded(
+    operandResult.astType, operandResult.targetData.get(), false, session, derefResult
+  )) return false;
+  if (ti_cast<Ast::ReferenceType>(derefResult.astType) == 0) {
+    expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
+    return false;
+  }
+
+  // Get the target type.
+  auto targetAstType = expGenerator->astHelper->traceType(astNode->getTargetType().get());
+  if (targetAstType == 0) return false;
+  TiObject *targetTgType;
+  if (!g->getGeneratedType(astNode->getTargetType().get(), session, targetTgType, 0)) return false;
+
+  // Get the next arg.
+  Bool retVal;
+  if (session->getTgContext() != 0) {
+    retVal = session->getTg()->generateNextArg(
+      session->getTgContext(), targetTgType, derefResult.targetData.get(), result.targetData
+    );
+    if (!retVal) {
+      expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
+      return false;
+    }
+  }
+  result.astType = targetAstType;
   return true;
 }
 

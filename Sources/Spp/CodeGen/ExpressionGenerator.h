@@ -397,6 +397,15 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::TerminateOp *astNode, Generation *g, Session *session, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateNextArgOp,
+    Bool, (
+      Spp::Ast::NextArgOp* /* astNode */, Generation* /* g */, Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateNextArgOp(
+    TiObject *self, Spp::Ast::NextArgOp *astNode, Generation *g, Session *session, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateStringLiteral,
     Bool, (
       Core::Data::Ast::StringLiteral* /* astNode */, Generation* /* g */,
