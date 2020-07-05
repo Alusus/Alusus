@@ -106,7 +106,7 @@ std::vector<std::pair<Bool, Str>> RootManager::tokenizePathEnvVar(Str pathEnvVar
     else {
       Str currToken;
       while (currChar != PATH_SEP && i < pathEnvVar.size()) {
-        currToken += currToken;
+        currToken += currChar;
         i++;
         if (i < pathEnvVar.size()) {
           currChar = pathEnvVar[i];
@@ -171,9 +171,13 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->processArgs = 0;
 
   // Initialize current paths.
+
   Str path1 = fs::u8path(getModuleDirectory().c_str()).string();
+  path1 = fs::absolute(fs::path(path1.c_str())).u8string();
   Str path2 = (fs::u8path(getModuleDirectory().c_str()) / ".." / ALUSUS_INSTALL_LIB_DIR).string();
+  path2 = fs::absolute(fs::path(path2.c_str())).u8string();
   Str path3 = fs::u8path(getWorkingDirectory().c_str()).string();
+  path3 = fs::absolute(fs::path(path3.c_str())).u8string();
   this->pushSearchPath(path1.c_str());
   this->pushSearchPath(path2.c_str());
   this->pushSearchPath(path3.c_str());
@@ -210,7 +214,8 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
     for (auto path : paths) {
       // TODO: Ignore empty paths for now.
       if (path.size() > 0) {
-        this->pushSearchPath(path.c_str());
+        Str fullPath = fs::absolute(fs::path(path.c_str())).u8string();
+        this->pushSearchPath(fullPath.c_str());
       }
     }
   }

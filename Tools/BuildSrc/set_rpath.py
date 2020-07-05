@@ -183,6 +183,7 @@ def set_rpath(arg_rpath=None, arg_file=None, arg_dir=None, arg_dir_recurs=None, 
                 p = subprocess.Popen(
                     [patchelf, "--set-rpath", rpaths_str, executable_file_path], stdout=fd_null, stderr=fd_null)
                 p.wait()
+            # TODO: Should we also change the "SO_NAME" of the shared libraries?
     return (0, )
 
 
