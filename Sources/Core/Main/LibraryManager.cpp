@@ -13,6 +13,10 @@
 #include "core.h"
 #include <dlfcn.h>
 
+#if !defined(RTLD_DEEPBIND)
+#define RTLD_DEEPBIND 0     // Some systems do not have "RTLD_DEEPBIND".
+#endif
+
 namespace Core::Main
 {
 
