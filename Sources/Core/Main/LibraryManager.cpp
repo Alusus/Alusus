@@ -89,7 +89,8 @@ LibraryGateway* LibraryManager::getGateway(Char const *libId)
 
 PtrWord LibraryManager::load(Char const *path, Str &error)
 {
-  void *handle = dlopen(path, RTLD_NOW|RTLD_GLOBAL);
+  // Using "RTLD_DEEPBIND" to ensure we resolve the right symbols when symbols collisions happen.
+  void *handle = dlopen(path, RTLD_LAZY | RTLD_GLOBAL | RTLD_DEEPBIND);
   if (handle == 0) {
     if (!error.empty()) error += S("\n");
     error += dlerror();
