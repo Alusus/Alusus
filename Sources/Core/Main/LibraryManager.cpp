@@ -14,6 +14,7 @@
 #include <dlfcn.h>
 
 #if !defined(RTLD_DEEPBIND)
+#pragma message("Ignoring \"RTLD_DEEPBIND\" flag for \"dlopen\" as \"RTLD_DEEPBIND\" is not supported in this system. This issue might be a false positive, as the behaviour of \"RTLD_DEEPBIND\" is already present in this system.")
 #define RTLD_DEEPBIND 0     // Some systems do not have "RTLD_DEEPBIND".
 #endif
 

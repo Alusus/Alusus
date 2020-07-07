@@ -264,7 +264,7 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
                  "-DALUSUS_INSTALL_LIB_DIR={}".format(install_path["lib"]),
                  "-DALUSUS_INSTALL_INCLUDE_DIR={}".format(
                      install_path["include"]),
-                 "-DALUSUS_BUILD_STATIC_LIBS=TRUE",
+                 "-DALUSUS_BUILD_STATIC_LIBS=FALSE",
                  "-DALUSUS_LINK_SHARED_LIBS=TRUE",
                  # Will set the RPATHs later on by the build script.
                  "-DALUSUS_SET_RPATH=FALSE",

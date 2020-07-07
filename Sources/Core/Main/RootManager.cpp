@@ -645,7 +645,7 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
   copyStr(path, resultFilename.data(), fnIndex);
   copyStr(S("lib"), resultFilename.data()+fnIndex);
   copyStr(filename, resultFilename.data()+fnIndex+3);
-  copyStr(S(".dbg.lib"), resultFilename.data()+fnIndex+3+fnLen);
+  copyStr(S(".dbg.dll.lib"), resultFilename.data()+fnIndex+3+fnLen);
 #elif __APPLE__
   copyStr(path, resultFilename.data(), fnIndex);
   copyStr(S("lib"), resultFilename.data()+fnIndex);
@@ -665,7 +665,7 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
   copyStr(path, resultFilename.data(), fnIndex);
   copyStr(S("lib"), resultFilename.data()+fnIndex);
   copyStr(filename, resultFilename.data()+fnIndex+3);
-  copyStr(S(".lib"), resultFilename.data()+fnIndex+3+fnLen);
+  copyStr(S(".dll.lib"), resultFilename.data()+fnIndex+3+fnLen);
 #elif __APPLE__
   copyStr(path, resultFilename.data(), fnIndex);
   copyStr(S("lib"), resultFilename.data()+fnIndex);
