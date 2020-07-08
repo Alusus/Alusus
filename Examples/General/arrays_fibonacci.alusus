@@ -1,26 +1,16 @@
-import "Srl/Console.alusus";
+import "Srl/Console";
 
-def ArraysFibonacci : module
-{
-  def start : function
-  {
-    def i : Int;
+def i : Int;
+// Generates an array whose elements contains Fibonacci sequence.
+def testArray : array[Int, 10];
+testArray(0) = 1;
+testArray(1) = 1;
 
-    // Generates an array whose elements contains Fibonacci sequence.
-    def testArray : array[Int, 10];
-    testArray(0) = 1;
-    testArray(1) = 1;
-
-    for i = 2, i < 10, ++i {
-      testArray(i) = testArray(i-1) + testArray(i-2);
-    };
-
-    // Prints the elements of the array.
-    for i = 0, i < 10, ++i {
-      Srl.Console.print("%d\n", testArray(i));
-    };
-  }
+for i = 2, i < 10, ++i {
+  testArray(i) = testArray(i-1) + testArray(i-2);
 };
 
-ArraysFibonacci.start();
-
+// Prints the elements of the array.
+for i = 0, i < 10, ++i {
+  Srl.Console.print("%d\n", testArray(i));
+}

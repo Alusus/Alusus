@@ -1,21 +1,11 @@
-import "Srl/Console.alusus";
+import "Srl/Console";
+use Srl;
 
-def FactorialForLoop: module
-{
-  def factorial: function (i:Int) => Int
-  {
-    if i<=0 return 1;
-    def f: Int;
-    f = i;
-    for i=i-1, i>=2, --i f=f*i;
-    return f;
-  };
+func factorial(i:Int): Int {
+  if i<=0 return 1;
+  def f: Int = i;
+  for i=i-1, i>=2, --i f=f*i;
+  return f;
+}
 
-  def start: function () => Void
-  {
-    Srl.Console.print("Factorial of 5 is %d\n", factorial(5));
-  };
-};
-
-FactorialForLoop.start();
-
+Console.print("Factorial of 5 is %d\n", factorial(5));

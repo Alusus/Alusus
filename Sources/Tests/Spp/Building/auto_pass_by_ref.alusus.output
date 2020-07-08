@@ -1,16 +1,16 @@
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %Point1 = type { i32, i32 }
 
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define %Point1 @"convertPoint1(Point1)=>(Point1)"(%Point1 %p) {
-"#block1":
+"#block0":
   %p1 = alloca %Point1
   store %Point1 %p, %Point1* %p1
   %r = alloca %Point1
@@ -21,41 +21,34 @@ define %Point1 @"convertPoint1(Point1)=>(Point1)"(%Point1 %p) {
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %Point2 = type { i32, i32 }
 %Point1 = type { i32, i32 }
 
-define void @__constructor__() {
-"#block0":
-  ret void
-}
-
-define void @Point2.__autoConstruct__(%Point2* %this) {
-"#block1":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"convertPoint2(Point1)=>(Point2)"(%Point2* %"#ret", %Point1 %p) {
-"#block2":
+"#block0":
   %p1 = alloca %Point1
   store %Point1 %p, %Point1* %p1
   %r = alloca %Point2
-  call void @Point2.__autoConstruct__(%Point2* %r)
   call void @"Point2.~init(ref[Point2])"(%Point2* %r)
-  call void @Point2.__autoConstruct__(%Point2* %"#ret")
   call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
   ret void
 }
 
 define void @"Point2.~init(ref[Point2])"(%Point2* %this) {
-"#block3":
+"#block1":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
   ret void
 }
 
 define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
-"#block4":
+"#block2":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
   %src2 = alloca %Point2*
@@ -66,24 +59,18 @@ define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %s
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
-%Point2 = type { i32, i32 }
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %Point1 = type { i32, i32 }
+%Point2 = type { i32, i32 }
 
-define void @__constructor__() {
-"#block0":
-  ret void
-}
-
-define void @Point2.__autoConstruct__(%Point2* %this) {
-"#block1":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define %Point1 @"convertPoint3(Point2)=>(Point1)"(%Point2* %p) {
-"#block2":
+"#block0":
   %p1 = alloca %Point2
-  call void @Point2.__autoConstruct__(%Point2* %p1)
   call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %p1, %Point2* %p)
   %r = alloca %Point1
   %0 = load %Point1, %Point1* %r
@@ -91,7 +78,7 @@ define %Point1 @"convertPoint3(Point2)=>(Point1)"(%Point2* %p) {
 }
 
 define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
-"#block3":
+"#block1":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
   %src2 = alloca %Point2*
@@ -102,34 +89,26 @@ define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %s
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %Point2 = type { i32, i32 }
 
-define void @__constructor__() {
-"#block0":
-  ret void
-}
-
-define void @Point2.__autoConstruct__(%Point2* %this) {
-"#block1":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"convertPoint4(Point2)=>(Point2)"(%Point2* %"#ret", %Point2* %p) {
-"#block2":
+"#block0":
   %p1 = alloca %Point2
-  call void @Point2.__autoConstruct__(%Point2* %p1)
   call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %p1, %Point2* %p)
   %r = alloca %Point2
-  call void @Point2.__autoConstruct__(%Point2* %r)
   call void @"Point2.~init(ref[Point2])"(%Point2* %r)
-  call void @Point2.__autoConstruct__(%Point2* %"#ret")
   call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
   ret void
 }
 
 define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
-"#block3":
+"#block1":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
   %src2 = alloca %Point2*
@@ -138,7 +117,7 @@ define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %s
 }
 
 define void @"Point2.~init(ref[Point2])"(%Point2* %this) {
-"#block4":
+"#block2":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
   ret void

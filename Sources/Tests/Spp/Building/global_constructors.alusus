@@ -1,0 +1,21 @@
+import "Spp";
+def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+type A {
+    def i: Int;
+    handler this~init() {
+        print("A~init\n");
+        this.i = 6;
+    }
+    handler this~terminate() {
+        print("A~terminate\n");
+    }
+}
+
+def a: A;
+
+@expname[main] func test {
+    print("%d\n", a.i);
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

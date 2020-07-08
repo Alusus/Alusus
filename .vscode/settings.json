@@ -106,5 +106,7 @@
   },
   "C_Cpp.errorSquiggles": "Disabled",
   "cmake.configureOnOpen": false,
-  "python.pythonPath": "C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+  "[alusus]": {
+    "editor.tabSize": 4
+  }
 }

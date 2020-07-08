@@ -7,7 +7,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -266,6 +266,10 @@ namespace Core::Basic
     x() : val((_##x)0) {} \
     x(_##x v) : val(v) {} \
     const x& operator=(_##x v) { this->val = v; return *this; } \
+    const x& operator=(int v) { this->val = static_cast<_##x>(v); return *this; } \
+    const x& operator|=(int v) { this->val = static_cast<_##x>(this->val | v); return *this; } \
+    const x& operator&=(int v) { this->val = static_cast<_##x>(this->val & v); return *this; } \
+    bool operator&(int v) { return this->val & v; } \
     bool operator ==(x v) const { return this->val == v.val; } \
     bool operator !=(x v) const { return this->val != v.val; } \
     bool operator ==(_##x v) const { return this->val == v; } \
@@ -396,12 +400,12 @@ namespace Core::Basic
  *                 that can give the reader simple high level info.
  */
 s_enum(LogLevel,
-    LEXER_MINOR = 1,
-    LEXER_MID = 2,
-    LEXER_MAJOR = 4,
-    PARSER_MINOR = 8,
-    PARSER_MID = 16,
-    PARSER_MAJOR = 32
+  LEXER_MINOR = 1,
+  LEXER_MID = 2,
+  LEXER_MAJOR = 4,
+  PARSER_MINOR = 8,
+  PARSER_MID = 16,
+  PARSER_MAJOR = 32
 );
 
 #else

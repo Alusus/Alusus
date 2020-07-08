@@ -1,8 +1,11 @@
-import "Srl/Console.alusus";
-Srl.Console.print("Hello, world (from \"");
-Srl.Console.print(Process.os);
-Srl.Console.print(" - ");
-Srl.Console.print(Process.cpu);
-Srl.Console.print(" - ");
-Srl.Console.print(Process.hostTriple);
-Srl.Console.print("\")!!\n");
+import "Srl/Console";
+
+use Srl;
+
+Console.print("Hello, world (from \"");
+Console.print(Process.os);
+Console.print(" - ");
+Console.print(Process.cpu);
+Console.print(" - ");
+Console.print(Process.hostTriple);
+Console.print("\")!!\n");

@@ -56,9 +56,9 @@ import "Srl/String.alusus";
 
     def scan: @expname[fscanf] function (file: ptr[File], format: ptr[array[Char]], args: ...any) => Int[32];
 
-    def write: @expname[fwrite] function (content: ptr, size: Int[32], count: Int[32], file: ptr[File]) => Int[32];
+    def write: @expname[fwrite] function (content: ptr, size: Int[64], count: Int[64], file: ptr[File]) => Int[64];
 
-    def read: @expname[fread] function (content: ptr, size: Int[32], count:Int[32], file: ptr[File]) => Int[32];
+    def read: @expname[fread] function (content: ptr, size: Int[64], count:Int[64], file: ptr[File]) => Int[64];
 
     def flush: @expname[fflush] function (file: ptr[File]) => Int[32];
 

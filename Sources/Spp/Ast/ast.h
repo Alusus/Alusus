@@ -7,7 +7,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -88,6 +88,14 @@ struct CalleeLookupResult
   SharedPtr<Core::Notices::Notice> notice;
   Int thisIndex = -2;
 };
+
+/// @ingroup spp_ast
+s_enum(TypeInitMethod,
+  NONE = 0,
+  AUTO = 1,
+  USER = 2,
+  BOTH = 3
+);
 
 } // namespace
 

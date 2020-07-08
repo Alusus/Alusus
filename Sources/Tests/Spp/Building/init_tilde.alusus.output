@@ -4,54 +4,42 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %T = type { i32 }
 
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"test()"() {
-"#block1":
+"#block0":
   %a = alloca %T
-  call void @T.__autoConstruct__(%T* %a)
   call void @"T.~init(ref[T])"(%T* %a)
-  call void @T.__autoConstruct__(%T* %a)
   call void @"T.~init(ref[T])"(%T* %a)
-  call void @T.__autoConstruct__(%T* %a)
   call void @"T.~init(ref[T],Int[32])"(%T* %a, i32 5)
-  call void @T.__autoConstruct__(%T* %a)
   call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %a, i32 6, i32 8)
   %pa = alloca %T*
   %0 = load %T*, %T** %pa
-  call void @T.__autoConstruct__(%T* %0)
   call void @"T.~init(ref[T])"(%T* %0)
   %1 = load %T*, %T** %pa
-  call void @T.__autoConstruct__(%T* %1)
   call void @"T.~init(ref[T],Int[32])"(%T* %1, i32 5)
   %2 = load %T*, %T** %pa
-  call void @T.__autoConstruct__(%T* %2)
   call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %2, i32 6, i32 8)
   %i = alloca i32
   store i32 5, i32* %i
   ret void
 }
 
-define void @T.__autoConstruct__(%T* %this) {
-"#block2":
-  ret void
-}
-
 define void @"T.~init(ref[T])"(%T* %this) {
-"#block3":
+"#block1":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
   ret void
 }
 
 define void @"T.~init(ref[T],Int[32])"(%T* %this, i32 %a) {
-"#block4":
+"#block2":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
   %a2 = alloca i32
@@ -60,7 +48,7 @@ define void @"T.~init(ref[T],Int[32])"(%T* %this, i32 %a) {
 }
 
 define void @"T.~init(ref[T],Int[32],Int[32])"(%T* %this, i32 %a, i32 %b) {
-"#block5":
+"#block3":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
   %a2 = alloca i32

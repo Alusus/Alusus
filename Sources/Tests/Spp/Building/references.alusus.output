@@ -1,17 +1,17 @@
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @ra = global [1 x i8]* null
 @"#anonymous0" = private constant [26 x i8] c"Reference as pointer. %s\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"useRefAsPtr()"() {
-"#block1":
+"#block0":
   %0 = call i8* @malloc(i64 10)
   %1 = bitcast i8* %0 to [1 x i8]*
   store [1 x i8]* %1, [1 x i8]** @ra
@@ -30,19 +30,19 @@ declare i32 @printf([1 x i8]*, ...)
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @a = global [10 x i8] zeroinitializer
 @"#anonymous0" = private constant [30 x i8] c"Pass reference to object. %s\0A\00"
 @ra = global [1 x i8]* null
 @"#anonymous1" = private constant [53 x i8] c"Pass reference to object from another reference. %s\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"passRefToValue()"() {
-"#block1":
+"#block0":
   call void @"updateString(ref[array[Word[8],1]])"([1 x i8]* bitcast ([10 x i8]* @a to [1 x i8]*))
   %0 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([30 x i8]* @"#anonymous0" to [1 x i8]*), [10 x i8]* @a)
   %1 = load [1 x i8]*, [1 x i8]** @ra
@@ -53,7 +53,7 @@ define void @"passRefToValue()"() {
 }
 
 define void @"updateString(ref[array[Word[8],1]])"([1 x i8]* %str) {
-"#block2":
+"#block1":
   %str1 = alloca [1 x i8]*
   store [1 x i8]* %str, [1 x i8]** %str1
   %0 = load [1 x i8]*, [1 x i8]** %str1
@@ -67,53 +67,53 @@ declare i32 @printf([1 x i8]*, ...)
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @rb = global [1 x i8]* null
 @"#anonymous0" = private constant [6 x i8] c"hello\00"
 @"#anonymous1" = private constant [43 x i8] c"Before passing reference to reference. %s\0A\00"
-@"#anonymous2" = private constant [6 x i8] c"world\00"
-@"#anonymous3" = private constant [42 x i8] c"After passing reference to reference. %s\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@"#anonymous2" = private constant [42 x i8] c"After passing reference to reference. %s\0A\00"
+@"#anonymous3" = private constant [6 x i8] c"world\00"
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"passRefToRefToValue()"() {
-"#block1":
+"#block0":
   store [1 x i8]* bitcast ([6 x i8]* @"#anonymous0" to [1 x i8]*), [1 x i8]** @rb
   %0 = load [1 x i8]*, [1 x i8]** @rb
   %1 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([43 x i8]* @"#anonymous1" to [1 x i8]*), [1 x i8]* %0)
   call void @"replaceString(ref[ref[array[Word[8],1]]])"([1 x i8]** @rb)
   %2 = load [1 x i8]*, [1 x i8]** @rb
-  %3 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([42 x i8]* @"#anonymous3" to [1 x i8]*), [1 x i8]* %2)
+  %3 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([42 x i8]* @"#anonymous2" to [1 x i8]*), [1 x i8]* %2)
   ret void
 }
 
 declare i32 @printf([1 x i8]*, ...)
 
 define void @"replaceString(ref[ref[array[Word[8],1]]])"([1 x i8]** %str) {
-"#block2":
+"#block1":
   %str1 = alloca [1 x i8]**
   store [1 x i8]** %str, [1 x i8]*** %str1
   %0 = load [1 x i8]**, [1 x i8]*** %str1
-  store [1 x i8]* bitcast ([6 x i8]* @"#anonymous2" to [1 x i8]*), [1 x i8]** %0
+  store [1 x i8]* bitcast ([6 x i8]* @"#anonymous3" to [1 x i8]*), [1 x i8]** %0
   ret void
 }
 ------------------------------------------------------------
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"testFnRef1()"() {
-"#block1":
+"#block0":
   %pf = alloca void ()*
   %rf = alloca void ()**
   store void ()** %pf, void ()*** %rf
@@ -128,7 +128,7 @@ define void @"testFnRef1()"() {
 }
 
 define void @"printMessage()"() {
-"#block2":
+"#block1":
   %0 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([32 x i8]* @"#anonymous0" to [1 x i8]*))
   ret void
 }
@@ -138,16 +138,16 @@ declare i32 @printf([1 x i8]*, ...)
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @"#anonymous0" = private constant [32 x i8] c"Reference to function pointer.\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"testFnRef2()"() {
-"#block1":
+"#block0":
   %pf = alloca void ()*
   call void @"getFn(ref[ptr[()]])"(void ()** %pf)
   %0 = load void ()*, void ()** %pf
@@ -156,7 +156,7 @@ define void @"testFnRef2()"() {
 }
 
 define void @"getFn(ref[ptr[()]])"(void ()** %fn) {
-"#block2":
+"#block1":
   %fn1 = alloca void ()**
   store void ()** %fn, void ()*** %fn1
   %0 = load void ()**, void ()*** %fn1
@@ -165,7 +165,7 @@ define void @"getFn(ref[ptr[()]])"(void ()** %fn) {
 }
 
 define void @"printMessage()"() {
-"#block3":
+"#block2":
   %0 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([32 x i8]* @"#anonymous0" to [1 x i8]*))
   ret void
 }
@@ -175,18 +175,18 @@ declare i32 @printf([1 x i8]*, ...)
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @ri = global i32* null
 @i = global i32 0
 @"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"passRefAsPtr()"() {
-"#block1":
+"#block0":
   store i32* @i, i32** @ri
   store i32 5, i32* @i
   %0 = load i32*, i32** @ri
@@ -195,7 +195,7 @@ define void @"passRefAsPtr()"() {
 }
 
 define void @"printNumPtr(ptr[Int[32]])"(i32* %pn) {
-"#block2":
+"#block1":
   %pn1 = alloca i32*
   store i32* %pn, i32** %pn1
   %0 = load i32*, i32** %pn1
@@ -209,18 +209,18 @@ declare i32 @printf([1 x i8]*, ...)
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @rri = global i32** null
 @ri = global i32* null
 @"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"passRefRefAsPtrPtr()"() {
-"#block1":
+"#block0":
   store i32** @ri, i32*** @rri
   %0 = load i32**, i32*** @rri
   call void @"printNumPtrPtr(ptr[ptr[Int[32]]])"(i32** %0)
@@ -228,7 +228,7 @@ define void @"passRefRefAsPtrPtr()"() {
 }
 
 define void @"printNumPtrPtr(ptr[ptr[Int[32]]])"(i32** %pn) {
-"#block2":
+"#block1":
   %pn1 = alloca i32**
   store i32** %pn, i32*** %pn1
   %0 = load i32**, i32*** %pn1
@@ -243,17 +243,17 @@ declare i32 @printf([1 x i8]*, ...)
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @rri = global i32** null
 @"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"getObjectFromRefRef()"() {
-"#block1":
+"#block0":
   %0 = load i32**, i32*** @rri
   %1 = load i32*, i32** %0
   %2 = load i32, i32* %1
@@ -262,7 +262,7 @@ define void @"getObjectFromRefRef()"() {
 }
 
 define void @"printNum(Int[32])"(i32 %n) {
-"#block2":
+"#block1":
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32, i32* %n1
@@ -280,19 +280,19 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @i = global i32 0
 @rri = global i32** null
 @ri = global i32* null
 @"#anonymous0" = private constant [4 x i8] c"abc\00"
-
-define void @__constructor__() {
-"#block0":
-  ret void
-}
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"errorCases()"() {
-"#block1":
+"#block0":
   %rf = alloca float*
   %0 = load i32*, i32** @ri
   %1 = load i32, i32* %0

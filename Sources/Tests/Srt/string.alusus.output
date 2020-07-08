@@ -4,7 +4,7 @@ find '-', 5: 1
 findLast '-': - 789
 find "124": 124 - 125
 compare "123" to "123": 0
-compare "123" to "1234": -52
+compare "123" to "1234": -1
 compare 3 "123" to "1234": 0
 copy: HELLO!
 copy 2: hello 
