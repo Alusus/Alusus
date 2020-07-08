@@ -5,6 +5,8 @@ _THIS_SYSTEM = platform.system()
 
 
 def _tokenize_path_envvar(path_envvar):
+    global _THIS_SYSTEM
+
     host_path_sep = ";" if _THIS_SYSTEM == "Windows" else ":"
     tokens = list()
     i = 0
@@ -46,8 +48,6 @@ def _tokenize_path_envvar(path_envvar):
 
 
 def parse_path_envvar(path_envvar, empty_path=""):
-    global _THIS_SYSTEM
-
     tokens = _tokenize_path_envvar(path_envvar)
     paths = list()
     added_paths = set()
