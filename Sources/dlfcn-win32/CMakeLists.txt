@@ -1,14 +1,14 @@
 if(ALUSUS_BUILD_SHARED_LIBS)
-  add_library(Win32Helpers SHARED "Win32Helpers.cpp")
-  install(TARGETS Win32Helpers
+  add_library(dl SHARED "dlfcn.c")
+  install(TARGETS dl
     RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
     LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
     ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
   )
 endif()
 if(ALUSUS_BUILD_STATIC_LIBS)
-  add_library(Win32Helpers_static STATIC "Win32Helpers.cpp")
-  install(TARGETS Win32Helpers_static
+  add_library(dl_static STATIC "dlfcn.c")
+  install(TARGETS dl_static
     RUNTIME DESTINATION "${ALUSUS_INSTALL_BIN_DIR}"
     LIBRARY DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
     ARCHIVE DESTINATION "${ALUSUS_INSTALL_LIB_DIR}"
