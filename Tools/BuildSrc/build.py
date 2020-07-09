@@ -124,11 +124,11 @@ def build_deps(deps_path, install_path, num_threads=multiprocessing.cpu_count(),
     if not ret:
         return ret
 
-    if platform.system() == "Windows" and not target_system or target_system == "windows":
-        ret = build_dlfcn_win32.build_dlfcn_win32.build(
-            deps_path, install_path, num_threads=num_threads, target_system=target_system)
-        if not ret:
-            return ret
+    # if platform.system() == "Windows" and not target_system or target_system == "windows":
+    #     ret = build_dlfcn_win32.build_dlfcn_win32.build(
+    #         deps_path, install_path, num_threads=num_threads, target_system=target_system)
+    #     if not ret:
+    #         return ret
     return True
 
 
@@ -223,13 +223,13 @@ def build_alusus(deps_path, builds_path, alusus_root_path, install_path, build_t
     new_cpath_value = llvm_environ["CPATH"] + \
         host_sep + ghc_filesystem_environ["CPATH"]
     new_library_path_value = llvm_environ["LIBRARY_PATH"]
-    if target_system == "windows" or platform.system() == "Windows" and not target_system:
-        dlfcn_win32_environ = build_dlfcn_win32.build_dlfcn_win32.get_dep_environ(
-            deps_path, target_system=target_system)
-        new_cpath_value += host_sep + \
-            dlfcn_win32_environ["CPATH"]
-        new_library_path_value += host_sep + \
-            dlfcn_win32_environ["LIBRARY_PATH"]
+    # if target_system == "windows" or platform.system() == "Windows" and not target_system:
+    #     dlfcn_win32_environ = build_dlfcn_win32.build_dlfcn_win32.get_dep_environ(
+    #         deps_path, target_system=target_system)
+    #     new_cpath_value += host_sep + \
+    #         dlfcn_win32_environ["CPATH"]
+    #     new_library_path_value += host_sep + \
+    #         dlfcn_win32_environ["LIBRARY_PATH"]
     new_environ["CPATH"] = new_cpath_value + \
         ("" if ("CPATH" not in new_environ)
          else (host_sep + new_environ["CPATH"]))

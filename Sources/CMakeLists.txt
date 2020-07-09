@@ -8,6 +8,7 @@ cmake_minimum_required(VERSION 3.16)
 
 if(WIN32)
   include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Win32Helpers")
+  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dlfcn-win32")
 endif()
 
 if (NOT ALUSUS_INSTALL_INCLUDE_DIR)
@@ -164,6 +165,7 @@ endif()
 # Add projects
 if(WIN32)
   add_subdirectory(Win32Helpers)
+  add_subdirectory(dlfcn-win32)
 endif()
 add_subdirectory(Core)
 add_subdirectory(Spp)
