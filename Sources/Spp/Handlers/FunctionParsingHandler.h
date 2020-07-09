@@ -45,10 +45,6 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
     Core::Processing::ParserState *state, TioSharedPtr astNode, SharedPtr<Core::Data::Ast::Map> const &result
   );
 
-  private: Bool parseNumber(
-    Core::Processing::ParserState *state, TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata
-  );
-
   public: virtual Bool onIncomingModifier(
     Core::Processing::Parser *parser, Core::Processing::ParserState *state,
     TioSharedPtr const &modifierData, Bool prodProcessingComplete

@@ -350,10 +350,19 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     // Have we previously tried to build this var?
     if (session->getEda()->didCodeGenFail(astVar)) return false;
 
+    // Get initialization params, if any.
+    TiObject *astTypeRef = astVar;
+    TiObject *astParams = 0;
+    auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astVar);
+    if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+      astTypeRef = astParamPass->getOperand().get();
+      astParams = astParamPass->getParam().get();
+    }
+
     // Generate the type of the variable.
     Ast::Type *astType;
     TiObject *tgType;
-    if (!generator->typeGenerator->getGeneratedType(astVar, generation, session, tgType, &astType)) {
+    if (!generator->typeGenerator->getGeneratedType(astTypeRef, generation, session, tgType, &astType)) {
       session->getEda()->setCodeGenFailed(astVar, true);
       return false;
     }
@@ -460,6 +469,11 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         SharedList<TiObject> initTgVals;
         PlainList<TiObject> initAstTypes;
         PlainList<TiObject> initAstNodes;
+        if (astParams != 0) {
+          if (!generator->expressionGenerator->generateParams(
+            astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
+          )) return false;
+        }
         if (!generation->generateVarInitialization(
           astType, tgLocalVarRef.get(), definition, &initAstNodes, &initAstTypes, &initTgVals, session
         )) return false;
@@ -631,7 +645,7 @@ Bool Generator::_generateVarInitialization(
       return generator->getExpressionGenerator()->generateFunctionCall(
         astNode, static_cast<Ast::Function*>(callee), paramAstTypes, paramTgValues, generation, session, result
       );
-    } else if (paramAstTypes->getCount() != 1) {
+    } else if (paramAstTypes->getCount() != 1 || generator->getSeeker()->tryGet(&ref, varAstType) != 0) {
       // We have custom initialization but no constructors match the given params.
       generator->noticeStore->add(std::make_shared<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
@@ -685,6 +699,13 @@ Bool Generator::_generateMemberVarInitialization(
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
 
+  // Get initialization params, if any.
+  TiObject *astParams = 0;
+  auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astMemberNode);
+  if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+    astParams = astParamPass->getParam().get();
+  }
+
   // Get the member generated value and type.
   auto tgMemberVar = session->getEda()->getCodeGenData<TiObject>(astMemberNode);
   auto astMemberType = Ast::getAstType(astMemberNode);
@@ -713,6 +734,11 @@ Bool Generator::_generateMemberVarInitialization(
   SharedList<TiObject> initTgVals;
   PlainList<TiObject> initAstTypes;
   PlainList<TiObject> initAstNodes;
+  if (astParams != 0) {
+    if (!generator->expressionGenerator->generateParams(
+      astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
+    )) return false;
+  }
   if (!generation->generateVarInitialization(
     astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode),
     &initAstNodes, &initAstTypes, &initTgVals, session

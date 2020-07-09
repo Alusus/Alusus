@@ -543,15 +543,23 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, Session *session, GenResult &calleeResult
   );
 
+  public: METHOD_BINDING_CACHE(generateParams,
+    Bool, (
+      TiObject* /* astNode */, Generation* /* g */, Session* /* session */,
+      DynamicContaining<TiObject>* /* resultAstNodes */, DynamicContaining<TiObject>* /* resultTypes */,
+      SharedList<TiObject>* /* resultValues */
+    )
+  );
+  private: static Bool _generateParams(
+    TiObject *self, TiObject *astNode, Generation *g, Session *session,
+    DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes,
+    SharedList<TiObject> *resultValues
+  );
+
   /// @}
 
   /// @name Helper Functions
   /// @{
-
-  private: Bool generateParamList(
-    TiObject *astNode, Generation *g, Session *session,
-    DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
-  );
 
   private: Bool generateParamList(
     Containing<TiObject> *astNodes, Generation *g, Session *session,

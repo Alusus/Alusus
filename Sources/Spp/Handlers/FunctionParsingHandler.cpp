@@ -31,6 +31,10 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     functionType->setRetType(TioSharedPtr::null);
     functionType->setSourceLocation(metadata->findSourceLocation());
     functionType->setProdId(metadata->getProdId());
+    if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
+      state->setData(SharedPtr<TiObject>(0));
+      return;
+    }
     state->setData(functionType);
     return;
   }
@@ -87,6 +91,10 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   functionType->setRetType(retType);
   functionType->setSourceLocation(exprMetadata->findSourceLocation());
   functionType->setProdId(exprMetadata->getProdId());
+  if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
+    state->setData(SharedPtr<TiObject>(0));
+    return;
+  }
 
   TioSharedPtr stateData = functionType;
 
@@ -168,94 +176,8 @@ Bool FunctionParsingHandler::parseArg(
     state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
     return false;
   }
-  if (type->isA<Core::Data::Ast::PrefixOperator>()) {
-    auto prefixOp = type.s_cast<Core::Data::Ast::PrefixOperator>();
-    if (prefixOp->getType() != S("...")) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation()));
-      return false;
-    }
-    TioSharedPtr packType;
-    TiWord packMin = 0;
-    TiWord packMax = 0;
-    auto operand = prefixOp->getOperand();
-    if (operand->isA<Core::Data::Ast::Bracket>()) {
-      auto bracket = operand.s_cast<Core::Data::Ast::Bracket>();
-      if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation()));
-        return false;
-      }
-      auto bracketOperand = bracket->getOperand();
-      if (bracketOperand == 0) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation()));
-        return false;
-      }
-      if (bracketOperand->isA<Core::Data::Ast::List>()) {
-        auto bracketList = bracketOperand.s_cast<Core::Data::Ast::List>();
-        if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
-          state->addNotice(
-            std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation())
-          );
-          return false;
-        }
-        packType = bracketList->get(0);
-        if (bracketList->getCount() > 1) {
-          if (!this->parseNumber(state, bracketList->getElement(1), packMin, bracketList.get())) return false;
-        }
-        if (bracketList->getCount() > 2) {
-          if (!this->parseNumber(state, bracketList->getElement(2), packMax, bracketList.get())) return false;
-        }
-      } else {
-        packType = bracketOperand;
-      }
-    } else {
-      packType = operand;
-    }
-    if (packType->isA<Core::Data::Ast::Identifier>()) {
-      auto packIdentifier = packType.s_cast<Core::Data::Ast::Identifier>();
-      if (packIdentifier->getValue() == S("any")) {
-        packType = 0;
-      }
-    }
-    type = Ast::ArgPack::create({
-      { S("min"), &packMin },
-      { S("max"), &packMax }
-    }, {
-      { S("argType"), packType }
-    });
-  } else {
-    // Do we have an arg pack prior to this arg?
-    for (Int i = 0; i < result->getCount(); ++i) {
-      if (result->get(i)->isDerivedFrom<Ast::ArgPack>()) {
-        // We cannot have a normal argument following an arg pack.
-        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(
-          Core::Data::Ast::findSourceLocation(astNode.get())
-        ));
-        return false;
-      }
-    }
-  }
   result->set(name.c_str(), type);
   return true;
-}
-
-
-Bool FunctionParsingHandler::parseNumber(
-  Core::Processing::ParserState *state, TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata
-) {
-  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(ast);
-  if (ast->isA<Core::Data::Ast::IntegerLiteral>()) {
-    result = std::stol(static_cast<Core::Data::Ast::IntegerLiteral*>(ast)->getValue().get());
-    return true;
-  } else {
-    if (metadata) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(metadata->findSourceLocation()));
-    } else {
-      state->addNotice(
-        std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(parentMetadata->findSourceLocation())
-      );
-    }
-    return false;
-  }
 }
 
 

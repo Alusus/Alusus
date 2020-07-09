@@ -1,5 +1,5 @@
 /**
- * @file Spp/Handlers/ast.h
+ * @file Spp/Handlers/handlers.h
  * Contains the definitions and include statements of all types in the
  * Spp::Handlers namespace.
  *
@@ -14,7 +14,7 @@
 #ifndef SPP_HANDLERS_H
 #define SPP_HANDLERS_H
 
-namespace Spp { namespace Handlers
+namespace Spp::Handlers
 {
 
 /**
@@ -23,7 +23,15 @@ namespace Spp { namespace Handlers
  * @brief Classes related to the SPP's parsing handlers.
  */
 
-} } // namespace
+/// @ingroup spp_handlers
+Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::Store *noticeStore);
+
+/// @ingroup spp_handlers
+Bool parseNumber(
+  TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata, Core::Notices::Store *noticeStore
+);
+
+} // namespace
 
 
 //==============================================================================

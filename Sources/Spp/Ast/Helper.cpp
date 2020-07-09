@@ -447,11 +447,16 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
   } else if (helper->isAstReference(ref)) {
-    auto *refNode = ti_cast<Core::Data::Node>(ref);
-    if (refNode == 0) {
+    auto typeRef = static_cast<Core::Data::Node*>(ref);
+    auto owner = typeRef->getOwner();
+    auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(ref);
+    if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+      typeRef = paramPass->getOperand().ti_cast_get<Core::Data::Node>();
+    }
+    if (typeRef == 0) {
       throw EXCEPTION(GenericException, S("Invalid type reference."));
     }
-    helper->getSeeker()->foreach(ref, refNode->getOwner(),
+    helper->getSeeker()->foreach(typeRef, owner,
       [=, &type, &notice](TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {

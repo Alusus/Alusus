@@ -60,7 +60,8 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateFunctionCall,
     &this->prepareFunctionParams,
     &this->generateCalleeReferenceChain,
-    &this->generateReferenceChain
+    &this->generateReferenceChain,
+    &this->generateParams
   });
 }
 
@@ -107,6 +108,7 @@ void ExpressionGenerator::initBindings()
   this->prepareFunctionParams = &ExpressionGenerator::_prepareFunctionParams;
   this->generateCalleeReferenceChain = &ExpressionGenerator::_generateCalleeReferenceChain;
   this->generateReferenceChain = &ExpressionGenerator::_generateReferenceChain;
+  this->generateParams = &ExpressionGenerator::_generateParams;
 }
 
 
@@ -374,7 +376,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
   PlainList<TiObject> paramAstTypes;
   PlainList<TiObject> paramAstNodes;
   auto param = astNode->getParam().get();
-  if (!expGenerator->generateParamList(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
+  if (!expGenerator->generateParams(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
     return false;
   }
 
@@ -1929,7 +1931,7 @@ Bool ExpressionGenerator::_generateInitOp(
   PlainList<TiObject> paramAstTypes;
   PlainList<TiObject> paramAstNodes;
   auto param = astNode->getParam().get();
-  if (!expGenerator->generateParamList(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
+  if (!expGenerator->generateParams(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
     return false;
   }
 
@@ -2604,25 +2606,24 @@ Bool ExpressionGenerator::_generateReferenceChain(
 }
 
 
-//==============================================================================
-// Helper Functions
-
-Bool ExpressionGenerator::generateParamList(
-  TiObject *astNode, Generation *g, Session *session,
+Bool ExpressionGenerator::_generateParams(
+  TiObject *self, TiObject *astNode, Generation *g, Session *session,
   DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes,
   SharedList<TiObject> *resultValues
 ) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
   if (astNode == 0) return true;
 
   if (astNode->isDerivedFrom<Core::Data::Ast::List>()) {
-    if (!this->generateParamList(
+    if (!expGenerator->generateParamList(
       ti_cast<Containing<TiObject>>(astNode), g, session, resultAstNodes, resultTypes, resultValues
     )) return false;
   } else {
     GenResult result;
-    if (!this->generate(astNode, g, session, result)) return false;
+    if (!expGenerator->generate(astNode, g, session, result)) return false;
     if (result.astType == 0) {
-      this->noticeStore->add(
+      expGenerator->noticeStore->add(
         std::make_shared<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNode))
       );
       return false;
@@ -2634,6 +2635,9 @@ Bool ExpressionGenerator::generateParamList(
   return true;
 }
 
+
+//==============================================================================
+// Helper Functions
 
 Bool ExpressionGenerator::generateParamList(
   Containing<TiObject> *astNodes, Generation *g, Session *session,
