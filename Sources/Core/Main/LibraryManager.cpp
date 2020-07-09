@@ -18,6 +18,10 @@
 #define RTLD_DEEPBIND 0     // Some systems do not have "RTLD_DEEPBIND".
 #endif
 
+#if defined(_WIN32)
+#include "Win32Helpers.h"
+#endif
+
 namespace Core::Main
 {
 
@@ -94,8 +98,13 @@ LibraryGateway* LibraryManager::getGateway(Char const *libId)
 
 PtrWord LibraryManager::load(Char const *path, Str &error)
 {
+#if defined(_WIN32)
+  WStr pathWStr = utf8Decode(Str(path));
+  void *handle = wdlopen(pathWStr.c_str(), RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
+#else
   // Using "RTLD_DEEPBIND" to ensure we resolve the right symbols when symbols collisions happen.
   void *handle = dlopen(path, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
+#endif
   if (handle == 0) {
     if (!error.empty()) error += S("\n");
     error += dlerror();

@@ -47,7 +47,10 @@ extern "C" {
 #define RTLD_DEFAULT    ((void *)0)
 #define RTLD_NEXT       ((void *)-1)
 
+#include <wchar.h>
+
 DLFCN_EXPORT void *dlopen ( const char *file, int mode );
+DLFCN_EXPORT void *wdlopen ( const wchar_t *file, int mode );
 DLFCN_EXPORT int   dlclose(void *handle);
 DLFCN_EXPORT void *dlsym(void *handle, const char *name);
 DLFCN_EXPORT char *dlerror(void);

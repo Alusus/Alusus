@@ -293,6 +293,123 @@ void *dlopen( const char *file, int mode )
     return (void *) hModule;
 }
 
+// Convert a wide Unicode string to a UTF8 string.
+static char* utf8Encode(const wchar_t* wstr) {
+  size_t inputStrLen = wcslen(wstr);
+  if (!wstr || inputStrLen == 0) {
+    return NULL;
+  }
+  int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wstr, inputStrLen, NULL, 0, NULL, NULL);
+  char* toReturn = (char*) malloc(sizeNeeded * sizeof(char));
+  if (!toReturn)
+    return NULL;
+  WideCharToMultiByte(CP_UTF8, 0, wstr, inputStrLen, toReturn, sizeNeeded, NULL, NULL);
+  return toReturn;
+}
+
+// Convert a UTF8 string to a wide Unicode String.
+static wchar_t* utf8Decode(const char* str) {
+  size_t inputStrLen = strlen(str);
+  if (!str || inputStrLen == 0) {
+    return NULL;
+  }
+  int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, str, inputStrLen, NULL, 0);
+  wchar_t* toReturn = (wchar_t*) malloc(sizeNeeded * sizeof(wchar_t));
+  if (!toReturn)
+    return NULL;
+  MultiByteToWideChar(CP_UTF8, 0, str, inputStrLen, toReturn, sizeNeeded);
+  return toReturn;
+}
+
+void *wdlopen( const wchar_t *file, int mode )
+{
+    HMODULE hModule;
+    UINT uMode;
+
+    current_error = NULL;
+
+    /* Do not let Windows display the critical-error-handler message box */
+    uMode = SetErrorMode( SEM_FAILCRITICALERRORS );
+
+    if( file == 0 )
+    {
+        /* POSIX says that if the value of file is 0, a handle on a global
+         * symbol object must be provided. That object must be able to access
+         * all symbols from the original program file, and any objects loaded
+         * with the RTLD_GLOBAL flag.
+         * The return value from GetModuleHandle( ) allows us to retrieve
+         * symbols only from the original program file. For objects loaded with
+         * the RTLD_GLOBAL flag, we create our own list later on. For objects
+         * outside of the program file but already loaded (e.g. linked DLLs)
+         * they are added below.
+         */
+        hModule = GetModuleHandle( NULL );
+
+        if( !hModule )
+            save_err_ptr_str( file );
+    }
+    else
+    {
+        HANDLE hCurrentProc;
+        DWORD dwProcModsBefore, dwProcModsAfter;
+        wchar_t lpFileName[MAX_PATH];
+        size_t i;
+
+        /* MSDN says backslashes *must* be used instead of forward slashes. */
+        for( i = 0 ; i < sizeof(lpFileName) - 1 ; i ++ )
+        {
+            if( !file[i] )
+                break;
+            else if( file[i] == '/' )
+                lpFileName[i] = '\\';
+            else
+                lpFileName[i] = file[i];
+        }
+        lpFileName[i] = '\0';
+
+        hCurrentProc = GetCurrentProcess( );
+
+        if( MyEnumProcessModules( hCurrentProc, NULL, 0, &dwProcModsBefore ) == 0 )
+            dwProcModsBefore = 0;
+
+        /* POSIX says the search path is implementation-defined.
+         * LOAD_WITH_ALTERED_SEARCH_PATH is used to make it behave more closely
+         * to UNIX's search paths (start with system folders instead of current
+         * folder).
+         */
+        hModule = LoadLibraryExW(lpFileName, NULL, 
+                                LOAD_WITH_ALTERED_SEARCH_PATH );
+
+        if( MyEnumProcessModules( hCurrentProc, NULL, 0, &dwProcModsAfter ) == 0 )
+            dwProcModsAfter = 0;
+
+        /* If the object was loaded with RTLD_LOCAL, add it to list of local
+         * objects, so that its symbols cannot be retrieved even if the handle for
+         * the original program file is passed. POSIX says that if the same
+         * file is specified in multiple invocations, and any of them are
+         * RTLD_GLOBAL, even if any further invocations use RTLD_LOCAL, the
+         * symbols will remain global. If number of loaded modules was not
+         * changed after calling LoadLibraryEx(), it means that library was
+         * already loaded.
+         */
+        if( !hModule ) 
+        {
+            char* lpFileNameA = utf8Encode( lpFileName );
+            save_err_str( lpFileNameA );
+            free(lpFileNameA);
+        }
+        else if( (mode & RTLD_LOCAL) && dwProcModsBefore != dwProcModsAfter )
+            local_add( hModule );
+        else if( !(mode & RTLD_LOCAL) && dwProcModsBefore == dwProcModsAfter )
+            local_rem( hModule );
+    }
+
+    /* Return to previous state of the error-mode bit flags. */
+    SetErrorMode( uMode );
+
+    return (void *) hModule;
+}
+
 int dlclose( void *handle )
 {
     HMODULE hModule = (HMODULE) handle;
