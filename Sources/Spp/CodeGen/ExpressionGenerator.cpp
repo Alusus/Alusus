@@ -504,7 +504,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     auto prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
     Ast::CalleeLookupResult calleeResult;
     if (!expGenerator->astHelper->lookupCalleeOnObject(
-      prevAstType, 0, &paramAstTypes, session->getExecutionContext(), 0, calleeResult
+      prevAstType, prevAstType, &paramAstTypes, session->getExecutionContext(), 0, calleeResult
     )) {
       calleeResult.notice->setSourceLocation(astNode->findSourceLocation());
       expGenerator->noticeStore->add(calleeResult.notice);
@@ -547,6 +547,29 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     return expGenerator->generateFunctionCall(
       astNode, static_cast<Ast::Function*>(callee.astNode), paramAstTypes, paramTgValues, g, session, result
     );
+  } else if (callee.astNode != 0 && callee.astNode->isDerivedFrom<Ast::Type>()) {
+    // Generate temp variable.
+    Ast::Type *astType;
+    TiObject *tgType;
+    if (!g->getGeneratedType(callee.astNode, session, tgType, &astType)) return false;
+    if (!g->generateTempVar(astNode, astType, session, false)) return false;
+    TioSharedPtr tempVarRef;
+    if (!session->getTg()->generateVarReference(
+      session->getTgContext(), tgType,
+      session->getEda()->getCodeGenData<TiObject>(astNode), tempVarRef
+    )) {
+      return false;
+    }
+    if (!g->generateVarInitialization(
+      astType, tempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
+    )) return false;
+    // Register temp var for destruction.
+    g->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
+    // Set result
+    result.astNode = 0;
+    result.astType = expGenerator->astHelper->getReferenceTypeFor(astType);
+    result.targetData = tempVarRef;
+    return true;
   } else {
     auto contentType = expGenerator->astHelper->tryGetDeepReferenceContentType(callee.astType);
     if (contentType != 0 && contentType->isDerivedFrom<Ast::PointerType>()) {
@@ -2546,6 +2569,11 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
   for (Int i = 0; i < calleeInfo.stack.getCount(); ++i) {
     auto item = calleeInfo.stack.get(i);
     if (item->isDerivedFrom<Ast::Function>()) {
+      calleeResult.astNode = item;
+      calleeResult.astType = 0;
+      calleeResult.targetData.reset();
+      break;
+    } else if (item->isDerivedFrom<Ast::Type>()) {
       calleeResult.astNode = item;
       calleeResult.astType = 0;
       calleeResult.targetData.reset();

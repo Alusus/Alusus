@@ -1,0 +1,72 @@
+import "Srl/Console";
+import "Srl/String";
+use Srl;
+
+type A {
+    def i: Int;
+    handler this~init() {
+        this.i = 7;
+        Console.print("A initialized.\n");
+    }
+
+    handler this~terminate() {
+        Console.print("A terminated.\n");
+    }
+}
+
+module M {
+    type B {
+        def i: Int;
+        handler this~init() {
+            this.i = 8;
+            Console.print("B initialized.\n");
+        }
+
+        handler this~terminate() {
+            Console.print("B terminated.\n");
+        }
+    }
+}
+
+type C {
+    def i: Int;
+    handler this~init(n: Int) {
+        this.i = n;
+        Console.print("C initialized.\n");
+    }
+
+    handler this~init(count: Int, args: ...[Int, 1]) {
+        this.i = 0;
+        while count-- > 0 this.i += args~next_arg[Int];
+        Console.print("C initialized with var args.\n");
+    }
+
+    handler this~terminate() {
+        Console.print("C terminated.\n");
+    }
+}
+
+type D {
+    def a: A;
+}
+
+func test {
+    Console.print("%d\n", A().i);
+    Console.print("%d\n", M.B().i);
+    Console.print("%d\n", C(9).i);
+    Console.print("%d\n", C(2, 9, 10).i);
+    Console.print("%d\n", D().a.i);
+    Console.print(String("string concat ") + M.B().i + "\n");
+    Console.print("end of successful test\n");
+}
+
+test();
+
+func testErrors {
+    Console.print("%d\n", A(5).i);
+    Console.print("%d\n", A1(5).i);
+    Console.print("%d\n", C().i);
+    Console.print("%d\n", D(1).i);
+}
+
+testErrors();

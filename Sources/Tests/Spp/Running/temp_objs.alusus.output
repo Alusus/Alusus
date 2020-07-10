@@ -1,0 +1,23 @@
+A initialized.
+7
+A terminated.
+B initialized.
+8
+B terminated.
+C initialized.
+9
+C terminated.
+C initialized with var args.
+19
+C terminated.
+A initialized.
+7
+A terminated.
+B initialized.
+string concat 8
+B terminated.
+end of successful test
+ERROR SPPA1008 @ (66,27): Provided arguments do not match signature.
+ERROR SPPA1007 @ (67,27): Unknown symbol.
+ERROR SPPA1008 @ (68,27): Provided arguments do not match signature.
+ERROR SPPG1002 @ (69,27): Invalid operation.
