@@ -1,10 +1,10 @@
-ERROR SPPA1005 @ (18,5): Multiple matches were found for the given callee.
-ERROR SPPA1008 @ (19,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (20,5): Provided arguments do not match signature.
+ERROR SPPA1005 @ (20,5): Multiple matches were found for the given callee.
 ERROR SPPA1008 @ (21,5): Provided arguments do not match signature.
-ERROR SPPA1007 @ (22,5): Unknown symbol.
+ERROR SPPA1008 @ (22,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (23,5): Provided arguments do not match signature.
+ERROR SPPA1007 @ (24,5): Unknown symbol.
 ERROR SPPG1022 @ (5,13): Missing a return statement for a non-void function.
-ERROR SPPG1032 @ (51,7): Invalid next_arg operation.
+ERROR SPPG1032 @ (53,7): Invalid next_arg operation.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -50,6 +50,7 @@ define i32 @"Main.main()=>(Int[32])"() {
   call void (i8*, ...) @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous6", i32 0, i32 0), [6 x i8]* @"#anonymous7")
   call void (i8*, ...) @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous8", i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous9", i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous10", i32 0, i32 0))
   %0 = call i32 (i32, ...) @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 5, i32 1, i32 2, i32 -3, i32 7, i32 9)
+  %1 = call i32 (i32, ...) @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 5, i32 1, i32 2, i32 -3, i32 7, i32 9)
 }
 
 define void @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {

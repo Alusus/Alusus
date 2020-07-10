@@ -561,11 +561,6 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   /// @name Helper Functions
   /// @{
 
-  private: Bool generateParamList(
-    Containing<TiObject> *astNodes, Generation *g, Session *session,
-    DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes, SharedList<TiObject> *resultValues
-  );
-
   public: Bool dereferenceIfNeeded(
     Spp::Ast::Type *astType, TiObject *tgValue, Bool valueNeeded, Session *session, GenResult &result
   );

@@ -11,3 +11,23 @@ func test (pairCount: Int[32], vArgs: ...any) {
 }
 
 test(3, 6, 7.3, 18, 9.7, 1, 110.1);
+
+func sum (count: Int, args: ...Int): Int {
+    def r: Int = 0;
+    while count-- > 0 r += args~next_arg[Int];
+    return r;
+}
+
+type A {
+    def i: Int;
+    handler this~init() { this.i = 7 };
+    handler this~cast[Int] { return this.i };
+};
+
+Srl.Console.print("%d\n", sum({ 4, 2, 3, 6 }));
+Srl.Console.print("%d\n", sum({ 4, 2; 3, 6 }));
+Srl.Console.print("%d\n", sum({}));
+
+Srl.Console.print("%d\n", sum({ 4, A(), 3 }));
+
+Srl.Console.print("%d\n", sum({ 4, A(), "wrong" }));
