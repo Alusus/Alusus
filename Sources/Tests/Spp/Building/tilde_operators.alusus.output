@@ -20,6 +20,9 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @"#anonymous0" = private constant [8 x i8] c"i = %d\0A\00"
 @"#anonymous1" = private constant [13 x i8] c"pi~cnt = %d\0A\00"
@@ -37,8 +40,10 @@ source_filename = "AlususProgram"
 @"#anonymous11" = private constant [19 x i8] c"Int[62]~size = %d\0A\00"
 @"#anonymous12" = private constant [24 x i8] c"ptr[Int[32]]~size = %d\0A\00"
 @"#anonymous13" = private constant [24 x i8] c"ptr[Int[62]]~size = %d\0A\00"
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__, i32* null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @__constructor__() {
+define void @__entry__() {
 "#block0":
   ret void
 }

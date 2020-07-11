@@ -7,13 +7,18 @@ Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @"#anonymous0" = private constant [12 x i8] c"hello world\00"
 @"#anonymous1" = private constant [6 x i8] c"hello\00"
 @"#anonymous2" = private constant [6 x i8] c"world\00"
 @"#anonymous3" = private constant [6 x i8] c"hello\00"
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__, i32* null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @__constructor__() {
+define void @__entry__() {
 "#block0":
   ret void
 }
@@ -33,19 +38,19 @@ define i64 @"Main.main(Int[64],Float[64])=>(Int[64])"(i64 %a, double %b) {
 }
 
 define void @"Main.g()"() {
-"#block2":
+"#block3":
   ret void
 }
 
 define void @"Main.h(ptr[Word[8]])"(i8* %a) {
-"#block3":
+"#block4":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @hh(i8* %a, i8* %b) {
-"#block4":
+"#block5":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   %b2 = alloca i8*
@@ -54,26 +59,26 @@ define void @hh(i8* %a, i8* %b) {
 }
 
 define void @"Other.f(Int[32])"(i32 %a) {
-"#block5":
+"#block8":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   ret void
 }
 
 define void @"Other.f(ptr[Word[8]])"(i8* %a) {
-"#block6":
+"#block9":
   %a1 = alloca i8*
   store i8* %a, i8** %a1
   ret void
 }
 
 define void @"Other.Nested.g()=>(Void)"() {
-"#block7":
+"#block10":
   ret void
 }
 
 define void @"Main.f(Int[32],Float[32])"(i32 %a, float %b) {
-"#block8":
+"#block2":
   %a1 = alloca i32
   store i32 %a, i32* %a1
   %b2 = alloca float
@@ -82,13 +87,13 @@ define void @"Main.f(Int[32],Float[32])"(i32 %a, float %b) {
 }
 
 define void @"Main.subModule.start()=>(Void)"() {
-"#block9":
+"#block6":
   %0 = call i32 @"Main.subModule.g()=>(Int[32])"()
   ret void
 }
 
 define i32 @"Main.subModule.g()=>(Int[32])"() {
-"#block10":
+"#block7":
   ret i32 20
 }
 ------------------------------------------------------------

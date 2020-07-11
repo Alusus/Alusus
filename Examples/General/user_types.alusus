@@ -1,21 +1,13 @@
-import "Srl/Console.alusus";
+import "Srl/Console";
+use Srl;
 
-def UserTypes: module
-{
-  def Point: type
-  {
-    def x: Int;
-    def y: Int;
-  };
+type Point {
+  def x: Int;
+  def y: Int;
+}
 
-  def start: function
-  {
-    def p : Point;
-    p.x = 10;
-    p.y = 5;
-    Srl.Console.print("x = %d, y = %d\n", p.x, p.y);
-  }
-};
-
-UserTypes.start();
+def p : Point;
+p.x = 10;
+p.y = 5;
+Console.print("x = %d, y = %d\n", p.x, p.y);
 

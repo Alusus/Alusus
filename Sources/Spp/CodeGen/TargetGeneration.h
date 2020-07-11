@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -36,7 +36,6 @@ class TargetGeneration : public ObjTiInterface
   public: TargetGeneration(TiObject *o) : owner(o)
   {
     initBindingCaches(this->owner, {
-      &this->getExecutionContext,
       &this->generateVoidType,
       &this->generateIntType,
       &this->generateFloatType,
@@ -132,13 +131,6 @@ class TargetGeneration : public ObjTiInterface
   {
     return this->owner;
   }
-
-  /// @}
-
-  /// @name Property Getters
-  /// @{
-
-  public: METHOD_BINDING_CACHE(getExecutionContext, ExecutionContext const*);
 
   /// @}
 

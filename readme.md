@@ -78,7 +78,7 @@ The copyright for this project is owned by Sarmad Khalid Abdullah.
 
 Alusus Language specification, documentation, source code, binaries, and examples are published under Alusus Public
 License, Version 1.0, which is included in this repo and is also available online at
-[https://alusus.org/alusus_license_1_0](https://alusus.org/alusus_license_1_0). Please read the license before using
+[https://alusus.org/license.html](https://alusus.org/license.html). Please read the license before using
 or copying this software. By using this software you acknowledge that you have read the terms contained in this license
 and agree with and accept all such terms.
 

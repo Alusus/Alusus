@@ -5,24 +5,24 @@ type A
   def i: Int;
 
   handler this~init() {
-    Srl.Console.print("constructed!\n");
+    Srl.Console.print("A constructed!\n");
     this.i = 1;
   };
 
   handler this~init(that: ref[A]) {
-    Srl.Console.print("constructed2!\n");
+    Srl.Console.print("A constructed2!\n");
     this.i = that.i * 2;
   };
 
   handler this~init(that: ref[A], extra: Int) {
-    Srl.Console.print("constructed3!\n");
+    Srl.Console.print("A constructed3!\n");
     this~init(that);
     this.i += extra;
   };
 
   handler this~terminate() {
     this.i = 0;
-    Srl.Console.print("destructed!\n");
+    Srl.Console.print("A destructed!\n");
   };
 };
 
@@ -37,6 +37,18 @@ type C
   def i: Int;
   Srl.Console.print("C constructed!\n");
   i = 3;
+};
+
+type D
+{
+    def a: A;
+    Srl.Console.print("D constructed!\n");
+    handler this~init() {
+        Srl.Console.print("D~init()\n");
+    }
+    handler this~terminate() {
+        Srl.Console.print("D destructed!\n");
+    }
 };
 
 function testNoReturn
@@ -154,6 +166,12 @@ function testTerminate
   receiveA(a);
 };
 
+function testBothInitMethod
+{
+    def d: D;
+    Srl.Console.print("testBothInitMethod\n");
+};
+
 testNoReturn();
 Srl.Console.print("\n");
 
@@ -194,3 +212,6 @@ testInitRedirect();
 Srl.Console.print("\n");
 
 testTerminate();
+Srl.Console.print("\n");
+
+testBothInitMethod();

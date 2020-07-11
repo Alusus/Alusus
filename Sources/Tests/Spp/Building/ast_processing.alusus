@@ -18,9 +18,17 @@ type Point {
   }
 }
 
+func pointedFunction {
+    print("pointedFunction\n");
+}
+
+def pf: ptr[function];
+
 func test {
   defInt[abc];
   abc = 51;
+  pf = pointedFunction~ptr;
+  def pf2: ptr[function] = pointedFunction~ptr;
   print("%d\n", abc);
 
   def p: Point;
@@ -30,6 +38,9 @@ func test {
   eval {
     print("test eval\n");
   }
+
+  pf();
+  pf2();
 }
 
 dump_ast MyMod;

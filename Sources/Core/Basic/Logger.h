@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -36,19 +36,19 @@ class Logger
    * only print messsages if the result was not zero. Default value for the
    * filter is -1 (display all).
    */
-  public: static Int filter;
+  public: static Word *filter;
 
   /**
    * @brief The level of this logging object.
    * @sa filter
    */
-  private: const Int level;
+  private: const Word level;
 
 
   //============================================================================
   // Constructor
 
-  public: Logger(Int l) : level(l)
+  public: Logger(Word l) : level(l)
   {
   }
 
@@ -59,9 +59,21 @@ class Logger
   /// Log an argument.
   public: template <class T> const Logger& operator << (const T &arg) const
   {
-    if (this->level & Logger::filter) std::clog << arg;
+    if (this->level & Logger::getFilter()) std::clog << arg;
     return *this;
   }
+
+  public: static void setFilter(Word f)
+  {
+    *(Logger::getFilterPtr()) = f;
+  }
+
+  public: static Word getFilter()
+  {
+    return *(Logger::getFilterPtr());
+  }
+
+  private: static Word* getFilterPtr();
 
 }; // class
 

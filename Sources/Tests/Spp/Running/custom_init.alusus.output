@@ -1,78 +1,85 @@
-constructed!
+A constructed!
 testNoReturn: 1
-destructed!
+A destructed!
 
-constructed!
+A constructed!
 testReturnVoid: 1
-destructed!
+A destructed!
 
-constructed!
+A constructed!
 testReturnNonVoid: 1
-destructed!
+A destructed!
 returned value: 1
 
-constructed!
+A constructed!
 getA.
-constructed2!
-destructed!
-destructed!
+A constructed2!
+A destructed!
+A destructed!
 testReturnA.
 
-constructed!
+A constructed!
 testLoop: 1
-destructed!
-constructed!
+A destructed!
+A constructed!
 testLoop: 1
-destructed!
+A destructed!
 testLoop-out.
 
-constructed!
+A constructed!
 testBreak: 1
-destructed!
-constructed!
-constructed!
+A destructed!
+A constructed!
+A constructed!
 testBreak-nested: 1, 1
-destructed!
-destructed!
+A destructed!
+A destructed!
 testBreak-out.
 
-constructed!
+A constructed!
 testContinue: 1
-destructed!
-constructed!
-constructed!
+A destructed!
+A constructed!
+A constructed!
 testContinue-nested: 1, 1
-destructed!
-destructed!
+A destructed!
+A destructed!
 testContinue-out.
 
-constructed!
-constructed!
+A constructed!
+A constructed!
 testAutoInit: 1, 1
-destructed!
-destructed!
+A destructed!
+A destructed!
 
-constructed!
-constructed!
+A constructed!
+A constructed!
 autoCtor on the global scope: 1 1
-destructed!
-constructed!
+A destructed!
+A constructed!
 autoCtor on the global scope: 1 1
-destructed!
+A destructed!
 
 C constructed!
 testInlinedInit: 3
 
-constructed!
-constructed!
-constructed3!
-constructed2!
+A constructed!
+A constructed!
+A constructed3!
+A constructed2!
 testInitRedirect: 13
-destructed!
-destructed!
+A destructed!
+A destructed!
 
-constructed!
+A constructed!
 testTerminate
-constructed2!
-destructed!
-destructed!
+A constructed2!
+A destructed!
+A destructed!
+
+A constructed!
+D constructed!
+D~init()
+testBothInitMethod
+D destructed!
+A destructed!

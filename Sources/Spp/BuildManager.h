@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -28,6 +28,12 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
 
 
   //============================================================================
+  // Types
+
+  public: s_enum(BuildType, OFFLINE = 0, JIT = 1, EVAL = 2);
+
+
+  //============================================================================
   // Implementations
 
   IMPLEMENT_DYNAMIC_BINDINGS(bindingMap);
@@ -37,41 +43,52 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   //============================================================================
   // Member Variables
 
-  private: CodeGen::ExtraDataAccessor extraDataAccessor;
   private: Core::Main::RootManager *rootManager;
   private: Ast::Helper *astHelper;
   private: CodeGen::Generator *generator;
-  private: LlvmCodeGen::TargetGenerator *targetGenerator;
-  private: CodeGen::AstProcessor *astProcessor = 0;
+  private: CodeGen::GlobalItemRepo *globalItemRepo;
+
+  private: CodeGen::ExtraDataAccessor jitEda;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> jitTargetGenerator;
+  private: SharedPtr<LlvmCodeGen::JitBuildTarget> jitBuildTarget;
+  private: TioSharedPtr jitGlobalTgFuncType;
+
+  private: CodeGen::ExtraDataAccessor evalEda;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> evalTargetGenerator;
+  private: SharedPtr<LlvmCodeGen::LazyJitBuildTarget> evalBuildTarget;
+  private: TioSharedPtr evalGlobalTgFuncType;
+
+  private: CodeGen::ExtraDataAccessor offlineEda;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> offlineTargetGenerator;
+  private: SharedPtr<LlvmCodeGen::OfflineBuildTarget> offlineBuildTarget;
+  private: TioSharedPtr offlineGlobalTgFuncType;
+
   private: Int funcNameIndex = 0;
 
-  private: TioSharedPtr globalTgFuncType;
 
 
   //============================================================================
   // Constructors & Destructor
 
   public: BuildManager(
-    Char const *extraDataPrefix,
     Core::Main::RootManager *rm,
     Ast::Helper *helper,
     CodeGen::Generator *gen,
-    LlvmCodeGen::TargetGenerator *tGen
+    CodeGen::GlobalItemRepo *globalItemRepo
   ) :
-    extraDataAccessor(extraDataPrefix),
     rootManager(rm),
     astHelper(helper),
     generator(gen),
-    targetGenerator(tGen)
+    globalItemRepo(globalItemRepo)
   {
-    this->addDynamicInterface(std::make_shared<Building>(this));
+    this->addDynamicInterface(std::make_shared<Executing>(this));
     this->initBindingCaches();
     this->initBindings();
+
+    this->initTargets();
   }
 
-  public: BuildManager(
-    BuildManager *parent, Char const *extraDataPrefix, LlvmCodeGen::TargetGenerator *tGen
-  ) : extraDataAccessor(extraDataPrefix)
+  public: BuildManager(BuildManager *parent)
   {
     this->initBindingCaches();
     this->inheritBindings(parent);
@@ -80,7 +97,8 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     this->rootManager = parent->getRootManager();
     this->astHelper = parent->getAstHelper();
     this->generator = parent->getGenerator();
-    this->targetGenerator = tGen;
+
+    this->initTargets();
   }
 
   public: virtual ~BuildManager()
@@ -97,10 +115,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: void initBindingCaches();
   private: void initBindings();
 
-  public: CodeGen::ExtraDataAccessor const* getExtraDataAccessor() const
-  {
-    return &this->extraDataAccessor;
-  }
+  private: void initTargets();
 
   public: Core::Main::RootManager* getRootManager() const
   {
@@ -111,23 +126,9 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     return this->astHelper;
   }
 
-  public: void setAstProcessor(CodeGen::AstProcessor *astP) {
-    this->astProcessor = astP;
-  }
-
-  public: CodeGen::AstProcessor* getAstProcessor() const
-  {
-    return this->astProcessor;
-  }
-
   public: CodeGen::Generator* getGenerator() const
   {
     return this->generator;
-  }
-
-  public: LlvmCodeGen::TargetGenerator* getTargetGenerator() const
-  {
-    return this->targetGenerator;
   }
 
   /// @}
@@ -135,26 +136,45 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   /// @name Code Generation Functions
   /// @{
 
-  private: static void _prepareExecution(
-    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession &buildSession
+  public: METHOD_BINDING_CACHE(prepareBuild,
+    SharedPtr<BuildSession>, (
+      Core::Notices::Store* /* noticeStore */, Int /* buildType */, TiObject* /* globalFuncElement */
+    )
+  );
+  private: static SharedPtr<BuildSession> _prepareBuild(
+    TiObject *self, Core::Notices::Store *noticeStore, Int buildType, TiObject *globalFuncElement
   );
 
-  private: static void _prepareBuild(
-    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement,
-    Bool offlineExecution, BuildSession &buildSession
+  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession* /* buildSession */));
+  private: static Bool _addElementToBuild(TiObject *self, TiObject *element, BuildSession *buildSession);
+
+  public: METHOD_BINDING_CACHE(finalizeBuild,
+    Bool, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, BuildSession* /* buildSession */)
+  );
+  private: static Bool _finalizeBuild(
+    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession *buildSession
   );
 
-  private: static Bool _addElementToBuild(TiObject *self, TiObject *element, BuildSession &buildSession);
-
-  private: static void _finalizeBuild(
-    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession &buildSession
+  public: METHOD_BINDING_CACHE(execute,
+    Bool, (Core::Notices::Store* /* noticeStore */, BuildSession* /* buildSession */)
   );
-
   private: static Bool _execute(
-    TiObject *self, Core::Notices::Store *noticeStore, BuildSession &buildSession
+    TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession
   );
 
-  private: static void _deleteTempFunctions(TiObject *self, BuildSession &buildSession);
+  public: METHOD_BINDING_CACHE(buildDependencies,
+    Bool, (Core::Notices::Store* /* noticeStore */, BuildSession* /* buildSession */)
+  );
+  private: static Bool _buildDependencies(
+    TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession
+  );
+
+  private: Bool buildGlobalCtorOrDtor(
+    BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Int depsIndex, Char const *funcName,
+    std::function<Bool(
+      Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, CodeGen::Session *session
+    )> varOpCallback
+  );
 
   public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
     void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)
@@ -171,21 +191,24 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     Core::Processing::Parser *parser
   );
 
-  public: METHOD_BINDING_CACHE(resetBuild, void);
-  private: static void _resetBuild(TiObject *self);
+  public: METHOD_BINDING_CACHE(resetBuild, void, (Int));
+  private: static void _resetBuild(TiObject *self, Int buildType);
 
-  public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*));
-  private: static void _resetBuildData(TiObject *self, TiObject *obj);
+  public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*, CodeGen::ExtraDataAccessor*));
+  private: static void _resetBuildData(TiObject *self, TiObject *obj, CodeGen::ExtraDataAccessor *eda);
 
   /// @}
 
   /// @name Helper Functions
   /// @{
 
-  private: TioSharedPtr getVoidNoArgsFuncTgType();
+  private: TiObject* getVoidNoArgsFuncTgType(Int buildType);
+
+  private: TioSharedPtr createVoidNoArgsFuncTgType(LlvmCodeGen::TargetGenerator *targetGen);
 
   private: void prepareFunction(
-    Char const *funcName, TiObject *tgFuncType, TioSharedPtr &context, TioSharedPtr &tgFunc
+    CodeGen::TargetGeneration *targetGen, Char const *funcName, TiObject *tgFuncType, TioSharedPtr &context,
+    TioSharedPtr &tgFunc
   );
 
   /// @}

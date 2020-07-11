@@ -1,24 +1,22 @@
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
 %Outer = type { %Inner, i32 }
 %Inner = type { %InnerMost*, i32 }
 %InnerMost = type { i32 }
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
 @"#anonymous0" = private constant [24 x i8] c"o.a=%d, o.i=%d, o.k=%d\0A\00"
 @o = global %Outer zeroinitializer
 @"#anonymous1" = private constant [34 x i8] c"o.getA()=%d, o.getI()=%d, o()=%d\0A\00"
 @"#anonymous2" = private constant [75 x i8] c"getO().getA()=%d, getO().getI()=%d, getO().i=%d, getO().k=%d, getO()()=%d\0A\00"
-
-define void @__constructor__() {
-"#block0":
-  call void @Outer.__autoConstruct__(%Outer* @o)
-  ret void
-}
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__3, i32* null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"test()"() {
-"#block1":
+"#block0":
   %0 = load %InnerMost*, %InnerMost** getelementptr inbounds (%Outer, %Outer* @o, i32 0, i32 0, i32 0)
   %1 = getelementptr %InnerMost, %InnerMost* %0, i32 0, i32 0
   %2 = load i32, i32* %1
@@ -60,7 +58,7 @@ define void @"test()"() {
 }
 
 define void @Outer.__autoConstruct__(%Outer* %this) {
-"#block2":
+"#block1":
   %0 = getelementptr %Outer, %Outer* %this, i32 0, i32 0
   %1 = getelementptr %Inner, %Inner* %0, i32 0, i32 0
   %2 = load %InnerMost*, %InnerMost** %1
@@ -77,7 +75,7 @@ define void @Outer.__autoConstruct__(%Outer* %this) {
 declare i32 @printf(i8*, ...)
 
 define i32 @"InnerMost.getA(ref[InnerMost])=>(Int[32])"(%InnerMost* %this) {
-"#block3":
+"#block2":
   %this1 = alloca %InnerMost*
   store %InnerMost* %this, %InnerMost** %this1
   %0 = load %InnerMost*, %InnerMost** %this1
@@ -87,7 +85,7 @@ define i32 @"InnerMost.getA(ref[InnerMost])=>(Int[32])"(%InnerMost* %this) {
 }
 
 define i32 @"Inner.getI(ref[Inner])=>(Int[32])"(%Inner* %this) {
-"#block4":
+"#block3":
   %this1 = alloca %Inner*
   store %Inner* %this, %Inner** %this1
   %0 = load %Inner*, %Inner** %this1
@@ -97,7 +95,7 @@ define i32 @"Inner.getI(ref[Inner])=>(Int[32])"(%Inner* %this) {
 }
 
 define i32 @"Inner.()(ref[Inner])=>(Int[32])"(%Inner* %this) {
-"#block5":
+"#block4":
   %this1 = alloca %Inner*
   store %Inner* %this, %Inner** %this1
   %0 = load %Inner*, %Inner** %this1
@@ -108,7 +106,7 @@ define i32 @"Inner.()(ref[Inner])=>(Int[32])"(%Inner* %this) {
 }
 
 define %InnerMost* @"InnerMost.=(ref[InnerMost],Int[32])=>(ref[InnerMost])"(%InnerMost* %this, i32 %value) {
-"#block6":
+"#block5":
   %this1 = alloca %InnerMost*
   store %InnerMost* %this, %InnerMost** %this1
   %value2 = alloca i32
@@ -122,7 +120,13 @@ define %InnerMost* @"InnerMost.=(ref[InnerMost],Int[32])=>(ref[InnerMost])"(%Inn
 }
 
 define %Outer* @"getO()=>(ref[Outer])"() {
-"#block7":
+"#block6":
   ret %Outer* @o
+}
+
+define void @__constructor__3() {
+"#block7":
+  call void @Outer.__autoConstruct__(%Outer* @o)
+  ret void
 }
 ------------------------------------------------------------

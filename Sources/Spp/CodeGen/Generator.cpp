@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -168,7 +168,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     Session childSession(session, tgContext.get(), &destructionStack);
 
     // Store the generated ret value reference, if needed.
-    if (astRetType->hasCustomInitialization(generator->astHelper, session->getTg()->getExecutionContext())) {
+    if (astRetType->getInitializationMethod(
+      generator->astHelper, session->getExecutionContext()
+    ) != Ast::TypeInitMethod::NONE) {
       session->getEda()->setCodeGenData(astRetTypeRef, tgVars.get(0));
       tgVars.remove(0);
     }
@@ -187,7 +189,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       }
       session->getEda()->setCodeGenData(argType, argTgVar);
       Ast::Type *argSourceAstType;
-      if (argAstType->hasCustomInitialization(generator->astHelper, session->getTg()->getExecutionContext())) {
+      if (argAstType->getInitializationMethod(
+        generator->astHelper, session->getExecutionContext()
+      ) != Ast::TypeInitMethod::NONE) {
         argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType);
       } else {
         argSourceAstType = argAstType;
@@ -212,7 +216,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
         return false;
       }
       generation->registerDestructor(
-        ti_cast<Core::Data::Node>(argType), argAstType, session->getTg()->getExecutionContext(),
+        ti_cast<Core::Data::Node>(argType), argAstType, session->getExecutionContext(),
         childSession.getDestructionStack()
       );
     }
@@ -394,27 +398,17 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
       }
 
-      // Initialize the variable.
-      TioSharedPtr tgGlobalVarRef;
-      if (!session->getTg()->generateVarReference(
-        session->getTgGlobalConstructionContext(), tgType, tgGlobalVar.get(), tgGlobalVarRef
-      )) {
-        return false;
-      }
-      SharedList<TiObject> initTgVals;
-      PlainList<TiObject> initAstTypes;
-      PlainList<TiObject> initAstNodes;
-      Session childSession(session, session->getTgGlobalConstructionContext(), session->getGlobalDestructionStack());
-      if (!generation->generateVarInitialization(
-        astType, tgGlobalVarRef.get(), ti_cast<Core::Data::Node>(astVar), &initAstNodes, &initAstTypes, &initTgVals,
-        &childSession
-      )) {
-        return false;
+      if (astType->getInitializationMethod(
+        generator->astHelper, session->getExecutionContext()
+      ) != Ast::TypeInitMethod::NONE) {
+        session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar));
       }
 
-      generation->registerDestructor(
-        ti_cast<Core::Data::Node>(astVar), astType, session->getTg()->getExecutionContext(), session->getGlobalDestructionStack()
-      );
+      if (astType->getDestructionMethod(
+        generator->astHelper, session->getExecutionContext()
+      ) != Ast::TypeInitMethod::NONE) {
+        session->getGlobalVarDestructionDeps()->add(static_cast<Core::Data::Node*>(astVar));
+      }
     } else {
       auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(definition);
       if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
@@ -465,7 +459,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         )) return false;
 
         generation->registerDestructor(
-          ti_cast<Core::Data::Node>(astVar), astType, session->getTg()->getExecutionContext(), session->getDestructionStack()
+          ti_cast<Core::Data::Node>(astVar), astType, session->getExecutionContext(), session->getDestructionStack()
         );
       }
     }
@@ -576,7 +570,7 @@ Bool Generator::_generateTempVar(
             astType, tgLocalVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
           )) return false;
 
-          generation->registerDestructor(astNode, astType, session->getTg()->getExecutionContext(), session->getDestructionStack());
+          generation->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
         }
       }
     // }
@@ -595,7 +589,9 @@ Bool Generator::_generateVarInitialization(
   PREPARE_SELF(generation, Generation);
 
   // Do we have custom initialization?
-  if (varAstType->hasCustomInitialization(generator->getAstHelper(), session->getTg()->getExecutionContext())) {
+  if (varAstType->getInitializationMethod(
+    generator->getAstHelper(), session->getExecutionContext()
+  ) != Ast::TypeInitMethod::NONE) {
     // Call automatic constructors, if any.
     auto tgAutoCtor = session->getEda()->tryGetAutoCtor<TiObject>(varAstType);
     if (tgAutoCtor != 0) {
@@ -616,7 +612,7 @@ Bool Generator::_generateVarInitialization(
     static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
     Ast::CalleeLookupResult calleeResult;
     if (generator->astHelper->lookupCalleeInScope(
-      &ref, varAstType, false, 0, paramAstTypes, session->getTg()->getExecutionContext(), calleeResult
+      &ref, varAstType, false, 0, paramAstTypes, session->getExecutionContext(), calleeResult
     ) && calleeResult.stack.getCount() == 1) {
       auto callee = calleeResult.stack.get(calleeResult.stack.getCount() - 1);
       // Prepare the arguments to send.
@@ -686,7 +682,9 @@ Bool Generator::_generateMemberVarInitialization(
   // Get the member generated value and type.
   auto tgMemberVar = session->getEda()->getCodeGenData<TiObject>(astMemberNode);
   auto astMemberType = Ast::getAstType(astMemberNode);
-  if (!astMemberType->hasCustomInitialization(generator->getAstHelper(), session->getTg()->getExecutionContext())) {
+  if (astMemberType->getInitializationMethod(
+    generator->getAstHelper(), session->getExecutionContext()
+  ) == Ast::TypeInitMethod::NONE) {
     return true;
   }
   TiObject *tgMemberType;
@@ -726,7 +724,9 @@ Bool Generator::_generateVarDestruction(
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
 
-  if (!varAstType->hasCustomDestruction(generator->getAstHelper(), session->getTg()->getExecutionContext())) {
+  if (varAstType->getDestructionMethod(
+    generator->getAstHelper(), session->getExecutionContext()
+  ) == Ast::TypeInitMethod::NONE) {
     return true;
   }
 
@@ -741,7 +741,7 @@ Bool Generator::_generateVarDestruction(
   static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
   Ast::CalleeLookupResult calleeResult;
   if (generator->astHelper->lookupCalleeInScope(
-    &ref, varAstType, false, 0, &paramAstTypes, session->getTg()->getExecutionContext(), calleeResult
+    &ref, varAstType, false, 0, &paramAstTypes, session->getExecutionContext(), calleeResult
   ) && calleeResult.stack.getCount() == 1) {
     auto callee = static_cast<Ast::Function*>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));
     // Call the destructor.
@@ -776,7 +776,9 @@ Bool Generator::_generateMemberVarDestruction(
   // Get the member generated value and type.
   auto tgMemberVar = session->getEda()->getCodeGenData<TiObject>(astMemberNode);
   auto astMemberType = Ast::getAstType(astMemberNode);
-  if (!astMemberType->hasCustomDestruction(generator->getAstHelper(), session->getTg()->getExecutionContext())) {
+  if (astMemberType->getDestructionMethod(
+    generator->getAstHelper(), session->getExecutionContext()
+  ) == Ast::TypeInitMethod::NONE) {
     return true;
   }
   TiObject *tgMemberType;
@@ -816,7 +818,11 @@ void Generator::_registerDestructor(
 
   // Skip if the type has no custom destructors.
   auto astUserType = ti_cast<Ast::UserType>(astType);
-  if (astUserType == 0 || !astUserType->hasCustomDestruction(generator->getAstHelper(), ec)) return;
+  if (
+    astUserType == 0 || astUserType->getDestructionMethod(generator->getAstHelper(), ec) == Ast::TypeInitMethod::NONE
+  ) {
+    return;
+  }
 
   // Add the var node to the list.
   destructionStack->pushItem(varAstNode);

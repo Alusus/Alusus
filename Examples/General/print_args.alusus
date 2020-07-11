@@ -1,14 +1,7 @@
-import "Srl/Console.alusus";
+import "Srl/Console";
+use Srl;
 
-def PrintArgs: module
-{
-  def start: function
-  {
-    def i: Int;
-    for i = 0, i < Process.argCount, ++i {
-      Srl.Console.print("%s\n", Process.args~cnt(i));
-    };
-  };
-};
-
-PrintArgs.start();
+def i: Int;
+for i = 0, i < Process.argCount, ++i {
+  Srl.Console.print("%s\n", Process.args~cnt(i));
+}

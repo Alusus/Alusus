@@ -52,7 +52,7 @@ beyond providing an enhanced or modified programming environment based on Core L
 Programs are designed to perform any other functions.
 
 “License” means this document. For greater clarity, Licensor is only bound to the official version
-of this License as it is published at <https://alusus.org/alusus_license_1_0>, subject to any revisions and
+of this License as it is published at <https://alusus.org/license.html>, subject to any revisions and
 modifications pursuant to Section 9 of this License. If there is a discrepancy between such official
 versions and the text that may be made available in whichever form, the official version of this
 License shall govern.
@@ -201,7 +201,7 @@ invalidate or otherwise question Licensor’s rights in and to its trademark ALU
 
 (a) When distributing or making available copies of Core Language, You must inform recipients that
 the use of such copies is subject to this License and provide a link to
-<https://alusus.org/alusus_license_1_0> as the source of the official text of this License.
+<https://alusus.org/license.html> as the source of the official text of this License.
 
 (b) You may not remove or alter any notices (including copyright notices, patent notices,
 disclaimers of warranty, or limitations of liability) contained within the source code or otherwise

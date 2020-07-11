@@ -6,7 +6,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -44,9 +44,9 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
 
   public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool hasCustomInitialization(Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeInitMethod getInitializationMethod(Helper *helper, ExecutionContext const *ec) const;
 
-  public: virtual Bool hasCustomDestruction(Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeInitMethod getDestructionMethod(Helper *helper, ExecutionContext const *ec) const;
 
 
   //============================================================================

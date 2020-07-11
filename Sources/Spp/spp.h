@@ -7,9 +7,12 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
+
+#ifndef SPP_H
+#define SPP_H
 
 // System header files
 #include "core.h"
@@ -21,13 +24,34 @@ namespace Spp
  * @defgroup spp Spp
  */
 
+/**
+ * @brief Constant definitions for different levels of log messages.
+ * @ingroup spp
+ */
+s_enum(LogLevel,
+  LLVMCODEGEN_IR = 64,
+  LLVMCODEGEN_DIAGNOSTIC = 128
+);
+
+}
+
+// Forward declarations
+
+namespace Spp
+{
+  class BuildSession;
+
+  namespace Ast
+  {
+    class Function;
+  }
 }
 
 // Alusus's SPP base header files
 
 #include "ExecutionContext.h"
-#include "BuildSession.h"
-#include "Building.h"
+#include "DependencyList.h"
+#include "Executing.h"
 
 #include "Ast/ast.h"
 
@@ -38,6 +62,7 @@ namespace Spp
 
 #include "Handlers/handlers.h"
 
+#include "BuildSession.h"
 #include "BuildManager.h"
 
 #include "Rt/rt.h"
@@ -48,3 +73,5 @@ namespace Spp
 
 #include "GrammarFactory.h"
 #include "LibraryGateway.h"
+
+#endif

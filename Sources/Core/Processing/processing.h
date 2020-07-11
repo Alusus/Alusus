@@ -7,7 +7,7 @@
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/alusus_license_1_0>.
+ * accompanying license file or at <https://alusus.org/license.html>.
  */
 //==============================================================================
 
@@ -178,7 +178,7 @@ s_enum(ParserProcessingStatus, IN_PROGRESS = 0, COMPLETE, ERROR);
  *                     lower priority state.
  */
 s_enum(ParserStateTerminationCause, UNKNOWN = 0, SYNTAX_ERROR, MERGED_WITH_HIGHER_PRIORITY_STATE,
-                                         CONSUMED_TOKENS_TO_LIVE, FOLDED_OUT_TOO_SOON, NOT_NEEDED_ANYMORE);
+                                    CONSUMED_TOKENS_TO_LIVE, FOLDED_OUT_TOO_SOON, NOT_NEEDED_ANYMORE);
 
 /**
  * @brief A set of parsing flags to use with grammar terms by parsing handlers.
