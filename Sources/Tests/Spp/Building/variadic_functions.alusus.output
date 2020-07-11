@@ -1,9 +1,10 @@
-ERROR SPPA1005 @ (16,5): Multiple matches were found for the given callee.
-ERROR SPPA1008 @ (17,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (18,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (19,5): Provided arguments do not match signature.
-ERROR SPPA1007 @ (20,5): Unknown symbol.
+ERROR SPPA1005 @ (20,5): Multiple matches were found for the given callee.
+ERROR SPPA1008 @ (21,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (22,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (23,5): Provided arguments do not match signature.
+ERROR SPPA1007 @ (24,5): Unknown symbol.
 ERROR SPPG1022 @ (5,13): Missing a return statement for a non-void function.
+ERROR SPPG1032 @ (53,7): Invalid next_arg operation.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -11,6 +12,7 @@ source_filename = "AlususProgram"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%__VaList = type { i32, i32, i8*, i8* }
 
 @"#anonymous0" = private constant [6 x i8] c"hello\00"
 @"#anonymous1" = private constant [6 x i8] c"hello\00"
@@ -47,54 +49,136 @@ define i32 @"Main.main()=>(Int[32])"() {
   call void (i8*, ...) @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous3", i32 0, i32 0), [6 x i8]* @"#anonymous4", [4 x i8]* @"#anonymous5")
   call void (i8*, ...) @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous6", i32 0, i32 0), [6 x i8]* @"#anonymous7")
   call void (i8*, ...) @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous8", i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous9", i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous10", i32 0, i32 0))
+  %0 = call i32 (i32, ...) @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 5, i32 1, i32 2, i32 -3, i32 7, i32 9)
+  %1 = call i32 (i32, ...) @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 5, i32 1, i32 2, i32 -3, i32 7, i32 9)
 }
 
 define void @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
 "#block2":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
   %a1 = alloca i8*
   store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
   ret void
 }
 
 define void @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* %a, ...) {
 "#block4":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
   %a1 = alloca i8*
   store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
   ret void
 }
 
 define void @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* %a, ...) {
 "#block6":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
   %a1 = alloca i8*
   store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
   ret void
 }
 
 define void @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* %a, ...) {
 "#block7":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
   %a1 = alloca i8*
   store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
   ret void
 }
 
+define i32 @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 %count, ...) {
+"#block9":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
+  %count1 = alloca i32
+  store i32 %count, i32* %count1
+  br label %"#block10"
+
+"#block10":                                       ; preds = %"#block14", %"#block9"
+  %1 = load i32, i32* %count1
+  %2 = sub nsw i32 %1, 1
+  store i32 %2, i32* %count1
+  %3 = icmp sgt i32 %2, 0
+  br i1 %3, label %"#block11", label %"#block12"
+
+"#block11":                                       ; preds = %"#block10"
+  %4 = va_arg %__VaList* %__vaList, i32
+  %5 = icmp sgt i32 %4, 0
+  br i1 %5, label %"#block13", label %"#block14"
+
+"#block12":                                       ; preds = %"#block10"
+  %6 = load i32, i32* %count1
+  %7 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %7)
+  ret i32 %6
+
+"#block13":                                       ; preds = %"#block11"
+  %8 = load i32, i32* %count1
+  %9 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %9)
+  ret i32 %8
+
+"#block14":                                       ; preds = %"#block11"
+  br label %"#block10"
+}
+
+; Function Attrs: nounwind
+declare void @llvm.va_start(i8*) #0
+
+; Function Attrs: nounwind
+declare void @llvm.va_end(i8*) #0
+
 define void @"Main.f1(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
 "#block3":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
   %a1 = alloca i8*
   store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
   ret void
 }
 
 define void @"Main.f1(Int[32],ArgPack[any,0,0])"(i32 %a, ...) {
 "#block5":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
   %a1 = alloca i32
   store i32 %a, i32* %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
   ret void
 }
 
 define void @"Main.f4(ptr[Word[8]],ArgPack[Word[8],0,0])"(i8* %a, ...) {
 "#block8":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
   %a1 = alloca i8*
   store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
   ret void
 }
+
+attributes #0 = { nounwind }
 ------------------------------------------------------------

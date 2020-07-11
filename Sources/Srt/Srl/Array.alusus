@@ -17,6 +17,11 @@ import "Srl/Memory.alusus";
       this.assign(ary);
     };
 
+    handler this~init(count: Int, items: ...T) {
+        this._init();
+        while count-- > 0 this.add(items~next_arg[T]);
+    };
+
     handler this~terminate() this._release();
 
     // Member Functions
@@ -101,6 +106,10 @@ import "Srl/Memory.alusus";
       this._prepareToModify(true);
       this.buf(this.length)~init(item);
       ++this.length;
+    };
+
+    func add (count: Int, items: ...[T, 1]) {
+        while count-- > 0 this.add(items~next_arg[T]);
     };
 
     func insert (index: Int, item: T) {

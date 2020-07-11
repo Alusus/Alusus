@@ -132,7 +132,7 @@ void TypeOpParsingHandler::createAssignmentHandler(
   auto retType = this->prepareAssignmentRetType(assignmentOp->findSourceLocation());
 
   auto def = this->createBinaryOpFunction(
-    funcName, thisType, inputName,  inputType, retType, body, assignmentOp->findSourceLocation()
+    state, funcName, thisType, inputName,  inputType, retType, body, assignmentOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -163,7 +163,7 @@ void TypeOpParsingHandler::createComparisonHandler(
   auto retType = this->prepareComparisonRetType(comparisonOp->findSourceLocation());
 
   auto def = this->createBinaryOpFunction(
-    funcName, thisType, inputName,  inputType, retType, body, comparisonOp->findSourceLocation()
+    state, funcName, thisType, inputName,  inputType, retType, body, comparisonOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -191,7 +191,7 @@ void TypeOpParsingHandler::createInfixOpHandler(
   auto thisType = this->prepareThisType(first->findSourceLocation());
 
   auto def = this->createBinaryOpFunction(
-    funcName, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation()
+    state, funcName, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -236,7 +236,7 @@ void TypeOpParsingHandler::createInitOpHandler(
   }
 
   auto def = this->createFunction(
-    S("~init"), argTypes, TioSharedPtr::null, body, initOp->findSourceLocation()
+    state, S("~init"), argTypes, TioSharedPtr::null, body, initOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -260,7 +260,7 @@ void TypeOpParsingHandler::createTerminateOpHandler(
   argTypes->add(S("this"), thisType);
 
   auto def = this->createFunction(
-    S("~terminate"), argTypes, TioSharedPtr::null, body, terminateOp->findSourceLocation()
+    state, S("~terminate"), argTypes, TioSharedPtr::null, body, terminateOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -291,7 +291,7 @@ void TypeOpParsingHandler::createCastHandler(
   auto thisType = this->prepareThisType(operand->findSourceLocation());
   argTypes->add(S("this"), thisType);
 
-  auto def = this->createFunction(S("~cast"), argTypes, retType, body, castOp->findSourceLocation());
+  auto def = this->createFunction(state, S("~cast"), argTypes, retType, body, castOp->findSourceLocation());
   state->setData(def);
 }
 
@@ -335,34 +335,38 @@ void TypeOpParsingHandler::createParensOpHandler(
   }
 
   auto def = this->createFunction(
-    S("()"), argTypes, retType, body, parensOp->findSourceLocation()
+    state, S("()"), argTypes, retType, body, parensOp->findSourceLocation()
   );
   state->setData(def);
 }
 
 
 SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createBinaryOpFunction(
-  Char const *funcName, TioSharedPtr const &thisType, Char const *inputName, TioSharedPtr const &inputType,
-  TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  Processing::ParserState *state, Char const *funcName, TioSharedPtr const &thisType, Char const *inputName,
+  TioSharedPtr const &inputType, TioSharedPtr const &retType, TioSharedPtr const &body,
+  SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   // Prepare arg types map.
   auto argTypes = Core::Data::Ast::Map::create();
   argTypes->add(S("this"), thisType);
   argTypes->add(inputName, inputType);
 
-  return this->createFunction(funcName, argTypes, retType, body, sourceLocation);
+  return this->createFunction(state, funcName, argTypes, retType, body, sourceLocation);
 }
 
 
 SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createFunction(
-  Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes, TioSharedPtr const &retType,
-  TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  Processing::ParserState *state, Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes,
+  TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   // Create the function type.
   auto funcType = Spp::Ast::FunctionType::create({}, {
     {S("argTypes"), argTypes},
     {S("retType"), retType}
   });
+  if (!processFunctionArgPacks(funcType.get(), state->getNoticeStore())) {
+    return SharedPtr<Core::Data::Ast::Definition>::null;
+  }
 
   // Create the function.
   auto func = Spp::Ast::Function::create({}, {

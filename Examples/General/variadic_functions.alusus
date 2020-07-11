@@ -1,0 +1,9 @@
+import "Srl/Console.alusus";
+
+func sum (count: Int, args: ...Int): Int {
+    def r: Int = 0;
+    while count-- > 0 r += args~next_arg[Int];
+    return r;
+}
+
+Srl.Console.print("sum of 4, 2, 3, 6: %d\n", sum({ 4, 2, 3, 6 }));

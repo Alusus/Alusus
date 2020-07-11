@@ -18,6 +18,14 @@ func test {
 
   a.clear();
   Srl.Console.print("length after clear: %d\n", a.getLength());
+
+  a.add({ 8, 5, 3, 9 });
+  Srl.Console.print("after adding block of items:\n");
+  for i = 0, i < a.getLength(), ++i Srl.Console.print("a(%d) = %d\n", i, a(i));
+
+  def b: Srl.Array[Int]({ 17, 71, 33 });
+  Srl.Console.print("after instantiation with a block of items:\n");
+  for i = 0, i < b.getLength(), ++i Srl.Console.print("b(%d) = %d\n", i, b(i));
 };
 
 test();
