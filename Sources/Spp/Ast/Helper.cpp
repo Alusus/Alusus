@@ -344,7 +344,8 @@ Bool Helper::_lookupCalleeOnObject(
     }
   } else if (obj != 0 && helper->isAstReference(obj)) {
     // Match variables
-    auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(obj, obj));
+    auto objType = ti_cast<Type>(helper->traceType(obj));
+    if (objType == 0) return false;
     objType = helper->tryGetDeepReferenceContentType(objType);
     if (objType == 0) {
       if (result.matchStatus == TypeMatchStatus::NONE) {
