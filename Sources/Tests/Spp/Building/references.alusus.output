@@ -5,7 +5,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
-@ra = global [1 x i8]* null
+@"!ra" = global [1 x i8]* null
 @"#anonymous0" = private constant [26 x i8] c"Reference as pointer. %s\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
@@ -14,11 +14,11 @@ define void @"useRefAsPtr()"() {
 "#block0":
   %0 = call i8* @malloc(i64 10)
   %1 = bitcast i8* %0 to [1 x i8]*
-  store [1 x i8]* %1, [1 x i8]** @ra
-  %2 = load [1 x i8]*, [1 x i8]** @ra
+  store [1 x i8]* %1, [1 x i8]** @"!ra"
+  %2 = load [1 x i8]*, [1 x i8]** @"!ra"
   %3 = getelementptr [1 x i8], [1 x i8]* %2, i32 0, i64 0
   store i8 97, i8* %3
-  %4 = load [1 x i8]*, [1 x i8]** @ra
+  %4 = load [1 x i8]*, [1 x i8]** @"!ra"
   %5 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([26 x i8]* @"#anonymous0" to [1 x i8]*), [1 x i8]* %4)
   ret void
 }
@@ -34,20 +34,20 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
-@a = global [10 x i8] zeroinitializer
+@"!a" = global [10 x i8] zeroinitializer
 @"#anonymous0" = private constant [30 x i8] c"Pass reference to object. %s\0A\00"
-@ra = global [1 x i8]* null
+@"!ra" = global [1 x i8]* null
 @"#anonymous1" = private constant [53 x i8] c"Pass reference to object from another reference. %s\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"passRefToValue()"() {
 "#block0":
-  call void @"updateString(ref[array[Word[8],1]])"([1 x i8]* bitcast ([10 x i8]* @a to [1 x i8]*))
-  %0 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([30 x i8]* @"#anonymous0" to [1 x i8]*), [10 x i8]* @a)
-  %1 = load [1 x i8]*, [1 x i8]** @ra
+  call void @"updateString(ref[array[Word[8],1]])"([1 x i8]* bitcast ([10 x i8]* @"!a" to [1 x i8]*))
+  %0 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([30 x i8]* @"#anonymous0" to [1 x i8]*), [10 x i8]* @"!a")
+  %1 = load [1 x i8]*, [1 x i8]** @"!ra"
   call void @"updateString(ref[array[Word[8],1]])"([1 x i8]* %1)
-  %2 = load [1 x i8]*, [1 x i8]** @ra
+  %2 = load [1 x i8]*, [1 x i8]** @"!ra"
   %3 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([53 x i8]* @"#anonymous1" to [1 x i8]*), [1 x i8]* %2)
   ret void
 }
@@ -71,7 +71,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
-@rb = global [1 x i8]* null
+@"!rb" = global [1 x i8]* null
 @"#anonymous0" = private constant [6 x i8] c"hello\00"
 @"#anonymous1" = private constant [43 x i8] c"Before passing reference to reference. %s\0A\00"
 @"#anonymous2" = private constant [42 x i8] c"After passing reference to reference. %s\0A\00"
@@ -81,11 +81,11 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 define void @"passRefToRefToValue()"() {
 "#block0":
-  store [1 x i8]* bitcast ([6 x i8]* @"#anonymous0" to [1 x i8]*), [1 x i8]** @rb
-  %0 = load [1 x i8]*, [1 x i8]** @rb
+  store [1 x i8]* bitcast ([6 x i8]* @"#anonymous0" to [1 x i8]*), [1 x i8]** @"!rb"
+  %0 = load [1 x i8]*, [1 x i8]** @"!rb"
   %1 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([43 x i8]* @"#anonymous1" to [1 x i8]*), [1 x i8]* %0)
-  call void @"replaceString(ref[ref[array[Word[8],1]]])"([1 x i8]** @rb)
-  %2 = load [1 x i8]*, [1 x i8]** @rb
+  call void @"replaceString(ref[ref[array[Word[8],1]]])"([1 x i8]** @"!rb")
+  %2 = load [1 x i8]*, [1 x i8]** @"!rb"
   %3 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([42 x i8]* @"#anonymous2" to [1 x i8]*), [1 x i8]* %2)
   ret void
 }
@@ -179,17 +179,17 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
-@ri = global i32* null
-@i = global i32 0
+@"!ri" = global i32* null
+@"!i" = global i32 0
 @"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"passRefAsPtr()"() {
 "#block0":
-  store i32* @i, i32** @ri
-  store i32 5, i32* @i
-  %0 = load i32*, i32** @ri
+  store i32* @"!i", i32** @"!ri"
+  store i32 5, i32* @"!i"
+  %0 = load i32*, i32** @"!ri"
   call void @"printNumPtr(ptr[Int[32]])"(i32* %0)
   ret void
 }
@@ -213,16 +213,16 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
-@rri = global i32** null
-@ri = global i32* null
+@"!rri" = global i32** null
+@"!ri" = global i32* null
 @"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"passRefRefAsPtrPtr()"() {
 "#block0":
-  store i32** @ri, i32*** @rri
-  %0 = load i32**, i32*** @rri
+  store i32** @"!ri", i32*** @"!rri"
+  %0 = load i32**, i32*** @"!rri"
   call void @"printNumPtrPtr(ptr[ptr[Int[32]]])"(i32** %0)
   ret void
 }
@@ -247,14 +247,14 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
-@rri = global i32** null
+@"!rri" = global i32** null
 @"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"getObjectFromRefRef()"() {
 "#block0":
-  %0 = load i32**, i32*** @rri
+  %0 = load i32**, i32*** @"!rri"
   %1 = load i32*, i32** %0
   %2 = load i32, i32* %1
   call void @"printNum(Int[32])"(i32 %2)
@@ -284,9 +284,9 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 
-@i = global i32 0
-@rri = global i32** null
-@ri = global i32* null
+@"!i" = global i32 0
+@"!rri" = global i32** null
+@"!ri" = global i32* null
 @"#anonymous0" = private constant [4 x i8] c"abc\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
@@ -294,7 +294,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 define void @"errorCases()"() {
 "#block0":
   %rf = alloca float*
-  %0 = load i32*, i32** @ri
+  %0 = load i32*, i32** @"!ri"
   %1 = load i32, i32* %0
   %2 = load float*, float** %rf
   %3 = load float*, float** %rf

@@ -33,7 +33,7 @@ void AstMgr::initBindings()
 
 void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, AstMgr *astMgr)
 {
-  globalItemRepo->addItem(S("Spp.astMgr"), sizeof(void*), &astMgr);
+  globalItemRepo->addItem(S("!Spp.astMgr"), sizeof(void*), &astMgr);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStrings"), (void*)&AstMgr::_getModifierStrings);
 }
 
