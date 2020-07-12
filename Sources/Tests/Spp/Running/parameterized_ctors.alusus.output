@@ -3,4 +3,5 @@ a2.i = 11
 a3.i = 7
 b.a.i = 26
 ag.i = 3
-ERROR SPPG1031 @ (43,10): Variable initialization failed. Custom init op matching the given data is needed for this type.
+ri = 26
+ERROR SPPG1031 @ (46,10): Variable initialization failed. Custom init op matching the given data is needed for this type.

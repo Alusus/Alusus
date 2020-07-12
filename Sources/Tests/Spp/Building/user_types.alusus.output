@@ -18,8 +18,8 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 %Main_Empty = type {}
 %Main_DeepNested = type { %Main_Nested, i8, i16 }
 
-@Main.i = global i32 0
-@Main.gpoint = global %Main_Point zeroinitializer
+@"!Main.i" = global i32 0
+@"!Main.gpoint" = global %Main_Point zeroinitializer
 @"#anonymous0" = private constant [10 x i8] c"p.x = %d\0A\00"
 @"#anonymous1" = private constant [10 x i8] c"p.y = %d\0A\00"
 @"#anonymous2" = private constant [8 x i8] c"p.x=%d\0A\00"
@@ -126,9 +126,9 @@ define void @"Main.start()=>(Void)"() {
   store %Main_Point %30, %Main_Point* %p
   %31 = load %Main_Point, %Main_Point* %p
   call void @"Main.printPoint(Main.Point)=>(Void)"(%Main_Point %31)
-  %32 = load i32, i32* getelementptr inbounds (%Main_Point, %Main_Point* @Main.gpoint, i32 0, i32 0)
+  %32 = load i32, i32* getelementptr inbounds (%Main_Point, %Main_Point* @"!Main.gpoint", i32 0, i32 0)
   %33 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous6", i32 0, i32 0), i32 %32)
-  %34 = load i32, i32* getelementptr inbounds (%Main_Point, %Main_Point* @Main.gpoint, i32 0, i32 1)
+  %34 = load i32, i32* getelementptr inbounds (%Main_Point, %Main_Point* @"!Main.gpoint", i32 0, i32 1)
   %35 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous7", i32 0, i32 0), i32 %34)
   %pp = alloca %Main_Point*
   %pn = alloca %Main_Nested*

@@ -1,5 +1,6 @@
 import "Srl/Console";
 import "Srl/Time";
+use Srl;
 
 def ts: Word[64] = Time.getTimestamp(0);
 def time: ptr[Time.DetailedTime] = Time.getDetailedTime(ts~ptr);

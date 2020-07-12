@@ -35,7 +35,7 @@ void BuildMgr::initBindings()
 
 void BuildMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, BuildMgr *buildMgr)
 {
-  globalItemRepo->addItem(S("Spp.buildMgr"), sizeof(void*), &buildMgr);
+  globalItemRepo->addItem(S("!Spp.buildMgr"), sizeof(void*), &buildMgr);
   globalItemRepo->addItem(S("Spp_BuildMgr_dumpLlvmIrForElement"), (void*)&BuildMgr::_dumpLlvmIrForElement);
   globalItemRepo->addItem(S("Spp_BuildMgr_buildObjectFileForElement"), (void*)&BuildMgr::_buildObjectFileForElement);
 }

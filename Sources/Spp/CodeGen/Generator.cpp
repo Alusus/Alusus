@@ -381,7 +381,9 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
     if (generator->getAstHelper()->getDefinitionDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
       // Generate a global or a static variable.
-      Str name = generator->getAstHelper()->resolveNodePath(definition);
+      // We will prefix the name to make sure it doesn't conflict with names from imported C libs.
+      Str name = S("!");
+      name += generator->getAstHelper()->resolveNodePath(definition);
       TioSharedPtr tgGlobalVar;
 
       // Generate the default value.
@@ -413,7 +415,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
       }
 
-      if (astType->getInitializationMethod(
+      if (astParams != 0 || astType->getInitializationMethod(
         generator->astHelper, session->getExecutionContext()
       ) != Ast::TypeInitMethod::NONE) {
         session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar));
