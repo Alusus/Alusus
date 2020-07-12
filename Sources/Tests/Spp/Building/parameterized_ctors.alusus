@@ -1,0 +1,34 @@
+import "Spp";
+
+type A {
+    def i: Int;
+
+    handler this~init(n: Int) {
+        this.i = n;
+    }
+
+    handler this~init(c: Int, args: ...[Int, 1]) {
+        this.i = 0;
+        while c-- > 0 this.i += args~next_arg[Int];
+    }
+
+    func update (c: Int, args: ...[Int, 1]) {
+        this.i = 0;
+        while c-- > 0 this.i += args~next_arg[Int];
+    }
+}
+
+type B {
+    def a: A(4, 5, 6, 7, 8);
+}
+
+func test {
+    def a: A(5);
+    def a2: A(2, 3, 8);
+    def a3: ref[A](a);
+    def b: B;
+    def ae1: A;
+    def ae2: A("err");
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

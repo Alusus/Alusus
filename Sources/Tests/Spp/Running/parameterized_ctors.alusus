@@ -1,0 +1,44 @@
+import "Srl/Console.alusus";
+
+type A {
+    def i: Int;
+    handler this~init(n: Int) {
+        this.i = n;
+    }
+    handler this~init(c: Int, args: ...[Int, 1]) {
+        this.i = 0;
+        while c-- > 0 this.i += args~next_arg[Int];
+    }
+
+    func update (c: Int, args: ...[Int, 1]) {
+        this.i = 0;
+        while c-- > 0 this.i += args~next_arg[Int];
+    }
+}
+
+func test {
+    def a: A(5);
+    Srl.Console.print("a.i = %d\n", a.i);
+
+    def a2: A(2, 3, 8);
+    Srl.Console.print("a2.i = %d\n", a2.i);
+
+    def a3: ref[A](a);
+    a.i = 7;
+    Srl.Console.print("a3.i = %d\n", a3.i);
+}
+
+test();
+
+type B {
+    def a: A(4, 5, 6, 7, 8);
+}
+
+def b: B;
+Srl.Console.print("b.a.i = %d\n", b.a.i);
+
+def ag: A(3);
+Srl.Console.print("ag.i = %d\n", ag.i);
+
+def age: A;
+Srl.Console.print("age.i = %d\n", age.i);

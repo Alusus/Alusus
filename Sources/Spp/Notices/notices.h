@@ -228,6 +228,9 @@ DEFINE_NOTICE(TypeMissingAssignOpNotice, "Spp.Notices", "Spp", "alusus.org", "SP
 DEFINE_NOTICE(TypeMissingMatchingInitOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1031", 1,
   "Variable initialization failed. Custom init op matching the given data is needed for this type."
 );
+DEFINE_NOTICE(InvalidNextArgNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1032", 1,
+  "Invalid next_arg operation."
+);
 
 } // namespace
 

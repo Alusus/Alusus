@@ -8,7 +8,7 @@ ERROR SPPH1007 @ (39,34): Invalid function arg type.
 ERROR CD1003 @ (39,1): Invalid 'def' command.
 ERROR SPPH1007 @ (43,40): Invalid function arg type.
 ERROR CD1003 @ (43,1): Invalid 'def' command.
-ERROR SPPH1007 @ (47,39): Invalid function arg type.
+ERROR SPPH1007 @ (47,41): Invalid function arg type.
 ERROR CD1003 @ (47,1): Invalid 'def' command.
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]

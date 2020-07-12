@@ -172,7 +172,8 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: Bool buildGlobalCtorOrDtor(
     BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Int depsIndex, Char const *funcName,
     std::function<Bool(
-      Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, CodeGen::Session *session
+      Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, TiObject *astParams,
+      CodeGen::Session *session
     )> varOpCallback
   );
 

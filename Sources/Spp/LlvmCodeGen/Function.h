@@ -32,6 +32,7 @@ class Function : public TiObject
   private: Str name;
   private: FunctionType *functionType;
   private: llvm::Function *llvmFunction;
+  private: llvm::AllocaInst *llvmVaList = 0;
   private: std::unique_ptr<llvm::Module> llvmModule;
 
 
