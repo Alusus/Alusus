@@ -183,11 +183,9 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->pushSearchPath(path3.c_str());
 #if defined(_WIN32)
   Str path4 = (fs::u8path(getModuleDirectory().c_str()) / ".." / ALUSUS_INSTALL_BIN_DIR).string();
-  this->binSearchPathsMutex.lock();
   this->binSearchPaths.push_back(fs::absolute(fs::path(path1.c_str())).u8string());
   this->binSearchPaths.push_back(fs::absolute(fs::path(path4.c_str())).u8string());
   this->binSearchPaths.push_back(fs::absolute(fs::path(path3.c_str())).u8string());
-  this->binSearchPathsMutex.unlock();
 #endif
 
   // Add the paths from ALUSUS_LIBS environment variable.
@@ -241,9 +239,7 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
     for (auto path : paths) {
       // TODO: Ignore empty paths for now.
       if (path.size() > 0) {
-        this->binSearchPathsMutex.lock();
         this->binSearchPaths.push_back(fs::absolute(fs::path(path.c_str())).u8string());
-        this->binSearchPathsMutex.unlock();
       }
     }
   }
@@ -367,11 +363,9 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 #if defined(_WIN32)
     // Load all DLLs found in the import library.
 
-    this->loadedImportLibsAndBinsMutex.lock();
 
     // No need to reload the import library again.
     if (this->loadedImportLibs.find(newFileName) != this->loadedImportLibs.end()) {
-      this->loadedImportLibsAndBinsMutex.unlock();
       return true;
     }
 
@@ -380,7 +374,6 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
     auto dllNames = this->getDLLNames(newFileName, errorCheck);
     if (errorCheck) {
       errorDetails = "Couldn't parse import library.";
-      this->loadedImportLibsAndBinsMutex.unlock();
       return false;
     }
 
@@ -392,7 +385,6 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
       // Get the DLL's full path.
       if (!this->findBinFile(dllName.c_str(), resultFilename)) {
         errorDetails = "DLL not found: " + dllName;
-        this->loadedImportLibsAndBinsMutex.unlock();
         return false;
       }
 
@@ -400,7 +392,6 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
       errorDetails = "";
       PtrWord id = this->getLibraryManager()->load(resultFilename.data(), errorDetails);
       if (id == 0) {
-        this->loadedImportLibsAndBinsMutex.unlock();
         return false;
       }
 
@@ -412,7 +403,6 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
     // and we can cache it as it has been loaded so we don't need to load it again.
     this->loadedImportLibs.insert(newFileName);
 
-    this->loadedImportLibsAndBinsMutex.unlock();
     return true;
 #else
     PtrWord id = this->getLibraryManager()->load(newFileName, errorDetails);
@@ -489,38 +479,14 @@ Bool RootManager::findBinFile(Char const *filename, std::array<Char,PATH_MAX> &r
     throw EXCEPTION(InvalidArgumentException, S("filename"), S("Argument is null or empty string."));
   }
 
-  thread_local static std::array<Char,PATH_MAX> tmpFilename;
-
-  // Is the filename an absolute path already?
-  fs::path p(filename);
-  if (p.is_absolute()) {
-    return this->tryFileName(filename, resultFilename);
-  } else {
-    // Try all current paths.
-    thread_local static std::array<Char,PATH_MAX> fullPath;
-    this->binSearchPathsMutex.lock();
-    for (Int i = this->binSearchPaths.size()-1; i >= 0; --i) {
-      Int len = this->binSearchPaths[i].size();
-      copyStr(this->binSearchPaths[i].c_str(), fullPath.data());
-      if (fullPath.data()[len - 1] != fs::path::preferred_separator) {
-        Str tmpStr = utf8Encode(WStr(&fs::path::preferred_separator));
-        for (Char c : tmpStr) {
-          copyStr(&c, fullPath.data() + len);
-          ++len;
-        }
-      }
-      copyStr(filename, fullPath.data() + len);
-
-      if (this->tryFileName(fullPath.data(), tmpFilename)) {
-        _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
-        this->binSearchPathsMutex.unlock();
-        return true;
-      }
+  for (auto path : this->binSearchPaths) {
+    fs::path toCheckPath(path.c_str());
+    toCheckPath /= filename;
+    if (fs::exists(toCheckPath)) {
+      copyStr(toCheckPath.c_str(), resultFilename.data());
+      return true;
     }
-    this->binSearchPathsMutex.unlock();
   }
-
-  // No file was found with that name.
   return false;
 }
 

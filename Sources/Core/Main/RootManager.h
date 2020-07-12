@@ -60,11 +60,9 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
 #if defined(_WIN32)
   // Search paths for DLLs.
-  std::mutex binSearchPathsMutex;
   private: std::vector<Str> binSearchPaths;
 
   // To store all loaded import libraries and DLLs to prevent reloading.
-  std::mutex loadedImportLibsAndBinsMutex;
   private: std::set<Str> loadedImportLibs;
   private: std::set<Str> loadedBins;
 #endif
