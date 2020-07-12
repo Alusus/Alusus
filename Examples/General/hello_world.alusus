@@ -2,10 +2,4 @@ import "Srl/Console";
 
 use Srl;
 
-Console.print("Hello, world (from \"");
-Console.print(Process.os);
-Console.print(" - ");
-Console.print(Process.cpu);
-Console.print(" - ");
-Console.print(Process.hostTriple);
-Console.print("\")!!\n");
+Console.print("Hello, world!!\n");

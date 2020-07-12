@@ -74,7 +74,8 @@ if(ALUSUS_PRINT_VERSION_INFO)
                                                             ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
 endif()
 
-if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
+STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
+if (NOT "${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "DEBUG")
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS RELEASE)
 else()
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_LOGS)
@@ -90,7 +91,6 @@ endif()
 
 # Prepare compile and link flags.
 set(CXX_STD_FLAG "-std=c++17")
-STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 if(NOT WIN32)
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Using Clang")
