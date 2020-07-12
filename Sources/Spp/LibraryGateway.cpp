@@ -308,14 +308,13 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   auto argCount = manager->getProcessArgCount();
   auto args = manager->getProcessArgs();
   auto language = manager->getLanguage().c_str();
-
-  this->globalItemRepo->addItem(S("Process.argCount"), sizeof(argCount), &argCount);
-  this->globalItemRepo->addItem(S("Process.args"), sizeof(args), &args);
-  this->globalItemRepo->addItem(S("Process.language"), sizeof(language), &language);
-  this->globalItemRepo->addItem(S("Process.os"), sizeof(os), &os);
-  this->globalItemRepo->addItem(S("Process.cpu"), sizeof(cpu), &cpu);
-  this->globalItemRepo->addItem(S("Process.hostTriple"), sizeof(hostTriple), &hostTriple);
-  this->globalItemRepo->addItem(S("Core.rootManager"), sizeof(void*), &manager);
+  this->globalItemRepo->addItem(S("!Process.argCount"), sizeof(argCount), &argCount);
+  this->globalItemRepo->addItem(S("!Process.args"), sizeof(args), &args);
+  this->globalItemRepo->addItem(S("!Process.language"), sizeof(language), &language);
+  this->globalItemRepo->addItem(S("!Process.os"), sizeof(os), &os);
+  this->globalItemRepo->addItem(S("!Process.cpu"), sizeof(cpu), &cpu);
+  this->globalItemRepo->addItem(S("!Process.hostTriple"), sizeof(hostTriple), &hostTriple);
+  this->globalItemRepo->addItem(S("!Core.rootManager"), sizeof(void*), &manager);
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
   );

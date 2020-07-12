@@ -40,5 +40,8 @@ Srl.Console.print("b.a.i = %d\n", b.a.i);
 def ag: A(3);
 Srl.Console.print("ag.i = %d\n", ag.i);
 
+def ri: ref[Int](b.a.i);
+Srl.Console.print("ri = %d\n", ri);
+
 def age: A;
 Srl.Console.print("age.i = %d\n", age.i);

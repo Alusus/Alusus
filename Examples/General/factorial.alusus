@@ -1,6 +1,6 @@
 import "Srl/Console";
 import "Srl/String";
-import "Build";
+import "Build.alusus";
 use Srl;
 
 func factorial (i:Int): Int {
