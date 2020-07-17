@@ -133,3 +133,40 @@ function printNum (n: Int)
 };
 print("Passing ref[ref[int]] as int. ");
 printNum(rri);
+
+//
+// ~deref
+//
+
+type A {
+    def i: Int;
+    handler this~init() {
+        this.i = 7;
+        print("A~init\n");
+    }
+}
+
+function testDeref
+{
+    def ra: ref[A];
+    ra~init(Srl.Memory.alloc(A~size)~cast[ptr[A]]~cnt);
+    ra~deref~init();
+    print("%d\n", ra.i);
+}
+testDeref();
+
+//
+// ~ptr & ~cnt
+//
+
+function testPtrAndCnt
+{
+    def i: Int;
+    def ri: ref[Int](i);
+    def rri: ref[ref[Int]](ri);
+    def rrri: ref[ref[ref[Int]]];
+    rrri~init(rri~ptr~ptr~cnt~cnt);
+    i = 8;
+    print("%d\n", rrri);
+}
+testPtrAndCnt();

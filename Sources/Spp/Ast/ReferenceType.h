@@ -30,7 +30,17 @@ class ReferenceType : public DataType
   //============================================================================
   // Member Variables
 
+  private: TiBool implicit;
+
   private: mutable TioSharedPtr contentTypeRef;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDING(DataType,
+    (implicit, TiBool, VALUE, setImplicit(value), &implicit)
+  );
 
 
   //============================================================================
@@ -45,6 +55,20 @@ class ReferenceType : public DataType
 
   //============================================================================
   // Member Functions
+
+  public: void setImplicit(Bool i)
+  {
+    this->implicit = i;
+  }
+  public: void setImplicit(TiBool const *i)
+  {
+    this->setImplicit(i == 0 ? false : i->get());
+  }
+
+  public: Bool isImplicit() const
+  {
+    return this->implicit.get();
+  }
 
   public: Type* getContentType(Helper *helper) const;
 

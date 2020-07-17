@@ -153,6 +153,28 @@ function getObjectFromRefRef
 Spp.buildMgr.dumpLlvmIrForElement(getObjectFromRefRef~ast);
 
 //
+// ~deref
+//
+
+type A {
+    def i: Int;
+    handler this~init() {
+        this.i = 7;
+        print("A~init\n");
+    }
+}
+
+function testDeref
+{
+    def ra: ref[A];
+    ra~init(Srl.Memory.alloc(A~size)~cast[ptr[A]]~cnt);
+    ra~deref~init();
+    print("%d\n", ra.i);
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(testDeref~ast);
+
+//
 // Error cases
 //
 
@@ -164,6 +186,7 @@ function errorCases
   rri~ptr~ptr = i~ptr;
   rf = "abc";
   rf = 5.0;
+  i~deref~init();
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(errorCases~ast);

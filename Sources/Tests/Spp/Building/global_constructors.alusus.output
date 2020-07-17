@@ -24,11 +24,11 @@ declare i64 @printf(i8*, ...)
 
 define void @__constructor__3() {
 "#block1":
-  call void @"A.~init(ref[A])"(%A* @"!a")
+  call void @"A.~init(iref[A])"(%A* @"!a")
   ret void
 }
 
-define void @"A.~init(ref[A])"(%A* %this) {
+define void @"A.~init(iref[A])"(%A* %this) {
 "#block3":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -41,11 +41,11 @@ define void @"A.~init(ref[A])"(%A* %this) {
 
 define void @__destructor__4() {
 "#block2":
-  call void @"A.~terminate(ref[A])"(%A* @"!a")
+  call void @"A.~terminate(iref[A])"(%A* @"!a")
   ret void
 }
 
-define void @"A.~terminate(ref[A])"(%A* %this) {
+define void @"A.~terminate(iref[A])"(%A* %this) {
 "#block4":
   %this1 = alloca %A*
   store %A* %this, %A** %this1

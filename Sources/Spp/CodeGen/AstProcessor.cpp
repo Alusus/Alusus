@@ -246,7 +246,7 @@ Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::Function 
   }, {
     {S("operand"), Core::Data::Ast::Identifier::create({
       {S("sourceLocation"), func->findSourceLocation()},
-      {S("value"), TiStr(S("ref"))}
+      {S("value"), TiStr(S("iref"))}
     })},
     {S("param"), Spp::Ast::ThisTypeRef::create()}
   });

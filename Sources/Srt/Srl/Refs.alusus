@@ -51,7 +51,7 @@ import "Srl/Memory.alusus";
 
     @shared func new ():SrdRef[T] {
       def r: SrdRef[T];
-      r.alloc()~init();
+      r.alloc()~deref~init();
       return r;
     };
 
@@ -59,7 +59,7 @@ import "Srl/Memory.alusus";
       if this.refCount~ptr != 0 {
         --this.refCount;
         if this.refCount == 0 {
-          this.obj~terminate();
+          this.obj~deref~terminate();
           if !this.singleAllocation Srl.Memory.free(this.obj~ptr);
           Srl.Memory.free(this.refCount~ptr);
         }
@@ -103,12 +103,12 @@ import "Srl/Memory.alusus";
     func new {
       this.release();
       this.obj~ptr = Srl.Memory.alloc(T~size)~cast[ptr[T]];
-      this.obj~init();
+      this.obj~deref~init();
     };
 
     func release {
       if this.obj~ptr != 0 {
-        this.obj~terminate();
+        this.obj~deref~terminate();
         Srl.Memory.free(this.obj~ptr);
         this.obj~ptr = 0;
       }

@@ -23,37 +23,37 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 define void @"test()"() {
 "#block0":
   %a = alloca %A
-  call void @"A.setI(ref[A],Int[32])"(%A* %a, i32 10)
+  call void @"A.setI(iref[A],Int[32])"(%A* %a, i32 10)
   call void @"A.setI2(ref[A],Int[32])"(%A* %a, i32 10)
-  call void @"A.print(ref[A])"(%A* %a)
+  call void @"A.print(iref[A])"(%A* %a)
   %b = alloca %B
-  call void @"B.~init(ref[B])"(%B* %b)
+  call void @"B.~init(iref[B])"(%B* %b)
   %0 = getelementptr %B, %B* %b, i32 0, i32 0
-  call void @"A.print(ref[A])"(%A* %0)
+  call void @"A.print(iref[A])"(%A* %0)
   %"#temp0" = alloca %B
-  call void @"B.getMyVal(ref[B])=>(B)"(%B* %"#temp0", %B* %b)
+  call void @"B.getMyVal(iref[B])=>(B)"(%B* %"#temp0", %B* %b)
   %1 = getelementptr %B, %B* %"#temp0", i32 0, i32 0
-  call void @"A.print(ref[A])"(%A* %1)
-  %2 = call %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %b)
+  call void @"A.print(iref[A])"(%A* %1)
+  %2 = call %B* @"B.getMyRef(iref[B])=>(ref[B])"(%B* %b)
   %3 = getelementptr %B, %B* %2, i32 0, i32 0
-  call void @"A.print(ref[A])"(%A* %3)
+  call void @"A.print(iref[A])"(%A* %3)
   %4 = call %A @"getA()=>(A)"()
   %"#temp1" = alloca %A
   store %A %4, %A* %"#temp1"
-  call void @"A.print(ref[A])"(%A* %"#temp1")
+  call void @"A.print(iref[A])"(%A* %"#temp1")
   %5 = call %A* @"getARef()=>(ref[A])"()
-  call void @"A.print(ref[A])"(%A* %5)
+  call void @"A.print(iref[A])"(%A* %5)
   %"#temp2" = alloca %B
   call void @"getB()=>(B)"(%B* %"#temp2")
-  call void @"B.printA(ref[B])"(%B* %"#temp2")
+  call void @"B.printA(iref[B])"(%B* %"#temp2")
   %6 = call %B* @"getBRef()=>(ref[B])"()
-  call void @"B.printA(ref[B])"(%B* %6)
+  call void @"B.printA(iref[B])"(%B* %6)
   %7 = call %A @"getA()=>(A)"()
   %8 = call %A* @"getARef()=>(ref[A])"()
   ret void
 }
 
-define void @"A.setI(ref[A],Int[32])"(%A* %this, i32 %i) {
+define void @"A.setI(iref[A],Int[32])"(%A* %this, i32 %i) {
 "#block1":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -79,7 +79,7 @@ define void @"A.setI2(ref[A],Int[32])"(%A* %this, i32 %i) {
   ret void
 }
 
-define void @"A.print(ref[A])"(%A* %this) {
+define void @"A.print(iref[A])"(%A* %this) {
 "#block3":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -90,7 +90,7 @@ define void @"A.print(ref[A])"(%A* %this) {
   ret void
 }
 
-define void @"B.~init(ref[B])"(%B* %this) {
+define void @"B.~init(iref[B])"(%B* %this) {
 "#block4":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
@@ -101,16 +101,16 @@ define void @"B.~init(ref[B])"(%B* %this) {
   ret void
 }
 
-define void @"B.getMyVal(ref[B])=>(B)"(%B* %"#ret", %B* %this) {
+define void @"B.getMyVal(iref[B])=>(B)"(%B* %"#ret", %B* %this) {
 "#block5":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
   %0 = load %B*, %B** %this1
-  call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %0)
+  call void @"B.~init(iref[B],ref[B])"(%B* %"#ret", %B* %0)
   ret void
 }
 
-define %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %this) {
+define %B* @"B.getMyRef(iref[B])=>(ref[B])"(%B* %this) {
 "#block6":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
@@ -136,15 +136,15 @@ define %A* @"getARef()=>(ref[A])"() {
 define void @"getB()=>(B)"(%B* %"#ret") {
 "#block9":
   %b = alloca %B
-  call void @"B.~init(ref[B])"(%B* %b)
+  call void @"B.~init(iref[B])"(%B* %b)
   %0 = getelementptr %B, %B* %b, i32 0, i32 0
   %1 = getelementptr %A, %A* %0, i32 0, i32 0
   store i32 13, i32* %1
-  call void @"B.~init(ref[B],ref[B])"(%B* %"#ret", %B* %b)
+  call void @"B.~init(iref[B],ref[B])"(%B* %"#ret", %B* %b)
   ret void
 }
 
-define void @"B.printA(ref[B])"(%B* %this) {
+define void @"B.printA(iref[B])"(%B* %this) {
 "#block10":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
@@ -164,7 +164,7 @@ define %B* @"getBRef()=>(ref[B])"() {
 
 declare i32 @printf(i8*, ...)
 
-define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
+define void @"B.~init(iref[B],ref[B])"(%B* %this, %B* %that) {
 "#block12":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
@@ -181,7 +181,7 @@ define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
 
 define void @__constructor__3() {
 "#block13":
-  call void @"B.~init(ref[B])"(%B* @"!getBRef()=>(ref[B]).b")
+  call void @"B.~init(iref[B])"(%B* @"!getBRef()=>(ref[B]).b")
   ret void
 }
 ------------------------------------------------------------

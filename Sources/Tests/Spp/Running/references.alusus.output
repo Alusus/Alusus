@@ -10,3 +10,6 @@ Reference to function pointer.
 Passing ref[int] as ptr[int]. 5
 Passing ref[ref[int]] as ptr[ptr[int]]. 5
 Passing ref[ref[int]] as int. 5
+A~init
+7
+8

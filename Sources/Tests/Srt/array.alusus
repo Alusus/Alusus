@@ -29,3 +29,40 @@ func test {
 };
 
 test();
+
+
+def r: Srl.Array[ref[A]];
+
+type A {
+    def i: ref[Int];
+    handler this~init() {
+        r.add(this);
+        Srl.Console.print("A~init\n");
+    }
+    handler this~init(a: ref[A]) {
+        r.add(this);
+        Srl.Console.print("A~init(a)\n");
+    }
+}
+
+func test2 {
+    def a: A;
+}
+test2();
+
+type B {
+    def i: ref[Int];
+    handler this~init() {
+        Srl.Console.print("B~init\n");
+    }
+    handler this~init(b: ref[B]) {
+        Srl.Console.print("B~init(b)\n");
+    }
+}
+
+func test3 {
+    def ab: Srl.Array[B];
+    def b: B;
+    ab.add(b);
+}
+test3();
