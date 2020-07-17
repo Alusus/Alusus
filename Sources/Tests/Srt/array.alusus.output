@@ -18,3 +18,7 @@ after instantiation with a block of items:
 b(0) = 17
 b(1) = 71
 b(2) = 33
+A~init
+B~init
+B~init(b)
+B~init(b)

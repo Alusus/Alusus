@@ -423,7 +423,7 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareThisType(
   }, {
     {S("operand"), Core::Data::Ast::Identifier::create({
       {S("sourceLocation"), sourceLocation},
-      {S("value"), TiStr(S("ref"))}
+      {S("value"), TiStr(S("iref"))}
     })},
     {S("param"), Spp::Ast::ThisTypeRef::create()}
   });
@@ -439,7 +439,7 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareAssignmentRet
   }, {
     {S("operand"), Core::Data::Ast::Identifier::create({
       {S("sourceLocation"), sourceLocation},
-      {S("value"), TiStr(S("ref"))}
+      {S("value"), TiStr(S("iref"))}
     })},
     {S("param"), Spp::Ast::ThisTypeRef::create()}
   });

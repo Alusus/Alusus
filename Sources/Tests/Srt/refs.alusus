@@ -12,7 +12,7 @@ type Num {
 
 func test1 {
   def n: SrdRef[Num];
-  n.alloc()~init();
+  n.alloc()~deref~init();
   n.x = 5;
 }
 

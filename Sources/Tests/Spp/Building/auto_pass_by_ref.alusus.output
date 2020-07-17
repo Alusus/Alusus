@@ -35,19 +35,19 @@ define void @"convertPoint2(Point1)=>(Point2)"(%Point2* %"#ret", %Point1 %p) {
   %p1 = alloca %Point1
   store %Point1 %p, %Point1* %p1
   %r = alloca %Point2
-  call void @"Point2.~init(ref[Point2])"(%Point2* %r)
-  call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
+  call void @"Point2.~init(iref[Point2])"(%Point2* %r)
+  call void @"Point2.~init(iref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
   ret void
 }
 
-define void @"Point2.~init(ref[Point2])"(%Point2* %this) {
+define void @"Point2.~init(iref[Point2])"(%Point2* %this) {
 "#block1":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
   ret void
 }
 
-define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
+define void @"Point2.~init(iref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
 "#block2":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
@@ -71,13 +71,13 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 define %Point1 @"convertPoint3(Point2)=>(Point1)"(%Point2* %p) {
 "#block0":
   %p1 = alloca %Point2
-  call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %p1, %Point2* %p)
+  call void @"Point2.~init(iref[Point2],ref[Point2])"(%Point2* %p1, %Point2* %p)
   %r = alloca %Point1
   %0 = load %Point1, %Point1* %r
   ret %Point1 %0
 }
 
-define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
+define void @"Point2.~init(iref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
 "#block1":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
@@ -100,14 +100,14 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 define void @"convertPoint4(Point2)=>(Point2)"(%Point2* %"#ret", %Point2* %p) {
 "#block0":
   %p1 = alloca %Point2
-  call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %p1, %Point2* %p)
+  call void @"Point2.~init(iref[Point2],ref[Point2])"(%Point2* %p1, %Point2* %p)
   %r = alloca %Point2
-  call void @"Point2.~init(ref[Point2])"(%Point2* %r)
-  call void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
+  call void @"Point2.~init(iref[Point2])"(%Point2* %r)
+  call void @"Point2.~init(iref[Point2],ref[Point2])"(%Point2* %"#ret", %Point2* %r)
   ret void
 }
 
-define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
+define void @"Point2.~init(iref[Point2],ref[Point2])"(%Point2* %this, %Point2* %src) {
 "#block1":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1
@@ -116,7 +116,7 @@ define void @"Point2.~init(ref[Point2],ref[Point2])"(%Point2* %this, %Point2* %s
   ret void
 }
 
-define void @"Point2.~init(ref[Point2])"(%Point2* %this) {
+define void @"Point2.~init(iref[Point2])"(%Point2* %this) {
 "#block2":
   %this1 = alloca %Point2*
   store %Point2* %this, %Point2** %this1

@@ -111,7 +111,7 @@ UserType [Main.Type]
    type: FunctionType [Main.Function]
     argTypes: Map
      this: ParamPass []
-      operand: Identifier: ref
+      operand: Identifier: iref
       param: ThisTypeRef
     retType: NULL
    body: Block [Main.BlockStatements.StmtList]

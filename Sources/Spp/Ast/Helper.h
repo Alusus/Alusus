@@ -35,6 +35,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
+  private: Template *irefTemplate = 0;
   private: Template *ptrTemplate = 0;
   private: Template *arrayTemplate = 0;
   private: IntegerType *nullType = 0;
@@ -198,10 +199,10 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, Type *refType, Type *contentType, ExecutionContext const *ec
   );
 
-  public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*));
-  private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type);
+  public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*, Bool));
+  private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type, Bool implicit);
 
-  public: ReferenceType* getReferenceTypeForPointerType(PointerType *type);
+  public: ReferenceType* getReferenceTypeForPointerType(PointerType *type, Bool implicit);
 
   public: METHOD_BINDING_CACHE(getPointerTypeFor, PointerType*, (TiObject*));
   private: static PointerType* _getPointerTypeFor(TiObject *self, TiObject *type);
@@ -210,6 +211,8 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: static ArrayType* _getArrayTypeFor(TiObject *self, TiObject *type);
 
   public: Type* swichInnerReferenceTypeWithPointerType(ReferenceType *type);
+
+  public: Type* swichOuterPointerTypeWithReferenceType(Type *type, Bool implicit);
 
   public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (TiObject*));
   private: static Type* _getValueTypeFor(TiObject *self, TiObject *type);
@@ -300,7 +303,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   /// @name Helper Functions
   /// @{
 
-  private: Template* getReferenceTemplate();
+  private: Template* getReferenceTemplate(Bool implicit);
 
   private: Template* getPointerTemplate();
 

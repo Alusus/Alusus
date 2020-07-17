@@ -139,6 +139,7 @@ DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupResult, "alusus.org/Spp/Spp.Ast.CalleeLoo
 // Operators
 #include "PointerOp.h"
 #include "ContentOp.h"
+#include "DerefOp.h"
 #include "CastOp.h"
 #include "SizeOp.h"
 #include "AstRefOp.h"

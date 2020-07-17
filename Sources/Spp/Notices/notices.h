@@ -231,6 +231,9 @@ DEFINE_NOTICE(TypeMissingMatchingInitOpNotice, "Spp.Notices", "Spp", "alusus.org
 DEFINE_NOTICE(InvalidNextArgNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1032", 1,
   "Invalid next_arg operation."
 );
+DEFINE_NOTICE(InvalidDerefOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1033", 1,
+  "Invalid operand for ~deref operator."
+);
 
 } // namespace
 

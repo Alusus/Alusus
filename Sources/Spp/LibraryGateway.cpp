@@ -188,8 +188,17 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
     std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
-  tmplt->setBody(Ast::ReferenceType::create());
+  tmplt->setBody(Ast::ReferenceType::create({ { S("implicit"), TiBool(false) } }));
   identifier.setValue(S("ref"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+
+  // iref
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
+  }));
+  tmplt->setBody(Ast::ReferenceType::create({ { S("implicit"), TiBool(true) } }));
+  identifier.setValue(S("iref"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // array
@@ -229,6 +238,9 @@ void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
   manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(S("ref"));
+  manager->getSeeker()->tryRemove(&identifier, root);
+
+  identifier.setValue(S("iref"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
   identifier.setValue(S("array"));

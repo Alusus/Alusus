@@ -44,6 +44,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generatePointerOp,
     &this->generateAstRefOp,
     &this->generateContentOp,
+    &this->generateDerefOp,
     &this->generateCastOp,
     &this->generateSizeOp,
     &this->generateInitOp,
@@ -91,6 +92,7 @@ void ExpressionGenerator::initBindings()
   this->generatePointerOp = &ExpressionGenerator::_generatePointerOp;
   this->generateAstRefOp = &ExpressionGenerator::_generateAstRefOp;
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
+  this->generateDerefOp = &ExpressionGenerator::_generateDerefOp;
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
   this->generateInitOp = &ExpressionGenerator::_generateInitOp;
@@ -146,6 +148,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::ContentOp>()) {
     auto contentOp = static_cast<Spp::Ast::ContentOp*>(astNode);
     return expGenerator->generateContentOp(contentOp, g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::DerefOp>()) {
+    auto derefOp = static_cast<Spp::Ast::DerefOp*>(astNode);
+    return expGenerator->generateDerefOp(derefOp, g, session, result);
   } else if (astNode->isDerivedFrom<Spp::Ast::CastOp>()) {
     auto castOp = static_cast<Spp::Ast::CastOp*>(astNode);
     return expGenerator->generateCastOp(castOp, g, session, result);
@@ -248,7 +253,7 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
       if (ownerType != 0 && ownerType == session->getAstSelfType()) {
         // Generate a reference to a member variable.
         GenResult firstResult;
-        firstResult.astType = expGenerator->getAstHelper()->getReferenceTypeFor(session->getAstSelfType());
+        firstResult.astType = expGenerator->getAstHelper()->getReferenceTypeFor(session->getAstSelfType(), true);
         firstResult.targetData = session->getTgSelf();
         GenResult callee;
         if (!expGenerator->generateReferenceChain(stack, astNode, firstResult, g, session, callee)) return false;
@@ -423,7 +428,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
 
     if (firstResult.astType != 0) {
       auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(firstResult.astType);
-      auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType);
+      auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, true);
       // Lookup the callee.
       Ast::CalleeLookupResult calleeResult;
       if (!expGenerator->astHelper->lookupCalleeInScope(
@@ -567,7 +572,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     g->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
     // Set result
     result.astNode = 0;
-    result.astType = expGenerator->astHelper->getReferenceTypeFor(astType);
+    result.astType = expGenerator->astHelper->getReferenceTypeFor(astType, true);
     result.targetData = tempVarRef;
     return true;
   } else {
@@ -602,7 +607,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       // Get the target data of the pointer and its type.
       GenResult derefCallee;
       if (!expGenerator->dereferenceIfNeeded(
-        callee.astType, callee.targetData.get(), true, session, derefCallee
+        callee.astType, callee.targetData.get(), true, false, session, derefCallee
       )) return false;
       TiObject *tgFuncPtrType = session->getEda()->getCodeGenData<TiObject>(derefCallee.astType);
       // Generate the call.
@@ -619,7 +624,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       // Get a reference to the array.
       GenResult derefCallee;
       if (!expGenerator->dereferenceIfNeeded(
-        callee.astType, callee.targetData.get(), false, session, derefCallee
+        callee.astType, callee.targetData.get(), false, false, session, derefCallee
       )) return false;
       // Reference array element.
       return expGenerator->generateArrayReference(
@@ -894,10 +899,10 @@ Bool ExpressionGenerator::_generateArithmeticOp(
 
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, session, param1
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, false, session, param1
   )) return false;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, session, param2
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, false, session, param2
   )) return false;
   Ast::Type *astTargetType = 0;
 
@@ -1014,10 +1019,10 @@ Bool ExpressionGenerator::_generateBinaryOp(
 
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, session, param1
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, false, session, param1
   )) return false;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, session, param2
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, false, session, param2
   )) return false;
   Ast::Type *astTargetType = 0;
 
@@ -1121,10 +1126,10 @@ Bool ExpressionGenerator::_generateComparisonOp(
   Bool equality = astNode->getType() == S("==") || astNode->getType() == S("!=");
   GenResult param1, param2;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, session, param1
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, false, session, param1
   )) return false;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, session, param2
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, false, session, param2
   )) return false;
   Ast::Type *astTargetType = 0;
 
@@ -1274,7 +1279,7 @@ Bool ExpressionGenerator::_generateAssignOp(
 
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, session, target
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, false, session, target
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
@@ -1297,7 +1302,7 @@ Bool ExpressionGenerator::_generateAssignOp(
 
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), false, session, param
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), false, false, session, param
   )) return false;
 
   // Cast the value to the destination type.
@@ -1382,7 +1387,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
 
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, session, target
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, false, session, target
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
@@ -1393,7 +1398,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   }
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, session, param
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, false, session, param
   )) return false;
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
@@ -1478,7 +1483,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
 
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, session, param
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, false, session, param
   )) return false;
   if (astNode->getType() == S("+")) {
     // This is a no-op.
@@ -1541,7 +1546,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
 
   GenResult param;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, session, param
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, false, session, param
   )) return false;
 
   Ast::IntegerType *astTargetType = 0;
@@ -1607,7 +1612,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
 
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, session, target
+    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, false, session, target
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
@@ -1787,25 +1792,57 @@ Bool ExpressionGenerator::_generateContentOp(
     return false;
   }
 
-  // Get the pointer itself, not a reference to a pointer.
-  GenResult derefResult;
-  if (!expGenerator->dereferenceIfNeeded(
-    operandResult.astType, operandResult.targetData.get(), true, session, derefResult
-  )) return false;
-
-  // Did we end up with a pointer type?
-  auto operandPtrAstType = ti_cast<Ast::PointerType>(derefResult.astType);
-  if (operandPtrAstType == 0) {
+  // Switch the pointer type to implicit reference type.
+  result.astType = expGenerator->astHelper->swichOuterPointerTypeWithReferenceType(operandResult.astType, true);
+  if (result.astType == 0) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
     );
     return false;
   }
+  TiObject *tgType;
+  if (!g->getGeneratedType(result.astType, session, tgType, 0)) return false;
+  result.targetData = operandResult.targetData;
+  return true;
+}
 
-  // Get the reference type.
-  result.astType = expGenerator->astHelper->getReferenceTypeForPointerType(operandPtrAstType);
-  if (result.astType == 0) return false;
-  result.targetData = derefResult.targetData;
+
+Bool ExpressionGenerator::_generateDerefOp(
+  TiObject *self, Spp::Ast::DerefOp *astNode, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, S("ContentOp operand is missing."));
+  }
+  GenResult operandResult;
+  if (!expGenerator->generate(operand, g, session, operandResult)) return false;
+  if (operandResult.astType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
+
+  // Dereference and get content type.
+  GenResult target;
+  if (!expGenerator->dereferenceIfNeeded(
+    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), true, true, session, target
+  )) return false;
+  auto refType = ti_cast<Spp::Ast::ReferenceType>(target.astType);
+  if (refType == 0) {
+    expGenerator->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
+  Spp::Ast::Type *cntAstType = refType->getContentType(expGenerator->astHelper);
+
+  // Use an implicit reference type instead of the explicit reference type currently in use.
+  result.astType = expGenerator->astHelper->getReferenceTypeFor(cntAstType, true);
+  result.targetData = target.targetData;
   return true;
 }
 
@@ -1832,7 +1869,7 @@ Bool ExpressionGenerator::_generateCastOp(
   // Get the deepest reference.
   GenResult derefResult;
   if (!expGenerator->dereferenceIfNeeded(
-    operandResult.astType, operandResult.targetData.get(), false, session, derefResult
+    operandResult.astType, operandResult.targetData.get(), false, false, session, derefResult
   )) return false;
 
   // Get the target type.
@@ -1943,10 +1980,10 @@ Bool ExpressionGenerator::_generateInitOp(
   // Dereference and get content type.
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, session, target
+    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, true, session, target
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
-  if (astRefType == 0) {
+  if (astRefType == 0 || !astRefType->isImplicit()) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidInitOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
@@ -1995,10 +2032,10 @@ Bool ExpressionGenerator::_generateTerminateOp(
   // Dereference and get content type.
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, session, target
+    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, true, session, target
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
-  if (astRefType == 0) {
+  if (astRefType == 0 || !astRefType->isImplicit()) {
     expGenerator->noticeStore->add(
       std::make_shared<Spp::Notices::InvalidTerminateOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
@@ -2036,7 +2073,7 @@ Bool ExpressionGenerator::_generateNextArgOp(
   // Get the deepest reference.
   GenResult derefResult;
   if (!expGenerator->dereferenceIfNeeded(
-    operandResult.astType, operandResult.targetData.get(), false, session, derefResult
+    operandResult.astType, operandResult.targetData.get(), false, false, session, derefResult
   )) return false;
   if (ti_cast<Ast::ReferenceType>(derefResult.astType) == 0) {
     expGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
@@ -2297,7 +2334,7 @@ Bool ExpressionGenerator::_generateVarReference(
   if (session->getTgContext() != 0) {
     if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgVar, result.targetData)) return false;
   }
-  result.astType = expGenerator->astHelper->getReferenceTypeFor(astType);
+  result.astType = expGenerator->astHelper->getReferenceTypeFor(astType, true);
   return true;
 }
 
@@ -2310,7 +2347,7 @@ Bool ExpressionGenerator::_generateMemberReference(
 
   // Get the deepest reference.
   GenResult target;
-  if (!expGenerator->dereferenceIfNeeded(astType, tgValue, false, session, target)) return false;
+  if (!expGenerator->dereferenceIfNeeded(astType, tgValue, false, false, session, target)) return false;
 
   // Prepare the struct type.
   Ast::Type *astStructType;
@@ -2396,7 +2433,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
       return false;
     }
   }
-  result.astType = expGenerator->astHelper->getReferenceTypeFor(astMemberType);
+  result.astType = expGenerator->astHelper->getReferenceTypeFor(astMemberType, true);
   return true;
 }
 
@@ -2420,7 +2457,7 @@ Bool ExpressionGenerator::_generateArrayReference(
 
   // Get the deepest reference.
   GenResult target;
-  if (!expGenerator->dereferenceIfNeeded(astType, tgValue, false, session, target)) return false;
+  if (!expGenerator->dereferenceIfNeeded(astType, tgValue, false, false, session, target)) return false;
 
   // Prepare the array type.
   TiObject *tgArrayType;
@@ -2451,7 +2488,7 @@ Bool ExpressionGenerator::_generateArrayReference(
       return false;
     }
   }
-  result.astType = expGenerator->astHelper->getReferenceTypeFor(astElementType);
+  result.astType = expGenerator->astHelper->getReferenceTypeFor(astElementType, true);
   return true;
 }
 
@@ -2467,7 +2504,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
     // TODO: Generate inlined function body.
     throw EXCEPTION(GenericException, S("Inline function generation is not implemented yet."));
   } else {
-    // Build called funcion declaration.
+    // Build called function declaration.
     if (!g->generateFunctionDecl(callee, session)) return false;
     session->getFuncDeps()->add(callee);
     auto tgFunction = session->getEda()->getCodeGenData<TiObject>(callee);
@@ -2501,7 +2538,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
           astNode, astRetType, session->getExecutionContext(), session->getDestructionStack()
         );
       }
-      result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType);
+      result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, true);
     } else {
       if (session->getTgContext() != 0) {
         if (!session->getTg()->generateFunctionCall(
@@ -2534,7 +2571,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
       if (context.type->getInitializationMethod(
         expGenerator->astHelper, session->getExecutionContext()
       ) != Ast::TypeInitMethod::NONE) {
-        neededAstType = expGenerator->astHelper->getReferenceTypeFor(context.type);
+        neededAstType = expGenerator->astHelper->getReferenceTypeFor(context.type, true);
       } else {
         neededAstType = context.type;
       }
@@ -2551,7 +2588,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
     } else {
       // For var args we need to send values, not references.
       GenResult result;
-      if (!expGenerator->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, session, result)) {
+      if (!expGenerator->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, false, session, result)) {
         throw EXCEPTION(GenericException, S("Unexpected error."));
       }
       paramTgVals->set(i, result.targetData);
@@ -2592,7 +2629,7 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
         // Generate member var reference.
         GenResult structResult;
         if (!expGenerator->dereferenceIfNeeded(
-          calleeResult.astType, calleeResult.targetData.get(), false, session, structResult
+          calleeResult.astType, calleeResult.targetData.get(), false, false, session, structResult
         )) return false;
         if (!expGenerator->generateMemberVarReference(
           astNode, structResult.targetData.get(), structResult.astType, item, g, session, calleeResult
@@ -2629,7 +2666,7 @@ Bool ExpressionGenerator::_generateReferenceChain(
       // Generate member var reference.
       GenResult structResult;
       if (!expGenerator->dereferenceIfNeeded(
-        calleeResult.astType, calleeResult.targetData.get(), false, session, structResult
+        calleeResult.astType, calleeResult.targetData.get(), false, false, session, structResult
       )) return false;
       if (!expGenerator->generateMemberVarReference(
         astNode, structResult.targetData.get(), structResult.astType, item, g, session, calleeResult
@@ -2711,20 +2748,22 @@ Bool ExpressionGenerator::_generateParams(
 // Helper Functions
 
 Bool ExpressionGenerator::dereferenceIfNeeded(
-  Spp::Ast::Type *astType, TiObject *tgValue, Bool valueNeeded, Session *session, GenResult &result
+  Spp::Ast::Type *astType, TiObject *tgValue, Bool valueNeeded, Bool implicitOnly, Session *session, GenResult &result
 ) {
   auto refType = ti_cast<Spp::Ast::ReferenceType>(astType);
-  if (refType != 0) {
-    Spp::Ast::Type *derefAstType = refType->getContentType(this->astHelper);
-    if (ti_cast<Spp::Ast::ReferenceType>(derefAstType) != 0 || valueNeeded) {
+  if (refType != 0 && (!implicitOnly || refType->isImplicit())) {
+    Spp::Ast::Type *cntAstType = refType->getContentType(this->astHelper);
+    auto cntRefAstType = ti_cast<Spp::Ast::ReferenceType>(cntAstType);
+    Bool innerRefAvailable = cntRefAstType != 0 && (!implicitOnly || cntRefAstType->isImplicit());
+    if (innerRefAvailable || valueNeeded) {
       TioSharedPtr derefTgValue;
       if (session->getTgContext() != 0) {
-        auto tgContentType = session->getEda()->getCodeGenData<TiObject>(derefAstType);
+        auto tgContentType = session->getEda()->getCodeGenData<TiObject>(cntAstType);
         if (!session->getTg()->generateDereference(session->getTgContext(), tgContentType, tgValue, derefTgValue)) {
           return false;
         }
       }
-      return this->dereferenceIfNeeded(derefAstType, derefTgValue.get(), valueNeeded, session, result);
+      return this->dereferenceIfNeeded(cntAstType, derefTgValue.get(), valueNeeded, implicitOnly, session, result);
     }
   }
   result.astType = astType;

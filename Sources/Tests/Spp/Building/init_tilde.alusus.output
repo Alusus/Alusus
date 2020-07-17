@@ -15,30 +15,30 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 define void @"test()"() {
 "#block0":
   %a = alloca %T
-  call void @"T.~init(ref[T])"(%T* %a)
-  call void @"T.~init(ref[T])"(%T* %a)
-  call void @"T.~init(ref[T],Int[32])"(%T* %a, i32 5)
-  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %a, i32 6, i32 8)
+  call void @"T.~init(iref[T])"(%T* %a)
+  call void @"T.~init(iref[T])"(%T* %a)
+  call void @"T.~init(iref[T],Int[32])"(%T* %a, i32 5)
+  call void @"T.~init(iref[T],Int[32],Int[32])"(%T* %a, i32 6, i32 8)
   %pa = alloca %T*
   %0 = load %T*, %T** %pa
-  call void @"T.~init(ref[T])"(%T* %0)
+  call void @"T.~init(iref[T])"(%T* %0)
   %1 = load %T*, %T** %pa
-  call void @"T.~init(ref[T],Int[32])"(%T* %1, i32 5)
+  call void @"T.~init(iref[T],Int[32])"(%T* %1, i32 5)
   %2 = load %T*, %T** %pa
-  call void @"T.~init(ref[T],Int[32],Int[32])"(%T* %2, i32 6, i32 8)
+  call void @"T.~init(iref[T],Int[32],Int[32])"(%T* %2, i32 6, i32 8)
   %i = alloca i32
   store i32 5, i32* %i
   ret void
 }
 
-define void @"T.~init(ref[T])"(%T* %this) {
+define void @"T.~init(iref[T])"(%T* %this) {
 "#block1":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
   ret void
 }
 
-define void @"T.~init(ref[T],Int[32])"(%T* %this, i32 %a) {
+define void @"T.~init(iref[T],Int[32])"(%T* %this, i32 %a) {
 "#block2":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
@@ -47,7 +47,7 @@ define void @"T.~init(ref[T],Int[32])"(%T* %this, i32 %a) {
   ret void
 }
 
-define void @"T.~init(ref[T],Int[32],Int[32])"(%T* %this, i32 %a, i32 %b) {
+define void @"T.~init(iref[T],Int[32],Int[32])"(%T* %this, i32 %a, i32 %b) {
 "#block3":
   %this1 = alloca %T*
   store %T* %this, %T** %this1

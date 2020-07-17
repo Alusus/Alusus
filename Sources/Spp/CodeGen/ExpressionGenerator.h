@@ -357,6 +357,16 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::ContentOp *astNode, Generation *g, Session *session, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateDerefOp,
+    Bool, (
+      Spp::Ast::DerefOp* /* astNode */, Generation* /* g */,
+      Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateDerefOp(
+    TiObject *self, Spp::Ast::DerefOp *astNode, Generation *g, Session *session, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateCastOp,
     Bool, (
       Spp::Ast::CastOp* /* astNode */, Generation* /* g */,
@@ -562,7 +572,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   /// @{
 
   public: Bool dereferenceIfNeeded(
-    Spp::Ast::Type *astType, TiObject *tgValue, Bool valueNeeded, Session *session, GenResult &result
+    Spp::Ast::Type *astType, TiObject *tgValue, Bool valueNeeded, Bool implicitOnly, Session *session, GenResult &result
   );
 
   private: Bool castLogicalOperand(

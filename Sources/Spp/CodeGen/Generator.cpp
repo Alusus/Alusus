@@ -198,7 +198,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       if (argAstType->getInitializationMethod(
         generator->astHelper, session->getExecutionContext()
       ) != Ast::TypeInitMethod::NONE) {
-        argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType);
+        argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType, true);
       } else {
         argSourceAstType = argAstType;
       }
@@ -625,7 +625,7 @@ Bool Generator::_generateVarInitialization(
     }
 
     // Add `this` to parameter list.
-    auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType);
+    auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, true);
     paramAstNodes->insertElement(0, astNode);
     paramAstTypes->insertElement(0, varPtrAstType);
     paramTgValues->insertElement(0, tgVarRef);
@@ -767,7 +767,7 @@ Bool Generator::_generateVarDestruction(
   // Prepare param list.
   PlainList<TiObject> paramTgValues;
   PlainList<TiObject> paramAstTypes;
-  auto ptrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType);
+  auto ptrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, true);
   paramAstTypes.insertElement(0, ptrAstType);
   paramTgValues.insertElement(0, tgVarRef);
 
