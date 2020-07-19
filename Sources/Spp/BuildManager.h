@@ -101,9 +101,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     this->initTargets();
   }
 
-  public: virtual ~BuildManager()
-  {
-  }
+  public: virtual ~BuildManager();
 
 
   //============================================================================

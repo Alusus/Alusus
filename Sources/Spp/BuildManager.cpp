@@ -15,6 +15,15 @@
 namespace Spp
 {
 
+BuildManager::~BuildManager()
+{
+  // Reset all build data to avoid possible segmentation faults caused by destructing LLVM objects in the wrong order.
+  this->resetBuild(BuildManager::BuildType::JIT);
+  this->resetBuild(BuildManager::BuildType::EVAL);
+  this->resetBuild(BuildManager::BuildType::OFFLINE);
+}
+
+
 //==============================================================================
 // Initialization Functions
 
@@ -59,7 +68,7 @@ void BuildManager::initTargets()
 {
   this->jitEda.setIdPrefix("jit");
   this->jitBuildTarget = std::make_shared<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
-  this->jitTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), true);
+  this->jitTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), false);
   this->jitTargetGenerator->setupBuild();
 
   this->evalEda.setIdPrefix("eval");
