@@ -2082,9 +2082,14 @@ Bool ExpressionGenerator::_generateNextArgOp(
 
   // Get the target type.
   auto targetAstType = expGenerator->astHelper->traceType(astNode->getTargetType().get());
+  if (targetAstType->getInitializationMethod(
+    expGenerator->astHelper, session->getExecutionContext()
+  ) != Ast::TypeInitMethod::NONE) {
+    targetAstType = expGenerator->astHelper->getReferenceTypeFor(targetAstType, true);
+  }
   if (targetAstType == 0) return false;
   TiObject *targetTgType;
-  if (!g->getGeneratedType(astNode->getTargetType().get(), session, targetTgType, 0)) return false;
+  if (!g->getGeneratedType(targetAstType, session, targetTgType, 0)) return false;
 
   // Get the next arg.
   Bool retVal;

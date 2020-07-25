@@ -22,3 +22,4 @@ A~init
 B~init
 B~init(b)
 B~init(b)
+Array[String]({...})
