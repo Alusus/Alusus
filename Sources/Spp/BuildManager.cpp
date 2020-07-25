@@ -343,6 +343,7 @@ Bool BuildManager::buildGlobalCtorOrDtor(
   );
   CodeGen::DestructionStack destructionStack;
   CodeGen::Session session(buildSession->getCodeGenSession(), tgContext.get(), &destructionStack);
+  buildSession->getCodeGenSession()->getEda()->setCodeGenData(this->rootManager->getRootScope().get(), tgContext);
 
   Bool result = true;
 
@@ -386,6 +387,7 @@ Bool BuildManager::buildGlobalCtorOrDtor(
   )) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
   }
+  buildSession->getCodeGenSession()->getEda()->removeCodeGenData(this->rootManager->getRootScope().get());
 
   return result;
 }
