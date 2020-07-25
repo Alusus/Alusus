@@ -1,0 +1,19 @@
+import "Srl/Console";
+import "Srl/Array";
+use Srl;
+
+type A {
+    def b: ref[B];
+    def i: Int;
+}
+
+type B {
+    def a: ref[A];
+    def i: Int;
+}
+
+def b: B;
+def bs: Array[B];
+bs.add(b);
+Console.print("Did not crash!\n");
+def i: Int = b;

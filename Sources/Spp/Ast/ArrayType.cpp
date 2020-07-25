@@ -50,7 +50,9 @@ Word ArrayType::getSize(Helper *helper) const
 }
 
 
-TypeMatchStatus ArrayType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus ArrayType::matchTargetType(
+  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
 

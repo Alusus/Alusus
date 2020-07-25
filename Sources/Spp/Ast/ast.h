@@ -35,6 +35,12 @@ class Type;
 // Types
 
 /// @ingroup spp_ast
+s_enum(TypeMatchOptions,
+  NONE = 0,
+  SKIP_DEREF = 1
+);
+
+/// @ingroup spp_ast
 class TypeMatchStatus : public TiObject
 {
   TYPE_INFO(TypeMatchStatus, TiObject, "Spp.Ast", "Spp", "alusus.org");

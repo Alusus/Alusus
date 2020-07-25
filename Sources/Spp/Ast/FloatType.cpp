@@ -33,7 +33,9 @@ Word FloatType::getBitCount(Helper *helper) const
 }
 
 
-TypeMatchStatus FloatType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus FloatType::matchTargetType(
+  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
   else {

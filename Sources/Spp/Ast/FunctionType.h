@@ -78,7 +78,9 @@ class FunctionType : public Type, public MapContaining<TiObject>
   //============================================================================
   // Member Functions
 
-  public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeMatchStatus matchTargetType(
+    Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
+  ) const;
 
   public: void setArgTypes(SharedPtr<Core::Data::Ast::Map> const &args)
   {

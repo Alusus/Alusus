@@ -56,12 +56,13 @@ class Type : public Core::Data::Node,
   // Member Functions
 
   public: virtual TypeMatchStatus matchTargetType(
-    Type const *type, Helper *helper, ExecutionContext const *ec
+    Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const = 0;
 
   public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
-    return this->matchTargetType(type, helper, ec) == TypeMatchStatus(TypeMatchStatus::EXACT);
+    return this->matchTargetType(type, helper, ec, TypeMatchOptions::SKIP_DEREF)
+      == TypeMatchStatus(TypeMatchStatus::EXACT);
   }
 
   public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const

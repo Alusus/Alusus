@@ -18,7 +18,9 @@ namespace Spp::Ast
 //==============================================================================
 // Member Functions
 
-TypeMatchStatus FunctionType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus FunctionType::matchTargetType(
+  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+) const
 {
   VALIDATE_NOT_NULL(type, helper);
   if (this == type) return TypeMatchStatus::EXACT;

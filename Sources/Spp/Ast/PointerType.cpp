@@ -35,7 +35,9 @@ Type* PointerType::getContentType(Helper *helper) const
 }
 
 
-TypeMatchStatus PointerType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus PointerType::matchTargetType(
+  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
 
