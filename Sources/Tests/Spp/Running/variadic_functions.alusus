@@ -21,6 +21,7 @@ func sum (count: Int, args: ...Int): Int {
 type A {
     def i: Int;
     handler this~init() { this.i = 7 };
+    handler this~init(n: Int) { this.i = n };
     handler this~cast[Int] { return this.i };
 };
 
@@ -29,5 +30,12 @@ Srl.Console.print("%d\n", sum({ 4, 2; 3, 6 }));
 Srl.Console.print("%d\n", sum({}));
 
 Srl.Console.print("%d\n", sum({ 4, A(), 3 }));
+
+func sumA(count: Int, args: ...A): Int {
+    def r: Int = 0;
+    while count-- > 0 r += args~next_arg[A].i;
+    return r;
+}
+Srl.Console.print("%d\n", sumA({ A(12), A(23), A(3) }));
 
 Srl.Console.print("%d\n", sum({ 4, A(), "wrong" }));

@@ -1,5 +1,6 @@
 import "Srl/Console.alusus";
 import "Srl/Array.alusus";
+import "Srl/String.alusus";
 
 func test {
   def a: Srl.Array[Int];
@@ -66,3 +67,6 @@ func test3 {
     ab.add(b);
 }
 test3();
+
+def as: Srl.Array[Srl.String]({ Srl.String("Array[String]({...})\n") });
+Srl.Console.print(as(0));

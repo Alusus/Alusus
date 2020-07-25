@@ -35,7 +35,9 @@ Word IntegerType::getBitCount(Helper *helper) const
 }
 
 
-TypeMatchStatus IntegerType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus IntegerType::matchTargetType(
+  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
   else {

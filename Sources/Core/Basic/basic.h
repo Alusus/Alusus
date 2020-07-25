@@ -269,7 +269,9 @@ namespace Core::Basic
     const x& operator=(int v) { this->val = static_cast<_##x>(v); return *this; } \
     const x& operator|=(int v) { this->val = static_cast<_##x>(this->val | v); return *this; } \
     const x& operator&=(int v) { this->val = static_cast<_##x>(this->val & v); return *this; } \
-    bool operator&(int v) { return this->val & v; } \
+    x operator|(int v) { return x(static_cast<_##x>(this->val | v)); } \
+    x operator&(int v) { return x(static_cast<_##x>(this->val & v)); } \
+    operator bool() const { return this->val != 0; } \
     bool operator ==(x v) const { return this->val == v.val; } \
     bool operator !=(x v) const { return this->val != v.val; } \
     bool operator ==(_##x v) const { return this->val == v; } \

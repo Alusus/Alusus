@@ -15,7 +15,9 @@
 namespace Spp::Ast
 {
 
-TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus UserType::matchTargetType(
+  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+) const
 {
   if (this == type) {
     return TypeMatchStatus::EXACT;
@@ -29,7 +31,7 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Exec
           auto obj = def->getTarget().get();
           if (obj != 0 && helper->isAstReference(obj)) {
             auto memberType = helper->traceType(obj);
-            auto memberMatchStatus = memberType->matchTargetType(type, helper, ec);
+            auto memberMatchStatus = memberType->matchTargetType(type, helper, ec, opts | TypeMatchOptions::SKIP_DEREF);
             if (
               memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION ||
               memberMatchStatus == TypeMatchStatus::REF_AGGREGATION

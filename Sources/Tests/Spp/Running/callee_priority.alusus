@@ -1,0 +1,22 @@
+import "Srl/Console";
+import "Srl/Array";
+use Srl;
+
+func printInt(i: Int[32]) {
+    Console.print("outer %ld\n", i);
+}
+module Test {
+    def ai: Array[Int];
+
+    func printInt(i: Int[32]) {
+        Console.print("inner %ld\n", i);
+    }
+
+    func test (ai: ref[Array[Int]], printInt: ptr[function(Int[32])]) {
+        ai.add(5);
+        printInt(5.5);
+        printInt(ai(0));
+    }
+}
+def garr: Array[Int]({ 3 });
+Test.test(garr, printInt~ptr);

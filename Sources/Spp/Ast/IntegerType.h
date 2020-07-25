@@ -89,7 +89,9 @@ class IntegerType : public DataType
 
   public: Word getBitCount(Helper *helper) const;
 
-  public: virtual TypeMatchStatus matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeMatchStatus matchTargetType(
+    Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
+  ) const;
 
 }; // class
 

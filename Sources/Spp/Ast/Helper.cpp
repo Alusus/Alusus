@@ -146,14 +146,18 @@ Bool Helper::_lookupCalleeInScope(
           return Core::Data::Seeker::Verb::MOVE;
         }
 
-        // There is no need to continue searching if we already have an exact match and we are jumping to another scope.
+        // There is no need to continue searching if we already have a match and we are jumping to another level.
         auto node = ti_cast<Core::Data::Node>(obj);
-        if (
-          node != 0 && prevNode != 0 &&
-          Core::Data::findOwner<Core::Data::Ast::Scope>(node)
-            != Core::Data::findOwner<Core::Data::Ast::Scope>(prevNode) &&
-          result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER
-        ) return Core::Data::Seeker::Verb::STOP;
+        if (node != 0 && prevNode != 0) {
+          Core::Data::Node *owner = Core::Data::findOwner<Core::Data::Ast::Scope>(node);
+          // It's possible that the previous match was for a function arg, so we have to account for that since a
+          // function arg would have the same owner scope as a function sitting at the same module.
+          Core::Data::Node *prevOwner = Core::Data::findOwner<Spp::Ast::FunctionType>(prevNode);
+          if (prevOwner == 0) prevOwner = Core::Data::findOwner<Core::Data::Ast::Scope>(prevNode);
+          if (owner != prevOwner && result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
+            return Core::Data::Seeker::Verb::STOP;
+          }
+        }
 
         if (helper->lookupCalleeOnObject(obj, thisType, types, ec, currentStackSize, result)) {
           retVal = true;

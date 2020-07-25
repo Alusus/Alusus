@@ -35,7 +35,9 @@ Type* ReferenceType::getContentType(Helper *helper) const
 }
 
 
-TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper, ExecutionContext const *ec) const
+TypeMatchStatus ReferenceType::matchTargetType(
+  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
 
@@ -50,12 +52,14 @@ TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper,
     if (targetContentType == 0) {
       throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
     }
-    auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
+    auto status = thisContentType->matchTargetType(targetContentType, helper, ec, opts);
     if (status == TypeMatchStatus::AGGREGATION && status.derefs == 0) return TypeMatchStatus::REF_AGGREGATION;
     else if (status >= TypeMatchStatus::REF_AGGREGATION) return status;
   }
 
-  auto matchStatus = thisContentType->matchTargetType(type, helper, ec);
+  if (opts & TypeMatchOptions::SKIP_DEREF) return TypeMatchStatus::NONE;
+
+  auto matchStatus = thisContentType->matchTargetType(type, helper, ec, opts);
   ++matchStatus.derefs;
   return matchStatus;
 }
