@@ -506,10 +506,18 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     if (!expGenerator->generate(operand, g, session, prevResult)) return false;
 
     // Lookup a callee on the result.
-    auto prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+    Ast::Type *prevAstType;
+    Ast::Type *prevThisAstType;
+    if (prevResult.astType) {
+      prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+      prevThisAstType = prevAstType;
+    } else {
+      prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
+      prevThisAstType = 0;
+    }
     Ast::CalleeLookupResult calleeResult;
     if (!expGenerator->astHelper->lookupCalleeOnObject(
-      prevAstType, prevAstType, &paramAstTypes, session->getExecutionContext(), 0, calleeResult
+      prevAstType, prevThisAstType, &paramAstTypes, session->getExecutionContext(), 0, calleeResult
     )) {
       calleeResult.notice->setSourceLocation(astNode->findSourceLocation());
       expGenerator->noticeStore->add(calleeResult.notice);

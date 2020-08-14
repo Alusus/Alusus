@@ -14,6 +14,18 @@ type A {
     }
 }
 
+type Tpl [T: type] {
+    def i: T;
+    handler this~init(n: T) {
+        this.i = n;
+        Console.print("Tpl initialized.\n");
+    }
+
+    handler this~terminate() {
+        Console.print("Tpl terminated.\n");
+    }
+}
+
 module M {
     type B {
         def i: Int;
@@ -52,6 +64,7 @@ type D {
 
 func test {
     Console.print("%d\n", A().i);
+    Console.print("%d\n", Tpl[Int](6).i);
     Console.print("%d\n", M.B().i);
     Console.print("%d\n", C(9).i);
     Console.print("%d\n", C(2, 9, 10).i);

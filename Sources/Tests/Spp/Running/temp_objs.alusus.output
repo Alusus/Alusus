@@ -1,6 +1,9 @@
 A initialized.
 7
 A terminated.
+Tpl initialized.
+6
+Tpl terminated.
 B initialized.
 8
 B terminated.
@@ -17,7 +20,7 @@ B initialized.
 string concat 8
 B terminated.
 end of successful test
-ERROR SPPA1008 @ (66,27): Provided arguments do not match signature.
-ERROR SPPA1007 @ (67,27): Unknown symbol.
-ERROR SPPA1008 @ (68,27): Provided arguments do not match signature.
-ERROR SPPG1002 @ (69,27): Invalid operation.
+ERROR SPPA1008 @ (79,27): Provided arguments do not match signature.
+ERROR SPPA1007 @ (80,27): Unknown symbol.
+ERROR SPPA1008 @ (81,27): Provided arguments do not match signature.
+ERROR SPPG1002 @ (82,27): Invalid operation.
