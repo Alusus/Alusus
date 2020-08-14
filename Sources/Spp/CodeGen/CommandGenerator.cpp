@@ -368,6 +368,12 @@ Bool CommandGenerator::generateCondition(TiObject *astNode, Generation *g, Sessi
   session->getDestructionStack()->pushScope();
   GenResult conditionResult;
   if (!g->generateExpression(astNode, session, conditionResult)) retVal = false;
+  if (retVal && conditionResult.astType == 0) {
+    this->noticeStore->add(
+      std::make_shared<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
+    retVal = false;
+  }
   if (retVal) {
     if (!this->castCondition(
       g, session, astNode, conditionResult.astType,conditionResult.targetData.get(), result.targetData
