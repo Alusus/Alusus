@@ -33,6 +33,7 @@ class SeekerExtension : public ObjTiInterface
     TiFunctionBase *foreachByIdentifier_levelRef;
     TiFunctionBase *foreachByIdentifier_functionRef;
     TiFunctionBase *foreachByIdentifier_dataTypeRef;
+    TiFunctionBase *foreachByLinkOperator_routingRef;
     TiFunctionBase *foreachByParamPassRef;
     TiFunctionBase *foreachByParamPass_routingRef;
     TiFunctionBase *foreachByParamPass_templateRef;
@@ -127,6 +128,11 @@ class SeekerExtension : public ObjTiInterface
   );
   private: static Core::Data::Seeker::Verb _foreachByIdentifier_dataType(
     TiObject *self, Data::Ast::Identifier const *identifier, Ast::DataType *type,
+    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  );
+
+  private: static Core::Data::Seeker::Verb _foreachByLinkOperator_routing(
+    TiFunctionBase *base, TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 

@@ -61,6 +61,9 @@ def Main: module
     li = Other;
     li = Other.Nested;
     li = Other.invalid;
+
+    def myType: MyType.init();
+    def myType2: MyType.unknown;
   };
 
   def testVars: function (ai: Int[64], af: Float[64]) => Void
@@ -102,6 +105,12 @@ def Main: module
     Other.Nested.gf = 3.3;
     print("%f\n", Other.Nested.gf);
   };
+
+  type MyType {
+    @shared function init ():MyType {
+      return MyType();
+    }
+  }
 };
 
 def Other: module

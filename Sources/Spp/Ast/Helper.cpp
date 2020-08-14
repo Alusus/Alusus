@@ -473,6 +473,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   PREPARE_SELF(helper, Helper);
 
   SharedPtr<Core::Notices::Notice> notice;
+  TiObject *foundObj = 0;
   Spp::Ast::Type *type = 0;
   if (ref->isDerivedFrom<Spp::Ast::Type>()) {
     type = static_cast<Spp::Ast::Type*>(ref);
@@ -496,7 +497,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
       throw EXCEPTION(GenericException, S("Invalid type reference."));
     }
     helper->getSeeker()->foreach(typeRef, owner,
-      [=, &type, &notice](TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+      [=, &foundObj, &type, &notice](TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
           notice = getSharedPtr(ntc);
@@ -505,16 +506,17 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
 
         // Unbox if we have a box.
         auto box = ti_cast<TioWeakBox>(obj);
-        if (box != 0) obj = box->get().lock().get();
+        if (box != 0) foundObj = box->get().lock().get();
+        else foundObj = obj;
 
         // Do we have a type?
-        type = ti_cast<Spp::Ast::Type>(obj);
+        type = ti_cast<Spp::Ast::Type>(foundObj);
         if (type != 0) {
           return Core::Data::Seeker::Verb::STOP;
         }
 
         // If we have a template then try to get a default instance.
-        auto tpl = ti_cast<Spp::Ast::Template>(obj);
+        auto tpl = ti_cast<Spp::Ast::Template>(foundObj);
         if (tpl != 0) {
           Core::Data::Ast::List list;
           TioSharedPtr result;
@@ -535,9 +537,15 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
 
   if (type == 0 && helper->noticeStore != 0) {
     if (notice != 0) helper->noticeStore->add(notice);
-    helper->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
-    );
+    if (foundObj == 0) {
+      helper->noticeStore->add(
+        std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
+      );
+    } else {
+      helper->noticeStore->add(
+        std::make_shared<Spp::Notices::IdentifierIsNotTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
+      );
+    }
   }
 
   return type;
