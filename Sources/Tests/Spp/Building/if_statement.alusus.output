@@ -1,4 +1,6 @@
--------------------- Generated LLVM IR ---------------------
+ERROR SPPG1007 @ (47,8): Invalid condition value.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
@@ -128,5 +130,7 @@ define void @"Main.testIf(Word[1])=>(Void)"(i1 %i) {
 
 "#block22":                                       ; preds = %"#block21", %"#block20"
   ret void
+
+"#block23":                                       ; No predecessors!
 }
 ------------------------------------------------------------

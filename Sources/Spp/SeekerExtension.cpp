@@ -34,6 +34,8 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, 
     extension->foreachByIdentifier_function.set(&SeekerExtension::_foreachByIdentifier_function).get();
   overrides->foreachByIdentifier_dataTypeRef =
     extension->foreachByIdentifier_dataType.set(&SeekerExtension::_foreachByIdentifier_dataType).get();
+  overrides->foreachByLinkOperator_routingRef =
+    seeker->foreachByLinkOperator_routing.set(&SeekerExtension::_foreachByLinkOperator_routing).get();
   overrides->foreachByParamPassRef =
     extension->foreachByParamPass.set(&SeekerExtension::_foreachByParamPass).get();
   overrides->foreachByParamPass_routingRef =
@@ -52,6 +54,7 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
   auto extension = ti_cast<SeekerExtension>(seeker);
   seeker->foreach.reset(overrides->foreachRef);
   seeker->foreachByIdentifier_level.reset(overrides->foreachByIdentifier_levelRef);
+  seeker->foreachByLinkOperator_routing.reset(overrides->foreachByLinkOperator_routingRef);
   extension->astHelper = SharedPtr<Ast::Helper>::null;
   extension->foreachByIdentifier_function.reset(overrides->foreachByIdentifier_functionRef);
   extension->foreachByIdentifier_dataType.reset(overrides->foreachByIdentifier_dataTypeRef);
@@ -125,6 +128,27 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_dataType(
   } else {
     return seeker->foreachByIdentifier_level(identifier, block, cb, flags);
   }
+}
+
+
+Core::Data::Seeker::Verb SeekerExtension::_foreachByLinkOperator_routing(
+  TiFunctionBase *base, TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data,
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Core::Data::Seeker);
+  if (link->getType() == S(".")) {
+    auto second = link->getSecond().get();
+    if (second->isA<Core::Data::Ast::Identifier>()) {
+      if (data->isDerivedFrom<Ast::DataType>()) {
+        auto block = static_cast<Ast::DataType*>(data)->getBody().get();
+        if ((block == 0) || (flags & Core::Data::Seeker::Flags::SKIP_OWNED)) {
+          return Core::Data::Seeker::Verb::MOVE;
+        }
+        data = block;
+      }
+    }
+  }
+  return seeker->foreachByLinkOperator_routing.useCallee(base)(link, data, cb, flags);
 }
 
 

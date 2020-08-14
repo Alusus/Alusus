@@ -64,6 +64,9 @@ DEFINE_NOTICE(InvalidUseStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SP
 DEFINE_NOTICE(InvalidSquareBracketOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1011", 1,
   "Invalid operand for [] operator."
 );
+DEFINE_NOTICE(IdentifierIsNotTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1012", 1,
+  "Given identifier does not refer to a type."
+);
 
 } /// namespace
 

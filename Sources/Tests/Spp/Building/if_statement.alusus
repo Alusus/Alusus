@@ -43,6 +43,8 @@ def Main: module
       def i: Int;
       i = 3;
     };
+
+    if print { i = 0 };
   };
 };
 
