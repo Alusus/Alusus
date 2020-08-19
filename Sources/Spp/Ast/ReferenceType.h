@@ -16,6 +16,15 @@
 namespace Spp::Ast
 {
 
+//============================================================================
+// Other Defs
+
+ti_s_enum(ReferenceMode, TiInt, "Spp.Ast", "Spp", "alusus.org", EXPLICIT, IMPLICIT, NO_DEREF);
+
+
+//============================================================================
+// ReferenceType class
+
 class ReferenceType : public DataType
 {
   //============================================================================
@@ -30,7 +39,7 @@ class ReferenceType : public DataType
   //============================================================================
   // Member Variables
 
-  private: TiBool implicit;
+  private: ReferenceMode mode;
 
   private: mutable TioSharedPtr contentTypeRef;
 
@@ -39,7 +48,7 @@ class ReferenceType : public DataType
   // Implementations
 
   IMPLEMENT_BINDING(DataType,
-    (implicit, TiBool, VALUE, setImplicit(value), &implicit)
+    (mode, ReferenceMode, VALUE, setMode(value), &this->mode)
   );
 
 
@@ -56,18 +65,29 @@ class ReferenceType : public DataType
   //============================================================================
   // Member Functions
 
-  public: void setImplicit(Bool i)
+  public: void setMode(ReferenceMode const &m)
   {
-    this->implicit = i;
+    this->mode = m;
   }
-  public: void setImplicit(TiBool const *i)
+  public: void setMode(ReferenceMode const *m)
   {
-    this->setImplicit(i == 0 ? false : i->get());
+    this->mode = m == 0 ? ReferenceMode::EXPLICIT : m->get();
   }
+
+  public: ReferenceMode const& getMode() const
+  {
+    return this->mode;
+  }
+
 
   public: Bool isImplicit() const
   {
-    return this->implicit.get();
+    return this->mode == ReferenceMode::IMPLICIT;
+  }
+
+  public: Bool isAutoDeref() const
+  {
+    return this->mode != ReferenceMode::NO_DEREF;
   }
 
   public: Type* getContentType(Helper *helper) const;

@@ -13,7 +13,7 @@
 #ifndef SPP_CODEGEN_EXPRESSIONGENERATOR_H
 #define SPP_CODEGEN_EXPRESSIONGENERATOR_H
 
-namespace Spp { namespace CodeGen
+namespace Spp::CodeGen
 {
 
 class ExpressionGenerator : public TiObject, public DynamicBinding, public DynamicInterfacing
@@ -367,6 +367,16 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::DerefOp *astNode, Generation *g, Session *session, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateNoDerefOp,
+    Bool, (
+      Spp::Ast::NoDerefOp* /* astNode */, Generation* /* g */,
+      Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateNoDerefOp(
+    TiObject *self, Spp::Ast::NoDerefOp *astNode, Generation *g, Session *session, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateCastOp,
     Bool, (
       Spp::Ast::CastOp* /* astNode */, Generation* /* g */,
@@ -584,6 +594,6 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

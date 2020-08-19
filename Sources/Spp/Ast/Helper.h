@@ -36,6 +36,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
   private: Template *irefTemplate = 0;
+  private: Template *ndrefTemplate = 0;
   private: Template *ptrTemplate = 0;
   private: Template *arrayTemplate = 0;
   private: IntegerType *nullType = 0;
@@ -199,10 +200,10 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, Type *refType, Type *contentType, ExecutionContext const *ec
   );
 
-  public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*, Bool));
-  private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type, Bool implicit);
+  public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*, ReferenceMode const&));
+  private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type, ReferenceMode const &mode);
 
-  public: ReferenceType* getReferenceTypeForPointerType(PointerType *type, Bool implicit);
+  public: ReferenceType* getReferenceTypeForPointerType(PointerType *type, ReferenceMode const &mode);
 
   public: METHOD_BINDING_CACHE(getPointerTypeFor, PointerType*, (TiObject*));
   private: static PointerType* _getPointerTypeFor(TiObject *self, TiObject *type);
@@ -212,7 +213,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: Type* swichInnerReferenceTypeWithPointerType(ReferenceType *type);
 
-  public: Type* swichOuterPointerTypeWithReferenceType(Type *type, Bool implicit);
+  public: Type* swichOuterPointerTypeWithReferenceType(Type *type, ReferenceMode const &mode);
 
   public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (TiObject*));
   private: static Type* _getValueTypeFor(TiObject *self, TiObject *type);
@@ -274,7 +275,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: Type* tryGetDeepReferenceContentType(Type *type)
   {
     auto refType = ti_cast<ReferenceType>(type);
-    if (refType == 0) return type;
+    if (refType == 0 || !refType->isAutoDeref()) return type;
     else return this->tryGetDeepReferenceContentType(refType->getContentType(this));
   }
 
@@ -303,7 +304,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   /// @name Helper Functions
   /// @{
 
-  private: Template* getReferenceTemplate(Bool implicit);
+  private: Template* getReferenceTemplate(ReferenceMode const &mode);
 
   private: Template* getPointerTemplate();
 
