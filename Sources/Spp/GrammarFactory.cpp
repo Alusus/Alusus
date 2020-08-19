@@ -45,6 +45,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     S("ptr"), S("مؤشر"),
     S("cnt"), S("محتوى"),
     S("deref"), S("تتبع"),
+    S("no_deref"), S("عطل_التتبع"),
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
     S("ast"), S("شبم"),
@@ -555,6 +556,12 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     {
     }
   }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::DerefOp>::create());
+  // ~no_deref
+  this->createCommand(S("root.Main.NoDerefTilde"), {{
+    Map::create({}, { { S("no_deref"), 0 }, { S("عطل_التتبع"), 0 } }),
+    {
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::NoDerefOp>::create());
   // ~cast
   this->createCommand(S("root.Main.CastTilde"), {{
     Map::create({}, {{S("cast"), 0}, {S("مثّل"), 0}, {S("مثل"), 0}}),
@@ -678,6 +685,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     PARSE_REF(S("module.SizeTilde")),
     PARSE_REF(S("module.CastTilde")),
     PARSE_REF(S("module.DerefTilde")),
+    PARSE_REF(S("module.NoDerefTilde")),
     PARSE_REF(S("module.ContentTilde")),
     PARSE_REF(S("module.PointerTilde")),
     PARSE_REF(S("module.InitTilde")),
@@ -721,6 +729,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("ptr"), S("مؤشر"),
     S("cnt"), S("محتوى"),
     S("deref"), S("تتبع"),
+    S("no_deref"), S("عطل_التتبع"),
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
     S("ast"), S("شبم"),
@@ -746,6 +755,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
     S("module.SizeTilde"),
     S("module.CastTilde"),
     S("module.DerefTilde"),
+    S("module.NoDerefTilde"),
     S("module.ContentTilde"),
     S("module.PointerTilde"),
     S("module.InitTilde"),
@@ -779,6 +789,7 @@ void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
   this->tryRemove(S("root.Main.PointerTilde"));
   this->tryRemove(S("root.Main.ContentTilde"));
   this->tryRemove(S("root.Main.DerefTilde"));
+  this->tryRemove(S("root.Main.NoDerefTilde"));
   this->tryRemove(S("root.Main.CastTilde"));
   this->tryRemove(S("root.Main.CastSubject"));
   this->tryRemove(S("root.Main.SizeTilde"));

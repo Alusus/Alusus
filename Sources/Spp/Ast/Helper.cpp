@@ -192,7 +192,7 @@ Bool Helper::_lookupCalleeInScope(
           if ((isMember && thisType == 0) || (!isMember && thisType != 0)) continue;
           auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
           if (objType == 0) continue;
-          auto refType = helper->getReferenceTypeFor(objType, true);
+          auto refType = helper->getReferenceTypeFor(objType, Ast::ReferenceMode::IMPLICIT);
           objType = helper->tryGetDeepReferenceContentType(objType);
           result.stack.add(def->getTarget().get());
           if (helper->lookupCalleeInScope(ref, objType, false, refType, types, ec, result)) {
@@ -299,7 +299,7 @@ Bool Helper::_lookupCalleeOnObject(
       }
     } else {
       auto objType = static_cast<Type*>(obj);
-      auto objRefType = helper->getReferenceTypeFor(obj, true);
+      auto objRefType = helper->getReferenceTypeFor(obj, Ast::ReferenceMode::IMPLICIT);
       if (result.stack.getCount() == currentStackSize && thisType == 0) {
         // This is a constructor.
         static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("~init"))} });
@@ -626,11 +626,11 @@ Bool Helper::_isReferenceTypeFor(TiObject *self, Type *refType, Type *contentTyp
 }
 
 
-ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type, Bool implicit)
+ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type, ReferenceMode const &mode)
 {
   PREPARE_SELF(helper, Helper);
 
-  auto tpl = helper->getReferenceTemplate(implicit);
+  auto tpl = helper->getReferenceTemplate(mode);
 
   TioSharedPtr result;
   if (tpl->matchInstance(type, helper, result)) {
@@ -649,13 +649,13 @@ ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type, Bool
 }
 
 
-ReferenceType* Helper::getReferenceTypeForPointerType(PointerType *type, Bool implicit)
+ReferenceType* Helper::getReferenceTypeForPointerType(PointerType *type, ReferenceMode const &mode)
 {
   if (type == 0) {
     throw EXCEPTION(InvalidArgumentException, S("type"), S("Cannot be null."));
   }
 
-  return this->getReferenceTypeFor(type->getContentType(this), implicit);
+  return this->getReferenceTypeFor(type->getContentType(this), mode);
 }
 
 
@@ -713,15 +713,15 @@ Type* Helper::swichInnerReferenceTypeWithPointerType(ReferenceType *type)
 
   auto contentType = type->getContentType(this);
   auto innerRefType = ti_cast<ReferenceType>(contentType);
-  if (innerRefType != 0) {
-    return this->getReferenceTypeFor(this->swichInnerReferenceTypeWithPointerType(innerRefType), type->isImplicit());
+  if (innerRefType != 0 && innerRefType->isAutoDeref()) {
+    return this->getReferenceTypeFor(this->swichInnerReferenceTypeWithPointerType(innerRefType), type->getMode());
   } else {
     return this->getPointerTypeFor(contentType);
   }
 }
 
 
-Type* Helper::swichOuterPointerTypeWithReferenceType(Type *type, Bool implicit)
+Type* Helper::swichOuterPointerTypeWithReferenceType(Type *type, ReferenceMode const &mode)
 {
   if (type == 0) {
     throw EXCEPTION(InvalidArgumentException, S("type"), S("Cannot be null."));
@@ -729,13 +729,13 @@ Type* Helper::swichOuterPointerTypeWithReferenceType(Type *type, Bool implicit)
 
   if (type->isDerivedFrom<PointerType>()) {
     auto contentType = static_cast<PointerType*>(type)->getContentType(this);
-    return this->getReferenceTypeFor(contentType, implicit);
+    return this->getReferenceTypeFor(contentType, mode);
   } else if (type->isDerivedFrom<ReferenceType>()) {
     auto refType = static_cast<ReferenceType*>(type);
     auto contentType = refType->getContentType(this);
-    auto switchedContentType = this->swichOuterPointerTypeWithReferenceType(contentType, implicit);
+    auto switchedContentType = this->swichOuterPointerTypeWithReferenceType(contentType, mode);
     if (switchedContentType == 0) return 0;
-    return this->getReferenceTypeFor(switchedContentType, refType->isImplicit());
+    return this->getReferenceTypeFor(switchedContentType, refType->getMode());
   } else {
     return 0;
   }
@@ -1103,21 +1103,25 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
 //==============================================================================
 // Main Functions
 
-Template* Helper::getReferenceTemplate(Bool implicit)
+Template* Helper::getReferenceTemplate(ReferenceMode const &mode)
 {
-  if (implicit && this->irefTemplate != 0) return this->irefTemplate;
-  else if (!implicit && this->refTemplate != 0) return this->refTemplate;
+  if (mode == ReferenceMode::EXPLICIT && this->refTemplate != 0) return this->refTemplate;
+  else if (mode == ReferenceMode::IMPLICIT && this->irefTemplate != 0) return this->irefTemplate;
+  else if (mode == ReferenceMode::NO_DEREF && this->ndrefTemplate != 0) return this->ndrefTemplate;
 
   Core::Data::Ast::Identifier identifier;
-  identifier.setValue(implicit ? S("iref") : S("ref"));
+  identifier.setValue(
+    mode == ReferenceMode::EXPLICIT ? S("ref") : (mode == ReferenceMode::IMPLICIT ? S("iref") : S("ndref"))
+  );
   auto tpl = ti_cast<Template>(rootManager->getSeeker()->doGet(
     &identifier, this->rootManager->getRootScope().get())
   );
   if (tpl == 0) {
     throw EXCEPTION(GenericException, S("Invalid object found for ref template."));
   }
-  if (implicit) this->irefTemplate = tpl;
-  else this->refTemplate = tpl;
+  if (mode == ReferenceMode::EXPLICIT) this->refTemplate = tpl;
+  else if (mode == ReferenceMode::IMPLICIT) this->irefTemplate = tpl;
+  else this->ndrefTemplate = tpl;
   return tpl;
 }
 

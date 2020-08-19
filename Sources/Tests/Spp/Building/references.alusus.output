@@ -281,22 +281,42 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 %A = type { i32 }
 
 @"#anonymous0" = private constant [4 x i8] c"%d\0A\00"
-@"#anonymous1" = private constant [8 x i8] c"A~init\0A\00"
+@"#anonymous1" = private constant [4 x i8] c"%d\0A\00"
+@"#anonymous2" = private constant [8 x i8] c"%d, %d\0A\00"
+@"#anonymous3" = private constant [8 x i8] c"A~init\0A\00"
+@"#anonymous4" = private constant [13 x i8] c"A~terminate\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"testDeref()"() {
 "#block0":
-  %ra = alloca %A*
-  %0 = call i8* @malloc(i64 4)
-  %1 = bitcast i8* %0 to %A*
-  store %A* %1, %A** %ra
-  %2 = load %A*, %A** %ra
-  call void @"A.~init(iref[A])"(%A* %2)
-  %3 = load %A*, %A** %ra
-  %4 = getelementptr %A, %A* %3, i32 0, i32 0
-  %5 = load i32, i32* %4
-  %6 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([4 x i8]* @"#anonymous0" to [1 x i8]*), i32 %5)
+  %ra = alloca %A**
+  %0 = call i8* @malloc(i64 8)
+  %1 = bitcast i8* %0 to %A**
+  store %A** %1, %A*** %ra
+  %2 = load %A**, %A*** %ra
+  %3 = call i8* @malloc(i64 4)
+  %4 = bitcast i8* %3 to %A*
+  store %A* %4, %A** %2
+  %5 = load %A**, %A*** %ra
+  %6 = load %A*, %A** %5
+  call void @"A.~init(iref[A])"(%A* %6)
+  %7 = load %A**, %A*** %ra
+  %8 = load %A*, %A** %7
+  %9 = getelementptr %A, %A* %8, i32 0, i32 0
+  %10 = load i32, i32* %9
+  %11 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([4 x i8]* @"#anonymous0" to [1 x i8]*), i32 %10)
+  %12 = load %A**, %A*** %ra
+  %13 = load %A*, %A** %12
+  call void @"A.~terminate(iref[A])"(%A* %13)
+  %i = alloca i32
+  %ri = alloca i32*
+  store i32* %i, i32** %ri
+  store i32 13, i32* %i
+  %14 = load i32*, i32** %ri
+  %15 = load i32, i32* %14
+  %16 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([4 x i8]* @"#anonymous1" to [1 x i8]*), i32 %15)
+  %17 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([8 x i8]* @"#anonymous2" to [1 x i8]*), i32 4, i32 8)
   ret void
 }
 
@@ -309,17 +329,25 @@ define void @"A.~init(iref[A])"(%A* %this) {
   %0 = load %A*, %A** %this1
   %1 = getelementptr %A, %A* %0, i32 0, i32 0
   store i32 7, i32* %1
-  %2 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([8 x i8]* @"#anonymous1" to [1 x i8]*))
+  %2 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([8 x i8]* @"#anonymous3" to [1 x i8]*))
   ret void
 }
 
 declare i32 @printf([1 x i8]*, ...)
+
+define void @"A.~terminate(iref[A])"(%A* %this) {
+"#block2":
+  %this1 = alloca %A*
+  store %A* %this, %A** %this1
+  %0 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([13 x i8]* @"#anonymous4" to [1 x i8]*))
+  ret void
+}
 ------------------------------------------------------------
-ERROR SPPG1015 @ (184,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (185,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (186,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (187,3): Incompatible types for the given operator.
-ERROR SPPG1033 @ (189,3): Invalid operand for ~deref operator.
+ERROR SPPG1015 @ (197,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (198,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (199,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (200,3): Incompatible types for the given operator.
+ERROR SPPG1033 @ (202,3): Invalid operand for ~deref operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

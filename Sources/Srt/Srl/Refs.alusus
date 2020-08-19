@@ -73,7 +73,7 @@ import "Srl/Memory";
 
         func alloc ():ref[T] {
             this.release();
-            this.refCounter~init(RefCounter.alloc(T~size, terminate~ptr));
+            this.refCounter~no_deref = RefCounter.alloc(T~size, terminate~ptr);
             this.refCounter.count = 1;
             this.obj~ptr = this.refCounter.managedObj~cast[ptr[T]];
             return this.obj;
@@ -86,7 +86,7 @@ import "Srl/Memory";
         };
 
         func construct () {
-            this.alloc()~deref~init();
+            this.alloc()~init();
         };
 
         @shared func construct ():SrdRef[T] {
@@ -97,7 +97,7 @@ import "Srl/Memory";
 
         func own (existingObj: ref[T]) {
             this.release();
-            this.refCounter~init(RefCounter.alloc(existingObj~ptr, terminate~ptr));
+            this.refCounter~no_deref = RefCounter.alloc(existingObj~ptr, terminate~ptr);
             this.refCounter.count = 1;
             this.obj~ptr = existingObj~ptr;
         };
@@ -210,12 +210,12 @@ import "Srl/Memory";
         func construct {
             this.release();
             this.obj~ptr = Srl.Memory.alloc(T~size)~cast[ptr[T]];
-            this.obj~deref~init();
+            this.obj~init();
         };
 
         func release {
             if this.obj~ptr != 0 {
-                this.obj~deref~terminate();
+                this.obj~terminate();
                 Srl.Memory.free(this.obj~ptr);
                 this.obj~ptr = 0;
             }

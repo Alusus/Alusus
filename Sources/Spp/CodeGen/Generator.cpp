@@ -198,7 +198,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       if (argAstType->getInitializationMethod(
         generator->astHelper, session->getExecutionContext()
       ) != Ast::TypeInitMethod::NONE) {
-        argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType, true);
+        argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType, Ast::ReferenceMode::IMPLICIT);
       } else {
         argSourceAstType = argAstType;
       }
@@ -625,7 +625,7 @@ Bool Generator::_generateVarInitialization(
     }
 
     // Add `this` to parameter list.
-    auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, true);
+    auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, Ast::ReferenceMode::IMPLICIT);
     paramAstNodes->insertElement(0, astNode);
     paramAstTypes->insertElement(0, varPtrAstType);
     paramTgValues->insertElement(0, tgVarRef);
@@ -672,7 +672,8 @@ Bool Generator::_generateVarInitialization(
       }
 
       // Copy the value into the var.
-      auto varTgType = session->getEda()->getCodeGenData<TiObject>(varAstType);
+      TiObject *varTgType;
+      if (!generation->getGeneratedType(varAstType, session, varTgType, 0)) return false;
       TioSharedPtr assignTgRes;
       if (!session->getTg()->generateAssign(
         session->getTgContext(), varTgType, tgCastedValue.get(), tgVarRef, assignTgRes
@@ -767,7 +768,7 @@ Bool Generator::_generateVarDestruction(
   // Prepare param list.
   PlainList<TiObject> paramTgValues;
   PlainList<TiObject> paramAstTypes;
-  auto ptrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, true);
+  auto ptrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, Ast::ReferenceMode::IMPLICIT);
   paramAstTypes.insertElement(0, ptrAstType);
   paramTgValues.insertElement(0, tgVarRef);
 

@@ -34,7 +34,7 @@ import "Srl/Memory.alusus";
     };
 
     func _alloc (size: Int) {
-      def byteCount: Int = T~size * size + Int~size * 3;
+      def byteCount: Int = T~no_deref~size * size + Int~size * 3;
       this.refCount~ptr = Srl.Memory.alloc(byteCount)~cast[ptr[Int]];
       this.length~ptr = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[Int]];
       this.bufSize~ptr = (this.length~ptr~cast[Int[64]] + this.length~size)~cast[ptr[Int]];
@@ -45,7 +45,7 @@ import "Srl/Memory.alusus";
     };
 
     func _realloc (newSize: Int[64]) {
-      def byteCount: Int = T~size * newSize + Int~size * 3;
+      def byteCount: Int = T~no_deref~size * newSize + Int~size * 3;
       this.refCount~ptr = Srl.Memory.realloc(this.refCount~ptr, byteCount)~cast[ptr[Int]];
       this.length~ptr = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[Int]];
       this.bufSize~ptr = (this.length~ptr~cast[Int[64]] + this.length~size)~cast[ptr[Int]];
@@ -58,7 +58,7 @@ import "Srl/Memory.alusus";
         --this.refCount;
         if this.refCount == 0 {
           def i: Int;
-          for i = 0, i < this.length, ++i this.buf(i)~terminate();
+          for i = 0, i < this.length, ++i this.buf(i)~no_deref~terminate();
           Srl.Memory.free(this.refCount~ptr);
         }
         this._init();
@@ -97,14 +97,14 @@ import "Srl/Memory.alusus";
         --this.refCount;
         this._alloc(curLength + curLength >> 1);
         def i: Int;
-        for i = 0, i < curLength, ++i this.buf(i)~init(curBuf~cnt(i));
+        for i = 0, i < curLength, ++i this.buf(i)~no_deref~init(curBuf~cnt(i));
         this.length = curLength;
       };
     };
 
     func add (item: T) {
       this._prepareToModify(true);
-      this.buf(this.length)~init(item);
+      this.buf(this.length)~no_deref~init(item);
       ++this.length;
     };
 
@@ -117,8 +117,10 @@ import "Srl/Memory.alusus";
         this.add(item);
       } else {
         this._prepareToModify(true);
-        Memory.copy(this.buf(index + 1)~ptr, this.buf(index)~ptr, T~size * (this.length - index));
-        this.buf(index)~init(item);
+        Memory.copy(
+          this.buf(index + 1)~no_deref~ptr, this.buf(index)~no_deref~ptr, T~no_deref~size * (this.length - index)
+        );
+        this.buf(index)~no_deref~init(item);
         ++this.length;
       };
     };
@@ -126,9 +128,12 @@ import "Srl/Memory.alusus";
     func remove (index: Int) {
       if index >= 0 && index < this.getLength() {
         this._prepareToModify(false);
-        this.buf(index)~terminate();
+        this.buf(index)~no_deref~terminate();
         if index < this.getLength() - 1 {
-          Memory.copy(this.buf(index)~ptr, this.buf(index + 1)~ptr, T~size * (this.length - (index + 1)));
+          Memory.copy(
+            this.buf(index)~no_deref~ptr, this.buf(index + 1)~no_deref~ptr,
+            T~no_deref~size * (this.length - (index + 1))
+          );
         };
         --this.length;
       };

@@ -135,7 +135,7 @@ print("Passing ref[ref[int]] as int. ");
 printNum(rri);
 
 //
-// ~deref
+// ~deref & ~no_deref
 //
 
 type A {
@@ -144,14 +144,27 @@ type A {
         this.i = 7;
         print("A~init\n");
     }
+    handler this~terminate() {
+        print("A~terminate\n");
+    }
 }
 
 function testDeref
 {
-    def ra: ref[A];
-    ra~init(Srl.Memory.alloc(A~size)~cast[ptr[A]]~cnt);
-    ra~deref~init();
+    def ra: ref[ref[A]];
+    ra~no_deref~init(Srl.Memory.alloc(ref[A]~no_deref~size)~cast[ptr[ref[A]]]~cnt);
+    ra~deref~no_deref~init(Srl.Memory.alloc(A~size)~cast[ptr[A]]~cnt);
+    ra~init();
     print("%d\n", ra.i);
+    ra~terminate();
+    ra~no_deref~terminate();
+
+    def i: Int;
+    def ri: ref[Int];
+    ri~no_deref = i;
+    i = 13;
+    print("%d\n", ri);
+    print("%d, %d\n", ri~size~cast[Int], ri~no_deref~size~cast[Int]);
 }
 testDeref();
 
@@ -165,7 +178,7 @@ function testPtrAndCnt
     def ri: ref[Int](i);
     def rri: ref[ref[Int]](ri);
     def rrri: ref[ref[ref[Int]]];
-    rrri~init(rri~ptr~ptr~cnt~cnt);
+    rrri~no_deref~init(rri~ptr~ptr~cnt~cnt);
     i = 8;
     print("%d\n", rrri);
 }

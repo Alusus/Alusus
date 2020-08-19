@@ -12,4 +12,7 @@ Passing ref[ref[int]] as ptr[ptr[int]]. 5
 Passing ref[ref[int]] as int. 5
 A~init
 7
+A~terminate
+13
+4, 8
 8
