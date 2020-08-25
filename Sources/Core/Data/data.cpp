@@ -91,7 +91,7 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
       TioWeakBox *weakBox = static_cast<TioWeakBox*>(ptr);
       stream << S("\n");
       printIndents(stream, indents+1);
-      dumpData(stream, weakBox->get().lock().get(), indents+1);
+      dumpData(stream, weakBox->get().get(), indents+1);
     } else if (ptr->isA<TiWord>()) {
       auto tiWord = static_cast<TiWord*>(ptr);
       stream << S(": ") << tiWord->get();

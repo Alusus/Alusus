@@ -25,7 +25,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   SharedPtr<Rt::AstMgr> const &astM,
   SharedPtr<Rt::BuildMgr> const &buildM
 ) {
-  auto extension = std::make_shared<RootManagerExtension>(rootManager);
+  auto extension = newSrdObj<RootManagerExtension>(rootManager);
   rootManager->addDynamicInterface(extension);
 
   auto overrides = new Overrides();

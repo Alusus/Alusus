@@ -250,8 +250,8 @@ Int Lexer::process()
     if (closedStateCount > 0 && this->inputBuffer.isFull() == true &&
         this->currentProcessingIndex >= this->inputBuffer.getCharCount()-1) {
       // Raise a warning.
-      this->noticeSignal.emit(std::make_shared<Notices::BufferFullNotice>(
-        std::make_shared<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+      this->noticeSignal.emit(newSrdObj<Notices::BufferFullNotice>(
+        newSrdObj<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
       ));
       // Choose one of the closed states.
       Int i = this->selectBestToken();
@@ -262,8 +262,8 @@ Int Lexer::process()
         // Has the token been clamped?
         if (this->currentTokenClamped) {
           // Raise a warning.
-          this->noticeSignal.emit(std::make_shared<Notices::TokenClampedNotice>(
-            std::make_shared<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+          this->noticeSignal.emit(newSrdObj<Notices::TokenClampedNotice>(
+            newSrdObj<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
           ));
           this->currentTokenClamped = false;
         }
@@ -343,8 +343,8 @@ Int Lexer::process()
       // Has the token been clamped?
       if (this->currentTokenClamped) {
         // Raise a warning.
-        this->noticeSignal.emit(std::make_shared<Notices::TokenClampedNotice>(
-          std::make_shared<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+        this->noticeSignal.emit(newSrdObj<Notices::TokenClampedNotice>(
+          newSrdObj<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
         ));
         this->currentTokenClamped = false;
       }
@@ -396,7 +396,7 @@ Int Lexer::process()
        this->inputBuffer.getChars()[0]==FILE_TERMINATOR)) {
     // Report any characters in the error buffer.
     if (this->errorBuffer.getTextLength() > 0) {
-      this->noticeSignal.emit(std::make_shared<Notices::UnrecognizedCharNotice>(
+      this->noticeSignal.emit(newSrdObj<Notices::UnrecognizedCharNotice>(
         this->errorBuffer.getText().c_str(),
         this->errorBuffer.getSourceLocation()
       ));

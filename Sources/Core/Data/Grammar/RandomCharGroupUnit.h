@@ -55,7 +55,7 @@ class RandomCharGroupUnit : public CharGroupUnit
 
   public: static SharedPtr<RandomCharGroupUnit> create(Char const *list=0)
   {
-    return std::make_shared<RandomCharGroupUnit>(list);
+    return newSrdObj<RandomCharGroupUnit>(list);
   }
 
 

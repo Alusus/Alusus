@@ -92,7 +92,7 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
   protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex)
   {
     if (this->isEnabled(state, levelIndex)) {
-      return std::make_shared<TYPE>();
+      return newSrdObj<TYPE>();
     } else {
       return GenericParsingHandler::createListNode(state, levelIndex);
     }

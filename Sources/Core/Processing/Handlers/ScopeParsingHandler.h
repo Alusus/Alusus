@@ -34,7 +34,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
   public: static SharedPtr<ScopeParsingHandler<TYPE>> create()
   {
-    return std::make_shared<ScopeParsingHandler<TYPE>>();
+    return newSrdObj<ScopeParsingHandler<TYPE>>();
   }
 
 
@@ -43,7 +43,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
   public: virtual void onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
   {
-    state->setData(std::make_shared<TYPE>());
+    state->setData(newSrdObj<TYPE>());
   }
 
   public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)

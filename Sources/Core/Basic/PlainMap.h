@@ -44,7 +44,7 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
 
   public: static SharedPtr<PlainMap<CTYPE>> create(std::initializer_list<Argument> const &args, Bool useIndex = false)
   {
-    return std::make_shared<PlainMap<CTYPE>>(useIndex, args);
+    return newSrdObj<PlainMap<CTYPE>>(useIndex, args);
   }
 
 

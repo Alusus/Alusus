@@ -44,10 +44,10 @@ void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
       }, 0
     );
     if (!found) {
-      state->addNotice(std::make_shared<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
     }
   } catch (InvalidArgumentException) {
-    state->addNotice(std::make_shared<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
   }
 
   state->setData(SharedPtr<TiObject>(0));

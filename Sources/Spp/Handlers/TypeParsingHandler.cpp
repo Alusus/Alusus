@@ -38,7 +38,7 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
       auto bracket = static_cast<Core::Data::Ast::Bracket*>(obj);
       if (bracket->getType() != Core::Data::Ast::BracketType::SQUARE) {
         state->addNotice(
-          std::make_shared<Spp::Notices::InvalidTypeElementNotice>(Core::Data::Ast::findSourceLocation(obj))
+          newSrdObj<Spp::Notices::InvalidTypeElementNotice>(Core::Data::Ast::findSourceLocation(obj))
         );
         state->setData(SharedPtr<TiObject>(0));
         return;
@@ -50,7 +50,7 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
     } else {
       // Raise an error.
       state->addNotice(
-        std::make_shared<Spp::Notices::InvalidTypeElementNotice>(Core::Data::Ast::findSourceLocation(obj))
+        newSrdObj<Spp::Notices::InvalidTypeElementNotice>(Core::Data::Ast::findSourceLocation(obj))
       );
       state->setData(SharedPtr<TiObject>(0));
       return;
@@ -97,22 +97,22 @@ Bool TypeParsingHandler::parseTemplateArgs(
 ) {
   auto args = bracket->getOperand().get();
   if (args == 0) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
     return false;
   } else if (args->isDerivedFrom<Core::Data::Ast::List>()) {
     auto argsList = static_cast<Core::Data::Ast::List*>(args);
-    result = std::make_shared<Core::Data::Ast::List>();
+    result = newSrdObj<Core::Data::Ast::List>();
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i).get();
       if (arg == 0) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
         return false;
       }
       if (!this->parseTemplateArg(state, arg, result)) return false;
     }
     return true;
   } else {
-    result = std::make_shared<Core::Data::Ast::List>();
+    result = newSrdObj<Core::Data::Ast::List>();
     if (!this->parseTemplateArg(state, args, result)) return false;
     return true;
   }
@@ -128,14 +128,14 @@ Bool TypeParsingHandler::parseTemplateArg(
   if (link != 0 && link->getType() == S(":")) {
     auto identifier = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
     if (identifier == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
       return false;
     }
     name = identifier->getValue().get();
 
     identifier = link->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
     if (identifier == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
       return false;
     }
     if (identifier->getValue() == S("type")) type = Ast::TemplateVarType::TYPE;
@@ -143,12 +143,12 @@ Bool TypeParsingHandler::parseTemplateArg(
     else if (identifier->getValue() == S("integer")) type = Ast::TemplateVarType::INTEGER;
     else if (identifier->getValue() == S("string")) type = Ast::TemplateVarType::STRING;
     else {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
       return false;
     }
   } else {
     state->addNotice(
-      std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -156,12 +156,12 @@ Bool TypeParsingHandler::parseTemplateArg(
   // Check if arg name is already used.
   for (Int i = 0; i < result->getCount(); ++i) {
     if (result->get(i).ti_cast_get<Ast::TemplateVarDef>()->getName() == name) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
       return false;
     }
   }
 
-  result->add(std::make_shared<Ast::TemplateVarDef>(name.c_str(), type));
+  result->add(newSrdObj<Ast::TemplateVarDef>(name.c_str(), type));
   return true;
 }
 

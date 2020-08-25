@@ -236,7 +236,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       // A block could have been terminated by a block or continue statement instead of a return, but that's fine
       // since top level breaks and returns will raise an error anyway.
       generator->noticeStore->add(
-        std::make_shared<Spp::Notices::MissingReturnStatementNotice>(astFunc->findSourceLocation())
+        newSrdObj<Spp::Notices::MissingReturnStatementNotice>(astFunc->findSourceLocation())
       );
       return false;
     }
@@ -649,7 +649,7 @@ Bool Generator::_generateVarInitialization(
       );
     } else if (paramAstTypes->getCount() != 1 || generator->getSeeker()->tryGet(&ref, varAstType) != 0) {
       // We have custom initialization but no constructors match the given params.
-      generator->noticeStore->add(std::make_shared<Spp::Notices::TypeMissingMatchingInitOpNotice>(
+      generator->noticeStore->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       return false;
@@ -665,7 +665,7 @@ Bool Generator::_generateVarInitialization(
         session, paramAstType, varAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(0)),
         paramTgValues->getElement(0), true, tgCastedValue)
       ) {
-        generator->noticeStore->add(std::make_shared<Spp::Notices::TypeMissingMatchingInitOpNotice>(
+        generator->noticeStore->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
           Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(0))
         ));
         return false;
@@ -681,7 +681,7 @@ Bool Generator::_generateVarInitialization(
         return false;
       }
     } else if (paramAstTypes->getCount() > 0) {
-      generator->noticeStore->add(std::make_shared<Spp::Notices::TypeMissingMatchingInitOpNotice>(
+      generator->noticeStore->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       return false;
@@ -903,7 +903,7 @@ Bool Generator::_generateStatementBlock(
         // Unreachable code.
         PREPARE_SELF(generator, Generator);
         generator->noticeStore->add(
-          std::make_shared<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(astNode))
+          newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(astNode))
         );
         return false;
       }
@@ -940,13 +940,13 @@ Bool Generator::_generateStatement(
     // } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
     //   // TODO: Generate function.
     //   generator->noticeStore->add(
-    //     std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+    //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
     //   );
     //   retVal = false;
     // } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
     //   // TODO: Generate type.
     //   generator->noticeStore->add(
-    //     std::make_shared<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+    //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
     //   );
     //   retVal = false;
     } else if (generator->getAstHelper()->isAstReference(target)) {

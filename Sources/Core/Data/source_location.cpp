@@ -26,7 +26,7 @@ void SourceLocationStack::push(SourceLocation *sl)
   if (sl->isA<SourceLocationRecord>()) {
     auto sharedSl = getSharedPtr(static_cast<SourceLocationRecord*>(sl));
     if (sharedSl == 0) {
-      sharedSl = std::make_shared<SourceLocationRecord>(*static_cast<SourceLocationRecord*>(sl));
+      sharedSl = newSrdObj<SourceLocationRecord>(*static_cast<SourceLocationRecord*>(sl));
     }
     this->add(sharedSl);
   } else {

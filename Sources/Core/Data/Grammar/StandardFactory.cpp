@@ -36,21 +36,21 @@ void StandardFactory::createGrammar(
   this->constTokenId = ID_GENERATOR->getId(S("CONSTTOKEN"));
 
   // Instantiate handlers.
-  this->stringLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>(
+  this->stringLiteralHandler = newSrdObj<StringLiteralTokenizingHandler>(
     StringLiteralTokenizingHandler::OuterQuoteType::DOUBLE
   );
-  this->charLiteralHandler = std::make_shared<StringLiteralTokenizingHandler>(
+  this->charLiteralHandler = newSrdObj<StringLiteralTokenizingHandler>(
     StringLiteralTokenizingHandler::OuterQuoteType::SINGLE
   );
-  this->constTokenHandler = std::make_shared<ConstTokenizingHandler>(this->constTokenId);
-  this->identifierTokenHandler = std::make_shared<IdentifierTokenizingHandler>();
-  this->parsingHandler = std::make_shared<GenericParsingHandler>();
-  this->importHandler = std::make_shared<ImportParsingHandler>(root);
-  this->dumpAstParsingHandler = std::make_shared<DumpAstParsingHandler>(root);
-  this->leadingModifierHandler = std::make_shared<ModifierParsingHandler>(true);
-  this->trailingModifierHandler = std::make_shared<ModifierParsingHandler>(false);
-  this->doCommandParsingHandler = std::make_shared<GenericCommandParsingHandler>(S("do"));
-  this->rootScopeParsingHandler = std::make_shared<RootScopeParsingHandler>(root->getRootScopeHandler());
+  this->constTokenHandler = newSrdObj<ConstTokenizingHandler>(this->constTokenId);
+  this->identifierTokenHandler = newSrdObj<IdentifierTokenizingHandler>();
+  this->parsingHandler = newSrdObj<GenericParsingHandler>();
+  this->importHandler = newSrdObj<ImportParsingHandler>(root);
+  this->dumpAstParsingHandler = newSrdObj<DumpAstParsingHandler>(root);
+  this->leadingModifierHandler = newSrdObj<ModifierParsingHandler>(true);
+  this->trailingModifierHandler = newSrdObj<ModifierParsingHandler>(false);
+  this->doCommandParsingHandler = newSrdObj<GenericCommandParsingHandler>(S("do"));
+  this->rootScopeParsingHandler = newSrdObj<RootScopeParsingHandler>(root->getRootScopeHandler());
 
   // Create lexer definitions.
   this->set(S("root.LexerDefs"), LexerModule::create({}));
@@ -233,7 +233,7 @@ void StandardFactory::createTokenDefinitions()
           })}
         }),
         MultiplyTerm::create({
-          {S("max"), std::make_shared<TiInt>(1)}
+          {S("max"), newSrdObj<TiInt>(1)}
         }, {
           {S("term"), AlternateTerm::create({}, {
             {S("terms"), List::create({}, {
@@ -244,7 +244,7 @@ void StandardFactory::createTokenDefinitions()
           })}
         }),
         MultiplyTerm::create({
-          {S("max"), std::make_shared<TiInt>(1)}
+          {S("max"), newSrdObj<TiInt>(1)}
           }, {
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
@@ -266,7 +266,7 @@ void StandardFactory::createTokenDefinitions()
   // @inner DecIntLiteral : trule as { DecDigit*(1,endless) };
   this->set(S("root.LexerDefs.DecIntLiteral"), SymbolDefinition::create({}, {
     {S("term"), MultiplyTerm::create({
-      {S("min"), std::make_shared<TiInt>(1)}
+      {S("min"), newSrdObj<TiInt>(1)}
     }, {
       {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.DecDigit")) }})}
     })}
@@ -284,7 +284,7 @@ void StandardFactory::createTokenDefinitions()
           })}
         }),
         MultiplyTerm::create({
-          {S("min"), std::make_shared<TiInt>(1)}
+          {S("min"), newSrdObj<TiInt>(1)}
         }, {
           {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.BinDigit")) }})}
         })
@@ -304,7 +304,7 @@ void StandardFactory::createTokenDefinitions()
           })}
         }),
         MultiplyTerm::create({
-          {S("min"), std::make_shared<TiInt>(1)}
+          {S("min"), newSrdObj<TiInt>(1)}
         }, {
           {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.OctDigit")) }})}
         })
@@ -325,7 +325,7 @@ void StandardFactory::createTokenDefinitions()
           })}
         }),
         MultiplyTerm::create({
-          {S("min"), std::make_shared<TiInt>(1)}
+          {S("min"), newSrdObj<TiInt>(1)}
         }, {
           {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.HexDigit")) }})}
         })
@@ -347,7 +347,7 @@ void StandardFactory::createTokenDefinitions()
         ConcatTerm::create({}, {
           {S("terms"), List::create({}, {
             MultiplyTerm::create({
-              {S("min"), std::make_shared<TiInt>(1)}
+              {S("min"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.DecDigit")) }})}
             }),
@@ -357,13 +357,13 @@ void StandardFactory::createTokenDefinitions()
         ConcatTerm::create({}, {
           {S("terms"), List::create({}, {
             MultiplyTerm::create({
-              {S("min"), std::make_shared<TiInt>(1)}
+              {S("min"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.DecDigit")) }})}
             }),
             ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.FloatExponent")) }}),
             MultiplyTerm::create({
-              {S("max"), std::make_shared<TiInt>(1)}
+              {S("max"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.FloatPostfix")) }})}
             })
@@ -376,17 +376,17 @@ void StandardFactory::createTokenDefinitions()
             }),
             ConstTerm::create({{ S("matchString"), TiWStr(S(".")) }}),
             MultiplyTerm::create({
-              {S("min"), std::make_shared<TiInt>(1)}
+              {S("min"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.DecDigit")) }})}
             }),
             MultiplyTerm::create({
-              {S("max"), std::make_shared<TiInt>(1)}
+              {S("max"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.FloatExponent")) }})}
             }),
             MultiplyTerm::create({
-              {S("max"), std::make_shared<TiInt>(1)}
+              {S("max"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.FloatPostfix")) }})}
             })
@@ -407,7 +407,7 @@ void StandardFactory::createTokenDefinitions()
           })}
         }),
         MultiplyTerm::create({
-          {S("max"), std::make_shared<TiInt>(1)}
+          {S("max"), newSrdObj<TiInt>(1)}
         }, {
           {S("term"), AlternateTerm::create({}, {
             {S("terms"), List::create({}, {
@@ -417,7 +417,7 @@ void StandardFactory::createTokenDefinitions()
           })}
         }),
         MultiplyTerm::create({
-          {S("min"), std::make_shared<TiInt>(1)}
+          {S("min"), newSrdObj<TiInt>(1)}
         }, {
           {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.DecDigit")) }})}
         })
@@ -607,7 +607,7 @@ void StandardFactory::createTokenDefinitions()
     {S("flags"), TiInt::create(SymbolFlags::ROOT_TOKEN|SymbolFlags::IGNORED_TOKEN)}
   }, {
     {S("term"), MultiplyTerm::create({
-      {S("min"), std::make_shared<TiInt>(1)}
+      {S("min"), newSrdObj<TiInt>(1)}
     }, {
       {S("term"), CharGroupTerm::create({{ S("charGroupReference"), PARSE_REF(S("module.Spacing")) }})}
     })}
@@ -699,7 +699,7 @@ void StandardFactory::createTokenDataModule()
    {S("-="), 0},
    {S("*="), 0},
    {S("/="), 0},
-   {S("÷="), std::make_shared<TiStr>(("/="))},
+   {S("÷="), newSrdObj<TiStr>(("/="))},
    {S("%="), 0},
    {S("&="), 0},
    {S("|="), 0},
@@ -725,7 +725,7 @@ void StandardFactory::createTokenDataModule()
   this->set(S("root.TokenData.mulOpList"), Map::create({}, {
     {S("*"), 0},
     {S("/"), 0},
-    {S("÷"), std::make_shared<TiStr>(S("/"))},
+    {S("÷"), newSrdObj<TiStr>(S("/"))},
     {S("%"), 0}
   }, true));
   // bitwiseOpList : keywords = ("|", "$", "&", "<<", ">>");
@@ -742,17 +742,17 @@ void StandardFactory::createTokenDataModule()
     {S("$$"), 0},
     {S("&&"), 0},
     {S("or"), 0},
-    {S("أو"), std::make_shared<TiStr>(S("or"))},
+    {S("أو"), newSrdObj<TiStr>(S("or"))},
     {S("nor"), 0},
-    {S("وليس"), std::make_shared<TiStr>(S("nor"))},
+    {S("وليس"), newSrdObj<TiStr>(S("nor"))},
     {S("xor"), 0},
-    {S("أو_حصرا"), std::make_shared<TiStr>(S("xor"))},
+    {S("أو_حصرا"), newSrdObj<TiStr>(S("xor"))},
     {S("xnor"), 0},
-    {S("وليس_حصرا"), std::make_shared<TiStr>(S("xnor"))},
+    {S("وليس_حصرا"), newSrdObj<TiStr>(S("xnor"))},
     {S("and"), 0},
-    {S("و"), std::make_shared<TiStr>(S("and"))},
+    {S("و"), newSrdObj<TiStr>(S("and"))},
     {S("nand"), 0},
-    {S("أو_ليس"), std::make_shared<TiStr>(S("nand"))}
+    {S("أو_ليس"), newSrdObj<TiStr>(S("nand"))}
   }, true));
   // prefixOpList : keywords = ("++", "--", "+", "-", "!", "!!", "not");
   this->set(S("root.TokenData.prefixOpList"), Map::create({}, {
@@ -763,7 +763,7 @@ void StandardFactory::createTokenDataModule()
     {S("!"), 0},
     {S("!!"), 0},
     {S("not"), 0},
-    {S("ليس"), std::make_shared<TiStr>(S("not"))},
+    {S("ليس"), newSrdObj<TiStr>(S("not"))},
     {S("..."), 0}
   }, true));
   // postfixOpList : keywords = ("++", "--");
@@ -797,7 +797,7 @@ void StandardFactory::createTokenDataModule()
     {S("::>"), 0},
     {S("<::"), 0},
     {S("in"), 0},
-    {S("في"), std::make_shared<TiStr>(S("in"))}
+    {S("في"), newSrdObj<TiStr>(S("in"))}
   }, true));
 
   this->generateConstTokensForStrings(this->get(S("root.TokenData")));
@@ -824,17 +824,17 @@ void StandardFactory::createStatementsProductionModule()
         {S("terms"), List::create({}, {
           MultiplyTerm::create({
             {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-            {S("max"), std::make_shared<TiInt>(1)}
+            {S("max"), newSrdObj<TiInt>(1)}
           }, {
             {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Stmt")) }})}
           }),
           MultiplyTerm::create({
             {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-            {S("max"), std::make_shared<TiInt>(1)}
+            {S("max"), newSrdObj<TiInt>(1)}
           }, {
             {S("term"), TokenTerm::create({
               {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
-              {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+              {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
               {S("tokenText"), Map::create({}, {{S(";"),0},{S("؛"),0}})}
             })}
           })
@@ -868,7 +868,7 @@ void StandardFactory::createExpressionProductionModule()
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowestLinkExp")) }}),
         MultiplyTerm::create({
           {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-          {S("max"), std::make_shared<TiInt>(1)},
+          {S("max"), newSrdObj<TiInt>(1)},
         }, {
           {S("term"), TokenTerm::create({
             {S("tokenId"), TiInt::create(this->constTokenId)},
@@ -894,7 +894,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.lowestLinkOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.ConditionalExp")) }})
@@ -904,7 +904,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::LinkOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::LinkOperator>>(false)}
   }));
 
   // ConditionalExp : @single @prefix(heap.Modifiers.ConditionalModifierCmd)
@@ -921,7 +921,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), Map::create({}, {{S("?"), 0}, {S("؟"), 0}})}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.ListExp")) }})
@@ -930,8 +930,8 @@ void StandardFactory::createExpressionProductionModule()
         })
       })}
     })},
-    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::ConditionalOperator>>(false)}
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(1)}})},
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::ConditionalOperator>>(false)}
   }));
 
   // ListExp : @single @prefix(heap.Modifiers.ListModifierCmd)
@@ -955,12 +955,12 @@ void StandardFactory::createExpressionProductionModule()
                   {S("terms"), List::create({}, {
                     TokenTerm::create({
                       {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
-                      {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                      {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                       {S("tokenText"), Map::create({}, {{S(","), 0}, {S("،"), 0}})}
                     }),
                     MultiplyTerm::create({
                       {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-                      {S("max"), std::make_shared<TiInt>(1)},
+                      {S("max"), newSrdObj<TiInt>(1)},
                     }, {
                       {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowerLinkExp")) }})}
                     })
@@ -977,12 +977,12 @@ void StandardFactory::createExpressionProductionModule()
                 {S("terms"), List::create({}, {
                   TokenTerm::create({
                     {S("flags"), TiInt::create(ParsingFlags::ENFORCE_TOKEN_OMIT)},
-                    {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                    {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                     {S("tokenText"), Map::create({}, {{S(","), 0}, {S("،"), 0}})}
                   }),
                   MultiplyTerm::create({
                     {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-                    {S("max"), std::make_shared<TiInt>(1)}
+                    {S("max"), newSrdObj<TiInt>(1)}
                   }, {
                     {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowerLinkExp")) }})}
                   })
@@ -993,8 +993,8 @@ void StandardFactory::createExpressionProductionModule()
         })
       })}
     })},
-    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
-    {S("handler"), std::make_shared<ListExpParsingHandler<Ast::List>>()}
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(1)}})},
+    {S("handler"), newSrdObj<ListExpParsingHandler<Ast::List>>()}
   }));
 
   // LowerLinkExp : @single @prefix(heap.Modifiers.LowerLinkModifierCmd)
@@ -1011,7 +1011,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.lowerLinkOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.AssignmentExp")) }})
@@ -1021,7 +1021,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::LinkOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::LinkOperator>>(false)}
   }));
 
   // AssignmentExp : @single @prefix(heap.Modifiers.AssignmentModifierCmd)
@@ -1038,7 +1038,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.assignmentOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LogExp")) }})
@@ -1048,7 +1048,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::AssignmentOperator>>(true)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::AssignmentOperator>>(true)}
   }));
 
   // LogExp : @single @prefix(heap.Modifiers.LogModifierCmd)
@@ -1065,7 +1065,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.logOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.ComparisonExp")) }})
@@ -1075,7 +1075,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::LogOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::LogOperator>>(false)}
   }));
 
   // ComparisonExp : @single @prefix(heap.Modifiers.ComparisonModifierCmd)
@@ -1092,7 +1092,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.comparisonOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.LowLinkExp")) }})
@@ -1102,7 +1102,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::ComparisonOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::ComparisonOperator>>(false)}
   }));
 
   // LowLinkExp : @single @prefix(heap.Modifiers.LowLinkModifierCmd)
@@ -1119,7 +1119,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.lowLinkOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.AddExp")) }})
@@ -1129,7 +1129,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::LinkOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::LinkOperator>>(false)}
   }));
 
   // AddExp : @single @prefix(heap.Modifiers.AddModifierCmd)
@@ -1146,7 +1146,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.addOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.MulExp")) }})
@@ -1156,7 +1156,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::AdditionOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::AdditionOperator>>(false)}
   }));
 
   // MulExp : @single @prefix(heap.Modifiers.MulModifierCmd)
@@ -1173,7 +1173,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.mulOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.BitwiseExp")) }})
@@ -1183,7 +1183,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::MultiplicationOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::MultiplicationOperator>>(false)}
   }));
 
   // BitwiseExp : @single @prefix(heap.Modifiers.BitwiseModifierCmd)
@@ -1200,7 +1200,7 @@ void StandardFactory::createExpressionProductionModule()
           {S("term"), ConcatTerm::create({}, {
             {S("terms"), List::create({}, {
               TokenTerm::create({
-                {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+                {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
                 {S("tokenText"), PARSE_REF(S("root.TokenData.bitwiseOpList"))}
               }),
               ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.UnaryExp")) }})
@@ -1210,7 +1210,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("enable"), 0}})},
-    {S("handler"), std::make_shared<InfixParsingHandler<Ast::BitwiseOperator>>(false)}
+    {S("handler"), newSrdObj<InfixParsingHandler<Ast::BitwiseOperator>>(false)}
   }));
 
   // UnaryExp : @single @prefix(heap.Modifiers.UnaryModifierCmd)
@@ -1235,10 +1235,10 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {
-      {S("enable1"), std::make_shared<TiInt>(1)},
-      {S("enable2"), std::make_shared<TiInt>(1)}
+      {S("enable1"), newSrdObj<TiInt>(1)},
+      {S("enable2"), newSrdObj<TiInt>(1)}
     })},
-    {S("handler"), std::make_shared<OutfixParsingHandler<Ast::PrefixOperator, Ast::PostfixOperator>>()}
+    {S("handler"), newSrdObj<OutfixParsingHandler<Ast::PrefixOperator, Ast::PostfixOperator>>()}
   }));
 
   // FunctionalExp : @single @prefix(heap.Modifiers.FunctionalModifierCmd)
@@ -1271,7 +1271,7 @@ void StandardFactory::createExpressionProductionModule()
       {S("dup"), 0},
       {S("fltr2"), 0}
     })},
-    {S("handler"), std::make_shared<ChainOpParsingHandler>()}
+    {S("handler"), newSrdObj<ChainOpParsingHandler>()}
   }));
 
   // LinkExp : @single prod (operand:production[heap.Subject]=heap.Subject) as LinkOp + operand;
@@ -1279,13 +1279,13 @@ void StandardFactory::createExpressionProductionModule()
     {S("term"), ConcatTerm::create({}, {
        {S("terms"), List::create({}, {
           TokenTerm::create({
-            {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+            {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
             {S("tokenText"), PARSE_REF(S("root.TokenData.linkOpList"))}
           }),
           ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.subject")) }})
         })}
      })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    {S("handler"), newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
       auto metadata = ti_cast<Ast::MetaHaving>(currentList);
       auto token = ti_cast<Ast::Token>(currentList->getElement(0));
@@ -1319,7 +1319,7 @@ void StandardFactory::createExpressionProductionModule()
             }),
             MultiplyTerm::create({
               {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-              {S("max"), std::make_shared<TiInt>(1)},
+              {S("max"), newSrdObj<TiInt>(1)},
             }, {
               {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.paramPassExpr")) }})}
             }),
@@ -1339,7 +1339,7 @@ void StandardFactory::createExpressionProductionModule()
             }),
             MultiplyTerm::create({
               {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-              {S("max"), std::make_shared<TiInt>(1)}
+              {S("max"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.paramPassExpr")) }})}
             }),
@@ -1352,7 +1352,7 @@ void StandardFactory::createExpressionProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{S("fltr"), 0}})},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    {S("handler"), newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto currentRoute = state->getData().ti_cast_get<Ast::Route>();
       auto paramPass = Ast::ParamPass::create({
         { "prodId", currentRoute->getProdId() },
@@ -1399,7 +1399,7 @@ void StandardFactory::createExpressionProductionModule()
         })
       })}
     })},
-    {S("handler"), std::make_shared<CustomParsingHandler>(
+    {S("handler"), newSrdObj<CustomParsingHandler>(
       [](Parser *parser, ParserState *state)
       {
         auto data = state->getData();
@@ -1419,7 +1419,7 @@ void StandardFactory::createExpressionProductionModule()
   // PrefixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.prefixOpList);
   this->set(S("root.Expression.PrefixOp"), SymbolDefinition::create({}, {
     {S("term"), TokenTerm::create({
-      {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+      {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
       {S("tokenText"), PARSE_REF(S("root.TokenData.prefixOpList"))}
     })},
     {S("handler"), this->parsingHandler}
@@ -1427,7 +1427,7 @@ void StandardFactory::createExpressionProductionModule()
   // PostfixOp : prod ref heap.ConstantKeywordGroup(heap.TokenData.postfixOpList);
   this->set(S("root.Expression.PostfixOp"), SymbolDefinition::create({}, {
     {S("term"), TokenTerm::create({
-      {S("tokenId"), std::make_shared<TiInt>(this->constTokenId)},
+      {S("tokenId"), newSrdObj<TiInt>(this->constTokenId)},
       {S("tokenText"), PARSE_REF(S("root.TokenData.postfixOpList"))}
     })},
     {S("handler"), this->parsingHandler}
@@ -1473,7 +1473,7 @@ void StandardFactory::createSubjectProductionModule()
             }),
             MultiplyTerm::create({
               {S("min"), PARSE_REF(S("args.frc2"))},
-              {S("max"), std::make_shared<TiInt>(1)}
+              {S("max"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("args.sbj2")) }})}
             }),
@@ -1493,7 +1493,7 @@ void StandardFactory::createSubjectProductionModule()
             }),
             MultiplyTerm::create({
               {S("min"), PARSE_REF(S("args.frc3"))},
-              {S("max"), std::make_shared<TiInt>(1)}
+              {S("max"), newSrdObj<TiInt>(1)}
             }, {
               {S("term"), ReferenceTerm::create({{ S("reference"), PARSE_REF(S("args.sbj3")) }})}
             }),
@@ -1513,7 +1513,7 @@ void StandardFactory::createSubjectProductionModule()
       {S("frc3"), 0},
       {S("fltr"), 0}
     })},
-    {S("handler"), std::make_shared<SubjectParsingHandler>(this->constTokenId)}
+    {S("handler"), newSrdObj<SubjectParsingHandler>(this->constTokenId)}
   }));
 
   // SbjGroup: (cmdGrp || Parameter || set)
@@ -1542,11 +1542,11 @@ void StandardFactory::createSubjectProductionModule()
   // Identifier: lexer.Identifier
   this->set(S("root.Subject.Identifier"), SymbolDefinition::create({}, {
     {S("term"), TokenTerm::create({
-      {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))}
+      {S("tokenId"), newSrdObj<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))}
     })},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    {S("handler"), newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto current = state->getData().ti_cast_get<Ast::Token>();
-      SharedPtr<Ast::Text> newObj = std::make_shared<Ast::Identifier>();
+      SharedPtr<Ast::Text> newObj = newSrdObj<Ast::Identifier>();
       newObj->setValue(current->getText());
       newObj->setProdId(current->getProdId());
       newObj->setSourceLocation(current->findSourceLocation());
@@ -1569,17 +1569,17 @@ void StandardFactory::createSubjectProductionModule()
       })}
     })},
     {S("vars"), Map::create({}, {{ S("fltr"), 0 }} )},
-    {S("handler"), std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    {S("handler"), newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto current = state->getData().ti_cast_get<Ast::Token>();
       SharedPtr<Ast::Text> newObj;
       if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.IntLiteral"))) {
-        newObj = std::make_shared<Ast::IntegerLiteral>();
+        newObj = newSrdObj<Ast::IntegerLiteral>();
       } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.FloatLiteral"))) {
-        newObj = std::make_shared<Ast::FloatLiteral>();
+        newObj = newSrdObj<Ast::FloatLiteral>();
       } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.CharLiteral"))) {
-        newObj = std::make_shared<Ast::CharLiteral>();
+        newObj = newSrdObj<Ast::CharLiteral>();
       } else if (current->getId() == ID_GENERATOR->getId(S("LexerDefs.StringLiteral"))) {
-        newObj = std::make_shared<Ast::StringLiteral>();
+        newObj = newSrdObj<Ast::StringLiteral>();
       }
       newObj->setValue(current->getText());
       newObj->setProdId(current->getProdId());
@@ -1679,11 +1679,11 @@ void StandardFactory::createModifierProductionDefinitions()
 
   // Modifiers parsing dimensions.
   this->set(S("root.LeadingModifierDim"), ParsingDimension::create({
-    {S("entryTokenText"), std::make_shared<TiStr>(S("@"))},
+    {S("entryTokenText"), newSrdObj<TiStr>(S("@"))},
     {S("startRef"), PARSE_REF(S("root.Modifier.LeadingModifier"))}
   }));
   this->set(S("root.TrailingModifierDim"), ParsingDimension::create({
-    {S("entryTokenText"), std::make_shared<TiStr>(S("@<"))},
+    {S("entryTokenText"), newSrdObj<TiStr>(S("@<"))},
     {S("startRef"), PARSE_REF(S("root.Modifier.TrailingModifier"))}
   }));
 }
@@ -1827,7 +1827,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }}
-    }}, std::make_shared<DefParsingHandler>());
+    }}, newSrdObj<DefParsingHandler>());
     this->set(S("root.Main.Def.modifierTranslations"), Map::create({}, {
       {S("دمج"), TiStr::create(S("merge"))}
     }));
@@ -1841,7 +1841,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }}
-    }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+    }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
       auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
       auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
       auto bridge = Data::Ast::Bridge::create({
@@ -1872,7 +1872,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }}
-    }}, std::make_shared<CustomParsingHandler>(
+    }}, newSrdObj<CustomParsingHandler>(
       [](Parser *parser, ParserState *state)
       {
         auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();

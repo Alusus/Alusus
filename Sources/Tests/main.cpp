@@ -296,11 +296,13 @@ int main(int argc, char **argv)
   if (!runEndToEndTests("./Core")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Spp")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Srt")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./Brl")) ret = EXIT_FAILURE;
 
   std::string l18nPath = Core::Main::getModuleDirectory();
   l18nPath += S("../../../Notices_L18n/");
   Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath.c_str());
   if (!runEndToEndTests("./Arabic")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./مـتا")) ret = EXIT_FAILURE;
 
   std::remove(resultFilename.c_str());
 

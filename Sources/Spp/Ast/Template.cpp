@@ -31,7 +31,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
     }
   }
   // No default instance was found, create a new one.
-  auto block = std::make_shared<Core::Data::Ast::Scope>();
+  auto block = newSrdObj<Core::Data::Ast::Scope>();
   block->add(Core::Data::Ast::clone(this->body));
   this->instances.add(block);
   block->setOwner(this);
@@ -69,7 +69,7 @@ Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioShared
   }
 
   // No instance was found, create a new one.
-  auto block = std::make_shared<Core::Data::Ast::Scope>();
+  auto block = newSrdObj<Core::Data::Ast::Scope>();
   block->add(Core::Data::Ast::clone(this->body, Core::Data::Ast::findSourceLocation(templateInputs).get()));
   if (!this->assignTemplateVars(&vars, block.get(), helper, notice)) {
     result = notice;
@@ -87,7 +87,7 @@ Bool Template::prepareTemplateVars(
 ) {
   auto list = ti_cast<Core::Data::Ast::List>(templateInputs);
   if (list != 0 && list->getCount() > this->getVarDefCount()) {
-    notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
+    notice = newSrdObj<Spp::Notices::TemplateArgMismatchNotice>(
       Core::Data::Ast::findSourceLocation(templateInputs)
     );
     return false;
@@ -103,7 +103,7 @@ Bool Template::prepareTemplateVars(
     else if (list == 0 && i == 0) templateInput = templateInputs;
     else if (varDef->getDefaultVal() != 0) templateInput = varDef->getDefaultVal().get();
     else {
-      notice = std::make_shared<Spp::Notices::TemplateArgMismatchNotice>(
+      notice = newSrdObj<Spp::Notices::TemplateArgMismatchNotice>(
         Core::Data::Ast::findSourceLocation(templateInputs)
       );
       return false;
@@ -115,7 +115,7 @@ Bool Template::prepareTemplateVars(
           Template::traceObject(templateInput, TemplateVarType::INTEGER, helper)
         );
         if (var == 0) {
-          notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
+          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
             Core::Data::Ast::findSourceLocation(templateInput)
           );
           return false;
@@ -129,7 +129,7 @@ Bool Template::prepareTemplateVars(
           Template::traceObject(templateInput, TemplateVarType::STRING, helper)
         );
         if (var == 0) {
-          notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
+          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
             Core::Data::Ast::findSourceLocation(templateInput)
           );
           return false;
@@ -141,7 +141,7 @@ Bool Template::prepareTemplateVars(
       default: {
         auto var = Template::traceObject(templateInput, varDef->getType(), helper);
         if (var == 0) {
-          notice = std::make_shared<Spp::Notices::InvalidTemplateArgNotice>(
+          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
             Core::Data::Ast::findSourceLocation(templateInput)
           );
           return false;
@@ -222,7 +222,7 @@ Bool Template::assignTemplateVars(
     if (varDef->getType() == TemplateVarType::INTEGER || varDef->getType() == TemplateVarType::STRING) {
       def->setTarget(Core::Data::Ast::clone(getSharedPtr(var)));
     } else {
-      def->setTarget(std::make_shared<TioWeakBox>(getWeakPtr(var)));
+      def->setTarget(newSrdObj<TioWeakBox>(getWeakPtr(var)));
     }
     instance->add(def);
   }
@@ -236,7 +236,7 @@ TiObject* Template::getTemplateVar(Core::Data::Ast::Scope const *instance, Char 
     auto def = ti_cast<Core::Data::Ast::Definition>(instance->getElement(i));
     if (def != 0 && def->getName() == name) {
       auto box = def->getTarget().ti_cast_get<TioWeakBox>();
-      if (box != 0) return box->get().lock().get();
+      if (box != 0) return box->get().get();
       else return def->getTarget().get();
     }
   }
@@ -287,7 +287,7 @@ Bool Template::merge(TiObject *src, Core::Notices::Store *noticeStore)
     return mergeable->merge(src, noticeStore);
   } else {
     noticeStore->add(
-      std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+      newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
     );
     return false;
   }

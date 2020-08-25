@@ -92,7 +92,7 @@ void Parser::beginParsing()
   this->clear();
 
   // Create the new state.
-  this->state = std::make_shared<ParserState>(
+  this->state = newSrdObj<ParserState>(
     RESERVED_PARSER_TERM_LEVEL_COUNT, RESERVED_PARSER_PRODUCTION_LEVEL_COUNT, this->grammarRoot.get()
   );
   this->state->setPrevProcessingStatus(ParserProcessingStatus::COMPLETE);
@@ -163,7 +163,7 @@ SharedPtr<TiObject> Parser::endParsing(Data::SourceLocationRecord &endSourceLoca
         if (!this->getTopParsingHandler(this->state.get())->onErrorToken(this, this->state.get(), 0)) {
           // We don't want to create duplicates of this error message.
           if (!unexpectedEofRaised) {
-            auto sourceLocation = std::make_shared<Data::SourceLocationRecord>();
+            auto sourceLocation = newSrdObj<Data::SourceLocationRecord>();
             sourceLocation->filename = endSourceLocation.filename;
             sourceLocation->line = endSourceLocation.line;
             sourceLocation->column = endSourceLocation.column;
@@ -278,8 +278,8 @@ void Parser::handleNewToken(Data::Token const *token)
   else if (this->state->getTermLevelCount() == 1) {
     // Raise an unexpected token error.
     if (!this->unexpectedTokenNoticeRaised) {
-      this->state->addNotice(std::make_shared<Notices::UnexpectedTokenNotice>(
-        std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
+      this->state->addNotice(newSrdObj<Notices::UnexpectedTokenNotice>(
+        newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation())
       ));
       this->unexpectedTokenNoticeRaised = true;
     }
@@ -406,8 +406,8 @@ void Parser::processState(const Data::Token * token, ParserState *state)
       error = true;
 
       if (!this->getTopParsingHandler(this->state.get())->onErrorToken(this, state, token)) {
-        state->addNotice(std::make_shared<Notices::SyntaxErrorNotice>(
-          std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation())
+        state->addNotice(newSrdObj<Notices::SyntaxErrorNotice>(
+          newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation())
         ));
       }
       // Move the state to an error sync position.
@@ -1682,7 +1682,7 @@ void Parser::processLeadingModifiersExit(ParserState *state)
         --first;
       } else if (level.getMinProdIndex() >= state->getProdLevelCount() - 1) {
         state->addNotice(
-          std::make_shared<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
+          newSrdObj<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
         );
         state->removeLeadingModifierLevel(first);
         --first;
@@ -1715,7 +1715,7 @@ void Parser::reportMislocatedLeadingModifiers(ParserState *state)
     ParserModifierLevel &level = state->refLeadingModifierLevel(i);
     if (level.getMinProdIndex() == -1) {
       state->addNotice(
-        std::make_shared<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
+        newSrdObj<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
       );
       state->removeLeadingModifierLevel(i);
       --i;
@@ -1749,7 +1749,7 @@ void Parser::cancelTrailingModifiers(ParserState *state)
   while (state->getTrailingModifierLevelCount() > 0) {
     ParserModifierLevel &level = state->refTrailingModifierLevel(0);
     state->addNotice(
-      std::make_shared<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
+      newSrdObj<Notices::UnexpectedModifierNotice>(Data::Ast::findSourceLocation(level.getData().get()))
     );
     state->popFrontTrailingModifierLevel();
   }

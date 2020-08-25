@@ -25,7 +25,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
 
   if (expr == 0) {
     // The function type has no args and no body.
-    auto functionType = std::make_shared<Spp::Ast::FunctionType>();
+    auto functionType = newSrdObj<Spp::Ast::FunctionType>();
     auto metadata = state->getData().ti_cast_get<Core::Data::Ast::MetaHaving>();
     functionType->setArgTypes(SharedPtr<Core::Data::Ast::Map>::null);
     functionType->setRetType(TioSharedPtr::null);
@@ -61,7 +61,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
       if (bracket == 0) {
         // Raise an error.
         state->addNotice(
-          std::make_shared<Spp::Notices::InvalidFunctionSignatureNotice>(Core::Data::Ast::findSourceLocation(obj))
+          newSrdObj<Spp::Notices::InvalidFunctionSignatureNotice>(Core::Data::Ast::findSourceLocation(obj))
         );
         state->setData(SharedPtr<TiObject>(0));
         return;
@@ -79,14 +79,14 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     } else {
       // Raise an error.
       state->addNotice(
-        std::make_shared<Spp::Notices::InvalidFunctionElementNotice>(Core::Data::Ast::findSourceLocation(obj))
+        newSrdObj<Spp::Notices::InvalidFunctionElementNotice>(Core::Data::Ast::findSourceLocation(obj))
       );
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
   }
 
-  auto functionType = std::make_shared<Spp::Ast::FunctionType>();
+  auto functionType = newSrdObj<Spp::Ast::FunctionType>();
   functionType->setArgTypes(args);
   functionType->setRetType(retType);
   functionType->setSourceLocation(exprMetadata->findSourceLocation());
@@ -99,7 +99,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   TioSharedPtr stateData = functionType;
 
   if (body != 0) {
-    auto function = std::make_shared<Spp::Ast::Function>();
+    auto function = newSrdObj<Spp::Ast::Function>();
     function->setType(functionType);
     function->setBody(getSharedPtr(body));
     function->setSourceLocation(exprMetadata->findSourceLocation());
@@ -130,18 +130,18 @@ Bool FunctionParsingHandler::parseArgs(
     return true;
   } else if (args->isDerivedFrom<Core::Data::Ast::List>()) {
     auto argsList = args.s_cast<Core::Data::Ast::List>();
-    result = std::make_shared<Core::Data::Ast::Map>();
+    result = newSrdObj<Core::Data::Ast::Map>();
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNotice>(bracket->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNotice>(bracket->findSourceLocation()));
         return false;
       }
       if (!this->parseArg(state, arg, result)) return false;
     }
     return true;
   } else {
-    result = std::make_shared<Core::Data::Ast::Map>();
+    result = newSrdObj<Core::Data::Ast::Map>();
     if (!this->parseArg(state, args, result)) return false;
     return true;
   }
@@ -157,13 +157,13 @@ Bool FunctionParsingHandler::parseArg(
   if (link != 0 && link->getType() == S(":")) {
     auto identifier = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
     if (identifier == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
       return false;
     }
     name = identifier->getValue().get();
     type = link->getSecond();
     if (type == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(link->findSourceLocation()));
       return false;
     }
   } else {
@@ -173,7 +173,7 @@ Bool FunctionParsingHandler::parseArg(
   }
   if (result->findIndex(name.c_str()) != -1) {
     // This arg name is already in use.
-    state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
     return false;
   }
   result->set(name.c_str(), type);
@@ -228,7 +228,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
     // The data isn't a function, so it must be a FunctionType.
     auto functionType = ti_cast<Spp::Ast::FunctionType>(data);
     ASSERT(functionType != 0);
-    auto newFunction = std::make_shared<Spp::Ast::Function>();
+    auto newFunction = newSrdObj<Spp::Ast::Function>();
     newFunction->setType(functionType);
     newFunction->setSourceLocation(functionType->findSourceLocation());
     newFunction->setProdId(functionType->getProdId());

@@ -46,26 +46,26 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
     ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
 
     auto head = ti_cast<Core::Data::Ast::List>(expr->getElement(1));
     if (head == 0 || head->getCount() != 3) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
     for (Int i = 1; i < head->getCount(); ++i) {
       if (head->get(i) == 0) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
         state->setData(SharedPtr<TiObject>(0));
         return;
       }
     }
 
-    auto newObj = std::make_shared<Spp::Ast::ForStatement>();
+    auto newObj = newSrdObj<Spp::Ast::ForStatement>();
     newObj->setSourceLocation(exprMetadata->findSourceLocation());
     newObj->setProdId(exprMetadata->getProdId());
     newObj->setInitializer(head->get(0));

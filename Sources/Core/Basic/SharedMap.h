@@ -45,7 +45,7 @@ template<class CTYPE> class SharedMap : public SharedMapBase<CTYPE, TiObject>
   public: static SharedPtr<SharedMap<CTYPE>> create(
     std::initializer_list<Argument> const &args, Bool useIndex = false
   ) {
-    return std::make_shared<SharedMap<CTYPE>>(args, useIndex);
+    return newSrdObj<SharedMap<CTYPE>>(args, useIndex);
   }
 
 

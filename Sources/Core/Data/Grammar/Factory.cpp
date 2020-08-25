@@ -257,7 +257,7 @@ SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
 {
   if (section->args.size() == 0) {
     return TokenTerm::create({
-      {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
+      {S("tokenId"), newSrdObj<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
       {S("tokenText"), section->keywords}
     });
   } else {
@@ -275,7 +275,7 @@ SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
     return ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         TokenTerm::create({
-          {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
+          {S("tokenId"), newSrdObj<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
           {S("tokenText"), section->keywords}
         }),
         ConcatTerm::create({

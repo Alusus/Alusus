@@ -1,0 +1,73 @@
+import "Brl/Refs.alusus";
+import "Srl/Console.alusus";
+
+use Brl;
+use Srl;
+
+type Num {
+    def x: Int;
+    handler this~terminate() {
+        Console.print("Num %d is terminated.\n", this.x);
+    }
+}
+
+func test1 {
+    def n: SrdRef[Num];
+    n.alloc()~init();
+    n.x = 5;
+}
+
+func test2 {
+    def n1: SrdRef[Num] = SrdRef[Num].construct();
+    def n2: SrdRef[Num] = n1;
+    n2.x = 7;
+}
+
+func test3 {
+    def n1: SrdRef[Num](Memory.alloc(Num~size)~cast[ptr[Num]]~cnt);
+    def n2: SrdRef[Num] = n1;
+    n2 = n1;
+    n2.x = 9;
+}
+
+func test4 {
+    def n: UnqRef[Num] = Memory.alloc(Num~size)~cast[ptr[Num]];
+    n.x = 11;
+}
+
+func test5 {
+    def n1: SrdRef[Num] = SrdRef[Num].construct();
+    def n2: SrdRef[Num] = n1;
+    def n3: WkRef[Num] = n1;
+    Console.print("test5: preparing to release\n");
+    n1.release();
+    Console.print("n1 released\n");
+    n1 = n3;
+    n2.release();
+    Console.print("n1 gained ref back from WkRef. n2 released\n");
+    n1.release();
+    Console.print("n1 and n2 are both released\n");
+}
+
+func test6 {
+    def n1: SrdRef[Num] = SrdRef[Num].construct();
+    def n2: SrdRef[Int];
+    n2.assign(n1.refCounter, n1.x);
+    n2.obj = 13;
+    Console.print("test6: preparing to release\n");
+    n1.release();
+    Console.print("n1 released\n");
+    n2.release();
+    Console.print("n1 and n2 are both released\n");
+}
+
+func testAll {
+    test1();
+    test2();
+    test3();
+    test4();
+    test5();
+    test6();
+}
+
+testAll();

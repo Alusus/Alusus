@@ -137,7 +137,7 @@ Bool Helper::_lookupCalleeInScope(
 
         // Unbox if we have a box.
         auto box = ti_cast<TioWeakBox>(obj);
-        if (box != 0) obj = box->get().lock().get();
+        if (box != 0) obj = box->get().get();
 
         if (
           result.stack.getCount() > 0 && result.stack.getElement(result.stack.getCount() - 1) == obj &&
@@ -213,7 +213,7 @@ Bool Helper::_lookupCalleeInScope(
 
     // If we have no notice it means the symbol was not found in the first place.
     if (result.notice == 0 && result.matchStatus == TypeMatchStatus::NONE) {
-      result.notice = std::make_shared<Spp::Notices::UnknownSymbolNotice>();
+      result.notice = newSrdObj<Spp::Notices::UnknownSymbolNotice>();
     }
 
     if (result.notice != 0) result.notice->setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
@@ -241,7 +241,7 @@ Bool Helper::_lookupCalleeOnObject(
 
     ms = f->getType()->matchCall(useThis ? &extTypes : types, helper, ec);
     if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
-      result.notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
+      result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
       return false;
     } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms > result.matchStatus) {
       result.matchStatus = ms;
@@ -252,7 +252,7 @@ Bool Helper::_lookupCalleeOnObject(
       result.type = f->getType().get();
       return true;
     } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
-      result.notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
+      result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
       return false;
     } else {
       return false;
@@ -268,12 +268,12 @@ Bool Helper::_lookupCalleeOnObject(
         result.notice.reset();
         return true;
       } else {
-        result.notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
+        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
         return false;
       }
     } else {
       if (result.matchStatus == TypeMatchStatus::NONE) {
-        result.notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
+        result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
       }
       return false;
     }
@@ -283,7 +283,7 @@ Bool Helper::_lookupCalleeOnObject(
       // We have a function pointer.
       auto ms = funcType->matchCall(types, helper, ec);
       if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
-        result.notice = std::make_shared<Spp::Notices::ArgsMismatchNotice>();
+        result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
         return false;
       } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms > result.matchStatus) {
         result.matchStatus = ms;
@@ -292,7 +292,7 @@ Bool Helper::_lookupCalleeOnObject(
         result.type = funcType;
         return true;
       } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
-        result.notice = std::make_shared<Spp::Notices::MultipleCalleeMatchNotice>();
+        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
         return false;
       } else {
         return false;
@@ -325,7 +325,7 @@ Bool Helper::_lookupCalleeOnObject(
           // If the ref symbol we provided here was not found we'll provide a better error message to the user since
           // the user didn't manually provide this symbol.
           if (result.notice != 0 && result.notice->isA<Spp::Notices::UnknownSymbolNotice>()) {
-            result.notice = std::make_shared<Spp::Notices::InvalidOperationNotice>();
+            result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
           }
           return false;
         }
@@ -340,7 +340,7 @@ Bool Helper::_lookupCalleeOnObject(
           // If the ref symbol we provided here was not found we'll provide a better error message to the user since
           // the user didn't manually provide this symbol.
           if (result.notice != 0 && result.notice->isA<Spp::Notices::UnknownSymbolNotice>()) {
-            result.notice = std::make_shared<Spp::Notices::InvalidOperationNotice>();
+            result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
           }
           return false;
         }
@@ -353,7 +353,7 @@ Bool Helper::_lookupCalleeOnObject(
     objType = helper->tryGetDeepReferenceContentType(objType);
     if (objType == 0) {
       if (result.matchStatus == TypeMatchStatus::NONE) {
-        result.notice = std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
+        result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
       }
       return false;
     } else {
@@ -374,7 +374,7 @@ Bool Helper::_lookupCalleeOnObject(
   } else {
     // Invalid
     if (result.matchStatus == TypeMatchStatus::NONE) {
-      result.notice = std::make_shared<Spp::Notices::InvalidOperationNotice>();
+      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
     }
     return false;
   }
@@ -506,7 +506,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
 
         // Unbox if we have a box.
         auto box = ti_cast<TioWeakBox>(obj);
-        if (box != 0) foundObj = box->get().lock().get();
+        if (box != 0) foundObj = box->get().get();
         else foundObj = obj;
 
         // Do we have a type?
@@ -539,11 +539,11 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (notice != 0) helper->noticeStore->add(notice);
     if (foundObj == 0) {
       helper->noticeStore->add(
-        std::make_shared<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
+        newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
       );
     } else {
       helper->noticeStore->add(
-        std::make_shared<Spp::Notices::IdentifierIsNotTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
+        newSrdObj<Spp::Notices::IdentifierIsNotTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
       );
     }
   }
@@ -1093,7 +1093,7 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
   );
   if (!found) {
     helper->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidUseStatementNotice>(bridge->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidUseStatementNotice>(bridge->findSourceLocation())
     );
   }
   return found;

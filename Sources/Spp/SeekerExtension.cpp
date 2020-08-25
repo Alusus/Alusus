@@ -22,7 +22,7 @@ using namespace std::placeholders;
 
 SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper)
 {
-  auto extension = std::make_shared<SeekerExtension>(seeker);
+  auto extension = newSrdObj<SeekerExtension>(seeker);
   seeker->addDynamicInterface(extension);
 
   auto overrides = new Overrides();
@@ -179,7 +179,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
     if (data->isDerivedFrom<Ast::Template>()) {
       return seekerExtension->foreachByParamPass_template(param, static_cast<Ast::Template*>(data), cb, flags);
     } else {
-      auto notice = std::make_shared<Spp::Notices::InvalidSquareBracketOperandNotice>(
+      auto notice = newSrdObj<Spp::Notices::InvalidSquareBracketOperandNotice>(
         Core::Data::Ast::findSourceLocation(paramPass)
       );
       return cb(0, notice.get());

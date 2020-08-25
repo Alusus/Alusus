@@ -55,17 +55,17 @@ template <class P> class TiStrBase : public P
 
   public: static SharedPtr<TiStrBase<P>> create(Char const *v)
   {
-    return std::make_shared<TiStrBase<P>>(v);
+    return newSrdObj<TiStrBase<P>>(v);
   }
 
   public: static SharedPtr<TiStrBase<P>> create(Char const *v, Word c)
   {
-    return std::make_shared<TiStrBase<P>>(v, c);
+    return newSrdObj<TiStrBase<P>>(v, c);
   }
 
   public: static SharedPtr<TiStrBase<P>> create(WChar const *v, Word c)
   {
-    return std::make_shared<TiStrBase<P>>(v, c);
+    return newSrdObj<TiStrBase<P>>(v, c);
   }
 
 

@@ -67,20 +67,20 @@ void BuildManager::initBindings()
 void BuildManager::initTargets()
 {
   this->jitEda.setIdPrefix("jit");
-  this->jitBuildTarget = std::make_shared<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
-  this->jitTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), false);
+  this->jitBuildTarget = newSrdObj<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
+  this->jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), false);
   this->jitTargetGenerator->setupBuild();
 
   this->evalEda.setIdPrefix("eval");
-  this->evalBuildTarget = std::make_shared<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
-  this->evalTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
+  this->evalBuildTarget = newSrdObj<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
+  this->evalTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->jitTargetGenerator.get(), this->evalBuildTarget.get(), true
   );
   this->evalTargetGenerator->setupBuild();
 
   this->offlineEda.setIdPrefix("ofln");
-  this->offlineBuildTarget = std::make_shared<LlvmCodeGen::OfflineBuildTarget>();
-  this->offlineTargetGenerator = std::make_shared<LlvmCodeGen::TargetGenerator>(
+  this->offlineBuildTarget = newSrdObj<LlvmCodeGen::OfflineBuildTarget>();
+  this->offlineTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->jitTargetGenerator.get(), this->offlineBuildTarget.get(), false
   );
   this->offlineTargetGenerator->setupBuild();
@@ -153,7 +153,7 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
     eda->setCodeGenData(globalFuncElement, tgContext);
   }
 
-  return std::make_shared<BuildSession>(
+  return newSrdObj<BuildSession>(
     eda, targetGeneration, offlineExec, pointerBc, buildType, tgFunc, tgContext, globalEntryName.str().c_str()
   );
 }

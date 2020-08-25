@@ -25,8 +25,18 @@ class TiInterface;
  * Identifiable classes are classes that have run-time type information. This
  * abstract class uses polymorphism to provide RTTI.
  */
-class TiObject : public std::enable_shared_from_this<TiObject>
+class TiObject
 {
+  template <class T, class ...ARGS,
+            typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type>
+  friend SrdRef<T> newSrdObj(ARGS... args);
+
+  //============================================================================
+  // Member Variables
+
+  private: WkRef<TiObject> wkThis;
+
+
   //============================================================================
   // Virtual Destructor
 
@@ -35,6 +45,11 @@ class TiObject : public std::enable_shared_from_this<TiObject>
 
   //============================================================================
   // Member Functions
+
+  public: WkRef<TiObject> const& getWkThis() const
+  {
+    return this->wkThis;
+  }
 
   /**
    * @brief Get the type info of this object.
@@ -120,72 +135,6 @@ class TiObject : public std::enable_shared_from_this<TiObject>
   public: template<class T> const T* getInterface() const
   {
     return reinterpret_cast<const T*>(const_cast<TiObject*>(this)->_getInterface(T::getTypeInfo()));
-  }
-
-  /**
-   * @brief Gets a shared pointer to this.
-   * This function returns a shared pointer that shares ownership of this object
-   * with existing shared pointer.
-   */
-  public: std::shared_ptr<TiObject> getSharedThis()
-  {
-    try
-    {
-      return enable_shared_from_this::shared_from_this();
-    }
-    catch(const std::bad_weak_ptr &e)
-    {
-      return std::shared_ptr<TiObject>();
-    }
-  }
-
-  /**
-   * @brief A const version of getSharedThis.
-   * @sa getSharedThis()
-   */
-  public: std::shared_ptr<TiObject const> getSharedThis() const
-  {
-    try
-    {
-      return enable_shared_from_this::shared_from_this();
-    }
-    catch(const std::bad_weak_ptr &e)
-    {
-      return std::shared_ptr<TiObject>();
-    }
-  }
-
-  /**
-   * @brief Gets a weak pointer to this.
-   * This function returns a weak pointer that shares ownership of this object
-   * with existing weak pointer.
-   */
-  public: std::weak_ptr<TiObject> getWeakThis()
-  {
-    try
-    {
-      return enable_shared_from_this::weak_from_this();
-    }
-    catch(const std::bad_weak_ptr &e)
-    {
-      return std::weak_ptr<TiObject>();
-    }
-  }
-
-  /**
-   * @brief A const version of getWeakThis.
-   * @sa getWeakThis()
-   */
-  public: std::weak_ptr<TiObject const> getWeakThis() const
-  {
-    try
-    {
-      return enable_shared_from_this::weak_from_this();
-    }
-    catch(const std::bad_weak_ptr &e)
-    {
-      return std::weak_ptr<TiObject>();
-    }
   }
 
 }; // class

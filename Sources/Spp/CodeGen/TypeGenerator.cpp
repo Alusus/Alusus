@@ -150,7 +150,7 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
   } else if (astType->isDerivedFrom<Spp::Ast::FunctionType>()) {
     return typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), g, session);
   } else {
-    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidTypeNotice>());
+    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidTypeNotice>());
     return false;
   }
 }
@@ -171,7 +171,7 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidIntegerBitCountNotice>());
+    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -187,7 +187,7 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
   if (bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidFloatBitCountNotice>());
+    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -281,7 +281,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   if (prevInProgress != 0) {
     if (prevInProgress->get()) {
       typeGenerator->noticeStore->add(
-        std::make_shared<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
+        newSrdObj<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
       );
       return false;
     } else {
@@ -319,7 +319,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         } else {
           if (TypeGenerator::isInjection(def)) {
             typeGenerator->noticeStore->add(
-              std::make_shared<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
+              newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
             );
             result = false;
           }
@@ -327,7 +327,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
       } else {
         if (TypeGenerator::isInjection(def)) {
           typeGenerator->noticeStore->add(
-            std::make_shared<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
+            newSrdObj<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
           );
           result = false;
         }

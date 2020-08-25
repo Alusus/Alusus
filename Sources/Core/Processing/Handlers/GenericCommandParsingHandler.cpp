@@ -18,7 +18,7 @@ namespace Core::Processing::Handlers
 void GenericCommandParsingHandler::onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
 {
   auto command = Data::Ast::GenericCommand::create({ {S("type"), &this->type} });
-  command->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()));
+  command->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()));
   state->setData(command);
 }
 

@@ -95,7 +95,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
                       list->get(0)->getMyTypeInfo()->getUniqueName());
     }
 
-    auto obj = std::make_shared<TYPE>();
+    auto obj = newSrdObj<TYPE>();
     obj->setFirst(currentData);
     obj->setType(token->getText());
     obj->setSecond(list != 0 ? list->get(1) : TioSharedPtr::null);
@@ -112,7 +112,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     TYPE *infixObj = obj.ti_cast_get<TYPE>();
     if (infixObj == 0 || infixObj->getProdId() != UNKNOWN_ID) return obj;
 
-    SharedPtr<TYPE> newObj = std::make_shared<TYPE>();
+    SharedPtr<TYPE> newObj = newSrdObj<TYPE>();
     newObj->setFirst(this->cloneInfixTree(infixObj->getFirst()));
     newObj->setSecond(this->cloneInfixTree(infixObj->getSecond()));
     newObj->setType(infixObj->getType());

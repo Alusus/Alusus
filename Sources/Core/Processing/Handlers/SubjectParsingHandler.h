@@ -49,14 +49,14 @@ class SubjectParsingHandler : public GenericParsingHandler
     if (state->isAProdRoot(-1) && token->getId() == this->constTokenId) {
       if (token->getText() == S("(")) {
         auto bracket = Data::Ast::Bracket::create({
-          { "sourceLocation", std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()) }
+          { "sourceLocation", newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()) }
         });
         bracket->setType(Data::Ast::BracketType::ROUND);
         state->setData(bracket);
         return;
       } else if (token->getText() == S("[")) {
         auto bracket = Data::Ast::Bracket::create({
-          { "sourceLocation", std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()) }
+          { "sourceLocation", newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()) }
         });
         bracket->setType(Data::Ast::BracketType::SQUARE);
         state->setData(bracket);

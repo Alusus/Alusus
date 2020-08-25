@@ -27,7 +27,7 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
       auto prefixOp = static_cast<Core::Data::Ast::PrefixOperator*>(type);
       if (prefixOp->getType() != S("...")) {
         noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation())
         );
         return false;
       }
@@ -39,14 +39,14 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
         auto bracket = operand.s_cast<Core::Data::Ast::Bracket>();
         if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
           noticeStore->add(
-            std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation())
           );
           return false;
         }
         auto bracketOperand = bracket->getOperand();
         if (bracketOperand == 0) {
           noticeStore->add(
-            std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation())
           );
           return false;
         }
@@ -54,7 +54,7 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
           auto bracketList = bracketOperand.s_cast<Core::Data::Ast::List>();
           if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
             noticeStore->add(
-              std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation())
+              newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation())
             );
             return false;
           }
@@ -89,7 +89,7 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
         if (funcType->getArgTypes()->getElement(j)->isDerivedFrom<Ast::ArgPack>()) {
           // We cannot have a normal argument following an arg pack.
           noticeStore->add(
-            std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Data::Ast::findSourceLocation(type))
+            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Data::Ast::findSourceLocation(type))
           );
           return false;
         }
@@ -110,11 +110,11 @@ Bool parseNumber(
   } else {
     if (metadata) {
       noticeStore->add(
-        std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(metadata->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(metadata->findSourceLocation())
       );
     } else {
       noticeStore->add(
-        std::make_shared<Spp::Notices::InvalidFunctionArgTypeNotice>(parentMetadata->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(parentMetadata->findSourceLocation())
       );
     }
     return false;

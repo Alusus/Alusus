@@ -27,14 +27,14 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
     SharedPtr<Reference> seg;
     if (referenceCache != 0) {
       if (cacheIndex >= referenceCache->size()) {
-        referenceCache->push_back(std::make_shared<Reference>());
+        referenceCache->push_back(newSrdObj<Reference>());
       }
       seg = referenceCache->at(cacheIndex);
       seg->setCachedValue(0);
       seg->setValueCacheEnabled(false);
       ++cacheIndex;
     } else {
-      seg = std::make_shared<Reference>(qualifier + begin, size);
+      seg = newSrdObj<Reference>(qualifier + begin, size);
     }
     seg->setKey(qualifier + begin, size);
     seg->setNext(SharedPtr<Reference>::null);

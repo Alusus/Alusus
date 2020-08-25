@@ -36,7 +36,7 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
 
   public: static SharedPtr<TildeOpParsingHandler<TYPE>> create()
   {
-    return std::make_shared<TildeOpParsingHandler<TYPE>>();
+    return newSrdObj<TildeOpParsingHandler<TYPE>>();
   }
 
 
@@ -46,8 +46,8 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
   public: virtual void onProdStart(
     Core::Processing::Parser *parser, Core::Processing::ParserState *state, Core::Data::Token const *token
   ) {
-    auto data = std::make_shared<TYPE>();
-    data->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()));
+    auto data = newSrdObj<TYPE>();
+    data->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()));
     state->setData(data);
   }
 
@@ -75,7 +75,7 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
           if (currentData->getElementCount() >= 2) {
             currentData->setElement(1, operand);
           } else {
-            state->addNotice(std::make_shared<Core::Notices::SyntaxErrorNotice>(
+            state->addNotice(newSrdObj<Core::Notices::SyntaxErrorNotice>(
               Core::Data::Ast::findSourceLocation(operand)
             ));
           }

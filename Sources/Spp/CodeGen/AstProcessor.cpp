@@ -235,7 +235,7 @@ Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::Function 
   // Make sure we don't have an arg named `this`.
   if (funcType->getArgTypes()->findIndex(S("this")) != -1) {
     astProcessor->noticeStore->add(
-      std::make_shared<Spp::Notices::ThisRedefinedNotice>(func->findSourceLocation())
+      newSrdObj<Spp::Notices::ThisRedefinedNotice>(func->findSourceLocation())
     );
     return false;
   }
@@ -296,7 +296,7 @@ Bool AstProcessor::_processMacro(
   if (!astProcessor->applyMacroArgs(macro, args, sl, macroInstance)) return false;
   if (macroInstance == 0) {
     astProcessor->noticeStore->add(
-      std::make_shared<Spp::Notices::InvalidMacroNotice>(macro->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidMacroNotice>(macro->findSourceLocation())
     );
     return false;
   }
@@ -398,7 +398,7 @@ Bool AstProcessor::_applyMacroArgsIteration_identifier(
         Core::Data::Ast::addSourceLocation(result.get(), sl);
       } else {
         astProcessor->noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
         );
         return false;
       }
@@ -440,7 +440,7 @@ Bool AstProcessor::_applyMacroArgsIteration_stringLiteral(
         Core::Data::Ast::addSourceLocation(result.get(), sl);
       } else {
         astProcessor->noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
         );
         return false;
       }
@@ -473,7 +473,7 @@ Bool AstProcessor::_applyMacroArgsIteration_tiStr(
       result = TiStr::create(newVar);
     } else {
       astProcessor->noticeStore->add(
-        std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+        newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
       );
       return false;
     }
@@ -555,7 +555,7 @@ Bool AstProcessor::_applyMacroArgsIteration_binding(
         if (identifier == 0) {
           auto elementSl = Core::Data::Ast::findSourceLocation(args->getElement(index));
           astProcessor->noticeStore->add(
-            std::make_shared<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
+            newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
           );
           return false;
         }
@@ -648,7 +648,7 @@ Bool AstProcessor::_applyMacroArgsIteration_dynMapContaining(
         // Make sure the new key isn't already used.
         if (obj->findElementIndex(newKey) != -1) {
           astProcessor->noticeStore->add(
-            std::make_shared<Spp::Notices::InvalidMacroArgNotice>(arg->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidMacroArgNotice>(arg->findSourceLocation())
           );
           return false;
         }
@@ -657,7 +657,7 @@ Bool AstProcessor::_applyMacroArgsIteration_dynMapContaining(
         obj->removeElement(index + 1);
       } else {
         astProcessor->noticeStore->add(
-          std::make_shared<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
         );
         return false;
       }

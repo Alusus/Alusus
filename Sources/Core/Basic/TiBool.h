@@ -43,7 +43,7 @@ template<class P> class TiBoolBase : public P
 
   public: static SharedPtr<TiBoolBase<P>> create(Bool v=0)
   {
-    return std::make_shared<TiBoolBase<P>>(v);
+    return newSrdObj<TiBoolBase<P>>(v);
   }
 
 

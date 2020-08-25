@@ -62,7 +62,7 @@ class UnionCharGroupUnit : public CharGroupUnit
 
   public: static SharedPtr<UnionCharGroupUnit> create(std::initializer_list<SharedPtr<CharGroupUnit>> const &args)
   {
-    return std::make_shared<UnionCharGroupUnit>(args);
+    return newSrdObj<UnionCharGroupUnit>(args);
   }
 
 

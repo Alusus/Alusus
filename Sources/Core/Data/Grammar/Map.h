@@ -66,7 +66,7 @@ class Map : public NbMap, public Binding, public Inheriting
   public: static SharedPtr<Map> create(
     std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
   ) {
-    return std::make_shared<Map>(attrs, elements, useIndex);
+    return newSrdObj<Map>(attrs, elements, useIndex);
   }
 
 

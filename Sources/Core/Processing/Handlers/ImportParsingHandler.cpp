@@ -33,7 +33,7 @@ void ImportParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     //       the statement list is complete.
   } else if (result == 1) {
     auto metadata = state->getData().ti_cast<Ast::MetaHaving>();
-    state->addNotice(std::make_shared<Notices::ImportLoadFailedNotice>(
+    state->addNotice(newSrdObj<Notices::ImportLoadFailedNotice>(
       filenames.c_str(), errorDetails.c_str(), metadata->findSourceLocation()
     ));
   }
@@ -59,7 +59,7 @@ Int ImportParsingHandler::tryImport(TiObject *astNode, Str &filenames, Str &erro
     auto logOperator = ti_cast<Ast::LogOperator>(astNode);
     if (logOperator != 0) {
       if (logOperator->getType() != "||" && logOperator->getType() != "or") {
-        state->addNotice(std::make_shared<Notices::InvalidImportNotice>(
+        state->addNotice(newSrdObj<Notices::InvalidImportNotice>(
           Ast::findSourceLocation(astNode)
         ));
         return 2;
@@ -70,7 +70,7 @@ Int ImportParsingHandler::tryImport(TiObject *astNode, Str &filenames, Str &erro
       }
       return result;
     } else {
-      state->addNotice(std::make_shared<Notices::InvalidImportNotice>(
+      state->addNotice(newSrdObj<Notices::InvalidImportNotice>(
         Ast::findSourceLocation(astNode)
       ));
       return 2;

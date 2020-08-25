@@ -102,7 +102,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       TiInt::create(1),
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }
-  }, std::make_shared<Handlers::IfParsingHandler>());
+  }, newSrdObj<Handlers::IfParsingHandler>());
 
   //// while = "while" + Expression + Statement
   this->createCommand(S("root.Main.While"), {{
@@ -121,7 +121,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<Handlers::WhileParsingHandler>());
+  }}, newSrdObj<Handlers::WhileParsingHandler>());
 
   //// for = "for" + Exp + Statement
   this->createCommand(S("root.Main.For"), {{
@@ -140,7 +140,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<Handlers::ForParsingHandler>());
+  }}, newSrdObj<Handlers::ForParsingHandler>());
 
   //// continue = "continue" + Subject.Literal
   this->createCommand(S("root.Main.Continue"), {{
@@ -151,7 +151,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       TiInt::create(1),
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
-  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+  }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
     auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
     auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
     auto continueStatement = Ast::ContinueStatement::create({
@@ -162,7 +162,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
         state->addNotice(
-          std::make_shared<Spp::Notices::InvalidContinueStatementNotice>(metadata->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidContinueStatementNotice>(metadata->findSourceLocation())
         );
         state->setData(SharedPtr<TiObject>(0));
         return;
@@ -181,7 +181,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       TiInt::create(1),
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
-  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+  }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
     auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
     auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
     auto breakStatement = Ast::BreakStatement::create({
@@ -191,7 +191,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     if (currentList != 0) {
       auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
         state->setData(SharedPtr<TiObject>(0));
         return;
       }
@@ -209,7 +209,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       TiInt::create(1),
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
-  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+  }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
     auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
     auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
     auto returnStatement = Ast::ReturnStatement::create({
@@ -239,7 +239,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<Handlers::TypeOpParsingHandler>());
+  }}, newSrdObj<Handlers::TypeOpParsingHandler>());
 
   // Create inner commands.
 
@@ -260,7 +260,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<Handlers::ModuleParsingHandler>());
+  }}, newSrdObj<Handlers::ModuleParsingHandler>());
   this->set(S("root.Main.Module.modifierTranslations"), Map::create({}, {
     {S("دمج"), TiStr::create(S("merge"))}
   }));
@@ -297,7 +297,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<Handlers::TypeParsingHandler>());
+  }}, newSrdObj<Handlers::TypeParsingHandler>());
   this->set(S("root.Main.Type.modifierTranslations"), Map::create({}, {
     {S("دمج"), TiStr::create(S("merge"))}
   }));
@@ -325,7 +325,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<Handlers::FunctionParsingHandler>());
+  }}, newSrdObj<Handlers::FunctionParsingHandler>());
   this->set(S("root.Main.Function.modifierTranslations"), Map::create({}, {
     {S("تصدير"), TiStr::create(S("expname"))},
     {S("مشترك"), TiStr::create(S("shared"))}
@@ -341,34 +341,34 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
   this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.LowerLinkExp"))},
   }, {
-    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.LowLinkExp"))},
   }, {
-    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(1)}})},
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(1)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.AddExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.AddExp"))},
   }, {
-    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.MulExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.MulExp"))},
   }, {
-    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.BitwiseExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.BitwiseExp"))},
   }, {
-    {S("vars"), Map::create({}, {{S("enable"), std::make_shared<TiInt>(0)}})},
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(0)}})},
   }).get());
   this->set(S("root.Main.FuncSigExpression.UnaryExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.UnaryExp"))},
   }, {
     {S("vars"), Map::create({}, {
-      {S("enable1"), std::make_shared<TiInt>(0)},
-      {S("enable2"), std::make_shared<TiInt>(0)}
+      {S("enable1"), newSrdObj<TiInt>(0)},
+      {S("enable2"), newSrdObj<TiInt>(0)}
     })},
   }).get());
 
@@ -412,7 +412,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<Handlers::MacroParsingHandler>());
+  }}, newSrdObj<Handlers::MacroParsingHandler>());
   // Macro Signature
   this->set(S("root.Main.MacroSignature"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
@@ -424,9 +424,9 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
       {S("sbj2"), PARSE_REF(S("module.expression"))},
       {S("sbj3"), PARSE_REF(S("module.expression"))},
-      {S("frc2"), std::make_shared<TiInt>(1)},
-      {S("frc3"), std::make_shared<TiInt>(1)},
-      {S("fltr"), std::make_shared<TiInt>(2)}
+      {S("frc2"), newSrdObj<TiInt>(1)},
+      {S("frc3"), newSrdObj<TiInt>(1)},
+      {S("fltr"), newSrdObj<TiInt>(2)}
     })}
   }).get());
 
@@ -441,7 +441,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+  }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
     auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
     auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
     if (currentList->getElementCount() != 2) {
@@ -497,25 +497,25 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
   this->createCommand(S("root.Main.Keywords"), {{
     Map::create({}, {
       { S("this"), 0 },
-      { S("هذا"), std::make_shared<TiStr>(("this")) },
+      { S("هذا"), newSrdObj<TiStr>(("this")) },
       { S("value"), 0 },
-      { S("قيمة"), std::make_shared<TiStr>(("value")) },
+      { S("قيمة"), newSrdObj<TiStr>(("value")) },
       { S("type"), 0 },
-      { S("صنف"), std::make_shared<TiStr>(("type")) },
+      { S("صنف"), newSrdObj<TiStr>(("type")) },
       { S("function"), 0 },
-      { S("دالة"), std::make_shared<TiStr>(("function")) },
+      { S("دالة"), newSrdObj<TiStr>(("function")) },
       { S("integer"), 0 },
-      { S("صحيح"), std::make_shared<TiStr>(("integer")) },
+      { S("صحيح"), newSrdObj<TiStr>(("integer")) },
       { S("string"), 0 },
-      { S("محارف"), std::make_shared<TiStr>(("string")) },
+      { S("محارف"), newSrdObj<TiStr>(("string")) },
       { S("any"), 0 },
-      { S("أيما"), std::make_shared<TiStr>(("any")) }
+      { S("أيما"), newSrdObj<TiStr>(("any")) }
     }),
     {
     }
-  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+  }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
     auto current = state->getData().ti_cast_get<Core::Data::Ast::Token>();
-    SharedPtr<Core::Data::Ast::Text> newObj = std::make_shared<Core::Data::Ast::Identifier>();
+    SharedPtr<Core::Data::Ast::Text> newObj = newSrdObj<Core::Data::Ast::Identifier>();
     newObj->setValue(current->getText());
     newObj->setProdId(current->getProdId());
     newObj->setSourceLocation(current->findSourceLocation());
@@ -527,7 +527,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
     Map::create({}, { { S("this_type"), 0 }, { S("هذا_الصنف"), 0 } }),
     {
     }
-  }}, std::make_shared<CustomParsingHandler>([](Parser *parser, ParserState *state) {
+  }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
     auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
     auto thisTypeRef = Ast::ThisTypeRef::create({
       { "prodId", metadata->getProdId() },
@@ -584,9 +584,9 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
       {S("sbj2"), PARSE_REF(S("module.expression"))},
       {S("sbj3"), PARSE_REF(S("module.expression"))},
-      {S("frc2"), std::make_shared<TiInt>(1)},
-      {S("frc3"), std::make_shared<TiInt>(1)},
-      {S("fltr"), std::make_shared<TiInt>(2)}
+      {S("frc2"), newSrdObj<TiInt>(1)},
+      {S("frc3"), newSrdObj<TiInt>(1)},
+      {S("fltr"), newSrdObj<TiInt>(2)}
     })}
   }).get());
   // ~size
@@ -623,9 +623,9 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
       {S("sbj2"), PARSE_REF(S("module.expression"))},
       {S("sbj3"), PARSE_REF(S("module.expression"))},
-      {S("frc2"), std::make_shared<TiInt>(0)},
-      {S("frc3"), std::make_shared<TiInt>(0)},
-      {S("fltr"), std::make_shared<TiInt>(1)}
+      {S("frc2"), newSrdObj<TiInt>(0)},
+      {S("frc3"), newSrdObj<TiInt>(0)},
+      {S("fltr"), newSrdObj<TiInt>(1)}
     })}
   }).get());
   // ~terminate
@@ -650,9 +650,9 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
       {S("sbj1"), PARSE_REF(S("module.expression"))},
       {S("sbj2"), PARSE_REF(S("module.expression"))},
       {S("sbj3"), PARSE_REF(S("module.expression"))},
-      {S("frc2"), std::make_shared<TiInt>(0)},
-      {S("frc3"), std::make_shared<TiInt>(0)},
-      {S("fltr"), std::make_shared<TiInt>(1)}
+      {S("frc2"), newSrdObj<TiInt>(0)},
+      {S("frc3"), newSrdObj<TiInt>(0)},
+      {S("fltr"), newSrdObj<TiInt>(1)}
     })}
   }).get());
   // ~next_arg

@@ -67,7 +67,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     commandGenerator(cg),
     expressionGenerator(eg)
   {
-    this->addDynamicInterface(std::make_shared<Generation>(this));
+    this->addDynamicInterface(newSrdObj<Generation>(this));
     this->initBindings();
   }
 

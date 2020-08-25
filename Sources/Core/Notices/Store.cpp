@@ -23,7 +23,7 @@ void Store::add(SharedPtr<Notice> const &notice)
   auto count = this->prefixSourceLocationStack.getCount();
   if (count > 1 || (count == 1 && notice->getSourceLocation() != 0)) {
     // We have more than one record, so we need a new stack.
-    auto stack = std::make_shared<Data::SourceLocationStack>();
+    auto stack = newSrdObj<Data::SourceLocationStack>();
     stack->push(&this->prefixSourceLocationStack);
     auto sl = notice->getSourceLocation().get();
     if (sl != 0) stack->push(sl);

@@ -10,6 +10,9 @@ cmake_minimum_required(VERSION 2.8)
 # Prepare compile flags.
 set(AlususCore_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
 
+# Header and library files paths for AlususBrl
+include_directories("${AlususBrl_SOURCE_DIR}")
+
 # Make sure the compiler finds the source files.
 include_directories("${AlususCore_SOURCE_DIR}")
 set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")
@@ -40,7 +43,7 @@ set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_
 ADD_PRECOMPILED_HEADER(AlususCore "core.h")
 
 # Finally, we link the executable to the libraries.
-target_link_libraries(AlususCore AlususCoreLib AlususStorage "dl")
+target_link_libraries(AlususCore AlususBrlLib AlususCoreLib AlususStorage "dl")
 
 # Set library and executable output names.
 # NOTE: For alusus_storage, we'll use the same filename for both debug and
@@ -53,8 +56,8 @@ set_target_properties(AlususStorage PROPERTIES OUTPUT_NAME alusus_storage)
 set_target_properties(AlususStorage PROPERTIES DEBUG_OUTPUT_NAME alusus_storage)
 set_target_properties(AlususStorage PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususStorage PROPERTIES SOVERSION ${AlususSoVersion})
-set_target_properties(AlususCoreLib PROPERTIES OUTPUT_NAME alusus)
-set_target_properties(AlususCoreLib PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)
+set_target_properties(AlususCoreLib PROPERTIES OUTPUT_NAME alusus_core)
+set_target_properties(AlususCoreLib PROPERTIES DEBUG_OUTPUT_NAME alusus_core.dbg)
 set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})
 set_target_properties(AlususCore PROPERTIES OUTPUT_NAME alusus)
 set_target_properties(AlususCore PROPERTIES DEBUG_OUTPUT_NAME alusus.dbg)

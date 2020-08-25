@@ -10,23 +10,28 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_SHARED_PTR_H
-#define CORE_BASIC_SHARED_PTR_H
+#ifndef CORE_BASIC_SHAREDPTR_H
+#define CORE_BASIC_SHAREDPTR_H
 
-#include <memory>
-
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-// TODO: DOC
+// TODO:
 
-template <class T> class SharedPtr : public std::shared_ptr<T>
+template <class T> class SharedPtr : public Brl::SrdRef<T>
 {
-  // Inherit constructors.
-  public: using std::shared_ptr<T>::shared_ptr;
+  //============================================================================
+  // Constructors
 
-  public: SharedPtr(std::shared_ptr<T> &p) : std::shared_ptr<T>(p) {}
-  public: SharedPtr(std::shared_ptr<T> &&p) : std::shared_ptr<T>(p) {}
+  public: using Brl::SrdRef<T>::SrdRef;
+
+  public: SharedPtr(Brl::SrdRef<T> const &r) : Brl::SrdRef<T>(r) {}
+
+  public: SharedPtr(Brl::SrdRef<T> &&r) : Brl::SrdRef<T>(r) {}
+
+  public: template<class T2> SharedPtr(Brl::SrdRef<T2> const &p) : Brl::SrdRef<T>(p) {}
+
+  public: template<class T2> SharedPtr(Brl::SrdRef<T2> &&p) : Brl::SrdRef<T>(p) {}
 
 
   //============================================================================
@@ -54,13 +59,13 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   }
 
   /// Check whether the given pointer share the same subject with this one.
-  public: template <class T2> Bool operator==(const std::shared_ptr<T2> &ptr) const
+  public: template <class T2> Bool operator==(const Brl::SrdRef<T2> &ptr) const
   {
     return this->get() == ptr.get();
   }
 
   /// Check whether the given pointer has a different subject with this one.
-  public: template <class T2> Bool operator!=(const std::shared_ptr<T2> &ptr) const
+  public: template <class T2> Bool operator!=(const Brl::SrdRef<T2> &ptr) const
   {
     return this->get() != ptr.get();
   }
@@ -83,6 +88,15 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
   //==============================================================================
   // Member Functions
 
+  /// @name General Functions
+  /// @{
+
+  public: void reset() {
+    this->release();
+  }
+
+  /// @}
+
   /// @name Casting Functions
   /// @{
 
@@ -95,20 +109,9 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> s_cast() const &
+  public: template <class TO> inline SharedPtr<TO> s_cast() const
   {
-    return SharedPtr<TO>(*this, static_cast<TO*>(this->get()));
-  }
-
-  /// @sa s_cast()
-  public: template <class TO> inline SharedPtr<TO> s_cast() &&
-  {
-    TO *p = static_cast<TO*>(this->get());
-    if (reinterpret_cast<PtrInt>(p) == reinterpret_cast<PtrInt>(this->get())) {
-      return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
-    } else {
-      return SharedPtr<TO>(*this, p);
-    }
+    return SharedPtr<TO>(this->refCounter, static_cast<TO*>(this->get()));
   }
 
   /**
@@ -120,15 +123,9 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> r_cast() const &
+  public: template <class TO> inline SharedPtr<TO> r_cast() const
   {
-    return SharedPtr<TO>(*this, reinterpret_cast<TO*>(this->get()));
-  }
-
-  /// @sa r_cast()
-  public: template <class TO> inline SharedPtr<TO> r_cast() &&
-  {
-    return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
+    return SharedPtr<TO>(this->refCounter, reinterpret_cast<TO*>(this->get()));
   }
 
   /**
@@ -140,15 +137,9 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    *            words, if you want to cast the pointer to SharedPtr<My_Type>,
    *            TO must be My_Type, not SharedPtr<My_Type>.
    */
-  public: template <class TO> inline SharedPtr<TO> c_cast() const &
+  public: template <class TO> inline SharedPtr<TO> c_cast() const
   {
-    return SharedPtr<TO>(*this, const_cast<TO*>(this->get()));
-  }
-
-  /// @sa c_cast()
-  public: template <class TO> inline SharedPtr<TO> c_cast() &&
-  {
-    return std::move(*(reinterpret_cast<SharedPtr<TO>*>(this)));
+    return SharedPtr<TO>(this->refCounter, const_cast<TO*>(this->get()));
   }
 
   /**
@@ -162,7 +153,7 @@ template <class T> class SharedPtr : public std::shared_ptr<T>
    */
   public: template <class TO> inline SharedPtr<TO> ti_cast() const
   {
-    return SharedPtr<TO>(*this, Core::Basic::ti_cast<TO>(this->get()));
+    return SharedPtr<TO>(this->refCounter, Core::Basic::ti_cast<TO>(this->get()));
   }
 
   /**
@@ -235,50 +226,27 @@ template<class T> SharedPtr<T> const SharedPtr<T>::null = 0;
 //==============================================================================
 // Helper Definitions
 
-template <class T, class T2> inline SharedPtr<T> s_cast(std::shared_ptr<T2> const &src)
+template <class T, class T2> inline SharedPtr<T> s_cast(Brl::SrdRef<T2> const &src)
 {
-  return SharedPtr<T>(src, static_cast<T*>(src.get()));
+  return SharedPtr<T>(src.refCounter, static_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> inline SharedPtr<T> s_cast(std::shared_ptr<T2> &&src)
+template <class T, class T2> inline SharedPtr<T> r_cast(Brl::SrdRef<T2> const &src)
 {
-  T *p = static_cast<T*>(src.get());
-  if (reinterpret_cast<PtrInt>(p) == reinterpret_cast<PtrInt>(src.get())) {
-    return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
-  } else {
-    return SharedPtr<T>(src, p);
-  }
+  return SharedPtr<T>(src.refCounter, reinterpret_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> inline SharedPtr<T> r_cast(std::shared_ptr<T2> const &src)
+template <class T> inline SharedPtr<T> c_cast(Brl::SrdRef<const T> const &src)
 {
-  return SharedPtr<T>(src, reinterpret_cast<T*>(src.get()));
+  return SharedPtr<T>(src.refCounter, const_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> inline SharedPtr<T> r_cast(std::shared_ptr<T2> &&src)
+template <class T, class T2> SharedPtr<T> ti_cast(Brl::SrdRef<T2> const &src)
 {
-  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
-}
-
-
-template <class T> inline SharedPtr<T> c_cast(std::shared_ptr<const T> const &src)
-{
-  return SharedPtr<T>(src, const_cast<T*>(src.get()));
-}
-
-
-template <class T> inline SharedPtr<T> c_cast(std::shared_ptr<const T> &&src)
-{
-  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&src)));
-}
-
-
-template <class T, class T2> SharedPtr<T> ti_cast(std::shared_ptr<T2> const &src)
-{
-  return SharedPtr<T>(src, Core::Basic::ti_cast<T>(src.get()));
+  return SharedPtr<T>(src.getRefCounter(), Core::Basic::ti_cast<T>(src.get()));
 }
 
 
@@ -297,80 +265,47 @@ template <class T,
           typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
 SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
 {
-  if (obj == 0) {
-    return SharedPtr<T>();
-  }
-  SharedPtr<TiObject> sp = obj->getSharedThis();
-  if (sp == 0) {
-    if (ownIfUnowned) return SharedPtr<T>(obj);
-    else return SharedPtr<T>();
-  }
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&sp)));
+  if (obj == 0) return SharedPtr<T>();
+  else if (obj->getWkThis() != 0) return SharedPtr<T>(obj->getWkThis().getRefCounter(), obj);
+  else if (ownIfUnowned) return SharedPtr<T>::ownToNew(obj);
+  else return SharedPtr<T>();
 }
-
 
 template <class T,
           typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
 SharedPtr<T const> getSharedPtr(T const *obj, Bool ownIfUnowned=false)
 {
-  if (obj == 0) {
-    return SharedPtr<T const>();
-  }
-  SharedPtr<TiObject const> sp = obj->getSharedThis();
-  if (sp == 0) {
-    if (ownIfUnowned) return SharedPtr<T const>(obj);
-    else return SharedPtr<T const>();
-  }
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<SharedPtr<T const>*>(&sp)));
+  if (obj == 0) return SharedPtr<T const>();
+  else if (obj->getWkThis() != 0) return SharedPtr<T const>(obj->getWkThis().getRefCounter(), obj);
+  else if (ownIfUnowned) return SharedPtr<T const>::ownToNew(obj);
+  else return SharedPtr<T const>();
 }
-
 
 template <class T,
           typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
 SharedPtr<T> getSharedPtr(T *obj, Bool ownIfUnowned=false)
 {
-  if (obj == 0) {
-    return SharedPtr<T>();
-  }
-  SharedPtr<TiObject> sp = obj->getTiObject()->getSharedThis();
-  if (sp == 0) {
-    if (ownIfUnowned) return SharedPtr<T>(obj);
-    else return SharedPtr<T>();
-  }
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<SharedPtr<T>*>(&sp)));
+  if (obj == 0) return SharedPtr<T>();
+  else if (obj->getTiObject()->getWkThis() != 0) {
+    return SharedPtr<T>(obj->getTiObject()->getWkThis().getRefCounter(), obj);
+  } else if (ownIfUnowned) return SharedPtr<T>::ownToNew(obj);
+  else return SharedPtr<T>();
 }
-
 
 template <class T,
           typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
 SharedPtr<T const> getSharedPtr(T const *obj, Bool ownIfUnowned=false)
 {
-  if (obj == 0) {
-    return SharedPtr<T const>();
-  }
-  SharedPtr<TiObject const> sp = obj->getTiObject()->getSharedThis();
-  if (sp == 0) {
-    if (ownIfUnowned) return SharedPtr<T const>(obj);
-    else return SharedPtr<T const>();
-  }
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<SharedPtr<T const>*>(&sp)));
+  if (obj == 0) return SharedPtr<T const>();
+  else if (obj->getTiObject()->getWkThis() != 0) {
+    return SharedPtr<T const>(obj->getTiObject()->getWkThis().getRefCounter(), obj);
+  } else if (ownIfUnowned) return SharedPtr<T const>::ownToNew(obj);
+  else return SharedPtr<T const>();
 }
 
 
 typedef SharedPtr<TiObject> TioSharedPtr;
 
-} } // namespace
+} // namespace
 
 #endif

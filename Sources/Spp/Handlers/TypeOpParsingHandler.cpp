@@ -24,13 +24,13 @@ void TypeOpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   ASSERT(exprMetadata != 0);
 
   if (data->getCount() != 3) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
   for (Int i = 1; i < data->getCount(); ++i) {
     if (data->get(i) == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
       state->setData(SharedPtr<TiObject>(0));
       return;
     }
@@ -80,7 +80,7 @@ void TypeOpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     }
   }
 
-  state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
+  state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
   state->setData(SharedPtr<TiObject>(0));
 }
 
@@ -94,7 +94,6 @@ SharedPtr<Core::Data::Ast::Scope> TypeOpParsingHandler::prepareBody(TioSharedPtr
     body = Core::Data::Ast::Scope::create();
     body->setSourceLocation(Core::Data::Ast::findSourceLocation(stmt.get()));
     body->add(stmt);
-    body = body;
   }
   return body;
 }
@@ -108,7 +107,7 @@ void TypeOpParsingHandler::createAssignmentHandler(
 
   auto first = assignmentOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (first == 0 || first->getValue() != S("this")) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(assignmentOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(assignmentOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -146,7 +145,7 @@ void TypeOpParsingHandler::createComparisonHandler(
 
   auto first = comparisonOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (first == 0 || first->getValue() != S("this")) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(comparisonOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(comparisonOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -177,7 +176,7 @@ void TypeOpParsingHandler::createInfixOpHandler(
 
   auto first = infixOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
   if (first == 0 || first->getValue() != S("this")) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(infixOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(infixOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -204,7 +203,7 @@ void TypeOpParsingHandler::createInitOpHandler(
   // Verify operand.
   auto operand = initOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
   if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(initOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(initOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -226,7 +225,7 @@ void TypeOpParsingHandler::createInitOpHandler(
     auto inputDef = params->get(i);
     if (!this->prepareInputArg(state, inputDef, inputName, inputType)) return;
     if (argTypes->findIndex(inputName) != -1) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(
+      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(
         Core::Data::Ast::findSourceLocation(inputDef.get())
       ));
       state->setData(SharedPtr<TiObject>(0));
@@ -249,7 +248,7 @@ void TypeOpParsingHandler::createTerminateOpHandler(
   // Verify operand.
   auto operand = terminateOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
   if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(terminateOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(terminateOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -273,7 +272,7 @@ void TypeOpParsingHandler::createCastHandler(
   // Verify operand.
   auto operand = castOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
   if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(castOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(castOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -281,7 +280,7 @@ void TypeOpParsingHandler::createCastHandler(
   // Prepare return type.
   auto retType = castOp->getTargetType();
   if (retType == 0) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(castOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(castOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -303,7 +302,7 @@ void TypeOpParsingHandler::createParensOpHandler(
   // Verify operand.
   auto operand = parensOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
   if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(parensOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(parensOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -325,7 +324,7 @@ void TypeOpParsingHandler::createParensOpHandler(
     auto inputDef = params->get(i);
     if (!this->prepareInputArg(state, inputDef, inputName, inputType)) return;
     if (argTypes->findIndex(inputName) != -1) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidFunctionArgNameNotice>(
+      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(
         Core::Data::Ast::findSourceLocation(inputDef.get())
       ));
       state->setData(SharedPtr<TiObject>(0));
@@ -387,7 +386,7 @@ Bool TypeOpParsingHandler::prepareInputArg(
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
       input = bracket->getOperand();
     } else {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(
+      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(
         Core::Data::Ast::findSourceLocation(input.get())
       ));
       state->setData(SharedPtr<TiObject>(0));
@@ -398,7 +397,7 @@ Bool TypeOpParsingHandler::prepareInputArg(
     auto linkOperator = input.s_cast_get<Core::Data::Ast::LinkOperator>();
     auto inputNameId = linkOperator->getFirst().ti_cast<Core::Data::Ast::Identifier>();
     if (inputNameId == 0 || inputNameId->getValue() == S("this")) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidHandlerStatementNotice>(
+      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(
         Core::Data::Ast::findSourceLocation(input.get())
       ));
       state->setData(SharedPtr<TiObject>(0));

@@ -689,6 +689,29 @@ template<typename ... Args> std::string formatString(Char const *format, Args ..
   return std::string(buf.get(), buf.get() + size - 1);
 }
 
+class TiObject;
+
+/**
+ * @brief Construct a new shared object.
+ * @ingroup basic_functions
+ */
+template <class T, class ...ARGS,
+          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+SrdRef<T> newSrdObj(ARGS... args) {
+  SrdRef<T> r;
+  r.construct(args...);
+  r.get()->wkThis = r;
+  return r;
+}
+
+template <class T, class ...ARGS,
+          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
+SrdRef<T> newSrdObj(ARGS... args) {
+  SrdRef<T> r;
+  r.construct(args...);
+  return r;
+}
+
 
 //==============================================================================
 // Global Variable Definitions
@@ -774,7 +797,9 @@ extern std::istream &inStream;
 #include "MapContaining.h"
 #include "DynamicMapContaining.h"
 #include "containing_helpers.h"
+#include "ContainerExtender.h"
 
+// TODO: Rename List to Array.
 #include "SharedListBase.h"
 #include "SharedList.h"
 #include "PlainListBase.h"
@@ -784,7 +809,6 @@ extern std::istream &inStream;
 #include "PlainMapBase.h"
 #include "PlainMap.h"
 #include "Box.h"
-#include "ContainerExtender.h"
 
 #include "TiNumber.h"
 #include "TiStr.h"

@@ -69,7 +69,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
 
   public: static SharedPtr<PlainListBase> create(const std::initializer_list<CTYPE*> &args)
   {
-    return std::make_shared<PlainListBase>(args);
+    return newSrdObj<PlainListBase>(args);
   }
 
 

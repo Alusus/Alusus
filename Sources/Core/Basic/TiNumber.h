@@ -43,7 +43,7 @@ template<class T, class P> class TiNumber : public P
 
   public: static SharedPtr<TiNumber<T, P>> create(T v=0)
   {
-    return std::make_shared<TiNumber<T, P>>(v);
+    return newSrdObj<TiNumber<T, P>>(v);
   }
 
 

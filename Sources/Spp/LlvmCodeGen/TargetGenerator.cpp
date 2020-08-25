@@ -140,7 +140,7 @@ void TargetGenerator::setupBuild()
 Bool TargetGenerator::generateVoidType(TioSharedPtr &type)
 {
   auto llvmType = llvm::Type::getVoidTy(*this->buildTarget->getLlvmContext());
-  type = std::make_shared<VoidType>(llvmType);
+  type = newSrdObj<VoidType>(llvmType);
   return true;
 }
 
@@ -149,11 +149,11 @@ Bool TargetGenerator::generateIntType(Word bitCount, Bool withSign, TioSharedPtr
 {
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    this->noticeStore->add(std::make_shared<Spp::Notices::InvalidIntegerBitCountNotice>());
+    this->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
   auto llvmType = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), bitCount);
-  type = std::make_shared<IntegerType>(llvmType, bitCount, withSign);
+  type = newSrdObj<IntegerType>(llvmType, bitCount, withSign);
   return true;
 }
 
@@ -173,10 +173,10 @@ Bool TargetGenerator::generateFloatType(Word bitCount, TioSharedPtr &type)
     //   llvmType = llvm::Type::getFP128Ty(*this->buildTarget->getLlvmContext());
     //   break;
     default:
-      this->noticeStore->add(std::make_shared<Spp::Notices::InvalidFloatBitCountNotice>());
+      this->noticeStore->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
       return false;
   }
-  type = std::make_shared<FloatType>(llvmType, bitCount);
+  type = newSrdObj<FloatType>(llvmType, bitCount);
   return true;
 }
 
@@ -185,7 +185,7 @@ Bool TargetGenerator::generatePointerType(TiObject *contentType, TioSharedPtr &t
 {
   PREPARE_ARG(contentType, contentTypeWrapper, Type);
   auto llvmType = contentTypeWrapper->getLlvmType()->getPointerTo();
-  type = std::make_shared<PointerType>(llvmType, getSharedPtr(contentTypeWrapper));
+  type = newSrdObj<PointerType>(llvmType, getSharedPtr(contentTypeWrapper));
   return true;
 }
 
@@ -194,7 +194,7 @@ Bool TargetGenerator::generateArrayType(TiObject *contentType, Word size, TioSha
 {
   PREPARE_ARG(contentType, contentTypeWrapper, Type);
   auto llvmType = llvm::ArrayType::get(contentTypeWrapper->getLlvmType(), size);
-  type = std::make_shared<ArrayType>(llvmType, getSharedPtr(contentTypeWrapper), size);
+  type = newSrdObj<ArrayType>(llvmType, getSharedPtr(contentTypeWrapper), size);
   return true;
 }
 
@@ -203,7 +203,7 @@ Bool TargetGenerator::generateStructTypeDecl(
   Char const *name, TioSharedPtr &type
 ) {
   auto llvmType = llvm::StructType::create(*this->buildTarget->getLlvmContext(), name);
-  type = std::make_shared<StructType>(llvmType, name);
+  type = newSrdObj<StructType>(llvmType, name);
   return true;
 }
 
@@ -226,7 +226,7 @@ Bool TargetGenerator::generateStructTypeBody(
     }
     structMembers.push_back(contentTypeWrapper->getLlvmType());
 
-    SharedPtr<Variable> var = std::make_shared<Variable>();
+    SharedPtr<Variable> var = newSrdObj<Variable>();
     var->setLlvmStructIndex(i);
     members->add(var);
   }
@@ -293,7 +293,7 @@ Bool TargetGenerator::generateFunctionType(
 
   // Create the function.
   auto llvmFuncType = llvm::FunctionType::get(retTypeWrapper->getLlvmType(), llvmArgTypes, variadic);
-  functionType = std::make_shared<FunctionType>(llvmFuncType, args, getSharedPtr(retTypeWrapper), variadic);
+  functionType = newSrdObj<FunctionType>(llvmFuncType, args, getSharedPtr(retTypeWrapper), variadic);
   return true;
 }
 
@@ -312,7 +312,7 @@ Bool TargetGenerator::generateFunctionDecl(Char const *name, TiObject *functionT
       llvmFuncType, llvm::Function::ExternalLinkage, name, this->buildTarget->getGlobalLlvmModule()
     );
   }
-  function = std::make_shared<Function>(name, funcTypeWrapper, llvmFunc);
+  function = newSrdObj<Function>(name, funcTypeWrapper, llvmFunc);
   return true;
 }
 
@@ -341,7 +341,7 @@ Bool TargetGenerator::prepareFunctionBody(
   }
 
   // Create the block
-  auto block = std::make_shared<Block>();
+  auto block = newSrdObj<Block>();
   block->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), llvmFunc
   ));
@@ -354,7 +354,7 @@ Bool TargetGenerator::prepareFunctionBody(
   auto i = 0;
   for (auto iter = llvmFunc->arg_begin(); i != argTypes->getElementCount(); ++iter, ++i) {
     iter->setName(argTypes->getElementKey(i).c_str());
-    args->add(std::make_shared<Value>(iter, false));
+    args->add(newSrdObj<Value>(iter, false));
   }
 
   // Is this a variadic funciton?
@@ -376,7 +376,7 @@ Bool TargetGenerator::prepareFunctionBody(
     vaArgs.push_back(block->getIrBuilder()->CreateBitCast(funcWrapper->llvmVaList, int8PtrType));
     block->getIrBuilder()->CreateCall(llvmVaStartFunc, vaArgs);
     // Attach the variable to the var list.
-    SharedPtr<Variable> arg = std::make_shared<Variable>();
+    SharedPtr<Variable> arg = newSrdObj<Variable>();
     arg->setLlvmAllocaInst(funcWrapper->llvmVaList);
     args->add(arg);
   }
@@ -424,7 +424,7 @@ Bool TargetGenerator::generateGlobalVariable(
   PREPARE_ARG(type, typeWrapper, Type);
   auto valWrapper = ti_cast<Value>(defaultValue);
 
-  SharedPtr<Variable> var = std::make_shared<Variable>();
+  SharedPtr<Variable> var = newSrdObj<Variable>();
   var->setName(name);
   var->setType(typeWrapper);
   var->setLlvmGlobalVariable(new llvm::GlobalVariable(
@@ -444,7 +444,7 @@ Bool TargetGenerator::generateLocalVariable(
   PREPARE_ARG(type, typeWrapper, Type);
   auto valWrapper = ti_cast<Value>(defaultValue);
 
-  SharedPtr<Variable> var = std::make_shared<Variable>();
+  SharedPtr<Variable> var = newSrdObj<Variable>();
   var->setLlvmAllocaInst(block->getIrBuilder()->CreateAlloca(typeWrapper->getLlvmType(), 0, name));
   if (valWrapper != 0) {
     block->getIrBuilder()->CreateStore(valWrapper->getLlvmValue(), var->getLlvmAllocaInst());
@@ -462,13 +462,13 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
 {
   PREPARE_ARG(context, block, Block);
 
-  SharedPtr<IfContext> ifContext = std::make_shared<IfContext>();
+  SharedPtr<IfContext> ifContext = newSrdObj<IfContext>();
 
   // Prepare condition context.
   ifContext->setConditionBlock(getSharedPtr(block));
 
   // Prepare body context.
-  auto bodyBlock = std::make_shared<Block>();
+  auto bodyBlock = newSrdObj<Block>();
   bodyBlock->setLlvmBlock(
     llvm::BasicBlock::Create(
       *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
@@ -480,7 +480,7 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
 
   // Prepare else context.
   if (withElse) {
-    auto elseBlock = std::make_shared<Block>();
+    auto elseBlock = newSrdObj<Block>();
     elseBlock->setLlvmBlock(llvm::BasicBlock::Create(
       *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
     ));
@@ -541,10 +541,10 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
 {
   PREPARE_ARG(context, block, Block);
 
-  SharedPtr<LoopContext> loopContext = std::make_shared<LoopContext>();
+  SharedPtr<LoopContext> loopContext = newSrdObj<LoopContext>();
 
   // Prepare condition context.
-  auto condBlock = std::make_shared<Block>();
+  auto condBlock = newSrdObj<Block>();
   condBlock->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -553,7 +553,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   loopContext->setConditionBlock(condBlock);
 
   // Prepare body context.
-  auto bodyBlock = std::make_shared<Block>();
+  auto bodyBlock = newSrdObj<Block>();
   bodyBlock->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -562,7 +562,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   loopContext->setBodyBlock(bodyBlock);
 
   // Prepare exit block.
-  auto exitBlock = std::make_shared<Block>();
+  auto exitBlock = newSrdObj<Block>();
   exitBlock->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -607,10 +607,10 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
 {
   PREPARE_ARG(context, block, Block);
 
-  SharedPtr<LoopContext> loopContext = std::make_shared<LoopContext>();
+  SharedPtr<LoopContext> loopContext = newSrdObj<LoopContext>();
 
   // Prepare condition context.
-  auto condBlock = std::make_shared<Block>();
+  auto condBlock = newSrdObj<Block>();
   condBlock->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -619,7 +619,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   loopContext->setConditionBlock(condBlock);
 
   // Prepare increment context.
-  auto updaterBlock = std::make_shared<Block>();
+  auto updaterBlock = newSrdObj<Block>();
   updaterBlock->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -628,7 +628,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   loopContext->setUpdaterBlock(updaterBlock);
 
   // Prepare body context.
-  auto bodyBlock = std::make_shared<Block>();
+  auto bodyBlock = newSrdObj<Block>();
   bodyBlock->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -637,7 +637,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   loopContext->setBodyBlock(bodyBlock);
 
   // Prepare exit block.
-  auto exitBlock = std::make_shared<Block>();
+  auto exitBlock = newSrdObj<Block>();
   exitBlock->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -720,7 +720,7 @@ Bool TargetGenerator::generateCastIntToInt(
   auto llvmCastedValue = block->getIrBuilder()->CreateIntCast(
     cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType(), srcTypeWrapper->isSigned()
   );
-  destVal = std::make_shared<Value>(llvmCastedValue, false);
+  destVal = newSrdObj<Value>(llvmCastedValue, false);
   return true;
 }
 
@@ -738,7 +738,7 @@ Bool TargetGenerator::generateCastIntToFloat(
   } else {
     llvmCastedValue = block->getIrBuilder()->CreateUIToFP(cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType());
   }
-  destVal = std::make_shared<Value>(llvmCastedValue, false);
+  destVal = newSrdObj<Value>(llvmCastedValue, false);
   return true;
 }
 
@@ -755,7 +755,7 @@ Bool TargetGenerator::generateCastFloatToInt(
   } else {
     llvmCastedValue = block->getIrBuilder()->CreateFPToUI(cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType());
   }
-  destVal = std::make_shared<Value>(llvmCastedValue, false);
+  destVal = newSrdObj<Value>(llvmCastedValue, false);
   return true;
 }
 
@@ -774,7 +774,7 @@ Bool TargetGenerator::generateCastFloatToFloat(
   } else {
     llvmCastedValue = block->getIrBuilder()->CreateFPExt(cgSrcVal->getLlvmValue(), destTypeWrapper->getLlvmType());
   }
-  destVal = std::make_shared<Value>(llvmCastedValue, false);
+  destVal = newSrdObj<Value>(llvmCastedValue, false);
   return true;
 }
 
@@ -786,7 +786,7 @@ Bool TargetGenerator::generateCastIntToPointer(
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   PREPARE_ARG(destType, typeWrapper, Type);
   auto llvmCastedValue = block->getIrBuilder()->CreateIntToPtr(cgSrcVal->getLlvmValue(), typeWrapper->getLlvmType());
-  destVal = std::make_shared<Value>(llvmCastedValue, false);
+  destVal = newSrdObj<Value>(llvmCastedValue, false);
   return true;
 }
 
@@ -798,7 +798,7 @@ Bool TargetGenerator::generateCastPointerToInt(
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   PREPARE_ARG(destType, typeWrapper, Type);
   auto llvmCastedValue = block->getIrBuilder()->CreatePtrToInt(cgSrcVal->getLlvmValue(), typeWrapper->getLlvmType());
-  destVal = std::make_shared<Value>(llvmCastedValue, false);
+  destVal = newSrdObj<Value>(llvmCastedValue, false);
   return true;
 }
 
@@ -810,7 +810,7 @@ Bool TargetGenerator::generateCastPointerToPointer(
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   PREPARE_ARG(destType, typeWrapper, Type);
   auto llvmCastedValue = block->getIrBuilder()->CreateBitCast(cgSrcVal->getLlvmValue(), typeWrapper->getLlvmType());
-  destVal = std::make_shared<Value>(llvmCastedValue, false);
+  destVal = newSrdObj<Value>(llvmCastedValue, false);
   return true;
 }
 
@@ -824,7 +824,7 @@ Bool TargetGenerator::generateVarReference(
   PREPARE_ARG(varDefinition, var, Variable);
   PREPARE_ARG(context, block, Block);
   if (var->getLlvmAllocaInst() != 0) {
-    result = std::make_shared<Value>(var->getLlvmAllocaInst(), false);
+    result = newSrdObj<Value>(var->getLlvmAllocaInst(), false);
   } else if (var->getLlvmGlobalVariable() != 0) {
     llvm::Module *llvmMod = this->perFunctionModules ?
       block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
@@ -838,7 +838,7 @@ Bool TargetGenerator::generateVarReference(
       );
     }
     // Prepare the reference.
-    result = std::make_shared<Value>(llvmVar, false);
+    result = newSrdObj<Value>(llvmVar, false);
   } else {
     throw EXCEPTION(GenericException, S("Variable definition was not generated correctly."));
   }
@@ -870,7 +870,7 @@ Bool TargetGenerator::generateMemberVarReference(
   auto llvmResult = block->getIrBuilder()->CreateGEP(
     llvmPtr, llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, index })), ""
   );
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -896,7 +896,7 @@ Bool TargetGenerator::generateArrayElementReference(
   auto llvmResult = block->getIrBuilder()->CreateGEP(
     llvmPtr, llvm::makeArrayRef(std::vector<llvm::Value*>({ zero, tgIndex->getLlvmValue() })), ""
   );
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -907,7 +907,7 @@ Bool TargetGenerator::generateDereference(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   auto llvmResult = block->getIrBuilder()->CreateLoad(cgSrcVal->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -947,7 +947,7 @@ Bool TargetGenerator::generateFunctionPointer(
   auto llvmResult = llvm::ConstantExpr::getBitCast(
     llvmFunc, functionPtrTypeWrapper->getLlvmType()
   );
-  result = std::make_shared<Value>(llvmResult, true);
+  result = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
@@ -981,7 +981,7 @@ Bool TargetGenerator::generateFunctionCall(
   }
   // Create the call.
   auto llvmCall = block->getIrBuilder()->CreateCall(llvmFunc, args);
-  result = std::make_shared<Value>(llvmCall, false);
+  result = newSrdObj<Value>(llvmCall, false);
   return true;
 }
 
@@ -1005,7 +1005,7 @@ Bool TargetGenerator::generateFunctionPtrCall(
     args.push_back(llvmValBox->getLlvmValue());
   }
   auto llvmCall = block->getIrBuilder()->CreateCall(llvmFuncPtrBox->getLlvmValue(), args);
-  result = std::make_shared<Value>(llvmCall, false);
+  result = newSrdObj<Value>(llvmCall, false);
   return true;
 }
 
@@ -1053,7 +1053,7 @@ Bool TargetGenerator::prepareLogicalOp(TiObject *context, TioSharedPtr &secondCo
 {
   PREPARE_ARG(context, block, Block);
 
-  auto block2 = std::make_shared<Block>();
+  auto block2 = newSrdObj<Block>();
   block2->setLlvmBlock(llvm::BasicBlock::Create(
     *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
@@ -1093,7 +1093,7 @@ Bool TargetGenerator::finishLogicalOr(
   phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
   phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
 
-  result = std::make_shared<Value>(phi);
+  result = newSrdObj<Value>(phi);
   return true;
 }
 
@@ -1126,7 +1126,7 @@ Bool TargetGenerator::finishLogicalAnd(
   phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
   phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
 
-  result = std::make_shared<Value>(phi);
+  result = newSrdObj<Value>(phi);
   return true;
 }
 
@@ -1148,11 +1148,11 @@ Bool TargetGenerator::generateAdd(
     } else {
       llvmResult = block->getIrBuilder()->CreateAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1174,11 +1174,11 @@ Bool TargetGenerator::generateSub(
     } else {
       llvmResult = block->getIrBuilder()->CreateSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1200,11 +1200,11 @@ Bool TargetGenerator::generateMul(
     } else {
       llvmResult = block->getIrBuilder()->CreateMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFMul(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1226,11 +1226,11 @@ Bool TargetGenerator::generateDiv(
     } else {
       llvmResult = block->getIrBuilder()->CreateUDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFDiv(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1253,11 +1253,11 @@ Bool TargetGenerator::generateRem(
     } else {
       llvmResult = block->getIrBuilder()->CreateURem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFRem(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1279,7 +1279,7 @@ Bool TargetGenerator::generateShr(
   } else {
     llvmResult = block->getIrBuilder()->CreateLShr(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
   }
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1293,7 +1293,7 @@ Bool TargetGenerator::generateShl(
   PREPARE_ARG(type, tgType, IntegerType);
 
   auto llvmResult = block->getIrBuilder()->CreateShl(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1307,7 +1307,7 @@ Bool TargetGenerator::generateAnd(
   PREPARE_ARG(type, tgType, IntegerType);
 
   auto llvmResult = block->getIrBuilder()->CreateAnd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1321,7 +1321,7 @@ Bool TargetGenerator::generateOr(
   PREPARE_ARG(type, tgType, IntegerType);
 
   auto llvmResult = block->getIrBuilder()->CreateOr(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1335,7 +1335,7 @@ Bool TargetGenerator::generateXor(
   PREPARE_ARG(type, tgType, IntegerType);
 
   auto llvmResult = block->getIrBuilder()->CreateXor(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1348,7 +1348,7 @@ Bool TargetGenerator::generateNot(
   PREPARE_ARG(type, tgType, IntegerType);
 
   auto llvmResult = block->getIrBuilder()->CreateNot(srcValBox->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1361,11 +1361,11 @@ Bool TargetGenerator::generateNeg(
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>()) {
     auto llvmResult = block->getIrBuilder()->CreateNeg(srcValBox->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFNeg(srcValBox->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1408,7 +1408,7 @@ Bool TargetGenerator::generateEarlyInc(
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1448,7 +1448,7 @@ Bool TargetGenerator::generateEarlyDec(
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1488,7 +1488,7 @@ Bool TargetGenerator::generateLateInc(
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = std::make_shared<Value>(llvmVal, false);
+  result = newSrdObj<Value>(llvmVal, false);
   return true;
 }
 
@@ -1528,7 +1528,7 @@ Bool TargetGenerator::generateLateDec(
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
   block->getIrBuilder()->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  result = std::make_shared<Value>(llvmVal, false);
+  result = newSrdObj<Value>(llvmVal, false);
   return true;
 }
 
@@ -1624,7 +1624,7 @@ Bool TargetGenerator::generateNextArg(
   PREPARE_ARG(srcVal, srcValBox, Value);
   PREPARE_ARG(type, tgType, Type);
   auto llvmResult = block->getIrBuilder()->CreateVAArg(srcValBox->getLlvmValue(), tgType->getLlvmType());
-  result = std::make_shared<Value>(llvmResult, false);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1641,11 +1641,11 @@ Bool TargetGenerator::generateEqual(
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>() || tgType->isDerivedFrom<PointerType>()) {
     auto llvmResult = block->getIrBuilder()->CreateICmpEQ(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFCmpOEQ(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1662,11 +1662,11 @@ Bool TargetGenerator::generateNotEqual(
   PREPARE_ARG(type, tgType, Type);
   if (tgType->isDerivedFrom<IntegerType>() || tgType->isDerivedFrom<PointerType>()) {
     auto llvmResult = block->getIrBuilder()->CreateICmpNE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFCmpONE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1688,11 +1688,11 @@ Bool TargetGenerator::generateGreaterThan(
     } else {
       llvmResult = block->getIrBuilder()->CreateICmpUGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFCmpOGT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1714,11 +1714,11 @@ Bool TargetGenerator::generateGreaterThanOrEqual(
     } else {
       llvmResult = block->getIrBuilder()->CreateICmpUGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFCmpOGE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1740,11 +1740,11 @@ Bool TargetGenerator::generateLessThan(
     } else {
       llvmResult = block->getIrBuilder()->CreateICmpULT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFCmpOLT(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1766,11 +1766,11 @@ Bool TargetGenerator::generateLessThanOrEqual(
     } else {
       llvmResult = block->getIrBuilder()->CreateICmpULE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
     }
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFCmpOLE(srcValBox1->getLlvmValue(), srcValBox2->getLlvmValue());
-    result = std::make_shared<Value>(llvmResult, false);
+    result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
@@ -1787,7 +1787,7 @@ Bool TargetGenerator::generateIntLiteral(
   auto llvmResult = llvm::ConstantInt::get(
     *this->buildTarget->getLlvmContext(), llvm::APInt(bitCount, value, withSign)
   );
-  destVal = std::make_shared<Value>(llvmResult, true);
+  destVal = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
@@ -1801,7 +1801,7 @@ Bool TargetGenerator::generateFloatLiteral(
   } else {
     llvmResult = llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat(value));
   }
-  destVal = std::make_shared<Value>(llvmResult, true);
+  destVal = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
@@ -1834,7 +1834,7 @@ Bool TargetGenerator::generateStringLiteral(
   // TODO: Do we need this setAlignment call? It's marked as deprecated in LLVM 10.0.0.
   // llvmVar->setAlignment(1);
 
-  destVal = std::make_shared<Value>(llvmVar, true);
+  destVal = newSrdObj<Value>(llvmVar, true);
   return true;
 }
 
@@ -1844,7 +1844,7 @@ Bool TargetGenerator::generateNullPtrLiteral(
 ) {
   PREPARE_ARG(type, tgType, PointerType);
   auto llvmResult = llvm::ConstantPointerNull::get(static_cast<llvm::PointerType*>(tgType->getLlvmType()));
-  destVal = std::make_shared<Value>(llvmResult, true);
+  destVal = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
@@ -1864,7 +1864,7 @@ Bool TargetGenerator::generateStructLiteral(
     structVals.push_back(value->getLlvmConstant());
   }
   auto llvmResult = llvm::ConstantStruct::get(static_cast<llvm::StructType*>(tgType->getLlvmType()), structVals);
-  destVal = std::make_shared<Value>(llvmResult, true);
+  destVal = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
@@ -1884,7 +1884,7 @@ Bool TargetGenerator::generateArrayLiteral(
     arrayVals.push_back(value->getLlvmConstant());
   }
   auto llvmResult = llvm::ConstantArray::get(static_cast<llvm::ArrayType*>(tgType->getLlvmType()), arrayVals);
-  destVal = std::make_shared<Value>(llvmResult, true);
+  destVal = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
@@ -1894,7 +1894,7 @@ Bool TargetGenerator::generatePointerLiteral(TiObject *context, TiObject *type, 
   PREPARE_ARG(type, tgType, PointerType);
   auto llvmInt = llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(64, (uint64_t)value, false));
   auto llvmPtr = llvm::ConstantExpr::getIntToPtr(llvmInt, tgType->getLlvmType());
-  destVal = std::make_shared<Value>(llvmPtr, true);
+  destVal = newSrdObj<Value>(llvmPtr, true);
   return true;
 }
 

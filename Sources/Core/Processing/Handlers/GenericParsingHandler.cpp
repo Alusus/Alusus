@@ -135,7 +135,7 @@ void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
   SharedPtr<TiObject> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
   auto metadata = tokenItem.ti_cast_get<Ast::MetaHaving>();
   if (metadata) {
-    metadata->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(token->getSourceLocation()));
+    metadata->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()));
   }
   state->setData(tokenItem);
 }
@@ -324,13 +324,13 @@ Bool GenericParsingHandler::isProdObjEnforced(ParserState *state)
 
 SharedPtr<TiObject> GenericParsingHandler::createListNode(ParserState *state, Int levelIndex)
 {
-  return std::make_shared<Ast::List>();
+  return newSrdObj<Ast::List>();
 }
 
 
 SharedPtr<TiObject> GenericParsingHandler::createRouteNode(ParserState *state, Int levelIndex, Int route)
 {
-  auto routeItem = std::make_shared<Ast::Route>();
+  auto routeItem = newSrdObj<Ast::Route>();
   routeItem->setRoute(route);
   return routeItem;
 }
@@ -339,7 +339,7 @@ SharedPtr<TiObject> GenericParsingHandler::createRouteNode(ParserState *state, I
 SharedPtr<TiObject> GenericParsingHandler::createTokenNode(ParserState *state, Int levelIndex,
                                                                      Word tokenId, Char const *tokenText)
 {
-  auto token = std::make_shared<Ast::Token>();
+  auto token = newSrdObj<Ast::Token>();
   token->setId(tokenId);
   token->setText(tokenText);
   return token;

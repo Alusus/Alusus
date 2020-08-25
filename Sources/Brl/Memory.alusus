@@ -1,0 +1,40 @@
+/**
+ * @file Brl/Memory.alusus
+ * Contains functions for memory management.
+ *
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "brl";
+
+@merge module Brl
+{
+  module Memory
+  {
+    @expname[malloc]
+    function alloc (size: Int[64]) => ptr[Void];
+
+    @expname[realloc]
+    function realloc (p: ptr[Void], newSize: Int[64]) => ptr[Void];
+
+    @expname[aligned_alloc]
+    function allocAligned (alignment: Int[64], size: Int[64]) => ptr[Void];
+
+    @expname[free]
+    function free (pointer: ptr[Void]);
+
+    @expname[memcpy]
+    function copy (dest: ptr[Void], src: ptr[Void], n: Int[64]) => ptr[Void];
+
+    @expname[memcmp]
+    function compare (s1: ptr[Void], s2: ptr[Void], n: Int[64]) => Int;
+
+    @expname[memset]
+    function set (s: ptr[Void], c: Int, n: Int[64]) => ptr[Void];
+  };
+};

@@ -30,7 +30,8 @@
 #include <functional>
 #include <limits.h>
 
-// Include global storage functions.
+// Other Alusus headers
+#include "brl.h"
 #include "core_global_storage.h"
 
 namespace Core

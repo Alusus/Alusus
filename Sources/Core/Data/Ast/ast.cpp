@@ -35,7 +35,7 @@ void addSourceLocation(TiObject *obj, SourceLocation *sl)
   if (currentSl == 0) {
     metadata->setSourceLocation(sl);
   } else {
-    auto newSl = std::make_shared<SourceLocationStack>();
+    auto newSl = newSrdObj<SourceLocationStack>();
     newSl->push(sl);
     newSl->push(currentSl.get());
     metadata->setSourceLocation(newSl);
@@ -52,7 +52,7 @@ Bool mergeDefinition(Definition *def, DynamicContaining<TiObject> *target, Notic
       auto targetObj = targetDef->getTarget().ti_cast<Mergeable>();
       if (targetObj == 0) {
         noticeStore->add(
-          std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(findSourceLocation(def))
+          newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(findSourceLocation(def))
         );
         return false;
       }

@@ -58,7 +58,7 @@ Bool UserType::merge(TiObject *src, Core::Notices::Store *noticeStore)
     return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), noticeStore);
   } else {
     noticeStore->add(
-      std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+      newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
     );
   }
   return false;

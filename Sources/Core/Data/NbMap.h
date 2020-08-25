@@ -44,12 +44,12 @@ class NbMap : public SharedMapBase<TiObject, Node>
 
   public: static SharedPtr<NbMap> create(Bool useIndex = false)
   {
-    return std::make_shared<NbMap>(useIndex);
+    return newSrdObj<NbMap>(useIndex);
   }
 
   public: static SharedPtr<NbMap> create(std::initializer_list<Argument> const &args, Bool useIndex = false)
   {
-    return std::make_shared<NbMap>(args, useIndex);
+    return newSrdObj<NbMap>(args, useIndex);
   }
 
 

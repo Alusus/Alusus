@@ -1,0 +1,28 @@
+/**
+ * @file Brl/brl.alusus
+ * Contains basic defs of Basic Runtime Library.
+ *
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "alusus_spp";
+
+def int: alias Int;
+def word: alias Word;
+def float: alias Float;
+def bool: alias Word[1];
+def Bool: alias Word[1];
+def char: alias Word[8];
+def Char: alias Word[8];
+def CharsPtr: alias ptr[array[Word[8]]];
+def void: alias Void;
+
+def true: 1;
+def false: 0;
+def null: 0;
+

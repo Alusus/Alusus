@@ -45,7 +45,7 @@ class GenericParsingHandler : public ParsingHandler
 
   public: static SharedPtr<GenericParsingHandler> create()
   {
-    return std::make_shared<GenericParsingHandler>();
+    return newSrdObj<GenericParsingHandler>();
   }
 
 

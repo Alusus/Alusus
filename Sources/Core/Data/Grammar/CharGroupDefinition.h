@@ -74,7 +74,7 @@ class CharGroupDefinition : public Node, public Binding, public IdHaving
 
   public: static SharedPtr<CharGroupDefinition> create(SharedPtr<CharGroupUnit> const &u)
   {
-    return std::make_shared<CharGroupDefinition>(u);
+    return newSrdObj<CharGroupDefinition>(u);
   }
 
 
