@@ -61,6 +61,7 @@ template <class T> class Array
   }
 
   private: void _alloc(int size) {
+    if (size < 2) size = 2;
     int byteCount = sizeof(T) * size + sizeof(int) * 3;
     this->refCount = (int*)malloc(byteCount);
     this->length = (int*)((long int)this->refCount + sizeof(*this->refCount));
@@ -72,6 +73,7 @@ template <class T> class Array
   }
 
   private: void _realloc(int newSize) {
+    if (newSize < 2) newSize = 2;
     int byteCount = sizeof(T) * newSize + sizeof(int) * 3;
     this->refCount = (int*)realloc(this->refCount, byteCount);
     this->length = (int*)((long int)this->refCount + sizeof(*this->refCount));
@@ -122,7 +124,7 @@ template <class T> class Array
     if (this->refCount == 0) {
       this->_alloc(2);
     } else if (*this->refCount == 1) {
-      if (enlarge && *this->length >= *this->bufSize) this->_realloc(*this->bufSize + *this->bufSize >> 1);
+      if (enlarge && *this->length >= *this->bufSize) this->_realloc(*this->bufSize + (*this->bufSize >> 1));
     } else {
       int curLength = *this->length;
       T *curBuf = this->buf;
