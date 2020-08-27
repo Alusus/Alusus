@@ -1,0 +1,72 @@
+import "Srl/Console";
+import "Brl/Refs";
+import "Brl/Array";
+import "cpp_interop_test";
+use Srl;
+use Brl;
+
+type Test {
+    def i: Int;
+    handler this~init() {
+        Console.print("Test~init() from Alusus\n");
+    }
+    handler this~terminate() {
+        Console.print("Test~terminate() from Alusus, %d\n", this.i);
+    }
+}
+
+@expname[getTestSrdRef] function getTestSrdRef (): SrdRef[Test];
+@expname[setTestSrdRef] function setTestSrdRef (SrdRef[Test]);
+@expname[setAndGetTestSrdRef] function setAndGetTestSrdRef (SrdRef[Test]): SrdRef[Test];
+
+@expname[getTestArray] function getTestArray (): Array[Int];
+@expname[printTestArray] function printTestArray (Array[Int]);
+
+function testSrdRef1 {
+    def r: SrdRef[Test] = getTestSrdRef();
+    Console.print("testSrdRef1() %d\n", r.i);
+}
+
+function testSrdRef2 {
+    def r: SrdRef[Test];
+    r.construct();
+    r.i = 62;
+    setTestSrdRef(r);
+    r.construct();
+    r.i = 63;
+    Console.print("testSrdRef2-1\n");
+    setTestSrdRef(r);
+    r.release();
+    Console.print("testSrdRef2-2\n");
+    setTestSrdRef(r);
+}
+
+function testSrdRef3 {
+    def r: SrdRef[Test];
+    r.construct();
+    r.i = 64;
+    def r2: SrdRef[Test] = setAndGetTestSrdRef(r);
+    Console.print("testSrdRef3-1, %d %d\n", r.refCounter.count, r2.i);
+    r2.release();
+    Console.print("testSrdRef3-2, %d\n", r.refCounter.count);
+}
+
+function testArray {
+    Console.print("printTestArray:\n");
+    def arr: Array[Int]({ 102, 79, 130 });
+    printTestArray(arr);
+    Console.print("getTestArray:\n");
+    arr = getTestArray();
+    def i: Int;
+    for i = 0, i < arr.getLength(), ++i {
+        Console.print("%d\n", arr(i));
+    }
+}
+
+testSrdRef1();
+Console.print("\n\n");
+testSrdRef2();
+Console.print("\n\n");
+testSrdRef3();
+Console.print("\n\n");
+testArray();

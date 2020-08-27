@@ -69,8 +69,18 @@ llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native)
 # Finally, we link Alusus libraries to our UnitTests project.
 target_link_libraries(AlususTests AlususBrlLib AlususCoreLib AlususStorage "dl")
 
+# Build C++ interoperability test lib.
+set(CppInteropTest_Source_Files cpp_interop_test.cpp)
+add_library(CppInteropTest SHARED ${CppInteropTest_Source_Files})
+set_target_properties(CppInteropTest PROPERTIES COMPILE_FLAGS "-fpic ${Alusus_COMPILE_FLAGS}")
+set_target_properties(CppInteropTest PROPERTIES OUTPUT_NAME cpp_interop_test)
+set_target_properties(CppInteropTest PROPERTIES DEBUG_OUTPUT_NAME cpp_interop_test)
+set_target_properties(CppInteropTest PROPERTIES VERSION ${AlususVersion})
+set_target_properties(CppInteropTest PROPERTIES SOVERSION ${AlususSoVersion})
+target_link_libraries(CppInteropTest AlususBrlLib AlususCoreLib AlususStorage)
+
 add_test(NAME AlususTests
   COMMAND AlususTests
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties(AlususTests PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
