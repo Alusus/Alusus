@@ -47,7 +47,6 @@ Int ImportParsingHandler::tryImport(TiObject *astNode, Str &filenames, Str &erro
   auto stringLiteral = ti_cast<Ast::StringLiteral>(astNode);
   if (stringLiteral != 0) {
     auto filename = stringLiteral->getValue().get();
-    Str errorDetails;
     if (this->rootManager->tryImportFile(filename, errorDetails)) {
       return 0;
     } else {
