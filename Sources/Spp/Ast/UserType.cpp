@@ -81,10 +81,18 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper, ExecutionContex
               if (method == TypeInitMethod::BOTH) break;
             }
           } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
-            auto type = helper->traceType(def->getTarget().get());
-            if (type != 0 && type->getInitializationMethod(helper, ec) != TypeInitMethod::NONE) {
+            auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(def->getTarget().get());
+            if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+              // If there are args passed to the definition then it's an AUTO init method even if the object type
+              // is a primary data type.
               method |= TypeInitMethod::AUTO;
               if (method == TypeInitMethod::BOTH) break;
+            } else {
+              auto type = helper->traceType(def->getTarget().get());
+              if (type != 0 && type->getInitializationMethod(helper, ec) != TypeInitMethod::NONE) {
+                method |= TypeInitMethod::AUTO;
+                if (method == TypeInitMethod::BOTH) break;
+              }
             }
           }
         }

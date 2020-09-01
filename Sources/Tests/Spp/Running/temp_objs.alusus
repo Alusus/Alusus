@@ -62,7 +62,20 @@ type D {
     def a: A;
 }
 
+func varArgFunc(count: Int, args: ...Int) {
+    Console.print("varArgFunc\n");
+}
+
+type E {
+    def i: Int = A().i;
+    def j: C({ A().i, A().i, 5 });
+    varArgFunc({ A().i, A().i, A().i });
+}
+
+def globalC: C({ A().i, 2 });
+
 func test {
+    Console.print("beginning of successful test\n");
     Console.print("%d\n", A().i);
     Console.print("%d\n", Tpl[Int](6).i);
     Console.print("%d\n", M.B().i);
@@ -70,6 +83,11 @@ func test {
     Console.print("%d\n", C(2, 9, 10).i);
     Console.print("%d\n", D().a.i);
     Console.print(String("string concat ") + M.B().i + "\n");
+    def e: E;
+    Console.print("%d, %d\n", e.i, e.j);
+    def c: C({ A().i, A().i });
+    varArgFunc({ A().i, A().i });
+    Console.print("%d\n", globalC.i);
     Console.print("end of successful test\n");
 }
 

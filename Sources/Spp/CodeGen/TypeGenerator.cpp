@@ -394,8 +394,10 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   childSession.setTgSelf(args.get(0));
   childSession.setAstSelfType(astType);
 
-  // Main loop.
   auto body = astType->getBody().get();
+  session->getEda()->setCodeGenData(body, tgContext);
+
+  // Main loop.
   for (Int i = 0; i < body->getCount(); ++i) {
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Data::Ast::Definition>(obj);
@@ -419,6 +421,8 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type constructor."));
   }
+
+  session->getEda()->removeCodeGenData(body);
 
   // Assign the function to the type.
   session->getEda()->setAutoCtor(astType, tgFunc);

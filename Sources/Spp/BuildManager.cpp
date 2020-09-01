@@ -275,17 +275,34 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
           Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
           CodeGen::Session *childSession
         )->Bool {
+          childSession->getDestructionStack()->pushScope();
+
           SharedList<TiObject> initTgVals;
           PlainList<TiObject> initAstTypes;
           PlainList<TiObject> initAstNodes;
           if (astParams != 0) {
             if (!buildMgr->generator->getExpressionGenerator()->generateParams(
               astParams, generation, childSession, &initAstNodes, &initAstTypes, &initTgVals
-            )) return false;
+            )) {
+              childSession->getDestructionStack()->popScope();
+              return false;
+            }
           }
-          return generation->generateVarInitialization(
+          if (!generation->generateVarInitialization(
             varAstType, varTgRef, varAstNode, &initAstNodes, &initAstTypes, &initTgVals, childSession
-          );
+          )) {
+            childSession->getDestructionStack()->popScope();
+            return false;
+          };
+
+          if (!generation->generateVarGroupDestruction(
+            childSession, childSession->getDestructionStack()->getScopeStartIndex(-1)
+          )) {
+            childSession->getDestructionStack()->popScope();
+            return false;
+          }
+          childSession->getDestructionStack()->popScope();
+          return true;
         }
       )) {
         buildSession->getGlobalCtorNames()->push_back(ctorName);

@@ -1,4 +1,8 @@
 A initialized.
+C initialized with var args.
+A terminated.
+beginning of successful test
+A initialized.
 7
 A terminated.
 Tpl initialized.
@@ -19,8 +23,36 @@ A terminated.
 B initialized.
 string concat 8
 B terminated.
+A initialized.
+A terminated.
+A initialized.
+A initialized.
+C initialized with var args.
+A terminated.
+A terminated.
+A initialized.
+A initialized.
+A initialized.
+varArgFunc
+A terminated.
+A terminated.
+A terminated.
+7, 19
+A initialized.
+A initialized.
+C initialized with var args.
+A terminated.
+A terminated.
+A initialized.
+A initialized.
+varArgFunc
+A terminated.
+A terminated.
+9
 end of successful test
-ERROR SPPA1008 @ (79,27): Provided arguments do not match signature.
-ERROR SPPA1007 @ (80,27): Unknown symbol.
-ERROR SPPA1008 @ (81,27): Provided arguments do not match signature.
-ERROR SPPG1002 @ (82,27): Invalid operation.
+C terminated.
+C terminated.
+ERROR SPPA1008 @ (97,27): Provided arguments do not match signature.
+ERROR SPPA1007 @ (98,27): Unknown symbol.
+ERROR SPPA1008 @ (99,27): Provided arguments do not match signature.
+ERROR SPPG1002 @ (100,27): Invalid operation.

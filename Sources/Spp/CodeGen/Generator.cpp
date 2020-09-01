@@ -468,17 +468,32 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgLocalVar.get(), tgLocalVarRef)) {
           return false;
         }
+
+        session->getDestructionStack()->pushScope();
+
         SharedList<TiObject> initTgVals;
         PlainList<TiObject> initAstTypes;
         PlainList<TiObject> initAstNodes;
         if (astParams != 0) {
           if (!generator->expressionGenerator->generateParams(
             astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
-          )) return false;
+          )) {
+            session->getDestructionStack()->popScope();
+            return false;
+          }
         }
         if (!generation->generateVarInitialization(
           astType, tgLocalVarRef.get(), definition, &initAstNodes, &initAstTypes, &initTgVals, session
-        )) return false;
+        )) {
+          session->getDestructionStack()->popScope();
+          return false;
+        }
+
+        if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
+          session->getDestructionStack()->popScope();
+          return false;
+        }
+        session->getDestructionStack()->popScope();
 
         generation->registerDestructor(
           ti_cast<Core::Data::Node>(astVar), astType, session->getExecutionContext(), session->getDestructionStack()
@@ -547,53 +562,52 @@ Bool Generator::_generateTempVar(
     //   setCodeGenData(astNode, tgGlobalVar);
     // } else {
       auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astNode);
-      if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
-        // This should never happen.
-        throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
-      } else {
-        // Generate a local variable.
 
-        // To avoid stack overflows we need to allocate at the function or root level rather than any inner block.
-        auto astAllocBlock = astBlock;
-        while (
-          astAllocBlock != 0 && astAllocBlock->getOwner() != 0 && ti_cast<Ast::Function>(astAllocBlock->getOwner()) == 0
-        ) {
-          astAllocBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astAllocBlock->getOwner());
+      // Generate a local variable.
+
+      // To avoid stack overflows we need to allocate at the function or root level rather than any inner block.
+      auto astAllocBlock = astBlock;
+      while (
+        astAllocBlock != 0 &&
+        astAllocBlock->getOwner() != 0 &&
+        ti_cast<Ast::Function>(astAllocBlock->getOwner()) == 0 &&
+        ti_cast<Ast::Type>(astAllocBlock->getOwner()) == 0
+      ) {
+        astAllocBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astAllocBlock->getOwner());
+      }
+      if (astAllocBlock == 0) throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
+
+      // At this point we should already have a TG context.
+      auto tgAllocContext = session->getEda()->getCodeGenData<TiObject>(astAllocBlock);
+
+      // Create the llvm local var.
+      TioSharedPtr tgLocalVar;
+      Str name = generator->getTempVarName();
+      if (!session->getTg()->generateLocalVariable(tgAllocContext, tgType, name.c_str(), 0, tgLocalVar)) return false;
+      session->getEda()->setCodeGenData(astNode, tgLocalVar);
+
+      if (initialize) {
+        // Initialize the variable.
+        // TODO: Should we use default values with local variables?
+        // TioSharedPtr tgDefaultValue;
+        // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
+        //   if (!generator->typeGenerator->generateDefaultValue(
+        //     astType, generation, tg, tgContext, tgDefaultValue
+        //   )) return false;
+        // }
+        auto tgContext = session->getEda()->getCodeGenData<TiObject>(astBlock);
+        TioSharedPtr tgLocalVarRef;
+        if (!session->getTg()->generateVarReference(tgContext, tgType, tgLocalVar.get(), tgLocalVarRef)) {
+          return false;
         }
-        if (astAllocBlock == 0) throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
+        SharedList<TiObject> initTgVals;
+        PlainList<TiObject> initAstTypes;
+        PlainList<TiObject> initAstNodes;
+        if (!generation->generateVarInitialization(
+          astType, tgLocalVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
+        )) return false;
 
-        // At this point we should already have a TG context.
-        auto tgAllocContext = session->getEda()->getCodeGenData<TiObject>(astAllocBlock);
-
-        // Create the llvm local var.
-        TioSharedPtr tgLocalVar;
-        Str name = generator->getTempVarName();
-        if (!session->getTg()->generateLocalVariable(tgAllocContext, tgType, name.c_str(), 0, tgLocalVar)) return false;
-        session->getEda()->setCodeGenData(astNode, tgLocalVar);
-
-        if (initialize) {
-          // Initialize the variable.
-          // TODO: Should we use default values with local variables?
-          // TioSharedPtr tgDefaultValue;
-          // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
-          //   if (!generator->typeGenerator->generateDefaultValue(
-          //     astType, generation, tg, tgContext, tgDefaultValue
-          //   )) return false;
-          // }
-          auto tgContext = session->getEda()->getCodeGenData<TiObject>(astBlock);
-          TioSharedPtr tgLocalVarRef;
-          if (!session->getTg()->generateVarReference(tgContext, tgType, tgLocalVar.get(), tgLocalVarRef)) {
-            return false;
-          }
-          SharedList<TiObject> initTgVals;
-          PlainList<TiObject> initAstTypes;
-          PlainList<TiObject> initAstNodes;
-          if (!generation->generateVarInitialization(
-            astType, tgLocalVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
-          )) return false;
-
-          generation->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
-        }
+        generation->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
       }
     // }
   }
@@ -712,10 +726,13 @@ Bool Generator::_generateMemberVarInitialization(
   // Get the member generated value and type.
   auto tgMemberVar = session->getEda()->getCodeGenData<TiObject>(astMemberNode);
   auto astMemberType = Ast::getAstType(astMemberNode);
-  if (astMemberType->getInitializationMethod(
-    generator->getAstHelper(), session->getExecutionContext()
-  ) == Ast::TypeInitMethod::NONE) {
-    return true;
+  auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(astMemberNode);
+  if (!paramPass || paramPass->getType() != Core::Data::Ast::BracketType::ROUND) {
+    if (astMemberType->getInitializationMethod(
+      generator->getAstHelper(), session->getExecutionContext()
+    ) == Ast::TypeInitMethod::NONE) {
+      return true;
+    }
   }
   TiObject *tgMemberType;
   if (!generation->getGeneratedType(astMemberType, session, tgMemberType, 0)) return false;
@@ -733,6 +750,8 @@ Bool Generator::_generateMemberVarInitialization(
     return false;
   }
 
+  session->getDestructionStack()->pushScope();
+
   // Initialize the member variable.
   SharedList<TiObject> initTgVals;
   PlainList<TiObject> initAstTypes;
@@ -740,14 +759,24 @@ Bool Generator::_generateMemberVarInitialization(
   if (astParams != 0) {
     if (!generator->expressionGenerator->generateParams(
       astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
-    )) return false;
+    )) {
+      session->getDestructionStack()->popScope();
+      return false;
+    }
   }
   if (!generation->generateVarInitialization(
     astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode),
     &initAstNodes, &initAstTypes, &initTgVals, session
   )) {
+    session->getDestructionStack()->popScope();
     return false;
   }
+
+  if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
+    session->getDestructionStack()->popScope();
+    return false;
+  }
+  session->getDestructionStack()->popScope();
 
   return true;
 }
