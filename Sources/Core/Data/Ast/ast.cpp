@@ -43,45 +43,59 @@ void addSourceLocation(TiObject *obj, SourceLocation *sl)
 }
 
 
-Bool mergeDefinition(Definition *def, DynamicContaining<TiObject> *target, Notices::Store *noticeStore)
-{
+Bool mergeDefinition(
+  Definition *def, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+) {
   VALIDATE_NOT_NULL(def, target, noticeStore);
-  for (Int i = 0; i < target->getElementCount(); ++i) {
-    auto targetDef = ti_cast<Definition>(target->getElement(i));
-    if (targetDef != 0 && targetDef->getName() == def->getName()) {
-      auto targetObj = targetDef->getTarget().ti_cast<Mergeable>();
+  Core::Data::Ast::Identifier ref({{ S("value"), def->getName() }});
+  Bool result = true;
+  Bool found = false;
+  seeker->foreach(&ref, target->getTiObject(),
+    [=,&result,&found](TiObject *obj, Notices::Notice *notice)->Seeker::Verb {
+      found = true;
+      auto targetObj = ti_cast<Mergeable>(obj);
       if (targetObj == 0) {
         noticeStore->add(
           newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(findSourceLocation(def))
         );
-        return false;
+        result = false;
+        return Seeker::Verb::STOP;
       }
-      // Merge the definition modifiers.
-      if (def->getModifiers() != 0) {
-        if (targetDef->getModifiers() == 0) {
-          targetDef->setModifiers(def->getModifiers());
-        } else {
-          for (Int i = 0; i < def->getModifiers()->getCount(); ++i) {
-            targetDef->getModifiers()->add(def->getModifiers()->get(i));
+      auto node = ti_cast<Node>(obj);
+      auto targetDef = node != 0 ? ti_cast<Definition>(node->getOwner()) : 0;
+      if (targetDef != 0) {
+        // Merge the definition modifiers.
+        if (def->getModifiers() != 0) {
+          if (targetDef->getModifiers() == 0) {
+            targetDef->setModifiers(def->getModifiers());
+          } else {
+            for (Int i = 0; i < def->getModifiers()->getCount(); ++i) {
+              targetDef->getModifiers()->add(def->getModifiers()->get(i));
+            }
           }
         }
       }
       // Merge the target itself.
-      return targetObj->merge(def->getTarget().get(), noticeStore);
-    }
+      result = targetObj->merge(def->getTarget().get(), seeker, noticeStore);
+      return Seeker::Verb::STOP;
+    },
+    Seeker::Flags::SKIP_OWNERS | Seeker::Flags::SKIP_OWNED | Seeker::Flags::SKIP_USES
+  );
+  if (!found) {
+    target->addElement(def);
   }
-  target->addElement(def);
-  return true;
+  return result;
 }
 
 
-Bool addPossiblyMergeableElement(TiObject *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore)
-{
+Bool addPossiblyMergeableElement(
+  TiObject *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+) {
   VALIDATE_NOT_NULL(src, target, noticeStore);
   if (src->isDerivedFrom<Definition>()) {
     auto def = static_cast<Definition*>(src);
     if (def->isToMerge()) {
-      return mergeDefinition(def, target, noticeStore);
+      return mergeDefinition(def, target, seeker, noticeStore);
     } else {
       target->addElement(src);
     }
@@ -97,12 +111,13 @@ Bool addPossiblyMergeableElement(TiObject *src, DynamicContaining<TiObject> *tar
 }
 
 
-Bool addPossiblyMergeableElements(Containing<TiObject> *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore)
-{
+Bool addPossiblyMergeableElements(
+  Containing<TiObject> *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+) {
   VALIDATE_NOT_NULL(src, target, noticeStore);
   Bool result = true;
   for (Int i = 0; i < src->getElementCount(); ++i) {
-    if (!addPossiblyMergeableElement(src->getElement(i), target, noticeStore)) result = false;
+    if (!addPossiblyMergeableElement(src->getElement(i), target, seeker, noticeStore)) result = false;
   }
   return result;
 }

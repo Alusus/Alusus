@@ -30,6 +30,11 @@ namespace Core::Data::Grammar
   class CharGroupUnit;
 }
 
+namespace Core::Data::Ast
+{
+  class Scope;
+}
+
 namespace Core::Processing::Handlers
 {
   class ConstTokenizingHandler;
@@ -40,6 +45,7 @@ namespace Core::Processing::Handlers
   class DumpAstParsingHandler;
   class ModifierParsingHandler;
   class GenericCommandParsingHandler;
+  template<class T> class ScopeParsingHandler;
   class RootScopeParsingHandler;
 }
 

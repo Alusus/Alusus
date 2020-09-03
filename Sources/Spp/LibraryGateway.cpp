@@ -80,7 +80,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 
   // Add the grammar.
   GrammarFactory factory;
-  factory.createGrammar(manager->getRootScope().get());
+  factory.createGrammar(manager);
 
   this->createBuiltInTypes(manager);
   this->createGlobalDefs(manager);
@@ -116,7 +116,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
 
   // Clean the grammar.
   GrammarFactory factory;
-  factory.cleanGrammar(manager->getRootScope().get());
+  factory.cleanGrammar(manager);
 
   this->removeGlobalDefs(manager);
   this->removeBuiltInTypes(manager);

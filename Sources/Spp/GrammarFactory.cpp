@@ -22,7 +22,8 @@ using namespace Core::Processing::Handlers;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
+void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
+  Core::Data::Ast::Scope *rootScope = root->getRootScope().get();
   this->setRootScope(rootScope);
 
   Core::Data::clearCaches(this->context.getRoot());
@@ -277,7 +278,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
   }, {
-    {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create()}
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create(root->getSeeker())}
   }).get());
 
   //// type = "type" + Set
@@ -473,7 +474,7 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
   this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
   }, {
-    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create()}
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create(root->getSeeker())}
   }).get());
   this->createProdGroup(S("root.Main.BlockStatements.OuterStmt"), {
     PARSE_REF(S("module.owner.BlockSet")),
@@ -705,8 +706,9 @@ void GrammarFactory::createGrammar(Core::Data::Ast::Scope *rootScope) {
 }
 
 
-void GrammarFactory::cleanGrammar(Core::Data::Ast::Scope *rootScope)
+void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
 {
+  Core::Data::Ast::Scope *rootScope = root->getRootScope().get();
   this->setRootScope(rootScope);
 
   Core::Data::clearCaches(rootScope);

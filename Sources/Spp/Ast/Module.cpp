@@ -15,12 +15,12 @@
 namespace Spp::Ast
 {
 
-Bool Module::merge(TiObject *src, Core::Notices::Store *noticeStore)
+Bool Module::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, noticeStore);
   if (src->isA<Core::Data::Ast::Scope>() || src->isA<Module>()) {
     auto scope = static_cast<Core::Data::Ast::Scope*>(src);
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this, noticeStore);
+    return Core::Data::Ast::addPossiblyMergeableElements(scope, this, seeker, noticeStore);
   }
   noticeStore->add(
     newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))

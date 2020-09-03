@@ -29,7 +29,7 @@ class Mergeable : public TiInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual Bool merge(TiObject *src, Notices::Store *noticeStore) = 0;
+  public: virtual Bool merge(TiObject *src, Seeker *seeker, Notices::Store *noticeStore) = 0;
 
 }; // class
 

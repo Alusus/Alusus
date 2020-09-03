@@ -50,6 +50,7 @@ void StandardFactory::createGrammar(
   this->leadingModifierHandler = newSrdObj<ModifierParsingHandler>(true);
   this->trailingModifierHandler = newSrdObj<ModifierParsingHandler>(false);
   this->doCommandParsingHandler = newSrdObj<GenericCommandParsingHandler>(S("do"));
+  this->scopeParsingHandler = newSrdObj<ScopeParsingHandler<Data::Ast::Scope>>(root->getSeeker());
   this->rootScopeParsingHandler = newSrdObj<RootScopeParsingHandler>(root->getRootScopeHandler());
 
   // Create lexer definitions.
@@ -841,7 +842,7 @@ void StandardFactory::createStatementsProductionModule()
         })}
       })}
     })},
-    {S("handler"), ScopeParsingHandler<Data::Ast::Scope>::create()}
+    {S("handler"), this->scopeParsingHandler}
   }));
 
   //// Statement : (Variation | Variation | ...).

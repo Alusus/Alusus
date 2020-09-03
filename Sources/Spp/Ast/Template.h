@@ -147,7 +147,7 @@ class Template : public Core::Data::Node,
   //============================================================================
   // Mergeable Implementation
 
-  public: virtual Bool merge(TiObject *src, Core::Notices::Store *noticeStore);
+  public: virtual Bool merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore);
 
 
   //============================================================================

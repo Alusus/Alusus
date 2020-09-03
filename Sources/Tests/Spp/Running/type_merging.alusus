@@ -1,0 +1,60 @@
+import "alusus_spp";
+
+def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+type A [T: type] {
+    def i: T;
+
+    func print {
+        this.printValue();
+    }
+};
+
+def AInt: alias A[Int];
+def AFloat: alias A[Float];
+
+@merge type AInt {
+    func printValue {
+        printf("Int %d\n", this.i);
+    }
+}
+
+@merge type AFloat {
+    func printValue {
+        printf("Float %f\n", this.i~cast[Float[64]]);
+    }
+}
+
+@merge type A {
+    func sayHello {
+        printf("hello\n");
+    }
+}
+
+@merge type A {
+    func broken {
+        printf(5);
+    }
+}
+
+func test {
+    def a: A[Int];
+    a.i = 5.5
+    def b: A[Float];
+    b.i = 5.5
+    a.print();
+    b.print();
+    a.sayHello();
+    b.sayHello();
+}
+
+test();
+
+func testErrors {
+    def a: A[Int];
+    def b: A[Float];
+    a.broken();
+    b.broken();
+}
+
+testErrors();

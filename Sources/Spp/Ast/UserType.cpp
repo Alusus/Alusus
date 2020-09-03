@@ -47,15 +47,15 @@ TypeMatchStatus UserType::matchTargetType(
 }
 
 
-Bool UserType::merge(TiObject *src, Core::Notices::Store *noticeStore)
+Bool UserType::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, noticeStore);
   if (src->isA<Core::Data::Ast::Scope>()) {
     auto scope = static_cast<Core::Data::Ast::Scope*>(src);
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), noticeStore);
+    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
   } else if (src->isDerivedFrom<UserType>()) {
     auto scope = static_cast<UserType*>(src)->getBody().get();
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), noticeStore);
+    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
   } else {
     noticeStore->add(
       newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))

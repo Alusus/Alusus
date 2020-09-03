@@ -41,7 +41,7 @@ void RootScopeHandler::_addNewElement(TiObject *self, TioSharedPtr const &data,
   PREPARE_SELF(rootScopeHandler, RootScopeHandler);
   if (data != 0) {
     Core::Data::Ast::addPossiblyMergeableElement(
-      data.get(), rootScopeHandler->rootScope.get(), state->getNoticeStore()
+      data.get(), rootScopeHandler->rootScope.get(), rootScopeHandler->seeker, state->getNoticeStore()
     );
   }
 }

@@ -70,6 +70,7 @@ Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioShared
 
   // No instance was found, create a new one.
   auto block = newSrdObj<Core::Data::Ast::Scope>();
+  block->setSourceLocation(Core::Data::Ast::findSourceLocation(templateInputs));
   block->add(Core::Data::Ast::clone(this->body, Core::Data::Ast::findSourceLocation(templateInputs).get()));
   if (!this->assignTemplateVars(&vars, block.get(), helper, notice)) {
     result = notice;
@@ -280,11 +281,22 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
 //==============================================================================
 // Mergeable Implementation
 
-Bool Template::merge(TiObject *src, Core::Notices::Store *noticeStore)
+Bool Template::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
   auto mergeable = this->body.ti_cast_get<Core::Data::Ast::Mergeable>();
   if (mergeable != 0) {
-    return mergeable->merge(src, noticeStore);
+    if (!mergeable->merge(src, seeker, noticeStore)) return false;
+    // Merge into the body of already created instances.
+    for (Int i = 0; i < this->instances.getCount(); ++i) {
+      auto block = this->instances.get(i).get();
+      mergeable = block->get(0).ti_cast_get<Core::Data::Ast::Mergeable>();
+      if (!mergeable->merge(
+        Core::Data::Ast::clone(getSharedPtr(src), Core::Data::Ast::findSourceLocation(block).get()).get(),
+        seeker,
+        noticeStore
+      )) return false;
+    }
+    return true;
   } else {
     noticeStore->add(
       newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
