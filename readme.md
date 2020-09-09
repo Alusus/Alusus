@@ -1,7 +1,7 @@
 <img
   alt="ALUSUS PROGRAMMING LANGUAGE"
   align="right"
-  src="https://alusus.org/Resources/logo.en.gif"
+  src="https://alusus.org/Resources/logo.gif"
 />
 
 # ALUSUS PROGRAMMING LANGUAGE [[عربي]](readme.ar.md)
