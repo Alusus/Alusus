@@ -2,7 +2,7 @@
 <img
   alt="لغة الأسس البرمجية"
   align="left"
-  src="https://alusus.org/Resources/logo.en.gif"
+  src="https://alusus.org/Resources/logo.gif"
 />
 
 # لغة الأسس البرمجية [[Engligh]](readme.md)
