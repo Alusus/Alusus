@@ -1,6 +1,7 @@
 import "Srl/Console";
-import "Brl/Refs";
+import "Brl/refs";
 import "Brl/Array";
+import "Brl/String";
 import "cpp_interop_test";
 use Srl;
 use Brl;
@@ -21,6 +22,9 @@ type Test {
 
 @expname[getTestArray] function getTestArray (): Array[Int];
 @expname[printTestArray] function printTestArray (Array[Int]);
+
+@expname[getTestString] function getTestString (): String;
+@expname[printTestString] function printTestString (String);
 
 function testSrdRef1 {
     def r: SrdRef[Test] = getTestSrdRef();
@@ -63,6 +67,15 @@ function testArray {
     }
 }
 
+function testString {
+    Console.print("printTestString:\n");
+    def str: String("test string from Alusus");
+    printTestString(str);
+    Console.print("getTestString:\n");
+    str = getTestString();
+    Console.print("%s\n", str.buf);
+}
+
 testSrdRef1();
 Console.print("\n\n");
 testSrdRef2();
@@ -70,3 +83,5 @@ Console.print("\n\n");
 testSrdRef3();
 Console.print("\n\n");
 testArray();
+Console.print("\n\n");
+testString();

@@ -39,3 +39,11 @@ DL_EXPORTED void printTestArray(Array<Int> arr) {
     outStream << arr(i) << "\n";
   }
 }
+
+DL_EXPORTED String getTestString() {
+  return String("test string from c++");
+}
+
+DL_EXPORTED void printTestString(String str) {
+  outStream << str << "\n";
+}

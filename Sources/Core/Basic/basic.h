@@ -431,56 +431,6 @@ s_enum(LogLevel,
  */
 
 /// @ingroup basic_datatypes
-typedef unsigned char Byte;
-
-/// @ingroup basic_datatypes
-typedef char Char;
-
-/// @ingroup basic_datatypes
-typedef wchar_t WChar;
-
-/// @ingroup basic_datatypes
-typedef int Int;
-
-/// @ingroup basic_datatypes
-typedef short ShortInt;
-
-/// @ingroup basic_datatypes
-typedef long long int LongInt;
-
-/**
- * @brief An integer of the same size as pointers.
- * This is used for pointer arithmetics.
- * @ingroup basic_datatypes
- */
-typedef long long int PtrInt;
-
-/// @ingroup basic_datatypes
-typedef float Float;
-
-/// @ingroup basic_datatypes
-typedef double Double;
-
-/// @ingroup basic_datatypes
-typedef bool Bool;
-
-/// @ingroup basic_datatypes
-typedef unsigned int Word;
-
-/// @ingroup basic_datatypes
-typedef unsigned short ShortWord;
-
-/// @ingroup basic_datatypes
-typedef unsigned long long int LongWord;
-
-/**
- * @brief A word of the same size as pointers.
- * This is used for things lik IDs that need to be the same size as pointers.
- * @ingroup basic_datatypes
- */
-typedef unsigned long long int PtrWord;
-
-/// @ingroup basic_datatypes
 typedef std::stringstream StrStream;
 
 /// @ingroup basic_datatypes

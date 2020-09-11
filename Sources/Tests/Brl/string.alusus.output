@@ -1,0 +1,35 @@
+find '-': - 456 - 789
+find '-', 4: 0
+find '-', 5: 1
+findLast '-': - 789
+find "124": 124 - 125
+compare "123" to "123": 0
+compare "123" to "1234": -1
+compare 3 "123" to "1234": 0
+copy: HELLO!
+copy 2: hello 
+concat: hello world
+concat 2: hello world!!
+getLength: 13
+Alusus
+length: 6
+s(0) = A
+s(1) = l
+s(2) = u
+s(3) = s
+s(4) = u
+s(5) = s
+Alusus Language
+Hello Yusuf. Do you want to use Yusuf as your username?
+trim:hello world
+trimStart:hello world 
+ 
+trimEnd:  
+	 hello world
+slice: hello
+Comparison successful!
+hello
+world
+hello - world
+ToUpperCase: HELLO - WORLD
+ToLowerCase: hello - world

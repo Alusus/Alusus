@@ -28,3 +28,9 @@ getTestArray:
 9
 22
 13
+
+
+printTestString:
+test string from Alusus
+getTestString:
+test string from c++

@@ -1,6 +1,6 @@
 import "Brl/Array.alusus";
+import "Brl/String.alusus";
 import "Srl/Console.alusus";
-import "Srl/String.alusus";
 
 func test {
   def a: Brl.Array[Int];
@@ -68,5 +68,5 @@ func test3 {
 }
 test3();
 
-def as: Brl.Array[Srl.String]({ Srl.String("Array[String]({...})\n") });
+def as: Brl.Array[Brl.String]({ Brl.String("Array[String]({...})\n") });
 Srl.Console.print(as(0));

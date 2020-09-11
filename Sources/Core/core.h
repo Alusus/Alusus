@@ -32,6 +32,8 @@
 
 // Other Alusus headers
 #include "brl.h"
+using namespace Brl;
+
 #include "core_global_storage.h"
 
 namespace Core

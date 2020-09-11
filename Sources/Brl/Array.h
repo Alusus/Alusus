@@ -21,11 +21,10 @@ template <class T> class Array
   //============================================================================
   // Member Variables
 
-  private: int *refCount;
-  private: int *length;
-  private: int *bufSize;
-  private: T* buf;
-
+  private: Int *refCount;
+  private: Int *length;
+  private: Int *bufSize;
+  private: T *buf;
 
   //============================================================================
   // Cosntructors & Destructor
@@ -39,7 +38,7 @@ template <class T> class Array
     this->assign(src);
   }
 
-  public: Array(int size, T val) {
+  public: Array(Int size, T val) {
     this->_init();
     this->_alloc(size);
     for (; size > 0; --size) this->add(val);
@@ -48,7 +47,6 @@ template <class T> class Array
   public: ~Array() {
     this->_release();
   }
-
 
   //============================================================================
   // Member Functions
@@ -60,25 +58,25 @@ template <class T> class Array
     this->buf = 0;
   }
 
-  private: void _alloc(int size) {
+  private: void _alloc(Int size) {
     if (size < 2) size = 2;
-    int byteCount = sizeof(T) * size + sizeof(int) * 3;
-    this->refCount = (int*)malloc(byteCount);
-    this->length = (int*)((long int)this->refCount + sizeof(*this->refCount));
-    this->bufSize = (int*)((long int)this->length + sizeof(*this->length));
-    this->buf = (T*)((long int)this->bufSize + sizeof(*this->bufSize));
+    Int byteCount = sizeof(T) * size + sizeof(Int) * 3;
+    this->refCount = (Int*)malloc(byteCount);
+    this->length = (Int*)((PtrInt)this->refCount + sizeof(*this->refCount));
+    this->bufSize = (Int*)((PtrInt)this->length + sizeof(*this->length));
+    this->buf = (T*)((PtrInt)this->bufSize + sizeof(*this->bufSize));
     *this->bufSize = size;
     *this->length = 0;
     *this->refCount = 1;
   }
 
-  private: void _realloc(int newSize) {
+  private: void _realloc(Int newSize) {
     if (newSize < 2) newSize = 2;
-    int byteCount = sizeof(T) * newSize + sizeof(int) * 3;
-    this->refCount = (int*)realloc(this->refCount, byteCount);
-    this->length = (int*)((long int)this->refCount + sizeof(*this->refCount));
-    this->bufSize = (int*)((long int)this->length + sizeof(*this->length));
-    this->buf = (T*)((long int)this->bufSize + sizeof(*this->bufSize));
+    Int byteCount = sizeof(T) * newSize + sizeof(Int) * 3;
+    this->refCount = (Int*)realloc(this->refCount, byteCount);
+    this->length = (Int*)((PtrInt)this->refCount + sizeof(*this->refCount));
+    this->bufSize = (Int*)((PtrInt)this->length + sizeof(*this->length));
+    this->buf = (T*)((PtrInt)this->bufSize + sizeof(*this->bufSize));
     *this->bufSize = newSize;
   }
 
@@ -86,7 +84,7 @@ template <class T> class Array
     if (this->refCount != 0) {
       --(*this->refCount);
       if (*this->refCount == 0) {
-        int i;
+        Int i;
         for (i = 0; i < *this->length; ++i) this->buf[i].~T();
         free(this->refCount);
       }
@@ -94,17 +92,17 @@ template <class T> class Array
     }
   }
 
-  public: void reserve(int size) {
+  public: void reserve(Int size) {
     if (this->refCount == 0) this->_alloc(size);
     else this->_realloc(size);
   }
 
-  public: int getLength() const {
+  public: Int getLength() const {
     if (this->length == 0) return 0;
     else return *this->length;
   }
 
-  public: int getBufSize() const {
+  public: Int getBufSize() const {
     if (this->bufSize == 0) return 0;
     else return *this->bufSize;
   }
@@ -120,17 +118,17 @@ template <class T> class Array
     }
   }
 
-  private: void _prepareToModify (bool enlarge) {
+  private: void _prepareToModify (Bool enlarge) {
     if (this->refCount == 0) {
       this->_alloc(2);
     } else if (*this->refCount == 1) {
       if (enlarge && *this->length >= *this->bufSize) this->_realloc(*this->bufSize + (*this->bufSize >> 1));
     } else {
-      int curLength = *this->length;
+      Int curLength = *this->length;
       T *curBuf = this->buf;
       --(*this->refCount);
       this->_alloc(curLength + curLength >> 1);
-      int i;
+      Int i;
       for (i = 0; i < curLength; ++i) new(this->buf + i) T(curBuf[i]);
       *this->length = curLength;
     }
@@ -142,7 +140,7 @@ template <class T> class Array
     ++(*this->length);
   }
 
-  public: void insert (int index, T item) {
+  public: void insert (Int index, T item) {
     if (index < 0 || index >= this->getLength()) {
       this->add(item);
     } else {
@@ -153,7 +151,7 @@ template <class T> class Array
     }
   }
 
-  public: void remove (int index) {
+  public: void remove (Int index) {
     if (index >= 0 && index < this->getLength()) {
       this->_prepareToModify(false);
       this->buf[index].~T();
@@ -168,16 +166,15 @@ template <class T> class Array
     this->_release();
   };
 
-  public: T& at (int i) {
+  public: T& at (Int i) {
     static T dummy;
     if (i >= 0 && i < this->getLength()) return this->buf[i]; else return dummy;
   }
 
-  public: T const& at (int i) const {
+  public: T const& at (Int i) const {
     static T dummy;
     if (i >= 0 && i < this->getLength()) return this->buf[i]; else return dummy;
   }
-
 
   //============================================================================
   // Operators
@@ -186,11 +183,11 @@ template <class T> class Array
     this->assign(value);
   }
 
-  public: T& operator()(int i) {
+  public: T& operator()(Int i) {
     return this->at(i);
   };
 
-  public: T const& operator()(int i) const {
+  public: T const& operator()(Int i) const {
     return this->at(i);
   };
 

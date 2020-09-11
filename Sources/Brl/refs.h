@@ -1,5 +1,5 @@
 /**
- * @file Brl/Refs.h
+ * @file Brl/refs.h
  * Contains definitions of different reference types.
  *
  * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
@@ -26,22 +26,21 @@ class RefCounter
   //============================================================================
   // Member Variables
 
-  public: int count;
-  public: bool singleAllocation;
+  public: Int count;
+  public: Bool singleAllocation;
   public: void (*terminator)(void*);
-  public: void* managedObj;
-
+  public: void *managedObj;
 
   //============================================================================
   // Member Functions
 
-  public: static RefCounter* alloc(int size, void (*terminator)(void*)) {
+  public: static RefCounter* alloc(Int size, void (*terminator)(void*)) {
     RefCounter *refCounter;
     refCounter = (RefCounter*)malloc(sizeof(RefCounter) + size);
     refCounter->count = 0;
     refCounter->singleAllocation = true;
     refCounter->terminator = terminator;
-    refCounter->managedObj = (void*)((long int)refCounter + sizeof(RefCounter));
+    refCounter->managedObj = (void*)((PtrInt)refCounter + sizeof(RefCounter));
     return refCounter;
   }
 
@@ -274,11 +273,11 @@ template<class T> class SrdRef
     return *this;
   }
 
-  public: bool operator==(T *obj) const {
+  public: Bool operator==(T *obj) const {
     return this->obj == obj;
   }
 
-  public: bool operator==(std::nullptr_t p) const {
+  public: Bool operator==(std::nullptr_t p) const {
     return this->obj == p;
   }
 
@@ -295,7 +294,6 @@ template<class T> class WkRef
 
   protected: RefCounter *refCounter;
   protected: T *obj;
-
 
   //============================================================================
   // Constructors & Destructor
@@ -348,7 +346,6 @@ template<class T> class WkRef
     this->_init();
     this->assign(c, r);
   };
-
 
   //============================================================================
   // Member Functions
@@ -432,33 +429,33 @@ template<class T> class WkRef
     return *this;
   }
 
-  public: bool operator==(T *obj) const {
+  public: Bool operator==(T *obj) const {
     return this->obj == obj;
   }
 
-  public: bool operator==(std::nullptr_t p) const {
+  public: Bool operator==(std::nullptr_t p) const {
     return this->obj == p;
   }
 
 }; // class
 
 template<typename T>
-inline bool operator==(SrdRef<T> const & r, std::nullptr_t) {
+inline Bool operator==(SrdRef<T> const & r, std::nullptr_t) {
   return r.get() == nullptr;
 }
 
 template<typename T>
-inline bool operator!=(SrdRef<T> const & r, std::nullptr_t) {
+inline Bool operator!=(SrdRef<T> const & r, std::nullptr_t) {
   return r.get() != nullptr;
 }
 
 template<typename T>
-inline bool operator==(WkRef<T> const & r, std::nullptr_t) {
+inline Bool operator==(WkRef<T> const & r, std::nullptr_t) {
   return r.get() == nullptr;
 }
 
 template<typename T>
-inline bool operator!=(WkRef<T> const & r, std::nullptr_t) {
+inline Bool operator!=(WkRef<T> const & r, std::nullptr_t) {
   return r.get() != nullptr;
 }
 

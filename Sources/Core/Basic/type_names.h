@@ -76,16 +76,16 @@ template <> struct TypeName<>
 
 DEFINE_TYPE_NAME(void, "void");
 
-DEFINE_TYPE_NAME(Core::Basic::Bool, "alusus.org/Core/Core.Basic.Bool");
-DEFINE_TYPE_NAME(Core::Basic::Int, "alusus.org/Core/Core.Basic.Int");
-DEFINE_TYPE_NAME(Core::Basic::ShortInt, "alusus.org/Core/Core.Basic.ShortInt");
-DEFINE_TYPE_NAME(Core::Basic::LongInt, "alusus.org/Core/Core.Basic.LongInt");
-DEFINE_TYPE_NAME(Core::Basic::Word, "alusus.org/Core/Core.Basic.Word");
-DEFINE_TYPE_NAME(Core::Basic::ShortWord, "alusus.org/Core/Core.Basic.ShortWord");
-DEFINE_TYPE_NAME(Core::Basic::LongWord, "alusus.org/Core/Core.Basic.LongWord");
-DEFINE_TYPE_NAME(Core::Basic::Float, "alusus.org/Core/Core.Basic.Float");
-DEFINE_TYPE_NAME(Core::Basic::Double, "alusus.org/Core/Core.Basic.Double");
-DEFINE_TYPE_NAME(Core::Basic::Char, "alusus.org/Core/Core.Basic.Char");
+DEFINE_TYPE_NAME(Brl::Bool, "alusus.org/Brl/Brl.Bool");
+DEFINE_TYPE_NAME(Brl::Int, "alusus.org/Brl/Brl.Int");
+DEFINE_TYPE_NAME(Brl::ShortInt, "alusus.org/Brl/Brl.ShortInt");
+DEFINE_TYPE_NAME(Brl::LongInt, "alusus.org/Brl/Brl.LongInt");
+DEFINE_TYPE_NAME(Brl::Word, "alusus.org/Brl/Brl.Word");
+DEFINE_TYPE_NAME(Brl::ShortWord, "alusus.org/Brl/Brl.ShortWord");
+DEFINE_TYPE_NAME(Brl::LongWord, "alusus.org/Brl/Brl.LongWord");
+DEFINE_TYPE_NAME(Brl::Float, "alusus.org/Brl/Brl.Float");
+DEFINE_TYPE_NAME(Brl::Double, "alusus.org/Brl/Brl.Double");
+DEFINE_TYPE_NAME(Brl::Char, "alusus.org/Brl/Brl.Char");
 DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.org/Core/Core.Basic.Str");
 DEFINE_TYPE_NAME(Core::Basic::StrStream, "alusus.org/Core/Core.Basic.StrStream");
 
