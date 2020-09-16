@@ -42,14 +42,14 @@ void printNotice(Notice const *msg)
   auto sl = msg->getSourceLocation().get();
   if (sl->isDerivedFrom<Data::SourceLocationRecord>()) {
     auto slRecord = static_cast<Data::SourceLocationRecord*>(sl);
-    outStream << slRecord->filename->c_str() << " (" << slRecord->line << "," << slRecord->column << ")";
+    outStream << slRecord->filename << " (" << slRecord->line << "," << slRecord->column << ")";
   } else {
     auto stack = static_cast<Data::SourceLocationStack*>(sl);
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
       if (i < stack->getCount() -1) {
         outStream << NEW_LINE << L18nDictionary::getSingleton()->get(S("FROM"), S("from")) << S(" ");
       }
-      outStream << stack->get(i)->filename->c_str()
+      outStream << stack->get(i)->filename
         << " (" << stack->get(i)->line << "," << stack->get(i)->column << ")";
     }
   }

@@ -248,8 +248,8 @@ Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astT
 Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType, Generation *g, Session *session)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  Str name = std::regex_replace(
-    typeGenerator->astHelper->resolveNodePath(astType), std::regex("[^a-zA-Z0-9_]"), S("_")
+  auto name = std::regex_replace(
+    typeGenerator->astHelper->resolveNodePath(astType).getBuf(), std::regex("[^a-zA-Z0-9_]"), S("_")
   );
 
   if (!typeGenerator->astProcessor->processTypeBody(astType)) return false;
@@ -379,7 +379,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   // Prepare the constructor function.
   auto funcName = typeGenerator->astHelper->resolveNodePath(astType) + S(".__autoConstruct__");
   TioSharedPtr tgFunc;
-  if (!session->getTg()->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
+  if (!session->getTg()->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for type constructor."));
   }
   TioSharedPtr tgContext;
@@ -462,7 +462,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
   // Prepare the destructor function.
   auto funcName = typeGenerator->astHelper->resolveNodePath(astType) + S(".__autoDestruct__");
   TioSharedPtr tgFunc;
-  if (!session->getTg()->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
+  if (!session->getTg()->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for type destructor."));
   }
   TioSharedPtr tgContext;
@@ -533,7 +533,7 @@ Bool TypeGenerator::_generateFunctionType(
         return false;
       }
     }
-    tgArgs.add(astArgs->getKey(i).c_str(), tgType);
+    tgArgs.add(astArgs->getKey(i), tgType);
     Ast::setAstType(argType, astType);
   }
 

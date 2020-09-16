@@ -50,22 +50,22 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->processArgs = 0;
 
   // Initialize current paths.
-  this->pushSearchPath(getModuleDirectory().c_str());
-  this->pushSearchPath((getModuleDirectory()+S("../Lib/")).c_str());
-  this->pushSearchPath(getWorkingDirectory().c_str());
+  this->pushSearchPath(getModuleDirectory());
+  this->pushSearchPath((getModuleDirectory()+S("../Lib/")));
+  this->pushSearchPath(getWorkingDirectory());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
   Char *alususLibs = getenv(S("ALUSUS_LIBS"));
   if (alususLibs != nullptr) {
     Str envPath = alususLibs;
     Int endPos = -1;
     Str path;
-    while (endPos < static_cast<Int>(envPath.size())) {
+    while (endPos < static_cast<Int>(envPath.getLength())) {
       Int startPos = endPos+1;
-      endPos = envPath.find(C(':'), startPos);
-      if (endPos == Str::npos) endPos = envPath.size();
+      endPos = envPath.find(startPos, C(':'));
+      if (endPos == -1) endPos = envPath.getLength();
       path.assign(envPath, startPos, endPos-startPos);
-      if (path.size() > 0) {
-        this->pushSearchPath(path.c_str());
+      if (path.getLength() > 0) {
+        this->pushSearchPath(path);
       }
     }
   }
@@ -127,7 +127,7 @@ SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowRe
   Char const *dirEnd = strrchr(fullPath, C('/'));
   if (dirEnd != 0) {
     searchPath = Str(fullPath, 0, dirEnd - fullPath + 1);
-    this->pushSearchPath(searchPath.c_str());
+    this->pushSearchPath(searchPath);
   }
 
   // Process the file.
@@ -136,8 +136,8 @@ SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowRe
   auto result = engine.processFile(fullPath);
 
   // Remove the added path, if any.
-  if (!searchPath.empty()) {
-    this->popSearchPath(searchPath.c_str());
+  if (searchPath.getLength() > 0) {
+    this->popSearchPath(searchPath);
   }
 
   return result;
@@ -198,7 +198,7 @@ void RootManager::pushSearchPath(Char const *path)
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Path must be an absolute path."));
   }
   Str fullPath(path);
-  if (fullPath.back() != C('/')) fullPath += C('/');
+  if (fullPath(fullPath.getLength() - 1) != C('/')) fullPath += C('/');
   // Only add the path if it doesn't already exists.
   // We will only check the top of the stack. If this path exists deeper in the stack then we'll
   // add it again to make it available at the top of the stack. We won't remove the other copy
@@ -222,7 +222,7 @@ void RootManager::popSearchPath(Char const *path)
     throw EXCEPTION(InvalidArgumentException, S("path"), S("Path must be an absolute path."), path);
   }
   Str fullPath(path);
-  if (fullPath.back() != C('/')) fullPath += C('/');
+  if (fullPath(fullPath.getLength() - 1) != C('/')) fullPath += C('/');
   // Search for the path to pop.
   for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
     if (this->searchPaths[i] == fullPath) {
@@ -256,8 +256,8 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
     // Try all current paths.
     thread_local static std::array<Char,PATH_MAX> fullPath;
     for (Int i = this->searchPaths.size()-1; i >= 0; --i) {
-      Int len = this->searchPaths[i].size();
-      copyStr(this->searchPaths[i].c_str(), fullPath.data());
+      Int len = this->searchPaths[i].getLength();
+      copyStr(this->searchPaths[i], fullPath.data());
       if (fullPath.data()[len - 1] != C('/')) {
         copyStr(S("/"), fullPath.data() + len);
         ++len;

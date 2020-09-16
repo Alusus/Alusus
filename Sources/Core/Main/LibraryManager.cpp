@@ -91,7 +91,7 @@ PtrWord LibraryManager::load(Char const *path, Str &error)
 {
   void *handle = dlopen(path, RTLD_NOW|RTLD_GLOBAL);
   if (handle == 0) {
-    if (!error.empty()) error += S("\n");
+    if (error.getLength() != 0) error += S("\n");
     error += dlerror();
     return 0;
   }

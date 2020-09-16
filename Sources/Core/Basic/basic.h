@@ -461,10 +461,7 @@ s_enum(HoldMode, SHARED_REF, WEAK_REF, PLAIN_REF, VALUE);
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(Char const *str1, Char const *str2)
-{
-    return strcmp(str1, str2);
-}
+Int compareStr(Char const *str1, Char const *str2);
 
 /**
  * @brief Wrapper for wide string comparison function.
@@ -472,10 +469,7 @@ inline Int compareStr(Char const *str1, Char const *str2)
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(WChar const *str1, WChar const *str2)
-{
-  return wcscmp(str1, str2);
-}
+Int compareStr(WChar const *str1, WChar const *str2);
 
 /**
  * @brief Wrapper for string comparison function.
@@ -483,10 +477,7 @@ inline Int compareStr(WChar const *str1, WChar const *str2)
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(Char const *str1, Char const *str2, Int size)
-{
-    return strncmp(str1, str2, size);
-}
+Int compareStr(Char const *str1, Char const *str2, Int size);
 
 /**
  * @brief Wrapper for wide string comparison function.
@@ -494,10 +485,7 @@ inline Int compareStr(Char const *str1, Char const *str2, Int size)
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(WChar const *str1, WChar const *str2, Int size)
-{
-  return wcsncmp(str1, str2, size);
-}
+Int compareStr(WChar const *str1, WChar const *str2, Int size);
 
 /**
  * @brief Compares the end of a string with another string.
@@ -631,12 +619,12 @@ void printIndents(OutStream &stream, int indents);
  * @brief Generate an Str from the given format and args.
  * @ingroup basic_functions
  */
-template<typename ... Args> std::string formatString(Char const *format, Args ...args )
+template<typename ... Args> Brl::String formatString(Char const *format, Args ...args )
 {
   std::size_t size = std::snprintf(nullptr, 0, format, args...) + 1;
   std::unique_ptr<char[]> buf(new char[size]);
   snprintf(buf.get(), size, format, args...);
-  return std::string(buf.get(), buf.get() + size - 1);
+  return Brl::String(buf.get(), size);
 }
 
 class TiObject;

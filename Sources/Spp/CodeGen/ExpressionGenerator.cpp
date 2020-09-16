@@ -1342,7 +1342,7 @@ Bool ExpressionGenerator::_generateAssignOp(
 
   if (
     astNode->getType() == S("=") ||
-    (astNode->getType().getStr().size() > 1 && astNode->getType().get()[1] == C('='))
+    (astNode->getType().getStr().getLength() > 1 && astNode->getType().get()[1] == C('='))
   ) {
     if (session->getTgContext() != 0) {
       if (!session->getTg()->generateAssign(
@@ -2189,7 +2189,7 @@ Bool ExpressionGenerator::_generateStringLiteral(
   TiObject *charTgType;
   if (!g->getGeneratedType(charAstType, session, charTgType, 0)) return false;
 
-  auto strAstType = expGenerator->astHelper->getCharArrayType(value->size() + 1);
+  auto strAstType = expGenerator->astHelper->getCharArrayType(value->getLength() + 1);
   TiObject *strTgType;
   if (!g->getGeneratedType(strAstType, session, strTgType, 0)) return false;
 
@@ -2199,7 +2199,7 @@ Bool ExpressionGenerator::_generateStringLiteral(
 
   if (session->getTgContext() != 0) {
     if (!session->getTg()->generateStringLiteral(
-      session->getTgContext(), value->c_str(), charTgType, strTgType, result.targetData
+      session->getTgContext(), value->getBuf(), charTgType, strTgType, result.targetData
     )) return false;
   }
   result.astType =  strPtrAstType;
@@ -2212,7 +2212,7 @@ Bool ExpressionGenerator::_generateCharLiteral(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  auto value = astNode->getValue().getStr()[0];
+  auto value = astNode->getValue().getStr()(0);
 
   auto charAstType = expGenerator->astHelper->getCharType();
   TiObject *charTgType;

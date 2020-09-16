@@ -22,115 +22,36 @@ namespace Core::Basic
  *
  * This class overrides std's wstring class to provide comparison operators.
  */
-class WStr : public std::wstring
+class WStr : public Brl::WString
 {
   //============================================================================
   // Constructors
 
-  /// @name Main and Wide Character Constructors
-  /// @{
+  public: using Brl::WString::WString;
 
-  public: WStr() {}
-  public: WStr(std::wstring const &str) : std::wstring(str) {}
-  public: WStr(std::wstring const &str, Word pos, Word n) : std::wstring(str, pos, n) {}
-  public: WStr(SbWStr const &str) : std::wstring(str.c_str()) {}
-  public: WStr(SbWStr const &str, Word pos, Word n) : std::wstring(str.c_str() + pos, n) {}
-  public: WStr(WChar const *s, Word n) : std::wstring(s, n) {}
-  public: WStr(WChar const *s) : std::wstring(s) {}
-  public: WStr(Word n, Char c) : std::wstring(n, c) {}
+  public: WStr(Brl::WString const &str) : Brl::WString(str)
+  {
+  }
 
-  /// @}
-
-  /// @name Byte Character Constructors
-  /// @{
-
-  public: WStr(std::string const &str, Word pos=0, Word n=0)
+  public: WStr(WChar const *str, LongInt pos, LongInt n)
   {
     this->assign(str, pos, n);
   }
 
-  public: WStr(SbStr const &str, Word pos=0, Word n=0)
+  public: WStr(Char const *str, LongInt pos=0, LongInt n=0)
   {
     this->assign(str, pos, n);
-  }
-
-  public: WStr(Char const *s, Word n=0)
-  {
-    this->assign(s, n);
-  }
-
-  /// @}
-
-
-  //============================================================================
-  // Operators
-
-  public: Bool operator==(WChar const *s) const
-  {
-    return this->compare(s) == 0;
-  }
-
-  public: Bool operator==(const std::wstring &s) const
-  {
-    return this->compare(s) == 0;
-  }
-
-  public: Bool operator==(const SbWStr &s) const
-  {
-    return this->compare(s.c_str()) == 0;
-  }
-
-  public: Bool operator>(WChar const *s) const
-  {
-    return this->compare(s) > 0;
-  }
-
-  public: Bool operator>(const std::wstring &s) const
-  {
-    return this->compare(s) > 0;
-  }
-
-  public: Bool operator>(const SbWStr &s) const
-  {
-    return this->compare(s.c_str()) > 0;
-  }
-
-  public: Bool operator<(WChar const *s) const
-  {
-    return this->compare(s) < 0;
-  }
-
-  public: Bool operator<(const std::wstring &s) const
-  {
-    return this->compare(s) < 0;
-  }
-
-  public: Bool operator<(const SbWStr &s) const
-  {
-    return this->compare(s.c_str()) < 0;
   }
 
 
   //============================================================================
   // Functions
 
-  using std::wstring::assign;
+  using Brl::WString::assign;
 
-  public: void assign(SbWStr const &str, Word pos=0, Word n=0)
-  {
-    if (n == 0) n = str.size()-pos;
-    this->assign(str.c_str()+pos, n);
-  }
+  public: void assign(WChar const *buf, LongInt pos, LongInt n);
 
-  public: void assign(std::string const &str, Word pos=0, Word n=0)
-  {
-    this->assign(str.c_str()+pos, n);
-  }
-
-  public: void assign(SbStr const &str, Word pos = 0, Word n=0)
-  {
-    this->assign(str.c_str()+pos, n);
-  }
+  public: void assign(Char const *buf, LongInt pos, LongInt n);
 
   public: void assign(Char const *s, Word n=0)
   {
@@ -144,7 +65,7 @@ class WStr : public std::wstring
 
   public: SbWStr const sbwstr() const
   {
-    return sbwstr_cast(this->c_str());
+    return sbwstr_cast(this->getBuf());
   }
 
 }; // class

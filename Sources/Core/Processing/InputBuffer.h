@@ -56,7 +56,7 @@ class InputBuffer
    *
    * This string contains the list of characters in the buffer.
    */
-  private: WStr charBuffer;
+  private: std::wstring charBuffer;
 
   /**
    * @brief Manages the positions of characters in the source code.

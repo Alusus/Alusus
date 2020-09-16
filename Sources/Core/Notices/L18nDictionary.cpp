@@ -21,7 +21,7 @@ namespace Core::Notices
 void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
 {
   this->dictionary.clear();
-  std::string filename;
+  Brl::String filename;
   if (l18nPath != 0) {
     filename = l18nPath;
   } else {
@@ -39,7 +39,7 @@ void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
       if (pos != -1) {
         Str key(line.c_str(), pos);
         auto value = TiStr::create(line.c_str() + pos + 1);
-        this->dictionary.add(key.c_str(), value);
+        this->dictionary.add(key, value);
       }
     }
   }

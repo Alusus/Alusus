@@ -74,7 +74,7 @@ typedef LibraryGateway* (*LibraryGatewayGetter)();
  * This method is used to wrap the platform-specific implementation inside a
  * platform independent function.
  */
-std::string getWorkingDirectory();
+Brl::String getWorkingDirectory();
 
 /**
  * @brief Gets the directory of the executable.
@@ -85,7 +85,7 @@ std::string getWorkingDirectory();
  * This method is used to wrap the platform-specific implementation inside a
  * platform independent function.
  */
-std::string getModuleDirectory();
+Brl::String getModuleDirectory();
 
 } // namespace
 

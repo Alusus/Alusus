@@ -52,7 +52,6 @@ int main(int argCount, char * const args[])
   Bool interactive = false;
   Char const *sourceFile = 0;
   Bool dump = false;
-  auto lang = getSystemLanguage();
   if (argCount < 2) help = true;
   for (Int i = 1; i < argCount; ++i) {
     if (strcmp(args[i], S("--help")) == 0) help = true;
@@ -80,6 +79,7 @@ int main(int argCount, char * const args[])
     }
   }
 
+  auto lang = getSystemLanguage();
   if (lang == S("ar")) {
     // TODO: Support other locales.
     Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"));
@@ -158,7 +158,7 @@ int main(int argCount, char * const args[])
       Main::RootManager root;
       root.setInteractive(true);
       root.setProcessArgInfo(argCount, args);
-      root.setLanguage(lang.c_str());
+      root.setLanguage(lang);
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {
@@ -183,7 +183,7 @@ int main(int argCount, char * const args[])
       // Prepare the root object;
       Main::RootManager root;
       root.setProcessArgInfo(argCount, args);
-      root.setLanguage(lang.c_str());
+      root.setLanguage(lang);
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {

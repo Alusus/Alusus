@@ -91,7 +91,7 @@ Str OfflineBuildTarget::generateLlvmIr(std::vector<Str> const *ctorNames, std::v
   llvm::raw_os_ostream ostream(strStream);
   llvm::createPrintModulePass(ostream)->runOnModule(*(this->llvmModule));
 
-  return strStream.str();
+  return Str(strStream.str().c_str());
 }
 
 
@@ -159,7 +159,7 @@ void OfflineBuildTarget::buildCtorOrDtorArray(std::vector<Str> const *funcNames,
   // Prepare array items.
   std::vector<llvm::Constant*> llvmArrayItems;
   for (Int i = 0; i < funcNames->size(); i++) {
-    llvm::Function *llvmFunc = this->llvmModule->getFunction(funcNames->at(i).c_str());
+    llvm::Function *llvmFunc = this->llvmModule->getFunction(funcNames->at(i).getBuf());
     if (!llvmFunc) {
       throw EXCEPTION(GenericException, S("Failed to find constructor function."));
     }

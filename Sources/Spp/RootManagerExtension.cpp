@@ -61,7 +61,7 @@ void RootManagerExtension::_importFile(TiObject *self, Char const *filename)
   PREPARE_SELF(rootManager, Core::Main::RootManager);
   Str error;
   if (!rootManager->tryImportFile(filename, error)) {
-    throw EXCEPTION(FileException, filename, C('r'), error.c_str());
+    throw EXCEPTION(FileException, filename, C('r'), error);
   }
 }
 

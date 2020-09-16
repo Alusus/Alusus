@@ -21,7 +21,7 @@ namespace Core { namespace Basic
 Str Exception::getVerboseErrorMessage() const throw()
 {
   return this->getErrorMessage() + S("\nLocation:\n") + this->functionName + S("\n") +
-      this->sourceFile + S(" : ") + std::to_string(this->lineNumber);
+      this->sourceFile + S(" : ") + (LongInt)this->lineNumber;
 }
 
 
@@ -52,11 +52,11 @@ Str FileException::getErrorMessage() const throw()
   }
   msg << this->fileName;
   msg << S(".");
-  if (this->comment.size() > 0) {
+  if (this->comment.getLength() > 0) {
     msg << S(".\n");
     msg << this->comment;
   }
-  return msg.str();
+  return msg.str().c_str();
 }
 
 
@@ -78,7 +78,7 @@ Str MemoryException::getErrorMessage() const throw()
       ASSERT(false);
       break;
   }
-  if (this->comment.size() > 0) {
+  if (this->comment.getLength() > 0) {
     msg += S("\n");
     msg += this->comment;
   }
@@ -91,13 +91,13 @@ Str MemoryException::getErrorMessage() const throw()
  */
 Str InvalidArgumentException::getErrorMessage() const throw()
 {
-  Str msg = S("Invalid Argument Exception (") + this->argumentName;
-  if (this->argumentValue.size() > 0) {
+  Str msg = Str(S("Invalid Argument Exception (")) + this->argumentName;
+  if (this->argumentValue.getLength() > 0) {
     msg += S(" = ");
     msg += this->argumentValue;
   }
   msg += S(")");
-  if (this->comment.size() > 0) {
+  if (this->comment.getLength() > 0) {
     msg += S("\n");
     msg += this->comment;
   }

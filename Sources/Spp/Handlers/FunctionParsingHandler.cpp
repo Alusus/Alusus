@@ -168,15 +168,15 @@ Bool FunctionParsingHandler::parseArg(
     }
   } else {
     name = S("__");
-    name += std::to_string(result->getCount());
+    name += (LongInt)result->getCount();
     type = astNode;
   }
-  if (result->findIndex(name.c_str()) != -1) {
+  if (result->findIndex(name) != -1) {
     // This arg name is already in use.
     state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
     return false;
   }
-  result->set(name.c_str(), type);
+  result->set(name, type);
   return true;
 }
 

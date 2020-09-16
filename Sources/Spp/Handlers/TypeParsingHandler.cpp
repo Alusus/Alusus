@@ -161,7 +161,7 @@ Bool TypeParsingHandler::parseTemplateArg(
     }
   }
 
-  result->add(newSrdObj<Ast::TemplateVarDef>(name.c_str(), type));
+  result->add(newSrdObj<Ast::TemplateVarDef>(name, type));
   return true;
 }
 

@@ -279,7 +279,7 @@ Bool TargetGenerator::generateFunctionType(
         InvalidArgumentException, S("argTypes"), S("Not all elements are instances of LlvmCodeGen::Type")
       );
     }
-    args->add(argTypes->getElementKey(i).c_str(), getSharedPtr(contentTypeWrapper));
+    args->add(argTypes->getElementKey(i), getSharedPtr(contentTypeWrapper));
     llvmArgTypes.push_back(contentTypeWrapper->getLlvmType());
   }
 
@@ -331,7 +331,7 @@ Bool TargetGenerator::prepareFunctionBody(
 
     llvmFunc = llvm::Function::Create(
       funcWrapper->getFunctionType()->getLlvmFunctionType(), llvm::Function::ExternalLinkage,
-      funcWrapper->getName().c_str(), funcWrapper->llvmModule.get()
+      funcWrapper->getName().getBuf(), funcWrapper->llvmModule.get()
     );
     funcWrapper->setLlvmFunction(llvmFunc);
     llvmModule = funcWrapper->llvmModule.get();
@@ -353,7 +353,7 @@ Bool TargetGenerator::prepareFunctionBody(
   auto argTypes = funcTypeWrapper->getArgs();
   auto i = 0;
   for (auto iter = llvmFunc->arg_begin(); i != argTypes->getElementCount(); ++iter, ++i) {
-    iter->setName(argTypes->getElementKey(i).c_str());
+    iter->setName(argTypes->getElementKey(i).getBuf());
     args->add(newSrdObj<Value>(iter, false));
   }
 
@@ -399,7 +399,9 @@ Bool TargetGenerator::finishFunctionBody(
   }
 
   if (this->perFunctionModules) {
-    LOG(Spp::LogLevel::LLVMCODEGEN_IR, S("Adding function module to build target: ") << funcWrapper->getName());
+    LOG(
+      Spp::LogLevel::LLVMCODEGEN_IR, S("Adding function module to build target: ") << funcWrapper->getName()
+    );
     this->buildTarget->addLlvmModule(std::move(funcWrapper->llvmModule));
   }
 
@@ -829,12 +831,12 @@ Bool TargetGenerator::generateVarReference(
     llvm::Module *llvmMod = this->perFunctionModules ?
       block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
     // Make sure the target var is declared in the current module.
-    llvm::GlobalVariable *llvmVar = llvmMod->getGlobalVariable(var->getName());
+    llvm::GlobalVariable *llvmVar = llvmMod->getGlobalVariable(var->getName().getBuf());
     if (llvmVar == 0) {
       // This global var is in a different module, so we'll have to define it again.
       llvmVar = new llvm::GlobalVariable(
         *llvmMod, var->getType()->getLlvmType(), false, llvm::GlobalVariable::ExternalLinkage,
-        0, var->getName()
+        0, var->getName().getBuf()
       );
     }
     // Prepare the reference.
@@ -934,12 +936,12 @@ Bool TargetGenerator::generateFunctionPointer(
   // // Make sure the target function is declared in the current module.
   llvm::Module *llvmMod = this->perFunctionModules ?
     block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
-  llvm::Function *llvmFunc = llvmMod->getFunction(funcWrapper->getName());
+  llvm::Function *llvmFunc = llvmMod->getFunction(funcWrapper->getName().getBuf());
   if (llvmFunc == 0) {
     // This function is in a different module, so we'll have to define it.
     llvmFunc = llvm::Function::Create(
       funcWrapper->getFunctionType()->getLlvmFunctionType(), llvm::Function::ExternalLinkage,
-      funcWrapper->getName(), llvmMod
+      funcWrapper->getName().getBuf(), llvmMod
     );
   }
 
@@ -971,12 +973,12 @@ Bool TargetGenerator::generateFunctionCall(
   // Make sure a declaration of this function exists in the current module.
   llvm::Module *llvmMod = this->perFunctionModules ?
     block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
-  llvm::Function *llvmFunc = llvmMod->getFunction(funcWrapper->getName());
+  llvm::Function *llvmFunc = llvmMod->getFunction(funcWrapper->getName().getBuf());
   if (llvmFunc == 0) {
     // This function is in a different module, so we'll have to define it.
     llvmFunc = llvm::Function::Create(
       funcWrapper->getFunctionType()->getLlvmFunctionType(), llvm::Function::ExternalLinkage,
-      funcWrapper->getName(), llvmMod
+      funcWrapper->getName().getBuf(), llvmMod
     );
   }
   // Create the call.
@@ -1902,15 +1904,15 @@ Bool TargetGenerator::generatePointerLiteral(TiObject *context, TiObject *type, 
 //==============================================================================
 // Helper Functions
 
-Str TargetGenerator::getNewBlockName()
+std::string TargetGenerator::getNewBlockName()
 {
-  return Str("#block") + std::to_string(this->blockIndex++);
+  return std::string("#block") + std::to_string(this->blockIndex++);
 }
 
 
-Str TargetGenerator::getAnonymouseVarName()
+std::string TargetGenerator::getAnonymouseVarName()
 {
-  return Str("#anonymous") + std::to_string(this->anonymousVarIndex++);
+  return std::string("#anonymous") + std::to_string(this->anonymousVarIndex++);
 }
 
 } // namespace

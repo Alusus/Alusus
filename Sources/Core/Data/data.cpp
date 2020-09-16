@@ -73,7 +73,7 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
       for (Word i = 0; i < mapContainer->getElementCount(); ++i) {
         stream << S("\n");
         printIndents(stream, indents+1);
-        stream << mapContainer->getElementKey(i).c_str() << S(": ");
+        stream << mapContainer->getElementKey(i) << S(": ");
         dumpData(stream, mapContainer->getElement(i), indents+1);
       }
     } else if ((container = ptr->getInterface<Containing<TiObject>>()) != 0) {

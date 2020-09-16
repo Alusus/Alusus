@@ -22,130 +22,36 @@ namespace Core::Basic
  *
  * This class overrides std's string class to provide comparison operators.
  */
-class Str : public std::string
+class Str : public Brl::String
 {
   //============================================================================
   // Constructors
 
-  /// @name Main and Byte Character Constructors
-  /// @{
+  public: using Brl::String::String;
 
-  public: Str() {}
-  public: Str(std::string const &str) : std::string(str) {}
-  public: Str(std::string const &str, Word pos, Word n) : std::string(str, pos, n) {}
-  public: Str(SbStr const &str) : std::string(str.c_str()) {}
-  public: Str(SbStr const &str, Word pos, Word n) : std::string(str.c_str() + pos, n) {}
-  public: Str(Char const *s, Word n) : std::string(s, n) {}
-  public: Str(Char const *s) : std::string(s) {}
-  public: Str(Word n, Char c) : std::string(n, c) {}
+  public: Str(Brl::String const &str) : Brl::String(str)
+  {
+  }
 
-  /// @}
-
-  /// @name Wide Character Constructors
-  /// @{
-
-  public: Str(std::wstring const &str, Word pos=0, Word n=0)
+  public: Str(Char const *str, LongInt pos, LongInt n)
   {
     this->assign(str, pos, n);
   }
 
-  public: Str(SbWStr const &str, Word pos=0, Word n=0)
+  public: Str(WChar const *str, LongInt pos=0, LongInt n=0)
   {
     this->assign(str, pos, n);
-  }
-
-  public: Str(WChar const *s, Word n=0)
-  {
-    this->assign(s, n);
-  }
-
-  /// @}
-
-
-  //============================================================================
-  // Operators
-
-  public: Bool operator==(Char const *s) const
-  {
-    return this->compare(s) == 0;
-  }
-
-  public: Bool operator==(const std::string &s) const
-  {
-    return this->compare(s) == 0;
-  }
-
-  public: Bool operator==(const SbStr &s) const
-  {
-    return this->compare(s.c_str()) == 0;
-  }
-
-  public: Bool operator!=(Char const *s) const
-  {
-    return this->compare(s) != 0;
-  }
-
-  public: Bool operator!=(const std::string &s) const
-  {
-    return this->compare(s) != 0;
-  }
-
-  public: Bool operator!=(const SbStr &s) const
-  {
-    return this->compare(s.c_str()) != 0;
-  }
-
-  public: Bool operator>(Char const *s) const
-  {
-    return this->compare(s) > 0;
-  }
-
-  public: Bool operator>(const std::string &s) const
-  {
-    return this->compare(s) > 0;
-  }
-
-  public: Bool operator>(const SbStr &s) const
-  {
-    return this->compare(s.c_str()) > 0;
-  }
-
-  public: Bool operator<(Char const *s) const
-  {
-    return this->compare(s) < 0;
-  }
-
-  public: Bool operator<(const std::string &s) const
-  {
-    return this->compare(s) < 0;
-  }
-
-  public: Bool operator<(const SbStr &s) const
-  {
-    return this->compare(s.c_str()) < 0;
   }
 
 
   //============================================================================
   // Functions
 
-  using std::string::assign;
+  using Brl::String::assign;
 
-  public: void assign(SbStr const &str, Word pos=0, Word n=0)
-  {
-    if (n == 0) n = str.size()-pos;
-    this->assign(str.c_str()+pos, n);
-  }
+  public: void assign(Char const *buf, LongInt pos, LongInt n);
 
-  public: void assign(std::wstring const &str, Word pos=0, Word n=0)
-  {
-    this->assign(str.c_str()+pos, n);
-  }
-
-  public: void assign(SbWStr const &str, Word pos = 0, Word n=0)
-  {
-    this->assign(str.c_str()+pos, n);
-  }
+  public: void assign(WChar const *buf, LongInt pos, LongInt n);
 
   public: void assign(WChar const *s, Word n=0)
   {
@@ -159,11 +65,26 @@ class Str : public std::string
 
   public: SbStr const sbstr() const
   {
-    return sbstr_cast(this->c_str());
+    return sbstr_cast(this->getBuf());
   }
 
 }; // class
 
 } // namespace
+
+
+//==============================================================================
+// std::hash specialization for Str.
+
+namespace std
+{
+  template<> struct hash<Core::Basic::Str>
+  {
+    std::size_t operator()(Core::Basic::Str const &s) const noexcept
+    {
+      return std::hash<std::string_view>{}(std::string_view(s.getBuf()));
+    }
+  };
+}
 
 #endif

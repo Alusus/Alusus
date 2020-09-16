@@ -50,7 +50,7 @@ namespace Core::Notices
     } \
     public: virtual void buildDescription(Str &str) const \
     { \
-      str = Core::Notices::L18nDictionary::getSingleton()->get(this->getCode().c_str(), S(msg)); \
+      str = Core::Notices::L18nDictionary::getSingleton()->get(this->getCode(), S(msg)); \
     } \
   }
 

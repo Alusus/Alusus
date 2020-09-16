@@ -35,7 +35,7 @@ class Printable : public TiInterface
   {
     StrStream stream;
     this->print(stream, indents);
-    return stream.str();
+    return stream.str().c_str();
   }
 
 }; // class

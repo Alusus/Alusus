@@ -189,7 +189,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       auto argTgType = session->getEda()->getCodeGenData<TiObject>(argAstType);
       TioSharedPtr argTgVar;
       if (!session->getTg()->generateLocalVariable(
-        tgContext.get(), argTgType, astArgs->getElementKey(i).c_str(), 0, argTgVar
+        tgContext.get(), argTgType, astArgs->getElementKey(i), 0, argTgVar
       )) {
         return false;
       }
@@ -276,7 +276,7 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   // Generate the function object.
   Str name = generator->astHelper->getFunctionName(astFunc);
   TioSharedPtr tgFuncResult;
-  if (!session->getTg()->generateFunctionDecl(name.c_str(), tgFunctionType, tgFuncResult)) return false;
+  if (!session->getTg()->generateFunctionDecl(name, tgFunctionType, tgFuncResult)) return false;
   session->getEda()->setCodeGenData(astFunc, tgFuncResult);
 
   // TODO: Do we need these attributes?
@@ -395,21 +395,21 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
       }
       // Create the llvm global var.
-      if (!session->getTg()->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) {
+      if (!session->getTg()->generateGlobalVariable(tgType, name, tgDefaultValue.get(), tgGlobalVar)) {
         session->getEda()->setCodeGenFailed(astVar, true);
         return false;
       }
       session->getEda()->setCodeGenData(astVar, tgGlobalVar);
 
       if (!session->isOfflineExecution()) {
-        if (generator->globalItemRepo->findItem(name.c_str()) == -1) {
+        if (generator->globalItemRepo->findItem(name) == -1) {
           // Add an entry for the variable in the repo.
           Word size;
           if (!generator->typeGenerator->getTypeAllocationSize(astType, generation, session, size)) {
             session->getEda()->setCodeGenFailed(astVar, true);
             return false;
           }
-          generator->globalItemRepo->addItem(name.c_str(), size);
+          generator->globalItemRepo->addItem(name, size);
         } else {
           return true;
         }
@@ -583,7 +583,7 @@ Bool Generator::_generateTempVar(
       // Create the llvm local var.
       TioSharedPtr tgLocalVar;
       Str name = generator->getTempVarName();
-      if (!session->getTg()->generateLocalVariable(tgAllocContext, tgType, name.c_str(), 0, tgLocalVar)) return false;
+      if (!session->getTg()->generateLocalVariable(tgAllocContext, tgType, name, 0, tgLocalVar)) return false;
       session->getEda()->setCodeGenData(astNode, tgLocalVar);
 
       if (initialize) {
@@ -1077,7 +1077,7 @@ Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, 
 
 Str Generator::getTempVarName()
 {
-  return Str("#temp") + std::to_string(this->tempVarIndex++);
+  return Str("#temp") + (LongInt)(this->tempVarIndex++);
 }
 
 } // namespace

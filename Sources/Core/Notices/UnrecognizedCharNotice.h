@@ -113,7 +113,7 @@ class UnrecognizedCharNotice : public Notice
     if (this->getSourceLocation() == 0) {
       this->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(sl));
     }
-    this->text.append(1, ch);
+    this->text.append(&ch, 1);
   }
 
   /**
@@ -166,7 +166,7 @@ class UnrecognizedCharNotice : public Notice
    */
   public: Int getTextLength() const
   {
-    return this->text.size();
+    return this->text.getLength();
   }
 
   /**

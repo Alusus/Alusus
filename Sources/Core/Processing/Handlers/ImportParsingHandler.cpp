@@ -34,7 +34,7 @@ void ImportParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   } else if (result == 1) {
     auto metadata = state->getData().ti_cast<Ast::MetaHaving>();
     state->addNotice(newSrdObj<Notices::ImportLoadFailedNotice>(
-      filenames.c_str(), errorDetails.c_str(), metadata->findSourceLocation()
+      filenames, errorDetails, metadata->findSourceLocation()
     ));
   }
   // Reset parsed data because we are done with the command.
@@ -50,7 +50,7 @@ Int ImportParsingHandler::tryImport(TiObject *astNode, Str &filenames, Str &erro
     if (this->rootManager->tryImportFile(filename, errorDetails)) {
       return 0;
     } else {
-      if (!filenames.empty()) filenames += S(" || ");
+      if (filenames.getLength() > 0) filenames += S(" || ");
       filenames += filename;
       return 1;
     }

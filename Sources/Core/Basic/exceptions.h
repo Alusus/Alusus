@@ -80,7 +80,7 @@ class Exception : public std::exception
   {
     static thread_local Str msg;
     msg = this->getVerboseErrorMessage();
-    return msg.c_str();
+    return msg;
   }
 
   /// Get the error message.
@@ -133,7 +133,7 @@ class GenericException : public Exception
 
   public: virtual Str getErrorMessage() const throw()
   {
-    return S("Generic Exception: ") + this->comment;
+    return Str(S("Generic Exception: ")) + this->comment;
   }
 
 }; // class
@@ -306,7 +306,7 @@ class InvalidArgumentException : public Exception
   {
     StrStream stream;
     stream << argvalue;
-    this->argumentValue = stream.str();
+    this->argumentValue = stream.str().c_str();
   }
 
   public: virtual ~InvalidArgumentException() throw()

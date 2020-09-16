@@ -74,7 +74,7 @@ class ConstTerm : public Term
     if (str == 0) {
       throw EXCEPTION(InvalidArgumentException, S("str"), S("Argument should not be null."), str);
     }
-    if (this->matchString.getWStr().size() > 0) {
+    if (this->matchString.getWStr().getLength() > 0) {
       throw EXCEPTION(GenericException, S("Modifying an already set match string is not allowed."));
     }
     this->matchString = str;
@@ -85,7 +85,7 @@ class ConstTerm : public Term
     if (str == 0) {
       throw EXCEPTION(InvalidArgumentException, S("str"), S("Argument should not be null."), str);
     }
-    if (this->matchString.getWStr().size() > 0) {
+    if (this->matchString.getWStr().getLength() > 0) {
       throw EXCEPTION(GenericException, S("Modifying an already set match string is not allowed."));
     }
     this->matchString = *str;

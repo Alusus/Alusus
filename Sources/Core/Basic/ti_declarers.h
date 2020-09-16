@@ -159,11 +159,11 @@
   if (typeInfo == 0) { \
     Str typeName = Str(S(#myType)) + S("<") + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + S(">"); \
     Str uniqueName = Str(S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".")) + typeName; \
-    typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName.c_str())); \
+    typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
-      typeInfo = new Core::Basic::ObjectTypeInfo(typeName.c_str(), S(typeNamespace), S(moduleName), S(url), \
+      typeInfo = new Core::Basic::ObjectTypeInfo(typeName, S(typeNamespace), S(moduleName), S(url), \
                                                  baseType::getTypeInfo(), myType::_getFactory(0)); \
-      GLOBAL_STORAGE->setObject(uniqueName.c_str(), reinterpret_cast<void*>(typeInfo)); \
+      GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
     } \
   } \
   return typeInfo;
@@ -235,11 +235,11 @@
       if (typeInfo == 0) { \
         Str typeName = Str(S(#myType)) + S("<") + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + S(">"); \
         Str uniqueName = Str(S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".")) + typeName; \
-        typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName.c_str())); \
+        typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
-          typeInfo = new Core::Basic::InterfaceTypeInfo(typeName.c_str(), S(typeNamespace), S(moduleName), S(url), \
+          typeInfo = new Core::Basic::InterfaceTypeInfo(typeName, S(typeNamespace), S(moduleName), S(url), \
             baseType::getTypeInfo()); \
-          GLOBAL_STORAGE->setObject(uniqueName.c_str(), reinterpret_cast<void*>(typeInfo)); \
+          GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
         } \
       } \
       return typeInfo; \

@@ -127,7 +127,7 @@ void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *mod
 {
   if (modifier->isDerivedFrom<Data::Ast::Identifier>()) {
     auto identifier = static_cast<Data::Ast::Identifier*>(modifier);
-    identifier->setValue(symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()).c_str());
+    identifier->setValue(symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()));
   } else if (modifier->isDerivedFrom<Data::Ast::LinkOperator>()) {
     auto link = static_cast<Data::Ast::LinkOperator*>(modifier);
     translateModifier(symbolDef, link->getFirst().get());
@@ -167,9 +167,9 @@ TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl)
     for (Int i = 0; i < dynMapContainer->getElementCount(); ++i) {
       if (dynMapContainer->getElementHoldMode(i) == HoldMode::SHARED_REF) {
         auto childElement = getSharedPtr(dynMapContainer->getElement(i));
-        cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i).c_str(), _clone(childElement, sl).get());
+        cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i), _clone(childElement, sl).get());
       } else {
-        cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i).c_str(), dynMapContainer->getElement(i));
+        cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i), dynMapContainer->getElement(i));
       }
     }
   }

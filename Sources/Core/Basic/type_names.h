@@ -18,7 +18,7 @@ template <typename... TYPES> struct TypeName;
 // Type list.
 template <typename TYPE, typename... REST> struct TypeName<TYPE, REST...>
 {
-  static std::string get()
+  static Brl::String get()
   {
     return TypeName<TYPE>::get() + S(",") + TypeName<REST...>::get();
   }
@@ -27,36 +27,36 @@ template <typename TYPE, typename... REST> struct TypeName<TYPE, REST...>
 // Pointer type.
 template <class T> struct TypeName<T*>
 {
-    static std::string get() { return TypeName<T>::get() + S("*"); }
+    static Brl::String get() { return TypeName<T>::get() + S("*"); }
 };
 
 // Reference type.
 template <class T> struct TypeName<T&>
 {
-    static std::string get() { return TypeName<T>::get() + S("&"); }
+    static Brl::String get() { return TypeName<T>::get() + S("&"); }
 };
 
 // Const type.
 template <class T> struct TypeName<T const>
 {
-    static std::string get() { return TypeName<T>::get() + S(" const"); }
+    static Brl::String get() { return TypeName<T>::get() + S(" const"); }
 };
 
 // Function type.
 template <class T, class ...R> struct TypeName<T(R...)>
 {
-  static std::string get() { return TypeName<T>::get() + S("(") + TypeName<R...>::get() + S(")"); }
+  static Brl::String get() { return TypeName<T>::get() + S("(") + TypeName<R...>::get() + S(")"); }
 };
 
 // Default, assume TiObject
 template <class T> struct TypeName<T>
 {
-  static std::string get() { return T::getTypeInfo()->getUniqueName(); }
+  static Brl::String get() { return T::getTypeInfo()->getUniqueName(); }
 };
 
 template <> struct TypeName<>
 {
-  static std::string get()
+  static Brl::String get()
   {
     return "";
   }
@@ -66,12 +66,12 @@ template <> struct TypeName<>
 #define DEFINE_TYPE_NAME(type, name) \
   template <> struct TypeName<type> \
   { \
-    static std::string get() { return S(name); } \
+    static Brl::String get() { return S(name); } \
   }
 #define DEFINE_TEMPLATE_TYPE_NAME(type, name) \
   template <class T> struct TypeName<type<T>> \
   { \
-      static std::string get() { return S(name) S("<") + TypeName<T>::get() + S(">"); } \
+      static Brl::String get() { return Brl::String(S(name) S("<")) + TypeName<T>::get() + S(">"); } \
   }
 
 DEFINE_TYPE_NAME(void, "void");

@@ -226,7 +226,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
     ASSERT(this->base != 0);
     ASSERT(this->inherited != 0);
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
-    Char const *key = this->getKeyFromBase(index).c_str();
+    Char const *key = this->getKeyFromBase(index);
     Int myIndex = this->findIndex(key);
     SharedPtr<CTYPE> obj;
     if (myIndex != -1 && myIndex != index) {
@@ -258,7 +258,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
     ASSERT(this->inherited != 0);
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
     if (this->inherited->at(index)) {
-      Char const *key = this->getKeyFromBase(index).c_str();
+      Char const *key = this->getKeyFromBase(index);
       this->prepareForUnset(key, index, this->list[index].second, true);
       auto obj = this->prepareForSet(key, index, this->getFromBase(index), true, false);
       this->list[index].second = obj;
@@ -273,20 +273,20 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
     ASSERT(this->inherited != 0);
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount()+1);
     if (this->inherited->at(index)) {
-      this->prepareForUnset(this->list[index].first.c_str(), index, this->list[index].second, true);
+      this->prepareForUnset(this->list[index].first, index, this->list[index].second, true);
       this->list.erase(this->list.begin()+index);
       this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
       this->onRemoved(index);
     } else {
-      Str key = this->getKey(index);
+      auto key = this->getKey(index).getBuf();
       SharedPtr<CTYPE> obj = this->get(index);
-      this->prepareForUnset(key.c_str(), index, obj, false);
+      this->prepareForUnset(key, index, obj, false);
       this->list.erase(this->list.begin()+index);
       this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
       this->onRemoved(index);
-      this->add(key.c_str(), obj);
+      this->add(key, obj);
     }
   }
 
@@ -372,12 +372,12 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
     } else {
       this->onWillUpdate(idx);
       this->prepareForUnset(
-        this->list[idx].first.c_str(), idx, this->list[idx].second, this->inherited && this->inherited->at(idx)
+        this->list[idx].first, idx, this->list[idx].second, this->inherited && this->inherited->at(idx)
       );
-      auto obj = this->prepareForSet(this->list[idx].first.c_str(), idx, val, false, false);
+      auto obj = this->prepareForSet(this->list[idx].first, idx, val, false, false);
       this->list[idx].second = obj;
       if (this->inherited != 0) this->inherited->at(idx) = false;
-      this->finalizeSet(this->list[idx].first.c_str(), idx, obj, false, false);
+      this->finalizeSet(this->list[idx].first, idx, obj, false, false);
       this->onUpdated(idx);
     }
     return idx;
@@ -390,12 +390,12 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
     }
     this->onWillUpdate(index);
     this->prepareForUnset(
-      this->list[index].first.c_str(), index, this->list[index].second, this->inherited && this->inherited->at(index)
+      this->list[index].first, index, this->list[index].second, this->inherited && this->inherited->at(index)
     );
-    auto obj = this->prepareForSet(this->list[index].first.c_str(), index, val, false, false);
+    auto obj = this->prepareForSet(this->list[index].first, index, val, false, false);
     this->list[index].second = obj;
     if (this->inherited != 0) this->inherited->at(index) = false;
-    this->finalizeSet(this->list[index].first.c_str(), index, obj, false, false);
+    this->finalizeSet(this->list[index].first, index, obj, false, false);
     this->onUpdated(index);
   }
 
@@ -438,15 +438,15 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
       this->onWillUpdate(index);
-      this->prepareForUnset(this->list[index].first.c_str(), index, this->list[index].second, false);
-      auto obj = this->prepareForSet(this->list[index].first.c_str(), index, this->getFromBase(index), true, false);
+      this->prepareForUnset(this->list[index].first, index, this->list[index].second, false);
+      auto obj = this->prepareForSet(this->list[index].first, index, this->getFromBase(index), true, false);
       this->list[index].second = obj;
       this->inherited->at(index) = true;
-      this->finalizeSet(this->list[index].first.c_str(), index, obj, true, false);
+      this->finalizeSet(this->list[index].first, index, obj, true, false);
       this->onUpdated(index);
     } else {
       this->onWillRemove(index);
-      this->prepareForUnset(this->list[index].first.c_str(), index, this->list[index].second, false);
+      this->prepareForUnset(this->list[index].first, index, this->list[index].second, false);
       this->list.erase(this->list.begin()+index);
       if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+index);
       if (this->index != 0) this->index->remove(index);
@@ -517,11 +517,11 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
       ASSERT(this->inherited != 0);
       if (!this->inherited->at(i)) {
         this->onWillUpdate(i);
-        this->prepareForUnset(this->list[i].first.c_str(), i, this->list[i].second, false);
-        auto obj = this->prepareForSet(this->list[i].first.c_str(), i, this->getFromBase(i), true, false);
+        this->prepareForUnset(this->list[i].first, i, this->list[i].second, false);
+        auto obj = this->prepareForSet(this->list[i].first, i, this->getFromBase(i), true, false);
         this->list[i].second = obj;
         this->inherited->at(i) = true;
-        this->finalizeSet(this->list[i].first.c_str(), i, obj, true, false);
+        this->finalizeSet(this->list[i].first, i, obj, true, false);
         this->onUpdated(i);
       }
       ++i;

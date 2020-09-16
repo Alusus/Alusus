@@ -968,7 +968,7 @@ Str const& Helper::_getFunctionName(TiObject *self, Function *astFunc)
   if (astFunc->getName().getStr() == S("")) {
     PREPARE_SELF(helper, Helper);
     Str name = helper->nodePathResolver->doResolve(astFunc, helper);
-    astFunc->setName(name.c_str());
+    astFunc->setName(name);
   }
   return astFunc->getName().getStr();
 }

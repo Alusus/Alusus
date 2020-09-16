@@ -31,7 +31,7 @@ template<class T> class StringBase
     this->_init();
   }
 
-  public: StringBase(StringBase const &str) {
+  public: StringBase(StringBase<T> const &str) {
     this->_init();
     this->assign(str);
   }
@@ -39,6 +39,11 @@ template<class T> class StringBase
   public: StringBase(T const *buf) {
     this->_init();
     this->assign(buf);
+  }
+
+  public: StringBase(T const *buf, LongInt n) {
+    this->_init();
+    this->assign(buf, n);
   }
 
   public: ~StringBase() {
@@ -49,7 +54,8 @@ template<class T> class StringBase
   // Member Functions
 
   private: void _init() {
-    this->buf = 0;
+    static T strTerminator(0);
+    this->buf = &strTerminator;
     this->refCount = 0;
   }
 
@@ -65,7 +71,7 @@ template<class T> class StringBase
   }
 
   private: void _release() {
-    if (this->buf != 0) {
+    if (this->refCount != 0) {
       --*this->refCount;
       if (*this->refCount == 0) free(this->refCount);
       this->_init();
@@ -73,28 +79,29 @@ template<class T> class StringBase
   }
 
   public: LongInt getLength() const {
-    if (this->buf == 0) return 0;
-    else return getLength(this->buf);
+    return getLength(this->buf);
   }
 
   public: void alloc(LongInt length) {
     this->_release();
-    this->alloc(length);
+    this->_alloc(length);
   }
 
   public: void assign(StringBase<T> const &str) {
     this->_release();
     this->refCount = str.refCount;
     this->buf = str.buf;
-    if (this->buf != 0) {
+    if (this->refCount != 0) {
       ++*this->refCount;
     }
   }
 
   public: void assign(T const *buf) {
     this->_release();
-    this->_alloc(getLength(buf));
-    copy(this->buf, buf);
+    if (buf != 0) {
+      this->_alloc(getLength(buf));
+      copy(this->buf, buf);
+    }
   }
 
   public: void assign(T const *buf, LongInt n) {
@@ -109,11 +116,13 @@ template<class T> class StringBase
   }
 
   public: void append(T const *buf, LongInt n) {
-    if (this->buf == 0) {
+    if (this->refCount == 0) {
       this->assign(buf, n);
       return;
     }
-    LongInt newLength = this->getLength() + getLength(buf);
+    auto bufLen = getLength(buf);
+    if (bufLen == 0) return;
+    LongInt newLength = this->getLength() + bufLen;
     if (*this->refCount > 1) {
       T *currentBuf = this->buf;
       --*this->refCount;
@@ -165,32 +174,41 @@ template<class T> class StringBase
   }
 
   public: LongInt find(T const *buf) const {
-    if (this.buf == 0) return -1;
-    void *pos = find(this->buf, buf);
+    return this->find((LongInt)0, buf);
+  }
+
+  public: LongInt find(LongInt startPos, T const *buf) const {
+    T *startBuf = this->buf;
+    while (*startBuf != 0 && startPos > 0) { --startPos; ++startBuf; }
+    if (startPos > 0) return -1;
+    void const *pos = find(startBuf, buf);
     if (pos == 0) return -1;
     return (PtrInt)pos - (PtrInt)this->buf;
   }
 
   public: LongInt find(T c) const {
-    if (this->buf == 0) return -1;
-    void *pos = find(this->buf, c);
+    return this->find((LongInt)0, c);
+  }
+
+  public: LongInt find(LongInt startPos, T c) const {
+    T *startBuf = this->buf;
+    while (*startBuf != 0 && startPos > 0) { --startPos; ++startBuf; }
+    if (startPos > 0) return -1;
+    void const *pos = find(startBuf, c);
     if (pos == 0) return -1;
     return (PtrInt)pos - (PtrInt)this->buf;
   }
 
   public: Int compare(T const *s) const {
-    if (this->buf == 0) return -1;
-    else return compare(this->buf, s);
+    return compare(this->buf, s);
   }
 
   public: Int compare(T const *s, LongInt n) const {
-    if (this->buf == 0) return -1;
-    else return compare(this->buf, s, n);
+    return compare(this->buf, s, n);
   }
 
   public: StringBase<T> replace(T const *match, T const *replacement) const {
     StringBase<T> str;
-    if (this->buf == 0) return str;
     LongInt matchLength = getLength(match);
     T *buf = this->buf;
     while (1) {
@@ -220,8 +238,7 @@ template<class T> class StringBase
   }
 
   public: StringBase<T> _trim(Bool trimStart, Bool trimEnd) const {
-    if (this->buf == 0) return StringBase<T>();
-    if (this->getLength() == 0) return StringBase<T>::empty();
+    if (this->getLength() == 0) return StringBase<T>();
     LongInt begin = 0;
     LongInt end = this->getLength() - 1;
     if (trimStart) while (isSpace(this->buf[begin])) { ++begin; }
@@ -231,12 +248,12 @@ template<class T> class StringBase
       str.assign((T*)((PtrInt)this->buf + begin), end - begin + 1);
       return str;
     } else {
-      return StringBase<T>::empty();
+      return StringBase<T>();
     }
   }
 
   public: StringBase<T> toUpperCase() const {
-    StringBase<T> str = StringBase<T>::empty();
+    StringBase<T> str = StringBase<T>();
     for (LongInt charIndex = 0; charIndex < this->getLength(); ++charIndex) {
       str += toUpper(this->at(charIndex));
     }
@@ -244,7 +261,7 @@ template<class T> class StringBase
   }
 
   public: StringBase<T> toLowerCase() const {
-    StringBase<T> str = StringBase<T>::empty();
+    StringBase<T> str = StringBase<T>();
     for (LongInt charIndex = 0; charIndex < this->getLength(); ++charIndex) {
       str += toLower(this->at(charIndex));
     }
@@ -262,7 +279,6 @@ template<class T> class StringBase
   public: Array<StringBase<T>> split(T const *separator) const {
     Array<StringBase<T>> ary;
     StringBase<T> str;
-    if (this->buf == 0) return ary;
     LongInt matchLength = getLength(separator);
     T *buf = this->buf;
     while (1) {
@@ -273,7 +289,7 @@ template<class T> class StringBase
         return ary;
       }
       PtrInt n = (PtrInt)found - (PtrInt)buf;
-      if (n == 0) str = StringBase<T>::empty(); else str.assign(buf, n);
+      if (n == 0) str = StringBase<T>(); else str.assign(buf, n);
       ary.add(str);
       buf = (T*)((PtrInt)found + matchLength);
     }
@@ -289,12 +305,30 @@ template<class T> class StringBase
     return str;
   }
 
+  public: static StringBase<T> merge(Array<T*> ary, T const *separator) {
+    StringBase<T> str;
+    for (LongInt i = 0; i < ary.getLength(); ++i) {
+      if (i != 0) str += separator;
+      str += ary(i);
+    }
+    return str;
+  }
+
+  public: void clear() {
+    this->_release();
+  }
+
+  public: T const* getBuf() const {
+    return this->buf;
+  }
+
   // Operators
 
-  public: StringBase<T>& operator=(StringBase<T> &value) {
+  public: StringBase<T>& operator=(StringBase<T> const &value) {
     this->assign(value);
     return *this;
   }
+
   public: StringBase<T>& operator=(T const *value) {
     this->assign(value);
     return *this;
@@ -305,10 +339,10 @@ template<class T> class StringBase
   }
 
   public: StringBase<T> operator+(T const *value) const {
-    return this.concat(value);
+    return this->concat(value);
   }
   public: StringBase<T> operator+(T value) const {
-    return this.concat(value);
+    return this->concat(value);
   }
   public: StringBase<T> operator+(LongInt value) const {
     return this->concat(value);
@@ -335,8 +369,7 @@ template<class T> class StringBase
   }
 
   public: T operator()(LongInt i) const {
-    if (this->buf == 0) return 0;
-    else return this->buf[i];
+    return this->buf[i];
   }
 
   public: Bool operator==(T const *value) const {
@@ -391,13 +424,6 @@ template<class T> class StringBase
     copy(&buffer, (T*)((PtrInt)chrs + index), 1);
     buffer[1] = 0;
     return &buffer;
-  }
-
-  public: static StringBase<T> empty() {
-    StringBase<T> str;
-    str._alloc(0);
-    str.buf(0) = 0;
-    return str;
   }
 
   public: static T const* find(T const *s, T c);

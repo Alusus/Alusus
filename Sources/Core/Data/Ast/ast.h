@@ -43,7 +43,7 @@ namespace Core::Data::Ast
     for (Word i = 0; i < this->getElementCount(); ++i) { \
       stream << S("\n"); \
       printIndents(stream, indents+1); \
-      stream << this->getElementKey(i).c_str() << S(": "); \
+      stream << this->getElementKey(i) << S(": "); \
       Core::Data::dumpData(stream, this->getElement(i), indents+1); \
     } \
   }

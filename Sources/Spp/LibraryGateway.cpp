@@ -303,7 +303,7 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
 {
   auto argCount = manager->getProcessArgCount();
   auto args = manager->getProcessArgs();
-  auto language = manager->getLanguage().c_str();
+  auto language = manager->getLanguage().getBuf();
   this->globalItemRepo->addItem(S("!Process.argCount"), sizeof(argCount), &argCount);
   this->globalItemRepo->addItem(S("!Process.args"), sizeof(args), &args);
   this->globalItemRepo->addItem(S("!Process.language"), sizeof(language), &language);

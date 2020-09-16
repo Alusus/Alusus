@@ -422,9 +422,9 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Helper Functions
   /// @{
 
-  private: Str getNewBlockName();
+  private: std::string getNewBlockName();
 
-  private: Str getAnonymouseVarName();
+  private: std::string getAnonymouseVarName();
 
   /// @}
 

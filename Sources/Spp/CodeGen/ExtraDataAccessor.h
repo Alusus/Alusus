@@ -15,16 +15,16 @@
 
 #define DEFINE_EXTRA_ACCESSORS(name) \
   public: template <class DT, class OT> inline DT* tryGet##name(OT *object) { \
-    return tryGetExtra<DT>(object, this->id##name.c_str()); \
+    return tryGetExtra<DT>(object, this->id##name); \
   } \
   public: template <class DT, class OT> inline DT* get##name(OT *object) { \
-    return getExtra<DT>(object, this->id##name.c_str()); \
+    return getExtra<DT>(object, this->id##name); \
   } \
   public: template <class DT, class OT> inline void set##name(OT *object, SharedPtr<DT> const &data) { \
-    setExtra(object, this->id##name.c_str(), data); \
+    setExtra(object, this->id##name, data); \
   } \
   public: template <class OT> inline void remove##name(OT *object) { \
-    removeExtra(object, this->id##name.c_str()); \
+    removeExtra(object, this->id##name); \
   }
 
 namespace Spp::CodeGen
@@ -92,7 +92,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
   inline Bool didCodeGenFail(OT *object)
   {
-    auto f = object->getExtra(this->idCodeGenFailed.c_str()).template ti_cast_get<TiBool>();
+    auto f = object->getExtra(this->idCodeGenFailed).template ti_cast_get<TiBool>();
     return f && f->get();
   }
 
@@ -102,7 +102,7 @@ class ExtraDataAccessor : public TiObject
   {
     auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
     if (metadata == 0) return false;
-    auto f = metadata->getExtra(this->idCodeGenFailed.c_str()).template ti_cast_get<TiBool>();
+    auto f = metadata->getExtra(this->idCodeGenFailed).template ti_cast_get<TiBool>();
     return f && f->get();
   }
 
@@ -112,7 +112,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
   inline void setCodeGenFailed(OT *object, Bool f)
   {
-    object->setExtra(this->idCodeGenFailed.c_str(), TiBool::create(f));
+    object->setExtra(this->idCodeGenFailed, TiBool::create(f));
   }
 
   public:
@@ -123,7 +123,7 @@ class ExtraDataAccessor : public TiObject
     if (metadata == 0) {
       throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
     }
-    metadata->setExtra(this->idCodeGenFailed.c_str(), TiBool::create(f));
+    metadata->setExtra(this->idCodeGenFailed, TiBool::create(f));
   }
 
   // resetCodeGenFailed
@@ -132,7 +132,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
   inline void resetCodeGenFailed(OT *object)
   {
-    object->removeExtra(this->idCodeGenFailed.c_str());
+    object->removeExtra(this->idCodeGenFailed);
   }
 
   public:
@@ -143,7 +143,7 @@ class ExtraDataAccessor : public TiObject
     if (metadata == 0) {
       throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
     }
-    metadata->removeExtra(this->idCodeGenFailed.c_str());
+    metadata->removeExtra(this->idCodeGenFailed);
   }
 
   // getInitStatementsGenIndex
@@ -152,7 +152,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
   inline Int getInitStatementsGenIndex(OT *object)
   {
-    auto i = object->getExtra(this->idInitStatementGenIndex.c_str()).template ti_cast_get<TiInt>();
+    auto i = object->getExtra(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
     return i == 0 ? 0 : i->get();
   }
 
@@ -162,7 +162,7 @@ class ExtraDataAccessor : public TiObject
   {
     auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(object);
     if (metadata == 0) return false;
-    auto i = metadata->getExtra(this->idInitStatementGenIndex.c_str()).template ti_cast_get<TiInt>();
+    auto i = metadata->getExtra(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
     return i == 0 ? 0 : i->get();
   }
 
@@ -171,9 +171,9 @@ class ExtraDataAccessor : public TiObject
   template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
   inline void setInitStatementsGenIndex(OT *object, Int i)
   {
-    auto index = object->getExtra(this->idInitStatementGenIndex.c_str()).template ti_cast_get<TiInt>();
+    auto index = object->getExtra(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
     if (index == 0) {
-      object->setExtra(this->idInitStatementGenIndex.c_str(), TiInt::create(i));
+      object->setExtra(this->idInitStatementGenIndex, TiInt::create(i));
     } else {
       index->set(i);
     }
@@ -186,9 +186,9 @@ class ExtraDataAccessor : public TiObject
     if (metadata == 0) {
       throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
     }
-    auto index = metadata->getExtra(this->idInitStatementGenIndex.c_str()).template ti_cast_get<TiInt>();
+    auto index = metadata->getExtra(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
     if (index == 0) {
-      metadata->setExtra(this->idInitStatementGenIndex.c_str(), TiInt::create(i));
+      metadata->setExtra(this->idInitStatementGenIndex, TiInt::create(i));
     } else {
       index->set(i);
     }
@@ -199,7 +199,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT, typename std::enable_if<std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
   inline void resetInitStatementsGenIndex(OT *object)
   {
-    object->removeExtra(this->idInitStatementGenIndex.c_str());
+    object->removeExtra(this->idInitStatementGenIndex);
   }
 
   template <class OT, typename std::enable_if<!std::is_base_of<Core::Data::Ast::MetaHaving, OT>::value, int>::type = 0>
@@ -209,7 +209,7 @@ class ExtraDataAccessor : public TiObject
     if (metadata == 0) {
       throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
     }
-    metadata->removeExtra(this->idInitStatementGenIndex.c_str());
+    metadata->removeExtra(this->idInitStatementGenIndex);
   }
 
 }; // class

@@ -636,14 +636,14 @@ Bool AstProcessor::_applyMacroArgsIteration_dynMapContaining(
     Char newKey[1000];
     Word prefixSize = 0;
     Char const *suffix = 0;
-    astProcessor->parseStringTemplate(obj->getElementKey(i).c_str(), key, 1000, prefixSize, suffix);
+    astProcessor->parseStringTemplate(obj->getElementKey(i), key, 1000, prefixSize, suffix);
     auto index = argTypes->findElementIndex(key);
     if (index != -1) {
       // The key can be replaced with the new key.
       auto arg = ti_cast<Core::Data::Ast::Identifier>(args->getElement(index));
       if (arg != 0) {
         astProcessor->generateStringFromTemplate(
-          obj->getElementKey(i).c_str(), prefixSize, arg->getValue().get(), suffix, newKey, 1000
+          obj->getElementKey(i), prefixSize, arg->getValue().get(), suffix, newKey, 1000
         );
         // Make sure the new key isn't already used.
         if (obj->findElementIndex(newKey) != -1) {
@@ -662,7 +662,7 @@ Bool AstProcessor::_applyMacroArgsIteration_dynMapContaining(
         return false;
       }
     } else {
-      copyStr(obj->getElementKey(i).c_str(), newKey);
+      copyStr(obj->getElementKey(i), newKey);
     }
     // Generate the value.
     if (obj->getElementHoldMode(i) == HoldMode::SHARED_REF) {

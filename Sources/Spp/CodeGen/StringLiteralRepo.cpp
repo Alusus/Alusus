@@ -21,7 +21,7 @@ namespace Spp::CodeGen
 StringLiteralRepo::~StringLiteralRepo()
 {
   for (Int i = 0; i < this->entries.size(); ++i) {
-    free(this->entries[i].str.c_str());
+    free(this->entries[i].str.getBuf());
   }
 }
 
@@ -49,7 +49,7 @@ Char const* StringLiteralRepo::getString(Int i) const
   if (i < 0 || i >= this->entries.size()) {
     throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
   }
-  return this->entries[i].str.c_str();
+  return this->entries[i].str;
 }
 
 } // namespace

@@ -120,14 +120,14 @@ void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
   // entry as the value of our Ast::Token text, otherwise we'll just use the actual token text
   // captured by the lexer.
   if (matchText != 0 && matchText->isA<Data::Grammar::Map>()) {
-    TiObject *mappedText = static_cast<Data::Grammar::Map*>(matchText)->getElement(token->getText().c_str());
+    TiObject *mappedText = static_cast<Data::Grammar::Map*>(matchText)->getElement(token->getText());
     if (mappedText != 0 && mappedText->isA<TiStr>()) {
       tokenText = static_cast<TiStr*>(mappedText)->get();
     } else {
-      tokenText = token->getText().c_str();
+      tokenText = token->getText();
     }
   } else {
-    tokenText = token->getText().c_str();
+    tokenText = token->getText();
   }
   // TODO: Implement control character parsing for character literals.
 

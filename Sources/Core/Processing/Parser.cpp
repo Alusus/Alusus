@@ -541,7 +541,7 @@ void Parser::processTokenTerm(const Data::Token * token, ParserState *state)
       #endif
       LOG(LogLevel::PARSER_MID, S("Process State: Token failed (") <<
           ID_GENERATOR->getDesc(matchId) << S(":") <<
-          (matchStr==0?(matchMap==0?"":matchMap->getKey(0).c_str()):matchStr->get()) << S(") -- Received (") <<
+          (matchStr==0?(matchMap==0?"":matchMap->getKey(0).getBuf()):matchStr->get()) << S(") -- Received (") <<
           ID_GENERATOR->getDesc(token->getId()) << S(":") <<
           token->getText() << S(")"));
     }
@@ -1101,7 +1101,7 @@ void Parser::testTokenTerm(Data::Token const *token, ParserState *state)
       #endif
       LOG(LogLevel::PARSER_MINOR, S("Testing State: Failed for token (") <<
           ID_GENERATOR->getDesc(matchId) << S(":") <<
-          (matchStr==0?(matchMap==0?"":matchMap->getKey(0).c_str()):matchStr->get()) << S(") -- Received (") <<
+          (matchStr==0?(matchMap==0?"":matchMap->getKey(0).getBuf()):matchStr->get()) << S(") -- Received (") <<
           ID_GENERATOR->getDesc(token->getId()) << S(":") <<
           token->getText() << S(")"));
     }
@@ -1552,7 +1552,7 @@ Bool Parser::matchToken(Word matchId, TiObject *matchText, Data::Token const *to
       matchStr = static_cast<TiStr*>(matchText);
       if (matchStr->getStr() != token->getText()) matched = false;
     } else if (matchText->isA<Data::Grammar::Map>()) {
-      if (static_cast<Data::Grammar::Map*>(matchText)->findIndex(token->getText().c_str()) == -1) matched = false;
+      if (static_cast<Data::Grammar::Map*>(matchText)->findIndex(token->getText()) == -1) matched = false;
     }
   }
   return matched;

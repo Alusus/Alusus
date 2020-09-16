@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_TIWSTR_H
 #define CORE_BASIC_TIWSTR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -92,7 +92,7 @@ template <class P> class TiWStrBase : public P
 
   public: operator WChar const*() const
   {
-    return this->value.c_str();
+    return this->value;
   }
 
   public: Bool operator==(TiWStrBase<P> const &s) const
@@ -105,16 +105,6 @@ template <class P> class TiWStrBase : public P
     return this->value.compare(s) == 0;
   }
 
-  public: Bool operator==(const std::wstring &s) const
-  {
-    return this->value.compare(s) == 0;
-  }
-
-  public: Bool operator==(const SbWStr &s) const
-  {
-    return this->value.compare(s.c_str()) == 0;
-  }
-
   public: Bool operator!=(TiWStrBase<P> const &s) const
   {
     return this->value.compare(s.value) != 0;
@@ -123,16 +113,6 @@ template <class P> class TiWStrBase : public P
   public: Bool operator!=(WChar const *s) const
   {
     return this->value.compare(s) != 0;
-  }
-
-  public: Bool operator!=(const std::wstring &s) const
-  {
-    return this->value.compare(s) != 0;
-  }
-
-  public: Bool operator!=(const SbWStr &s) const
-  {
-    return this->value.compare(s.c_str()) != 0;
   }
 
   public: Bool operator>(TiWStrBase<P> const &s) const
@@ -145,16 +125,6 @@ template <class P> class TiWStrBase : public P
     return this->value.compare(s) > 0;
   }
 
-  public: Bool operator>(const std::wstring &s) const
-  {
-    return this->value.compare(s) > 0;
-  }
-
-  public: Bool operator>(const SbWStr &s) const
-  {
-    return this->value.compare(s.c_str()) > 0;
-  }
-
   public: Bool operator<(TiWStrBase<P> const &s) const
   {
     return this->value.compare(s.value) < 0;
@@ -163,16 +133,6 @@ template <class P> class TiWStrBase : public P
   public: Bool operator<(WChar const *s) const
   {
     return this->value.compare(s) < 0;
-  }
-
-  public: Bool operator<(const std::wstring &s) const
-  {
-    return this->value.compare(s) < 0;
-  }
-
-  public: Bool operator<(const SbWStr &s) const
-  {
-    return this->value.compare(s.c_str()) < 0;
   }
 
 
@@ -191,7 +151,7 @@ template <class P> class TiWStrBase : public P
 
   public: WChar const* get() const
   {
-    return this->value.c_str();
+    return this->value;
   }
 
   public: WStr const& getWStr() const
@@ -207,6 +167,6 @@ template <class P> class TiWStrBase : public P
 
 typedef TiWStrBase<TiObject> TiWStr;
 
-} } // namespace
+} // namespace
 
 #endif

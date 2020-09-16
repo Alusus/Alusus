@@ -79,8 +79,8 @@ Bool isDirectory(Char const *path)
 Bool compareStringEnd(Str const &str, Char const *end)
 {
   Int len = getStrLen(end);
-  if (len >= str.size()) return false;
-  return compareStr(str.c_str()+str.size()-len, end) == 0;
+  if (len >= str.getLength()) return false;
+  return compareStr(str.getBuf()+str.getLength()-len, end) == 0;
 }
 
 
@@ -98,7 +98,7 @@ Bool runSourceFile(Str const &fileName)
   fpos_t pos;
   fgetpos(stdout, &pos);
   int fd = dup(fileno(stdout));
-  freopen(resultFilename.c_str(),"w", stdout);
+  freopen(resultFilename,"w", stdout);
 
   try
   {
@@ -108,7 +108,7 @@ Bool runSourceFile(Str const &fileName)
     root.noticeSignal.connect(noticeSlot);
 
     // Parse the provided filename.
-    auto ptr = root.processFile(fileName.c_str());
+    auto ptr = root.processFile(fileName);
 
     // Restore stdout.
     fflush(stdout);
@@ -242,14 +242,14 @@ Bool runEndToEndTests(Str const &dirPath)
 {
   DIR *dir;
   dirent *ent;
-  if ((dir = opendir(dirPath.c_str())) != nullptr)
+  if ((dir = opendir(dirPath)) != nullptr)
   {
     auto ret = true;
     while ((ent = readdir(dir)) != nullptr)
     {
       Str fileName(ent->d_name);
       Str filePath = dirPath + "/" + fileName;
-      if (isDirectory(filePath.c_str()) && fileName != "." && fileName != "..") {
+      if (isDirectory(filePath) && fileName != "." && fileName != "..") {
         if (!runEndToEndTests(filePath)) ret = false;
       } else if (
         fileName.compare("srt.alusus") != 0 && fileName.find("ignore.alusus") == std::string::npos &&
@@ -289,7 +289,7 @@ int main(int argc, char **argv)
   if (tempPath == 0) tempPath = getenv("TEMPDIR");
   if (tempPath == 0) tempPath = "/tmp/";
   resultFilename = tempPath;
-  if (resultFilename.back() != '/') resultFilename += "/";
+  if (resultFilename(resultFilename.getLength() - 1) != '/') resultFilename += "/";
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
@@ -298,13 +298,13 @@ int main(int argc, char **argv)
   if (!runEndToEndTests("./Srt")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Brl")) ret = EXIT_FAILURE;
 
-  std::string l18nPath = Core::Main::getModuleDirectory();
+  Str l18nPath = Core::Main::getModuleDirectory();
   l18nPath += S("../../../Notices_L18n/");
-  Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath.c_str());
+  Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath);
   if (!runEndToEndTests("./Arabic")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./مـتا")) ret = EXIT_FAILURE;
 
-  std::remove(resultFilename.c_str());
+  std::remove(resultFilename);
 
   return ret;
 }

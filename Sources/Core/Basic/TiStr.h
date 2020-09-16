@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_TISTR_H
 #define CORE_BASIC_TISTR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
@@ -92,7 +92,7 @@ template <class P> class TiStrBase : public P
 
   public: operator Char const*() const
   {
-    return this->value.c_str();
+    return this->value;
   }
 
   public: Bool operator==(TiStrBase<P> const &s) const
@@ -105,16 +105,6 @@ template <class P> class TiStrBase : public P
     return this->value.compare(s) == 0;
   }
 
-  public: Bool operator==(const std::string &s) const
-  {
-    return this->value.compare(s) == 0;
-  }
-
-  public: Bool operator==(const SbStr &s) const
-  {
-    return this->value.compare(s.c_str()) == 0;
-  }
-
   public: Bool operator!=(TiStrBase<P> const &s) const
   {
     return this->value.compare(s.value) != 0;
@@ -123,16 +113,6 @@ template <class P> class TiStrBase : public P
   public: Bool operator!=(Char const *s) const
   {
     return this->value.compare(s) != 0;
-  }
-
-  public: Bool operator!=(const std::string &s) const
-  {
-    return this->value.compare(s) != 0;
-  }
-
-  public: Bool operator!=(const SbStr &s) const
-  {
-    return this->value.compare(s.c_str()) != 0;
   }
 
   public: Bool operator>(TiStrBase<P> const &s) const
@@ -145,16 +125,6 @@ template <class P> class TiStrBase : public P
     return this->value.compare(s) > 0;
   }
 
-  public: Bool operator>(const std::string &s) const
-  {
-    return this->value.compare(s) > 0;
-  }
-
-  public: Bool operator>(const SbStr &s) const
-  {
-    return this->value.compare(s.c_str()) > 0;
-  }
-
   public: Bool operator<(TiStrBase<P> const &s) const
   {
     return this->value.compare(s.value) < 0;
@@ -163,16 +133,6 @@ template <class P> class TiStrBase : public P
   public: Bool operator<(Char const *s) const
   {
     return this->value.compare(s) < 0;
-  }
-
-  public: Bool operator<(const std::string &s) const
-  {
-    return this->value.compare(s) < 0;
-  }
-
-  public: Bool operator<(const SbStr &s) const
-  {
-    return this->value.compare(s.c_str()) < 0;
   }
 
 
@@ -191,7 +151,7 @@ template <class P> class TiStrBase : public P
 
   public: Char const* get() const
   {
-    return this->value.c_str();
+    return this->value;
   }
 
   public: Str const& getStr() const
@@ -207,6 +167,6 @@ template <class P> class TiStrBase : public P
 
 typedef TiStrBase<TiObject> TiStr;
 
-} } // namespace
+} // namespace
 
 #endif

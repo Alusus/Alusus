@@ -218,16 +218,16 @@ Bool BuildManager::_execute(TiObject *self, Core::Notices::Store *noticeStore, B
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
       for (Int i = buildSession->getGlobalCtorNames()->size() - 1; i >= 0; --i) {
-        buildMgr->jitBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i).c_str());
+        buildMgr->jitBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i));
       }
-      buildMgr->jitBuildTarget->execute(buildSession->getGlobalEntryName().c_str());
+      buildMgr->jitBuildTarget->execute(buildSession->getGlobalEntryName());
     } else if (buildSession->getBuildType() == BuildType::EVAL) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
       for (Int i = buildSession->getGlobalCtorNames()->size() - 1; i >= 0; --i) {
-        buildMgr->evalBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i).c_str());
+        buildMgr->evalBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i));
       }
-      buildMgr->evalBuildTarget->execute(buildSession->getGlobalEntryName().c_str());
+      buildMgr->evalBuildTarget->execute(buildSession->getGlobalEntryName());
     } else {
       throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
     }
@@ -268,9 +268,9 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
       // Build the constructor function.
       StrStream ctorNameStream;
       ctorNameStream << S("__constructor__") << buildMgr->funcNameIndex;
-      Str ctorName = ctorNameStream.str();
+      Str ctorName = ctorNameStream.str().c_str();
       if (buildMgr->buildGlobalCtorOrDtor(
-        buildSession, buildSession->getGlobalVarInitializationDeps(), globalVarInitializationIndex, ctorName.c_str(),
+        buildSession, buildSession->getGlobalVarInitializationDeps(), globalVarInitializationIndex, ctorName,
         [=](
           Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
           CodeGen::Session *childSession
@@ -319,9 +319,9 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
       // Build the destructor function.
       StrStream dtorNameStream;
       dtorNameStream << S("__destructor__") << buildMgr->funcNameIndex;
-      Str dtorName = dtorNameStream.str();
+      Str dtorName = dtorNameStream.str().c_str();
       if (buildMgr->buildGlobalCtorOrDtor(
-        buildSession, buildSession->getGlobalVarDestructionDeps(), globalVarDestructionIndex, dtorName.c_str(),
+        buildSession, buildSession->getGlobalVarDestructionDeps(), globalVarDestructionIndex, dtorName,
         [=](
           Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
           CodeGen::Session *childSession
