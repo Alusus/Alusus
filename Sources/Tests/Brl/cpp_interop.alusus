@@ -1,9 +1,8 @@
-import "Srl/Console";
+import "Brl/Console";
 import "Brl/refs";
 import "Brl/Array";
 import "Brl/String";
 import "cpp_interop_test";
-use Srl;
 use Brl;
 
 type Test {

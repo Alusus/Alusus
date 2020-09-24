@@ -1,8 +1,6 @@
 import "Brl/refs.alusus";
-import "Srl/Console.alusus";
-
+import "Brl/Console.alusus";
 use Brl;
-use Srl;
 
 type Num {
     def x: Int;

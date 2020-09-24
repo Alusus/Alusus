@@ -1,0 +1,149 @@
+/**
+ * @file Brl/ArrayIndex.alusus
+ * Contains the class Brl.ArrayIndex.
+ *
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "Array";
+import "System";
+import "Memory";
+
+module Brl {
+    type ArrayIndex [T: type] {
+        //=================
+        // Member Variables
+
+        def indices: Array[Int];
+        def values: ref[Array[T]];
+
+        //===============
+        // Initialization
+
+        handler this~init() {
+            this.values~ptr = 0;
+        }
+
+        handler this~init(v: ref[Array[T]]) {
+            this.values~no_deref = v;
+            this.add(-1);
+        }
+
+        //=================
+        // Member Functions
+
+        func add (i: Int) {
+            if i == -1 {
+                // Add any new items at the end of the values list.
+                if this.values.getLength() <= this.indices.getLength() return;
+                this.indices.reserve(this.values.getBufSize());
+                while this.values.getLength() > this.indices.getLength() {
+                    i = this.indices.getLength();
+                    def pos: Int;
+                    this.findPos(this.values(i), pos);
+                    this.indices.insert(pos, i);
+                }
+            } else if (i < this.values.getLength()) {
+                // Add a new item at a specific location.
+                // First update the existing indices.
+                def j: Int;
+                for j = 0, j < this.indices.getLength(), ++j {
+                    if this.indices(j) >= i { ++this.indices(j) };
+                }
+                // Now insert the new value.
+                def pos: Int;
+                this.findPos(this.values(i), pos);
+                this.indices.insert(pos, i);
+            } else {
+                System.fail(1, "Argument `i` is out of range.");
+            }
+        }
+
+        func remove(i: Int) {
+            if i >= this.indices.getLength() {
+                System.fail(1, "Argument `i` is out of range.");
+            }
+            def j: Int;
+            for j = 0, j < this.indices.getLength(), ++j {
+                if this.indices(j) == i {
+                    this.indices.remove(j);
+                    --j;
+                } else if this.indices(j) > index {
+                    --this.indices(j);
+                }
+            }
+        }
+
+        func clear {
+            this.indices.clear();
+        }
+
+        func findPos(v: ref[T]): Int {
+            def r: Int;
+            if this.findPos(v, r) return this.indices(r)
+            else return -1;
+        }
+
+        func findPos(v: ref[T], result: ref[Int]): Bool {
+            if this.indices.getLength() == 0 {
+                result = 0;
+                return 0;
+            }
+
+            def vf: ref[T](this.values(this.indices(0)));
+            if v < vf {
+                result = 0;
+                return 0;
+            } else if v == vf {
+                result = 0;
+                return 1;
+            }
+
+            def vb: ref[T](this.values(this.indices(this.indices.getLength() - 1)));
+            if v > vb {
+                result = this.indices.getLength();
+                return 0;
+            } else if v == vb {
+                result = this.indices.getLength() - 1;
+                return 1;
+            }
+
+            return this._findPos(v, 0, this.indices.getLength() - 1, result);
+        }
+
+        func _findPos(v: ref[T], startPos: Int, endPos: Int, result: ref[Int]): Bool {
+            if startPos == endPos - 1 {
+                result = endPos;
+                return 0;
+            } else {
+                def midPos: Int = (startPos + endPos) / 2;
+                def vm: ref[T](this.values(this.indices(midPos)));
+                if v == vm {
+                    result = midPos;
+                    return 1;
+                } else if v < vm {
+                    return this._findPos(v, startPos, midPos, result);
+                } else {
+                    return this._findPos(v, midPos, endPos, result);
+                }
+            }
+        }
+
+        @shared func constructToNew (v: ref[Array[T]]): ref[ArrayIndex[T]] {
+            def ai: ref[ArrayIndex[T]];
+            ai~ptr = Memory.alloc(ArrayIndex[T]~size)~cast[ptr[ArrayIndex[T]]];
+            ai~init(v);
+            return ai;
+        }
+
+        @shared func release (ai: ref[ArrayIndex[T]]) {
+            ai~terminate();
+            Memory.free(ai~ptr);
+        }
+    }
+}

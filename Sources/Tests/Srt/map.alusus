@@ -10,7 +10,7 @@ func test {
   m2.set(false, 1).set(true, 2);
 
   Srl.Console.print("m2: false is %d and true is %d\n", m2(false), m2(true));
-    
+
   def m3: Srl.Map[Int, ptr[array[Char]]];
   m3.set(0, "Hello").set(1, "World");
 

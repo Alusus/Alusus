@@ -14,156 +14,183 @@ import "Memory";
 
 @merge module Brl
 {
-  type Array [T: type] {
-    def refCount: ref[Int];
-    def length: ref[Int];
-    def bufSize: ref[Int];
-    def buf: ref[array[T]];
+    type Array [T: type] {
+        //=================
+        // Member Variables
 
-    // Initialization
+        def data: ref[ArrayData[T]];
 
-    handler this~init() this._init();
+        //===============
+        // Initialization
 
-    handler this~init(ary: ref[Array[T]]) {
-      this._init();
-      this.assign(ary);
-    };
+        handler this~init() this._init();
 
-    handler this~init(count: Int, items: ...T) {
-        this._init();
-        while count-- > 0 this.add(items~next_arg[T]);
-    };
-
-    handler this~terminate() this._release();
-
-    // Member Functions
-
-    func _init {
-      this.refCount~ptr = 0;
-      this.length~ptr = 0;
-      this.bufSize~ptr = 0;
-      this.buf~ptr = 0;
-    };
-
-    func _alloc (size: Int) {
-      if size < 2 size = 2;
-      def byteCount: Int = T~no_deref~size * size + Int~size * 3;
-      this.refCount~ptr = Memory.alloc(byteCount)~cast[ptr[Int]];
-      this.length~ptr = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[Int]];
-      this.bufSize~ptr = (this.length~ptr~cast[Int[64]] + this.length~size)~cast[ptr[Int]];
-      this.buf~ptr = (this.bufSize~ptr~cast[Int[64]] + this.bufSize~size)~cast[ptr[array[T]]];
-      this.bufSize = size;
-      this.length = 0;
-      this.refCount = 1;
-    };
-
-    func _realloc (newSize: Int) {
-      if newSize < 2 newSize = 2;
-      def byteCount: Int = T~no_deref~size * newSize + Int~size * 3;
-      this.refCount~ptr = Memory.realloc(this.refCount~ptr, byteCount)~cast[ptr[Int]];
-      this.length~ptr = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[Int]];
-      this.bufSize~ptr = (this.length~ptr~cast[Int[64]] + this.length~size)~cast[ptr[Int]];
-      this.buf~ptr = (this.bufSize~ptr~cast[Int[64]] + this.bufSize~size)~cast[ptr[array[T]]];
-      this.bufSize = newSize;
-    };
-
-    func _release {
-      if this.refCount~ptr != 0 {
-        --this.refCount;
-        if this.refCount == 0 {
-          def i: Int;
-          for i = 0, i < this.length, ++i this.buf(i)~no_deref~terminate();
-          Memory.free(this.refCount~ptr);
-        }
-        this._init();
-      };
-    };
-
-    func getLength (): Int {
-      if this.length~ptr == 0 return 0
-      else return this.length;
-    };
-
-    func getBufSize (): Int {
-      if this.bufSize~ptr == 0 return 0
-      else return this.bufSize;
-    };
-
-    func assign (ary: ref[Array[T]]) {
-      this._release();
-      this.refCount~ptr = ary.refCount~ptr;
-      this.length~ptr = ary.length~ptr;
-      this.bufSize~ptr = ary.bufSize~ptr;
-      this.buf~ptr = ary.buf~ptr;
-      if this.refCount~ptr != 0 {
-        ++this.refCount;
-      };
-    };
-
-    func _prepareToModify (enlarge: Bool) {
-      if this.refCount~ptr == 0 {
-        this._alloc(2)
-      } else if this.refCount == 1 {
-        if enlarge && this.length >= this.bufSize this._realloc(this.bufSize + this.bufSize >> 1);
-      } else {
-        def curLength: Int = this.length;
-        def curBuf: ptr[array[T]] = this.buf~ptr;
-        --this.refCount;
-        this._alloc(curLength + curLength >> 1);
-        def i: Int;
-        for i = 0, i < curLength, ++i this.buf(i)~no_deref~init(curBuf~cnt(i));
-        this.length = curLength;
-      };
-    };
-
-    func add (item: T) {
-      this._prepareToModify(true);
-      this.buf(this.length)~no_deref~init(item);
-      ++this.length;
-    };
-
-    func add (count: Int, items: ...[T, 1]) {
-        while count-- > 0 this.add(items~next_arg[T]);
-    };
-
-    func insert (index: Int, item: T) {
-      if index < 0 || index >= this.getLength() {
-        this.add(item);
-      } else {
-        this._prepareToModify(true);
-        Memory.copy(
-          this.buf(index + 1)~no_deref~ptr, this.buf(index)~no_deref~ptr, T~no_deref~size * (this.length - index)
-        );
-        this.buf(index)~no_deref~init(item);
-        ++this.length;
-      };
-    };
-
-    func remove (index: Int) {
-      if index >= 0 && index < this.getLength() {
-        this._prepareToModify(false);
-        this.buf(index)~no_deref~terminate();
-        if index < this.getLength() - 1 {
-          Memory.copy(
-            this.buf(index)~no_deref~ptr, this.buf(index + 1)~no_deref~ptr,
-            T~no_deref~size * (this.length - (index + 1))
-          );
+        handler this~init(ary: ref[Array[T]]) {
+            this._init();
+            this.assign(ary);
         };
-        --this.length;
-      };
+
+        handler this~init(count: Int, items: ...T) {
+            this._init();
+            while count-- > 0 this.add(items~next_arg[T]);
+        };
+
+        handler this~terminate() this._release();
+
+        //=================
+        // Member Functions
+
+        func _init {
+            this.data~ptr = 0;
+        };
+
+        func _release {
+            if this.data~ptr != 0 {
+                if --this.data.refCount == 0 ArrayData[T].release(this.data);
+                this._init();
+            };
+        };
+
+        func reserve(size: Int) {
+            if this.data~ptr == 0 this.data~no_deref = ArrayData[T].alloc(size)
+            else if size > this.data.bufSize this.data~no_deref = ArrayData[T].realloc(this.data, size);
+        }
+
+        func getLength (): Int {
+            if this.data~ptr == 0 return 0
+            else return this.data.length;
+        };
+
+        func getBufSize (): Int {
+            if this.data~ptr == 0 return 0
+            else return this.data.bufSize;
+        };
+
+        func assign (ary: ref[Array[T]]) {
+            this._release();
+            this.data~no_deref = ary.data;
+            if this.data~ptr != 0 {
+                ++this.data.refCount;
+            };
+        };
+
+        func _prepareToModify (enlarge: Bool) {
+            if this.data~ptr == 0 {
+                this.data~no_deref = ArrayData[T].alloc(2);
+            } else if this.data.refCount == 1 {
+                if enlarge && this.data.length >= this.data.bufSize {
+                    this.data~no_deref = ArrayData[T].realloc(this.data, this.data.bufSize + this.data.bufSize >> 1);
+                }
+            } else {
+                def curData: ref[ArrayData[T]](this.data);
+                --this.data.refCount;
+                this.data~no_deref = ArrayData[T].alloc(curData.length + curData.length >> 1);
+                def i: Int;
+                for i = 0, i < curData.length, ++i this.data.buf(i)~no_deref~init(curData.buf(i));
+                this.data.length = curData.length;
+            };
+        };
+
+        func add (item: T) {
+            this._prepareToModify(true);
+            this.data.buf(this.data.length)~no_deref~init(item);
+            ++this.data.length;
+        };
+
+        func add (count: Int, items: ...[T, 1]) {
+            while count-- > 0 this.add(items~next_arg[T]);
+        };
+
+        func insert (index: Int, item: T) {
+            if index < 0 || index >= this.getLength() {
+                this.add(item);
+            } else {
+                this._prepareToModify(true);
+                Memory.copy(
+                    this.data.buf(index + 1)~no_deref~ptr,
+                    this.data.buf(index)~no_deref~ptr,
+                    T~no_deref~size * (this.data.length - index)
+                );
+                this.data.buf(index)~no_deref~init(item);
+                ++this.data.length;
+            };
+        };
+
+        func remove (index: Int) {
+            if index >= 0 && index < this.getLength() {
+                this._prepareToModify(false);
+                this.data.buf(index)~no_deref~terminate();
+                if index < this.getLength() - 1 {
+                    Memory.copy(
+                        this.data.buf(index)~no_deref~ptr, this.data.buf(index + 1)~no_deref~ptr,
+                        T~no_deref~size * (this.data.length - (index + 1))
+                    );
+                };
+                --this.data.length;
+            };
+        };
+
+        func clear {
+            this._release();
+        };
+
+        func findPos (val: ref[T]): Int {
+            def i: Int;
+            for i = 0, i < this.getLength(), ++i
+                if this(i) == val return i;
+            return -1;
+        }
+
+        //==========
+        // Operators
+
+        handler this = ref[Array[T]] this.assign(value);
+
+        handler this(i: Int): ref[T] {
+            @shared def dummy: T;
+            if i >= 0 && i < this.getLength() return this.data.buf(i) else return dummy;
+        };
     };
 
-    func clear {
-      this._release();
+
+    //==========================================================================
+    // Internal Types
+
+    type ArrayData [T: type] {
+        //=================
+        // Member Variables
+
+        def refCount: Int;
+        def length: Int;
+        def bufSize: Int;
+        def buf: array[T, 1];
+
+        //=================
+        // Member Functions
+
+        @shared func alloc (size: Int): ref[ArrayData[T]] {
+            if size < 2 size = 2;
+            def byteCount: Int = ArrayData[T]~size + T~no_deref~size * (size - 1);
+            def data: ref[ArrayData[T]];
+            data~ptr = Memory.alloc(byteCount)~cast[ptr[ArrayData[T]]];
+            data.bufSize = size;
+            data.length = 0;
+            data.refCount = 1;
+            return data;
+        };
+
+        @shared func realloc (data: ref[ArrayData[T]], newSize: Int): ref[ArrayData[T]] {
+            if newSize < 2 newSize = 2;
+            def byteCount: Int = ArrayData[T]~size + T~no_deref~size * (newSize - 1);
+            data~ptr = Memory.realloc(data~ptr, byteCount)~cast[ptr[ArrayData[T]]];
+            data.bufSize = newSize;
+            return data;
+        };
+
+        @shared func release (data: ref[ArrayData[T]]) {
+            def i: Int;
+            for i = 0, i < data.length, ++i data.buf(i)~no_deref~terminate();
+            Memory.free(data~ptr);
+        };
     };
-
-    // Operators
-
-    handler this = ref[Array[T]] this.assign(value);
-
-    handler this(i: Int): ref[T] {
-      @shared def dummy: T;
-      if i >= 0 && i < this.getLength() return this.buf(i) else return dummy;
-    };
-  };
 };

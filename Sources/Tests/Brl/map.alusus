@@ -1,0 +1,50 @@
+import "Brl/Console";
+import "Brl/Map";
+import "Brl/String";
+
+use Brl;
+
+func testWithoutIndex {
+    def m1: Map[Int, Int];
+    m1.set(1, 100).set(100, 1);
+    m1(20) = 17;
+    Console.print("m1: 1 is %d, 20 is %d, 100 is %d\n", m1(1), m1(20), m1(100));
+
+    def m2: Map[Bool, Int];
+    m2.set(false, 1).set(true, 2);
+    Console.print("m2: false is %d and true is %d\n", m2(false), m2(true));
+
+    def m3: Map[Int, ptr[array[Char]]];
+    m3.set(0, "Hello").set(1, "World");
+    Console.print("m3: 0 is %s and 1 is %s\n", m3(0), m3(1));
+
+    def m4: Map[String, String];
+    m4.set(String("name"), String("Alusus")).set(String("dob"), String("2014"));
+    Console.print("name: %s\ndob: %s\n", m4(String("name")).buf, m4(String("dob")).buf);
+};
+
+func testWithIndex {
+    def m1: Map[Int, Int](true);
+    m1.set(1, 100).set(100, 1).set(50, 3).set(32, 8);
+    m1(20) = 17;
+    Console.print("m1: 1 is %d, 20 is %d, 100 is %d\n", m1(1), m1(20), m1(100));
+
+    def m2: Map[String, String](true);
+    m2.set(String("name"), String("Mohammed"))
+        .set(String("dob"), String("1990"))
+        .set(String("address"), String("1234 main st"))
+        .set(String("city"), String("Atlantis"))
+        .set(String("planet"), String("Earth"));
+    Console.print(
+        "name: %s\ndob: %s\naddress: %s\ncity: %s\nplanet: %s\n",
+        m2(String("name")).buf,
+        m2(String("dob")).buf,
+        m2(String("address")).buf,
+        m2(String("city")).buf,
+        m2(String("planet")).buf,
+    );
+};
+
+testWithoutIndex();
+Console.print("\n");
+testWithIndex();
