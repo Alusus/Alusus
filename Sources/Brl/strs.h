@@ -18,13 +18,13 @@ namespace Brl
 
 template<class T> class StringBase
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   private: Int *refCount;
   private: T *buf;
 
-  //============================================================================
+  //==========================
   // Constructors & Destructor
 
   public: StringBase() {
@@ -50,7 +50,7 @@ template<class T> class StringBase
     this->_release();
   }
 
-  //============================================================================
+  //=================
   // Member Functions
 
   private: void _init() {
@@ -322,6 +322,7 @@ template<class T> class StringBase
     return this->buf;
   }
 
+  //==========
   // Operators
 
   public: StringBase<T>& operator=(StringBase<T> const &value) {
@@ -391,6 +392,7 @@ template<class T> class StringBase
     return this->compare(value) <= 0;
   }
 
+  //=================
   // Static Functions
 
   public: static Bool isSpace(T c) {
@@ -449,7 +451,6 @@ template<class T> class StringBase
   public: static T toUpper(T c);
 
   public: static T toLower(T c);
-
 }; // class
 
 

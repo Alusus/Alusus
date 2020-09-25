@@ -122,7 +122,7 @@ Bool runSourceFile(Str const &fileName)
 
     return true;
   }
-  catch (Core::Basic::Exception &e)
+  catch (Brl::Exception &e)
   {
     // Restore stdout.
     fflush(stdout);

@@ -27,7 +27,7 @@ func testWithIndex {
     def m1: Map[Int, Int](true);
     m1.set(1, 100).set(100, 1).set(50, 3).set(32, 8);
     m1(20) = 17;
-    Console.print("m1: 1 is %d, 20 is %d, 100 is %d\n", m1(1), m1(20), m1(100));
+    Console.print("m1: 1 is %d, 20 is %d, 100 is %d\n\n", m1(1), m1(20), m1(100));
 
     def m2: Map[String, String](true);
     m2.set(String("name"), String("Mohammed"))
@@ -36,13 +36,19 @@ func testWithIndex {
         .set(String("city"), String("Atlantis"))
         .set(String("planet"), String("Earth"));
     Console.print(
-        "name: %s\ndob: %s\naddress: %s\ncity: %s\nplanet: %s\n",
+        "name: %s\ndob: %s\naddress: %s\ncity: %s\nplanet: %s\n\n",
         m2(String("name")).buf,
         m2(String("dob")).buf,
         m2(String("address")).buf,
         m2(String("city")).buf,
         m2(String("planet")).buf,
     );
+
+    m2.remove(String("address"));
+    def i: Int;
+    for i = 0, i < m2.getLength(), ++i {
+        Console.print("key %d: %s\n", i, m2.keyAt(i).buf);
+    }
 };
 
 testWithoutIndex();

@@ -14,6 +14,8 @@ import "Memory";
 
 @merge module Brl
 {
+    //==========================================================================
+    // RefCounter
     // A ref counting object to be used by the shared references.
     type RefCounter {
         def count: Int;
@@ -51,11 +53,17 @@ import "Memory";
     };
 
 
+    //==========================================================================
+    // SharedRef
     // Shared Reference
     type SrdRef [T: type] {
+        //=================
+        // Member Variables
+
         def refCounter: ref[RefCounter];
         @injection def obj: ref[T];
 
+        //===============
         // Initialization
 
         handler this~init() this._init();
@@ -82,6 +90,7 @@ import "Memory";
 
         handler this~terminate() this.release();
 
+        //=================
         // Member Functions
 
         func _init {
@@ -159,6 +168,7 @@ import "Memory";
             p~cast[ptr[T]]~cnt~terminate();
         }
 
+        //==========
         // Operators
 
         handler this = ref[SrdRef[T]] this.assign(value);
@@ -169,11 +179,17 @@ import "Memory";
     };
 
 
+    //==========================================================================
+    // WkRef
     // Weak Reference
     type WkRef [T: type] {
+        //=================
+        // Member Variables
+
         def refCounter: ref[RefCounter];
         @injection def obj: ref[T];
 
+        //===============
         // Initialization
 
         handler this~init() this._init();
@@ -193,6 +209,7 @@ import "Memory";
             this.assign(c, r);
         };
 
+        //=================
         // Member Functions
 
         func _init {
@@ -219,6 +236,7 @@ import "Memory";
             this.obj~ptr = r~ptr;
         };
 
+        //==========
         // Operators
 
         handler this = ref[SrdRef[T]] this.assign(value);
@@ -229,10 +247,16 @@ import "Memory";
     };
 
 
+    //==========================================================================
+    // UnqRef
     // Unique Reference
     type UnqRef [T: type] {
+        //=================
+        // Member Variables
+
         @injection def obj: ref[T];
 
+        //===============
         // Initialization
 
         handler this~init() this.obj~ptr = 0;
@@ -255,6 +279,7 @@ import "Memory";
             }
         };
 
+        //==========
         // Operators
 
         handler this = ptr[T] {

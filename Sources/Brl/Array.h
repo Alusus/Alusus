@@ -183,14 +183,14 @@ template <class T> class Array
     if (i >= 0 && i < this->getLength()) return this->data->buf[i]; else return dummy;
   }
 
-  public: Int findPos (T &val) const {
+  public: Int findPos (T const &val) const {
     for (Int i = 0; i < this->getLength(); ++i) {
       if (this->at(i) == val) return i;
     }
     return -1;
   }
 
-  //============================================================================
+  //==========
   // Operators
 
   public: void operator=(Array<T> const &value) {
@@ -199,12 +199,11 @@ template <class T> class Array
 
   public: T& operator()(Int i) {
     return this->at(i);
-  };
+  }
 
   public: T const& operator()(Int i) const {
     return this->at(i);
-  };
-
+  }
 }; // class
 
 } // namespace

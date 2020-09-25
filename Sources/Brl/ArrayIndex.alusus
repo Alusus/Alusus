@@ -73,7 +73,7 @@ module Brl {
                 if this.indices(j) == i {
                     this.indices.remove(j);
                     --j;
-                } else if this.indices(j) > index {
+                } else if this.indices(j) > i {
                     --this.indices(j);
                 }
             }

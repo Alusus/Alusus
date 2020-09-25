@@ -86,8 +86,8 @@ DEFINE_TYPE_NAME(Brl::LongWord, "alusus.org/Brl/Brl.LongWord");
 DEFINE_TYPE_NAME(Brl::Float, "alusus.org/Brl/Brl.Float");
 DEFINE_TYPE_NAME(Brl::Double, "alusus.org/Brl/Brl.Double");
 DEFINE_TYPE_NAME(Brl::Char, "alusus.org/Brl/Brl.Char");
+DEFINE_TYPE_NAME(Brl::StrStream, "alusus.org/Brl/Brl.StrStream");
 DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.org/Core/Core.Basic.Str");
-DEFINE_TYPE_NAME(Core::Basic::StrStream, "alusus.org/Core/Core.Basic.StrStream");
 
 DEFINE_TEMPLATE_TYPE_NAME(std::shared_ptr, "std::shared_ptr");
 DEFINE_TEMPLATE_TYPE_NAME(std::vector, "std::vector");

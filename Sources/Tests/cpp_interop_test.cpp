@@ -47,3 +47,17 @@ DL_EXPORTED String getTestString() {
 DL_EXPORTED void printTestString(String str) {
   outStream << str << "\n";
 }
+
+DL_EXPORTED Map<String, String> getTestMap() {
+  Map<String, String> map;
+  map("name") = String("Mohammed");
+  map("address") = String("1234 Main");
+  map("age") = String("35");
+  return map;
+}
+
+DL_EXPORTED void printTestMap(Map<String, String> map) {
+  for (Int i = 0; i < map.getLength(); ++i) {
+    outStream << map.keyAt(i) << ": " << map.valAt(i) << "\n";
+  }
+}

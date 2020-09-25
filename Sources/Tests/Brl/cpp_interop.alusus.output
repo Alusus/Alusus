@@ -34,3 +34,13 @@ printTestString:
 test string from Alusus
 getTestString:
 test string from c++
+
+
+printTestMap:
+i7: Intel
+Ryzen: AMD
+Geforce: nVidia
+getTestMap:
+name: Mohammed
+address: 1234 Main
+age: 35

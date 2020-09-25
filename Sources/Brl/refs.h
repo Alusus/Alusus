@@ -19,11 +19,11 @@ namespace Brl
 template<class T> class WkRef;
 
 //==============================================================================
+// RefCounter
 // A ref counting object to be used by the shared references.
-
 class RefCounter
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   public: Int count;
@@ -31,7 +31,7 @@ class RefCounter
   public: void (*terminator)(void*);
   public: void *managedObj;
 
-  //============================================================================
+  //=================
   // Member Functions
 
   public: static RefCounter* alloc(Int size, void (*terminator)(void*)) {
@@ -61,21 +61,21 @@ class RefCounter
     }
     free(refCounter);
   }
-};
+}; // class
 
 
 //==============================================================================
+// SrdRef
 // Shared Reference
-
 template<class T> class SrdRef
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   protected: RefCounter *refCounter;
   protected: T *obj;
 
-  //============================================================================
+  //==========================
   // Constructors & Destructor
 
   public: SrdRef() {
@@ -136,7 +136,7 @@ template<class T> class SrdRef
     this->release();
   }
 
-  //============================================================================
+  //=================
   // Member Functions
 
   protected: void _init() {
@@ -226,7 +226,7 @@ template<class T> class SrdRef
     ((T*)p)->~T();
   }
 
-  //============================================================================
+  //==========
   // Operators
 
   public: T* operator->() const {
@@ -280,22 +280,21 @@ template<class T> class SrdRef
   public: Bool operator==(std::nullptr_t p) const {
     return this->obj == p;
   }
-
 }; // class
 
 
 //==============================================================================
+// WkRef
 // Weak Reference
-
 template<class T> class WkRef
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   protected: RefCounter *refCounter;
   protected: T *obj;
 
-  //============================================================================
+  //==========================
   // Constructors & Destructor
 
   public: WkRef() {
@@ -347,7 +346,7 @@ template<class T> class WkRef
     this->assign(c, r);
   };
 
-  //============================================================================
+  //=================
   // Member Functions
 
   protected: void _init() {
@@ -382,7 +381,7 @@ template<class T> class WkRef
     return this->refCounter;
   }
 
-  //============================================================================
+  //==========
   // Operators
 
   public: T* operator->() const {
@@ -436,8 +435,11 @@ template<class T> class WkRef
   public: Bool operator==(std::nullptr_t p) const {
     return this->obj == p;
   }
-
 }; // class
+
+
+//==============================================================================
+// Global Operators
 
 template<typename T>
 inline Bool operator==(SrdRef<T> const & r, std::nullptr_t) {

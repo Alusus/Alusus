@@ -20,8 +20,10 @@ include_directories("${AlususBrl_SOURCE_DIR}")
 set(CMAKE_MODULE_PATH "${AlususBrl_SOURCE_DIR}")
 
 # Add a target for Alusus BRL library.
+file(GLOB headers ./*.h)
+file(GLOB sources ./*.cpp)
+set(AlususBrlLib_Source_Files ${sources} ${headers})
 set(AlususBrlLib_Source_Subdirs "")
-set(AlususBrlLib_Source_Files brl.h brl.cpp)
 foreach (DIR ${AlususBrlLib_Source_Subdirs})
   file(GLOB headers ${DIR}/*.h)
   file(GLOB sources ${DIR}/*.cpp)

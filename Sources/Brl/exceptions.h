@@ -1,5 +1,5 @@
 /**
- * @file Core/Basic/exceptions.h
+ * @file Brl/exceptions.h
  * Contains the declarations of all exception classes used by the core.
  *
  * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_EXCEPTIONS_H
-#define CORE_BASIC_EXCEPTIONS_H
+#ifndef BRL_EXCEPTIONS_H
+#define BRL_EXCEPTIONS_H
 
-namespace Core { namespace Basic
+namespace Brl
 {
 
 // TODO: Add member functions to retrieve exception detailed information.
@@ -28,15 +28,14 @@ namespace Core { namespace Basic
  */
 class Exception : public std::exception
 {
-  //============================================================================
+  //=================
   // Static Variables
 
-  protected: Str functionName;
-  protected: Str sourceFile;
+  protected: String functionName;
+  protected: String sourceFile;
   protected: Int lineNumber;
 
-
-  //============================================================================
+  //=============
   // Constructors
 
   protected: Exception(Char const *function, Char const *source, Int line) :
@@ -44,18 +43,17 @@ class Exception : public std::exception
   {
   }
 
-
-  //============================================================================
+  //=================
   // Member Functions
 
   /// Get name of function where exception originated.
-  public: Str const& getFunctionName() const
+  public: String const& getFunctionName() const
   {
     return this->functionName;
   }
 
   /// Get name of source file where exception originated.
-  public: Str const& getSourceFile() const
+  public: String const& getSourceFile() const
   {
     return this->sourceFile;
   }
@@ -78,20 +76,19 @@ class Exception : public std::exception
    */
   public: virtual const char* what() const throw()
   {
-    static thread_local Str msg;
+    static thread_local String msg;
     msg = this->getVerboseErrorMessage();
     return msg;
   }
 
   /// Get the error message.
-  public: virtual Str getErrorMessage() const throw()
+  public: virtual String getErrorMessage() const throw()
   {
     return S("Unknown Exception");
   }
 
   /// Get an error message that includes error location details.
-  public: virtual Str getVerboseErrorMessage() const throw();
-
+  public: virtual String getVerboseErrorMessage() const throw();
 }; // class
 
 
@@ -102,14 +99,13 @@ class Exception : public std::exception
  */
 class GenericException : public Exception
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   /// The error message associated with this exception.
-  private: Str comment;
+  private: String comment;
 
-
-  //============================================================================
+  //============
   // Constructor
 
   public: GenericException(Char const *cmt,
@@ -122,20 +118,18 @@ class GenericException : public Exception
   {
   }
 
-
-  //============================================================================
+  //=================
   // Member Functions
 
-  public: Str const& getComment() const
+  public: String const& getComment() const
   {
     return this->comment;
   }
 
-  public: virtual Str getErrorMessage() const throw()
+  public: virtual String getErrorMessage() const throw()
   {
-    return Str(S("Generic Exception: ")) + this->comment;
+    return String(S("Generic Exception: ")) + this->comment;
   }
-
 }; // class
 
 
@@ -146,11 +140,11 @@ class GenericException : public Exception
  */
 class FileException : public Exception
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   /// The name of the file with which the exception happened.
-  Str fileName;
+  String fileName;
 
   /**
    * @brief The kind of operation attempted on the file.
@@ -163,10 +157,9 @@ class FileException : public Exception
   Char operation;
 
   /// An additional comment to include in the error message.
-  Str comment;
+  String comment;
 
-
-  //============================================================================
+  //============
   // Constructor
 
   public: FileException(Char const *fname, Char op, Char const *cmt,
@@ -185,11 +178,10 @@ class FileException : public Exception
   {
   }
 
-
-  //============================================================================
+  //=================
   // Member Functions
 
-  public: Str const& getFileName() const
+  public: String const& getFileName() const
   {
     return this->fileName;
   }
@@ -199,13 +191,12 @@ class FileException : public Exception
     return this->operation;
   }
 
-  public: Str const& getComment() const
+  public: String const& getComment() const
   {
     return this->comment;
   }
 
-  public: virtual Str getErrorMessage() const throw();
-
+  public: virtual String getErrorMessage() const throw();
 }; // class
 
 
@@ -216,7 +207,7 @@ class FileException : public Exception
  */
 class MemoryException : public Exception
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   /**
@@ -228,10 +219,9 @@ class MemoryException : public Exception
   Char operation;
 
   /// An additional comment to include in the error message.
-  Str comment;
+  String comment;
 
-
-  //============================================================================
+  //============
   // Constructor
 
   public: MemoryException(Char op, Char const *cmt,
@@ -250,8 +240,7 @@ class MemoryException : public Exception
   {
   }
 
-
-  //============================================================================
+  //=================
   // Member Functions
 
   public: Char getOperation() const
@@ -259,13 +248,12 @@ class MemoryException : public Exception
     return this->operation;
   }
 
-  public: Str const& getComment() const
+  public: String const& getComment() const
   {
     return this->comment;
   }
 
-  public: virtual Str getErrorMessage() const throw();
-
+  public: virtual String getErrorMessage() const throw();
 }; // class
 
 
@@ -278,20 +266,19 @@ class MemoryException : public Exception
  */
 class InvalidArgumentException : public Exception
 {
-  //============================================================================
+  //=================
   // Member Variables
 
   /// The name of the argument that carried invalid data.
-  Str argumentName;
+  String argumentName;
 
   /// The value of the argument that carried invalid data.
-  Str argumentValue;
+  String argumentValue;
 
   /// An additional comment to include in the error message.
-  Str comment;
+  String comment;
 
-
-  //============================================================================
+  //============
   // Constructor
 
   public: InvalidArgumentException(Char const *argname, Char const *cmt,
@@ -313,30 +300,28 @@ class InvalidArgumentException : public Exception
   {
   }
 
-
-  //============================================================================
+  //=================
   // Member Functions
 
-  public: Str const& getArgumentName() const
+  public: String const& getArgumentName() const
   {
     return this->argumentName;
   }
 
-  public: Str const& getArgumentValue() const
+  public: String const& getArgumentValue() const
   {
     return this->argumentValue;
   }
 
-  public: Str const& getComment() const
+  public: String const& getComment() const
   {
     return this->comment;
   }
 
-  public: virtual Str getErrorMessage() const throw();
-
+  public: virtual String getErrorMessage() const throw();
 }; // class
 
-} } // namespace
+} // namespace
 
 
 //==============================================================================
@@ -367,9 +352,9 @@ class InvalidArgumentException : public Exception
       base(cmt, function, source, line) \
     { \
     } \
-    virtual Core::Basic::Str getErrorMessage() const throw() \
+    virtual Brl::String getErrorMessage() const throw() \
     { \
-      return Core::Basic::Str(S(title)) + S(": ") + this->getComment(); \
+      return Brl::String(S(title)) + S(": ") + this->getComment(); \
     } \
   }
 

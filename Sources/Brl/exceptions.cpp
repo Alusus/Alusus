@@ -1,5 +1,5 @@
 /**
- * @file Core/Basic/exceptions.cpp
+ * @file Brl/exceptions.cpp
  * Contains the implementation of exception classes.
  *
  * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
@@ -10,15 +10,15 @@
  */
 //==============================================================================
 
-#include "core.h"
+#include "brl.h"
 
-namespace Core { namespace Basic
+namespace Brl
 {
 
 //==============================================================================
 // Member Functions
 
-Str Exception::getVerboseErrorMessage() const throw()
+String Exception::getVerboseErrorMessage() const throw()
 {
   return this->getErrorMessage() + S("\nLocation:\n") + this->functionName + S("\n") +
       this->sourceFile + S(" : ") + (LongInt)this->lineNumber;
@@ -28,7 +28,7 @@ Str Exception::getVerboseErrorMessage() const throw()
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Str FileException::getErrorMessage() const throw()
+String FileException::getErrorMessage() const throw()
 {
   StrStream msg;
   msg << S("File Exception: ");
@@ -63,9 +63,9 @@ Str FileException::getErrorMessage() const throw()
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Str MemoryException::getErrorMessage() const throw()
+String MemoryException::getErrorMessage() const throw()
 {
-  Str msg = S("Memory Exception: ");
+  String msg = S("Memory Exception: ");
   switch (this->operation) {
     case C('a'):
       msg += S("Couldn't allocate memory block.");
@@ -89,9 +89,9 @@ Str MemoryException::getErrorMessage() const throw()
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Str InvalidArgumentException::getErrorMessage() const throw()
+String InvalidArgumentException::getErrorMessage() const throw()
 {
-  Str msg = Str(S("Invalid Argument Exception (")) + this->argumentName;
+  String msg = String(S("Invalid Argument Exception (")) + this->argumentName;
   if (this->argumentValue.getLength() > 0) {
     msg += S(" = ");
     msg += this->argumentValue;
@@ -104,4 +104,4 @@ Str InvalidArgumentException::getErrorMessage() const throw()
   return msg;
 }
 
-} } // namespace
+} // namespace

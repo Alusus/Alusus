@@ -102,38 +102,6 @@ namespace Core::Basic
  */
 
 /**
- * @brief Wrapper for string literals.
- * @ingroup basic_macros
- *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode. Every string
- * literal in the source code should be wrapped by this macro.
- */
-#define S(x)	u8##x
-
-/**
- * @brief Wrapper for character literals.
- * @ingroup basic_macros
- *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode. Every character
- * literal in the source code should be wrapped by this macro.
- */
-#define C(x)	u8##x
-
-/**
- * @brief Wrapper for wide character literals.
- * @ingroup basic_macros
- */
-#define WC(x) U##x
-
-/**
- * @brief Maps to the standard C++ assert function.
- * @ingroup basic_macros
- */
-#define ASSERT(x) assert(x)
-
-/**
  * @brief Select a macro based on number of arguments.
  * @ingroup basic_macros
  *
@@ -431,9 +399,6 @@ s_enum(LogLevel,
  */
 
 /// @ingroup basic_datatypes
-typedef std::stringstream StrStream;
-
-/// @ingroup basic_datatypes
 typedef std::ostream OutStream;
 
 /// @ingroup basic_datatypes
@@ -703,7 +668,6 @@ extern std::istream &inStream;
 #include "WStr.h"
 
 #include "Logger.h"
-#include "exceptions.h"
 #include "validators.h"
 
 #include "SortedIndex.h"

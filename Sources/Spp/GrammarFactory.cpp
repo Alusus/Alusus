@@ -14,10 +14,11 @@
 namespace Spp
 {
 
-using namespace Core;
 using namespace Core::Data::Grammar;
 using namespace Core::Processing;
 using namespace Core::Processing::Handlers;
+
+using Map = Core::Data::Grammar::Map;
 
 //==============================================================================
 // Overloaded Abstract Functions

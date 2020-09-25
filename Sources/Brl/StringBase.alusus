@@ -16,11 +16,13 @@ import "Array";
 @merge module Brl
 {
     type StringBase [T: type] {
+        //============
         // Member Vars
 
         def refCount: ref[Int[32]];
         def buf: ptr[array[T]];
 
+        //===============
         // Initialization
 
         handler this~init() this._init();
@@ -42,6 +44,7 @@ import "Array";
 
         handler this~terminate() this._release();
 
+        //=================
         // Member Functions
 
         func _init {
@@ -333,6 +336,7 @@ import "Array";
             this._release();
         }
 
+        //==========
         // Operators
 
         handler this = ref[StringBase[T]] this.assign(value);
@@ -361,6 +365,7 @@ import "Array";
         handler this >= ptr[array[T]]: Bool return this.compare(value) >= 0;
         handler this <= ptr[array[T]]: Bool return this.compare(value) <= 0;
 
+        //=================
         // Static Functions
 
         @shared
