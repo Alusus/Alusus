@@ -20,25 +20,11 @@ namespace Core { namespace Basic
 
 void* GlobalStorage::getObject(Char const *desc)
 {
-  Int i = this->index.find(Str(desc));
+  Int i = this->map.findPos(Str(true, desc));
   if (i == -1) {
     return 0;
   } else {
-    return this->objects[i].ptr;
-  }
-}
-
-
-void GlobalStorage::setObject(Char const *desc, void *object)
-{
-  Int i = this->index.find(Str(desc));
-  if (i == -1) {
-    this->objects.push_back(Desc());
-    this->objects.back().str = desc;
-    this->objects.back().ptr = object;
-    this->index.add();
-  } else {
-    this->objects[i].ptr = object;
+    return this->map.valAt(i);
   }
 }
 

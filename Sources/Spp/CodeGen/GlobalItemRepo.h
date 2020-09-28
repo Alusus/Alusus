@@ -23,26 +23,23 @@ class GlobalItemRepo
 
   private: struct Entry
   {
-    Str name;
     Word size;
     void *ptr;
+    Entry(): size(0), ptr(0) {}
+    Entry(Word s, void *p): size(s), ptr(p) {}
   };
-
-  private: typedef DirectSortedIndex<Entry, Str, &Entry::name> Index;
 
 
   //============================================================================
   // Member Variables
 
-  private: std::vector<Entry> entries;
-
-  private: Index index;
+  private: Brl::Map<Str, Entry> map;
 
 
   //============================================================================
   // Constructor
 
-  public: GlobalItemRepo() : index(&entries)
+  public: GlobalItemRepo() : map(true)
   {
   }
 
@@ -57,7 +54,7 @@ class GlobalItemRepo
 
   public: Word getItemCount() const
   {
-    return this->entries.size();
+    return this->map.getLength();
   }
 
   public: Str const& getItemName(Int i) const;
@@ -68,7 +65,7 @@ class GlobalItemRepo
 
   public: Int findItem(Char const *name) const
   {
-    return this->index.find(Str(name));
+    return this->map.findPos(Str(true, name));
   }
 
 }; // class

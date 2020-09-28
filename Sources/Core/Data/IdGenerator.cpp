@@ -20,12 +20,11 @@ namespace Core { namespace Data
 
 Word IdGenerator::getId(Char const *desc)
 {
-  Int id = this->index.find(Str(desc));
+  Int id = this->index.findPos(Str(true, desc));
   if (id == -1) {
-    this->ids.push_back(Desc());
-    this->ids.back().str = desc;
-    this->index.add();
-    return this->ids.size()-1;
+    this->ids.add(desc);
+    this->index.add(-1);
+    return this->ids.getLength()-1;
   } else {
     return static_cast<Word>(id);
   }
@@ -34,10 +33,10 @@ Word IdGenerator::getId(Char const *desc)
 
 Str const& IdGenerator::getDesc(Word id) const
 {
-  if (id >= this->ids.size()) {
+  if (id >= this->ids.getLength()) {
     throw EXCEPTION(InvalidArgumentException, S("id"), S("No desc available for this id."), id);
   }
-  return this->ids[id].str;
+  return this->ids(id);
 }
 
 

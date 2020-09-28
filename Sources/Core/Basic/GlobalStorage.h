@@ -21,30 +21,16 @@ namespace Core { namespace Basic
 class GlobalStorage
 {
   //============================================================================
-  // Data Types
-
-  private: struct Desc
-  {
-    Str str;
-    void *ptr;
-  };
-
-  private: typedef DirectSortedIndex<Desc, Str, &Desc::str> Index;
-
-
-  //============================================================================
   // Member Variables
 
-  private: std::vector<Desc> objects;
-
-  private: Index index;
+  private: Map<Str, void*> map;
 
 
   //============================================================================
   // Constructor
 
   /// Prevent the singleton class from being inistantiated.
-  private: GlobalStorage() : index(&objects)
+  private: GlobalStorage() : map(true)
   {
   }
 
@@ -54,7 +40,9 @@ class GlobalStorage
 
   public: void* getObject(Char const *desc);
 
-  public: void setObject(Char const *desc, void *object);
+  public: void setObject(Char const *desc, void *object) {
+    this->map.set(desc, object);
+  }
 
   /// Get the singleton object.
   public: static GlobalStorage* getSingleton();

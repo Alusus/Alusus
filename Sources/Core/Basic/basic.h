@@ -670,8 +670,6 @@ extern std::istream &inStream;
 #include "Logger.h"
 #include "validators.h"
 
-#include "SortedIndex.h"
-#include "default_sorted_indices.h"
 #include "SubsetIndex.h"
 
 #include "GlobalStorage.h"
