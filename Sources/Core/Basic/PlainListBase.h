@@ -32,9 +32,9 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
   protected: PlainListBase<CTYPE, PTYPE> *base;
 
   /// The vector in which the object pointers will be stored.
-  private: std::vector<CTYPE*> list;
+  private: Array<CTYPE*> list;
 
-  private: std::vector<Bool> *inherited;
+  private: Array<Bool> *inherited;
 
 
   //============================================================================
@@ -143,7 +143,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
     this->base = b;
     this->base->changeNotifier.connect(this->baseChangeSlot);
     this->base->destroyNotifier.connect(this->baseDestroySlot);
-    this->inherited = new std::vector<Bool>(this->list.size(), false);
+    this->inherited = new Array<Bool>(this->list.getLength(), false);
     this->inheritFromBase();
   }
 
@@ -168,7 +168,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
   private: void removeInheritted()
   {
     ASSERT(this->inherited != 0);
-    for (Int i = this->inherited->size()-1; i >= 0; --i) {
+    for (Int i = this->inherited->getLength()-1; i >= 0; --i) {
       if (this->inherited->at(i)) {
         this->onBaseElementRemoved(i);
       }
@@ -187,8 +187,8 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
     auto obj = this->getFromBase(index);
     obj = this->prepareForSet(index, obj, true, true);
-    this->list.insert(this->list.begin()+index, obj);
-    this->inherited->insert(this->inherited->begin()+index, true);
+    this->list.insert(index, obj);
+    this->inherited->insert(index, true);
     this->finalizeSet(index, obj, true, true);
     this->onAdded(index);
   }
@@ -199,9 +199,9 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
     ASSERT(this->inherited != 0);
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
     if (this->inherited->at(index)) {
-      this->prepareForUnset(index, this->list[index], true);
+      this->prepareForUnset(index, this->list(index), true);
       auto obj = this->prepareForSet(index, this->getFromBase(index), true, false);
-      this->list[index] = obj;
+      this->list(index) = obj;
       this->finalizeSet(index, obj, true, false);
       this->onUpdated(index);
     }
@@ -213,15 +213,15 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
     ASSERT(this->inherited != 0);
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount()+1);
     if (this->inherited->at(index)) {
-      this->prepareForUnset(index, this->list[index], true);
-      this->list.erase(this->list.begin()+index);
-      this->inherited->erase(this->inherited->begin()+index);
+      this->prepareForUnset(index, this->list(index), true);
+      this->list.remove(index);
+      this->inherited->remove(index);
       this->onRemoved(index);
     } else {
       CTYPE *obj = this->get(index);
-      this->prepareForUnset(index, this->list[index], false);
-      this->list.erase(this->list.begin()+index);
-      this->inherited->erase(this->inherited->begin()+index);
+      this->prepareForUnset(index, this->list(index), false);
+      this->list.remove(index);
+      this->inherited->remove(index);
       this->onRemoved(index);
       this->insert(this->getBaseDefCount(), obj);
     }
@@ -251,28 +251,30 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
    */
   public: void add(const std::initializer_list<CTYPE*> &objs)
   {
-    if (this->list.capacity() < this->list.size() + objs.size()) this->list.reserve(this->list.size() + objs.size());
+    if (this->list.getBufSize() < this->list.getLength() + objs.size()) {
+      this->list.reserve(this->list.getLength() + objs.size());
+    }
     for (auto obj : objs) this->add(obj);
   }
 
   public: Int add(CTYPE *val)
   {
-    auto obj = this->prepareForSet(this->list.size(), val, false, true);
-    this->list.push_back(obj);
-    if (this->inherited != 0) this->inherited->push_back(false);
-    this->finalizeSet(this->list.size() - 1, obj, false, true);
-    this->onAdded(this->list.size() - 1);
-    return this->list.size() - 1;
+    auto obj = this->prepareForSet(this->list.getLength(), val, false, true);
+    this->list.add(obj);
+    if (this->inherited != 0) this->inherited->add(false);
+    this->finalizeSet(this->list.getLength() - 1, obj, false, true);
+    this->onAdded(this->list.getLength() - 1);
+    return this->list.getLength() - 1;
   }
 
   public: void insert(Int index, CTYPE *val)
   {
-    if (static_cast<Word>(index) > this->list.size()) {
+    if (static_cast<Word>(index) > this->list.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
     }
     auto obj = this->prepareForSet(index, val, false, true);
-    this->list.insert(this->list.begin()+index, obj);
-    if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
+    this->list.insert(index, obj);
+    if (this->inherited != 0) this->inherited->insert(index, false);
     this->finalizeSet(index, obj, false, true);
     this->onAdded(index);
   }
@@ -283,13 +285,13 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
       this->add(val);
       return;
     }
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->list.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     this->onWillUpdate(index);
-    this->prepareForUnset(index, this->list[index], this->inherited && this->inherited->at(index));
+    this->prepareForUnset(index, this->list(index), this->inherited && this->inherited->at(index));
     auto obj = this->prepareForSet(index, val, false, false);
-    this->list[index] = obj;
+    this->list(index) = obj;
     if (this->inherited != 0) this->inherited->at(index) = false;
     this->finalizeSet(index, obj, false, false);
     this->onUpdated(index);
@@ -297,7 +299,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
 
   public: void remove(Int index)
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->list.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
     if (this->inherited != 0 && this->inherited->at(index)) {
@@ -307,32 +309,32 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
       this->onWillUpdate(index);
-      this->prepareForUnset(index, this->list[index], false);
+      this->prepareForUnset(index, this->list(index), false);
       auto obj = this->prepareForSet(index, this->getFromBase(index), true, false);
-      this->list[index] = obj;
+      this->list(index) = obj;
       this->inherited->at(index) = true;
       this->finalizeSet(index, obj, true, false);
       this->onUpdated(index);
     } else {
       this->onWillRemove(index);
-      this->prepareForUnset(index, this->list[index], false);
-      this->list.erase(this->list.begin()+index);
-      if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+index);
+      this->prepareForUnset(index, this->list(index), false);
+      this->list.remove(index);
+      if (this->inherited != 0) this->inherited->remove(index);
       this->onRemoved(index);
     }
   }
 
   public: Word getCount() const
   {
-    return this->list.size();
+    return this->list.getLength();
   }
 
   public: CTYPE* get(Int index) const
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->list.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Index out of range."), index);
     }
-    return this->list[index];
+    return this->list(index);
   }
 
   public: void clear()
@@ -343,9 +345,9 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
       ASSERT(this->inherited != 0);
       if (!this->inherited->at(i)) {
         this->onWillUpdate(i);
-        this->prepareForUnset(i, this->list[i], false);
+        this->prepareForUnset(i, this->list(i), false);
         auto obj = this->prepareForSet(i, this->getFromBase(i), true, false);
-        this->list[i] = obj;
+        this->list(i) = obj;
         this->inherited->at(i) = true;
         this->finalizeSet(i, obj, true, false);
         this->onUpdated(i);
@@ -361,7 +363,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
 
   public: Bool isInherited(Int index) const
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->list.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     if (this->inherited == 0) return false;

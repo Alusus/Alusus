@@ -33,7 +33,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
 
   private: Map<Str, CTYPE*> map;
 
-  private: std::vector<Bool> *inherited;
+  private: Array<Bool> *inherited;
 
 
   //============================================================================
@@ -145,7 +145,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     this->base = b;
     this->base->changeNotifier.connect(this->baseChangeSlot);
     this->base->destroyNotifier.connect(this->baseDestroySlot);
-    this->inherited = new std::vector<Bool>(this->map.getLength(), false);
+    this->inherited = new Array<Bool>(this->map.getLength(), false);
     this->inheritFromBase();
   }
 
@@ -170,7 +170,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
   private: void removeInheritted()
   {
     ASSERT(this->inherited != 0);
-    for (Int i = this->inherited->size()-1; i >= 0; --i) {
+    for (Int i = this->inherited->getLength()-1; i >= 0; --i) {
       if (this->inherited->at(i)) {
         this->onBaseElementRemoved(i);
       }
@@ -199,17 +199,17 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
       obj = this->get(myIndex);
       this->prepareForUnset(key, myIndex, this->map.valAt(myIndex), this->inherited->at(myIndex));
       this->map.removeAt(myIndex);
-      this->inherited->erase(this->inherited->begin()+myIndex);
+      this->inherited->remove(myIndex);
       this->onRemoved(myIndex);
       obj = this->prepareForSet(key, index, obj, true, true);
       this->map.insert(index, key, obj);
-      this->inherited->insert(this->inherited->begin()+index, false);
+      this->inherited->insert(index, false);
       this->finalizeSet(key, index, obj, true, true);
     } else if (myIndex == -1) {
       obj = this->getFromBase(index);
       obj = this->prepareForSet(key, index, obj, true, true);
       this->map.insert(index, key, obj);
-      this->inherited->insert(this->inherited->begin()+index, true);
+      this->inherited->insert(index, true);
       this->finalizeSet(key, index, obj, true, true);
     }
     this->onAdded(index);
@@ -238,14 +238,14 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     if (this->inherited->at(index)) {
       this->prepareForUnset(this->map.keyAt(index), index, this->map.valAt(index), true);
       this->map.removeAt(index);
-      this->inherited->erase(this->inherited->begin()+index);
+      this->inherited->remove(index);
       this->onRemoved(index);
     } else {
       auto key = this->getKey(index).getBuf();
       CTYPE *obj = this->get(index);
       this->prepareForUnset(key, index, obj, false);
       this->map.removeAt(index);
-      this->inherited->erase(this->inherited->begin()+index);
+      this->inherited->remove(index);
       this->onRemoved(index);
       this->add(key, obj);
     }
@@ -290,7 +290,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
       i = this->map.getLength();
       auto obj = this->prepareForSet(key, i, val, false, true);
       this->map.set(key, obj);
-      if (this->inherited != 0) this->inherited->push_back(false);
+      if (this->inherited != 0) this->inherited->add(false);
       this->finalizeSet(key, i, obj, false, true);
       this->onAdded(i);
     }
@@ -308,7 +308,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     }
     auto obj = this->prepareForSet(key, index, val, false, true);
     this->map.insert(index, key, obj);
-    if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
+    if (this->inherited != 0) this->inherited->insert(index, false);
     this->finalizeSet(key, index, obj, false, true);
     this->onAdded(index);
   }
@@ -321,7 +321,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
         idx = this->map.getLength();
         auto obj = this->prepareForSet(key, idx, val, false, true);
         this->map.set(key, obj);
-        if (this->inherited != 0) this->inherited->push_back(false);
+        if (this->inherited != 0) this->inherited->add(false);
         this->finalizeSet(key, idx, obj, false, true);
         this->onAdded(idx);
       } else {
@@ -377,7 +377,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
       this->onWillRemove(idx);
       this->prepareForUnset(key, idx, this->map.valAt(idx), false);
       this->map.removeAt(idx);
-      if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+idx);
+      if (this->inherited != 0) this->inherited->remove(idx);
       this->onRemoved(idx);
     }
     return idx;
@@ -405,7 +405,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
       this->onWillRemove(index);
       this->prepareForUnset(this->map.keyAt(index), index, this->map.valAt(index), false);
       this->map.removeAt(index);
-      if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+index);
+      if (this->inherited != 0) this->inherited->remove(index);
       this->onRemoved(index);
     }
   }
