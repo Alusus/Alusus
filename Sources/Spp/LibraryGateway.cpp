@@ -29,15 +29,13 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->astHelper = newSrdObj<Ast::Helper>(manager, this->nodePathResolver.get());
 
   // Create global repos.
-  this->stringLiteralRepo = newSrdObj<CodeGen::StringLiteralRepo>();
   this->astLiteralRepo = newSrdObj<SharedList<TiObject>>();
   this->globalItemRepo = newSrdObj<CodeGen::GlobalItemRepo>();
 
   // Create the generator.
   this->typeGenerator = newSrdObj<CodeGen::TypeGenerator>(this->astHelper.get());
   this->expressionGenerator = newSrdObj<CodeGen::ExpressionGenerator>(
-    this->astHelper.get(),
-    this->stringLiteralRepo.get()
+    this->astHelper.get()
   );
   this->commandGenerator = newSrdObj<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = newSrdObj<CodeGen::Generator>(
@@ -109,7 +107,6 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->commandGenerator.reset();
   this->expressionGenerator.reset();
   this->typeGenerator.reset();
-  this->stringLiteralRepo.reset();
   this->globalItemRepo.reset();
   this->nodePathResolver.reset();
   this->astHelper.reset();
