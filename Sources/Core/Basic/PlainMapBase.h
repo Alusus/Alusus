@@ -27,34 +27,11 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
 
 
   //============================================================================
-  // Data Types
-
-  /**
-   * @brief A type of an entry in the list of elements.
-   * This is a key/value pair. The keys are strings and the values must be
-   * CTYPE inherited objects.
-   */
-  private: typedef std::pair<Str, CTYPE*> Entry;
-
-  /// The type for the sorted index used to index the string key of the list.
-  private: typedef DirectSortedIndex<Entry, Str, &Entry::first> Index;
-
-
-  //============================================================================
   // Member Variables
 
   protected: PlainMapBase<CTYPE, PTYPE> *base;
 
-  /// The vector in which the list of key/value pairs are stored.
-  private: std::vector<Entry> list;
-
-  /**
-   * @brief The index used to speed up searching within this map.
-   * If this object is null, searching will be done sequentially without the
-   * index. The decision whether to use an index or not is done through params
-   * passed to the constructor.
-   */
-  private: Index *index;
+  private: Map<Str, CTYPE*> map;
 
   private: std::vector<Bool> *inherited;
 
@@ -82,10 +59,8 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
    * searching, otherwise the object will use sequential searching instead of
    * binary search.
    */
-  protected: PlainMapBase(Bool useIndex = false) : inherited(0), base(0)
+  protected: PlainMapBase(Bool useIndex = false) : map(useIndex), inherited(0), base(0)
   {
-    if (useIndex) this->index = new Index(&this->list);
-    else this->index = 0;
   }
 
   /// Delete the index created in the constructor, if any.
@@ -96,10 +71,6 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     this->destroyNotifier.emit(this);
     if (this->base != 0) this->detachFromBase();
     this->clear();
-    if (this->index != 0) {
-      delete this->index;
-      this->index = 0;
-    }
   }
 
 
@@ -174,7 +145,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     this->base = b;
     this->base->changeNotifier.connect(this->baseChangeSlot);
     this->base->destroyNotifier.connect(this->baseDestroySlot);
-    this->inherited = new std::vector<Bool>(this->list.size(), false);
+    this->inherited = new std::vector<Bool>(this->map.getLength(), false);
     this->inheritFromBase();
   }
 
@@ -226,22 +197,19 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     CTYPE *obj;
     if (myIndex != -1 && myIndex != index) {
       obj = this->get(myIndex);
-      this->prepareForUnset(key, myIndex, this->list[myIndex].second, this->inherited->at(myIndex));
-      this->list.erase(this->list.begin()+myIndex);
+      this->prepareForUnset(key, myIndex, this->map.valAt(myIndex), this->inherited->at(myIndex));
+      this->map.removeAt(myIndex);
       this->inherited->erase(this->inherited->begin()+myIndex);
-      if (this->index != 0) this->index->remove(myIndex);
       this->onRemoved(myIndex);
       obj = this->prepareForSet(key, index, obj, true, true);
-      this->list.insert(this->list.begin()+index, Entry(key, obj));
+      this->map.insert(index, key, obj);
       this->inherited->insert(this->inherited->begin()+index, false);
-      if (this->index != 0) this->index->add(index);
       this->finalizeSet(key, index, obj, true, true);
     } else if (myIndex == -1) {
       obj = this->getFromBase(index);
       obj = this->prepareForSet(key, index, obj, true, true);
-      this->list.insert(this->list.begin()+index, Entry(key, obj));
+      this->map.insert(index, key, obj);
       this->inherited->insert(this->inherited->begin()+index, true);
-      if (this->index != 0) this->index->add(index);
       this->finalizeSet(key, index, obj, true, true);
     }
     this->onAdded(index);
@@ -254,9 +222,9 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount());
     if (this->inherited->at(index)) {
       Char const *key = this->getKeyFromBase(index);
-      this->prepareForUnset(key, index, this->list[index].second, true);
+      this->prepareForUnset(key, index, this->map.valAt(index), true);
       auto obj = this->prepareForSet(key, index, this->getFromBase(index), true, false);
-      this->list[index].second = obj;
+      this->map.valAt(index) = obj;
       this->finalizeSet(key, index, obj, true, false);
       this->onUpdated(index);
     }
@@ -268,18 +236,16 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     ASSERT(this->inherited != 0);
     ASSERT(static_cast<Word>(index) < this->getBaseDefCount()+1);
     if (this->inherited->at(index)) {
-      this->prepareForUnset(this->list[index].first, index, this->list[index].second, true);
-      this->list.erase(this->list.begin()+index);
+      this->prepareForUnset(this->map.keyAt(index), index, this->map.valAt(index), true);
+      this->map.removeAt(index);
       this->inherited->erase(this->inherited->begin()+index);
-      if (this->index != 0) this->index->remove(index);
       this->onRemoved(index);
     } else {
       auto key = this->getKey(index).getBuf();
       CTYPE *obj = this->get(index);
       this->prepareForUnset(key, index, obj, false);
-      this->list.erase(this->list.begin()+index);
+      this->map.removeAt(index);
       this->inherited->erase(this->inherited->begin()+index);
-      if (this->index != 0) this->index->remove(index);
       this->onRemoved(index);
       this->add(key, obj);
     }
@@ -313,7 +279,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     if (i != -1) {
       if (this->inherited != 0 && this->inherited->at(i)) {
         auto obj = this->prepareForSet(key, i, val, false, false);
-        this->list[i].second = obj;
+        this->map.valAt(i) = obj;
         this->inherited->at(i) = false;
         this->finalizeSet(key, i, obj, false, false);
         this->onUpdated(i);
@@ -321,11 +287,10 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
         throw EXCEPTION(InvalidArgumentException, S("key"), S("Already exists."), key);
       }
     } else {
-      i = this->list.size();
+      i = this->map.getLength();
       auto obj = this->prepareForSet(key, i, val, false, true);
-      this->list.push_back(Entry(key, obj));
+      this->map.set(key, obj);
       if (this->inherited != 0) this->inherited->push_back(false);
-      if (this->index != 0) this->index->add();
       this->finalizeSet(key, i, obj, false, true);
       this->onAdded(i);
     }
@@ -342,9 +307,8 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
                       S("Cannot insert at a position that breaks base's sequence."), index);
     }
     auto obj = this->prepareForSet(key, index, val, false, true);
-    this->list.insert(this->list.begin()+index, Entry(key, obj));
+    this->map.insert(index, key, obj);
     if (this->inherited != 0) this->inherited->insert(this->inherited->begin()+index, false);
-    if (this->index != 0) this->index->add(index);
     this->finalizeSet(key, index, obj, false, true);
     this->onAdded(index);
   }
@@ -354,11 +318,10 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     Int idx = this->findIndex(key);
     if (idx == -1) {
       if (insertIfNew) {
-        idx = this->list.size();
+        idx = this->map.getLength();
         auto obj = this->prepareForSet(key, idx, val, false, true);
-        this->list.push_back(Entry(key, obj));
+        this->map.set(key, obj);
         if (this->inherited != 0) this->inherited->push_back(false);
-        if (this->index != 0) this->index->add();
         this->finalizeSet(key, idx, obj, false, true);
         this->onAdded(idx);
       } else {
@@ -367,12 +330,12 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     } else {
       this->onWillUpdate(idx);
       this->prepareForUnset(
-        this->list[idx].first, idx, this->list[idx].second, this->inherited && this->inherited->at(idx)
+        this->map.keyAt(idx), idx, this->map.valAt(idx), this->inherited && this->inherited->at(idx)
       );
-      auto obj = this->prepareForSet(this->list[idx].first, idx, val, false, false);
-      this->list[idx].second = obj;
+      auto obj = this->prepareForSet(this->map.keyAt(idx), idx, val, false, false);
+      this->map.valAt(idx) = obj;
       if (this->inherited != 0) this->inherited->at(idx) = false;
-      this->finalizeSet(this->list[idx].first, idx, obj, false, false);
+      this->finalizeSet(this->map.keyAt(idx), idx, obj, false, false);
       this->onUpdated(idx);
     }
     return idx;
@@ -380,17 +343,17 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
 
   public: void set(Int index, CTYPE *val)
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->map.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     this->onWillUpdate(index);
     this->prepareForUnset(
-      this->list[index].first, index, this->list[index].second, this->inherited && this->inherited->at(index)
+      this->map.keyAt(index), index, this->map.valAt(index), this->inherited && this->inherited->at(index)
     );
-    auto obj = this->prepareForSet(this->list[index].first, index, val, false, false);
-    this->list[index].second = obj;
+    auto obj = this->prepareForSet(this->map.keyAt(index), index, val, false, false);
+    this->map.valAt(index) = obj;
     if (this->inherited != 0) this->inherited->at(index) = false;
-    this->finalizeSet(this->list[index].first, index, obj, false, false);
+    this->finalizeSet(this->map.keyAt(index), index, obj, false, false);
     this->onUpdated(index);
   }
 
@@ -404,18 +367,17 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
       this->onWillUpdate(idx);
-      this->prepareForUnset(key, idx, this->list[idx].second, false);
+      this->prepareForUnset(key, idx, this->map.valAt(idx), false);
       auto obj = this->prepareForSet(key, idx, this->getFromBase(idx), true, false);
-      this->list[idx].second = obj;
+      this->map.valAt(idx) = obj;
       this->inherited->at(idx) = true;
       this->finalizeSet(key, idx, obj, true, false);
       this->onUpdated(idx);
     } else {
       this->onWillRemove(idx);
-      this->prepareForUnset(key, idx, this->list[idx].second, false);
-      this->list.erase(this->list.begin()+idx);
+      this->prepareForUnset(key, idx, this->map.valAt(idx), false);
+      this->map.removeAt(idx);
       if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+idx);
-      if (this->index != 0) this->index->remove(idx);
       this->onRemoved(idx);
     }
     return idx;
@@ -423,7 +385,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
 
   public: void remove(Int index)
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->map.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     if (this->inherited != 0 && this->inherited->at(index)) {
@@ -433,25 +395,24 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
       ASSERT(this->base != 0);
       ASSERT(this->inherited != 0);
       this->onWillUpdate(index);
-      this->prepareForUnset(this->list[index].first, index, this->list[index].second, false);
-      auto obj = this->prepareForSet(this->list[index].first, index, this->getFromBase(index), true, false);
-      this->list[index].second = obj;
+      this->prepareForUnset(this->map.keyAt(index), index, this->map.valAt(index), false);
+      auto obj = this->prepareForSet(this->map.keyAt(index), index, this->getFromBase(index), true, false);
+      this->map.valAt(index) = obj;
       this->inherited->at(index) = true;
-      this->finalizeSet(this->list[index].first, index, obj, true, false);
+      this->finalizeSet(this->map.keyAt(index), index, obj, true, false);
       this->onUpdated(index);
     } else {
       this->onWillRemove(index);
-      this->prepareForUnset(this->list[index].first, index, this->list[index].second, false);
-      this->list.erase(this->list.begin()+index);
+      this->prepareForUnset(this->map.keyAt(index), index, this->map.valAt(index), false);
+      this->map.removeAt(index);
       if (this->inherited != 0) this->inherited->erase(this->inherited->begin()+index);
-      if (this->index != 0) this->index->remove(index);
       this->onRemoved(index);
     }
   }
 
   public: Word getCount() const
   {
-    return this->list.size();
+    return this->map.getLength();
   }
 
   public: CTYPE* get(Char const *key) const
@@ -460,23 +421,23 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     if (idx == -1) {
       throw EXCEPTION(InvalidArgumentException, S("key"), S("Not found in the map."), key);
     }
-    return this->list[idx].second;
+    return this->map.valAt(idx);
   }
 
   public: CTYPE* get(Int index) const
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->map.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
-    return this->list[index].second;
+    return this->map.valAt(index);
   }
 
   public: SbStr const getKey(Int index) const
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->map.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
-    return this->list[index].first.sbstr();
+    return this->map.keyAt(index).sbstr();
   }
 
   public: Int getIndex(Char const *key) const
@@ -493,15 +454,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     if (key == 0) {
       throw EXCEPTION(InvalidArgumentException, S("key"), S("Cannot be null."));
     }
-    // Do we have an index to speed up search?
-    if (this->index != 0) {
-      return this->index->find(Str(key));
-    } else {
-      for (Word i = 0; i < this->list.size(); ++i) {
-        if (this->list[i].first == key) return i;
-      }
-      return -1;
-    }
+    return this->map.findPos(Str(true, key));
   }
 
   public: void clear()
@@ -512,11 +465,11 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
       ASSERT(this->inherited != 0);
       if (!this->inherited->at(i)) {
         this->onWillUpdate(i);
-        this->prepareForUnset(this->list[i].first, i, this->list[i].second, false);
-        auto obj = this->prepareForSet(this->list[i].first, i, this->getFromBase(i), true, false);
-        this->list[i].second = obj;
+        this->prepareForUnset(this->map.keyAt(i), i, this->map.valAt(i), false);
+        auto obj = this->prepareForSet(this->map.keyAt(i), i, this->getFromBase(i), true, false);
+        this->map.valAt(i) = obj;
         this->inherited->at(i) = true;
-        this->finalizeSet(this->list[i].first, i, obj, true, false);
+        this->finalizeSet(this->map.keyAt(i), i, obj, true, false);
         this->onUpdated(i);
       }
       ++i;
@@ -530,7 +483,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
 
   public: Bool isInherited(Int index) const
   {
-    if (static_cast<Word>(index) >= this->list.size()) {
+    if (static_cast<Word>(index) >= this->map.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);
     }
     if (this->inherited == 0) return false;

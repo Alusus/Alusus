@@ -87,14 +87,21 @@ template<class T1, class T2> class Map {
   //=================
   // Member Functions
 
-  public: T1 const& keyAt(Int i) {
+  public: T1 const& keyAt(Int i) const {
     if (i < 0 || i >= this->keys.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
     }
     return this->keys(i);
   }
 
-  public: T1& valAt(Int i) {
+  public: T2& valAt(Int i) {
+    if (i < 0 || i >= this->keys.getLength()) {
+      throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
+    }
+    return this->values(i);
+  }
+
+  public: T2 const& valAt(Int i) const {
     if (i < 0 || i >= this->keys.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
     }
@@ -121,6 +128,12 @@ template<class T1, class T2> class Map {
     return *this;
   }
 
+  public: void insert(Int i, T1 const &key, T2 const &value) {
+    this->keys.insert(i, key);
+    this->values.insert(i, value);
+    if (this->keysIndex != 0) this->keysIndex->add(i);
+  }
+
   public: Bool remove(T1 const &key) {
     Int pos = this->findPos(key);
     if (pos == -1) return false;
@@ -133,7 +146,7 @@ template<class T1, class T2> class Map {
       throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
     }
     this->keys.remove(i);
-    this->values->remove(i);
+    this->values.remove(i);
     if (this->keysIndex != 0) this->keysIndex->remove(i);
   }
 
@@ -143,11 +156,11 @@ template<class T1, class T2> class Map {
     if (this->keysIndex != 0) this->keysIndex->clear();
   }
 
-  public: Int getLength() {
+  public: Int getLength() const {
     return this->keys.getLength();
   }
 
-  public: Int findPos(T1 const &key) {
+  public: Int findPos(T1 const &key) const {
     if (this->keysIndex == 0) {
       return this->keys.findPos(key);
     } else {

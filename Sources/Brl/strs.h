@@ -46,6 +46,15 @@ template<class T> class StringBase
     this->assign(buf, n);
   }
 
+  public: StringBase(Bool skipCopying, T const *buf) {
+    this->_init();
+    if (skipCopying) {
+      this->buf = const_cast<T*>(buf);
+    } else {
+      this->assign(buf);
+    }
+  }
+
   public: ~StringBase() {
     this->_release();
   }
@@ -116,14 +125,20 @@ template<class T> class StringBase
   }
 
   public: void append(T const *buf, LongInt n) {
-    if (this->refCount == 0) {
+    auto bufLen = getLength(buf);
+    if (bufLen == 0) return;
+    auto thisBufLen = this->getLength();
+    if (thisBufLen == 0) {
       this->assign(buf, n);
       return;
     }
-    auto bufLen = getLength(buf);
-    if (bufLen == 0) return;
-    LongInt newLength = this->getLength() + bufLen;
-    if (*this->refCount > 1) {
+    LongInt newLength = thisBufLen + bufLen;
+    if (this->refCount == 0) {
+      T *currentBuf = this->buf;
+      this->_alloc(newLength);
+      copy(this->buf, currentBuf);
+      concat(this->buf, buf, n);
+    } else if (*this->refCount > 1) {
       T *currentBuf = this->buf;
       --*this->refCount;
       this->_alloc(newLength);

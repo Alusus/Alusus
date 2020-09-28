@@ -121,6 +121,12 @@ import "System";
             return this;
         }
 
+        func insert(i: Int, key: T1, value: T2) {
+            this.keys.insert(key);
+            this.values.insert(value);
+            if this.keysIndex~ptr != 0 this.keysIndex.add(i);
+        }
+
         func remove(key: T1): Bool {
             def pos: Int = this.findPos(key);
             if pos == -1 return false;
