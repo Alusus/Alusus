@@ -34,8 +34,8 @@ class IdGenerator
   //============================================================================
   // Member Variables
 
-  private: Brl::Array<Str> ids;
-  private: Brl::ArrayIndex<Str> index;
+  private: Srl::Array<Str> ids;
+  private: Srl::ArrayIndex<Str> index;
 
 
   //============================================================================

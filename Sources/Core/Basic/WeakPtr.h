@@ -18,12 +18,12 @@ namespace Core::Basic
 
 // TODO: DOC
 
-template <class T> class WeakPtr : public Brl::WkRef<T>
+template <class T> class WeakPtr : public Srl::WkRef<T>
 {
   //============================================================================
   // Constructors / Destructor
 
-  public: using Brl::WkRef<T>::WkRef;
+  public: using Srl::WkRef<T>::WkRef;
 
 
   //============================================================================
@@ -152,25 +152,25 @@ template <class T> class WeakPtr : public Brl::WkRef<T>
 //==============================================================================
 // Helper Definitions
 
-template <class T, class T2> SharedPtr<T> s_cast(Brl::WkRef<T2> const &src)
+template <class T, class T2> SharedPtr<T> s_cast(Srl::WkRef<T2> const &src)
 {
   return SharedPtr<T>(src.getRefCounter(), static_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T>& r_cast(Brl::WkRef<T2> const &src)
+template <class T, class T2> SharedPtr<T>& r_cast(Srl::WkRef<T2> const &src)
 {
   return SharedPtr<T>(src.getRefCounter(), reinterpret_cast<T*>(src.get()));
 }
 
 
-template <class T> SharedPtr<T>& c_cast(Brl::WkRef<T> const &src)
+template <class T> SharedPtr<T>& c_cast(Srl::WkRef<T> const &src)
 {
   return SharedPtr<T>(src.getRefCounter(), const_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T>& ti_cast(Brl::WkRef<T2> const &src)
+template <class T, class T2> SharedPtr<T>& ti_cast(Srl::WkRef<T2> const &src)
 {
   return SharedPtr<T>(src.getRefCounter(), ti_cast<T>(src.get()));
 }

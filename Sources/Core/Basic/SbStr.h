@@ -20,7 +20,7 @@ namespace Core::Basic
  * @brief Static buffer string with comparison operations.
  * @ingroup basic_datatypes
  *
- * This class uses static string buffers instead of the dynamic Brl::String
+ * This class uses static string buffers instead of the dynamic Srl::String
  * class. This class is a wrappar around the Char* buffers. It treats 'this' as
  * the pointer to the buffer. This allows the user to easily cast any buffer
  * into this class.

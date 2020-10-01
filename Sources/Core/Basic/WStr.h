@@ -22,14 +22,14 @@ namespace Core::Basic
  *
  * This class overrides std's wstring class to provide comparison operators.
  */
-class WStr : public Brl::WString
+class WStr : public Srl::WString
 {
   //============================================================================
   // Constructors
 
-  public: using Brl::WString::WString;
+  public: using Srl::WString::WString;
 
-  public: WStr(Brl::WString const &str) : Brl::WString(str)
+  public: WStr(Srl::WString const &str) : Srl::WString(str)
   {
   }
 
@@ -47,7 +47,7 @@ class WStr : public Brl::WString
   //============================================================================
   // Functions
 
-  using Brl::WString::assign;
+  using Srl::WString::assign;
 
   public: void assign(WChar const *buf, LongInt pos, LongInt n);
 

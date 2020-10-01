@@ -18,7 +18,7 @@ template <typename... TYPES> struct TypeName;
 // Type list.
 template <typename TYPE, typename... REST> struct TypeName<TYPE, REST...>
 {
-  static Brl::String get()
+  static Srl::String get()
   {
     return TypeName<TYPE>::get() + S(",") + TypeName<REST...>::get();
   }
@@ -27,36 +27,36 @@ template <typename TYPE, typename... REST> struct TypeName<TYPE, REST...>
 // Pointer type.
 template <class T> struct TypeName<T*>
 {
-    static Brl::String get() { return TypeName<T>::get() + S("*"); }
+    static Srl::String get() { return TypeName<T>::get() + S("*"); }
 };
 
 // Reference type.
 template <class T> struct TypeName<T&>
 {
-    static Brl::String get() { return TypeName<T>::get() + S("&"); }
+    static Srl::String get() { return TypeName<T>::get() + S("&"); }
 };
 
 // Const type.
 template <class T> struct TypeName<T const>
 {
-    static Brl::String get() { return TypeName<T>::get() + S(" const"); }
+    static Srl::String get() { return TypeName<T>::get() + S(" const"); }
 };
 
 // Function type.
 template <class T, class ...R> struct TypeName<T(R...)>
 {
-  static Brl::String get() { return TypeName<T>::get() + S("(") + TypeName<R...>::get() + S(")"); }
+  static Srl::String get() { return TypeName<T>::get() + S("(") + TypeName<R...>::get() + S(")"); }
 };
 
 // Default, assume TiObject
 template <class T> struct TypeName<T>
 {
-  static Brl::String get() { return T::getTypeInfo()->getUniqueName(); }
+  static Srl::String get() { return T::getTypeInfo()->getUniqueName(); }
 };
 
 template <> struct TypeName<>
 {
-  static Brl::String get()
+  static Srl::String get()
   {
     return "";
   }
@@ -66,27 +66,27 @@ template <> struct TypeName<>
 #define DEFINE_TYPE_NAME(type, name) \
   template <> struct TypeName<type> \
   { \
-    static Brl::String get() { return S(name); } \
+    static Srl::String get() { return S(name); } \
   }
 #define DEFINE_TEMPLATE_TYPE_NAME(type, name) \
   template <class T> struct TypeName<type<T>> \
   { \
-      static Brl::String get() { return Brl::String(S(name) S("<")) + TypeName<T>::get() + S(">"); } \
+      static Srl::String get() { return Srl::String(S(name) S("<")) + TypeName<T>::get() + S(">"); } \
   }
 
 DEFINE_TYPE_NAME(void, "void");
 
-DEFINE_TYPE_NAME(Brl::Bool, "alusus.org/Brl/Brl.Bool");
-DEFINE_TYPE_NAME(Brl::Int, "alusus.org/Brl/Brl.Int");
-DEFINE_TYPE_NAME(Brl::ShortInt, "alusus.org/Brl/Brl.ShortInt");
-DEFINE_TYPE_NAME(Brl::LongInt, "alusus.org/Brl/Brl.LongInt");
-DEFINE_TYPE_NAME(Brl::Word, "alusus.org/Brl/Brl.Word");
-DEFINE_TYPE_NAME(Brl::ShortWord, "alusus.org/Brl/Brl.ShortWord");
-DEFINE_TYPE_NAME(Brl::LongWord, "alusus.org/Brl/Brl.LongWord");
-DEFINE_TYPE_NAME(Brl::Float, "alusus.org/Brl/Brl.Float");
-DEFINE_TYPE_NAME(Brl::Double, "alusus.org/Brl/Brl.Double");
-DEFINE_TYPE_NAME(Brl::Char, "alusus.org/Brl/Brl.Char");
-DEFINE_TYPE_NAME(Brl::StrStream, "alusus.org/Brl/Brl.StrStream");
+DEFINE_TYPE_NAME(Srl::Bool, "alusus.org/Srl/Srl.Bool");
+DEFINE_TYPE_NAME(Srl::Int, "alusus.org/Srl/Srl.Int");
+DEFINE_TYPE_NAME(Srl::ShortInt, "alusus.org/Srl/Srl.ShortInt");
+DEFINE_TYPE_NAME(Srl::LongInt, "alusus.org/Srl/Srl.LongInt");
+DEFINE_TYPE_NAME(Srl::Word, "alusus.org/Srl/Srl.Word");
+DEFINE_TYPE_NAME(Srl::ShortWord, "alusus.org/Srl/Srl.ShortWord");
+DEFINE_TYPE_NAME(Srl::LongWord, "alusus.org/Srl/Srl.LongWord");
+DEFINE_TYPE_NAME(Srl::Float, "alusus.org/Srl/Srl.Float");
+DEFINE_TYPE_NAME(Srl::Double, "alusus.org/Srl/Srl.Double");
+DEFINE_TYPE_NAME(Srl::Char, "alusus.org/Srl/Srl.Char");
+DEFINE_TYPE_NAME(Srl::StrStream, "alusus.org/Srl/Srl.StrStream");
 DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.org/Core/Core.Basic.Str");
 
 DEFINE_TEMPLATE_TYPE_NAME(std::shared_ptr, "std::shared_ptr");

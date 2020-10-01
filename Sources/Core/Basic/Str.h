@@ -22,14 +22,14 @@ namespace Core::Basic
  *
  * This class overrides std's string class to provide comparison operators.
  */
-class Str : public Brl::String
+class Str : public Srl::String
 {
   //============================================================================
   // Constructors
 
-  public: using Brl::String::String;
+  public: using Srl::String::String;
 
-  public: Str(Brl::String const &str) : Brl::String(str)
+  public: Str(Srl::String const &str) : Srl::String(str)
   {
   }
 
@@ -47,7 +47,7 @@ class Str : public Brl::String
   //============================================================================
   // Functions
 
-  using Brl::String::assign;
+  using Srl::String::assign;
 
   public: void assign(Char const *buf, LongInt pos, LongInt n);
 

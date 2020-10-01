@@ -104,8 +104,7 @@ if (NOT CUSTOM_OUTPUT_PATH STREQUAL "")
 endif()
 
 # Add projects
-add_subdirectory(Brl)
+add_subdirectory(Srt)
 add_subdirectory(Core)
 add_subdirectory(Spp)
-add_subdirectory(Srt)
 add_subdirectory(Tests)

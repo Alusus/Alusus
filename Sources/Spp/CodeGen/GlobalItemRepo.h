@@ -33,7 +33,7 @@ class GlobalItemRepo
   //============================================================================
   // Member Variables
 
-  private: Brl::Map<Str, Entry> map;
+  private: Srl::Map<Str, Entry> map;
 
 
   //============================================================================

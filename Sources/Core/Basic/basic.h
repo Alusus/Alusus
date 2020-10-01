@@ -584,12 +584,12 @@ void printIndents(OutStream &stream, int indents);
  * @brief Generate an Str from the given format and args.
  * @ingroup basic_functions
  */
-template<typename ... Args> Brl::String formatString(Char const *format, Args ...args )
+template<typename ... Args> Srl::String formatString(Char const *format, Args ...args )
 {
   std::size_t size = std::snprintf(nullptr, 0, format, args...) + 1;
   std::unique_ptr<char[]> buf(new char[size]);
   snprintf(buf.get(), size, format, args...);
-  return Brl::String(buf.get(), size);
+  return Srl::String(buf.get(), size);
 }
 
 class TiObject;

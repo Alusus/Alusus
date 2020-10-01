@@ -18,20 +18,20 @@ namespace Core::Basic
 
 // TODO:
 
-template <class T> class SharedPtr : public Brl::SrdRef<T>
+template <class T> class SharedPtr : public Srl::SrdRef<T>
 {
   //============================================================================
   // Constructors
 
-  public: using Brl::SrdRef<T>::SrdRef;
+  public: using Srl::SrdRef<T>::SrdRef;
 
-  public: SharedPtr(Brl::SrdRef<T> const &r) : Brl::SrdRef<T>(r) {}
+  public: SharedPtr(Srl::SrdRef<T> const &r) : Srl::SrdRef<T>(r) {}
 
-  public: SharedPtr(Brl::SrdRef<T> &&r) : Brl::SrdRef<T>(r) {}
+  public: SharedPtr(Srl::SrdRef<T> &&r) : Srl::SrdRef<T>(r) {}
 
-  public: template<class T2> SharedPtr(Brl::SrdRef<T2> const &p) : Brl::SrdRef<T>(p) {}
+  public: template<class T2> SharedPtr(Srl::SrdRef<T2> const &p) : Srl::SrdRef<T>(p) {}
 
-  public: template<class T2> SharedPtr(Brl::SrdRef<T2> &&p) : Brl::SrdRef<T>(p) {}
+  public: template<class T2> SharedPtr(Srl::SrdRef<T2> &&p) : Srl::SrdRef<T>(p) {}
 
 
   //============================================================================
@@ -59,13 +59,13 @@ template <class T> class SharedPtr : public Brl::SrdRef<T>
   }
 
   /// Check whether the given pointer share the same subject with this one.
-  public: template <class T2> Bool operator==(const Brl::SrdRef<T2> &ptr) const
+  public: template <class T2> Bool operator==(const Srl::SrdRef<T2> &ptr) const
   {
     return this->get() == ptr.get();
   }
 
   /// Check whether the given pointer has a different subject with this one.
-  public: template <class T2> Bool operator!=(const Brl::SrdRef<T2> &ptr) const
+  public: template <class T2> Bool operator!=(const Srl::SrdRef<T2> &ptr) const
   {
     return this->get() != ptr.get();
   }
@@ -226,25 +226,25 @@ template<class T> SharedPtr<T> const SharedPtr<T>::null = 0;
 //==============================================================================
 // Helper Definitions
 
-template <class T, class T2> inline SharedPtr<T> s_cast(Brl::SrdRef<T2> const &src)
+template <class T, class T2> inline SharedPtr<T> s_cast(Srl::SrdRef<T2> const &src)
 {
   return SharedPtr<T>(src.refCounter, static_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> inline SharedPtr<T> r_cast(Brl::SrdRef<T2> const &src)
+template <class T, class T2> inline SharedPtr<T> r_cast(Srl::SrdRef<T2> const &src)
 {
   return SharedPtr<T>(src.refCounter, reinterpret_cast<T*>(src.get()));
 }
 
 
-template <class T> inline SharedPtr<T> c_cast(Brl::SrdRef<const T> const &src)
+template <class T> inline SharedPtr<T> c_cast(Srl::SrdRef<const T> const &src)
 {
   return SharedPtr<T>(src.refCounter, const_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T> ti_cast(Brl::SrdRef<T2> const &src)
+template <class T, class T2> SharedPtr<T> ti_cast(Srl::SrdRef<T2> const &src)
 {
   return SharedPtr<T>(src.getRefCounter(), Core::Basic::ti_cast<T>(src.get()));
 }

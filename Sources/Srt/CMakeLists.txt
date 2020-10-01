@@ -7,6 +7,9 @@
 project(AlususSrt)
 cmake_minimum_required(VERSION 2.8)
 
+add_subdirectory(Srl)
+
+# Copy .alusus files to installation directory.
 file(GLOB AlususSrt_Source_Files *.alusus *.أسس Srl/*.alusus مـتم/*.أسس)
 source_group("SourceFiles\\General" FILES ${AlususSrt_Source_Files})
 add_custom_target(AlususSrt SOURCES ${AlususSrt_Source_Files})

@@ -69,7 +69,7 @@ class ImportLoadFailedNotice : public Notice
     auto format = L18nDictionary::getSingleton()->get(
       this->getCode(), S("Importing failed. Could not load requested file: %s.")
     );
-    str = formatString(format, this->fileName);
+    str = formatString(format, this->fileName.getBuf());
     if (this->errorDetails.getLength() != 0) {
       str += S("\n");
       str += this->errorDetails;

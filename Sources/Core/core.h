@@ -28,8 +28,8 @@
 #include <limits.h>
 
 // Other Alusus headers
-#include "brl.h"
-using namespace Brl;
+#include "srl.h"
+using namespace Srl;
 
 #include "core_global_storage.h"
 

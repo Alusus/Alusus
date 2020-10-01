@@ -24,7 +24,7 @@ class SubsetIndex
   //============================================================================
   // Member Variables
 
-  private: Brl::Array<Int> indices;
+  private: Srl::Array<Int> indices;
 
 
   //============================================================================

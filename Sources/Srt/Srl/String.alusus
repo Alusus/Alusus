@@ -1,423 +1,80 @@
-import "Srl/Memory.alusus";
-import "Srl/Array.alusus";
+/**
+ * @file Srl/String.alusus
+ * Contains the class Srl.String.
+ *
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "StringBase";
 
 @merge module Srl
 {
-  type String {
-    // Member Vars
+    def String: alias StringBase[Char];
 
-    def refCount: ref[Int[32]];
-    def buf: ptr[array[Char]];
-
-    // Initialization
-
-    handler this~init() this._init();
-
-    handler this~init(str: ref[String]) {
-      this._init();
-      this.assign(str);
-    };
-
-    handler this~init(buf: ptr[array[Char]]) {
-      this._init();
-      this.assign(buf);
-    };
-
-    handler this~terminate() this._release();
-
-    // Member Functions
-
-    func _init {
-      this.buf = 0;
-      this.refCount~ptr = 0;
-    };
-
-    func _alloc (length: Int[64]) {
-      this.refCount~ptr = Srl.Memory.alloc(Int[32]~size + length + 1)~cast[ptr[Int[32]]];
-      this.buf = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[array[Char]]];
-      this.refCount = 1;
-    };
-
-    func _realloc (newLength: Int[64]) {
-      this.refCount~ptr = Srl.Memory.realloc(this.refCount~ptr, Int[32]~size + newLength + 1)~cast[ptr[Int[32]]];
-      this.buf = (this.refCount~ptr~cast[Int[64]] + this.refCount~size)~cast[ptr[array[Char]]];
-    };
-
-    func _release {
-      if this.buf != 0 {
-        --this.refCount;
-        if this.refCount == 0 Srl.Memory.free(this.refCount~ptr);
-        this._init();
-      };
-    };
-
-    func getLength ():Int[64] {
-      if this.buf == 0 return 0
-      else return getLength(this.buf);
-    };
-
-    func alloc (length: Int[64]) {
-      this._release();
-      this._alloc(length);
-    };
-
-    func assign (str: ref[String]) {
-      this._release();
-      this.refCount~ptr = str.refCount~ptr;
-      this.buf = str.buf;
-      if this.buf != 0 {
-        ++this.refCount;
-      };
-    };
-
-    func assign (buf: ptr[array[Char]]) {
-      this._release();
-      this._alloc(getLength(buf));
-      copy(this.buf, buf);
-    };
-
-    func assign (buf: ptr[array[Char]], n: Int[64]) {
-      this._release();
-      this._alloc(n);
-      copy(this.buf, buf, n);
-      this.buf~cnt(n) = 0;
-    };
-
-    func append (buf: ptr[array[Char]]) {
-      this.append(buf, getLength(buf));
-    };
-
-    func append (buf: ptr[array[Char]], n: Int[64]) {
-      if this.buf == 0 {
-        this.assign(buf, n);
-        return;
-      };
-      def newLength: Int = this.getLength() + getLength(buf);
-      if this.refCount > 1 {
-        def currentBuf: ptr[array[Char]] = this.buf;
-        --this.refCount;
-        this._alloc(newLength);
-        copy(this.buf, currentBuf);
-        concat(this.buf, buf, n);
-      } else {
-        this._realloc(newLength);
-        concat(this.buf, buf, n);
-      };
-    };
-
-    func append (c: Char) {
-      this.append(c~ptr~cast[ptr[array[Char]]], 1);
-    };
-
-    func append (i: Int[64]) {
-      def buf: array[Char, 20];
-      assign(buf~ptr, "%ld", i);
-      this.append(buf~ptr);
-    };
-
-    func append (f: Float[64]) {
-      def buf: array[Char, 20];
-      assign(buf~ptr, "%f", f);
-      this.append(buf~ptr);
-    };
-
-    func concat (buf: ptr[array[Char]]): String {
-      def newStr: String = this;
-      newStr.append(buf);
-      return newStr;
-    };
-
-    func concat (buf: ptr[array[Char]], n: Int[64]): String {
-      def newStr: String = this;
-      newStr.append(buf, n);
-      return newStr;
-    };
-
-    func concat (c: Char): String {
-      def newStr: String = this;
-      newStr.append(c);
-      return newStr;
-    };
-
-    func concat (i: Int[64]): String {
-      def newStr: String = this;
-      newStr.append(i);
-      return newStr;
-    };
-
-    func concat (f: Float[64]): String {
-      def newStr: String = this;
-      newStr.append(f);
-      return newStr;
-    };
-
-    func find (buf: ptr[array[Char]]): Int[64] {
-      if this.buf == 0 return -1;
-      def pos: ptr = find(this.buf, buf);
-      if pos == 0 return -1;
-      return pos~cast[Int[64]] - this.buf~cast[Int[64]];
-    };
-
-    func findLast (buf: ptr[array[Char]]): Int[64] {
-      if this.buf == 0 return -1;
-      def pos: ptr = findLast(this.buf, buf);
-      if pos == 0 return -1;
-      return pos~cast[Int[64]] - this.buf~cast[Int[64]];
-    };
-
-    func find (c: Char): Int[64] {
-      if this.buf == 0 return -1;
-      def pos: ptr = find(this.buf, c);
-      if pos == 0 return -1;
-      return pos~cast[Int[64]] - this.buf~cast[Int[64]];
-    };
-
-    func findLast (c: Char): Int[64] {
-      if this.buf == 0 return -1;
-      def pos: ptr = findLast(this.buf, c);
-      if pos == 0 return -1;
-      return pos~cast[Int[64]] - this.buf~cast[Int[64]];
-    };
-
-    func compare (s: ptr[array[Char]]): Int {
-      if this.buf == 0 return -1
-      else return compare(this.buf, s);
-    };
-
-    func compare(s: ptr[array[Char]], n: Int[64]): Int {
-      if this.buf == 0 return -1
-      else return compare(this.buf, s, n);
-    };
-
-    func replace (match: ptr[array[Char]], replacement: ptr[array[Char]]): String {
-      def str: String;
-      if this.buf == 0 return str;
-      def matchLength: Int[64] = getLength(match);
-      def buf: ptr[array[Char]] = this.buf;
-      while 1 {
-        def found: ptr[array[Char]] = find(buf, match)~cast[ptr[array[Char]]];
-        if found == 0 {
-          str.append(buf);
-          return str;
+    @merge type String {
+        func append (i: Int[64]) {
+            def buf: array[T, 20];
+            assign(buf~ptr, "%ld", i);
+            this.append(buf~ptr);
         };
-        def n: Int[64] = found~cast[Int[64]] - buf~cast[Int[64]];
-        str.append(buf, n);
-        str.append(replacement);
-        buf = (found~cast[Int[64]] + matchLength)~cast[ptr[array[Char]]];
-      };
-      return str;
-    };
 
-    func trim (): String {
-      return this._trim(true, true);
-    };
-
-    func trimStart (): String {
-      return this._trim(true, false);
-    };
-
-    func trimEnd (): String {
-      return this._trim(false, true);
-    };
-
-    func _trim (trimStart: Bool, trimEnd: Bool): String {
-      def str: String;
-      if this.buf == 0 return str;
-      if this.getLength() == 0 { str = ""; return str; };
-      def begin: Int[64] = 0;
-      def end: Int[64] = this.getLength() - 1;
-      if trimStart while isSpace(this.buf~cnt(begin)) { ++begin };
-      if trimEnd while isSpace(this.buf~cnt(end)) { --end };
-      if end >= begin {
-        str.assign((this.buf~cast[Int[64]] + begin)~cast[ptr[array[Char]]], end - begin + 1);
-      } else {
-        str = ""
-      };
-      return str;
-    };
-
-    func toUpperCase(): String {
-      def str: String = "";
-      def charIndex: int;
-      for charIndex=0, charIndex<this.getLength(), charIndex++ {
-        str += toUpper(this(charIndex)~cast[Char])~cast[Char];
-      };
-
-      return str;
-    }
-
-    func toLowerCase(): String {
-      def str: String = "";
-      def charIndex: int;
-      for charIndex=0, charIndex<this.getLength(), charIndex++ {
-        str += toLower(this(charIndex)~cast[Char])~cast[Char];
-      };
-
-      return str;
-    }
-
-    func slice (begin: Int[64], count: Int[64]): String {
-      def str: String;
-      def l: Int[64] = this.getLength();
-      if begin >= l return str;
-      str.assign((this.buf~cast[Int[64]] + begin)~cast[ptr[array[Char]]], count);
-      return str;
-    };
-
-    func split (separator: ptr[array[Char]]): Array[String] {
-      def ary: Array[String];
-      def str: String;
-      if this.buf == 0 return ary;
-      def matchLength: Int[64] = getLength(separator);
-      def buf: ptr[array[Char]] = this.buf;
-      while 1 {
-        def found: ptr[array[Char]] = find(buf, separator)~cast[ptr[array[Char]]];
-        if found == 0 {
-          str.assign(buf);
-          ary.add(str);
-          return ary;
+        func append (f: Float[64]) {
+            def buf: array[T, 20];
+            assign(buf~ptr, "%f", f);
+            this.append(buf~ptr);
         };
-        def n: Int[64] = found~cast[Int[64]] - buf~cast[Int[64]];
-        if n == 0 str = "" else str.assign(buf, n);
-        ary.add(str);
-        buf = (found~cast[Int[64]] + matchLength)~cast[ptr[array[Char]]];
-      };
-      return ary;
+
+        @shared @expname[strchr]
+        func find(s: ptr[Char], c: Int): ptr[Char];
+
+        @shared @expname[memchr]
+        func find(s: ptr[Void], c: Int, n: Int[64]): ptr[Void];
+
+        @shared @expname[strrchr]
+        func findLast(s: ptr[Char], c: Int): ptr[Char];
+
+        @shared @expname[strstr]
+        func find(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
+
+        @shared @expname[strrstr]
+        func findLast(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
+
+        @shared @expname[strcmp]
+        func compare(s1: ptr[Char], s2: ptr[Char]): Int;
+
+        @shared @expname[strncmp]
+        func compare(s1: ptr[Char], s2: ptr[Char], n: Int[64]): Int;
+
+        @shared @expname[strcpy]
+        func copy(dest: ptr[Char], src: ptr[Char]): ptr[Void];
+
+        @shared @expname[strncpy]
+        func copy(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Void];
+
+        @shared @expname[strcat]
+        func concat(dest: ptr[Char], src: ptr[Char]): ptr[Char];
+
+        @shared @expname[strncat]
+        func concat(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Char];
+
+        @shared @expname[strlen]
+        func getLength(s: ptr[Char]): Int[64];
+
+        @shared @expname[sprintf]
+        func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];
+
+        @shared @expname[sscanf]
+        func scan(source: ptr[Char], format: ptr[Char], args: ...any): Int[32];
+
+        @shared @expname[toupper]
+        func toUpper(c: int): int;
+
+        @shared @expname[tolower]
+        func toLower(c: int): int;
     };
-
-    @shared
-    func merge (ary: Array[String], separator: ptr[array[Char]]): String {
-      def str: String;
-      def i: Int;
-      for i = 0, i < ary.getLength(), ++i {
-        if i != 0 str += separator;
-        str += ary(i);
-      };
-      return str;
-    };
-
-    // Operators
-
-    handler this = ref[String] this.assign(value);
-    handler this = ptr[array[Char]] this.assign(value);
-
-    handler this~cast[ptr[array[Char]]] return this.buf;
-
-    handler this + ptr[array[Char]]: String return this.concat(value);
-    handler this + Char: String return this.concat(value);
-    handler this + Int[64]: String return this.concat(value);
-    handler this + Float[64]: String return this.concat(value);
-
-    handler this += ptr[array[Char]] this.append(value);
-    handler this += Char this.append(value);
-    handler this += Int[64] this.append(value);
-    handler this += Float[64] this.append(value);
-
-    handler this(i: Int[64]): Char {
-      if this.buf == 0 return 0
-      else return this.buf~cnt(i);
-    };
-
-    handler this == ptr[array[Char]]: Bool return this.compare(value) == 0;
-    handler this != ptr[array[Char]]: Bool return this.compare(value) != 0;
-    handler this > ptr[array[Char]]: Bool return this.compare(value) > 0;
-    handler this < ptr[array[Char]]: Bool return this.compare(value) < 0;
-    handler this >= ptr[array[Char]]: Bool return this.compare(value) >= 0;
-    handler this <= ptr[array[Char]]: Bool return this.compare(value) <= 0;
-
-    // Static Functions
-
-    @shared @expname[strchr]
-    func find(s: ptr[Char], c: Int): ptr[Char];
-
-    @shared @expname[memchr]
-    func find(s: ptr[Void], c: Int, n: Int[64]): ptr[Void];
-
-    @shared @expname[strrchr]
-    func findLast(s: ptr[Char], c: Int): ptr[Char];
-
-    @shared @expname[strstr]
-    func find(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
-
-    @shared @expname[strrstr]
-    func findLast(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
-
-    @shared @expname[strcmp]
-    func compare(s1: ptr[Char], s2: ptr[Char]): Int;
-
-    @shared @expname[strncmp]
-    func compare(s1: ptr[Char], s2: ptr[Char], n: Int[64]): Int;
-
-    @shared @expname[strcpy]
-    func copy(dest: ptr[Char], src: ptr[Char]): ptr[Void];
-
-    @shared @expname[strncpy]
-    func copy(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Void];
-
-    @shared @expname[strcat]
-    func concat(dest: ptr[Char], src: ptr[Char]): ptr[Char];
-
-    @shared @expname[strncat]
-    func concat(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Char];
-
-    @shared @expname[strlen]
-    func getLength(s: ptr[Char]): Int[64];
-
-    @shared @expname[sprintf]
-    func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];
-
-    @shared @expname[sscanf]
-    func scan(source: ptr[Char], format: ptr[Char], args: ...any): Int[32];
-
-    @shared @expname[toupper]
-    func toUpper(c: int): int;
-
-    @shared @expname[tolower]
-    func toLower(c: int): int;
-
-    @shared
-    func isSpace (c: Char): Bool {
-      return c != 0 && (c == ' ' || c == '\n' || c == '\r' || c == '\t');
-    };
-
-    @shared
-    func isEqual(s1: ptr[array[Char]], s2: ptr[array[Char]]): Bool {
-      return compare(s1, s2) == 0;
-    };
-
-    @shared
-    func remove(chrs: ptr[array[Char]], chr: Char): ptr[array[Char]] {
-      def pointer: ptr[array[Char]];
-
-      pointer = find(chrs, character);
-      while pointer != 0 {
-        copy(pointer, (pointer~cast[Int[64]] + 1)~cast[ptr[array[Char]]]);
-        pointer = find(pointer, character);
-      };
-
-      return chrs;
-    };
-
-    @shared
-    func replace(chrs: ptr[array[Char]], fromCharacter: Char, toCharacter: Char): ptr[array[Char]] {
-      def pointer: ptr[Char];
-
-      pointer = find(chrs, fromCharacter);
-      while pointer != 0 {
-        pointer~cnt = toCharacter;
-        pointer = find((pointer~cast[Int[64]] + 1)~cast[ptr[array[Char]]], fromCharacter);
-      };
-
-      return chrs;
-    };
-
-    @shared
-    func charAt(chrs: ptr[array[Char]], index: Int): ptr[array[Char]] {
-      @shared
-      def buffer: array[Char, 2];
-      copy(buffer~ptr, (chrs~cast[Int[64]] + index)~cast[ptr[array[Char]]], 1);
-      buffer(1) = 0;
-      return buffer~ptr;
-    };
-  };
 };

@@ -21,7 +21,7 @@ namespace Core::Notices
 void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
 {
   this->dictionary.clear();
-  Brl::String filename;
+  Srl::String filename;
   if (l18nPath != 0) {
     filename = l18nPath;
   } else {

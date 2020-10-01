@@ -16,7 +16,7 @@ link_directories("${LLVM_LIBRARY_DIRS}")
 add_definitions(${LLVM_DEFINITIONS})
 
 # Make sure the compiler finds the source files.
-include_directories("${AlususBrl_SOURCE_DIR}")
+include_directories("${AlususSrl_SOURCE_DIR}")
 include_directories("${AlususCore_SOURCE_DIR}")
 include_directories("${AlususTests_SOURCE_DIR}")
 
@@ -29,8 +29,10 @@ file(GLOB AlususTests_Test_Files
   Spp/Building/*.alusus
   Spp/Running/*.alusus
   Arabic/*.أسس
-  Brl/*.alusus
-  مـتا/*.أسس
+  Srt/*.alusus
+  Srt/*.أسس
+  Srt/Srl/*.alusus
+  Srt/مـتم/*.أسس
 )
 file(GLOB AlususTests_Test_Files_Output
   Core/*.output
@@ -38,8 +40,9 @@ file(GLOB AlususTests_Test_Files_Output
   Spp/Building/*.output
   Spp/Running/*.output
   Arabic/*.output
-  Brl/*.output
-  مـتا/*.output
+  Srt/*.output
+  Srt/Srl/*.output
+  Srt/مـتم/*.output
 )
 source_group("SourceFiles\\General" FILES ${AlususTests_Source_Files})
 source_group("HeaderFiles\\General" FILES ${AlususTests_Header_Files})
@@ -67,7 +70,7 @@ set_target_properties(AlususTests PROPERTIES VERSION ${AlususVersion})
 llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native)
 
 # Finally, we link Alusus libraries to our UnitTests project.
-target_link_libraries(AlususTests AlususBrlLib AlususCoreLib AlususStorage "dl")
+target_link_libraries(AlususTests AlususSrlLib AlususCoreLib AlususStorage "dl")
 
 # Build C++ interoperability test lib.
 set(CppInteropTest_Source_Files cpp_interop_test.cpp)
@@ -77,7 +80,7 @@ set_target_properties(CppInteropTest PROPERTIES OUTPUT_NAME cpp_interop_test)
 set_target_properties(CppInteropTest PROPERTIES DEBUG_OUTPUT_NAME cpp_interop_test)
 set_target_properties(CppInteropTest PROPERTIES VERSION ${AlususVersion})
 set_target_properties(CppInteropTest PROPERTIES SOVERSION ${AlususSoVersion})
-target_link_libraries(CppInteropTest AlususBrlLib AlususCoreLib AlususStorage)
+target_link_libraries(CppInteropTest AlususSrlLib AlususCoreLib AlususStorage)
 
 add_test(NAME AlususTests
   COMMAND AlususTests

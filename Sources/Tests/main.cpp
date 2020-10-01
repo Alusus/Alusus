@@ -122,7 +122,7 @@ Bool runSourceFile(Str const &fileName)
 
     return true;
   }
-  catch (Brl::Exception &e)
+  catch (Srl::Exception &e)
   {
     // Restore stdout.
     fflush(stdout);
@@ -238,7 +238,7 @@ Bool runAndCheckSourceFile(Str const &fileName)
  *
  * @return Returns @c true if all test succeeds, otherwise @c false.
  */
-Bool runEndToEndTests(Str const &dirPath)
+Bool runEndToEndTests(Str const &dirPath, Char const *ext = ".alusus")
 {
   DIR *dir;
   dirent *ent;
@@ -250,10 +250,9 @@ Bool runEndToEndTests(Str const &dirPath)
       Str fileName(ent->d_name);
       Str filePath = dirPath + "/" + fileName;
       if (isDirectory(filePath) && fileName != "." && fileName != "..") {
-        if (!runEndToEndTests(filePath)) ret = false;
+        if (!runEndToEndTests(filePath, ext)) ret = false;
       } else if (
-        fileName.compare("srt.alusus") != 0 && fileName.find("ignore.alusus") == std::string::npos &&
-        (compareStringEnd(fileName, ".alusus") || compareStringEnd(fileName, ".أسس"))
+        compareStringEnd(fileName, ext) && fileName.find("-ignore.") == std::string::npos
       ) {
         if (!runAndCheckSourceFile(filePath)) ret = false;
       }
@@ -296,13 +295,12 @@ int main(int argc, char **argv)
   if (!runEndToEndTests("./Core")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Spp")) ret = EXIT_FAILURE;
   if (!runEndToEndTests("./Srt")) ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Brl")) ret = EXIT_FAILURE;
 
   Str l18nPath = Core::Main::getModuleDirectory();
   l18nPath += S("../../../Notices_L18n/");
   Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath);
-  if (!runEndToEndTests("./Arabic")) ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./مـتا")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./Arabic", ".أسس")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests("./Srt", ".أسس")) ret = EXIT_FAILURE;
 
   std::remove(resultFilename);
 
