@@ -1,5 +1,4 @@
 import "Spp";
-import "globals.alusus";
 import "Srl/Console.alusus";
 import "Srl/String.alusus";
 import "Srl/System.alusus";

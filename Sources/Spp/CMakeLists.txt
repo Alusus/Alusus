@@ -12,6 +12,9 @@ include_directories("${LLVM_INCLUDE_DIRS}")
 link_directories("${LLVM_LIBRARY_DIRS}")
 add_definitions(${LLVM_DEFINITIONS})
 
+# Header and library files paths for AlususSrl
+include_directories("${AlususSrl_SOURCE_DIR}")
+
 # Header and library files paths for AlususCore
 include_directories("${AlususCore_SOURCE_DIR}")
 
@@ -67,8 +70,7 @@ set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
 
 # Finally, we link the LLVM and AlususCore libraries to our library.
 target_link_libraries(AlususSpp ${REQ_LLVM_LIBRARIES})
-target_link_libraries(AlususSpp AlususCoreLib)
-target_link_libraries(AlususSpp AlususStorage)
+target_link_libraries(AlususSpp AlususSrlLib AlususCoreLib AlususStorage)
 # Prevent the exporting of LLVM symbols
 set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
 target_link_libraries(AlususSpp ${LinkerVersionScript})

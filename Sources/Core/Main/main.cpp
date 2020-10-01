@@ -38,7 +38,7 @@ using namespace Data;
 //==============================================================================
 // Global Functions
 
-std::string getWorkingDirectory()
+Srl::String getWorkingDirectory()
 {
   thread_local static std::array<Char,FILENAME_MAX> currentPath;
 
@@ -47,13 +47,13 @@ std::string getWorkingDirectory()
     throw EXCEPTION(GenericException, S("Couldn't obtain the current working directory."));
   }
 
-  std::string path(currentPath.data());
-  if (path.back() != C('/')) path += C('/');
+  Srl::String path(currentPath.data());
+  if (path(path.getLength() - 1) != C('/')) path += C('/');
   return path;
 }
 
 
-std::string getModuleDirectory()
+Srl::String getModuleDirectory()
 {
   thread_local static std::array<Char,FILENAME_MAX> currentPath;
 
@@ -70,7 +70,7 @@ std::string getModuleDirectory()
   #endif
 
   Int pos = path.rfind(C('/'));
-  return std::string(path, 0, pos+1);
+  return Srl::String(path.c_str(), pos+1);
 }
 
 } // namespace

@@ -40,7 +40,7 @@ class AlternateTerm : public ListTerm
   //============================================================================
   // Types
 
-  public: typedef std::unordered_map<Str, Int, std::hash<std::string>> TextBasedDecisionCache;
+  public: typedef std::unordered_map<Str, Int, std::hash<Str>> TextBasedDecisionCache;
   public: typedef std::unordered_map<Word, Int> IdBasedDecisionCache;
 
 

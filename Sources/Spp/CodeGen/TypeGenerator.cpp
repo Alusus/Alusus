@@ -150,7 +150,7 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
   } else if (astType->isDerivedFrom<Spp::Ast::FunctionType>()) {
     return typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), g, session);
   } else {
-    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidTypeNotice>());
+    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidTypeNotice>());
     return false;
   }
 }
@@ -171,7 +171,7 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidIntegerBitCountNotice>());
+    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -187,7 +187,7 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
   if (bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(std::make_shared<Spp::Notices::InvalidFloatBitCountNotice>());
+    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -248,8 +248,8 @@ Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astT
 Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astType, Generation *g, Session *session)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  Str name = std::regex_replace(
-    typeGenerator->astHelper->resolveNodePath(astType), std::regex("[^a-zA-Z0-9_]"), S("_")
+  auto name = std::regex_replace(
+    typeGenerator->astHelper->resolveNodePath(astType).getBuf(), std::regex("[^a-zA-Z0-9_]"), S("_")
   );
 
   if (!typeGenerator->astProcessor->processTypeBody(astType)) return false;
@@ -281,7 +281,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   if (prevInProgress != 0) {
     if (prevInProgress->get()) {
       typeGenerator->noticeStore->add(
-        std::make_shared<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
+        newSrdObj<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
       );
       return false;
     } else {
@@ -319,7 +319,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         } else {
           if (TypeGenerator::isInjection(def)) {
             typeGenerator->noticeStore->add(
-              std::make_shared<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
+              newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
             );
             result = false;
           }
@@ -327,7 +327,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
       } else {
         if (TypeGenerator::isInjection(def)) {
           typeGenerator->noticeStore->add(
-            std::make_shared<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
+            newSrdObj<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
           );
           result = false;
         }
@@ -379,7 +379,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   // Prepare the constructor function.
   auto funcName = typeGenerator->astHelper->resolveNodePath(astType) + S(".__autoConstruct__");
   TioSharedPtr tgFunc;
-  if (!session->getTg()->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
+  if (!session->getTg()->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for type constructor."));
   }
   TioSharedPtr tgContext;
@@ -394,8 +394,10 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   childSession.setTgSelf(args.get(0));
   childSession.setAstSelfType(astType);
 
-  // Main loop.
   auto body = astType->getBody().get();
+  session->getEda()->setCodeGenData(body, tgContext);
+
+  // Main loop.
   for (Int i = 0; i < body->getCount(); ++i) {
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Data::Ast::Definition>(obj);
@@ -419,6 +421,8 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type constructor."));
   }
+
+  session->getEda()->removeCodeGenData(body);
 
   // Assign the function to the type.
   session->getEda()->setAutoCtor(astType, tgFunc);
@@ -458,7 +462,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
   // Prepare the destructor function.
   auto funcName = typeGenerator->astHelper->resolveNodePath(astType) + S(".__autoDestruct__");
   TioSharedPtr tgFunc;
-  if (!session->getTg()->generateFunctionDecl(funcName.c_str(), tgFuncType.get(), tgFunc)) {
+  if (!session->getTg()->generateFunctionDecl(funcName, tgFuncType.get(), tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for type destructor."));
   }
   TioSharedPtr tgContext;
@@ -529,7 +533,7 @@ Bool TypeGenerator::_generateFunctionType(
         return false;
       }
     }
-    tgArgs.add(astArgs->getKey(i).c_str(), tgType);
+    tgArgs.add(astArgs->getKey(i), tgType);
     Ast::setAstType(argType, astType);
   }
 

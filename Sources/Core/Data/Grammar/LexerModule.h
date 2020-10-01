@@ -63,7 +63,7 @@ class LexerModule : public Module, public CacheHaving
   public: static SharedPtr<LexerModule> create(
     std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
   ) {
-    return std::make_shared<LexerModule>(attrs, elements, useIndex);
+    return newSrdObj<LexerModule>(attrs, elements, useIndex);
   }
 
 

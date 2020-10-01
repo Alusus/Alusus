@@ -74,8 +74,8 @@ class CustomNotice : public Notice
   /// @sa Notice::getCode()
   public: virtual void buildDescription(Str &str) const
   {
-    str = L18nDictionary::getSingleton()->get(this->getCode().c_str(), this->msg.c_str());
-    if (this->param.size() > 0) {
+    str = L18nDictionary::getSingleton()->get(this->getCode(), this->msg);
+    if (this->param.getLength() > 0) {
       str += S(": ");
       str += param;
     }

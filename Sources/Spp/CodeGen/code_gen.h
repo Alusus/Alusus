@@ -153,7 +153,6 @@ class TargetGeneration;
 #include "IfTgContext.h"
 #include "LoopTgContext.h"
 #include "GlobalItemRepo.h"
-#include "StringLiteralRepo.h"
 
 // Interfaces
 #include "TargetGeneration.h"

@@ -67,12 +67,12 @@ class SequenceCharGroupUnit : public CharGroupUnit
 
   public: static SharedPtr<SequenceCharGroupUnit> create(WChar s, WChar e)
   {
-    return std::make_shared<SequenceCharGroupUnit>(s, e);
+    return newSrdObj<SequenceCharGroupUnit>(s, e);
   }
 
   public: static SharedPtr<SequenceCharGroupUnit> create(Char const *s, Char const *e)
   {
-    return std::make_shared<SequenceCharGroupUnit>(s, e);
+    return newSrdObj<SequenceCharGroupUnit>(s, e);
   }
 
 

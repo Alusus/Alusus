@@ -47,18 +47,18 @@ TypeMatchStatus UserType::matchTargetType(
 }
 
 
-Bool UserType::merge(TiObject *src, Core::Notices::Store *noticeStore)
+Bool UserType::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, noticeStore);
   if (src->isA<Core::Data::Ast::Scope>()) {
     auto scope = static_cast<Core::Data::Ast::Scope*>(src);
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), noticeStore);
+    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
   } else if (src->isDerivedFrom<UserType>()) {
     auto scope = static_cast<UserType*>(src)->getBody().get();
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), noticeStore);
+    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
   } else {
     noticeStore->add(
-      std::make_shared<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+      newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
     );
   }
   return false;
@@ -81,10 +81,18 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper, ExecutionContex
               if (method == TypeInitMethod::BOTH) break;
             }
           } else if (helper->isAstReference(def->getTarget().get()) && !helper->isSharedDef(def)) {
-            auto type = helper->traceType(def->getTarget().get());
-            if (type != 0 && type->getInitializationMethod(helper, ec) != TypeInitMethod::NONE) {
+            auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(def->getTarget().get());
+            if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+              // If there are args passed to the definition then it's an AUTO init method even if the object type
+              // is a primary data type.
               method |= TypeInitMethod::AUTO;
               if (method == TypeInitMethod::BOTH) break;
+            } else {
+              auto type = helper->traceType(def->getTarget().get());
+              if (type != 0 && type->getInitializationMethod(helper, ec) != TypeInitMethod::NONE) {
+                method |= TypeInitMethod::AUTO;
+                if (method == TypeInitMethod::BOTH) break;
+              }
             }
           }
         }

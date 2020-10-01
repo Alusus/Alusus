@@ -45,7 +45,7 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
 
   public: static SharedPtr<Box<CTYPE, PTYPE>> create(CTYPE const &o)
   {
-    return std::make_shared<Box<CTYPE, PTYPE>>(o);
+    return newSrdObj<Box<CTYPE, PTYPE>>(o);
   }
 
 

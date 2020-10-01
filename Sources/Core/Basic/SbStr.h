@@ -20,7 +20,7 @@ namespace Core::Basic
  * @brief Static buffer string with comparison operations.
  * @ingroup basic_datatypes
  *
- * This class uses static string buffers instead of the dynamic std::string
+ * This class uses static string buffers instead of the dynamic Srl::String
  * class. This class is a wrappar around the Char* buffers. It treats 'this' as
  * the pointer to the buffer. This allows the user to easily cast any buffer
  * into this class.
@@ -50,62 +50,26 @@ class SbStr
 
   public: Bool operator==(Char const *s) const
   {
-    return compareStr(this->c_str(), s) == 0;
+    return compareStr(this->getBuf(), s) == 0;
   }
 
   public: Bool operator!=(Char const *s) const
   {
-    return compareStr(this->c_str(), s) != 0;
-  }
-
-  public: Bool operator==(const std::string &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) == 0;
-  }
-
-  public: Bool operator!=(const std::string &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) != 0;
-  }
-
-  public: Bool operator==(const SbStr &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) == 0;
-  }
-
-  public: Bool operator!=(const SbStr &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) != 0;
+    return compareStr(this->getBuf(), s) != 0;
   }
 
   public: Bool operator>(Char const *s) const
   {
-    return compareStr(this->c_str(), s) > 0;
-  }
-
-  public: Bool operator>(const std::string &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) > 0;
-  }
-
-  public: Bool operator>(const SbStr &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) > 0;
+    return compareStr(this->getBuf(), s) > 0;
   }
 
   public: Bool operator<(Char const *s) const
   {
-    return compareStr(this->c_str(), s) < 0;
+    return compareStr(this->getBuf(), s) < 0;
   }
 
-  public: Bool operator<(const std::string &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) < 0;
-  }
-
-  public: Bool operator<(const SbStr &s) const
-  {
-    return compareStr(this->c_str(), s.c_str()) < 0;
+  public: operator Char const*() const {
+    return this->buf;
   }
 
 
@@ -155,37 +119,42 @@ class SbStr
 
   public: Char const* find(Char c) const
   {
-    return strchr(this->c_str(), c);
+    if (this->getBuf() == 0) return 0;
+    return strchr(this->getBuf(), c);
   }
 
   public: Char const* find(Char const *str) const
   {
-    return strstr(this->c_str(), str);
+    if (this->getBuf() == 0 || str == 0) return 0;
+    return strstr(this->getBuf(), str);
   }
 
   public: Int findPos(Char c) const
   {
-    auto found = strchr(this->c_str(), c);
-    return found == 0 ? -1 : found - this->c_str();
+    if (this->getBuf() == 0) return -1;
+    auto found = strchr(this->getBuf(), c);
+    return found == 0 ? -1 : found - this->getBuf();
   }
 
   public: Int findPos(Char const *str) const
   {
-    auto found = strstr(this->c_str(), str);
-    return found == 0 ? -1 : found - this->c_str();
+    if (this->getBuf() == 0 || str == 0) return -1;
+    auto found = strstr(this->getBuf(), str);
+    return found == 0 ? -1 : found - this->getBuf();
   }
 
-  public: Word size() const
+  public: Word getLength() const
   {
-    return getStrLen(this->c_str());
+    if (this->getBuf() == 0) return 0;
+    return getStrLen(this->getBuf());
   }
 
-  public: Char const* c_str() const
+  public: Char const* getBuf() const
   {
     return this->buf;
   }
 
-  public: Char* c_str()
+  public: Char* getBuf()
   {
     return this->buf;
   }

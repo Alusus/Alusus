@@ -52,7 +52,7 @@
   } \
   public: static SharedPtr<type> create() \
   { \
-    return std::make_shared<type>(); \
+    return newSrdObj<type>(); \
   }
 
 
@@ -64,7 +64,7 @@
   } \
   public: static SharedPtr<type> create(std::initializer_list<Argument> const &attrs) \
   { \
-    return std::make_shared<type>(attrs); \
+    return newSrdObj<type>(attrs); \
   }
 
 
@@ -76,7 +76,7 @@
   } \
   public: static SharedPtr<type> create(std::initializer_list<TioSharedPtr> const &args) \
   { \
-    return std::make_shared<type>(args); \
+    return newSrdObj<type>(args); \
   }
 
 
@@ -88,7 +88,7 @@
   } \
   public: static SharedPtr<type> create(std::initializer_list<Argument> const &elements) \
   { \
-    return std::make_shared<type>(elements); \
+    return newSrdObj<type>(elements); \
   }
 
 
@@ -103,7 +103,7 @@
   public: static SharedPtr<type> create(std::initializer_list<Argument> const &attrs, \
                                         std::initializer_list<TioSharedPtr> const &elements) \
   { \
-    return std::make_shared<type>(attrs, elements); \
+    return newSrdObj<type>(attrs, elements); \
   }
 
 
@@ -118,7 +118,7 @@
   public: static SharedPtr<type> create(std::initializer_list<Argument> const &attrs, \
                                         std::initializer_list<Argument> const &elements) \
   { \
-    return std::make_shared<type>(attrs, elements); \
+    return newSrdObj<type>(attrs, elements); \
   }
 
 #endif

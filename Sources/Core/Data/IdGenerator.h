@@ -32,22 +32,10 @@ namespace Core { namespace Data
 class IdGenerator
 {
   //============================================================================
-  // Data Types
-
-  private: struct Desc
-  {
-    Str str;
-  };
-
-  private: typedef DirectSortedIndex<Desc, Str, &Desc::str> Index;
-
-
-  //============================================================================
   // Member Variables
 
-  private: std::vector<Desc> ids;
-
-  private: Index index;
+  private: Srl::Array<Str> ids;
+  private: Srl::ArrayIndex<Str> index;
 
 
   //============================================================================
@@ -65,7 +53,7 @@ class IdGenerator
 
   public: Bool isDefined(Word id) const
   {
-    return id < this->ids.size();
+    return id < this->ids.getLength();
   }
 
   public: Word getId(Char const *desc);

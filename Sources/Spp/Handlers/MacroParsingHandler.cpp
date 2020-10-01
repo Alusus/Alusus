@@ -97,20 +97,20 @@ Bool MacroParsingHandler::parseArgs(
   if (args == 0) {
     return true;
   } else if (args->isDerivedFrom<Core::Data::Ast::List>()) {
-    result = std::make_shared<Core::Data::Ast::Map>();
+    result = newSrdObj<Core::Data::Ast::Map>();
     auto argsList = static_cast<Core::Data::Ast::List*>(args);
-    result = std::make_shared<Core::Data::Ast::Map>();
+    result = newSrdObj<Core::Data::Ast::Map>();
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
-        state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(bracket->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(bracket->findSourceLocation()));
         return false;
       }
       if (!this->parseArg(state, argsList->getElement(i), result)) return false;
     }
     return true;
   } else {
-    result = std::make_shared<Core::Data::Ast::Map>();
+    result = newSrdObj<Core::Data::Ast::Map>();
     return this->parseArg(state, args, result);
   }
 }
@@ -123,16 +123,16 @@ Bool MacroParsingHandler::parseArg(
   if (arg->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto link = static_cast<Core::Data::Ast::LinkOperator*>(arg);
     if (link->getType() != S(":")) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
       return false;
     }
     auto name = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
     if (name == 0) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
       return false;
     }
     if (!link->getSecond()->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-      state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
       return false;
     }
     result->add(name->getValue().get(), link->getSecond());
@@ -142,7 +142,7 @@ Bool MacroParsingHandler::parseArg(
     result->add(name->getValue().get(), TioSharedPtr::null);
     return true;
   } else {
-    state->addNotice(std::make_shared<Spp::Notices::InvalidMacroArgDefNotice>(Core::Data::Ast::findSourceLocation(arg)));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(Core::Data::Ast::findSourceLocation(arg)));
     return false;
   }
 }

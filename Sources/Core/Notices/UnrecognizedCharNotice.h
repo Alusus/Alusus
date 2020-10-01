@@ -111,9 +111,9 @@ class UnrecognizedCharNotice : public Notice
   public: void appendText(Char ch, Data::SourceLocationRecord const &sl)
   {
     if (this->getSourceLocation() == 0) {
-      this->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(sl));
+      this->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(sl));
     }
-    this->text.append(1, ch);
+    this->text.append(&ch, 1);
   }
 
   /**
@@ -134,7 +134,7 @@ class UnrecognizedCharNotice : public Notice
   {
     if (str == 0 || str[0] == C('\0')) return;
     if (this->getSourceLocation() == 0) {
-      this->setSourceLocation(std::make_shared<Data::SourceLocationRecord>(sl));
+      this->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(sl));
     }
     this->text.append(str);
   }
@@ -166,7 +166,7 @@ class UnrecognizedCharNotice : public Notice
    */
   public: Int getTextLength() const
   {
-    return this->text.size();
+    return this->text.getLength();
   }
 
   /**

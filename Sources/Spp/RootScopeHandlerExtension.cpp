@@ -21,7 +21,7 @@ namespace Spp
 RootScopeHandlerExtension::Overrides* RootScopeHandlerExtension::extend(
   Core::Main::RootScopeHandler *handler, Core::Main::RootManager *rootManager
 ) {
-  auto extension = std::make_shared<RootScopeHandlerExtension>(handler);
+  auto extension = newSrdObj<RootScopeHandlerExtension>(handler);
   handler->addDynamicInterface(extension);
 
   auto overrides = new Overrides();

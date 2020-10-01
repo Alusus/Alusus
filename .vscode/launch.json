@@ -36,15 +36,16 @@
       }
     },
     {
-      "name": "C++ Test",
+      "name": "C++ Tests",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/Builds/debug/Tests/alusus_tests.dbg",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceRoot}/Sources/Tests/",
+      "cwd": "${workspaceRoot}/Sources/Tests",
       "environment": [
-        {"name": "LD_LIBRARY_PATH", "value": "${workspaceRoot}/Lib"}
+        { "name": "LD_LIBRARY_PATH", "value": "${workspaceRoot}/Lib" },
+        { "name": "ALUSUS_LIBS", "value": "${workspaceRoot}/Lib" }
       ],
       "externalConsole": false,
       "linux": {

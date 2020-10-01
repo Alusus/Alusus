@@ -1,7 +1,21 @@
-import "Srl/Memory";
+/**
+ * @file Srl/refs.alusus
+ * Contains definitions of different reference types.
+ *
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "Memory";
 
 @merge module Srl
 {
+    //==========================================================================
+    // RefCounter
     // A ref counting object to be used by the shared references.
     type RefCounter {
         def count: Int;
@@ -38,11 +52,18 @@ import "Srl/Memory";
         }
     };
 
+
+    //==========================================================================
+    // SharedRef
     // Shared Reference
     type SrdRef [T: type] {
+        //=================
+        // Member Variables
+
         def refCounter: ref[RefCounter];
         @injection def obj: ref[T];
 
+        //===============
         // Initialization
 
         handler this~init() this._init();
@@ -57,6 +78,11 @@ import "Srl/Memory";
             this.assign(r);
         };
 
+        handler this~init(c: ref[RefCounter], r: ref[T]) {
+            this._init();
+            this.assign(c, r);
+        };
+
         handler this~init(p: ref[T]) {
             this._init();
             this.own(p);
@@ -64,6 +90,7 @@ import "Srl/Memory";
 
         handler this~terminate() this.release();
 
+        //=================
         // Member Functions
 
         func _init {
@@ -96,11 +123,20 @@ import "Srl/Memory";
         };
 
         func own (existingObj: ref[T]) {
+            if existingObj~ptr == this.obj~ptr return;
             this.release();
-            this.refCounter~no_deref = RefCounter.alloc(existingObj~ptr, terminate~ptr);
-            this.refCounter.count = 1;
-            this.obj~ptr = existingObj~ptr;
+            if existingObj~ptr != 0 {
+                this.refCounter~no_deref = RefCounter.alloc(existingObj~ptr, terminate~ptr);
+                this.refCounter.count = 1;
+                this.obj~ptr = existingObj~ptr;
+            }
         };
+
+        @shared func own (existingObj: ref[T]): SrdRef[T] {
+            def r: SrdRef[T];
+            r.own(existingObj);
+            return r;
+        }
 
         func release {
             if this.refCounter~ptr != 0 {
@@ -118,18 +154,21 @@ import "Srl/Memory";
         };
 
         func assign (c: ref[RefCounter], r: ref[T]) {
-            this.release();
-            this.refCounter~ptr = c~ptr;
+            if c~ptr != this.refCounter~ptr {
+                this.release();
+                this.refCounter~ptr = c~ptr;
+                if this.refCounter~ptr != 0 {
+                    ++this.refCounter.count;
+                };
+            }
             this.obj~ptr = r~ptr;
-            if this.refCounter~ptr != 0 {
-                ++this.refCounter.count;
-            };
         };
 
         @shared func terminate (p: ptr) {
             p~cast[ptr[T]]~cnt~terminate();
         }
 
+        //==========
         // Operators
 
         handler this = ref[SrdRef[T]] this.assign(value);
@@ -140,11 +179,17 @@ import "Srl/Memory";
     };
 
 
+    //==========================================================================
+    // WkRef
     // Weak Reference
     type WkRef [T: type] {
+        //=================
+        // Member Variables
+
         def refCounter: ref[RefCounter];
         @injection def obj: ref[T];
 
+        //===============
         // Initialization
 
         handler this~init() this._init();
@@ -159,6 +204,12 @@ import "Srl/Memory";
             this.assign(r);
         };
 
+        handler this~init(c: ref[RefCounter], r: ref[T]) {
+            this._init();
+            this.assign(c, r);
+        };
+
+        //=================
         // Member Functions
 
         func _init {
@@ -185,6 +236,7 @@ import "Srl/Memory";
             this.obj~ptr = r~ptr;
         };
 
+        //==========
         // Operators
 
         handler this = ref[SrdRef[T]] this.assign(value);
@@ -195,10 +247,16 @@ import "Srl/Memory";
     };
 
 
+    //==========================================================================
+    // UnqRef
     // Unique Reference
     type UnqRef [T: type] {
+        //=================
+        // Member Variables
+
         @injection def obj: ref[T];
 
+        //===============
         // Initialization
 
         handler this~init() this.obj~ptr = 0;
@@ -209,18 +267,19 @@ import "Srl/Memory";
 
         func construct {
             this.release();
-            this.obj~ptr = Srl.Memory.alloc(T~size)~cast[ptr[T]];
+            this.obj~ptr = Memory.alloc(T~size)~cast[ptr[T]];
             this.obj~init();
         };
 
         func release {
             if this.obj~ptr != 0 {
                 this.obj~terminate();
-                Srl.Memory.free(this.obj~ptr);
+                Memory.free(this.obj~ptr);
                 this.obj~ptr = 0;
             }
         };
 
+        //==========
         // Operators
 
         handler this = ptr[T] {

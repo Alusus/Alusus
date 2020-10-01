@@ -45,7 +45,7 @@ class SourceLocationRecord : public SourceLocation
   //============================================================================
   // Members
 
-  public: SharedPtr<Str> filename;
+  public: Str filename;
 
   /**
    * @brief The line number within the source file.
@@ -67,7 +67,7 @@ class SourceLocationRecord : public SourceLocation
   {
   }
 
-  public: SourceLocationRecord(SharedPtr<Str> const &fname, Int l, Int c) : filename(fname), line(l), column(c)
+  public: SourceLocationRecord(Str const &fname, Int l, Int c) : filename(fname), line(l), column(c)
   {
   }
 

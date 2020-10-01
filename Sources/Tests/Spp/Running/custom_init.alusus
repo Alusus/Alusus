@@ -35,6 +35,7 @@ type B
 type C
 {
   def i: Int;
+  def j: Int(17);
   Srl.Console.print("C constructed!\n");
   i = 3;
 };
@@ -147,7 +148,7 @@ function testAutoInit
 function testInlinedInit
 {
   def gc: C;
-  Srl.Console.print("testInlinedInit: %d\n", gc.i);
+  Srl.Console.print("testInlinedInit: %d, %d\n", gc.i, gc.j);
 };
 
 function testInitRedirect

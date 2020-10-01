@@ -43,7 +43,7 @@ namespace Core::Data::Ast
     for (Word i = 0; i < this->getElementCount(); ++i) { \
       stream << S("\n"); \
       printIndents(stream, indents+1); \
-      stream << this->getElementKey(i).c_str() << S(": "); \
+      stream << this->getElementKey(i) << S(": "); \
       Core::Data::dumpData(stream, this->getElement(i), indents+1); \
     } \
   }
@@ -83,10 +83,14 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject const *obj);
 
 void addSourceLocation(TiObject *obj, SourceLocation *sl);
 
-Bool mergeDefinition(Definition *def, DynamicContaining<TiObject> *target, Notices::Store *noticeStore);
-Bool addPossiblyMergeableElement(TiObject *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore);
+Bool mergeDefinition(
+  Definition *def, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+);
+Bool addPossiblyMergeableElement(
+  TiObject *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+);
 Bool addPossiblyMergeableElements(
-  Containing<TiObject> *src, DynamicContaining<TiObject> *target, Notices::Store *noticeStore
+  Containing<TiObject> *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
 );
 void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier);
 

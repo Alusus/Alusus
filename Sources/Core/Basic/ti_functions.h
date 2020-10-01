@@ -70,7 +70,7 @@ template<class FT> class TiFunction : public TiFunctionBase
 
   public: static SharedPtr<TiFunction<FT>> create(Fn const &f)
   {
-    return std::make_shared<TiFunction<FT>>(f);
+    return newSrdObj<TiFunction<FT>>(f);
   }
 
 }; // class
@@ -111,12 +111,12 @@ template<class FT> class TiFunctionOverride : public TiFunction<FT>
 
   public: static SharedPtr<TiFunctionOverride<FT>> create(Fn const &f)
   {
-    return std::make_shared<TiFunctionOverride<FT>>(f);
+    return newSrdObj<TiFunctionOverride<FT>>(f);
   }
 
   public: static SharedPtr<TiFunctionOverride<FT>> create(Fn const &f, SharedPtr<TiFunctionBase> const &super)
   {
-    return std::make_shared<TiFunctionOverride<FT>>(f, super);
+    return newSrdObj<TiFunctionOverride<FT>>(f, super);
   }
 
 

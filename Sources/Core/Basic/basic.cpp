@@ -33,6 +33,42 @@ static const FacetType& utf8Facet = std::use_facet<FacetType>(utf8Locale);
 //============================================================================
 // Global Functions
 
+Int compareStr(Char const *str1, Char const *str2)
+{
+  if (str1 == 0 && str2 == 0) return 0;
+  else if (str1 == 0) return -1;
+  else if (str2 == 0) return 1;
+  else return strcmp(str1, str2);
+}
+
+
+Int compareStr(WChar const *str1, WChar const *str2)
+{
+  if (str1 == 0 && str2 == 0) return 0;
+  else if (str1 == 0) return -1;
+  else if (str2 == 0) return 1;
+  else return wcscmp(str1, str2);
+}
+
+
+Int compareStr(Char const *str1, Char const *str2, Int size)
+{
+  if (str1 == 0 && str2 == 0) return 0;
+  else if (str1 == 0) return -1;
+  else if (str2 == 0) return 1;
+  else return strncmp(str1, str2, size);
+}
+
+
+Int compareStr(WChar const *str1, WChar const *str2, Int size)
+{
+  if (str1 == 0 && str2 == 0) return 0;
+  else if (str1 == 0) return -1;
+  else if (str2 == 0) return 1;
+  else return wcsncmp(str1, str2, size);
+}
+
+
 Bool compareStrSuffix(Char const *str, Char const *suffix)
 {
   Word strLen = getStrLen(str);

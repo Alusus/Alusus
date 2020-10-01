@@ -55,7 +55,7 @@ class RandomCharGroupUnit : public CharGroupUnit
 
   public: static SharedPtr<RandomCharGroupUnit> create(Char const *list=0)
   {
-    return std::make_shared<RandomCharGroupUnit>(list);
+    return newSrdObj<RandomCharGroupUnit>(list);
   }
 
 
@@ -73,7 +73,7 @@ class RandomCharGroupUnit : public CharGroupUnit
     if (list == 0) {
       throw EXCEPTION(InvalidArgumentException, S("list"), S("list is null."));
     }
-    if (this->charList.size() != 0) {
+    if (this->charList.getLength() != 0) {
       throw EXCEPTION(GenericException, S("Modifying an already set char list is not allowed."));
     }
     this->charList = list;
@@ -85,13 +85,13 @@ class RandomCharGroupUnit : public CharGroupUnit
    */
   public: WChar const* getCharList() const
   {
-    return this->charList.c_str();
+    return this->charList;
   }
 
   /// Get the size of the character list returned by getCharList.
   public: Int getCharListSize() const
   {
-    return this->charList.size();
+    return this->charList.getLength();
   }
 
 }; // class

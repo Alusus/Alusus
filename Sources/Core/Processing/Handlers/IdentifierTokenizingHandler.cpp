@@ -26,7 +26,7 @@ void IdentifierTokenizingHandler::prepareToken(
   token->setText(tokenText, tokenTextLength);
   token->setId(id);
   token->setSourceLocation(sourceLocation);
-  auto count = this->keywords.count(token->getText().c_str());
+  auto count = this->keywords.count(token->getText());
   if (count == 1) token->setAsKeyword(true);
   else token->setAsKeyword(false);
 }

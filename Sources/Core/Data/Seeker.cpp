@@ -656,7 +656,9 @@ Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
   TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map, ForeachCallback const &cb,
   Word flags
 ) {
-  auto obj = map->getElement(identifier->getValue().get());
+  auto index = map->findElementIndex(identifier->getValue().get());
+  if (index == -1) return Verb::MOVE;
+  auto obj = map->getElement(index);
   if (obj->isDerivedFrom<Ast::Alias>()) {
     PREPARE_SELF(seeker, Seeker);
     auto alias = static_cast<Ast::Alias*>(obj);

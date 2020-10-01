@@ -26,7 +26,7 @@ namespace Core { namespace Basic
     Str msg = S("Invalid argument type for element `"); \
     msg += VARNAMESTR_FROM_TUPLE var; \
     msg += S("`"); \
-    throw EXCEPTION(InvalidArgumentException, S("val"), msg.c_str(), val->getMyTypeInfo()->getUniqueName()); \
+    throw EXCEPTION(InvalidArgumentException, S("val"), msg, val->getMyTypeInfo()->getUniqueName()); \
   } \
   VARSETTER_FROM_TUPLE var
 

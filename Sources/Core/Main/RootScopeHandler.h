@@ -37,6 +37,8 @@ class RootScopeHandler : public TiObject, public DynamicBinding, public DynamicI
   //============================================================================
   // Member Variables
 
+  private: Data::Seeker *seeker;
+
   private: SharedPtr<Data::Ast::Scope> rootScope;
 
 
@@ -71,6 +73,16 @@ class RootScopeHandler : public TiObject, public DynamicBinding, public DynamicI
   public: SharedPtr<Data::Ast::Scope> const& getRootScope() const
   {
     return this->rootScope;
+  }
+
+  public: void setSeeker(Data::Seeker *s)
+  {
+    this->seeker = s;
+  }
+
+  public: Data::Seeker* getSeeker() const
+  {
+    return this->seeker;
   }
 
   /// @}

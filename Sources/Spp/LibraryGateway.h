@@ -32,7 +32,6 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<Ast::Helper> astHelper;
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
   private: SharedPtr<CodeGen::GlobalItemRepo> globalItemRepo;
-  private: SharedPtr<CodeGen::StringLiteralRepo> stringLiteralRepo;
   private: SharedPtr<SharedList<TiObject>> astLiteralRepo;
   private: SharedPtr<CodeGen::AstProcessor> astProcessor;
   private: SharedPtr<CodeGen::TypeGenerator> typeGenerator;

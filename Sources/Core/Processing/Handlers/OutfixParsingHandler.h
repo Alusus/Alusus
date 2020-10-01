@@ -85,7 +85,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
                       currentData->getMyTypeInfo()->getUniqueName());
     }
 
-    auto obj = std::make_shared<PREFIXTYPE>();
+    auto obj = newSrdObj<PREFIXTYPE>();
     obj->setOperand(data);
     obj->setType(token->getText());
 
@@ -105,7 +105,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
                       currentData->getMyTypeInfo()->getUniqueName());
     }
 
-    auto obj = std::make_shared<POSTFIXTYPE>();
+    auto obj = newSrdObj<POSTFIXTYPE>();
     obj->setOperand(currentData);
     obj->setType(token->getText());
 

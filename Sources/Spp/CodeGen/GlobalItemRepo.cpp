@@ -20,8 +20,8 @@ namespace Spp::CodeGen
 
 GlobalItemRepo::~GlobalItemRepo()
 {
-  for (Int i = 0; i < this->entries.size(); ++i) {
-    if (this->entries[i].size != 0) free(this->entries[i].ptr);
+  for (Int i = 0; i < this->map.getLength(); ++i) {
+    if (this->map.valAt(i).size != 0) free(this->map.valAt(i).ptr);
   }
 }
 
@@ -31,20 +31,17 @@ GlobalItemRepo::~GlobalItemRepo()
 
 void GlobalItemRepo::addItem(Char const *name, Word size, void *ptr)
 {
-  Int i = this->index.find(Str(name));
+  Int i = this->map.findPos(Str(true, name));
   if (i == -1) {
-    this->entries.push_back(Entry());
-    this->entries.back().name = name;
-    this->entries.back().size = size;
-    this->entries.back().ptr = malloc(size);
+    void *ptrCopy = malloc(size);
     if (ptr == 0) {
-      memset(this->entries.back().ptr, 0, size);
+      memset(ptrCopy, 0, size);
     } else {
-      memcpy(this->entries.back().ptr, ptr, size);
+      memcpy(ptrCopy, ptr, size);
     }
-    this->index.add();
+    this->map(name) = Entry(size, ptrCopy);
   } else {
-    if (this->entries[i].size != size) {
+    if (this->map.valAt(i).size != size) {
       throw EXCEPTION(GenericException, S("An existing variable is found with a different size."));
     }
   }
@@ -53,13 +50,9 @@ void GlobalItemRepo::addItem(Char const *name, Word size, void *ptr)
 
 void GlobalItemRepo::addItem(Char const *name, void *ptr)
 {
-  Int i = this->index.find(Str(name));
+  Int i = this->map.findPos(Str(true, name));
   if (i == -1) {
-    this->entries.push_back(Entry());
-    this->entries.back().name = name;
-    this->entries.back().size = 0;
-    this->entries.back().ptr = ptr;
-    this->index.add();
+    this->map(name) = Entry(0, ptr);
   } else {
     throw EXCEPTION(GenericException, S("An existing variable is found with a different size."));
   }
@@ -68,28 +61,28 @@ void GlobalItemRepo::addItem(Char const *name, void *ptr)
 
 Str const& GlobalItemRepo::getItemName(Int i) const
 {
-  if (i < 0 || i >= this->entries.size()) {
+  if (i < 0 || i >= this->map.getLength()) {
     throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
   }
-  return this->entries[i].name;
+  return this->map.keyAt(i);
 }
 
 
 Word GlobalItemRepo::getItemSize(Int i) const
 {
-  if (i < 0 || i >= this->entries.size()) {
+  if (i < 0 || i >= this->map.getLength()) {
     throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
   }
-  return this->entries[i].size;
+  return this->map.valAt(i).size;
 }
 
 
 void* GlobalItemRepo::getItemPtr(Int i) const
 {
-  if (i < 0 || i >= this->entries.size()) {
+  if (i < 0 || i >= this->map.getLength()) {
     throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
   }
-  return this->entries[i].ptr;
+  return this->map.valAt(i).ptr;
 }
 
 } // namespace

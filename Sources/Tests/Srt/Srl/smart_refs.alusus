@@ -1,6 +1,5 @@
-import "Srl/Refs.alusus";
+import "Srl/refs.alusus";
 import "Srl/Console.alusus";
-
 use Srl;
 
 type Num {

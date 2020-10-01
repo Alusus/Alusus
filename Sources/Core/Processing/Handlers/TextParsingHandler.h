@@ -41,7 +41,7 @@ template <class TYPE> class TextParsingHandler : public GenericParsingHandler
   protected: virtual SharedPtr<TiObject> createTokenNode(ParserState *state, Int levelIndex,
                                                          Word tokenId, Char const *tokenText)
   {
-    auto obj = std::make_shared<TYPE>();
+    auto obj = newSrdObj<TYPE>();
     obj->setValue(tokenText);
     return obj;
   }

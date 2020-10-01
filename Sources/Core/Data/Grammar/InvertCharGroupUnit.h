@@ -66,7 +66,7 @@ class InvertCharGroupUnit : public CharGroupUnit
 
   public: static SharedPtr<InvertCharGroupUnit> create(SharedPtr<CharGroupUnit> const &cgu)
   {
-    return std::make_shared<InvertCharGroupUnit>(cgu);
+    return newSrdObj<InvertCharGroupUnit>(cgu);
   }
 
 

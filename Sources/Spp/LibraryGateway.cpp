@@ -25,22 +25,20 @@ using namespace Core::Processing::Handlers;
 void LibraryGateway::initialize(Main::RootManager *manager)
 {
   // Create AST helpers.
-  this->nodePathResolver = std::make_shared<Ast::NodePathResolver>();
-  this->astHelper = std::make_shared<Ast::Helper>(manager, this->nodePathResolver.get());
+  this->nodePathResolver = newSrdObj<Ast::NodePathResolver>();
+  this->astHelper = newSrdObj<Ast::Helper>(manager, this->nodePathResolver.get());
 
   // Create global repos.
-  this->stringLiteralRepo = std::make_shared<CodeGen::StringLiteralRepo>();
-  this->astLiteralRepo = std::make_shared<SharedList<TiObject>>();
-  this->globalItemRepo = std::make_shared<CodeGen::GlobalItemRepo>();
+  this->astLiteralRepo = newSrdObj<SharedList<TiObject>>();
+  this->globalItemRepo = newSrdObj<CodeGen::GlobalItemRepo>();
 
   // Create the generator.
-  this->typeGenerator = std::make_shared<CodeGen::TypeGenerator>(this->astHelper.get());
-  this->expressionGenerator = std::make_shared<CodeGen::ExpressionGenerator>(
-    this->astHelper.get(),
-    this->stringLiteralRepo.get()
+  this->typeGenerator = newSrdObj<CodeGen::TypeGenerator>(this->astHelper.get());
+  this->expressionGenerator = newSrdObj<CodeGen::ExpressionGenerator>(
+    this->astHelper.get()
   );
-  this->commandGenerator = std::make_shared<CodeGen::CommandGenerator>(this->astHelper.get());
-  this->generator = std::make_shared<CodeGen::Generator>(
+  this->commandGenerator = newSrdObj<CodeGen::CommandGenerator>(this->astHelper.get());
+  this->generator = newSrdObj<CodeGen::Generator>(
     manager,
     this->astHelper.get(),
     this->globalItemRepo.get(),
@@ -54,22 +52,22 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
-  this->buildManager = std::make_shared<BuildManager>(
+  this->buildManager = newSrdObj<BuildManager>(
     manager,
     this->astHelper.get(),
     this->generator.get(),
     this->globalItemRepo.get()
   );
 
-  this->astProcessor = std::make_shared<CodeGen::AstProcessor>(
+  this->astProcessor = newSrdObj<CodeGen::AstProcessor>(
     this->astHelper.get(), this->buildManager.ti_cast_get<Executing>()
   );
   this->generator->setAstProcessor(this->astProcessor.get());
   this->typeGenerator->setAstProcessor(this->astProcessor.get());
 
   // Prepare run-time objects.
-  this->rtAstMgr = std::make_shared<Rt::AstMgr>();
-  this->rtBuildMgr = std::make_shared<Rt::BuildMgr>(this->buildManager.get());
+  this->rtAstMgr = newSrdObj<Rt::AstMgr>();
+  this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(this->buildManager.get());
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
@@ -80,7 +78,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 
   // Add the grammar.
   GrammarFactory factory;
-  factory.createGrammar(manager->getRootScope().get());
+  factory.createGrammar(manager);
 
   this->createBuiltInTypes(manager);
   this->createGlobalDefs(manager);
@@ -109,14 +107,13 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->commandGenerator.reset();
   this->expressionGenerator.reset();
   this->typeGenerator.reset();
-  this->stringLiteralRepo.reset();
   this->globalItemRepo.reset();
   this->nodePathResolver.reset();
   this->astHelper.reset();
 
   // Clean the grammar.
   GrammarFactory factory;
-  factory.cleanGrammar(manager->getRootScope().get());
+  factory.cleanGrammar(manager);
 
   this->removeGlobalDefs(manager);
   this->removeBuiltInTypes(manager);
@@ -147,7 +144,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   auto defaultIntBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultIntBitCount)
+    newSrdObj<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultIntBitCount)
   }));
   tmplt->setBody(Ast::IntegerType::create({ { S("withSign"), TiBool(true) } }));
   identifier.setValue(S("Int"));
@@ -157,7 +154,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   auto defaultWordBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultWordBitCount)
+    newSrdObj<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultWordBitCount)
   }));
   tmplt->setBody(Ast::IntegerType::create({ { S("withSign"), TiBool(false) } }));
   identifier.setValue(S("Word"));
@@ -167,7 +164,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   auto defaultFloatBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultFloatBitCount)
+    newSrdObj<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultFloatBitCount)
   }));
   tmplt->setBody(Ast::FloatType::create());
   identifier.setValue(S("Float"));
@@ -177,7 +174,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   tmplt = Ast::Template::create();
   auto defaultPtrType = Core::Data::Ast::Identifier::create({{ S("value"), TiStr(S("Void")) }});
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE, defaultPtrType)
+    newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE, defaultPtrType)
   }));
   tmplt->setBody(Ast::PointerType::create());
   identifier.setValue(S("ptr"));
@@ -186,7 +183,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   // ref
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
+    newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
   tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::EXPLICIT) } }));
   identifier.setValue(S("ref"));
@@ -195,7 +192,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   // iref
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
+    newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
   tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::IMPLICIT) } }));
   identifier.setValue(S("iref"));
@@ -204,7 +201,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   // ndref
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
+    newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
   tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::NO_DEREF) } }));
   identifier.setValue(S("ndref"));
@@ -214,8 +211,8 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   auto defaultArraySize = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
-    std::make_shared<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE),
-    std::make_shared<Ast::TemplateVarDef>(S("size"), Ast::TemplateVarType::INTEGER, defaultArraySize)
+    newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE),
+    newSrdObj<Ast::TemplateVarDef>(S("size"), Ast::TemplateVarType::INTEGER, defaultArraySize)
   }));
   tmplt->setBody(Ast::ArrayType::create());
   identifier.setValue(S("array"));
@@ -303,7 +300,7 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
 {
   auto argCount = manager->getProcessArgCount();
   auto args = manager->getProcessArgs();
-  auto language = manager->getLanguage().c_str();
+  auto language = manager->getLanguage().getBuf();
   this->globalItemRepo->addItem(S("!Process.argCount"), sizeof(argCount), &argCount);
   this->globalItemRepo->addItem(S("!Process.args"), sizeof(args), &args);
   this->globalItemRepo->addItem(S("!Process.language"), sizeof(language), &language);

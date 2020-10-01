@@ -102,38 +102,6 @@ namespace Core::Basic
  */
 
 /**
- * @brief Wrapper for string literals.
- * @ingroup basic_macros
- *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode. Every string
- * literal in the source code should be wrapped by this macro.
- */
-#define S(x)	u8##x
-
-/**
- * @brief Wrapper for character literals.
- * @ingroup basic_macros
- *
- * This wrapper is needed for future purposes. The main purpose of this is to
- * allow easy conversion of the program from ascii to unicode. Every character
- * literal in the source code should be wrapped by this macro.
- */
-#define C(x)	u8##x
-
-/**
- * @brief Wrapper for wide character literals.
- * @ingroup basic_macros
- */
-#define WC(x) U##x
-
-/**
- * @brief Maps to the standard C++ assert function.
- * @ingroup basic_macros
- */
-#define ASSERT(x) assert(x)
-
-/**
  * @brief Select a macro based on number of arguments.
  * @ingroup basic_macros
  *
@@ -431,59 +399,6 @@ s_enum(LogLevel,
  */
 
 /// @ingroup basic_datatypes
-typedef unsigned char Byte;
-
-/// @ingroup basic_datatypes
-typedef char Char;
-
-/// @ingroup basic_datatypes
-typedef wchar_t WChar;
-
-/// @ingroup basic_datatypes
-typedef int Int;
-
-/// @ingroup basic_datatypes
-typedef short ShortInt;
-
-/// @ingroup basic_datatypes
-typedef long long int LongInt;
-
-/**
- * @brief An integer of the same size as pointers.
- * This is used for pointer arithmetics.
- * @ingroup basic_datatypes
- */
-typedef long long int PtrInt;
-
-/// @ingroup basic_datatypes
-typedef float Float;
-
-/// @ingroup basic_datatypes
-typedef double Double;
-
-/// @ingroup basic_datatypes
-typedef bool Bool;
-
-/// @ingroup basic_datatypes
-typedef unsigned int Word;
-
-/// @ingroup basic_datatypes
-typedef unsigned short ShortWord;
-
-/// @ingroup basic_datatypes
-typedef unsigned long long int LongWord;
-
-/**
- * @brief A word of the same size as pointers.
- * This is used for things lik IDs that need to be the same size as pointers.
- * @ingroup basic_datatypes
- */
-typedef unsigned long long int PtrWord;
-
-/// @ingroup basic_datatypes
-typedef std::stringstream StrStream;
-
-/// @ingroup basic_datatypes
 typedef std::ostream OutStream;
 
 /// @ingroup basic_datatypes
@@ -511,10 +426,7 @@ s_enum(HoldMode, SHARED_REF, WEAK_REF, PLAIN_REF, VALUE);
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(Char const *str1, Char const *str2)
-{
-    return strcmp(str1, str2);
-}
+Int compareStr(Char const *str1, Char const *str2);
 
 /**
  * @brief Wrapper for wide string comparison function.
@@ -522,10 +434,7 @@ inline Int compareStr(Char const *str1, Char const *str2)
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(WChar const *str1, WChar const *str2)
-{
-  return wcscmp(str1, str2);
-}
+Int compareStr(WChar const *str1, WChar const *str2);
 
 /**
  * @brief Wrapper for string comparison function.
@@ -533,10 +442,7 @@ inline Int compareStr(WChar const *str1, WChar const *str2)
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(Char const *str1, Char const *str2, Int size)
-{
-    return strncmp(str1, str2, size);
-}
+Int compareStr(Char const *str1, Char const *str2, Int size);
 
 /**
  * @brief Wrapper for wide string comparison function.
@@ -544,10 +450,7 @@ inline Int compareStr(Char const *str1, Char const *str2, Int size)
  *
  * The main purpose of this is to support both regular and wide character types.
  */
-inline Int compareStr(WChar const *str1, WChar const *str2, Int size)
-{
-  return wcsncmp(str1, str2, size);
-}
+Int compareStr(WChar const *str1, WChar const *str2, Int size);
 
 /**
  * @brief Compares the end of a string with another string.
@@ -681,12 +584,35 @@ void printIndents(OutStream &stream, int indents);
  * @brief Generate an Str from the given format and args.
  * @ingroup basic_functions
  */
-template<typename ... Args> std::string formatString(Char const *format, Args ...args )
+template<typename ... Args> Srl::String formatString(Char const *format, Args ...args )
 {
   std::size_t size = std::snprintf(nullptr, 0, format, args...) + 1;
   std::unique_ptr<char[]> buf(new char[size]);
   snprintf(buf.get(), size, format, args...);
-  return std::string(buf.get(), buf.get() + size - 1);
+  return Srl::String(buf.get(), size);
+}
+
+class TiObject;
+
+/**
+ * @brief Construct a new shared object.
+ * @ingroup basic_functions
+ */
+template <class T, class ...ARGS,
+          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
+SrdRef<T> newSrdObj(ARGS... args) {
+  SrdRef<T> r;
+  r.construct(args...);
+  r.get()->wkThis = r;
+  return r;
+}
+
+template <class T, class ...ARGS,
+          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
+SrdRef<T> newSrdObj(ARGS... args) {
+  SrdRef<T> r;
+  r.construct(args...);
+  return r;
 }
 
 
@@ -742,11 +668,8 @@ extern std::istream &inStream;
 #include "WStr.h"
 
 #include "Logger.h"
-#include "exceptions.h"
 #include "validators.h"
 
-#include "SortedIndex.h"
-#include "default_sorted_indices.h"
 #include "SubsetIndex.h"
 
 #include "GlobalStorage.h"
@@ -774,7 +697,9 @@ extern std::istream &inStream;
 #include "MapContaining.h"
 #include "DynamicMapContaining.h"
 #include "containing_helpers.h"
+#include "ContainerExtender.h"
 
+// TODO: Rename List to Array.
 #include "SharedListBase.h"
 #include "SharedList.h"
 #include "PlainListBase.h"
@@ -784,7 +709,6 @@ extern std::istream &inStream;
 #include "PlainMapBase.h"
 #include "PlainMap.h"
 #include "Box.h"
-#include "ContainerExtender.h"
 
 #include "TiNumber.h"
 #include "TiStr.h"

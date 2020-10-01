@@ -32,7 +32,7 @@ inline Type* tryGetAstType(OT *object)
 {
   auto box = object->getExtra(META_EXTRA_AST_TYPE).template ti_cast_get<Box<WeakPtr<Type>>>();
   if (box == 0) return 0;
-  else return box->get().lock().get();
+  else return box->get().get();
 }
 
 template <class OT,
@@ -43,7 +43,7 @@ inline Type* tryGetAstType(OT *object)
   if (metadata == 0) return 0;
   auto box = metadata->getExtra(META_EXTRA_AST_TYPE).template ti_cast_get<Box<WeakPtr<Type>>>();
   if (box == 0) return 0;
-  else return box->get().lock().get();
+  else return box->get().get();
 }
 
 // getAstType

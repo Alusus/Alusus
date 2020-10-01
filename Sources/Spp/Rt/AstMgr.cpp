@@ -71,7 +71,7 @@ Bool AstMgr::_getModifierStrings(
       for (Int j = 0; j < *resultCount; ++j) {
         auto str = ti_cast<Core::Data::Ast::StringLiteral>(strs->getElement(j));
         if (str == 0) {
-          astMgr->noticeStore->add(std::make_shared<Spp::Notices::InvalidModifierDataNotice>(
+          astMgr->noticeStore->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
             Core::Data::Ast::findSourceLocation(strs->getElement(j))
           ));
           astMgr->parser->flushApprovedNotices();

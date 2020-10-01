@@ -24,7 +24,7 @@ class SubsetIndex
   //============================================================================
   // Member Variables
 
-  private: std::vector<Int> indices;
+  private: Srl::Array<Int> indices;
 
 
   //============================================================================
@@ -47,10 +47,10 @@ class SubsetIndex
   {
     Int pos = this->findPos(index);
     if (pos == -1) {
-      if (withinSubset) this->indices.push_back(index);
+      if (withinSubset) this->indices.add(index);
     } else {
-      if (withinSubset) this->indices.insert(this->indices.begin() + pos, index);
-      for (Int i = pos; i < this->indices.size(); ++i) ++this->indices[i];
+      if (withinSubset) this->indices.insert(pos, index);
+      for (Int i = pos; i < this->indices.getLength(); ++i) ++this->indices(i);
     }
   }
 
@@ -58,42 +58,42 @@ class SubsetIndex
   {
     Int pos = this->findPos(index);
     if (pos == -1) return;
-    if (withinSubset && this->indices[pos] != index) this->indices.insert(this->indices.begin() + pos, index);
-    else if (!withinSubset && this->indices[pos] == index) this->indices.erase(this->indices.begin() + pos);
+    if (withinSubset && this->indices(pos) != index) this->indices.insert(pos, index);
+    else if (!withinSubset && this->indices(pos) == index) this->indices.remove(pos);
   }
 
   public: void onRemoved(Int index)
   {
     Int pos = this->findPos(index);
     if (pos == -1) return;
-    if (this->indices[pos] == index) this->indices.erase(this->indices.begin() + pos);
-    for (Int i = pos; i < this->indices.size(); ++i) --this->indices[i];
+    if (this->indices(pos) == index) this->indices.remove(pos);
+    for (Int i = pos; i < this->indices.getLength(); ++i) --this->indices(i);
   }
 
   public: Word getSize() const
   {
-    return this->indices.size();
+    return this->indices.getLength();
   }
 
   public: Int get(Int pos) const
   {
-    if (pos < 0 || pos >= this->indices.size()) {
+    if (pos < 0 || pos >= this->indices.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("pos"), S("Out of range"), pos);
     }
-    return this->indices[pos];
+    return this->indices(pos);
   }
 
   private: Int findPos(Int index) const
   {
-    if (this->indices.empty()) {
+    if (this->indices.getLength() == 0) {
       return -1;
     }
-    if (index <= this->indices.front()) {
+    if (index <= this->indices(0)) {
       return 0;
-    } else if (index > this->indices.back()) {
+    } else if (index > this->indices(this->indices.getLength() - 1)) {
       return -1;
     } else {
-      return this->_findPos(index, 0, this->indices.size() - 1);
+      return this->_findPos(index, 0, this->indices.getLength() - 1);
     }
   }
 
@@ -104,9 +104,9 @@ class SubsetIndex
       return endPos;
     } else {
       Int midPos = (startPos + endPos) / 2;
-      if (index == this->indices[midPos]) {
+      if (index == this->indices(midPos)) {
         return midPos;
-      } else if (index < this->indices[midPos]) {
+      } else if (index < this->indices(midPos)) {
         return this->_findPos(index, startPos, midPos);
       } else {
         return this->_findPos(index, midPos, endPos);

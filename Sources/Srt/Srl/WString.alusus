@@ -1,0 +1,68 @@
+/**
+ * @file Srl/WString.alusus
+ * Contains the class Srl.WString.
+ *
+ * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "StringBase";
+
+@merge module Srl
+{
+    def WString: alias StringBase[Char];
+
+    @merge type WString {
+        @shared @expname[wcschr]
+        func find(s: ptr[Word], c: Word): ptr[Word];
+
+        @shared @expname[wmemchr]
+        func find(s: ptr[Word], c: Word, n: Int[64]): ptr[Word];
+
+        @shared @expname[wcsrchr]
+        func findLast(s: ptr[Word], c: Word): ptr[Word];
+
+        @shared @expname[wcsstr]
+        func find(haystack: ptr[Word], needle: ptr[Word]): ptr[Word];
+
+        // @shared @expname[strrstr]
+        // func findLast(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
+
+        @shared @expname[wcscmp]
+        func compare(s1: ptr[Word], s2: ptr[Word]): Int;
+
+        @shared @expname[wcsncmp]
+        func compare(s1: ptr[Word], s2: ptr[Word], n: Int[64]): Int;
+
+        @shared @expname[wcscpy]
+        func copy(dest: ptr[Word], src: ptr[Word]): ptr[Word];
+
+        @shared @expname[wcsncpy]
+        func copy(dest: ptr[Word], src: ptr[Word], n: Int[64]): ptr[Word];
+
+        @shared @expname[wcscat]
+        func concat(dest: ptr[Word], src: ptr[Word]): ptr[Word];
+
+        @shared @expname[wcsncat]
+        func concat(dest: ptr[Word], src: ptr[Word], n: Int[64]): ptr[Word];
+
+        @shared @expname[wcslen]
+        func getLength(s: ptr[Word]): Int[64];
+
+        // @shared @expname[sprintf]
+        // func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];
+
+        @shared @expname[swscanf]
+        func scan(source: ptr[Word], format: ptr[Word], args: ...any): Int[32];
+
+        @shared @expname[towupper]
+        func toUpper(c: Word): Word;
+
+        @shared @expname[towlower]
+        func toLower(c: Word): Word;
+    };
+};

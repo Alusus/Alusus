@@ -108,7 +108,7 @@ class Module : public SharedMapBase<TiObject, Node>,
   public: static SharedPtr<Module> create(
     std::initializer_list<Argument> const &attrs, std::initializer_list<Argument> const &elements, Bool useIndex
   ) {
-    return std::make_shared<Module>(attrs, elements, useIndex);
+    return newSrdObj<Module>(attrs, elements, useIndex);
   }
 
 

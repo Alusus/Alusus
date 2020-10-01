@@ -21,16 +21,16 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <cassert>
-#include <exception>
 #include <string.h>
 #include <type_traits>
 #include <atomic>
 #include <functional>
 #include <limits.h>
 
-// Include global storage functions.
+// Other Alusus headers
+#include "srl.h"
+using namespace Srl;
+
 #include "core_global_storage.h"
 
 namespace Core

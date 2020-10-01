@@ -119,7 +119,7 @@ template<class T> TiObjectFactory* getTiObjectFactory()
     },
     []()->SharedPtr<TiObject>
     {
-      return std::make_shared<T>();
+      return newSrdObj<T>();
     });
 }
 
@@ -133,7 +133,7 @@ template<class T> ObjTiInterfaceFactory* getObjTiInterfaceFactory()
     },
     [](TiObject *owner)->SharedPtr<ObjTiInterface>
     {
-      return std::make_shared<T>(owner);
+      return newSrdObj<T>(owner);
     }
   );
 }

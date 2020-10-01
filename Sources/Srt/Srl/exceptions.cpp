@@ -1,5 +1,5 @@
 /**
- * @file Core/Basic/exceptions.cpp
+ * @file Srl/exceptions.cpp
  * Contains the implementation of exception classes.
  *
  * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
@@ -10,25 +10,25 @@
  */
 //==============================================================================
 
-#include "core.h"
+#include "srl.h"
 
-namespace Core { namespace Basic
+namespace Srl
 {
 
 //==============================================================================
 // Member Functions
 
-Str Exception::getVerboseErrorMessage() const throw()
+String Exception::getVerboseErrorMessage() const throw()
 {
   return this->getErrorMessage() + S("\nLocation:\n") + this->functionName + S("\n") +
-      this->sourceFile + S(" : ") + std::to_string(this->lineNumber);
+      this->sourceFile + S(" : ") + (LongInt)this->lineNumber;
 }
 
 
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Str FileException::getErrorMessage() const throw()
+String FileException::getErrorMessage() const throw()
 {
   StrStream msg;
   msg << S("File Exception: ");
@@ -52,20 +52,20 @@ Str FileException::getErrorMessage() const throw()
   }
   msg << this->fileName;
   msg << S(".");
-  if (this->comment.size() > 0) {
+  if (this->comment.getLength() > 0) {
     msg << S(".\n");
     msg << this->comment;
   }
-  return msg.str();
+  return msg.str().c_str();
 }
 
 
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Str MemoryException::getErrorMessage() const throw()
+String MemoryException::getErrorMessage() const throw()
 {
-  Str msg = S("Memory Exception: ");
+  String msg = S("Memory Exception: ");
   switch (this->operation) {
     case C('a'):
       msg += S("Couldn't allocate memory block.");
@@ -78,7 +78,7 @@ Str MemoryException::getErrorMessage() const throw()
       ASSERT(false);
       break;
   }
-  if (this->comment.size() > 0) {
+  if (this->comment.getLength() > 0) {
     msg += S("\n");
     msg += this->comment;
   }
@@ -89,19 +89,19 @@ Str MemoryException::getErrorMessage() const throw()
 /**
  * @return Returns a pointer to a string containing the error message.
  */
-Str InvalidArgumentException::getErrorMessage() const throw()
+String InvalidArgumentException::getErrorMessage() const throw()
 {
-  Str msg = S("Invalid Argument Exception (") + this->argumentName;
-  if (this->argumentValue.size() > 0) {
+  String msg = String(S("Invalid Argument Exception (")) + this->argumentName;
+  if (this->argumentValue.getLength() > 0) {
     msg += S(" = ");
     msg += this->argumentValue;
   }
   msg += S(")");
-  if (this->comment.size() > 0) {
+  if (this->comment.getLength() > 0) {
     msg += S("\n");
     msg += this->comment;
   }
   return msg;
 }
 
-} } // namespace
+} // namespace

@@ -40,14 +40,14 @@ void BindingMap::onBaseContentChanged(SharedMapBase<TiObject, TiObject> *src, Co
     auto superFunc = src->get(index).ti_cast_get<TiFunctionBase>();
     auto func = this->get(index).ti_cast<TiFunctionBase>();
     if (superFunc != 0 && func != 0) {
-      this->resetFunctionChain(this->getKey(index).c_str(), superFunc);
+      this->resetFunctionChain(this->getKey(index), superFunc);
     }
   } else if (op == ContentChangeOp::ADDED || op == ContentChangeOp::UPDATED) {
     if (this->isInherited(index)) return;
     auto superFunc = src->get(index).ti_cast<TiFunctionBase>();
     auto func = this->get(index).ti_cast<TiFunctionBase>();
     if (superFunc != 0 && func != 0) {
-      this->updateFunctionChain(this->getKey(index).c_str(), 0, superFunc);
+      this->updateFunctionChain(this->getKey(index), 0, superFunc);
     }
   }
 }
@@ -61,7 +61,7 @@ void BindingMap::onBaseDetached()
     auto superFunc = src->get(i).ti_cast_get<TiFunctionBase>();
     auto func = this->get(i).ti_cast<TiFunctionBase>();
     if (superFunc != 0 && func != 0) {
-      this->resetFunctionChain(this->getKey(i).c_str(), superFunc);
+      this->resetFunctionChain(this->getKey(i), superFunc);
     }
   }
 }

@@ -31,7 +31,7 @@ Word* Logger::getFilterPtr()
   if (Logger::filter == 0) {
     Logger::filter = reinterpret_cast<Word*>(GLOBAL_STORAGE->getObject(S("Core::Basic::Logger::filter")));
     if (Logger::filter == 0) {
-      Logger::filter = new Word;
+      Logger::filter = new Word(0);
       GLOBAL_STORAGE->setObject(S("Core::Basic::Logger::filter"), reinterpret_cast<void*>(Logger::filter));
     }
   }

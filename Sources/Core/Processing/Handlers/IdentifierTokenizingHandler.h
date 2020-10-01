@@ -37,7 +37,7 @@ class IdentifierTokenizingHandler : public TokenizingHandler
   //============================================================================
   // Types
 
-  public: typedef std::unordered_map<Str, Word, std::hash<std::string>> Keywords;
+  public: typedef std::unordered_map<Str, Word, std::hash<Str>> Keywords;
 
 
   //============================================================================

@@ -27,14 +27,14 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
     SharedPtr<Reference> seg;
     if (referenceCache != 0) {
       if (cacheIndex >= referenceCache->size()) {
-        referenceCache->push_back(std::make_shared<Reference>());
+        referenceCache->push_back(newSrdObj<Reference>());
       }
       seg = referenceCache->at(cacheIndex);
       seg->setCachedValue(0);
       seg->setValueCacheEnabled(false);
       ++cacheIndex;
     } else {
-      seg = std::make_shared<Reference>(qualifier + begin, size);
+      seg = newSrdObj<Reference>(qualifier + begin, size);
     }
     seg->setKey(qualifier + begin, size);
     seg->setNext(SharedPtr<Reference>::null);
@@ -52,7 +52,7 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
     addSegment(start, count);
     start += count + 1;
   }
-  addSegment(start, SBSTR(qualifier).size() - start);
+  addSegment(start, SBSTR(qualifier).getLength() - start);
   ASSERT(ref != 0);
 
   // Cache any reference that isn't on the stack since the stack is the only place updated inside list terms' loops.
@@ -155,15 +155,15 @@ void setTreeIds(TiObject *obj, const Char *id)
   MapContaining<TiObject> *map; Containing<TiObject> *list;
   if ((map = ti_cast<MapContaining<TiObject>>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < map->getElementCount(); ++i) {
-      childId.str(Str());
+      childId.str(std::string());
       childId << id;
       if (childId.tellp() != 0) childId << C('.');
-      childId << map->getElementKey(i).c_str();
+      childId << map->getElementKey(i);
       setTreeIds(map->getElement(i), childId.str().c_str());
     }
   } else if ((list = ti_cast<Containing<TiObject>>(obj)) != 0) {
     for (Int i = 0; static_cast<Word>(i) < list->getElementCount(); ++i) {
-      childId.str(Str());
+      childId.str(std::string());
       childId << id;
       if (childId.tellp() != 0) childId << C('.');
       childId << i;
@@ -186,7 +186,7 @@ void generateId(Node *obj, StrStream &id)
     if (owner->getElement(i) == obj) {
       auto mapContainer = owner->getInterface<MapContaining<TiObject>>();
       if (mapContainer != 0) {
-        id << mapContainer->getElementKey(i).c_str();
+        id << mapContainer->getElementKey(i);
       } else {
         id << i;
       }
@@ -230,7 +230,7 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
       for (Int i = 0; i < dynMapContainer->getElementCount(); ++i) {
         auto childElement = getSharedPtr(dynMapContainer->getElement(i));
         cloneDynMapContainer->addElement(
-          dynMapContainer->getElementKey(i).c_str(), _cloneInherited(childElement).get()
+          dynMapContainer->getElementKey(i), _cloneInherited(childElement).get()
         );
       }
       return clone;
@@ -251,7 +251,7 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj)
     if (cloneMapContainer != 0) {
       for (Int i = 0; i < mapContainer->getElementCount(); ++i) {
         auto childElement = getSharedPtr(mapContainer->getElement(i));
-        cloneMapContainer->setElement(mapContainer->getElementKey(i).c_str(), _cloneInherited(childElement).get());
+        cloneMapContainer->setElement(mapContainer->getElementKey(i), _cloneInherited(childElement).get());
       }
       return clone;
     }

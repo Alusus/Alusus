@@ -81,7 +81,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     generator(gen),
     globalItemRepo(globalItemRepo)
   {
-    this->addDynamicInterface(std::make_shared<Executing>(this));
+    this->addDynamicInterface(newSrdObj<Executing>(this));
     this->initBindingCaches();
     this->initBindings();
 

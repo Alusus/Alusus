@@ -64,12 +64,12 @@ template <class TYPE> class ListExpParsingHandler : public GenericParsingHandler
 
   protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex)
   {
-    return std::make_shared<TYPE>();
+    return newSrdObj<TYPE>();
   }
 
   protected: SharedPtr<TYPE> createListWithItems(TioSharedPtr const &i1, TioSharedPtr const &i2)
   {
-    auto list = std::make_shared<TYPE>();
+    auto list = newSrdObj<TYPE>();
     list->add(i1);
     list->add(i2);
     auto metadata = i1.ti_cast_get<Data::Ast::MetaHaving>();

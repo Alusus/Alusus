@@ -65,7 +65,7 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
                       currentData->getMyTypeInfo()->getUniqueName());
     }
 
-    auto obj = std::make_shared<TYPE>();
+    auto obj = newSrdObj<TYPE>();
     obj->setOperand(currentData);
     obj->setType(token->getText());
 

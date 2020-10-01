@@ -44,12 +44,12 @@ class NbList : public SharedListBase<TiObject, Node>
 
   public: static SharedPtr<NbList> create()
   {
-    return std::make_shared<NbList>();
+    return newSrdObj<NbList>();
   }
 
   public: static SharedPtr<NbList> create(std::initializer_list<SharedPtr<TiObject>> const &args)
   {
-    return std::make_shared<NbList>(args);
+    return newSrdObj<NbList>(args);
   }
 
 

@@ -127,10 +127,10 @@ Bool DataStack::isShared(Int index) const
       // This level is shared with the trunk state.
       return true;
     } else {
-      return !this->stack.get(index-(this->trunkIndex+1)).unique();
+      return !this->stack.get(index-(this->trunkIndex+1)).getRefCounter()->count == 1;
     }
   } else {
-    return !this->stack.get(index).unique();
+    return !this->stack.get(index).getRefCounter()->count == 1;
   }
   // Dummy return statement to avoid compilation error. This won't be reached.
   return false;

@@ -1,0 +1,18 @@
+m1: 1 is 100, 20 is 17, 100 is 1
+m2: false is 1 and true is 2
+m3: 0 is Hello and 1 is World
+name: Alusus
+dob: 2014
+
+m1: 1 is 100, 20 is 17, 100 is 1
+
+name: Mohammed
+dob: 1990
+address: 1234 main st
+city: Atlantis
+planet: Earth
+
+key 0: name
+key 1: dob
+key 2: city
+key 3: planet

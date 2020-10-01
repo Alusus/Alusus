@@ -40,6 +40,8 @@ class StandardFactory : public Factory
 
   private: SharedPtr<Processing::Handlers::GenericCommandParsingHandler> doCommandParsingHandler;
 
+  private: SharedPtr<Processing::Handlers::ScopeParsingHandler<Data::Ast::Scope>> scopeParsingHandler;
+
   private: SharedPtr<Processing::Handlers::RootScopeParsingHandler> rootScopeParsingHandler;
 
 

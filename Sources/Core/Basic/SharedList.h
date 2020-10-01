@@ -44,7 +44,7 @@ template<class CTYPE> class SharedList : public SharedListBase<CTYPE, TiObject>
 
   public: static SharedPtr<SharedList> create(std::initializer_list<SharedPtr<CTYPE>> const &args)
   {
-    return std::make_shared<SharedList>(args);
+    return newSrdObj<SharedList>(args);
   }
 
 

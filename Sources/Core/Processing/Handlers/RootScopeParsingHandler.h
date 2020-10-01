@@ -39,7 +39,7 @@ class RootScopeParsingHandler : public GenericParsingHandler
 
   public: static SharedPtr<RootScopeParsingHandler> create(Core::Main::RootScopeHandler *rsh)
   {
-    return std::make_shared<RootScopeParsingHandler>(rsh);
+    return newSrdObj<RootScopeParsingHandler>(rsh);
   }
 
 

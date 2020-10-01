@@ -1,0 +1,46 @@
+Test() from C++
+testSrdRef1() 61
+~Test() from C++, 61
+
+
+Test~init() from Alusus
+setTestSrdRef from C++, 62
+Test~init() from Alusus
+testSrdRef2-1
+Test~terminate() from Alusus, 62
+setTestSrdRef from C++, 63
+testSrdRef2-2
+Test~terminate() from Alusus, 63
+
+
+Test~init() from Alusus
+setAndGetTestSrdRef, 1 64
+testSrdRef3-1, 2 64
+testSrdRef3-2, 1
+Test~terminate() from Alusus, 64
+
+
+printTestArray:
+102
+79
+130
+getTestArray:
+9
+22
+13
+
+
+printTestString:
+test string from Alusus
+getTestString:
+test string from c++
+
+
+printTestMap:
+i7: Intel
+Ryzen: AMD
+Geforce: nVidia
+getTestMap:
+name: Mohammed
+address: 1234 Main
+age: 35

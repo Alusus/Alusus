@@ -70,7 +70,7 @@ class NodePathResolver : public TiObject, public DynamicBinding, public DynamicI
   {
     StrStream path;
     this->doResolve(node, helper, path);
-    return path.str();
+    return path.str().c_str();
   }
 
   public: void doResolve(Core::Data::Node const *node, Helper *helper, StrStream &path)

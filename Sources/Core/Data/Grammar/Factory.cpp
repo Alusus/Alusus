@@ -151,7 +151,7 @@ void Factory::generateConstTokensForStrings(TiObject *obj)
   } else if (obj->isA<Map>()) {
     Map *map = static_cast<Map*>(obj);
     for (Word i = 0; i < map->getCount(); ++i) {
-      this->addConstToken(map->getKey(i).c_str());
+      this->addConstToken(map->getKey(i));
       this->generateConstTokensForStrings(map->getElement(i));
     }
   } else {
@@ -177,10 +177,10 @@ Word Factory::addConstToken(Char const *text)
   path += key;
   // If the same constant is already created, skip.
   TiObject *dummyObj;
-  if (this->tryGet(path.c_str(), dummyObj) == false) {
+  if (this->tryGet(path, dummyObj) == false) {
     // Create the token definition.
     auto constTokenDef = this->createConstTokenDef(text);
-    this->set(path.c_str(), constTokenDef.get());
+    this->set(path, constTokenDef.get());
     return constTokenDef->getId();
   } else {
     auto idHolder = ti_cast<IdHaving>(dummyObj);
@@ -214,7 +214,7 @@ void Factory::generateKey(Char const *text, Str &result)
     }
     ++text;
   }
-  result = stream.str();
+  result = stream.str().c_str();
 }
 
 
@@ -257,7 +257,7 @@ SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
 {
   if (section->args.size() == 0) {
     return TokenTerm::create({
-      {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
+      {S("tokenId"), newSrdObj<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
       {S("tokenText"), section->keywords}
     });
   } else {
@@ -275,7 +275,7 @@ SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
     return ConcatTerm::create({}, {
       {S("terms"), List::create({}, {
         TokenTerm::create({
-          {S("tokenId"), std::make_shared<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
+          {S("tokenId"), newSrdObj<TiInt>(ID_GENERATOR->getId(S("LexerDefs.Identifier")))},
           {S("tokenText"), section->keywords}
         }),
         ConcatTerm::create({

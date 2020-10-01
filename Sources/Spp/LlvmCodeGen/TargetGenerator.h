@@ -51,7 +51,7 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   public: TargetGenerator(BuildTarget *bt, Bool perFnMods) : buildTarget(bt), perFunctionModules(perFnMods)
   {
-    this->addDynamicInterface(std::make_shared<Spp::CodeGen::TargetGeneration>(this));
+    this->addDynamicInterface(newSrdObj<Spp::CodeGen::TargetGeneration>(this));
     this->initBindings();
   }
 
@@ -422,9 +422,9 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Helper Functions
   /// @{
 
-  private: Str getNewBlockName();
+  private: std::string getNewBlockName();
 
-  private: Str getAnonymouseVarName();
+  private: std::string getAnonymouseVarName();
 
   /// @}
 

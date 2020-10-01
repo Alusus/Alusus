@@ -38,7 +38,7 @@ class OfflineBuildTarget : public BuildTarget
   //============================================================================
   // Member Variables
 
-  private: Str targetTriple;
+  private: std::string targetTriple;
   private: llvm::TargetMachine *targetMachine;
   private: std::unique_ptr<llvm::DataLayout> llvmDataLayout;
   private: std::unique_ptr<llvm::LLVMContext> llvmContext;

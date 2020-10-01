@@ -10,53 +10,20 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_WEAK_PTR_H
-#define CORE_BASIC_WEAK_PTR_H
+#ifndef CORE_BASIC_WEAKPTR_H
+#define CORE_BASIC_WEAKPTR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 // TODO: DOC
 
-template <class T> class WeakPtr : public std::weak_ptr<T>
+template <class T> class WeakPtr : public Srl::WkRef<T>
 {
   //============================================================================
   // Constructors / Destructor
 
-  // TODO: Replace these constructors with constructor inheritance once supported by the compiler.
-
-  public: WeakPtr()
-  {
-  }
-
-  public: template <class T2> WeakPtr(const std::weak_ptr<T2> &src) : std::weak_ptr<T>(src)
-  {
-  }
-
-  public: template <class T2> WeakPtr(const std::shared_ptr<T2> &src) : std::weak_ptr<T>(src)
-  {
-  }
-
-
-  //============================================================================
-  // Overloaded Operators
-
-  /// @name Copy Operators
-  /// @{
-
-  public: template <class T2> WeakPtr<T>& operator=(const std::weak_ptr<T2> &src)
-  {
-    std::weak_ptr<T>::operator=(src);
-    return *this;
-  }
-
-  public: template <class T2> WeakPtr<T>& operator=(const std::shared_ptr<T2> &src)
-  {
-    std::weak_ptr<T>::operator=(src);
-    return *this;
-  }
-
-  /// @}
+  public: using Srl::WkRef<T>::WkRef;
 
 
   //============================================================================
@@ -76,7 +43,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline SharedPtr<TO> s_cast() const
   {
-    return s_cast<TO>(this->lock());
+    return SharedPtr<TO>(this->refCounter, static_cast<TO*>(this->obj));
   }
 
   /**
@@ -90,7 +57,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline TO* s_cast_get() const
   {
-    return static_cast<TO*>(this->lock().get());
+    return static_cast<TO*>(this->obj);
   }
 
   /**
@@ -104,7 +71,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline SharedPtr<TO> r_cast() const
   {
-    return r_cast<TO>(this->lock());
+    return SharedPtr<TO>(this->refCounter, reinterpret_cast<TO*>(this->obj));
   }
 
   /**
@@ -118,7 +85,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline TO* r_cast_get() const
   {
-    return reinterpret_cast<TO*>(this->lock().get());
+    return reinterpret_cast<TO*>(this->obj);
   }
 
   /**
@@ -132,7 +99,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline SharedPtr<TO> c_cast() const
   {
-    return c_cast(this->lock());
+    return SharedPtr<TO>(this->refCounter, const_cast<TO*>(this->obj));
   }
 
   /**
@@ -146,7 +113,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline TO* c_cast_get() const
   {
-    return const_cast<TO*>(this->lock().get());
+    return const_cast<TO*>(this->obj);
   }
 
   /**
@@ -160,7 +127,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline SharedPtr<TO> ti_cast() const
   {
-    return ti_cast<TO>(this->lock());
+    return SharedPtr<TO>(this->refCounter, ti_cast<TO>(this->obj));
   }
 
   /**
@@ -174,7 +141,7 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
    */
   public: template <class TO> inline TO* ti_cast_get() const
   {
-    return Core::Basic::ti_cast<TO>(this->lock().get());
+    return Core::Basic::ti_cast<TO>(this->obj);
   }
 
   /// @}
@@ -185,27 +152,27 @@ template <class T> class WeakPtr : public std::weak_ptr<T>
 //==============================================================================
 // Helper Definitions
 
-template <class T, class T2> SharedPtr<T> s_cast(const std::weak_ptr<T2> &src)
+template <class T, class T2> SharedPtr<T> s_cast(Srl::WkRef<T2> const &src)
 {
-  return s_cast<T>(src.lock());
+  return SharedPtr<T>(src.getRefCounter(), static_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T>& r_cast(const std::weak_ptr<T2> &src)
+template <class T, class T2> SharedPtr<T>& r_cast(Srl::WkRef<T2> const &src)
 {
-  return r_cast<T>(src.lock());
+  return SharedPtr<T>(src.getRefCounter(), reinterpret_cast<T*>(src.get()));
 }
 
 
-template <class T> SharedPtr<T>& c_cast(const std::weak_ptr<T> &src)
+template <class T> SharedPtr<T>& c_cast(Srl::WkRef<T> const &src)
 {
-  return c_cast(src.lock());
+  return SharedPtr<T>(src.getRefCounter(), const_cast<T*>(src.get()));
 }
 
 
-template <class T, class T2> SharedPtr<T>& ti_cast(const std::weak_ptr<T2> &src)
+template <class T, class T2> SharedPtr<T>& ti_cast(Srl::WkRef<T2> const &src)
 {
-  return ti_cast<T>(src.lock());
+  return SharedPtr<T>(src.getRefCounter(), ti_cast<T>(src.get()));
 }
 
 
@@ -216,68 +183,22 @@ template <class T, class T2> SharedPtr<T>& ti_cast(const std::weak_ptr<T2> &src)
  * the passed pointer.
  * @param obj A pointer to an object derived from TiObject.
  */
-template <class T,
-          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
-WeakPtr<T> getWeakPtr(T *obj)
+template<class T> WeakPtr<T> getWeakPtr(T *obj)
 {
-  if (obj == 0) {
-    return WeakPtr<T>();
-  }
-  WeakPtr<TiObject> sp = obj->getWeakThis();
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<WeakPtr<T>*>(&sp)));
+  if (obj == 0) return WeakPtr<T>();
+  else return WeakPtr<T>(obj->getWkThis().getRefCounter(), static_cast<T*>(obj->getWkThis().get()));
 }
 
 
-template <class T,
-          typename std::enable_if<std::is_base_of<TiObject, T>::value, int>::type = 0>
-WeakPtr<T const> getWeakPtr(T const *obj)
+template<class T> WeakPtr<T const> getWeakPtr(T const *obj)
 {
-  if (obj == 0) {
-    return WeakPtr<T const>();
-  }
-  WeakPtr<TiObject const> sp = obj->getWeakThis();
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<WeakPtr<T const>*>(&sp)));
-}
-
-
-template <class T,
-          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
-WeakPtr<T> getWeakPtr(T *obj)
-{
-  if (obj == 0) {
-    return WeakPtr<T>();
-  }
-  WeakPtr<TiObject> sp = obj->getTiObject()->getWeakThis();
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<WeakPtr<T>*>(&sp)));
-}
-
-
-template <class T,
-          typename std::enable_if<!std::is_base_of<TiObject, T>::value, int>::type = 0>
-WeakPtr<T const> getWeakPtr(T const *obj)
-{
-  if (obj == 0) {
-    return WeakPtr<T const>();
-  }
-  WeakPtr<TiObject const> sp = obj->getTiObject()->getWeakThis();
-  // Since T is derived from TiObject, casting will result in the same
-  // pointer value, so a reinterpret cast should be enough; creating a new
-  // temporary shared pointer is not necessary.
-  return std::move(*(reinterpret_cast<WeakPtr<T const>*>(&sp)));
+  if (obj == 0) return WeakPtr<T const>();
+  else return WeakPtr<T const>(obj->getWkThis().getRefCounter(), static_cast<T*>(obj->getWkThis().get()));
 }
 
 
 typedef WeakPtr<TiObject> TioWeakPtr;
 
-} } // namespace
+} // namespace
 
 #endif

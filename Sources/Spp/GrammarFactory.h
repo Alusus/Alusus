@@ -34,9 +34,9 @@ class GrammarFactory : public Core::Data::Grammar::Factory
   // Member Functions
 
   /// Create the entire core grammar.
-  public: void createGrammar(Core::Data::Ast::Scope *rootScope);
+  public: void createGrammar(Core::Main::RootManager *root);
 
-  public: void cleanGrammar(Core::Data::Ast::Scope *rootScope);
+  public: void cleanGrammar(Core::Main::RootManager *root);
 
 }; // class
 

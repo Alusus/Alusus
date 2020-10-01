@@ -26,15 +26,21 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
 
   //============================================================================
+  // Member Variables
+
+  private: Data::Seeker *seeker;
+
+
+  //============================================================================
   // Constructor
 
-  public: ScopeParsingHandler()
+  public: ScopeParsingHandler(Data::Seeker *seeker) : seeker(seeker)
   {
   }
 
-  public: static SharedPtr<ScopeParsingHandler<TYPE>> create()
+  public: static SharedPtr<ScopeParsingHandler<TYPE>> create(Data::Seeker *seeker)
   {
-    return std::make_shared<ScopeParsingHandler<TYPE>>();
+    return newSrdObj<ScopeParsingHandler<TYPE>>(seeker);
   }
 
 
@@ -43,7 +49,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
 
   public: virtual void onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
   {
-    state->setData(std::make_shared<TYPE>());
+    state->setData(newSrdObj<TYPE>());
   }
 
   public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)
@@ -57,7 +63,7 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     if (state->isAProdRoot(levelIndex)) {
       auto listContainer = state->getData(levelIndex).ti_cast_get<DynamicContaining<TiObject>>();
       ASSERT(listContainer);
-      Core::Data::Ast::addPossiblyMergeableElement(data.get(), listContainer, state->getNoticeStore());
+      Core::Data::Ast::addPossiblyMergeableElement(data.get(), listContainer, this->seeker, state->getNoticeStore());
     } else {
       GenericParsingHandler::addData(data, parser, state, levelIndex);
     }
