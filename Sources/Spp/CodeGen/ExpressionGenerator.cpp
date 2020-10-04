@@ -1759,29 +1759,27 @@ Bool ExpressionGenerator::_generateAstRefOp(
   if (operand == 0) {
     throw EXCEPTION(GenericException, S("AstRefOp operand is missing."));
   }
-  GenResult operandResult;
-  if (!expGenerator->generate(operand, g, session, operandResult)) return false;
-  if (operandResult.astNode != 0) {
-    // We have an AST node.
-    // Generate pointer to void.
-    auto voidType = expGenerator->astHelper->getVoidType();
-    auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
-    TiObject *tgVoidPtrType;
-    if (!g->getGeneratedType(voidPtrType, session, tgVoidPtrType, 0)) {
-      return false;
-    }
-    // Generate a pointer literal.
-    if (!session->getTg()->generatePointerLiteral(session->getTgContext(), tgVoidPtrType, operandResult.astNode, result.targetData)) {
-      return false;
-    }
-    result.astType = voidPtrType;
-    return true;
-  } else {
+  TiObject *targetAstNode;
+  if (!expGenerator->astHelper->getSeeker()->tryGet(operand, astNode->getOwner(), targetAstNode)) {
     expGenerator->noticeStore->add(
-      newSrdObj<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
   }
+
+  // Generate pointer to void.
+  auto voidType = expGenerator->astHelper->getVoidType();
+  auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
+  TiObject *tgVoidPtrType;
+  if (!g->getGeneratedType(voidPtrType, session, tgVoidPtrType, 0)) {
+    return false;
+  }
+  // Generate a pointer literal.
+  if (!session->getTg()->generatePointerLiteral(session->getTgContext(), tgVoidPtrType, targetAstNode, result.targetData)) {
+    return false;
+  }
+  result.astType = voidPtrType;
+  return true;
 }
 
 
