@@ -1,5 +1,11 @@
-import "Spp";
 import "Srl/Console.alusus";
+module Spp {
+    type BuildMgr {
+        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
+        function dumpLlvmIrForElement (element: ptr);
+    };
+    def buildMgr: ref[BuildMgr];
+}
 
 use Srl.Console;
 

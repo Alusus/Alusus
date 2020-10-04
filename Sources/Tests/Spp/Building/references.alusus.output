@@ -343,11 +343,11 @@ define void @"A.~terminate(iref[A])"(%A* %this) {
   ret void
 }
 ------------------------------------------------------------
-ERROR SPPG1015 @ (197,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (198,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (199,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (200,3): Incompatible types for the given operator.
-ERROR SPPG1033 @ (202,3): Invalid operand for ~deref operator.
+ERROR SPPG1015 @ (203,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (204,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (205,3): Incompatible types for the given operator.
+ERROR SPPG1015 @ (206,3): Incompatible types for the given operator.
+ERROR SPPG1033 @ (208,3): Invalid operand for ~deref operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

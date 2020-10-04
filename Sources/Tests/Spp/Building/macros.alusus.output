@@ -1,5 +1,5 @@
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
+ERROR SPPA1003 @ (14,38)
+from (70,5): No valid match was found for the given type.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

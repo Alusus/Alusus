@@ -1,7 +1,7 @@
-ERROR SPPA1008 @ (72,27): Provided arguments do not match signature.
-ERROR SPPA1007 @ (73,27): Unknown symbol.
-ERROR SPPA1008 @ (74,27): Provided arguments do not match signature.
-ERROR SPPG1002 @ (75,27): Invalid operation.
+ERROR SPPA1008 @ (78,27): Provided arguments do not match signature.
+ERROR SPPA1007 @ (79,27): Unknown symbol.
+ERROR SPPA1008 @ (80,27): Provided arguments do not match signature.
+ERROR SPPG1002 @ (81,27): Invalid operation.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

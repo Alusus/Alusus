@@ -1,4 +1,11 @@
-import "Spp";
+import "alusus_spp";
+module Spp {
+    type BuildMgr {
+        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
+        function dumpLlvmIrForElement (element: ptr);
+    };
+    def buildMgr: ref[BuildMgr];
+}
 
 def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 

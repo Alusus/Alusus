@@ -1,7 +1,7 @@
-ERROR SPPG1012 @ (53,21): Invalid break steps.
-ERROR SPPG1012 @ (54,21): Invalid break steps.
-ERROR SPPG1012 @ (66,21): Invalid break steps.
-ERROR SPPG1012 @ (67,21): Invalid break steps.
+ERROR SPPG1012 @ (60,21): Invalid break steps.
+ERROR SPPG1012 @ (61,21): Invalid break steps.
+ERROR SPPG1012 @ (73,21): Invalid break steps.
+ERROR SPPG1012 @ (74,21): Invalid break steps.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

@@ -1,7 +1,7 @@
-ERROR SPPG1008 @ (145,19): Invalid symbol.
-ERROR SPPG1008 @ (146,23): Invalid symbol.
-ERROR SPPG1008 @ (147,19): Invalid symbol.
-ERROR SPPG1015 @ (136,32): Incompatible types for the given operator.
+ERROR SPPG1008 @ (152,19): Invalid symbol.
+ERROR SPPG1008 @ (153,23): Invalid symbol.
+ERROR SPPG1008 @ (154,19): Invalid symbol.
+ERROR SPPG1015 @ (143,32): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
