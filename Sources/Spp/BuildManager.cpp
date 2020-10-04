@@ -181,7 +181,6 @@ Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element, BuildSe
     result = generation->generateFunction(static_cast<Ast::Function*>(element), buildSession->getCodeGenSession());
   } else if (!element->isDerivedFrom<Core::Data::Ast::Bridge>()) {
     result = generation->generateStatement(element, buildSession->getCodeGenSession(), terminal);
-    if (!generation->generateVarGroupDestruction(buildSession->getCodeGenSession(), 0)) result = false;
   }
   return result;
 }
@@ -191,6 +190,10 @@ Bool BuildManager::_finalizeBuild(
   TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession *buildSession
 ) {
   PREPARE_SELF(buildMgr, BuildManager);
+  auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
+
+  Bool result = true;
+  if (!generation->generateVarGroupDestruction(buildSession->getCodeGenSession(), 0)) result = false;
 
   if (globalFuncElement != 0) {
     SharedList<TiObject> args;
@@ -203,7 +206,8 @@ Bool BuildManager::_finalizeBuild(
     buildSession->getCodeGenSession()->getEda()->removeCodeGenData(globalFuncElement);
   }
 
-  return buildMgr->buildDependencies(noticeStore, buildSession);
+  if (!buildMgr->buildDependencies(noticeStore, buildSession)) result = false;
+  return result;
 }
 
 
