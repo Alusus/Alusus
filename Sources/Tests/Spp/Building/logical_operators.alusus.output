@@ -1,13 +1,13 @@
-ERROR SPPG1013 @ (40,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (41,17): Invalid operand of logical operator.
-ERROR SPPG1013 @ (64,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (65,17): Invalid operand of logical operator.
-ERROR SPPG1015 @ (90,8): Incompatible types for the given operator.
-ERROR SPPG1015 @ (91,8): Incompatible types for the given operator.
-ERROR SPPG1015 @ (94,8): Incompatible types for the given operator.
-ERROR SPPG1015 @ (95,8): Incompatible types for the given operator.
-ERROR SPPG1015 @ (98,9): Incompatible types for the given operator.
-ERROR SPPG1015 @ (99,9): Incompatible types for the given operator.
+ERROR SPPG1013 @ (47,8): Invalid operand of logical operator.
+ERROR SPPG1013 @ (48,17): Invalid operand of logical operator.
+ERROR SPPG1013 @ (71,8): Invalid operand of logical operator.
+ERROR SPPG1013 @ (72,17): Invalid operand of logical operator.
+ERROR SPPG1015 @ (97,8): Incompatible types for the given operator.
+ERROR SPPG1015 @ (98,8): Incompatible types for the given operator.
+ERROR SPPG1015 @ (101,8): Incompatible types for the given operator.
+ERROR SPPG1015 @ (102,8): Incompatible types for the given operator.
+ERROR SPPG1015 @ (105,9): Incompatible types for the given operator.
+ERROR SPPG1015 @ (106,9): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

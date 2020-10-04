@@ -1,4 +1,4 @@
-ERROR SPPG1007 @ (47,8): Invalid condition value.
+ERROR SPPG1007 @ (54,8): Invalid condition value.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

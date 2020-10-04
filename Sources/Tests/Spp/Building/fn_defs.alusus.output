@@ -1,6 +1,6 @@
-ERROR SPPG1022 @ (5,13): Missing a return statement for a non-void function.
-ERROR SPPG1022 @ (9,10): Missing a return statement for a non-void function.
-ERROR SPPG1022 @ (12,10): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (12,13): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (16,10): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (19,10): Missing a return statement for a non-void function.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

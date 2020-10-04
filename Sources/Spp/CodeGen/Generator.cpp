@@ -437,7 +437,10 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         // To avoid stack overflows we need to allocate at the function level rather than any inner block.
         auto astFuncBlock = astBlock;
         while (
-          astFuncBlock != 0 && astFuncBlock->getOwner() != 0 && ti_cast<Ast::Function>(astFuncBlock->getOwner()) == 0
+          astFuncBlock != 0 &&
+          astFuncBlock->getOwner() != 0 &&
+          ti_cast<Ast::Function>(astFuncBlock->getOwner()) == 0 &&
+          ti_cast<Ast::EvalStatement>(astFuncBlock->getOwner()) == 0
         ) {
           astFuncBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astFuncBlock->getOwner());
         }
@@ -571,7 +574,8 @@ Bool Generator::_generateTempVar(
         astAllocBlock != 0 &&
         astAllocBlock->getOwner() != 0 &&
         ti_cast<Ast::Function>(astAllocBlock->getOwner()) == 0 &&
-        ti_cast<Ast::Type>(astAllocBlock->getOwner()) == 0
+        ti_cast<Ast::Type>(astAllocBlock->getOwner()) == 0 &&
+        ti_cast<Ast::EvalStatement>(astAllocBlock->getOwner()) == 0
       ) {
         astAllocBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astAllocBlock->getOwner());
       }

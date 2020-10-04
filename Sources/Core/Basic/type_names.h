@@ -73,6 +73,13 @@ template <> struct TypeName<>
   { \
       static Srl::String get() { return Srl::String(S(name) S("<")) + TypeName<T>::get() + S(">"); } \
   }
+#define DEFINE_TEMPLATE2_TYPE_NAME(type, name) \
+  template <class T1, class T2> struct TypeName<type<T1, T2>> \
+  { \
+      static Srl::String get() { \
+        return Srl::String(S(name) S("<")) + TypeName<T1>::get() + S(",") + TypeName<T2>::get() + S(">"); \
+      } \
+  }
 
 DEFINE_TYPE_NAME(void, "void");
 
@@ -88,6 +95,9 @@ DEFINE_TYPE_NAME(Srl::Double, "alusus.org/Srl/Srl.Double");
 DEFINE_TYPE_NAME(Srl::Char, "alusus.org/Srl/Srl.Char");
 DEFINE_TYPE_NAME(Srl::StrStream, "alusus.org/Srl/Srl.StrStream");
 DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.org/Core/Core.Basic.Str");
+
+DEFINE_TEMPLATE_TYPE_NAME(Srl::Array, "alusus.org/Srl/Srl.Array");
+DEFINE_TEMPLATE2_TYPE_NAME(Srl::Map, "alusus.org/Srl/Srl.Array");
 
 DEFINE_TEMPLATE_TYPE_NAME(std::shared_ptr, "std::shared_ptr");
 DEFINE_TEMPLATE_TYPE_NAME(std::vector, "std::vector");

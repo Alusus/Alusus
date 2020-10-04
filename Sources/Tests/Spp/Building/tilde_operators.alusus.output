@@ -1,21 +1,21 @@
-ERROR SPPG1001 @ (22,5): Unsupported operation.
-ERROR SPPG1001 @ (23,10): Unsupported operation.
-ERROR SPPG1015 @ (26,5): Incompatible types for the given operator.
-ERROR SPPG1015 @ (29,5): Incompatible types for the given operator.
-ERROR SPPG1008 @ (34,10): Invalid symbol.
-ERROR SPPG1008 @ (35,5): Invalid symbol.
-ERROR SPPA1003 @ (52,17): No valid match was found for the given type.
-ERROR SPPA1002 @ (52,17): Invalid template argument.
-ERROR SPPA1003 @ (52,13): No valid match was found for the given type.
-ERROR SPPG1015 @ (53,5): Incompatible types for the given operator.
-ERROR SPPG1005 @ (54,10): Invalid cast.
-ERROR SPPG1005 @ (62,10): Invalid cast.
-ERROR SPPA1003 @ (63,16): No valid match was found for the given type.
-ERROR SPPG1008 @ (66,9): Invalid symbol.
-ERROR SPPG1009 @ (73,31): Invalid operand for ~size operator.
-ERROR SPPA1007 @ (74,34): Unknown symbol.
-ERROR SPPG1004 @ (80,34): Invalid integer bit count.
-ERROR SPPG1004 @ (82,39): Invalid integer bit count.
+ERROR SPPG1001 @ (29,5): Unsupported operation.
+ERROR SPPG1001 @ (30,10): Unsupported operation.
+ERROR SPPG1015 @ (33,5): Incompatible types for the given operator.
+ERROR SPPG1015 @ (36,5): Incompatible types for the given operator.
+ERROR SPPG1008 @ (41,10): Invalid symbol.
+ERROR SPPG1008 @ (42,5): Invalid symbol.
+ERROR SPPA1003 @ (59,17): No valid match was found for the given type.
+ERROR SPPA1002 @ (59,17): Invalid template argument.
+ERROR SPPA1003 @ (59,13): No valid match was found for the given type.
+ERROR SPPG1015 @ (60,5): Incompatible types for the given operator.
+ERROR SPPG1005 @ (61,10): Invalid cast.
+ERROR SPPG1005 @ (69,10): Invalid cast.
+ERROR SPPA1003 @ (70,16): No valid match was found for the given type.
+ERROR SPPG1008 @ (73,9): Invalid symbol.
+ERROR SPPG1009 @ (80,31): Invalid operand for ~size operator.
+ERROR SPPA1007 @ (81,34): Unknown symbol.
+ERROR SPPG1004 @ (87,34): Invalid integer bit count.
+ERROR SPPG1004 @ (89,39): Invalid integer bit count.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

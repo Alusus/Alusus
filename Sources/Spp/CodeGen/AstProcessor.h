@@ -40,6 +40,9 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   private: Ast::Helper *astHelper;
   private: Executing *executing;
   private: Core::Notices::Store *noticeStore = 0;
+  private: TiObject *currentEvalOwner;
+  private: Int currentEvalInsertionPosition;
+  private: SharedPtr<Core::Data::SourceLocation> currentEvalSourceLocation;
 
 
   //============================================================================
@@ -151,102 +154,111 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration,
+  public: METHOD_BINDING_CACHE(insertInterpolatedAst,
     Bool, (
-      TiObject* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      TiObject* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */
+    )
+  );
+  private: static Bool _insertInterpolatedAst(
+    TiObject *self, TiObject *obj, Array<Str> const *argNames, Containing<TiObject> *args
+  );
+
+  public: METHOD_BINDING_CACHE(interpolateAst,
+    Bool, (
+      TiObject* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
     )
   );
-  private: static Bool _applyMacroArgsIteration(
-    TiObject *self, TiObject *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst(
+    TiObject *self, TiObject *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_identifier,
+  public: METHOD_BINDING_CACHE(interpolateAst_identifier,
     Bool, (
-      Core::Data::Ast::Identifier* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      Core::Data::Ast::Identifier* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
     )
   );
-  private: static Bool _applyMacroArgsIteration_identifier(
-    TiObject *self, Core::Data::Ast::Identifier *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_identifier(
+    TiObject *self, Core::Data::Ast::Identifier *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_stringLiteral,
+  public: METHOD_BINDING_CACHE(interpolateAst_stringLiteral,
     Bool, (
-      Core::Data::Ast::StringLiteral* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      Core::Data::Ast::StringLiteral* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
     )
   );
-  private: static Bool _applyMacroArgsIteration_stringLiteral(
-    TiObject *self, Core::Data::Ast::StringLiteral *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_stringLiteral(
+    TiObject *self, Core::Data::Ast::StringLiteral *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_tiStr,
+  public: METHOD_BINDING_CACHE(interpolateAst_tiStr,
     Bool, (
-      TiStr* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      TiStr* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
     )
   );
-  private: static Bool _applyMacroArgsIteration_tiStr(
-    TiObject *self, TiStr *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_tiStr(
+    TiObject *self, TiStr *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_other,
+  public: METHOD_BINDING_CACHE(interpolateAst_other,
     Bool, (
-      TiObject* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      TiObject* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
     )
   );
-  private: static Bool _applyMacroArgsIteration_other(
-    TiObject *self, TiObject *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_other(
+    TiObject *self, TiObject *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_binding,
+  public: METHOD_BINDING_CACHE(interpolateAst_binding,
     Bool, (
-      Binding* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      Binding* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, Binding* /* destObj */
     )
   );
-  private: static Bool _applyMacroArgsIteration_binding(
-    TiObject *self, Binding *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_binding(
+    TiObject *self, Binding *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, Binding *destObj
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_containing,
+  public: METHOD_BINDING_CACHE(interpolateAst_containing,
     Bool, (
-      Containing<TiObject>* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      Containing<TiObject>* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, Containing<TiObject>* /* destObj */
     )
   );
-  private: static Bool _applyMacroArgsIteration_containing(
-    TiObject *self, Containing<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_containing(
+    TiObject *self, Containing<TiObject> *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, Containing<TiObject> *destObj
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_dynContaining,
+  public: METHOD_BINDING_CACHE(interpolateAst_dynContaining,
     Bool, (
-      DynamicContaining<TiObject>* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      DynamicContaining<TiObject>* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, DynamicContaining<TiObject>* /* destObj */
     )
   );
-  private: static Bool _applyMacroArgsIteration_dynContaining(
-    TiObject *self, DynamicContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_dynContaining(
+    TiObject *self, DynamicContaining<TiObject> *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, DynamicContaining<TiObject> *destObj
   );
 
-  public: METHOD_BINDING_CACHE(applyMacroArgsIteration_dynMapContaining,
+  public: METHOD_BINDING_CACHE(interpolateAst_dynMapContaining,
     Bool, (
-      DynamicMapContaining<TiObject>* /* obj */, Core::Data::Ast::Map* /* argTypes */, Containing<TiObject>* /* args */,
+      DynamicMapContaining<TiObject>* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
       Core::Data::SourceLocation* /* sl */, DynamicMapContaining<TiObject>* /* destObj */
     )
   );
-  private: static Bool _applyMacroArgsIteration_dynMapContaining(
-    TiObject *self, DynamicMapContaining<TiObject> *obj, Core::Data::Ast::Map *argTypes, Containing<TiObject> *args,
+  private: static Bool _interpolateAst_dynMapContaining(
+    TiObject *self, DynamicMapContaining<TiObject> *obj, Array<Str> const *argNames, Containing<TiObject> *args,
     Core::Data::SourceLocation *sl, DynamicMapContaining<TiObject> *destObj
   );
 

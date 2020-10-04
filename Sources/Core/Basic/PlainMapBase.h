@@ -449,6 +449,16 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     return idx;
   }
 
+  public: Array<Str> getKeys() const
+  {
+    return this->map.getKeys();
+  }
+
+  public: Array<CTYPE*> getValues() const
+  {
+    return this->map.getValues();
+  }
+
   public: Int findIndex(Char const *key) const
   {
     if (key == 0) {

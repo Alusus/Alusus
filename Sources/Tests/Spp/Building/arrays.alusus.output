@@ -1,7 +1,7 @@
-ERROR SPPG1015 @ (70,5): Incompatible types for the given operator.
-ERROR SPPG1015 @ (71,5): Incompatible types for the given operator.
-ERROR SPPA1008 @ (72,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (73,5): Provided arguments do not match signature.
+ERROR SPPG1015 @ (77,5): Incompatible types for the given operator.
+ERROR SPPG1015 @ (78,5): Incompatible types for the given operator.
+ERROR SPPA1008 @ (79,5): Provided arguments do not match signature.
+ERROR SPPA1008 @ (80,5): Provided arguments do not match signature.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

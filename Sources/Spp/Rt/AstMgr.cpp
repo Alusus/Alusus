@@ -20,7 +20,8 @@ namespace Spp::Rt
 void AstMgr::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
-    &this->getModifierStrings
+    &this->getModifierStrings,
+    &this->insertAst
   });
 }
 
@@ -28,6 +29,7 @@ void AstMgr::initBindingCaches()
 void AstMgr::initBindings()
 {
   this->getModifierStrings = &AstMgr::_getModifierStrings;
+  this->insertAst = &AstMgr::_insertAst;
 }
 
 
@@ -35,6 +37,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
 {
   globalItemRepo->addItem(S("!Spp.astMgr"), sizeof(void*), &astMgr);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStrings"), (void*)&AstMgr::_getModifierStrings);
+  globalItemRepo->addItem(S("Spp_AstMgr_insertAst"), (void*)&AstMgr::_insertAst);
 }
 
 
@@ -88,6 +91,18 @@ Bool AstMgr::_getModifierStrings(
   *resultCount = 0;
   *resultStrs = 0;
   return true;
+}
+
+
+Bool AstMgr::_insertAst(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  Array<Str> names = interpolations->getKeys();
+  Array<TiObject*> values = interpolations->getValues();
+  PlainArrayWrapperContainer<TiObject> container(&values);
+  Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
+  astMgr->parser->flushApprovedNotices();
+  return result;
 }
 
 } // namespace

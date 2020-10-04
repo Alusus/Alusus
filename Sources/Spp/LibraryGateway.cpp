@@ -67,6 +67,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 
   // Prepare run-time objects.
   this->rtAstMgr = newSrdObj<Rt::AstMgr>();
+  this->rtAstMgr->setAstProcessor(this->astProcessor.get());
   this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(this->buildManager.get());
 
   // Extend Core singletons.

@@ -167,6 +167,15 @@ template<class T1, class T2> class Map {
       return this->keysIndex->findPos(key);
     }
   }
+
+  public: Array<T1> getKeys() const {
+    return this->keys;
+  }
+
+  public: Array<T2> getValues() const {
+    return this->values;
+  }
+
 }; // class
 
 } // namespace
