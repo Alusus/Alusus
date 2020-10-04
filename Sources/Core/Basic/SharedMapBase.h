@@ -454,6 +454,16 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
     return idx;
   }
 
+  public: Array<Str> getKeys() const
+  {
+    return this->map.getKeys();
+  }
+
+  public: Array<SharedPtr<CTYPE>> getValues() const
+  {
+    return this->map.getValues();
+  }
+
   public: Int findIndex(Char const *key) const
   {
     if (key == 0) {

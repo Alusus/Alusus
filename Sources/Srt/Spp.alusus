@@ -1,23 +1,29 @@
-import "alusus_spp";
+import "Srl/Map";
+import "Srl/String";
 
 @merge module Spp {
-  type AstMgr {
-    @expname[Spp_AstMgr_getModifierStrings]
-    function getModifierStrings(
-      element: ptr, modifierKwd: ptr[array[Word[8]]],
-      resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]],
-      resultCount: ptr[Word]
-    ) => Word[1];
-  };
-  def astMgr: ref[AstMgr];
+    type AstMgr {
+        @expname[Spp_AstMgr_getModifierStrings]
+        function getModifierStrings(
+            element: ptr, modifierKwd: ptr[array[Word[8]]],
+            resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]],
+            resultCount: ptr[Word]
+        ) => Word[1];
 
-  type BuildMgr {
-    @expname[Spp_BuildMgr_dumpLlvmIrForElement]
-    function dumpLlvmIrForElement (element: ptr);
+        @expname[Spp_AstMgr_insertAst]
+        func insertAst(
+            element: ptr, interpolations: ref[Srl.Map[Srl.String, ptr]]
+        ) => Word[1];
+    };
+    def astMgr: ref[AstMgr];
 
-    @expname[Spp_BuildMgr_buildObjectFileForElement]
-    function buildObjectFileForElement (element: ptr, filename: ptr[array[Word[8]]]) => Word[1];
-  };
-  def buildMgr: ref[BuildMgr];
+    type BuildMgr {
+        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
+        function dumpLlvmIrForElement (element: ptr);
+
+        @expname[Spp_BuildMgr_buildObjectFileForElement]
+        function buildObjectFileForElement (element: ptr, filename: ptr[array[Word[8]]]) => Word[1];
+    };
+    def buildMgr: ref[BuildMgr];
 };
 

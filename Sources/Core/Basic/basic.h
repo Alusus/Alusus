@@ -698,6 +698,7 @@ extern std::istream &inStream;
 #include "DynamicMapContaining.h"
 #include "containing_helpers.h"
 #include "ContainerExtender.h"
+#include "PlainArrayWrapperContainer.h"
 
 // TODO: Rename List to Array.
 #include "SharedListBase.h"

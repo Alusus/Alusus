@@ -3,6 +3,8 @@ Eval block 2.
 Eval statement.
 Multiline
 eval block
+def statement inside eval: i = 5
+temp var def inside eval: Int(7) = 7
 Hello World!
 
 Nested eval
@@ -10,3 +12,15 @@ Eval 2
 Eval 1
 Hello World 2
 Hello World 1
+
+testAstInsertion
+x = 7
+x = 12
+
+A~init
+a.i = 3
+A~init
+A().i = 1
+A~terminate
+a.i*2 = 6
+A~terminate

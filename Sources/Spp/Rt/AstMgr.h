@@ -39,6 +39,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   private: Core::Notices::Store *noticeStore;
   private: Core::Processing::Parser *parser;
+  private: Spp::CodeGen::AstProcessor *astProcessor;
 
 
   //============================================================================
@@ -53,6 +54,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
+    this->setNoticeStore(parent->getNoticeStore());
+    this->setParser(parent->getParser());
+    this->setAstProcessor(parent->getAstProcessor());
   }
 
   public: virtual ~AstMgr()
@@ -89,6 +93,15 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     return this->parser;
   }
 
+  public: void setAstProcessor(Spp::CodeGen::AstProcessor *astP)
+  {
+    this->astProcessor = astP;
+  }
+  public: Spp::CodeGen::AstProcessor* getAstProcessor() const
+  {
+    return this->astProcessor;
+  }
+
   /// @}
 
   /// @name Operations
@@ -101,6 +114,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: static Bool _getModifierStrings(
     TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount
   );
+
+  public: METHOD_BINDING_CACHE(insertAst, Bool, (TiObject*, Map<Str, TiObject*>*));
+  public: static Bool _insertAst(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
 
   /// @}
 
