@@ -300,6 +300,7 @@ Bool Helper::_lookupCalleeOnObject(
     } else {
       auto objType = static_cast<Type*>(obj);
       auto objRefType = helper->getReferenceTypeFor(obj, Ast::ReferenceMode::IMPLICIT);
+      Function *customCaster;
       if (result.stack.getCount() == currentStackSize && thisType == 0) {
         // This is a constructor.
         static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("~init"))} });
@@ -315,6 +316,18 @@ Bool Helper::_lookupCalleeOnObject(
           types->getElementCount() == 0 && (objType->getInitializationMethod(helper, ec) & TypeInitMethod::USER) == 0
         ) {
           // No user-defined constructor is defined and no params is provided, so we can skip the matching.
+          result.matchStatus = TypeMatchStatus::EXACT;
+          result.notice.reset();
+          result.stack.add(objType);
+          result.thisIndex = -2;
+          result.type = objType;
+          return true;
+        } else if (
+          (objType->getInitializationMethod(helper, ec) & TypeInitMethod::USER) == 0 &&
+          types->getElementCount() == 1 &&
+          helper->matchTargetType(types->getElement(0), objType, ec, customCaster) >= TypeMatchStatus::CUSTOM_CASTER
+        ) {
+          // A type with no custom init but can be initialized from the given arg.
           result.matchStatus = TypeMatchStatus::EXACT;
           result.notice.reset();
           result.stack.add(objType);
@@ -371,6 +384,16 @@ Bool Helper::_lookupCalleeOnObject(
         return false;
       }
     }
+  } else if (obj != 0 && obj->isDerivedFrom<Template>()) {
+    // TODO: Look-up template functions as well.
+    auto objType = ti_cast<Type>(helper->traceType(obj));
+    if (objType == 0) {
+      if (result.matchStatus == TypeMatchStatus::NONE) {
+        result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      }
+      return false;
+    }
+    return helper->lookupCalleeOnObject(objType, thisType, types, ec, currentStackSize, result);
   } else {
     // Invalid
     if (result.matchStatus == TypeMatchStatus::NONE) {
