@@ -38,13 +38,15 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: SharedList<TiObject> *astLiteralRepo;
   private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: ExpressionGenerator(Ast::Helper *h) : astHelper(h)
+  public: ExpressionGenerator(Ast::Helper *h, SharedList<TiObject> *alr)
+    : astHelper(h), astLiteralRepo(alr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -56,6 +58,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->astLiteralRepo = parent->getAstLiteralRepo();
   }
 
   public: virtual ~ExpressionGenerator()
@@ -75,6 +78,11 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: SharedList<TiObject>* getAstLiteralRepo() const
+  {
+    return this->astLiteralRepo;
   }
 
   public: void setNoticeStore(Core::Notices::Store *ns)
@@ -338,6 +346,16 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   );
   private: static Bool _generateAstRefOp(
     TiObject *self, Spp::Ast::AstRefOp *astNode, Generation *g, Session *session, GenResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateAstLiteralCommand,
+    Bool, (
+      Spp::Ast::AstLiteralCommand* /* astNode */, Generation* /* g */,
+      Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateAstLiteralCommand(
+    TiObject *self, Spp::Ast::AstLiteralCommand *astNode, Generation *g, Session *session, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateContentOp,

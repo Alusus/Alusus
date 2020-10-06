@@ -35,7 +35,8 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Create the generator.
   this->typeGenerator = newSrdObj<CodeGen::TypeGenerator>(this->astHelper.get());
   this->expressionGenerator = newSrdObj<CodeGen::ExpressionGenerator>(
-    this->astHelper.get()
+    this->astHelper.get(),
+    this->astLiteralRepo.get()
   );
   this->commandGenerator = newSrdObj<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = newSrdObj<CodeGen::Generator>(

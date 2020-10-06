@@ -111,6 +111,7 @@
       <keyword>value</keyword>
       <keyword>init</keyword>
       <keyword>eval</keyword>
+      <keyword>ast</keyword>
     </context>
 
     <context id="ar-def-keyword" style-ref="def-keyword">
@@ -149,6 +150,7 @@
       <keyword>قيمة</keyword>
       <keyword>هيئ</keyword>
       <keyword>تقييم</keyword>
+      <keyword>شبم</keyword>
     </context>
 
     <context id="constant" style-ref="constant">
