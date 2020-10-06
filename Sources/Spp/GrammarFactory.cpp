@@ -458,6 +458,37 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     state->setData(evalStatement);
   }));
 
+  //// astLiteral = "ast" + Statement
+  this->createCommand(S("root.Main.AstLiteral"), {
+    {
+      Map::create({}, { { S("ast"), 0 }, { S("شبم"), 0 } }),
+      {
+        {
+          PARSE_REF(S("module.BlockStatements.OuterStmt")),
+          TiInt::create(1),
+          TiInt::create(1),
+          TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+        }
+      },
+      TiInt::create(1),
+      TiInt::create(1),
+      TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+    }
+  }, newSrdObj<CustomParsingHandler>([](Core::Processing::Parser *parser, Core::Processing::ParserState *state) {
+    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    if (currentList == 0 || currentList->getElementCount() != 2) {
+      throw EXCEPTION(GenericException, S("Unexpected data type while parsing AST literal command."));
+    }
+    auto astLiteralCommand = Ast::AstLiteralCommand::create({
+      { "prodId", metadata->getProdId() },
+      { "sourceLocation", metadata->findSourceLocation() }
+    }, {
+      { "body", currentList->getElement(1) }
+    });
+    state->setData(astLiteralCommand);
+  }));
+
   // BlockSet
   this->set(S("root.Main.BlockSet"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
@@ -702,7 +733,8 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     PARSE_REF(S("module.Macro")),
     PARSE_REF(S("module.Eval")),
     PARSE_REF(S("module.Keywords")),
-    PARSE_REF(S("module.ThisTypeRef"))
+    PARSE_REF(S("module.ThisTypeRef")),
+    PARSE_REF(S("module.AstLiteral"))
   });
 }
 
@@ -785,7 +817,8 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
     S("module.Macro"),
     S("module.Eval"),
     S("module.Keywords"),
-    S("module.ThisTypeRef")
+    S("module.ThisTypeRef"),
+    S("module.AstLiteral")
   });
 
   // Delete tilde command definitions.
@@ -826,6 +859,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->tryRemove(S("root.Main.Eval"));
   this->tryRemove(S("root.Main.Keywords"));
   this->tryRemove(S("root.Main.ThisTypeRef"));
+  this->tryRemove(S("root.Main.AstLiteral"));
 
   // Delete block definitions.
   this->tryRemove(S("root.Main.BlockSet"));
