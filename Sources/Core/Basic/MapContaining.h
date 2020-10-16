@@ -40,7 +40,7 @@ template<class CTYPE> class MapContaining : public Containing<CTYPE>
   }
 
   using Containing<CTYPE>::getElementNeededType;
-  public: virtual TypeInfo* getElementNeededType(Char const *key) const
+  public: virtual TypeInfo const* getElementNeededType(Char const *key) const
   {
     throw EXCEPTION(InvalidArgumentException, S("key"), S("Element not found"), key);
   }

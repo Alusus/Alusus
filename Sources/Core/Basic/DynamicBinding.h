@@ -65,12 +65,12 @@ class DynamicBinding : public Binding
     return this->getBindingMap()->get(index).get();
   }
 
-  public: virtual TypeInfo* getMemberNeededType(Char const *name) const
+  public: virtual TypeInfo const* getMemberNeededType(Char const *name) const
   {
     return TiObject::getTypeInfo();
   }
 
-  public: virtual TypeInfo* getMemberNeededType(Int index) const
+  public: virtual TypeInfo const* getMemberNeededType(Int index) const
   {
     return TiObject::getTypeInfo();
   }

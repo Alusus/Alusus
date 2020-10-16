@@ -557,7 +557,7 @@ template<class CTYPE, class PTYPE> class PlainMapBase : public PTYPE, public Dyn
     return this->findIndex(key);
   }
 
-  public: virtual TypeInfo* getElementsNeededType() const
+  public: virtual TypeInfo const* getElementsNeededType() const
   {
     return CTYPE::getTypeInfo();
   }

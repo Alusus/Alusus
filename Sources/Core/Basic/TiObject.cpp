@@ -23,19 +23,19 @@ namespace Core::Basic
  * class. This function (along with getMyTypeInfo) is automatically
  * defined by the TYPE_INFO macro.
  */
-ObjectTypeInfo * TiObject::getTypeInfo()
+ObjectTypeInfo const* TiObject::getTypeInfo()
 {
-  static ObjectTypeInfo *type_info = 0;
+  static ObjectTypeInfo const *type_info = 0;
   if (type_info == 0) {
     Char const *my_type = S("TiObject");
     Char const *typeNamespace = S("Core.Basic");
     Char const *moduleName = S("Core");
     Char const *url = S("alusus.org");
     Char const *uniqueName = S("alusus.org#Core#Core.Basic.TiObject");
-    type_info = reinterpret_cast<ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName));
+    type_info = reinterpret_cast<ObjectTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (type_info == 0) {
       type_info = new ObjectTypeInfo(my_type, typeNamespace, moduleName, url, 0, 0);
-      GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(type_info));
+      GLOBAL_STORAGE->setObject(uniqueName, const_cast<ObjectTypeInfo*>(type_info));
     }
   }
   return type_info;
@@ -51,7 +51,7 @@ ObjectTypeInfo * TiObject::getTypeInfo()
  */
 Bool TiObject::isDerivedFrom(TypeInfo const *info) const
 {
-  TypeInfo * i = this->getMyTypeInfo();
+  TypeInfo const *i = this->getMyTypeInfo();
   while (i != 0) {
     if (i == info) return true;
     i = i->getBaseTypeInfo();

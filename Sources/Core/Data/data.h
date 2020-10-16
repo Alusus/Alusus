@@ -58,7 +58,7 @@ void clearCaches(TiObject *obj);
  * @ingroup core_data
  * If the given object is of the given type, it will be returned.
  */
-Node* findOwner(Node *obj, TypeInfo *typeInfo);
+Node* findOwner(Node *obj, TypeInfo const *typeInfo);
 
 template <class T> T* findOwner(Node *obj)
 {

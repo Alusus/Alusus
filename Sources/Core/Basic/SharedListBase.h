@@ -411,7 +411,7 @@ template<class CTYPE, class PTYPE> class SharedListBase : public PTYPE, public D
     this->insert(index, getSharedPtr(val));
   }
 
-  public: virtual TypeInfo* getElementsNeededType() const
+  public: virtual TypeInfo const* getElementsNeededType() const
   {
     return CTYPE::getTypeInfo();
   }

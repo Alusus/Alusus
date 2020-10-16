@@ -27,7 +27,7 @@ class ObjTiInterface : public TiInterface
   //============================================================================
   // Abstract Functions
 
-  public: virtual ObjInterfaceTypeInfo* getMyObjInterfaceInfo() const = 0;
+  public: virtual ObjInterfaceTypeInfo const* getMyObjInterfaceInfo() const = 0;
 
 }; // class
 

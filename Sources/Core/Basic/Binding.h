@@ -61,11 +61,11 @@ class Binding : public TiInterface
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
-  public: virtual TypeInfo* getMemberNeededType(Char const *name) const
+  public: virtual TypeInfo const* getMemberNeededType(Char const *name) const
   {
     throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found"), name);
   }
-  public: virtual TypeInfo* getMemberNeededType(Int index) const
+  public: virtual TypeInfo const* getMemberNeededType(Int index) const
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }

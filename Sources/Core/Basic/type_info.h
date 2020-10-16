@@ -68,7 +68,7 @@ class TypeInfo
   private: Str uniqueName;
 
   /// Pointer to the type info of the base type.
-  private: TypeInfo * baseTypeInfo;
+  private: TypeInfo const* baseTypeInfo;
 
 
   //============================================================================
@@ -88,14 +88,14 @@ class TypeInfo
    * @param baseTypeInfo Pointer to the type info of the base type.
    */
   public: TypeInfo(Char const *typeName, Char const *typeNamespace, Char const *moduleName,
-                   Char const *url, TypeInfo *baseTypeInfo) :
+                   Char const *url, TypeInfo const *baseTypeInfo) :
     typeName(typeName),
     typeNamespace(typeNamespace),
     moduleName(moduleName),
     url(url),
     baseTypeInfo(baseTypeInfo)
   {
-    this->uniqueName = this->url + "#" + this->moduleName + "#" + this->typeNamespace + "." + this->typeName;
+    this->uniqueName = this->url + "/" + this->moduleName + "/" + this->typeNamespace + "." + this->typeName;
   }
 
 
@@ -153,7 +153,7 @@ class TypeInfo
   }
 
   /// Get a pointer to the type info of the base type.
-  public: TypeInfo* getBaseTypeInfo() const
+  public: TypeInfo const* getBaseTypeInfo() const
   {
     return this->baseTypeInfo;
   }
@@ -173,7 +173,7 @@ template<class FT, class P> class ExtendedTypeInfo : public P
   // Constructor
 
   public: ExtendedTypeInfo(Char const *typeName, Char const *typeNamespace, Char const *moduleName,
-                           Char const *url, TypeInfo *baseTypeInfo, FT *factory) :
+                           Char const *url, TypeInfo const *baseTypeInfo, FT *factory) :
     P(typeName, typeNamespace, moduleName, url, baseTypeInfo), factory(factory)
   {
   }

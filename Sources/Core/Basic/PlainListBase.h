@@ -410,7 +410,7 @@ template<class CTYPE, class PTYPE> class PlainListBase : public PTYPE, public Dy
     this->insert(index, val);
   }
 
-  public: virtual TypeInfo* getElementsNeededType() const
+  public: virtual TypeInfo const* getElementsNeededType() const
   {
     return CTYPE::getTypeInfo();
   }

@@ -18,8 +18,8 @@
 
 #define INTERFACES(parent, interfaceChecks) \
   protected: \
-    virtual void* _getInterface(TypeInfo *info) { \
-      void* interfacePtr; \
+    virtual TiInterface* _getInterface(TypeInfo const *info) { \
+      TiInterface *interfacePtr; \
       SPACE_EXPAND_ARGS interfaceChecks \
       return parent::_getInterface(info); \
     } \
@@ -93,14 +93,14 @@
 // Object Type Info Macros
 
 #define _GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
-  static Core::Basic::ObjectTypeInfo *typeInfo = 0; \
+  static Core::Basic::ObjectTypeInfo const *typeInfo = 0; \
   if (typeInfo == 0) { \
     Char const* uniqueName = S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".") S(#myType); \
-    typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
+    typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
       typeInfo = new Core::Basic::ObjectTypeInfo(S(#myType), S(typeNamespace), S(moduleName), S(url), \
       baseType::getTypeInfo(), myType::_getFactory(0)); \
-      GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
+      GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::ObjectTypeInfo*>(typeInfo)); \
     } \
   } \
   return typeInfo;
@@ -109,16 +109,16 @@
   private: \
     static TiObjectFactory* _getFactory(Float dummy) { return 0; } \
   public: \
-    virtual Core::Basic::ObjectTypeInfo* getMyTypeInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::ObjectTypeInfo* getTypeInfo() { \
+    virtual Core::Basic::ObjectTypeInfo const* getMyTypeInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::ObjectTypeInfo const* getTypeInfo() { \
       _GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
     }
 #define _TYPE_INFO_WITH_INTERFACES(myType, baseType, typeNamespace, moduleName, url, interfaces) \
   private: \
     static TiObjectFactory* _getFactory(Float dummy) { return 0; } \
   public: \
-    virtual Core::Basic::ObjectTypeInfo* getMyTypeInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::ObjectTypeInfo* getTypeInfo() { \
+    virtual Core::Basic::ObjectTypeInfo const* getMyTypeInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::ObjectTypeInfo const* getTypeInfo() { \
       _GET_TYPE_INFO_BODY(myType, baseType, typeNamespace, moduleName, url) \
     } \
     INTERFACES(baseType, interfaces)
@@ -129,16 +129,16 @@
   private: \
     static TiObjectFactory* _getFactory(Float dummy) { return 0; } \
   public: \
-    virtual Core::Basic::ObjectTypeInfo* getMyTypeInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::ObjectTypeInfo* getTypeInfo() { \
+    virtual Core::Basic::ObjectTypeInfo const* getMyTypeInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::ObjectTypeInfo const* getTypeInfo() { \
       _GET_TYPE_INFO_BODY(myTypeName, baseType, typeNamespace, moduleName, url) \
     }
 #define _CUSTOM_NAME_TYPE_INFO_WITH_INTERFACES(myType, myTypeName, baseType, typeNamespace, moduleName, url, interfaces) \
   private: \
     static TiObjectFactory* _getFactory(Float dummy) { return 0; } \
   public: \
-    virtual Core::Basic::ObjectTypeInfo* getMyTypeInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::ObjectTypeInfo* getTypeInfo() { \
+    virtual Core::Basic::ObjectTypeInfo const* getMyTypeInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::ObjectTypeInfo const* getTypeInfo() { \
       _GET_TYPE_INFO_BODY(myTypeName, baseType, typeNamespace, moduleName, url) \
     } \
     INTERFACES(baseType, interfaces)
@@ -155,15 +155,15 @@
 // Template Type Info Macros
 
 #define _GET_TYPE_INFO_TEMPLATE_BODY(myType, baseType, typeNamespace, moduleName, url, templateArgs) \
-  static Core::Basic::ObjectTypeInfo *typeInfo = 0; \
+  static Core::Basic::ObjectTypeInfo const *typeInfo = 0; \
   if (typeInfo == 0) { \
     Str typeName = Str(S(#myType)) + S("<") + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + S(">"); \
     Str uniqueName = Str(S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".")) + typeName; \
-    typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
+    typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
       typeInfo = new Core::Basic::ObjectTypeInfo(typeName, S(typeNamespace), S(moduleName), S(url), \
                                                  baseType::getTypeInfo(), myType::_getFactory(0)); \
-      GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
+      GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::ObjectTypeInfo*>(typeInfo)); \
     } \
   } \
   return typeInfo;
@@ -172,20 +172,20 @@
   private: \
     static TiObjectFactory* _getFactory(Float dummy) { return 0; } \
   public: \
-    virtual Core::Basic::ObjectTypeInfo* getMyTypeInfo() const { \
+    virtual Core::Basic::ObjectTypeInfo const* getMyTypeInfo() const { \
       return myType<COMMA_EXPAND_ARGS templateArgs>::getTypeInfo(); \
     } \
-    static Core::Basic::ObjectTypeInfo* getTypeInfo() { \
+    static Core::Basic::ObjectTypeInfo const* getTypeInfo() { \
       _GET_TYPE_INFO_TEMPLATE_BODY(myType, baseType, typeNamespace, moduleName, url, templateArgs) \
     }
 #define _TEMPLATE_TYPE_INFO_WITH_INTERFACES(myType, baseType, typeNamespace, moduleName, url, templateArgs, interfaces) \
   private: \
     static TiObjectFactory* _getFactory(Float dummy) { return 0; } \
   public: \
-    virtual Core::Basic::ObjectTypeInfo* getMyTypeInfo() const { \
+    virtual Core::Basic::ObjectTypeInfo const* getMyTypeInfo() const { \
       return myType<COMMA_EXPAND_ARGS templateArgs>::getTypeInfo(); \
     } \
-    static Core::Basic::ObjectTypeInfo* getTypeInfo() { \
+    static Core::Basic::ObjectTypeInfo const* getTypeInfo() { \
       _GET_TYPE_INFO_TEMPLATE_BODY(myType, baseType, typeNamespace, moduleName, url, templateArgs) \
     } \
     INTERFACES(baseType, interfaces)
@@ -200,23 +200,23 @@
 
 #define INTERFACE_INFO(myType, baseType, typeNamespace, moduleName, url) \
   public: \
-    virtual Core::Basic::InterfaceTypeInfo* getMyInterfaceInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::InterfaceTypeInfo* getTypeInfo() {   \
-      static Core::Basic::InterfaceTypeInfo *typeInfo = 0; \
+    virtual Core::Basic::InterfaceTypeInfo const* getMyInterfaceInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::InterfaceTypeInfo const* getTypeInfo() {   \
+      static Core::Basic::InterfaceTypeInfo const *typeInfo = 0; \
       if (typeInfo == 0) { \
         Char const* uniqueName = S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".") S(#myType); \
-        typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
+        typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::InterfaceTypeInfo(S(#myType), S(typeNamespace), S(moduleName), S(url), \
             baseType::getTypeInfo()); \
-          GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
+          GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::InterfaceTypeInfo*>(typeInfo)); \
         } \
       } \
       return typeInfo; \
     } \
-    void* getInterfacePtr(Core::Basic::TypeInfo *info) {\
+    TiInterface* getInterfacePtr(Core::Basic::TypeInfo const *info) {\
       if (info == myType::getTypeInfo()) \
-        return reinterpret_cast<void*>(this); \
+        return this; \
       else \
         return baseType::getInterfacePtr(info); \
     }
@@ -227,26 +227,26 @@
 
 #define TEMPLATE_INTERFACE_INFO(myType, baseType, typeNamespace, moduleName, url, templateArgs) \
   public: \
-    virtual Core::Basic::InterfaceTypeInfo* getMyInterfaceInfo() const { \
+    virtual Core::Basic::InterfaceTypeInfo const* getMyInterfaceInfo() const { \
       return myType<COMMA_EXPAND_ARGS templateArgs>::getTypeInfo(); \
     } \
-    static Core::Basic::InterfaceTypeInfo* getTypeInfo() {   \
-      static Core::Basic::InterfaceTypeInfo *typeInfo = 0; \
+    static Core::Basic::InterfaceTypeInfo const* getTypeInfo() {   \
+      static Core::Basic::InterfaceTypeInfo const *typeInfo = 0; \
       if (typeInfo == 0) { \
         Str typeName = Str(S(#myType)) + S("<") + TypeName<COMMA_EXPAND_ARGS templateArgs>::get() + S(">"); \
         Str uniqueName = Str(S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".")) + typeName; \
-        typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
+        typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::InterfaceTypeInfo(typeName, S(typeNamespace), S(moduleName), S(url), \
             baseType::getTypeInfo()); \
-          GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
+          GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::InterfaceTypeInfo*>(typeInfo)); \
         } \
       } \
       return typeInfo; \
     } \
-    void* getInterfacePtr(Core::Basic::TypeInfo *info) {\
+    TiInterface* getInterfacePtr(Core::Basic::TypeInfo const *info) {\
       if (info == myType<COMMA_EXPAND_ARGS templateArgs>::getTypeInfo()) \
-        return reinterpret_cast<void*>(this); \
+        return this; \
       else \
         return baseType::getInterfacePtr(info); \
     }
@@ -259,24 +259,24 @@
   private: \
     static ObjTiInterfaceFactory* _getFactory(Float dummy) { return getObjTiInterfaceFactory<myType>(); } \
   public: \
-    virtual Core::Basic::InterfaceTypeInfo* getMyInterfaceInfo() const { return myType::getTypeInfo(); } \
-    virtual Core::Basic::ObjInterfaceTypeInfo* getMyObjInterfaceInfo() const { return myType::getTypeInfo(); } \
-    static Core::Basic::ObjInterfaceTypeInfo* getTypeInfo() {   \
-      static Core::Basic::ObjInterfaceTypeInfo *typeInfo = 0; \
+    virtual Core::Basic::InterfaceTypeInfo const* getMyInterfaceInfo() const { return myType::getTypeInfo(); } \
+    virtual Core::Basic::ObjInterfaceTypeInfo const* getMyObjInterfaceInfo() const { return myType::getTypeInfo(); } \
+    static Core::Basic::ObjInterfaceTypeInfo const* getTypeInfo() {   \
+      static Core::Basic::ObjInterfaceTypeInfo const *typeInfo = 0; \
       if (typeInfo == 0) { \
-        Char const* uniqueName = S(url) S("#") S(moduleName) S("#") S(typeNamespace) S(".") S(#myType); \
-        typeInfo = reinterpret_cast<Core::Basic::ObjInterfaceTypeInfo*>(GLOBAL_STORAGE->getObject(uniqueName)); \
+        Char const* uniqueName = S(url) S("/") S(moduleName) S("/") S(typeNamespace) S(".") S(#myType); \
+        typeInfo = reinterpret_cast<Core::Basic::ObjInterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::ObjInterfaceTypeInfo(S(#myType), S(typeNamespace), S(moduleName), S(url), \
             baseType::getTypeInfo(), myType::_getFactory(0)); \
-          GLOBAL_STORAGE->setObject(uniqueName, reinterpret_cast<void*>(typeInfo)); \
+          GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::ObjInterfaceTypeInfo*>(typeInfo)); \
         } \
       } \
       return typeInfo; \
     } \
-    void* getInterfacePtr(Core::Basic::TypeInfo *info) {\
+    TiInterface* getInterfacePtr(Core::Basic::TypeInfo const *info) {\
       if (info == myType::getTypeInfo()) \
-        return reinterpret_cast<void*>(this); \
+        return this; \
       else \
         return baseType::getInterfacePtr(info); \
     }

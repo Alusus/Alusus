@@ -48,7 +48,7 @@ class TiInterface
    *         All interfaces of the same type should return the same specific
    *         object, not a different object with the same info.
    */
-  public: virtual InterfaceTypeInfo* getMyInterfaceInfo() const = 0;
+  public: virtual InterfaceTypeInfo const* getMyInterfaceInfo() const = 0;
 
   /**
    * @brief Check if this interface is of the given type.
@@ -56,7 +56,7 @@ class TiInterface
    * @return Returns true if the given type info is for this interface's type,
    *         false otherwise.
    */
-  public: Bool isInterfaceA(TypeInfo *info) const
+  public: Bool isInterfaceA(TypeInfo const *info) const
   {
     return this->getMyInterfaceInfo() == info;
   }
@@ -71,20 +71,20 @@ class TiInterface
   }
 
   /// Get this interface's type info.
-  public: static InterfaceTypeInfo* getTypeInfo();
+  public: static InterfaceTypeInfo const* getTypeInfo();
 
   /// Get a pointer to the requested interface.
-  public: void* getInterfacePtr(TypeInfo *info)
+  public: TiInterface* getInterfacePtr(TypeInfo const *info)
   {
     if (info == TiInterface::getTypeInfo()) {
-      return reinterpret_cast<void*>(this);
+      return this;
     } else {
       return 0;
     }
   }
 
   /// Check if this interface is of the given type, or a derived type.
-  public: Bool isInterfaceDerivedFrom(TypeInfo *info) const;
+  public: Bool isInterfaceDerivedFrom(TypeInfo const *info) const;
 
   /**
    * @brief A template equivalent to isInterfaceDerivedFrom.
