@@ -84,18 +84,25 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject const *obj);
 void addSourceLocation(TiObject *obj, SourceLocation *sl);
 
 Bool mergeDefinition(
-  Definition *def, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+  Definition *def, DynamicContaining<TiObject> *target, Int &index, Data::Seeker *seeker, Notices::Store *noticeStore
+);
+Bool addPossiblyMergeableElement(
+  TiObject *src, DynamicContaining<TiObject> *target, Int &index, Data::Seeker *seeker, Notices::Store *noticeStore
 );
 Bool addPossiblyMergeableElement(
   TiObject *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+);
+Bool addPossiblyMergeableElements(
+  Containing<TiObject> *src, DynamicContaining<TiObject> *target, Int &index,
+  Data::Seeker *seeker, Notices::Store *noticeStore
 );
 Bool addPossiblyMergeableElements(
   Containing<TiObject> *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
 );
 void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *modifier);
 
-TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl);
-template <class T> SharedPtr<T> clone(SharedPtr<T> const &obj, SourceLocation *sl = 0)
+TioSharedPtr _clone(TiObject *obj, SourceLocation *sl);
+template <class T> SharedPtr<T> clone(T *obj, SourceLocation *sl = 0)
 {
   return _clone(obj, sl).template s_cast<T>();
 }

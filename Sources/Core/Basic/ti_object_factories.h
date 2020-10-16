@@ -26,8 +26,10 @@ class TiObjectFactory
   //============================================================================
   // Types
 
-  public: typedef std::function<TiObject*()> PlainCreateFunc;
-  public: typedef std::function<SharedPtr<TiObject>()> SharedCreateFunc;
+  public: typedef TiObject*(*PlainCreateFunc)();
+  public: typedef SharedPtr<TiObject>(*SharedCreateFunc)();
+  public: typedef void(*InitPreallocatedFunc)(TiObject*);
+  public: typedef void(*TerminationFunc)(TiObject*);
 
 
   //============================================================================
@@ -35,13 +37,22 @@ class TiObjectFactory
 
   private: PlainCreateFunc plainCreateFunc;
   private: SharedCreateFunc sharedCreateFunc;
+  private: InitPreallocatedFunc initPreallocatedFunc;
+  private: TerminationFunc terminationFunc;
 
 
   //============================================================================
   // Constructor
 
-  public: TiObjectFactory(PlainCreateFunc plainFunc, SharedCreateFunc sharedFunc)
-    : plainCreateFunc(plainFunc), sharedCreateFunc(sharedFunc)
+  public: TiObjectFactory(
+    PlainCreateFunc plainFunc,
+    SharedCreateFunc sharedFunc,
+    InitPreallocatedFunc preallocatedFunc,
+    TerminationFunc termFunc
+  ) : plainCreateFunc(plainFunc),
+      sharedCreateFunc(sharedFunc),
+      initPreallocatedFunc(preallocatedFunc),
+      terminationFunc(termFunc)
   {
   }
 
@@ -59,6 +70,16 @@ class TiObjectFactory
   {
     if (this->sharedCreateFunc != 0) return this->sharedCreateFunc();
     else return SharedPtr<TiObject>::null;
+  }
+
+  public: void initPreallocated(TiObject *p)
+  {
+    if (this->initPreallocatedFunc != 0) this->initPreallocatedFunc(p);
+  }
+
+  public: void terminate(TiObject *p)
+  {
+    if (this->terminationFunc != 0) this->terminationFunc(p);
   }
 
 }; // class
@@ -120,7 +141,16 @@ template<class T> TiObjectFactory* getTiObjectFactory()
     []()->SharedPtr<TiObject>
     {
       return newSrdObj<T>();
-    });
+    },
+    [](TiObject *p)->void
+    {
+      new(p) T();
+    },
+    [](TiObject *p)->void
+    {
+      ((T*)p)->~T();
+    }
+  );
 }
 
 

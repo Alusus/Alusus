@@ -1,3 +1,4 @@
+import "Core";
 import "Spp";
 import "Srl/Console";
 import "Srl/String";
@@ -38,11 +39,20 @@ func testAstInsertion {
         m.set(String("name"), varName~ast);
         Spp.astMgr.insertAst(defstmt~ast, m);
         Spp.astMgr.insertAst(printstmt~ast, Map[String, ptr]());
+
+        Spp.astMgr.insertAst(
+            ast { def name: Float[64](someval) },
+            Map[String, ptr]()
+                .set(String("name"), Core.TiStr("y")~ptr)
+                .set(String("someval"), Core.FloatLiteral("6")~ptr)
+        );
     }
     x = 7;
     Console.print("x = %d\n", x);
     x = eval { Spp.astMgr.insertAst(someNum~ast, Map[String, ptr]()) };
     Console.print("x = %d\n", x);
+
+    Console.print("y = %f\n", y);
 }
 
 Spp.buildMgr.dumpLlvmIrForElement(testAstInsertion~ast);

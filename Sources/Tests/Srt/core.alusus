@@ -1,0 +1,30 @@
+import "Core";
+import "Srl/Console";
+
+use Srl;
+
+func test {
+    def tiStr: Core.TiStr("TiStr");
+    Console.print("Type: %s, value: %s\n", tiStr.getMyTypeInfo().typeName.buf, tiStr.value.buf);
+
+    def stringLiteral: ref[Core.StringLiteral]
+    stringLiteral~ptr = (ast "string literal")~cast[ptr[Core.StringLiteral]];
+    Console.print("Type: %s, value: %s\n", stringLiteral.getMyTypeInfo().typeName.buf, stringLiteral.value.value.buf);
+
+    def charLiteral: ref[Core.CharLiteral]
+    charLiteral~ptr = (ast 'c')~cast[ptr[Core.CharLiteral]];
+    Console.print("Type: %s, value: %s\n", charLiteral.getMyTypeInfo().typeName.buf, charLiteral.value.value.buf);
+
+    def intLiteral: ref[Core.IntegerLiteral]
+    intLiteral~ptr = (ast 123)~cast[ptr[Core.IntegerLiteral]];
+    Console.print("Type: %s, value: %s\n", intLiteral.getMyTypeInfo().typeName.buf, intLiteral.value.value.buf);
+
+    def floatLiteral: ref[Core.FloatLiteral]
+    floatLiteral~ptr = (ast 123.45)~cast[ptr[Core.FloatLiteral]];
+    Console.print("Type: %s, value: %s\n", floatLiteral.getMyTypeInfo().typeName.buf, floatLiteral.value.value.buf);
+
+    def identifier: ref[Core.Identifier]
+    identifier~ptr = (ast id)~cast[ptr[Core.Identifier]];
+    Console.print("Type: %s, value: %s\n", identifier.getMyTypeInfo().typeName.buf, identifier.value.value.buf);
+}
+test();

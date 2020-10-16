@@ -1,0 +1,6 @@
+Type: TiStrBase<alusus.org/Core/Core.Basic.TiObject>, value: TiStr
+Type: StringLiteral, value: string literal
+Type: CharLiteral, value: c
+Type: IntegerLiteral, value: 123
+Type: FloatLiteral, value: 123.45
+Type: Identifier, value: id

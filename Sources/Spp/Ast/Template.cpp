@@ -32,7 +32,7 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
   }
   // No default instance was found, create a new one.
   auto block = newSrdObj<Core::Data::Ast::Scope>();
-  block->add(Core::Data::Ast::clone(this->body));
+  block->add(Core::Data::Ast::clone(this->body.get()));
   this->instances.add(block);
   block->setOwner(this);
   return this->instances.get(this->instances.getCount() - 1)->get(0);
@@ -71,7 +71,7 @@ Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioShared
   // No instance was found, create a new one.
   auto block = newSrdObj<Core::Data::Ast::Scope>();
   block->setSourceLocation(Core::Data::Ast::findSourceLocation(templateInputs));
-  block->add(Core::Data::Ast::clone(this->body, Core::Data::Ast::findSourceLocation(templateInputs).get()));
+  block->add(Core::Data::Ast::clone(this->body.get(), Core::Data::Ast::findSourceLocation(templateInputs).get()));
   if (!this->assignTemplateVars(&vars, block.get(), helper, notice)) {
     result = notice;
     return false;
@@ -221,7 +221,7 @@ Bool Template::assignTemplateVars(
     auto def = Core::Data::Ast::Definition::create();
     def->setName(varDef->getName().get());
     if (varDef->getType() == TemplateVarType::INTEGER || varDef->getType() == TemplateVarType::STRING) {
-      def->setTarget(Core::Data::Ast::clone(getSharedPtr(var)));
+      def->setTarget(Core::Data::Ast::clone(var));
     } else {
       def->setTarget(newSrdObj<TioWeakBox>(getWeakPtr(var)));
     }
@@ -291,7 +291,7 @@ Bool Template::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::S
       auto block = this->instances.get(i).get();
       mergeable = block->get(0).ti_cast_get<Core::Data::Ast::Mergeable>();
       if (!mergeable->merge(
-        Core::Data::Ast::clone(getSharedPtr(src), Core::Data::Ast::findSourceLocation(block).get()).get(),
+        Core::Data::Ast::clone(src, Core::Data::Ast::findSourceLocation(block).get()).get(),
         seeker,
         noticeStore
       )) return false;

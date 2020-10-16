@@ -1,3 +1,4 @@
+import "Core";
 import "Spp";
 import "Srl/Console.alusus";
 import "Srl/String.alusus";

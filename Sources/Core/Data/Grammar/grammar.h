@@ -144,7 +144,7 @@ void setTreeIds(TiObject *obj, const Char *id);
  */
 void generateId(Node *obj, StrStream &id);
 
-TioSharedPtr _cloneInherited(TioSharedPtr const &obj);
+TioSharedPtr _cloneInherited(TiObject *obj);
 
 /**
  * @brief Generate a clone for an object that is inherited from another object.
@@ -157,7 +157,7 @@ TioSharedPtr _cloneInherited(TioSharedPtr const &obj);
  * objects so that it inherits a copy of the original rather than share the
  * original and have a wrong owner pointer.
  */
-template <class T> SharedPtr<T> cloneInherited(SharedPtr<T> const &obj)
+template <class T> SharedPtr<T> cloneInherited(T *obj)
 {
   return _cloneInherited(obj).template s_cast<T>();
 }

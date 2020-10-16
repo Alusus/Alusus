@@ -320,9 +320,10 @@ Bool AstProcessor::_processMacro(
     auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
     auto instanceScope = macroInstance.s_cast_get<Core::Data::Ast::Scope>();
     ownerScope->remove(indexInOwner);
-    for (Int i = 0; i < instanceScope->getCount(); ++i) {
-      ownerScope->insert(indexInOwner + i, instanceScope->get(i));
-    }
+    Int index = indexInOwner;
+    Core::Data::Ast::addPossiblyMergeableElements(
+      instanceScope, ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+    );
   } else {
     // Replace the instance.
     auto ownerContainer = ti_cast<Containing<TiObject>>(owner);
@@ -366,15 +367,17 @@ Bool AstProcessor::_insertInterpolatedAst(
       // Merge the two scopes.
       auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentEvalOwner);
       auto insertedScope = result.s_cast_get<Core::Data::Ast::Scope>();
-      for (Int i = 0; i < insertedScope->getCount(); ++i) {
-        ownerScope->insert(astProcessor->currentEvalInsertionPosition, insertedScope->get(i));
-        ++astProcessor->currentEvalInsertionPosition;
-      }
+      Core::Data::Ast::addPossiblyMergeableElements(
+        insertedScope, ownerScope, astProcessor->currentEvalInsertionPosition,
+        astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
     } else {
       // Add a single element to the scope
       auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentEvalOwner);
-      ownerScope->insert(astProcessor->currentEvalInsertionPosition, result);
-      ++astProcessor->currentEvalInsertionPosition;
+      Core::Data::Ast::addPossiblyMergeableElement(
+        result.get(), ownerScope, astProcessor->currentEvalInsertionPosition,
+        astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
     }
   } else {
     auto ownerContainer = ti_cast<Containing<TiObject>>(astProcessor->currentEvalOwner);
@@ -451,10 +454,10 @@ Bool AstProcessor::_interpolateAst_identifier(
       }
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
-      result = Core::Data::Ast::clone(getSharedPtr(args->getElement(index)), sl);
+      result = Core::Data::Ast::clone(args->getElement(index), sl);
     }
   } else {
-    result = Core::Data::Ast::clone(getSharedPtr(obj), sl);
+    result = Core::Data::Ast::clone(obj, sl);
   }
   return true;
 }
@@ -493,10 +496,10 @@ Bool AstProcessor::_interpolateAst_stringLiteral(
       }
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
-      result = Core::Data::Ast::clone(getSharedPtr(args->getElement(index)), sl);
+      result = Core::Data::Ast::clone(args->getElement(index), sl);
     }
   } else {
-    result = Core::Data::Ast::clone(getSharedPtr(obj), sl);
+    result = Core::Data::Ast::clone(obj, sl);
   }
   return true;
 }
@@ -598,12 +601,14 @@ Bool AstProcessor::_interpolateAst_binding(
       astProcessor->parseStringTemplate(obj->refMember<TiStr>(i).get(), var, 1000, prefixSize, suffix);
       Int index = argNames->findPos(Str(true, var));
       if (index != -1) {
-        auto text = ti_cast<Core::Data::Ast::Text>(args->getElement(index));
-        if (text == 0 || (
-          !text->isDerivedFrom<Core::Data::Ast::Identifier>() &&
-          !text->isDerivedFrom<Core::Data::Ast::StringLiteral>()
-        )) {
-          auto elementSl = Core::Data::Ast::findSourceLocation(args->getElement(index));
+        auto arg = args->getElement(index);
+        Char const *text;
+        if (arg->isDerivedFrom<Core::Data::Ast::Identifier>() || arg->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+          text = static_cast<Core::Data::Ast::Text*>(arg)->getValue().get();
+        } else if (arg->isDerivedFrom<TiStr>()) {
+          text = static_cast<TiStr*>(arg)->get();
+        } else {
+          auto elementSl = Core::Data::Ast::findSourceLocation(arg);
           astProcessor->noticeStore->add(
             newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
           );
@@ -611,7 +616,7 @@ Bool AstProcessor::_interpolateAst_binding(
         }
         Char newVar[1000];
         astProcessor->generateStringFromTemplate(
-          obj->refMember<TiStr>(i).get(), prefixSize, text->getValue().get(), suffix, newVar, 1000
+          obj->refMember<TiStr>(i).get(), prefixSize, text, suffix, newVar, 1000
         );
         destObj->refMember<TiStr>(i) = newVar;
       } else {

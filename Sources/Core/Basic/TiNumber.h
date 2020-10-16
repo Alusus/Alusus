@@ -25,7 +25,9 @@ template<class T, class P> class TiNumber : public P
   //============================================================================
   // Type Info
 
+  typedef TiNumber<T, P> _MyType;
   TEMPLATE_TYPE_INFO(TiNumber, P, "Core.Basic", "Core", "alusus.org", (T, P));
+  OBJECT_FACTORY(_MyType);
 
 
   //============================================================================

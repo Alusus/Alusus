@@ -267,17 +267,13 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       def args: ptr[array[ptr[array[Word[8]]]]];
       def language: ptr[array[Word[8]]];
     };
-    module Core {
-      def rootManager: ptr;
-      def parser: ptr;
-      def noticeStore: ptr;
-      def _importFile: @expname[RootManager_importFile] function (
-        rootManager: ptr, filename: ptr[array[Word[8]]]
-      );
-      function importFile(filename: ptr[array[Word[8]]]) {
-        _importFile(rootManager, filename);
-      };
-    };
+    عرّف الـعملية: لقب Process؛
+    @دمج عرف Process: وحدة
+    {
+      عرف عدد_المعطيات: لقب argCount؛
+      عرف المعطيات: لقب args؛
+      عرف اللغة: لقب language؛
+    }؛
   )SRC"), S("spp"));
 }
 

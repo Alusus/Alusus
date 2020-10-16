@@ -44,7 +44,7 @@ void addSourceLocation(TiObject *obj, SourceLocation *sl)
 
 
 Bool mergeDefinition(
-  Definition *def, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+  Definition *def, DynamicContaining<TiObject> *target, Int &index, Data::Seeker *seeker, Notices::Store *noticeStore
 ) {
   VALIDATE_NOT_NULL(def, target, noticeStore);
   Core::Data::Ast::Identifier ref({{ S("value"), def->getName() }});
@@ -82,44 +82,65 @@ Bool mergeDefinition(
     Seeker::Flags::SKIP_OWNERS | Seeker::Flags::SKIP_OWNED | Seeker::Flags::SKIP_USES
   );
   if (!found) {
-    target->addElement(def);
+    if (index == -1) target->addElement(def);
+    else target->insertElement(index++, def);
   }
   return result;
 }
 
 
 Bool addPossiblyMergeableElement(
-  TiObject *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+  TiObject *src, DynamicContaining<TiObject> *target, Int &index, Data::Seeker *seeker, Notices::Store *noticeStore
 ) {
   VALIDATE_NOT_NULL(src, target, noticeStore);
   if (src->isDerivedFrom<Definition>()) {
     auto def = static_cast<Definition*>(src);
     if (def->isToMerge()) {
-      return mergeDefinition(def, target, seeker, noticeStore);
+      return mergeDefinition(def, target, index, seeker, noticeStore);
     } else {
-      target->addElement(src);
+      if (index == -1) target->addElement(src);
+      else target->insertElement(index++, src);
     }
   } else if(src->isDerivedFrom<MergeList>()){
     auto mergeList = static_cast<MergeList*>(src);
     for (Int i = 0; i < mergeList->getElementCount(); ++i) {
-      target->addElement(mergeList->getElement(i));
+      if (index == -1) target->addElement(mergeList->getElement(i));
+      else target->insertElement(index++, mergeList->getElement(i));
     }
   } else {
-    target->addElement(src);
+    if (index == -1) target->addElement(src);
+    else target->insertElement(index++, src);
   }
   return true;
+}
+
+
+Bool addPossiblyMergeableElement(
+  TiObject *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
+) {
+  Int index = -1;
+  return addPossiblyMergeableElement(src, target, index, seeker, noticeStore);
+}
+
+
+Bool addPossiblyMergeableElements(
+  Containing<TiObject> *src, DynamicContaining<TiObject> *target, Int &index,
+  Data::Seeker *seeker, Notices::Store *noticeStore
+) {
+  VALIDATE_NOT_NULL(src, target, noticeStore);
+  Bool result = true;
+  for (Int i = 0; i < src->getElementCount(); ++i) {
+    if (!addPossiblyMergeableElement(src->getElement(i), target, index, seeker, noticeStore)) result = false;
+  }
+  return result;
 }
 
 
 Bool addPossiblyMergeableElements(
   Containing<TiObject> *src, DynamicContaining<TiObject> *target, Data::Seeker *seeker, Notices::Store *noticeStore
 ) {
-  VALIDATE_NOT_NULL(src, target, noticeStore);
-  Bool result = true;
-  for (Int i = 0; i < src->getElementCount(); ++i) {
-    if (!addPossiblyMergeableElement(src->getElement(i), target, seeker, noticeStore)) result = false;
-  }
-  return result;
+  Int index = -1;
+  return addPossiblyMergeableElements(src, target, index, seeker, noticeStore);
 }
 
 
@@ -138,9 +159,9 @@ void translateModifier(Data::Grammar::SymbolDefinition *symbolDef, TiObject *mod
 }
 
 
-TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl)
+TioSharedPtr _clone(TiObject *obj, SourceLocation *sl)
 {
-  if (obj.ti_cast_get<Node>() == 0) return obj;
+  if (ti_cast<Node>(obj) == 0) return getSharedPtr(obj);
 
   auto factory = obj->getMyTypeInfo()->getFactory();
   if (!factory) {
@@ -148,12 +169,12 @@ TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl)
   }
   auto clone = factory->createShared();
 
-  auto bindings = obj.ti_cast_get<Binding>();
+  auto bindings = ti_cast<Binding>(obj);
   auto cloneBindings = clone.ti_cast_get<Binding>();
   if (cloneBindings != 0) {
     for (Int i = 0; i < bindings->getMemberCount(); ++i) {
       if (bindings->getMemberHoldMode(i) == HoldMode::SHARED_REF) {
-        auto childMember = getSharedPtr(bindings->getMember(i));
+        auto childMember = bindings->getMember(i);
         cloneBindings->setMember(i, _clone(childMember, sl).get());
       } else {
         cloneBindings->setMember(i, bindings->getMember(i));
@@ -161,12 +182,12 @@ TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl)
     }
   }
 
-  auto dynMapContainer = obj.ti_cast_get<DynamicMapContaining<TiObject>>();
+  auto dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(obj);
   auto cloneDynMapContainer = clone.ti_cast_get<DynamicMapContaining<TiObject>>();
   if (cloneDynMapContainer != 0) {
     for (Int i = 0; i < dynMapContainer->getElementCount(); ++i) {
       if (dynMapContainer->getElementHoldMode(i) == HoldMode::SHARED_REF) {
-        auto childElement = getSharedPtr(dynMapContainer->getElement(i));
+        auto childElement = dynMapContainer->getElement(i);
         cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i), _clone(childElement, sl).get());
       } else {
         cloneDynMapContainer->addElement(dynMapContainer->getElementKey(i), dynMapContainer->getElement(i));
@@ -174,12 +195,12 @@ TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl)
     }
   }
 
-  auto dynContainer = obj.ti_cast_get<DynamicContaining<TiObject>>();
+  auto dynContainer = ti_cast<DynamicContaining<TiObject>>(obj);
   auto cloneDynContainer = clone.ti_cast_get<DynamicContaining<TiObject>>();
   if (cloneDynContainer != 0) {
     for (Int i = 0; i < dynContainer->getElementCount(); ++i) {
       if (dynContainer->getElementHoldMode(i) == HoldMode::SHARED_REF) {
-        auto childElement = getSharedPtr(dynContainer->getElement(i));
+        auto childElement = dynContainer->getElement(i);
         cloneDynContainer->addElement(_clone(childElement, sl).get());
       } else {
         cloneDynContainer->addElement(dynContainer->getElement(i));
@@ -187,12 +208,12 @@ TioSharedPtr _clone(TioSharedPtr const &obj, SourceLocation *sl)
     }
   }
 
-  auto container = obj.ti_cast_get<Containing<TiObject>>();
+  auto container = ti_cast<Containing<TiObject>>(obj);
   auto cloneContainer = clone.ti_cast_get<Containing<TiObject>>();
   if (cloneDynContainer == 0 && cloneDynMapContainer == 0 && cloneContainer != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
       if (container->getElementHoldMode(i) == HoldMode::SHARED_REF) {
-        auto childElement = getSharedPtr(container->getElement(i));
+        auto childElement = container->getElement(i);
         cloneContainer->setElement(i, _clone(childElement, sl).get());
       } else {
         cloneContainer->setElement(i, container->getElement(i));
