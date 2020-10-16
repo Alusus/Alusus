@@ -360,6 +360,14 @@ Bool ExpressionGenerator::_generateLinkOperator(
     );
   } else if (firstResult.astNode != 0) {
     // Generate a reference to a global in another module.
+    if (!firstResult.astNode->isDerivedFrom<Ast::Type>() &&
+        !firstResult.astNode->isDerivedFrom<Core::Data::Ast::Scope>()
+    ) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidDotOpTargetNotice>(Core::Data::Ast::findSourceLocation(first))
+      );
+      return false;
+    }
     return expGenerator->generateScopeMemberReference(firstResult.astNode, second, false, g, session, result);
   } else {
     expGenerator->noticeStore->add(
@@ -2501,6 +2509,13 @@ Bool ExpressionGenerator::_generateMemberReference(
     // The found member was probably an alias to a non member.
     expGenerator->noticeStore->add(
       newSrdObj<Spp::Notices::InvalidTypeMemberNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  // Make sure the member is a variable reference.
+  if (!expGenerator->astHelper->isAstReference(astMemberVar)) {
+    expGenerator->noticeStore->add(
+      newSrdObj<Spp::Notices::TypeMemberIsNotVarNotice>(astNode->findSourceLocation())
     );
     return false;
   }

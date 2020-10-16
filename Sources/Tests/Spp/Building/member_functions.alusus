@@ -45,6 +45,10 @@ type B
   func printA {
     print("this.a.i = %d\n", this.a.i);
   };
+
+  func getA ()=>ref[A] {
+    return this.a;
+  }
 };
 
 function getA ():A {
@@ -101,6 +105,8 @@ func test {
 
   def c: C;
   c.setI(10);
+
+  b.getA.i = 1;
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(test~ast);

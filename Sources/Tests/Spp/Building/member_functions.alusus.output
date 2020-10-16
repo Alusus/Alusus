@@ -1,8 +1,9 @@
-ERROR SPPA1007 @ (99,10): Unknown symbol.
-ERROR SPPA1007 @ (100,13): Unknown symbol.
-ERROR SPPG1027 @ (78,3)
-from (102,10): Invalid redefinition of `this` in function args.
-ERROR SPPG1024 @ (103,3): Trying to access a local variable before it's initialized.
+ERROR SPPA1007 @ (103,10): Unknown symbol.
+ERROR SPPA1007 @ (104,13): Unknown symbol.
+ERROR SPPG1027 @ (82,3)
+from (106,10): Invalid redefinition of `this` in function args.
+ERROR SPPG1024 @ (107,3): Trying to access a local variable before it's initialized.
+ERROR SPPG1035 @ (109,5): The requested member is not a variable definition.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

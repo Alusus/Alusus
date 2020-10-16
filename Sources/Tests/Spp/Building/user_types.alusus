@@ -109,6 +109,9 @@ def Main: module
     pn = d~ptr;
     pd = p~ptr;
     pd = n~ptr;
+
+    getPoint.p.x = 10;
+    Main.getPoint.x = 10;
   }
 };
 

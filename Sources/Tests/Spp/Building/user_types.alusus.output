@@ -6,6 +6,8 @@ ERROR SPPA1004 @ (91,25): No valid match was found for the given type member.
 ERROR SPPG1015 @ (108,5): Incompatible types for the given operator.
 ERROR SPPG1015 @ (110,5): Incompatible types for the given operator.
 ERROR SPPG1015 @ (111,5): Incompatible types for the given operator.
+ERROR SPPG1036 @ (113,5): Cannot use dot operator on this type of elements.
+ERROR SPPG1036 @ (114,5): Cannot use dot operator on this type of elements.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

@@ -240,6 +240,12 @@ DEFINE_NOTICE(InvalidDerefOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SP
 DEFINE_NOTICE(InvalidNoDerefOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1034", 1,
   "Invalid operand for ~no_deref operator."
 );
+DEFINE_NOTICE(TypeMemberIsNotVarNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1035", 1,
+  "The requested member is not a variable definition."
+);
+DEFINE_NOTICE(InvalidDotOpTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1036", 1,
+  "Cannot use dot operator on this type of elements."
+);
 
 } // namespace
 
