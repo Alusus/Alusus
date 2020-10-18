@@ -29,7 +29,7 @@ type A
 type B
 {
   def a: A;
-  def f: ptr[function];
+  def f: ptr[@shared function];
 
   handler this~init() this.a.i = 7;
   handler this~init(that: ref[this_type]) this.a = that.a;

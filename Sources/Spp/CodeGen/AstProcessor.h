@@ -123,8 +123,8 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     TiObject *self, Spp::Ast::EvalStatement *eval, TiObject *owner, TiInt indexInOwner
   );
 
-  public: METHOD_BINDING_CACHE(processMemberFunctionSig, Bool, (Spp::Ast::Function* /* func */));
-  private: static Bool _processMemberFunctionSig(TiObject *self, Spp::Ast::Function *func);
+  public: METHOD_BINDING_CACHE(processMemberFunctionSig, Bool, (Spp::Ast::FunctionType* /* funcType */));
+  private: static Bool _processMemberFunctionSig(TiObject *self, Spp::Ast::FunctionType *funcType);
 
   public: METHOD_BINDING_CACHE(processFunctionBody, Bool, (Spp::Ast::Function* /* func */));
   private: static Bool _processFunctionBody(TiObject *self, Spp::Ast::Function *func);

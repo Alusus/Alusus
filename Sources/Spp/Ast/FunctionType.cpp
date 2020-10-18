@@ -155,7 +155,7 @@ TypeMatchStatus FunctionType::matchNextArg(
   TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
 ) {
   if (nextType == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("types"), S("Cannot be null."));
+    throw EXCEPTION(InvalidArgumentException, S("nextType"), S("Cannot be null."));
   }
   if (helper == 0) {
     throw EXCEPTION(InvalidArgumentException, S("helper"), S("Cannot be null."));

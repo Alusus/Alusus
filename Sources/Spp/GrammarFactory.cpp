@@ -65,6 +65,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
 
   // Add translations for def modifiers.
   this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
+  this->set(S("root.Main.Def.modifierTranslations.دون_ربط"), TiStr::create(S("no_bind")));
   this->set(S("root.Main.Def.modifierTranslations.حقنة"), TiStr::create(S("injection")));
 
   // Create leading commands.
@@ -241,7 +242,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
-  }}, newSrdObj<Handlers::TypeOpParsingHandler>());
+  }}, newSrdObj<Handlers::TypeHandlersParsingHandler>());
 
   // Create inner commands.
 
@@ -330,7 +331,8 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   }}, newSrdObj<Handlers::FunctionParsingHandler>());
   this->set(S("root.Main.Function.modifierTranslations"), Map::create({}, {
     {S("تصدير"), TiStr::create(S("expname"))},
-    {S("مشترك"), TiStr::create(S("shared"))}
+    {S("مشترك"), TiStr::create(S("shared"))},
+    {S("دون_ربط"), TiStr::create(S("no_bind"))}
   }));
 
   // FuncSigExpression
@@ -628,6 +630,12 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     {
     }
   }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::SizeOp>::create());
+  // ~type
+  this->createCommand(S("root.Main.TypeTilde"), {{
+    Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } }),
+    {
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::TypeOp>::create());
   // ~ast
   this->createCommand(S("root.Main.AstRefTilde"), {{
     Map::create({}, { { S("ast"), 0 }, { S("شبم"), 0 } }),
@@ -716,6 +724,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   this->addProdsToGroup(S("root.Main.PostfixTildeCmdGrp"), {
     PARSE_REF(S("module.AstRefTilde")),
     PARSE_REF(S("module.SizeTilde")),
+    PARSE_REF(S("module.TypeTilde")),
     PARSE_REF(S("module.CastTilde")),
     PARSE_REF(S("module.DerefTilde")),
     PARSE_REF(S("module.NoDerefTilde")),
@@ -782,12 +791,14 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
 
   // Add translation for static modifier.
   this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
+  this->remove(S("root.Main.Def.modifierTranslations.دون_ربط"));
   this->remove(S("root.Main.Def.modifierTranslations.حقنة"));
 
   // Remove commands from tilde commands list.
   this->removeProdsFromGroup(S("root.Main.PostfixTildeCmdGrp"), {
     S("module.AstRefTilde"),
     S("module.SizeTilde"),
+    S("module.TypeTilde"),
     S("module.CastTilde"),
     S("module.DerefTilde"),
     S("module.NoDerefTilde"),
@@ -829,6 +840,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->tryRemove(S("root.Main.CastTilde"));
   this->tryRemove(S("root.Main.CastSubject"));
   this->tryRemove(S("root.Main.SizeTilde"));
+  this->tryRemove(S("root.Main.TypeTilde"));
   this->tryRemove(S("root.Main.AstRefTilde"));
   this->tryRemove(S("root.Main.InitTilde"));
   this->tryRemove(S("root.Main.InitTildeSubject"));

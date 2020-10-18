@@ -27,10 +27,10 @@ module Core {
     }
 
     type TiObjectFactory {
-        def createPlain: ptr[function ():ref[TiObject]];
-        def createShared: ptr[function ():SrdRef[TiObject]];
-        def initialize: ptr[function (ref[TiObject])];
-        def terminate: ptr[function (ref[TiObject])];
+        def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
+        def createShared: ptr[@shared @no_bind function ():SrdRef[TiObject]];
+        def initialize: ptr[@shared @no_bind function (ref[TiObject])];
+        def terminate: ptr[@shared @no_bind function (ref[TiObject])];
     }
 
     type TypeInfo {

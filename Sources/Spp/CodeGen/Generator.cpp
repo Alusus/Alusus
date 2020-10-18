@@ -319,21 +319,6 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   }
   if (!result) return false;
 
-  // Generate static members.
-  for (Int i = 0; i < body->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
-    if (def != 0) {
-      if (generator->astHelper->getDefinitionDomain(def) == Ast::DefinitionDomain::GLOBAL) {
-        auto obj = def->getTarget().get();
-        if (generator->getAstHelper()->isAstReference(obj)) {
-          if (!generation->generateVarDef(def, session)) result = false;
-        } else if (obj->isDerivedFrom<Spp::Ast::Function>()) {
-          if (!generation->generateFunction(static_cast<Spp::Ast::Function*>(obj), session)) result = false;
-        }
-      }
-    }
-  }
-
   return true;
 }
 
@@ -379,7 +364,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
     Ast::setAstType(astVar, astType);
 
-    if (generator->getAstHelper()->getDefinitionDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
+    if (generator->getAstHelper()->getVariableDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
       // Generate a global or a static variable.
       // We will prefix the name to make sure it doesn't conflict with names from imported C libs.
       Str name = S("!");
@@ -537,7 +522,7 @@ Bool Generator::_generateTempVar(
     Core::Data::Ast::Definition tempDef;
     tempDef.setOwner(astNode->getOwner());
 
-    // if (generator->getAstHelper()->getDefinitionDomain(&tempDef) == Ast::DefinitionDomain::GLOBAL) {
+    // if (generator->getAstHelper()->getVariableDomain(&tempDef) == Ast::DefinitionDomain::GLOBAL) {
     //   // TODO: Is there a global temp var?
     //   // Generate a global or a static variable.
     //   Str name = generator->getTempVarName();

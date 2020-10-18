@@ -1,7 +1,7 @@
-ERROR SPPG1019 @ (30,25): Invalid access to object member.
-ERROR SPPG1019 @ (31,25): Invalid access to object member.
 ERROR SPPG1019 @ (44,12): Invalid access to object member.
 ERROR SPPG1020 @ (45,7): Invalid access to global definition.
+ERROR SPPG1019 @ (30,25): Invalid access to object member.
+ERROR SPPG1019 @ (31,25): Invalid access to object member.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -28,8 +28,17 @@ define void @__entry__() {
   ret void
 }
 
-define void @"Main.MyType.printIt()"() {
+define void @"Main.start()=>(Void)"() {
 "#block1":
+  store i32 4, i32* @"!Main.MyType.y"
+  store i32 23, i32* getelementptr inbounds (%Main_MyType, %Main_MyType* @"!Main.MyType.t", i32 0, i32 0)
+  call void @"Main.MyType.printIt()"()
+  call void @"Main.MyType.printIt()"()
+  ret void
+}
+
+define void @"Main.MyType.printIt()"() {
+"#block2":
   %0 = load i32, i32* @"!Main.MyType.y"
   %1 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous2", i32 0, i32 0), i32 %0)
   %2 = load i32, i32* getelementptr inbounds (%Main_MyType, %Main_MyType* @"!Main.MyType.t", i32 0, i32 0)
@@ -43,13 +52,4 @@ define void @"Main.MyType.printIt()"() {
 }
 
 declare i64 @printf(i8*, ...)
-
-define void @"Main.start()=>(Void)"() {
-"#block2":
-  store i32 4, i32* @"!Main.MyType.y"
-  store i32 23, i32* getelementptr inbounds (%Main_MyType, %Main_MyType* @"!Main.MyType.t", i32 0, i32 0)
-  call void @"Main.MyType.printIt()"()
-  call void @"Main.MyType.printIt()"()
-  ret void
-}
 ------------------------------------------------------------

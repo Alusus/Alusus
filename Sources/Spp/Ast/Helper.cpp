@@ -50,7 +50,8 @@ void Helper::initBindingCaches()
     &this->getFunctionName,
     &this->getNeededIntSize,
     &this->getNeededWordSize,
-    &this->getDefinitionDomain,
+    &this->getVariableDomain,
+    &this->getFunctionDomain,
     &this->validateUseStatement
   });
 }
@@ -87,7 +88,8 @@ void Helper::initBindings()
   this->getFunctionName = &Helper::_getFunctionName;
   this->getNeededIntSize = &Helper::_getNeededIntSize;
   this->getNeededWordSize = &Helper::_getNeededWordSize;
-  this->getDefinitionDomain = &Helper::_getDefinitionDomain;
+  this->getVariableDomain = &Helper::_getVariableDomain;
+  this->getFunctionDomain = &Helper::_getFunctionDomain;
   this->validateUseStatement = &Helper::_validateUseStatement;
 }
 
@@ -101,7 +103,8 @@ Bool Helper::_isAstReference(TiObject *self, TiObject *obj)
     obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
     obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
     obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
-    obj->isDerivedFrom<Spp::Ast::ThisTypeRef>();
+    obj->isDerivedFrom<Spp::Ast::ThisTypeRef>() ||
+    obj->isDerivedFrom<Spp::Ast::TypeOp>();
 }
 
 
@@ -188,15 +191,17 @@ Bool Helper::_lookupCalleeInScope(
           auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
           if (def == 0 || def->getTarget() == 0) continue;
           if (!helper->isAstReference(def->getTarget().get())) continue;
-          Bool isMember = helper->getDefinitionDomain(def) == DefinitionDomain::OBJECT;
+          Bool isMember = helper->getVariableDomain(def) == DefinitionDomain::OBJECT;
           if ((isMember && thisType == 0) || (!isMember && thisType != 0)) continue;
-          auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
+          auto objType = helper->traceType(def->getTarget().get());
           if (objType == 0) continue;
           auto refType = helper->getReferenceTypeFor(objType, Ast::ReferenceMode::IMPLICIT);
           objType = helper->tryGetDeepReferenceContentType(objType);
           result.stack.add(def->getTarget().get());
-          if (helper->lookupCalleeInScope(ref, objType, false, refType, types, ec, result)) {
+          Bool noBindDef = helper->isNoBindDef(def);
+          if (helper->lookupCalleeInScope(ref, objType, false, noBindDef ? thisType : refType, types, ec, result)) {
             retVal = true;
+            if (noBindDef) result.thisIndex = currentStackSize - 1;
             if (result.matchStatus == TypeMatchStatus::EXACT) break;
           } else {
             while (result.stack.getCount() > newStackSize) result.stack.remove(newStackSize);
@@ -237,7 +242,7 @@ Bool Helper::_lookupCalleeOnObject(
     auto f = static_cast<Ast::Function*>(obj);
     TypeMatchStatus ms;
 
-    Bool useThis = thisType != 0;
+    Bool useThis = !f->getType()->isBindDisabled() && thisType != 0;
 
     ms = f->getType()->matchCall(useThis ? &extTypes : types, helper, ec);
     if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
@@ -281,14 +286,15 @@ Bool Helper::_lookupCalleeOnObject(
     auto funcType = helper->tryGetPointerContentType<FunctionType>(obj);
     if (funcType != 0) {
       // We have a function pointer.
-      auto ms = funcType->matchCall(types, helper, ec);
+      Bool useThis = !funcType->isBindDisabled() && thisType != 0;
+      auto ms = funcType->matchCall(useThis ? &extTypes : types, helper, ec);
       if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
         result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
         return false;
       } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms > result.matchStatus) {
         result.matchStatus = ms;
         result.notice.reset();
-        result.thisIndex = -2;
+        result.thisIndex = useThis ? currentStackSize - 1 : -2;
         result.type = funcType;
         return true;
       } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
@@ -376,7 +382,7 @@ Bool Helper::_lookupCalleeOnObject(
         prevVal = result.stack.get(currentStackSize);
         result.stack.set(currentStackSize, obj);
       }
-      if (helper->lookupCalleeOnObject(objType, objType, types, ec, currentStackSize, result)) {
+      if (helper->lookupCalleeOnObject(objType, thisType, types, ec, currentStackSize, result)) {
         return true;
       } else {
         if (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
@@ -386,7 +392,7 @@ Bool Helper::_lookupCalleeOnObject(
     }
   } else if (obj != 0 && obj->isDerivedFrom<Template>()) {
     // TODO: Look-up template functions as well.
-    auto objType = ti_cast<Type>(helper->traceType(obj));
+    auto objType = helper->traceType(obj);
     if (objType == 0) {
       if (result.matchStatus == TypeMatchStatus::NONE) {
         result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
@@ -498,7 +504,14 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   SharedPtr<Core::Notices::Notice> notice;
   TiObject *foundObj = 0;
   Spp::Ast::Type *type = 0;
-  if (ref->isDerivedFrom<Spp::Ast::Type>()) {
+  if (ref->isDerivedFrom<Spp::Ast::TypeOp>()) {
+    auto operand = static_cast<Spp::Ast::TypeOp*>(ref)->getOperand().ti_cast_get<Core::Data::Node>();
+    auto typeRef = helper->getSeeker()->tryGet(operand, operand->getOwner());
+    if (typeRef != 0) {
+      type = helper->traceType(typeRef);
+    }
+  }
+  else if (ref->isDerivedFrom<Spp::Ast::Type>()) {
     type = static_cast<Spp::Ast::Type*>(ref);
   } else if (ref->isDerivedFrom<Spp::Ast::Template>()) {
     auto tpl = static_cast<Spp::Ast::Template*>(ref);
@@ -1034,7 +1047,7 @@ Word Helper::_getNeededWordSize(TiObject *self, LongWord value)
 }
 
 
-DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *obj)
+DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
 {
   // Find the definition.
   auto def = ti_cast<Core::Data::Ast::Definition const>(obj);
@@ -1082,13 +1095,56 @@ DefinitionDomain Helper::_getDefinitionDomain(TiObject *self, TiObject const *ob
 }
 
 
-Bool Helper::isSharedDef(Core::Data::Ast::Definition const *def)
+DefinitionDomain Helper::_getFunctionDomain(TiObject *self, TiObject const *obj)
+{
+  // Find the function type.
+  Core::Data::Node const *owner;
+  FunctionType const *funcType;
+  if (obj->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    auto definition = static_cast<Core::Data::Ast::Definition const*>(obj);
+    auto function = definition->getTarget().ti_cast_get<Function const>();
+    funcType = function->getType().get();
+    owner = definition->getOwner();
+  } else if (obj->isDerivedFrom<Function>()) {
+    auto function = static_cast<Function const*>(obj);
+    funcType = function->getType().get();
+    owner = function->getOwner();
+  } else if (obj->isDerivedFrom<FunctionType>()) {
+    funcType = static_cast<FunctionType const*>(obj);
+    owner = funcType->getOwner();
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Invalid type."));
+  }
+
+  while (owner != 0) {
+    if (owner->isDerivedFrom<Module>()) {
+      return DefinitionDomain::GLOBAL;
+    } else if (owner->isDerivedFrom<Type>()) {
+      return funcType->isShared() ? DefinitionDomain::GLOBAL : DefinitionDomain::OBJECT;
+    } else if (owner->isDerivedFrom<Function>()) {
+      return DefinitionDomain::GLOBAL;
+    } else if (owner->isDerivedFrom<EvalStatement>()) {
+      return DefinitionDomain::GLOBAL;
+    } else if (owner->isDerivedFrom<WhileStatement>()) {
+      return DefinitionDomain::GLOBAL;
+    } else if (owner->isDerivedFrom<ForStatement>()) {
+      return DefinitionDomain::GLOBAL;
+    } else if (owner->isDerivedFrom<IfStatement>()) {
+      return DefinitionDomain::GLOBAL;
+    }
+    owner = owner->getOwner();
+  }
+  return DefinitionDomain::GLOBAL;
+}
+
+
+Bool Helper::doesModifierExistOnDef(Core::Data::Ast::Definition const *def, Char const *name)
 {
   auto modifiers = def->getModifiers().get();
   if (modifiers != 0) {
     for (Int i = 0; i < modifiers->getElementCount(); ++i) {
       auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
-      if (identifier != 0 && identifier->getValue() == S("shared")) return true;
+      if (identifier != 0 && identifier->getValue() == name) return true;
     }
   }
   return false;

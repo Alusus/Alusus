@@ -11,16 +11,13 @@ Module [Main.ModuleStatements.StmtList]
     modifiers:
      Identifier: shared [Modifier.Subject.Identifier]
     target: Identifier: MyType [Main.Subject.Identifier]
-   Definition [Main.Def] printIt
-    modifiers:
-     Identifier: shared [Modifier.Subject.Identifier]
-    target: Function  [Main.Function]
-      type: FunctionType [Main.Function]
-       argTypes: NULL
-       retType: NULL
-      body: Block [Main.BlockStatements.StmtList]
-       Definition [Main.Def] z
-        modifiers:
-         Identifier: shared [Modifier.Subject.Identifier]
-        target: Identifier: Int [Main.Subject.Identifier]
+   Definition [Main.Def] printIt: Function  [Main.Function]
+    type: FunctionType shared: 1, bindDisabled: 0 [Main.Function]
+     argTypes: NULL
+     retType: NULL
+    body: Block [Main.BlockStatements.StmtList]
+     Definition [Main.Def] z
+      modifiers:
+       Identifier: shared [Modifier.Subject.Identifier]
+      target: Identifier: Int [Main.Subject.Identifier]
 ------------------------------------------------------

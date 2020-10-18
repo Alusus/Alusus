@@ -1,0 +1,35 @@
+import "Srl/Console";
+use Srl;
+
+module Spp {
+    type BuildMgr {
+        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
+        function dumpLlvmIrForElement (element: ptr);
+    };
+    def buildMgr: ref[BuildMgr];
+}
+
+macro duplicate [n] {
+    def __n__2: n~type;
+}
+
+macro castAssign [v1, v2] {
+    v2 = v1~cast[v2~type];
+}
+
+func test {
+    def i: Int;
+    duplicate[i];
+
+    i = 257;
+    i2 = 258;
+    Console.print("%d, %d\n", i, i2);
+
+    def pc: ptr[Int[8]];
+    castAssign[i~ptr, pc];
+    Console.print("%d\n", pc~cnt~cast[Int]);
+
+    def wrong: unknown~type;
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

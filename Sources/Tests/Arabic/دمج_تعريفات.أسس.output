@@ -2,7 +2,7 @@ ERROR CD1004 @ (35,23): محاولة دمج تعريفات غير متوافقة
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] دالة1: Function  [Main.Function]
-  type: FunctionType [Main.Function]
+  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
    argTypes: NULL
    retType: NULL
   body: Block [Main.BlockStatements.StmtList]

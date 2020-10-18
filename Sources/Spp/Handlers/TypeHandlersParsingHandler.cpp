@@ -1,5 +1,5 @@
 /**
- * @file Spp/Handlers/TypeOpParsingHandler.cpp
+ * @file Spp/Handlers/TypeHandlersParsingHandler.cpp
  *
  * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
@@ -14,7 +14,7 @@
 namespace Spp::Handlers
 {
 
-void TypeOpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
+void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
   GenericParsingHandler::onProdEnd(parser, state);
 
@@ -85,7 +85,7 @@ void TypeOpParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
 }
 
 
-SharedPtr<Core::Data::Ast::Scope> TypeOpParsingHandler::prepareBody(TioSharedPtr const &stmt)
+SharedPtr<Core::Data::Ast::Scope> TypeHandlersParsingHandler::prepareBody(TioSharedPtr const &stmt)
 {
   SharedPtr<Core::Data::Ast::Scope> body;
   if (stmt->isDerivedFrom<Core::Data::Ast::Scope>()) {
@@ -99,7 +99,7 @@ SharedPtr<Core::Data::Ast::Scope> TypeOpParsingHandler::prepareBody(TioSharedPtr
 }
 
 
-void TypeOpParsingHandler::createAssignmentHandler(
+void TypeHandlersParsingHandler::createAssignmentHandler(
   Processing::ParserState *state, Core::Data::Ast::AssignmentOperator *assignmentOp,
   SharedPtr<Core::Data::Ast::Scope> const &body
 ) {
@@ -137,7 +137,7 @@ void TypeOpParsingHandler::createAssignmentHandler(
 }
 
 
-void TypeOpParsingHandler::createComparisonHandler(
+void TypeHandlersParsingHandler::createComparisonHandler(
   Processing::ParserState *state, Core::Data::Ast::ComparisonOperator *comparisonOp,
   SharedPtr<Core::Data::Ast::Scope> const &body
 ) {
@@ -168,7 +168,7 @@ void TypeOpParsingHandler::createComparisonHandler(
 }
 
 
-void TypeOpParsingHandler::createInfixOpHandler(
+void TypeHandlersParsingHandler::createInfixOpHandler(
   Processing::ParserState *state, Core::Data::Ast::InfixOperator *infixOp,
   SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
 ) {
@@ -196,7 +196,7 @@ void TypeOpParsingHandler::createInfixOpHandler(
 }
 
 
-void TypeOpParsingHandler::createInitOpHandler(
+void TypeHandlersParsingHandler::createInitOpHandler(
   Processing::ParserState *state, Spp::Ast::InitOp *initOp,
   SharedPtr<Core::Data::Ast::Scope> const &body
 ) {
@@ -241,7 +241,7 @@ void TypeOpParsingHandler::createInitOpHandler(
 }
 
 
-void TypeOpParsingHandler::createTerminateOpHandler(
+void TypeHandlersParsingHandler::createTerminateOpHandler(
   Processing::ParserState *state, Spp::Ast::TerminateOp *terminateOp,
   SharedPtr<Core::Data::Ast::Scope> const &body
 ) {
@@ -265,7 +265,7 @@ void TypeOpParsingHandler::createTerminateOpHandler(
 }
 
 
-void TypeOpParsingHandler::createCastHandler(
+void TypeHandlersParsingHandler::createCastHandler(
   Processing::ParserState *state, Spp::Ast::CastOp *castOp,
   SharedPtr<Core::Data::Ast::Scope> const &body
 ) {
@@ -295,7 +295,7 @@ void TypeOpParsingHandler::createCastHandler(
 }
 
 
-void TypeOpParsingHandler::createParensOpHandler(
+void TypeHandlersParsingHandler::createParensOpHandler(
   Processing::ParserState *state, Core::Data::Ast::ParamPass *parensOp,
   SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
 ) {
@@ -340,7 +340,7 @@ void TypeOpParsingHandler::createParensOpHandler(
 }
 
 
-SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createBinaryOpFunction(
+SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createBinaryOpFunction(
   Processing::ParserState *state, Char const *funcName, TioSharedPtr const &thisType, Char const *inputName,
   TioSharedPtr const &inputType, TioSharedPtr const &retType, TioSharedPtr const &body,
   SharedPtr<Core::Data::SourceLocation> const &sourceLocation
@@ -354,12 +354,14 @@ SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createBinaryOpFunct
 }
 
 
-SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createFunction(
+SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createFunction(
   Processing::ParserState *state, Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes,
   TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   // Create the function type.
-  auto funcType = Spp::Ast::FunctionType::create({}, {
+  auto funcType = Spp::Ast::FunctionType::create({
+    {S("shared"), TiBool(true)}
+  }, {
     {S("argTypes"), argTypes},
     {S("retType"), retType}
   });
@@ -378,7 +380,7 @@ SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createFunction(
 }
 
 
-Bool TypeOpParsingHandler::prepareInputArg(
+Bool TypeHandlersParsingHandler::prepareInputArg(
   Processing::ParserState *state, TioSharedPtr input, Char const *&inputName, TioSharedPtr &inputType
 ) {
   if (input->isDerivedFrom<Core::Data::Ast::Bracket>()) {
@@ -413,7 +415,7 @@ Bool TypeOpParsingHandler::prepareInputArg(
 }
 
 
-SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareThisType(
+SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareThisType(
   SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   return Core::Data::Ast::ParamPass::create({
@@ -429,7 +431,7 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareThisType(
 }
 
 
-SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareAssignmentRetType(
+SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareAssignmentRetType(
   SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   return Core::Data::Ast::ParamPass::create({
@@ -445,7 +447,7 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareAssignmentRet
 }
 
 
-SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareComparisonRetType(
+SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareComparisonRetType(
   SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   return Core::Data::Ast::ParamPass::create({
@@ -464,19 +466,13 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeOpParsingHandler::prepareComparisonRet
 }
 
 
-SharedPtr<Core::Data::Ast::Definition> TypeOpParsingHandler::createDefinition(
+SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createDefinition(
   Char const *funcName, SharedPtr<Spp::Ast::Function> func, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   return Core::Data::Ast::Definition::create({
     {S("name"), TiStr(funcName)}
   }, {
-    {S("target"), func},
-    {S("modifiers"), Core::Data::Ast::List::create({}, {
-      Core::Data::Ast::Identifier::create({
-        {S("sourceLocation"), sourceLocation},
-        {S("value"), TiStr(S("shared"))}
-      })
-    })}
+    {S("target"), func}
   });
 }
 

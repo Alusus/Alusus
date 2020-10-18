@@ -3,7 +3,7 @@ ERROR SPPH1010 @ (27,3): Invalid for statement.
 ERROR CP1001 @ (28,40): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType [Main.Function]
+ type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
   argTypes: NULL
   retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]

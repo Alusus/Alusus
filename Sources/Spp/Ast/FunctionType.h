@@ -22,9 +22,7 @@ class FunctionType : public Type, public MapContaining<TiObject>
   // Type Info
 
   TYPE_INFO(FunctionType, Type, "Spp.Ast", "Spp", "alusus.org", (
-    INHERITANCE_INTERFACES(
-      MapContaining<TiObject>
-    )
+    INHERITANCE_INTERFACES(MapContaining<TiObject>)
   ));
   OBJECT_FACTORY(FunctionType);
 
@@ -46,17 +44,27 @@ class FunctionType : public Type, public MapContaining<TiObject>
 
   private: SharedPtr<Core::Data::Ast::Map> argTypes;
   private: TioSharedPtr retType;
+  private: TiBool shared;
+  private: TiBool bindDisabled;
 
 
   //============================================================================
   // Implementations
+
+  IMPLEMENT_BINDING(Type,
+    (shared, TiBool, VALUE, setShared(value), &shared),
+    (bindDisabled, TiBool, VALUE, setBindDisabled(value), &bindDisabled)
+  );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
     (argTypes, Core::Data::Ast::Map, SHARED_REF, setArgTypes(value), argTypes.get()),
     (retType, TiObject, SHARED_REF, setRetType(value), retType.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(FunctionType);
+  IMPLEMENT_AST_MAP_PRINTABLE(
+    FunctionType,
+    << S("shared: ") << this->shared.get() << S(", bindDisabled: ") << this->bindDisabled.get()
+  );
 
 
   //============================================================================
@@ -128,6 +136,34 @@ class FunctionType : public Type, public MapContaining<TiObject>
   public: TypeMatchStatus matchNextArg(
     TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
   );
+
+  public: void setShared(Bool s)
+  {
+    this->shared = s;
+  }
+  public: void setShared(TiBool const *s)
+  {
+    this->shared = s == 0 ? false : s->get();
+  }
+
+  public: Bool isShared() const
+  {
+    return this->shared.get();
+  }
+
+  public: void setBindDisabled(Bool bd)
+  {
+    this->bindDisabled = bd;
+  }
+  public: void setBindDisabled(TiBool const *bd)
+  {
+    this->bindDisabled = bd == 0 ? false : bd->get();
+  }
+
+  public: Bool isBindDisabled() const
+  {
+    return this->bindDisabled.get();
+  }
 
 }; // class
 

@@ -258,7 +258,7 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
   // Check if the found obj is a variable definition.
   if (expGenerator->astHelper->isAstReference(obj)) {
     // Make sure the var is not an object member.
-    if (expGenerator->getAstHelper()->getDefinitionDomain(obj) == Ast::DefinitionDomain::OBJECT) {
+    if (expGenerator->getAstHelper()->getVariableDomain(obj) == Ast::DefinitionDomain::OBJECT) {
       auto ownerType = static_cast<Core::Data::Node*>(stack.get(0))->findOwner<Spp::Ast::UserType>();
       if (ownerType != 0 && ownerType == session->getAstSelfType()) {
         // Generate a reference to a member variable.
@@ -530,7 +530,13 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     Ast::Type *prevThisAstType;
     if (prevResult.astType) {
       prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-      prevThisAstType = prevAstType;
+      // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
+      // to actually call that function.
+      if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
+        prevThisAstType = prevAstType;
+      } else {
+        prevThisAstType = 0;
+      }
     } else {
       prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
       prevThisAstType = 0;
@@ -2433,7 +2439,7 @@ Bool ExpressionGenerator::_generateVarReference(
     if (varDef == 0) {
       throw EXCEPTION(GenericException, S("Unexpected error while looking for variable definition."));
     }
-    if (expGenerator->getAstHelper()->getDefinitionDomain(varDef) == Ast::DefinitionDomain::GLOBAL) {
+    if (expGenerator->getAstHelper()->getVariableDomain(varDef) == Ast::DefinitionDomain::GLOBAL) {
       if (!g->generateVarDef(varDef, session)) return false;
       tgVar = session->getEda()->getCodeGenData<TiObject>(varAstNode);
     } else {
@@ -2536,7 +2542,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   if (!g->getGeneratedType(astStructType, session, tgStructType, 0)) return false;
 
   // Make sure the var is an object member.
-  if (expGenerator->getAstHelper()->getDefinitionDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
+  if (expGenerator->getAstHelper()->getVariableDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
     expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
       Core::Data::Ast::findSourceLocation(astNode)
     ));
@@ -2760,7 +2766,7 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
         )) return false;
       } else {
         // Generate non-member var reference.
-        if (expGenerator->astHelper->getDefinitionDomain(item) == Ast::DefinitionDomain::OBJECT) {
+        if (expGenerator->astHelper->getVariableDomain(item) == Ast::DefinitionDomain::OBJECT) {
           expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
             Core::Data::Ast::findSourceLocation(astNode)
           ));

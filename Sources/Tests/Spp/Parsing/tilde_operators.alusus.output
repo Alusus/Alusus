@@ -3,7 +3,7 @@ ERROR CP1001 @ (36,10): Parser syntax error.
 ERROR CP1001 @ (37,11): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType [Main.Function]
+ type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
   argTypes: NULL
   retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]

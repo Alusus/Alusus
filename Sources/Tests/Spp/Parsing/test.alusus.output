@@ -21,7 +21,7 @@ UserType [Main.Type]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType [Main.Function]
+ type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
   argTypes: Map
    x: Identifier: int [Main.ParamOnlySubject.Identifier]
    y: Identifier: int [Main.ParamOnlySubject.Identifier]

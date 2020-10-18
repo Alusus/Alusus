@@ -97,10 +97,11 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
       if (replaced) --i;
     } else if (child->isDerivedFrom<Ast::Function>()) {
       if (
-        astProcessor->astHelper->getDefinitionDomain(child) == Ast::DefinitionDomain::OBJECT &&
-        !isAstProcessed(static_cast<Ast::Function*>(child))
+        astProcessor->astHelper->getFunctionDomain(child) == Ast::DefinitionDomain::OBJECT
       ) {
-        if (!astProcessor->processMemberFunctionSig(static_cast<Ast::Function*>(child))) result = false;
+        if (!astProcessor->processMemberFunctionSig(static_cast<Ast::Function*>(child)->getType().get())) {
+          result = false;
+        }
       }
     } else if (child->isDerivedFrom<Ast::Type>()) {
       // if (!astProcessor->processTypeMethodSigs(static_cast<Ast::UserType*>(child))) result = false;
@@ -140,8 +141,9 @@ Bool AstProcessor::_processParamPass(
 
     // Find matching macro.
     Ast::Macro *macro = 0;
+    Ast::PointerType *pointerType = 0;
     astProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), paramPass->getOwner(),
-      [=, &macro] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+      [=, &macro, &pointerType] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
           return Core::Data::Seeker::Verb::MOVE;
@@ -151,6 +153,10 @@ Bool AstProcessor::_processParamPass(
         if (m != 0 && m->matchCall(args, astProcessor->astHelper)) {
           macro = m;
           return Core::Data::Seeker::Verb::STOP;
+        } else if (obj->isDerivedFrom<Ast::Template>()) {
+          pointerType = static_cast<Ast::Template*>(obj)->getBody().ti_cast_get<Ast::PointerType>();
+          if (pointerType != 0) return Core::Data::Seeker::Verb::STOP;
+          else return Core::Data::Seeker::Verb::MOVE;
         } else {
           return Core::Data::Seeker::Verb::MOVE;
         }
@@ -166,6 +172,17 @@ Bool AstProcessor::_processParamPass(
       astProcessor->noticeStore->popPrefixSourceLocation(
         Core::Data::getSourceLocationRecordCount(sl.get())
       );
+    } else if (pointerType != 0) {
+      // Is this a function pointer?
+      if (param->isDerivedFrom<Ast::FunctionType>()) {
+        if (
+          astProcessor->astHelper->getFunctionDomain(param) == Ast::DefinitionDomain::OBJECT
+        ) {
+          if (!astProcessor->processMemberFunctionSig(static_cast<Ast::FunctionType*>(param))) {
+            result = false;
+          }
+        }
+      }
     }
     return result;
   } else{
@@ -224,34 +241,27 @@ Bool AstProcessor::_processEvalStatement(
 }
 
 
-Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::Function *func)
+Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::FunctionType *funcType)
 {
   PREPARE_SELF(astProcessor, AstProcessor);
-  auto def = ti_cast<Core::Data::Ast::Definition>(func->getOwner());
-  if (def == 0) {
-    throw EXCEPTION(GenericException, S("Could not find definition of a member function."));
-  }
-  auto funcType = func->getType().get();
-  if (funcType == 0) {
-    throw EXCEPTION(GenericException, S("Function is missing a function type."));
-  }
+  if (isAstProcessed(funcType)) return true;
   if (funcType->getArgTypes() == 0) {
     funcType->setArgTypes(Core::Data::Ast::Map::create());
   }
   // Make sure we don't have an arg named `this`.
   if (funcType->getArgTypes()->findIndex(S("this")) != -1) {
     astProcessor->noticeStore->add(
-      newSrdObj<Spp::Notices::ThisRedefinedNotice>(func->findSourceLocation())
+      newSrdObj<Spp::Notices::ThisRedefinedNotice>(funcType->findSourceLocation())
     );
     return false;
   }
   // Prepare this type.
   auto thisType = Core::Data::Ast::ParamPass::create({
-    {S("sourceLocation"), func->findSourceLocation()},
+    {S("sourceLocation"), funcType->findSourceLocation()},
     {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
   }, {
     {S("operand"), Core::Data::Ast::Identifier::create({
-      {S("sourceLocation"), func->findSourceLocation()},
+      {S("sourceLocation"), funcType->findSourceLocation()},
       {S("value"), TiStr(S("iref"))}
     })},
     {S("param"), Spp::Ast::ThisTypeRef::create()}
@@ -259,7 +269,7 @@ Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::Function 
   // Add this arg.
   funcType->getArgTypes()->insert(0, S("this"), thisType);
   // Mark the function as processed.
-  setAstProcessed(func, true);
+  setAstProcessed(funcType, true);
   return true;
 }
 

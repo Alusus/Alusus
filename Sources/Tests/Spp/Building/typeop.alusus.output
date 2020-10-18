@@ -1,0 +1,35 @@
+ERROR SPPA1003 @ (32,16): No valid match was found for the given type.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+
+@"#anonymous0" = private constant [8 x i8] c"%d, %d\0A\00"
+@"#anonymous1" = private constant [4 x i8] c"%d\0A\00"
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"test()"() {
+"#block0":
+  %i = alloca i32
+  %i2 = alloca i32
+  store i32 257, i32* %i
+  store i32 258, i32* %i2
+  %0 = load i32, i32* %i
+  %1 = load i32, i32* %i2
+  %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous0", i32 0, i32 0), i32 %0, i32 %1)
+  %pc = alloca i8*
+  %3 = bitcast i32* %i to i8*
+  store i8* %3, i8** %pc
+  %4 = load i8*, i8** %pc
+  %5 = load i8, i8* %4
+  %6 = sext i8 %5 to i32
+  %7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous1", i32 0, i32 0), i32 %6)
+  ret void
+}
+
+declare i32 @printf(i8*, ...)
+------------------------------------------------------------

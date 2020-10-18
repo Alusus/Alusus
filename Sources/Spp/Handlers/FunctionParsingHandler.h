@@ -54,6 +54,10 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
     Core::Processing::ParserState *state, TioSharedPtr const &modifierData
   );
 
+  private: Bool processSharedOrNoBindModifier(
+    Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+  );
+
   private: Bool processUnknownModifier(
     Core::Processing::ParserState *state, TioSharedPtr const &modifierData
   );
