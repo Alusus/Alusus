@@ -1,6 +1,56 @@
-الصنف: TiStrBase<alusus.org/Core/Core.Basic.TiObject>، القيمة: نـص_بهوية
-الصنف: StringLiteral، القيمة: نص حرفي
-الصنف: CharLiteral، القيمة: م
-الصنف: IntegerLiteral، القيمة: 123
-الصنف: FloatLiteral، القيمة: 123.45
-الصنف: Identifier، القيمة: مع
+Core.Data.Ast.List
+ الأعضاء:
+ -prodId: طـبيعي_بهوية 322
+ -sourceLocation: Core.Data.SourceLocationRecord
+ عناصر:
+ -مـعرف ا
+ -Core.Data.Ast.LinkOperator
+   الأعضاء:
+   -type: نـص_بهوية ":"
+   -prodId: طـبيعي_بهوية 323
+   -sourceLocation: Core.Data.SourceLocationRecord
+   عناصر مسماة:
+   -first: مـعرف ب
+   -second: Core.Data.Ast.Bracket
+     الأعضاء:
+     -type: صـحيح_بهوية 0
+     -prodId: طـبيعي_بهوية 313
+     -sourceLocation: Core.Data.SourceLocationRecord
+     عناصر مسماة:
+     -operand: Core.Data.Ast.List
+       الأعضاء:
+       -prodId: طـبيعي_بهوية 182
+       -sourceLocation: Core.Data.SourceLocationRecord
+       عناصر:
+       -صـحيح_حرفي 5
+       -صـحيح_حرفي 6
+ -مـعرف ت
+ -Core.Data.Ast.Definition
+   الأعضاء:
+   -name: نـص_بهوية "د"
+   -toMerge: ثـنائي_بهوية خطأ
+   -prodId: طـبيعي_بهوية 247
+   -sourceLocation: Core.Data.SourceLocationRecord
+   عناصر مسماة:
+   -target: Spp.Ast.Function
+     الأعضاء:
+     -name: نـص_بهوية ""
+     -inlined: ثـنائي_بهوية خطأ
+     -prodId: طـبيعي_بهوية 247
+     -sourceLocation: Core.Data.SourceLocationRecord
+     عناصر مسماة:
+     -type: Spp.Ast.FunctionType
+       الأعضاء:
+       -prodId: طـبيعي_بهوية 247
+       -sourceLocation: Core.Data.SourceLocationRecord
+       -shared: ثـنائي_بهوية صح
+       -bindDisabled: ثـنائي_بهوية خطأ
+       عناصر مسماة:
+       -argTypes: عدم
+       -retType: عدم
+     -body: Spp.Ast.Block
+       الأعضاء:
+       -prodId: طـبيعي_بهوية 307
+       -sourceLocation: عدم
+       عناصر:
+   -modifiers: عدم

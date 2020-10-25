@@ -1,4 +1,4 @@
-import "Core";
+import "Core/Data";
 import "Spp";
 import "Srl/Console";
 import "Srl/String";
@@ -43,8 +43,8 @@ func testAstInsertion {
         Spp.astMgr.insertAst(
             ast { def name: Float[64](someval) },
             Map[String, ptr]()
-                .set(String("name"), Core.TiStr("y")~ptr)
-                .set(String("someval"), Core.FloatLiteral("6")~ptr)
+                .set(String("name"), Core.Basic.TiStr("y")~ptr)
+                .set(String("someval"), Core.Data.Ast.FloatLiteral("6")~ptr)
         );
     }
     x = 7;

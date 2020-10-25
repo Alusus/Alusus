@@ -1,0 +1,102 @@
+import "../Core";
+import "Srl/refs";
+import "Srl/String";
+
+@merge module Core {
+    module Basic {
+        use Srl;
+
+        @expname[getFromGlobalStorage]
+        func getFromGlobalStorage (ptr[array[Word[8]]]): ptr;
+
+        macro defTypeInfoGetter[typeName] {
+            @shared func getTypeInfo (): ref[TypeInfo] {
+                @shared def typeInfo: ref[TypeInfo];
+                if typeInfo~ptr == 0 {
+                    typeInfo~ptr = getFromGlobalStorage(typeName)~cast[ptr[TypeInfo]];
+                }
+                return typeInfo;
+            }
+        }
+
+        type TiObjectFactory {
+            def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
+            def createShared: ptr[@shared @no_bind function ():SrdRef[TiObject]];
+            def initialize: ptr[@shared @no_bind function (ref[TiObject])];
+            def terminate: ptr[@shared @no_bind function (ref[TiObject])];
+        }
+
+        type TypeInfo {
+            def typeName: String;
+            def typeNamespace: String;
+            def moduleName: String;
+            def url: String;
+            def uniqueName: String;
+            def baseTypeInfo: ref[TypeInfo];
+            def objectFactory: ref[TiObjectFactory];
+        }
+
+        type TiObject {
+            def vtable: ptr;
+            def wkThis: WkRef[this_type];
+
+            @expname[TiObject_getMyTypeInfo]
+            func getMyTypeInfo (): ref[TypeInfo];
+
+            @expname[TiObject_isDerivedFrom]
+            func isDerivedFrom (ref[TypeInfo]): Bool;
+
+            @expname[TiObject_getInterface]
+            func getInterface (ref[TypeInfo]): ref[TiInterface];
+        }
+
+        type TiInterface {
+            def vtable: ptr;
+
+            @expname[TiInterface_getMyInterfaceInfo]
+            func getMyInterfaceInfo (): ref[TypeInfo];
+
+            @expname[TiInterface_getTiObject]
+            func getTiObject (): ref[TiObject];
+        }
+
+        macro getInterface [obj, T] castRef[obj.getInterface(T.getTypeInfo()), T];
+
+        macro defTiBasicType [name, dataType, uniqueName] {
+            type name {
+                @injection def tiObject: TiObject;
+                def value: dataType;
+                handler this~init() {
+                    getTypeInfo().objectFactory.initialize(this);
+                }
+                handler this~init(v: dataType) {
+                    getTypeInfo().objectFactory.initialize(this);
+                    this.value = v;
+                }
+                handler this~terminate() {
+                    getTypeInfo().objectFactory.terminate(this);
+                }
+                handler this=dataType this.value = value;
+
+                defTypeInfoGetter[uniqueName];
+            }
+        }
+
+        macro addExtraInitializer [name, dataType] {
+            @merge type name {
+                handler this~init(v: dataType) {
+                    getTypeInfo().objectFactory.initialize(this);
+                    this.value = v;
+                }
+                handler this=dataType this.value = value;
+            }
+        }
+
+        defTiBasicType[TiInt, Int, "alusus.org/Core/Core.Basic.TiNumber<alusus.org/Srl/Srl.Int,alusus.org/Core/Core.Basic.TiObject>"];
+        defTiBasicType[TiWord, Word, "alusus.org/Core/Core.Basic.TiNumber<alusus.org/Srl/Srl.Word,alusus.org/Core/Core.Basic.TiObject>"];
+        defTiBasicType[TiFloat, Float, "alusus.org/Core/Core.Basic.TiNumber<alusus.org/Srl/Srl.Float,alusus.org/Core/Core.Basic.TiObject>"];
+        defTiBasicType[TiBool, Bool, "alusus.org/Core/Core.Basic.TiBoolBase<alusus.org/Core/Core.Basic.TiObject>"];
+        defTiBasicType[TiStr, String, "alusus.org/Core/Core.Basic.TiStrBase<alusus.org/Core/Core.Basic.TiObject>"];
+        addExtraInitializer[TiStr, ptr[array[Char]]];
+    }
+}

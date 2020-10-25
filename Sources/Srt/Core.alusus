@@ -1,9 +1,6 @@
-import "Srl/refs";
-import "Srl/String";
+import "alusus_spp";
 
 module Core {
-    use Srl;
-
     def rootManager: ptr;
 
     @expname[RootManager_importFile]
@@ -11,117 +8,5 @@ module Core {
 
     func importFile(filename: ptr[array[Word[8]]]) {
         _importFile(rootManager, filename);
-    }
-
-    @expname[getFromGlobalStorage]
-    func getFromGlobalStorage (ptr[array[Word[8]]]): ptr;
-
-    macro defTypeInfoGetter[typeName] {
-        @shared func getTypeInfo (): ref[TypeInfo] {
-            @shared def typeInfo: ref[TypeInfo];
-            if typeInfo~ptr == 0 {
-                typeInfo~ptr = getFromGlobalStorage(typeName)~cast[ptr[TypeInfo]];
-            }
-            return typeInfo;
-        }
-    }
-
-    type TiObjectFactory {
-        def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
-        def createShared: ptr[@shared @no_bind function ():SrdRef[TiObject]];
-        def initialize: ptr[@shared @no_bind function (ref[TiObject])];
-        def terminate: ptr[@shared @no_bind function (ref[TiObject])];
-    }
-
-    type TypeInfo {
-        def typeName: String;
-        def typeNamespace: String;
-        def moduleName: String;
-        def url: String;
-        def uniqueName: String;
-        def baseTypeInfo: ref[TypeInfo];
-        def objectFactory: ref[TiObjectFactory];
-    }
-
-    type TiObject {
-        def vtable: ptr;
-        def wkThis: WkRef[this_type];
-
-        @expname[getObjectTypeInfo]
-        func getMyTypeInfo (): ref[TypeInfo];
-
-        @expname[isObjectDerivedFrom]
-        func isDerivedFrom (ref[TypeInfo]): Bool;
-
-        @expname[getObjectInterface]
-        func getInterface (ref[TypeInfo]): ref[TiInterface];
-    }
-
-    type TiInterface {
-        def vtable: ptr;
-    }
-
-    type TiStr {
-        @injection def tiObject: TiObject;
-        def value: String;
-        handler this~init() {
-            getTypeInfo().objectFactory.initialize(this);
-        }
-        handler this~init(v: ptr[array[Char]]) {
-            getTypeInfo().objectFactory.initialize(this);
-            this.value = v;
-        }
-        handler this~terminate() {
-            getTypeInfo().objectFactory.terminate(this);
-        }
-        handler this=ptr[array[Char]] this.value = value;
-
-        defTypeInfoGetter["alusus.org/Core/Core.Basic.TiStrBase<alusus.org/Core/Core.Basic.TiObject>"];
-    }
-
-    macro defTextAstType[name, uniqueName] {
-        type name {
-            @injection def tiObject: TiObject;
-            def owner: ref[TiObject];
-            def binding: TiInterface;
-            def metaHaving: TiInterface;
-            def printable: TiInterface;
-            def value: TiStr;
-            def _data: array[Word[8], 312];
-
-            handler this~init() {
-                getTypeInfo().objectFactory.initialize(this);
-            }
-            handler this~init(v: ptr[array[Char]]) {
-                getTypeInfo().objectFactory.initialize(this);
-                this.value = v;
-            }
-            handler this~terminate() {
-                getTypeInfo().objectFactory.terminate(this);
-                // We need to re-initialize value to avoid segfault caused by double termination of value when
-                // Alusus auto-destructor tries to destroy value which was already destroyed by the object factory.
-                this.value~init();
-            }
-
-            defTypeInfoGetter[uniqueName];
-        }
-    }
-
-    defTextAstType[Identifier, "alusus.org/Core/Core.Data.Ast.Identifier"];
-    defTextAstType[IntegerLiteral, "alusus.org/Core/Core.Data.Ast.IntegerLiteral"];
-    defTextAstType[FloatLiteral, "alusus.org/Core/Core.Data.Ast.FloatLiteral"];
-    defTextAstType[CharLiteral, "alusus.org/Core/Core.Data.Ast.CharLiteral"];
-    defTextAstType[StringLiteral, "alusus.org/Core/Core.Data.Ast.StringLiteral"];
-
-    macro defAstType[name, uniqueName] {
-        type name {
-            @injection def tiObject: TiObject;
-            def owner: ref[TiObject];
-
-            // Prevent instantiation of this object from Alusus.
-            handler this~init(v: Unknown) {}
-
-            defTypeInfoGetter[uniqueName];
-        }
     }
 }

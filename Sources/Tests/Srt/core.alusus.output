@@ -1,6 +1,56 @@
-Type: TiStrBase<alusus.org/Core/Core.Basic.TiObject>, value: TiStr
-Type: StringLiteral, value: string literal
-Type: CharLiteral, value: c
-Type: IntegerLiteral, value: 123
-Type: FloatLiteral, value: 123.45
-Type: Identifier, value: id
+Core.Data.Ast.List
+ members:
+ -prodId: TiWord 322
+ -sourceLocation: Core.Data.SourceLocationRecord
+ list elements:
+ -Identifier a
+ -Core.Data.Ast.LinkOperator
+   members:
+   -type: TiStr ":"
+   -prodId: TiWord 323
+   -sourceLocation: Core.Data.SourceLocationRecord
+   map elements:
+   -first: Identifier b
+   -second: Core.Data.Ast.Bracket
+     members:
+     -type: TiInt 0
+     -prodId: TiWord 313
+     -sourceLocation: Core.Data.SourceLocationRecord
+     map elements:
+     -operand: Core.Data.Ast.List
+       members:
+       -prodId: TiWord 182
+       -sourceLocation: Core.Data.SourceLocationRecord
+       list elements:
+       -IntegerLiteral 5
+       -IntegerLiteral 6
+ -Identifier c
+ -Core.Data.Ast.Definition
+   members:
+   -name: TiStr "fn"
+   -toMerge: TiBool false
+   -prodId: TiWord 247
+   -sourceLocation: Core.Data.SourceLocationRecord
+   map elements:
+   -target: Spp.Ast.Function
+     members:
+     -name: TiStr ""
+     -inlined: TiBool false
+     -prodId: TiWord 247
+     -sourceLocation: Core.Data.SourceLocationRecord
+     map elements:
+     -type: Spp.Ast.FunctionType
+       members:
+       -prodId: TiWord 247
+       -sourceLocation: Core.Data.SourceLocationRecord
+       -shared: TiBool true
+       -bindDisabled: TiBool false
+       map elements:
+       -argTypes: NULL
+       -retType: NULL
+     -body: Spp.Ast.Block
+       members:
+       -prodId: TiWord 307
+       -sourceLocation: NULL
+       list elements:
+   -modifiers: NULL

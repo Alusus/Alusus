@@ -1,0 +1,167 @@
+import "Basic";
+
+@merge module Core {
+    module Data {
+        use Basic;
+
+        type Binding {
+            @injection def tiInterface: TiInterface;
+
+            @expname[Binding_setMemberByName]
+            func setMember (ptr[array[Char]], ref[TiObject]);
+
+            @expname[Binding_setMemberByIndex]
+            func setMember (Int, ref[TiObject]);
+
+            @expname[Binding_getMemberCount]
+            func getMemberCount ():Word;
+
+            @expname[Binding_getMemberByName]
+            func getMember (ptr[array[Char]]):ref[TiObject];
+
+            @expname[Binding_getMemberByIndex]
+            func getMember (Int):ref[TiObject];
+
+            @expname[Binding_getMemberNeededTypeByName]
+            func getMemberNeededType (ptr[array[Char]]):ref[TypeInfo];
+
+            @expname[Binding_getMemberNeededTypeByIndex]
+            func getMemberNeededType (Int):ref[TypeInfo];
+
+            @expname[Binding_getMemberKey]
+            func getMemberKey (Int): Srl.String;
+
+            @expname[Binding_findMemberIndex]
+            func findMemberIndex (ptr[array[Char]]): Int;
+
+            defTypeInfoGetter["alusus.org/Core/Core.Basic.Binding"]
+        }
+
+        type Containing {
+            @injection def tiInterface: TiInterface;
+
+            @expname[Containing_setElement]
+            func setElement (Int, ref[TiObject]);
+
+            @expname[Containing_getElementCount]
+            func getElementCount ():Word;
+
+            @expname[Containing_getElement]
+            func getElement (Int):ref[TiObject];
+
+            @expname[Containing_getElementNeededType]
+            func getElementNeededType (Int):ref[TypeInfo];
+
+            defTypeInfoGetter["alusus.org/Core/Core.Basic.Containing<alusus.org/Core/Core.Basic.TiObject>"]
+        }
+
+        type DynamicContaining {
+            @injection def containing: Containing;
+
+            @expname[DynamicContaining_addElement]
+            func addElement (ref[TiObject]): Int;
+
+            @expname[DynamicContaining_insertElement]
+            func insertElement (Int, ref[TiObject]);
+
+            @expname[DynamicContaining_removeElement]
+            func removeElement (Int);
+
+            @expname[DynamicContaining_getElementsNeededType]
+            func getElementsNeededType ():ref[TypeInfo];
+
+            defTypeInfoGetter["alusus.org/Core/Core.Basic.DynamicContaining<alusus.org/Core/Core.Basic.TiObject>"]
+        }
+
+        type MapContaining {
+            @injection def containing: Containing;
+
+            @expname[MapContaining_setElement]
+            func setElement (ptr[array[Char]], ref[TiObject]): Int;
+
+            @expname[MapContaining_getElement]
+            func getElement (ptr[array[Char]]): ref[TiObject];
+
+            @expname[MapContaining_getElementNeededType]
+            func getElementNeededType (ptr[array[Char]]):ref[TypeInfo];
+
+            @expname[MapContaining_getElementKey]
+            func getElementKey (Int): Srl.String;
+
+            @expname[MapContaining_findElementIndex]
+            func findElementIndex (ptr[array[Char]]): Int;
+
+            defTypeInfoGetter["alusus.org/Core/Core.Basic.MapContaining<alusus.org/Core/Core.Basic.TiObject>"]
+        }
+
+        type DynamicMapContaining {
+            @injection def mapContaining: MapContaining;
+
+            @expname[DynamicMapContaining_addElement]
+            func addElement (ptr[array[Char]], ref[TiObject]): Int;
+
+            @expname[DynamicMapContaining_insertElement]
+            func insertElement (Int, ptr[array[Char]], ref[TiObject]);
+
+            @expname[DynamicMapContaining_removeElementByIndex]
+            func removeElement (Int);
+
+            @expname[DynamicMapContaining_removeElementByKey]
+            func removeElement (ptr[array[Char]]);
+
+            @expname[DynamicMapContaining_getElementsNeededType]
+            func getElementsNeededType ():ref[TypeInfo];
+
+            defTypeInfoGetter["alusus.org/Core/Core.Basic.DynamicMapContaining<alusus.org/Core/Core.Basic.TiObject>"]
+        }
+
+        module Ast {
+            macro defTextAstType [name, uniqueName] {
+                type name {
+                    @injection def tiObject: TiObject;
+                    def owner: ref[TiObject];
+                    def binding: TiInterface;
+                    def metaHaving: TiInterface;
+                    def printable: TiInterface;
+                    def value: TiStr;
+                    def _data: array[Word[8], 312];
+
+                    handler this~init() {
+                        getTypeInfo().objectFactory.initialize(this);
+                    }
+                    handler this~init(v: ptr[array[Char]]) {
+                        getTypeInfo().objectFactory.initialize(this);
+                        this.value = v;
+                    }
+                    handler this~terminate() {
+                        getTypeInfo().objectFactory.terminate(this);
+                        // We need to re-initialize value to avoid segfault caused by double termination of value when
+                        // Alusus auto-destructor tries to destroy value which was already destroyed by the object
+                        // factory.
+                        this.value~init();
+                    }
+
+                    defTypeInfoGetter[uniqueName];
+                }
+            }
+
+            defTextAstType[Identifier, "alusus.org/Core/Core.Data.Ast.Identifier"];
+            defTextAstType[IntegerLiteral, "alusus.org/Core/Core.Data.Ast.IntegerLiteral"];
+            defTextAstType[FloatLiteral, "alusus.org/Core/Core.Data.Ast.FloatLiteral"];
+            defTextAstType[CharLiteral, "alusus.org/Core/Core.Data.Ast.CharLiteral"];
+            defTextAstType[StringLiteral, "alusus.org/Core/Core.Data.Ast.StringLiteral"];
+
+            macro defAstType[name, uniqueName] {
+                type name {
+                    @injection def tiObject: TiObject;
+                    def owner: ref[TiObject];
+
+                    // Prevent instantiation of this object from Alusus.
+                    handler this~init(v: Unknown) {}
+
+                    defTypeInfoGetter[uniqueName];
+                }
+            }
+        }
+    }
+}

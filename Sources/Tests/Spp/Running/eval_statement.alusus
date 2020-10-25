@@ -1,7 +1,7 @@
 import "Srl/Console";
 import "Srl/Map";
 import "Srl/String";
-import "Core";
+import "Core/Data";
 import "Spp";
 use Srl;
 
@@ -63,8 +63,8 @@ func testAstInsertion {
         Spp.astMgr.insertAst(
             ast { def name: Int(someval) },
             Map[String, ptr]()
-                .set(String("name"), Core.Identifier("y")~ptr)
-                .set(String("someval"), Core.IntegerLiteral("6")~ptr)
+                .set(String("name"), Core.Data.Ast.Identifier("y")~ptr)
+                .set(String("someval"), Core.Data.Ast.IntegerLiteral("6")~ptr)
         );
     }
     x = 7;

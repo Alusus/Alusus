@@ -21,7 +21,7 @@ template<class CTYPE> class DynamicMapContaining : public MapContaining<CTYPE>
   //============================================================================
   // Type Info
 
-  TEMPLATE_INTERFACE_INFO(DynamicMapContaining, MapContaining<CTYPE>, "Core.Data", "Core", "alusus.org", (CTYPE));
+  TEMPLATE_INTERFACE_INFO(DynamicMapContaining, MapContaining<CTYPE>, "Core.Basic", "Core", "alusus.org", (CTYPE));
 
 
   //============================================================================

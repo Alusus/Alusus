@@ -21,7 +21,7 @@ template<class CTYPE> class DynamicContaining : public Containing<CTYPE>
   //============================================================================
   // Type Info
 
-  TEMPLATE_INTERFACE_INFO(DynamicContaining, Containing<CTYPE>, "Core.Data", "Core", "alusus.org", (CTYPE));
+  TEMPLATE_INTERFACE_INFO(DynamicContaining, Containing<CTYPE>, "Core.Basic", "Core", "alusus.org", (CTYPE));
 
 
   //============================================================================
