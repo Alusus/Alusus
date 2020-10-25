@@ -325,15 +325,25 @@ Bool AstProcessor::_processMacro(
   }
 
   // Replace macro reference with the clone.
-  if (owner->isDerivedFrom<Core::Data::Ast::Scope>() && macroInstance->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    // Merge the two scopes.
-    auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
-    auto instanceScope = macroInstance.s_cast_get<Core::Data::Ast::Scope>();
-    ownerScope->remove(indexInOwner);
-    Int index = indexInOwner;
-    Core::Data::Ast::addPossiblyMergeableElements(
-      instanceScope, ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
-    );
+  if (owner->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    if (macroInstance->isDerivedFrom<Core::Data::Ast::Scope>()) {
+      // Merge the two scopes.
+      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
+      auto instanceScope = macroInstance.s_cast_get<Core::Data::Ast::Scope>();
+      ownerScope->remove(indexInOwner);
+      Int index = indexInOwner;
+      Core::Data::Ast::addPossiblyMergeableElements(
+        instanceScope, ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
+    } else {
+      // Merge the element into the owner scope.
+      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
+      ownerScope->remove(indexInOwner);
+      Int index = indexInOwner;
+      Core::Data::Ast::addPossiblyMergeableElement(
+        macroInstance.get(), ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
+    }
   } else {
     // Replace the instance.
     auto ownerContainer = ti_cast<Containing<TiObject>>(owner);
