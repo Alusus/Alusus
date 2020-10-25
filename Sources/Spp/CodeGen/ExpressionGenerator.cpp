@@ -289,6 +289,12 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
   ) {
     result.astNode = obj;
     retVal = true;
+    // If the found object is a type, then let's make sure it's preprocessed.
+    auto dataType = ti_cast<Spp::Ast::DataType>(result.astNode);
+    if (dataType != 0) {
+      TiObject *tgType;
+      if (!g->getGeneratedType(dataType, session, tgType, 0)) return false;
+    }
   } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     retVal = expGenerator->generateStringLiteral(
       static_cast<Core::Data::Ast::StringLiteral*>(obj), g, session, result
