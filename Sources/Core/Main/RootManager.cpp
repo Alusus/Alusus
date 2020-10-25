@@ -345,7 +345,7 @@ Bool RootManager::tryFileName(Char const *path, std::array<Char,PATH_MAX> &resul
 Bool RootManager::doesFileExist(Char const *filename)
 {
   struct stat buffer;
-  return (stat (filename, &buffer) == 0);
+  return (stat (filename, &buffer) == 0 && (buffer.st_mode & S_IFMT) != S_IFDIR);
 }
 
 } // namespace
