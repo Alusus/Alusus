@@ -246,6 +246,12 @@ DEFINE_NOTICE(TypeMemberIsNotVarNotice, "Spp.Notices", "Spp", "alusus.org", "SPP
 DEFINE_NOTICE(InvalidDotOpTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1036", 1,
   "Cannot use dot operator on this type of elements."
 );
+DEFINE_NOTICE(IncompleteInfixOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1037", 1,
+  "Incomplete infix operator. This is likely caused by a macro or an eval statement that evaluated to null."
+);
+DEFINE_NOTICE(IncompleteOutfixOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1038", 1,
+  "Incomplete prefix or postfix operator. This is likely caused by a macro or an eval statement that evaluated to null."
+);
 
 } // namespace
 

@@ -68,6 +68,14 @@ def Main: module
     print("p = (%f, %f)\n", p.x, p.y);
 
     defWrongType[a];
+
+    p.x = emptyMacro[];
+    ++emptyMacro[];
+    emptyMacro[]--;
+  };
+
+  macro emptyMacro {
+      eval {}
   };
 };
 

@@ -719,6 +719,12 @@ Bool ExpressionGenerator::_generateOperator(
   OpType opType = OpType::INVALID;
   if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+    if (infixOp->getFirst() == 0 || infixOp->getSecond() == 0) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::IncompleteInfixOpNotice>(infixOp->findSourceLocation())
+      );
+      return false;
+    }
     if (infixOp->getType() == S("+")) { funcName = S("+"); opType = OpType::ARITHMETIC; }
     else if (infixOp->getType() == S("-")) { funcName = S("-"); opType = OpType::ARITHMETIC; }
     else if (infixOp->getType() == S("*")) { funcName = S("*"); opType = OpType::ARITHMETIC; }
@@ -755,6 +761,12 @@ Bool ExpressionGenerator::_generateOperator(
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
+    if (outfixOp->getOperand() == 0) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
+      );
+      return false;
+    }
     if (outfixOp->getType() == S("+")) { funcName = S("__pos"); opType = OpType::UNARY_VAL; }
     else if (outfixOp->getType() == S("-")) { funcName = S("__neg"); opType = OpType::UNARY_VAL; }
     else if (outfixOp->getType() == S("!")) { funcName = S("__not"); opType = OpType::INT_UNARY_VAL; }
@@ -767,6 +779,12 @@ Bool ExpressionGenerator::_generateOperator(
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PostfixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PostfixOperator*>(astNode);
+    if (outfixOp->getOperand() == 0) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
+      );
+      return false;
+    }
     if (outfixOp->getType() == S("++")) { funcName = S("__lateInc"); opType = OpType::UNARY_VAR; }
     else if (outfixOp->getType() == S("--")) { funcName = S("__lateDec"); opType = OpType::UNARY_VAR; }
     else {
