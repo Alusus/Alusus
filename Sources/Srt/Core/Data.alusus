@@ -162,6 +162,28 @@ import "Basic";
                     defTypeInfoGetter[uniqueName];
                 }
             }
+
+            defAstType[Alias, "alusus.org/Core/Core.Data.Ast.Alias"];
+            defAstType[Bracket, "alusus.org/Core/Core.Data.Ast.Bracket"];
+            defAstType[Bridge, "alusus.org/Core/Core.Data.Ast.Bridge"];
+            defAstType[Definition, "alusus.org/Core/Core.Data.Ast.Definition"];
+            defAstType[GenericCommand, "alusus.org/Core/Core.Data.Ast.GenericCommand"];
+            defAstType[List, "alusus.org/Core/Core.Data.Ast.List"];
+            defAstType[Map, "alusus.org/Core/Core.Data.Ast.Map"];
+            defAstType[MergeList, "alusus.org/Core/Core.Data.Ast.MergeList"];
+            defAstType[ParamPass, "alusus.org/Core/Core.Data.Ast.ParamPass"];
+            defAstType[Scope, "alusus.org/Core/Core.Data.Ast.Scope"];
+            defAstType[Token, "alusus.org/Core/Core.Data.Ast.Token"];
+            defAstType[PrefixOperator, "alusus.org/Core/Core.Data.Ast.PrefixOperator"];
+            defAstType[PostfixOperator, "alusus.org/Core/Core.Data.Ast.PostfixOperator"];
+            defAstType[AssignmentOperator, "alusus.org/Core/Core.Data.Ast.AssignmentOperator"];
+            defAstType[ComparisonOperator, "alusus.org/Core/Core.Data.Ast.ComparisonOperator"];
+            defAstType[AdditionOperator, "alusus.org/Core/Core.Data.Ast.AdditionOperator"];
+            defAstType[MultiplicationOperator, "alusus.org/Core/Core.Data.Ast.MultiplicationOperator"];
+            defAstType[BitwiseOperator, "alusus.org/Core/Core.Data.Ast.BitwiseOperator"];
+            defAstType[LogOperator, "alusus.org/Core/Core.Data.Ast.LogOperator"];
+            defAstType[LinkOperator, "alusus.org/Core/Core.Data.Ast.LinkOperator"];
+            defAstType[ConditionalOperator, "alusus.org/Core/Core.Data.Ast.ConditionalOperator"];
         }
     }
 }

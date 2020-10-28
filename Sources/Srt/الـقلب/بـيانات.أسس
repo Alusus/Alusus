@@ -71,6 +71,28 @@
                     عرف هات_هوية_الصنف: لقب getTypeInfo؛
                 }
             }
+
+            عرب_صنف_شبم[Alias، لـقب]؛
+            عرب_صنف_شبم[Bracket، قـوس]؛
+            عرب_صنف_شبم[Bridge، جـسر]؛
+            عرب_صنف_شبم[Definition، تـعريف]؛
+            عرب_صنف_شبم[GenericCommand، إيـعاز]؛
+            عرب_صنف_شبم[List، قـائمة]؛
+            عرب_صنف_شبم[Map، تـطبيق]؛
+            عرب_صنف_شبم[MergeList، قـائمة_دمج]؛
+            عرب_صنف_شبم[ParamPass، مـمرر_معطيات]؛
+            عرب_صنف_شبم[Scope، مـجال]؛
+            عرب_صنف_شبم[Token، رمـز]؛
+            عرب_صنف_شبم[PrefixOperator، مـؤثر_قبلي]؛
+            عرب_صنف_شبم[PostfixOperator، مـؤثر_بعدي]؛
+            عرب_صنف_شبم[AssignmentOperator، مـؤثر_تعيين]؛
+            عرب_صنف_شبم[ComparisonOperator، مـؤثر_مقارنة]؛
+            عرب_صنف_شبم[AdditionOperator، مـؤثر_جمع]؛
+            عرب_صنف_شبم[MultiplicationOperator، مـؤثر_ضرب]؛
+            عرب_صنف_شبم[BitwiseOperator، مـؤثر_بتي]؛
+            عرب_صنف_شبم[LogOperator، مـؤثر_منطقي]؛
+            عرب_صنف_شبم[LinkOperator، مـؤثر_ربط]؛
+            عرب_صنف_شبم[ConditionalOperator، مـؤثر_شرط]؛
         }
     }
 }
