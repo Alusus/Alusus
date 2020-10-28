@@ -103,8 +103,9 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
           result = false;
         }
       }
+    } else if (child->isDerivedFrom<Ast::Macro>()) {
+      continue;
     } else if (child->isDerivedFrom<Ast::Type>()) {
-      // if (!astProcessor->processTypeMethodSigs(static_cast<Ast::UserType*>(child))) result = false;
       continue;
     } else if (child->isDerivedFrom<Ast::EvalStatement>()) {
       if (!astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) result = false;
@@ -218,22 +219,22 @@ Bool AstProcessor::_processEvalStatement(
   astProcessor->currentEvalInsertionPosition = indexInOwner;
   astProcessor->currentEvalSourceLocation = eval->findSourceLocation();
 
-  // Remove the eval statement.
-  DynamicContaining<TiObject> *dynContainer;
-  DynamicMapContaining<TiObject> *dynMapContainer;
-  Containing<TiObject> *container;
-  if ((dynContainer = ti_cast<DynamicContaining<TiObject>>(owner)) != 0) {
-    dynContainer->removeElement(indexInOwner);
-  } else if ((dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(owner)) != 0) {
-    dynMapContainer->removeElement(indexInOwner);
-  } else if ((container = ti_cast<Containing<TiObject>>(owner)) != 0) {
-    container->setElement(indexInOwner, 0);
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
-  }
-
   // Execute the eval statement.
   if (result) {
+    // Remove the eval statement.
+    DynamicContaining<TiObject> *dynContainer;
+    DynamicMapContaining<TiObject> *dynMapContainer;
+    Containing<TiObject> *container;
+    if ((dynContainer = ti_cast<DynamicContaining<TiObject>>(owner)) != 0) {
+      dynContainer->removeElement(indexInOwner);
+    } else if ((dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(owner)) != 0) {
+      dynMapContainer->removeElement(indexInOwner);
+    } else if ((container = ti_cast<Containing<TiObject>>(owner)) != 0) {
+      container->setElement(indexInOwner, 0);
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
+    }
+
     astProcessor->executing->execute(astProcessor->getNoticeStore(), buildSession.get());
   }
 
@@ -455,23 +456,27 @@ Bool AstProcessor::_interpolateAst_identifier(
     auto arg = args->getElement(index);
     if (prefixSize != 0 || suffix != 0) {
       // We have an identifier string template, so we need the matching arg to be an identifier as well.
+      Char const *text;
       if (arg->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-        Char newVar[1000];
-        astProcessor->generateStringFromTemplate(
-          obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Identifier*>(arg)->getValue().get(), suffix,
-          newVar, 1000
-        );
-        result = Core::Data::Ast::Identifier::create({
-          { S("value"), TiStr(newVar) },
-          { S("sourceLocation"), obj->getSourceLocation() }
-        });
-        Core::Data::Ast::addSourceLocation(result.get(), sl);
+        text = static_cast<Core::Data::Ast::Text*>(arg)->getValue().get();
+      } else if (arg->isDerivedFrom<TiStr>()) {
+        text = static_cast<TiStr*>(arg)->get();
       } else {
+        auto elementSl = Core::Data::Ast::findSourceLocation(arg);
         astProcessor->noticeStore->add(
-          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
         );
         return false;
       }
+      Char newVar[1000];
+      astProcessor->generateStringFromTemplate(
+        obj->getValue().get(), prefixSize, text, suffix, newVar, 1000
+      );
+      result = Core::Data::Ast::Identifier::create({
+        { S("value"), TiStr(newVar) },
+        { S("sourceLocation"), obj->getSourceLocation() }
+      });
+      Core::Data::Ast::addSourceLocation(result.get(), sl);
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
       result = Core::Data::Ast::clone(args->getElement(index), sl);
@@ -497,23 +502,27 @@ Bool AstProcessor::_interpolateAst_stringLiteral(
     auto arg = args->getElement(index);
     if (prefixSize != 0 || suffix != 0) {
       // We have an identifier string template, so we need the matching arg to be an identifier as well.
+      Char const *text;
       if (arg->isDerivedFrom<Core::Data::Ast::Identifier>() || arg->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
-        Char newVar[1000];
-        astProcessor->generateStringFromTemplate(
-          obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Text*>(arg)->getValue().get(), suffix,
-          newVar, 1000
-        );
-        result = Core::Data::Ast::StringLiteral::create({
-          { S("value"), TiStr(newVar) },
-          { S("sourceLocation"), obj->getSourceLocation() }
-        });
-        Core::Data::Ast::addSourceLocation(result.get(), sl);
+        text = static_cast<Core::Data::Ast::Text*>(arg)->getValue().get();
+      } else if (arg->isDerivedFrom<TiStr>()) {
+        text = static_cast<TiStr*>(arg)->get();
       } else {
+        auto elementSl = Core::Data::Ast::findSourceLocation(arg);
         astProcessor->noticeStore->add(
-          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
         );
         return false;
       }
+      Char newVar[1000];
+      astProcessor->generateStringFromTemplate(
+        obj->getValue().get(), prefixSize, text, suffix, newVar, 1000
+      );
+      result = Core::Data::Ast::StringLiteral::create({
+        { S("value"), TiStr(newVar) },
+        { S("sourceLocation"), obj->getSourceLocation() }
+      });
+      Core::Data::Ast::addSourceLocation(result.get(), sl);
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
       result = Core::Data::Ast::clone(args->getElement(index), sl);
