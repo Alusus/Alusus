@@ -8,6 +8,7 @@
   @دمج صنف AstMgr {
     عرف هات_محارف_مبدل: لقب getModifierStrings؛
     عرف احشر_شبم: لقب insertAst؛
+    عرف أنشئ_شبم: لقب buildAst؛
   }
 
   عرف مدير_البناء: لقب buildMgr؛

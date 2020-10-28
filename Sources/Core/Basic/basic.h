@@ -699,6 +699,7 @@ extern std::istream &inStream;
 #include "containing_helpers.h"
 #include "ContainerExtender.h"
 #include "PlainArrayWrapperContainer.h"
+#include "SharedArrayWrapperContainer.h"
 
 // TODO: Rename List to Array.
 #include "SharedListBase.h"

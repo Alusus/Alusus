@@ -21,7 +21,10 @@ void AstMgr::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
     &this->getModifierStrings,
-    &this->insertAst
+    &this->insertAst_plain,
+    &this->insertAst_shared,
+    &this->buildAst_plain,
+    &this->buildAst_shared
   });
 }
 
@@ -29,7 +32,10 @@ void AstMgr::initBindingCaches()
 void AstMgr::initBindings()
 {
   this->getModifierStrings = &AstMgr::_getModifierStrings;
-  this->insertAst = &AstMgr::_insertAst;
+  this->insertAst_plain = &AstMgr::_insertAst_plain;
+  this->insertAst_shared = &AstMgr::_insertAst_shared;
+  this->buildAst_plain = &AstMgr::_buildAst_plain;
+  this->buildAst_shared = &AstMgr::_buildAst_shared;
 }
 
 
@@ -37,7 +43,10 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
 {
   globalItemRepo->addItem(S("!Spp.astMgr"), sizeof(void*), &astMgr);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStrings"), (void*)&AstMgr::_getModifierStrings);
-  globalItemRepo->addItem(S("Spp_AstMgr_insertAst"), (void*)&AstMgr::_insertAst);
+  globalItemRepo->addItem(S("Spp_AstMgr_insertAst_plain"), (void*)&AstMgr::_insertAst_plain);
+  globalItemRepo->addItem(S("Spp_AstMgr_insertAst_shared"), (void*)&AstMgr::_insertAst_shared);
+  globalItemRepo->addItem(S("Spp_AstMgr_buildAst_plain"), (void*)&AstMgr::_buildAst_plain);
+  globalItemRepo->addItem(S("Spp_AstMgr_buildAst_shared"), (void*)&AstMgr::_buildAst_shared);
 }
 
 
@@ -94,7 +103,7 @@ Bool AstMgr::_getModifierStrings(
 }
 
 
-Bool AstMgr::_insertAst(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations)
+Bool AstMgr::_insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations)
 {
   PREPARE_SELF(astMgr, AstMgr);
   Array<Str> names = interpolations->getKeys();
@@ -103,6 +112,47 @@ Bool AstMgr::_insertAst(TiObject *self, TiObject* ast, Map<Str, TiObject*> *inte
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
   astMgr->parser->flushApprovedNotices();
   return result;
+}
+
+
+Bool AstMgr::_insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  Array<Str> names = interpolations->getKeys();
+  Array<SharedPtr<TiObject>> values = interpolations->getValues();
+  SharedArrayWrapperContainer<TiObject> container(&values);
+  Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
+  astMgr->parser->flushApprovedNotices();
+  return result;
+}
+
+
+Bool AstMgr::_buildAst_plain(TiObject *self, TiObject *ast, Map<Str, TiObject*> *interpolations, TioSharedPtr &result)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  Array<Str> names = interpolations->getKeys();
+  Array<TiObject*> values = interpolations->getValues();
+  PlainArrayWrapperContainer<TiObject> container(&values);
+  Bool ret = astMgr->astProcessor->interpolateAst(
+    ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
+  );
+  astMgr->parser->flushApprovedNotices();
+  return ret;
+}
+
+
+Bool AstMgr::_buildAst_shared(
+  TiObject *self, TiObject *ast, Map<Str, SharedPtr<TiObject>> *interpolations, TioSharedPtr &result
+) {
+  PREPARE_SELF(astMgr, AstMgr);
+  Array<Str> names = interpolations->getKeys();
+  Array<SharedPtr<TiObject>> values = interpolations->getValues();
+  SharedArrayWrapperContainer<TiObject> container(&values);
+  Bool ret = astMgr->astProcessor->interpolateAst(
+    ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
+  );
+  astMgr->parser->flushApprovedNotices();
+  return ret;
 }
 
 } // namespace

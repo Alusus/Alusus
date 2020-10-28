@@ -1,3 +1,4 @@
+import "Core/Basic";
 import "Srl/Map";
 import "Srl/String";
 
@@ -10,9 +11,29 @@ import "Srl/String";
             resultCount: ptr[Word]
         ) => Word[1];
 
-        @expname[Spp_AstMgr_insertAst]
+        @expname[Spp_AstMgr_insertAst_plain]
         func insertAst(
             element: ptr, interpolations: ref[Srl.Map[Srl.String, ptr]]
+        ) => Word[1];
+
+        @expname[Spp_AstMgr_insertAst_shared]
+        func insertAst(
+            element: ptr, interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]]
+        ) => Word[1];
+
+        func insertAst(element: ptr) => Word[1] {
+            return this.insertAst(element, Srl.Map[Srl.String, ptr]());
+        }
+
+        @expname[Spp_AstMgr_buildAst_plain]
+        func buildAst(
+            element: ptr, interpolations: ref[Srl.Map[Srl.String, ptr]], ref[SrdRef[Core.Basic.TiObject]]
+        ) => Word[1];
+
+        @expname[Spp_AstMgr_buildAst_shared]
+        func buildAst(
+            element: ptr, interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]],
+            ref[SrdRef[Core.Basic.TiObject]]
         ) => Word[1];
     };
     def astMgr: ref[AstMgr];

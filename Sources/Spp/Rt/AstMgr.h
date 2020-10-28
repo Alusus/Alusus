@@ -115,8 +115,21 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount
   );
 
-  public: METHOD_BINDING_CACHE(insertAst, Bool, (TiObject*, Map<Str, TiObject*>*));
-  public: static Bool _insertAst(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
+  public: METHOD_BINDING_CACHE(insertAst_plain, Bool, (TiObject*, Map<Str, TiObject*>*));
+  public: static Bool _insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
+
+  public: METHOD_BINDING_CACHE(insertAst_shared, Bool, (TiObject*, Map<Str, SharedPtr<TiObject>>*));
+  public: static Bool _insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations);
+
+  public: METHOD_BINDING_CACHE(buildAst_plain, Bool, (TiObject*, Map<Str, TiObject*>*, TioSharedPtr&));
+  public: static Bool _buildAst_plain(
+    TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations, TioSharedPtr &result
+  );
+
+  public: METHOD_BINDING_CACHE(buildAst_shared, Bool, (TiObject*, Map<Str, SharedPtr<TiObject>>*, TioSharedPtr&));
+  public: static Bool _buildAst_shared(
+    TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations, TioSharedPtr &result
+  );
 
   /// @}
 
