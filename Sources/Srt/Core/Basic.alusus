@@ -78,6 +78,12 @@ import "Srl/String";
                 }
                 handler this=dataType this.value = value;
 
+                @shared func create (v: dataType): SrdRef[name] {
+                    def r: SrdRef[name];
+                    r.alloc()~init(v);
+                    return r;
+                }
+
                 defTypeInfoGetter[uniqueName];
             }
         }
@@ -89,6 +95,12 @@ import "Srl/String";
                     this.value = v;
                 }
                 handler this=dataType this.value = value;
+
+                @shared func create (v: dataType): SrdRef[name] {
+                    def r: SrdRef[name];
+                    r.alloc()~init(v);
+                    return r;
+                }
             }
         }
 

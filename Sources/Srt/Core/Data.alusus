@@ -141,6 +141,12 @@ import "Basic";
                         this.value~init();
                     }
 
+                    @shared func create (v: ptr[array[Char]]): SrdRef[name] {
+                        def r: SrdRef[name];
+                        r.alloc()~init(v);
+                        return r;
+                    }
+
                     defTypeInfoGetter[uniqueName];
                 }
             }
