@@ -16,7 +16,7 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
         System.fail(1, "generateWhere: obj is null.\n");
     }
 
-    if obj.isDerivedFrom(ComparisonOperator.getTypeInfo()) {
+    if isDerivedFrom[obj, ComparisonOperator] {
         def binding: ref[Binding](getInterface[obj, Binding]);
         def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
         if !Spp.astMgr.buildAst(
@@ -29,7 +29,7 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
         ) {
             System.fail(1, "generateWhere/ComparisonOperator: error\n");
         }
-    } else if obj.isDerivedFrom(LogOperator.getTypeInfo()) {
+    } else if isDerivedFrom[obj, LogOperator] {
         def binding: ref[Binding](getInterface[obj, Binding]);
         def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
         if !Spp.astMgr.buildAst(
@@ -42,7 +42,7 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
         ) {
             System.fail(1, "generateWhere/LogOperator: error\n");
         }
-    } else if obj.isDerivedFrom(Bracket.getTypeInfo()) {
+    } else if isDerivedFrom[obj, Bracket] {
         def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
         if !Spp.astMgr.buildAst(
             ast { String("(") + (cond) + String(")") },

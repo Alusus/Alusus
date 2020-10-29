@@ -61,6 +61,7 @@ import "Srl/String";
         }
 
         macro getInterface [obj, T] castRef[obj.getInterface(T.getTypeInfo()), T];
+        macro isDerivedFrom [obj, T] obj.isDerivedFrom(T.getTypeInfo());
 
         macro defTiBasicType [name, dataType, uniqueName] {
             type name {
