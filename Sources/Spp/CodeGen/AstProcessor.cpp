@@ -108,8 +108,8 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
     } else if (child->isDerivedFrom<Ast::Type>()) {
       continue;
     } else if (child->isDerivedFrom<Ast::EvalStatement>()) {
-      if (!astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) result = false;
-      --i;
+      if (astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) --i;
+      else result = false;
     } else {
       if (!astProcessor->process(child)) result = false;
     }

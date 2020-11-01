@@ -79,3 +79,12 @@ func testEvalVarDestruction {
 }
 
 Spp.buildMgr.dumpLlvmIrForElement(testEvalVarDestruction~ast);
+
+func testError {
+  eval {
+    def d: Unknown;
+  }
+  Console.print("testError\n");
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(testError~ast);
