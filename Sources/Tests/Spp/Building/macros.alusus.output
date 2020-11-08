@@ -1,8 +1,8 @@
-ERROR SPPA1003 @ (14,38)
-from (70,5): No valid match was found for the given type.
-ERROR SPPG1037 @ (72,5): Incomplete infix operator. This is likely caused by a macro or an eval statement that evaluated to null.
-ERROR SPPG1038 @ (73,5): Incomplete prefix or postfix operator. This is likely caused by a macro or an eval statement that evaluated to null.
-ERROR SPPG1038 @ (74,5): Incomplete prefix or postfix operator. This is likely caused by a macro or an eval statement that evaluated to null.
+ERROR SPPA1003 @ (7,38)
+from (63,5): No valid match was found for the given type.
+ERROR SPPG1037 @ (65,5): Incomplete infix operator. This is likely caused by a macro or an eval statement that evaluated to null.
+ERROR SPPG1038 @ (66,5): Incomplete prefix or postfix operator. This is likely caused by a macro or an eval statement that evaluated to null.
+ERROR SPPG1038 @ (67,5): Incomplete prefix or postfix operator. This is likely caused by a macro or an eval statement that evaluated to null.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

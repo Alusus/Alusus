@@ -63,6 +63,14 @@ import "Srl/String";
         macro getInterface [obj, T] castRef[obj.getInterface(T.getTypeInfo()), T];
         macro isDerivedFrom [obj, T] obj.isDerivedFrom(T.getTypeInfo());
 
+        macro defDynCastedRef [name, obj, T] {
+            def name: ref[T];
+            if obj~ptr != 0 && obj.isDerivedFrom(T.getTypeInfo())
+                name~ptr = castRef[obj, T]
+            else
+                name~ptr = 0;
+        }
+
         macro defTiBasicType [name, dataType, uniqueName] {
             type name {
                 @injection def tiObject: TiObject;

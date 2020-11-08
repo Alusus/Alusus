@@ -1,0 +1,44 @@
+Var Names:
+i
+j
+
+Func Names:
+getVarNames
+getFuncNames
+getPrivateElementNames
+
+Private Element Names:
+j
+getFuncNames
+
+Type Names:
+Void
+Null
+Int
+Word
+Float
+ptr
+ref
+iref
+ndref
+array
+A
+
+Module Names:
+Process
+Srl
+Core
+Spp
+
+Modifiers of A.i:
+modC
+modB
+modA
+
+Params for @modB modifier of A.i:
+abc
+def
+
+Params for @modC modifier of A.i:
+ijk
+lmn

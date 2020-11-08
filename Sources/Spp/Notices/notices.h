@@ -67,6 +67,9 @@ DEFINE_NOTICE(InvalidSquareBracketOperandNotice, "Spp.Notices", "Spp", "alusus.o
 DEFINE_NOTICE(IdentifierIsNotTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1012", 1,
   "Given identifier does not refer to a type."
 );
+DEFINE_NOTICE(MissingTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1013", 1,
+  "A needed type is missing. You may be missing an import."
+);
 
 } /// namespace
 

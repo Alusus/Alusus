@@ -45,6 +45,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: IntegerType *int64Type = 0;
   private: IntegerType *word64Type = 0;
   private: VoidType *voidType = 0;
+  private: UserType *tiObjectType = 0;
   private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> wordTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> floatTypeRef;
@@ -247,6 +248,9 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: METHOD_BINDING_CACHE(getVoidType, VoidType*);
   private: static VoidType* _getVoidType(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getTiObjectType, UserType*);
+  private: static UserType* _getTiObjectType(TiObject *self);
 
   public: template<class T> Bool isTypeOrRefTypeOf(TiObject *type)
   {

@@ -14,7 +14,7 @@ import "Array";
 import "System";
 import "Memory";
 
-module Srl {
+@merge module Srl {
     type ArrayIndex [T: type] {
         //=================
         // Member Variables

@@ -4,6 +4,13 @@ import "Basic";
     module Data {
         use Basic;
 
+        type Node {
+            @injection def tiObject: TiObject;
+            def owner: ref[TiObject];
+
+            defTypeInfoGetter["alusus.org/Core/Core.Data.Node"];
+        }
+
         type Binding {
             @injection def tiInterface: TiInterface;
 
@@ -118,8 +125,7 @@ import "Basic";
         module Ast {
             macro defTextAstType [name, uniqueName] {
                 type name {
-                    @injection def tiObject: TiObject;
-                    def owner: ref[TiObject];
+                    @injection def node: Node;
                     def binding: TiInterface;
                     def metaHaving: TiInterface;
                     def printable: TiInterface;
@@ -159,8 +165,7 @@ import "Basic";
 
             macro defAstType[name, uniqueName] {
                 type name {
-                    @injection def tiObject: TiObject;
-                    def owner: ref[TiObject];
+                    @injection def node: Node;
 
                     // Prevent instantiation of this object from Alusus.
                     handler this~init(v: Unknown) {}

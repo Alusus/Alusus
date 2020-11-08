@@ -3,47 +3,80 @@ import "Srl/Map";
 import "Srl/String";
 
 @merge module Spp {
+    def SeekerFlags: {
+        def SKIP_OWNERS: 1;
+        def SKIP_OWNED: 2;
+        def SKIP_USES: 4;
+        def SKIP_CHILDREN: 0h10000;
+    };
+
     type AstMgr {
-        @expname[Spp_AstMgr_getModifierStrings]
-        function getModifierStrings(
-            element: ptr, modifierKwd: ptr[array[Word[8]]],
-            resultStrs: ptr[ptr[array[ptr[array[Word[8]]]]]],
-            resultCount: ptr[Word]
+        @expname[Spp_AstMgr_findElements]
+        function findElements(
+            comparison: ref[Core.Basic.TiObject],
+            target: ref[Core.Basic.TiObject],
+            flags: Word
+        ) => Srl.Array[ref[Core.Basic.TiObject]];
+
+        @expname[Spp_AstMgr_getModifiers]
+        function getModifiers(element: ref[Core.Basic.TiObject]): ref[Core.Data.Containing];
+
+        @expname[Spp_AstMgr_findModifier]
+        function findModifier(modifiers: ref[Core.Data.Containing], kwd: ptr[array[Char]]): ref[Core.Basic.TiObject];
+
+        @expname[Spp_AstMgr_findModifierForElement]
+        function findModifierForElement(
+            element: ref[Core.Basic.TiObject], kwd: ptr[array[Char]]
+        ): ref[Core.Basic.TiObject];
+
+        @expname[Spp_AstMgr_getModifierKeyword]
+        function getModifierKeyword(modifier: ref[Core.Basic.TiObject]): Srl.String;
+
+        @expname[Spp_AstMgr_getModifierStringParams]
+        function getModifierStringParams(
+            modifier: ref[Core.Basic.TiObject], result: ref[Srl.Array[Srl.String]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_insertAst_plain]
         func insertAst(
-            element: ptr, interpolations: ref[Srl.Map[Srl.String, ptr]]
+            element: ref[Core.Basic.TiObject],
+            interpolations: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_insertAst_shared]
         func insertAst(
-            element: ptr, interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]]
+            element: ref[Core.Basic.TiObject],
+            interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]]
         ) => Word[1];
 
-        func insertAst(element: ptr) => Word[1] {
-            return this.insertAst(element, Srl.Map[Srl.String, ptr]());
+        func insertAst(element: ref[Core.Basic.TiObject]) => Word[1] {
+            return this.insertAst(element, Srl.Map[Srl.String, ref[Core.Basic.TiObject]]());
         }
 
         @expname[Spp_AstMgr_buildAst_plain]
         func buildAst(
-            element: ptr, interpolations: ref[Srl.Map[Srl.String, ptr]], ref[SrdRef[Core.Basic.TiObject]]
+            element: ref[Core.Basic.TiObject],
+            interpolations: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]],
+            result: ref[SrdRef[Core.Basic.TiObject]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_buildAst_shared]
         func buildAst(
-            element: ptr, interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]],
-            ref[SrdRef[Core.Basic.TiObject]]
+            element: ref[Core.Basic.TiObject],
+            interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]],
+            result: ref[SrdRef[Core.Basic.TiObject]]
         ) => Word[1];
     };
     def astMgr: ref[AstMgr];
 
     type BuildMgr {
         @expname[Spp_BuildMgr_dumpLlvmIrForElement]
-        function dumpLlvmIrForElement (element: ptr);
+        function dumpLlvmIrForElement (element: ref[Core.Basic.TiObject]);
 
         @expname[Spp_BuildMgr_buildObjectFileForElement]
-        function buildObjectFileForElement (element: ptr, filename: ptr[array[Word[8]]]) => Word[1];
+        function buildObjectFileForElement (
+            element: ref[Core.Basic.TiObject], filename: ptr[array[Word[8]]]
+        ) => Word[1];
     };
     def buildMgr: ref[BuildMgr];
 };

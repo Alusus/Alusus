@@ -5,9 +5,9 @@
 6
 24
 factorial of 6 using function pointer: 720
-ERROR SPPA1003 @ (20,10): No valid match was found for the given type.
-ERROR SPPG1024 @ (21,3): Trying to access a local variable before it's initialized.
-ERROR SPPG1024 @ (22,10): Trying to access a local variable before it's initialized.
+ERROR SPPA1003 @ (25,10): No valid match was found for the given type.
+ERROR SPPG1024 @ (26,3): Trying to access a local variable before it's initialized.
+ERROR SPPG1024 @ (27,10): Trying to access a local variable before it's initialized.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

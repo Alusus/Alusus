@@ -101,6 +101,14 @@ import "Memory";
             while count-- > 0 this.add(items~next_arg[T]);
         };
 
+        func set (index: Int, item: T) {
+            if index < 0 || index >= this.getLength() {
+                this.add(item);
+            } else {
+                this.buf(index)~no_deref = item;
+            };
+        }
+
         func insert (index: Int, item: T) {
             if index < 0 || index >= this.getLength() {
                 this.add(item);

@@ -207,22 +207,17 @@ Bool FunctionParsingHandler::processExpnameModifier(
   auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Text>();
   if (param == 0) return false;
 
-  // If we have generated a definition object, get it now.
   Int levelOffset = -state->getTopProdTermLevelCount();
-  Core::Data::Ast::Definition *definition = 0;
-  if (state->getData(levelOffset)->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    definition = state->getData(levelOffset).s_cast_get<Core::Data::Ast::Definition>();
-  }
+  TioSharedPtr data = state->getData(levelOffset);
+  if (data == 0) return false;
 
-  // Grab the data from the definition, if any, otherwise grab it from the state itself.
-  Spp::Ast::Function *function;
-  TioSharedPtr data;
-  if (definition != 0) {
+  // Grab the data from the definition, if any, otherwise use the data from the state level.
+  Core::Data::Ast::Definition *definition = 0;
+  if (data->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    definition = data.s_cast_get<Core::Data::Ast::Definition>();
     data = definition->getTarget();
-  } else {
-    data = state->getData(levelOffset);
   }
-  function = data.ti_cast_get<Spp::Ast::Function>();
+  Spp::Ast::Function *function = data.ti_cast_get<Spp::Ast::Function>();
 
   // Set the function name.
   if (function == 0) {

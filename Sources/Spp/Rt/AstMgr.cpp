@@ -20,7 +20,12 @@ namespace Spp::Rt
 void AstMgr::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
-    &this->getModifierStrings,
+    &this->findElements,
+    &this->getModifiers,
+    &this->findModifier,
+    &this->findModifierForElement,
+    &this->getModifierKeyword,
+    &this->getModifierStringParams,
     &this->insertAst_plain,
     &this->insertAst_shared,
     &this->buildAst_plain,
@@ -31,7 +36,12 @@ void AstMgr::initBindingCaches()
 
 void AstMgr::initBindings()
 {
-  this->getModifierStrings = &AstMgr::_getModifierStrings;
+  this->findElements = &AstMgr::_findElements;
+  this->getModifiers = &AstMgr::_getModifiers;
+  this->findModifier = &AstMgr::_findModifier;
+  this->findModifierForElement = &AstMgr::_findModifierForElement;
+  this->getModifierKeyword = &AstMgr::_getModifierKeyword;
+  this->getModifierStringParams = &AstMgr::_getModifierStringParams;
   this->insertAst_plain = &AstMgr::_insertAst_plain;
   this->insertAst_shared = &AstMgr::_insertAst_shared;
   this->buildAst_plain = &AstMgr::_buildAst_plain;
@@ -42,7 +52,12 @@ void AstMgr::initBindings()
 void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, AstMgr *astMgr)
 {
   globalItemRepo->addItem(S("!Spp.astMgr"), sizeof(void*), &astMgr);
-  globalItemRepo->addItem(S("Spp_AstMgr_getModifierStrings"), (void*)&AstMgr::_getModifierStrings);
+  globalItemRepo->addItem(S("Spp_AstMgr_findElements"), (void*)&AstMgr::_findElements);
+  globalItemRepo->addItem(S("Spp_AstMgr_getModifiers"), (void*)&AstMgr::_getModifiers);
+  globalItemRepo->addItem(S("Spp_AstMgr_findModifier"), (void*)&AstMgr::_findModifier);
+  globalItemRepo->addItem(S("Spp_AstMgr_findModifierForElement"), (void*)&AstMgr::_findModifierForElement);
+  globalItemRepo->addItem(S("Spp_AstMgr_getModifierKeyword"), (void*)&AstMgr::_getModifierKeyword);
+  globalItemRepo->addItem(S("Spp_AstMgr_getModifierStringParams"), (void*)&AstMgr::_getModifierStringParams);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_plain"), (void*)&AstMgr::_insertAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_shared"), (void*)&AstMgr::_insertAst_shared);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_plain"), (void*)&AstMgr::_buildAst_plain);
@@ -53,52 +68,101 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
 //==============================================================================
 // Operations
 
-Bool AstMgr::_getModifierStrings(
-  TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount
-) {
+Array<TiObject*> AstMgr::_findElements(TiObject *self, TiObject *ref, TiObject *target, Word flags)
+{
   PREPARE_SELF(astMgr, AstMgr);
+  if (target == 0) target = astMgr->rootManager->getRootScope().get();
+  Array<TiObject*> result;
+  if (ref->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    auto scope = static_cast<Core::Data::Ast::Scope*>(ref);
+    if (scope->getCount() != 1) {
+      throw EXCEPTION(InvalidArgumentException, S("ref"), S("Should not be a block of statements."));
+    }
+    ref = scope->getElement(0);
+  }
+  astMgr->rootManager->getSeeker()->foreach(ref, target,
+    [&result](TiObject *obj, Core::Notices::Notice *notice)->Core::Data::Seeker::Verb
+    {
+      if (obj != 0) result.add(obj);
+      return Core::Data::Seeker::Verb::MOVE;
+    },
+    flags
+  );
+  return result;
+}
 
+
+Containing<TiObject>* AstMgr::_getModifiers(TiObject *self, TiObject *element)
+{
+  Array<TiObject*> result;
   auto node = ti_cast<Core::Data::Node>(element);
   auto def = Core::Data::findOwner<Core::Data::Ast::Definition>(node);
   if (def == 0 || def->getModifiers() == 0 || def->getModifiers()->getCount() == 0) {
-    *resultCount = 0;
-    *resultStrs = 0;
-    return true;
+    return 0;
   }
-  // Look for the modifier.
-  for (Int i = 0; i < def->getModifiers()->getElementCount(); ++i) {
-    auto modifier = ti_cast<Core::Data::Ast::ParamPass>(def->getModifiers()->getElement(i));
+  return def->getModifiers().get();
+}
+
+
+TiObject* AstMgr::_findModifier(TiObject *self, Containing<TiObject> *modifiers, Char const *kwd)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  for (Int i = 0; i < modifiers->getElementCount(); ++i) {
+    auto modifier = modifiers->getElement(i);
     if (modifier == 0) continue;
-    auto identifier = modifier->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (identifier != 0 && identifier->getValue() == modifierKwd && modifier->getParam() != 0) {
-      // Found the requested modifier.
-      Core::Basic::PlainList<TiObject> strList;
-      auto strs = modifier->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();
-      if (strs == 0) {
-        strList.add(modifier->getParam().get());
-        strs = &strList;
-      }
-      *resultCount = strs->getElementCount();
-      *resultStrs = reinterpret_cast<Char const**>(malloc(sizeof(Char*) * (*resultCount)));
-      for (Int j = 0; j < *resultCount; ++j) {
-        auto str = ti_cast<Core::Data::Ast::StringLiteral>(strs->getElement(j));
-        if (str == 0) {
-          astMgr->noticeStore->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
-            Core::Data::Ast::findSourceLocation(strs->getElement(j))
-          ));
-          astMgr->parser->flushApprovedNotices();
-          free(*resultStrs);
-          *resultStrs = 0;
-          *resultCount = 0;
-          return false;
-        }
-        (*resultStrs)[j] = str->getValue().get();
-      }
-      return true;
-    }
+    if (astMgr->getModifierKeyword(modifier) == kwd) return modifier;
   }
-  *resultCount = 0;
-  *resultStrs = 0;
+  return 0;
+}
+
+
+TiObject* AstMgr::_findModifierForElement(TiObject *self, TiObject *element, Char const *kwd)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  auto modifiers = astMgr->getModifiers(element);
+  if (modifiers == 0) return 0;
+  return astMgr->findModifier(modifiers, kwd);
+}
+
+
+String AstMgr::_getModifierKeyword(TiObject *self, TiObject *modifier)
+{
+  Core::Data::Ast::Identifier *identifier = 0;
+  if (modifier->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+    identifier = static_cast<Core::Data::Ast::Identifier*>(modifier);
+  } else if (modifier->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
+    auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(modifier);
+    identifier = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  }
+  if (identifier != 0) return identifier->getValue().getStr();
+  else return String();
+}
+
+
+Bool AstMgr::_getModifierStringParams(TiObject *self, TiObject *modifier, Array<String> &result)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+
+  auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifier);
+  if (paramPass == 0) return true;
+
+  Core::Basic::PlainList<TiObject> strList;
+  auto strs = paramPass->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();
+  if (strs == 0) {
+    strList.add(paramPass->getParam().get());
+    strs = &strList;
+  }
+  for (Int i = 0; i < strs->getElementCount(); ++i) {
+    auto str = ti_cast<Core::Data::Ast::StringLiteral>(strs->getElement(i));
+    if (str == 0) {
+      astMgr->noticeStore->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
+        Core::Data::Ast::findSourceLocation(strs->getElement(i))
+      ));
+      astMgr->parser->flushApprovedNotices();
+      return false;
+    }
+    result.add(str->getValue().getStr());
+  }
   return true;
 }
 

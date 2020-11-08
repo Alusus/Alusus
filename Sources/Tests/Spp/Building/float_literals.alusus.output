@@ -1,4 +1,4 @@
-ERROR SPPG1003 @ (25,34): Invalid float bit count. Bit count should be either 32 or 64.
+ERROR SPPG1003 @ (18,34): Invalid float bit count. Bit count should be either 32 or 64.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

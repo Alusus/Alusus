@@ -1811,17 +1811,23 @@ Bool ExpressionGenerator::_generateAstRefOp(
   }
 
   // Generate pointer to void.
-  auto voidType = expGenerator->astHelper->getVoidType();
-  auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
-  TiObject *tgVoidPtrType;
-  if (!g->getGeneratedType(voidPtrType, session, tgVoidPtrType, 0)) {
+  auto tiObjType = expGenerator->astHelper->getTiObjectType();
+  if (tiObjType == 0) {
+    expGenerator->noticeStore->add(
+      newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(tiObjType, Ast::ReferenceMode::IMPLICIT);
+  TiObject *tgTiObjRefType;
+  if (!g->getGeneratedType(tiObjRefType, session, tgTiObjRefType, 0)) {
     return false;
   }
   // Generate a pointer literal.
-  if (!session->getTg()->generatePointerLiteral(session->getTgContext(), tgVoidPtrType, targetAstNode, result.targetData)) {
-    return false;
-  }
-  result.astType = voidPtrType;
+  if (!session->getTg()->generatePointerLiteral(
+    session->getTgContext(), tgTiObjRefType, targetAstNode, result.targetData
+  )) return false;
+  result.astType = tiObjRefType;
   return true;
 }
 
@@ -1837,21 +1843,27 @@ Bool ExpressionGenerator::_generateAstLiteralCommand(
   }
 
   // Generate pointer to void.
-  auto voidType = expGenerator->astHelper->getVoidType();
-  auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
-  TiObject *tgVoidPtrType;
-  if (!g->getGeneratedType(voidPtrType, session, tgVoidPtrType, 0)) {
+  auto tiObjType = expGenerator->astHelper->getTiObjectType();
+  if (tiObjType == 0) {
+    expGenerator->noticeStore->add(
+      newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(tiObjType, Ast::ReferenceMode::IMPLICIT);
+  TiObject *tgTiObjRefType;
+  if (!g->getGeneratedType(tiObjRefType, session, tgTiObjRefType, 0)) {
     return false;
   }
   // Capture the body in the repo so that it doesn't get freed while still needed by the generated code.
   expGenerator->astLiteralRepo->add(body);
   // Generate a pointer literal.
   if (!session->getTg()->generatePointerLiteral(
-    session->getTgContext(), tgVoidPtrType, body.get(), result.targetData
+    session->getTgContext(), tgTiObjRefType, body.get(), result.targetData
   )) {
     return false;
   }
-  result.astType = voidPtrType;
+  result.astType = tiObjRefType;
   return true;
 }
 

@@ -21,10 +21,10 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
         def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
         if !Spp.astMgr.buildAst(
             ast { String("{{name}}") + String(" {{op}} '") + val  + String("'") },
-            Map[String, ptr]()
-                .set(String("name"), mapContaining.getElement("first")~ptr)
-                .set(String("op"), binding.getMember("type")~ptr)
-                .set(String("val"), mapContaining.getElement("second")~ptr),
+            Map[String, ref[TiObject]]()
+                .set(String("name"), mapContaining.getElement("first"))
+                .set(String("op"), binding.getMember("type"))
+                .set(String("val"), mapContaining.getElement("second")),
             result
         ) {
             System.fail(1, "generateWhere/ComparisonOperator: error\n");
@@ -34,10 +34,10 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
         def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
         if !Spp.astMgr.buildAst(
             ast { (cond1) + String(" {{op}} ") + (cond2) },
-            Map[String, ptr]()
-                .set(String("cond1"), generateWhere(mapContaining.getElement("first")).obj~ptr)
-                .set(String("op"), binding.getMember("type")~ptr)
-                .set(String("cond2"), generateWhere(mapContaining.getElement("second")).obj~ptr),
+            Map[String, ref[TiObject]]()
+                .set(String("cond1"), generateWhere(mapContaining.getElement("first")).obj)
+                .set(String("op"), binding.getMember("type"))
+                .set(String("cond2"), generateWhere(mapContaining.getElement("second")).obj),
             result
         ) {
             System.fail(1, "generateWhere/LogOperator: error\n");
@@ -46,16 +46,16 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
         def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
         if !Spp.astMgr.buildAst(
             ast { String("(") + (cond) + String(")") },
-            Map[String, ptr]()
-                .set(String("cond"), generateWhere(mapContaining.getElement("operand")).obj~ptr),
+            Map[String, ref[TiObject]]()
+                .set(String("cond"), generateWhere(mapContaining.getElement("operand")).obj),
             result
         ) {
             System.fail(1, "generateWhere/Bracket: error\n");
         }
     } else {
         if !Spp.astMgr.buildAst(
-            obj~ptr,
-            Map[String, ptr](),
+            obj,
+            Map[String, ref[TiObject]](),
             result
         ) {
             System.fail(1, "Failed to build condition.\n");
@@ -67,7 +67,7 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
 macro where [condition] {
     eval {
         if !Spp.astMgr.insertAst(
-            generateWhere((ast condition)~cast[ptr[TiObject]]~cnt).obj~ptr
+            generateWhere(ast condition).obj
         ) {
             System.fail(1, "Failed to insert condition.\n");
         }

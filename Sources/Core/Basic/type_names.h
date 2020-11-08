@@ -94,6 +94,7 @@ DEFINE_TYPE_NAME(Srl::Float, "alusus.org/Srl/Srl.Float");
 DEFINE_TYPE_NAME(Srl::Double, "alusus.org/Srl/Srl.Double");
 DEFINE_TYPE_NAME(Srl::Char, "alusus.org/Srl/Srl.Char");
 DEFINE_TYPE_NAME(Srl::StrStream, "alusus.org/Srl/Srl.StrStream");
+DEFINE_TYPE_NAME(Srl::String, "alusus.org/Srl/Srl.String");
 DEFINE_TYPE_NAME(Core::Basic::Str, "alusus.org/Core/Core.Basic.Str");
 
 DEFINE_TEMPLATE_TYPE_NAME(Srl::Array, "alusus.org/Srl/Srl.Array");

@@ -3,19 +3,32 @@
 عرف نـبم: لقب Spp؛
 @دمج عرف Spp: وحدة
 {
-  عرف مدير_شبم: لقب astMgr؛
-  عرف مـدير_شبم: لقب AstMgr؛
-  @دمج صنف AstMgr {
-    عرف هات_محارف_مبدل: لقب getModifierStrings؛
-    عرف احشر_شبم: لقب insertAst؛
-    عرف أنشئ_شبم: لقب buildAst؛
-  }
+    عرف خـيارات_الساعي: {
+        عرف _تخطى_المالكين_: لقب SeekerFlags.SKIP_OWNERS؛
+        عرف _تخطى_المالك_: لقب SeekerFlags.SKIP_OWNER؛
+        عرف _تخطى_الاستخدامات_: لقب SeekerFlags.SKIP_USES؛
+        عرف _تخطى_الأبناء_: لقب SeekerFlags.SKIP_CHILDREN؛
+    }
 
-  عرف مدير_البناء: لقب buildMgr؛
-  عرف مـدير_البناء: لقب BuildMgr؛
-  @دمج صنف BuildMgr {
-    عرف أدرج_تو_لعنصر: لقب dumpLlvmIrForElement؛
-    عرف أنشء_ملفا_رقميا_لعنصر: لقب buildObjectFileForElement؛
-  }
+    @دمج 
+    عرف مدير_شبم: لقب astMgr؛
+    عرف مـدير_شبم: لقب AstMgr؛
+    @دمج صنف AstMgr {
+        عرف جد_عناصر: لقب findElements؛
+        عرف هات_المبدلات: لقب getModifiers؛
+        عرف جد_مبدلا: لقب findModifier؛
+        عرف جد_مبدلا_لعنصر: لقب findModifierForElement؛
+        عرف هات_كلمة_المبدل_المفتاحية: لقب getModifierKeyword؛
+        عرف هات_المعطيات_النصية_لمبدل: لقب getModifierStringParams؛
+        عرف احشر_شبم: لقب insertAst؛
+        عرف أنشئ_شبم: لقب buildAst؛
+    }
+
+    عرف مدير_البناء: لقب buildMgr؛
+    عرف مـدير_البناء: لقب BuildMgr؛
+    @دمج صنف BuildMgr {
+        عرف أدرج_تو_لعنصر: لقب dumpLlvmIrForElement؛
+        عرف أنشء_ملفا_رقميا_لعنصر: لقب buildObjectFileForElement؛
+    }
 }
 

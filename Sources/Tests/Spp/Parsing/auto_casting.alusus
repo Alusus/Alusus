@@ -1,4 +1,5 @@
 import "alusus_spp";
+module Core { module Basic { type TiObject {} } }
 module Spp {
     type BuildMgr {
         @expname[Spp_BuildMgr_dumpLlvmIrForElement]
@@ -24,4 +25,4 @@ func test {
   takeA(b~ptr~cast[ptr[A]]~cnt);
 }
 
-Spp.buildMgr.dumpLlvmIrForElement(test~ast);
+Spp.buildMgr.dumpLlvmIrForElement(test~ast~ptr);

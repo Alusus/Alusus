@@ -1,0 +1,13 @@
+import "alusus_spp";
+module Core {
+    module Basic {
+        type TiObject {}
+    }
+}
+module Spp {
+    type BuildMgr {
+        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
+        function dumpLlvmIrForElement (element: ref[Core.Basic.TiObject]);
+    };
+    def buildMgr: ref[BuildMgr];
+}

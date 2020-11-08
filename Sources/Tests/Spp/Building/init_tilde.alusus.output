@@ -1,5 +1,5 @@
-ERROR SPPG1031 @ (34,3): Variable initialization failed. Custom init op matching the given data is needed for this type.
-ERROR SPPG1025 @ (36,3): Invalid operand for ~init operator.
+ERROR SPPG1031 @ (27,3): Variable initialization failed. Custom init op matching the given data is needed for this type.
+ERROR SPPG1025 @ (29,3): Invalid operand for ~init operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

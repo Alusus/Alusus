@@ -46,6 +46,7 @@ void Helper::initBindingCaches()
     &this->getWordType,
     &this->getFloatType,
     &this->getVoidType,
+    &this->getTiObjectType,
     &this->resolveNodePath,
     &this->getFunctionName,
     &this->getNeededIntSize,
@@ -84,6 +85,7 @@ void Helper::initBindings()
   this->getWordType = &Helper::_getWordType;
   this->getFloatType = &Helper::_getFloatType;
   this->getVoidType = &Helper::_getVoidType;
+  this->getTiObjectType = &Helper::_getTiObjectType;
   this->resolveNodePath = &Helper::_resolveNodePath;
   this->getFunctionName = &Helper::_getFunctionName;
   this->getNeededIntSize = &Helper::_getNeededIntSize;
@@ -989,6 +991,21 @@ VoidType* Helper::_getVoidType(TiObject *self)
     }
   }
   return helper->voidType;
+}
+
+
+UserType* Helper::_getTiObjectType(TiObject *self)
+{
+  PREPARE_SELF(helper, Helper);
+  if (helper->tiObjectType == 0) {
+    auto typeRef = helper->rootManager->parseExpression(S("Core.Basic.TiObject")).s_cast<Core::Data::Node>();
+    typeRef->setOwner(helper->rootManager->getRootScope().get());
+
+    helper->tiObjectType = ti_cast<UserType>(helper->getSeeker()->tryGet(
+      typeRef.get(), helper->rootManager->getRootScope().get()
+    ));
+  }
+  return helper->tiObjectType;
 }
 
 

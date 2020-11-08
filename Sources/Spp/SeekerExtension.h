@@ -38,9 +38,16 @@ class SeekerExtension : public ObjTiInterface
     TiFunctionBase *foreachByParamPass_routingRef;
     TiFunctionBase *foreachByParamPass_templateRef;
     TiFunctionBase *foreachByThisTypeRefRef;
+    TiFunctionBase *foreachByComparisonRef;
+    TiFunctionBase *foreachByComparison_levelRef;
+    TiFunctionBase *foreachByComparison_scopeRef;
+    TiFunctionBase *foreachByComparison_computeRef;
   };
 
-  public: s_enum(Flags, SKIP_USES = (1<<16), SKIP_OWNERS_AND_USES = (1<<16) | 1);
+  public: s_enum(Flags,
+    SKIP_OWNERS_AND_USES = (Core::Data::Seeker::Flags::SKIP_OWNERS | Core::Data::Seeker::Flags::SKIP_USES),
+    SKIP_CHILDREN = (1 << 16)
+  );
 
 
   //============================================================================
@@ -61,7 +68,11 @@ class SeekerExtension : public ObjTiInterface
       &this->foreachByParamPass,
       &this->foreachByParamPass_routing,
       &this->foreachByParamPass_template,
-      &this->foreachByThisTypeRef
+      &this->foreachByThisTypeRef,
+      &this->foreachByComparison,
+      &this->foreachByComparison_level,
+      &this->foreachByComparison_scope,
+      &this->foreachByComparison_compute
     });
   }
 
@@ -168,6 +179,35 @@ class SeekerExtension : public ObjTiInterface
   private: static Core::Data::Seeker::Verb _foreachByThisTypeRef(
     TiObject *self, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
+
+  public: METHOD_BINDING_CACHE(foreachByComparison,
+    Core::Data::Seeker::Verb, (TiObject const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+  );
+  private: static Core::Data::Seeker::Verb _foreachByComparison(
+    TiObject *self, TiObject const *comparison, TiObject *data,
+    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreachByComparison_level,
+    Core::Data::Seeker::Verb, (TiObject const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+  );
+  private: static Core::Data::Seeker::Verb _foreachByComparison_level(
+    TiObject *self, TiObject const *comparison, TiObject *data,
+    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreachByComparison_scope,
+    Core::Data::Seeker::Verb, (
+      TiObject const*, Core::Data::Ast::Scope*, Core::Data::Seeker::ForeachCallback const&, Word
+    )
+  );
+  private: static Core::Data::Seeker::Verb _foreachByComparison_scope(
+    TiObject *self, TiObject const *comparison, Core::Data::Ast::Scope *scope,
+    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreachByComparison_compute, Bool, (TiObject const*, TiObject*));
+  private: static Bool _foreachByComparison_compute(TiObject *self, TiObject const *comparison, TiObject *target);
 
   /// @}
 

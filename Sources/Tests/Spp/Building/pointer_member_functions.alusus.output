@@ -110,8 +110,8 @@ define void @"N2.printItImpl(ref[N2])"(%N2* %this) {
 declare i32 @printf(i8*, ...)
 ------------------------------------------------------------
 
-ERROR SPPA1008 @ (91,7): Provided arguments do not match signature.
-ERROR SPPA1008 @ (92,7): Provided arguments do not match signature.
+ERROR SPPA1008 @ (84,7): Provided arguments do not match signature.
+ERROR SPPA1008 @ (85,7): Provided arguments do not match signature.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
