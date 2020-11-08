@@ -1,6 +1,7 @@
 import "Srl/Console";
 import "Srl/Map";
 import "Srl/String";
+import "Core/Data";
 import "Spp";
 use Srl;
 
@@ -54,15 +55,24 @@ Srl.Console.print("\n");
 
 func testAstInsertion {
     eval {
-        def m: Map[String, ptr];
+        def m: Map[String, ref[Core.Basic.TiObject]];
         m.set(String("name"), ast x);
         Spp.astMgr.insertAst(ast { def name: Int }, m);
-        Spp.astMgr.insertAst(ast { Console.print("testAstInsertion\n") }, Map[String, ptr]());
+        Spp.astMgr.insertAst(ast { Console.print("testAstInsertion\n") }, Map[String, ref[Core.Basic.TiObject]]());
+
+        Spp.astMgr.insertAst(
+            ast { def name: Int(someval) },
+            Map[String, ref[Core.Basic.TiObject]]()
+                .set(String("name"), Core.Data.Ast.Identifier("y"))
+                .set(String("someval"), Core.Data.Ast.IntegerLiteral("6"))
+        );
     }
     x = 7;
     Console.print("x = %d\n", x);
-    x = eval { Spp.astMgr.insertAst(ast { 12 }, Map[String, ptr]()) };
+    x = eval { Spp.astMgr.insertAst(ast { 12 }, Map[String, ref[Core.Basic.TiObject]]()) };
     Console.print("x = %d\n", x);
+
+    Console.print("y = %d\n", y);
 }
 testAstInsertion();
 

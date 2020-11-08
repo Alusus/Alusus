@@ -97,17 +97,19 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
       if (replaced) --i;
     } else if (child->isDerivedFrom<Ast::Function>()) {
       if (
-        astProcessor->astHelper->getDefinitionDomain(child) == Ast::DefinitionDomain::OBJECT &&
-        !isAstProcessed(static_cast<Ast::Function*>(child))
+        astProcessor->astHelper->getFunctionDomain(child) == Ast::DefinitionDomain::OBJECT
       ) {
-        if (!astProcessor->processMemberFunctionSig(static_cast<Ast::Function*>(child))) result = false;
+        if (!astProcessor->processMemberFunctionSig(static_cast<Ast::Function*>(child)->getType().get())) {
+          result = false;
+        }
       }
+    } else if (child->isDerivedFrom<Ast::Macro>()) {
+      continue;
     } else if (child->isDerivedFrom<Ast::Type>()) {
-      // if (!astProcessor->processTypeMethodSigs(static_cast<Ast::UserType*>(child))) result = false;
       continue;
     } else if (child->isDerivedFrom<Ast::EvalStatement>()) {
-      if (!astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) result = false;
-      --i;
+      if (astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) --i;
+      else result = false;
     } else {
       if (!astProcessor->process(child)) result = false;
     }
@@ -140,8 +142,9 @@ Bool AstProcessor::_processParamPass(
 
     // Find matching macro.
     Ast::Macro *macro = 0;
+    Ast::PointerType *pointerType = 0;
     astProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), paramPass->getOwner(),
-      [=, &macro] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+      [=, &macro, &pointerType] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
           return Core::Data::Seeker::Verb::MOVE;
@@ -151,6 +154,10 @@ Bool AstProcessor::_processParamPass(
         if (m != 0 && m->matchCall(args, astProcessor->astHelper)) {
           macro = m;
           return Core::Data::Seeker::Verb::STOP;
+        } else if (obj->isDerivedFrom<Ast::Template>()) {
+          pointerType = static_cast<Ast::Template*>(obj)->getBody().ti_cast_get<Ast::PointerType>();
+          if (pointerType != 0) return Core::Data::Seeker::Verb::STOP;
+          else return Core::Data::Seeker::Verb::MOVE;
         } else {
           return Core::Data::Seeker::Verb::MOVE;
         }
@@ -166,6 +173,17 @@ Bool AstProcessor::_processParamPass(
       astProcessor->noticeStore->popPrefixSourceLocation(
         Core::Data::getSourceLocationRecordCount(sl.get())
       );
+    } else if (pointerType != 0) {
+      // Is this a function pointer?
+      if (param->isDerivedFrom<Ast::FunctionType>()) {
+        if (
+          astProcessor->astHelper->getFunctionDomain(param) == Ast::DefinitionDomain::OBJECT
+        ) {
+          if (!astProcessor->processMemberFunctionSig(static_cast<Ast::FunctionType*>(param))) {
+            result = false;
+          }
+        }
+      }
     }
     return result;
   } else{
@@ -201,22 +219,22 @@ Bool AstProcessor::_processEvalStatement(
   astProcessor->currentEvalInsertionPosition = indexInOwner;
   astProcessor->currentEvalSourceLocation = eval->findSourceLocation();
 
-  // Remove the eval statement.
-  DynamicContaining<TiObject> *dynContainer;
-  DynamicMapContaining<TiObject> *dynMapContainer;
-  Containing<TiObject> *container;
-  if ((dynContainer = ti_cast<DynamicContaining<TiObject>>(owner)) != 0) {
-    dynContainer->removeElement(indexInOwner);
-  } else if ((dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(owner)) != 0) {
-    dynMapContainer->removeElement(indexInOwner);
-  } else if ((container = ti_cast<Containing<TiObject>>(owner)) != 0) {
-    container->setElement(indexInOwner, 0);
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
-  }
-
   // Execute the eval statement.
   if (result) {
+    // Remove the eval statement.
+    DynamicContaining<TiObject> *dynContainer;
+    DynamicMapContaining<TiObject> *dynMapContainer;
+    Containing<TiObject> *container;
+    if ((dynContainer = ti_cast<DynamicContaining<TiObject>>(owner)) != 0) {
+      dynContainer->removeElement(indexInOwner);
+    } else if ((dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(owner)) != 0) {
+      dynMapContainer->removeElement(indexInOwner);
+    } else if ((container = ti_cast<Containing<TiObject>>(owner)) != 0) {
+      container->setElement(indexInOwner, 0);
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
+    }
+
     astProcessor->executing->execute(astProcessor->getNoticeStore(), buildSession.get());
   }
 
@@ -224,34 +242,27 @@ Bool AstProcessor::_processEvalStatement(
 }
 
 
-Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::Function *func)
+Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::FunctionType *funcType)
 {
   PREPARE_SELF(astProcessor, AstProcessor);
-  auto def = ti_cast<Core::Data::Ast::Definition>(func->getOwner());
-  if (def == 0) {
-    throw EXCEPTION(GenericException, S("Could not find definition of a member function."));
-  }
-  auto funcType = func->getType().get();
-  if (funcType == 0) {
-    throw EXCEPTION(GenericException, S("Function is missing a function type."));
-  }
+  if (isAstProcessed(funcType)) return true;
   if (funcType->getArgTypes() == 0) {
     funcType->setArgTypes(Core::Data::Ast::Map::create());
   }
   // Make sure we don't have an arg named `this`.
   if (funcType->getArgTypes()->findIndex(S("this")) != -1) {
     astProcessor->noticeStore->add(
-      newSrdObj<Spp::Notices::ThisRedefinedNotice>(func->findSourceLocation())
+      newSrdObj<Spp::Notices::ThisRedefinedNotice>(funcType->findSourceLocation())
     );
     return false;
   }
   // Prepare this type.
   auto thisType = Core::Data::Ast::ParamPass::create({
-    {S("sourceLocation"), func->findSourceLocation()},
+    {S("sourceLocation"), funcType->findSourceLocation()},
     {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
   }, {
     {S("operand"), Core::Data::Ast::Identifier::create({
-      {S("sourceLocation"), func->findSourceLocation()},
+      {S("sourceLocation"), funcType->findSourceLocation()},
       {S("value"), TiStr(S("iref"))}
     })},
     {S("param"), Spp::Ast::ThisTypeRef::create()}
@@ -259,7 +270,7 @@ Bool AstProcessor::_processMemberFunctionSig(TiObject *self, Spp::Ast::Function 
   // Add this arg.
   funcType->getArgTypes()->insert(0, S("this"), thisType);
   // Mark the function as processed.
-  setAstProcessed(func, true);
+  setAstProcessed(funcType, true);
   return true;
 }
 
@@ -315,13 +326,24 @@ Bool AstProcessor::_processMacro(
   }
 
   // Replace macro reference with the clone.
-  if (owner->isDerivedFrom<Core::Data::Ast::Scope>() && macroInstance->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    // Merge the two scopes.
-    auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
-    auto instanceScope = macroInstance.s_cast_get<Core::Data::Ast::Scope>();
-    ownerScope->remove(indexInOwner);
-    for (Int i = 0; i < instanceScope->getCount(); ++i) {
-      ownerScope->insert(indexInOwner + i, instanceScope->get(i));
+  if (owner->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    if (macroInstance->isDerivedFrom<Core::Data::Ast::Scope>()) {
+      // Merge the two scopes.
+      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
+      auto instanceScope = macroInstance.s_cast_get<Core::Data::Ast::Scope>();
+      ownerScope->remove(indexInOwner);
+      Int index = indexInOwner;
+      Core::Data::Ast::addPossiblyMergeableElements(
+        instanceScope, ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
+    } else {
+      // Merge the element into the owner scope.
+      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
+      ownerScope->remove(indexInOwner);
+      Int index = indexInOwner;
+      Core::Data::Ast::addPossiblyMergeableElement(
+        macroInstance.get(), ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
     }
   } else {
     // Replace the instance.
@@ -366,15 +388,17 @@ Bool AstProcessor::_insertInterpolatedAst(
       // Merge the two scopes.
       auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentEvalOwner);
       auto insertedScope = result.s_cast_get<Core::Data::Ast::Scope>();
-      for (Int i = 0; i < insertedScope->getCount(); ++i) {
-        ownerScope->insert(astProcessor->currentEvalInsertionPosition, insertedScope->get(i));
-        ++astProcessor->currentEvalInsertionPosition;
-      }
+      Core::Data::Ast::addPossiblyMergeableElements(
+        insertedScope, ownerScope, astProcessor->currentEvalInsertionPosition,
+        astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
     } else {
       // Add a single element to the scope
       auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentEvalOwner);
-      ownerScope->insert(astProcessor->currentEvalInsertionPosition, result);
-      ++astProcessor->currentEvalInsertionPosition;
+      Core::Data::Ast::addPossiblyMergeableElement(
+        result.get(), ownerScope, astProcessor->currentEvalInsertionPosition,
+        astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
     }
   } else {
     auto ownerContainer = ti_cast<Containing<TiObject>>(astProcessor->currentEvalOwner);
@@ -432,29 +456,33 @@ Bool AstProcessor::_interpolateAst_identifier(
     auto arg = args->getElement(index);
     if (prefixSize != 0 || suffix != 0) {
       // We have an identifier string template, so we need the matching arg to be an identifier as well.
+      Char const *text;
       if (arg->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-        Char newVar[1000];
-        astProcessor->generateStringFromTemplate(
-          obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Identifier*>(arg)->getValue().get(), suffix,
-          newVar, 1000
-        );
-        result = Core::Data::Ast::Identifier::create({
-          { S("value"), TiStr(newVar) },
-          { S("sourceLocation"), obj->getSourceLocation() }
-        });
-        Core::Data::Ast::addSourceLocation(result.get(), sl);
+        text = static_cast<Core::Data::Ast::Text*>(arg)->getValue().get();
+      } else if (arg->isDerivedFrom<TiStr>()) {
+        text = static_cast<TiStr*>(arg)->get();
       } else {
+        auto elementSl = Core::Data::Ast::findSourceLocation(arg);
         astProcessor->noticeStore->add(
-          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
         );
         return false;
       }
+      Char newVar[1000];
+      astProcessor->generateStringFromTemplate(
+        obj->getValue().get(), prefixSize, text, suffix, newVar, 1000
+      );
+      result = Core::Data::Ast::Identifier::create({
+        { S("value"), TiStr(newVar) },
+        { S("sourceLocation"), obj->getSourceLocation() }
+      });
+      Core::Data::Ast::addSourceLocation(result.get(), sl);
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
-      result = Core::Data::Ast::clone(getSharedPtr(args->getElement(index)), sl);
+      result = Core::Data::Ast::clone(args->getElement(index), sl);
     }
   } else {
-    result = Core::Data::Ast::clone(getSharedPtr(obj), sl);
+    result = Core::Data::Ast::clone(obj, sl);
   }
   return true;
 }
@@ -474,29 +502,33 @@ Bool AstProcessor::_interpolateAst_stringLiteral(
     auto arg = args->getElement(index);
     if (prefixSize != 0 || suffix != 0) {
       // We have an identifier string template, so we need the matching arg to be an identifier as well.
+      Char const *text;
       if (arg->isDerivedFrom<Core::Data::Ast::Identifier>() || arg->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
-        Char newVar[1000];
-        astProcessor->generateStringFromTemplate(
-          obj->getValue().get(), prefixSize, static_cast<Core::Data::Ast::Text*>(arg)->getValue().get(), suffix,
-          newVar, 1000
-        );
-        result = Core::Data::Ast::StringLiteral::create({
-          { S("value"), TiStr(newVar) },
-          { S("sourceLocation"), obj->getSourceLocation() }
-        });
-        Core::Data::Ast::addSourceLocation(result.get(), sl);
+        text = static_cast<Core::Data::Ast::Text*>(arg)->getValue().get();
+      } else if (arg->isDerivedFrom<TiStr>()) {
+        text = static_cast<TiStr*>(arg)->get();
       } else {
+        auto elementSl = Core::Data::Ast::findSourceLocation(arg);
         astProcessor->noticeStore->add(
-          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
+          newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
         );
         return false;
       }
+      Char newVar[1000];
+      astProcessor->generateStringFromTemplate(
+        obj->getValue().get(), prefixSize, text, suffix, newVar, 1000
+      );
+      result = Core::Data::Ast::StringLiteral::create({
+        { S("value"), TiStr(newVar) },
+        { S("sourceLocation"), obj->getSourceLocation() }
+      });
+      Core::Data::Ast::addSourceLocation(result.get(), sl);
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
-      result = Core::Data::Ast::clone(getSharedPtr(args->getElement(index)), sl);
+      result = Core::Data::Ast::clone(args->getElement(index), sl);
     }
   } else {
-    result = Core::Data::Ast::clone(getSharedPtr(obj), sl);
+    result = Core::Data::Ast::clone(obj, sl);
   }
   return true;
 }
@@ -598,12 +630,14 @@ Bool AstProcessor::_interpolateAst_binding(
       astProcessor->parseStringTemplate(obj->refMember<TiStr>(i).get(), var, 1000, prefixSize, suffix);
       Int index = argNames->findPos(Str(true, var));
       if (index != -1) {
-        auto text = ti_cast<Core::Data::Ast::Text>(args->getElement(index));
-        if (text == 0 || (
-          !text->isDerivedFrom<Core::Data::Ast::Identifier>() &&
-          !text->isDerivedFrom<Core::Data::Ast::StringLiteral>()
-        )) {
-          auto elementSl = Core::Data::Ast::findSourceLocation(args->getElement(index));
+        auto arg = args->getElement(index);
+        Char const *text;
+        if (arg->isDerivedFrom<Core::Data::Ast::Identifier>() || arg->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+          text = static_cast<Core::Data::Ast::Text*>(arg)->getValue().get();
+        } else if (arg->isDerivedFrom<TiStr>()) {
+          text = static_cast<TiStr*>(arg)->get();
+        } else {
+          auto elementSl = Core::Data::Ast::findSourceLocation(arg);
           astProcessor->noticeStore->add(
             newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
           );
@@ -611,7 +645,7 @@ Bool AstProcessor::_interpolateAst_binding(
         }
         Char newVar[1000];
         astProcessor->generateStringFromTemplate(
-          obj->refMember<TiStr>(i).get(), prefixSize, text->getValue().get(), suffix, newVar, 1000
+          obj->refMember<TiStr>(i).get(), prefixSize, text, suffix, newVar, 1000
         );
         destObj->refMember<TiStr>(i) = newVar;
       } else {

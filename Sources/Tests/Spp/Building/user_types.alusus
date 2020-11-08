@@ -1,11 +1,4 @@
-import "alusus_spp";
-module Spp {
-    type BuildMgr {
-        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
-        function dumpLlvmIrForElement (element: ptr);
-    };
-    def buildMgr: ref[BuildMgr];
-}
+import "defs-ignore.alusus";
 
 def Main: module
 {
@@ -109,6 +102,9 @@ def Main: module
     pn = d~ptr;
     pd = p~ptr;
     pd = n~ptr;
+
+    getPoint.p.x = 10;
+    Main.getPoint.x = 10;
   }
 };
 

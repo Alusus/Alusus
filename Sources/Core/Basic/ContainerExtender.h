@@ -130,7 +130,7 @@ template<class CTYPE, int PRECOUNT=0, int POSTCOUNT=0>
     }
   }
 
-  public: virtual TypeInfo* getElementsNeededType() const
+  public: virtual TypeInfo const* getElementsNeededType() const
   {
     return CTYPE::getTypeInfo();
   }

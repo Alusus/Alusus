@@ -1,15 +1,15 @@
-ERROR SPPG1008 @ (65,5): Invalid symbol.
-ERROR SPPG1008 @ (66,5): Invalid symbol.
-ERROR SPPA1007 @ (67,11): Unknown symbol.
-ERROR SPPG1008 @ (68,10): Invalid symbol.
-ERROR SPPG1008 @ (69,10): Invalid symbol.
-ERROR SPPA1007 @ (70,16): Unknown symbol.
-ERROR SPPA1012 @ (72,17): Given identifier does not refer to a type.
-ERROR SPPA1003 @ (73,18): No valid match was found for the given type.
-ERROR SPPA1007 @ (108,11): Unknown symbol.
-ERROR SPPA1007 @ (109,25): Unknown symbol.
-ERROR SPPA1007 @ (112,18): Unknown symbol.
-ERROR SPPA1007 @ (113,32): Unknown symbol.
+ERROR SPPG1008 @ (58,5): Invalid symbol.
+ERROR SPPG1008 @ (59,5): Invalid symbol.
+ERROR SPPA1007 @ (60,11): Unknown symbol.
+ERROR SPPG1008 @ (61,10): Invalid symbol.
+ERROR SPPG1008 @ (62,10): Invalid symbol.
+ERROR SPPA1007 @ (63,16): Unknown symbol.
+ERROR SPPA1012 @ (65,17): Given identifier does not refer to a type.
+ERROR SPPA1003 @ (66,18): No valid match was found for the given type.
+ERROR SPPA1007 @ (101,11): Unknown symbol.
+ERROR SPPA1007 @ (102,25): Unknown symbol.
+ERROR SPPA1007 @ (105,18): Unknown symbol.
+ERROR SPPA1007 @ (106,32): Unknown symbol.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -17,7 +17,6 @@ source_filename = "AlususProgram"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
-%Main_MyType = type {}
 
 @"!Main.gi" = global i32 0
 @"!Main.gpi" = global i32* null
@@ -195,12 +194,5 @@ define void @"Main.testOtherModules()=>(Void)"() {
   %3 = load i32, i32* @"!Other.Nested.gni"
   %4 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous8", i32 0, i32 0), i32 %3)
   ret void
-}
-
-define %Main_MyType @"Main.MyType.init()=>(Main.MyType)"() {
-"#block10":
-  %"#temp0" = alloca %Main_MyType
-  %0 = load %Main_MyType, %Main_MyType* %"#temp0"
-  ret %Main_MyType %0
 }
 ------------------------------------------------------------

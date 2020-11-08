@@ -1,7 +1,7 @@
-ERROR SPPA1008 @ (37,19): Provided arguments do not match signature.
-ERROR SPPA1008 @ (38,19): Provided arguments do not match signature.
-ERROR SPPA1008 @ (39,21): Provided arguments do not match signature.
-ERROR SPPA1008 @ (40,19): Provided arguments do not match signature.
+ERROR SPPA1008 @ (30,19): Provided arguments do not match signature.
+ERROR SPPA1008 @ (31,19): Provided arguments do not match signature.
+ERROR SPPA1008 @ (32,21): Provided arguments do not match signature.
+ERROR SPPA1008 @ (33,19): Provided arguments do not match signature.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

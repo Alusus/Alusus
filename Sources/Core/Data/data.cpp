@@ -38,7 +38,7 @@ void clearCaches(TiObject *obj)
 }
 
 
-Node* findOwner(Node *obj, TypeInfo *typeInfo)
+Node* findOwner(Node *obj, TypeInfo const *typeInfo)
 {
   while (obj != 0) {
     if (obj->isDerivedFrom(typeInfo)) break;

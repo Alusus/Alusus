@@ -45,6 +45,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: IntegerType *int64Type = 0;
   private: IntegerType *word64Type = 0;
   private: VoidType *voidType = 0;
+  private: UserType *tiObjectType = 0;
   private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> wordTypeRef;
   private: SharedPtr<Core::Data::Ast::ParamPass> floatTypeRef;
@@ -248,6 +249,9 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getVoidType, VoidType*);
   private: static VoidType* _getVoidType(TiObject *self);
 
+  public: METHOD_BINDING_CACHE(getTiObjectType, UserType*);
+  private: static UserType* _getTiObjectType(TiObject *self);
+
   public: template<class T> Bool isTypeOrRefTypeOf(TiObject *type)
   {
     if (!type->isDerivedFrom<Type>()) {
@@ -291,10 +295,21 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getNeededWordSize, Word, (LongWord));
   private: static Word _getNeededWordSize(TiObject *self, LongWord value);
 
-  public: METHOD_BINDING_CACHE(getDefinitionDomain, DefinitionDomain, (TiObject const*));
-  private: static DefinitionDomain _getDefinitionDomain(TiObject *self, TiObject const *def);
+  public: METHOD_BINDING_CACHE(getVariableDomain, DefinitionDomain, (TiObject const*));
+  private: static DefinitionDomain _getVariableDomain(TiObject *self, TiObject const *def);
 
-  public: Bool isSharedDef(Core::Data::Ast::Definition const *def);
+  public: METHOD_BINDING_CACHE(getFunctionDomain, DefinitionDomain, (TiObject const*));
+  private: static DefinitionDomain _getFunctionDomain(TiObject *self, TiObject const *def);
+
+  public: Bool doesModifierExistOnDef(Core::Data::Ast::Definition const *def, Char const *name);
+  public: Bool isSharedDef(Core::Data::Ast::Definition const *def)
+  {
+    return this->doesModifierExistOnDef(def, S("shared"));
+  }
+  public: Bool isNoBindDef(Core::Data::Ast::Definition const *def)
+  {
+    return this->doesModifierExistOnDef(def, S("no_bind"));
+  }
 
   public: METHOD_BINDING_CACHE(validateUseStatement, Bool, (Core::Data::Ast::Bridge* /* bridge */));
   private: static Bool _validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *bridge);

@@ -16,6 +16,7 @@ Hello World 1
 testAstInsertion
 x = 7
 x = 12
+y = 6
 
 A~init
 a.i = 3

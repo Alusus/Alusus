@@ -20,7 +20,7 @@ import "Memory";
     type RefCounter {
         def count: Int;
         def singleAllocation: Bool;
-        def terminator: ptr[function (p: ptr)];
+        def terminator: ptr[@shared @no_bind function (p: ptr)];
         def managedObj: ptr;
 
         @shared func alloc(size: Int, terminator: ptr[function (ptr)]): ref[RefCounter] {

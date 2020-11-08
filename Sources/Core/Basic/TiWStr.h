@@ -26,6 +26,7 @@ template <class P> class TiWStrBase : public P
   // Type Info
 
   TEMPLATE_TYPE_INFO(TiWStrBase, P, "Core.Data", "Core", "alusus.org", (P));
+  OBJECT_FACTORY(TiWStrBase<P>);
 
 
   //============================================================================

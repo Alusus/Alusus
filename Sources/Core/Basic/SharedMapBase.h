@@ -562,7 +562,7 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
     return this->findIndex(key);
   }
 
-  public: virtual TypeInfo* getElementsNeededType() const
+  public: virtual TypeInfo const* getElementsNeededType() const
   {
     return CTYPE::getTypeInfo();
   }

@@ -67,6 +67,9 @@ DEFINE_NOTICE(InvalidSquareBracketOperandNotice, "Spp.Notices", "Spp", "alusus.o
 DEFINE_NOTICE(IdentifierIsNotTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1012", 1,
   "Given identifier does not refer to a type."
 );
+DEFINE_NOTICE(MissingTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1013", 1,
+  "A needed type is missing. You may be missing an import."
+);
 
 } /// namespace
 
@@ -239,6 +242,18 @@ DEFINE_NOTICE(InvalidDerefOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SP
 );
 DEFINE_NOTICE(InvalidNoDerefOperandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1034", 1,
   "Invalid operand for ~no_deref operator."
+);
+DEFINE_NOTICE(TypeMemberIsNotVarNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1035", 1,
+  "The requested member is not a variable definition."
+);
+DEFINE_NOTICE(InvalidDotOpTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1036", 1,
+  "Cannot use dot operator on this type of elements."
+);
+DEFINE_NOTICE(IncompleteInfixOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1037", 1,
+  "Incomplete infix operator. This is likely caused by a macro or an eval statement that evaluated to null."
+);
+DEFINE_NOTICE(IncompleteOutfixOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1038", 1,
+  "Incomplete prefix or postfix operator. This is likely caused by a macro or an eval statement that evaluated to null."
 );
 
 } // namespace

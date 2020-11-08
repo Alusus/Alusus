@@ -117,7 +117,7 @@ class ObjTiInterfaceList : public SharedListBase<ObjTiInterface, TiObject>
 
   public: using SharedListBase<ObjTiInterface, TiObject>::remove;
 
-  public: void remove(TypeInfo *ti)
+  public: void remove(TypeInfo const *ti)
   {
     for (Int i = this->getCount() - 1; i >= 0; --i) {
       ObjTiInterface *pi = this->get(i).get();
@@ -134,7 +134,7 @@ class ObjTiInterfaceList : public SharedListBase<ObjTiInterface, TiObject>
 
   public: using SharedListBase<ObjTiInterface, TiObject>::get;
 
-  public: ObjTiInterface* get(TypeInfo *ti) const
+  public: ObjTiInterface* get(TypeInfo const *ti) const
   {
     for (Int i = this->getCount() - 1; i >= 0; --i) {
       ObjTiInterface *pi = this->get(i).get();

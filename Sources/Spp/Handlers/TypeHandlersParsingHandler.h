@@ -1,6 +1,6 @@
 /**
- * @file Spp/Handlers/TypeOpParsingHandler.h
- * Contains the header of class Spp::Handlers::TypeOpParsingHandler
+ * @file Spp/Handlers/TypeHandlersParsingHandler.h
+ * Contains the header of class Spp::Handlers::TypeHandlersParsingHandler
  *
  * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
@@ -10,25 +10,25 @@
  */
 //==============================================================================
 
-#ifndef SPP_HANDLERS_TYPEOPPARSINGHANDLER_H
-#define SPP_HANDLERS_TYPEOPPARSINGHANDLER_H
+#ifndef SPP_HANDLERS_TYPEHANDLERSPARSINGHANDLER_H
+#define SPP_HANDLERS_TYPEHANDLERSPARSINGHANDLER_H
 
 namespace Spp::Handlers
 {
 
-class TypeOpParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
+class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericParsingHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TypeOpParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
+  TYPE_INFO(TypeHandlersParsingHandler, Core::Processing::Handlers::GenericParsingHandler,
             "Spp.Handlers", "Spp", "alusus.org");
 
 
   //============================================================================
   // Constructor
 
-  public: TypeOpParsingHandler()
+  public: TypeHandlersParsingHandler()
   {
   }
 

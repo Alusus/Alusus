@@ -1,11 +1,4 @@
-import "alusus_spp";
-module Spp {
-    type BuildMgr {
-        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
-        function dumpLlvmIrForElement (element: ptr);
-    };
-    def buildMgr: ref[BuildMgr];
-}
+import "defs-ignore.alusus";
 
 @expname[printf] func print(format: ptr[Word[8]], args: ...any): Int[32];
 
@@ -29,7 +22,7 @@ type A
 type B
 {
   def a: A;
-  def f: ptr[function];
+  def f: ptr[@shared function];
 
   handler this~init() this.a.i = 7;
   handler this~init(that: ref[this_type]) this.a = that.a;
@@ -45,6 +38,10 @@ type B
   func printA {
     print("this.a.i = %d\n", this.a.i);
   };
+
+  func getA ()=>ref[A] {
+    return this.a;
+  }
 };
 
 function getA ():A {
@@ -101,6 +98,8 @@ func test {
 
   def c: C;
   c.setI(10);
+
+  b.getA.i = 1;
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(test~ast);

@@ -21,7 +21,7 @@ include_directories("${AlususCore_SOURCE_DIR}")
 include_directories("${AlususTests_SOURCE_DIR}")
 
 # Place files in folders for IDEs (though I only tried Visual Studio at the moment.)
-file(GLOB AlususTests_Source_Files *.cpp)
+file(GLOB AlususTests_Source_Files *.cpp ../Core/interop.cpp)
 file(GLOB AlususTests_Header_Files *.h)
 file(GLOB AlususTests_Test_Files
   Core/*.alusus

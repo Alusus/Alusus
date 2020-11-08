@@ -1,0 +1,96 @@
+import "Srl/Console";
+import "Core/Data";
+
+use Srl;
+
+def isDerivedFrom: alias Core.Basic.isDerivedFrom;
+
+func printIndent (indent: Int) {
+    while indent-- > 0 Console.print(" ");
+}
+
+func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
+    if obj~ptr == 0 {
+        Console.print("NULL\n");
+        return;
+    }
+
+    if isDerivedFrom[obj, Core.Basic.TiStr] {
+        Console.print("TiStr \"%s\"\n", castRef[obj, Core.Basic.TiStr].value.buf);
+        return;
+    } else if isDerivedFrom[obj, Core.Basic.TiInt] {
+        Console.print("TiInt %d\n", castRef[obj, Core.Basic.TiInt].value);
+        return;
+    } else if isDerivedFrom[obj, Core.Basic.TiWord] {
+        Console.print("TiWord %d\n", castRef[obj, Core.Basic.TiWord].value);
+        return;
+    } else if isDerivedFrom[obj, Core.Basic.TiFloat] {
+        Console.print("TiFloat %f\n", castRef[obj, Core.Basic.TiFloat].value~cast[Float[64]]);
+        return;
+    } else if isDerivedFrom[obj, Core.Basic.TiBool] {
+        if castRef[obj, Core.Basic.TiBool].value {
+            Console.print("TiBool true\n");
+        } else {
+            Console.print("TiBool false\n");
+        }
+        return;
+    } else if isDerivedFrom[obj, Core.Data.Ast.Identifier] {
+        Console.print("Identifier %s\n", castRef[obj, Core.Data.Ast.Identifier].value.value.buf);
+        return;
+    } else if isDerivedFrom[obj, Core.Data.Ast.StringLiteral] {
+        Console.print("StringLiteral %s\n", castRef[obj, Core.Data.Ast.StringLiteral].value.value.buf);
+        return;
+    } else if isDerivedFrom[obj, Core.Data.Ast.IntegerLiteral] {
+        Console.print("IntegerLiteral %s\n", castRef[obj, Core.Data.Ast.IntegerLiteral].value.value.buf);
+        return;
+    } else if isDerivedFrom[obj, Core.Data.Ast.CharLiteral] {
+        Console.print("CharLiteral %s\n", castRef[obj, Core.Data.Ast.CharLiteral].value.value.buf);
+        return;
+    } else if isDerivedFrom[obj, Core.Data.Ast.FloatLiteral] {
+        Console.print("FloatLiteral %s\n", castRef[obj, Core.Data.Ast.FloatLiteral].value.value.buf);
+        return;
+    }
+
+    Console.print("%s.%s\n", obj.getMyTypeInfo().typeNamespace.buf, obj.getMyTypeInfo().typeName.buf);
+
+    def i: Word;
+
+    // Print members
+    def binding: ref[Core.Data.Binding](Core.Basic.getInterface[obj, Core.Data.Binding]);
+    if binding~ptr != 0 {
+        printIndent(indent + 1);
+        Console.print("members:\n");
+        for i = 0, i < binding.getMemberCount(), ++i {
+            printIndent(indent + 1);
+            Console.print("-%s: ", binding.getMemberKey(i).buf);
+            printAst(binding.getMember(i), indent + 2);
+        }
+    }
+
+    // Print map elements
+    def mapContaining: ref[Core.Data.MapContaining](Core.Basic.getInterface[obj, Core.Data.MapContaining]);
+    if mapContaining~ptr != 0 {
+        printIndent(indent + 1);
+        Console.print("map elements:\n");
+        for i = 0, i < mapContaining.getElementCount(), ++i {
+            printIndent(indent + 1);
+            Console.print("-%s: ", mapContaining.getElementKey(i).buf);
+            printAst(mapContaining.getElement(i), indent + 2);
+        }
+    }
+
+    // Print map elements
+    def containing: ref[Core.Data.Containing](Core.Basic.getInterface[obj, Core.Data.Containing]);
+    if mapContaining~ptr == 0 && containing~ptr != 0 {
+        printIndent(indent + 1);
+        Console.print("list elements:\n");
+        for i = 0, i < containing.getElementCount(), ++i {
+            printIndent(indent + 1);
+            Console.print("-");
+            printAst(containing.getElement(i), indent + 2);
+        }
+    }
+}
+
+def a: ref[Core.Basic.TiObject](ast a, b: (5, 6), c, @shared function fn {});
+printAst(a, 0);

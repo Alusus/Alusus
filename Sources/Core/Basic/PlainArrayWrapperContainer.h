@@ -88,7 +88,7 @@ template<class CTYPE> class PlainArrayWrapperContainer : public TiObject, public
     return this->array->at(index);
   }
 
-  public: virtual TypeInfo* getElementsNeededType() const
+  public: virtual TypeInfo const* getElementsNeededType() const
   {
     return CTYPE::getTypeInfo();
   }

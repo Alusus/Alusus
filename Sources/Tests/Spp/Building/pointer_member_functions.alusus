@@ -1,0 +1,87 @@
+import "defs-ignore.alusus";
+import "Srl/Console";
+use Srl;
+
+type N_vtable {
+    def printIt: ptr[@shared func(this: ref[N])];
+}
+
+type N {
+    @shared def vtable: N_vtable;
+    @no_bind @injection def vtableRef: ref[N_vtable];
+    vtableRef~no_deref = vtable;
+    def i: Int;
+    func printItImpl {
+        Console.print("N.printIt %d\n", this.i);
+    }
+    vtableRef.printIt = printItImpl~ptr;
+}
+
+type N2 {
+    @shared def vtable: N_vtable;
+    @injection def super: N;
+    vtableRef~no_deref = vtable;
+    def j: Int;
+    j = 0;
+
+    @shared func printItImpl (this: ref[N2]) {
+        Console.print("N2.printIt %d\n", this.i + this.j);
+    }
+    vtableRef.printIt = printItImpl~ptr~cast[N_vtable.printIt~type];
+}
+
+func test1 {
+    def n: N;
+    def n2: N2;
+    n.i = 7;
+    n2.i = 72;
+    n.printIt();
+    n2.printIt();
+    n2.j = 9;
+    def rn: ref[N]
+    rn~no_deref = n2;
+    rn.printIt();
+}
+Spp.buildMgr.dumpLlvmIrForElement(test1~ast);
+
+Console.print("\n");
+
+type M {
+    def i: Int;
+
+    func printItImpl {
+        Console.print("M.printIt %d\n", this.i);
+    }
+    def printIt: ptr[func](printItImpl~ptr);
+
+    func printItImpl2(extra: Int) {
+        Console.print("M.printIt2 %d\n", this.i + extra);
+    }
+    def printIt2: ptr[func(Int)](printItImpl2~ptr);
+
+    @shared func printIt3 (self: ref[M]) {
+        Console.print("M.printIt3 %d\n", self.i);
+    }
+
+    @shared func printIt4Impl (i: Int) {
+        Console.print("M.printIt4 %d\n", i);
+    }
+    def printIt4: ptr[@no_bind @shared func(Int)](printIt4Impl~ptr);
+    def printIt5: ptr[@shared func(Int)](printIt4Impl~ptr);
+
+    @no_bind @shared func printIt6 (self: ref[M]) {
+        Console.print("M.printIt6 %d\n", self.i);
+    }
+}
+
+func test2 {
+    def m: M;
+    m.i = 8;
+    m.printIt();
+    m.printIt2(3);
+    m.printIt3();
+    m.printIt4(12);
+    m.printIt5(12);
+    m.printIt6();
+}
+Spp.buildMgr.dumpLlvmIrForElement(test2~ast);

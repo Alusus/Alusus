@@ -188,6 +188,7 @@ Bool FunctionParsingHandler::onIncomingModifier(
   if (!prodProcessingComplete) return false;
 
   if (this->processExpnameModifier(state, modifierData)) return true;
+  else if (this->processSharedOrNoBindModifier(state, modifierData)) return true;
   else return this->processUnknownModifier(state, modifierData);
 }
 
@@ -206,22 +207,17 @@ Bool FunctionParsingHandler::processExpnameModifier(
   auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Text>();
   if (param == 0) return false;
 
-  // If we have generated a definition object in this state, clone it then get the clone.
   Int levelOffset = -state->getTopProdTermLevelCount();
-  Core::Data::Ast::Definition *definition = 0;
-  if (state->getData(levelOffset)->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    definition = state->getData(levelOffset).s_cast_get<Core::Data::Ast::Definition>();
-  }
+  TioSharedPtr data = state->getData(levelOffset);
+  if (data == 0) return false;
 
-  // Grab the data from the definition, if any, otherwise grab it from the state itself.
-  Spp::Ast::Function *function;
-  TioSharedPtr data;
-  if (definition != 0) {
+  // Grab the data from the definition, if any, otherwise use the data from the state level.
+  Core::Data::Ast::Definition *definition = 0;
+  if (data->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    definition = data.s_cast_get<Core::Data::Ast::Definition>();
     data = definition->getTarget();
-  } else {
-    data = state->getData(levelOffset);
   }
-  function = data.ti_cast_get<Spp::Ast::Function>();
+  Spp::Ast::Function *function = data.ti_cast_get<Spp::Ast::Function>();
 
   // Set the function name.
   if (function == 0) {
@@ -242,6 +238,43 @@ Bool FunctionParsingHandler::processExpnameModifier(
   } else {
     function->setName(param->getValue());
   }
+
+  return true;
+}
+
+
+Bool FunctionParsingHandler::processSharedOrNoBindModifier(
+  Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+) {
+  // Look for expname modifier.
+  auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
+  if (identifier == 0) return false;
+  auto symbolDef = state->refTopProdLevel().getProd();
+  auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
+
+  Bool setShared;
+  if (keyword == S("shared")) setShared = true;
+  else if (keyword == S("no_bind")) setShared = false;
+  else return false;
+
+  // Find the funciton type to update.
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  Spp::Ast::FunctionType *funcType;
+  if (state->getData(levelOffset)->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    auto definition = state->getData(levelOffset).s_cast_get<Core::Data::Ast::Definition>();
+    auto function = definition->getTarget().ti_cast_get<Spp::Ast::Function>();
+    funcType = function->getType().get();
+  } else if (state->getData(levelOffset)->isDerivedFrom<Spp::Ast::Function>()) {
+    auto function = state->getData(levelOffset).s_cast_get<Spp::Ast::Function>();
+    funcType = function->getType().get();
+  } else if (state->getData(levelOffset)->isDerivedFrom<Spp::Ast::FunctionType>()) {
+    funcType = state->getData(levelOffset).s_cast_get<Spp::Ast::FunctionType>();
+  } else {
+    throw EXCEPTION(GenericException, S("Unexpected data type found."));
+  }
+
+  if (setShared) funcType->setShared(true);
+  else funcType->setBindDisabled(true);
 
   return true;
 }

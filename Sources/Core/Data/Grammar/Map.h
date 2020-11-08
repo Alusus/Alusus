@@ -80,7 +80,7 @@ class Map : public NbMap, public Binding, public Inheriting
     Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
   ) {
     if (inherited) {
-      return cloneInherited(obj);
+      return cloneInherited(obj.get());
     } else {
       return obj;
     }

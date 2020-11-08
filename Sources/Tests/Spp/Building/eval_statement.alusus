@@ -1,3 +1,4 @@
+import "Core/Data";
 import "Spp";
 import "Srl/Console";
 import "Srl/String";
@@ -34,15 +35,24 @@ def someNum: 12;
 
 func testAstInsertion {
     eval {
-        def m: Map[String, ptr];
+        def m: Map[String, ref[Core.Basic.TiObject]];
         m.set(String("name"), varName~ast);
         Spp.astMgr.insertAst(defstmt~ast, m);
-        Spp.astMgr.insertAst(printstmt~ast, Map[String, ptr]());
+        Spp.astMgr.insertAst(printstmt~ast, Map[String, ref[Core.Basic.TiObject]]());
+
+        Spp.astMgr.insertAst(
+            ast { def name: Float[64](someval) },
+            Map[String, ref[Core.Basic.TiObject]]()
+                .set(String("name"), Core.Basic.TiStr("y"))
+                .set(String("someval"), Core.Data.Ast.FloatLiteral("6"))
+        );
     }
     x = 7;
     Console.print("x = %d\n", x);
-    x = eval { Spp.astMgr.insertAst(someNum~ast, Map[String, ptr]()) };
+    x = eval { Spp.astMgr.insertAst(someNum~ast, Map[String, ref[Core.Basic.TiObject]]()) };
     Console.print("x = %d\n", x);
+
+    Console.print("y = %f\n", y);
 }
 
 Spp.buildMgr.dumpLlvmIrForElement(testAstInsertion~ast);
@@ -69,3 +79,12 @@ func testEvalVarDestruction {
 }
 
 Spp.buildMgr.dumpLlvmIrForElement(testEvalVarDestruction~ast);
+
+func testError {
+  eval {
+    def d: Unknown;
+  }
+  Console.print("testError\n");
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(testError~ast);

@@ -299,9 +299,9 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   for (Int i = 0; i < body->getCount(); ++i) {
     auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
-      if (typeGenerator->astHelper->getDefinitionDomain(def) != Ast::DefinitionDomain::GLOBAL) {
-        auto obj = def->getTarget().get();
-        if (typeGenerator->astHelper->isAstReference(obj)) {
+      auto obj = def->getTarget().get();
+      if (typeGenerator->astHelper->isAstReference(obj)) {
+        if (typeGenerator->astHelper->getVariableDomain(def) != Ast::DefinitionDomain::GLOBAL) {
           TiObject *tgType;
           Ast::Type *astMemberType;
           if (!typeGenerator->getGeneratedType(obj, g, session, tgType, &astMemberType)) {
@@ -311,23 +311,23 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
           Ast::setAstType(obj, astMemberType);
           tgMemberTypes.add(def->getName().get(), tgType);
           members.add(obj);
-        } else if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
-          if (!typeGenerator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) {
-            result = false;
-          }
-          continue;
         } else {
           if (TypeGenerator::isInjection(def)) {
             typeGenerator->noticeStore->add(
-              newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
+              newSrdObj<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
             );
             result = false;
           }
         }
+      } else if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
+        if (!typeGenerator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) {
+          result = false;
+        }
+        continue;
       } else {
         if (TypeGenerator::isInjection(def)) {
           typeGenerator->noticeStore->add(
-            newSrdObj<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
           );
           result = false;
         }
@@ -405,7 +405,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
       auto target = def->getTarget().get();
       if (
         typeGenerator->getAstHelper()->isAstReference(target) &&
-        typeGenerator->getAstHelper()->getDefinitionDomain(def) == Ast::DefinitionDomain::OBJECT
+        typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Initialize member variable.
         if (!g->generateMemberVarInitialization(target, &childSession)) return false;
@@ -486,7 +486,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
       auto target = def->getTarget().get();
       if (
         typeGenerator->getAstHelper()->isAstReference(target) &&
-        typeGenerator->getAstHelper()->getDefinitionDomain(def) == Ast::DefinitionDomain::OBJECT
+        typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Destruct member variable.
         if (!g->generateMemberVarDestruction(target, &childSession)) return false;
@@ -810,16 +810,18 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
   PlainMap<TiObject> memberTypes;
   for (Int i = 0; i < body->getElementCount(); ++i) {
     auto def = ti_cast<Core::Data::Ast::Definition>(body->getElement(i));
-    if (def != 0 && typeGenerator->getAstHelper()->getDefinitionDomain(def) == Ast::DefinitionDomain::OBJECT) {
+    if (def != 0) {
       auto obj = def->getTarget().get();
       if (typeGenerator->getAstHelper()->isAstReference(obj)) {
-        TiObject *tgMemberType;
-        Ast::Type *astMemberType;
-        if (!typeGenerator->getGeneratedType(obj, g, session, tgMemberType, &astMemberType)) return false;
-        memberTypes.addElement(def->getName().get(), tgMemberType);
-        TioSharedPtr memberVal;
-        if (!typeGenerator->generateDefaultValue(astMemberType, g, session, memberVal)) return false;
-        memberVals.add(memberVal);
+        if (typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT) {
+          TiObject *tgMemberType;
+          Ast::Type *astMemberType;
+          if (!typeGenerator->getGeneratedType(obj, g, session, tgMemberType, &astMemberType)) return false;
+          memberTypes.addElement(def->getName().get(), tgMemberType);
+          TioSharedPtr memberVal;
+          if (!typeGenerator->generateDefaultValue(astMemberType, g, session, memberVal)) return false;
+          memberVals.add(memberVal);
+        }
       }
     }
   }

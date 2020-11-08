@@ -108,7 +108,7 @@ import "System";
                 this.values.add(value);
                 if this.keysIndex~ptr != 0 this.keysIndex.add(-1);
             } else {
-                this.values(pos) = value;
+                this.values.set(pos, value);
             }
             return this;
         };

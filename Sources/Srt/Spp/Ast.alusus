@@ -1,0 +1,50 @@
+import "Core/Data";
+
+@merge module Spp {
+    module Ast {
+        def defAstType: alias Core.Data.defAstType;
+
+        defAstType[Type, "alusus.org/Spp/Spp.Ast.Type"];
+        defAstType[DataType, "alusus.org/Spp/Spp.Ast.DataType"];
+        defAstType[IntegerType, "alusus.org/Spp/Spp.Ast.IntegerType"];
+        defAstType[FloatType, "alusus.org/Spp/Spp.Ast.FloatType"];
+        defAstType[ArrayType, "alusus.org/Spp/Spp.Ast.ArrayType"];
+        defAstType[PointerType, "alusus.org/Spp/Spp.Ast.PointerType"];
+        defAstType[ReferenceType, "alusus.org/Spp/Spp.Ast.ReferenceType"];
+        defAstType[VoidType, "alusus.org/Spp/Spp.Ast.VoidType"];
+        defAstType[UserType, "alusus.org/Spp/Spp.Ast.UserType"];
+        defAstType[FunctionType, "alusus.org/Spp/Spp.Ast.FunctionType"];
+
+        defAstType[Template, "alusus.org/Spp/Spp.Ast.Template"];
+        defAstType[TemplateVarDef, "alusus.org/Spp/Spp.Ast.TemplateVarDef"];
+
+        defAstType[AstRefOp, "alusus.org/Spp/Spp.Ast.AstRefOp"];
+        defAstType[CastOp, "alusus.org/Spp/Spp.Ast.CastOp"];
+        defAstType[InitOp, "alusus.org/Spp/Spp.Ast.InitOp"];
+        defAstType[TerminateOp, "alusus.org/Spp/Spp.Ast.TerminateOp"];
+        defAstType[NextArgOp, "alusus.org/Spp/Spp.Ast.NextArgOp"];
+        defAstType[DerefOp, "alusus.org/Spp/Spp.Ast.DerefOp"];
+        defAstType[NoDerefOp, "alusus.org/Spp/Spp.Ast.NoDerefOp"];
+        defAstType[ContentOp, "alusus.org/Spp/Spp.Ast.ContentOp"];
+        defAstType[PointerOp, "alusus.org/Spp/Spp.Ast.PointerOp"];
+        defAstType[SizeOp, "alusus.org/Spp/Spp.Ast.SizeOp"];
+        defAstType[TypeOp, "alusus.org/Spp/Spp.Ast.TypeOp"];
+
+        defAstType[Block, "alusus.org/Spp/Spp.Ast.Block"];
+        defAstType[Function, "alusus.org/Spp/Spp.Ast.Function"];
+        defAstType[Macro, "alusus.org/Spp/Spp.Ast.Macro"];
+        defAstType[Module, "alusus.org/Spp/Spp.Ast.Module"];
+
+        defAstType[IfStatement, "alusus.org/Spp/Spp.Ast.IfStatement"];
+        defAstType[WhileStatement, "alusus.org/Spp/Spp.Ast.WhileStatement"];
+        defAstType[ForStatement, "alusus.org/Spp/Spp.Ast.ForStatement"];
+        defAstType[ContinueStatement, "alusus.org/Spp/Spp.Ast.ContinueStatement"];
+        defAstType[BreakStatement, "alusus.org/Spp/Spp.Ast.BreakStatement"];
+        defAstType[ReturnStatement, "alusus.org/Spp/Spp.Ast.ReturnStatement"];
+        defAstType[EvalStatement, "alusus.org/Spp/Spp.Ast.EvalStatement"];
+
+        defAstType[ArgPack, "alusus.org/Spp/Spp.Ast.ArgPack"];
+        defAstType[AstLiteralCommand, "alusus.org/Spp/Spp.Ast.AstLiteralCommand"];
+        defAstType[ThisTypeRef, "alusus.org/Spp/Spp.Ast.ThisTypeRef"];
+    }
+}

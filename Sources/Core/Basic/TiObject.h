@@ -63,7 +63,7 @@ class TiObject
    *         All object of the same type should return the same specific
    *         object, not a different object with the same info.
    */
-  public: virtual ObjectTypeInfo* getMyTypeInfo() const = 0;
+  public: virtual ObjectTypeInfo const* getMyTypeInfo() const = 0;
 
   /**
    * @brief Check if this object is of the given type.
@@ -71,7 +71,7 @@ class TiObject
    * @return Returns true if the given type info is for the type from which
    *         this object is instantiated, false otherwise.
    */
-  public: Bool isA(TypeInfo *info) const
+  public: Bool isA(TypeInfo const *info) const
   {
     return this->getMyTypeInfo() == info;
   }
@@ -86,7 +86,7 @@ class TiObject
   }
 
   /// Get this type's info.
-  public: static ObjectTypeInfo* getTypeInfo();
+  public: static ObjectTypeInfo const* getTypeInfo();
 
   /// Check if this object is of the given type, or a derived type.
   public: Bool isDerivedFrom(TypeInfo const *info) const;
@@ -113,9 +113,13 @@ class TiObject
    *       of the pointer due to virtual inheritance. Users should use the
    *       template version of getInterface.
    */
-  protected: virtual void* _getInterface(TypeInfo *info)
+  protected: virtual TiInterface* _getInterface(TypeInfo const *info)
   {
     return 0;
+  }
+  public: TiInterface* getInterface(TypeInfo const *info)
+  {
+    return this->_getInterface(info);
   }
 
   /**
@@ -125,7 +129,7 @@ class TiObject
    */
   public: template<class T> T* getInterface()
   {
-    return reinterpret_cast<T*>(this->_getInterface(T::getTypeInfo()));
+    return reinterpret_cast<T*>(this->getInterface(T::getTypeInfo()));
   }
 
   /**
@@ -134,7 +138,7 @@ class TiObject
    */
   public: template<class T> const T* getInterface() const
   {
-    return reinterpret_cast<const T*>(const_cast<TiObject*>(this)->_getInterface(T::getTypeInfo()));
+    return reinterpret_cast<const T*>(const_cast<TiObject*>(this)->getInterface(T::getTypeInfo()));
   }
 
 }; // class

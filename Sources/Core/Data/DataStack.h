@@ -136,7 +136,7 @@ class DataStack : public TiObject, public DynamicContaining<TiObject>
 
   public: virtual void insertElement(Int index, TiObject *val);
 
-  public: virtual TypeInfo* getElementsNeededType() const
+  public: virtual TypeInfo const* getElementsNeededType() const
   {
     return TiObject::getTypeInfo();
   }

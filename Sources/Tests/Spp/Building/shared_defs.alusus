@@ -1,11 +1,4 @@
-import "alusus_spp";
-module Spp {
-    type BuildMgr {
-        @expname[Spp_BuildMgr_dumpLlvmIrForElement]
-        function dumpLlvmIrForElement (element: ptr);
-    };
-    def buildMgr: ref[BuildMgr];
-}
+import "defs-ignore.alusus";
 
 def Std: module
 {
@@ -24,7 +17,7 @@ def Main: module
 
     @shared def t: MyType;
 
-    @shared def printIt: function
+    def printIt: @shared function
     {
       @shared def z: Int;
       print("x = %d\n", x);

@@ -1,4 +1,4 @@
-ERROR SPPG1004 @ (27,36): Invalid integer bit count.
+ERROR SPPG1004 @ (20,36): Invalid integer bit count.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

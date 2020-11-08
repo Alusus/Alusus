@@ -151,8 +151,8 @@ class Context : public TiObject, public MapContaining<TiObject>
   public: virtual TiObject* getElement(Int index) const;
   public: virtual TiObject* getElement(Char const *key) const;
 
-  public: virtual TypeInfo* getElementNeededType(Int index) const;
-  public: virtual TypeInfo* getElementNeededType(Char const *key) const;
+  public: virtual TypeInfo const* getElementNeededType(Int index) const;
+  public: virtual TypeInfo const* getElementNeededType(Char const *key) const;
 
   public: virtual HoldMode getElementHoldMode(Int index) const
   {

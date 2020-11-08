@@ -39,6 +39,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   private: Core::Notices::Store *noticeStore;
   private: Core::Processing::Parser *parser;
+  private: Core::Main::RootManager *rootManager;
   private: Spp::CodeGen::AstProcessor *astProcessor;
 
 
@@ -47,6 +48,8 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: AstMgr()
   {
+    this->initBindingCaches();
+    this->initBindings();
   }
 
   public: AstMgr(AstMgr *parent)
@@ -56,6 +59,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     this->inheritInterfaces(parent);
     this->setNoticeStore(parent->getNoticeStore());
     this->setParser(parent->getParser());
+    this->setRootManager(parent->getRootManager());
     this->setAstProcessor(parent->getAstProcessor());
   }
 
@@ -93,6 +97,15 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     return this->parser;
   }
 
+  public: void setRootManager(Core::Main::RootManager *rm)
+  {
+    this->rootManager = rm;
+  }
+  public: Core::Main::RootManager* getRootManager() const
+  {
+    return this->rootManager;
+  }
+
   public: void setAstProcessor(Spp::CodeGen::AstProcessor *astP)
   {
     this->astProcessor = astP;
@@ -107,16 +120,41 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   /// @name Operations
   /// @{
 
-  // TODO: Return Array[String] instead of C style array.
-  public: METHOD_BINDING_CACHE(getModifierStrings,
-    Bool, (TiObject*, Char const*, Char const***, Word*)
+  public: METHOD_BINDING_CACHE(findElements,
+    Array<TiObject*>, (TiObject* /* ref */, TiObject* /* target */, Word /* flags */)
   );
-  public: static Bool _getModifierStrings(
-    TiObject *self, TiObject *element, Char const *modifierKwd, Char const **resultStrs[], Word *resultCount
+  public: static Array<TiObject*> _findElements(TiObject *self, TiObject *ref, TiObject *target, Word flags);
+
+  public: METHOD_BINDING_CACHE(getModifiers, Containing<TiObject>*, (TiObject* /* element */));
+  public: static Containing<TiObject>* _getModifiers(TiObject *self, TiObject *element);
+
+  public: METHOD_BINDING_CACHE(findModifier, TiObject*, (Containing<TiObject>* /* modifiers */, Char const* /* kwd */));
+  public: static TiObject* _findModifier(TiObject *self, Containing<TiObject> *modifiers, Char const *kwd);
+
+  public: METHOD_BINDING_CACHE(findModifierForElement, TiObject*, (TiObject* /* element */, Char const* /* kwd */));
+  public: static TiObject* _findModifierForElement(TiObject *self, TiObject *element, Char const *kwd);
+
+  public: METHOD_BINDING_CACHE(getModifierKeyword, String, (TiObject* /* modifier */));
+  public: static String _getModifierKeyword(TiObject *self, TiObject *modifier);
+
+  public: METHOD_BINDING_CACHE(getModifierStringParams, Bool, (TiObject* /* modifier */, Array<String>& /* result */));
+  public: static Bool _getModifierStringParams(TiObject *self, TiObject *modifier, Array<String> &result);
+
+  public: METHOD_BINDING_CACHE(insertAst_plain, Bool, (TiObject*, Map<Str, TiObject*>*));
+  public: static Bool _insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
+
+  public: METHOD_BINDING_CACHE(insertAst_shared, Bool, (TiObject*, Map<Str, SharedPtr<TiObject>>*));
+  public: static Bool _insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations);
+
+  public: METHOD_BINDING_CACHE(buildAst_plain, Bool, (TiObject*, Map<Str, TiObject*>*, TioSharedPtr&));
+  public: static Bool _buildAst_plain(
+    TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations, TioSharedPtr &result
   );
 
-  public: METHOD_BINDING_CACHE(insertAst, Bool, (TiObject*, Map<Str, TiObject*>*));
-  public: static Bool _insertAst(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
+  public: METHOD_BINDING_CACHE(buildAst_shared, Bool, (TiObject*, Map<Str, SharedPtr<TiObject>>*, TioSharedPtr&));
+  public: static Bool _buildAst_shared(
+    TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations, TioSharedPtr &result
+  );
 
   /// @}
 

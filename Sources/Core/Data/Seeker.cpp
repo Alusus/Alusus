@@ -327,25 +327,44 @@ Seeker::Verb Seeker::_foreachByIdentifier(
 ) {
   PREPARE_SELF(seeker, Seeker);
   Seeker::Verb retVal = Seeker::Verb::MOVE;
-  if (data->isDerivedFrom<DataStack>()) {
-    auto stack = static_cast<DataStack*>(data);
-    for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      auto data = stack->getElement(i);
-      if (data == 0) continue;
-      retVal = seeker->foreachByIdentifier_level(identifier, data, cb, flags);
-      if (!Seeker::isMove(retVal)) return retVal;
-    }
-  } else if (data->isDerivedFrom<Node>()) {
-    auto node = static_cast<Node*>(data);
-    while (node != 0) {
-      retVal = seeker->foreachByIdentifier_level(identifier, node, cb, flags);
-      if (!Seeker::isMove(retVal)) return retVal;
-      if (flags & Seeker::Flags::SKIP_OWNERS) break;
-      node = node->getOwner();
-      flags |= Seeker::Flags::SKIP_OWNED;
+  if (identifier->getValue() == S("Root")) {
+    if (data->isDerivedFrom<DataStack>()) {
+      auto stack = static_cast<DataStack*>(data);
+      for (Int i = 0; i < stack->getCount(); ++i) {
+        auto element = stack->getElement(i);
+        if (element != 0) {
+          return cb(element, 0);
+        }
+      }
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("The stack is empty."));
+    } else if (data->isDerivedFrom<Node>()) {
+      auto node = static_cast<Node*>(data);
+      while (node->getOwner() != 0) node = node->getOwner();
+      return cb(node, 0);
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
+    if (data->isDerivedFrom<DataStack>()) {
+      auto stack = static_cast<DataStack*>(data);
+      for (Int i = stack->getCount() - 1; i >= 0; --i) {
+        auto data = stack->getElement(i);
+        if (data == 0) continue;
+        retVal = seeker->foreachByIdentifier_level(identifier, data, cb, flags);
+        if (!Seeker::isMove(retVal)) return retVal;
+      }
+    } else if (data->isDerivedFrom<Node>()) {
+      auto node = static_cast<Node*>(data);
+      while (node != 0) {
+        retVal = seeker->foreachByIdentifier_level(identifier, node, cb, flags);
+        if (!Seeker::isMove(retVal)) return retVal;
+        if (flags & Seeker::Flags::SKIP_OWNERS) break;
+        node = node->getOwner();
+        flags |= Seeker::Flags::SKIP_OWNED;
+      }
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
+    }
   }
   return retVal;
 }

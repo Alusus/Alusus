@@ -1,4 +1,4 @@
-ERROR SPPG1026 @ (28,3): Invalid operand for ~terminate operator.
+ERROR SPPG1026 @ (21,3): Invalid operand for ~terminate operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

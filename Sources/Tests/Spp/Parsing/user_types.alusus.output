@@ -14,7 +14,7 @@ Module [Main.ModuleStatements.StmtList]
     operand: Identifier: Int [Main.Subject.Identifier]
     param: IntegerLiteral: 32 [Main.Subject.Literal]
  Definition [Main.Def] start: Function  [Main.Function]
-  type: FunctionType [Main.Function]
+  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
    argTypes: NULL
    retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
   body: Block [Main.BlockStatements.StmtList]

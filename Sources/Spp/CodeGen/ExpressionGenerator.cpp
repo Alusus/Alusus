@@ -258,7 +258,7 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
   // Check if the found obj is a variable definition.
   if (expGenerator->astHelper->isAstReference(obj)) {
     // Make sure the var is not an object member.
-    if (expGenerator->getAstHelper()->getDefinitionDomain(obj) == Ast::DefinitionDomain::OBJECT) {
+    if (expGenerator->getAstHelper()->getVariableDomain(obj) == Ast::DefinitionDomain::OBJECT) {
       auto ownerType = static_cast<Core::Data::Node*>(stack.get(0))->findOwner<Spp::Ast::UserType>();
       if (ownerType != 0 && ownerType == session->getAstSelfType()) {
         // Generate a reference to a member variable.
@@ -289,6 +289,12 @@ Bool ExpressionGenerator::_generateScopeMemberReference(
   ) {
     result.astNode = obj;
     retVal = true;
+    // If the found object is a type, then let's make sure it's preprocessed.
+    auto dataType = ti_cast<Spp::Ast::DataType>(result.astNode);
+    if (dataType != 0) {
+      TiObject *tgType;
+      if (!g->getGeneratedType(dataType, session, tgType, 0)) return false;
+    }
   } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     retVal = expGenerator->generateStringLiteral(
       static_cast<Core::Data::Ast::StringLiteral*>(obj), g, session, result
@@ -360,6 +366,14 @@ Bool ExpressionGenerator::_generateLinkOperator(
     );
   } else if (firstResult.astNode != 0) {
     // Generate a reference to a global in another module.
+    if (!firstResult.astNode->isDerivedFrom<Ast::Type>() &&
+        !firstResult.astNode->isDerivedFrom<Core::Data::Ast::Scope>()
+    ) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidDotOpTargetNotice>(Core::Data::Ast::findSourceLocation(first))
+      );
+      return false;
+    }
     return expGenerator->generateScopeMemberReference(firstResult.astNode, second, false, g, session, result);
   } else {
     expGenerator->noticeStore->add(
@@ -522,7 +536,13 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     Ast::Type *prevThisAstType;
     if (prevResult.astType) {
       prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-      prevThisAstType = prevAstType;
+      // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
+      // to actually call that function.
+      if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
+        prevThisAstType = prevAstType;
+      } else {
+        prevThisAstType = 0;
+      }
     } else {
       prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
       prevThisAstType = 0;
@@ -699,6 +719,12 @@ Bool ExpressionGenerator::_generateOperator(
   OpType opType = OpType::INVALID;
   if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+    if (infixOp->getFirst() == 0 || infixOp->getSecond() == 0) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::IncompleteInfixOpNotice>(infixOp->findSourceLocation())
+      );
+      return false;
+    }
     if (infixOp->getType() == S("+")) { funcName = S("+"); opType = OpType::ARITHMETIC; }
     else if (infixOp->getType() == S("-")) { funcName = S("-"); opType = OpType::ARITHMETIC; }
     else if (infixOp->getType() == S("*")) { funcName = S("*"); opType = OpType::ARITHMETIC; }
@@ -735,6 +761,12 @@ Bool ExpressionGenerator::_generateOperator(
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
+    if (outfixOp->getOperand() == 0) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
+      );
+      return false;
+    }
     if (outfixOp->getType() == S("+")) { funcName = S("__pos"); opType = OpType::UNARY_VAL; }
     else if (outfixOp->getType() == S("-")) { funcName = S("__neg"); opType = OpType::UNARY_VAL; }
     else if (outfixOp->getType() == S("!")) { funcName = S("__not"); opType = OpType::INT_UNARY_VAL; }
@@ -747,6 +779,12 @@ Bool ExpressionGenerator::_generateOperator(
     }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PostfixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PostfixOperator*>(astNode);
+    if (outfixOp->getOperand() == 0) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
+      );
+      return false;
+    }
     if (outfixOp->getType() == S("++")) { funcName = S("__lateInc"); opType = OpType::UNARY_VAR; }
     else if (outfixOp->getType() == S("--")) { funcName = S("__lateDec"); opType = OpType::UNARY_VAR; }
     else {
@@ -1773,17 +1811,23 @@ Bool ExpressionGenerator::_generateAstRefOp(
   }
 
   // Generate pointer to void.
-  auto voidType = expGenerator->astHelper->getVoidType();
-  auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
-  TiObject *tgVoidPtrType;
-  if (!g->getGeneratedType(voidPtrType, session, tgVoidPtrType, 0)) {
+  auto tiObjType = expGenerator->astHelper->getTiObjectType();
+  if (tiObjType == 0) {
+    expGenerator->noticeStore->add(
+      newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(tiObjType, Ast::ReferenceMode::IMPLICIT);
+  TiObject *tgTiObjRefType;
+  if (!g->getGeneratedType(tiObjRefType, session, tgTiObjRefType, 0)) {
     return false;
   }
   // Generate a pointer literal.
-  if (!session->getTg()->generatePointerLiteral(session->getTgContext(), tgVoidPtrType, targetAstNode, result.targetData)) {
-    return false;
-  }
-  result.astType = voidPtrType;
+  if (!session->getTg()->generatePointerLiteral(
+    session->getTgContext(), tgTiObjRefType, targetAstNode, result.targetData
+  )) return false;
+  result.astType = tiObjRefType;
   return true;
 }
 
@@ -1799,21 +1843,27 @@ Bool ExpressionGenerator::_generateAstLiteralCommand(
   }
 
   // Generate pointer to void.
-  auto voidType = expGenerator->astHelper->getVoidType();
-  auto voidPtrType = expGenerator->astHelper->getPointerTypeFor(voidType);
-  TiObject *tgVoidPtrType;
-  if (!g->getGeneratedType(voidPtrType, session, tgVoidPtrType, 0)) {
+  auto tiObjType = expGenerator->astHelper->getTiObjectType();
+  if (tiObjType == 0) {
+    expGenerator->noticeStore->add(
+      newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
+  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(tiObjType, Ast::ReferenceMode::IMPLICIT);
+  TiObject *tgTiObjRefType;
+  if (!g->getGeneratedType(tiObjRefType, session, tgTiObjRefType, 0)) {
     return false;
   }
   // Capture the body in the repo so that it doesn't get freed while still needed by the generated code.
   expGenerator->astLiteralRepo->add(body);
   // Generate a pointer literal.
   if (!session->getTg()->generatePointerLiteral(
-    session->getTgContext(), tgVoidPtrType, body.get(), result.targetData
+    session->getTgContext(), tgTiObjRefType, body.get(), result.targetData
   )) {
     return false;
   }
-  result.astType = voidPtrType;
+  result.astType = tiObjRefType;
   return true;
 }
 
@@ -2425,7 +2475,7 @@ Bool ExpressionGenerator::_generateVarReference(
     if (varDef == 0) {
       throw EXCEPTION(GenericException, S("Unexpected error while looking for variable definition."));
     }
-    if (expGenerator->getAstHelper()->getDefinitionDomain(varDef) == Ast::DefinitionDomain::GLOBAL) {
+    if (expGenerator->getAstHelper()->getVariableDomain(varDef) == Ast::DefinitionDomain::GLOBAL) {
       if (!g->generateVarDef(varDef, session)) return false;
       tgVar = session->getEda()->getCodeGenData<TiObject>(varAstNode);
     } else {
@@ -2504,6 +2554,13 @@ Bool ExpressionGenerator::_generateMemberReference(
     );
     return false;
   }
+  // Make sure the member is a variable reference.
+  if (!expGenerator->astHelper->isAstReference(astMemberVar)) {
+    expGenerator->noticeStore->add(
+      newSrdObj<Spp::Notices::TypeMemberIsNotVarNotice>(astNode->findSourceLocation())
+    );
+    return false;
+  }
 
   return expGenerator->generateMemberVarReference(
     astNode, target.targetData.get(), astStructType, astMemberVar, g, session, result
@@ -2521,7 +2578,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   if (!g->getGeneratedType(astStructType, session, tgStructType, 0)) return false;
 
   // Make sure the var is an object member.
-  if (expGenerator->getAstHelper()->getDefinitionDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
+  if (expGenerator->getAstHelper()->getVariableDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
     expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
       Core::Data::Ast::findSourceLocation(astNode)
     ));
@@ -2745,7 +2802,7 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
         )) return false;
       } else {
         // Generate non-member var reference.
-        if (expGenerator->astHelper->getDefinitionDomain(item) == Ast::DefinitionDomain::OBJECT) {
+        if (expGenerator->astHelper->getVariableDomain(item) == Ast::DefinitionDomain::OBJECT) {
           expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
             Core::Data::Ast::findSourceLocation(astNode)
           ));

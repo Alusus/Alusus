@@ -58,30 +58,30 @@ void SymbolDefinition::inheritFromParent()
 {
   ASSERT(this->base != 0);
   if ((this->ownership & SymbolDefinition::Element::TERM) == 0) {
-    this->term = cloneInherited(this->base->getTerm());
+    this->term = cloneInherited(this->base->getTerm().get());
     OWN_SHAREDPTR(this->term);
   }
   if ((this->ownership & SymbolDefinition::Element::VAR_DEFS) == 0) {
-    this->varDefs = cloneInherited(this->base->getVarDefs());
+    this->varDefs = cloneInherited(this->base->getVarDefs().get());
     OWN_SHAREDPTR(this->varDefs);
   }
   if ((this->ownership & SymbolDefinition::Element::VARS) == 0) {
-    this->vars = cloneInherited(this->base->getVars());
+    this->vars = cloneInherited(this->base->getVars().get());
     OWN_SHAREDPTR(this->vars);
   }
   if ((this->ownership & SymbolDefinition::Element::HANDLER) == 0) {
     this->handler = this->base->getBuildHandler();
   }
   if ((this->ownership & SymbolDefinition::Element::FLAGS) == 0) {
-    this->flags = cloneInherited(this->base->getFlags());
+    this->flags = cloneInherited(this->base->getFlags().get());
     OWN_SHAREDPTR(this->flags);
   }
   if ((this->ownership & SymbolDefinition::Element::ATTRIBUTES) == 0) {
-    this->attributes = cloneInherited(this->base->getAttributes());
+    this->attributes = cloneInherited(this->base->getAttributes().get());
     OWN_SHAREDPTR(this->attributes);
   }
   if ((this->ownership & SymbolDefinition::Element::MODIFIER_TRANS) == 0) {
-    this->modifierTranslations = cloneInherited(this->base->getModifierTranslations());
+    this->modifierTranslations = cloneInherited(this->base->getModifierTranslations().get());
     OWN_SHAREDPTR(this->modifierTranslations);
   }
 }
@@ -105,30 +105,30 @@ void SymbolDefinition::onParentElementChanged(SymbolDefinition *obj, SymbolDefin
     this->detachFromBase();
   } else if ((elmt & this->ownership) == 0) {
     if ((elmt & SymbolDefinition::Element::TERM) == 0) {
-      this->term = cloneInherited(this->base->getTerm());
+      this->term = cloneInherited(this->base->getTerm().get());
       OWN_SHAREDPTR(this->term);
     }
     if ((elmt & SymbolDefinition::Element::VAR_DEFS) == 0) {
-      this->varDefs = cloneInherited(this->base->getVarDefs());
+      this->varDefs = cloneInherited(this->base->getVarDefs().get());
       OWN_SHAREDPTR(this->varDefs);
     }
     if ((elmt & SymbolDefinition::Element::VARS) == 0) {
-      this->vars = cloneInherited(this->base->getVars());
+      this->vars = cloneInherited(this->base->getVars().get());
       OWN_SHAREDPTR(this->vars);
     }
     if ((elmt & SymbolDefinition::Element::HANDLER) == 0) {
       this->handler = this->base->getBuildHandler();
     }
     if ((elmt & SymbolDefinition::Element::FLAGS) == 0) {
-      this->flags = cloneInherited(this->base->getFlags());
+      this->flags = cloneInherited(this->base->getFlags().get());
       OWN_SHAREDPTR(this->flags);
     }
     if ((elmt & SymbolDefinition::Element::ATTRIBUTES) == 0) {
-      this->attributes = cloneInherited(this->base->getAttributes());
+      this->attributes = cloneInherited(this->base->getAttributes().get());
       OWN_SHAREDPTR(this->attributes);
     }
     if ((elmt & SymbolDefinition::Element::MODIFIER_TRANS) == 0) {
-      this->modifierTranslations = cloneInherited(this->base->getModifierTranslations());
+      this->modifierTranslations = cloneInherited(this->base->getModifierTranslations().get());
       OWN_SHAREDPTR(this->modifierTranslations);
     }
   }

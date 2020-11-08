@@ -366,12 +366,12 @@ namespace Core { namespace Basic
     _IMPLEMENT_MAP_CONTAINING_INDEXGET(parent, __VA_ARGS__); \
     return parent::getElement(index); \
   } \
-  public: virtual TypeInfo* getElementNeededType(Char const *key) const \
+  public: virtual TypeInfo const* getElementNeededType(Char const *key) const \
   { \
     _IMPLEMENT_MAP_CONTAINING_KEYGETTYPE(__VA_ARGS__); \
     return parent::getElementNeededType(key); \
   } \
-  public: virtual TypeInfo* getElementNeededType(Int index) const \
+  public: virtual TypeInfo const* getElementNeededType(Int index) const \
   { \
     _IMPLEMENT_MAP_CONTAINING_INDEXGETTYPE(parent, __VA_ARGS__); \
     return parent::getElementNeededType(index); \

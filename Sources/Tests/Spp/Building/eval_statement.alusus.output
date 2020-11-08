@@ -36,6 +36,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @"#anonymous0" = private constant [13 x i8] c"hello world\0A\00"
 @"#anonymous1" = private constant [8 x i8] c"x = %d\0A\00"
 @"#anonymous2" = private constant [8 x i8] c"x = %d\0A\00"
+@"#anonymous3" = private constant [8 x i8] c"y = %f\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
@@ -43,12 +44,16 @@ define void @"testAstInsertion()"() {
 "#block0":
   %x = alloca i32
   %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous0", i32 0, i32 0))
+  %y = alloca double
+  store double 6.000000e+00, double* %y
   store i32 7, i32* %x
   %1 = load i32, i32* %x
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous1", i32 0, i32 0), i32 %1)
   store i32 12, i32* %x
   %3 = load i32, i32* %x
   %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous2", i32 0, i32 0), i32 %3)
+  %5 = load double, double* %y
+  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous3", i32 0, i32 0), double %5)
   ret void
 }
 
@@ -75,4 +80,18 @@ define void @"testEvalVarDestruction()"() {
 "#block0":
   ret void
 }
+------------------------------------------------------------
+ERROR SPPA1003 @ (85,12): No valid match was found for the given type.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+declare void @"testError()"()
 ------------------------------------------------------------

@@ -1,11 +1,11 @@
-ERROR SPPG1006 @ (65,5): Invalid return value.
-ERROR SPPG1006 @ (70,5): Invalid return value.
-ERROR SPPG1006 @ (75,5): Invalid return value.
-ERROR SPPG1022 @ (78,23): Missing a return statement for a non-void function.
-ERROR SPPG1022 @ (82,23): Missing a return statement for a non-void function.
-ERROR SPPG1022 @ (88,23): Missing a return statement for a non-void function.
+ERROR SPPG1006 @ (58,5): Invalid return value.
+ERROR SPPG1006 @ (63,5): Invalid return value.
+ERROR SPPG1006 @ (68,5): Invalid return value.
+ERROR SPPG1022 @ (71,23): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (75,23): Missing a return statement for a non-void function.
+ERROR SPPG1022 @ (81,23): Missing a return statement for a non-void function.
+ERROR SPPG1021 @ (96,5): Unreachable code.
 ERROR SPPG1021 @ (103,5): Unreachable code.
-ERROR SPPG1021 @ (110,5): Unreachable code.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

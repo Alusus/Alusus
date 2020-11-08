@@ -35,7 +35,7 @@ SharedPtr<TiObject> Module::prepareForSet(
   Char const *key, Int index, SharedPtr<TiObject> const &obj, Bool inherited, Bool newEntry
 ) {
   if (inherited) {
-    return cloneInherited(obj);
+    return cloneInherited(obj.get());
   } else {
     return obj;
   }
@@ -73,15 +73,15 @@ void Module::attachToBase(Module *b)
   this->getBaseModule()->metaChangeNotifier.connect(this->baseMetaChangeSlot);
 
   if ((this->ownership & Module::MetaElement::START_REF) == 0) {
-    this->startRef = cloneInherited(this->getBaseModule()->getStartRef());
+    this->startRef = cloneInherited(this->getBaseModule()->getStartRef().get());
     OWN_SHAREDPTR(this->startRef);
   }
   if ((this->ownership & Module::MetaElement::LEXER_MODULE_REF) == 0) {
-    this->lexerModuleRef = cloneInherited(this->getBaseModule()->getLexerModuleRef());
+    this->lexerModuleRef = cloneInherited(this->getBaseModule()->getLexerModuleRef().get());
     OWN_SHAREDPTR(this->lexerModuleRef);
   }
   if ((this->ownership & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
-    this->errorSyncBlockPairsRef = cloneInherited(this->getBaseModule()->getErrorSyncBlockPairsRef());
+    this->errorSyncBlockPairsRef = cloneInherited(this->getBaseModule()->getErrorSyncBlockPairsRef().get());
     OWN_SHAREDPTR(this->errorSyncBlockPairsRef);
   }
 }
@@ -109,15 +109,15 @@ void Module::detachFromBase()
 void Module::onBaseMetaChanged(Module *obj, Word element)
 {
   if ((element & Module::MetaElement::START_REF) == 0) {
-    this->startRef = cloneInherited(obj->getStartRef());
+    this->startRef = cloneInherited(obj->getStartRef().get());
     OWN_SHAREDPTR(this->startRef);
   }
   if ((element & Module::MetaElement::LEXER_MODULE_REF) == 0) {
-    this->lexerModuleRef = cloneInherited(obj->getLexerModuleRef());
+    this->lexerModuleRef = cloneInherited(obj->getLexerModuleRef().get());
     OWN_SHAREDPTR(this->lexerModuleRef);
   }
   if ((element & Module::MetaElement::ERROR_SYNC_BLOCK_PAIRS_REF) == 0) {
-    this->errorSyncBlockPairsRef = cloneInherited(obj->getErrorSyncBlockPairsRef());
+    this->errorSyncBlockPairsRef = cloneInherited(obj->getErrorSyncBlockPairsRef().get());
     OWN_SHAREDPTR(this->errorSyncBlockPairsRef);
   }
 }

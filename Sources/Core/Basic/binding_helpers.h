@@ -393,12 +393,12 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
     _IMPLEMENT_BINDING_INDEXGET(parent, __VA_ARGS__); \
     return parent::getMember(index); \
   } \
-  public: virtual TypeInfo* getMemberNeededType(Char const *key) const \
+  public: virtual TypeInfo const* getMemberNeededType(Char const *key) const \
   { \
     _IMPLEMENT_BINDING_KEYGETTYPE(__VA_ARGS__); \
     return parent::getMemberNeededType(key); \
   } \
-  public: virtual TypeInfo* getMemberNeededType(Int index) const \
+  public: virtual TypeInfo const* getMemberNeededType(Int index) const \
   { \
     _IMPLEMENT_BINDING_INDEXGETTYPE(parent, __VA_ARGS__); \
     return parent::getMemberNeededType(index); \

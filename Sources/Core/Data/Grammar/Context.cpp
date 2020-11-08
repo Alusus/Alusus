@@ -294,7 +294,7 @@ Int Context::setElement(Char const *key, TiObject *val)
 }
 
 
-TypeInfo* Context::getElementNeededType(Int index) const
+TypeInfo const* Context::getElementNeededType(Int index) const
 {
   switch(index) {
     case 0: return Module::getTypeInfo();
@@ -307,7 +307,7 @@ TypeInfo* Context::getElementNeededType(Int index) const
 }
 
 
-TypeInfo* Context::getElementNeededType(Char const *key) const
+TypeInfo const* Context::getElementNeededType(Char const *key) const
 {
   auto name = SBSTR(key);
   if (name == S("root")) {

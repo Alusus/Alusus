@@ -25,7 +25,8 @@ template <class P> class TiStrBase : public P
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiStrBase, P, "Core.Data", "Core", "alusus.org", (P));
+  TEMPLATE_TYPE_INFO(TiStrBase, P, "Core.Basic", "Core", "alusus.org", (P));
+  OBJECT_FACTORY(TiStrBase<P>);
 
 
   //============================================================================

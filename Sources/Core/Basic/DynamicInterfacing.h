@@ -44,7 +44,7 @@ class DynamicInterfacing : public TiInterface
     this->getDynamicInterfaceList()->add(interface);
   }
 
-  public: virtual void removeDynamicInterface(TypeInfo *ti)
+  public: virtual void removeDynamicInterface(TypeInfo const *ti)
   {
     this->getDynamicInterfaceList()->remove(ti);
   }
@@ -54,7 +54,7 @@ class DynamicInterfacing : public TiInterface
     this->removeDynamicInterface(T::getTypeInfo());
   }
 
-  public: virtual ObjTiInterface* getDynamicInterface(TypeInfo *ti) const
+  public: virtual ObjTiInterface* getDynamicInterface(TypeInfo const *ti) const
   {
     return this->getDynamicInterfaceList()->get(ti);
   }

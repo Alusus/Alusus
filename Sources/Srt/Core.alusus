@@ -1,0 +1,12 @@
+import "alusus_spp";
+
+module Core {
+    def rootManager: ptr;
+
+    @expname[RootManager_importFile]
+    func _importFile (rootManager: ptr, filename: ptr[array[Word[8]]]);
+
+    func importFile(filename: ptr[array[Word[8]]]) {
+        _importFile(rootManager, filename);
+    }
+}

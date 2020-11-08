@@ -3,30 +3,40 @@ import "Srl/Console";
 import "Srl/Memory";
 import "Srl/String";
 import "Srl/Array";
+import "Srl/System";
 
-@expname[atoi] func parseInt(CharsPtr): Int;
+@expname[atof] func parseFloat(CharsPtr): Float[64];
 
 use Srl;
-func countHousesBiggerThan(roomCount: Int, csv: String): Int {
-  def lines: Array[String] = csv.split("\r");
-  def count: Int = 0;
+
+func getAverageHeight(csv: String, count: ref[Int], avg: ref[Float[64]]) {
+  def lines: Array[String] = csv.split("\n");
+  if lines.getLength() < 2 {
+      Console.print("Invalid data received:\n%s\n", csv.buf);
+      System.exit(1);
+  }
+  count = 0;
+  def total: Float[64] = 0;
   def i: Int;
   // We will skip the header and start from the second line.
   for i = 1, i < lines.getLength(), ++i {
     if lines(i).trim() == "" continue;
-    if parseInt(lines(i).split(",")(4)) > roomCount { ++count }
+    ++count;
+    total += parseFloat(lines(i).split(",")(1));
   }
-  return count;
+  average = total / count;
 }
 
 def data: CharsPtr;
 def size: Int;
-if Net.get("http://samplecsvs.s3.amazonaws.com/Sacramentorealestatetransactions.csv", data~ptr, size~ptr) {
+def count: Int;
+def average: Float[64];
+if Net.get("https://people.sc.fsu.edu/~jburkardt/data/csv/hw_25000.csv", data~ptr, size~ptr) {
   Console.print("CSV fetched from web\n");
   def str: String = data;
   Memory.free(data);
-  def count: Int = countHousesBiggerThan(3, str);
-  Console.print("Houses with more than 3 rooms: %d\n", count);
+  getAverageHeight(str, count, average);
+  Console.print("Number of persons: %d, Average height: %f\n", count, average);
 } else {
-  Console.print("Failed to fetch data from the web\n");
+  Console.print("Failed to fetch data from the web.\n");
 }
