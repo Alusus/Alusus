@@ -49,9 +49,10 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   );
 
   // Initialize LLVM.
-  llvm::InitializeNativeTarget();
-  LLVMInitializeNativeAsmPrinter();
-  LLVMInitializeNativeAsmParser();
+  llvm::InitializeAllTargets();
+  llvm::InitializeAllTargetMCs();
+  llvm::InitializeAllAsmPrinters();
+  llvm::InitializeAllAsmParsers();
 
   this->buildManager = newSrdObj<BuildManager>(
     manager,

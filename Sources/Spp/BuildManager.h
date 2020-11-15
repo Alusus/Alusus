@@ -183,11 +183,11 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   );
 
   public: METHOD_BINDING_CACHE(buildObjectFileForElement,
-    Bool, (TiObject*, Char const*, Core::Notices::Store*, Core::Processing::Parser*)
+    Bool, (TiObject*, Char const*, Char const*, Core::Notices::Store*, Core::Processing::Parser*)
   );
   public: static Bool _buildObjectFileForElement(
-    TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
-    Core::Processing::Parser *parser
+    TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple,
+    Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
   );
 
   public: METHOD_BINDING_CACHE(resetBuild, void, (Int));

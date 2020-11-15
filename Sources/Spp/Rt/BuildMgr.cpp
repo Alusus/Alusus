@@ -51,11 +51,12 @@ void BuildMgr::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
 }
 
 
-Bool BuildMgr::_buildObjectFileForElement(TiObject *self, TiObject *element, Char const *objectFilename)
-{
+Bool BuildMgr::_buildObjectFileForElement(
+  TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
+) {
   PREPARE_SELF(buildMgr, BuildMgr);
   return buildMgr->buildManager->buildObjectFileForElement(
-    element, objectFilename, buildMgr->noticeStore, buildMgr->parser
+    element, objectFilename, targetTriple, buildMgr->noticeStore, buildMgr->parser
   );
 }
 

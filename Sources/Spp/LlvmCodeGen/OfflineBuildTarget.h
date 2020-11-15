@@ -51,6 +51,7 @@ class OfflineBuildTarget : public BuildTarget
 
   public: OfflineBuildTarget()
   {
+    this->setTargetTriple(0);
   }
 
   public: virtual ~OfflineBuildTarget()
@@ -62,6 +63,17 @@ class OfflineBuildTarget : public BuildTarget
 
   //============================================================================
   // Member Functions
+
+  public: void setTargetTriple(Char const *tt)
+  {
+    if (tt == 0) this->targetTriple = llvm::sys::getDefaultTargetTriple();
+    else this->targetTriple = tt;
+  }
+
+  public: std::string const& getTargetTriple() const
+  {
+    return this->targetTriple;
+  }
 
   public: virtual void setupBuild();
 

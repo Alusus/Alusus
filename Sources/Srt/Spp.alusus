@@ -75,7 +75,7 @@ import "Srl/String";
 
         @expname[Spp_BuildMgr_buildObjectFileForElement]
         function buildObjectFileForElement (
-            element: ref[Core.Basic.TiObject], filename: ptr[array[Word[8]]]
+            element: ref[Core.Basic.TiObject], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]]
         ) => Word[1];
     };
     def buildMgr: ref[BuildMgr];

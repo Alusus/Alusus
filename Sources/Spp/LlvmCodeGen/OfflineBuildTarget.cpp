@@ -20,8 +20,6 @@ void OfflineBuildTarget::setupBuild()
   this->llvmGlobalCtorDtorEntryTypes = LlvmGlobalCtorDtorEntryTypes();
   this->llvmModule.reset();
 
-  this->targetTriple = llvm::sys::getDefaultTargetTriple();
-
   std::string error;
   auto target = llvm::TargetRegistry::lookupTarget(this->targetTriple, error);
 
