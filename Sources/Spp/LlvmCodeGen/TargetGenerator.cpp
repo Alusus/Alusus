@@ -1156,6 +1156,13 @@ Bool TargetGenerator::generateAdd(
     auto llvmResult = block->getIrBuilder()->CreateFAdd(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
     result = newSrdObj<Value>(llvmResult, false);
     return true;
+  } else if (tgType->isDerivedFrom<PointerType>()) {
+    auto llvmResult = block->getIrBuilder()->CreateGEP(
+      srcVal1Box->getLlvmValue(),
+      llvm::makeArrayRef(std::vector<llvm::Value*>({ srcVal2Box->getLlvmValue() })), ""
+    );
+    result = newSrdObj<Value>(llvmResult, false);
+    return true;
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
@@ -1180,6 +1187,14 @@ Bool TargetGenerator::generateSub(
     return true;
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto llvmResult = block->getIrBuilder()->CreateFSub(srcVal1Box->getLlvmValue(), srcVal2Box->getLlvmValue());
+    result = newSrdObj<Value>(llvmResult, false);
+    return true;
+  } else if (tgType->isDerivedFrom<PointerType>()) {
+    auto negIndex = block->getIrBuilder()->CreateNeg(srcVal2Box->getLlvmValue());
+    auto llvmResult = block->getIrBuilder()->CreateGEP(
+      srcVal1Box->getLlvmValue(),
+      llvm::makeArrayRef(std::vector<llvm::Value*>({ negIndex })), ""
+    );
     result = newSrdObj<Value>(llvmResult, false);
     return true;
   } else {

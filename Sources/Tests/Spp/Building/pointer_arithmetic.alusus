@@ -1,0 +1,22 @@
+import "defs-ignore.alusus";
+use Srl;
+
+def Char: alias Word[8];
+
+func takeChar (c: Char) {
+}
+
+func test {
+    def p: ptr[Char] = "Alusus";
+    takeChar((p+5i32)~cnt);
+
+    def p2: ptr[Char] = p + 5i64;
+    takeChar((p2-3)~cnt);
+
+    takeChar((p + 6.0)~cnt);
+    takeChar((5 + p)~cnt);
+    takeChar((p * 3)~cnt);
+    takeChar((p / 3)~cnt);
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

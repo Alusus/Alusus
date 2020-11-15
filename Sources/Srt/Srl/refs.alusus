@@ -29,7 +29,7 @@ import "Memory";
             refCounter.count = 0;
             refCounter.singleAllocation = 1;
             refCounter.terminator = terminator;
-            refCounter.managedObj = (refCounter~ptr~cast[Int[64]] + RefCounter~size)~cast[ptr];
+            refCounter.managedObj = (refCounter~ptr + 1)~cast[ptr];
             return refCounter;
         }
 
