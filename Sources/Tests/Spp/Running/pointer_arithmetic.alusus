@@ -1,0 +1,36 @@
+import "Srl/Console";
+use Srl;
+
+Console.print("Pointer Addition:\n");
+def p: ptr[Char] = "Alusus";
+def i: Int;
+for i = 0, i < 6, ++i {
+    Console.print("%c\n", (p+i)~cnt);
+}
+
+Console.print("Pointer Subtraction:\n");
+def p2: ptr[Char] = p + 5;
+for i = 0, i < 6, ++i {
+    Console.print("%c\n", (p2-i)~cnt);
+}
+
+type A {
+    def c: Char;
+    def i: Int;
+}
+def a: array[A, 3];
+a(0).c = 'a';
+a(1).c = 'l';
+a(2).c = 'u';
+
+Console.print("Addition on Pointer to User Type:\n");
+def pa: ptr[A] = a(0)~ptr;
+Console.print("%c\n", (pa+0)~cast[ptr[Char]]~cnt);
+Console.print("%c\n", (pa+1)~cast[ptr[Char]]~cnt);
+Console.print("%c\n", (pa+2)~cast[ptr[Char]]~cnt);
+
+Console.print("Subtraction on Pointer to User Type:\n");
+def pa2: ptr[A] = a(2)~ptr;
+Console.print("%c\n", (pa2-0)~cast[ptr[Char]]~cnt);
+Console.print("%c\n", (pa2-1)~cast[ptr[Char]]~cnt);
+Console.print("%c\n", (pa2-2)~cast[ptr[Char]]~cnt);

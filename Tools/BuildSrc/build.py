@@ -197,7 +197,8 @@ def build_llvm():
             "cmake",
             os.path.join("..", src_dir),
             f"-DCMAKE_INSTALL_PREFIX={os.path.join(DEPS_PATH, install_dir)}",
-            "-DCMAKE_BUILD_TYPE=MinSizeRel"])
+            "-DCMAKE_BUILD_TYPE=MinSizeRel",
+            "-DLLVM_TARGETS_TO_BUILD=X86;WebAssembly"])
         if ret != 0:
             failMsg("Building LLVM.")
             exit(1)
@@ -223,7 +224,7 @@ def build_llvm():
         failMsg("Building LLVM.")
         exit(1)
     successMsg("Building LLVM.")
-    os.chdir(old_path)
+    os.chdir(DEPS_PATH)
     return os.path.realpath(install_dir)
 
 

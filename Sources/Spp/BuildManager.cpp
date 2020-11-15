@@ -127,7 +127,7 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
     targetGen = buildMgr->offlineTargetGenerator.get();
     eda = &buildMgr->offlineEda;
     offlineExec = true;
-    pointerBc = 64; // buildMgr->offlineBuildTarget->getPointerBitCount();
+    pointerBc = buildMgr->offlineBuildTarget->getPointerBitCount();
   } else {
     throw EXCEPTION(InvalidArgumentException, S("buildType"), S("Unexpected build type."), buildType);
   }
@@ -439,12 +439,12 @@ void BuildManager::_dumpLlvmIrForElement(
   Str ir = buildMgr->offlineBuildTarget->generateLlvmIr(
     buildSession->getGlobalCtorNames(), buildSession->getGlobalDtorNames()
   );
+  parser->flushApprovedNotices();
   if (result) {
     outStream << S("-------------------- Generated LLVM IR ---------------------\n");
     outStream << ir;
     outStream << S("------------------------------------------------------------\n");
   } else {
-    parser->flushApprovedNotices();
     outStream << S("Build Failed...\n");
     outStream << S("--------------------- Partial LLVM IR ----------------------\n");
     outStream << ir;
@@ -454,14 +454,16 @@ void BuildManager::_dumpLlvmIrForElement(
 
 
 Bool BuildManager::_buildObjectFileForElement(
-  TiObject *self, TiObject *element, Char const *objectFilename, Core::Notices::Store *noticeStore,
-  Core::Processing::Parser *parser
+  TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple,
+  Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
 ) {
   VALIDATE_NOT_NULL(element, noticeStore);
   PREPARE_SELF(buildMgr, BuildManager);
 
   TiObject *globalFuncElement = 0;
   if (element->isDerivedFrom<Ast::Module>()) globalFuncElement = element;
+
+  buildMgr->offlineBuildTarget->setTargetTriple(targetTriple);
 
   SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(
     noticeStore, BuildManager::BuildType::OFFLINE, globalFuncElement
@@ -480,6 +482,7 @@ Bool BuildManager::_buildObjectFileForElement(
       objectFilename, buildSession->getGlobalCtorNames(), buildSession->getGlobalDtorNames()
     );
   }
+  parser->flushApprovedNotices();
 
   return result;
 }

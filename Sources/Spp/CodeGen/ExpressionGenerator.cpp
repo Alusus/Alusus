@@ -963,6 +963,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), true, false, session, param2
   )) return false;
   Ast::Type *astTargetType = 0;
+  Ast::Type *astOp2CastType = 0;
 
   if (param1.astType->isDerivedFrom<Ast::FloatType>() && param2.astType->isDerivedFrom<Ast::FloatType>()) {
     // Two floats.
@@ -970,13 +971,13 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     auto floatType2 = static_cast<Ast::FloatType*>(param2.astType);
     auto bitCount1 = floatType1->getBitCount(expGenerator->astHelper);
     auto bitCount2 = floatType2->getBitCount(expGenerator->astHelper);
-    astTargetType = bitCount1 >= bitCount2 ? floatType1 : floatType2;
+    astOp2CastType = astTargetType = bitCount1 >= bitCount2 ? floatType1 : floatType2;
   } else if (param1.astType->isDerivedFrom<Ast::FloatType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
     // Float and int.
-    astTargetType = param1.astType;
+    astOp2CastType = astTargetType = param1.astType;
   } else if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::FloatType>()) {
     // Int and float.
-    astTargetType = param2.astType;
+    astOp2CastType = astTargetType = param2.astType;
   } else if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
     // Two integers.
     auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
@@ -986,9 +987,25 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
     if (targetBitCount < 32) targetBitCount = 32;
     if (!integerType1->isSigned() && !integerType2->isSigned()) {
-      astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
+      astOp2CastType = astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
     } else {
-      astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+      astOp2CastType = astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+    }
+  } else if (
+    param1.astType->isDerivedFrom<Ast::PointerType>() &&
+    param2.astType->isDerivedFrom<Ast::IntegerType>() &&
+    (*astNode->getType().get() == C('+') || *astNode->getType().get() == C('-'))
+  ) {
+    // Pointer and int.
+    astTargetType = param1.astType;
+    auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    if (bitCount2 == 1) {
+      // Adding a boolean to a pointer gives unexpected results since a boolean true may be treated as -1 rather than 1
+      // so we need to cast it to 8 bit integer.
+      astOp2CastType = expGenerator->astHelper->getIntType(8);
+    } else {
+      astOp2CastType = integerType2;
     }
   } else {
     // Error.
@@ -1005,7 +1022,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
       throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }
     if (!g->generateCast(
-      session, param2.astType, astTargetType, astNode, param2.targetData.get(), false, param2.targetData
+      session, param2.astType, astOp2CastType, astNode, param2.targetData.get(), false, param2.targetData
     )) {
       throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
     }

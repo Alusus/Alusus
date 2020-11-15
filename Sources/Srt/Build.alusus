@@ -17,10 +17,12 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     use Core.Basic;
     use Srl;
 
-    type Exe {
+    type Unit {
         def element: ref[TiObject];
         def outputFilename: CharsPtr;
         def deps: array[Char, 512];
+
+        handler this~init() {}
 
         handler this~init(e: ref[TiObject], fn: CharsPtr) {
             this.element~no_deref = e;
@@ -48,9 +50,17 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             }
             return true;
         }
+    }
+
+    type Exe {
+        @injection def unit: Unit;
+
+        handler this~init(e: ref[TiObject], fn: CharsPtr) {
+            this.unit~init(e, fn);
+        }
 
         function generate () => Bool {
-            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o") {
+            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", 0) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
                 return false;
             }
@@ -64,9 +74,40 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         }
     }
 
+    type Wasm {
+        @injection def unit: Unit;
+
+        handler this~init(e: ref[TiObject], fn: CharsPtr) {
+            this.unit~init(e, fn);
+        }
+
+        function generate () => Bool {
+            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", "wasm32-unknown-unknown") {
+                Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
+                return false;
+            }
+            def cmd: array[Char, 600];
+            String.assign(
+                cmd~ptr, "wasm-ld-10 --no-entry --allow-undefined --export-all --import-memory /tmp/output.o %s -o %s ",
+                this.deps~ptr, this.outputFilename
+            );
+            if System.exec(cmd~ptr) != 0 {
+                Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
+                return false;
+            }
+            return true;
+        }
+    }
+
     function genExecutable (element: ref[TiObject], outputFilename: CharsPtr) => Bool
     {
         def exe: Exe(element, outputFilename);
+        return exe.generate();
+    }
+
+    function genWasm (element: ref[TiObject], outputFilename: CharsPtr) => Bool
+    {
+        def exe: Wasm(element, outputFilename);
         return exe.generate();
     }
 }
