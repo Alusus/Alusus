@@ -20,15 +20,18 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     type Unit {
         def element: ref[TiObject];
         def outputFilename: CharsPtr;
-        def deps: array[Char, 512];
+        def deps: Array[String];
 
         handler this~init() {}
 
         handler this~init(e: ref[TiObject], fn: CharsPtr) {
             this.element~no_deref = e;
             this.outputFilename = fn;
-            this.deps(0) = 0;
             this.addDependency(e);
+        }
+
+        function addDependency (d: String) {
+            this.deps.add(d);
         }
 
         function addDependency (e: ref[TiObject]) => Bool {
@@ -42,11 +45,8 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             if modifier~ptr != 0 {
                 def deps: Array[String];
                 if !Spp.astMgr.getModifierStringParams(modifier, deps) return false;
-                def i: Int;
-                for i = 0, i < deps.getLength(), ++i {
-                    String.concat(this.deps~ptr, " -l:");
-                    String.concat(this.deps~ptr, deps(i));
-                }
+                def i: Word;
+                for i = 0, i < deps.getLength(), ++i this.addDependency(deps(i));
             }
             return true;
         }
@@ -59,13 +59,23 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             this.unit~init(e, fn);
         }
 
+        function getDepsString (): String {
+            def depsString: String("");
+            def i: Word;
+            for i = 0, i < this.deps.getLength(), ++i {
+                depsString += " -l:";
+                depsString += this.deps(i);
+            }
+            return depsString;
+        }
+
         function generate () => Bool {
             if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", 0) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
                 return false;
             }
             def cmd: array[Char, 600];
-            String.assign(cmd~ptr, "gcc -no-pie /tmp/output.o -o %s %s", this.outputFilename, this.deps~ptr);
+            String.assign(cmd~ptr, "gcc -no-pie /tmp/output.o -o %s %s", this.outputFilename, this.getDepsString().buf);
             if System.exec(cmd~ptr) != 0 {
                 Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
                 return false;
@@ -81,6 +91,16 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             this.unit~init(e, fn);
         }
 
+        function getDepsString (): String {
+            def depsString: String("");
+            def i: Word;
+            for i = 0, i < this.deps.getLength(), ++i {
+                depsString += " ";
+                depsString += this.deps(i);
+            }
+            return depsString;
+        }
+
         function generate () => Bool {
             if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", "wasm32-unknown-unknown") {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
@@ -88,8 +108,8 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             }
             def cmd: array[Char, 600];
             String.assign(
-                cmd~ptr, "wasm-ld-10 --no-entry --allow-undefined --export-all --import-memory /tmp/output.o %s -o %s ",
-                this.deps~ptr, this.outputFilename
+                cmd~ptr, "wasm-ld-10 --no-entry --allow-undefined --export-all %s /tmp/output.o -o %s ",
+                this.getDepsString().buf, this.outputFilename
             );
             if System.exec(cmd~ptr) != 0 {
                 Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
@@ -107,7 +127,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
     function genWasm (element: ref[TiObject], outputFilename: CharsPtr) => Bool
     {
-        def exe: Wasm(element, outputFilename);
-        return exe.generate();
+        def wasm: Wasm(element, outputFilename);
+        return wasm.generate();
     }
 }
