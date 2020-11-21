@@ -60,7 +60,7 @@
 
     <context id="numeric" style-ref="literal">
       <match extended="true">
-        (\b([0-9]+|0[نمhHbBoO][0-9a-fA-F]+)([uUط]?[صiI][0-9]*)?\b|
+        (\b([0-9]+|0[نمhHbBoO][0-9a-fA-F]+)[uUط]?([صiI][0-9]*)?\b|
          \b(([0-9]+[قEe][-+]?[0-9]+|
             ([0-9]*\.[0-9]+|[0-9]+\.)([قEe][-+]?[0-9]+)?)([عfFdD][0-9]*)?|
             [0-9]+[عFfDd][0-9]*))
