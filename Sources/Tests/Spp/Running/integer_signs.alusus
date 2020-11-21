@@ -1,0 +1,35 @@
+import "Srl/Console";
+use Srl;
+
+func test {
+    Console.print("size = %d\n", 34500~size);
+    Console.print("size = %d\n", 34500u~size);
+
+    def i: Int[8] = 5;
+    def w: Word[8] = 5u;
+    def li: Int[16] = 31000;
+    def lw: Word[16] = 31000u;
+
+    Console.print("w > 4: %d\n", w > 4i16);
+    Console.print("w > 200: %d\n", w > 200);
+    Console.print("i > 4: %d\n", i > 4);
+    Console.print("li > 30000: %d\n", li > 30000);
+    Console.print("lw > 30000: %d\n", lw > 30000i32);
+    Console.print("lw > 34000: %d\n", lw > 34000);
+    w = 130u;
+    i = 127;
+    Console.print("i = %d, w = %d\n", i~cast[Int[32]], w~cast[Int[32]]);
+
+    w = (-1)~cast[Word[8]];
+    Console.print("w = %d\n", w~cast[Int[32]]);
+    w = 1;
+    Console.print("w == 1: %d\n", w == 1);
+    i = 1;
+    i = -1;
+    Console.print("i == -1: %d\n", i == -1);
+    Console.print("i == 1: %d\n", i == 1);
+
+    def i64: Int[64] = 5 - 6;
+    Console.print("%ld\n", i64);
+}
+test();

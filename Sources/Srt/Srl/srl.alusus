@@ -21,6 +21,8 @@ def char: alias Word[8];
 def Char: alias Word[8];
 def CharsPtr: alias ptr[array[Word[8]]];
 def void: alias Void;
+def ArchInt: alias Int[0];
+def ArchWord: alias Word[0];
 
 def true: 1;
 def false: 0;

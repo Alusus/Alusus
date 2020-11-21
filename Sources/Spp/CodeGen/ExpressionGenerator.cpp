@@ -982,8 +982,8 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     // Two integers.
     auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
     auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
     auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
     if (targetBitCount < 32) targetBitCount = 32;
     if (!integerType1->isSigned() && !integerType2->isSigned()) {
@@ -999,7 +999,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     // Pointer and int.
     astTargetType = param1.astType;
     auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
     if (bitCount2 == 1) {
       // Adding a boolean to a pointer gives unexpected results since a boolean true may be treated as -1 rather than 1
       // so we need to cast it to 8 bit integer.
@@ -1105,8 +1105,8 @@ Bool ExpressionGenerator::_generateBinaryOp(
     // Two integers.
     auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
     auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
     auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
     if (!integerType1->isSigned() && !integerType2->isSigned()) {
       astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
@@ -1225,17 +1225,17 @@ Bool ExpressionGenerator::_generateComparisonOp(
     // Two integers.
     auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
     auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
     auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
     if (!integerType1->isSigned() && !integerType2->isSigned()) {
       astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
     } else if (integerType1->isSigned() && integerType2->isSigned()) {
       astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
-    } else if (bitCount2 == 1) {
-      astTargetType = integerType1;
-    } else if (bitCount1 == 1) {
-      astTargetType = integerType2;
+    } else if (!integerType1->isSigned() && bitCount1 < bitCount2) {
+      astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+    } else if (integerType1->isSigned() && bitCount1 > bitCount2) {
+      astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
     } else {
       // error
       expGenerator->noticeStore->add(
@@ -1568,7 +1568,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
     astTargetType = static_cast<Ast::FloatType*>(param.astType);
   } else if (param.astType->isDerivedFrom<Ast::IntegerType>()) {
     auto integerType = static_cast<Ast::IntegerType*>(param.astType);
-    auto bitCount = integerType->getBitCount(expGenerator->astHelper);
+    auto bitCount = integerType->getBitCount(expGenerator->astHelper, session->getExecutionContext());
     astTargetType = expGenerator->astHelper->getIntType(bitCount);
   } else {
     // Error.
@@ -1635,7 +1635,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
   // Limit logical not to boolean types.
   if (
     (astNode->getType() == S("!!") || astNode->getType() == S("not")) &&
-    astTargetType->getBitCount(expGenerator->astHelper) != 1
+    astTargetType->getBitCount(expGenerator->astHelper, session->getExecutionContext()) != 1
   ) {
     // Error.
     expGenerator->noticeStore->add(
@@ -2114,9 +2114,9 @@ Bool ExpressionGenerator::_generateSizeOp(
   if (!retVal) return false;
 
   // Generate the Word64 type needed for the result.
-  auto bitCount = expGenerator->astHelper->getNeededWordSize(size);
+  auto bitCount = expGenerator->astHelper->getNeededIntSize(size);
   if (bitCount < 8) bitCount = 8;
-  auto astWordType = expGenerator->astHelper->getWordType(bitCount);
+  auto astWordType = expGenerator->astHelper->getIntType(bitCount);
 
   // Generate a constant with that size.
   if (session->getTgContext() != 0) {
@@ -2318,7 +2318,7 @@ Bool ExpressionGenerator::_generateCharLiteral(
   TiObject *charTgType;
   if (!g->getGeneratedType(charAstType, session, charTgType, 0)) return false;
 
-  auto bitCount = charAstType->getBitCount(expGenerator->astHelper);
+  auto bitCount = charAstType->getBitCount(expGenerator->astHelper, session->getExecutionContext());
 
   if (session->getTgContext() != 0) {
     if (!session->getTg()->generateIntLiteral(session->getTgContext(), bitCount, false, value, result.targetData)) {
@@ -2378,8 +2378,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   }
 
   // Is it a signed number?
-  // Give special treatment to 0 and 1 and consider it unsigned.
-  Bool signedNum = value == 0 || value == 1 ? false : true;
+  Bool signedNum = true;
   if (*src == C('u') || *src == C('U')) {
     signedNum = false;
     ++src;
@@ -2390,9 +2389,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
 
   // Determine integer size.
   Bool typeRequested = false;
-  Int size = signedNum ?
-    expGenerator->astHelper->getNeededIntSize((LongInt)value) :
-    expGenerator->astHelper->getNeededWordSize(value);
+  Int size;
   if (*src == C('i') || *src == C('I')) {
     typeRequested = true;
     ++src;
@@ -2401,6 +2398,14 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
     typeRequested = true;
     src += 2;
     if (getStrLen(src) > 0) size = std::stoi(src);
+  } else {
+    if (value == 0 || value == 1) {
+      // Give special treatment to 0 and 1 and consider it unsigned.
+      signedNum = false;
+    }
+    size = signedNum ?
+      expGenerator->astHelper->getNeededIntSize((LongInt)value) :
+      expGenerator->astHelper->getNeededWordSize(value);
   }
 
   // Get the requested type.
@@ -2631,7 +2636,7 @@ Bool ExpressionGenerator::_generateArrayReference(
   TioSharedPtr tgCastedIndex;
   if (session->getTgContext() != 0) {
     if (!g->generateCast(
-      session, astIndexType, expGenerator->astHelper->getInt64Type(), astNode, tgIndexVal, false, tgCastedIndex
+      session, astIndexType, expGenerator->astHelper->getArchIntType(), astNode, tgIndexVal, false, tgCastedIndex
     )) {
       // This should not happen since non-castable calls should be filtered out earlier.
       throw EXCEPTION(GenericException, S("Invalid cast was unexpectedly found."));

@@ -40,7 +40,7 @@ void Helper::initBindingCaches()
     &this->getBoolType,
     &this->getCharType,
     &this->getCharArrayType,
-    &this->getInt64Type,
+    &this->getArchIntType,
     &this->getIntType,
     &this->getWord64Type,
     &this->getWordType,
@@ -79,7 +79,7 @@ void Helper::initBindings()
   this->getBoolType = &Helper::_getBoolType;
   this->getCharType = &Helper::_getCharType;
   this->getCharArrayType = &Helper::_getCharArrayType;
-  this->getInt64Type = &Helper::_getInt64Type;
+  this->getArchIntType = &Helper::_getArchIntType;
   this->getIntType = &Helper::_getIntType;
   this->getWord64Type = &Helper::_getWord64Type;
   this->getWordType = &Helper::_getWordType;
@@ -267,7 +267,7 @@ Bool Helper::_lookupCalleeOnObject(
   } else if (obj != 0 && obj->isDerivedFrom<ArrayType>()) {
     if (
       types != 0 && types->getElementCount() == 1 &&
-      helper->isImplicitlyCastableTo(types->getElement(0), helper->getInt64Type(), ec)
+      helper->isImplicitlyCastableTo(types->getElement(0), helper->getArchIntType(), ec)
     ) {
       if (result.matchStatus < TypeMatchStatus::EXACT) {
         result.matchStatus = TypeMatchStatus::EXACT;
@@ -866,13 +866,13 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
 }
 
 
-IntegerType* Helper::_getInt64Type(TiObject *self)
+IntegerType* Helper::_getArchIntType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
-  if (helper->int64Type == 0) {
-    helper->int64Type = helper->getIntType(64);
+  if (helper->archIntType == 0) {
+    helper->archIntType = helper->getIntType(0);
   }
-  return helper->int64Type;
+  return helper->archIntType;
 }
 
 

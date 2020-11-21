@@ -147,6 +147,7 @@ Bool TargetGenerator::generateVoidType(TioSharedPtr &type)
 
 Bool TargetGenerator::generateIntType(Word bitCount, Bool withSign, TioSharedPtr &type)
 {
+  if (bitCount == 0) bitCount = this->buildTarget->getPointerBitCount();
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
     this->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());

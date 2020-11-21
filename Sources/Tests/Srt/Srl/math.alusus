@@ -111,7 +111,7 @@ def Main: module
     Srl.Console.print(Srl.Math.round(1.76f64)); Srl.Console.putChar('\n');
     Srl.Console.putChar('\n');
 
-    Srl.Math.seedRandom(1000000);
+    Srl.Math.seedRandom(1000000u);
     Srl.Console.print(Srl.Math.random()); Srl.Console.putChar('\n');
     Srl.Console.print(Srl.Math.random()); Srl.Console.putChar('\n');
   }

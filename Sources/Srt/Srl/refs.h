@@ -34,13 +34,13 @@ class RefCounter
   //=================
   // Member Functions
 
-  public: static RefCounter* alloc(Int size, void (*terminator)(void*)) {
+  public: static RefCounter* alloc(ArchInt size, void (*terminator)(void*)) {
     RefCounter *refCounter;
     refCounter = (RefCounter*)malloc(sizeof(RefCounter) + size);
     refCounter->count = 0;
     refCounter->singleAllocation = true;
     refCounter->terminator = terminator;
-    refCounter->managedObj = (void*)((PtrInt)refCounter + sizeof(RefCounter));
+    refCounter->managedObj = (void*)((ArchInt)refCounter + sizeof(RefCounter));
     return refCounter;
   }
 

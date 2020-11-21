@@ -19,7 +19,7 @@ import "Memory";
         //=================
         // Member Variables
 
-        def indices: Array[Int];
+        def indices: Array[ArchInt];
         def values: ref[Array[T]];
 
         //===============
@@ -37,26 +37,26 @@ import "Memory";
         //=================
         // Member Functions
 
-        func add (i: Int) {
+        func add (i: ArchInt) {
             if i == -1 {
                 // Add any new items at the end of the values list.
                 if this.values.getLength() <= this.indices.getLength() return;
                 this.indices.reserve(this.values.getBufSize());
                 while this.values.getLength() > this.indices.getLength() {
                     i = this.indices.getLength();
-                    def pos: Int;
+                    def pos: ArchInt;
                     this.findPos(this.values(i), pos);
                     this.indices.insert(pos, i);
                 }
             } else if (i < this.values.getLength()) {
                 // Add a new item at a specific location.
                 // First update the existing indices.
-                def j: Int;
+                def j: ArchInt;
                 for j = 0, j < this.indices.getLength(), ++j {
                     if this.indices(j) >= i { ++this.indices(j) };
                 }
                 // Now insert the new value.
-                def pos: Int;
+                def pos: ArchInt;
                 this.findPos(this.values(i), pos);
                 this.indices.insert(pos, i);
             } else {
@@ -64,11 +64,11 @@ import "Memory";
             }
         }
 
-        func remove(i: Int) {
+        func remove(i: ArchInt) {
             if i >= this.indices.getLength() {
                 System.fail(1, "Argument `i` is out of range.");
             }
-            def j: Int;
+            def j: ArchInt;
             for j = 0, j < this.indices.getLength(), ++j {
                 if this.indices(j) == i {
                     this.indices.remove(j);
@@ -83,13 +83,13 @@ import "Memory";
             this.indices.clear();
         }
 
-        func findPos(v: ref[T]): Int {
-            def r: Int;
+        func findPos(v: ref[T]): ArchInt {
+            def r: ArchInt;
             if this.findPos(v, r) return this.indices(r)
             else return -1;
         }
 
-        func findPos(v: ref[T], result: ref[Int]): Bool {
+        func findPos(v: ref[T], result: ref[ArchInt]): Bool {
             if this.indices.getLength() == 0 {
                 result = 0;
                 return 0;
@@ -116,12 +116,12 @@ import "Memory";
             return this._findPos(v, 0, this.indices.getLength() - 1, result);
         }
 
-        func _findPos(v: ref[T], startPos: Int, endPos: Int, result: ref[Int]): Bool {
+        func _findPos(v: ref[T], startPos: ArchInt, endPos: ArchInt, result: ref[ArchInt]): Bool {
             if startPos == endPos - 1 {
                 result = endPos;
                 return 0;
             } else {
-                def midPos: Int = (startPos + endPos) / 2;
+                def midPos: ArchInt = (startPos + endPos) / 2;
                 def vm: ref[T](this.values(this.indices(midPos)));
                 if v == vm {
                     result = midPos;

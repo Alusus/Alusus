@@ -60,7 +60,7 @@ TypeMatchStatus PointerType::matchTargetType(
   }
 
   auto integerType = ti_cast<IntegerType const>(type);
-  if (integerType != 0 && integerType->getBitCount(helper) == ec->getPointerBitCount()) {
+  if (integerType != 0 && integerType->getBitCount(helper, ec) == ec->getPointerBitCount()) {
     return TypeMatchStatus::EXPLICIT_CAST;
   }
 

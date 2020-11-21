@@ -4,10 +4,10 @@ import "Srl/String";
 
 @merge module Spp {
     def SeekerFlags: {
-        def SKIP_OWNERS: 1;
-        def SKIP_OWNED: 2;
-        def SKIP_USES: 4;
-        def SKIP_CHILDREN: 0h10000;
+        def SKIP_OWNERS: 1u;
+        def SKIP_OWNED: 2u;
+        def SKIP_USES: 4u;
+        def SKIP_CHILDREN: 0h10000u;
     };
 
     type AstMgr {

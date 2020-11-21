@@ -168,7 +168,7 @@ Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astTyp
 Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, Session *session)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  auto bitCount = astType->getBitCount(typeGenerator->astHelper);
+  auto bitCount = astType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
     typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
@@ -632,7 +632,8 @@ Bool TypeGenerator::_generateCast(
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       if (
         srcIntegerType->isNullLiteral() ||
-        srcIntegerType->getBitCount(typeGenerator->astHelper) == session->getExecutionContext()->getPointerBitCount()
+        srcIntegerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext())
+          == session->getExecutionContext()->getPointerBitCount()
       ) {
         TiObject *targetTgType;
         if (!typeGenerator->getGeneratedType(targetPointerType, g, session, targetTgType, 0)) return false;
@@ -665,7 +666,7 @@ Bool TypeGenerator::_generateCast(
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast pointer to integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
-      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper);
+      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
       if (session->getExecutionContext()->getPointerBitCount() == targetBitCount) {
         TiObject *srcTgType;
         if (!typeGenerator->getGeneratedType(srcType, g, session, srcTgType, 0)) return false;
@@ -720,7 +721,7 @@ Bool TypeGenerator::_generateDefaultValue(
     }
 
     auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
-    auto bitCount = integerType->getBitCount(typeGenerator->astHelper);
+    auto bitCount = integerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
     return session->getTg()->generateIntLiteral(session->getTgContext(), bitCount, integerType->isSigned(), 0, result);
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
     // Generate float 0

@@ -37,8 +37,8 @@ macro implementGetElementNames [condition, parent] {
 
 function dumpModifiers (element: ref[Core.Basic.TiObject]) {
     def modifiers: ref[Core.Data.Containing](Spp.astMgr.getModifiers(element));
-    def i: Word;
-    for i = 0, i < modifiers.getElementCount(), ++i {
+    def i: Int;
+    for i = 0, i < modifiers.getElementCount()~cast[Int], ++i {
         Console.print("%s\n", Spp.astMgr.getModifierKeyword(modifiers.getElement(i)).buf);
     }
 }

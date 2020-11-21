@@ -1,0 +1,98 @@
+ERROR SPPG1015 @ (15,34): Incompatible types for the given operator.
+ERROR SPPG1015 @ (21,39): Incompatible types for the given operator.
+ERROR SPPG1015 @ (34,36): Incompatible types for the given operator.
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+
+@"#anonymous0" = private constant [11 x i8] c"size = %d\0A\00"
+@"#anonymous1" = private constant [11 x i8] c"size = %d\0A\00"
+@"#anonymous2" = private constant [11 x i8] c"w > 4: %d\0A\00"
+@"#anonymous3" = private constant [13 x i8] c"w > 200: %d\0A\00"
+@"#anonymous4" = private constant [11 x i8] c"i > 4: %d\0A\00"
+@"#anonymous5" = private constant [13 x i8] c"i > 200: %d\0A\00"
+@"#anonymous6" = private constant [16 x i8] c"li > 30000: %d\0A\00"
+@"#anonymous7" = private constant [16 x i8] c"li > 34000: %d\0A\00"
+@"#anonymous8" = private constant [16 x i8] c"lw > 30000: %d\0A\00"
+@"#anonymous9" = private constant [16 x i8] c"lw > 34000: %d\0A\00"
+@"#anonymous10" = private constant [16 x i8] c"i = %d, w = %d\0A\00"
+@"#anonymous11" = private constant [8 x i8] c"w = %d\0A\00"
+@"#anonymous12" = private constant [12 x i8] c"w == 1: %d\0A\00"
+@"#anonymous13" = private constant [13 x i8] c"w == -1: %d\0A\00"
+@"#anonymous14" = private constant [13 x i8] c"i == -1: %d\0A\00"
+@"#anonymous15" = private constant [12 x i8] c"i == 1: %d\0A\00"
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"test()"() {
+"#block0":
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([11 x i8]* @"#anonymous0" to [1 x i8]*), i8 4)
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([11 x i8]* @"#anonymous1" to [1 x i8]*), i8 2)
+  %i = alloca i8
+  store i8 5, i8* %i
+  %w = alloca i8
+  store i8 5, i8* %w
+  %li = alloca i16
+  store i16 31000, i16* %li
+  %lw = alloca i16
+  store i16 31000, i16* %lw
+  %0 = load i8, i8* %w
+  %1 = load i8, i8* %w
+  %2 = zext i8 %1 to i16
+  %3 = icmp sgt i16 %2, 200
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([13 x i8]* @"#anonymous3" to [1 x i8]*), i1 %3)
+  %4 = load i8, i8* %i
+  %5 = icmp sgt i8 %4, 4
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([11 x i8]* @"#anonymous4" to [1 x i8]*), i1 %5)
+  %6 = load i8, i8* %i
+  %7 = sext i8 %6 to i16
+  %8 = icmp sgt i16 %7, 200
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([13 x i8]* @"#anonymous5" to [1 x i8]*), i1 %8)
+  %9 = load i16, i16* %li
+  %10 = icmp sgt i16 %9, 30000
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([16 x i8]* @"#anonymous6" to [1 x i8]*), i1 %10)
+  %11 = load i16, i16* %li
+  %12 = sext i16 %11 to i32
+  %13 = icmp sgt i32 %12, 34000
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([16 x i8]* @"#anonymous7" to [1 x i8]*), i1 %13)
+  %14 = load i16, i16* %lw
+  %15 = load i16, i16* %lw
+  %16 = zext i16 %15 to i32
+  %17 = icmp sgt i32 %16, 34000
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([16 x i8]* @"#anonymous9" to [1 x i8]*), i1 %17)
+  store i8 -126, i8* %w
+  store i8 -126, i8* %w
+  store i8 127, i8* %i
+  store i8 -128, i8* %i
+  %18 = load i8, i8* %i
+  %19 = sext i8 %18 to i32
+  %20 = load i8, i8* %w
+  %21 = zext i8 %20 to i32
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([16 x i8]* @"#anonymous10" to [1 x i8]*), i32 %19, i32 %21)
+  store i8 -1, i8* %w
+  %22 = load i8, i8* %w
+  %23 = zext i8 %22 to i32
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([8 x i8]* @"#anonymous11" to [1 x i8]*), i32 %23)
+  store i8 -1, i8* %w
+  store i8 1, i8* %w
+  %24 = load i8, i8* %w
+  %25 = icmp eq i8 %24, 1
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([12 x i8]* @"#anonymous12" to [1 x i8]*), i1 %25)
+  %26 = load i8, i8* %w
+  store i8 1, i8* %i
+  store i8 -1, i8* %i
+  %27 = load i8, i8* %i
+  %28 = icmp eq i8 %27, -1
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([13 x i8]* @"#anonymous14" to [1 x i8]*), i1 %28)
+  %29 = load i8, i8* %i
+  %30 = icmp eq i8 %29, 1
+  call void ([1 x i8]*, ...) @fprintf([1 x i8]* bitcast ([12 x i8]* @"#anonymous15" to [1 x i8]*), i1 %30)
+  ret void
+}
+
+declare void @fprintf([1 x i8]*, ...)
+------------------------------------------------------------

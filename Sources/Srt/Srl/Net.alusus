@@ -336,8 +336,8 @@ import "libcurl.so";
     };
 
     func _getCallbackFunction(chunk: ptr, size: Int[64], count: Int[64], content: ptr[_Content]): Int {
-      def newSize: Word;
-      newSize = content~cnt.size + size * count;
+      def newSize: Int;
+      newSize = (content~cnt.size + size * count)~cast[Int];
       if content~cnt.data == 0 {
         content~cnt.data = Srl.Memory.alloc(newSize)~cast[ptr[array[Word[8]]]];
       } else {
@@ -345,7 +345,7 @@ import "libcurl.so";
       };
       Srl.Memory.copy(content~cnt.data~cnt(content~cnt.size)~ptr, chunk, size * count);
       content~cnt.size = newSize;
-      return size * count;
+      return (size * count)~cast[Int];
     };
 
     func get(url: ptr[array[Char]], result: ptr[ptr], resultCount: ptr[Int]): Bool {

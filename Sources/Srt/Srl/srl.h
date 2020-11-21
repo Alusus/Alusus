@@ -54,7 +54,7 @@ typedef long int LongInt;
  * This is used for pointer arithmetics.
  * @ingroup srl
  */
-typedef long int PtrInt;
+typedef long int ArchInt;
 
 /// @ingroup srl
 typedef float Float;

@@ -53,14 +53,14 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
 
     Console.print("%s.%s\n", obj.getMyTypeInfo().typeNamespace.buf, obj.getMyTypeInfo().typeName.buf);
 
-    def i: Word;
+    def i: Int;
 
     // Print members
     def binding: ref[Core.Data.Binding](Core.Basic.getInterface[obj, Core.Data.Binding]);
     if binding~ptr != 0 {
         printIndent(indent + 1);
         Console.print("members:\n");
-        for i = 0, i < binding.getMemberCount(), ++i {
+        for i = 0, i < binding.getMemberCount()~cast[Int], ++i {
             printIndent(indent + 1);
             Console.print("-%s: ", binding.getMemberKey(i).buf);
             printAst(binding.getMember(i), indent + 2);
@@ -72,7 +72,7 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     if mapContaining~ptr != 0 {
         printIndent(indent + 1);
         Console.print("map elements:\n");
-        for i = 0, i < mapContaining.getElementCount(), ++i {
+        for i = 0, i < mapContaining.getElementCount()~cast[Int], ++i {
             printIndent(indent + 1);
             Console.print("-%s: ", mapContaining.getElementKey(i).buf);
             printAst(mapContaining.getElement(i), indent + 2);
@@ -84,7 +84,7 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     if mapContaining~ptr == 0 && containing~ptr != 0 {
         printIndent(indent + 1);
         Console.print("list elements:\n");
-        for i = 0, i < containing.getElementCount(), ++i {
+        for i = 0, i < containing.getElementCount()~cast[Int], ++i {
             printIndent(indent + 1);
             Console.print("-");
             printAst(containing.getElement(i), indent + 2);

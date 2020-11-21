@@ -23,7 +23,7 @@ import "Memory";
         def terminator: ptr[@shared @no_bind function (p: ptr)];
         def managedObj: ptr;
 
-        @shared func alloc(size: Int, terminator: ptr[function (ptr)]): ref[RefCounter] {
+        @shared func alloc(size: ArchInt, terminator: ptr[function (ptr)]): ref[RefCounter] {
             def refCounter: ref[RefCounter];
             refCounter~ptr = Memory.alloc(RefCounter~size + size)~cast[ptr[RefCounter]];
             refCounter.count = 0;

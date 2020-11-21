@@ -33,7 +33,7 @@ import "StringBase";
         func find(s: ptr[Char], c: Int): ptr[Char];
 
         @shared @expname[memchr]
-        func find(s: ptr[Void], c: Int, n: Int[64]): ptr[Void];
+        func find(s: ptr[Void], c: Int, n: ArchInt): ptr[Void];
 
         @shared @expname[strrchr]
         func findLast(s: ptr[Char], c: Int): ptr[Char];
@@ -48,22 +48,22 @@ import "StringBase";
         func compare(s1: ptr[Char], s2: ptr[Char]): Int;
 
         @shared @expname[strncmp]
-        func compare(s1: ptr[Char], s2: ptr[Char], n: Int[64]): Int;
+        func compare(s1: ptr[Char], s2: ptr[Char], n: ArchInt): Int;
 
         @shared @expname[strcpy]
         func copy(dest: ptr[Char], src: ptr[Char]): ptr[Void];
 
         @shared @expname[strncpy]
-        func copy(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Void];
+        func copy(dest: ptr[Char], src: ptr[Char], n: ArchInt): ptr[Void];
 
         @shared @expname[strcat]
         func concat(dest: ptr[Char], src: ptr[Char]): ptr[Char];
 
         @shared @expname[strncat]
-        func concat(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Char];
+        func concat(dest: ptr[Char], src: ptr[Char], n: ArchInt): ptr[Char];
 
         @shared @expname[strlen]
-        func getLength(s: ptr[Char]): Int[64];
+        func getLength(s: ptr[Char]): ArchInt;
 
         @shared @expname[sprintf]
         func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];

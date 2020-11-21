@@ -24,23 +24,23 @@ import "srl";
             def weekDay: Int;
             def yearDay: Int;
             def daylightSaving: Int;
-            def timezoneOffset: Int[64];
+            def timezoneOffset: ArchInt;
             def timezone: ptr[array[Char]];
         };
 
         @expname[clock]
-        func getClock(): Int[64];
+        func getClock(): ArchInt;
 
         @expname[time]
-        func getTimestamp(outerTimestamp: ptr[Word[64]]): Word[64];
+        func getTimestamp(outerTimestamp: ptr[ArchInt]): ArchInt;
 
         @expname[ctime]
-        func toString(timestamp: ptr[Word[64]]): ptr[array[Char]];
+        func toString(timestamp: ptr[ArchInt]): ptr[array[Char]];
 
         @expname[localtime]
-        func getDetailedTime(timestamp: ptr[Word[64]]): ptr[DetailedTime];
+        func getDetailedTime(timestamp: ptr[ArchInt]): ptr[DetailedTime];
 
         @expname[localtime_r]
-        func getDetailedTime(timestamp: ptr[Word[64]], detialedTime: ptr[DetailedTime]): ptr[DetailedTime];
+        func getDetailedTime(timestamp: ptr[ArchInt], detialedTime: ptr[DetailedTime]): ptr[DetailedTime];
     };
 };
