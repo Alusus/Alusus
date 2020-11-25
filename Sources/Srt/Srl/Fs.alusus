@@ -64,6 +64,10 @@ import "String";
 
     def closeFile: @expname[fclose] function (file: ptr[File]) => Int[32];
 
+    def openProcess: @expname[popen] function (filename: ptr[array[Char]], mode: ptr[array[Char]]) => ptr[File];
+
+    def closeProcess: @expname[pclose] function (file: ptr[File]) => Int[32];
+
     def print: @expname[fprintf] function (file: ptr[File], format: ptr[array[Char]], args: ...any) => Int[32];
 
     def scan: @expname[fscanf] function (file: ptr[File], format: ptr[array[Char]], args: ...any) => Int[32];
@@ -71,6 +75,8 @@ import "String";
     def write: @expname[fwrite] function (content: ptr, size: ArchInt, count: ArchInt, file: ptr[File]) => ArchInt;
 
     def read: @expname[fread] function (content: ptr, size: ArchInt, count:ArchInt, file: ptr[File]) => ArchInt;
+
+    def readLine: @expname[fgets] function (buffer: ptr[array[Char]], size: Int, file: ptr[File]) => ptr[array[Char]];
 
     def flush: @expname[fflush] function (file: ptr[File]) => Int[32];
 
