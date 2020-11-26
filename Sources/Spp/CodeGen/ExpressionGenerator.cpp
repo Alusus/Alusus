@@ -1840,6 +1840,8 @@ Bool ExpressionGenerator::_generateAstRefOp(
   if (!g->getGeneratedType(tiObjRefType, session, tgTiObjRefType, 0)) {
     return false;
   }
+  // Capture the element in the repo so that it doesn't get freed while still needed by the generated code.
+  expGenerator->astLiteralRepo->addElement(targetAstNode);
   // Generate a pointer literal.
   if (!session->getTg()->generatePointerLiteral(
     session->getTgContext(), tgTiObjRefType, targetAstNode, result.targetData

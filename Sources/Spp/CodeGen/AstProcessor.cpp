@@ -580,7 +580,6 @@ Bool AstProcessor::_interpolateAst_other(
     throw EXCEPTION(GenericException, S("A Node derived class is missing a type factory."));
   }
   result = factory->createShared();
-  if (sl != 0) Core::Data::Ast::addSourceLocation(result.get(), sl);
 
   auto srcBinding = ti_cast<Binding>(obj);
   auto binding = result.ti_cast_get<Binding>();
@@ -611,6 +610,8 @@ Bool AstProcessor::_interpolateAst_other(
       srcContainer, argNames, args, sl, container
     )) return false;
   }
+
+  if (sl != 0) Core::Data::Ast::addSourceLocation(result.get(), sl);
 
   return true;
 }
