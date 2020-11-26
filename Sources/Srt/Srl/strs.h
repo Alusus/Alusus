@@ -201,6 +201,13 @@ template<class T> class StringBase
     return (ArchInt)pos - (ArchInt)this->buf;
   }
 
+  public: ArchInt findLast (Char const *buf) {
+    if (this->buf == 0) return -1;
+    Char const *pos = findLast(this->buf, buf);
+    if (pos == 0) return -1;
+    return (ArchInt)pos - (ArchInt)this->buf;
+  };
+
   public: LongInt find(T c) const {
     return this->find((LongInt)0, c);
   }
@@ -213,6 +220,13 @@ template<class T> class StringBase
     if (pos == 0) return -1;
     return (ArchInt)pos - (ArchInt)this->buf;
   }
+
+  public: ArchInt findLast (T c) {
+      if (this->buf == 0) return -1;
+      Char const *pos = findLast(this->buf, c);
+      if (pos == 0) return -1;
+      return (ArchInt)pos - (ArchInt)this->buf;
+  };
 
   public: Int compare(T const *s) const {
     return compare(this->buf, s);
@@ -449,6 +463,23 @@ template<class T> class StringBase
 
   public: static T const* find(T const *haystack, T const *needle);
 
+  public: static T const* findLast(T const *s, T c);
+
+  public: static T const* findLast(T const *haystack, T const *needle)
+  {
+    if (*needle == '\0') return (T*) haystack;
+
+    T *result = 0;
+    for (;;) {
+      T *p = strstr(haystack, needle);
+      if (p == 0) break;
+      result = p;
+      haystack = p + 1;
+    }
+
+    return result;
+  }
+
   public: static Int compare(T const *s1, T const *s2);
 
   public: static Int compare(T const *s1, T const *s2, LongInt n);
@@ -513,6 +544,13 @@ template<> inline Char const* StringBase<Char>::find(Char const *haystack, Char 
 }
 template<> inline WChar const* StringBase<WChar>::find(WChar const *haystack, WChar const *needle) {
   return wcsstr(haystack, needle);
+}
+
+template<> inline Char const* StringBase<Char>::findLast(Char const *s, Char c) {
+  return strrchr(s, c);
+}
+template<> inline WChar const* StringBase<WChar>::findLast(WChar const *s, WChar c) {
+  return wcsrchr(s, c);
 }
 
 template<> inline Int StringBase<Char>::compare(Char const *s1, Char const *s2) {

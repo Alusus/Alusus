@@ -421,5 +421,20 @@ import "Array";
             buffer(1) = 0;
             return buffer~ptr;
         };
+
+        @shared
+        func findLast(haystack: ptr[T], needle: ptr[T]): ptr[T] {
+            if (needle~cnt == 0) return haystack;
+
+            def result: ptr[T] = 0;
+            while 1 {
+                def p: ptr[T] = find(haystack, needle);
+                if p == 0 break;
+                result = p;
+                haystack = p + 1;
+            }
+
+            return result;
+        }
     };
 };

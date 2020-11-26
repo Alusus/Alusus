@@ -29,9 +29,6 @@ import "StringBase";
         @shared @expname[wcsstr]
         func find(haystack: ptr[Word], needle: ptr[Word]): ptr[Word];
 
-        // @shared @expname[strrstr]
-        // func findLast(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
-
         @shared @expname[wcscmp]
         func compare(s1: ptr[Word], s2: ptr[Word]): Int;
 

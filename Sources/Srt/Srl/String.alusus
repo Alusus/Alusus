@@ -41,9 +41,6 @@ import "StringBase";
         @shared @expname[strstr]
         func find(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
 
-        @shared @expname[strrstr]
-        func findLast(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
-
         @shared @expname[strcmp]
         func compare(s1: ptr[Char], s2: ptr[Char]): Int;
 
