@@ -20,6 +20,7 @@
         عرف جد_مبدلا_لعنصر: لقب findModifierForElement؛
         عرف هات_كلمة_المبدل_المفتاحية: لقب getModifierKeyword؛
         عرف هات_المعطيات_النصية_لمبدل: لقب getModifierStringParams؛
+        عرف هات_المسار_الكامل_لشفرة_عنصر: لقب getSourceFullPathForElement؛
         عرف احشر_شبم: لقب insertAst؛
         عرف أنشئ_شبم: لقب buildAst؛
     }

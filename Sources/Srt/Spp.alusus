@@ -1,6 +1,7 @@
 import "Core/Basic";
 import "Srl/Map";
 import "Srl/String";
+import "Srl/refs";
 
 @merge module Spp {
     def SeekerFlags: {
@@ -37,6 +38,9 @@ import "Srl/String";
             modifier: ref[Core.Basic.TiObject], result: ref[Srl.Array[Srl.String]]
         ) => Word[1];
 
+        @expname[Spp_AstMgr_getSourceFullPathForElement]
+        function getSourceFullPathForElement(element: ref[Core.Basic.TiObject]) => Srl.String;
+
         @expname[Spp_AstMgr_insertAst_plain]
         func insertAst(
             element: ref[Core.Basic.TiObject],
@@ -46,7 +50,7 @@ import "Srl/String";
         @expname[Spp_AstMgr_insertAst_shared]
         func insertAst(
             element: ref[Core.Basic.TiObject],
-            interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]]
+            interpolations: ref[Srl.Map[Srl.String, Srl.SrdRef[Core.Basic.TiObject]]]
         ) => Word[1];
 
         func insertAst(element: ref[Core.Basic.TiObject]) => Word[1] {
@@ -57,14 +61,14 @@ import "Srl/String";
         func buildAst(
             element: ref[Core.Basic.TiObject],
             interpolations: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]],
-            result: ref[SrdRef[Core.Basic.TiObject]]
+            result: ref[Srl.SrdRef[Core.Basic.TiObject]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_buildAst_shared]
         func buildAst(
             element: ref[Core.Basic.TiObject],
-            interpolations: ref[Srl.Map[Srl.String, SrdRef[Core.Basic.TiObject]]],
-            result: ref[SrdRef[Core.Basic.TiObject]]
+            interpolations: ref[Srl.Map[Srl.String, Srl.SrdRef[Core.Basic.TiObject]]],
+            result: ref[Srl.SrdRef[Core.Basic.TiObject]]
         ) => Word[1];
     };
     def astMgr: ref[AstMgr];
