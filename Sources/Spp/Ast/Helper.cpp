@@ -154,18 +154,22 @@ Bool Helper::_lookupCalleeInScope(
         // There is no need to continue searching if we already have a match and we are jumping to another level.
         auto node = ti_cast<Core::Data::Node>(obj);
         if (node != 0 && prevNode != 0) {
+          // If we encounter the same node again it means we moved up and encountered a use statement that took us back
+          // into the same module. In this case we can stop looking since we have moved up and we already have a match.
+          if (node == prevNode) return Core::Data::Seeker::Verb::STOP;
+
+          // If it's not the same node, then let's check the owners of the two nodes.
           Core::Data::Node *owner = Core::Data::findOwner<Core::Data::Ast::Scope>(node);
           // It's possible that the previous match was for a function arg, so we have to account for that since a
           // function arg would have the same owner scope as a function sitting at the same module.
           Core::Data::Node *prevOwner = Core::Data::findOwner<Spp::Ast::FunctionType>(prevNode);
           if (prevOwner == 0) prevOwner = Core::Data::findOwner<Core::Data::Ast::Scope>(prevNode);
-          if (owner != prevOwner && result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
-            return Core::Data::Seeker::Verb::STOP;
-          }
+          if (owner != prevOwner) return Core::Data::Seeker::Verb::STOP;
         }
 
         if (helper->lookupCalleeOnObject(obj, thisType, types, ec, currentStackSize, result)) {
           retVal = true;
+          prevNode = node;
         } else {
           if (result.notice != 0 && result.notice->isDerivedFrom<Spp::Notices::MultipleCalleeMatchNotice>()) {
             retVal = false;
@@ -176,7 +180,6 @@ Bool Helper::_lookupCalleeInScope(
           }
         }
 
-        prevNode = node;
         return Core::Data::Seeker::Verb::MOVE;
       },
       searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
