@@ -32,6 +32,15 @@ def Main: module
 
     // Length
     Console.print("getLength: %d\n", String.getLength(buf~ptr));
+
+    // Format
+    Console.print(
+        "format: %s\n",
+        String.format(
+            "str: %s, char: %c, int32: %i, int64: %l, float32: %f, float64: %d, %%\n",
+            "abc123", '^', 32i32, 64i64, 32.5f32, 64.5f64
+        ).buf
+    );
   };
 
   func testType {

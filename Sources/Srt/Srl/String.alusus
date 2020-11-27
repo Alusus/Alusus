@@ -73,5 +73,29 @@ import "StringBase";
 
         @shared @expname[tolower]
         func toLower(c: int): int;
+
+        @shared
+        func format(format: ptr[array[Char]], args: ...any): String {
+            def str: String;
+            while 1 {
+                def pos: ptr[Char] = find(format, '%');
+                if pos == 0 {
+                    str += format;
+                    break;
+                } else {
+                    str.append(format, pos~cast[ArchInt] - format~cast[ArchInt]);
+                    def c: Char = (pos + 1)~cnt;
+                    if c == 's' str += args~next_arg[ptr[array[Char]]]
+                    else if c == 'c' str += args~next_arg[Char]
+                    else if c == 'i' str += args~next_arg[Int]
+                    else if c == 'l' str += args~next_arg[Int[64]]
+                    else if c == 'f' str += args~next_arg[Float]
+                    else if c == 'd' str += args~next_arg[Float[64]]
+                    else if c == '%' str += '%';
+                    format = (pos + 2)~cast[CharsPtr];
+                }
+            }
+            return str;
+        }
     };
 };
