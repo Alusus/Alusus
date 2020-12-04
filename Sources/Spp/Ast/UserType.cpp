@@ -38,6 +38,7 @@ TypeMatchStatus UserType::matchTargetType(
             ) {
               return TypeMatchStatus::AGGREGATION;
             }
+            break;
           }
         }
       }
