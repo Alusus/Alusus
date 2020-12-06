@@ -99,6 +99,7 @@
       <keyword>dump_ast</keyword>
       <keyword>ptr</keyword>
       <keyword>ref</keyword>
+      <keyword>temp_ref</keyword>
       <keyword>array</keyword>
       <keyword>any</keyword>
       <keyword>alias</keyword>
@@ -138,6 +139,7 @@
       <keyword>أدرج_ش_ب_م</keyword>
       <keyword>مؤشر</keyword>
       <keyword>سند</keyword>
+      <keyword>سند_مؤقت</keyword>
       <keyword>مصفوفة</keyword>
       <keyword>أيما</keyword>
       <keyword>لقب</keyword>

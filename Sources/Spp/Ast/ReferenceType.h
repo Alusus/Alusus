@@ -19,7 +19,7 @@ namespace Spp::Ast
 //============================================================================
 // Other Defs
 
-ti_s_enum(ReferenceMode, TiInt, "Spp.Ast", "Spp", "alusus.org", EXPLICIT, IMPLICIT, NO_DEREF);
+ti_s_enum(ReferenceMode, TiInt, "Spp.Ast", "Spp", "alusus.org", EXPLICIT, TEMP_EXPLICIT, IMPLICIT, NO_DEREF);
 
 
 //============================================================================

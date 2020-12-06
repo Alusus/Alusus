@@ -68,12 +68,12 @@ import "Memory";
 
         handler this~init() this._init();
 
-        handler this~init(r: ref[SrdRef[T]]) {
+        handler this~init(r: temp_ref[SrdRef[T]]) {
             this._init();
             this.assign(r);
         };
 
-        handler this~init(r: ref[WkRef[T]]) {
+        handler this~init(r: temp_ref[WkRef[T]]) {
             this._init();
             this.assign(r);
         };
@@ -171,9 +171,9 @@ import "Memory";
         //==========
         // Operators
 
-        handler this = ref[SrdRef[T]] this.assign(value);
+        handler this = temp_ref[SrdRef[T]] this.assign(value);
 
-        handler this = ref[WkRef[T]] this.assign(value);
+        handler this = temp_ref[WkRef[T]] this.assign(value);
 
         handler this~cast[ref[T]] return this.obj;
     };
@@ -194,12 +194,12 @@ import "Memory";
 
         handler this~init() this._init();
 
-        handler this~init(r: ref[SrdRef[T]]) {
+        handler this~init(r: temp_ref[SrdRef[T]]) {
             this._init();
             this.assign(r);
         };
 
-        handler this~init(r: ref[WkRef[T]]) {
+        handler this~init(r: temp_ref[WkRef[T]]) {
             this._init();
             this.assign(r);
         };
@@ -239,9 +239,9 @@ import "Memory";
         //==========
         // Operators
 
-        handler this = ref[SrdRef[T]] this.assign(value);
+        handler this = temp_ref[SrdRef[T]] this.assign(value);
 
-        handler this = ref[WkRef[T]] this.assign(value);
+        handler this = temp_ref[WkRef[T]] this.assign(value);
 
         handler this~cast[ref[T]] return this.obj;
     };

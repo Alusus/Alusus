@@ -35,6 +35,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
+  private: Template *trefTemplate = 0;
   private: Template *irefTemplate = 0;
   private: Template *ndrefTemplate = 0;
   private: Template *ptrTemplate = 0;
@@ -155,12 +156,12 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   );
 
   public: METHOD_BINDING_CACHE(lookupCustomCaster,
-    Function*, (
-      Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */
+    TypeMatchStatus, (
+      Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */, Function *& /* caster */
     )
   );
-  private: static Function* _lookupCustomCaster(
-    TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
+  private: static TypeMatchStatus _lookupCustomCaster(
+    TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
   );
 
   public: METHOD_BINDING_CACHE(lookupReferenceTarget,

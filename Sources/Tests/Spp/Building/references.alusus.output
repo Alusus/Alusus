@@ -343,11 +343,64 @@ define void @"A.~terminate(iref[A])"(%A* %this) {
   ret void
 }
 ------------------------------------------------------------
-ERROR SPPG1015 @ (197,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (198,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (199,3): Incompatible types for the given operator.
-ERROR SPPG1015 @ (200,3): Incompatible types for the given operator.
-ERROR SPPG1033 @ (202,3): Invalid operand for ~deref operator.
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%B = type { i32 }
+
+@"#anonymous0" = private constant [23 x i8] c"receiveTempIntRef: %d\0A\00"
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"testTempRefs()"() {
+"#block0":
+  %"#temp0" = alloca i32
+  store i32 5, i32* %"#temp0"
+  call void @"receiveTempIntRef(temp_ref[Int[32]])"(i32* %"#temp0")
+  %b = alloca %B
+  %"#temp1" = alloca i32
+  store i32 5, i32* %"#temp1"
+  %0 = call %B* @"B.=(iref[B],temp_ref[Int[32]])=>(iref[B])"(%B* %b, i32* %"#temp1")
+  ret void
+}
+
+define void @"receiveTempIntRef(temp_ref[Int[32]])"(i32* %r) {
+"#block1":
+  %r1 = alloca i32*
+  store i32* %r, i32** %r1
+  %0 = load i32*, i32** %r1
+  %1 = load i32, i32* %0
+  %2 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([23 x i8]* @"#anonymous0" to [1 x i8]*), i32 %1)
+  ret void
+}
+
+define %B* @"B.=(iref[B],temp_ref[Int[32]])=>(iref[B])"(%B* %this, i32* %value) {
+"#block2":
+  %this1 = alloca %B*
+  store %B* %this, %B** %this1
+  %value2 = alloca i32*
+  store i32* %value, i32** %value2
+  %0 = load %B*, %B** %this1
+  %1 = getelementptr %B, %B* %0, i32 0, i32 0
+  %2 = load i32*, i32** %value2
+  %3 = load i32, i32* %2
+  store i32 %3, i32* %1
+  %4 = load %B*, %B** %this1
+  ret %B* %4
+}
+
+declare i32 @printf([1 x i8]*, ...)
+------------------------------------------------------------
+ERROR SPPG1015 @ (227,5): Incompatible types for the given operator.
+ERROR SPPG1015 @ (228,5): Incompatible types for the given operator.
+ERROR SPPG1015 @ (229,5): Incompatible types for the given operator.
+ERROR SPPG1015 @ (230,5): Incompatible types for the given operator.
+ERROR SPPG1033 @ (232,5): Invalid operand for ~deref operator.
+ERROR SPPA1008 @ (234,5): Provided arguments do not match signature.
+ERROR SPPG1015 @ (236,5): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -355,6 +408,7 @@ source_filename = "AlususProgram"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%C = type { i32 }
 
 @"!i" = global i32 0
 @"!rri" = global i32** null
@@ -372,6 +426,7 @@ define void @"errorCases()"() {
   %3 = load float*, float** %rf
   store float 5.000000e+00, float* %3
   %4 = load i32, i32* @"!i"
+  %c = alloca %C
   ret void
 }
 ------------------------------------------------------------

@@ -93,9 +93,9 @@ Bool CommandGenerator::_generateReturnStatement(
       // Return the value itself.
 
       // Cast the returned value, if needed.
-      TioSharedPtr tgCastedValue;
+      GenResult castedValue;
       if (!g->generateCast(
-        session, operandResult.astType, retType, astNode, operandResult.targetData.get(), true, tgCastedValue)
+        session, operandResult.astType, retType, astNode, operandResult.targetData.get(), true, castedValue)
       ) {
         cmdGenerator->noticeStore->add(
           newSrdObj<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
@@ -106,7 +106,7 @@ Bool CommandGenerator::_generateReturnStatement(
       if (!g->generateVarGroupDestruction(session, 0)) return false;
       // Return
       session->getTg()->generateReturn(
-        session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(retType), tgCastedValue.get()
+        session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(retType), castedValue.targetData.get()
       );
     }
   } else {
@@ -391,12 +391,14 @@ Bool CommandGenerator::castCondition(
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();
-  if (!g->generateCast(session, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, result)) {
+  GenResult castedValue;
+  if (!g->generateCast(session, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, castedValue)) {
     this->noticeStore->add(
       newSrdObj<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
     return false;
   }
+  result = castedValue.targetData;
 
   return true;
 }

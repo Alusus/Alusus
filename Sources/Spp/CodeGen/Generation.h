@@ -162,7 +162,7 @@ class Generation : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (
       Session* /* session */, Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
-      Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Bool /* implicit */, TioSharedPtr& /* tgCastedValue */
+      Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Bool /* implicit */, GenResult& /* castedResult */
     )
   );
 

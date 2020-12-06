@@ -663,10 +663,10 @@ Bool Generator::_generateVarInitialization(
       // Cast the value to var type.
       auto paramAstType = generator->getAstHelper()->traceType(paramAstTypes->getElement(0));
       ASSERT(paramAstType);
-      TioSharedPtr tgCastedValue;
+      GenResult castedValue;
       if (!generation->generateCast(
         session, paramAstType, varAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(0)),
-        paramTgValues->getElement(0), true, tgCastedValue)
+        paramTgValues->getElement(0), true, castedValue)
       ) {
         generator->noticeStore->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
           Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(0))
@@ -679,7 +679,7 @@ Bool Generator::_generateVarInitialization(
       if (!generation->getGeneratedType(varAstType, session, varTgType, 0)) return false;
       TioSharedPtr assignTgRes;
       if (!session->getTg()->generateAssign(
-        session->getTgContext(), varTgType, tgCastedValue.get(), tgVarRef, assignTgRes
+        session->getTgContext(), varTgType, castedValue.targetData.get(), tgVarRef, assignTgRes
       )) {
         return false;
       }
@@ -1023,11 +1023,11 @@ Bool Generator::_generateExpression(
 
 Bool Generator::_generateCast(
   TiObject *self, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
-  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
+  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &castedResult
 ) {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->generateCast(
-    ti_cast<Generation>(self), session, srcType, destType, astNode, tgValue, implicit, tgCastedValue
+    ti_cast<Generation>(self), session, srcType, destType, astNode, tgValue, implicit, castedResult
   );
 }
 
