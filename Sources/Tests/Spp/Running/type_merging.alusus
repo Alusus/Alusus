@@ -58,3 +58,21 @@ func testErrors {
 }
 
 testErrors();
+
+@merge type MissingType {
+}
+@merge module Mod {
+    type Alpha {
+    }
+}
+@merge module Mod {
+    @merge type Alpha {
+    }
+}
+@merge module Mod {
+    @merge type Beta {
+    }
+}
+testErrors();
+// Make sure we don't get duplicate type merge error messages.
+testErrors();

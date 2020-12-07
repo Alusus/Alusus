@@ -6,3 +6,5 @@ ERROR SPPA1008 @ (36,9)
 from (13,19): Provided arguments do not match signature.
 ERROR SPPA1008 @ (36,9)
 from (14,21): Provided arguments do not match signature.
+ERROR SPPA1014 @ (62,8): Trying to merge a type with a non-existing target.
+ERROR SPPA1014 @ (73,12): Trying to merge a type with a non-existing target.
