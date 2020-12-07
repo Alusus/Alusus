@@ -32,6 +32,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         def element: ref[TiObject];
         def outputFilename: CharsPtr;
         def deps: Array[String];
+        def flags: Array[String];
 
         handler this~init() {}
 
@@ -43,6 +44,10 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         function addDependency (d: String) {
             this.deps.add(d);
+        }
+
+        function addDependencies(count: Int, args: ...String) {
+            while count-- > 0 this.deps.add(args~next_arg[String]);
         }
 
         function addDependency (e: ref[TiObject]) => Bool {
@@ -60,6 +65,14 @@ if Srl.String.compare(Process.language, "ar") == 0 {
                 for i = 0, i < deps.getLength(), ++i this.addDependency(deps(i));
             }
             return true;
+        }
+
+        function addFlag(f: String) {
+            this.flags.add(f);
+        }
+
+        function addFlags(count: Int, args: ...String) {
+            while count-- > 0 this.flags.add(args~next_arg[String]);
         }
     }
 
@@ -88,8 +101,8 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             def linkerFilename: ptr[array[Char]] = getLinkerFilename();
             def cmd: array[Char, 600];
             String.assign(
-                cmd~ptr, "%s -no-pie /tmp/output.o -o %s %s", linkerFilename,
-                this.outputFilename, this.getDepsString().buf
+                cmd~ptr, "%s -no-pie %s /tmp/output.o -o %s %s", linkerFilename,
+                String.merge(this.flags, " ").buf, this.outputFilename, this.getDepsString().buf
             );
             if System.exec(cmd~ptr) != 0 {
                 Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
@@ -138,8 +151,8 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             def linkerFilename: ptr[array[Char]] = getLinkerFilename();
             def cmd: array[Char, 600];
             String.assign(
-                cmd~ptr, "%s --no-entry --allow-undefined --export-all %s /tmp/output.o -o %s ",
-                linkerFilename, this.getDepsString().buf, this.outputFilename
+                cmd~ptr, "%s --no-entry --allow-undefined --export-dynamic %s %s /tmp/output.o -o %s ",
+                linkerFilename, String.merge(this.flags, " ").buf, this.getDepsString().buf, this.outputFilename
             );
             if System.exec(cmd~ptr) != 0 {
                 Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
