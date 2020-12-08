@@ -12,6 +12,7 @@ concat: hello world
 concat 2: hello world!!
 getLength: 13
 format: str: abc123, char: ^, int32: 32, int64: 64, float32: 32.500000, float64: 64.500000, %
+zero int: 0, negative int: -32, zero float: 0.000000, negative float -0.005200
 
 Alusus
 length: 6

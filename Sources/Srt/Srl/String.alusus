@@ -18,15 +18,39 @@ import "StringBase";
 
     @merge type String {
         func append (i: Int[64]) {
-            def buf: array[T, 20];
-            assign(buf~ptr, "%ld", i);
-            this.append(buf~ptr);
+            this._append(i, 1);
+        }
+
+        func _append (i: Int[64], minDigits: Int) {
+            def buf: array[Char, 20];
+            def strptr: ptr[Char] = buf(19)~ptr;
+            strptr~cnt = 0;
+            def negative: Bool = 0;
+            if i < 0 {
+                negative = 1;
+                i = -i;
+            }
+            while minDigits-- > 0 || i > 0 {
+                strptr = strptr - 1;
+                strptr~cnt = '0' + i % 10;
+                i /= 10;
+            }
+            if negative {
+                strptr = strptr - 1;
+                strptr~cnt = '-';
+            }
+            this.append(strptr~cast[CharsPtr]);
         };
 
         func append (f: Float[64]) {
-            def buf: array[T, 20];
-            assign(buf~ptr, "%f", f);
-            this.append(buf~ptr);
+            if f < 0 {
+                f *= -1;
+                this.append('-');
+            }
+            this.append(f~cast[Int[64]]);
+            def fractions: Float[64] = f - f~cast[Int[64]];
+            this.append('.');
+            this._append((fractions * 1000000.0f64 + 0.5f64)~cast[Int[64]], 6);
         };
 
         @shared @expname[strchr]
