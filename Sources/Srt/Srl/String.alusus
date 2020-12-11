@@ -121,5 +121,48 @@ import "StringBase";
             }
             return str;
         }
+
+        @shared
+        func parseInt (chars: ptr[array[Char]]): Int[64] {
+            def negative: Bool(0);
+            def result: Int[64](0);
+            def charPtr: ptr[Char](chars);
+            if charPtr~cnt == '-' {
+                negative = 1;
+                charPtr = charPtr + 1;
+            }
+            while charPtr~cnt >= '0' && charPtr~cnt <= '9' {
+                result *= 10;
+                result += charPtr~cnt - '0';
+                charPtr = charPtr + 1;
+            }
+            if negative return -result else return result;
+        }
+
+        @shared
+        func parseFloat (chars: ptr[array[Char]]): Float[64] {
+            def negative: Bool(0);
+            def result: Float[64](0);
+            def charPtr: ptr[Char](chars);
+            if charPtr~cnt == '-' {
+                negative = 1;
+                charPtr = charPtr + 1;
+            }
+            while charPtr~cnt >= '0' && charPtr~cnt <= '9' {
+                result *= 10;
+                result += charPtr~cnt - '0';
+                charPtr = charPtr + 1;
+            }
+            if charPtr~cnt == '.' {
+                charPtr = charPtr + 1;
+                def multiplier: Float[64](1);
+                while charPtr~cnt >= '0' && charPtr~cnt <= '9' {
+                    multiplier /= 10;
+                    result += multiplier * (charPtr~cnt - '0');
+                    charPtr = charPtr + 1;
+                }
+            }
+            if negative && result != 0 return -result else return result;
+        }
     };
 };
