@@ -168,7 +168,7 @@ Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astTyp
 Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, Session *session)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  auto bitCount = astType->getBitCount(typeGenerator->astHelper);
+  auto bitCount = astType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
     typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
@@ -570,13 +570,25 @@ Bool TypeGenerator::_generateFunctionType(
 
 Bool TypeGenerator::_generateCast(
   TiObject *self, Generation *g, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
+  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &result
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   Ast::Function *caster;
   auto matchType = typeGenerator->astHelper->matchTargetType(
     srcType, targetType, session->getExecutionContext(), caster
   );
+
+  // If this type is a pass-by-ref type then we should not dereference all the way to a value since we will be needing
+  // a reference to the value and not the value itself.
+  if (matchType.derefs == 1 && matchType == Ast::TypeMatchStatus::EXACT) {
+    if (targetType->getInitializationMethod(
+      typeGenerator->astHelper, session->getExecutionContext()
+    ) != Ast::TypeInitMethod::NONE) {
+      result.targetData = getSharedPtr(tgValue);
+      result.astType = srcType;
+      return true;
+    }
+  }
 
   if (matchType.derefs > 0) {
     // Dereference tgValue.
@@ -589,7 +601,28 @@ Bool TypeGenerator::_generateCast(
     TioSharedPtr tgDerefVal;
     if (!session->getTg()->generateDereference(session->getTgContext(), tgContentType, tgValue, tgDerefVal)) return false;
     return typeGenerator->generateCast(
-      g, session, srcContentType, targetType, astNode, tgDerefVal.get(), implicit, tgCastedValue
+      g, session, srcContentType, targetType, astNode, tgDerefVal.get(), implicit, result
+    );
+  } else if (matchType.derefs == -1) {
+    // The match type returned a negative deref, which means we have a value when we actually need a reference, so we
+    // will store the value into a temp var and get a reference to that.
+    if (!g->generateTempVar(astNode, srcType, session, false)) return false;
+    PlainList<TiObject> paramAstNodes({ astNode });
+    PlainList<TiObject> paramAstTypes({ srcType });
+    SharedList<TiObject> paramTgValues({ getSharedPtr(tgValue) });
+    TioSharedPtr tgRef;
+    if (!session->getTg()->generateVarReference(
+      session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(srcType),
+      session->getEda()->getCodeGenData<TiObject>(astNode), tgRef
+    )) return false;
+    if (!g->generateVarInitialization(
+      srcType, tgRef.get(), astNode, &paramAstNodes, &paramAstTypes, &paramTgValues, session
+    )) return false;
+    // Register temp var for destruction.
+    g->registerDestructor(astNode, srcType, session->getExecutionContext(), session->getDestructionStack());
+    Ast::Type *refAstType = typeGenerator->astHelper->getReferenceTypeFor(srcType, Ast::ReferenceMode::IMPLICIT);
+    return typeGenerator->generateCast(
+      g, session, refAstType, targetType, astNode, tgRef.get(), implicit, result
     );
   }
 
@@ -597,16 +630,17 @@ Bool TypeGenerator::_generateCast(
     return false;
   } else if (matchType == Ast::TypeMatchStatus::EXACT) {
     // Same type, return value as is.
-    tgCastedValue = getSharedPtr(tgValue);
+    result.targetData = getSharedPtr(tgValue);
+    result.astType = srcType;
     return true;
   } else if (matchType == Ast::TypeMatchStatus::CUSTOM_CASTER) {
     // Call the caster.
-    GenResult result;
+    GenResult callResult;
     PlainList<TiObject> paramTgValues({ tgValue });
     PlainList<TiObject> paramAstTypes({ srcType });
-    if (!g->generateFunctionCall(astNode, caster, &paramAstTypes, &paramTgValues, session, result)) return false;
+    if (!g->generateFunctionCall(astNode, caster, &paramAstTypes, &paramTgValues, session, callResult)) return false;
     return typeGenerator->generateCast(
-      g, session, result.astType, targetType, astNode, result.targetData.get(), implicit, tgCastedValue
+      g, session, callResult.astType, targetType, astNode, callResult.targetData.get(), implicit, result
     );
   } else if (srcType->isDerivedFrom<Spp::Ast::IntegerType>()) {
     // Casting from integer.
@@ -618,25 +652,35 @@ Bool TypeGenerator::_generateCast(
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetIntegerType, g, session, targetTgType, 0)) return false;
-      if (!session->getTg()->generateCastIntToInt(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
+      if (!session->getTg()->generateCastIntToInt(
+        session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+      )) return false;
+      result.astType = targetType;
       return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from integer to float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetFloatType, g, session, targetTgType, 0)) return false;
-      if (!session->getTg()->generateCastIntToFloat(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
+      if (!session->getTg()->generateCastIntToFloat(
+        session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+      )) return false;
+      result.astType = targetType;
       return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {
       // Cast from integer to pointer.
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       if (
         srcIntegerType->isNullLiteral() ||
-        srcIntegerType->getBitCount(typeGenerator->astHelper) == session->getExecutionContext()->getPointerBitCount()
+        srcIntegerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext())
+          == session->getExecutionContext()->getPointerBitCount()
       ) {
         TiObject *targetTgType;
         if (!typeGenerator->getGeneratedType(targetPointerType, g, session, targetTgType, 0)) return false;
-        if (!session->getTg()->generateCastIntToPointer(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
+        if (!session->getTg()->generateCastIntToPointer(
+          session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+        )) return false;
+        result.astType = targetType;
         return true;
       }
     }
@@ -650,14 +694,20 @@ Bool TypeGenerator::_generateCast(
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetIntegerType, g, session, targetTgType, 0)) return false;
-      if (!session->getTg()->generateCastFloatToInt(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
+      if (!session->getTg()->generateCastFloatToInt(
+        session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+      )) return false;
+      result.astType = targetType;
       return true;
     } else if (targetType->isDerivedFrom<Spp::Ast::FloatType>()) {
       // Cast from float to another float.
       auto targetFloatType = static_cast<Spp::Ast::FloatType*>(targetType);
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetFloatType, g, session, targetTgType, 0)) return false;
-      if (!session->getTg()->generateCastFloatToFloat(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
+      if (!session->getTg()->generateCastFloatToFloat(
+        session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+      )) return false;
+      result.astType = targetType;
       return true;
     }
   } else if (srcType->isDerivedFrom<Spp::Ast::PointerType>()) {
@@ -665,13 +715,16 @@ Bool TypeGenerator::_generateCast(
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast pointer to integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
-      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper);
+      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
       if (session->getExecutionContext()->getPointerBitCount() == targetBitCount) {
         TiObject *srcTgType;
         if (!typeGenerator->getGeneratedType(srcType, g, session, srcTgType, 0)) return false;
         TiObject *targetTgType;
         if (!typeGenerator->getGeneratedType(targetIntegerType, g, session, targetTgType, 0)) return false;
-        if (!session->getTg()->generateCastPointerToInt(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) return false;
+        if (!session->getTg()->generateCastPointerToInt(
+          session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+        )) return false;
+        result.astType = targetType;
         return true;
       }
     } else if (targetType->isDerivedFrom<Spp::Ast::PointerType>()) {
@@ -681,9 +734,10 @@ Bool TypeGenerator::_generateCast(
       if (!typeGenerator->getGeneratedType(srcType, g, session, srcTgType, 0)) return false;
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetPointerType, g, session, targetTgType, 0)) return false;
-      if (!session->getTg()->generateCastPointerToPointer(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) {
-        return false;
-      }
+      if (!session->getTg()->generateCastPointerToPointer(
+        session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+      )) return false;
+      result.astType = targetType;
       return true;
     }
   } else if (srcType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
@@ -695,9 +749,10 @@ Bool TypeGenerator::_generateCast(
       if (!typeGenerator->getGeneratedType(srcType, g, session, srcTgType, 0)) return false;
       TiObject *targetTgType;
       if (!typeGenerator->getGeneratedType(targetReferenceType, g, session, targetTgType, 0)) return false;
-      if (!session->getTg()->generateCastPointerToPointer(session->getTgContext(), srcTgType, targetTgType, tgValue, tgCastedValue)) {
-        return false;
-      }
+      if (!session->getTg()->generateCastPointerToPointer(
+        session->getTgContext(), srcTgType, targetTgType, tgValue, result.targetData
+      )) return false;
+      result.astType = targetType;
       return true;
     }
   }
@@ -720,7 +775,7 @@ Bool TypeGenerator::_generateDefaultValue(
     }
 
     auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
-    auto bitCount = integerType->getBitCount(typeGenerator->astHelper);
+    auto bitCount = integerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
     return session->getTg()->generateIntLiteral(session->getTgContext(), bitCount, integerType->isSigned(), 0, result);
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
     // Generate float 0

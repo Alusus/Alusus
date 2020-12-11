@@ -35,6 +35,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
+  private: Template *trefTemplate = 0;
   private: Template *irefTemplate = 0;
   private: Template *ndrefTemplate = 0;
   private: Template *ptrTemplate = 0;
@@ -42,7 +43,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: IntegerType *nullType = 0;
   private: IntegerType *boolType = 0;
   private: IntegerType *charType = 0;
-  private: IntegerType *int64Type = 0;
+  private: IntegerType *archIntType = 0;
   private: IntegerType *word64Type = 0;
   private: VoidType *voidType = 0;
   private: UserType *tiObjectType = 0;
@@ -155,12 +156,12 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   );
 
   public: METHOD_BINDING_CACHE(lookupCustomCaster,
-    Function*, (
-      Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */
+    TypeMatchStatus, (
+      Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */, Function *& /* caster */
     )
   );
-  private: static Function* _lookupCustomCaster(
-    TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
+  private: static TypeMatchStatus _lookupCustomCaster(
+    TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
   );
 
   public: METHOD_BINDING_CACHE(lookupReferenceTarget,
@@ -231,8 +232,8 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getCharArrayType, ArrayType*, (Word));
   private: static ArrayType* _getCharArrayType(TiObject *self, Word size);
 
-  public: METHOD_BINDING_CACHE(getInt64Type, IntegerType*);
-  private: static IntegerType* _getInt64Type(TiObject *self);
+  public: METHOD_BINDING_CACHE(getArchIntType, IntegerType*);
+  private: static IntegerType* _getArchIntType(TiObject *self);
 
   public: METHOD_BINDING_CACHE(getIntType, IntegerType*, (Word));
   private: static IntegerType* _getIntType(TiObject *self, Word size);

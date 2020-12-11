@@ -32,6 +32,37 @@ def Main: module
 
     // Length
     Console.print("getLength: %d\n", String.getLength(buf~ptr));
+
+    // Format
+    Console.print(
+        "format: %s\n%s\n",
+        String.format(
+            "str: %s, char: %c, int32: %i, int64: %l, float32: %f, float64: %d, %%",
+            "abc123", '^', 32i32, 64i64, 32.5f32, 64.5f64
+        ).buf,
+        String.format(
+            "zero int: %i, negative int: %i, zero float: %f, negative float %f", 0i32, -32i32, 0.0f32, -0.0052f32
+        ).buf
+    );
+
+    // Parsing
+    Console.print("parseInt: %d %d %d %d %d %d\n",
+        String.parseInt("0"),
+        String.parseInt("-0"),
+        String.parseInt("4324"),
+        String.parseInt("-1443"),
+        String.parseInt("abc"),
+        String.parseInt("-123abc")
+    );
+    Console.print("parseFloat: %f %f %f %f %f %f %f\n\n",
+        String.parseFloat("0"),
+        String.parseFloat("-0"),
+        String.parseFloat("123"),
+        String.parseFloat("324.76"),
+        String.parseFloat("-757"),
+        String.parseFloat("abc"),
+        String.parseFloat("123abc")
+    );
   };
 
   func testType {

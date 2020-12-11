@@ -225,7 +225,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: static Bool _generateCast(
     TiObject *self, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
-    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, TioSharedPtr &tgCastedValue
+    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &castedResult
   );
 
   private: static Bool _generateFunctionCall(

@@ -17,24 +17,24 @@ import "srl";
     module Memory
     {
         @expname[malloc]
-        function alloc (size: Int[64]) => ptr[Void];
+        function alloc (size: ArchInt) => ptr[Void];
 
         @expname[realloc]
-        function realloc (p: ptr[Void], newSize: Int[64]) => ptr[Void];
+        function realloc (p: ptr[Void], newSize: ArchInt) => ptr[Void];
 
         @expname[aligned_alloc]
-        function allocAligned (alignment: Int[64], size: Int[64]) => ptr[Void];
+        function allocAligned (alignment: ArchInt, size: ArchInt) => ptr[Void];
 
         @expname[free]
         function free (pointer: ptr[Void]);
 
         @expname[memcpy]
-        function copy (dest: ptr[Void], src: ptr[Void], n: Int[64]) => ptr[Void];
+        function copy (dest: ptr[Void], src: ptr[Void], n: ArchInt) => ptr[Void];
 
         @expname[memcmp]
-        function compare (s1: ptr[Void], s2: ptr[Void], n: Int[64]) => Int;
+        function compare (s1: ptr[Void], s2: ptr[Void], n: ArchInt) => Int;
 
         @expname[memset]
-        function set (s: ptr[Void], c: Int, n: Int[64]) => ptr[Void];
+        function set (s: ptr[Void], c: Int, n: ArchInt) => ptr[Void];
     };
 };

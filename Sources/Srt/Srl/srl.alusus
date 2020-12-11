@@ -21,6 +21,8 @@ def char: alias Word[8];
 def Char: alias Word[8];
 def CharsPtr: alias ptr[array[Word[8]]];
 def void: alias Void;
+def ArchInt: alias Int[0];
+def ArchWord: alias Word[0];
 
 def true: 1;
 def false: 0;
@@ -28,3 +30,13 @@ def null: 0;
 
 macro castRef [obj, T] obj~ptr~cast[ptr[T]]~cnt;
 macro nullRef [T] 0~cast[ptr[T]]~cnt;
+macro getThisSourceFullPath {
+    eval {
+        def dummy: 1;
+        Spp.astMgr.insertAst(
+            ast { "{{name}}" },
+            Srl.Map[Srl.String, ref[Core.Basic.TiObject]]()
+                .set(Srl.String("name"), Core.Basic.TiStr(Spp.astMgr.getSourceFullPathForElement(dummy~ast)))
+        );
+    }
+}

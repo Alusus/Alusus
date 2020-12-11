@@ -7,7 +7,7 @@ def System: module
   def start: function ()
   {
     //  getTimestamp
-    def ts: Word[64];
+    def ts: ArchInt;
     ts = Srl.Time.getTimestamp(0);
     ts = Srl.Time.getTimestamp(0) - ts;
     Srl.Console.print("%llu\n", ts);

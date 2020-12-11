@@ -15,6 +15,7 @@ i = 1026
 pi~cast[ptr[Int[8]]]~cnt = 2
 l = pi~cnt~cast[Int[8]] => l = 2
 i~ptr -> l -> pi2 => pi2~cnt = 543 => i = 543
+i~ptr -> ptrI -> pi2 => pi2~cnt = 543 => i = 543
 
 i~size = 4
 pi~size = 8
@@ -24,3 +25,5 @@ pi~size = 8
 Int[32]~size = 4
 Int[64]~size = 8
 ptr[Int[32]]~size = 8
+ptrI~size = 8
+Int[0]~size = 8

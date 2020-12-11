@@ -21,17 +21,17 @@ template <class T> class ArrayData
   //=================
   // Member Variables
 
-  public: Int refCount;
-  public: Int length;
-  public: Int bufSize;
+  public: ArchInt refCount;
+  public: ArchInt length;
+  public: ArchInt bufSize;
   public: T buf[1];
 
   //=================
   // Member Functions
 
-  public: static ArrayData<T>* alloc(Int size) {
+  public: static ArrayData<T>* alloc(ArchInt size) {
     if (size < 2) size = 2;
-    Int byteCount = sizeof(ArrayData<T>) + sizeof(T) * (size - 1);
+    ArchInt byteCount = sizeof(ArrayData<T>) + sizeof(T) * (size - 1);
     ArrayData<T> *data = (ArrayData<T>*)malloc(byteCount);
     data->bufSize = size;
     data->length = 0;
@@ -39,16 +39,16 @@ template <class T> class ArrayData
     return data;
   }
 
-  public: static ArrayData<T>* realloc(ArrayData<T> *data, Int newSize) {
+  public: static ArrayData<T>* realloc(ArrayData<T> *data, ArchInt newSize) {
     if (newSize < 2) newSize = 2;
-    Int byteCount = sizeof(ArrayData<T>) + sizeof(T) * (newSize - 1);
+    ArchInt byteCount = sizeof(ArrayData<T>) + sizeof(T) * (newSize - 1);
     data = (ArrayData<T>*)::realloc(data, byteCount);
     data->bufSize = newSize;
     return data;
   }
 
   public: static void release(ArrayData<T> *data) {
-    Int i;
+    ArchInt i;
     for (i = 0; i < data->length; ++i) data->buf[i].~T();
     free(data);
   }
@@ -77,7 +77,7 @@ template <class T> class Array
     this->assign(src);
   }
 
-  public: Array(Int size, T val) {
+  public: Array(ArchInt size, T val) {
     this->_init();
     this->data = ArrayData<T>::alloc(size);
     for (; size > 0; --size) this->add(val);
@@ -101,17 +101,17 @@ template <class T> class Array
     }
   }
 
-  public: void reserve(Int size) {
+  public: void reserve(ArchInt size) {
     if (this->data == 0) this->data = ArrayData<T>::alloc(size);
     else if (size > this->data->bufSize) this->data = ArrayData<T>::realloc(this->data, size);
   }
 
-  public: Int getLength() const {
+  public: ArchInt getLength() const {
     if (this->data == 0) return 0;
     else return this->data->length;
   }
 
-  public: Int getBufSize() const {
+  public: ArchInt getBufSize() const {
     if (this->data == 0) return 0;
     else return this->data->bufSize;
   }
@@ -135,7 +135,7 @@ template <class T> class Array
       ArrayData<T> *curData = this->data;
       --this->data->refCount;
       this->data = ArrayData<T>::alloc(curData->length + curData->length >> 1);
-      Int i;
+      ArchInt i;
       for (i = 0; i < curData->length; ++i) new(this->data->buf + i) T(curData->buf[i]);
       this->data->length = curData->length;
     }
@@ -147,7 +147,7 @@ template <class T> class Array
     ++this->data->length;
   }
 
-  public: void insert (Int index, T item) {
+  public: void insert (ArchInt index, T item) {
     if (index < 0 || index >= this->getLength()) {
       this->add(item);
     } else {
@@ -158,7 +158,7 @@ template <class T> class Array
     }
   }
 
-  public: void remove (Int index) {
+  public: void remove (ArchInt index) {
     if (index >= 0 && index < this->getLength()) {
       this->_prepareToModify(false);
       this->data->buf[index].~T();
@@ -173,18 +173,18 @@ template <class T> class Array
     this->_release();
   };
 
-  public: T& at (Int i) {
+  public: T& at (ArchInt i) {
     static T dummy;
     if (i >= 0 && i < this->getLength()) return this->data->buf[i]; else return dummy;
   }
 
-  public: T const& at (Int i) const {
+  public: T const& at (ArchInt i) const {
     static T dummy;
     if (i >= 0 && i < this->getLength()) return this->data->buf[i]; else return dummy;
   }
 
-  public: Int findPos (T const &val) const {
-    for (Int i = 0; i < this->getLength(); ++i) {
+  public: ArchInt findPos (T const &val) const {
+    for (ArchInt i = 0; i < this->getLength(); ++i) {
       if (this->at(i) == val) return i;
     }
     return -1;
@@ -197,11 +197,11 @@ template <class T> class Array
     this->assign(value);
   }
 
-  public: T& operator()(Int i) {
+  public: T& operator()(ArchInt i) {
     return this->at(i);
   }
 
-  public: T const& operator()(Int i) const {
+  public: T const& operator()(ArchInt i) const {
     return this->at(i);
   }
 }; // class

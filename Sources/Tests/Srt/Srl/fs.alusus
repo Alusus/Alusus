@@ -70,7 +70,7 @@ def Main: module
     def file: ptr[Srl.Fs.File];
     file = Srl.Fs.openFile(filename, "r");
     Srl.Fs.seek(file, 10, Srl.Fs.Seek.SET);
-    def pos: Int;
+    def pos: ArchInt;
     pos = Srl.Fs.tell(file);
     Srl.Console.print("%d\n", pos);
     Srl.Fs.seek(file, 10, Srl.Fs.Seek.END);

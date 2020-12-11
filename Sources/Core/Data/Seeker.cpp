@@ -414,7 +414,7 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       if (bridgeRef->getTarget() == identifier) continue;
       verb = seeker->foreach(bridgeRef->getTarget().get(), scope,
         [=](TiObject *o, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
-          if (o != 0) return seeker->foreachByIdentifier_level(identifier, o, cb, flags);
+          if (o != 0) return seeker->foreachByIdentifier_level(identifier, o, cb, flags | Seeker::Flags::SKIP_USES);
           else return Core::Data::Seeker::Verb::MOVE;
         },
         flags | Seeker::Flags::SKIP_USES

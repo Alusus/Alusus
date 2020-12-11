@@ -51,17 +51,17 @@ import "Memory";
             };
         };
 
-        func reserve(size: Int) {
+        func reserve(size: ArchInt) {
             if this.data~ptr == 0 this.data~no_deref = ArrayData[T].alloc(size)
             else if size > this.bufSize this.data~no_deref = ArrayData[T].realloc(this.data, size);
         }
 
-        func getLength (): Int {
+        func getLength (): ArchInt {
             if this.data~ptr == 0 return 0
             else return this.length;
         };
 
-        func getBufSize (): Int {
+        func getBufSize (): ArchInt {
             if this.data~ptr == 0 return 0
             else return this.bufSize;
         };
@@ -85,7 +85,7 @@ import "Memory";
                 def curData: ref[ArrayData[T]](this.data);
                 --this.refCount;
                 this.data~no_deref = ArrayData[T].alloc(curData.length + curData.length >> 1);
-                def i: Int;
+                def i: ArchInt;
                 for i = 0, i < curData.length, ++i this.buf(i)~no_deref~init(curData.buf(i));
                 this.length = curData.length;
             };
@@ -101,7 +101,7 @@ import "Memory";
             while count-- > 0 this.add(items~next_arg[T]);
         };
 
-        func set (index: Int, item: T) {
+        func set (index: ArchInt, item: T) {
             if index < 0 || index >= this.getLength() {
                 this.add(item);
             } else {
@@ -109,7 +109,7 @@ import "Memory";
             };
         }
 
-        func insert (index: Int, item: T) {
+        func insert (index: ArchInt, item: T) {
             if index < 0 || index >= this.getLength() {
                 this.add(item);
             } else {
@@ -124,7 +124,7 @@ import "Memory";
             };
         };
 
-        func remove (index: Int) {
+        func remove (index: ArchInt) {
             if index >= 0 && index < this.getLength() {
                 this._prepareToModify(false);
                 this.buf(index)~no_deref~terminate();
@@ -142,8 +142,8 @@ import "Memory";
             this._release();
         };
 
-        func findPos (val: ref[T]): Int {
-            def i: Int;
+        func findPos (val: ref[T]): ArchInt {
+            def i: ArchInt;
             for i = 0, i < this.getLength(), ++i
                 if this(i) == val return i;
             return -1;
@@ -154,7 +154,7 @@ import "Memory";
 
         handler this = ref[Array[T]] this.assign(value);
 
-        handler this(i: Int): ref[T] {
+        handler this(i: ArchInt): ref[T] {
             @shared def dummy: T;
             if i >= 0 && i < this.getLength() return this.buf(i) else return dummy;
         };
@@ -168,17 +168,17 @@ import "Memory";
         //=================
         // Member Variables
 
-        def refCount: Int;
-        def length: Int;
-        def bufSize: Int;
+        def refCount: ArchInt;
+        def length: ArchInt;
+        def bufSize: ArchInt;
         def buf: array[T, 1];
 
         //=================
         // Member Functions
 
-        @shared func alloc (size: Int): ref[ArrayData[T]] {
+        @shared func alloc (size: ArchInt): ref[ArrayData[T]] {
             if size < 2 size = 2;
-            def byteCount: Int = ArrayData[T]~size + T~no_deref~size * (size - 1);
+            def byteCount: ArchInt = ArrayData[T]~size + T~no_deref~size * (size - 1);
             def data: ref[ArrayData[T]];
             data~ptr = Memory.alloc(byteCount)~cast[ptr[ArrayData[T]]];
             data.bufSize = size;
@@ -187,16 +187,16 @@ import "Memory";
             return data;
         };
 
-        @shared func realloc (data: ref[ArrayData[T]], newSize: Int): ref[ArrayData[T]] {
+        @shared func realloc (data: ref[ArrayData[T]], newSize: ArchInt): ref[ArrayData[T]] {
             if newSize < 2 newSize = 2;
-            def byteCount: Int = ArrayData[T]~size + T~no_deref~size * (newSize - 1);
+            def byteCount: ArchInt = ArrayData[T]~size + T~no_deref~size * (newSize - 1);
             data~ptr = Memory.realloc(data~ptr, byteCount)~cast[ptr[ArrayData[T]]];
             data.bufSize = newSize;
             return data;
         };
 
         @shared func release (data: ref[ArrayData[T]]) {
-            def i: Int;
+            def i: ArchInt;
             for i = 0, i < data.length, ++i data.buf(i)~no_deref~terminate();
             Memory.free(data~ptr);
         };

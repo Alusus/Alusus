@@ -193,6 +193,15 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   identifier.setValue(S("ref"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
+  // temp_ref
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+    newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
+  }));
+  tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::TEMP_EXPLICIT) } }));
+  identifier.setValue(S("temp_ref"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+
   // iref
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Data::Ast::List::create({}, {

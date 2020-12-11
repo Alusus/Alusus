@@ -64,25 +64,31 @@ import "String";
 
     def closeFile: @expname[fclose] function (file: ptr[File]) => Int[32];
 
+    def openProcess: @expname[popen] function (filename: ptr[array[Char]], mode: ptr[array[Char]]) => ptr[File];
+
+    def closeProcess: @expname[pclose] function (file: ptr[File]) => Int[32];
+
     def print: @expname[fprintf] function (file: ptr[File], format: ptr[array[Char]], args: ...any) => Int[32];
 
     def scan: @expname[fscanf] function (file: ptr[File], format: ptr[array[Char]], args: ...any) => Int[32];
 
-    def write: @expname[fwrite] function (content: ptr, size: Int[64], count: Int[64], file: ptr[File]) => Int[64];
+    def write: @expname[fwrite] function (content: ptr, size: ArchInt, count: ArchInt, file: ptr[File]) => ArchInt;
 
-    def read: @expname[fread] function (content: ptr, size: Int[64], count:Int[64], file: ptr[File]) => Int[64];
+    def read: @expname[fread] function (content: ptr, size: ArchInt, count:ArchInt, file: ptr[File]) => ArchInt;
+
+    def readLine: @expname[fgets] function (buffer: ptr[array[Char]], size: Int, file: ptr[File]) => ptr[array[Char]];
 
     def flush: @expname[fflush] function (file: ptr[File]) => Int[32];
 
-    def tell: @expname[ftell] function (file: ptr[File]) => Int[32];
+    def tell: @expname[ftell] function (file: ptr[File]) => ArchInt;
 
-    def seek: @expname[fseek] function (file: ptr[File], offset: Int, seek: Int) => Int[32];
+    def seek: @expname[fseek] function (file: ptr[File], offset: ArchInt, seek: Int) => Int[32];
 
     def getAbsolutePath: @expname[realpath] function (
       path: ptr[array[Char]], resolvedPath: ptr[array[Char]]
     ): ptr[array[Char]];
 
-    def createFile: function (filename: ptr[array[Char]], content: ptr, contentCount: Int) => Bool
+    def createFile: function (filename: ptr[array[Char]], content: ptr, contentCount: ArchInt) => Bool
     {
       def file: ptr[File];
       file = openFile(filename, "wb");
@@ -92,7 +98,7 @@ import "String";
       return true;
     };
 
-    def readFile: function (filename: ptr[array[Char]], result: ptr[ptr], size: ptr[Int]) => Bool
+    def readFile: function (filename: ptr[array[Char]], result: ptr[ptr], size: ptr[ArchInt]) => Bool
     {
       def file: ptr[File];
       def buffer: ptr[array[Char]];
@@ -112,7 +118,7 @@ import "String";
       return false;
     };
 
-    def readFile: function (filename: ptr[array[Char]], size: ptr[Int]) => ptr[array[Char]]
+    def readFile: function (filename: ptr[array[Char]], size: ptr[ArchInt]) => ptr[array[Char]]
     {
       def file: ptr[File];
       def buffer: ptr[array[Char]];
@@ -127,7 +133,7 @@ import "String";
       if exists(filename) {
         file = openFile(filename, "rb");
         seek(file, 0, Seek.END);
-        def size: Int = tell(file);
+        def size: ArchInt = tell(file);
         content.alloc(size);
         seek(file, 0, Seek.SET);
         read(content.buf, size, 1, file);

@@ -31,10 +31,10 @@ print("Reference as pointer. %s\n", ra~ptr);
 
 function updateString(str: ref[array[Char]])
 {
-  str(0) = 's';
-  str(1) = 'u';
-  str(2) = 's';
-  str(3) = 0;
+    str(0) = 's';
+    str(1) = 'u';
+    str(2) = 's';
+    str(3) = 0;
 };
 
 def a: array[Char, 10];
@@ -49,7 +49,7 @@ print("Pass reference to object from another reference. %s\n", ra~ptr);
 
 function replaceString(str: ref[ref[array[Char]]])
 {
-  str~ptr = "world";
+    str~ptr = "world";
 };
 
 def rb: ref[array[Char]];
@@ -64,17 +64,17 @@ print("After passing reference to reference. %s\n", rb~ptr);
 
 function printMessage
 {
-  print("Reference to function pointer.\n");
+    print("Reference to function pointer.\n");
 };
 
 function testFnRef1
 {
-  def pf: ptr[function];
-  def rf: ref[ptr[function]];
-  rf~ptr = pf~ptr;
-  rf = printMessage~ptr;
-  rf();
-  pf();
+    def pf: ptr[function];
+    def rf: ref[ptr[function]];
+    rf~ptr = pf~ptr;
+    rf = printMessage~ptr;
+    rf();
+    pf();
 };
 testFnRef1();
 
@@ -84,14 +84,14 @@ testFnRef1();
 
 function getFn (fn: ref[ptr[function]])
 {
-  fn = printMessage~ptr;
+    fn = printMessage~ptr;
 };
 
 function testFnRef2
 {
-  def pf: ptr[function];
-  getFn(pf);
-  pf();
+    def pf: ptr[function];
+    getFn(pf);
+    pf();
 };
 testFnRef2();
 
@@ -101,7 +101,7 @@ testFnRef2();
 
 function printNumPtr (pn: ptr[Int])
 {
-  print("%d\n", pn~cnt);
+    print("%d\n", pn~cnt);
 };
 def i: Int;
 def ri: ref[Int];
@@ -116,7 +116,7 @@ printNumPtr(ri~ptr);
 
 function printNumPtrPtr (pn: ptr[ptr[Int]])
 {
-  print("%d\n", pn~cnt~cnt);
+    print("%d\n", pn~cnt~cnt);
 };
 def rri: ref[ref[Int]];
 rri~ptr~ptr = ri~ptr~ptr;
@@ -129,7 +129,7 @@ printNumPtrPtr(rri~ptr~ptr);
 
 function printNum (n: Int)
 {
-  print("%d\n", n);
+    print("%d\n", n);
 };
 print("Passing ref[ref[int]] as int. ");
 printNum(rri);
@@ -183,3 +183,20 @@ function testPtrAndCnt
     print("%d\n", rrri);
 }
 testPtrAndCnt();
+
+//
+// auto create temps for references
+//
+
+function receiveTempIntRef (r: temp_ref[Int]) {
+    print("receiveTempIntRef: %d\n", r)
+}
+receiveTempIntRef(5i32);
+
+type B {
+    def i: Int;
+    handler this=temp_ref[Int] this.i = value;
+};
+def b: B;
+b = 5i32;
+print("b=%d\n", b.i);

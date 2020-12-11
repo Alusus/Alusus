@@ -39,6 +39,7 @@ def Main: module
   {
     def i: Int[32];
     def l: Int[64];
+    def ptrI: Int[0];
     def f: Float[32];
     def pi: ptr[Int[32]];
     def d: Float[64];
@@ -54,6 +55,7 @@ def Main: module
     pi = 10~cast[ptr[Int[32]]];
     pi = 10i64~cast[ptr[Int[32]]];
     pi = l~cast[ptr[Int[32]]];
+    pi = ptrI~cast[ptr[Int[32]]];
 
     d = 10.0;
     f = d~cast[Float[32]];
@@ -70,6 +72,7 @@ def Main: module
   {
     def i: Int[32];
     def pi: ptr[Int[32]];
+    def ptrI: Int[0];
     print("Main~size = %d\n", Main~size);
     print("unknown~size = %d\n", unknown~size);
     print("i~size = %d\n", i~size);
@@ -80,6 +83,8 @@ def Main: module
     print("Int[62]~size = %d\n", Int[62]~size);
     print("ptr[Int[32]]~size = %d\n", ptr[Int[32]]~size);
     print("ptr[Int[62]]~size = %d\n", ptr[Int[62]]~size);
+    print("ptrI~size = %d\n", ptrI~size);
+    print("Int[0]~size = %d\n", Int[0]~size);
   };
 };
 

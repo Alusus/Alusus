@@ -80,7 +80,7 @@ def Main: module
     p.iref = 5;
     p.wrongRef = 5;
     n.i = 10;
-    n.i = p.y;
+    n.i = p.y~cast[Int[8]];
     print("p.i=%d\n", p.i);
 
     print("getPoint(1, 2, 3f).y = %d\n", getPoint(1, 2, 3f).y);

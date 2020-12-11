@@ -10,9 +10,9 @@ import "Srl/Memory.alusus";
 def ra: ref[array[Char]];
 function useRefAsPtr
 {
-  ra~ptr = Srl.Memory.alloc(10)~cast[ptr[array[Char]]];
-  ra(0) = 'a';
-  print("Reference as pointer. %s\n", ra~ptr);
+    ra~ptr = Srl.Memory.alloc(10)~cast[ptr[array[Char]]];
+    ra(0) = 'a';
+    print("Reference as pointer. %s\n", ra~ptr);
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(useRefAsPtr~ast);
@@ -30,10 +30,10 @@ def a: array[Char, 10];
 
 function passRefToValue
 {
-  updateString(a);
-  print("Pass reference to object. %s\n", a~ptr);
-  updateString(ra);
-  print("Pass reference to object from another reference. %s\n", ra~ptr);
+    updateString(a);
+    print("Pass reference to object. %s\n", a~ptr);
+    updateString(ra);
+    print("Pass reference to object from another reference. %s\n", ra~ptr);
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(passRefToValue~ast);
@@ -51,10 +51,10 @@ def rb: ref[array[Char]];
 
 function passRefToRefToValue
 {
-  rb~ptr = "hello";
-  print("Before passing reference to reference. %s\n", rb~ptr);
-  replaceString(rb);
-  print("After passing reference to reference. %s\n", rb~ptr);
+    rb~ptr = "hello";
+    print("Before passing reference to reference. %s\n", rb~ptr);
+    replaceString(rb);
+    print("After passing reference to reference. %s\n", rb~ptr);
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(passRefToRefToValue~ast);
@@ -65,17 +65,17 @@ Spp.buildMgr.dumpLlvmIrForElement(passRefToRefToValue~ast);
 
 function printMessage
 {
-  print("Reference to function pointer.\n");
+    print("Reference to function pointer.\n");
 };
 
 function testFnRef1
 {
-  def pf: ptr[function];
-  def rf: ref[ptr[function]];
-  rf~ptr = pf~ptr;
-  rf = printMessage~ptr;
-  rf();
-  pf();
+    def pf: ptr[function];
+    def rf: ref[ptr[function]];
+    rf~ptr = pf~ptr;
+    rf = printMessage~ptr;
+    rf();
+    pf();
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(testFnRef1~ast);
@@ -91,9 +91,9 @@ function getFn (fn: ref[ptr[function]])
 
 function testFnRef2
 {
-  def pf: ptr[function];
-  getFn(pf);
-  pf();
+    def pf: ptr[function];
+    getFn(pf);
+    pf();
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(testFnRef2~ast);
@@ -104,16 +104,16 @@ Spp.buildMgr.dumpLlvmIrForElement(testFnRef2~ast);
 
 function printNumPtr (pn: ptr[Int])
 {
-  print("%d\n", pn~cnt);
+    print("%d\n", pn~cnt);
 };
 def i: Int;
 def ri: ref[Int];
 
 function passRefAsPtr
 {
-  ri~ptr = i~ptr;
-  i = 5;
-  printNumPtr(ri~ptr);
+    ri~ptr = i~ptr;
+    i = 5;
+    printNumPtr(ri~ptr);
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(passRefAsPtr~ast);
@@ -124,14 +124,14 @@ Spp.buildMgr.dumpLlvmIrForElement(passRefAsPtr~ast);
 
 function printNumPtrPtr (pn: ptr[ptr[Int]])
 {
-  print("%d\n", pn~cnt~cnt);
+    print("%d\n", pn~cnt~cnt);
 };
 def rri: ref[ref[Int]];
 
 function passRefRefAsPtrPtr
 {
-  rri~ptr~ptr = ri~ptr~ptr;
-  printNumPtrPtr(rri~ptr~ptr);
+    rri~ptr~ptr = ri~ptr~ptr;
+    printNumPtrPtr(rri~ptr~ptr);
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(passRefRefAsPtrPtr~ast);
@@ -142,7 +142,7 @@ Spp.buildMgr.dumpLlvmIrForElement(passRefRefAsPtrPtr~ast);
 
 function printNum (n: Int)
 {
-  print("%d\n", n);
+    print("%d\n", n);
 };
 
 function getObjectFromRefRef
@@ -188,18 +188,52 @@ function testDeref
 Spp.buildMgr.dumpLlvmIrForElement(testDeref~ast);
 
 //
+// auto create temps for references
+//
+
+function receiveTempIntRef (r: temp_ref[Int]) {
+    print("receiveTempIntRef: %d\n", r)
+}
+
+function receiveIntRef (r: ref[Int]) {
+    print("receiveIntRef: %d\n", r);
+}
+
+type B {
+    def i: Int;
+    handler this=temp_ref[Int] this.i = value;
+};
+
+type C {
+    def i: Int;
+    handler this=ref[Int] this.i = value;
+};
+
+function testTempRefs {
+    receiveTempIntRef(5i32);
+    def b: B;
+    b = 5i32;
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(testTempRefs~ast);
+
+//
 // Error cases
 //
 
 function errorCases
 {
-  def rf: ref[Float];
-  rf~ptr = i~ptr;
-  rri~ptr~ptr = ri;
-  rri~ptr~ptr = i~ptr;
-  rf = "abc";
-  rf = 5.0;
-  i~deref~init();
+    def rf: ref[Float];
+    rf~ptr = i~ptr;
+    rri~ptr~ptr = ri;
+    rri~ptr~ptr = i~ptr;
+    rf = "abc";
+    rf = 5.0;
+    i~deref~init();
+
+    receiveIntRef(5);
+    def c: C;
+    c = 5i32;
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(errorCases~ast);

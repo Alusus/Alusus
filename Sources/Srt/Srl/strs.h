@@ -70,13 +70,13 @@ template<class T> class StringBase
 
   private: void _alloc(LongInt length) {
     this->refCount = (Int*)malloc(sizeof(Int) + sizeof(T) * (length + 1));
-    this->buf = (T*)((PtrInt)this->refCount + sizeof(*this->refCount));
+    this->buf = (T*)((ArchInt)this->refCount + sizeof(*this->refCount));
     *this->refCount = 1;
   }
 
   private: void _realloc(LongInt newLength) {
     this->refCount = (Int*)realloc(this->refCount, sizeof(Int) + sizeof(T) * (newLength + 1));
-    this->buf = (T*)((PtrInt)this->refCount + sizeof(*this->refCount));
+    this->buf = (T*)((ArchInt)this->refCount + sizeof(*this->refCount));
   }
 
   private: void _release() {
@@ -198,8 +198,15 @@ template<class T> class StringBase
     if (startPos > 0) return -1;
     void const *pos = find(startBuf, buf);
     if (pos == 0) return -1;
-    return (PtrInt)pos - (PtrInt)this->buf;
+    return (ArchInt)pos - (ArchInt)this->buf;
   }
+
+  public: ArchInt findLast (Char const *buf) {
+    if (this->buf == 0) return -1;
+    Char const *pos = findLast(this->buf, buf);
+    if (pos == 0) return -1;
+    return (ArchInt)pos - (ArchInt)this->buf;
+  };
 
   public: LongInt find(T c) const {
     return this->find((LongInt)0, c);
@@ -211,8 +218,15 @@ template<class T> class StringBase
     if (startPos > 0) return -1;
     void const *pos = find(startBuf, c);
     if (pos == 0) return -1;
-    return (PtrInt)pos - (PtrInt)this->buf;
+    return (ArchInt)pos - (ArchInt)this->buf;
   }
+
+  public: ArchInt findLast (T c) {
+      if (this->buf == 0) return -1;
+      Char const *pos = findLast(this->buf, c);
+      if (pos == 0) return -1;
+      return (ArchInt)pos - (ArchInt)this->buf;
+  };
 
   public: Int compare(T const *s) const {
     return compare(this->buf, s);
@@ -232,10 +246,10 @@ template<class T> class StringBase
         str.append(buf);
         return str;
       }
-      PtrInt n = (PtrInt)found - (PtrInt)buf;
+      ArchInt n = (ArchInt)found - (ArchInt)buf;
       str.append(buf, n);
       str.append(replacement);
-      buf = (T*)((PtrInt)found + matchLength);
+      buf = (T*)((ArchInt)found + matchLength);
     }
     return str;
   }
@@ -260,7 +274,7 @@ template<class T> class StringBase
     if (trimEnd) while (isSpacce(this->buf[end])) { --end; }
     if (end >= begin) {
       StringBase<T> str;
-      str.assign((T*)((PtrInt)this->buf + begin), end - begin + 1);
+      str.assign((T*)((ArchInt)this->buf + begin), end - begin + 1);
       return str;
     } else {
       return StringBase<T>();
@@ -287,7 +301,7 @@ template<class T> class StringBase
     StringBase<T> str;
     LongInt l = this->getLength();
     if (begin >= l) return str;
-    str.assign((T*)((PtrInt)this->buf + begin), count);
+    str.assign((T*)((ArchInt)this->buf + begin), count);
     return str;
   }
 
@@ -303,10 +317,10 @@ template<class T> class StringBase
         ary.add(str);
         return ary;
       }
-      PtrInt n = (PtrInt)found - (PtrInt)buf;
+      ArchInt n = (ArchInt)found - (ArchInt)buf;
       if (n == 0) str = StringBase<T>(); else str.assign(buf, n);
       ary.add(str);
-      buf = (T*)((PtrInt)found + matchLength);
+      buf = (T*)((ArchInt)found + matchLength);
     }
     return ary;
   }
@@ -421,7 +435,7 @@ template<class T> class StringBase
   public: static T* remove(T *chrs, T chr) {
     T *pointer = find(chrs, chr);
     while (pointer != 0) {
-      copy(pointer, (T*)((PtrInt)pointer + 1));
+      copy(pointer, (T*)((ArchInt)pointer + 1));
       pointer = find(pointer, chr);
     }
     return chrs;
@@ -431,14 +445,14 @@ template<class T> class StringBase
     T *pointer = find(chrs, fromChr);
     while (pointer != 0) {
       *pointer = toChr;
-      pointer = find((T*)((PtrInt)pointer + 1), fromChr);
+      pointer = find((T*)((ArchInt)pointer + 1), fromChr);
     }
     return chrs;
   }
 
   public: static T* charAt(T const *chrs, LongInt index) {
     static T buffer[2];
-    copy(&buffer, (T*)((PtrInt)chrs + index), 1);
+    copy(&buffer, (T*)((ArchInt)chrs + index), 1);
     buffer[1] = 0;
     return &buffer;
   }
@@ -448,6 +462,23 @@ template<class T> class StringBase
   public: static T const* find(T const *s, T c, LongInt n);
 
   public: static T const* find(T const *haystack, T const *needle);
+
+  public: static T const* findLast(T const *s, T c);
+
+  public: static T const* findLast(T const *haystack, T const *needle)
+  {
+    if (*needle == '\0') return (T*) haystack;
+
+    T *result = 0;
+    for (;;) {
+      T *p = strstr(haystack, needle);
+      if (p == 0) break;
+      result = p;
+      haystack = p + 1;
+    }
+
+    return result;
+  }
 
   public: static Int compare(T const *s1, T const *s2);
 
@@ -513,6 +544,13 @@ template<> inline Char const* StringBase<Char>::find(Char const *haystack, Char 
 }
 template<> inline WChar const* StringBase<WChar>::find(WChar const *haystack, WChar const *needle) {
   return wcsstr(haystack, needle);
+}
+
+template<> inline Char const* StringBase<Char>::findLast(Char const *s, Char c) {
+  return strrchr(s, c);
+}
+template<> inline WChar const* StringBase<WChar>::findLast(WChar const *s, WChar c) {
+  return wcsrchr(s, c);
 }
 
 template<> inline Int StringBase<Char>::compare(Char const *s1, Char const *s2) {

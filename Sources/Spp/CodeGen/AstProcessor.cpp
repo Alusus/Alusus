@@ -83,10 +83,22 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
 
   if (owner == 0 || owner->isDerivedFrom<Core::Data::Grammar::Module>()) return true;
 
-  auto container = ti_cast<Containing<TiObject>>(owner);
-  if (container == 0) return true;
-
   Bool result = true;
+
+  auto def = ti_cast<Core::Data::Ast::Definition>(owner);
+  if (def != 0 && def->isToMerge() && def->getTarget().ti_cast_get<Spp::Ast::Type>() != 0) {
+    // Having a type definition with to-merge flag set means we eventually didn't find the merge target.
+    astProcessor->noticeStore->add(
+      newSrdObj<Spp::Notices::MissingTypeMergeTargetNotice>(findSourceLocation(def))
+    );
+    // Reset the to-merge flag to avoid duplicate error messages.
+    def->setToMerge(false);
+    result = false;
+  }
+
+  auto container = ti_cast<Containing<TiObject>>(owner);
+  if (container == 0) return result;
+
   for (Int i = 0; i < container->getElementCount(); ++i) {
     auto child = container->getElement(i);
     if (child == 0) continue;
@@ -580,7 +592,6 @@ Bool AstProcessor::_interpolateAst_other(
     throw EXCEPTION(GenericException, S("A Node derived class is missing a type factory."));
   }
   result = factory->createShared();
-  if (sl != 0) Core::Data::Ast::addSourceLocation(result.get(), sl);
 
   auto srcBinding = ti_cast<Binding>(obj);
   auto binding = result.ti_cast_get<Binding>();
@@ -611,6 +622,8 @@ Bool AstProcessor::_interpolateAst_other(
       srcContainer, argNames, args, sl, container
     )) return false;
   }
+
+  if (sl != 0) Core::Data::Ast::addSourceLocation(result.get(), sl);
 
   return true;
 }

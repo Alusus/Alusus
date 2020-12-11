@@ -20,7 +20,7 @@ template<class T> class ArrayIndex {
   //=================
   // Member Variables
 
-  private: Array<Int> indices;
+  private: Array<ArchInt> indices;
   private: Array<T> *values;
 
   //===============
@@ -38,25 +38,25 @@ template<class T> class ArrayIndex {
   //=================
   // Member Functions
 
-  public: void add(Int i) {
+  public: void add(ArchInt i) {
     if (i == -1) {
       // Add any new items at the end of the values list.
       if (this->values->getLength() <= this->indices.getLength()) return;
       this->indices.reserve(this->values->getBufSize());
       while (this->values->getLength() > this->indices.getLength()) {
         i = this->indices.getLength();
-        Int pos;
+        ArchInt pos;
         this->findPos(this->values->at(i), pos);
         this->indices.insert(pos, i);
       }
     } else if (i < this->values->getLength()) {
       // Add a new item at a specific location.
       // First update the existing indices.
-      for (Int j = 0; j < this->indices.getLength(); ++j) {
+      for (ArchInt j = 0; j < this->indices.getLength(); ++j) {
         if (this->indices(j) >= i) ++this->indices(j);
       }
       // Now insert the new value.
-      Int pos;
+      ArchInt pos;
       this->findPos(this->values->at(i), pos);
       this->indices.insert(pos, i);
     } else {
@@ -64,11 +64,11 @@ template<class T> class ArrayIndex {
     }
   }
 
-  public: void remove(Int i) {
+  public: void remove(ArchInt i) {
     if (i >= this->indices.getLength()) {
       throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range"), i);
     }
-    for (Int j = 0; j < this->indices.getLength(); ++j) {
+    for (ArchInt j = 0; j < this->indices.getLength(); ++j) {
       if (this->indices(j) == i) {
         this->indices.remove(j);
         --j;
@@ -82,13 +82,13 @@ template<class T> class ArrayIndex {
     this->indices.clear();
   }
 
-  public: Int findPos(T const &v) {
-    Int r;
+  public: ArchInt findPos(T const &v) {
+    ArchInt r;
     if (this->findPos(v, r)) return this->indices(r);
     else return -1;
   }
 
-  public: Bool findPos(T const &v, Int &result) {
+  public: Bool findPos(T const &v, ArchInt &result) {
     if (this->indices.getLength() == 0) {
       result = 0;
       return false;
@@ -115,12 +115,12 @@ template<class T> class ArrayIndex {
     return this->_findPos(v, 0, this->indices.getLength() - 1, result);
   }
 
-  private: Bool _findPos(T const &v, Int startPos, Int endPos, Int &result) {
+  private: Bool _findPos(T const &v, ArchInt startPos, ArchInt endPos, ArchInt &result) {
     if (startPos == endPos - 1) {
       result = endPos;
       return false;
     } else {
-      Int midPos = (startPos + endPos) / 2;
+      ArchInt midPos = (startPos + endPos) / 2;
       T &vm = this->values->at(this->indices(midPos));
       if (v == vm) {
         result = midPos;

@@ -40,7 +40,7 @@ void Helper::initBindingCaches()
     &this->getBoolType,
     &this->getCharType,
     &this->getCharArrayType,
-    &this->getInt64Type,
+    &this->getArchIntType,
     &this->getIntType,
     &this->getWord64Type,
     &this->getWordType,
@@ -79,7 +79,7 @@ void Helper::initBindings()
   this->getBoolType = &Helper::_getBoolType;
   this->getCharType = &Helper::_getCharType;
   this->getCharArrayType = &Helper::_getCharArrayType;
-  this->getInt64Type = &Helper::_getInt64Type;
+  this->getArchIntType = &Helper::_getArchIntType;
   this->getIntType = &Helper::_getIntType;
   this->getWord64Type = &Helper::_getWord64Type;
   this->getWordType = &Helper::_getWordType;
@@ -154,18 +154,22 @@ Bool Helper::_lookupCalleeInScope(
         // There is no need to continue searching if we already have a match and we are jumping to another level.
         auto node = ti_cast<Core::Data::Node>(obj);
         if (node != 0 && prevNode != 0) {
+          // If we encounter the same node again it means we moved up and encountered a use statement that took us back
+          // into the same module. In this case we can stop looking since we have moved up and we already have a match.
+          if (node == prevNode) return Core::Data::Seeker::Verb::STOP;
+
+          // If it's not the same node, then let's check the owners of the two nodes.
           Core::Data::Node *owner = Core::Data::findOwner<Core::Data::Ast::Scope>(node);
           // It's possible that the previous match was for a function arg, so we have to account for that since a
           // function arg would have the same owner scope as a function sitting at the same module.
           Core::Data::Node *prevOwner = Core::Data::findOwner<Spp::Ast::FunctionType>(prevNode);
           if (prevOwner == 0) prevOwner = Core::Data::findOwner<Core::Data::Ast::Scope>(prevNode);
-          if (owner != prevOwner && result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
-            return Core::Data::Seeker::Verb::STOP;
-          }
+          if (owner != prevOwner) return Core::Data::Seeker::Verb::STOP;
         }
 
         if (helper->lookupCalleeOnObject(obj, thisType, types, ec, currentStackSize, result)) {
           retVal = true;
+          prevNode = node;
         } else {
           if (result.notice != 0 && result.notice->isDerivedFrom<Spp::Notices::MultipleCalleeMatchNotice>()) {
             retVal = false;
@@ -176,7 +180,6 @@ Bool Helper::_lookupCalleeInScope(
           }
         }
 
-        prevNode = node;
         return Core::Data::Seeker::Verb::MOVE;
       },
       searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
@@ -267,7 +270,7 @@ Bool Helper::_lookupCalleeOnObject(
   } else if (obj != 0 && obj->isDerivedFrom<ArrayType>()) {
     if (
       types != 0 && types->getElementCount() == 1 &&
-      helper->isImplicitlyCastableTo(types->getElement(0), helper->getInt64Type(), ec)
+      helper->isImplicitlyCastableTo(types->getElement(0), helper->getArchIntType(), ec)
     ) {
       if (result.matchStatus < TypeMatchStatus::EXACT) {
         result.matchStatus = TypeMatchStatus::EXACT;
@@ -412,8 +415,8 @@ Bool Helper::_lookupCalleeOnObject(
 }
 
 
-Function* Helper::_lookupCustomCaster(
-  TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec
+TypeMatchStatus Helper::_lookupCustomCaster(
+  TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
 ) {
   PREPARE_SELF(helper, Helper);
 
@@ -423,10 +426,9 @@ Function* Helper::_lookupCustomCaster(
     if (srcContentType != 0 && srcContentType->getBody() != 0) {
       PlainList<TiObject> argTypes({ srcRefType });
       static Core::Data::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
-      Function *callee = 0;
       TypeMatchStatus retMatch;
       helper->getSeeker()->foreach(&ref, srcContentType->getBody().get(),
-        [=, &retMatch, &callee, &argTypes] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+        [=, &retMatch, &caster, &argTypes] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
         {
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
@@ -435,9 +437,9 @@ Function* Helper::_lookupCustomCaster(
             if (match == TypeMatchStatus::EXACT) {
               auto retType = funcType->traceRetType(helper);
               auto rmatch = retType->matchTargetType(targetType, helper, ec);
-              if (rmatch >= TypeMatchStatus::IMPLICIT_CAST && rmatch > retMatch) {
+              if ((rmatch>=TypeMatchStatus::IMPLICIT_CAST || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
                 retMatch = rmatch;
-                callee = func;
+                caster = func;
                 if (rmatch == TypeMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
               }
             }
@@ -446,10 +448,10 @@ Function* Helper::_lookupCustomCaster(
         },
         SeekerExtension::Flags::SKIP_OWNERS_AND_USES
       );
-      return callee;
+      return retMatch;
     }
   }
-  return 0;
+  return TypeMatchStatus::NONE;
 }
 
 
@@ -636,20 +638,42 @@ TypeMatchStatus Helper::_matchTargetType(
     if (targetType == 0) return TypeMatchStatus::NONE;
   }
 
+  // If the target type is a temp_ref then we'll cast to the content type instead of the ref type, and then update
+  // derefs accordingly if we found a match. This is because even if we have a value rather than a reference the
+  // casting is still possible since this is a temp ref and we can create a temp var to convert values into
+  // references.
+  Bool negativeDeref = false;
+  if (
+    targetType->isDerivedFrom<ReferenceType>() &&
+    static_cast<ReferenceType*>(targetType)->getMode() == Ast::ReferenceMode::TEMP_EXPLICIT
+  ) {
+    negativeDeref = true;
+    targetType = static_cast<ReferenceType*>(targetType)->getContentType(helper);
+  }
   auto matchType = srcType->matchTargetType(targetType, helper, ec);
-  if (matchType >= TypeMatchStatus::IMPLICIT_CAST) {
+  if (negativeDeref && (matchType == TypeMatchStatus::AGGREGATION || matchType >= TypeMatchStatus::REF_AGGREGATION)) {
+    --matchType.derefs;
+    if (matchType == TypeMatchStatus::AGGREGATION) matchType.value = TypeMatchStatus::REF_AGGREGATION;
+    return matchType;
+  } else if (!negativeDeref && matchType >= TypeMatchStatus::EXPLICIT_CAST) {
     return matchType;
   } else {
     Int deref = 0;
     while (srcType->isDerivedFrom<ReferenceType>()) {
-      caster = helper->lookupCustomCaster(srcType, targetType, ec);
-      if (caster != 0) {
+      auto customMatchType = helper->lookupCustomCaster(srcType, targetType, ec, caster);
+      if (
+        (negativeDeref && (
+          customMatchType==TypeMatchStatus::AGGREGATION || customMatchType>=TypeMatchStatus::REF_AGGREGATION
+        )) ||
+        (!negativeDeref && customMatchType>=TypeMatchStatus::IMPLICIT_CAST)
+      ) {
         return TypeMatchStatus(TypeMatchStatus::CUSTOM_CASTER, deref);
       }
       ++deref;
       srcType = static_cast<ReferenceType*>(srcType)->getContentType(helper);
     }
-    return matchType;
+    if (negativeDeref) return TypeMatchStatus::NONE;
+    else return matchType;
   }
 }
 
@@ -866,13 +890,13 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
 }
 
 
-IntegerType* Helper::_getInt64Type(TiObject *self)
+IntegerType* Helper::_getArchIntType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
-  if (helper->int64Type == 0) {
-    helper->int64Type = helper->getIntType(64);
+  if (helper->archIntType == 0) {
+    helper->archIntType = helper->getIntType(0);
   }
-  return helper->int64Type;
+  return helper->archIntType;
 }
 
 
@@ -1202,12 +1226,15 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
 Template* Helper::getReferenceTemplate(ReferenceMode const &mode)
 {
   if (mode == ReferenceMode::EXPLICIT && this->refTemplate != 0) return this->refTemplate;
+  else if (mode == ReferenceMode::TEMP_EXPLICIT && this->trefTemplate != 0) return this->trefTemplate;
   else if (mode == ReferenceMode::IMPLICIT && this->irefTemplate != 0) return this->irefTemplate;
   else if (mode == ReferenceMode::NO_DEREF && this->ndrefTemplate != 0) return this->ndrefTemplate;
 
   Core::Data::Ast::Identifier identifier;
   identifier.setValue(
-    mode == ReferenceMode::EXPLICIT ? S("ref") : (mode == ReferenceMode::IMPLICIT ? S("iref") : S("ndref"))
+    mode == ReferenceMode::EXPLICIT ? S("ref") : (
+      mode == ReferenceMode::TEMP_EXPLICIT ? S("temp_ref") : (mode == ReferenceMode::IMPLICIT ? S("iref") : S("ndref"))
+    )
   );
   auto tpl = ti_cast<Template>(rootManager->getSeeker()->doGet(
     &identifier, this->rootManager->getRootScope().get())
@@ -1216,6 +1243,7 @@ Template* Helper::getReferenceTemplate(ReferenceMode const &mode)
     throw EXCEPTION(GenericException, S("Invalid object found for ref template."));
   }
   if (mode == ReferenceMode::EXPLICIT) this->refTemplate = tpl;
+  else if (mode == ReferenceMode::TEMP_EXPLICIT) this->trefTemplate = tpl;
   else if (mode == ReferenceMode::IMPLICIT) this->irefTemplate = tpl;
   else this->ndrefTemplate = tpl;
   return tpl;

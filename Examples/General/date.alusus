@@ -2,7 +2,7 @@ import "Srl/Console";
 import "Srl/Time";
 use Srl;
 
-def ts: Word[64] = Time.getTimestamp(0);
+def ts: ArchInt = Time.getTimestamp(0);
 def time: ptr[Time.DetailedTime] = Time.getDetailedTime(ts~ptr);
 Console.print("Current date: %d-%02d-%02d\n", time~cnt.year + 1900, time~cnt.month + 1, time~cnt.day);
 Console.print("Current timezone: %s\n", time~cnt.timezone);

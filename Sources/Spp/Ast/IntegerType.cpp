@@ -18,20 +18,25 @@ namespace Spp::Ast
 //==============================================================================
 // Member Functions
 
-Word IntegerType::getBitCount(Helper *helper) const
+Word IntegerType::getBitCount(Helper *helper, ExecutionContext const *ec) const
 {
   if (this->isNullLiteral()) return 1;
 
   if (this->bitCountRef == 0) {
     this->bitCountRef = helper->getRootManager()->parseExpression(S("bitCount"));
   }
-  auto bitCount = ti_cast<Core::Data::Ast::IntegerLiteral>(
+  auto bitCountText = ti_cast<Core::Data::Ast::IntegerLiteral>(
     helper->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
   );
-  if (bitCount == 0) {
+  if (bitCountText == 0) {
     throw EXCEPTION(GenericException, S("Could not find bitCount value."));
   }
-  return std::stol(bitCount->getValue().get());
+  Word bitCount = std::stol(bitCountText->getValue().get());
+  if (bitCount == 0) {
+    return ec->getPointerBitCount();
+  } else {
+    return bitCount;
+  }
 }
 
 
@@ -43,8 +48,8 @@ TypeMatchStatus IntegerType::matchTargetType(
   else {
     if (type->isDerivedFrom<IntegerType>()) {
       auto integerType = static_cast<IntegerType const*>(type);
-      auto thisBitCount = this->getBitCount(helper);
-      auto targetBitCount = integerType->getBitCount(helper);
+      auto thisBitCount = this->getBitCount(helper, ec);
+      auto targetBitCount = integerType->getBitCount(helper, ec);
       if (thisBitCount == targetBitCount && this->isSigned() == integerType->isSigned()) {
         return TypeMatchStatus::EXACT;
       } else if (targetBitCount == 1 && thisBitCount == 1) {
@@ -63,7 +68,7 @@ TypeMatchStatus IntegerType::matchTargetType(
     } else if (type->isDerivedFrom<PointerType>()) {
       if (this->isNullLiteral()) {
         return TypeMatchStatus::IMPLICIT_CAST;
-      } else if (ec->getPointerBitCount() == this->getBitCount(helper)) {
+      } else if (ec->getPointerBitCount() == this->getBitCount(helper, ec)) {
         return TypeMatchStatus::EXPLICIT_CAST;
       } else {
         return TypeMatchStatus::NONE;

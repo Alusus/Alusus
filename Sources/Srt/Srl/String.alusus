@@ -18,22 +18,46 @@ import "StringBase";
 
     @merge type String {
         func append (i: Int[64]) {
-            def buf: array[T, 20];
-            assign(buf~ptr, "%ld", i);
-            this.append(buf~ptr);
+            this._append(i, 1);
+        }
+
+        func _append (i: Int[64], minDigits: Int) {
+            def buf: array[Char, 20];
+            def strptr: ptr[Char] = buf(19)~ptr;
+            strptr~cnt = 0;
+            def negative: Bool = 0;
+            if i < 0 {
+                negative = 1;
+                i = -i;
+            }
+            while minDigits-- > 0 || i > 0 {
+                strptr = strptr - 1;
+                strptr~cnt = '0' + i % 10;
+                i /= 10;
+            }
+            if negative {
+                strptr = strptr - 1;
+                strptr~cnt = '-';
+            }
+            this.append(strptr~cast[CharsPtr]);
         };
 
         func append (f: Float[64]) {
-            def buf: array[T, 20];
-            assign(buf~ptr, "%f", f);
-            this.append(buf~ptr);
+            if f < 0 {
+                f *= -1;
+                this.append('-');
+            }
+            this.append(f~cast[Int[64]]);
+            def fractions: Float[64] = f - f~cast[Int[64]];
+            this.append('.');
+            this._append((fractions * 1000000.0f64 + 0.5f64)~cast[Int[64]], 6);
         };
 
         @shared @expname[strchr]
         func find(s: ptr[Char], c: Int): ptr[Char];
 
         @shared @expname[memchr]
-        func find(s: ptr[Void], c: Int, n: Int[64]): ptr[Void];
+        func find(s: ptr[Void], c: Int, n: ArchInt): ptr[Void];
 
         @shared @expname[strrchr]
         func findLast(s: ptr[Char], c: Int): ptr[Char];
@@ -41,29 +65,26 @@ import "StringBase";
         @shared @expname[strstr]
         func find(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
 
-        @shared @expname[strrstr]
-        func findLast(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
-
         @shared @expname[strcmp]
         func compare(s1: ptr[Char], s2: ptr[Char]): Int;
 
         @shared @expname[strncmp]
-        func compare(s1: ptr[Char], s2: ptr[Char], n: Int[64]): Int;
+        func compare(s1: ptr[Char], s2: ptr[Char], n: ArchInt): Int;
 
         @shared @expname[strcpy]
         func copy(dest: ptr[Char], src: ptr[Char]): ptr[Void];
 
         @shared @expname[strncpy]
-        func copy(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Void];
+        func copy(dest: ptr[Char], src: ptr[Char], n: ArchInt): ptr[Void];
 
         @shared @expname[strcat]
         func concat(dest: ptr[Char], src: ptr[Char]): ptr[Char];
 
         @shared @expname[strncat]
-        func concat(dest: ptr[Char], src: ptr[Char], n: Int[64]): ptr[Char];
+        func concat(dest: ptr[Char], src: ptr[Char], n: ArchInt): ptr[Char];
 
         @shared @expname[strlen]
-        func getLength(s: ptr[Char]): Int[64];
+        func getLength(s: ptr[Char]): ArchInt;
 
         @shared @expname[sprintf]
         func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];
@@ -76,5 +97,72 @@ import "StringBase";
 
         @shared @expname[tolower]
         func toLower(c: int): int;
+
+        @shared
+        func format(format: ptr[array[Char]], args: ...any): String {
+            def str: String;
+            while 1 {
+                def pos: ptr[Char] = find(format, '%');
+                if pos == 0 {
+                    str += format;
+                    break;
+                } else {
+                    str.append(format, pos~cast[ArchInt] - format~cast[ArchInt]);
+                    def c: Char = (pos + 1)~cnt;
+                    if c == 's' str += args~next_arg[ptr[array[Char]]]
+                    else if c == 'c' str += args~next_arg[Char]
+                    else if c == 'i' str += args~next_arg[Int]
+                    else if c == 'l' str += args~next_arg[Int[64]]
+                    else if c == 'f' str += args~next_arg[Float]
+                    else if c == 'd' str += args~next_arg[Float[64]]
+                    else if c == '%' str += '%';
+                    format = (pos + 2)~cast[CharsPtr];
+                }
+            }
+            return str;
+        }
+
+        @shared
+        func parseInt (chars: ptr[array[Char]]): Int[64] {
+            def negative: Bool(0);
+            def result: Int[64](0);
+            def charPtr: ptr[Char](chars);
+            if charPtr~cnt == '-' {
+                negative = 1;
+                charPtr = charPtr + 1;
+            }
+            while charPtr~cnt >= '0' && charPtr~cnt <= '9' {
+                result *= 10;
+                result += charPtr~cnt - '0';
+                charPtr = charPtr + 1;
+            }
+            if negative return -result else return result;
+        }
+
+        @shared
+        func parseFloat (chars: ptr[array[Char]]): Float[64] {
+            def negative: Bool(0);
+            def result: Float[64](0);
+            def charPtr: ptr[Char](chars);
+            if charPtr~cnt == '-' {
+                negative = 1;
+                charPtr = charPtr + 1;
+            }
+            while charPtr~cnt >= '0' && charPtr~cnt <= '9' {
+                result *= 10;
+                result += charPtr~cnt - '0';
+                charPtr = charPtr + 1;
+            }
+            if charPtr~cnt == '.' {
+                charPtr = charPtr + 1;
+                def multiplier: Float[64](1);
+                while charPtr~cnt >= '0' && charPtr~cnt <= '9' {
+                    multiplier /= 10;
+                    result += multiplier * (charPtr~cnt - '0');
+                    charPtr = charPtr + 1;
+                }
+            }
+            if negative && result != 0 return -result else return result;
+        }
     };
 };

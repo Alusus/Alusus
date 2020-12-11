@@ -26,6 +26,7 @@ void AstMgr::initBindingCaches()
     &this->findModifierForElement,
     &this->getModifierKeyword,
     &this->getModifierStringParams,
+    &this->getSourceFullPathForElement,
     &this->insertAst_plain,
     &this->insertAst_shared,
     &this->buildAst_plain,
@@ -42,6 +43,7 @@ void AstMgr::initBindings()
   this->findModifierForElement = &AstMgr::_findModifierForElement;
   this->getModifierKeyword = &AstMgr::_getModifierKeyword;
   this->getModifierStringParams = &AstMgr::_getModifierStringParams;
+  this->getSourceFullPathForElement = &AstMgr::_getSourceFullPathForElement;
   this->insertAst_plain = &AstMgr::_insertAst_plain;
   this->insertAst_shared = &AstMgr::_insertAst_shared;
   this->buildAst_plain = &AstMgr::_buildAst_plain;
@@ -58,6 +60,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_findModifierForElement"), (void*)&AstMgr::_findModifierForElement);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierKeyword"), (void*)&AstMgr::_getModifierKeyword);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStringParams"), (void*)&AstMgr::_getModifierStringParams);
+  globalItemRepo->addItem(S("Spp_AstMgr_getSourceFullPathForElement"), (void*)&AstMgr::_getSourceFullPathForElement);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_plain"), (void*)&AstMgr::_insertAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_shared"), (void*)&AstMgr::_insertAst_shared);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_plain"), (void*)&AstMgr::_buildAst_plain);
@@ -164,6 +167,19 @@ Bool AstMgr::_getModifierStringParams(TiObject *self, TiObject *modifier, Array<
     result.add(str->getValue().getStr());
   }
   return true;
+}
+
+
+String AstMgr::_getSourceFullPathForElement(TiObject *self, TiObject *element)
+{
+  auto sourceLocation = Core::Data::Ast::findSourceLocation(element).get();
+  if (sourceLocation->isDerivedFrom<Core::Data::SourceLocationRecord>()) {
+    return static_cast<Core::Data::SourceLocationRecord*>(sourceLocation)->filename;
+  } else {
+    auto stack = static_cast<Core::Data::SourceLocationStack*>(sourceLocation);
+    sourceLocation = stack->get(0).get();
+    return static_cast<Core::Data::SourceLocationRecord*>(sourceLocation)->filename;
+  }
 }
 
 

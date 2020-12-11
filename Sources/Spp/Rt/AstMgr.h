@@ -140,6 +140,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getModifierStringParams, Bool, (TiObject* /* modifier */, Array<String>& /* result */));
   public: static Bool _getModifierStringParams(TiObject *self, TiObject *modifier, Array<String> &result);
 
+  public: METHOD_BINDING_CACHE(getSourceFullPathForElement, String, (TiObject* /* element */));
+  public: static String _getSourceFullPathForElement(TiObject *self, TiObject *element);
+
   public: METHOD_BINDING_CACHE(insertAst_plain, Bool, (TiObject*, Map<Str, TiObject*>*));
   public: static Bool _insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
 
