@@ -17,6 +17,8 @@ namespace Spp::LlvmCodeGen
 
 void OfflineBuildTarget::setupBuild()
 {
+  BuildTarget::setupBuild();
+
   this->llvmGlobalCtorDtorEntryTypes = LlvmGlobalCtorDtorEntryTypes();
   this->llvmModule.reset();
 
