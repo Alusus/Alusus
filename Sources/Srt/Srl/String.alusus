@@ -92,11 +92,17 @@ import "StringBase";
         @shared @expname[sscanf]
         func scan(source: ptr[Char], format: ptr[Char], args: ...any): Int[32];
 
-        @shared @expname[toupper]
-        func toUpper(c: int): int;
+        @shared
+        func toUpper(c: int): int {
+            if c >= 'a' && c <= 'z' return c - 'a' + 'A'
+            else return c;
+        }
 
-        @shared @expname[tolower]
-        func toLower(c: int): int;
+        @shared
+        func toLower(c: int): int {
+            if c >= 'A' && c <= 'Z' return c - 'A' + 'a'
+            else return c;
+        }
 
         @shared
         func format(format: ptr[array[Char]], args: ...any): String {
