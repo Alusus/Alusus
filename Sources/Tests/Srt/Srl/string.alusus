@@ -102,6 +102,8 @@ def Main: module
     Console.print(s);
     Console.print("\n");
 
+    s = "\t Latin Letters حروف غير لاتينية 非拉丁字母 ലാറ്റിൻ അല്ലാത്ത അക്ഷരങ്ങൾ गैर-लैटिन पत्र !@#$%^&*{}()";
+    Console.print("No case change: %s\n", s.buf);
     Console.print("ToUpperCase: %s\n", s.toUpperCase().buf);
     Console.print("ToLowerCase: %s", s.toLowerCase().buf);
   };

@@ -36,5 +36,6 @@ Comparison successful!
 hello
 world
 hello - world
-ToUpperCase: HELLO - WORLD
-ToLowerCase: hello - world
+No case change: 	 Latin Letters حروف غير لاتينية 非拉丁字母 ലാറ്റിൻ അല്ലാത്ത അക്ഷരങ്ങൾ गैर-लैटिन पत्र !@#$%^&*{}()
+ToUpperCase: 	 LATIN LETTERS حروف غير لاتينية 非拉丁字母 ലാറ്റിൻ അല്ലാത്ത അക്ഷരങ്ങൾ गैर-लैटिन पत्र !@#$%^&*{}()
+ToLowerCase: 	 latin letters حروف غير لاتينية 非拉丁字母 ലാറ്റിൻ അല്ലാത്ത അക്ഷരങ്ങൾ गैर-लैटिन पत्र !@#$%^&*{}()
