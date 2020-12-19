@@ -18,6 +18,6 @@ jobs:
       run: |
         export SETUPTOOLS_USE_DISTUTILS=stdlib
         python3 -m pip install --upgrade pip setuptools wheel
-        python3 -m install wget wheel termcolor argparse colorama --no-cache-dir
+        python3 -m pip install wget wheel termcolor argparse colorama --no-cache-dir
     - name: build alusus
       run:  ./Tools/build.sh --bloc . --iloc .
