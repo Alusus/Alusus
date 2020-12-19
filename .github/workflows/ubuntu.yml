@@ -12,5 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install dependencies
+      run: apt-get install -y git build-essential cmake zlib1g-dev libssl-dev python3 python3-pip ruby ruby-dev rpm && gem install --no-ri --no-rdoc fpm
     - name: cmake
       run:  ./Tools/build.sh --bloc . --iloc .
