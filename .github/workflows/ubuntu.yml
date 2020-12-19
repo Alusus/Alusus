@@ -15,6 +15,6 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get install -y git build-essential cmake zlib1g-dev libssl-dev python3 python3-pip ruby ruby-dev rpm && sudo gem install --no-ri --no-rdoc fpm
     - name: Install python3 dependencies
-      run: pip install --user  wget termcolor argparse colorama
+      run: pip install --user wheel  wget termcolor argparse colorama
     - name: cmake
       run:  ./Tools/build.sh --bloc . --iloc .
