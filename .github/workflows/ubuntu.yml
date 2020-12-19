@@ -13,10 +13,11 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install dependencies
-      run: sudo apt-get install -y git build-essential cmake zlib1g-dev libssl-dev python3 python3-pip ruby ruby-dev rpm  python-wget && sudo gem install --no-ri --no-rdoc fpm
+      run: sudo apt-get install -y git build-essential cmake zlib1g-dev libssl-dev python3 python3-pip ruby ruby-dev rpm && sudo gem install --no-ri --no-rdoc fpm
     - name: Install python3 dependencies
       run: |
         export SETUPTOOLS_USE_DISTUTILS=stdlib
-        python3 -m pip install --upgrade pip setuptools wheel wget termcolor argparse colorama --no-cache-dir
+        python3 -m pip install --upgrade pip setuptools wheel
+        python3 -m install wget wheel termcolor argparse colorama --no-cache-dir
     - name: build alusus
       run:  ./Tools/build.sh --bloc . --iloc .
