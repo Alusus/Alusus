@@ -21,6 +21,6 @@ jobs:
         python3 -m pip install wget wheel termcolor argparse colorama --no-cache-dir
     - name: build alusus
       run:  ./Tools/build.sh --bloc . --iloc .
-    - name: build alusus
+    - name: automated tests alusus
       run:  |
         cd Builds/Debug && make test
