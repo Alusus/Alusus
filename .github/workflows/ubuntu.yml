@@ -1,0 +1,26 @@
+name: Ubuntu
+
+on: [push]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: sudo apt-get install -y git build-essential cmake zlib1g-dev libssl-dev python3 python3-pip ruby ruby-dev rpm && sudo gem install --no-ri --no-rdoc fpm
+    - name: Install python3 dependencies
+      run: |
+        export SETUPTOOLS_USE_DISTUTILS=stdlib
+        python3 -m pip install --upgrade pip setuptools wheel
+        python3 -m pip install wget wheel termcolor argparse colorama --no-cache-dir
+    - name: build alusus
+      run:  ./Tools/build.sh --bloc . --iloc .
+    - name: automated tests alusus
+      run:  |
+        cd Builds/Debug && make test
