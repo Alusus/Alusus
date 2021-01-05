@@ -1,0 +1,76 @@
+import "Srl/Console";
+import "Srl/String";
+import "Srl/System";
+use Srl;
+
+func parseHex (hex: ptr[array[Char]], len: Int): Int {
+    def i: Int;
+    def result: Int = 0;
+    if len == 0 len = String.getLength(hex);
+    for i = 0, i < len, ++i {
+        result *= 16;
+        if hex~cnt(i) >= '0' && hex~cnt(i) <= '9' result += hex~cnt(i) - '0'
+        else if hex~cnt(i) >= 'a' && hex~cnt(i) <= 'f' result += 10 + hex~cnt(i) - 'a'
+        else if hex~cnt(i) >= 'A' && hex~cnt(i) <= 'F' result += 10 + hex~cnt(i) - 'A'
+        else {
+            System.fail(1, "Invalid hex character.");
+        }
+    }
+    return result;
+}
+
+type Rgba {
+    def r: Word[8];
+    def g: Word[8];
+    def b: Word[8];
+    def a: Word[8];
+
+    func print {
+        Console.print(
+            "r=%d, g=%d, b=%d, a=%d\n", this.r~cast[Int], this.g~cast[Int], this.b~cast[Int], this.a~cast[Int]
+        );
+    }
+}
+
+func hexDigitToDoubleHexDigits (i: Int): Int {
+    return i * 16 + i;
+}
+
+func hexToRgba (hex: ptr[array[Char]]): Rgba {
+    def rgba: Rgba;
+    def len: Int = String.getLength(hex);
+    if len == 3 or len == 4 {
+        rgba.r = hexDigitToDoubleHexDigits(parseHex(hex + 0, 1));
+        rgba.g = hexDigitToDoubleHexDigits(parseHex(hex + 1, 1));
+        rgba.b = hexDigitToDoubleHexDigits(parseHex(hex + 2, 1));
+        if len == 4 {
+            rgba.a = hexDigitToDoubleHexDigits(parseHex(hex + 3, 1));
+        } else {
+            rgba.a = 0;
+        }
+    } else if len == 6 or len == 8 {
+        rgba.r = parseHex(hex + 0, 2);
+        rgba.g = parseHex(hex + 2, 2);
+        rgba.b = parseHex(hex + 4, 2);
+        if len == 8 {
+            rgba.a = parseHex(hex + 6, 2);
+        } else {
+            rgba.a = 0;
+        }
+    } else {
+        System.fail(1, "Invalid hex string.");
+   }
+   return rgba;
+}
+
+Console.print("46a => ");
+hexToRgba("46a").print();
+
+Console.print("fff => ");
+hexToRgba("fff").print();
+
+Console.print("A481F9 => ");
+hexToRgba("A481F9").print();
+
+Console.print("A481F940 => ");
+hexToRgba("A481F940").print();
