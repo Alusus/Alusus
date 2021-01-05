@@ -1121,7 +1121,7 @@ DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
     } else if (owner->isDerivedFrom<Function>()) {
       PREPARE_SELF(helper, Helper);
       return helper->isSharedDef(def) ? DefinitionDomain::GLOBAL : DefinitionDomain::FUNCTION;
-    } else if (owner->isDerivedFrom<EvalStatement>()) {
+    } else if (owner->isDerivedFrom<PreprocessStatement>()) {
       return DefinitionDomain::FUNCTION;
     } else if (owner->isDerivedFrom<WhileStatement>()) {
       return DefinitionDomain::FUNCTION;
@@ -1164,7 +1164,7 @@ DefinitionDomain Helper::_getFunctionDomain(TiObject *self, TiObject const *obj)
       return funcType->isShared() ? DefinitionDomain::GLOBAL : DefinitionDomain::OBJECT;
     } else if (owner->isDerivedFrom<Function>()) {
       return DefinitionDomain::GLOBAL;
-    } else if (owner->isDerivedFrom<EvalStatement>()) {
+    } else if (owner->isDerivedFrom<PreprocessStatement>()) {
       return DefinitionDomain::GLOBAL;
     } else if (owner->isDerivedFrom<WhileStatement>()) {
       return DefinitionDomain::GLOBAL;

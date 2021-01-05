@@ -5,16 +5,16 @@ macro defInt [n] { def n: Int; }
 
 module MyMod {
   defInt[z];
-  eval {
-    print("MyMod eval\n");
+  preprocess {
+    print("MyMod preprocess\n");
   }
 };
 
 type Point {
   defInt[x];
   func getDouble { return this.x * 2 }
-  eval {
-    print("Point eval\n");
+  preprocess {
+    print("Point preprocess\n");
   }
 }
 
@@ -35,8 +35,8 @@ func test {
   p.x = 21;
   print("%d\n", p.x);
 
-  eval {
-    print("test eval\n");
+  preprocess {
+    print("test preprocess\n");
   }
 
   pf();

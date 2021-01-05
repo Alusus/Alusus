@@ -19,7 +19,7 @@ BuildManager::~BuildManager()
 {
   // Reset all build data to avoid possible segmentation faults caused by destructing LLVM objects in the wrong order.
   this->resetBuild(BuildManager::BuildType::JIT);
-  this->resetBuild(BuildManager::BuildType::EVAL);
+  this->resetBuild(BuildManager::BuildType::PREPROCESS);
   this->resetBuild(BuildManager::BuildType::OFFLINE);
 }
 
@@ -71,12 +71,12 @@ void BuildManager::initTargets()
   this->jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), false);
   this->jitTargetGenerator->setupBuild();
 
-  this->evalEda.setIdPrefix("eval");
-  this->evalBuildTarget = newSrdObj<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
-  this->evalTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
-    this->jitTargetGenerator.get(), this->evalBuildTarget.get(), true
+  this->preprocessEda.setIdPrefix("preprc");
+  this->preprocessBuildTarget = newSrdObj<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
+  this->preprocessTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
+    this->jitTargetGenerator.get(), this->preprocessBuildTarget.get(), true
   );
-  this->evalTargetGenerator->setupBuild();
+  this->preprocessTargetGenerator->setupBuild();
 
   this->offlineEda.setIdPrefix("ofln");
   this->offlineBuildTarget = newSrdObj<LlvmCodeGen::OfflineBuildTarget>();
@@ -118,11 +118,11 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
     eda = &buildMgr->jitEda;
     offlineExec = false;
     pointerBc = buildMgr->jitBuildTarget->getPointerBitCount();
-  } else if (buildType == BuildType::EVAL) {
-    targetGen = buildMgr->evalTargetGenerator.get();
-    eda = &buildMgr->evalEda;
+  } else if (buildType == BuildType::PREPROCESS) {
+    targetGen = buildMgr->preprocessTargetGenerator.get();
+    eda = &buildMgr->preprocessEda;
     offlineExec = false;
-    pointerBc = buildMgr->evalBuildTarget->getPointerBitCount();
+    pointerBc = buildMgr->preprocessBuildTarget->getPointerBitCount();
   } else if (buildType == BuildType::OFFLINE) {
     targetGen = buildMgr->offlineTargetGenerator.get();
     eda = &buildMgr->offlineEda;
@@ -225,13 +225,13 @@ Bool BuildManager::_execute(TiObject *self, Core::Notices::Store *noticeStore, B
         buildMgr->jitBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i));
       }
       buildMgr->jitBuildTarget->execute(buildSession->getGlobalEntryName());
-    } else if (buildSession->getBuildType() == BuildType::EVAL) {
+    } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
       for (Int i = buildSession->getGlobalCtorNames()->size() - 1; i >= 0; --i) {
-        buildMgr->evalBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i));
+        buildMgr->preprocessBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i));
       }
-      buildMgr->evalBuildTarget->execute(buildSession->getGlobalEntryName());
+      buildMgr->preprocessBuildTarget->execute(buildSession->getGlobalEntryName());
     } else {
       throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
     }
@@ -497,10 +497,10 @@ void BuildManager::_resetBuild(TiObject *self, Int buildType)
     buildMgr->resetBuildData(root, &buildMgr->jitEda);
     buildMgr->jitTargetGenerator->setupBuild();
     buildMgr->jitGlobalTgFuncType = TioSharedPtr::null;
-  } else if (buildType == BuildType::EVAL) {
-    buildMgr->resetBuildData(root, &buildMgr->evalEda);
-    buildMgr->evalTargetGenerator->setupBuild();
-    buildMgr->evalGlobalTgFuncType = TioSharedPtr::null;
+  } else if (buildType == BuildType::PREPROCESS) {
+    buildMgr->resetBuildData(root, &buildMgr->preprocessEda);
+    buildMgr->preprocessTargetGenerator->setupBuild();
+    buildMgr->preprocessGlobalTgFuncType = TioSharedPtr::null;
   } else if (buildType == BuildType::OFFLINE) {
     buildMgr->resetBuildData(root, &buildMgr->offlineEda);
     buildMgr->offlineTargetGenerator->setupBuild();
@@ -561,11 +561,11 @@ TiObject* BuildManager::getVoidNoArgsFuncTgType(Int buildType)
       this->jitGlobalTgFuncType = this->createVoidNoArgsFuncTgType(this->jitTargetGenerator.get());
     }
     return this->jitGlobalTgFuncType.get();
-  } else if (buildType == BuildType::EVAL) {
-    if (this->evalGlobalTgFuncType == 0) {
-      this->evalGlobalTgFuncType = this->createVoidNoArgsFuncTgType(this->evalTargetGenerator.get());
+  } else if (buildType == BuildType::PREPROCESS) {
+    if (this->preprocessGlobalTgFuncType == 0) {
+      this->preprocessGlobalTgFuncType = this->createVoidNoArgsFuncTgType(this->preprocessTargetGenerator.get());
     }
-    return this->evalGlobalTgFuncType.get();
+    return this->preprocessGlobalTgFuncType.get();
   } else if (buildType == BuildType::OFFLINE) {
     if (this->offlineGlobalTgFuncType == 0) {
       this->offlineGlobalTgFuncType = this->createVoidNoArgsFuncTgType(this->offlineTargetGenerator.get());

@@ -30,7 +30,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   //============================================================================
   // Types
 
-  public: s_enum(BuildType, OFFLINE = 0, JIT = 1, EVAL = 2);
+  public: s_enum(BuildType, OFFLINE = 0, JIT = 1, PREPROCESS = 2);
 
 
   //============================================================================
@@ -53,10 +53,10 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: SharedPtr<LlvmCodeGen::JitBuildTarget> jitBuildTarget;
   private: TioSharedPtr jitGlobalTgFuncType;
 
-  private: CodeGen::ExtraDataAccessor evalEda;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> evalTargetGenerator;
-  private: SharedPtr<LlvmCodeGen::LazyJitBuildTarget> evalBuildTarget;
-  private: TioSharedPtr evalGlobalTgFuncType;
+  private: CodeGen::ExtraDataAccessor preprocessEda;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> preprocessTargetGenerator;
+  private: SharedPtr<LlvmCodeGen::LazyJitBuildTarget> preprocessBuildTarget;
+  private: TioSharedPtr preprocessGlobalTgFuncType;
 
   private: CodeGen::ExtraDataAccessor offlineEda;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> offlineTargetGenerator;

@@ -68,7 +68,7 @@ def Main: module
   };
 
   macro emptyMacro {
-      eval {}
+      preprocess {}
   };
 };
 

@@ -40,9 +40,9 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   private: Ast::Helper *astHelper;
   private: Executing *executing;
   private: Core::Notices::Store *noticeStore = 0;
-  private: TiObject *currentEvalOwner;
-  private: Int currentEvalInsertionPosition;
-  private: SharedPtr<Core::Data::SourceLocation> currentEvalSourceLocation;
+  private: TiObject *currentPreprocessOwner;
+  private: Int currentPreprocessInsertionPosition;
+  private: SharedPtr<Core::Data::SourceLocation> currentPreprocessSourceLocation;
 
 
   //============================================================================
@@ -114,13 +114,13 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     TiObject *self, Core::Data::Ast::ParamPass *paramPass, TiInt indexInOwner, Bool &replaced
   );
 
-  public: METHOD_BINDING_CACHE(processEvalStatement,
+  public: METHOD_BINDING_CACHE(processPreprocessStatement,
     Bool, (
-      Spp::Ast::EvalStatement* /* eval */, TiObject* /* owner */, TiInt /* indexInOwner */
+      Spp::Ast::PreprocessStatement* /* preprocessl */, TiObject* /* owner */, TiInt /* indexInOwner */
     )
   );
-  private: static Bool _processEvalStatement(
-    TiObject *self, Spp::Ast::EvalStatement *eval, TiObject *owner, TiInt indexInOwner
+  private: static Bool _processPreprocessStatement(
+    TiObject *self, Spp::Ast::PreprocessStatement *preprocess, TiObject *owner, TiInt indexInOwner
   );
 
   public: METHOD_BINDING_CACHE(processMemberFunctionSig, Bool, (Spp::Ast::FunctionType* /* funcType */));

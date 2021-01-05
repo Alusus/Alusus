@@ -31,7 +31,7 @@ def null: 0;
 macro castRef [obj, T] obj~ptr~cast[ptr[T]]~cnt;
 macro nullRef [T] 0~cast[ptr[T]]~cnt;
 macro getThisSourceFullPath {
-    eval {
+    preprocess {
         def dummy: 1;
         Spp.astMgr.insertAst(
             ast { "{{name}}" },

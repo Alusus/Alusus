@@ -43,7 +43,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
     S("macro"), S("ماكرو"),
-    S("eval"), S("تقييم"),
+    S("preprocess"), S("تمهيد"),
     S("ptr"), S("مؤشر"),
     S("cnt"), S("محتوى"),
     S("deref"), S("تتبع"),
@@ -434,9 +434,9 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     })}
   }).get());
 
-  //// Eval = "eval" + Statement
-  this->createCommand(S("root.Main.Eval"), {{
-    Map::create({}, { { S("eval"), 0 }, { S("تقييم"), 0 } }),
+  //// Preprocess = "preprocess" + Statement
+  this->createCommand(S("root.Main.Preprocess"), {{
+    Map::create({}, { { S("preprocess"), 0 }, { S("تمهيد"), 0 } }),
     {
       {
         PARSE_REF(S("module.BlockStatements.OuterStmt")),
@@ -449,15 +449,15 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
     auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
     if (currentList->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, S("Unexpected error while parsing `eval` statement."));
+      throw EXCEPTION(GenericException, S("Unexpected error while parsing `preprocess` statement."));
     }
-    auto evalStatement = Ast::EvalStatement::create({
+    auto preprocessStatement = Ast::PreprocessStatement::create({
       { S("prodId"), metadata->getProdId() },
       { S("sourceLocation"), metadata->findSourceLocation() }
     }, {
       { S("body"), currentList->getElement(1) }
     });
-    state->setData(evalStatement);
+    state->setData(preprocessStatement);
   }));
 
   //// astLiteral = "ast" + Statement
@@ -740,7 +740,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     PARSE_REF(S("module.Type")),
     PARSE_REF(S("module.Function")),
     PARSE_REF(S("module.Macro")),
-    PARSE_REF(S("module.Eval")),
+    PARSE_REF(S("module.Preprocess")),
     PARSE_REF(S("module.Keywords")),
     PARSE_REF(S("module.ThisTypeRef")),
     PARSE_REF(S("module.AstLiteral"))
@@ -769,7 +769,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
     S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
     S("macro"), S("ماكرو"),
-    S("eval"), S("تقييم"),
+    S("preprocess"), S("تمهيد"),
     S("ptr"), S("مؤشر"),
     S("cnt"), S("محتوى"),
     S("deref"), S("تتبع"),
@@ -826,7 +826,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
     S("module.Type"),
     S("module.Function"),
     S("module.Macro"),
-    S("module.Eval"),
+    S("module.Preprocess"),
     S("module.Keywords"),
     S("module.ThisTypeRef"),
     S("module.AstLiteral")
@@ -868,7 +868,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->tryRemove(S("root.Main.ParamOnlySubject"));
   this->tryRemove(S("root.Main.Macro"));
   this->tryRemove(S("root.Main.MacroSignature"));
-  this->tryRemove(S("root.Main.Eval"));
+  this->tryRemove(S("root.Main.Preprocess"));
   this->tryRemove(S("root.Main.Keywords"));
   this->tryRemove(S("root.Main.ThisTypeRef"));
   this->tryRemove(S("root.Main.AstLiteral"));

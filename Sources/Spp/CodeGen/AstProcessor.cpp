@@ -23,7 +23,7 @@ void AstProcessor::initBindingCaches()
   Basic::initBindingCaches(this, {
     &this->process,
     &this->processParamPass,
-    &this->processEvalStatement,
+    &this->processPreprocessStatement,
     &this->processMemberFunctionSig,
     &this->processFunctionBody,
     &this->processTypeBody,
@@ -47,7 +47,7 @@ void AstProcessor::initBindings()
 {
   this->process = &AstProcessor::_process;
   this->processParamPass = &AstProcessor::_processParamPass;
-  this->processEvalStatement = &AstProcessor::_processEvalStatement;
+  this->processPreprocessStatement = &AstProcessor::_processPreprocessStatement;
   this->processMemberFunctionSig = &AstProcessor::_processMemberFunctionSig;
   this->processFunctionBody = &AstProcessor::_processFunctionBody;
   this->processTypeBody = &AstProcessor::_processTypeBody;
@@ -119,8 +119,8 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
       continue;
     } else if (child->isDerivedFrom<Ast::Type>()) {
       continue;
-    } else if (child->isDerivedFrom<Ast::EvalStatement>()) {
-      if (astProcessor->processEvalStatement(static_cast<Ast::EvalStatement*>(child), owner, i)) --i;
+    } else if (child->isDerivedFrom<Ast::PreprocessStatement>()) {
+      if (astProcessor->processPreprocessStatement(static_cast<Ast::PreprocessStatement*>(child), owner, i)) --i;
       else result = false;
     } else {
       if (!astProcessor->process(child)) result = false;
@@ -204,36 +204,36 @@ Bool AstProcessor::_processParamPass(
 }
 
 
-Bool AstProcessor::_processEvalStatement(
-  TiObject *self, Spp::Ast::EvalStatement *eval, TiObject *owner, TiInt indexInOwner
+Bool AstProcessor::_processPreprocessStatement(
+  TiObject *self, Spp::Ast::PreprocessStatement *preprocess, TiObject *owner, TiInt indexInOwner
 ) {
   PREPARE_SELF(astProcessor, AstProcessor);
 
-  if (!astProcessor->process(eval->getBody().get())) return false;
+  if (!astProcessor->process(preprocess->getBody().get())) return false;
 
-  // Build the eval statement.
+  // Build the preprocess statement.
   SharedPtr<BuildSession> buildSession = astProcessor->executing->prepareBuild(
-    astProcessor->getNoticeStore(), BuildManager::BuildType::EVAL, eval->getBody().get()
+    astProcessor->getNoticeStore(), BuildManager::BuildType::PREPROCESS, preprocess->getBody().get()
   );
   Bool result = true;
-  auto block = eval->getBody().ti_cast_get<Ast::Block>();
+  auto block = preprocess->getBody().ti_cast_get<Ast::Block>();
   if (block != 0) {
     for (Int i = 0; i < block->getElementCount(); ++i) {
       auto childData = block->getElement(i);
       if (!astProcessor->executing->addElementToBuild(childData, buildSession.get())) result = false;
     }
   } else {
-      if (!astProcessor->executing->addElementToBuild(eval->getBody().get(), buildSession.get())) result = false;
+      if (!astProcessor->executing->addElementToBuild(preprocess->getBody().get(), buildSession.get())) result = false;
   }
-  astProcessor->executing->finalizeBuild(astProcessor->getNoticeStore(), eval->getBody().get(), buildSession.get());
+  astProcessor->executing->finalizeBuild(astProcessor->getNoticeStore(), preprocess->getBody().get(), buildSession.get());
 
-  astProcessor->currentEvalOwner = owner;
-  astProcessor->currentEvalInsertionPosition = indexInOwner;
-  astProcessor->currentEvalSourceLocation = eval->findSourceLocation();
+  astProcessor->currentPreprocessOwner = owner;
+  astProcessor->currentPreprocessInsertionPosition = indexInOwner;
+  astProcessor->currentPreprocessSourceLocation = preprocess->findSourceLocation();
 
-  // Execute the eval statement.
+  // Execute the preprocess statement.
   if (result) {
-    // Remove the eval statement.
+    // Remove the preprocess statement.
     DynamicContaining<TiObject> *dynContainer;
     DynamicMapContaining<TiObject> *dynMapContainer;
     Containing<TiObject> *container;
@@ -391,37 +391,37 @@ Bool AstProcessor::_insertInterpolatedAst(
 ) {
   PREPARE_SELF(astProcessor, AstProcessor);
   TioSharedPtr result;
-  if (!astProcessor->interpolateAst(obj, argNames, args, astProcessor->currentEvalSourceLocation.get(), result)) {
+  if (!astProcessor->interpolateAst(obj, argNames, args, astProcessor->currentPreprocessSourceLocation.get(), result)) {
     return false;
   }
   // Insert the interpolated AST.
-  if (astProcessor->currentEvalOwner->isDerivedFrom<Core::Data::Ast::Scope>()) {
+  if (astProcessor->currentPreprocessOwner->isDerivedFrom<Core::Data::Ast::Scope>()) {
     if (result->isDerivedFrom<Core::Data::Ast::Scope>()) {
       // Merge the two scopes.
-      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentEvalOwner);
+      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentPreprocessOwner);
       auto insertedScope = result.s_cast_get<Core::Data::Ast::Scope>();
       Core::Data::Ast::addPossiblyMergeableElements(
-        insertedScope, ownerScope, astProcessor->currentEvalInsertionPosition,
+        insertedScope, ownerScope, astProcessor->currentPreprocessInsertionPosition,
         astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
       );
     } else {
       // Add a single element to the scope
-      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentEvalOwner);
+      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentPreprocessOwner);
       Core::Data::Ast::addPossiblyMergeableElement(
-        result.get(), ownerScope, astProcessor->currentEvalInsertionPosition,
+        result.get(), ownerScope, astProcessor->currentPreprocessInsertionPosition,
         astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
       );
     }
   } else {
-    auto ownerContainer = ti_cast<Containing<TiObject>>(astProcessor->currentEvalOwner);
+    auto ownerContainer = ti_cast<Containing<TiObject>>(astProcessor->currentPreprocessOwner);
     if (ownerContainer == 0) {
       throw EXCEPTION(GenericException, S("Unexpected AST insert location."));
     }
     auto insertedScope = result.s_cast_get<Core::Data::Ast::Scope>();
     if (insertedScope != 0 && insertedScope->getCount() == 1) {
-      ownerContainer->setElement(astProcessor->currentEvalInsertionPosition, insertedScope->getElement(0));
+      ownerContainer->setElement(astProcessor->currentPreprocessInsertionPosition, insertedScope->getElement(0));
     } else {
-      ownerContainer->setElement(astProcessor->currentEvalInsertionPosition, result.get());
+      ownerContainer->setElement(astProcessor->currentPreprocessInsertionPosition, result.get());
     }
   }
   return true;

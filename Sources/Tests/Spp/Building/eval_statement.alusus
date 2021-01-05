@@ -6,27 +6,27 @@ import "Srl/Map";
 
 use Srl;
 
-func evalTest {
+func preprocessTest {
   use Srl.Console;
-  eval {
-    Srl.Console.print("Eval block.\n");
+  preprocess {
+    Srl.Console.print("Preprocess block.\n");
   }
-  eval {
-    Srl.Console.print("Eval block 2.\n");
+  preprocess {
+    Srl.Console.print("Preprocess block 2.\n");
   }
   Srl.Console.print("Hello");
-  eval Srl.Console.print("Eval statement.\n");
+  preprocess Srl.Console.print("Preprocess statement.\n");
   Srl.Console.print(" World!\n");
-  eval {
+  preprocess {
     def i: Int(5);
     print("Multiline\n");
-    print("eval block\n");
-    print("def statement inside eval: i = %d\n", i);
-    print("temp var def inside eval: Int(7) = %d\n", Int(7));
+    print("preprocess block\n");
+    print("def statement inside preprocess: i = %d\n", i);
+    print("temp var def inside preprocess: Int(7) = %d\n", Int(7));
   }
 }
 
-Spp.buildMgr.dumpLlvmIrForElement(evalTest~ast);
+Spp.buildMgr.dumpLlvmIrForElement(preprocessTest~ast);
 
 def defstmt: { def __name__: Int };
 def printstmt: Console.print("hello world\n");
@@ -34,22 +34,22 @@ def varName: "x";
 def someNum: 12;
 
 func testAstInsertion {
-    eval {
+    preprocess {
         def m: Map[String, ref[Core.Basic.TiObject]];
         m.set(String("name"), varName~ast);
         Spp.astMgr.insertAst(defstmt~ast, m);
         Spp.astMgr.insertAst(printstmt~ast, Map[String, ref[Core.Basic.TiObject]]());
 
         Spp.astMgr.insertAst(
-            ast { def name: Float[64](someval) },
+            ast { def name: Float[64](sompreprocess) },
             Map[String, ref[Core.Basic.TiObject]]()
                 .set(String("name"), Core.Basic.TiStr("y"))
-                .set(String("someval"), Core.Data.Ast.FloatLiteral("6"))
+                .set(String("sompreprocess"), Core.Data.Ast.FloatLiteral("6"))
         );
     }
     x = 7;
     Console.print("x = %d\n", x);
-    x = eval { Spp.astMgr.insertAst(someNum~ast, Map[String, ref[Core.Basic.TiObject]]()) };
+    x = preprocess { Spp.astMgr.insertAst(someNum~ast, Map[String, ref[Core.Basic.TiObject]]()) };
     Console.print("x = %d\n", x);
 
     Console.print("y = %f\n", y);
@@ -68,8 +68,8 @@ type A {
     }
 }
 
-func testEvalVarDestruction {
-    eval {
+func testPreprocessVarDestruction {
+    preprocess {
         def a: A;
         a.i = 3;
         Console.print("a.i = %d\n", a.i);
@@ -78,10 +78,10 @@ func testEvalVarDestruction {
     }
 }
 
-Spp.buildMgr.dumpLlvmIrForElement(testEvalVarDestruction~ast);
+Spp.buildMgr.dumpLlvmIrForElement(testPreprocessVarDestruction~ast);
 
 func testError {
-  eval {
+  preprocess {
     def d: Unknown;
   }
   Console.print("testError\n");
