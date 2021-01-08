@@ -5,71 +5,71 @@ import "Core/Data";
 import "Spp";
 use Srl;
 
-func evalTest {
+func preprocessTest {
   use Srl.Console;
-  eval {
-    Srl.Console.print("Eval block.\n");
+  preprocess {
+    Srl.Console.print("Preprocess block.\n");
   }
-  eval {
-    Srl.Console.print("Eval block 2.\n");
+  preprocess {
+    Srl.Console.print("Preprocess block 2.\n");
   }
   Srl.Console.print("Hello");
-  eval Srl.Console.print("Eval statement.\n");
+  preprocess Srl.Console.print("Preprocess statement.\n");
   Srl.Console.print(" World!\n");
-  eval {
+  preprocess {
     def i: Int(5);
     print("Multiline\n");
-    print("eval block\n");
-    print("def statement inside eval: i = %d\n", i);
-    print("temp var def inside eval: Int(7) = %d\n", Int(7));
+    print("preprocess block\n");
+    print("def statement inside preprocess: i = %d\n", i);
+    print("temp var def inside preprocess: Int(7) = %d\n", Int(7));
   }
 }
 
-evalTest();
+preprocessTest();
 
 Srl.Console.print("\n");
 
-func deepEvalTest1 {
+func deepPreprocessTest1 {
   Srl.Console.print("Hello ");
-  eval {
-    Srl.Console.print("Eval 1\n");
-    deepEvalTest2();
+  preprocess {
+    Srl.Console.print("Preprocess 1\n");
+    deepPreprocessTest2();
   }
   Srl.Console.print("World 1\n");
 }
 
-func deepEvalTest2 {
+func deepPreprocessTest2 {
   Srl.Console.print("Hello ");
-  eval {
-    Srl.Console.print("Eval 2\n");
-    eval {
-      Srl.Console.print("Nested eval\n");
+  preprocess {
+    Srl.Console.print("Preprocess 2\n");
+    preprocess {
+      Srl.Console.print("Nested preprocess\n");
     }
   }
   Srl.Console.print("World 2\n");
 }
 
-deepEvalTest1();
+deepPreprocessTest1();
 
 Srl.Console.print("\n");
 
 func testAstInsertion {
-    eval {
+    preprocess {
         def m: Map[String, ref[Core.Basic.TiObject]];
         m.set(String("name"), ast x);
         Spp.astMgr.insertAst(ast { def name: Int }, m);
         Spp.astMgr.insertAst(ast { Console.print("testAstInsertion\n") }, Map[String, ref[Core.Basic.TiObject]]());
 
         Spp.astMgr.insertAst(
-            ast { def name: Int(someval) },
+            ast { def name: Int(sompreprocess) },
             Map[String, ref[Core.Basic.TiObject]]()
                 .set(String("name"), Core.Data.Ast.Identifier("y"))
-                .set(String("someval"), Core.Data.Ast.IntegerLiteral("6"))
+                .set(String("sompreprocess"), Core.Data.Ast.IntegerLiteral("6"))
         );
     }
     x = 7;
     Console.print("x = %d\n", x);
-    x = eval { Spp.astMgr.insertAst(ast { 12 }, Map[String, ref[Core.Basic.TiObject]]()) };
+    x = preprocess { Spp.astMgr.insertAst(ast { 12 }, Map[String, ref[Core.Basic.TiObject]]()) };
     Console.print("x = %d\n", x);
 
     Console.print("y = %d\n", y);
@@ -89,8 +89,8 @@ type A {
     }
 }
 
-func testEvalVarDestruction {
-    eval {
+func testPreprocessVarDestruction {
+    preprocess {
         def a: A;
         a.i = 3;
         Console.print("a.i = %d\n", a.i);
@@ -98,4 +98,4 @@ func testEvalVarDestruction {
         Console.print("a.i*2 = %d\n", a.i * 2);
     }
 }
-testEvalVarDestruction();
+testPreprocessVarDestruction();

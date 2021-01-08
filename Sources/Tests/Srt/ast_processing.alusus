@@ -65,7 +65,7 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
 }
 
 macro where [condition] {
-    eval {
+    preprocess {
         if !Spp.astMgr.insertAst(
             generateWhere(ast condition).obj
         ) {

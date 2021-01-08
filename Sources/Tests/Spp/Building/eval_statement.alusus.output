@@ -1,10 +1,10 @@
-Eval block.
-Eval block 2.
-Eval statement.
+Preprocess block.
+Preprocess block 2.
+Preprocess statement.
 Multiline
-eval block
-def statement inside eval: i = 5
-temp var def inside eval: Int(7) = 7
+preprocess block
+def statement inside preprocess: i = 5
+temp var def inside preprocess: Int(7) = 7
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'
 source_filename = "AlususProgram"
@@ -17,7 +17,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @"evalTest()"() {
+define void @"preprocessTest()"() {
 "#block0":
   %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @"#anonymous0", i32 0, i32 0))
   %1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @"#anonymous1", i32 0, i32 0))
@@ -76,7 +76,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @"testEvalVarDestruction()"() {
+define void @"testPreprocessVarDestruction()"() {
 "#block0":
   ret void
 }

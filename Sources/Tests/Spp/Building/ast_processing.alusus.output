@@ -3,11 +3,11 @@ Module [Main.ModuleStatements.StmtList]
  ParamPass [] [Main.Expression.ParamPassExp]
   operand: Identifier: defInt [Main.Subject.Identifier]
   param: Identifier: z [Main.Subject.Identifier]
- EvalStatement [Main.Eval]
+ PreprocessStatement [Main.Preprocess]
   body: Block [Main.BlockStatements.StmtList]
    ParamPass () [Main.BlockExpression.ParamPassExp]
     operand: Identifier: print [Main.BlockSubject.Identifier]
-    param: StringLiteral: MyMod eval
+    param: StringLiteral: MyMod preprocess
  [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
@@ -27,11 +27,11 @@ UserType [Main.Type]
        first: Identifier: this [Main.Keywords]
        second: Identifier: x [Main.Subject.Identifier]
       second: IntegerLiteral: 2 [Main.Subject.Literal]
-  EvalStatement [Main.Eval]
+  PreprocessStatement [Main.Preprocess]
    body: Block [Main.BlockStatements.StmtList]
     ParamPass () [Main.BlockExpression.ParamPassExp]
      operand: Identifier: print [Main.BlockSubject.Identifier]
-     param: StringLiteral: Point eval
+     param: StringLiteral: Point preprocess
  [Main.Subject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
@@ -79,11 +79,11 @@ Function  [Main.Function]
     LinkOperator . [Main.Expression.LinkExp]
      first: Identifier: p [Main.Subject.Identifier]
      second: Identifier: x [Main.Subject.Identifier]
-  EvalStatement [Main.Eval]
+  PreprocessStatement [Main.Preprocess]
    body: Block [Main.BlockStatements.StmtList]
     ParamPass () [Main.BlockExpression.ParamPassExp]
      operand: Identifier: print [Main.BlockSubject.Identifier]
-     param: StringLiteral: test eval
+     param: StringLiteral: test preprocess
  [Main.Subject.Literal]
   ParamPass () [Main.BlockExpression.ParamPassExp]
    operand: Identifier: pf [Main.BlockSubject.Identifier]
@@ -92,9 +92,9 @@ Function  [Main.Function]
    operand: Identifier: pf2 [Main.BlockSubject.Identifier]
    param: NULL
 ------------------------------------------------------
-MyMod eval
-test eval
-Point eval
+MyMod preprocess
+test preprocess
+Point preprocess
 51
 21
 pointedFunction

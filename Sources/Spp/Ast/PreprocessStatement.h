@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/EvalStatement.h
- * Contains the header of class Spp::Ast::EvalStatement.
+ * @file Spp/Ast/PreprocessStatement.h
+ * Contains the header of class Spp::Ast::PreprocessStatement.
  *
  * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
  *
@@ -10,25 +10,25 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_EVALSTATEMENT_H
-#define SPP_AST_EVALSTATEMENT_H
+#ifndef SPP_AST_PREPROCESSSTATEMENT_H
+#define SPP_AST_PREPROCESSSTATEMENT_H
 
 namespace Spp::Ast
 {
 
-class EvalStatement : public Core::Data::Node,
-                      public Binding, public MapContaining<TiObject>,
-                      public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class PreprocessStatement : public Core::Data::Node,
+                            public Binding, public MapContaining<TiObject>,
+                            public Core::Data::Ast::MetaHaving, public Core::Data::Printable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(EvalStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(PreprocessStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Data::Node, Binding, MapContaining<TiObject>,
     Core::Data::Ast::MetaHaving, Core::Data::Printable
   );
-  OBJECT_FACTORY(EvalStatement);
+  OBJECT_FACTORY(PreprocessStatement);
 
 
   //============================================================================
@@ -40,7 +40,7 @@ class EvalStatement : public Core::Data::Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(EvalStatement);
+  IMPLEMENT_METAHAVING(PreprocessStatement);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
@@ -51,19 +51,19 @@ class EvalStatement : public Core::Data::Node,
     (body, TiObject, SHARED_REF, setBody(value), body.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(EvalStatement);
+  IMPLEMENT_AST_MAP_PRINTABLE(PreprocessStatement);
 
 
   //============================================================================
   // Constructors & Destructor
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(EvalStatement);
+  IMPLEMENT_EMPTY_CONSTRUCTOR(PreprocessStatement);
 
-  IMPLEMENT_ATTR_CONSTRUCTOR(EvalStatement);
+  IMPLEMENT_ATTR_CONSTRUCTOR(PreprocessStatement);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(EvalStatement);
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(PreprocessStatement);
 
-  public: virtual ~EvalStatement()
+  public: virtual ~PreprocessStatement()
   {
     DISOWN_SHAREDPTR(this->body);
   }

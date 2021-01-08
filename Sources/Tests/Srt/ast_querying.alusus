@@ -23,7 +23,7 @@ function generateAddingElementNames (varName: String, elements: Array[ref[Core.B
 
 macro implementGetElementNames [condition, parent] {
     def names: Array[String];
-    eval {
+    preprocess {
         def elements: Array[ref[Core.Basic.TiObject]];
         elements = Spp.astMgr.findElements(
             ast { condition },

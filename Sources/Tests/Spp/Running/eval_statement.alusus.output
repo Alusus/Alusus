@@ -1,15 +1,15 @@
-Eval block.
-Eval block 2.
-Eval statement.
+Preprocess block.
+Preprocess block 2.
+Preprocess statement.
 Multiline
-eval block
-def statement inside eval: i = 5
-temp var def inside eval: Int(7) = 7
+preprocess block
+def statement inside preprocess: i = 5
+temp var def inside preprocess: Int(7) = 7
 Hello World!
 
-Nested eval
-Eval 2
-Eval 1
+Nested preprocess
+Preprocess 2
+Preprocess 1
 Hello World 2
 Hello World 1
 

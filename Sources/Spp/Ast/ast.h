@@ -141,7 +141,7 @@ DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupResult, "alusus.org/Spp/Spp.Ast.CalleeLoo
 #include "ContinueStatement.h"
 #include "BreakStatement.h"
 #include "ReturnStatement.h"
-#include "EvalStatement.h"
+#include "PreprocessStatement.h"
 // Operators
 #include "PointerOp.h"
 #include "ContentOp.h"

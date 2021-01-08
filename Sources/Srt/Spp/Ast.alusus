@@ -41,7 +41,7 @@ import "Core/Data";
         defAstType[ContinueStatement, "alusus.org/Spp/Spp.Ast.ContinueStatement"];
         defAstType[BreakStatement, "alusus.org/Spp/Spp.Ast.BreakStatement"];
         defAstType[ReturnStatement, "alusus.org/Spp/Spp.Ast.ReturnStatement"];
-        defAstType[EvalStatement, "alusus.org/Spp/Spp.Ast.EvalStatement"];
+        defAstType[PreprocessStatement, "alusus.org/Spp/Spp.Ast.PreprocessStatement"];
 
         defAstType[ArgPack, "alusus.org/Spp/Spp.Ast.ArgPack"];
         defAstType[AstLiteralCommand, "alusus.org/Spp/Spp.Ast.AstLiteralCommand"];
