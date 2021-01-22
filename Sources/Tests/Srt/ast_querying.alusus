@@ -11,7 +11,7 @@ function generateAddingElementNames (varName: String, elements: Array[ref[Core.B
     for i = 0, i < elements.getLength(), ++i {
         def node: ref[Core.Data.Node](castRef[elements(i), Core.Data.Node]);
         def d: ref[Core.Data.Ast.Definition](castRef[node.owner, Core.Data.Ast.Definition]);
-        def binding: ref[Core.Data.Binding](Core.Basic.getInterface[d, Core.Data.Binding]);
+        def binding: ref[Core.Basic.Binding](Core.Basic.getInterface[d, Core.Basic.Binding]);
         Spp.astMgr.insertAst(
             ast { names.add(Srl.String("{{name}}")) },
             Srl.Map[Srl.String, ref[Core.Basic.TiObject]]()
@@ -36,7 +36,7 @@ macro implementGetElementNames [condition, parent] {
 }
 
 function dumpModifiers (element: ref[Core.Basic.TiObject]) {
-    def modifiers: ref[Core.Data.Containing](Spp.astMgr.getModifiers(element));
+    def modifiers: ref[Core.Basic.Containing](Spp.astMgr.getModifiers(element));
     def i: Int;
     for i = 0, i < modifiers.getElementCount()~cast[Int], ++i {
         Console.print("%s\n", Spp.astMgr.getModifierKeyword(modifiers.getElement(i)).buf);
@@ -53,7 +53,7 @@ function dumpModifierParams(modifier: ref[Core.Basic.TiObject]) {
 }
 
 function dumpElementModifierParams(element: ref[Core.Basic.TiObject], modName: ptr[array[Char]]) {
-    def modifiers: ref[Core.Data.Containing](Spp.astMgr.getModifiers(element));
+    def modifiers: ref[Core.Basic.Containing](Spp.astMgr.getModifiers(element));
     def modifier: ref[Core.Basic.TiObject](Spp.astMgr.findModifier(modifiers, modName));
     dumpModifierParams(modifier);
 }

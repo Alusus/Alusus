@@ -56,7 +56,7 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     def i: Int;
 
     // Print members
-    def binding: ref[Core.Data.Binding](Core.Basic.getInterface[obj, Core.Data.Binding]);
+    def binding: ref[Core.Basic.Binding](Core.Basic.getInterface[obj, Core.Basic.Binding]);
     if binding~ptr != 0 {
         printIndent(indent + 1);
         Console.print("members:\n");
@@ -68,7 +68,7 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     }
 
     // Print map elements
-    def mapContaining: ref[Core.Data.MapContaining](Core.Basic.getInterface[obj, Core.Data.MapContaining]);
+    def mapContaining: ref[Core.Basic.MapContaining](Core.Basic.getInterface[obj, Core.Basic.MapContaining]);
     if mapContaining~ptr != 0 {
         printIndent(indent + 1);
         Console.print("map elements:\n");
@@ -80,7 +80,7 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     }
 
     // Print map elements
-    def containing: ref[Core.Data.Containing](Core.Basic.getInterface[obj, Core.Data.Containing]);
+    def containing: ref[Core.Basic.Containing](Core.Basic.getInterface[obj, Core.Basic.Containing]);
     if mapContaining~ptr == 0 && containing~ptr != 0 {
         printIndent(indent + 1);
         Console.print("list elements:\n");
