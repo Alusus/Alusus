@@ -29,7 +29,7 @@ import "Srl/String";
         type TypeInfo {
             def typeName: String;
             def typeNamespace: String;
-            def moduleName: String;
+            def packageName: String;
             def url: String;
             def uniqueName: String;
             def baseTypeInfo: ref[TypeInfo];

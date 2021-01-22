@@ -34,10 +34,10 @@ namespace Core::Notices
 //==============================================================================
 // Macros
 
-#define DEFINE_NOTICE(name, typeNamespace, moduleName, url, code, severity, msg) \
+#define DEFINE_NOTICE(name, typeNamespace, packageName, url, code, severity, msg) \
   class name : public Core::Notices::Notice \
   { \
-    TYPE_INFO(name, Core::Notices::Notice, typeNamespace, moduleName, url); \
+    TYPE_INFO(name, Core::Notices::Notice, typeNamespace, packageName, url); \
     public: using Core::Notices::Notice::Notice; \
     public: virtual Str const& getCode() const \
     { \

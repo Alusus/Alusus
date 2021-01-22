@@ -29,12 +29,12 @@ InterfaceTypeInfo const * TiInterface::getTypeInfo()
   if (typeInfo == 0) {
     Char const *myType = S("TiInterface");
     Char const *typeNamespace = S("Core.Basic");
-    Char const *moduleName = S("Core");
+    Char const *packageName = S("Core");
     Char const *url = S("alusus.org");
     Char const *uniqueName = S("alusus.org#Core#Core.Basic.TiInterface");
     typeInfo = reinterpret_cast<InterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (typeInfo == 0) {
-      typeInfo = new InterfaceTypeInfo(myType, typeNamespace, moduleName, url, 0);
+      typeInfo = new InterfaceTypeInfo(myType, typeNamespace, packageName, url, 0);
       GLOBAL_STORAGE->setObject(uniqueName, const_cast<InterfaceTypeInfo*>(typeInfo));
     }
   }
