@@ -20,10 +20,10 @@ import "Srl/refs";
         ) => Srl.Array[ref[Core.Basic.TiObject]];
 
         @expname[Spp_AstMgr_getModifiers]
-        function getModifiers(element: ref[Core.Basic.TiObject]): ref[Core.Data.Containing];
+        function getModifiers(element: ref[Core.Basic.TiObject]): ref[Core.Basic.Containing];
 
         @expname[Spp_AstMgr_findModifier]
-        function findModifier(modifiers: ref[Core.Data.Containing], kwd: ptr[array[Char]]): ref[Core.Basic.TiObject];
+        function findModifier(modifiers: ref[Core.Basic.Containing], kwd: ptr[array[Char]]): ref[Core.Basic.TiObject];
 
         @expname[Spp_AstMgr_findModifierForElement]
         function findModifierForElement(

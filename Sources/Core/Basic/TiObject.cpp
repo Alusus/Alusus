@@ -29,12 +29,12 @@ ObjectTypeInfo const* TiObject::getTypeInfo()
   if (type_info == 0) {
     Char const *my_type = S("TiObject");
     Char const *typeNamespace = S("Core.Basic");
-    Char const *moduleName = S("Core");
+    Char const *packageName = S("Core");
     Char const *url = S("alusus.org");
     Char const *uniqueName = S("alusus.org#Core#Core.Basic.TiObject");
     type_info = reinterpret_cast<ObjectTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (type_info == 0) {
-      type_info = new ObjectTypeInfo(my_type, typeNamespace, moduleName, url, 0, 0);
+      type_info = new ObjectTypeInfo(my_type, typeNamespace, packageName, url, 0, 0);
       GLOBAL_STORAGE->setObject(uniqueName, const_cast<ObjectTypeInfo*>(type_info));
     }
   }

@@ -1,0 +1,83 @@
+import "Srl/Console";
+import "Srl/refs";
+import "Srl/System";
+import "Core/Data";
+import "Spp";
+
+use Srl;
+use Core.Basic;
+use Core.Data;
+use Core.Data.Ast;
+def TioSrdRef: alias SrdRef[Core.Basic.TiObject];
+
+func generateWhere (obj: ref[TiObject]): TioSrdRef {
+    def result: TioSrdRef;
+    if obj~ptr == 0 {
+        System.fail(1, "generateWhere: obj is null.\n");
+    }
+
+    if isDerivedFrom[obj, ComparisonOperator] {
+        def binding: ref[Binding](getInterface[obj, Binding]);
+        def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+        if !Spp.astMgr.buildAst(
+            ast { String("{{name}}") + String(" {{op}} '") + val  + String("'") },
+            Map[String, ref[TiObject]]()
+                .set(String("name"), mapContaining.getElement("first"))
+                .set(String("op"), binding.getMember("type"))
+                .set(String("val"), mapContaining.getElement("second")),
+            result
+        ) {
+            System.fail(1, "generateWhere/ComparisonOperator: error\n");
+        }
+    } else if isDerivedFrom[obj, LogOperator] {
+        def binding: ref[Binding](getInterface[obj, Binding]);
+        def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+        if !Spp.astMgr.buildAst(
+            ast { (cond1) + String(" {{op}} ") + (cond2) },
+            Map[String, ref[TiObject]]()
+                .set(String("cond1"), generateWhere(mapContaining.getElement("first")).obj)
+                .set(String("op"), binding.getMember("type"))
+                .set(String("cond2"), generateWhere(mapContaining.getElement("second")).obj),
+            result
+        ) {
+            System.fail(1, "generateWhere/LogOperator: error\n");
+        }
+    } else if isDerivedFrom[obj, Bracket] {
+        def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+        if !Spp.astMgr.buildAst(
+            ast { String("(") + (cond) + String(")") },
+            Map[String, ref[TiObject]]()
+                .set(String("cond"), generateWhere(mapContaining.getElement("operand")).obj),
+            result
+        ) {
+            System.fail(1, "generateWhere/Bracket: error\n");
+        }
+    } else {
+        if !Spp.astMgr.buildAst(
+            obj,
+            Map[String, ref[TiObject]](),
+            result
+        ) {
+            System.fail(1, "Failed to build condition.\n");
+        }
+    }
+    return result;
+}
+
+macro where [condition] {
+    preprocess {
+        if !Spp.astMgr.insertAst(
+            generateWhere(ast condition).obj
+        ) {
+            System.fail(1, "Failed to insert condition.\n");
+        }
+    }
+}
+
+func test {
+    def firstName: String("Mohammed");
+    def position: String("Engineer");
+    def query: String = where[name == firstName && (pos == position || pos == "Lawyer")];
+    Console.print("%s\n", query.buf);
+}
+test();

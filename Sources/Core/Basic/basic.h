@@ -264,10 +264,10 @@ namespace Core::Basic
  * @sa s_enum
  * @sa RttiObject
  */
-#define ti_s_enum(x, p, typeNamespace, moduleName, url, ...) \
+#define ti_s_enum(x, p, typeNamespace, packageName, url, ...) \
   class x : public p \
   { \
-    TYPE_INFO(x, p, typeNamespace, moduleName, url); \
+    TYPE_INFO(x, p, typeNamespace, packageName, url); \
     public: \
       enum _##x {__VA_ARGS__}; \
       x() : p(0) {} \

@@ -5,12 +5,12 @@
 {
     عرف خـيارات_الساعي: {
         عرف _تخطى_المالكين_: لقب SeekerFlags.SKIP_OWNERS؛
-        عرف _تخطى_المالك_: لقب SeekerFlags.SKIP_OWNER؛
+        عرف _تخطى_المملوكين_: لقب SeekerFlags.SKIP_OWNED؛
         عرف _تخطى_الاستخدامات_: لقب SeekerFlags.SKIP_USES؛
         عرف _تخطى_الأبناء_: لقب SeekerFlags.SKIP_CHILDREN؛
     }
 
-    @دمج 
+    @دمج
     عرف مدير_شبم: لقب astMgr؛
     عرف مـدير_شبم: لقب AstMgr؛
     @دمج صنف AstMgr {

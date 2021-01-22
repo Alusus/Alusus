@@ -49,7 +49,7 @@ class TypeInfo
    * filename or just a title. Anything that can uniquely identify the module
    * is good enough.
    */
-  private: Str moduleName;
+  private: Str packageName;
 
   /**
    * @brief A URL associated with the module.
@@ -80,22 +80,22 @@ class TypeInfo
    * @param typeName The name of the type without the namespace.
    * @param typeNamespace The full namespace resolution to which the type
    *                        belongs. Namespaces should be separated by a dot.
-   * @param moduleName The name of the module that contains the type. This
+   * @param packageName The name of the module that contains the type. This
    *                    can be anything that identifies the module, whether
    *                    it's a filename or just a title.
    * @param url A URL associated with the module. This is used to help
    *            identify the module. It can be an empty string.
    * @param baseTypeInfo Pointer to the type info of the base type.
    */
-  public: TypeInfo(Char const *typeName, Char const *typeNamespace, Char const *moduleName,
+  public: TypeInfo(Char const *typeName, Char const *typeNamespace, Char const *packageName,
                    Char const *url, TypeInfo const *baseTypeInfo) :
     typeName(typeName),
     typeNamespace(typeNamespace),
-    moduleName(moduleName),
+    packageName(packageName),
     url(url),
     baseTypeInfo(baseTypeInfo)
   {
-    this->uniqueName = this->url + "/" + this->moduleName + "/" + this->typeNamespace + "." + this->typeName;
+    this->uniqueName = this->url + "/" + this->packageName + "/" + this->typeNamespace + "." + this->typeName;
   }
 
 
@@ -126,9 +126,9 @@ class TypeInfo
    * filename or just a title. Anything that can uniquely identify the module
    * is good enough.
    */
-  public: Str const& getModuleName() const
+  public: Str const& getPackageName() const
   {
-    return this->moduleName;
+    return this->packageName;
   }
 
   /**
@@ -172,9 +172,9 @@ template<class FT, class P> class ExtendedTypeInfo : public P
   //============================================================================
   // Constructor
 
-  public: ExtendedTypeInfo(Char const *typeName, Char const *typeNamespace, Char const *moduleName,
+  public: ExtendedTypeInfo(Char const *typeName, Char const *typeNamespace, Char const *packageName,
                            Char const *url, TypeInfo const *baseTypeInfo, FT *factory) :
-    P(typeName, typeNamespace, moduleName, url, baseTypeInfo), factory(factory)
+    P(typeName, typeNamespace, packageName, url, baseTypeInfo), factory(factory)
   {
   }
 
