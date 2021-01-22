@@ -338,7 +338,7 @@ Bool SeekerExtension::_foreachByComparison_compute(TiObject *self, TiObject cons
     if (compareOp->getType() != S("==")) return false;
     auto prop = compareOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier const>();
     if (prop == 0) return false;
-    if (prop->getValue() == S("objType") || prop->getValue() == S("صنف_الكائن")) {
+    if (prop->getValue() == S("elementType") || prop->getValue() == S("نوع_العنصر")) {
       // Check the type.
       auto type = compareOp->getSecond().ti_cast_get<Core::Data::Ast::Text const>();
       if (type->getValue() == S("type") || type->getValue() == S("صنف")) {

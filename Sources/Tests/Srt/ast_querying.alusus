@@ -70,11 +70,11 @@ type A {
     @private def j: Int;
 
     func getVarNames ():Array[String] {
-        implementGetElementNames[objType == "var", this_type~ast];
+        implementGetElementNames[elementType == "var", this_type~ast];
     }
 
     @private func getFuncNames ():Array[String] {
-        implementGetElementNames[objType == "function", this_type~ast];
+        implementGetElementNames[elementType == "function", this_type~ast];
     }
 
     func getPrivateElementNames ():Array[String] {
@@ -83,11 +83,11 @@ type A {
 }
 
 func getTypeNames ():Array[String] {
-    implementGetElementNames[objType == "type", Root~ast];
+    implementGetElementNames[elementType == "type", Root~ast];
 }
 
 func getModuleNames ():Array[String] {
-    implementGetElementNames[objType == "module", Root~ast];
+    implementGetElementNames[elementType == "module", Root~ast];
 }
 
 function printNames (names: Array[String]) {
