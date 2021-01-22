@@ -70,13 +70,14 @@ h6 {
     font-weight: 900;
 }
 
-h2, h3, h4 { padding-top: 80px; margin-top: -60px; }
+h2, h3, h4, h5 { padding-top: 80px; margin-top: -60px; }
 
 hr {
     border-color: #f9f9f9;
 }
 
 .code,
+.inlinecode,
 .samplecode {
     font-family: AlususMono, UbuntuArabic, UbuntuMono, NotoSansArabic, 'Courier New', Courier, monospace;
     font-size: 1.1em;
@@ -253,13 +254,15 @@ html[dir="rtl"] .example-card h5 {
     padding: 0;
     list-style: none;
     margin-left: 15px;
-    font-size: smaller;
+    font-size: 95%;
+    filter: brightness(90%);
 }
 
 html[dir="rtl"] .unstyled-list {
     margin-right: 15px;
     margin-left: 0;
-    font-size: smaller;
+    font-size: 95%;
+    filter: brightness(80%);
 }
 
 .side-sticky {
@@ -312,6 +315,10 @@ html[dir="rtl"] .side-sticky a {
     background: linear-gradient(90deg, rgba(0, 0, 0, 0.058), rgba(0, 0, 0, 0.031));
     padding-left: 10px;
     unicode-bidi: embed;
+}
+
+.inlinecode {
+  font-weight: bold;
 }
 
 .code[dir="ltr"],
