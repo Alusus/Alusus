@@ -259,6 +259,9 @@ void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
   identifier.setValue(S("ref"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
+  identifier.setValue(S("temp_ref"));
+  manager->getSeeker()->tryRemove(&identifier, root);
+
   identifier.setValue(S("iref"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
