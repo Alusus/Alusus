@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/AstProcessor.cpp
  * Contains the implementation of class Spp::CodeGen::AstProcessor.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -491,7 +491,24 @@ Bool AstProcessor::_interpolateAst_identifier(
       Core::Data::Ast::addSourceLocation(result.get(), sl);
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
-      result = Core::Data::Ast::clone(args->getElement(index), sl);
+      // If the argument is a basic type we'll convert it into a literal, otherwise we'll clone as is.
+      auto arg = args->getElement(index);
+      if (arg->isA<TiInt>()) {
+        Str s;
+        s.append((LongInt)static_cast<TiInt*>(arg)->get());
+        result = Core::Data::Ast::IntegerLiteral::create({ {S("value"), TiStr(s)} });
+        result.s_cast<Core::Data::Ast::IntegerLiteral>()->setSourceLocation(sl);
+      } else if (arg->isA<TiFloat>()) {
+        Str s;
+        s.append(static_cast<TiFloat*>(arg)->get());
+        result = Core::Data::Ast::FloatLiteral::create({ {S("value"), TiStr(s)} });
+        result.s_cast<Core::Data::Ast::FloatLiteral>()->setSourceLocation(sl);
+      } else if (arg->isA<TiStr>()) {
+        result = Core::Data::Ast::StringLiteral::create({ {S("value"), static_cast<TiStr*>(arg)} });
+        result.s_cast<Core::Data::Ast::StringLiteral>()->setSourceLocation(sl);
+      } else {
+        result = Core::Data::Ast::clone(args->getElement(index), sl);
+      }
     }
   } else {
     result = Core::Data::Ast::clone(obj, sl);

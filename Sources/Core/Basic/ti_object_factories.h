@@ -2,7 +2,7 @@
  * @file Core/Basic/ti_object_factories.h
  * Contains definitions for TI object factories.
  *
- * @copyright Copyright (C) 2017 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,6 +30,7 @@ class TiObjectFactory
   public: typedef SharedPtr<TiObject>(*SharedCreateFunc)();
   public: typedef void(*InitPreallocatedFunc)(TiObject*);
   public: typedef void(*TerminationFunc)(TiObject*);
+  public: typedef ArchInt(*SizeFunc)();
 
 
   //============================================================================
@@ -39,6 +40,7 @@ class TiObjectFactory
   private: SharedCreateFunc sharedCreateFunc;
   private: InitPreallocatedFunc initPreallocatedFunc;
   private: TerminationFunc terminationFunc;
+  private: SizeFunc sizeFunc;
 
 
   //============================================================================
@@ -48,11 +50,13 @@ class TiObjectFactory
     PlainCreateFunc plainFunc,
     SharedCreateFunc sharedFunc,
     InitPreallocatedFunc preallocatedFunc,
-    TerminationFunc termFunc
+    TerminationFunc termFunc,
+    SizeFunc sizeFunc
   ) : plainCreateFunc(plainFunc),
       sharedCreateFunc(sharedFunc),
       initPreallocatedFunc(preallocatedFunc),
-      terminationFunc(termFunc)
+      terminationFunc(termFunc),
+      sizeFunc(sizeFunc)
   {
   }
 
@@ -80,6 +84,11 @@ class TiObjectFactory
   public: void terminate(TiObject *p)
   {
     if (this->terminationFunc != 0) this->terminationFunc(p);
+  }
+
+  public: ArchInt getSize()
+  {
+    if (this->sizeFunc != 0) return this->sizeFunc();
   }
 
 }; // class
@@ -149,6 +158,10 @@ template<class T> TiObjectFactory* getTiObjectFactory()
     [](TiObject *p)->void
     {
       ((T*)p)->~T();
+    },
+    []()->ArchInt
+    {
+      return sizeof(T);
     }
   );
 }

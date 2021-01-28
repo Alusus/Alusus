@@ -1,4 +1,7 @@
 import "Basic";
+import "Spp";
+import "Srl/Map";
+import "Srl/String";
 
 @merge module Core {
     module Data {
@@ -19,7 +22,17 @@ import "Basic";
                     def metaHaving: TiInterface;
                     def printable: TiInterface;
                     def value: TiStr;
-                    def _data: array[Word[8], 312];
+
+                    preprocess {
+                        use Srl;
+                        def totalSize: ArchInt = getFromGlobalStorage(uniqueName)~cast[ptr[TypeInfo]]~cnt
+                            .objectFactory.getSize();
+                        def paddingSize: ArchInt = totalSize - Node~size - 3*TiInterface~size - TiStr~size;
+                        Spp.astMgr.insertAst(
+                            ast { def _data: array[Word[8], size] },
+                            Map[String, ref[Core.Basic.TiObject]]().set(String("size"), TiInt(paddingSize))
+                        );
+                    }
 
                     handler this~init() {
                         getTypeInfo().objectFactory.initialize(this);
