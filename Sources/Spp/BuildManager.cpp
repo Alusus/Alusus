@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.cpp
  * Contains the implementation of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -109,21 +109,25 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
     }
   }
 
+  DependencyInfo *depsInfo;
   CodeGen::ExtraDataAccessor *eda;
   LlvmCodeGen::TargetGenerator *targetGen;
   Word pointerBc;
   Bool offlineExec;
   if (buildType == BuildType::JIT) {
+    depsInfo = &buildMgr->jitDepsInfo;
     targetGen = buildMgr->jitTargetGenerator.get();
     eda = &buildMgr->jitEda;
     offlineExec = false;
     pointerBc = buildMgr->jitBuildTarget->getPointerBitCount();
   } else if (buildType == BuildType::PREPROCESS) {
+    depsInfo = &buildMgr->preprocessDepsInfo;
     targetGen = buildMgr->preprocessTargetGenerator.get();
     eda = &buildMgr->preprocessEda;
     offlineExec = false;
     pointerBc = buildMgr->preprocessBuildTarget->getPointerBitCount();
   } else if (buildType == BuildType::OFFLINE) {
+    depsInfo = &buildMgr->offlineDepsInfo;
     targetGen = buildMgr->offlineTargetGenerator.get();
     eda = &buildMgr->offlineEda;
     offlineExec = true;
@@ -154,7 +158,7 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
   }
 
   return newSrdObj<BuildSession>(
-    eda, targetGeneration, offlineExec, pointerBc, buildType, tgFunc, tgContext, globalEntryName.str().c_str()
+    depsInfo, eda, targetGeneration, offlineExec, pointerBc, buildType, tgFunc, tgContext, globalEntryName.str().c_str()
   );
 }
 
@@ -251,22 +255,20 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
 
   // Dependencies can themselves have other dependencies, which in turn can also have their own dependencies, so we'll
   // need to loop until there are no more dependencies.
-  Int funcDepsIndex = 0;
-  Int globalVarInitializationIndex = 0;
-  Int globalVarDestructionIndex = 0;
   while (
-    funcDepsIndex < buildSession->getFuncDeps()->getCount() ||
-    globalVarInitializationIndex < buildSession->getGlobalVarInitializationDeps()->getCount() ||
-    globalVarDestructionIndex < buildSession->getGlobalVarDestructionDeps()->getCount()
+    buildSession->getDepsInfo()->funcDeps.getCount() > 0 ||
+    buildSession->getDepsInfo()->globalVarInitializationDeps.getCount() > 0 ||
+    buildSession->getDepsInfo()->globalVarDestructionDeps.getCount() > 0
   ) {
     // Build function dependencies.
-    for (; funcDepsIndex < buildSession->getFuncDeps()->getCount(); ++funcDepsIndex) {
-      auto astFunc = static_cast<Ast::Function*>(buildSession->getFuncDeps()->get(funcDepsIndex));
+    while (buildSession->getDepsInfo()->funcDeps.getCount() > 0) {
+      auto astFunc = static_cast<Ast::Function*>(buildSession->getDepsInfo()->funcDeps.get(0));
+      buildSession->getDepsInfo()->funcDeps.remove(0);
       if (!generation->generateFunction(astFunc, buildSession->getCodeGenSession())) result = false;
     }
 
     // Build global var dependencies.
-    if (globalVarInitializationIndex < buildSession->getGlobalVarInitializationDeps()->getCount()) {
+    if (buildSession->getDepsInfo()->globalVarInitializationDeps.getCount() > 0) {
       buildMgr->funcNameIndex++;
 
       // Build the constructor function.
@@ -274,7 +276,7 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
       ctorNameStream << S("__constructor__") << buildMgr->funcNameIndex;
       Str ctorName = ctorNameStream.str().c_str();
       if (buildMgr->buildGlobalCtorOrDtor(
-        buildSession, buildSession->getGlobalVarInitializationDeps(), globalVarInitializationIndex, ctorName,
+        buildSession, &buildSession->getDepsInfo()->globalVarInitializationDeps, ctorName,
         [=](
           Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
           CodeGen::Session *childSession
@@ -313,11 +315,9 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
       } else {
         result = false;
       }
-
-      globalVarInitializationIndex = buildSession->getGlobalVarInitializationDeps()->getCount();
     }
 
-    if (globalVarDestructionIndex < buildSession->getGlobalVarDestructionDeps()->getCount()) {
+    if (buildSession->getDepsInfo()->globalVarDestructionDeps.getCount() > 0) {
       buildMgr->funcNameIndex++;
 
       // Build the destructor function.
@@ -325,7 +325,7 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
       dtorNameStream << S("__destructor__") << buildMgr->funcNameIndex;
       Str dtorName = dtorNameStream.str().c_str();
       if (buildMgr->buildGlobalCtorOrDtor(
-        buildSession, buildSession->getGlobalVarDestructionDeps(), globalVarDestructionIndex, dtorName,
+        buildSession, &buildSession->getDepsInfo()->globalVarDestructionDeps, dtorName,
         [=](
           Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
           CodeGen::Session *childSession
@@ -337,8 +337,6 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
       } else {
         result = false;
       }
-
-      globalVarDestructionIndex = buildSession->getGlobalVarDestructionDeps()->getCount();
     }
   }
 
@@ -347,7 +345,7 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
 
 
 Bool BuildManager::buildGlobalCtorOrDtor(
-  BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Int depsIndex, Char const *funcName,
+  BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Char const *funcName,
   std::function<Bool(
     Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, TiObject *astParams,
     CodeGen::Session *session
@@ -368,8 +366,9 @@ Bool BuildManager::buildGlobalCtorOrDtor(
 
   Bool result = true;
 
-  for (; depsIndex < deps->getCount(); ++depsIndex) {
-    auto astVar = deps->get(depsIndex);
+  while (deps->getCount() > 0) {
+    auto astVar = deps->get(0);
+    deps->remove(0);
     TiObject *tgVar = session.getEda()->getCodeGenData<TiObject>(astVar);
 
     // Get initialization params, if any.

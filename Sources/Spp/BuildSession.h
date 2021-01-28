@@ -2,7 +2,7 @@
  * @file Spp/BuildSession.h
  * Contains the header of class Spp::BuildSession.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,9 +27,7 @@ class BuildSession : public TiObject
   //============================================================================
   // Member Variables
 
-  private: DependencyList<Core::Data::Node> globalVarInitializationDeps;
-  private: DependencyList<Core::Data::Node> globalVarDestructionDeps;
-  private: DependencyList<Ast::Function> funcDeps;
+  private: DependencyInfo *depsInfo;
 
   private: Word buildType;
   private: TioSharedPtr globalEntryTgFunc;
@@ -48,16 +46,21 @@ class BuildSession : public TiObject
   // Constructor
 
   public: BuildSession(
-    CodeGen::ExtraDataAccessor *eda, CodeGen::TargetGeneration *tg, Bool offlineExec, Word pointerBc,
-    Word bType, TioSharedPtr const &geTgFunc, TioSharedPtr const &geTgContext, Char const *geName
-  ) : buildType(bType)
+    DependencyInfo *depsInfo, CodeGen::ExtraDataAccessor *eda, CodeGen::TargetGeneration *tg, Bool offlineExec,
+    Word pointerBc, Word bType, TioSharedPtr const &geTgFunc, TioSharedPtr const &geTgContext, Char const *geName
+  ) : depsInfo(depsInfo)
+    , buildType(bType)
     , globalEntryTgFunc(geTgFunc)
     , globalEntryTgContext(geTgContext)
     , globalEntryName(geName)
     , execContext(pointerBc)
     , codeGenSession(
-      eda, tg, &execContext, geTgContext.get(), &destructionStack, &globalVarInitializationDeps, &globalVarDestructionDeps,
-      &funcDeps, offlineExec
+      eda, tg, &execContext, geTgContext.get(),
+      &destructionStack,
+      &depsInfo->globalVarInitializationDeps,
+      &depsInfo->globalVarDestructionDeps,
+      &depsInfo->funcDeps,
+      offlineExec
     )
   {}
 
@@ -65,19 +68,9 @@ class BuildSession : public TiObject
   //============================================================================
   // Member Variables
 
-  public: DependencyList<Core::Data::Node>* getGlobalVarInitializationDeps()
+  public: DependencyInfo* getDepsInfo() const
   {
-    return &this->globalVarInitializationDeps;
-  }
-
-  public: DependencyList<Core::Data::Node>* getGlobalVarDestructionDeps()
-  {
-    return &this->globalVarDestructionDeps;
-  }
-
-  public: DependencyList<Ast::Function>* getFuncDeps()
-  {
-    return &this->funcDeps;
+    return this->depsInfo;
   }
 
   public: Word getBuildType() const
