@@ -99,3 +99,24 @@ func testPreprocessVarDestruction {
     }
 }
 testPreprocessVarDestruction();
+
+Srl.Console.print("\n");
+
+func do1 {
+    preprocess {
+        do2();
+    }
+}
+func do2 {
+    do3();
+}
+func do3 {
+    Console.print("do3 called\n");
+}
+func testPreprocessNestedDeps {
+    preprocess {
+        do2();
+        do1();
+    }
+}
+testPreprocessNestedDeps();

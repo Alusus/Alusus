@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.h
  * Contains the header of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -48,16 +48,19 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: CodeGen::Generator *generator;
   private: CodeGen::GlobalItemRepo *globalItemRepo;
 
+  private: DependencyInfo jitDepsInfo;
   private: CodeGen::ExtraDataAccessor jitEda;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> jitTargetGenerator;
   private: SharedPtr<LlvmCodeGen::JitBuildTarget> jitBuildTarget;
   private: TioSharedPtr jitGlobalTgFuncType;
 
+  private: DependencyInfo preprocessDepsInfo;
   private: CodeGen::ExtraDataAccessor preprocessEda;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> preprocessTargetGenerator;
   private: SharedPtr<LlvmCodeGen::LazyJitBuildTarget> preprocessBuildTarget;
   private: TioSharedPtr preprocessGlobalTgFuncType;
 
+  private: DependencyInfo offlineDepsInfo;
   private: CodeGen::ExtraDataAccessor offlineEda;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> offlineTargetGenerator;
   private: SharedPtr<LlvmCodeGen::OfflineBuildTarget> offlineBuildTarget;
@@ -168,7 +171,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   );
 
   private: Bool buildGlobalCtorOrDtor(
-    BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Int depsIndex, Char const *funcName,
+    BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Char const *funcName,
     std::function<Bool(
       Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, TiObject *astParams,
       CodeGen::Session *session

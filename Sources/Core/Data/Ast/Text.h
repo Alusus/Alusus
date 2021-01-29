@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Text.h
  * Contains the header of class Core::Data::Ast::Text.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -73,7 +73,8 @@ class Text : public Node, public Binding, public MetaHaving, public Printable
   }
   public: void setValue(TiStr const *v)
   {
-    this->value = v == 0 ? "" : v->get();
+    if (v == 0) this->value = "";
+    else this->value = *v;
   }
 
   public: TiStr const& getValue() const

@@ -24,6 +24,7 @@ import "Srl/String";
             def createShared: ptr[@shared @no_bind function ():SrdRef[TiObject]];
             def initialize: ptr[@shared @no_bind function (ref[TiObject])];
             def terminate: ptr[@shared @no_bind function (ref[TiObject])];
+            def getSize: ptr[@shared @no_bind function ():ArchInt];
         }
 
         type TypeInfo {

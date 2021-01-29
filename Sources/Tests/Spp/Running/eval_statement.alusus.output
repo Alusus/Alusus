@@ -25,3 +25,6 @@ A().i = 1
 A~terminate
 a.i*2 = 6
 A~terminate
+
+do3 called
+do3 called
