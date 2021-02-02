@@ -1,5 +1,7 @@
 #include <core.h>
 
+#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+
 class Test {
   public:
   int i;

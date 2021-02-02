@@ -23,7 +23,7 @@ void UnrecognizedCharNotice::buildDescription(Str &str) const
   auto format = L18nDictionary::getSingleton()->get(
     this->getCode(), S("Lexer Error [Unrecognized Character(s)]: %s")
   );
-  str = formatString(format, this->getText());
+  str = formatString(format, this->getText().getBuf());
 }
 
 } // namespace

@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <regex>
 
 using Core::Notices::Notice;
 using Core::Data::Ast::List;
@@ -170,18 +171,25 @@ Bool checkRunResult(Str const &fileName)
   std::string expectedResultContent((std::istreambuf_iterator<char>(expectedResult)),
       std::istreambuf_iterator<char>());
 
+  auto massagedRunResultContent = std::regex_replace(
+    runResultContent, std::regex("target datalayout = \"[a-zA-Z0-9:-]+\""), S("target datalayout = \"<sanitized>\"")
+  );
+  auto massagedExpectedResultContent = std::regex_replace(
+    expectedResultContent, std::regex("target datalayout = \"[a-zA-Z0-9:-]+\""), S("target datalayout = \"<sanitized>\"")
+  );
+
   // Remove one character from the expectedResultContent because, for some
   // reason, editors seem to append 0A at the end of the file!
-  auto ret =  runResultContent.compare(expectedResultContent) == 0;
+  auto ret =  massagedRunResultContent.compare(massagedExpectedResultContent) == 0;
   if (ret == true)
     std::cout << "Successful." << std::endl;
   else
   {
     std::cout << "Failed." << std::endl;
-    std::cout << "Expected Result (Length = " << expectedResultContent.size() << "): " << std::endl;
-    std::cout << expectedResultContent << std::endl;
-    std::cout << "Received Result (Length = " << runResultContent.size() << "): " << std::endl;
-    std::cout << runResultContent << std::endl;
+    std::cout << "Expected Result (Length = " << massagedExpectedResultContent.size() << "): " << std::endl;
+    std::cout << massagedExpectedResultContent << std::endl;
+    std::cout << "Received Result (Length = " << massagedRunResultContent.size() << "): " << std::endl;
+    std::cout << massagedRunResultContent << std::endl;
   }
   return ret;
 }

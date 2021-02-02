@@ -134,7 +134,7 @@ template <class T> class Array
     } else {
       ArrayData<T> *curData = this->data;
       --this->data->refCount;
-      this->data = ArrayData<T>::alloc(curData->length + curData->length >> 1);
+      this->data = ArrayData<T>::alloc(curData->length + (curData->length >> 1));
       ArchInt i;
       for (i = 0; i < curData->length; ++i) new(this->data->buf + i) T(curData->buf[i]);
       this->data->length = curData->length;

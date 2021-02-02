@@ -1,0 +1,6 @@
+import "imported1_test";
+import "error" || "imported2_test";
+import "unknown" or "unknown2_test" or "imported3_test.alusus";
+import "unknown3" and "modifiers_test";
+import { "modifiers_test.alusus" };
+import ( "modifiers_test.alusus" );

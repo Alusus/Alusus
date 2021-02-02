@@ -1,12 +1,17 @@
 import "Srl/System.alusus";
 import "Srl/Console.alusus";
+import "Srl/String";
 
 def System: module
 {
   def start: function ()
   {
     // exec
-    Srl.System.exec("TZ=UTC LANG=en_US date -d @0");
+    if Srl.String.isEqual(Process.platform, "linux") {
+      Srl.System.exec("TZ=UTC LANG=en_US date -d @0")
+    } else {
+      Srl.System.exec("TZ=UTC LANG=en_US date -r 0")
+    }
 
     // Set & get env.
     Srl.System.setEnv("TZ", "UTC", 1);

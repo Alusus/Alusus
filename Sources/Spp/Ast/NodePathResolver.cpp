@@ -76,7 +76,7 @@ void NodePathResolver::_resolveDefinition(
 ) {
   PREPARE_SELF(resolver, NodePathResolver);
   resolver->resolve(def->getOwner(), helper, path);
-  if (path.rdbuf()->in_avail() != 0) path << C('.');
+  if (path.tellp() > 0) path << C('.');
   path << def->getName().get();
 }
 

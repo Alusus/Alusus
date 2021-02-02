@@ -70,7 +70,9 @@
     "string": "cpp",
     "shared_mutex": "cpp",
     "set": "cpp",
-    "mutex": "cpp"
+    "mutex": "cpp",
+    "ios": "cpp",
+    "locale": "cpp"
   },
   "files.exclude": {
     "**/.git": true,

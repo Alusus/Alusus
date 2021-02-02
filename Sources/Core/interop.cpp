@@ -12,6 +12,8 @@
 
 #include "core.h"
 
+#pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
+
 //==============================================================================
 // Misc Functions
 

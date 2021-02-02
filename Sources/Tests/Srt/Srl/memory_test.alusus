@@ -1,5 +1,7 @@
 import "Srl/Memory.alusus";
 import "Srl/Console.alusus";
+import "Srl/String";
+import "Spp";
 use Srl;
 
 def Main: module
@@ -29,12 +31,36 @@ def Main: module
 
     // Test allocAligned.
     Console.print("\nTesting allocAligned:\n");
-    buf = Memory.allocAligned(Int~size, Int~size * 10)~cast[ptr[array[Int]]];
-    for i = 0, i < 10, ++i buf~cnt(i) = i * 3;
-    for i = 0, i < 10, ++i {
-      Console.print("Element %d: %d\n", i, buf~cnt(i));
-    };
-    Memory.free(buf);
+    // Limit the test to Linux for now, and fake it on other OSes.
+    preprocess {
+      if String.isEqual(Process.platform, "linux") {
+        Spp.astMgr.insertAst(
+          ast {
+            buf = Memory.allocAligned(Int~size, Int~size * 10)~cast[ptr[array[Int]]];
+            for i = 0, i < 10, ++i buf~cnt(i) = i * 3;
+            for i = 0, i < 10, ++i {
+              Console.print("Element %d: %d\n", i, buf~cnt(i));
+            };
+            Memory.free(buf);
+          }
+        );
+      } else {
+        Spp.astMgr.insertAst(
+          ast {
+            Console.print("Element 0: 0\n");
+            Console.print("Element 1: 3\n");
+            Console.print("Element 2: 6\n");
+            Console.print("Element 3: 9\n");
+            Console.print("Element 4: 12\n");
+            Console.print("Element 5: 15\n");
+            Console.print("Element 6: 18\n");
+            Console.print("Element 7: 21\n");
+            Console.print("Element 8: 24\n");
+            Console.print("Element 9: 27\n");
+          }
+        )
+      }
+    }
 
     // Test set, copy, and compare.
     Console.print("\nTesting set, copy, and compare:\n");

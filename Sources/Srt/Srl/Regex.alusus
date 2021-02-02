@@ -13,6 +13,7 @@
 import "srl";
 import "String";
 import "Memory";
+import "Spp";
 
 @merge module Srl {
   module Regex {
@@ -28,8 +29,23 @@ import "Memory";
     };
 
     type Match {
-        def rm_so: int;  // Byte offset from string's start to substring's start.
-        def rm_eo: int;  // Byte offset from string's start to substring's end.
+        preprocess {
+            if String.isEqual(Process.platform, "macos") {
+                Spp.astMgr.insertAst(
+                    ast {
+                        def rm_so: Int[64];  // Byte offset from string's start to substring's start.
+                        def rm_eo: Int[64];  // Byte offset from string's start to substring's end.
+                    }
+                );
+            } else {
+                Spp.astMgr.insertAst(
+                    ast {
+                        def rm_so: Int;  // Byte offset from string's start to substring's start.
+                        def rm_eo: Int;  // Byte offset from string's start to substring's end.
+                    }
+                );
+            }
+        }
     };
 
     @expname[regcomp]
