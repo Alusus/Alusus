@@ -2402,7 +2402,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
 
   // Determine integer size.
   Bool typeRequested = false;
-  Int size;
+  Int size = 0;
   if (*src == C('i') || *src == C('I')) {
     typeRequested = true;
     ++src;
@@ -2411,7 +2411,8 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
     typeRequested = true;
     src += 2;
     if (getStrLen(src) > 0) size = std::stoi(src);
-  } else {
+  }
+  if (size == 0) {
     if (value == 0 || value == 1) {
       // Give special treatment to 0 and 1 and consider it unsigned.
       signedNum = false;
