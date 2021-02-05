@@ -54,10 +54,9 @@ void RootScopeHandlerExtension::_addNewElement(
 
   auto start = root->getCount();
   rootScopeHandler->addNewElement.useCallee(base)(data, parser, state);
-  auto end = root->getCount() - 1;
 
   Bool execute = false;
-  for (Int i = start; i <= end; ++i) {
+  for (Int i = start; i < root->getCount(); ++i) {
     if (
       root->get(i) != 0 &&
       !root->get(i)->isDerivedFrom<Core::Data::Ast::Definition>() &&
@@ -101,9 +100,11 @@ void RootScopeHandlerExtension::_addNewElement(
     }
 
     // Now run all new statements.
-    for (Int i = start; i <= end; ++i) {
-      auto childData = root->get(i);
-      if (!executing->addElementToBuild(childData.get(), buildSession.get())) execute = false;
+    for (Int i = start; i < root->getCount(); ++i) {
+      auto childData = root->getElement(i);
+      if (CodeGen::isExecuted(childData)) continue;
+      CodeGen::setExecuted(childData, true);
+      if (!executing->addElementToBuild(childData, buildSession.get())) execute = false;
     }
 
     executing->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get(), buildSession.get());
