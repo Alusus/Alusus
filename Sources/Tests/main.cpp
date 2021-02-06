@@ -174,6 +174,9 @@ Bool checkRunResult(Str const &fileName)
   auto massagedRunResultContent = std::regex_replace(
     runResultContent, std::regex("target datalayout = \"[a-zA-Z0-9:-]+\""), S("target datalayout = \"<sanitized>\"")
   );
+  massagedRunResultContent = std::regex_replace(
+    massagedRunResultContent, std::regex(", align [0-9]+"), S("")
+  );
   auto massagedExpectedResultContent = std::regex_replace(
     expectedResultContent, std::regex("target datalayout = \"[a-zA-Z0-9:-]+\""), S("target datalayout = \"<sanitized>\"")
   );
