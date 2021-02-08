@@ -11,8 +11,6 @@
 //==============================================================================
 
 import "Memory";
-import "String";
-import "Spp";
 
 @merge module Srl
 {
@@ -88,14 +86,14 @@ import "Spp";
                 --this.refCount;
                 this.data~no_deref = ArrayData[T].alloc(curData.length + curData.length >> 1);
                 def i: ArchInt;
-                for i = 0, i < curData.length, ++i this.get(i)~no_deref~init(curData.get(i));
+                for i = 0, i < curData.length, ++i this.buf(i)~no_deref~init(curData.buf(i));
                 this.length = curData.length;
             };
         };
 
         func add (item: T) {
             this._prepareToModify(true);
-            this.get(this.length)~no_deref~init(item);
+            this.buf(this.length)~no_deref~init(item);
             ++this.length;
         };
 
@@ -107,7 +105,7 @@ import "Spp";
             if index < 0 || index >= this.getLength() {
                 this.add(item);
             } else {
-                this.get(index)~no_deref = item;
+                this.buf(index)~no_deref = item;
             };
         }
 
@@ -117,11 +115,11 @@ import "Spp";
             } else {
                 this._prepareToModify(true);
                 Memory.copy(
-                    this.get(index + 1)~no_deref~ptr,
-                    this.get(index)~no_deref~ptr,
-                    ArrayData[T].alignedSize * (this.length - index)
+                    this.buf(index + 1)~no_deref~ptr,
+                    this.buf(index)~no_deref~ptr,
+                    T~no_deref~size * (this.length - index)
                 );
-                this.get(index)~no_deref~init(item);
+                this.buf(index)~no_deref~init(item);
                 ++this.length;
             };
         };
@@ -129,12 +127,11 @@ import "Spp";
         func remove (index: ArchInt) {
             if index >= 0 && index < this.getLength() {
                 this._prepareToModify(false);
-                this.get(index)~no_deref~terminate();
+                this.buf(index)~no_deref~terminate();
                 if index < this.getLength() - 1 {
                     Memory.copy(
-                        this.get(index)~no_deref~ptr,
-                        this.get(index + 1)~no_deref~ptr,
-                        ArrayData[T].alignedSize * (this.length - (index + 1))
+                        this.buf(index)~no_deref~ptr, this.buf(index + 1)~no_deref~ptr,
+                        T~no_deref~size * (this.length - (index + 1))
                     );
                 };
                 --this.length;
@@ -159,7 +156,7 @@ import "Spp";
 
         handler this(i: ArchInt): ref[T] {
             @shared def dummy: T;
-            if i >= 0 && i < this.getLength() return this.get(i) else return dummy;
+            if i >= 0 && i < this.getLength() return this.buf(i) else return dummy;
         };
     };
 
@@ -174,33 +171,14 @@ import "Spp";
         def refCount: ArchInt;
         def length: ArchInt;
         def bufSize: ArchInt;
-        preprocess {
-            if String.isEqual(Process.platform, "macos") {
-                Spp.astMgr.insertAst(
-                    ast {
-                        def __alignmentGap: ArchInt;
-                        @shared def alignedSize: ArchInt(16 * ((T~no_deref~size + 15) / 16));
-                    }
-                );
-            } else {
-                Spp.astMgr.insertAst(
-                    ast {
-                        @shared def alignedSize: ArchInt(8 * ((T~no_deref~size + 7) / 8));
-                    }
-                );
-            }
-        }
+        def buf: array[T, 1];
 
         //=================
         // Member Functions
 
-        func get (i: ArchInt): ref[T] {
-            return (this~ptr~cast[ptr[Char]] + ArrayData[T]~size + alignedSize * i)~cast[ptr[T]]~cnt;
-        }
-
         @shared func alloc (size: ArchInt): ref[ArrayData[T]] {
             if size < 2 size = 2;
-            def byteCount: ArchInt = ArrayData[T]~size + alignedSize * size;
+            def byteCount: ArchInt = ArrayData[T]~size + T~no_deref~size * (size - 1);
             def data: ref[ArrayData[T]];
             data~ptr = Memory.alloc(byteCount)~cast[ptr[ArrayData[T]]];
             data.bufSize = size;
@@ -211,7 +189,7 @@ import "Spp";
 
         @shared func realloc (data: ref[ArrayData[T]], newSize: ArchInt): ref[ArrayData[T]] {
             if newSize < 2 newSize = 2;
-            def byteCount: ArchInt = ArrayData[T]~size + alignedSize * newSize;
+            def byteCount: ArchInt = ArrayData[T]~size + T~no_deref~size * (newSize - 1);
             data~ptr = Memory.realloc(data~ptr, byteCount)~cast[ptr[ArrayData[T]]];
             data.bufSize = newSize;
             return data;
@@ -219,7 +197,7 @@ import "Spp";
 
         @shared func release (data: ref[ArrayData[T]]) {
             def i: ArchInt;
-            for i = 0, i < data.length, ++i data.get(i)~no_deref~terminate();
+            for i = 0, i < data.length, ++i data.buf(i)~no_deref~terminate();
             Memory.free(data~ptr);
         };
     };

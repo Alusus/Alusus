@@ -24,23 +24,14 @@ template <class T> class ArrayData
   public: ArchInt refCount;
   public: ArchInt length;
   public: ArchInt bufSize;
-  #if __APPLE__
-    private: ArchInt __alignmentGap;
-    public: static const ArchInt alignedSize = 16 * ((sizeof(T) + 15) / 16);
-  #else
-    public: static const ArchInt alignedSize = 8 * ((sizeof(T) + 7) / 8);
-  #endif
+  public: T buf[1];
 
   //=================
   // Member Functions
 
-  public: T* get(ArchInt i) {
-    return (T*)((char*)this + sizeof(ArrayData<T>) + alignedSize * i);
-  }
-
   public: static ArrayData<T>* alloc(ArchInt size) {
     if (size < 2) size = 2;
-    ArchInt byteCount = sizeof(ArrayData<T>) + alignedSize * size;
+    ArchInt byteCount = sizeof(ArrayData<T>) + sizeof(T) * (size - 1);
     ArrayData<T> *data = (ArrayData<T>*)malloc(byteCount);
     data->bufSize = size;
     data->length = 0;
@@ -50,7 +41,7 @@ template <class T> class ArrayData
 
   public: static ArrayData<T>* realloc(ArrayData<T> *data, ArchInt newSize) {
     if (newSize < 2) newSize = 2;
-    ArchInt byteCount = sizeof(ArrayData<T>) + alignedSize * newSize;
+    ArchInt byteCount = sizeof(ArrayData<T>) + sizeof(T) * (newSize - 1);
     data = (ArrayData<T>*)::realloc(data, byteCount);
     data->bufSize = newSize;
     return data;
@@ -58,7 +49,7 @@ template <class T> class ArrayData
 
   public: static void release(ArrayData<T> *data) {
     ArchInt i;
-    for (i = 0; i < data->length; ++i) data->get(i)->~T();
+    for (i = 0; i < data->length; ++i) data->buf[i].~T();
     free(data);
   }
 };
@@ -145,14 +136,14 @@ template <class T> class Array
       --this->data->refCount;
       this->data = ArrayData<T>::alloc(curData->length + (curData->length >> 1));
       ArchInt i;
-      for (i = 0; i < curData->length; ++i) new(this->data->get(i)) T(*curData->get(i));
+      for (i = 0; i < curData->length; ++i) new(this->data->buf + i) T(curData->buf[i]);
       this->data->length = curData->length;
     }
   }
 
   public: void add (T item) {
     this->_prepareToModify(true);
-    new (this->data->get(this->data->length)) T(item);
+    new (this->data->buf + this->data->length) T(item);
     ++this->data->length;
   }
 
@@ -161,12 +152,8 @@ template <class T> class Array
       this->add(item);
     } else {
       this->_prepareToModify(true);
-      memcpy(
-        this->data->get(index + 1),
-        this->data->get(index),
-        ArrayData<T>::alignedSize * (this->data->length - index)
-      );
-      new(this->data->get(index)) T(item);
+      memcpy(this->data->buf + index + 1, this->data->buf + index, sizeof(T) * (this->data->length - index));
+      new(this->data->buf + index) T(item);
       ++this->data->length;
     }
   }
@@ -174,13 +161,9 @@ template <class T> class Array
   public: void remove (ArchInt index) {
     if (index >= 0 && index < this->getLength()) {
       this->_prepareToModify(false);
-      this->data->get(index)->~T();
+      this->data->buf[index].~T();
       if (index < this->getLength() - 1) {
-        memcpy(
-          this->data->get(index),
-          this->data->get(index + 1),
-          ArrayData<T>::alignedSize * (this->data->length - (index + 1))
-        );
+        memcpy(this->data->buf + index, this->data->buf + index + 1, sizeof(T) * (this->data->length - (index + 1)));
       };
       --this->data->length;
     }
@@ -192,12 +175,12 @@ template <class T> class Array
 
   public: T& at (ArchInt i) {
     static T dummy;
-    if (i >= 0 && i < this->getLength()) return *this->data->get(i); else return dummy;
+    if (i >= 0 && i < this->getLength()) return this->data->buf[i]; else return dummy;
   }
 
   public: T const& at (ArchInt i) const {
     static T dummy;
-    if (i >= 0 && i < this->getLength()) return *this->data->get(i); else return dummy;
+    if (i >= 0 && i < this->getLength()) return this->data->buf[i]; else return dummy;
   }
 
   public: ArchInt findPos (T const &val) const {
