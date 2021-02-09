@@ -31,6 +31,7 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ALUSUS_VERSION="${Alu
                                                            ALUSUS_REVISION="${AlususRevision}"
                                                            ALUSUS_RELEASE_DATE="${AlususReleaseDate}"
                                                            ALUSUS_HIJRI_RELEASE_DATE="${AlususHijriReleaseDate}")
+STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS RELEASE)
 else()
@@ -46,7 +47,6 @@ else()
 endif()
 
 # Prepare compile and link flags.
-STRING(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   message(STATUS "Using Clang")
   # CLang options

@@ -89,6 +89,7 @@ class TiObjectFactory
   public: ArchInt getSize()
   {
     if (this->sizeFunc != 0) return this->sizeFunc();
+    else return 0;
   }
 
 }; // class

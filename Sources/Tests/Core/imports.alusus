@@ -1,6 +1,0 @@
-import "imported1";
-import "error" || "imported2";
-import "unknown" or "unknown2" or "imported3.alusus";
-import "unknown3" and "modifiers";
-import { "modifiers.alusus" };
-import ( "modifiers.alusus" );

@@ -63,7 +63,9 @@ Srl::String getModuleDirectory()
     uint32_t size = FILENAME_MAX;
     // TODO: Check the result.
     auto res = _NSGetExecutablePath(currentPath.data(), &size);
-    std::string path(currentPath.data());
+    thread_local static std::array<Char,FILENAME_MAX> realCurrentPath;
+    realpath(currentPath.data(), realCurrentPath.data());
+    std::string path(realCurrentPath.data());
   #else
     ssize_t count = readlink("/proc/self/exe", currentPath.data(), currentPath.size());
     std::string path(currentPath.data(), (count > 0) ? count : 0);

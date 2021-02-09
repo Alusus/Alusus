@@ -255,7 +255,10 @@ def build_libcurl():
             raise NotImplementedError(
                 "Building libcurl for Windows OS is not implemented yet!")
         else:
-            ret = subprocess.call("./configure")
+            if is_macos():
+                ret = subprocess.call(["./configure", "--with-darwinssl"])
+            else:
+                ret = subprocess.call("./configure")
             if ret != 0:
                 failMsg("Building libcurl (./configure).")
                 exit(1)

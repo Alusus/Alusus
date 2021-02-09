@@ -67,7 +67,7 @@ import "Srl/String";
         macro defDynCastedRef [name, obj, T] {
             def name: ref[T];
             if obj~ptr != 0 && obj.isDerivedFrom(T.getTypeInfo())
-                name~ptr = castRef[obj, T]
+                name~no_deref = castRef[obj, T]
             else
                 name~ptr = 0;
         }

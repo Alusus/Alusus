@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Remove alusus symbolic links.
 
 LINK_DIR=/usr/local/bin

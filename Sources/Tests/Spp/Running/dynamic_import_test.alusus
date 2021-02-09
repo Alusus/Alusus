@@ -1,0 +1,7 @@
+import "Core";
+def filename: ptr[array[Word[8]]] = "hello_world_test.alusus";
+Core.importFile(filename);
+
+preprocess {
+    Core.importFile("hello_world2-ignore");
+}

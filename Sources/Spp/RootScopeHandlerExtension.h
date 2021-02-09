@@ -45,7 +45,7 @@ class RootScopeHandlerExtension : public ObjTiInterface
   public: RootScopeHandlerExtension(TiObject *o) : owner(o)
   {
     Basic::initBindingCaches(this->owner, {
-      &this->rootManagerBox,
+      &this->rootManagerBox
     });
   }
 

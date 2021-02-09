@@ -280,6 +280,7 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       def argCount: Int;
       def args: ptr[array[ptr[array[Word[8]]]]];
       def language: ptr[array[Word[8]]];
+      def platform: ptr[array[Word[8]]];
     };
     عرّف الـعملية: لقب Process؛
     @دمج عرف Process: وحدة
@@ -287,6 +288,7 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       عرف عدد_المعطيات: لقب argCount؛
       عرف المعطيات: لقب args؛
       عرف اللغة: لقب language؛
+      عرف النظام: لقب platform؛
     }؛
   )SRC"), S("spp"));
 }
@@ -313,9 +315,20 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   auto argCount = manager->getProcessArgCount();
   auto args = manager->getProcessArgs();
   auto language = manager->getLanguage().getBuf();
+
+  Char const *platform;
+  #ifdef WINDOWS
+    platform = "windows";
+  #elif __APPLE__
+    platform = "macos";
+  #else
+    platform = "linux";
+  #endif
+
   this->globalItemRepo->addItem(S("!Process.argCount"), sizeof(argCount), &argCount);
   this->globalItemRepo->addItem(S("!Process.args"), sizeof(args), &args);
   this->globalItemRepo->addItem(S("!Process.language"), sizeof(language), &language);
+  this->globalItemRepo->addItem(S("!Process.platform"), sizeof(platform), &platform);
   this->globalItemRepo->addItem(S("!Core.rootManager"), sizeof(void*), &manager);
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile

@@ -11,6 +11,8 @@
 //==============================================================================
 
 import "Memory";
+import "String";
+import "Spp";
 
 @merge module Srl
 {
@@ -24,12 +26,30 @@ import "Memory";
         def managedObj: ptr;
 
         @shared func alloc(size: ArchInt, terminator: ptr[function (ptr)]): ref[RefCounter] {
+            // On macOS object addresses need to be aligned in memory to 16 bytes, so we'll compute a size for this
+            // object that is aligned to 16 bytes so that the actual object, which follows, has an address that is
+            // 16 bytes aligned.
+            preprocess {
+                if String.isEqual(Process.platform, "macos") {
+                    Spp.astMgr.insertAst(
+                        ast {
+                            @shared def alignedSize: ArchInt(16 * ((RefCounter~size + 15) / 16));
+                        }
+                    );
+                } else {
+                    Spp.astMgr.insertAst(
+                        ast {
+                            @shared def alignedSize: ArchInt(8 * ((RefCounter~size + 7) / 8));
+                        }
+                    );
+                }
+            }
             def refCounter: ref[RefCounter];
-            refCounter~ptr = Memory.alloc(RefCounter~size + size)~cast[ptr[RefCounter]];
+            refCounter~ptr = Memory.alloc(alignedSize + size)~cast[ptr[RefCounter]];
             refCounter.count = 0;
             refCounter.singleAllocation = 1;
             refCounter.terminator = terminator;
-            refCounter.managedObj = (refCounter~ptr + 1)~cast[ptr];
+            refCounter.managedObj = refCounter~ptr~cast[ptr[Char]] + alignedSize;
             return refCounter;
         }
 

@@ -120,3 +120,14 @@ func testPreprocessNestedDeps {
     }
 }
 testPreprocessNestedDeps();
+
+Srl.Console.print("\n");
+
+preprocess {
+    Spp.astMgr.insertAst(
+        ast {
+            Console.print("Root preprocess insert 1\n");
+            Console.print("Root preprocess insert 2\n");
+        }
+    )
+}

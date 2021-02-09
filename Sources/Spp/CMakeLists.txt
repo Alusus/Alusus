@@ -72,7 +72,11 @@ set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
 target_link_libraries(AlususSpp ${REQ_LLVM_LIBRARIES})
 target_link_libraries(AlususSpp AlususSrlLib AlususCoreLib AlususStorage)
 # Prevent the exporting of LLVM symbols
-set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(LinkerVersionScript -Wl,-exported_symbols_list,${AlususSpp_SOURCE_DIR}/macos_exported_symbols.txt)
+else()
+  set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
+endif()
 target_link_libraries(AlususSpp ${LinkerVersionScript})
 
 # Copy libary header files to installation directory.

@@ -122,6 +122,7 @@ inline void removeExtra(OT *object, Char const *name)
   template <class OT> inline void reset##name(OT *object) { removeExtra(object, #name); }
 
 DEFINE_FLAG_ACCESSORS(AstProcessed);
+DEFINE_FLAG_ACCESSORS(Executed);
 
 } // namespace
 

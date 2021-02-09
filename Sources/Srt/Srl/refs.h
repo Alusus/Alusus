@@ -35,12 +35,17 @@ class RefCounter
   // Member Functions
 
   public: static RefCounter* alloc(ArchInt size, void (*terminator)(void*)) {
+    #if __APPLE__
+    static ArchInt alignedSize = 16 * ((sizeof(RefCounter) + 15) / 16);
+    #else
+    static ArchInt alignedSize = 8 * ((sizeof(RefCounter) + 7) / 8);
+    #endif
     RefCounter *refCounter;
-    refCounter = (RefCounter*)malloc(sizeof(RefCounter) + size);
+    refCounter = (RefCounter*)malloc(alignedSize + size);
     refCounter->count = 0;
     refCounter->singleAllocation = true;
     refCounter->terminator = terminator;
-    refCounter->managedObj = (void*)((ArchInt)refCounter + sizeof(RefCounter));
+    refCounter->managedObj = (void*)((ArchInt)refCounter + alignedSize);
     return refCounter;
   }
 

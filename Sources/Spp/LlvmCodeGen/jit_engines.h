@@ -240,7 +240,12 @@ class GlobalMappingGenerator : public llvm::orc::JITDylib::DefinitionGenerator {
 
     for (const auto &KV : Names) {
       const auto &Name = KV.first;
-      auto index = this->itemRepo->findItem((*Name).data());
+      #if __APPLE__
+        // Skip the leading _ that gets auto added in macOS.
+        auto index = this->itemRepo->findItem((*Name).data() + 1);
+      #else
+        auto index = this->itemRepo->findItem((*Name).data());
+      #endif
       if (index != -1) NewDefs[Name] = llvm::JITEvaluatedSymbol(
         (llvm::JITTargetAddress)this->itemRepo->getItemPtr(index), llvm::JITSymbolFlags::None
       );
