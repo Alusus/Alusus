@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.cpp
  * Contains the implementation of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -164,7 +164,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     if (!session->getTg()->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return false;
 
     DestructionStack destructionStack;
-    Session childSession(session, tgContext.get(), &destructionStack);
+    Session childSession(session, tgContext.get(), tgContext.get(), &destructionStack);
 
     // Store the generated ret value reference, if needed.
     if (astRetType->getInitializationMethod(
@@ -411,81 +411,65 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         session->getGlobalVarDestructionDeps()->add(static_cast<Core::Data::Node*>(astVar));
       }
     } else {
-      auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(definition);
-      if (ti_cast<Ast::Type>(astBlock->getOwner()) != 0) {
-        // This should never happen.
-        throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
-      } else {
-        // Generate a local variable.
+      // Generate a local variable.
 
-        // To avoid stack overflows we need to allocate at the function level rather than any inner block.
-        auto astFuncBlock = astBlock;
-        while (
-          astFuncBlock != 0 &&
-          astFuncBlock->getOwner() != 0 &&
-          ti_cast<Ast::Function>(astFuncBlock->getOwner()) == 0 &&
-          ti_cast<Ast::PreprocessStatement>(astFuncBlock->getOwner()) == 0
-        ) {
-          astFuncBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astFuncBlock->getOwner());
-        }
-        if (astFuncBlock == 0) {
-          throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
-        }
+      // At this point we should already have a TG context.
+      if (session->getTgAllocContext() == 0) {
+        throw EXCEPTION(GenericException, S("Missing TG allocation context."));
+      }
 
-        // At this point we should already have a TG context.
-        auto tgFuncContext = session->getEda()->getCodeGenData<TiObject>(astFuncBlock);
+      // Create the target local var.
+      TioSharedPtr tgLocalVar;
+      if (!session->getTg()->generateLocalVariable(
+        session->getTgAllocContext(), tgType, definition->getName().get(), 0, tgLocalVar)
+      ) {
+        session->getEda()->setCodeGenFailed(astVar, true);
+        return false;
+      }
+      session->getEda()->setCodeGenData(astVar, tgLocalVar);
 
-        // Create the target local var.
-        TioSharedPtr tgLocalVar;
-        if (!session->getTg()->generateLocalVariable(tgFuncContext, tgType, definition->getName().get(), 0, tgLocalVar)) {
-          session->getEda()->setCodeGenFailed(astVar, true);
-          return false;
-        }
-        session->getEda()->setCodeGenData(astVar, tgLocalVar);
+      // Initialize the variable.
+      // TODO: Should we use default values with local variables?
+      // TioSharedPtr tgDefaultValue;
+      // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
+      //   if (!generator->typeGenerator->generateDefaultValue(
+      //     astType, generation, session, tgDefaultValue
+      //   )) return false;
+      // }
+      TioSharedPtr tgLocalVarRef;
+      if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgLocalVar.get(), tgLocalVarRef)) {
+        return false;
+      }
 
-        // Initialize the variable.
-        // TODO: Should we use default values with local variables?
-        // TioSharedPtr tgDefaultValue;
-        // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
-        //   if (!generator->typeGenerator->generateDefaultValue(
-        //     astType, generation, session, tgDefaultValue
-        //   )) return false;
-        // }
-        TioSharedPtr tgLocalVarRef;
-        if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgLocalVar.get(), tgLocalVarRef)) {
-          return false;
-        }
+      session->getDestructionStack()->pushScope();
 
-        session->getDestructionStack()->pushScope();
-
-        SharedList<TiObject> initTgVals;
-        PlainList<TiObject> initAstTypes;
-        PlainList<TiObject> initAstNodes;
-        if (astParams != 0) {
-          if (!generator->expressionGenerator->generateParams(
-            astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
-          )) {
-            session->getDestructionStack()->popScope();
-            return false;
-          }
-        }
-        if (!generation->generateVarInitialization(
-          astType, tgLocalVarRef.get(), definition, &initAstNodes, &initAstTypes, &initTgVals, session
+      SharedList<TiObject> initTgVals;
+      PlainList<TiObject> initAstTypes;
+      PlainList<TiObject> initAstNodes;
+      if (astParams != 0) {
+        if (!generator->expressionGenerator->generateParams(
+          astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
         )) {
           session->getDestructionStack()->popScope();
           return false;
         }
-
-        if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
-          session->getDestructionStack()->popScope();
-          return false;
-        }
-        session->getDestructionStack()->popScope();
-
-        generation->registerDestructor(
-          ti_cast<Core::Data::Node>(astVar), astType, session->getExecutionContext(), session->getDestructionStack()
-        );
       }
+      if (!generation->generateVarInitialization(
+        astType, tgLocalVarRef.get(), definition, &initAstNodes, &initAstTypes, &initTgVals, session
+      )) {
+        session->getDestructionStack()->popScope();
+        return false;
+      }
+
+      if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
+        session->getDestructionStack()->popScope();
+        return false;
+      }
+      session->getDestructionStack()->popScope();
+
+      generation->registerDestructor(
+        ti_cast<Core::Data::Node>(astVar), astType, session->getExecutionContext(), session->getDestructionStack()
+      );
     }
   }
 
@@ -521,83 +505,41 @@ Bool Generator::_generateTempVar(
     Core::Data::Ast::Definition tempDef;
     tempDef.setOwner(astNode->getOwner());
 
-    // if (generator->getAstHelper()->getVariableDomain(&tempDef) == Ast::DefinitionDomain::GLOBAL) {
-    //   // TODO: Is there a global temp var?
-    //   // Generate a global or a static variable.
-    //   Str name = generator->getTempVarName();
-    //   TioSharedPtr tgGlobalVar;
-    //   if (session->isOfflineExecution()) {
-    //     // Generate the default value.
-    //     TioSharedPtr tgDefaultValue;
-    //     if (!generator->typeGenerator->generateDefaultValue(
-    //       astType, generation, tg, 0, tgDefaultValue
-    //     )) return false;
-    //     // Create the llvm global var.
-    //     if (!tg->generateGlobalVariable(tgType, name.c_str(), tgDefaultValue.get(), tgGlobalVar)) return false;
-    //   } else {
-    //     // Create the llvm global var.
-    //     if (!tg->generateGlobalVariable(tgType, name.c_str(), 0, tgGlobalVar)) return false;
-    //     // Add an entry for the variable in the repo.
-    //     Word size;
-    //     if (!generator->typeGenerator->getTypeAllocationSize(astType, generation, tg, size)) return false;
-    //     generator->globalItemRepo->addItem(name.c_str(), size);
-    //   }
+    // At this point we should already have a TG context.
+    if (session->getTgAllocContext() == 0) {
+      throw EXCEPTION(GenericException, S("Missing TG allocation context."));
+    }
 
-    //   // TODO: Initialize the variable.
-    //   // TODO: Add to destructor list if necessary.
+    // Create the llvm local var.
+    TioSharedPtr tgLocalVar;
+    Str name = generator->getTempVarName();
+    if (!session->getTg()->generateLocalVariable(session->getTgAllocContext(), tgType, name, 0, tgLocalVar)) {
+      return false;
+    }
+    session->getEda()->setCodeGenData(astNode, tgLocalVar);
 
-    //   setCodeGenData(astNode, tgGlobalVar);
-    // } else {
-      auto astBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astNode);
-
-      // Generate a local variable.
-
-      // To avoid stack overflows we need to allocate at the function or root level rather than any inner block.
-      auto astAllocBlock = astBlock;
-      while (
-        astAllocBlock != 0 &&
-        astAllocBlock->getOwner() != 0 &&
-        ti_cast<Ast::Function>(astAllocBlock->getOwner()) == 0 &&
-        ti_cast<Ast::Type>(astAllocBlock->getOwner()) == 0 &&
-        ti_cast<Ast::PreprocessStatement>(astAllocBlock->getOwner()) == 0
-      ) {
-        astAllocBlock = Core::Data::findOwner<Core::Data::Ast::Scope>(astAllocBlock->getOwner());
+    if (initialize) {
+      // Initialize the variable.
+      // TODO: Should we use default values with local variables?
+      // TioSharedPtr tgDefaultValue;
+      // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
+      //   if (!generator->typeGenerator->generateDefaultValue(
+      //     astType, generation, tg, tgContext, tgDefaultValue
+      //   )) return false;
+      // }
+      TioSharedPtr tgLocalVarRef;
+      if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgLocalVar.get(), tgLocalVarRef)) {
+        return false;
       }
-      if (astAllocBlock == 0) throw EXCEPTION(GenericException, S("Unexpected error while generating variable."));
+      SharedList<TiObject> initTgVals;
+      PlainList<TiObject> initAstTypes;
+      PlainList<TiObject> initAstNodes;
+      if (!generation->generateVarInitialization(
+        astType, tgLocalVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
+      )) return false;
 
-      // At this point we should already have a TG context.
-      auto tgAllocContext = session->getEda()->getCodeGenData<TiObject>(astAllocBlock);
-
-      // Create the llvm local var.
-      TioSharedPtr tgLocalVar;
-      Str name = generator->getTempVarName();
-      if (!session->getTg()->generateLocalVariable(tgAllocContext, tgType, name, 0, tgLocalVar)) return false;
-      session->getEda()->setCodeGenData(astNode, tgLocalVar);
-
-      if (initialize) {
-        // Initialize the variable.
-        // TODO: Should we use default values with local variables?
-        // TioSharedPtr tgDefaultValue;
-        // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
-        //   if (!generator->typeGenerator->generateDefaultValue(
-        //     astType, generation, tg, tgContext, tgDefaultValue
-        //   )) return false;
-        // }
-        auto tgContext = session->getEda()->getCodeGenData<TiObject>(astBlock);
-        TioSharedPtr tgLocalVarRef;
-        if (!session->getTg()->generateVarReference(tgContext, tgType, tgLocalVar.get(), tgLocalVarRef)) {
-          return false;
-        }
-        SharedList<TiObject> initTgVals;
-        PlainList<TiObject> initAstTypes;
-        PlainList<TiObject> initAstNodes;
-        if (!generation->generateVarInitialization(
-          astType, tgLocalVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
-        )) return false;
-
-        generation->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
-      }
-    // }
+      generation->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
+    }
   }
 
   return true;

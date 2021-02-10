@@ -154,7 +154,6 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
     buildMgr->prepareFunction(
       targetGeneration, globalEntryName.str().c_str(), buildMgr->getVoidNoArgsFuncTgType(buildType), tgContext, tgFunc
     );
-    eda->setCodeGenData(globalFuncElement, tgContext);
   }
 
   return newSrdObj<BuildSession>(
@@ -207,7 +206,6 @@ Bool BuildManager::_finalizeBuild(
     )) {
       throw EXCEPTION(GenericException, S("Failed to finalize function body for root scope statement."));
     }
-    buildSession->getCodeGenSession()->getEda()->removeCodeGenData(globalFuncElement);
   }
 
   if (!buildMgr->buildDependencies(noticeStore, buildSession)) result = false;
@@ -361,8 +359,7 @@ Bool BuildManager::buildGlobalCtorOrDtor(
     tgContext, tgFunc
   );
   CodeGen::DestructionStack destructionStack;
-  CodeGen::Session session(buildSession->getCodeGenSession(), tgContext.get(), &destructionStack);
-  buildSession->getCodeGenSession()->getEda()->setCodeGenData(this->rootManager->getRootScope().get(), tgContext);
+  CodeGen::Session session(buildSession->getCodeGenSession(), tgContext.get(), tgContext.get(), &destructionStack);
 
   Bool result = true;
 
@@ -407,7 +404,6 @@ Bool BuildManager::buildGlobalCtorOrDtor(
   )) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for root constructor."));
   }
-  buildSession->getCodeGenSession()->getEda()->removeCodeGenData(this->rootManager->getRootScope().get());
 
   return result;
 }

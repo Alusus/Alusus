@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -390,7 +390,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
 
   // Prepare dependencies.
   DestructionStack destructionStack;
-  Session childSession(session, tgContext.get(), &destructionStack);
+  Session childSession(session, tgContext.get(), tgContext.get(), &destructionStack);
   childSession.setTgSelf(args.get(0));
   childSession.setAstSelfType(astType);
 
@@ -473,7 +473,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
 
   // Prepare dependencies.
   DestructionStack destructionStack;
-  Session childSession(session, tgContext.get(), &destructionStack);
+  Session childSession(session, tgContext.get(), tgContext.get(), &destructionStack);
   childSession.setTgSelf(args.get(0));
   childSession.setAstSelfType(astType);
 
