@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/CommandGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -144,12 +144,12 @@ Bool CommandGenerator::_generateIfStatement(
 
   // Generate condition.
   GenResult conditionResult;
-  Session condSession(session, ifTgContext->getConditionContext());
+  Session condSession(session, ifTgContext->getConditionContext(), session->getTgAllocContext());
   if (!cmdGenerator->generateCondition(astNode->getCondition().get(), g, &condSession, conditionResult)) return false;
 
   // Generate ifBody.
   TerminalStatement terminalBody = TerminalStatement::UNKNOWN;
-  Session bodySession(session, ifTgContext->getBodyContext());
+  Session bodySession(session, ifTgContext->getBodyContext(), session->getTgAllocContext());
   if (ifBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
     session->getEda()->setCodeGenData(
       static_cast<Core::Data::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext())
@@ -159,7 +159,7 @@ Bool CommandGenerator::_generateIfStatement(
 
   // Generate elseBody, if needed.
   TerminalStatement terminalElse = TerminalStatement::UNKNOWN;
-  Session elseSession(session, ifTgContext->getElseContext());
+  Session elseSession(session, ifTgContext->getElseContext(), session->getTgAllocContext());
   if (elseBody != 0) {
     if (elseBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
       session->getEda()->setCodeGenData(
@@ -190,12 +190,12 @@ Bool CommandGenerator::_generateWhileStatement(
 
   // Generate the condition.
   GenResult conditionResult;
-  Session condSession(session, loopTgContext->getConditionContext());
+  Session condSession(session, loopTgContext->getConditionContext(), session->getTgAllocContext());
   if (!cmdGenerator->generateCondition(astNode->getCondition().get(), g, &condSession, conditionResult)) return false;
 
   // Generate body.
   auto body = astNode->getBody().get();
-  Session bodySession(session, loopTgContext->getBodyContext());
+  Session bodySession(session, loopTgContext->getBodyContext(), session->getTgAllocContext());
   if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
     session->getEda()->setCodeGenData(
       static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
@@ -226,7 +226,7 @@ Bool CommandGenerator::_generateForStatement(
 
   // Generate the condition.
   GenResult conditionResult;
-  Session condSession(session, loopTgContext->getConditionContext());
+  Session condSession(session, loopTgContext->getConditionContext(), session->getTgAllocContext());
   if (!cmdGenerator->generateCondition(astNode->getCondition().get(), g, &condSession, conditionResult)) return false;
 
   Bool result = true;
@@ -234,7 +234,7 @@ Bool CommandGenerator::_generateForStatement(
   // Generate the updater.
   session->getDestructionStack()->pushScope();
   GenResult updateResult;
-  Session updaterSession(session, loopTgContext->getUpdaterContext());
+  Session updaterSession(session, loopTgContext->getUpdaterContext(), session->getTgAllocContext());
   if (!g->generateExpression(
     astNode->getUpdater().get(), &updaterSession, updateResult
   )) return false;
@@ -246,7 +246,7 @@ Bool CommandGenerator::_generateForStatement(
 
   // Generate body.
   auto body = astNode->getBody().get();
-  Session bodySession(session, loopTgContext->getBodyContext());
+  Session bodySession(session, loopTgContext->getBodyContext(), session->getTgAllocContext());
   if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
     session->getEda()->setCodeGenData(
       static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())

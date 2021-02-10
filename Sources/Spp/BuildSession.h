@@ -55,7 +55,7 @@ class BuildSession : public TiObject
     , globalEntryName(geName)
     , execContext(pointerBc)
     , codeGenSession(
-      eda, tg, &execContext, geTgContext.get(),
+      eda, tg, &execContext, geTgContext.get(), geTgContext.get(),
       &destructionStack,
       &depsInfo->globalVarInitializationDeps,
       &depsInfo->globalVarDestructionDeps,

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Session.h
  * Contains the header of class Spp::CodeGen::Session.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,6 +31,7 @@ class Session : public TiObject
   private: TargetGeneration *tg;
   private: ExecutionContext *execContext;
   private: TiObject *tgContext;
+  private: TiObject *tgAllocContext;
   private: DestructionStack *destructionStack;
   private: DependencyList<Core::Data::Node> *globalVarInitializationDeps;
   private: DependencyList<Core::Data::Node> *globalVarDestructionDeps;
@@ -44,13 +45,14 @@ class Session : public TiObject
   // Constructor & Destructor
 
   public: Session(
-    ExtraDataAccessor *eda, TargetGeneration *tg, ExecutionContext *ec, TiObject *tgc, DestructionStack *ds,
-    DependencyList<Core::Data::Node> *gvInitDeps, DependencyList<Core::Data::Node> *gvDestDeps,
+    ExtraDataAccessor *eda, TargetGeneration *tg, ExecutionContext *ec, TiObject *tgc, TiObject *tgac,
+    DestructionStack *ds, DependencyList<Core::Data::Node> *gvInitDeps, DependencyList<Core::Data::Node> *gvDestDeps,
     DependencyList<Ast::Function> *fDeps, Bool offlineExec
   ) : eda(eda)
     , tg(tg)
     , execContext(ec)
     , tgContext(tgc)
+    , tgAllocContext(tgac)
     , destructionStack(ds)
     , globalVarInitializationDeps(gvInitDeps)
     , globalVarDestructionDeps(gvDestDeps)
@@ -60,11 +62,12 @@ class Session : public TiObject
     , astSelfType(0)
   {}
 
-  public: Session(Session *session, TiObject *tgc)
+  public: Session(Session *session, TiObject *tgc, TiObject *tgac)
     : eda(session->getEda())
     , tg(session->getTg())
     , execContext(session->getExecutionContext())
     , tgContext(tgc)
+    , tgAllocContext(tgac)
     , destructionStack(session->getDestructionStack())
     , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
     , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
@@ -74,11 +77,12 @@ class Session : public TiObject
     , astSelfType(session->getAstSelfType())
   {}
 
-  public: Session(Session *session, TiObject *tgc, DestructionStack *ds)
+  public: Session(Session *session, TiObject *tgc, TiObject *tgac, DestructionStack *ds)
     : eda(session->getEda())
     , tg(session->getTg())
     , execContext(session->getExecutionContext())
     , tgContext(tgc)
+    , tgAllocContext(tgac)
     , destructionStack(ds)
     , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
     , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
@@ -89,11 +93,12 @@ class Session : public TiObject
   {}
 
   public: Session(
-    Session *session, TiObject *tgc, DestructionStack *ds, TioSharedPtr const &tgs, Ast::Type *astst
+    Session *session, TiObject *tgc, TiObject *tgac, DestructionStack *ds, TioSharedPtr const &tgs, Ast::Type *astst
   ) : eda(session->getEda())
     , tg(session->getTg())
     , execContext(session->getExecutionContext())
     , tgContext(tgc)
+    , tgAllocContext(tgac)
     , destructionStack(ds)
     , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
     , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
@@ -121,6 +126,10 @@ class Session : public TiObject
 
   public: TiObject* getTgContext() {
     return this->tgContext;
+  }
+
+  public: TiObject* getTgAllocContext() {
+    return this->tgAllocContext;
   }
 
   public: DestructionStack* getDestructionStack() {

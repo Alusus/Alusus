@@ -2,7 +2,7 @@ import "alusus_spp";
 
 @expname[printf] function printf (s: ptr[Word[8]], ...any) => Int;
 
-type MyType [T: type, f: function, i: integer, s: string]
+type MyType [T: type, f: function, i: integer, s: string = "default string\n"]
 {
   def v: T;
 
@@ -40,3 +40,6 @@ o2.callAction();
 def o3: MyType[ptr[Word[8]], printTwo, 0, "hello %s\n"];
 o3.v = "world";
 o3.print();
+
+def o4: MyType[Int, printOne, 0];
+o4.print();

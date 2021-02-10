@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -904,7 +904,7 @@ Bool ExpressionGenerator::_generateLogicalOp(
     g, session, astNode->getFirst().get(), firstResult.astType, firstResult.targetData.get(), firstCastedResult
   )) return false;
 
-  Session childSession(session, secondContext.get());
+  Session childSession(session, secondContext.get(), session->getTgAllocContext());
 
   // Generate 2nd operand.
   GenResult secondResult;
@@ -2091,7 +2091,7 @@ Bool ExpressionGenerator::_generateSizeOp(
     throw EXCEPTION(GenericException, S("PointerOp operand is missing."));
   }
   GenResult operandResult;
-  Session childSession(session, 0);
+  Session childSession(session, 0, 0);
   if (!expGenerator->generate(operand, g, &childSession, operandResult)) return false;
   Ast::Type *astType = operandResult.astType;
   if (astType == 0) {

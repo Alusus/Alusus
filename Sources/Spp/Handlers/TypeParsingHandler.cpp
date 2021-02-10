@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/TypeParsingHandler.cpp
  *
- * @copyright Copyright (C) 2020 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -124,6 +124,7 @@ Bool TypeParsingHandler::parseTemplateArg(
 ) {
   Str name;
   Ast::TemplateVarType type;
+  TioSharedPtr defaultVal;
   auto link = ti_cast<Core::Data::Ast::LinkOperator>(astNode);
   if (link != 0 && link->getType() == S(":")) {
     auto identifier = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
@@ -133,7 +134,13 @@ Bool TypeParsingHandler::parseTemplateArg(
     }
     name = identifier->getValue().get();
 
-    identifier = link->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
+    auto second = link->getSecond().ti_cast_get<Core::Data::Ast::AssignmentOperator>();
+    if (second != 0 && second->getType() == S("=")) {
+      identifier = second->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+      defaultVal = second->getSecond();
+    } else {
+      identifier = link->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
+    }
     if (identifier == 0) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
       return false;
@@ -161,7 +168,7 @@ Bool TypeParsingHandler::parseTemplateArg(
     }
   }
 
-  result->add(newSrdObj<Ast::TemplateVarDef>(name, type));
+  result->add(newSrdObj<Ast::TemplateVarDef>(name, type, defaultVal));
   return true;
 }
 
