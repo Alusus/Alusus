@@ -34,8 +34,7 @@
                     <div class="card-header">Building Alusus</div>
                     <div class="card-content">
                         <a href="#ExternalDependencies">External Dependencies</a><br>
-                        <a href="#BuildingUsingShellScript">Building Using Shell Script</a><br>
-                        <a href="#BuildingManually">Building Manually</a><br>
+                        <a href="#BuildingUsingShellScript">Starting the Build</a><br>
                         <a href="#ExecutingAutomatedTests">Executing Automated Tests</a><br>
                         <a href="#UsingAlusus">Using Alusus</a>
                     </div>
@@ -44,83 +43,50 @@
             <div class="col-md-9">
                 <div class="alert alert-warning" role="alert">Build scripts depends on GIT tags to determine the version number. If you copy the source files outside the GIT repository and build from there you'll get a version number of 0.0.0-DEV.</div>
                 <br>
+                You can build Alusus on Linux or macOS. For Linux any distro can be used as long as it includes version 7 or higher of GCC. For macOS we tested building on macOS 10.13 with Xcode 9.3. It might be possible to build on older versions, but we haven't tested that.
+
                 <!-- ********************************************************************** -->
                 <h3 id="ExternalDependencies">External Dependencies</h3>
-                <hr> Following is the list of dependencies you'll need to build the project from the source code.
-
-                <p><a href="http://llvm.org/releases/download.html#7.0.1" target="__blank">LLVM 7.0.1</a></p>
-
-                In addition to the dependencies mentioned above, you'll need GCC (version 7 or above) CMake, Python3, and Pip to be able to build the binaries from the source code. LLVM also has its own dependencies like zlib and valgrind for example that you might need
+                You'll need GCC (version 7 or above) CMake, Python3, and Pip to be able to build the binaries from the source code. LLVM also has its own dependencies like zlib and valgrind for example that you might need
                 to install manually. You'll also need libssl-dev to be able to use https in the Standard Runtime Library.<br/> To install the build tools in Ubuntu use the following command:
-                <pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev</pre> For other distros you'll need to check their documentation on how to install these tools. Notice that the build
-                script assumes that the Python executable is named `python3` in the system, which is the case on Ubuntu systems. If you are on other distros you might need to create some sym links or update the `build.sh` script.<br/><br>
+<pre dir=ltr class="code nohighlight">
+$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev
+</pre>
+                For other distros you'll need to check their documentation on how to install these tools. Notice that the build
+                script assumes that the Python executable is named `python3` in the system, which is the case on Ubuntu systems. If you are on other distros you might need to create some sym links or update the `build.sh` script.<br/>
+                You don't need to manually install LLVM as this will be done automatically by the build script.<br>
+                If you also want to generate install packages you'll need to install <a href="https://github.com/jordansissel/fpm" target="__blank">fpm</a>.
                 <div class="alert alert-warning" role="alert">You'll need GCC version 7 or newer. You won't be able to build Alusus code with older versions.</div>
+
                 <!-- ********************************************************************** -->
-                <br>
-                <h3 id="BuildingUsingShellScript">Building Using Shell Script</h3>
-                <hr> This is the simpler and the recommended method to build.
+                <h3 id="BuildingUsingShellScript">Starting the Build</h3>
+                After installing the dependencies all you need to do is to launch <b>build.sh</b>, which will do the following:
                 <ul>
-                    <li>Install build tools as explained in the previous section.</li>
-                    <li>Install python3 which is needed by build.sh.</li>
-                    <li>cd into the Tools directory and execute build.sh. This script will automatically download the dependencies and build LLVM. Preparing the dependencies will take a long time but this will only occur the first time the script is executed.
-                        Running it again will skip that part and jump directly to building Alusus.
-                        <pre dir=ltr class="code nohighlight">$ cd &lt;path-to-Alusus&gt;
-$ ./Tools/build.sh --bloc . --iloc .</pre>
-                    </li>
+                  <li>Download and build LLVM, if not already built.</li>
+                  <li>Download and build libcurl, if not already built.</li>
+                  <li>Download and build libzip, if not already built.</li>
+                  <li>Build Alusus.</li>
+                  <li>Generate install package(s) if requested.</li>
                 </ul>
-                Inside build.sh there are some variables that can be modified. Among those is MAKE_THREAD_COUNT which defines the number of threads to use when building LLVM and Alusus. This is preset to 8 to speed up the build process, but you can lower it if you face
-                problems or if your computer is not capable of handling that much threads efficiently.<br/> If you face problems during the build of LLVM you might need to modify the cmake command inside build.sh by giving it extra arguments,
-                like -DLLVM_TARGET_ARCH.
-
-                <!-- ********************************************************************** -->
-                <br>
-                <br>
-                <h3 id="BuildingManually">Building Manually</h3>
-                <hr>
+                Running the build script for the first time will take a long time to build all the dependencies (especially LLVM), but subsequent builds will not need to rebuild dependencies and therefore will be much faster. Launching the build script can be done as follows:
+<pre dir=ltr class="code nohighlight">
+$ cd &lt;path-to-Alusus&gt;
+$ ./Tools/build.sh --bloc . --iloc .
+</pre>
+                build.sh receives the following arguments:
                 <ul>
-                    <li>Install build tools as explained in the previous section.</li>
-
-                    <li>Download the source code for the versions mentioned above of LLVM, Boost, and CATCH, and extract their files.</li>
-
-                    <li>Build and install LLVM:
-                        <ul>
-                            <li>Create a build folder with any name. For example: llvm.build.</li>
-                            <li>CD into the build folder you created and execute the following command:
-                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt;</pre> You might also need to manually specify your architecture by setting a value for LLVM_TARGET_ARCH.
-                                For example, to specify the architecture under a 32 bit environment use the following command instead of the one above:
-                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=i386</pre> and to specify it for a 64 bit environment use the following:
-                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=x86_64</pre>
-                            </li>
-                            <li>Complete the build and install:
-                                <pre dir=ltr class="code nohighlight">$ make
-$ make install</pre>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li>Build Alusus:
-                        <ul>
-                            <li>Created a build folder and name it anything. For example, Builds.</li>
-                            <li>CD into that folder and complete the build:
-                                <pre dir=ltr class="code nohighlight">$ cd &lt;path-to-Builds&gt;
-$ cmake &lt;path-to-Alusus-root&gt;/Sources -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
-$ make
-$ make install</pre> The last statement (make install) will install the build results into folders Bin, Lib, and Include under Alusus' root folder, which is mentioned above in CMAKE_INSTALL_PREFIX cmake parameter, and not
-                                to the operating system's paths. You can choose a different folder as an installation target like /opt/Alusus by changing the value for CMAKE_INSTALL_PREFIX. The above cmake command prepares for a debug build. To change
-                                to a release build replace the value of CMAKE_BUILD_TYPE with release instead of debug.
-                            </li>
-                        </ul>
-                    </li>
+                  <li><b>--bloc &lt;path&gt;</b>: The path where the Builds folder will be placed.</li>
+                  <li><b>--iloc &lt;path&gt;</b>: The path where Bin, Lib, and Include will be placed after the build is complete.</li>
+                  <li><b>--btype &lt;build type&gt;</b>: The type of the build. Value p, which is the default, indicates a debug build, while r indicates a release build. Passing p results in a release build followed by a package generation.</li>
                 </ul>
+                When you pass p as btype the script will generate deb and rpm packages if you are building on Linux, while building on macOS will result in a pkg file.
 
                 <!-- ********************************************************************** -->
-                <br>
                 <h3 id="ExecutingAutomatedTests">Executing Automated Tests</h3>
-                <hr> Executing the automated tests is simple. All you need to do is to run the following command inside the Alusus' build folder (Builds in the example above) after the build is complete:
+                <hr> Executing the automated tests is simple. All you need to do is to run the following command inside the Alusus' build folder (Builds/Debug in the example above) after the build is complete:
                 <pre dir=ltr class="code nohighlight">$ make test</pre>
 
                 <!-- ********************************************************************** -->
-                <br>
                 <h3 id="UsingAlusus">Using Alusus</h3>
                 <hr> After the build is complete you'll have the executable under Bin and the libraries will go under Lib. You'll be able to run the examples as follows:
                 <pre dir=ltr class="code nohighlight">$ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH

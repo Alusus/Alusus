@@ -24,13 +24,20 @@ Visit [alusus.org](https://alusus.org) for more info.
 
 ## Downloads
 
-Currently Alusus support Linux only. Visit the [downloads](https://alusus.org/download) page for pre-built deb and rpm
-packages.
+Visit the [downloads](https://alusus.org/download.html) page for pre-built deb and rpm packages, or pre-built zip package.
+
+## Installation
+
+Download the package for your system from the downloads page. Or just unpack the zip file into any directory on your
+system.
+
+For Windows, you'll need to first enable WSL then either install the Linux package appropriate for your distro, or
+unpack the zip package.
 
 ## Documentation
 
 Documentation is still lacking, but you can find some high level design documentation and examples on the
-[documentation](https://alusus.org/documentation) page.
+[documentation](https://alusus.org/documentation.html) page.
 
 ## Directory Structure
 
@@ -52,7 +59,7 @@ Documentation is still lacking, but you can find some high level design document
 ## Help Us
 
 Our team needs volunteers to contribute to this project. Join us in making the future better for programmers. Visit the
-[development](https://alusus.org/dev) page for more information.
+[development](https://alusus.org/development.html) page for more information.
 
 Or help by donating to the project<br/>
 [![PayPal - The safer, easier way to pay online!](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/alusus)

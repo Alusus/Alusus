@@ -18,12 +18,16 @@
 
 ## التنزيل
 
-حاليًا Alusus يدعم Linux فقط. تفضل بزيارة صفحة [التنزيلات](https://alusus.org/download) للاطلاع على حزم deb و rpm المبنية مسبقًا.
+تفضل بزيارة صفحة [التنزيلات](https://alusus.org/ar/download.html) لتنزيل حزمة تنصيب أو نسخة مبنية مسبقًا في ملف مضغوط.
+
+## التنصيب
+
+زُر صفحة [تعليمات التنصيب](https://alusus.org/Documents/setup.ar.html) للمعلومات حول طريقة التنصيب وتهيئة بيئة العمل.
 
 ## التوثيق
 
 لا يزال هناك نقص في الوثائق، ولكن يمكنك العثور على بعض وثائق التصميم عالية المستوى والأمثلة في صحفة
-[التوثيق](https://alusus.org/documentation).
+[التوثيق](https://alusus.org/ar/documentation.html).
 
 ## هيكلية المجلدات
 
@@ -44,7 +48,7 @@
 ## ساعدنا
 
 يحتاج فريقنا إلى متطوعين للمساهمة في هذا المشروع. انضم إلينا في جعل المستقبل أفضل للمبرمجين. زيارة
-[تطوير](https://alusus.org/dev) صفحة لمزيد من المعلومات.
+[تطوير](https://alusus.org/ar/development.html) صفحة لمزيد من المعلومات.
 
 أو بإمكانك المساعدة من خلال التبرع للمشروع<br/>
 [![PayPal - The safer, easier way to pay online!](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/alusus)
