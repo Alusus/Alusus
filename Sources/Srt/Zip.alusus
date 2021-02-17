@@ -1,10 +1,7 @@
 import "Srl/Fs.alusus";
 import "Srl/String";
 import "Core";
-if Srl.String.isEqual(Process.platform, "macos")
-  Core.importFile("libzip.dylib")
-else
-  Core.importFile("libzip.so");
+import "libzip.so" or "libzip.dylib";
 
 def Zip: module {
   def zip_t: type {};
