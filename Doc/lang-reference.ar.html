@@ -93,8 +93,9 @@
                           </ul>
                         <a href="#Ast" class="top-level">شجرة البنية المجردة (AST)</a><br>
                         <a href="#Preprocess" class="top-level">المعالجة التمهيدية</a><br>
-                        <a href="#Merge" class="top-level">تجزئة التعريفات</a><br>
+                        <a href="#Merge" class="top-level">دمج التعريفات</a><br>
                         <a href="#Import" class="top-level">شمل مكتبات أو ملفات مصدرية</a><br>
+                        <a href="#Process" class="top-level">الوحدة: الـعملية (Process)</a><br>
                     </div>
                 </div>
             </div>
@@ -209,6 +210,10 @@ Int[64]</pre>
                         </li>
                         <br/>
 
+                        <li><b>صـحيح_متكيف (ArchInt)</b><br/> عدد صحيح بعدد بتات مطابقة لمعمارية النظام، أي بحجم 32 بت على أنظمة 32 بت وبحجم 64 بت على أنظمة 64 بت.
+                        </li>
+                        <br/>
+
                         <li><b>طـبيعي (Word)</b><br/> عدد صحيح موجب. يتم تحديد عدد البتات بين أقواس معقوفة. تحديد عدد البتات اختياري وبدونه يكون العدد الافتراضي للبتات 32.
                             <pre dir=rtl class="code" style="text-align:right;">
 طـبيعي // 32 بتة
@@ -224,6 +229,10 @@ Word[8]
 Word[16]
 Word[32]
 Word[64]</pre>
+                        </li>
+                        <br/>
+
+                        <li><b>طـبيعي_متكيف (ArchWord)</b><br/> عدد صحيح موجب بعدد بتات مطابقة لمعمارية النظام، أي بحجم 32 بت على أنظمة 32 بت وبحجم 64 بت على أنظمة 64 بت.
                         </li>
                         <br/>
 
@@ -804,6 +813,25 @@ ptr[the_type]</pre>
                  <li>صحيح integer</li>
                  <li>محارف string</li>
                 </ul>
+                من الممكن أيضا تحديد قيم مبدئية لمعطيات القوالب، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة [نوع: صنف، القيمة_المبدئية: صحيح = 0] {
+    عرف س: نوع = القيمة_المبدئية؛
+    عرف ص: نوع = القيمة_المبدئية؛
+  }
+
+  عرف موقع1: نـقطة[صحيح]؛ // س و ص سيكونان 0.
+  عرف موقع2: نـقطة[صحيح، 1]؛ // س و ص سيكونان 1.
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point [T: type, V: integer = 0] {
+    def x: T = V;
+    def y: T = V;
+  }
+
+  def point1: Point[Int]; // x and y will be 0.
+  def point2: Point[Int, 1]; // x and y will be 1.
+</pre>
 
                 <h4 id="Types-methods">الوظائف (methods)</h4>
                 الوظائف هي دالات تعرف داخل الأصناف ويتم استدعاؤها باستخدام كائن من ذلك الصنف. يمكن تعريف الوظائف كما تعرف أي دالة، فتعريف الدالة داخل متن صنف يجعلها وظيفة لذلك الصنف.
@@ -1055,6 +1083,41 @@ ptr[the_type]</pre>
     return p; // calls this~init(src)
   };
 </pre>
+                عند وجود عمليات تهيئة بمعطيات فإن تعريف المتغير يحتاج لتمرير هذه المعطيات، ويكون التعريف كالتالي:
+<pre class="code" dir=rtl style="text-align:right;">
+  عرف &lt;اسم_المتغير&gt;: &lt;صنف_المتغير&gt;(&lt;معطيات&gt;)؛
+</pre>
+<pre class="code" dir=ltr>
+  def &lt;var_name&gt;: &lt;var_type&gt;(&lt;arguments&gt;);
+</pre>
+                المثال التالي يوضح تهيئة بمعطيات:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    عرف س: صحيح؛
+    عرف ص: صحيح؛
+
+    عملية هذا~هيئ(س: صحيح، ص: صحيح) {
+      هذا.س = س؛
+      هذا.ص = ص؛
+    }؛
+  }؛
+
+  عرف ن: نـقطة(5، 10)؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point {
+    def x: int;
+    def y: int;
+
+    handler this~init(x: int, y: int) {
+      this.x = x;
+      this.y = y;
+    };
+  }:
+
+  def p: Point(5, 10);
+</pre>
+
                 يمكن أيضا تخصيص التهيئة بدون معطيات بكتابة عمليات تلك التهيئة مباشرة داخل متن الصنف، وهذا مطابق لتعريف `عملية هذا~هيئ()`، كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   صنف نـقطة {
@@ -1269,20 +1332,39 @@ ptr[the_type]</pre>
   def &lt;ptr_name&gt; : ptr[&lt;content_type&gt;]
 </pre>
                     يمكن الولوج إلى المحتوى المشار إليه بالمؤشر عن طريق المؤثر "~محتوى" (~cnt) ويمكن الحصول على موقع أي متغير عن طريق المؤثر "~مؤشر" (~ptr) كما في المثال التالي:
-                    <pre class="samplecode" dir=rtl style="text-align:right;">
+<pre class="samplecode" dir=rtl style="text-align:right;">
   عرّف م : مؤشر[العدد_الصحيح]؛
   عرّف س : العدد_الصحيح؛
   س = 5؛
   م = س~مؤشر؛
   م~محتوى = 1؛
-  // قيمة س الآن 1 وليس 5.</pre>
-                    <pre class="samplecode" dir=ltr>
+  // قيمة س الآن 1 وليس 5.
+</pre>
+<pre class="samplecode" dir=ltr>
   def p : ptr[Int];
   def x : Int;
   x = 5;
   p = x~ptr;
   p~cnt = 1;
-  // x is now equal to 1, not 5.</pre>
+  // x is now equal to 1, not 5.
+</pre>
+                    يمكن تطبيق عمليات الجمع والطرح على المؤشرات، وفي هذه الحالة فإن مقدار الزيادة لقيمة المؤشر ستكون من مضاعفات حجم الصنف الذي يشير إليه المؤشر. على سبيل المثال، إذا أضفت 1 لمؤشر على عدد صحيح فإن قيم المؤشر ستزداد بمقدار حجم العدد الصحيح، أي بمقدار 4 بايتات في حالة العدد الصحيح بصيغة 32 بت.
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  عرّف م1: مؤشر[صحيح[32]] = ...؛
+  عرف م2: مؤشر[محرف] = ...؛
+  م1 = م1 + 1؛ // سيزداد بمقدار 4.
+  م1 = م1 + 5؛ // سيزداد بمقدار 4 * 5، أي 20.
+  م2 = م2 + 1؛ // سيزداد بمقدار 1.
+  م2 = م2 + 5؛ // سيزداد بمقدار 5.
+</pre>
+<pre class="samplecode" dir=ltr>
+  def p1: ptr[Int[32]] = ...;
+  def p2: ptr[Char] = ...;
+  p1 = p1 + 1; // Incremented by 4.
+  p1 = p1 + 5; // Incremented by 5 * 4.
+  p2 = p2 + 1; // Incremented by 1.
+  p2 = p2 + 5; // Incremented by 5.
+</pre>
                 </div>
 
                 <!-- ********************************************************************** -->
@@ -1796,12 +1878,11 @@ ptr[the_type]</pre>
                 </div>
 
                 <!-- ********************************************************************** -->
-                <h3 id="Merge">تجزئة التعريفات</h3>
+                <h3 id="Merge">دمج التعريفات</h3>
                 <hr>
                 <div>
-                    بعض التعريفات يمكن تجزئتها إلى عدة أجزاء تدمج لاحقاً عند البناء في تعريف واحد. تمكن هذه الخاصية المستخدم من توزيع التعريفات الكبيرة مثل الوحدات إلى عدة ملفات كما تمكن أيضاً من إلحاق إضافات إلى تعريفات مسبقة. تتم التجزئة باستخدام المبدل `@دمج` (@merge)
-                    كما في المثال التالي:
-                    <pre class="samplecode" dir=rtl style="text-align:right;">
+                    بعض التعريفات يمكن تجزئتها إلى عدة أجزاء تدمج لاحقاً عند البناء في تعريف واحد. تمكن هذه الخاصية المستخدم من توزيع التعريفات الكبيرة مثل الوحدات إلى عدة ملفات كما تمكن أيضاً من إلحاق إضافات إلى تعريفات مسبقة. يتم الدمج باستخدام المبدل `@دمج` (@merge) كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
   عرف نـقطة: صنف {
     عرف س: صـحيح؛
   }؛
@@ -1818,8 +1899,9 @@ ptr[the_type]</pre>
     ن.ص = 12؛
     .
     .
-  }؛</pre>
-                    <pre class="samplecode" dir=ltr>
+  }؛
+</pre>
+<pre class="samplecode" dir=ltr>
   def Point: type {
     def x: Int;
   };
@@ -1836,28 +1918,121 @@ ptr[the_type]</pre>
     p.y = 12;
     .
     .
-  };</pre>
+  };
+</pre>
+                    من الممكن استخدام هذا المبدل لإلحاق إضافة على طبعة من قالب صنف، لكنك تحتاج أولاً لتعريف لقب لتلك الطبعة كي تتمكن من الدمج معها، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة [الـصنف: صنف] {
+    عرف س: الـصنف؛
+    عرف ص: الـصنف؛
+  }
+
+  عرف نـقطة_صحيح: لقب نـقطة[صحيح]؛
+
+  @دمج صنف نـقطة_صحيح {
+    دالة اطبع { ... } // ستضاف هذه الدالة إلى نـقطة[صحيح] دون بقية طبعات القالب.
+  }
+</pre>
+<pre class="samplecode" dir=ltr>
+  type Point [T: type] {
+    def x: T;
+    def y: T;
+  }
+
+  def IntPoint: alias Point[Int];
+
+  @merge type IntPoint {
+    func print { ... } // This function will be added to Point[Int] only, not all template instances.
+  }
+</pre>
                 </div>
 
                 <!-- ********************************************************************** -->
                 <h3 id="Import">شمل مكتبات أو ملفات مصدرية</h3>
                 <hr>
                 <div>
-                    الأمر "اشمل" (import) يستخدم لتحميل ملف مصدري أو مكتبة واستخدامها في البرنامج. الأمر يميز تلقائياً بين الملف المصدري والمكتبة. في الوقت الحالي يدعم هذا الأمر ثلاث أنواع من الملفات: ملفات مصدرية ومكتبات متحركة (dynamic) عامة ومكتبات بناء مثل libalusus_scg.
+                    الأمر "اشمل" (import) يستخدم لتحميل ملف مصدري أو مكتبة واستخدامها في البرنامج. الأمر يميز تلقائياً بين الملف المصدري والمكتبة. في الوقت الحالي يدعم هذا الأمر ثلاث أنواع من الملفات: ملفات مصدرية ومكتبات متحركة (dynamic) عامة ومكتبات بناء مثل libalusus_spp.
                     يمكن تحميل أي مكتبة متحركة مهما كانت اللغة التي كتبت بها وعند تحميلها تكون كل دالّاتها العمومية متوفرة للاستخدام من داخل برنامج الأسُس، لكن ستحتاج لتعريف تلك الدوال يدوياً باستخدام الأمر `دالة` مع إضافة المبدل `@تصدير` (@expname) كما
                     هو مبين في المثال التالي:
-                    <pre class="samplecode" dir=rtl style="text-align:right;">
+<pre class="samplecode" dir=rtl style="text-align:right;">
   اشمل "libmath.so"؛
   عرف جا: @تصدير[sin] دالة (ر: عـائم) => عـائم؛
   .
   .
-  ج = جا(ز)؛</pre>
-                    <pre class="samplecode" dir=ltr>
+  ج = جا(ز)؛
+</pre>
+<pre class="samplecode" dir=ltr>
   import "libmath.so";
   def sin: @expname[sin] function (f: Float) => Float;
   .
   .
-  s = sin(r);</pre>
+  s = sin(r);
+</pre>
+                    يمكن اختصار الامتداد في عبارة اشمل، حيث أن الـقلب سيضيف الامتداد تلقائيًا. على سبيل المثال، يمكن اختصار:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اشمل "مـتم/نـص.أسس"؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  import "Srl/String.alusus";
+</pre>
+                    إلى:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اشمل "مـتم/نـص"؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  import "Srl/String";
+</pre>
+                    ويمكن أيضًا اختصار الامتداد والبادئة في أسماء المكتبات. فمثلا يمكن اختصار التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اشمل "libmath.so"؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  import "libmath.so";
+</pre>
+                    إلى:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اشمل "math"؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  import "math";
+</pre>
+                    في الحالة أعلاه فإن القلب سيحاول تحميل الملف "math.alusus" فإن لم يجد فسيحاول تحميل "libmath.so" إن كان على نظام لينكس، وإن كان على نظام ماك أو إس فسيحاول بدلاً من ذلك تحميل "libmath.dylib".<br>
+                    في بعض الحالات قد تحتاج لإعطاء عدة خيارات لاسم الملف وتترك للقلب انتقاء أول خيار ينجح في تحميله. توفير عدة خيارات مفيد لدعم عدة أنظمة تشغيل بنفس الشفرة المصدرية. توفير خيارات متعددة يتم باستخدام `أو` ضمن عبارة `اشمل` كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اشمل "libmath.so" أو "libmath.so.0"؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  import "libmath.so" or "libmath.so.0";
+</pre>
+                    يمكن أيضًا استخدام المؤثر `||` بدلا من `أو` في المثال أعلاه.
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Process">الوحدة: الـعملية (Process)</h3>
+                <hr>
+                <div>
+                  عند تشغيل الأسس وأثناء تنفيذ المباشر للبرنامج (أي دون بناء مسبق) فإن الأسس تعرف وحدة `الـعملية` (Process) التي تحتوي على المتغيرات العمومية التالية:
+                  <p><ul>
+                    <li><b>عدد_المعطيات (argCount): صحيح</b><br/>
+                    عدد المعطيات الممرة لمترجم الأسس في سطر الأوامر.
+                    </li>
+                    <br>
+
+                    <li><b>المعطيات (args): مؤشر[مصفوفة[مؤشر[مصفوفة[محرف]]]]</b><br/>
+                    قائمة المعطيات الممرة لمترجم الأسس في سطر الأوامر.
+                    </li>
+                    <br>
+
+                    <li><b>اللغة (language): مؤشر[مصفوفة[محرف]]</b><br/>
+                    سلسلة محارف لوصف لغة لنظام الحالية. على سبيل المثال ar إذا كانت لغة النظام هي العربية.
+                    </li>
+                    <br>
+
+                    <li><b>النظام (platform): مؤشر[مصفوفة[محرف]]</b><br/>
+                    سلسلة محارف لوصف نظام التشغيل الحالي. قيمته إما أن تكون linux أو windows أو macos.
+                    </li>
+                    <br>
+                  </ul></p>
                 </div>
             </div>
         </div>
@@ -1868,7 +2043,7 @@ ptr[the_type]</pre>
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2020م \ 1441هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2021م \ 1442هـ.</strong></li>
                         </ul>
                     </div>
                 </div>
