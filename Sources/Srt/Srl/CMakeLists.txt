@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Sarmad Khalid Abdullah
+# Copyright (C) 2021 Sarmad Khalid Abdullah
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
