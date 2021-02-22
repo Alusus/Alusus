@@ -1,8 +1,90 @@
 # Alusus Changelog
 
-## Version 0.6.1 (2020-02-18)
+## Version 0.7.0 (2021-02-22)
 
-### Fixes:
+### Updates to the Compiler
+
+  * Updates to improve object oriented programming:
+    - Added definition injection feature using the `@injection` modifier. This will enable type inheritance.
+    - Added pointer to member functions which can be used to enable polymorphism.
+    - Added support for constructors with arguments.
+  * Programming the compiler:
+    - Added `preprocess` command to enable execution during compilation.
+    - Added `ast` command to allow passing AST (source code trees) as data to compiler functions.
+    - Added functions to dynamically generate and insert source code during the `preprocess` execution.
+    - Added interoperability between Alusus code and the compiler's C++ code. This allows the programmer access to the compiler and its data structures.
+    - Added functions for scanning and querying the source code.
+  * Enable preprocessing in the root.
+  * Preprocessing now happens on demand rather than up-front.
+  * Enabled pointer arithmetic.
+  * Enabled generating web assembly output.
+  * Added `ArchInt` and `ArchWord` types as integer types with bit count equal to the bitcount of pointers on the current architecture.
+  * Added `temp_ref` type to enable automatic conversion of values to variables during funciton calls, when the function expects a reference rather than a value.
+  * Added support for variadic functions.
+  * Using the curly brackets in variadic function calls saves the user from having to provide the number of arguments.
+  * Template types improvements:
+    - Added `~no_deref` operator to force operations to be applied to the reference rather than the referenced object. This enables supporting reference in template types.
+    - Enabled extending a specific template instance.
+    - Enabled default values for template arguments.
+  * Added the global var `Process.platform` to detect the current operating system.
+  * Enabled detecting the name of the file being compiled.
+  * Enabled the `or` (`||`) operator in import statements.
+  * Enabled importing source files without specifying file extension.
+  * Enabled omitting file extension when specifying the filename in the command line.
+  * Upgrade LLVM to version 10.
+  * Added support for macOS.
+
+### Updates to the Standard Libraries
+
+  * Added smart references to simplify memory garbage collection.
+  * Added the type `Map`.
+  * Added a version of `Array.add` that receives a group of elements to be added at once.
+  * Additions for `String`:
+    - `findLast`
+    - `format`
+    - `parseInt`
+    - `parseFloat`
+  * Additions for `Build` module:
+    - Support for generating wasm files.
+    - Enabled setting custom build flags.
+
+### Breaking Changes
+
+  * Defining a function pointer inside a type makes that a member function pointer instead of a global function pointer. To define a global function pointer inside a type the `@shared` modifier has to be used.
+  * Removed the `globals.alusus` file and moved its definitions to `Srl/srl.alusus`.
+  * Removed the `Build.Exe.new` function in favor of depending on type initialization handlers. Users should now define a variable of type `Build.Exe` instead of using `new`.
+
+### Compiler Fixes
+
+  * Few bug fixes related to callee lookup.
+  * Fixed a bug in generating type auto constructors.
+  * Fixed a bug in casting references.
+  * Fixed a bug in casting user types.
+  * Fixed a bug in initializing temporary variables of template types.
+  * Fixed a bug in destructing temporary variables.
+  * Fixed a bug in arithmetic assign operators.
+  * Fixed few bugs in constructing and destructing variables.
+  * Fixed a bug in differentiating between user defined references and implicit (compiler generated) references.
+  * Fixed a bug in generating global constructors.
+  * Fixed a bug with dealing with wrong types in variable definitions.
+  * Fixed a bug in the `~ast` operator.
+  * Fixed a bug in macros when the macro contains a definition with `@merge` modifier.
+  * Fixed a bug in `use` command.
+  * Few bug fixes related to dealing with user errors.
+  * A lot of other minor fixes.
+
+### Libraries Fixes
+
+  * Fixed `String.append`.
+  * Fixed a bug in `Array` type.
+  * Fixed a bug in defining dependencies in `Build` module.
+  * Improved error messages in `Build` module.
+
+
+## Version 0.6.1 (2020-02-18)
+<details>
+
+### Fixes
 
   * Fixed a bug in the code generator resulting in destructors not being called on function arguments.
   * Fixed a bug in the code generator causing a crash when chaining assignment operators (like: x = y = 0).
@@ -13,15 +95,16 @@
   * Added `System.exit` function to SRL.
   * Made the enlargement of Array buffer exponential rather than linear.
 
-### Breaking Changes:
+### Breaking Changes
 
   * Unified all definitions of plain strings to `ptr[array[Char]]` instead of `ptr[Char]`.
+</details>
 
 
 ## Version 0.6.0 (2020-01-24)
 <details>
 
-### What's New:
+### What's New
 
   * Added the type `ref` to simplify dealing with pointers.
   * Initial support for object-oriented programming:
@@ -47,13 +130,13 @@
     - Improvements to notifications.
   * Big improvement to tokenizing and parsing performance.
 
-### Breaking Changes:
+### Breaking Changes
 
   * Moved regular expressions fucntions to a separate module (Regex).
   * Moved the function `dumpLlvmIrForElement` to `Spp` module.
   * Renamed the type `Time` to `DetailedTime` in `Time` module.
 
-### Fixes:
+### Fixes
 
   * Fixed an issue when executing code at root scope.
   * Fixed an issue with `Regex.match` function.
@@ -63,7 +146,7 @@
   * Fixed an issue with parsing synchronization after syntax errors are encountered.
   * Fixed an issue with parsing `"["` and `'['`.
 
-### Internal Changes:
+### Internal Changes
 
   * Removed state branching from the parser. This feature wasn't being used and was affecting performance.
   * Simplified the code of the parser and the lexer.
@@ -74,7 +157,7 @@
 ## Version 0.5.0 (2019-05-20)
 <details>
 
-### What's New:
+### What's New
 
   * Enable execution of code in the root scope outside of modules and functions.
   * Enabled `use` command in the root scope.
@@ -97,17 +180,17 @@
     than building the entire source code.
   * Improved implicit casting of pointers to pointers.
 
-### Backwards Incompatible Changes:
+### Backwards Incompatible Changes
 
   * Removed the `run` command which is no longer needed.
   * Replaced the `dump_llvm_ir` command with a function.
 
-### Fixes:
+### Fixes
 
   * Fixed an issue with detecting current system language.
   * Fixed an issue with build script
 
-### Internal Changes:
+### Internal Changes
 
   * Use version 7.0.1 of LLVM instead of the old version 3.3.
   * Migrated build scripts to Python instead of Bash.
@@ -123,7 +206,7 @@ runtime liraries.
 ## Version 0.4.1 (2019-03-13)
 <details>
 
-### What's New:
+### What's New
 
   * Added support for passing process arguments to the running start function.
   * If the start function returns a non-zero value the result is used as an exit
@@ -134,7 +217,7 @@ runtime liraries.
 ## Version 0.4.0 (2019-02-25)
 <details>
 
-### What's New:
+### What's New
 
   * Added support for macros which allow the programmer to put a group of
     commands into a macro that can then be reused elsewhere. This feature is
@@ -178,7 +261,7 @@ runtime liraries.
     definining the needed functions. The user can refer to Alusus GTK library to
     know how it's done.
 
-### Fixes:
+### Fixes
 
   * Fixed a bug in parsing expression lists.
   * Fixed a bug in function code generation.
@@ -192,7 +275,7 @@ runtime liraries.
 ## Version 0.3.0 (2018-09-26)
 <details>
 
-### What's New:
+### What's New
 
   * Improved the support for basic data types. The list now includes:
     - 8, 16, 32, and 64 bit integers.
@@ -237,7 +320,7 @@ runtime liraries.
   * Added a simple interactive mode, though this is mostly useful for Alusus
     compiler or code generator developers rather than end users.
 
-### Fixes:
+### Fixes
 
   * Improved build error messages.
   * Fixed issues where build error location was not reported correctly.
@@ -246,7 +329,7 @@ runtime liraries.
     tests.
   * Many bug fixes.
 
-### Internal Changes:
+### Internal Changes
 
   * Complete re-write of the standard library to streamline it and make it more
     maintainable.
@@ -267,7 +350,7 @@ runtime liraries.
 ## Version 0.2.1 (2015-11-28)
 <details>
 
-### What's New:
+### What's New
 
   * Support for casting between different pointer types.
   * Support for casting from pointer to integer.
@@ -280,7 +363,7 @@ runtime liraries.
     namespaces and other object-oriented features.
   * Improved performance of the parser.
 
-### Fixes:
+### Fixes
 
   * Fixed the naming convention of the SCG source code.
   * Various cleanup and minor bug fixes.
@@ -290,7 +373,7 @@ runtime liraries.
 ## Version 0.2.0 (2015-04-27)
 <details>
 
-### What's New:
+### What's New
 
   * Support for automatic type deduction during variable definition. For example
     this statement will automatically determine the type of i as integer:
@@ -328,7 +411,7 @@ runtime liraries.
     - Removed ParsedDataBrowser and replaced its references with calls to the
       improved data references subsystem.
 
-### Fixes:
+### Fixes
 
   * Expressions with multiple binary operators now work properly.
   * Handling some memory leaks.
