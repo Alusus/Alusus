@@ -34,8 +34,7 @@
                     <div class="card-header">بناء الأسس من الشفرة المصدرية</div>
                     <div class="card-content">
                         <a href="#ExternalDependencies">الاعتماديات الخارجية</a><br>
-                        <a href="#BuildingUsingShellScript">البناء باستخدام build.sh</a><br>
-                        <a href="#BuildingManually">البناء يدوياً</a><br>
+                        <a href="#BuildingUsingShellScript">بدء البناء</a><br>
                         <a href="#ExecutingAutomatedTests">تنفيذ الاختبارات الآلية</a><br>
                         <a href="#UsingAlusus">استخدام لغة الأسُس</a>
                     </div>
@@ -44,83 +43,50 @@
             <div class="col-md-9">
                 <div class="alert alert-warning" role="alert">ملفات البناء تعتمد على وسوم مستودع جت (GIT tags) لتحديد رقم الإصدار. إذا قمت بنسخ الملفات المصدرية خارج المستودع وقمت بالبناء من هناك فستحصل على 0.0.0-DEV كرقم للإصدار.</div>
                 <br>
+                يمكن بناء الأسس من الشفرة المصدرية على نظامي لينكس وماك أو إس. يمكن بناء الأسس على أي نظام لينكس طالما يتوفر فيه الإصدار 7 أو أعلى من GCC. بالنسبة لنظام ماك أو إس فقد جربنا البناء على الإصدار 10.13 من ماك أو إس مع الإصدار 9.3 من Xcode. قد يكون ممكنا بناء الأسس على نسخة أقدم من ماك أو إس لكننا لم نجرب ذلك.
+
                 <!-- ********************************************************************** -->
                 <h3 id="ExternalDependencies">الاعتماديات الخارجية</h3>
-                <hr> فيما يلي المكتبات التي يستخدمها المشروع والتي ستحتاج لتحميلها على نظامك قبل التمكن من بناء الشفرة المصدرية
-
-                <p><a href="http://llvm.org/releases/download.html#7.0.1" target="__blank">LLVM 7.0.1</a></p>
-
-                بالإضافة إلى المكتبات أعلاه، ستحتاج إلى GCC و CMake و Python و Pip لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل zlib و valgrind والتي قد تضطر لتنصيبها يدويًا. ولاستخدام https في مكتبة التنفيذ المعيارية ستحتاج أيضاً إلى libssl-dev.<br/>                لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
-                <pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev</pre> For other distros you'll need to check their documentation on how to install these tools. Notice that the build
-                لتنصيب هذه الأدوات على توزيعات غير أوبونتو ستحتاج لمراجعة وثائق تلك التوزيعات. لاحظ أن شفرة البناء تفترض أن اسم مترجم بايثون python3 وهو الحال على توزيعة أوبونتو، فإن كنت على توزيعة أخرى قد تحتاج لإنشاء رابط أو تعديل الملف build.sh.<br/><br/>
+                ستحتاج إلى GCC و CMake و Python و Pip لتتمكن من بناء المشروع. كذلك فإن لLLVM اعتمادياتها مثل zlib و valgrind والتي قد تضطر لتنصيبها يدويًا. ولاستخدام https في مكتبة التنفيذ المعيارية ستحتاج أيضاً إلى libssl-dev.<br/>
+                لتنصيب أدوات البناء في توزيعة أوبونتو استخدم الأمر التالي:
+                <pre dir=ltr class="code nohighlight">$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev</pre>
+                لتنصيب هذه الأدوات على توزيعات غير أوبونتو ستحتاج لمراجعة وثائق تلك التوزيعات. لاحظ أن شفرة البناء تفترض أن اسم مترجم بايثون python3 وهو الحال على توزيعة أوبونتو، فإن كنت على توزيعة أخرى قد تحتاج لإنشاء رابط أو تعديل الملف build.sh.<br/>
+                لن تحتاج لتنصيب مكتبة LLVM يدويًا لأن شفرة البناء ستتولى ذلك الأمر.<br>
+                إذا أردت أيضًا إنشاء حزم تنصيب فستحتاج أيضًا لتنصيب <a href="https://github.com/jordansissel/fpm" target="__blank">fpm</a>.
                 <div class="alert alert-warning" role="alert">ستحتاج إلى الإصدار 7 فما فوق من GCC. لن تتمكن من بناء شفرة الأسُس بإصدار أقدم.</div>
+
                 <!-- ********************************************************************** -->
-                <br>
-                <h3 id="BuildingUsingShellScript">البناء باستخدام build.sh</h3>
-                <hr> هذه هي الطريقة الأيسر للبناء والتي يُنصح بها.
+                <h3 id="BuildingUsingShellScript">بدء البناء</h3>
+                بعد تنصيب الاعتماديات كل ما عليك فعله تنفيذ شفرة البناء build.sh والتي ستتولى:
                 <ul>
-                    <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
-                    <li>قم بتنصيب python3 التي يحتاجها الملف build.sh.</li>
-                    <li>لُج إلى مجلّد Tools ونفّذ الملف <span dir=ltr>build.sh</span>. سيقوم هذا الملف تلقائيا بتنزيل الاعتماديات وبناء LLVM وسيقوم بعدها ببناء الأسُس وتنصيبها. تنزيل الاعتماديات وبناء LLVM سيستغرق وقتاً طويلاً لكن ذلك يتم فقط عند التشغيل
-                        الأول لهذا البرنامج. تشغيله مجدداً لن يعيد تجهيز الاعتماديات وسيكون أسرع بكثير.
-                        <pre dir=ltr class="code nohighlight">$ cd &lt;path-to-Alusus&gt;
-$ ./Tools/build.sh --bloc . --iloc .</pre>
-                    </li>
+                  <li>تنزيل وبناء مكتبة LLVM إن لم تُكن مبنية أصلاً.</li>
+                  <li>تنزيل وبناء مكتبة libcurl إن لم تكن مبنية أصلاً.</li>
+                  <li>تنزيل وبناء مكتبة libzip إن لم تكن مبنية أصلاً.</li>
+                  <li>بناء الأسس.</li>
+                  <li>إنشاء حزمة تنصيب إن طُلب ذلك.</li>
                 </ul>
-                يوجد في ملف <code dir=ltr>build.sh</code> بعض المتغيرات التي يمكن التحكم بها منها MAKE_THREAD_COUNT وهو عدد خيوط التنفيذ المتوازي المستخدمة أثناء البناء. تم تحديد قيمة هذا المتغير بـ8 لتسريع البناء لكن يمكنك التحكم به إن واجهت مشاكل أو
-                لم يكن حاسوبك قادراً على تشغيل 8 خطوط تنفيذ معاً.<br/> إن واجهت أخطاءاً أثناء بناء LLVM فقد تضطر لتعديل الأمر cmake الخاص ببناء LLVM داخل ملف <span dir=ltr>build.sh</span> بإعطاء معطيات إضافية مثل <code dir=ltr>-DLLVM_TARGET_ARCH</code>.
-
-                <!-- ********************************************************************** -->
-                <br>
-                <br>
-                <h3 id="BuildingManually">البناء يدوياً</h3>
-                <hr>
+                تنفيذ شفرة البناء للمرة الأولى سيستغرق وقتًا طويلاً لبناء مكتبة LLVM وهي مكتبة ضخمة. عمليات البناء اللاحقة لن تُعيد بناء LLVM (أو أي من الاعتماديات) وبالتالي ستكون أسرع بكثير. تنفيذ شفرة البناء يتم بالشكل التالي:
+<pre dir=ltr class="code nohighlight">
+$ cd &lt;path-to-Alusus&gt;
+$ ./Tools/build.sh --bloc . --iloc .
+</pre>
+                شفرة build.sh تستلم المعطيات التالية:
                 <ul>
-                    <li>قم بتنصيب أدوات البناء كما هو مبين في الفقرة السابقة.</li>
-
-                    <li>حمل الشفرة المصدرية للإصدارة المبينة أعلاه لLLVM وقم باستخراج ملفاتها.</li>
-
-                    <li>قم ببناء وتثبيت LLVM كما يلي:
-                        <ul>
-                            <li>أنشئ مجلداً مخصصاً للبناء وسمّه ما شئت. مثلاً llvm.build.</li>
-                            <li>لُج إلى مجلد بناء LLVM الذي أنشأته واكتب الأمر التالي:
-                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt;</pre> قد تحتاج أيضاً لتحديد المعمارية يدوياً بتحديد قيمة LLVM_TARGET_ARCH. على سبيل المثال، لتحديد
-                                قيمة المعمارية في بيئة 32 بت استخدم الأمر التالي بدل الأمر أعلاه:
-                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=i386</pre> ولتحديدها في بيئة 64 بت استخدم الأمر التالي:
-                                <pre dir=ltr class="code nohighlight">$ cmake &lt;path-to-LLVM-source&gt; -DCMAKE_INSTALL_PREFIX=&lt;path-to-install-dest&gt; -DLLVM_TARGET_ARCH=x86_64</pre>
-                            </li>
-                            <li>أكمل عملية البناء والتثبيت:
-                                <pre dir=ltr class="code nohighlight">
-$ make
-$ make install</pre>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li>قُم ببناء شفرة الأسُس كما يلي:
-                        <ul>
-                            <li>أنشئ مجلداً للبناء وسمّه ما شئت. مثلاً Builds.</li>
-                            <li>لُج إلى ذلك المجلد وأكمل عملية البناء كما يلي:
-                                <pre dir=ltr class="code nohighlight">$ cd &lt;path-to-Builds&gt;
-$ cmake &lt;path-to-Alusus-root&gt;/Sources -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=&lt;path-to-Alusus-root&gt; -DLLVM_PATH=&lt;path-to-LLVM-install&gt;
-$ make
-$ make install</pre> العبارة الأخيرة (make install) تنسخ الملفات الناتجة إلى مجلدات Bin و Lib و Include تحت مجلد الأسُس المشار إليه أعلاه في معطى CMAKE_INSTALL_PREFIX وليس إلى نظام التشغيل. يمكنك اختيار مجلد آخر لخزن هذه
-                                الملفات كأن يكون <span dir=ltr>/opt/Alusus</span> وذلك بتغيير قيمة CMAKE_INSTALL_PREFIX في معطيات cmake أعلاه. أمر cmake أعلاه يجهز للبناء بصيغة التنقيح (debug) ولتغييرها إلى صيغة النشر (release) يجب تغيير المعطى CMAKE_BUILD_TYPE
-                                إلى release بدل debug.
-                            </li>
-                        </ul>
-                    </li>
+                  <li><b>--bloc &lt;مسار&gt;</b>: المسار الذي سيوضع فيه مجلد Builds الذي ستتم فيه عملية البناء.</li>
+                  <li><b>--iloc &lt;مسار&gt;</b>: المسار الذي ستوضع فيه مجلدات Bin و Lib و Include بعد الانتهاء من البناء.</li>
+                  <li><b>--btype &lt;صيغة البناء&gt;</b>: تحديد نوع البناء. القيمة d وهي المبدئية تحدد البناء بصيغة debug والقيمة r تحدد البناء بصيغة release بينما يفعل الخيار p الشيء ذاته لكن مع إنشاء حزمة تنصيب أيضًا.</li>
                 </ul>
-
+                عند البناء بصيغة p تقوم شفرة البناء بإنشاء حزمتي deb و rpm إذا كان البناء يتم على نظام لينكس، أما إذا كان البناء على نظام ماك أو إس فإن الشفرة ستنشئ حزمة pkg.
 
                 <!-- ********************************************************************** -->
                 <br>
+
+                <!-- ********************************************************************** -->
                 <h3 id="ExecutingAutomatedTests">تنفيذ الاختبارات الآلية</h3>
-                <hr> تنفيذ الاختبارات يسير جداً كل ما عليك فعله هو تنفيذ الأمر التالي داخل مجلد بناء الأسُس (Builds في المثال أعلاه) بعد الانتهاء من البناء:
+                <hr> تنفيذ الاختبارات يسير جداً. كل ما عليك فعله هو تنفيذ الأمر التالي داخل مجلد بناء الأسُس (Builds/Debug في المثال أعلاه) بعد الانتهاء من البناء:
                 <pre dir=ltr class="code nohighlight">$ make test</pre>
 
                 <!-- ********************************************************************** -->
-                <br>
                 <h3 id="UsingAlusus">استخدام لغة الأسُس</h3>
                 <hr> بعد الانتهاء من البناء سيكون الملف التنفيذي داخل Bin وستكون المكتبات داخل Lib. تستطيع تنفيذ الأمثلة داخل المجلد Examples كما يلي:
                 <pre dir=ltr class="code nohighlight">$ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
@@ -138,7 +104,7 @@ $ alusus hello_world.alusus</pre> اسم الملف التنفيذي عند ال
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2020م \ 1441هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2021م \ 1442هـ.</strong></li>
                         </ul>
                     </div>
                 </div>

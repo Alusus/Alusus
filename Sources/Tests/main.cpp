@@ -2,7 +2,7 @@
  * @file Tests/main.cpp
  * Contains the end-to-end test's main program.
  *
- * @copyright Copyright (C) 2018 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2021 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
