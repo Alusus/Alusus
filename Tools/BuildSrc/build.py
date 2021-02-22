@@ -439,6 +439,44 @@ def create_packages_windows():
     raise NotImplementedError("Windows OS packaging is not implemented yet!")
 
 
+def create_zip():
+    global ALUSUS_ROOT
+    global PACKAGES_PATH
+    global ARCHITECTURE
+    global PACKAGE_NAME
+    global PACKAGE_DESCRIPTION
+    global PACKAGE_URL
+    global PACKAGE_MAINTAINER
+    global RELEASE_INSTALL_PATH
+    global INSTALL_PATH
+
+    old_path = os.path.realpath(os.getcwd())
+    os.chdir(BUILDS_PATH)
+
+    subprocess.call(["rm", "-rf", "Alusus"])
+    shutil.copytree(INSTALL_PATH, "Alusus", True)
+
+    if is_linux():
+        postfix = "linux"
+    else:
+        postfix = "macos"
+
+    version, revision, _, _ = get_version_info()
+
+    if revision != "":
+        filename = "alusus-" + version + "-" + revision + ".x86_64_" + postfix + ".zip"
+    else:
+        filename = "alusus-" + version + ".x86_64_" + postfix + ".zip"
+
+    current_cmd = ["zip", "--symlinks", "-r", os.path.join(PACKAGES_PATH, filename), "Alusus/"]
+    ret = subprocess.call(current_cmd)
+    if ret != 0:
+        failMsg("Creating Zip Package.")
+        exit(1)
+
+    os.chdir(old_path)
+
+
 def create_packages_unix():
     global ALUSUS_ROOT
     global PACKAGES_PATH
@@ -485,13 +523,21 @@ def create_packages_unix():
 
     # Create additional package of type RPM for Linux systems.
     if is_linux():
-        # Replace "deb" with "rpm".
+        # Generate rpm package.
         current_cmd[current_cmd.index("-t") + 1] = "rpm"
-
         ret = subprocess.call(current_cmd)
         if ret != 0:
             failMsg("Creating RPM Package.")
             exit(1)
+
+        # Generate pacman package.
+        current_cmd[current_cmd.index("-t") + 1] = "pacman"
+        ret = subprocess.call(current_cmd)
+        if ret != 0:
+            failMsg("Creating pacman Package.")
+            exit(1)
+
+    create_zip()
 
     os.chdir(old_path)
 
