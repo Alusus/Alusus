@@ -464,9 +464,9 @@ def create_zip():
     version, revision, _, _ = get_version_info()
 
     if revision != "":
-        filename = "alusus-" + version + "-" + revision + ".x86_64_" + postfix + ".zip"
+        filename = "alusus_" + version + "-" + revision + "_x86_64_" + postfix + ".zip"
     else:
-        filename = "alusus-" + version + ".x86_64_" + postfix + ".zip"
+        filename = "alusus_" + version + "_x86_64_" + postfix + ".zip"
 
     current_cmd = ["zip", "--symlinks", "-r", os.path.join(PACKAGES_PATH, filename), "Alusus/"]
     ret = subprocess.call(current_cmd)
