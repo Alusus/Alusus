@@ -127,7 +127,7 @@ Bool Helper::_lookupCalleeInScope(
 ) {
   PREPARE_SELF(helper, Helper);
 
-  Word currentStackSize = result.stack.getCount();
+  Word currentStackSize = result.stack.getLength();
   Core::Data::Node *prevNode = 0;
   Bool retVal = false;
   helper->getSeeker()->foreach(ref, astNode,
@@ -135,7 +135,7 @@ Bool Helper::_lookupCalleeInScope(
       (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
       {
         if (ntc != 0) {
-          if (result.notice == 0 && result.stack.getCount() == currentStackSize) result.notice = getSharedPtr(ntc);
+          if (result.notice == 0 && result.stack.getLength() == currentStackSize) result.notice = getSharedPtr(ntc);
           return Core::Data::Seeker::Verb::MOVE;
         }
         if (obj == 0) return Core::Data::Seeker::Verb::MOVE;
@@ -145,7 +145,7 @@ Bool Helper::_lookupCalleeInScope(
         if (box != 0) obj = box->get().get();
 
         if (
-          result.stack.getCount() > 0 && result.stack.getElement(result.stack.getCount() - 1) == obj &&
+          result.stack.getLength() > 0 && result.stack(result.stack.getLength() - 1) == obj &&
           result.thisIndex < 0
         ) {
           return Core::Data::Seeker::Verb::MOVE;
@@ -191,7 +191,7 @@ Bool Helper::_lookupCalleeInScope(
     if (dataType != 0) {
       auto block = dataType->getBody().get();
       if (block != 0) {
-        Word newStackSize = result.stack.getCount();
+        Word newStackSize = result.stack.getLength();
         for (Int i = 0; i < block->getInjectionCount(); ++i) {
           auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
           if (def == 0 || def->getTarget() == 0) continue;
@@ -209,7 +209,7 @@ Bool Helper::_lookupCalleeInScope(
             if (noBindDef) result.thisIndex = currentStackSize - 1;
             if (result.matchStatus == TypeMatchStatus::EXACT) break;
           } else {
-            while (result.stack.getCount() > newStackSize) result.stack.remove(newStackSize);
+            while (result.stack.getLength() > newStackSize) result.stack.remove(newStackSize);
           }
         }
       }
@@ -219,7 +219,7 @@ Bool Helper::_lookupCalleeInScope(
   // Did we have a matched callee?
   if (!retVal) {
     // Remove any extra items we added to the stack.
-    while (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
+    while (result.stack.getLength() > currentStackSize) result.stack.remove(currentStackSize);
 
     // If we have no notice it means the symbol was not found in the first place.
     if (result.notice == 0 && result.matchStatus == TypeMatchStatus::NONE) {
@@ -257,8 +257,8 @@ Bool Helper::_lookupCalleeOnObject(
       result.matchStatus = ms;
       result.notice.reset();
       result.thisIndex = currentStackSize - 1;
-      if (result.stack.getCount() == currentStackSize) result.stack.add(f);
-      else result.stack.set(currentStackSize, f);
+      if (result.stack.getLength() == currentStackSize) result.stack.add(f);
+      else result.stack(currentStackSize) = f;
       result.type = f->getType().get();
       return true;
     } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
@@ -312,14 +312,14 @@ Bool Helper::_lookupCalleeOnObject(
       auto objType = static_cast<Type*>(obj);
       auto objRefType = helper->getReferenceTypeFor(obj, Ast::ReferenceMode::IMPLICIT);
       Function *customCaster;
-      if (result.stack.getCount() == currentStackSize && thisType == 0) {
+      if (result.stack.getLength() == currentStackSize && thisType == 0) {
         // This is a constructor.
         static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("~init"))} });
         if (helper->lookupCalleeInScope(
           &ref, static_cast<Core::Data::Node*>(obj), false, objRefType, types, ec, result
         )) {
           // A constructor match was found.
-          result.stack.set(currentStackSize, objType);
+          result.stack(currentStackSize) = objType;
           result.thisIndex = -2;
           result.type = objType;
           return true;
@@ -382,16 +382,16 @@ Bool Helper::_lookupCalleeOnObject(
       return false;
     } else {
       TiObject *prevVal = 0;
-      if (result.stack.getCount() == currentStackSize) result.stack.add(obj);
+      if (result.stack.getLength() == currentStackSize) result.stack.add(obj);
       else {
-        prevVal = result.stack.get(currentStackSize);
-        result.stack.set(currentStackSize, obj);
+        prevVal = result.stack(currentStackSize);
+        result.stack(currentStackSize) = obj;
       }
       if (helper->lookupCalleeOnObject(objType, thisType, types, ec, currentStackSize, result)) {
         return true;
       } else {
-        if (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
-        else result.stack.set(currentStackSize, prevVal);
+        if (result.stack.getLength() > currentStackSize) result.stack.remove(currentStackSize);
+        else result.stack(currentStackSize) = prevVal;
         return false;
       }
     }

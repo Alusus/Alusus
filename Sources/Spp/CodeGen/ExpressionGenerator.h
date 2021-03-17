@@ -38,6 +38,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: Ast::CalleeTracer *calleeTracer;
   private: SharedList<TiObject> *astLiteralRepo;
   private: Core::Notices::Store *noticeStore = 0;
 
@@ -45,8 +46,8 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   //============================================================================
   // Constructors & Destructor
 
-  public: ExpressionGenerator(Ast::Helper *h, SharedList<TiObject> *alr)
-    : astHelper(h), astLiteralRepo(alr)
+  public: ExpressionGenerator(Ast::Helper *h, Ast::CalleeTracer *t, SharedList<TiObject> *alr)
+    : astHelper(h), calleeTracer(t), astLiteralRepo(alr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -58,6 +59,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->calleeTracer = parent->getCalleeTracer();
     this->astLiteralRepo = parent->getAstLiteralRepo();
   }
 
@@ -78,6 +80,11 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: Ast::CalleeTracer* getCalleeTracer() const
+  {
+    return this->calleeTracer;
   }
 
   public: SharedList<TiObject>* getAstLiteralRepo() const
@@ -549,6 +556,17 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::FunctionType *calleeType, Generation *g, Session *session,
     DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes,
     SharedList<TiObject> *paramTgVals
+  );
+
+  public: METHOD_BINDING_CACHE(prepareCalleeLookupRequest,
+    Bool, (
+      TiObject* /* operand */, Generation* /* g */, Session* /* session */,
+      GenResult& /* prevResult */, Ast::CalleeLookupRequest& /* calleeRequest */
+    )
+  );
+  private: static Bool _prepareCalleeLookupRequest(
+    TiObject *self, TiObject *operand, Generation *g, Session *session,
+    GenResult &prevResult, Ast::CalleeLookupRequest &calleeRequest
   );
 
   public: METHOD_BINDING_CACHE(generateCalleeReferenceChain,

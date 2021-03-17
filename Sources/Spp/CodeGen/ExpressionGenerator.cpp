@@ -62,6 +62,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateArrayReference,
     &this->generateFunctionCall,
     &this->prepareFunctionParams,
+    &this->prepareCalleeLookupRequest,
     &this->generateCalleeReferenceChain,
     &this->generateReferenceChain,
     &this->generateParams
@@ -112,6 +113,7 @@ void ExpressionGenerator::initBindings()
   this->generateArrayReference = &ExpressionGenerator::_generateArrayReference;
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
   this->prepareFunctionParams = &ExpressionGenerator::_prepareFunctionParams;
+  this->prepareCalleeLookupRequest = &ExpressionGenerator::_prepareCalleeLookupRequest;
   this->generateCalleeReferenceChain = &ExpressionGenerator::_generateCalleeReferenceChain;
   this->generateReferenceChain = &ExpressionGenerator::_generateReferenceChain;
   this->generateParams = &ExpressionGenerator::_generateParams;
@@ -400,7 +402,6 @@ Bool ExpressionGenerator::_generateRoundParamPass(
   TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
-  auto operand = astNode->getOperand().get();
 
   // Prepare parameters list.
   SharedList<TiObject> paramTgValues;
@@ -411,161 +412,36 @@ Bool ExpressionGenerator::_generateRoundParamPass(
     return false;
   }
 
-  if (operand->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    ////
-    //// Call a member of the current scope.
-    ////
-    Ast::CalleeLookupResult calleeResult;
-    if (!expGenerator->astHelper->lookupCalleeInScope(
-      operand, astNode->getOwner(), true, 0, &paramAstTypes, session->getExecutionContext(), calleeResult
-    )) {
-      expGenerator->noticeStore->add(calleeResult.notice);
-      return false;
-    }
-    GenResult prevResult;
-    GenResult callee;
-    GenResult thisArg;
-    if (!expGenerator->generateCalleeReferenceChain(calleeResult, astNode, prevResult, g, session, callee, thisArg)) {
-      return false;
-    }
-    return expGenerator->generateRoundParamPassOnCallee(
-      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
-    );
-  } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    ////
-    //// Call a member of a specific object/scope.
-    ////
-    // Generate the object reference.
-    auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(operand);
-    auto first = linkOperator->getFirst().get();
-    if (first == 0) {
-      throw EXCEPTION(GenericException, S("First AST element missing from link operator."));
-    }
-    GenResult firstResult;
-    if (!expGenerator->generate(first, g, session, firstResult)) return false;
-    // Generate the member identifier.
-    auto second = linkOperator->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (second == 0) {
-      expGenerator->noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
-      );
-      return false;
-    }
-
-    if (firstResult.astType != 0) {
-      auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(firstResult.astType);
-      auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
-      // Lookup the callee.
-      Ast::CalleeLookupResult calleeResult;
-      if (!expGenerator->astHelper->lookupCalleeInScope(
-        second, thisType, false, thisRefType, &paramAstTypes, session->getExecutionContext(),
-        calleeResult
-      )) {
-        expGenerator->noticeStore->add(calleeResult.notice);
-        return false;
-      }
-      if (session->getTgContext() != 0) {
-        if (firstResult.astType->isEqual(thisType, expGenerator->astHelper, session->getExecutionContext())) {
-          // The previous expression returned a value rather than a ref, and member functions need a reference,
-          // so we'll create a temp var.
-          // This code path should not be reached with custom-initialization variables, so we don't need to
-          // register the destructor here.
-          if (!g->generateTempVar(astNode, thisType, session, false)) return false;
-          PlainList<TiObject> thisParamAstNodes({ astNode });
-          PlainList<TiObject> thisParamAstTypes({ firstResult.astType });
-          SharedList<TiObject> thisParamTgValues({ firstResult.targetData });
-          if (!session->getTg()->generateVarReference(
-            session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(thisType),
-            session->getEda()->getCodeGenData<TiObject>(astNode), firstResult.targetData
-          )) {
-            return false;
-          }
-          firstResult.astType = thisRefType;
-          if (!g->generateVarInitialization(
-            thisType, firstResult.targetData.get(), astNode,
-            &thisParamAstNodes, &thisParamAstTypes, &thisParamTgValues, session
-          )) return false;
-        }
-      }
-      // Trace through the chain.
-      GenResult callee;
-      GenResult thisArg;
-      if (!expGenerator->generateCalleeReferenceChain(
-        calleeResult, astNode, firstResult, g, session, callee, thisArg
-      )) return false;
-      // Make the call.
-      return expGenerator->generateRoundParamPassOnCallee(
-        astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
-      );
-    } else if (firstResult.astNode != 0) {
-      //// Calling a global in another module.
-      // Look for a matching callee.
-      Ast::CalleeLookupResult calleeResult;
-      if (!expGenerator->astHelper->lookupCalleeInScope(
-        second, static_cast<Ast::Module*>(firstResult.astNode), false, 0, &paramAstTypes,
-        session->getExecutionContext(), calleeResult
-      )) {
-        expGenerator->noticeStore->add(calleeResult.notice);
-        return false;
-      }
-      // Prepare the callee and make the call.
-      GenResult prevResult;
-      GenResult callee;
-      GenResult thisArg;
-      if (!expGenerator->generateCalleeReferenceChain(calleeResult, astNode, prevResult, g, session, callee, thisArg)) {
-        return false;
-      }
-      return expGenerator->generateRoundParamPassOnCallee(
-        astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
-      );
-    } else {
-      expGenerator->noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
-      );
-      return false;
-    }
-  } else {
-    ////
-    //// Param pass to the result of a previous expression.
-    ////
-    GenResult prevResult;
-    if (!expGenerator->generate(operand, g, session, prevResult)) return false;
-
-    // Lookup a callee on the result.
-    Ast::Type *prevAstType;
-    Ast::Type *prevThisAstType;
-    if (prevResult.astType) {
-      prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-      // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
-      // to actually call that function.
-      if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
-        prevThisAstType = prevAstType;
-      } else {
-        prevThisAstType = 0;
-      }
-    } else {
-      prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
-      prevThisAstType = 0;
-    }
-    Ast::CalleeLookupResult calleeResult;
-    if (!expGenerator->astHelper->lookupCalleeOnObject(
-      prevAstType, prevThisAstType, &paramAstTypes, session->getExecutionContext(), 0, calleeResult
-    )) {
-      calleeResult.notice->setSourceLocation(astNode->findSourceLocation());
-      expGenerator->noticeStore->add(calleeResult.notice);
-      return false;
-    }
-
-    // Make the call.
-    GenResult callee;
-    GenResult thisArg;
-    if (!expGenerator->generateCalleeReferenceChain(calleeResult, astNode, prevResult, g, session, callee, thisArg)) {
-      return false;
-    }
-    return expGenerator->generateRoundParamPassOnCallee(
-      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
-    );
+  // Prepare the callee lookup request.
+  GenResult prevResult;
+  Ast::CalleeLookupRequest calleeRequest;
+  if (!expGenerator->prepareCalleeLookupRequest(astNode->getOperand().get(), g, session, prevResult, calleeRequest)) {
+    return false;
   }
+  calleeRequest.astNode = astNode;
+  calleeRequest.op = S("()");
+  calleeRequest.argTypes = &paramAstTypes;
+  calleeRequest.ec = session->getExecutionContext();
+
+  // Lookup the callee.
+  Ast::CalleeLookupResult calleeResult;
+  expGenerator->calleeTracer->lookupCallee(calleeRequest, calleeResult);
+  if (calleeResult.isFailure()) {
+    expGenerator->noticeStore->add(calleeResult.notice);
+    return false;
+  }
+
+  // Generate reference chain.
+  GenResult callee;
+  GenResult thisArg;
+  if (!expGenerator->generateCalleeReferenceChain(calleeResult, astNode, prevResult, g, session, callee, thisArg)) {
+    return false;
+  }
+
+  // Make the actual call.
+  return expGenerator->generateRoundParamPassOnCallee(
+    astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+  );
 }
 
 
@@ -2792,6 +2668,91 @@ Bool ExpressionGenerator::_prepareFunctionParams(
 }
 
 
+Bool ExpressionGenerator::_prepareCalleeLookupRequest(
+  TiObject *self, TiObject *operand, Generation *g, Session *session,
+  GenResult &prevResult, Ast::CalleeLookupRequest &calleeRequest
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  if (operand->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+    ////
+    //// A member of the current scope.
+    ////
+    calleeRequest.target = static_cast<Core::Data::Ast::Identifier*>(operand)->getOwner();
+    calleeRequest.ref = operand;
+    calleeRequest.searchTargetOwners = true;
+    prevResult = GenResult();
+    return true;
+  } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+    ////
+    //// Call a member of a specific object/scope.
+    ////
+    // Generate the object reference.
+    auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(operand);
+    auto first = linkOperator->getFirst().get();
+    if (first == 0) {
+      throw EXCEPTION(GenericException, S("First AST element missing from link operator."));
+    }
+    if (!expGenerator->generate(first, g, session, prevResult)) return false;
+    // Generate the member identifier.
+    auto second = linkOperator->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
+    if (second == 0) {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
+      );
+      return false;
+    }
+
+    if (prevResult.astType != 0) {
+      // Calling a member of an object.
+      auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+      auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
+      calleeRequest.target = thisType;
+      calleeRequest.targetIsObject = true;
+      calleeRequest.ref = second;
+      calleeRequest.thisType = thisRefType;
+      return true;
+    } else if (prevResult.astNode != 0) {
+      // Calling a global in another module.
+      calleeRequest.target = prevResult.astNode;
+      calleeRequest.ref = second;
+      return true;
+    } else {
+      expGenerator->noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
+      );
+      return false;
+    }
+  } else {
+    ////
+    //// Call the result of a previous expression.
+    ////
+    if (!expGenerator->generate(operand, g, session, prevResult)) return false;
+
+    // Lookup a callee on the result.
+    Ast::Type *prevAstType;
+    Ast::Type *prevThisAstType;
+    if (prevResult.astType) {
+      prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+      // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
+      // to actually call that function.
+      if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
+        prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
+      } else {
+        prevThisAstType = 0;
+      }
+      calleeRequest.targetIsObject = true;
+    } else {
+      prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
+      prevThisAstType = 0;
+    }
+    calleeRequest.target = prevAstType;
+    calleeRequest.thisType = prevThisAstType;
+    return true;
+  }
+}
+
+
 Bool ExpressionGenerator::_generateCalleeReferenceChain(
   TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Data::Node *astNode, GenResult const &prevResult,
   Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
@@ -2806,8 +2767,8 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
     thisResult.targetData.reset();
   }
   calleeResult = prevResult;
-  for (Int i = 0; i < calleeInfo.stack.getCount(); ++i) {
-    auto item = calleeInfo.stack.get(i);
+  for (Int i = 0; i < calleeInfo.stack.getLength(); ++i) {
+    auto item = calleeInfo.stack(i);
     if (item->isDerivedFrom<Ast::Function>()) {
       calleeResult.astNode = item;
       calleeResult.astType = 0;
@@ -2843,6 +2804,32 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
       }
     }
   }
+
+  if (session->getTgContext() != 0) {
+    if (thisResult.astType != 0 && ti_cast<Ast::ReferenceType>(thisResult.astType) == 0) {
+      // Member functions need a reference so we'll create a temp var.
+      // This code path should not be reached with custom-initialization variables, so we don't need to
+      // register the destructor here.
+      if (!g->generateTempVar(astNode, thisResult.astType, session, false)) return false;
+      PlainList<TiObject> thisParamAstNodes({ astNode });
+      PlainList<TiObject> thisParamAstTypes({ thisResult.astType });
+      SharedList<TiObject> thisParamTgValues({ thisResult.targetData });
+      if (!session->getTg()->generateVarReference(
+        session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(thisResult.astType),
+        session->getEda()->getCodeGenData<TiObject>(astNode), thisResult.targetData
+      )) {
+        return false;
+      }
+      if (!g->generateVarInitialization(
+        thisResult.astType, thisResult.targetData.get(), astNode,
+        &thisParamAstNodes, &thisParamAstTypes, &thisParamTgValues, session
+      )) return false;
+      thisResult.astType = expGenerator->astHelper->getReferenceTypeFor(
+        thisResult.astType, Ast::ReferenceMode::IMPLICIT
+      );
+    }
+  }
+
   return true;
 }
 

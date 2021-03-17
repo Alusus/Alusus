@@ -579,8 +579,8 @@ Bool Generator::_generateVarInitialization(
     Ast::CalleeLookupResult calleeResult;
     if (generator->astHelper->lookupCalleeInScope(
       &ref, varAstType, false, 0, paramAstTypes, session->getExecutionContext(), calleeResult
-    ) && calleeResult.stack.getCount() == 1) {
-      auto callee = calleeResult.stack.get(calleeResult.stack.getCount() - 1);
+    ) && calleeResult.stack.getLength() == 1) {
+      auto callee = calleeResult.stack(calleeResult.stack.getLength() - 1);
       // Prepare the arguments to send.
       if (!generator->getExpressionGenerator()->prepareFunctionParams(
         static_cast<Ast::Function*>(callee)->getType().get(), generation, session,
@@ -736,8 +736,8 @@ Bool Generator::_generateVarDestruction(
   Ast::CalleeLookupResult calleeResult;
   if (generator->astHelper->lookupCalleeInScope(
     &ref, varAstType, false, 0, &paramAstTypes, session->getExecutionContext(), calleeResult
-  ) && calleeResult.stack.getCount() == 1) {
-    auto callee = static_cast<Ast::Function*>(calleeResult.stack.get(calleeResult.stack.getCount() - 1));
+  ) && calleeResult.stack.getLength() == 1) {
+    auto callee = static_cast<Ast::Function*>(calleeResult.stack(calleeResult.stack.getLength() - 1));
     // Call the destructor.
     GenResult result;
     if (!generator->getExpressionGenerator()->generateFunctionCall(
