@@ -32,9 +32,9 @@ void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   try {
     Bool found = false;
     this->rootManager->getSeeker()->foreach(data, state->getDataStack(),
-      [=, &found](TiObject *obj, Notices::Notice*)->SeekVerb
+      [=, &found](Core::Data::Seeker::Action action, TiObject *obj)->SeekVerb
       {
-        if (obj != 0) {
+        if (action == Core::Data::Seeker::Action::TARGET_MATCH && obj != 0) {
           outStream << S("------------------ Parsed Data Dump ------------------\n");
           dumpData(outStream, obj, 0);
           outStream << S("\n------------------------------------------------------\n");

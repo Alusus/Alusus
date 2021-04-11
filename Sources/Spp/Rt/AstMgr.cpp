@@ -87,9 +87,9 @@ Array<TiObject*> AstMgr::_findElements(TiObject *self, TiObject *ref, TiObject *
     ref = scope->getElement(0);
   }
   astMgr->rootManager->getSeeker()->foreach(ref, target,
-    [&result](TiObject *obj, Core::Notices::Notice *notice)->Core::Data::Seeker::Verb
+    [&result](Core::Data::Seeker::Action action, TiObject *obj)->Core::Data::Seeker::Verb
     {
-      if (obj != 0) result.add(obj);
+      if (action == Core::Data::Seeker::Action::TARGET_MATCH && obj != 0) result.add(obj);
       return Core::Data::Seeker::Verb::MOVE;
     },
     flags

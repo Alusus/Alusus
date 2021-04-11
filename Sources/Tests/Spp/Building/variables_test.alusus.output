@@ -1,5 +1,5 @@
-ERROR SPPG1008 @ (58,5): Invalid symbol.
-ERROR SPPG1008 @ (59,5): Invalid symbol.
+ERROR SPPG1002 @ (58,5): Invalid operation.
+ERROR SPPG1002 @ (59,11): Invalid operation.
 ERROR SPPA1007 @ (60,11): Unknown symbol.
 ERROR SPPG1008 @ (61,10): Invalid symbol.
 ERROR SPPG1008 @ (62,10): Invalid symbol.

@@ -104,7 +104,6 @@ struct CalleeLookupResult
 {
   TypeMatchStatus matchStatus = TypeMatchStatus::NONE;
   Array<TiObject*> stack;
-  Type *type = 0;
   SharedPtr<Core::Notices::Notice> notice;
   Int thisIndex = -2;
 
@@ -119,6 +118,10 @@ struct CalleeLookupResult
   Bool isNew() const
   {
     return this->matchStatus == TypeMatchStatus::NONE && this->notice == 0;
+  }
+  Bool isNameMatched() const
+  {
+    return !this->isNew() && (this->notice == 0 || !this->notice->isA<Spp::Notices::UnknownSymbolNotice>());
   }
 
   void pushStack(TiObject *obj) {

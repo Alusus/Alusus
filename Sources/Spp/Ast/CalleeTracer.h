@@ -113,10 +113,25 @@ class CalleeTracer : public TiObject, public DynamicBinding, public DynamicInter
   );
   private: static void _lookupCallee_template(TiObject *self, CalleeLookupRequest &request, CalleeLookupResult &result);
 
+  public: METHOD_BINDING_CACHE(lookupCallee_scope,
+    void, (CalleeLookupRequest& /* request */, CalleeLookupResult& /* result */)
+  );
+  private: static void _lookupCallee_scope(TiObject *self, CalleeLookupRequest &request, CalleeLookupResult &result);
+
+  public: METHOD_BINDING_CACHE(lookupCallee_argPack,
+    void, (CalleeLookupRequest& /* request */, CalleeLookupResult& /* result */)
+  );
+  private: static void _lookupCallee_argPack(TiObject *self, CalleeLookupRequest &request, CalleeLookupResult &result);
+
   public: METHOD_BINDING_CACHE(lookupCallee_var,
     void, (CalleeLookupRequest& /* request */, CalleeLookupResult& /* result */)
   );
   private: static void _lookupCallee_var(TiObject *self, CalleeLookupRequest &request, CalleeLookupResult &result);
+
+  public: METHOD_BINDING_CACHE(lookupCallee_literal,
+    void, (CalleeLookupRequest& /* request */, CalleeLookupResult& /* result */)
+  );
+  private: static void _lookupCallee_literal(TiObject *self, CalleeLookupRequest &request, CalleeLookupResult &result);
 
   public: METHOD_BINDING_CACHE(lookupCallee_funcPtr,
     void, (CalleeLookupRequest& /* request */, CalleeLookupResult& /* result */)
@@ -133,19 +148,14 @@ class CalleeTracer : public TiObject, public DynamicBinding, public DynamicInter
   );
   private: static void _lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &request, CalleeLookupResult &result);
 
-  public: METHOD_BINDING_CACHE(lookupReferenceTarget,
-    Bool, (TiObject*, Core::Data::Ast::Identifier*, Bool, PlainList<TiObject>&)
-  );
-  private: static Bool _lookupReferenceTarget(
-    TiObject *self, TiObject *astNode, Core::Data::Ast::Identifier *ref, Bool searchOwners, PlainList<TiObject> &stack
-  );
-
   /// @}
 
   /// @name Helper Functions
   /// @{
 
   private: static void selectBetterResult(CalleeLookupResult const &newResult, CalleeLookupResult &result);
+
+  private: static Char const* findOperationModifier(Core::Data::Ast::Definition *def);
 
   /// @}
 

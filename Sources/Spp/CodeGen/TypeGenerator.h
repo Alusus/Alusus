@@ -217,6 +217,10 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
   /// @name Helper Functions
   /// @{
 
+  private: Int addThisDefinition(
+    Ast::Block *body, Ast::Type *astThisType, TioSharedPtr const &tgThis, Session *session
+  );
+
   private: static Bool isInjection(Core::Data::Ast::Definition *def);
 
   /// @}

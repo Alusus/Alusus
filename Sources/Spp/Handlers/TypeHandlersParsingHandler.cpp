@@ -235,7 +235,7 @@ void TypeHandlersParsingHandler::createInitOpHandler(
   }
 
   auto def = this->createFunction(
-    state, S("~init"), argTypes, TioSharedPtr::null, body, initOp->findSourceLocation()
+    state, S("~init"), S("~init"), argTypes, TioSharedPtr::null, body, initOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -259,7 +259,7 @@ void TypeHandlersParsingHandler::createTerminateOpHandler(
   argTypes->add(S("this"), thisType);
 
   auto def = this->createFunction(
-    state, S("~terminate"), argTypes, TioSharedPtr::null, body, terminateOp->findSourceLocation()
+    state, S("~terminate"), S("~terminate"), argTypes, TioSharedPtr::null, body, terminateOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -290,7 +290,7 @@ void TypeHandlersParsingHandler::createCastHandler(
   auto thisType = this->prepareThisType(operand->findSourceLocation());
   argTypes->add(S("this"), thisType);
 
-  auto def = this->createFunction(state, S("~cast"), argTypes, retType, body, castOp->findSourceLocation());
+  auto def = this->createFunction(state, S("~cast"), S("~cast"), argTypes, retType, body, castOp->findSourceLocation());
   state->setData(def);
 }
 
@@ -334,7 +334,7 @@ void TypeHandlersParsingHandler::createParensOpHandler(
   }
 
   auto def = this->createFunction(
-    state, S("()"), argTypes, retType, body, parensOp->findSourceLocation()
+    state, S("()"), S("()"), argTypes, retType, body, parensOp->findSourceLocation()
   );
   state->setData(def);
 }
@@ -350,12 +350,12 @@ SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createBinaryO
   argTypes->add(S("this"), thisType);
   argTypes->add(inputName, inputType);
 
-  return this->createFunction(state, funcName, argTypes, retType, body, sourceLocation);
+  return this->createFunction(state, funcName, funcName, argTypes, retType, body, sourceLocation);
 }
 
 
 SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createFunction(
-  Processing::ParserState *state, Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes,
+  Processing::ParserState *state, Char const *funcName, Char const *op, SharedPtr<Core::Data::Ast::Map> const argTypes,
   TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   // Create the function type.
@@ -376,7 +376,7 @@ SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createFunctio
   });
 
   // Create the definition.
-  return this->createDefinition(funcName, func, sourceLocation);
+  return this->createDefinition(funcName, op, func, sourceLocation);
 }
 
 
@@ -467,12 +467,21 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareCompari
 
 
 SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createDefinition(
-  Char const *funcName, SharedPtr<Spp::Ast::Function> func, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  Char const *funcName, Char const *op, SharedPtr<Spp::Ast::Function> func,
+  SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
   return Core::Data::Ast::Definition::create({
     {S("name"), TiStr(funcName)}
   }, {
-    {S("target"), func}
+    {S("target"), func},
+    {S("modifiers"), Core::Data::Ast::List::create({}, {
+      Core::Data::Ast::ParamPass::create({
+        {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+      }, {
+        {S("operand"), Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("operation"))} })},
+        {S("param"), Core::Data::Ast::StringLiteral::create({ {S("value"), TiStr(op)} })}
+      })
+    })}
   });
 }
 

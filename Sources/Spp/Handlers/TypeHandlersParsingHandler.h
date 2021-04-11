@@ -82,8 +82,9 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   );
 
   private: SharedPtr<Core::Data::Ast::Definition> createFunction(
-    Processing::ParserState *state, Char const *funcName, SharedPtr<Core::Data::Ast::Map> const argTypes,
-    TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+    Processing::ParserState *state, Char const *funcName, Char const *op,
+    SharedPtr<Core::Data::Ast::Map> const argTypes, TioSharedPtr const &retType, TioSharedPtr const &body,
+    SharedPtr<Core::Data::SourceLocation> const &sourceLocation
   );
 
   private: Bool prepareInputArg(
@@ -103,7 +104,7 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   );
 
   private: SharedPtr<Core::Data::Ast::Definition> createDefinition(
-    Char const *funcName, SharedPtr<Spp::Ast::Function> func,
+    Char const *funcName, Char const *op, SharedPtr<Spp::Ast::Function> func,
     SharedPtr<Core::Data::SourceLocation> const &sourceLocation
   );
 

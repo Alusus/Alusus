@@ -576,11 +576,17 @@ Bool Generator::_generateVarInitialization(
 
     // Do we have constructors matching the given vars?
     static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
-    Ast::CalleeLookupResult calleeResult;
-    if (generator->astHelper->lookupCalleeInScope(
-      &ref, varAstType, false, 0, paramAstTypes, session->getExecutionContext(), calleeResult
-    ) && calleeResult.stack.getLength() == 1) {
-      auto callee = calleeResult.stack(calleeResult.stack.getLength() - 1);
+    Ast::CalleeLookupRequest lookupRequest;
+    lookupRequest.astNode = astNode;
+    lookupRequest.target = varAstType;
+    lookupRequest.ref = &ref;
+    lookupRequest.argTypes = paramAstTypes;
+    lookupRequest.op = S("~init");
+    lookupRequest.ec = session->getExecutionContext();
+    Ast::CalleeLookupResult lookupResult;
+    generator->calleeTracer->lookupCallee(lookupRequest, lookupResult);
+    if (lookupResult.isSuccessful() && lookupResult.stack.getLength() == 1) {
+      auto callee = lookupResult.stack(lookupResult.stack.getLength() - 1);
       // Prepare the arguments to send.
       if (!generator->getExpressionGenerator()->prepareFunctionParams(
         static_cast<Ast::Function*>(callee)->getType().get(), generation, session,
@@ -733,11 +739,17 @@ Bool Generator::_generateVarDestruction(
 
   // Find the destructor.
   static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
-  Ast::CalleeLookupResult calleeResult;
-  if (generator->astHelper->lookupCalleeInScope(
-    &ref, varAstType, false, 0, &paramAstTypes, session->getExecutionContext(), calleeResult
-  ) && calleeResult.stack.getLength() == 1) {
-    auto callee = static_cast<Ast::Function*>(calleeResult.stack(calleeResult.stack.getLength() - 1));
+  Ast::CalleeLookupRequest lookupRequest;
+  lookupRequest.astNode = astNode;
+  lookupRequest.target = varAstType;
+  lookupRequest.ref = &ref;
+  lookupRequest.argTypes = &paramAstTypes;
+  lookupRequest.op = S("~terminate");
+  lookupRequest.ec = session->getExecutionContext();
+  Ast::CalleeLookupResult lookupResult;
+  generator->calleeTracer->lookupCallee(lookupRequest, lookupResult);
+  if (lookupResult.isSuccessful() && lookupResult.stack.getLength() == 1) {
+    auto callee = static_cast<Ast::Function*>(lookupResult.stack(lookupResult.stack.getLength() - 1));
     // Call the destructor.
     GenResult result;
     if (!generator->getExpressionGenerator()->generateFunctionCall(
@@ -791,7 +803,7 @@ Bool Generator::_generateMemberVarDestruction(
     return false;
   }
 
-  // Initialize the member variable.
+  // Destruct the member variable.
   SharedList<TiObject> initTgVals;
   PlainList<TiObject> initAstTypes;
   if (!generation->generateVarDestruction(

@@ -3,7 +3,7 @@ ERROR SPPA1007 @ (97,13): Unknown symbol.
 ERROR SPPG1027 @ (75,3)
 from (99,10): Invalid redefinition of `this` in function args.
 ERROR SPPG1024 @ (100,3): Trying to access a local variable before it's initialized.
-ERROR SPPG1035 @ (102,5): The requested member is not a variable definition.
+ERROR SPPG1002 @ (102,5): Invalid operation.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -171,12 +171,12 @@ define void @"B.~init(iref[B],ref[B])"(%B* %this, %B* %that) {
   store %B* %this, %B** %this1
   %that2 = alloca %B*
   store %B* %that, %B** %that2
-  %0 = load %B*, %B** %this1
+  %0 = load %B*, %B** %that2
   %1 = getelementptr %B, %B* %0, i32 0, i32 0
-  %2 = load %B*, %B** %that2
+  %2 = load %B*, %B** %this1
   %3 = getelementptr %B, %B* %2, i32 0, i32 0
-  %4 = load %A, %A* %3
-  store %A %4, %A* %1
+  %4 = load %A, %A* %1
+  store %A %4, %A* %3
   ret void
 }
 

@@ -1,2 +1,2 @@
 Did not crash!
-ERROR SPPG1015 @ (19,1): Incompatible types for the given operator.
+ERROR SPPG1015 @ (19,5): Incompatible types for the given operator.

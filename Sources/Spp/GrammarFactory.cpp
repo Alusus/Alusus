@@ -67,6 +67,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
   this->set(S("root.Main.Def.modifierTranslations.دون_ربط"), TiStr::create(S("no_bind")));
   this->set(S("root.Main.Def.modifierTranslations.حقنة"), TiStr::create(S("injection")));
+  this->set(S("root.Main.Def.modifierTranslations.عملية"), TiStr::create(S("operation")));
 
   // Create leading commands.
 
@@ -332,7 +333,8 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   this->set(S("root.Main.Function.modifierTranslations"), Map::create({}, {
     {S("تصدير"), TiStr::create(S("expname"))},
     {S("مشترك"), TiStr::create(S("shared"))},
-    {S("دون_ربط"), TiStr::create(S("no_bind"))}
+    {S("دون_ربط"), TiStr::create(S("no_bind"))},
+    {S("عملية"), TiStr::create(S("operation"))}
   }));
 
   // FuncSigExpression
@@ -793,6 +795,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
   this->remove(S("root.Main.Def.modifierTranslations.دون_ربط"));
   this->remove(S("root.Main.Def.modifierTranslations.حقنة"));
+  this->remove(S("root.Main.Def.modifierTranslations.عملية"));
 
   // Remove commands from tilde commands list.
   this->removeProdsFromGroup(S("root.Main.PostfixTildeCmdGrp"), {

@@ -44,6 +44,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->generator = newSrdObj<CodeGen::Generator>(
     manager,
     this->astHelper.get(),
+    this->calleeTracer.get(),
     this->globalItemRepo.get(),
     this->typeGenerator.get(),
     this->commandGenerator.get(),

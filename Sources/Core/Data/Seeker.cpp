@@ -89,7 +89,8 @@ void Seeker::initBindings()
 Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val, Word flags)
 {
   Bool result = false;
-  this->set(ref, target, [=,&result](TiObject *&obj, Notices::Notice*)->Verb {
+  this->set(ref, target, [=,&result](Action action, TiObject *&obj)->Verb {
+    if (action != Action::TARGET_MATCH) return Verb::MOVE;
     obj = val;
     result = true;
     return Verb::PERFORM_AND_MOVE;
@@ -101,7 +102,8 @@ Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val, Word f
 Bool Seeker::tryRemove(TiObject const *ref, TiObject *target, Word flags)
 {
   Bool ret = false;
-  this->remove(ref, target, [&ret](TiObject *o, Notices::Notice*)->Verb {
+  this->remove(ref, target, [&ret](Action action, TiObject *o)->Verb {
+    if (action != Action::TARGET_MATCH) return Verb::MOVE;
     ret = true;
     return Verb::PERFORM_AND_MOVE;
   }, flags);
@@ -112,7 +114,8 @@ Bool Seeker::tryRemove(TiObject const *ref, TiObject *target, Word flags)
 Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Word flags)
 {
   Bool ret = false;
-  this->foreach(ref, target, [&ret,&retVal](TiObject *o, Notices::Notice*)->Verb {
+  this->foreach(ref, target, [&ret,&retVal](Action action, TiObject *o)->Verb {
+    if (action != Action::TARGET_MATCH) return Verb::MOVE;
     retVal = o;
     ret = true;
     return Verb::STOP;
@@ -124,7 +127,8 @@ Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Wo
 Bool Seeker::find(TiObject const *ref, TiObject *target, TypeInfo const *ti, TiObject *&retVal, Word flags)
 {
   Bool ret = false;
-  this->foreach(ref, target, [ti, &ret, &retVal](TiObject *o, Notices::Notice*)->Verb {
+  this->foreach(ref, target, [ti, &ret, &retVal](Action action, TiObject *o)->Verb {
+    if (action != Action::TARGET_MATCH) return Verb::MOVE;
     if (o->isDerivedFrom(ti)) {
       retVal = o;
       ret = true;
@@ -194,12 +198,25 @@ Seeker::Verb Seeker::_setByIdentifier(
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
       auto data = stack->getElement(i);
       if (data == 0) continue;
+      if (i != stack->getCount() - 1) {
+        retVal = cb(Action::OWNER_SCOPE, data);
+        if (retVal == Verb::SKIP) continue;
+        else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+      }
       retVal = seeker->setByIdentifier_level(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
     }
   } else if (data->isDerivedFrom<Node>()) {
     auto node = static_cast<Node*>(data);
     while (node != 0) {
+      if (node != data) {
+        TiObject *obj = node;
+        retVal = cb(Action::OWNER_SCOPE, obj);
+        if (retVal == Verb::SKIP) {
+          node = node->getOwner();
+          continue;
+        } else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+      }
       retVal = seeker->setByIdentifier_level(identifier, node, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
       if (flags & Seeker::Flags::SKIP_OWNERS) break;
@@ -233,7 +250,7 @@ Seeker::Verb Seeker::_setByIdentifier_scope(
     auto def = ti_cast<Data::Ast::Definition>(scope->getElement(i));
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
-      verb = cb(obj, 0);
+      verb = cb(Action::TARGET_MATCH, obj);
       if (isPerform(verb)) {
         def->setTarget(getSharedPtr(obj));
       }
@@ -242,7 +259,7 @@ Seeker::Verb Seeker::_setByIdentifier_scope(
   }
   if (Seeker::isMove(verb)) {
     TiObject *obj = 0;
-    verb = cb(obj, 0);
+    verb = cb(Action::TARGET_MATCH, obj);
     if (isPerform(verb)) {
       // Add a new definition.
       auto def = Data::Ast::Definition::create();
@@ -268,12 +285,24 @@ Seeker::Verb Seeker::_removeByIdentifier(
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
       auto data = stack->getElement(i);
       if (data == 0) continue;
+      if (i != stack->getCount() - 1) {
+        retVal = cb(Action::OWNER_SCOPE, data);
+        if (retVal == Verb::SKIP) continue;
+        else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+      }
       retVal = seeker->removeByIdentifier_level(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
     }
   } else if (data->isDerivedFrom<Node>()) {
     auto node = static_cast<Node*>(data);
     while (node != 0) {
+      if (node != data) {
+        retVal = cb(Action::OWNER_SCOPE, node);
+        if (retVal == Verb::SKIP) {
+          node = node->getOwner();
+          continue;
+        } else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+      }
       retVal = seeker->removeByIdentifier_level(identifier, node, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
       if (flags & Seeker::Flags::SKIP_OWNERS) break;
@@ -307,7 +336,7 @@ Seeker::Verb Seeker::_removeByIdentifier_scope(
     auto def = ti_cast<Data::Ast::Definition>(scope->getElement(i));
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
-      verb = cb(obj, 0);
+      verb = cb(Action::TARGET_MATCH, obj);
       if (isPerform(verb)) {
         scope->remove(i);
         --i;
@@ -333,14 +362,14 @@ Seeker::Verb Seeker::_foreachByIdentifier(
       for (Int i = 0; i < stack->getCount(); ++i) {
         auto element = stack->getElement(i);
         if (element != 0) {
-          return cb(element, 0);
+          return cb(Action::TARGET_MATCH, element);
         }
       }
       throw EXCEPTION(InvalidArgumentException, S("data"), S("The stack is empty."));
     } else if (data->isDerivedFrom<Node>()) {
       auto node = static_cast<Node*>(data);
       while (node->getOwner() != 0) node = node->getOwner();
-      return cb(node, 0);
+      return cb(Action::TARGET_MATCH, node);
     } else {
       throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
     }
@@ -350,12 +379,24 @@ Seeker::Verb Seeker::_foreachByIdentifier(
       for (Int i = stack->getCount() - 1; i >= 0; --i) {
         auto data = stack->getElement(i);
         if (data == 0) continue;
+        if (i != stack->getCount() - 1) {
+          retVal = cb(Action::OWNER_SCOPE, data);
+          if (retVal == Verb::SKIP) continue;
+          else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+        }
         retVal = seeker->foreachByIdentifier_level(identifier, data, cb, flags);
         if (!Seeker::isMove(retVal)) return retVal;
       }
     } else if (data->isDerivedFrom<Node>()) {
       auto node = static_cast<Node*>(data);
       while (node != 0) {
+        if (node != data) {
+          retVal = cb(Action::OWNER_SCOPE, node);
+          if (retVal == Verb::SKIP) {
+            node = node->getOwner();
+            continue;
+          } else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+        }
         retVal = seeker->foreachByIdentifier_level(identifier, node, cb, flags);
         if (!Seeker::isMove(retVal)) return retVal;
         if (flags & Seeker::Flags::SKIP_OWNERS) break;
@@ -391,14 +432,19 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
       if (obj->isDerivedFrom<Ast::Alias>()) {
+        verb = cb(Action::ALIAS_TRACE_START, obj);
+        if (verb == Verb::SKIP) return Verb::MOVE;
+        else if (verb == Verb::STOP) return verb;
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
         verb = seeker->foreach(
           alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
         );
         if (!Seeker::isMove(verb)) return verb;
+        verb = cb(Action::ALIAS_TRACE_END, obj);
+        if (verb != Verb::MOVE) return verb;
       } else {
-        verb = cb(obj, 0);
+        verb = cb(Action::TARGET_MATCH, obj);
         if (!Seeker::isMove(verb)) return verb;
       }
     }
@@ -407,20 +453,23 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
   PREPARE_SELF(seeker, Seeker);
 
   if (!(flags & Seeker::Flags::SKIP_USES)) {
+    verb = cb(Action::USE_SCOPES_START, scope);
+    if (verb == Verb::SKIP) return verb;
     for (Int i = 0; i < scope->getBridgeCount(); ++i) {
       auto bridgeRef = scope->getBridge(i);
       // If the thing we are looking for is actually this bridgeRef, then we need to skip, otherwise we end up in
       // an infinite loop.
       if (bridgeRef->getTarget() == identifier) continue;
-      verb = seeker->foreach(bridgeRef->getTarget().get(), scope,
-        [=](TiObject *o, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
-          if (o != 0) return seeker->foreachByIdentifier_level(identifier, o, cb, flags | Seeker::Flags::SKIP_USES);
-          else return Core::Data::Seeker::Verb::MOVE;
-        },
-        flags | Seeker::Flags::SKIP_USES
-      );
+      auto bridgeTarget = seeker->tryGet(bridgeRef->getTarget().get(), scope, Seeker::Flags::SKIP_USES);
+      if (bridgeTarget == 0) continue;
+      verb = cb(Action::USE_SCOPE, bridgeTarget);
+      if (verb == Verb::SKIP) continue;
+      else if (verb == Verb::SKIP_GROUP || verb == Verb::STOP) break;
+
+      verb = seeker->foreachByIdentifier_level(identifier, bridgeTarget, cb, flags | Seeker::Flags::SKIP_USES);
       if (!Seeker::isMove(verb)) return verb;
     }
+    verb = cb(Action::USE_SCOPES_END, scope);
   }
 
   return verb;
@@ -436,9 +485,10 @@ Seeker::Verb Seeker::_setByLinkOperator(
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   return seeker->foreach(first, data,
-    [=](TiObject *newData, Notices::Notice*)->Verb
+    [=](Action action, TiObject *newData)->Verb
     {
-      return seeker->setByLinkOperator_routing(link, newData, cb, flags);
+      if (action == Action::TARGET_MATCH) return seeker->setByLinkOperator_routing(link, newData, cb, flags);
+      else return cb(action, newData);
     },
     flags
   );
@@ -481,7 +531,7 @@ Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
     auto def = ti_cast<Data::Ast::Definition>(scope->getElement(i));
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
-      verb = cb(obj, 0);
+      verb = cb(Action::TARGET_MATCH, obj);
       if (isPerform(verb)) {
         def->setTarget(getSharedPtr(obj));
       }
@@ -490,7 +540,7 @@ Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
   }
   if (Seeker::isMove(verb)) {
     TiObject *obj = 0;
-    verb = cb(obj, 0);
+    verb = cb(Action::TARGET_MATCH, obj);
     if (isPerform(verb)) {
       // Add a new definition.
       auto def = Data::Ast::Definition::create();
@@ -504,12 +554,11 @@ Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
 
 
 Seeker::Verb Seeker::_setByLinkOperator_mapDotIdentifier(
-  TiObject *self, Ast::Identifier const *identifier, MapContaining<TiObject> *map,
-  SetCallback const &cb, Word flags
+  TiObject *self, Ast::Identifier const *identifier, MapContaining<TiObject> *map, SetCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
   auto obj = map->getElement(identifier->getValue().get());
-  verb = cb(obj, 0);
+  verb = cb(Action::TARGET_MATCH, obj);
   if (isPerform(verb)) {
     map->setElement(identifier->getValue().get(), obj);
   }
@@ -526,9 +575,10 @@ Seeker::Verb Seeker::_removeByLinkOperator(
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   return seeker->foreach(first, data,
-    [=](TiObject *newData, Notices::Notice*)->Verb
+    [=](Action action, TiObject *newData)->Verb
     {
-      return seeker->removeByLinkOperator_routing(link, newData, cb, flags);
+      if (action == Action::TARGET_MATCH) return seeker->removeByLinkOperator_routing(link, newData, cb, flags);
+      else return cb(action, newData);
     },
     flags
   );
@@ -571,7 +621,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_scopeDotIdentifier(
     auto def = ti_cast<Data::Ast::Definition>(scope->getElement(i));
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
-      verb = cb(obj, 0);
+      verb = cb(Action::TARGET_MATCH, obj);
       if (isPerform(verb)) {
         scope->remove(i);
         --i;
@@ -591,7 +641,7 @@ Seeker::Verb Seeker::_removeByLinkOperator_mapDotIdentifier(
   auto index = map->findElementIndex(identifier->getValue().get());
   if (index != -1) {
     auto obj = map->getElement(index);
-    verb = cb(obj, 0);
+    verb = cb(Action::TARGET_MATCH, obj);
     if (isPerform(verb)) {
       map->removeElement(index);
     }
@@ -609,9 +659,10 @@ Seeker::Verb Seeker::_foreachByLinkOperator(
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   return seeker->foreach(first, data,
-    [=](TiObject *newData, Notices::Notice*)->Verb
+    [=](Action action, TiObject *newData)->Verb
     {
-      return seeker->foreachByLinkOperator_routing(link, newData, cb, flags);
+      if (action == Action::TARGET_MATCH) return seeker->foreachByLinkOperator_routing(link, newData, cb, flags);
+      else return cb(action, newData);
     },
     flags
   );
@@ -655,14 +706,19 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
     if (def != 0 && def->getName() == identifier->getValue()) {
       auto obj = def->getTarget().get();
       if (obj->isDerivedFrom<Ast::Alias>()) {
+        verb = cb(Action::ALIAS_TRACE_START, obj);
+        if (verb == Verb::SKIP) return Verb::MOVE;
+        else if (verb == Verb::STOP) return verb;
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
         verb = seeker->foreach(
           alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
         );
         if (!Seeker::isMove(verb)) break;
+        verb = cb(Action::ALIAS_TRACE_END, obj);
+        if (verb != Verb::MOVE) return verb;
       } else {
-        verb = cb(obj, 0);
+        verb = cb(Action::TARGET_MATCH, obj);
         if (!Seeker::isMove(verb)) break;
       }
     }
@@ -679,13 +735,18 @@ Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
   if (index == -1) return Verb::MOVE;
   auto obj = map->getElement(index);
   if (obj->isDerivedFrom<Ast::Alias>()) {
+    auto verb = cb(Action::ALIAS_TRACE_START, obj);
+    if (verb == Verb::SKIP) return Verb::MOVE;
+    else if (verb == Verb::STOP) return verb;
     PREPARE_SELF(seeker, Seeker);
     auto alias = static_cast<Ast::Alias*>(obj);
-    return seeker->foreach(
+    verb = seeker->foreach(
       alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
     );
+    if (verb != Verb::MOVE) return verb;
+    return cb(Action::ALIAS_TRACE_END, obj);
   } else {
-    return cb(obj, 0);
+    return cb(Action::TARGET_MATCH, obj);
   }
 }
 

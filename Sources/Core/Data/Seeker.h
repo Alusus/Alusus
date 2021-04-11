@@ -31,12 +31,26 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
   // Types
 
   public: ti_s_enum(Verb, TiInt, "Core.Data", "Core", "alusus.org",
-    MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP
+    MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP, SKIP, SKIP_GROUP
   );
-  public: s_enum(Flags, SKIP_OWNERS = 1, SKIP_OWNED = 2, SKIP_USES = 4);
-  public: typedef std::function<Verb(TiObject *&obj, Notices::Notice *notice)> SetCallback;
-  public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> RemoveCallback;
-  public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> ForeachCallback;
+  public: ti_s_enum(Action, TiInt, "Core.Data", "Core", "alusus.org",
+    TARGET_MATCH,
+    OWNER_SCOPE,
+    USE_SCOPE,
+    USE_SCOPES_START,
+    USE_SCOPES_END,
+    ALIAS_TRACE_START,
+    ALIAS_TRACE_END,
+    ERROR
+  );
+  public: s_enum(Flags,
+    SKIP_OWNERS = 1,
+    SKIP_OWNED = 2,
+    SKIP_USES = 4
+  );
+  public: typedef std::function<Verb(Action action, TiObject *&obj)> SetCallback;
+  public: typedef std::function<Verb(Action action, TiObject *obj)> RemoveCallback;
+  public: typedef std::function<Verb(Action action, TiObject *obj)> ForeachCallback;
 
 
   //============================================================================

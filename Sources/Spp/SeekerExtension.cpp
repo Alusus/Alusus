@@ -127,7 +127,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
   auto argTypes = function->getType()->getArgTypes().get();
   if (argTypes == 0) return Core::Data::Seeker::Verb::MOVE;
   auto index = argTypes->findIndex(identifier->getValue().get());
-  if (index >= 0) return cb(argTypes->getElement(index), 0);
+  if (index >= 0) return cb(Core::Data::Seeker::Action::TARGET_MATCH, argTypes->getElement(index));
   return Core::Data::Seeker::Verb::MOVE;
 }
 
@@ -175,9 +175,11 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass(
   PREPARE_SELF(seekerExtension, SeekerExtension);
   auto operand = paramPass->getOperand().get();
   return seeker->foreach(operand, data,
-    [=](TiObject *newData, Core::Notices::Notice*)->Core::Data::Seeker::Verb
+    [=](Core::Data::Seeker::Action action, TiObject *newData)->Core::Data::Seeker::Verb
     {
-      return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb, flags);
+      if (action == Core::Data::Seeker::Action::TARGET_MATCH) {
+        return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb, flags);
+      } else return cb(action, newData);
     },
     flags
   );
@@ -197,7 +199,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
       auto notice = newSrdObj<Spp::Notices::InvalidSquareBracketOperandNotice>(
         Core::Data::Ast::findSourceLocation(paramPass)
       );
-      return cb(0, notice.get());
+      return cb(Core::Data::Seeker::Action::ERROR, notice.get());
     }
   } else {
     throw EXCEPTION(InvalidArgumentException, S("paramPass"), S("Invalid bracket type."), paramPass->getType());
@@ -211,10 +213,10 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
   PREPARE_SELF(seekerExtension, SeekerExtension);
   TioSharedPtr result;
   if (tmplt->matchInstance(param, seekerExtension->astHelper, result)) {
-    return cb(result.get(), 0);
+    return cb(Core::Data::Seeker::Action::TARGET_MATCH, result.get());
   } else {
     auto notice = result.ti_cast_get<Core::Notices::Notice>();
-    if (notice != 0) return cb(0, notice);
+    if (notice != 0) return cb(Core::Data::Seeker::Action::ERROR, notice);
     else return Core::Data::Seeker::Verb::MOVE;
   }
 }
@@ -226,7 +228,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByThisTypeRef(
   auto node = static_cast<Core::Data::Node*>(data);
   while (node != 0) {
     if (node->isDerivedFrom<Spp::Ast::DataType>()) {
-      return cb(node, 0);
+      return cb(Core::Data::Seeker::Action::TARGET_MATCH, node);
     }
     node = node->getOwner();
   }
@@ -244,12 +246,24 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison(
     for (Int i = stack->getCount() - 1; i >= 0; --i) {
       auto data = stack->getElement(i);
       if (data == 0) continue;
+      if (i != stack->getCount() - 1) {
+        retVal = cb(Core::Data::Seeker::Action::OWNER_SCOPE, data);
+        if (retVal == Core::Data::Seeker::Verb::SKIP) continue;
+        else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || retVal == Core::Data::Seeker::Verb::STOP) break;
+      }
       retVal = seekerExtension->foreachByComparison_level(comparison, data, cb, flags);
       if (!Core::Data::Seeker::isMove(retVal)) return retVal;
     }
   } else if (data->isDerivedFrom<Core::Data::Node>()) {
     auto node = static_cast<Core::Data::Node*>(data);
     while (node != 0) {
+      if (node != data) {
+        retVal = cb(Core::Data::Seeker::Action::OWNER_SCOPE, node);
+        if (retVal == Core::Data::Seeker::Verb::SKIP) {
+          node = node->getOwner();
+          continue;
+        } else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || retVal == Core::Data::Seeker::Verb::STOP) break;
+      }
       retVal = seekerExtension->foreachByComparison_level(comparison, node, cb, flags);
       if (!Core::Data::Seeker::isMove(retVal)) return retVal;
       if (flags & Core::Data::Seeker::Flags::SKIP_OWNERS) break;
@@ -292,7 +306,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_scope(
     if (def != 0) {
       auto obj = def->getTarget().get();
       if (seekerExtension->foreachByComparison_compute(comparison, obj)) {
-        verb = cb(obj, 0);
+        verb = cb(Core::Data::Seeker::Action::TARGET_MATCH, obj);
         if (!Core::Data::Seeker::isMove(verb)) return verb;
       }
       if (!(flags & Flags::SKIP_CHILDREN)) {
@@ -303,18 +317,21 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_scope(
   }
 
   if (!(flags & Core::Data::Seeker::Flags::SKIP_USES)) {
+    verb = cb(Core::Data::Seeker::Action::USE_SCOPES_START, scope);
+    if (verb == Core::Data::Seeker::Verb::SKIP) return verb;
     PREPARE_SELF(seeker, Core::Data::Seeker);
     for (Int i = 0; i < scope->getBridgeCount(); ++i) {
       auto bridgeRef = scope->getBridge(i);
-      verb = seeker->foreach(bridgeRef->getTarget().get(), scope,
-        [=](TiObject *o, Core::Notices::Notice*)->Core::Data::Seeker::Verb {
-          if (o != 0) return seekerExtension->foreachByComparison_level(comparison, o, cb, flags);
-          else return Core::Data::Seeker::Verb::MOVE;
-        },
-        flags | Core::Data::Seeker::Flags::SKIP_USES
-      );
+      auto bridgeTarget = seeker->tryGet(bridgeRef->getTarget().get(), scope, Core::Data::Seeker::Flags::SKIP_USES);
+      if (bridgeTarget == 0) continue;
+      verb = cb(Core::Data::Seeker::Action::USE_SCOPE, bridgeTarget);
+      if (verb == Core::Data::Seeker::Verb::SKIP) continue;
+      else if (verb == Core::Data::Seeker::Verb::SKIP_GROUP || verb == Core::Data::Seeker::Verb::STOP) break;
+
+      verb = seekerExtension->foreachByComparison_level(comparison, bridgeTarget, cb, flags);
       if (!Core::Data::Seeker::isMove(verb)) return verb;
     }
+    verb = cb(Core::Data::Seeker::Action::USE_SCOPES_END, scope);
   }
 
   return verb;

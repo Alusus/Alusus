@@ -103,8 +103,6 @@ function printNumPtr (pn: ptr[Int])
 {
     print("%d\n", pn~cnt);
 };
-def i: Int;
-def ri: ref[Int];
 ri~ptr = i~ptr;
 i = 5;
 print("Passing ref[int] as ptr[int]. ");
