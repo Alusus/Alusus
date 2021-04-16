@@ -50,10 +50,8 @@ Bool mergeDefinition(
   Core::Data::Ast::Identifier ref({{ S("value"), def->getName() }});
   Bool result = true;
   Bool found = false;
-  seeker->foreach(&ref, target->getTiObject(),
-    [=,&result,&found](Seeker::Action action, TiObject *obj)->Seeker::Verb {
-      if (action != Seeker::Action::TARGET_MATCH) return Seeker::Verb::MOVE;
-
+  seeker->extForeach(&ref, target->getTiObject(),
+    [=,&result,&found](TiInt action, TiObject *obj)->Seeker::Verb {
       found = true;
       auto targetObj = ti_cast<Mergeable>(obj);
       if (targetObj == 0) {

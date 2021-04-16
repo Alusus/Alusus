@@ -156,7 +156,7 @@ Bool AstProcessor::_processParamPass(
     Ast::Macro *macro = 0;
     Ast::PointerType *pointerType = 0;
     astProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), paramPass->getOwner(),
-      [=, &macro, &pointerType] (Core::Data::Seeker::Action action, TiObject *obj)->Core::Data::Seeker::Verb
+      [=, &macro, &pointerType] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
         if (action != Core::Data::Seeker::Action::TARGET_MATCH) {
           return Core::Data::Seeker::Verb::MOVE;

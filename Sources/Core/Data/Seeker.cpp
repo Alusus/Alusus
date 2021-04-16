@@ -24,6 +24,7 @@ void Seeker::initBindingCaches()
     &this->set,
     &this->remove,
     &this->foreach,
+    &this->extForeach,
     &this->setByIdentifier,
     &this->setByIdentifier_level,
     &this->setByIdentifier_scope,
@@ -55,6 +56,7 @@ void Seeker::initBindings()
   this->set = &Seeker::_set;
   this->remove = &Seeker::_remove;
   this->foreach = &Seeker::_foreach;
+  this->extForeach = &Seeker::_extForeach;
 
   // Identifier seek functions
   this->setByIdentifier = &Seeker::_setByIdentifier;
@@ -89,8 +91,24 @@ void Seeker::initBindings()
 Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val, Word flags)
 {
   Bool result = false;
-  this->set(ref, target, [=,&result](Action action, TiObject *&obj)->Verb {
-    if (action != Action::TARGET_MATCH) return Verb::MOVE;
+  Int tracingAlias = 0;
+  this->set(ref, target, [=,&result, &tracingAlias](TiInt action, TiObject *&obj)->Verb {
+    if (action == Action::ALIAS_TRACE_START) {
+      ++tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::ALIAS_TRACE_END) {
+      --tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::OWNER_SCOPE) {
+      if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
+      else return Verb::MOVE;
+    } else if (action == Action::USE_SCOPES_START) {
+      if ((flags & Flags::SKIP_USES) != 0 && (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)) {
+        return Verb::SKIP;
+      } else return Verb::MOVE;
+    } else if (action != Action::TARGET_MATCH) {
+      return Verb::MOVE;
+    }
     obj = val;
     result = true;
     return Verb::PERFORM_AND_MOVE;
@@ -102,8 +120,24 @@ Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val, Word f
 Bool Seeker::tryRemove(TiObject const *ref, TiObject *target, Word flags)
 {
   Bool ret = false;
-  this->remove(ref, target, [&ret](Action action, TiObject *o)->Verb {
-    if (action != Action::TARGET_MATCH) return Verb::MOVE;
+  Int tracingAlias = 0;
+  this->remove(ref, target, [flags, &ret, &tracingAlias](TiInt action, TiObject *o)->Verb {
+    if (action == Action::ALIAS_TRACE_START) {
+      ++tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::ALIAS_TRACE_END) {
+      --tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::OWNER_SCOPE) {
+      if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
+      else return Verb::MOVE;
+    } else if (action == Action::USE_SCOPES_START) {
+      if ((flags & Flags::SKIP_USES) != 0 && (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)) {
+        return Verb::SKIP;
+      } else return Verb::MOVE;
+    } else if (action != Action::TARGET_MATCH) {
+      return Verb::MOVE;
+    }
     ret = true;
     return Verb::PERFORM_AND_MOVE;
   }, flags);
@@ -114,8 +148,7 @@ Bool Seeker::tryRemove(TiObject const *ref, TiObject *target, Word flags)
 Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Word flags)
 {
   Bool ret = false;
-  this->foreach(ref, target, [&ret,&retVal](Action action, TiObject *o)->Verb {
-    if (action != Action::TARGET_MATCH) return Verb::MOVE;
+  this->extForeach(ref, target, [&ret, &retVal](TiInt action, TiObject *o)->Verb {
     retVal = o;
     ret = true;
     return Verb::STOP;
@@ -127,8 +160,7 @@ Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Wo
 Bool Seeker::find(TiObject const *ref, TiObject *target, TypeInfo const *ti, TiObject *&retVal, Word flags)
 {
   Bool ret = false;
-  this->foreach(ref, target, [ti, &ret, &retVal](Action action, TiObject *o)->Verb {
-    if (action != Action::TARGET_MATCH) return Verb::MOVE;
+  this->extForeach(ref, target, [ti, &ret, &retVal](TiInt action, TiObject *o)->Verb {
     if (o->isDerivedFrom(ti)) {
       retVal = o;
       ret = true;
@@ -185,6 +217,33 @@ Seeker::Verb Seeker::_foreach(
 }
 
 
+Seeker::Verb Seeker::_extForeach(
+  TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  Int tracingAlias = 0;
+  return seeker->foreach(ref, target, [flags, cb, &tracingAlias](TiInt action, TiObject *o)->Verb {
+    if (action == Action::ALIAS_TRACE_START) {
+      ++tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::ALIAS_TRACE_END) {
+      --tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::OWNER_SCOPE) {
+      if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
+      else return Verb::MOVE;
+    } else if (action == Action::USE_SCOPES_START) {
+      if ((flags & Flags::SKIP_USES) != 0 && (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)) {
+        return Verb::SKIP;
+      } else return Verb::MOVE;
+    } else if (action != Action::TARGET_MATCH) {
+      return Verb::MOVE;
+    }
+    return cb(action, o);
+  }, flags);
+}
+
+
 //==============================================================================
 // Identifier set
 
@@ -201,7 +260,7 @@ Seeker::Verb Seeker::_setByIdentifier(
       if (i != stack->getCount() - 1) {
         retVal = cb(Action::OWNER_SCOPE, data);
         if (retVal == Verb::SKIP) continue;
-        else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+        else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
       retVal = seeker->setByIdentifier_level(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
@@ -215,11 +274,10 @@ Seeker::Verb Seeker::_setByIdentifier(
         if (retVal == Verb::SKIP) {
           node = node->getOwner();
           continue;
-        } else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+        } else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
       retVal = seeker->setByIdentifier_level(identifier, node, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
-      if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
       flags |= Seeker::Flags::SKIP_OWNED;
     }
@@ -288,7 +346,7 @@ Seeker::Verb Seeker::_removeByIdentifier(
       if (i != stack->getCount() - 1) {
         retVal = cb(Action::OWNER_SCOPE, data);
         if (retVal == Verb::SKIP) continue;
-        else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+        else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
       retVal = seeker->removeByIdentifier_level(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
@@ -301,11 +359,10 @@ Seeker::Verb Seeker::_removeByIdentifier(
         if (retVal == Verb::SKIP) {
           node = node->getOwner();
           continue;
-        } else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+        } else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
       retVal = seeker->removeByIdentifier_level(identifier, node, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
-      if (flags & Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
       flags |= Seeker::Flags::SKIP_OWNED;
     }
@@ -382,7 +439,7 @@ Seeker::Verb Seeker::_foreachByIdentifier(
         if (i != stack->getCount() - 1) {
           retVal = cb(Action::OWNER_SCOPE, data);
           if (retVal == Verb::SKIP) continue;
-          else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+          else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
         }
         retVal = seeker->foreachByIdentifier_level(identifier, data, cb, flags);
         if (!Seeker::isMove(retVal)) return retVal;
@@ -395,11 +452,10 @@ Seeker::Verb Seeker::_foreachByIdentifier(
           if (retVal == Verb::SKIP) {
             node = node->getOwner();
             continue;
-          } else if (retVal == Verb::SKIP_GROUP || retVal == Verb::STOP) break;
+          } else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
         }
         retVal = seeker->foreachByIdentifier_level(identifier, node, cb, flags);
         if (!Seeker::isMove(retVal)) return retVal;
-        if (flags & Seeker::Flags::SKIP_OWNERS) break;
         node = node->getOwner();
         flags |= Seeker::Flags::SKIP_OWNED;
       }
@@ -434,11 +490,11 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         verb = cb(Action::ALIAS_TRACE_START, obj);
         if (verb == Verb::SKIP) return Verb::MOVE;
-        else if (verb == Verb::STOP) return verb;
+        else if (!Seeker::isMove(verb)) return verb;
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
         verb = seeker->foreach(
-          alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
+          alias->getReference().get(), alias->getOwner(), cb, flags & ~Flags::SKIP_OWNED
         );
         if (!Seeker::isMove(verb)) return verb;
         verb = cb(Action::ALIAS_TRACE_END, obj);
@@ -452,7 +508,7 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
 
   PREPARE_SELF(seeker, Seeker);
 
-  if (!(flags & Seeker::Flags::SKIP_USES)) {
+  if (scope->getBridgeCount() > 0) {
     verb = cb(Action::USE_SCOPES_START, scope);
     if (verb == Verb::SKIP) return verb;
     for (Int i = 0; i < scope->getBridgeCount(); ++i) {
@@ -460,13 +516,15 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       // If the thing we are looking for is actually this bridgeRef, then we need to skip, otherwise we end up in
       // an infinite loop.
       if (bridgeRef->getTarget() == identifier) continue;
-      auto bridgeTarget = seeker->tryGet(bridgeRef->getTarget().get(), scope, Seeker::Flags::SKIP_USES);
+      auto bridgeTarget = seeker->tryGet(
+        bridgeRef->getTarget().get(), scope, Seeker::Flags::SKIP_USES | Seeker::Flags::SKIP_USES_FOR_ALIASES
+      );
       if (bridgeTarget == 0) continue;
       verb = cb(Action::USE_SCOPE, bridgeTarget);
       if (verb == Verb::SKIP) continue;
-      else if (verb == Verb::SKIP_GROUP || verb == Verb::STOP) break;
+      else if (verb == Verb::SKIP_GROUP || !Seeker::isMove(verb)) break;
 
-      verb = seeker->foreachByIdentifier_level(identifier, bridgeTarget, cb, flags | Seeker::Flags::SKIP_USES);
+      verb = seeker->foreachByIdentifier_level(identifier, bridgeTarget, cb, flags);
       if (!Seeker::isMove(verb)) return verb;
     }
     verb = cb(Action::USE_SCOPES_END, scope);
@@ -485,7 +543,7 @@ Seeker::Verb Seeker::_setByLinkOperator(
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   return seeker->foreach(first, data,
-    [=](Action action, TiObject *newData)->Verb
+    [=](TiInt action, TiObject *newData)->Verb
     {
       if (action == Action::TARGET_MATCH) return seeker->setByLinkOperator_routing(link, newData, cb, flags);
       else return cb(action, newData);
@@ -575,7 +633,7 @@ Seeker::Verb Seeker::_removeByLinkOperator(
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   return seeker->foreach(first, data,
-    [=](Action action, TiObject *newData)->Verb
+    [=](TiInt action, TiObject *newData)->Verb
     {
       if (action == Action::TARGET_MATCH) return seeker->removeByLinkOperator_routing(link, newData, cb, flags);
       else return cb(action, newData);
@@ -659,7 +717,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator(
   PREPARE_SELF(seeker, Seeker);
   auto first = link->getFirst().get();
   return seeker->foreach(first, data,
-    [=](Action action, TiObject *newData)->Verb
+    [=](TiInt action, TiObject *newData)->Verb
     {
       if (action == Action::TARGET_MATCH) return seeker->foreachByLinkOperator_routing(link, newData, cb, flags);
       else return cb(action, newData);
@@ -708,11 +766,11 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
       if (obj->isDerivedFrom<Ast::Alias>()) {
         verb = cb(Action::ALIAS_TRACE_START, obj);
         if (verb == Verb::SKIP) return Verb::MOVE;
-        else if (verb == Verb::STOP) return verb;
+        else if (!Seeker::isMove(verb)) return verb;
         PREPARE_SELF(seeker, Seeker);
         auto alias = static_cast<Ast::Alias*>(obj);
         verb = seeker->foreach(
-          alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
+          alias->getReference().get(), alias->getOwner(), cb, flags & ~Flags::SKIP_OWNED
         );
         if (!Seeker::isMove(verb)) break;
         verb = cb(Action::ALIAS_TRACE_END, obj);
@@ -737,11 +795,11 @@ Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
   if (obj->isDerivedFrom<Ast::Alias>()) {
     auto verb = cb(Action::ALIAS_TRACE_START, obj);
     if (verb == Verb::SKIP) return Verb::MOVE;
-    else if (verb == Verb::STOP) return verb;
+    else if (!Seeker::isMove(verb)) return verb;
     PREPARE_SELF(seeker, Seeker);
     auto alias = static_cast<Ast::Alias*>(obj);
     verb = seeker->foreach(
-      alias->getReference().get(), alias->getOwner(), cb, flags & ~(Flags::SKIP_OWNERS | Flags::SKIP_OWNED)
+      alias->getReference().get(), alias->getOwner(), cb, flags & ~Flags::SKIP_OWNED
     );
     if (verb != Verb::MOVE) return verb;
     return cb(Action::ALIAS_TRACE_END, obj);

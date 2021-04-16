@@ -116,10 +116,9 @@ TypeMatchStatus Helper::_lookupCustomCaster(
       PlainList<TiObject> argTypes({ srcRefType });
       static Core::Data::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
       TypeMatchStatus retMatch;
-      helper->getSeeker()->foreach(&ref, srcContentType->getBody().get(),
-        [=, &retMatch, &caster, &argTypes] (Core::Data::Seeker::Action action, TiObject *obj)->Core::Data::Seeker::Verb
+      helper->getSeeker()->extForeach(&ref, srcContentType->getBody().get(),
+        [=, &retMatch, &caster, &argTypes] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
         {
-          if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
             auto funcType = func->getType().get();
@@ -136,7 +135,7 @@ TypeMatchStatus Helper::_lookupCustomCaster(
           }
           return Core::Data::Seeker::Verb::MOVE;
         },
-        SeekerExtension::Flags::SKIP_OWNERS_AND_USES
+        Core::Data::Seeker::Flags::SKIP_OWNERS | Core::Data::Seeker::Flags::SKIP_USES
       );
       return retMatch;
     }
@@ -181,7 +180,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
       throw EXCEPTION(GenericException, S("Invalid type reference."));
     }
     helper->getSeeker()->foreach(typeRef, owner,
-      [=, &foundObj, &type, &notice](Core::Data::Seeker::Action action, TiObject *obj)->Core::Data::Seeker::Verb
+      [=, &foundObj, &type, &notice](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
         if (action == Core::Data::Seeker::Action::ERROR) {
           notice = getSharedPtr(ti_cast<Core::Notices::Notice>(obj));
@@ -851,7 +850,7 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
   }
   Bool found = false;
   helper->getSeeker()->foreach(bridge->getTarget().get(), bridge->getOwner(),
-    [=, &found] (Core::Data::Seeker::Action action, TiObject *obj)->Core::Data::Seeker::Verb
+    [=, &found] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
     {
       if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
       if (ti_cast<Ast::Module>(obj) != 0) {

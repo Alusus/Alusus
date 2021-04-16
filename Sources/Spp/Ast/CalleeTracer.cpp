@@ -63,9 +63,9 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
 
   if (request.ref != 0) {
     auto target = request.target;
-    int tracingAlias = 0;
+    Int tracingAlias = 0;
     auto callback = [=, &request, &result, &target, &tracingAlias]
-      (Core::Data::Seeker::Action action, TiObject *obj)->Core::Data::Seeker::Verb
+      (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
         if (action == Core::Data::Seeker::Action::ERROR) {
           if (result.isNew()) result.notice = getSharedPtr(ti_cast<Core::Notices::Notice>(obj));
@@ -193,13 +193,14 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             // an infinite loop.
             if (bridgeRef->getTarget() == request.ref) continue;
             auto bridgeTarget = tracer->getSeeker()->tryGet(
-              bridgeRef->getTarget().get(), scope, Core::Data::Seeker::Flags::SKIP_USES
+              bridgeRef->getTarget().get(), scope,
+              Core::Data::Seeker::Flags::SKIP_USES | Core::Data::Seeker::Flags::SKIP_USES_FOR_ALIASES
             );
             if (bridgeTarget == 0) continue;
 
             tracingAlias = 0;
             auto verb = tracer->getSeeker()->foreach(request.ref, bridgeTarget, callback, 0);
-            if (verb == Core::Data::Seeker::Verb::STOP) break;
+            if (!Core::Data::Seeker::isMove(verb)) break;
           }
         }
       }

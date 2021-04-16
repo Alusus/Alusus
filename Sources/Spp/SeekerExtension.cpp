@@ -28,6 +28,7 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, 
   auto overrides = new Overrides();
   extension->astHelper = astHelper;
   overrides->foreachRef = seeker->foreach.set(&SeekerExtension::_foreach).get();
+  overrides->extForeachRef = seeker->extForeach.set(&SeekerExtension::_extForeach).get();
   overrides->foreachByIdentifier_levelRef =
     seeker->foreachByIdentifier_level.set(&SeekerExtension::_foreachByIdentifier_level).get();
   overrides->foreachByIdentifier_functionRef =
@@ -61,6 +62,7 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
 {
   auto extension = ti_cast<SeekerExtension>(seeker);
   seeker->foreach.reset(overrides->foreachRef);
+  seeker->extForeach.reset(overrides->extForeachRef);
   seeker->foreachByIdentifier_level.reset(overrides->foreachByIdentifier_levelRef);
   seeker->foreachByLinkOperator_routing.reset(overrides->foreachByLinkOperator_routingRef);
   extension->astHelper = SharedPtr<Ast::Helper>::null;
@@ -100,6 +102,40 @@ Core::Data::Seeker::Verb SeekerExtension::_foreach(
     PREPARE_SELF(seeker, Core::Data::Seeker);
     return seeker->foreach.useCallee(base)(ref, target, cb, flags);
   }
+}
+
+
+Core::Data::Seeker::Verb SeekerExtension::_extForeach(
+  TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
+  Core::Data::Seeker::ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Core::Data::Seeker);
+  Int tracingAlias = 0;
+  return seeker->foreach(ref, target, [flags, cb, &tracingAlias](TiInt action, TiObject *o)->Core::Data::Seeker::Verb {
+    if (action == Core::Data::Seeker::Action::ALIAS_TRACE_START) {
+      ++tracingAlias;
+      return Core::Data::Seeker::Verb::MOVE;
+    } else if (action == Core::Data::Seeker::Action::ALIAS_TRACE_END) {
+      --tracingAlias;
+      return Core::Data::Seeker::Verb::MOVE;
+    } else if (action == Core::Data::Seeker::Action::OWNER_SCOPE) {
+      if (tracingAlias == 0 && (flags & Core::Data::Seeker::Flags::SKIP_OWNERS) != 0) {
+        return Core::Data::Seeker::Verb::SKIP_GROUP;
+      } else return Core::Data::Seeker::Verb::MOVE;
+    } else if (action == Core::Data::Seeker::Action::USE_SCOPES_START) {
+      if (
+        (flags & Core::Data::Seeker::Flags::SKIP_USES) != 0 &&
+        (tracingAlias == 0 || (flags & Core::Data::Seeker::Flags::SKIP_USES_FOR_ALIASES) != 0)
+      ) {
+        return Core::Data::Seeker::Verb::SKIP;
+      } else return Core::Data::Seeker::Verb::MOVE;
+    } else if (action == SeekerExtension::Action::CHILD_SCOPE) {
+      if ((flags & SeekerExtension::Flags::SKIP_CHILDREN) != 0) return Core::Data::Seeker::Verb::SKIP;
+    } else if (action != Core::Data::Seeker::Action::TARGET_MATCH) {
+      return Core::Data::Seeker::Verb::MOVE;
+    }
+    return cb(action, o);
+  }, flags);
 }
 
 
@@ -175,7 +211,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass(
   PREPARE_SELF(seekerExtension, SeekerExtension);
   auto operand = paramPass->getOperand().get();
   return seeker->foreach(operand, data,
-    [=](Core::Data::Seeker::Action action, TiObject *newData)->Core::Data::Seeker::Verb
+    [=](TiInt action, TiObject *newData)->Core::Data::Seeker::Verb
     {
       if (action == Core::Data::Seeker::Action::TARGET_MATCH) {
         return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb, flags);
@@ -249,7 +285,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison(
       if (i != stack->getCount() - 1) {
         retVal = cb(Core::Data::Seeker::Action::OWNER_SCOPE, data);
         if (retVal == Core::Data::Seeker::Verb::SKIP) continue;
-        else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || retVal == Core::Data::Seeker::Verb::STOP) break;
+        else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || !Core::Data::Seeker::isMove(retVal)) break;
       }
       retVal = seekerExtension->foreachByComparison_level(comparison, data, cb, flags);
       if (!Core::Data::Seeker::isMove(retVal)) return retVal;
@@ -262,11 +298,10 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison(
         if (retVal == Core::Data::Seeker::Verb::SKIP) {
           node = node->getOwner();
           continue;
-        } else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || retVal == Core::Data::Seeker::Verb::STOP) break;
+        } else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || !Core::Data::Seeker::isMove(retVal)) break;
       }
       retVal = seekerExtension->foreachByComparison_level(comparison, node, cb, flags);
       if (!Core::Data::Seeker::isMove(retVal)) return retVal;
-      if (flags & Core::Data::Seeker::Flags::SKIP_OWNERS) break;
       node = node->getOwner();
       flags |= Core::Data::Seeker::Flags::SKIP_OWNED;
     }
@@ -309,24 +344,28 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_scope(
         verb = cb(Core::Data::Seeker::Action::TARGET_MATCH, obj);
         if (!Core::Data::Seeker::isMove(verb)) return verb;
       }
-      if (!(flags & Flags::SKIP_CHILDREN)) {
+      verb = cb(SeekerExtension::Action::CHILD_SCOPE, obj);
+      if (verb != Core::Data::Seeker::Verb::SKIP) {
         verb = seekerExtension->foreachByComparison_level(comparison, obj, cb, flags);
-        if (!Core::Data::Seeker::isMove(verb)) return verb;
       }
+      if (!Core::Data::Seeker::isMove(verb)) return verb;
     }
   }
 
-  if (!(flags & Core::Data::Seeker::Flags::SKIP_USES)) {
+  if (scope->getBridgeCount() > 0) {
     verb = cb(Core::Data::Seeker::Action::USE_SCOPES_START, scope);
     if (verb == Core::Data::Seeker::Verb::SKIP) return verb;
     PREPARE_SELF(seeker, Core::Data::Seeker);
     for (Int i = 0; i < scope->getBridgeCount(); ++i) {
       auto bridgeRef = scope->getBridge(i);
-      auto bridgeTarget = seeker->tryGet(bridgeRef->getTarget().get(), scope, Core::Data::Seeker::Flags::SKIP_USES);
+      auto bridgeTarget = seeker->tryGet(
+        bridgeRef->getTarget().get(), scope,
+        Core::Data::Seeker::Flags::SKIP_USES | Core::Data::Seeker::Flags::SKIP_USES_FOR_ALIASES
+      );
       if (bridgeTarget == 0) continue;
       verb = cb(Core::Data::Seeker::Action::USE_SCOPE, bridgeTarget);
       if (verb == Core::Data::Seeker::Verb::SKIP) continue;
-      else if (verb == Core::Data::Seeker::Verb::SKIP_GROUP || verb == Core::Data::Seeker::Verb::STOP) break;
+      else if (verb == Core::Data::Seeker::Verb::SKIP_GROUP || !Core::Data::Seeker::isMove(verb)) break;
 
       verb = seekerExtension->foreachByComparison_level(comparison, bridgeTarget, cb, flags);
       if (!Core::Data::Seeker::isMove(verb)) return verb;
