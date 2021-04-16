@@ -28,12 +28,6 @@ class FloatType : public DataType
 
 
   //============================================================================
-  // Member Variables
-
-  private: mutable TioSharedPtr bitCountRef;
-
-
-  //============================================================================
   // Constructors & Destructor
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(FloatType);

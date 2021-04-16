@@ -34,8 +34,6 @@ class IntegerType : public DataType
 
   private: TiBool withSign;
 
-  private: mutable TioSharedPtr bitCountRef;
-
 
   //============================================================================
   // Implementations

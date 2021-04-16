@@ -20,11 +20,12 @@ namespace Spp::Ast
 
 Word FloatType::getBitCount(Helper *helper) const
 {
-  if (this->bitCountRef == 0) {
-    this->bitCountRef = helper->getRootManager()->parseExpression(S("bitCount"));
+  static TioSharedPtr bitCountRef;
+  if (bitCountRef == 0) {
+    bitCountRef = helper->getRootManager()->parseExpression(S("bitCount"));
   }
   auto bitCount = ti_cast<Core::Data::Ast::IntegerLiteral>(
-    helper->getSeeker()->doGet(this->bitCountRef.get(), this->getOwner())
+    helper->getSeeker()->doGet(bitCountRef.get(), this->getOwner())
   );
   if (bitCount == 0) {
     throw EXCEPTION(GenericException, S("Could not find bitCount value."));

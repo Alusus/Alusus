@@ -41,8 +41,6 @@ class ReferenceType : public DataType
 
   private: ReferenceMode mode;
 
-  private: mutable TioSharedPtr contentTypeRef;
-
 
   //============================================================================
   // Implementations
