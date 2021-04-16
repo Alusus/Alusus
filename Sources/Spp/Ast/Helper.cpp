@@ -170,6 +170,8 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
   } else if (helper->isAstReference(ref)) {
+    type = tryGetAstType(ref);
+    if (type != 0) return type;
     auto typeRef = static_cast<Core::Data::Node*>(ref);
     auto owner = typeRef->getOwner();
     auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(ref);
@@ -222,6 +224,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
         return Core::Data::Seeker::Verb::MOVE;
       }, 0
     );
+    if (type != 0) setAstType(ref, type);
   }
 
   if (type == 0 && helper->noticeStore != 0) {
