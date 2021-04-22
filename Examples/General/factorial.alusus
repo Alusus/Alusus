@@ -32,5 +32,5 @@ if Process.argCount == 3 {
   }
 } else {
   Console.print("JIT usage: alusus factorial.alusus <number>\n");
-  Console.print("Generate executable: alusus factorial.alusus <output filename>\n");
+  Console.print("Generate executable: alusus factorial.alusus <output-filename>\n");
 }
