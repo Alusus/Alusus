@@ -138,6 +138,12 @@ s_enum(TypeInitMethod,
   BOTH = 3
 );
 
+
+//==============================================================================
+// Functions
+
+Char const* findOperationModifier(Core::Data::Ast::Definition const *def);
+
 } // namespace
 
 

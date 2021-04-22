@@ -235,7 +235,22 @@ Bool ExpressionGenerator::_generateIdentifier(
 
   PlainList<TiObject> paramAstTypes;
   GenResult thisResult;
-  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult);
+  if (!expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult)) return false;
+
+  if (thisResult.astType != 0 && result.astNode != 0 && result.astNode->isDerivedFrom<Ast::Function>()) {
+    auto func = static_cast<Ast::Function*>(result.astNode);
+    auto def = func->findOwner<Core::Data::Ast::Definition>();
+    auto op = def == 0 ? 0 : Ast::findOperationModifier(def);
+    if (op != 0 && SBSTR(op) == S("")) {
+      SharedList<TiObject> paramTgValues;
+      PlainList<TiObject> paramAstNodes;
+      return expGenerator->generateRoundParamPassOnCallee(
+        astNode, result, thisResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+      );
+    }
+  }
+
+  return true;
 }
 
 
@@ -253,7 +268,22 @@ Bool ExpressionGenerator::_generateLinkOperator(
 
   PlainList<TiObject> paramAstTypes;
   GenResult thisResult;
-  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult);
+  if (!expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult)) return false;
+
+  if (thisResult.astType != 0 && result.astNode != 0 && result.astNode->isDerivedFrom<Ast::Function>()) {
+    auto func = static_cast<Ast::Function*>(result.astNode);
+    auto def = func->findOwner<Core::Data::Ast::Definition>();
+    auto op = def == 0 ? 0 : Ast::findOperationModifier(def);
+    if (op != 0 && SBSTR(op) == S("")) {
+      SharedList<TiObject> paramTgValues;
+      PlainList<TiObject> paramAstNodes;
+      return expGenerator->generateRoundParamPassOnCallee(
+        astNode, result, thisResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+      );
+    }
+  }
+
+  return true;
 }
 
 
@@ -314,7 +344,8 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       paramTgValues->insert(0, thisArg.targetData);
     }
     if (!expGenerator->prepareFunctionParams(
-      static_cast<Ast::Function*>(callee.astNode)->getType().get(), g, session, paramAstNodes, paramAstTypes, paramTgValues
+      static_cast<Ast::Function*>(callee.astNode)->getType().get(), g, session,
+      paramAstNodes, paramAstTypes, paramTgValues
     )) return false;
     // Generate the function call.
     return expGenerator->generateFunctionCall(

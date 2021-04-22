@@ -155,8 +155,6 @@ class CalleeTracer : public TiObject, public DynamicBinding, public DynamicInter
 
   private: static void selectBetterResult(CalleeLookupResult const &newResult, CalleeLookupResult &result);
 
-  private: static Char const* findOperationModifier(Core::Data::Ast::Definition *def);
-
   /// @}
 
 }; // class

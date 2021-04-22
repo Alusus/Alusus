@@ -15,7 +15,24 @@ printInt(t) ==> 4
 t() ==> 4
 t(3) ==> t.i: 7
 t(4.5) ==> 11.500000
-ERROR SPPG1002 @ (89,1): Invalid operation.
-ERROR SPPG1002 @ (90,1): Invalid operation.
-ERROR SPPA1008 @ (91,1): Provided arguments do not match signature.
-ERROR SPPA1005 @ (96,3): Multiple matches were found for the given callee.
+t.myprop = 3 ==> t.j: 3
+t2.myprop = t ==> t2.j: 3
+t2.myprop = t.myprop = 5 ==> t.j: 5, t2.j: 5
+t.myprop += 3 ==> t.j: 8
+t.myprop /= 2 ==> t.j: 4
+t.myprop is < 10
+t.myprop - 3 ==> 1
+t3.myprop = t.myprop * 3 ==> t3.j: 12
+t.myprop << 2 ==> 16
+t.myprop $ 5 ==> 1
+t.myprop~cast[Int] ==> 4
+i:Int = t.myprop ==> 4
+printInt(t) ==> 4
+printInt(t) ==> 4
+t.myprop() ==> 4
+t.myprop(3) ==> t.j: 7
+t.myprop(4.5) ==> 11.500000
+ERROR SPPG1002 @ (166,1): Invalid operation.
+ERROR SPPG1002 @ (167,1): Invalid operation.
+ERROR SPPA1008 @ (168,1): Provided arguments do not match signature.
+ERROR SPPA1005 @ (173,3): Multiple matches were found for the given callee.

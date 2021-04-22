@@ -42,16 +42,21 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
 
   private: void createAssignmentHandler(
     Processing::ParserState *state, Core::Data::Ast::AssignmentOperator *assignmentOp,
-    SharedPtr<Core::Data::Ast::Scope> const &body
+    SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
   );
 
   private: void createComparisonHandler(
     Processing::ParserState *state, Core::Data::Ast::ComparisonOperator *comparisonOp,
-    SharedPtr<Core::Data::Ast::Scope> const &body
+    SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
   );
 
   private: void createInfixOpHandler(
     Processing::ParserState *state, Core::Data::Ast::InfixOperator *infixOp,
+    SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
+  );
+
+  private: void createReadHandler(
+    Processing::ParserState *state, Core::Data::Ast::LinkOperator *linkOp,
     SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
   );
 
@@ -76,8 +81,8 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   );
 
   private: SharedPtr<Core::Data::Ast::Definition> createBinaryOpFunction(
-    Processing::ParserState *state, Char const *funcName, TioSharedPtr const &thisType, Char const *inputName,
-    TioSharedPtr const &inputType, TioSharedPtr const &retType, TioSharedPtr const &body,
+    Processing::ParserState *state, Char const *funcName, Char const *op, TioSharedPtr const &thisType,
+    Char const *inputName, TioSharedPtr const &inputType, TioSharedPtr const &retType, TioSharedPtr const &body,
     SharedPtr<Core::Data::SourceLocation> const &sourceLocation
   );
 

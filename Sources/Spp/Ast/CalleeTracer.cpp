@@ -295,28 +295,27 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
 
   // TODO: Should we skip if targetIsObject is false and the function is a member function?
 
-  if (request.op != S("()")) {
-    // Only allow this check if the funciton has the proper modifier.
-    auto def = func->findOwner<Core::Data::Ast::Definition>();
-    if (def == 0) {
+  // Only allow this check if the funciton has the proper modifier.
+  Char const *defOp = 0;
+  auto def = func->findOwner<Core::Data::Ast::Definition>();
+  if (def != 0) {
+    defOp = findOperationModifier(def);
+  }
+  if (request.op == S("()") && defOp != 0 && request.op != defOp) {
+    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
+  } else if (request.op != S("()") && (defOp == 0 || request.op != defOp)) {
+    if (request.op == S("") && !request.targetIsObject) {
+      // We are just trying to get a reference to the function itself.
+      result.matchStatus = TypeMatchStatus::EXACT;
+      result.notice.reset();
+      result.stack.clear();
+      result.stack.add(func);
+      result.thisIndex = -2;
+    } else {
       result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-      return;
     }
-    auto defOp = CalleeTracer::findOperationModifier(def);
-
-    if (defOp == 0 || request.op != defOp) {
-      if (request.op == S("") && !request.targetIsObject) {
-        // We are just trying to get a reference to the function itself.
-        result.matchStatus = TypeMatchStatus::EXACT;
-        result.notice.reset();
-        result.stack.clear();
-        result.stack.add(func);
-        result.thisIndex = -2;
-      } else {
-        result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-      }
-      return;
-    }
+    return;
   }
 
   Bool useThis = !func->getType()->isBindDisabled() && request.thisType != 0;
@@ -349,6 +348,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("~init"))} });
     CalleeLookupRequest innerRequest = request;
     innerRequest.ref = &ref;
+    innerRequest.op = S("~init");
     innerRequest.target = type;
     innerRequest.searchTargetOwners = false;
     innerRequest.thisType = helper->getReferenceTypeFor(type, Ast::ReferenceMode::IMPLICIT);
@@ -548,22 +548,24 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
   ContainerExtender<TiObject, 1, 0> extTypes(request.argTypes);
   extTypes.setPreItem(0, request.thisType);
 
-  // Verify op against operation modifier.
-  if (request.op != "()") {
-    // Only allow this check if the funciton has the proper modifier.
-    auto def = static_cast<Core::Data::Node*>(request.target)->findOwner<Core::Data::Ast::Definition>();
-    if (def == 0) return;
-    auto defOp = CalleeTracer::findOperationModifier(def);
-    if (defOp == 0 || request.op != defOp) {
-      if (request.op == S("")) {
-        // We are just trying to get a reference to the func ptr itself.
-        result.matchStatus = TypeMatchStatus::EXACT;
-        result.notice.reset();
-        result.stack.clear();
-        result.thisIndex = -2;
-      }
-      return;
+  // Only allow this check if the funciton has the proper modifier.
+  auto def = static_cast<Core::Data::Node*>(request.target)->findOwner<Core::Data::Ast::Definition>();
+  auto defOp = findOperationModifier(def);
+
+  if (request.op == S("()") && defOp != 0 && request.op != defOp) {
+    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
+  } else if (request.op != S("()") && (defOp == 0 || request.op != defOp)) {
+    if (request.op == S("")) {
+      // We are just trying to get a reference to the function itself.
+      result.matchStatus = TypeMatchStatus::EXACT;
+      result.notice.reset();
+      result.stack.clear();
+      result.thisIndex = -2;
+    } else {
+      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
     }
+    return;
   }
 
   auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
@@ -692,25 +694,6 @@ void CalleeTracer::selectBetterResult(CalleeLookupResult const &newResult, Calle
     // It was a failed match and we don't have a previous failed match, so we'll take this match.
     result = newResult;
   }
-}
-
-
-Char const* CalleeTracer::findOperationModifier(Core::Data::Ast::Definition *def)
-{
-  auto modifiers = def->getModifiers().get();
-  if (modifiers != 0) {
-    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-      auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifiers->getElement(i));
-      if (paramPass != 0) {
-        auto identifier = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
-        if (identifier != 0 && identifier->getValue() == S("operation")) {
-          auto stringLiteral = paramPass->getParam().ti_cast_get<Core::Data::Ast::StringLiteral>();
-          if (stringLiteral != 0) return stringLiteral->getValue().get();
-        }
-      }
-    }
-  }
-  return 0;
 }
 
 } // namespace
