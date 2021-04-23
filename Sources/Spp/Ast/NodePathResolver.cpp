@@ -78,6 +78,8 @@ void NodePathResolver::_resolveDefinition(
   resolver->resolve(def->getOwner(), helper, path);
   if (path.tellp() > 0) path << C('.');
   path << def->getName().get();
+  auto defOp = findOperationModifier(def);
+  if (defOp != 0 && def->getName() != defOp) path << defOp;
 }
 
 

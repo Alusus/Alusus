@@ -49,13 +49,13 @@ define [5 x i32] @"Main.getArray(Int[32])=>(array[Int[32],5])"(i32 %m) {
 
 "#block3":                                        ; preds = %"#block2"
   %2 = load i32, i32* %i
-  %3 = sext i32 %2 to i64
-  %4 = getelementptr [5 x i32], [5 x i32]* %a, i32 0, i64 %3
-  %5 = load i32, i32* %i
-  %6 = add nsw i32 %5, 1
-  %7 = load i32, i32* %m1
-  %8 = mul nsw i32 %6, %7
-  store i32 %8, i32* %4
+  %3 = add nsw i32 %2, 1
+  %4 = load i32, i32* %m1
+  %5 = mul nsw i32 %3, %4
+  %6 = load i32, i32* %i
+  %7 = sext i32 %6 to i64
+  %8 = getelementptr [5 x i32], [5 x i32]* %a, i32 0, i64 %7
+  store i32 %5, i32* %8
   %9 = load i32, i32* %i
   %10 = add nsw i32 %9, 1
   store i32 %10, i32* %i

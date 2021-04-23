@@ -54,9 +54,9 @@ namespace Spp
 #include "DependencyInfo.h"
 #include "Executing.h"
 
-#include "Ast/ast.h"
-
 #include "Notices/notices.h"
+
+#include "Ast/ast.h"
 
 #include "CodeGen/code_gen.h"
 #include "LlvmCodeGen/llvm_code_gen.h"

@@ -20,11 +20,12 @@ namespace Spp { namespace Ast
 
 Type* PointerType::getContentType(Helper *helper) const
 {
-  if (this->contentTypeRef == 0) {
-    this->contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
+  static TioSharedPtr contentTypeRef;
+  if (contentTypeRef == 0) {
+    contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
   }
   auto typeBox = ti_cast<TioWeakBox>(
-    helper->getSeeker()->doGet(this->contentTypeRef.get(), this->getOwner())
+    helper->getSeeker()->doGet(contentTypeRef.get(), this->getOwner())
   );
   if (typeBox == 0) return 0;
   auto type = typeBox->get().ti_cast_get<Spp::Ast::Type>();

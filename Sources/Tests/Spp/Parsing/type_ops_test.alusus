@@ -47,10 +47,40 @@ type T {
   handler this = [v: Int] this.i = value;
   handler this = (this: Int) this.i = 5;
 
-
   handler this() return this.i;
   handler this(Int) this.i += value;
   handler this(f: float) => Float[64] {
+    return this.i + (f+0.5);
+  };
+
+
+  handler this.myprop = Int this.i = value;
+  handler this.myprop = (v:Int) this.i = v;
+
+  handler this.myprop += Int this.i += value;
+  handler this.myprop /= Int this.i /= value;
+
+  handler this.myprop = ref[this_type] this.i = value.i;
+  handler this.myprop = (v:ref[this_type]) this.i = v.i;
+
+  handler this.myprop > Int return this.i > value;
+
+  handler this.myprop - Int : Int return this.i - value;
+  handler this.myprop * Int : A {
+    def ret: A;
+    ret.i = this.i * value;
+    return ret;
+  };
+
+  handler this.myprop << Int : Int { return this.i << value };
+
+  handler this.myprop $ Int : Int return this.i $ value;
+
+  handler this.myprop:Int return this.i;
+
+  handler this.myprop() return this.i;
+  handler this.myprop(Int) this.i += value;
+  handler this.myprop(f: float) => Float[64] {
     return this.i + (f+0.5);
   };
 };

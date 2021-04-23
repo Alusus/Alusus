@@ -1,8 +1,8 @@
 ERROR SPPA1003 @ (40,12): No valid match was found for the given type.
-ERROR SPPA1004 @ (77,7): No valid match was found for the given type member.
+ERROR SPPA1007 @ (77,7): Unknown symbol.
 ERROR SPPA1004 @ (80,7): No valid match was found for the given type member.
-ERROR SPPA1004 @ (81,7): No valid match was found for the given type member.
-ERROR SPPA1004 @ (84,25): No valid match was found for the given type member.
+ERROR SPPA1007 @ (81,7): Unknown symbol.
+ERROR SPPA1007 @ (84,25): Unknown symbol.
 ERROR SPPG1015 @ (101,5): Incompatible types for the given operator.
 ERROR SPPG1015 @ (103,5): Incompatible types for the given operator.
 ERROR SPPG1015 @ (104,5): Incompatible types for the given operator.
@@ -109,11 +109,11 @@ define void @"Main.start()=>(Void)"() {
   store i32 1, i32* %17
   %18 = getelementptr %Main_Nested, %Main_Nested* %n, i32 0, i32 1
   store i8 10, i8* %18
-  %19 = getelementptr %Main_Nested, %Main_Nested* %n, i32 0, i32 1
-  %20 = getelementptr %Main_Point, %Main_Point* %p, i32 0, i32 1
-  %21 = load i32, i32* %20
-  %22 = trunc i32 %21 to i8
-  store i8 %22, i8* %19
+  %19 = getelementptr %Main_Point, %Main_Point* %p, i32 0, i32 1
+  %20 = load i32, i32* %19
+  %21 = trunc i32 %20 to i8
+  %22 = getelementptr %Main_Nested, %Main_Nested* %n, i32 0, i32 1
+  store i8 %21, i8* %22
   %23 = call %Main_Point @"Main.getPoint(Int[32],Int[32],Float[32])=>(Main.Point)"(i32 1, i32 2, float 3.000000e+00)
   %24 = alloca %Main_Point
   store %Main_Point %23, %Main_Point* %24

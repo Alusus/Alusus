@@ -22,10 +22,7 @@ void Helper::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
     &this->isAstReference,
-    &this->lookupCalleeInScope,
-    &this->lookupCalleeOnObject,
     &this->lookupCustomCaster,
-    &this->lookupReferenceTarget,
     &this->traceType,
     &this->isVoid,
     &this->isImplicitlyCastableTo,
@@ -61,10 +58,7 @@ void Helper::initBindingCaches()
 void Helper::initBindings()
 {
   this->isAstReference = &Helper::_isAstReference;
-  this->lookupCalleeInScope = &Helper::_lookupCalleeInScope;
-  this->lookupCalleeOnObject = &Helper::_lookupCalleeOnObject;
   this->lookupCustomCaster = &Helper::_lookupCustomCaster;
-  this->lookupReferenceTarget = &Helper::_lookupReferenceTarget;
   this->traceType = &Helper::_traceType;
   this->isVoid = &Helper::_isVoid;
   this->isImplicitlyCastableTo = &Helper::_isImplicitlyCastableTo;
@@ -110,311 +104,6 @@ Bool Helper::_isAstReference(TiObject *self, TiObject *obj)
 }
 
 
-Bool Helper::lookupCalleeInScopeByName(
-  Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-  TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
-) {
-  Core::Data::Ast::Identifier identifier;
-  identifier.setValue(name);
-  identifier.setSourceLocation(sl);
-  return this->lookupCalleeInScope(&identifier, astNode, searchOwners, thisType, types, ec, result);
-}
-
-
-Bool Helper::_lookupCalleeInScope(
-  TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-  TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
-) {
-  PREPARE_SELF(helper, Helper);
-
-  Word currentStackSize = result.stack.getCount();
-  Core::Data::Node *prevNode = 0;
-  Bool retVal = false;
-  helper->getSeeker()->foreach(ref, astNode,
-    [=, &result, &prevNode, &retVal]
-      (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
-      {
-        if (ntc != 0) {
-          if (result.notice == 0 && result.stack.getCount() == currentStackSize) result.notice = getSharedPtr(ntc);
-          return Core::Data::Seeker::Verb::MOVE;
-        }
-        if (obj == 0) return Core::Data::Seeker::Verb::MOVE;
-
-        // Unbox if we have a box.
-        auto box = ti_cast<TioWeakBox>(obj);
-        if (box != 0) obj = box->get().get();
-
-        if (
-          result.stack.getCount() > 0 && result.stack.getElement(result.stack.getCount() - 1) == obj &&
-          result.thisIndex < 0
-        ) {
-          return Core::Data::Seeker::Verb::MOVE;
-        }
-
-        // There is no need to continue searching if we already have a match and we are jumping to another level.
-        auto node = ti_cast<Core::Data::Node>(obj);
-        if (node != 0 && prevNode != 0) {
-          // If we encounter the same node again it means we moved up and encountered a use statement that took us back
-          // into the same module. In this case we can stop looking since we have moved up and we already have a match.
-          if (node == prevNode) return Core::Data::Seeker::Verb::STOP;
-
-          // If it's not the same node, then let's check the owners of the two nodes.
-          Core::Data::Node *owner = Core::Data::findOwner<Core::Data::Ast::Scope>(node);
-          // It's possible that the previous match was for a function arg, so we have to account for that since a
-          // function arg would have the same owner scope as a function sitting at the same module.
-          Core::Data::Node *prevOwner = Core::Data::findOwner<Spp::Ast::FunctionType>(prevNode);
-          if (prevOwner == 0) prevOwner = Core::Data::findOwner<Core::Data::Ast::Scope>(prevNode);
-          if (owner != prevOwner) return Core::Data::Seeker::Verb::STOP;
-        }
-
-        if (helper->lookupCalleeOnObject(obj, thisType, types, ec, currentStackSize, result)) {
-          retVal = true;
-          prevNode = node;
-        } else {
-          if (result.notice != 0 && result.notice->isDerivedFrom<Spp::Notices::MultipleCalleeMatchNotice>()) {
-            retVal = false;
-            if (result.matchStatus == TypeMatchStatus::EXACT) {
-              // There is no need to continue searching if we found multiple exact matches.
-              return Core::Data::Seeker::Verb::STOP;
-            }
-          }
-        }
-
-        return Core::Data::Seeker::Verb::MOVE;
-      },
-      searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
-  );
-
-  // Try the injections if we don't have an exact match yet.
-  if (result.matchStatus < TypeMatchStatus::EXACT) {
-    auto dataType = ti_cast<DataType>(astNode);
-    if (dataType != 0) {
-      auto block = dataType->getBody().get();
-      if (block != 0) {
-        Word newStackSize = result.stack.getCount();
-        for (Int i = 0; i < block->getInjectionCount(); ++i) {
-          auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
-          if (def == 0 || def->getTarget() == 0) continue;
-          if (!helper->isAstReference(def->getTarget().get())) continue;
-          Bool isMember = helper->getVariableDomain(def) == DefinitionDomain::OBJECT;
-          if ((isMember && thisType == 0) || (!isMember && thisType != 0)) continue;
-          auto objType = helper->traceType(def->getTarget().get());
-          if (objType == 0) continue;
-          auto refType = helper->getReferenceTypeFor(objType, Ast::ReferenceMode::IMPLICIT);
-          objType = helper->tryGetDeepReferenceContentType(objType);
-          result.stack.add(def->getTarget().get());
-          Bool noBindDef = helper->isNoBindDef(def);
-          if (helper->lookupCalleeInScope(ref, objType, false, noBindDef ? thisType : refType, types, ec, result)) {
-            retVal = true;
-            if (noBindDef) result.thisIndex = currentStackSize - 1;
-            if (result.matchStatus == TypeMatchStatus::EXACT) break;
-          } else {
-            while (result.stack.getCount() > newStackSize) result.stack.remove(newStackSize);
-          }
-        }
-      }
-    }
-  }
-
-  // Did we have a matched callee?
-  if (!retVal) {
-    // Remove any extra items we added to the stack.
-    while (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
-
-    // If we have no notice it means the symbol was not found in the first place.
-    if (result.notice == 0 && result.matchStatus == TypeMatchStatus::NONE) {
-      result.notice = newSrdObj<Spp::Notices::UnknownSymbolNotice>();
-    }
-
-    if (result.notice != 0) result.notice->setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
-  }
-
-  return retVal;
-}
-
-
-Bool Helper::_lookupCalleeOnObject(
-  TiObject *self, TiObject *obj, TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec,
-  Word currentStackSize, CalleeLookupResult &result
-) {
-  PREPARE_SELF(helper, Helper);
-
-  ContainerExtender<TiObject, 1, 0> extTypes(types);
-  extTypes.setPreItem(0, thisType);
-
-  if (obj != 0 && obj->isDerivedFrom<Ast::Function>()) {
-    // Match functions.
-    auto f = static_cast<Ast::Function*>(obj);
-    TypeMatchStatus ms;
-
-    Bool useThis = !f->getType()->isBindDisabled() && thisType != 0;
-
-    ms = f->getType()->matchCall(useThis ? &extTypes : types, helper, ec);
-    if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
-      result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
-      return false;
-    } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms > result.matchStatus) {
-      result.matchStatus = ms;
-      result.notice.reset();
-      result.thisIndex = currentStackSize - 1;
-      if (result.stack.getCount() == currentStackSize) result.stack.add(f);
-      else result.stack.set(currentStackSize, f);
-      result.type = f->getType().get();
-      return true;
-    } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
-      result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
-      return false;
-    } else {
-      return false;
-    }
-  } else if (obj != 0 && obj->isDerivedFrom<ArrayType>()) {
-    if (
-      types != 0 && types->getElementCount() == 1 &&
-      helper->isImplicitlyCastableTo(types->getElement(0), helper->getArchIntType(), ec)
-    ) {
-      if (result.matchStatus < TypeMatchStatus::EXACT) {
-        result.matchStatus = TypeMatchStatus::EXACT;
-        result.type = static_cast<ArrayType*>(obj);
-        result.notice.reset();
-        return true;
-      } else {
-        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
-        return false;
-      }
-    } else {
-      if (result.matchStatus == TypeMatchStatus::NONE) {
-        result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
-      }
-      return false;
-    }
-  } else if (obj != 0 && obj->isDerivedFrom<Type>()) {
-    auto funcType = helper->tryGetPointerContentType<FunctionType>(obj);
-    if (funcType != 0) {
-      // We have a function pointer.
-      Bool useThis = !funcType->isBindDisabled() && thisType != 0;
-      auto ms = funcType->matchCall(useThis ? &extTypes : types, helper, ec);
-      if (ms < TypeMatchStatus::CUSTOM_CASTER && result.matchStatus == TypeMatchStatus::NONE) {
-        result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
-        return false;
-      } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms > result.matchStatus) {
-        result.matchStatus = ms;
-        result.notice.reset();
-        result.thisIndex = useThis ? currentStackSize - 1 : -2;
-        result.type = funcType;
-        return true;
-      } else if (ms >= TypeMatchStatus::CUSTOM_CASTER && ms == result.matchStatus) {
-        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
-        return false;
-      } else {
-        return false;
-      }
-    } else {
-      auto objType = static_cast<Type*>(obj);
-      auto objRefType = helper->getReferenceTypeFor(obj, Ast::ReferenceMode::IMPLICIT);
-      Function *customCaster;
-      if (result.stack.getCount() == currentStackSize && thisType == 0) {
-        // This is a constructor.
-        static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("~init"))} });
-        if (helper->lookupCalleeInScope(
-          &ref, static_cast<Core::Data::Node*>(obj), false, objRefType, types, ec, result
-        )) {
-          // A constructor match was found.
-          result.stack.set(currentStackSize, objType);
-          result.thisIndex = -2;
-          result.type = objType;
-          return true;
-        } else if (
-          types->getElementCount() == 0 && (objType->getInitializationMethod(helper, ec) & TypeInitMethod::USER) == 0
-        ) {
-          // No user-defined constructor is defined and no params is provided, so we can skip the matching.
-          result.matchStatus = TypeMatchStatus::EXACT;
-          result.notice.reset();
-          result.stack.add(objType);
-          result.thisIndex = -2;
-          result.type = objType;
-          return true;
-        } else if (
-          (objType->getInitializationMethod(helper, ec) & TypeInitMethod::USER) == 0 &&
-          types->getElementCount() == 1 &&
-          helper->matchTargetType(types->getElement(0), objType, ec, customCaster) >= TypeMatchStatus::CUSTOM_CASTER
-        ) {
-          // A type with no custom init but can be initialized from the given arg.
-          result.matchStatus = TypeMatchStatus::EXACT;
-          result.notice.reset();
-          result.stack.add(objType);
-          result.thisIndex = -2;
-          result.type = objType;
-          return true;
-        } else {
-          // If the ref symbol we provided here was not found we'll provide a better error message to the user since
-          // the user didn't manually provide this symbol.
-          if (result.notice != 0 && result.notice->isA<Spp::Notices::UnknownSymbolNotice>()) {
-            result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-          }
-          return false;
-        }
-      } else {
-        // Lookup custom parens operators.
-        static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("()"))} });
-        if (helper->lookupCalleeInScope(
-          &ref, static_cast<Core::Data::Node*>(obj), false, objRefType, types, ec, result
-        )) {
-          return true;
-        } else {
-          // If the ref symbol we provided here was not found we'll provide a better error message to the user since
-          // the user didn't manually provide this symbol.
-          if (result.notice != 0 && result.notice->isA<Spp::Notices::UnknownSymbolNotice>()) {
-            result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-          }
-          return false;
-        }
-      }
-    }
-  } else if (obj != 0 && helper->isAstReference(obj)) {
-    // Match variables
-    auto objType = ti_cast<Type>(helper->traceType(obj));
-    if (objType == 0) return false;
-    objType = helper->tryGetDeepReferenceContentType(objType);
-    if (objType == 0) {
-      if (result.matchStatus == TypeMatchStatus::NONE) {
-        result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(obj));
-      }
-      return false;
-    } else {
-      TiObject *prevVal = 0;
-      if (result.stack.getCount() == currentStackSize) result.stack.add(obj);
-      else {
-        prevVal = result.stack.get(currentStackSize);
-        result.stack.set(currentStackSize, obj);
-      }
-      if (helper->lookupCalleeOnObject(objType, thisType, types, ec, currentStackSize, result)) {
-        return true;
-      } else {
-        if (result.stack.getCount() > currentStackSize) result.stack.remove(currentStackSize);
-        else result.stack.set(currentStackSize, prevVal);
-        return false;
-      }
-    }
-  } else if (obj != 0 && obj->isDerivedFrom<Template>()) {
-    // TODO: Look-up template functions as well.
-    auto objType = helper->traceType(obj);
-    if (objType == 0) {
-      if (result.matchStatus == TypeMatchStatus::NONE) {
-        result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-      }
-      return false;
-    }
-    return helper->lookupCalleeOnObject(objType, thisType, types, ec, currentStackSize, result);
-  } else {
-    // Invalid
-    if (result.matchStatus == TypeMatchStatus::NONE) {
-      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-    }
-    return false;
-  }
-}
-
-
 TypeMatchStatus Helper::_lookupCustomCaster(
   TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
 ) {
@@ -427,8 +116,8 @@ TypeMatchStatus Helper::_lookupCustomCaster(
       PlainList<TiObject> argTypes({ srcRefType });
       static Core::Data::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
       TypeMatchStatus retMatch;
-      helper->getSeeker()->foreach(&ref, srcContentType->getBody().get(),
-        [=, &retMatch, &caster, &argTypes] (TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+      helper->getSeeker()->extForeach(&ref, srcContentType->getBody().get(),
+        [=, &retMatch, &caster, &argTypes] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
         {
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
@@ -446,58 +135,12 @@ TypeMatchStatus Helper::_lookupCustomCaster(
           }
           return Core::Data::Seeker::Verb::MOVE;
         },
-        SeekerExtension::Flags::SKIP_OWNERS_AND_USES
+        Core::Data::Seeker::Flags::SKIP_OWNERS | Core::Data::Seeker::Flags::SKIP_USES
       );
       return retMatch;
     }
   }
   return TypeMatchStatus::NONE;
-}
-
-
-Bool Helper::_lookupReferenceTarget(
-  TiObject *self, TiObject *astNode, Core::Data::Ast::Identifier *ref, Bool searchOwners, PlainList<TiObject> &stack
-) {
-  PREPARE_SELF(helper, Helper);
-
-  Word currentStackSize = stack.getCount();
-  Bool symbolFound = false;
-  helper->getSeeker()->foreach(ref, astNode,
-    [=, &symbolFound, &stack] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
-    {
-      symbolFound = true;
-      stack.add(obj);
-      return Core::Data::Seeker::Verb::STOP;
-    },
-    searchOwners ? 0 : SeekerExtension::Flags::SKIP_OWNERS_AND_USES
-  );
-
-  if (!symbolFound) {
-    Block *block = 0;
-    auto dataType = ti_cast<DataType>(astNode);
-    if (dataType != 0) block = dataType->getBody().get();
-    else block = Core::Data::findOwner<Block>(ti_cast<Core::Data::Node>(astNode));
-
-    if (block != 0) {
-      for (Int i = 0; i < block->getInjectionCount(); ++i) {
-        auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
-        if (def == 0 || def->getTarget() == 0) continue;
-        if (!helper->isAstReference(def->getTarget().get())) continue;
-        auto objType = ti_cast<Type>(helper->getSeeker()->tryGet(def->getTarget().get(), block));
-        if (objType == 0) continue;
-        objType = helper->tryGetDeepReferenceContentType(objType);
-        stack.add(def->getTarget().get());
-        if (helper->lookupReferenceTarget(objType, ref, false, stack)) {
-          symbolFound = true;
-          break;
-        } else {
-          while (stack.getCount() > currentStackSize) stack.remove(currentStackSize);
-        }
-      }
-    }
-  }
-
-  return symbolFound;
 }
 
 
@@ -527,6 +170,8 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
   } else if (helper->isAstReference(ref)) {
+    type = tryGetAstType(ref);
+    if (type != 0) return type;
     auto typeRef = static_cast<Core::Data::Node*>(ref);
     auto owner = typeRef->getOwner();
     auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(ref);
@@ -537,10 +182,14 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
       throw EXCEPTION(GenericException, S("Invalid type reference."));
     }
     helper->getSeeker()->foreach(typeRef, owner,
-      [=, &foundObj, &type, &notice](TiObject *obj, Core::Notices::Notice *ntc)->Core::Data::Seeker::Verb
+      [=, &foundObj, &type, &notice](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
-        if (ntc != 0) {
-          notice = getSharedPtr(ntc);
+        if (action == Core::Data::Seeker::Action::ERROR) {
+          notice = getSharedPtr(ti_cast<Core::Notices::Notice>(obj));
+          ASSERT(notice != 0);
+          return Core::Data::Seeker::Verb::MOVE;
+        }
+        if (action != Core::Data::Seeker::Action::TARGET_MATCH) {
           return Core::Data::Seeker::Verb::MOVE;
         }
 
@@ -566,13 +215,16 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
               return Core::Data::Seeker::Verb::STOP;
             }
           } else {
-            if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
+            if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) {
+              notice = result.s_cast<Core::Notices::Notice>();
+            }
           }
         }
 
         return Core::Data::Seeker::Verb::MOVE;
       }, 0
     );
+    if (type != 0) setAstType(ref, type);
   }
 
   if (type == 0 && helper->noticeStore != 0) {
@@ -1201,8 +853,9 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
   }
   Bool found = false;
   helper->getSeeker()->foreach(bridge->getTarget().get(), bridge->getOwner(),
-    [=, &found] (TiObject *obj, Core::Notices::Notice*)->Core::Data::Seeker::Verb
+    [=, &found] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
     {
+      if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
       if (ti_cast<Ast::Module>(obj) != 0) {
         found = true;
         return Core::Data::Seeker::Verb::STOP;

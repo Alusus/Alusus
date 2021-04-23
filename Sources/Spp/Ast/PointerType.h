@@ -28,12 +28,6 @@ class PointerType : public DataType
 
 
   //============================================================================
-  // Member Variables
-
-  private: mutable TioSharedPtr contentTypeRef;
-
-
-  //============================================================================
   // Constructors & Destructor
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(PointerType);

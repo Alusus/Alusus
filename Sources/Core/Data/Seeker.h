@@ -31,12 +31,32 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
   // Types
 
   public: ti_s_enum(Verb, TiInt, "Core.Data", "Core", "alusus.org",
-    MOVE, STOP, PERFORM_AND_MOVE, PERFORM_AND_STOP
+    STOP = 0,
+    MOVE = 1,
+    PERFORM = 2,
+    PERFORM_AND_MOVE = 2 | 1,
+    SKIP = 4 | 1,
+    SKIP_GROUP = 8 | 4 | 1
   );
-  public: s_enum(Flags, SKIP_OWNERS = 1, SKIP_OWNED = 2, SKIP_USES = 4);
-  public: typedef std::function<Verb(TiObject *&obj, Notices::Notice *notice)> SetCallback;
-  public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> RemoveCallback;
-  public: typedef std::function<Verb(TiObject *obj, Notices::Notice *notice)> ForeachCallback;
+  public: ti_s_enum(Action, TiInt, "Core.Data", "Core", "alusus.org",
+    TARGET_MATCH,
+    OWNER_SCOPE,
+    USE_SCOPE,
+    USE_SCOPES_START,
+    USE_SCOPES_END,
+    ALIAS_TRACE_START,
+    ALIAS_TRACE_END,
+    ERROR
+  );
+  public: s_enum(Flags,
+    SKIP_OWNERS = 1,
+    SKIP_OWNED = 2,
+    SKIP_USES = 4,
+    SKIP_USES_FOR_ALIASES = 8
+  );
+  public: typedef std::function<Verb(TiInt action, TiObject *&obj)> SetCallback;
+  public: typedef std::function<Verb(TiInt action, TiObject *obj)> RemoveCallback;
+  public: typedef std::function<Verb(TiInt action, TiObject *obj)> ForeachCallback;
 
 
   //============================================================================
@@ -123,12 +143,12 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: static Bool isPerform(Verb verb)
   {
-    return verb == Verb::PERFORM_AND_STOP || verb == Verb::PERFORM_AND_MOVE;
+    return (verb & Verb::PERFORM) != 0;
   }
 
   public: static Bool isMove(Verb verb)
   {
-    return verb == Verb::MOVE || verb == Verb::PERFORM_AND_MOVE;
+    return (verb & Verb::MOVE) != 0;
   }
 
   /// @}
@@ -139,6 +159,7 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(set, Verb, (TiObject const*, TiObject*, SetCallback const&, Word));
   public: METHOD_BINDING_CACHE(remove, Verb, (TiObject const*, TiObject*, RemoveCallback const&, Word));
   public: METHOD_BINDING_CACHE(foreach, Verb, (TiObject const*, TiObject*, ForeachCallback const&, Word));
+  public: METHOD_BINDING_CACHE(extForeach, Verb, (TiObject const*, TiObject*, ForeachCallback const&, Word));
 
   private: static Verb _set(
     TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags
@@ -147,6 +168,9 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags
   );
   private: static Verb _foreach(
+    TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
+  );
+  private: static Verb _extForeach(
     TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
   );
 

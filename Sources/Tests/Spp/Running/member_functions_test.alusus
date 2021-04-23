@@ -7,7 +7,7 @@ type A
   def i: Int;
 
   func print {
-    print("this.i = %d\n", this.i);
+    Root.print("this.i = %d\n", this.i);
   };
 
   func setI (i: Int) {

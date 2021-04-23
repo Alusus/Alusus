@@ -1,0 +1,24 @@
+import "Srl/Console.alusus";
+import "Srl/Array";
+use Srl;
+
+def IntArray: alias Array[Int];
+
+func printInts (a: ref[IntArray]) {
+    Console.print("Root.printInts\n");
+}
+
+printInts(IntArray({ 4, 5, 6 }));
+
+module Test {
+    func printInts (a: ref[IntArray]) {
+        Console.print("Root.Test.printInts\n");
+    }
+
+    def printIntsAlias: alias printInts;
+
+    function test {
+        printIntsAlias(IntArray({ 4, 5, 6 }));
+    }
+}
+Test.test();

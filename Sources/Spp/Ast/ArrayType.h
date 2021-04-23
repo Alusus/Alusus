@@ -28,13 +28,6 @@ class ArrayType : public DataType
 
 
   //============================================================================
-  // Member Variables
-
-  private: mutable TioSharedPtr contentTypeRef;
-  private: mutable TioSharedPtr sizeRef;
-
-
-  //============================================================================
   // Constructors & Destructor
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(ArrayType);

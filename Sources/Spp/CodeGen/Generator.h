@@ -39,6 +39,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: Core::Main::RootManager *rootManager;
   private: Ast::Helper *astHelper;
+  private: Ast::CalleeTracer *calleeTracer;
   private: GlobalItemRepo *globalItemRepo;
   private: TypeGenerator *typeGenerator;
   private: CommandGenerator *commandGenerator;
@@ -55,6 +56,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   public: Generator(
     Core::Main::RootManager *manager,
     Ast::Helper *ah,
+    Ast::CalleeTracer *cTracer,
     GlobalItemRepo *vr,
     TypeGenerator *tg,
     CommandGenerator *cg,
@@ -62,6 +64,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   ) :
     rootManager(manager),
     astHelper(ah),
+    calleeTracer(cTracer),
     globalItemRepo(vr),
     typeGenerator(tg),
     commandGenerator(cg),
@@ -77,6 +80,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     this->inheritInterfaces(parent);
     this->rootManager = parent->getRootManager();
     this->astHelper = parent->getAstHelper();
+    this->calleeTracer = parent->getCalleeTracer();
     this->globalItemRepo = parent->getGlobalItemRepo();
     this->typeGenerator = parent->getTypeGenerator();
     this->commandGenerator = parent->getCommandGenerator();
@@ -114,6 +118,11 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: Ast::CalleeTracer* getCalleeTracer() const
+  {
+    return this->calleeTracer;
   }
 
   public: GlobalItemRepo* getGlobalItemRepo() const

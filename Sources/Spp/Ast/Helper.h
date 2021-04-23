@@ -128,33 +128,6 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(isAstReference, Bool, (TiObject*));
   private: static Bool _isAstReference(TiObject *self, TiObject *obj);
 
-  public: Bool lookupCalleeInScopeByName(
-    Char const *name, SharedPtr<Core::Data::SourceLocation> const &sl, Core::Data::Node *astNode, Bool searchOwners,
-    TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
-  );
-
-  public: METHOD_BINDING_CACHE(lookupCalleeInScope,
-    Bool, (
-      TiObject* /* ref */, Core::Data::Node* /* astNode */, Bool /* searchOwners */,
-      TiObject* /* thisType */, Containing<TiObject>* /* types */, ExecutionContext const* /* ec */,
-      CalleeLookupResult& /* result */
-    )
-  );
-  private: static Bool _lookupCalleeInScope(
-    TiObject *self, TiObject *ref, Core::Data::Node *astNode, Bool searchOwners,
-    TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec, CalleeLookupResult &result
-  );
-
-  public: METHOD_BINDING_CACHE(lookupCalleeOnObject,
-    Bool, (
-      TiObject*, TiObject*, Containing<TiObject>*, ExecutionContext const*, Word, CalleeLookupResult&
-    )
-  );
-  private: static Bool _lookupCalleeOnObject(
-    TiObject *self, TiObject *obj, TiObject *thisType, Containing<TiObject> *types, ExecutionContext const *ec,
-    Word currentStackSize, CalleeLookupResult &result
-  );
-
   public: METHOD_BINDING_CACHE(lookupCustomCaster,
     TypeMatchStatus, (
       Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */, Function *& /* caster */
@@ -162,13 +135,6 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   );
   private: static TypeMatchStatus _lookupCustomCaster(
     TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
-  );
-
-  public: METHOD_BINDING_CACHE(lookupReferenceTarget,
-    Bool, (TiObject*, Core::Data::Ast::Identifier*, Bool, PlainList<TiObject>&)
-  );
-  private: static Bool _lookupReferenceTarget(
-    TiObject *self, TiObject *astNode, Core::Data::Ast::Identifier *ref, Bool searchOwners, PlainList<TiObject> &stack
   );
 
   public: METHOD_BINDING_CACHE(traceType, Type*, (TiObject*));

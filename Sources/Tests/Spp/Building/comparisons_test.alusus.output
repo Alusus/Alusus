@@ -4,7 +4,7 @@ ERROR SPPG1015 @ (70,31): Incompatible types for the given operator.
 ERROR SPPG1015 @ (71,30): Incompatible types for the given operator.
 ERROR SPPG1015 @ (72,31): Incompatible types for the given operator.
 ERROR SPPG1015 @ (73,31): Incompatible types for the given operator.
-ERROR SPPG1008 @ (81,8): Invalid symbol.
+ERROR SPPG1002 @ (81,8): Invalid operation.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

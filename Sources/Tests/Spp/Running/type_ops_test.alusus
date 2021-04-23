@@ -2,37 +2,74 @@ import "Srl/Console.alusus";
 use Srl.Console;
 
 type T {
-  def i: Int;
+    def i: Int(0);
+    def j: Int(0);
 
-  handler this = Int this.i = value;
+    handler this~init() {}
+    handler this~init(t: ref[T]) {
+        this.i = t.i;
+        this.j = t.j;
+    }
 
-  handler this += (v:Int) this.i += v;
-  handler this /= (v:Int) this.i /= v;
+    handler this = Int this.i = value;
 
-  handler this = ref[this_type] this.i = value.i;
+    handler this += (v:Int) this.i += v;
+    handler this /= (v:Int) this.i /= v;
 
-  handler this < Int return this.i < value;
+    handler this = ref[this_type] this.i = value.i;
 
-  handler this - Int : Int return this.i - value;
-  handler this * Int : this_type {
-    def ret: this_type;
-    ret.i = this.i * value;
-    return ret;
-  };
+    handler this < Int return this.i < value;
 
-  handler this << Int : Int { return this.i << value };
+    handler this - Int : Int return this.i - value;
+    handler this * Int : this_type {
+        def ret: this_type;
+        ret.i = this.i * value;
+        return ret;
+    };
 
-  handler this $ Int : Int return this.i $ value;
+    handler this << Int : Int { return this.i << value };
 
-  handler this~cast[Int] return this.i;
+    handler this $ Int : Int return this.i $ value;
 
-  handler this():Int return this.i;
+    handler this~cast[Int] return this.i;
 
-  handler this(Int) this.i += value;
+    handler this():Int return this.i;
 
-  handler this(f: float) => Float[64] {
-    return this.i + f;
-  };
+    handler this(Int) this.i += value;
+
+    handler this(f: float) => Float[64] {
+        return this.i + f;
+    };
+
+    handler this.myprop = Int { this.j = value; return this.j }
+
+    handler this.myprop += (v:Int) { this.j += v; return this.j }
+    handler this.myprop /= (v:Int) { this.j /= v; return this.j }
+
+    handler this.myprop = ref[this_type] { this.j = value.j; return this }
+
+    handler this.myprop < Int return this.j < value;
+
+    handler this.myprop - Int : Int return this.j - value;
+    handler this.myprop * Int : this_type {
+        def ret: this_type;
+        ret.j = this.j * value;
+        return ret;
+    };
+
+    handler this.myprop << Int : Int { return this.j << value };
+
+    handler this.myprop $ Int : Int return this.j $ value;
+
+    handler this.myprop:Int return this.j;
+
+    handler this.myprop():Int return this.j;
+
+    handler this.myprop(Int) this.j += value;
+
+    handler this.myprop(f: float) => Float[64] {
+        return this.j + f;
+    };
 };
 
 def t: T;
@@ -80,6 +117,46 @@ t(3);
 print("t(3) ==> t.i: %d\n", t.i);
 
 print("t(4.5) ==> %f\n", t(4.5));
+
+t.myprop = 3;
+print("t.myprop = 3 ==> t.j: %d\n", t.j);
+
+t2.myprop = t;
+print("t2.myprop = t ==> t2.j: %d\n", t2.j);
+
+t2.myprop = t.myprop = 5;
+print("t2.myprop = t.myprop = 5 ==> t.j: %d, t2.j: %d\n", t.j, t2.j);
+
+t.myprop += 3;
+print("t.myprop += 3 ==> t.j: %d\n", t.j);
+
+t.myprop /= 2;
+print("t.myprop /= 2 ==> t.j: %d\n", t.j);
+
+if t.myprop < 10 print("t.myprop is < 10\n");
+
+print("t.myprop - 3 ==> %d\n", t.myprop - 3);
+
+t3.myprop = t.myprop * 3;
+print("t3.myprop = t.myprop * 3 ==> t3.j: %d\n", t3.j);
+
+print("t.myprop << 2 ==> %d\n", t.myprop << 2);
+
+print("t.myprop $ 5 ==> %d\n", t.myprop $ 5);
+
+print("t.myprop~cast[Int] ==> %d\n", t.myprop~cast[Int]);
+i = t.myprop;
+print("i:Int = t.myprop ==> %d\n", i);
+
+printInt(t.myprop);
+printInt(rt.myprop);
+
+print("t.myprop() ==> %d\n", t.myprop());
+
+t.myprop(3);
+print("t.myprop(3) ==> t.j: %d\n", t.j);
+
+print("t.myprop(4.5) ==> %f\n", t.myprop(4.5));
 
 type Other {
   def j: Int;

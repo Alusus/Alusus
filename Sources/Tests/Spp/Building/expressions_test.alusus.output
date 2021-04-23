@@ -1,6 +1,6 @@
-ERROR SPPG1008 @ (145,19): Invalid symbol.
+ERROR SPPG1008 @ (145,28): Invalid symbol.
 ERROR SPPG1008 @ (146,23): Invalid symbol.
-ERROR SPPG1008 @ (147,19): Invalid symbol.
+ERROR SPPG1002 @ (147,19): Invalid operation.
 ERROR SPPG1015 @ (136,32): Incompatible types for the given operator.
 Build Failed...
 --------------------- Partial LLVM IR ----------------------

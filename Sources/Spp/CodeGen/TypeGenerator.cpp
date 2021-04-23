@@ -397,8 +397,22 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   auto body = astType->getBody().get();
   session->getEda()->setCodeGenData(body, tgContext);
 
+  TioSharedPtr thisTgVar;
+  if (!session->getTg()->generateLocalVariable(tgContext.get(), tgPtrType, S("this"), 0, thisTgVar)) return false;
+  TioSharedPtr thisTgVarRef;
+  if (!session->getTg()->generateVarReference(tgContext.get(), tgPtrType, thisTgVar.get(), thisTgVarRef)) {
+    return false;
+  }
+  TioSharedPtr assignTgRes;
+  if (!session->getTg()->generateAssign(
+    tgContext.get(), tgPtrType, args.get(0).get(), thisTgVarRef.get(), assignTgRes)
+  ) {
+    return false;
+  }
+  auto thisIndex = typeGenerator->addThisDefinition(body, astType, thisTgVar, &childSession);
+
   // Main loop.
-  for (Int i = 0; i < body->getCount(); ++i) {
+  for (Int i = 0; i < thisIndex; ++i) {
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Data::Ast::Definition>(obj);
     if (def != 0) {
@@ -421,6 +435,8 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type constructor."));
   }
+
+  body->remove(thisIndex);
 
   session->getEda()->removeCodeGenData(body);
 
@@ -897,6 +913,30 @@ Bool TypeGenerator::_getTypeAllocationSize(
 
 //==============================================================================
 // Helper Functions
+
+Int TypeGenerator::addThisDefinition(
+  Ast::Block *body, Ast::Type *astThisType, TioSharedPtr const &tgThis, Session *session
+) {
+  auto thisRef = Core::Data::Ast::ParamPass::create({
+    {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+  }, {
+    {S("operand"), Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("iref"))} })},
+    {S("param"), Ast::ThisTypeRef::create()}
+  });
+  auto def = Core::Data::Ast::Definition::create({
+    {S("name"), TiStr(S("this"))}
+  }, {
+    {S("target"), thisRef},
+    {S("modifiers"), Core::Data::Ast::List::create({}, {
+      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("injection"))} }),
+      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("shared"))} })
+    })}
+  });
+  session->getEda()->setCodeGenData(thisRef.get(), tgThis);
+  Ast::setAstType(thisRef.get(), this->astHelper->getReferenceTypeFor(astThisType, Ast::ReferenceMode::IMPLICIT));
+  return body->add(def);
+}
+
 
 Bool TypeGenerator::isInjection(Core::Data::Ast::Definition *def)
 {

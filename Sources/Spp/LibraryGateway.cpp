@@ -27,6 +27,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Create AST helpers.
   this->nodePathResolver = newSrdObj<Ast::NodePathResolver>();
   this->astHelper = newSrdObj<Ast::Helper>(manager, this->nodePathResolver.get());
+  this->calleeTracer = newSrdObj<Ast::CalleeTracer>(this->astHelper.get());
 
   // Create global repos.
   this->astLiteralRepo = newSrdObj<SharedList<TiObject>>();
@@ -36,12 +37,14 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->typeGenerator = newSrdObj<CodeGen::TypeGenerator>(this->astHelper.get());
   this->expressionGenerator = newSrdObj<CodeGen::ExpressionGenerator>(
     this->astHelper.get(),
+    this->calleeTracer.get(),
     this->astLiteralRepo.get()
   );
   this->commandGenerator = newSrdObj<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = newSrdObj<CodeGen::Generator>(
     manager,
     this->astHelper.get(),
+    this->calleeTracer.get(),
     this->globalItemRepo.get(),
     this->typeGenerator.get(),
     this->commandGenerator.get(),

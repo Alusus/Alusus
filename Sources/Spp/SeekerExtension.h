@@ -30,6 +30,7 @@ class SeekerExtension : public ObjTiInterface
   public: struct Overrides
   {
     TiFunctionBase *foreachRef;
+    TiFunctionBase *extForeachRef;
     TiFunctionBase *foreachByIdentifier_levelRef;
     TiFunctionBase *foreachByIdentifier_functionRef;
     TiFunctionBase *foreachByIdentifier_dataTypeRef;
@@ -44,8 +45,11 @@ class SeekerExtension : public ObjTiInterface
     TiFunctionBase *foreachByComparison_computeRef;
   };
 
+  public: ti_s_enum(Action, TiInt, "Spp", "Spp", "alusus.org",
+    CHILD_SCOPE = 100
+  );
+
   public: s_enum(Flags,
-    SKIP_OWNERS_AND_USES = (Core::Data::Seeker::Flags::SKIP_OWNERS | Core::Data::Seeker::Flags::SKIP_USES),
     SKIP_CHILDREN = (1 << 16)
   );
 
@@ -113,6 +117,11 @@ class SeekerExtension : public ObjTiInterface
   /// @{
 
   private: static Core::Data::Seeker::Verb _foreach(
+    TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
+    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  );
+
+  private: static Core::Data::Seeker::Verb _extForeach(
     TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
