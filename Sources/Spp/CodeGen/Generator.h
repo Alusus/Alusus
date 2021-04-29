@@ -251,6 +251,10 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     TiObject *self, Spp::Ast::Type *astType, Session *session, Word &result
   );
 
+  private: static Int _addThisDefinition(
+    TiObject *self, Ast::Block *body, Ast::Type *astThisType, TioSharedPtr const &tgThis, Session *session
+  );
+
   /// @}
 
   /// @name Helper Functions

@@ -580,6 +580,17 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
   );
 
+  public: METHOD_BINDING_CACHE(referencifyThisIfNeeded,
+    Bool, (
+      Core::Data::Node* /* astNode */, GenResult const& /* thisArg */,
+      Generation* /* g */, Session* /* session */, GenResult& /* thisResult */
+    )
+  );
+  private: static Bool _referencifyThisIfNeeded(
+    TiObject *self, Core::Data::Node *astNode, GenResult const &thisArg,
+    Generation *g, Session *session, GenResult &thisResult
+  );
+
   public: METHOD_BINDING_CACHE(generateParams,
     Bool, (
       TiObject* /* astNode */, Generation* /* g */, Session* /* session */,

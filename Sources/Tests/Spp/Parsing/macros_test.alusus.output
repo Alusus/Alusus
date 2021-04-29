@@ -16,20 +16,20 @@ ERROR CD1003 @ (21,1): Invalid 'def' command.
 Macro [Main.Macro]
  argTypes: Map
   x: NULL
- body: Identifier: x [Main.Subject.Identifier]
+ body: Identifier: x [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.Subject.Identifier]
- body: Identifier: x [Main.Subject.Identifier]
+  x: Identifier: Identifier [Main.BlockSubject.Identifier]
+ body: Identifier: x [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.Subject.Identifier]
- body: Scope [Main.Statements.StmtList]
-  Identifier: x [Main.Subject.Identifier]
+  x: Identifier: Identifier [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+  Identifier: x [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
@@ -37,50 +37,50 @@ Macro [Main.Macro]
   x: NULL
   y: NULL
  body: List [Main.Expression.ListExp]
-  Identifier: x [Main.Subject.Identifier]
-  Identifier: y [Main.Subject.Identifier]
+  Identifier: x [Main.BlockSubject.Identifier]
+  Identifier: y [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.Subject.Identifier]
-  y: Identifier: String [Main.Subject.Identifier]
+  x: Identifier: Identifier [Main.BlockSubject.Identifier]
+  y: Identifier: String [Main.BlockSubject.Identifier]
  body: List [Main.Expression.ListExp]
-  Identifier: x [Main.Subject.Identifier]
-  Identifier: y [Main.Subject.Identifier]
+  Identifier: x [Main.BlockSubject.Identifier]
+  Identifier: y [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.Subject.Identifier]
-  y: Identifier: String [Main.Subject.Identifier]
- body: Scope [Main.Statements.StmtList]
+  x: Identifier: Identifier [Main.BlockSubject.Identifier]
+  y: Identifier: String [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
   List [Main.Expression.ListExp]
-   Identifier: x [Main.Subject.Identifier]
-   Identifier: y [Main.Subject.Identifier]
+   Identifier: x [Main.BlockSubject.Identifier]
+   Identifier: y [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.Subject.Identifier]
+  x: Identifier: Identifier [Main.BlockSubject.Identifier]
   y: NULL
- body: Scope [Main.Statements.StmtList]
+ body: Block [Main.BlockStatements.StmtList]
   List [Main.Expression.ListExp]
-   Identifier: x [Main.Subject.Identifier]
-   Identifier: y [Main.Subject.Identifier]
+   Identifier: x [Main.BlockSubject.Identifier]
+   Identifier: y [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
   x: NULL
-  y: Identifier: String [Main.Subject.Identifier]
- body: Scope [Main.Statements.StmtList]
+  y: Identifier: String [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
   List [Main.Expression.ListExp]
-   Identifier: x [Main.Subject.Identifier]
-   Identifier: y [Main.Subject.Identifier]
+   Identifier: x [Main.BlockSubject.Identifier]
+   Identifier: y [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
- body: StringLiteral: hello [Main.Subject.Literal]
+ body: StringLiteral: hello [Main.BlockSubject.Literal]
 ------------------------------------------------------

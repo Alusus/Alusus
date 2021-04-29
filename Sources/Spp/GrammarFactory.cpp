@@ -504,8 +504,6 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   // BlockStatements
   this->set(S("root.Main.BlockStatements"), Module::create({
     {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
-  }, {
-    {S("expression"), PARSE_REF(S("module.owner.BlockExpression"))}
   }));
   this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
@@ -523,12 +521,8 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   }, {
     {S("set"), PARSE_REF(S("module.owner.BlockSet"))}
   }).get());
-  // BlockExpression
-  this->set(S("root.Main.BlockExpression"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.owner.Expression")) }
-  }, {
-    {S("subject"), PARSE_REF(S("module.owner.BlockSubject"))}
-  }).get());
+  this->set(S("root.Main.Expression._subjectBackup"), getSharedPtr(this->get(S("root.Main.Expression.subject"))));
+  this->set(S("root.Main.Expression.subject"), PARSE_REF(S("module.owner.BlockSubject")));
 
   // Keywords
   this->createCommand(S("root.Main.Keywords"), {{
@@ -877,10 +871,11 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->tryRemove(S("root.Main.AstLiteral"));
 
   // Delete block definitions.
+  this->set(S("root.Main.Expression.subject"), getSharedPtr(this->get(S("root.Main.Expression._subjectBackup"))));
+  this->tryRemove(S("root.Main.Expression._subjectBackup"));
   this->tryRemove(S("root.Main.BlockSet"));
   this->tryRemove(S("root.Main.BlockStatements"));
   this->tryRemove(S("root.Main.BlockSubject"));
-  this->tryRemove(S("root.Main.BlockExpression"));
 }
 
 } // namespace

@@ -1,9 +1,15 @@
 import "Srl/Console.alusus";
 use Srl.Console;
 
+type A {
+    def k: Int;
+    handler this(): Int return this.k;
+}
+
 type T {
     def i: Int(0);
     def j: Int(0);
+    def a: A;
 
     handler this~init() {}
     handler this~init(t: ref[T]) {
@@ -61,8 +67,6 @@ type T {
 
     handler this.myprop $ Int : Int return this.j $ value;
 
-    handler this.myprop:Int return this.j;
-
     handler this.myprop():Int return this.j;
 
     handler this.myprop(Int) this.j += value;
@@ -70,6 +74,25 @@ type T {
     handler this.myprop(f: float) => Float[64] {
         return this.j + f;
     };
+
+    handler this.myprop1:Int return this.j;
+
+    @operation[""]
+    def myprop2: ptr[function ():Int];
+    func myprop2Imp (): Int {
+        return this.a.k;
+    }
+    myprop2 = myprop2Imp~ptr;
+
+    handler this.myprop3:Int return this.a.k;
+    handler this.myprop4:ref[A] return this.a;
+
+    @operation[""]
+    def myprop5: ptr[function ():ref[A]];
+    func myprop5Imp (): ref[A] {
+        return this.a;
+    }
+    myprop5 = myprop5Imp~ptr;
 };
 
 def t: T;
@@ -144,19 +167,25 @@ print("t.myprop << 2 ==> %d\n", t.myprop << 2);
 
 print("t.myprop $ 5 ==> %d\n", t.myprop $ 5);
 
-print("t.myprop~cast[Int] ==> %d\n", t.myprop~cast[Int]);
-i = t.myprop;
-print("i:Int = t.myprop ==> %d\n", i);
-
-printInt(t.myprop);
-printInt(rt.myprop);
-
 print("t.myprop() ==> %d\n", t.myprop());
 
 t.myprop(3);
 print("t.myprop(3) ==> t.j: %d\n", t.j);
 
 print("t.myprop(4.5) ==> %f\n", t.myprop(4.5));
+
+print("t.myprop1~cast[Int] ==> %d\n", t.myprop1~cast[Int]);
+i = t.myprop1;
+print("i:Int = t.myprop ==> %d\n", i);
+
+printInt(t.myprop1);
+printInt(rt.myprop1);
+
+t.a.k = 5;
+print("t.myprop2 + 1 ==> %d\n", t.myprop2 + 1);
+print("t.myprop3 + 2 ==> %d\n", t.myprop3 + 2);
+print("t.myprop4() ==> %d\n", t.myprop4());
+print("t.myprop5() ==> %d\n", t.myprop5());
 
 type Other {
   def j: Int;

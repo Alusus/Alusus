@@ -832,26 +832,35 @@ Bool TargetGenerator::generateCastPointerToPointer(
 Bool TargetGenerator::generateVarReference(
   TiObject *context, TiObject *varType, TiObject *varDefinition, TioSharedPtr &result
 ) {
-  PREPARE_ARG(varDefinition, var, Variable);
   PREPARE_ARG(context, block, Block);
-  if (var->getLlvmAllocaInst() != 0) {
-    result = newSrdObj<Value>(var->getLlvmAllocaInst(), false);
-  } else if (var->getLlvmGlobalVariable() != 0) {
-    llvm::Module *llvmMod = this->perFunctionModules ?
-      block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
-    // Make sure the target var is declared in the current module.
-    llvm::GlobalVariable *llvmVar = llvmMod->getGlobalVariable(var->getName().getBuf());
-    if (llvmVar == 0) {
-      // This global var is in a different module, so we'll have to define it again.
-      llvmVar = new llvm::GlobalVariable(
-        *llvmMod, var->getType()->getLlvmType(), false, llvm::GlobalVariable::ExternalLinkage,
-        0, var->getName().getBuf()
-      );
+  auto var = ti_cast<Variable>(varDefinition);
+  auto value = ti_cast<Value>(varDefinition);
+  if (var == 0 && value == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("varDefinition"), S("Argument is null or of invalid type"));
+  }
+
+  if (var != 0) {
+    if (var->getLlvmAllocaInst() != 0) {
+      result = newSrdObj<Value>(var->getLlvmAllocaInst(), false);
+    } else if (var->getLlvmGlobalVariable() != 0) {
+      llvm::Module *llvmMod = this->perFunctionModules ?
+        block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
+      // Make sure the target var is declared in the current module.
+      llvm::GlobalVariable *llvmVar = llvmMod->getGlobalVariable(var->getName().getBuf());
+      if (llvmVar == 0) {
+        // This global var is in a different module, so we'll have to define it again.
+        llvmVar = new llvm::GlobalVariable(
+          *llvmMod, var->getType()->getLlvmType(), false, llvm::GlobalVariable::ExternalLinkage,
+          0, var->getName().getBuf()
+        );
+      }
+      // Prepare the reference.
+      result = newSrdObj<Value>(llvmVar, false);
+    } else {
+      throw EXCEPTION(GenericException, S("Variable definition was not generated correctly."));
     }
-    // Prepare the reference.
-    result = newSrdObj<Value>(llvmVar, false);
   } else {
-    throw EXCEPTION(GenericException, S("Variable definition was not generated correctly."));
+    result = getSharedPtr(value);
   }
   return true;
 }

@@ -86,51 +86,6 @@ ti_s_enum(DefinitionDomain,
 );
 
 /// @ingroup spp_ast
-struct CalleeLookupRequest
-{
-  Core::Data::Node *astNode = 0;
-  TiObject *target = 0;
-  Bool targetIsObject = false;
-  Bool searchTargetOwners = false;
-  TiObject *ref = 0;
-  Str op;
-  TiObject *thisType = 0;
-  Containing<TiObject> *argTypes = 0;
-  ExecutionContext const *ec;
-};
-
-/// @ingroup spp_ast
-struct CalleeLookupResult
-{
-  TypeMatchStatus matchStatus = TypeMatchStatus::NONE;
-  Array<TiObject*> stack;
-  SharedPtr<Core::Notices::Notice> notice;
-  Int thisIndex = -2;
-
-  Bool isSuccessful() const
-  {
-    return this->matchStatus >= TypeMatchStatus::CUSTOM_CASTER && this->notice == 0;
-  }
-  Bool isFailure() const
-  {
-    return this->notice != 0;
-  }
-  Bool isNew() const
-  {
-    return this->matchStatus == TypeMatchStatus::NONE && this->notice == 0;
-  }
-  Bool isNameMatched() const
-  {
-    return !this->isNew() && (this->notice == 0 || !this->notice->isA<Spp::Notices::UnknownSymbolNotice>());
-  }
-
-  void pushStack(TiObject *obj) {
-    this->stack.insert(0, obj);
-    if (this->thisIndex >= 0) ++this->thisIndex;
-  }
-};
-
-/// @ingroup spp_ast
 s_enum(TypeInitMethod,
   NONE = 0,
   AUTO = 1,
@@ -148,14 +103,9 @@ Char const* findOperationModifier(Core::Data::Ast::Definition const *def);
 
 
 //==============================================================================
-// Type Names
+// Includes
 
-DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupRequest, "alusus.org/Spp/Spp.Ast.CalleeLookupRequest");
-DEFINE_TYPE_NAME(Spp::Ast::CalleeLookupResult, "alusus.org/Spp/Spp.Ast.CalleeLookupResult");
-
-
-//==============================================================================
-// Classes
+#include "callee_lookup_types.h"
 
 //// AST Classes
 #include "Block.h"

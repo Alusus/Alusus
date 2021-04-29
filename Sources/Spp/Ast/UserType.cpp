@@ -51,7 +51,7 @@ TypeMatchStatus UserType::matchTargetType(
 Bool UserType::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, noticeStore);
-  if (src->isA<Core::Data::Ast::Scope>()) {
+  if (src->isA<Block>()) {
     auto scope = static_cast<Core::Data::Ast::Scope*>(src);
     return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
   } else if (src->isDerivedFrom<UserType>()) {
