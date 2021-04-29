@@ -1,23 +1,23 @@
 ERROR SPPG1002 @ (3,1): Invalid operation.
 ------------------ Parsed Data Dump ------------------
-Scope [Main.Statements.StmtList]
+Block [Main.BlockStatements.StmtList]
  List [Main.Expression.ListExp]
-  StringLiteral: hello [Main.Subject.Literal]
-  StringLiteral: world [Main.Subject.Literal]
+  StringLiteral: hello [Main.BlockSubject.Literal]
+  StringLiteral: world [Main.BlockSubject.Literal]
  PostfixOperator ++ [Main.Expression.UnaryExp]
-  operand: Identifier: i [Main.Subject.Identifier]
+  operand: Identifier: i [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]
-  Definition [Main.Def] x: Identifier: float [Main.Subject.Identifier]
-  Definition [Main.Def] y: Identifier: float [Main.Subject.Identifier]
+  Definition [Main.Def] x: Identifier: float [Main.BlockSubject.Identifier]
+  Definition [Main.Def] y: Identifier: float [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]
-  Definition [Main.Def] x: Identifier: float [Main.Subject.Identifier]
-  Definition [Main.Def] y: Identifier: float [Main.Subject.Identifier]
+  Definition [Main.Def] x: Identifier: float [Main.BlockSubject.Identifier]
+  Definition [Main.Def] y: Identifier: float [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
@@ -27,31 +27,31 @@ Function  [Main.Function]
    y: Identifier: int [Main.ParamOnlySubject.Identifier]
   retType: Identifier: int [Main.ParamOnlySubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
-  AdditionOperator + [Main.BlockExpression.AddExp]
+  AdditionOperator + [Main.Expression.AddExp]
    first: Identifier: x [Main.BlockSubject.Identifier]
    second: Identifier: y [Main.BlockSubject.Identifier]
   WhileStatement [Main.While]
    condition: ComparisonOperator == [Main.Expression.ComparisonExp]
-    first: Identifier: x [Main.Subject.Identifier]
-    second: IntegerLiteral: 3 [Main.Subject.Literal]
-   body: ParamPass () [Main.BlockExpression.ParamPassExp]
+    first: Identifier: x [Main.BlockSubject.Identifier]
+    second: IntegerLiteral: 3 [Main.BlockSubject.Literal]
+   body: ParamPass () [Main.Expression.ParamPassExp]
     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
     param: NULL
   WhileStatement [Main.While]
    condition: ComparisonOperator == [Main.Expression.ComparisonExp]
-    first: Identifier: y [Main.Subject.Identifier]
-    second: IntegerLiteral: 3 [Main.Subject.Literal]
+    first: Identifier: y [Main.BlockSubject.Identifier]
+    second: IntegerLiteral: 3 [Main.BlockSubject.Literal]
    body: Block [Main.BlockStatements.StmtList]
-    ParamPass () [Main.BlockExpression.ParamPassExp]
+    ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: doSomething1 [Main.BlockSubject.Identifier]
      param: NULL
-    ParamPass () [Main.BlockExpression.ParamPassExp]
+    ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: doSomething2 [Main.BlockSubject.Identifier]
      param: NULL
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]
-  Definition [Main.Def] i: Identifier: float [Main.Subject.Identifier]
-  Definition [Main.Def] j: Identifier: float [Main.Subject.Identifier]
+  Definition [Main.Def] i: Identifier: float [Main.BlockSubject.Identifier]
+  Definition [Main.Def] j: Identifier: float [Main.BlockSubject.Identifier]
 ------------------------------------------------------

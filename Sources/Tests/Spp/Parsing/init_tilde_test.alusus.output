@@ -1,19 +1,19 @@
 ------------------ Parsed Data Dump ------------------
 InitOp [Main.InitTilde]
- operand: Identifier: aa [Main.Subject.Identifier]
+ operand: Identifier: aa [Main.BlockSubject.Identifier]
  param: NULL
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 InitOp [Main.InitTilde]
- operand: Identifier: bb [Main.Subject.Identifier]
- param: IntegerLiteral: 1 [Main.Subject.Literal]
+ operand: Identifier: bb [Main.BlockSubject.Identifier]
+ param: IntegerLiteral: 1 [Main.BlockSubject.Literal]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 InitOp [Main.InitTilde]
- operand: Identifier: cc [Main.Subject.Identifier]
+ operand: Identifier: cc [Main.BlockSubject.Identifier]
  param: List [Main.Expression.ListExp]
-  IntegerLiteral: 1 [Main.Subject.Literal]
-  IntegerLiteral: 2 [Main.Subject.Literal]
+  IntegerLiteral: 1 [Main.BlockSubject.Literal]
+  IntegerLiteral: 2 [Main.BlockSubject.Literal]
 ------------------------------------------------------
 ERROR CP1001 @ (12,15): Parser syntax error.
 ERROR CP1001 @ (14,15): Parser syntax error.

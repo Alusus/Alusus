@@ -92,8 +92,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         if (box != 0) obj = box->get().get();
 
         if (
-          result.stack.getLength() > 0 && result.stack(result.stack.getLength() - 1) == obj &&
-          result.thisIndex < 0
+          result.stack.getLength() > 0 && result.stack(result.stack.getLength() - 1).obj == obj
         ) {
           return Core::Data::Seeker::Verb::MOVE;
         }
@@ -163,10 +162,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             CalleeLookupResult innerResult;
             tracer->lookupCallee(innerRequest, innerResult);
             if (innerResult.isSuccessful()) {
-              innerResult.pushStack(def->getTarget().get());
-              if (innerResult.thisIndex == -1) {
-                innerResult.thisIndex = noBindDef ? -1 : 0;
-              }
+              if (!noBindDef) innerResult.pushThisMarker();
+              innerResult.pushObject(def->getTarget().get());
             }
             CalleeTracer::selectBetterResult(innerResult, result);
             // No need to keep looking if we already found an exact match.
@@ -295,37 +292,64 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
 
   // TODO: Should we skip if targetIsObject is false and the function is a member function?
 
+  Bool useThis = !func->getType()->isBindDisabled() && request.thisType != 0;
+
   // Only allow this check if the funciton has the proper modifier.
   Char const *defOp = 0;
   auto def = func->findOwner<Core::Data::Ast::Definition>();
   if (def != 0) {
     defOp = findOperationModifier(def);
   }
-  if (request.op == S("()") && defOp != 0 && request.op != defOp) {
-    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-    return;
-  } else if (request.op != S("()") && (defOp == 0 || request.op != defOp)) {
-    if (request.op == S("") && !request.targetIsObject) {
-      // We are just trying to get a reference to the function itself.
+  if (defOp != 0 && SBSTR(defOp) == S("")) {
+    PlainList<TiObject> argTypes;
+    if (useThis) argTypes.add(helper->getReferenceTypeFor(request.thisType, ReferenceMode::IMPLICIT));
+    auto matchStatus = func->getType()->matchCall(&argTypes, helper, request.ec);
+    if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
+      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      return;
+    }
+
+    if (request.op == S("")) {
       result.matchStatus = TypeMatchStatus::EXACT;
       result.notice.reset();
       result.stack.clear();
-      result.stack.add(func);
-      result.thisIndex = -2;
+      result.pushThisMarker();
+      result.pushFunctionCall();
+      result.pushObject(request.target);
     } else {
-      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      auto retType = helper->tryGetDeepReferenceContentType(func->getType()->traceRetType(helper));
+      CalleeLookupRequest innerRequest = request;
+      innerRequest.targetIsObject = true;
+      innerRequest.target = retType;
+      if (retType->isDerivedFrom<UserType>()) {
+        innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
+      }
+      tracer->lookupCallee_routing(innerRequest, result);
+
+      if (result.isSuccessful()) {
+        if (retType->isDerivedFrom<UserType>()) result.pushThisMarker();
+        result.pushFunctionCall();
+        result.pushObject(request.target);
+      }
     }
     return;
+  } else if (request.op == S("") && !request.targetIsObject) {
+    // We are just trying to get a reference to the function itself.
+    result.matchStatus = TypeMatchStatus::EXACT;
+    result.notice.reset();
+    result.stack.clear();
+    result.pushObject(func);
+    return;
+  } else if (request.op != (defOp == 0 ? S("()") : defOp)) {
+    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
   }
-
-  Bool useThis = !func->getType()->isBindDisabled() && request.thisType != 0;
 
   result.matchStatus = func->getType()->matchCall(useThis ? &extTypes : request.argTypes, helper, request.ec);
   if (result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
     result.notice.reset();
     result.stack.clear();
-    result.stack.add(func);
-    result.thisIndex = useThis ? -1 : -2;
+    result.pushObject(func);
   } else {
     result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
   }
@@ -355,8 +379,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     tracer->lookupCallee(innerRequest, result);
     if (result.isSuccessful()) {
       // A constructor match was found.
-      result.pushStack(type);
-      result.thisIndex = -2;
+      result.pushObject(type);
     } else if (
       request.argTypes->getElementCount() == 0 &&
       (type->getInitializationMethod(helper, request.ec) & TypeInitMethod::USER) == 0
@@ -365,8 +388,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
       result.matchStatus = TypeMatchStatus::EXACT;
       result.notice.reset();
       result.stack.clear();
-      result.stack.add(type);
-      result.thisIndex = -2;
+      result.pushObject(type);
     } else if (
       (type->getInitializationMethod(helper, request.ec) & TypeInitMethod::USER) == 0 &&
       request.argTypes->getElementCount() == 1 &&
@@ -376,8 +398,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
       result.matchStatus = TypeMatchStatus::EXACT;
       result.notice.reset();
       result.stack.clear();
-      result.stack.add(type);
-      result.thisIndex = -2;
+      result.pushObject(type);
     } else {
       // If the ref symbol we provided here was not found we'll provide a better error message to the user since
       // the user didn't manually provide this symbol.
@@ -390,8 +411,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
     result.stack.clear();
-    result.stack.add(type);
-    result.thisIndex = -2;
+    result.pushObject(type);
   } else {
     result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
   }
@@ -407,8 +427,7 @@ void CalleeTracer::_lookupCallee_template(TiObject *self, CalleeLookupRequest &r
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
     result.stack.clear();
-    result.stack.add(request.target);
-    result.thisIndex = -2;
+    result.pushObject(request.target);
     return;
   }
 
@@ -439,8 +458,7 @@ void CalleeTracer::_lookupCallee_scope(TiObject *self, CalleeLookupRequest &requ
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
     result.stack.clear();
-    result.stack.add(request.target);
-    result.thisIndex = -2;
+    result.pushObject(request.target);
   }
 }
 
@@ -457,8 +475,7 @@ void CalleeTracer::_lookupCallee_argPack(TiObject *self, CalleeLookupRequest &re
   result.matchStatus = TypeMatchStatus::EXACT;
   result.notice.reset();
   result.stack.clear();
-  result.stack.add(request.target);
-  result.thisIndex = -2;
+  result.pushObject(request.target);
 }
 
 
@@ -504,6 +521,7 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
   Bool noBindDef = def != 0 && helper->isNoBindDef(def);
 
   CalleeLookupRequest innerRequest = request;
+  innerRequest.varTargetOp = def == 0 ? 0 : Ast::findOperationModifier(def);
   innerRequest.targetIsObject = true;
   innerRequest.target = objType;
   if (!noBindDef && objType->isDerivedFrom<UserType>()) {
@@ -512,10 +530,8 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
   tracer->lookupCallee_routing(innerRequest, result);
 
   if (result.isSuccessful()) {
-    result.pushStack(request.target);
-    if (result.thisIndex == -1) {
-      result.thisIndex = (noBindDef || !objType->isDerivedFrom<UserType>()) ? -1 : 0;
-    }
+    if (!noBindDef && objType->isDerivedFrom<UserType>()) result.pushThisMarker();
+    result.pushObject(request.target);
   }
 }
 
@@ -525,9 +541,8 @@ void CalleeTracer::_lookupCallee_literal(TiObject *self, CalleeLookupRequest &re
   if (request.op != S("()")) {
     // Accept any other operator and let the caller handle the built in type checking.
     result.matchStatus = TypeMatchStatus::EXACT;
-    result.thisIndex = -2;
     result.stack.clear();
-    result.pushStack(request.target);
+    result.pushObject(request.target);
     result.notice.reset();
   }
 }
@@ -548,34 +563,56 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
   ContainerExtender<TiObject, 1, 0> extTypes(request.argTypes);
   extTypes.setPreItem(0, request.thisType);
 
-  // Only allow this check if the funciton has the proper modifier.
-  auto def = static_cast<Core::Data::Node*>(request.target)->findOwner<Core::Data::Ast::Definition>();
-  auto defOp = findOperationModifier(def);
+  auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
+  Bool useThis = !funcType->isBindDisabled() && request.thisType != 0;
 
-  if (request.op == S("()") && defOp != 0 && request.op != defOp) {
-    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-    return;
-  } else if (request.op != S("()") && (defOp == 0 || request.op != defOp)) {
+  if (request.varTargetOp != 0 && SBSTR(request.varTargetOp) == S("")) {
+    PlainList<TiObject> argTypes;
+    if (useThis) argTypes.add(helper->getReferenceTypeFor(request.thisType, ReferenceMode::IMPLICIT));
+    auto matchStatus = funcType->matchCall(&argTypes, helper, request.ec);
+    if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
+      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      return;
+    }
+
     if (request.op == S("")) {
-      // We are just trying to get a reference to the function itself.
       result.matchStatus = TypeMatchStatus::EXACT;
       result.notice.reset();
       result.stack.clear();
-      result.thisIndex = -2;
+      result.pushThisMarker();
+      result.pushFunctionCall();
     } else {
-      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      auto retType = helper->tryGetDeepReferenceContentType(funcType->traceRetType(helper));
+      CalleeLookupRequest innerRequest = request;
+      innerRequest.targetIsObject = true;
+      innerRequest.target = retType;
+      if (retType->isDerivedFrom<UserType>()) {
+        innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
+      }
+      tracer->lookupCallee_routing(innerRequest, result);
+
+      if (result.isSuccessful()) {
+        if (retType->isDerivedFrom<UserType>()) result.pushThisMarker();
+        result.pushFunctionCall();
+      }
     }
+    return;
+  } else if (request.op == S("")) {
+    // We are just trying to get a reference to the function ptr itself.
+    result.matchStatus = TypeMatchStatus::EXACT;
+    result.notice.reset();
+    result.stack.clear();
+    return;
+  } else if (request.op != (request.varTargetOp == 0 ? S("()") : request.varTargetOp)) {
+    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
     return;
   }
 
-  auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
-  Bool useThis = !funcType->isBindDisabled() && request.thisType != 0;
   result.matchStatus = funcType->matchCall(useThis ? &extTypes : request.argTypes, helper, request.ec);
 
   if (result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
     result.notice.reset();
     result.stack.clear();
-    result.thisIndex = useThis ? -1 : -2;
   } else {
     result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
   }
@@ -628,7 +665,6 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
         helper->isImplicitlyCastableTo(request.argTypes->getElement(0), helper->getArchIntType(), request.ec)
       ) {
         result.matchStatus = TypeMatchStatus::EXACT;
-        result.thisIndex = -2;
         result.stack.clear();
         result.notice.reset();
       } else {
@@ -644,7 +680,6 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
       auto ms = helper->matchTargetType(request.argTypes->getElement(0), type, request.ec, caster);
       if (ms >= TypeMatchStatus::CUSTOM_CASTER) {
         result.matchStatus = ms;
-        result.thisIndex = -2;
         result.stack.clear();
         result.notice.reset();
       } else {
@@ -656,7 +691,6 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
   } else {
     // Accept any other operator and let the caller handle the built in type checking.
     result.matchStatus = TypeMatchStatus::EXACT;
-    result.thisIndex = -2;
     result.stack.clear();
     result.notice.reset();
   }

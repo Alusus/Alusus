@@ -2,15 +2,15 @@
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] MyType: UserType [Main.Type]
   body: Block [Main.BlockStatements.StmtList]
-   Definition [Main.Def] x: Identifier: Int [Main.Subject.Identifier]
+   Definition [Main.Def] x: Identifier: Int [Main.BlockSubject.Identifier]
    Definition [Main.Def] y
     modifiers:
      Identifier: shared [Modifier.Subject.Identifier]
-    target: Identifier: Int [Main.Subject.Identifier]
+    target: Identifier: Int [Main.BlockSubject.Identifier]
    Definition [Main.Def] t
     modifiers:
      Identifier: shared [Modifier.Subject.Identifier]
-    target: Identifier: MyType [Main.Subject.Identifier]
+    target: Identifier: MyType [Main.BlockSubject.Identifier]
    Definition [Main.Def] printIt: Function  [Main.Function]
     type: FunctionType shared: 1, bindDisabled: 0 [Main.Function]
      argTypes: NULL
@@ -19,5 +19,5 @@ Module [Main.ModuleStatements.StmtList]
      Definition [Main.Def] z
       modifiers:
        Identifier: shared [Modifier.Subject.Identifier]
-      target: Identifier: Int [Main.Subject.Identifier]
+      target: Identifier: Int [Main.BlockSubject.Identifier]
 ------------------------------------------------------

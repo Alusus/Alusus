@@ -4,22 +4,22 @@ Function  [Main.Function]
   argTypes: NULL
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]
-  ParamPass () [Main.BlockExpression.ParamPassExp]
+  ParamPass () [Main.Expression.ParamPassExp]
    operand: Identifier: print [Main.BlockSubject.Identifier]
-   param: StringLiteral: hello [Main.Subject.Literal]
+   param: StringLiteral: hello [Main.BlockSubject.Literal]
   PreprocessStatement [Main.Preprocess]
-   body: ParamPass () [Main.BlockExpression.ParamPassExp]
+   body: ParamPass () [Main.Expression.ParamPassExp]
     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
     param: NULL
   PreprocessStatement [Main.Preprocess]
    body: Block [Main.BlockStatements.StmtList]
-    ParamPass () [Main.BlockExpression.ParamPassExp]
+    ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: doSomething1 [Main.BlockSubject.Identifier]
      param: NULL
-    ParamPass () [Main.BlockExpression.ParamPassExp]
+    ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: doSomething2 [Main.BlockSubject.Identifier]
      param: NULL
-  ParamPass () [Main.BlockExpression.ParamPassExp]
+  ParamPass () [Main.Expression.ParamPassExp]
    operand: Identifier: print [Main.BlockSubject.Identifier]
-   param: StringLiteral: world [Main.Subject.Literal]
+   param: StringLiteral: world [Main.BlockSubject.Literal]
 ------------------------------------------------------

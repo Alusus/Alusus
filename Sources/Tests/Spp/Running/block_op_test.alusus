@@ -1,0 +1,25 @@
+import "Srl/Console.alusus";
+use Srl;
+
+type A {
+    def i: Int;
+    handler this(): Int return this.i;
+}
+
+func test {
+    def a: A;
+    Console.print("%d\n", a.{ i = 6 }.i);
+    Console.print("%d\n", a.{ i = 7 }());
+    Console.print("%d\n", A().{ i = 8 }.i);
+    Console.print("%d\n", A().{ i = 9 }());
+}
+test();
+
+def a2: A;
+Console.print("%d\n", a2.{ i = 10 }.i);
+Console.print("%d\n", a2.{ i = 11 }());
+Console.print("%d\n", A().{ i = 12 }.i);
+Console.print("%d\n", A().{ i = 13 }());
+
+def c: Char = '2';
+Console.print("%s\n", ptr[Char]().{ if c == '1' this="one" else if c == '2' this="two" else this="other" });

@@ -69,8 +69,8 @@ Function f7 [Main.Function]
    X: ParamPass [] [Main.ParamOnlyExpression.ParamPassExp]
     operand: Identifier: ptr [Main.ParamOnlySubject.Identifier]
     param: ParamPass [] [Main.Expression.ParamPassExp]
-     operand: Identifier: Int [Main.Subject.Identifier]
-     param: IntegerLiteral: 8 [Main.Subject.Literal]
+     operand: Identifier: Int [Main.BlockSubject.Identifier]
+     param: IntegerLiteral: 8 [Main.BlockSubject.Literal]
   retType: NULL
  body: NULL
 ------------------------------------------------------
@@ -96,7 +96,7 @@ Function  [Main.Function]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-Scope [Main.Statements.StmtList]
+Block [Main.BlockStatements.StmtList]
  Definition [Main.Function] f11: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
   argTypes: NULL
   retType: NULL
@@ -131,5 +131,5 @@ Scope [Main.Statements.StmtList]
   first: Definition [Main.Function] f18: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
    argTypes: NULL
    retType: NULL
-  second: Identifier: void [Main.Subject.Identifier]
+  second: Identifier: void [Main.BlockSubject.Identifier]
 ------------------------------------------------------

@@ -43,6 +43,7 @@ void Generator::initBindings()
   generation->generateFunctionCall = &Generator::_generateFunctionCall;
   generation->getGeneratedType = &Generator::_getGeneratedType;
   generation->getTypeAllocationSize = &Generator::_getTypeAllocationSize;
+  generation->addThisDefinition = &Generator::_addThisDefinition;
 }
 
 
@@ -589,13 +590,13 @@ Bool Generator::_generateVarInitialization(
       auto callee = lookupResult.stack(lookupResult.stack.getLength() - 1);
       // Prepare the arguments to send.
       if (!generator->getExpressionGenerator()->prepareFunctionParams(
-        static_cast<Ast::Function*>(callee)->getType().get(), generation, session,
+        static_cast<Ast::Function*>(callee.obj)->getType().get(), generation, session,
         paramAstNodes, paramAstTypes, paramTgValues
       )) return false;
       // Call the found constructor.
       GenResult result;
       return generator->getExpressionGenerator()->generateFunctionCall(
-        astNode, static_cast<Ast::Function*>(callee), paramAstTypes, paramTgValues, generation, session, result
+        astNode, static_cast<Ast::Function*>(callee.obj), paramAstTypes, paramTgValues, generation, session, result
       );
     } else if (paramAstTypes->getCount() != 1 || generator->getSeeker()->tryGet(&ref, varAstType) != 0) {
       // We have custom initialization but no constructors match the given params.
@@ -749,7 +750,7 @@ Bool Generator::_generateVarDestruction(
   Ast::CalleeLookupResult lookupResult;
   generator->calleeTracer->lookupCallee(lookupRequest, lookupResult);
   if (lookupResult.isSuccessful() && lookupResult.stack.getLength() == 1) {
-    auto callee = static_cast<Ast::Function*>(lookupResult.stack(lookupResult.stack.getLength() - 1));
+    auto callee = static_cast<Ast::Function*>(lookupResult.stack(lookupResult.stack.getLength() - 1).obj);
     // Call the destructor.
     GenResult result;
     if (!generator->getExpressionGenerator()->generateFunctionCall(
@@ -1011,6 +1012,31 @@ Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, 
 {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->getTypeAllocationSize(astType, ti_cast<Generation>(self), session, result);
+}
+
+
+Int Generator::_addThisDefinition(
+  TiObject *self, Ast::Block *body, Ast::Type *astThisType, TioSharedPtr const &tgThis, Session *session
+) {
+  PREPARE_SELF(generator, Generator);
+  auto thisRef = Core::Data::Ast::ParamPass::create({
+    {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+  }, {
+    {S("operand"), Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("iref"))} })},
+    {S("param"), Ast::ThisTypeRef::create()}
+  });
+  auto def = Core::Data::Ast::Definition::create({
+    {S("name"), TiStr(S("this"))}
+  }, {
+    {S("target"), thisRef},
+    {S("modifiers"), Core::Data::Ast::List::create({}, {
+      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("injection"))} }),
+      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("shared"))} })
+    })}
+  });
+  session->getEda()->setCodeGenData(thisRef.get(), tgThis);
+  Ast::setAstType(thisRef.get(), astThisType);
+  return body->add(def);
 }
 
 

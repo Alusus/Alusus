@@ -8,16 +8,16 @@ Template
  -body:
   UserType [Main.Type]
    body: Block [Main.BlockStatements.StmtList]
-    Definition [Main.Def] t: Identifier: T [Main.Subject.Identifier]
-    ParamPass () [Main.BlockExpression.ParamPassExp]
+    Definition [Main.Def] t: Identifier: T [Main.BlockSubject.Identifier]
+    ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: F [Main.BlockSubject.Identifier]
      param: NULL
-    ParamPass () [Main.BlockExpression.ParamPassExp]
+    ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: print [Main.BlockSubject.Identifier]
-     param: Identifier: I [Main.Subject.Identifier]
-    ParamPass () [Main.BlockExpression.ParamPassExp]
+     param: Identifier: I [Main.BlockSubject.Identifier]
+    ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: print [Main.BlockSubject.Identifier]
-     param: Identifier: S [Main.Subject.Identifier]
+     param: Identifier: S [Main.BlockSubject.Identifier]
  -instances:
 ------------------------------------------------------
 ERROR SPPA1002 @ (13,19): Invalid template argument.

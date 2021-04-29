@@ -547,8 +547,6 @@ define void @"testAutoInit()"() {
 
 define void @B.__autoConstruct__(%B* %this) {
 "#block1":
-  %this1 = alloca %B*
-  store %B* %this, %B** %this1
   %0 = getelementptr %B, %B* %this, i32 0, i32 0
   call void @"A.~init(iref[A])"(%A* %0)
   %1 = getelementptr %B, %B* %this, i32 0, i32 1
@@ -614,12 +612,9 @@ define void @"testInlinedInit()"() {
 
 define void @C.__autoConstruct__(%C* %this) {
 "#block1":
-  %this1 = alloca %C*
-  store %C* %this, %C** %this1
   %0 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous0", i32 0, i32 0))
-  %1 = load %C*, %C** %this1
-  %2 = getelementptr %C, %C* %1, i32 0, i32 0
-  store i32 3, i32* %2
+  %1 = getelementptr %C, %C* %this, i32 0, i32 0
+  store i32 3, i32* %1
   ret void
 }
 

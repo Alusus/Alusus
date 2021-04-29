@@ -1,6 +1,6 @@
 ------------------ Parsed Data Dump ------------------
 TerminateOp [Main.TerminateTilde]
- operand: Identifier: aa [Main.Subject.Identifier]
+ operand: Identifier: aa [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ERROR CP1001 @ (6,21): Parser syntax error.
 ERROR CP1001 @ (8,20): Parser syntax error.
