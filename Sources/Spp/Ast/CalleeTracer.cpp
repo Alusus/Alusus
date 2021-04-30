@@ -316,6 +316,10 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
       result.pushThisMarker();
       result.pushFunctionCall();
       result.pushObject(request.target);
+    } else if (CalleeTracer::isAssignOp(request.op)) {
+      // This is a read property, so we shouldn't allow assign operations on it.
+      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      return;
     } else {
       auto retType = helper->tryGetDeepReferenceContentType(func->getType()->traceRetType(helper));
       CalleeLookupRequest innerRequest = request;
@@ -333,7 +337,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
       }
     }
     return;
-  } else if (request.op == S("") && !request.targetIsObject) {
+  } else if (request.op == S("") && !request.targetIsObject && defOp == 0) {
     // We are just trying to get a reference to the function itself.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
@@ -542,6 +546,10 @@ void CalleeTracer::_lookupCallee_literal(TiObject *self, CalleeLookupRequest &re
     // Accept any other operator and let the caller handle the built in type checking.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.stack.clear();
+    if (request.op != S("")) {
+      result.pushObject(getDummyBuiltInOpFunction());
+      result.pushThisMarker();
+    }
     result.pushObject(request.target);
     result.notice.reset();
   }
@@ -581,11 +589,16 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
       result.stack.clear();
       result.pushThisMarker();
       result.pushFunctionCall();
+    } else if (CalleeTracer::isAssignOp(request.op)) {
+      // This is a read property, so we shouldn't allow assign operations on it.
+      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      return;
     } else {
       auto retType = helper->tryGetDeepReferenceContentType(funcType->traceRetType(helper));
       CalleeLookupRequest innerRequest = request;
       innerRequest.targetIsObject = true;
       innerRequest.target = retType;
+      innerRequest.varTargetOp = 0;
       if (retType->isDerivedFrom<UserType>()) {
         innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
       }
@@ -597,7 +610,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
       }
     }
     return;
-  } else if (request.op == S("")) {
+  } else if (request.op == S("") && request.varTargetOp == 0) {
     // We are just trying to get a reference to the function ptr itself.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
@@ -648,9 +661,6 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
   PREPARE_SELF(tracer, CalleeTracer);
   auto helper = tracer->helper;
 
-  ContainerExtender<TiObject, 1, 0> extTypes(request.argTypes);
-  extTypes.setPreItem(0, request.thisType);
-
   auto type = static_cast<Type*>(request.target);
 
   if (request.op == S("[]")) {
@@ -669,9 +679,11 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
         result.notice.reset();
       } else {
         if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::ArgsMismatchNotice>();
+        return;
       }
     } else {
       if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      return;
     }
   } else if (request.op == S("=")) {
     // Type must be castable to the target type for assignment operators.
@@ -682,17 +694,28 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
         result.matchStatus = ms;
         result.stack.clear();
         result.notice.reset();
+        result.pushObject(getDummyBuiltInOpFunction());
+        result.pushThisMarker();
       } else {
         if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>();
+        return;
       }
     } else {
       if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      return;
     }
-  } else {
+  } else if (request.varTargetOp == 0) {
     // Accept any other operator and let the caller handle the built in type checking.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.stack.clear();
     result.notice.reset();
+    if (request.op != S("")) {
+      result.pushObject(getDummyBuiltInOpFunction());
+      result.pushThisMarker();
+    }
+  } else {
+    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
   }
 }
 
@@ -724,10 +747,22 @@ void CalleeTracer::selectBetterResult(CalleeLookupResult const &newResult, Calle
         result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
       }
     }
-  } else if (result.matchStatus == TypeMatchStatus::NONE && result.notice == 0) {
+  } else if (!result.isNameMatched()) {
     // It was a failed match and we don't have a previous failed match, so we'll take this match.
     result = newResult;
   }
+}
+
+
+Bool CalleeTracer::isAssignOp(Str const &op)
+{
+  Char const *assignOps[] = {
+    S("="), S("+="), S("-="), S("*="), S("/="), S("%="), S("&="), S("|="), S("$="), S("<<="), S(">>=")
+  };
+  for (Int i = 0; i < sizeof(assignOps) / sizeof(assignOps[0]); ++i) {
+    if (op == assignOps[i]) return true;
+  }
+  return false;
 }
 
 } // namespace

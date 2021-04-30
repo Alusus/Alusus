@@ -155,6 +155,8 @@ class CalleeTracer : public TiObject, public DynamicBinding, public DynamicInter
 
   private: static void selectBetterResult(CalleeLookupResult const &newResult, CalleeLookupResult &result);
 
+  private: static Bool isAssignOp(Str const &op);
+
   /// @}
 
 }; // class

@@ -93,6 +93,32 @@ type T {
         return this.a;
     }
     myprop5 = myprop5Imp~ptr;
+
+    @operation[""]
+    def prop6: ptr[func ():Int];
+    func prop6ReadImp (): Int { print("Fetching prop6...\n"); return this.a.k };
+    prop6 = prop6ReadImp~ptr;
+
+    @operation["="]
+    def prop6: ptr[func (Int)];
+    func prop6Imp (v: Int) { print("Assigning prop6...\n"); this.a.k = v }
+    prop6 = prop6Imp~ptr;
+
+    handler this.prop7:Int { print("Fetching prop7...\n"); return this.a.k; }
+    handler this.prop7=Int { print("Assigning prop7...\n"); this.a.k = value; return this.a.k; }
+
+    @operation[""]
+    def prop8: ptr[func ():Int];
+    func prop8ReadImp (): Int { print("Fetching prop8...\n"); return this.a.k };
+    prop8 = prop8ReadImp~ptr;
+
+    @operation["+="]
+    def prop8: ptr[func (Int)];
+    func prop8Imp (v: Int) { print("Assigning prop8...\n"); this.a.k = v }
+    prop8 = prop8Imp~ptr;
+
+    handler this.prop9:Int { print("Fetching prop9...\n"); return this.a.k; }
+    handler this.prop9+=Int { print("Assigning prop9...\n"); this.a.k = value; return this.a.k; }
 };
 
 def t: T;
@@ -187,6 +213,18 @@ print("t.myprop3 + 2 ==> %d\n", t.myprop3 + 2);
 print("t.myprop4() ==> %d\n", t.myprop4());
 print("t.myprop5() ==> %d\n", t.myprop5());
 
+t.prop6 = 5;
+print("%d\n", t.prop6);
+
+t.prop7 = 6;
+print("%d\n", t.prop7);
+
+t.prop8 += 7;
+print("%d\n", t.prop8);
+
+t.prop9 += 8;
+print("%d\n", t.prop9);
+
 type Other {
   def j: Int;
 };
@@ -206,3 +244,8 @@ if 1 {
   def t: T;
   t(5);
 };
+
+t.prop6 += 5;
+t.prop7 += 6;
+t.prop8 = 7;
+t.prop9 = 8;

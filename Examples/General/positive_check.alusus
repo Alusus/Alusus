@@ -1,0 +1,10 @@
+import "Srl/Console";
+use Srl.Console;
+
+print("Enter a number: ");
+def i: Int(getInt());
+print("Number is %s.\n", ptr[Char]().{
+    if i > 0 this = "positive"
+    else if i < 0 this = "negative"
+    else this = "zero"
+});

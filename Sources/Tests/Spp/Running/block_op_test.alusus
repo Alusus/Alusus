@@ -23,3 +23,8 @@ Console.print("%d\n", A().{ i = 13 }());
 
 def c: Char = '2';
 Console.print("%s\n", ptr[Char]().{ if c == '1' this="one" else if c == '2' this="two" else this="other" });
+
+def i: Int(5);
+Console.print("Factorial of %d=%d\n", i, Int().{ def n: Int(i); this = n; while --n > 1 this*=n });
+
+ptr[Char]().{ i = "wrong" };

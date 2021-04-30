@@ -36,7 +36,23 @@ t.myprop2 + 1 ==> 6
 t.myprop3 + 2 ==> 7
 t.myprop4() ==> 5
 t.myprop5() ==> 5
-ERROR SPPG1002 @ (195,1): Invalid operation.
-ERROR SPPG1002 @ (196,1): Invalid operation.
-ERROR SPPA1008 @ (197,1): Provided arguments do not match signature.
-ERROR SPPA1005 @ (202,3): Multiple matches were found for the given callee.
+Assigning prop6...
+Fetching prop6...
+5
+Assigning prop7...
+Fetching prop7...
+6
+Assigning prop8...
+Fetching prop8...
+7
+Assigning prop9...
+Fetching prop9...
+8
+ERROR SPPG1002 @ (233,1): Invalid operation.
+ERROR SPPG1002 @ (234,1): Invalid operation.
+ERROR SPPA1008 @ (235,1): Provided arguments do not match signature.
+ERROR SPPA1005 @ (240,3): Multiple matches were found for the given callee.
+ERROR SPPG1002 @ (248,3): Invalid operation.
+ERROR SPPG1002 @ (249,3): Invalid operation.
+ERROR SPPG1002 @ (250,3): Invalid operation.
+ERROR SPPG1002 @ (251,3): Invalid operation.

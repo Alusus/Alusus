@@ -309,7 +309,12 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
             continue;
           }
           Ast::setAstType(obj, astMemberType);
-          tgMemberTypes.add(def->getName().get(), tgType);
+          // Make sure the name is unique.
+          Str defName = def->getName().getStr();
+          for (LongInt i = 0; tgMemberTypes.findIndex(defName.getBuf()) != -1; ++i) {
+            defName = def->getName().getStr() + i;
+          }
+          tgMemberTypes.add(defName.getBuf(), tgType);
           members.add(obj);
         } else {
           if (TypeGenerator::isInjection(def)) {
