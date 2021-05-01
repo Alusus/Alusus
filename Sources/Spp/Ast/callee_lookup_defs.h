@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/callee_lookup_types.h
- * Contains the definitions of types used by CalleeTracer.
+ * @file Spp/Ast/callee_lookup_defs.h
+ * Contains definitions used by CalleeTracer.
  *
  * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
@@ -10,8 +10,8 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_CALLEELOOKUPTYPES_H
-#define SPP_AST_CALLEELOOKUPTYPES_H
+#ifndef SPP_AST_CALLEELOOKUPDEFS_H
+#define SPP_AST_CALLEELOOKUPDEFS_H
 
 namespace Spp::Ast
 {

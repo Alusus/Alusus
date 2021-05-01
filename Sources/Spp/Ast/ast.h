@@ -95,9 +95,17 @@ s_enum(TypeInitMethod,
 
 
 //==============================================================================
+// Forward Class Declarations
+
+class Function;
+
+
+//==============================================================================
 // Functions
 
 Char const* findOperationModifier(Core::Data::Ast::Definition const *def);
+
+Function* getDummyBuiltInOpFunction();
 
 } // namespace
 
@@ -105,7 +113,7 @@ Char const* findOperationModifier(Core::Data::Ast::Definition const *def);
 //==============================================================================
 // Includes
 
-#include "callee_lookup_types.h"
+#include "callee_lookup_defs.h"
 
 //// AST Classes
 #include "Block.h"

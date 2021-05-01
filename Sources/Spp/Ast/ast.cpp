@@ -32,4 +32,11 @@ Char const* findOperationModifier(Core::Data::Ast::Definition const *def)
   return 0;
 }
 
+
+Function* getDummyBuiltInOpFunction()
+{
+  static Function func;
+  return &func;
+}
+
 }

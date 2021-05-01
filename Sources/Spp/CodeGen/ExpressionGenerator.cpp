@@ -544,16 +544,12 @@ Bool ExpressionGenerator::_generateOperator(
   GenResult thisArg;
   if (!expGenerator->prepareCallee(operand, &paramAstTypes, funcName, g, session, callee, thisArg)) return false;
 
-  if (callee.astNode != 0 && callee.astNode->isDerivedFrom<Ast::Function>()) {
-    return expGenerator->generateRoundParamPassOnCallee(
-      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
-    );
-  } else {
-    paramTgValues.insertElement(0, callee.targetData.get());
-    paramAstTypes.insertElement(0, callee.astType);
+  if (callee.astNode == Ast::getDummyBuiltInOpFunction()) {
+    // We have a built-in operation.
+    paramTgValues.insertElement(0, thisArg.targetData.get());
+    paramAstTypes.insertElement(0, thisArg.astType);
     paramAstNodes.insertElement(0, containing->getElement(0));
 
-    // We have no function for this op, so fall back to default implementation.
     if (opType == OpType::ASSIGN) {
       auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
       return expGenerator->generateAssignOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
@@ -592,6 +588,11 @@ Bool ExpressionGenerator::_generateOperator(
       ));
       return false;
     }
+  } else {
+    // We have a function or a funciton pointer to call.
+    return expGenerator->generateRoundParamPassOnCallee(
+      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+    );
   }
 }
 
@@ -2640,10 +2641,13 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  if (
-    prevResult.astType != 0 &&
-    expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevResult.astType) == 0
-  ) thisResult = prevResult;
+  if (prevResult.astType != 0) {
+    auto prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+    if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
+      thisResult = prevResult;
+    }
+  }
+
   calleeResult = prevResult;
   for (Int i = 0; i < calleeInfo.stack.getLength(); ++i) {
     auto item = calleeInfo.stack(i);
