@@ -533,6 +533,19 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Generation *g, Session *session, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateFunctionPtrCall,
+    Bool, (
+      Core::Data::Node* /* astNode */, Spp::Ast::FunctionType* /* astFuncType */,
+      TiObject* /* tgFuncPtr */, TiObject* /* tgFuncPtrType */, Containing<TiObject>* /* paramTgValues */,
+      Generation* /* g */, Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateFunctionPtrCall(
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::FunctionType *astFuncType,
+    TiObject *tgFuncPtr, TiObject *tgFuncPtrType, Containing<TiObject> *paramTgValues,
+    Generation *g, Session *session, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(prepareFunctionParams,
     Bool, (
       Spp::Ast::FunctionType* /* calleeType */, Generation* /* g */, Session* /* session */,
