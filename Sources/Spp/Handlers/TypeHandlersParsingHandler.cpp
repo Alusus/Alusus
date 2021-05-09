@@ -159,7 +159,7 @@ void TypeHandlersParsingHandler::createAssignmentHandler(
       // By default we'll consider the return type to be of the same type as the input.
       returnType = Core::Data::Ast::clone(inputType.get());
     } else {
-      returnType = this->prepareAssignmentRetType(assignmentOp->findSourceLocation());
+      returnType = Ast::Data::Ast::clone(thisType.get(), assignmentOp->findSourceLocation().get());
       // Attach a return statement automatically.
       if (body != 0) {
         body->add(Spp::Ast::ReturnStatement::create({}, {
@@ -478,7 +478,7 @@ TioSharedPtr TypeHandlersParsingHandler::createFunction(
         {S("body"), body}
       });
       // Create the implementation.
-      auto funcImpName = Str(funcName) + S("Imp");
+      auto funcImpName = Str(funcName) + this->getImplementationPostfix();
       mergeList->add(this->createDefinition(funcImpName, 0, func, sourceLocation));
       // Assign the function pointer.
       mergeList->add(Core::Data::Ast::AssignmentOperator::create({
@@ -651,22 +651,6 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareThisTyp
 }
 
 
-SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareAssignmentRetType(
-  SharedPtr<Core::Data::SourceLocation> const &sourceLocation
-) {
-  return Core::Data::Ast::ParamPass::create({
-    {S("sourceLocation"), sourceLocation},
-    {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
-  }, {
-    {S("operand"), Core::Data::Ast::Identifier::create({
-      {S("sourceLocation"), sourceLocation},
-      {S("value"), TiStr(S("iref"))}
-    })},
-    {S("param"), Spp::Ast::ThisTypeRef::create()}
-  });
-}
-
-
 SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareComparisonRetType(
   SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
@@ -792,6 +776,14 @@ Bool TypeHandlersParsingHandler::processUnknownModifier(
   } else {
     return false;
   }
+}
+
+
+Str TypeHandlersParsingHandler::getImplementationPostfix()
+{
+  static LongInt index = 0;
+  ++index;
+  return Str("Imp") + index;
 }
 
 } // namespace

@@ -229,6 +229,24 @@ type Parent {
     handler this.f1(): ptr[Char] as_ptr {
         return "";
     }
+
+    handler this.f2() {
+        print("Parent.f2()\n");
+    }
+    handler this.f2(i: Int) {
+        print("Parent.f2(Int): %d\n", i);
+    }
+
+    handler this.f3() as_ptr {
+        print("Parent.f3()\n");
+    }
+    handler this.f3(i: Int) as_ptr {
+        print("Parent.f3(Int): %d\n", i);
+    }
+
+    handler this = Int as_ptr {
+        print("Parent = Int: %d\n", value);
+    }
 }
 
 type Child1 {
@@ -236,6 +254,10 @@ type Child1 {
     def i: Int;
     handler (this: Parent).f1(): ptr[Char] set_ptr {
         return "Child 1\n";
+    }
+
+    handler (this:Parent) = Int set_ptr {
+        print("Child1 = Int: %d\n", value);
     }
 }
 
@@ -245,10 +267,19 @@ type Child2 {
     handler (this: Parent).f1(): ptr[Char] set_ptr {
         return "Child 2\n";
     }
+
+    handler (this:Parent).f3(i: Int) set_ptr {
+        print("Chidl2.f3(Int): %d\n", i);
+    }
 }
 
 func printParent (r: ref[Parent]) {
     print(r.f1());
+    r.f2();
+    r.f2(123);
+    r.f3();
+    r.f3(456);
+    r = 789;
 }
 
 func test {
@@ -287,17 +318,3 @@ t.prop6 += 5;
 t.prop7 += 6;
 t.prop8 = 7;
 t.prop9 = 8;
-
-type Child3 {
-    @injection def parent: Parent;
-    def i: Int;
-    handler (this: Parent).f1(): ptr[Char] set_ptr {
-        return "Child 3\n";
-    }
-    handler this.f1(): ptr[Char] as_ptr {
-        return "Child 1\n";
-    }
-}
-
-def c3: Child3;
-c3.i = 0;

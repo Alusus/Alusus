@@ -117,10 +117,6 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
     SharedPtr<Core::Data::SourceLocation> const &sourceLocation
   );
 
-  private: SharedPtr<Core::Data::Ast::ParamPass> prepareAssignmentRetType(
-    SharedPtr<Core::Data::SourceLocation> const &sourceLocation
-  );
-
   private: SharedPtr<Core::Data::Ast::ParamPass> prepareComparisonRetType(
     SharedPtr<Core::Data::SourceLocation> const &sourceLocation
   );
@@ -142,6 +138,8 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   private: Bool processUnknownModifier(
     Core::Processing::ParserState *state, TioSharedPtr const &modifierData
   );
+
+  private: Str getImplementationPostfix();
 
 }; // class
 
