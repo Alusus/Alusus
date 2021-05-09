@@ -83,6 +83,25 @@ type T {
   handler this.myprop(f: float) => Float[64] {
     return this.i + (f+0.5);
   };
+
+  @expname[f2]
+  @customMod["hello"]
+  handler this.f1(d: Int) {
+  }
+
+  handler this.myprop();
+  handler this~init(p: ptr) as_ptr {};
+  handler (this:prop):int { return 0 };
+  handler this.prop { return 0 }
+  handler that~init() {}
+  handler this~init(p: ptr, p: ptr) {}
+  handler this(a: Int, b: Int) {}
+  handler this = [v: Int] {}
+  handler that.prop() {}
+  handler this."prop"() {}
+  handler (that:Parent)() {}
+  handler (that:Parent).prop() {}
+  handler (this->Parent).prop() {}
 };
 
 dump_ast T;

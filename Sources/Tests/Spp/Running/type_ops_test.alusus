@@ -225,6 +225,44 @@ print("%d\n", t.prop8);
 t.prop9 += 8;
 print("%d\n", t.prop9);
 
+type Parent {
+    handler this.f1(): ptr[Char] as_ptr {
+        return "";
+    }
+}
+
+type Child1 {
+    @injection def parent: Parent;
+    def i: Int;
+    handler (this: Parent).f1(): ptr[Char] set_ptr {
+        return "Child 1\n";
+    }
+}
+
+type Child2 {
+    @injection def parent: Parent;
+    def j: Int;
+    handler (this: Parent).f1(): ptr[Char] set_ptr {
+        return "Child 2\n";
+    }
+}
+
+func printParent (r: ref[Parent]) {
+    print(r.f1());
+}
+
+func test {
+    def c1: Child1;
+    def c2: Child2;
+    c1.i = 2;
+    c2.j = 7;
+    printParent(c1);
+    printParent(c2);
+}
+test();
+
+// Test error cases
+
 type Other {
   def j: Int;
 };
@@ -249,3 +287,17 @@ t.prop6 += 5;
 t.prop7 += 6;
 t.prop8 = 7;
 t.prop9 = 8;
+
+type Child3 {
+    @injection def parent: Parent;
+    def i: Int;
+    handler (this: Parent).f1(): ptr[Char] set_ptr {
+        return "Child 3\n";
+    }
+    handler this.f1(): ptr[Char] as_ptr {
+        return "Child 1\n";
+    }
+}
+
+def c3: Child3;
+c3.i = 0;

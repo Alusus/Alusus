@@ -23,7 +23,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(data);
   ASSERT(exprMetadata != 0);
 
-  if (data->getCount() != 3) {
+  if (data->getCount() < 2) {
     state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
@@ -36,7 +36,32 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     }
   }
 
-  auto body = this->prepareBody(data->get(2));
+  Int bodyIndex = 2;
+  Mode mode = Mode::FUNCTION;
+
+  if (data->getCount() > bodyIndex) {
+    auto obj = data->getElement(bodyIndex);
+    auto token = ti_cast<Core::Data::Ast::Token>(obj);
+    if (token != 0) {
+      if (token->getText() == S("as_ptr")) {
+        mode = Mode::PTR_DEF;
+        ++bodyIndex;
+      } else if (token->getText() == S("set_ptr")) {
+        mode = Mode::PTR_SET;
+        ++bodyIndex;
+      }
+    }
+  }
+
+  TioSharedPtr rawBody = 0;
+  if (data->getCount() > bodyIndex) {
+    rawBody = data->get(bodyIndex);
+  }
+
+  SharedPtr<Spp::Ast::Block> body;
+  if (rawBody != 0) {
+    body = this->prepareBody(rawBody);
+  }
 
   SharedPtr<Core::Data::Ast::Definition> def;
 
@@ -50,34 +75,39 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
 
   if (expr->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
     this->createAssignmentHandler(
-      state, static_cast<Core::Data::Ast::AssignmentOperator*>(expr), body, retType
+      state, static_cast<Core::Data::Ast::AssignmentOperator*>(expr), body, retType, mode
     );
     return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::ComparisonOperator>()) {
-    this->createComparisonHandler(state, static_cast<Core::Data::Ast::ComparisonOperator*>(expr), body, retType);
+    this->createComparisonHandler(state, static_cast<Core::Data::Ast::ComparisonOperator*>(expr), body, retType, mode);
     return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(expr);
     if (paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
-      this->createParensOpHandler(state, paramPass, body, retType);
+      this->createParensOpHandler(state, paramPass, body, retType, mode);
       return;
     }
   } else if (expr->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(expr);
-    this->createReadHandler(state, linkOp, body, retType);
+    this->createReadHandler(state, linkOp, body, retType, mode);
     return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(expr);
-    this->createInfixOpHandler(state, infixOp, body, retType);
+    this->createInfixOpHandler(state, infixOp, body, retType, mode);
     return;
   } else if (expr->isDerivedFrom<Spp::Ast::InitOp>()) {
+    if (mode != Mode::FUNCTION) {
+      state->addNotice(newSrdObj<Spp::Notices::PtrBasedInitOpNotice>(exprMetadata->findSourceLocation()));
+      state->setData(SharedPtr<TiObject>(0));
+      return;
+    }
     this->createInitOpHandler(state, static_cast<Spp::Ast::InitOp*>(expr), body);
     return;
   } else if (expr->isDerivedFrom<Spp::Ast::TerminateOp>()) {
-    this->createTerminateOpHandler(state, static_cast<Spp::Ast::TerminateOp*>(expr), body);
+    this->createTerminateOpHandler(state, static_cast<Spp::Ast::TerminateOp*>(expr), body, mode);
     return;
   } else if (expr->isDerivedFrom<Spp::Ast::CastOp>()) {
-    this->createCastHandler(state, static_cast<Spp::Ast::CastOp*>(expr), body);
+    this->createCastHandler(state, static_cast<Spp::Ast::CastOp*>(expr), body, mode);
     return;
   }
 
@@ -86,13 +116,13 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
 }
 
 
-SharedPtr<Core::Data::Ast::Scope> TypeHandlersParsingHandler::prepareBody(TioSharedPtr const &stmt)
+SharedPtr<Spp::Ast::Block> TypeHandlersParsingHandler::prepareBody(TioSharedPtr const &stmt)
 {
-  SharedPtr<Core::Data::Ast::Scope> body;
-  if (stmt->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    body = stmt.s_cast<Core::Data::Ast::Scope>();
+  SharedPtr<Spp::Ast::Block> body;
+  if (stmt->isDerivedFrom<Spp::Ast::Block>()) {
+    body = stmt.s_cast<Spp::Ast::Block>();
   } else {
-    body = Core::Data::Ast::Scope::create();
+    body = Spp::Ast::Block::create();
     body->setSourceLocation(Core::Data::Ast::findSourceLocation(stmt.get()));
     body->add(stmt);
   }
@@ -102,37 +132,16 @@ SharedPtr<Core::Data::Ast::Scope> TypeHandlersParsingHandler::prepareBody(TioSha
 
 void TypeHandlersParsingHandler::createAssignmentHandler(
   Processing::ParserState *state, Core::Data::Ast::AssignmentOperator *assignmentOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
+  SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
 ) {
   Core::Data::Ast::Identifier *thisIdentifier;
-  Core::Data::Ast::Identifier *propIdentifier = 0;
-  auto first = assignmentOp->getFirst().get();
-  if (first->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    thisIdentifier = static_cast<Core::Data::Ast::Identifier*>(first);
-    if (thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(assignmentOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-  } else if (first->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(first);
-    if (linkOp->getType() != S(".")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(assignmentOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    thisIdentifier = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (thisIdentifier == 0 || thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(assignmentOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    propIdentifier = linkOp->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (propIdentifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(assignmentOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
+  Core::Data::Ast::Identifier *propIdentifier;
+  SharedPtr<Core::Data::Ast::ParamPass> thisType;
+  if (!this->getThisAndPropIdentifiers(
+    state, assignmentOp->getFirst().get(), thisIdentifier, thisType, propIdentifier
+  )) {
+    state->setData(SharedPtr<TiObject>(0));
+    return;
   }
 
   Char const *op = assignmentOp->getType();
@@ -143,9 +152,6 @@ void TypeHandlersParsingHandler::createAssignmentHandler(
   TioSharedPtr inputType;
   if (!this->prepareInputArg(state, assignmentOp->getSecond(), inputName, inputType)) return;
 
-  // Prepare this type.
-  auto thisType = this->prepareThisType(thisIdentifier->findSourceLocation());
-
   // Prepare ret type.
   TioSharedPtr returnType = retType;
   if (returnType == 0) {
@@ -155,17 +161,19 @@ void TypeHandlersParsingHandler::createAssignmentHandler(
     } else {
       returnType = this->prepareAssignmentRetType(assignmentOp->findSourceLocation());
       // Attach a return statement automatically.
-      body->add(Spp::Ast::ReturnStatement::create({}, {
-        {S("operand"), Core::Data::Ast::Identifier::create({
-          {S("value"), TiStr(S("this"))}
-        })}
-      }));
+      if (body != 0) {
+        body->add(Spp::Ast::ReturnStatement::create({}, {
+          {S("operand"), Core::Data::Ast::Identifier::create({
+            {S("value"), TiStr(S("this"))}
+          })}
+        }));
+      }
     }
   }
 
   auto def = this->createBinaryOpFunction(
     state, funcName, op, thisType, inputName,  inputType,
-    returnType, body, assignmentOp->findSourceLocation()
+    returnType, body, assignmentOp->findSourceLocation(), mode
   );
   state->setData(def);
 }
@@ -173,37 +181,16 @@ void TypeHandlersParsingHandler::createAssignmentHandler(
 
 void TypeHandlersParsingHandler::createComparisonHandler(
   Processing::ParserState *state, Core::Data::Ast::ComparisonOperator *comparisonOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
+  SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
 ) {
   Core::Data::Ast::Identifier *thisIdentifier;
-  Core::Data::Ast::Identifier *propIdentifier = 0;
-  auto first = comparisonOp->getFirst().get();
-  if (first->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    thisIdentifier = static_cast<Core::Data::Ast::Identifier*>(first);
-    if (thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(comparisonOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-  } else if (first->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(first);
-    if (linkOp->getType() != S(".")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(comparisonOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    thisIdentifier = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (thisIdentifier == 0 || thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(comparisonOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    propIdentifier = linkOp->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (propIdentifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(comparisonOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
+  Core::Data::Ast::Identifier *propIdentifier;
+  SharedPtr<Core::Data::Ast::ParamPass> thisType;
+  if (!this->getThisAndPropIdentifiers(
+    state, comparisonOp->getFirst().get(), thisIdentifier, thisType, propIdentifier
+  )) {
+    state->setData(SharedPtr<TiObject>(0));
+    return;
   }
 
   Char const *op = comparisonOp->getType();
@@ -214,9 +201,6 @@ void TypeHandlersParsingHandler::createComparisonHandler(
   TioSharedPtr inputType;
   if (!this->prepareInputArg(state, comparisonOp->getSecond(), inputName, inputType)) return;
 
-  // Prepare this type.
-  auto thisType = this->prepareThisType(thisIdentifier->findSourceLocation());
-
   // Prepare ret type.
   TioSharedPtr returnType = retType;
   if (returnType == 0) {
@@ -224,7 +208,7 @@ void TypeHandlersParsingHandler::createComparisonHandler(
   }
 
   auto def = this->createBinaryOpFunction(
-    state, funcName, op, thisType, inputName,  inputType, returnType, body, comparisonOp->findSourceLocation()
+    state, funcName, op, thisType, inputName,  inputType, returnType, body, comparisonOp->findSourceLocation(), mode
   );
   state->setData(def);
 }
@@ -232,37 +216,16 @@ void TypeHandlersParsingHandler::createComparisonHandler(
 
 void TypeHandlersParsingHandler::createInfixOpHandler(
   Processing::ParserState *state, Core::Data::Ast::InfixOperator *infixOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
+  SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
 ) {
   Core::Data::Ast::Identifier *thisIdentifier;
-  Core::Data::Ast::Identifier *propIdentifier = 0;
-  auto first = infixOp->getFirst().get();
-  if (first->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    thisIdentifier = static_cast<Core::Data::Ast::Identifier*>(first);
-    if (thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(infixOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-  } else if (first->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(first);
-    if (linkOp->getType() != S(".")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(infixOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    thisIdentifier = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (thisIdentifier == 0 || thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(infixOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    propIdentifier = linkOp->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (propIdentifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(infixOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
+  Core::Data::Ast::Identifier *propIdentifier;
+  SharedPtr<Core::Data::Ast::ParamPass> thisType;
+  if (!this->getThisAndPropIdentifiers(
+    state, infixOp->getFirst().get(), thisIdentifier, thisType, propIdentifier
+  )) {
+    state->setData(SharedPtr<TiObject>(0));
+    return;
   }
 
   Char const *op = infixOp->getType();
@@ -273,11 +236,8 @@ void TypeHandlersParsingHandler::createInfixOpHandler(
   TioSharedPtr inputType;
   if (!this->prepareInputArg(state, infixOp->getSecond(), inputName, inputType)) return;
 
-  // Prepare this type.
-  auto thisType = this->prepareThisType(thisIdentifier->findSourceLocation());
-
   auto def = this->createBinaryOpFunction(
-    state, funcName, op, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation()
+    state, funcName, op, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation(), mode
   );
   state->setData(def);
 }
@@ -285,30 +245,23 @@ void TypeHandlersParsingHandler::createInfixOpHandler(
 
 void TypeHandlersParsingHandler::createReadHandler(
   Processing::ParserState *state, Core::Data::Ast::LinkOperator *linkOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
+  SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
 ) {
-  Core::Data::Ast::Identifier *thisIdentifier;
-  Core::Data::Ast::Identifier *propIdentifier;
   if (linkOp->getType() != S(".")) {
     state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(linkOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
-  thisIdentifier = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
-  if (thisIdentifier == 0 || thisIdentifier->getValue() != S("this")) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(linkOp->findSourceLocation()));
-    state->setData(SharedPtr<TiObject>(0));
-    return;
-  }
-  propIdentifier = linkOp->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
-  if (propIdentifier == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(linkOp->findSourceLocation()));
+  Core::Data::Ast::Identifier *thisIdentifier;
+  Core::Data::Ast::Identifier *propIdentifier;
+  SharedPtr<Core::Data::Ast::ParamPass> thisType;
+  if (!this->getThisAndPropIdentifiers(state, linkOp, thisIdentifier, thisType, propIdentifier)) {
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
 
   if (retType == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(linkOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::PropGetterMissingRetTypeNotice>(linkOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -318,22 +271,21 @@ void TypeHandlersParsingHandler::createReadHandler(
 
   // Prepare params.
   auto argTypes = Core::Data::Ast::Map::create();
-  auto thisType = this->prepareThisType(thisIdentifier->findSourceLocation());
   argTypes->add(S("this"), thisType);
 
-  auto def = this->createFunction(state, funcName, op, argTypes, retType, body, linkOp->findSourceLocation());
+  auto def = this->createFunction(state, funcName, op, argTypes, retType, body, linkOp->findSourceLocation(), mode);
   state->setData(def);
 }
 
 
 void TypeHandlersParsingHandler::createInitOpHandler(
   Processing::ParserState *state, Spp::Ast::InitOp *initOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body
+  SharedPtr<Spp::Ast::Block> const &body
 ) {
   // Verify operand.
   auto operand = initOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
   if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(initOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::OpTargetNotThisNotice>(initOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -365,7 +317,7 @@ void TypeHandlersParsingHandler::createInitOpHandler(
   }
 
   auto def = this->createFunction(
-    state, S("~init"), S("~init"), argTypes, TioSharedPtr::null, body, initOp->findSourceLocation()
+    state, S("~init"), S("~init"), argTypes, TioSharedPtr::null, body, initOp->findSourceLocation(), Mode::FUNCTION
   );
   state->setData(def);
 }
@@ -373,23 +325,22 @@ void TypeHandlersParsingHandler::createInitOpHandler(
 
 void TypeHandlersParsingHandler::createTerminateOpHandler(
   Processing::ParserState *state, Spp::Ast::TerminateOp *terminateOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body
+  SharedPtr<Spp::Ast::Block> const &body, Mode mode
 ) {
-  // Verify operand.
-  auto operand = terminateOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
-  if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(terminateOp->findSourceLocation()));
+  Core::Data::Ast::Identifier *thisIdentifier;
+  SharedPtr<Core::Data::Ast::ParamPass> thisType;
+  if (!this->getThisIdentifierAndType(state, terminateOp->getOperand().get(), thisIdentifier, thisType)) {
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
 
   // Prepare params.
   auto argTypes = Core::Data::Ast::Map::create();
-  auto thisType = this->prepareThisType(operand->findSourceLocation());
   argTypes->add(S("this"), thisType);
 
   auto def = this->createFunction(
-    state, S("~terminate"), S("~terminate"), argTypes, TioSharedPtr::null, body, terminateOp->findSourceLocation()
+    state, S("~terminate"), S("~terminate"), argTypes, TioSharedPtr::null, body,
+    terminateOp->findSourceLocation(), mode
   );
   state->setData(def);
 }
@@ -397,12 +348,11 @@ void TypeHandlersParsingHandler::createTerminateOpHandler(
 
 void TypeHandlersParsingHandler::createCastHandler(
   Processing::ParserState *state, Spp::Ast::CastOp *castOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body
+  SharedPtr<Spp::Ast::Block> const &body, Mode mode
 ) {
-  // Verify operand.
-  auto operand = castOp->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
-  if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(castOp->findSourceLocation()));
+  Core::Data::Ast::Identifier *thisIdentifier;
+  SharedPtr<Core::Data::Ast::ParamPass> thisType;
+  if (!this->getThisIdentifierAndType(state, castOp->getOperand().get(), thisIdentifier, thisType)) {
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
@@ -410,54 +360,32 @@ void TypeHandlersParsingHandler::createCastHandler(
   // Prepare return type.
   auto retType = castOp->getTargetType();
   if (retType == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(castOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::CastOpMissingTypeNotice>(castOp->findSourceLocation()));
     state->setData(SharedPtr<TiObject>(0));
     return;
   }
 
   // Prepare params.
   auto argTypes = Core::Data::Ast::Map::create();
-  auto thisType = this->prepareThisType(operand->findSourceLocation());
   argTypes->add(S("this"), thisType);
 
-  auto def = this->createFunction(state, S("~cast"), S("~cast"), argTypes, retType, body, castOp->findSourceLocation());
+  auto def = this->createFunction(
+    state, S("~cast"), S("~cast"), argTypes, retType, body, castOp->findSourceLocation(), mode
+  );
   state->setData(def);
 }
 
 
 void TypeHandlersParsingHandler::createParensOpHandler(
   Processing::ParserState *state, Core::Data::Ast::ParamPass *parensOp,
-  SharedPtr<Core::Data::Ast::Scope> const &body, TioSharedPtr const &retType
+  SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
 ) {
   Core::Data::Ast::Identifier *thisIdentifier;
-  Core::Data::Ast::Identifier *propIdentifier = 0;
-  auto first = parensOp->getOperand().get();
-  if (first->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    thisIdentifier = static_cast<Core::Data::Ast::Identifier*>(first);
-    if (thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(parensOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-  } else if (first->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(first);
-    if (linkOp->getType() != S(".")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(parensOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    thisIdentifier = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (thisIdentifier == 0 || thisIdentifier->getValue() != S("this")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(parensOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
-    propIdentifier = linkOp->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (propIdentifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(parensOp->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
-      return;
-    }
+  Core::Data::Ast::Identifier *propIdentifier;
+  SharedPtr<Core::Data::Ast::ParamPass> thisType;
+  if (!this->getThisAndPropIdentifiers(state, parensOp->getOperand().get(), thisIdentifier, thisType, propIdentifier)) {
+    state->setData(SharedPtr<TiObject>(0));
+    return;
   }
 
   Char const *op = S("()");
@@ -472,7 +400,6 @@ void TypeHandlersParsingHandler::createParensOpHandler(
     params = &tempParams;
   }
   auto argTypes = Core::Data::Ast::Map::create();
-  auto thisType = this->prepareThisType(thisIdentifier->findSourceLocation());
   argTypes->add(S("this"), thisType);
   for (Int i = 0; i < params->getCount(); ++i) {
     Char const *inputName;
@@ -490,29 +417,30 @@ void TypeHandlersParsingHandler::createParensOpHandler(
   }
 
   auto def = this->createFunction(
-    state, funcName, op, argTypes, retType, body, parensOp->findSourceLocation()
+    state, funcName, op, argTypes, retType, body, parensOp->findSourceLocation(), mode
   );
   state->setData(def);
 }
 
 
-SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createBinaryOpFunction(
+TioSharedPtr TypeHandlersParsingHandler::createBinaryOpFunction(
   Processing::ParserState *state, Char const *funcName, Char const *op, TioSharedPtr const &thisType,
   Char const *inputName, TioSharedPtr const &inputType, TioSharedPtr const &retType, TioSharedPtr const &body,
-  SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  SharedPtr<Core::Data::SourceLocation> const &sourceLocation, Mode mode
 ) {
   // Prepare arg types map.
   auto argTypes = Core::Data::Ast::Map::create();
   argTypes->add(S("this"), thisType);
   argTypes->add(inputName, inputType);
 
-  return this->createFunction(state, funcName, op, argTypes, retType, body, sourceLocation);
+  return this->createFunction(state, funcName, op, argTypes, retType, body, sourceLocation, mode);
 }
 
 
-SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createFunction(
-  Processing::ParserState *state, Char const *funcName, Char const *op, SharedPtr<Core::Data::Ast::Map> const argTypes,
-  TioSharedPtr const &retType, TioSharedPtr const &body, SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+TioSharedPtr TypeHandlersParsingHandler::createFunction(
+  Processing::ParserState *state, Char const *funcName, Char const *op,
+  SharedPtr<Core::Data::Ast::Map> const argTypes, TioSharedPtr const &retType, TioSharedPtr const &body,
+  SharedPtr<Core::Data::SourceLocation> const &sourceLocation, Mode mode
 ) {
   // Create the function type.
   auto funcType = Spp::Ast::FunctionType::create({
@@ -525,14 +453,76 @@ SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createFunctio
     return SharedPtr<Core::Data::Ast::Definition>::null;
   }
 
-  // Create the function.
-  auto func = Spp::Ast::Function::create({}, {
-    {S("type"), funcType},
-    {S("body"), body}
-  });
-
-  // Create the definition.
-  return this->createDefinition(funcName, op, func, sourceLocation);
+  if (mode != Mode::FUNCTION) {
+    // Create the function ptr.
+    auto funcPtrType = Core::Data::Ast::ParamPass::create({
+      {S("sourceLocation"), sourceLocation},
+      {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+    }, {
+      {S("operand"), Core::Data::Ast::Identifier::create({
+        {S("sourceLocation"), sourceLocation},
+        {S("value"), TiStr(S("ptr"))}
+      })},
+      {S("param"), funcType}
+    });
+    auto mergeList = Core::Data::Ast::MergeList::create();
+    if (mode == Mode::PTR_DEF) {
+      mergeList->add(this->createDefinition(funcName, op, funcPtrType, sourceLocation));
+    }
+    if (body != 0) {
+      // Create the function.
+      auto funcTypeClone = Core::Data::Ast::clone(funcType.get(), sourceLocation.get());
+      funcTypeClone->getArgTypes()->set(0, this->prepareThisType(sourceLocation));
+      auto func = Spp::Ast::Function::create({}, {
+        {S("type"), funcTypeClone},
+        {S("body"), body}
+      });
+      // Create the implementation.
+      auto funcImpName = Str(funcName) + S("Imp");
+      mergeList->add(this->createDefinition(funcImpName, 0, func, sourceLocation));
+      // Assign the function pointer.
+      mergeList->add(Core::Data::Ast::AssignmentOperator::create({
+        {S("sourceLocation"), sourceLocation},
+        {S("type"), TiStr(S("="))}
+      }, {
+        {S("first"), Core::Data::Ast::Identifier::create({
+          {S("sourceLocation"), sourceLocation},
+          {S("value"), TiStr(funcName)}
+        })},
+        {S("second"), Spp::Ast::CastOp::create({
+          {S("sourceLocation"), sourceLocation},
+        }, {
+          {S("operand"), Spp:Ast::PointerOp::create({
+            {S("sourceLocation"), sourceLocation},
+          }, {
+            {S("operand"), Core::Data::Ast::Identifier::create({
+              {S("sourceLocation"), sourceLocation},
+              {S("value"), TiStr(funcImpName.getBuf())}
+            })}
+          })},
+          {S("targetType"), Core::Data::Ast::ParamPass::create({
+            {S("sourceLocation"), sourceLocation},
+            {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+          }, {
+            {S("operand"), Core::Data::Ast::Identifier::create({
+              {S("sourceLocation"), sourceLocation},
+              {S("value"), TiStr(S("ptr"))}
+            })},
+            {S("param"), Core::Data::Ast::clone(funcType.get(), sourceLocation.get())}
+          })}
+        })}
+      }));
+    }
+    return mergeList;
+  } else {
+    // Create the function.
+    auto func = Spp::Ast::Function::create({}, {
+      {S("type"), funcType},
+      {S("body"), body}
+    });
+    // Create the definition.
+    return this->createDefinition(funcName, op, func, sourceLocation);
+  }
 }
 
 
@@ -544,7 +534,7 @@ Bool TypeHandlersParsingHandler::prepareInputArg(
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
       input = bracket->getOperand();
     } else {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(
+      state->addNotice(newSrdObj<Spp::Notices::InvalidUseOfSquareBracketNotice>(
         Core::Data::Ast::findSourceLocation(input.get())
       ));
       state->setData(SharedPtr<TiObject>(0));
@@ -566,6 +556,80 @@ Bool TypeHandlersParsingHandler::prepareInputArg(
   } else {
     inputName = S("value");
     inputType = input;
+  }
+  return true;
+}
+
+
+Bool TypeHandlersParsingHandler::getThisAndPropIdentifiers(
+  Processing::ParserState *state, TiObject *astNode,
+  Core::Data::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Data::Ast::ParamPass> &thisType,
+  Core::Data::Ast::Identifier *&propIdentifier
+) {
+  if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(astNode);
+    if (linkOp->getType() == S(".")) {
+      if (!this->getThisIdentifierAndType(state, linkOp->getFirst().get(), thisIdentifier, thisType)) return false;
+      propIdentifier = linkOp->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
+      if (propIdentifier == 0) {
+        state->addNotice(
+          newSrdObj<Spp::Notices::InvalidPropIdentifierNotice>(Core::Data::Ast::findSourceLocation(astNode))
+        );
+        state->setData(SharedPtr<TiObject>(0));
+        return false;
+      }
+      return true;
+    }
+  }
+  propIdentifier = 0;
+  return this->getThisIdentifierAndType(state, astNode, thisIdentifier, thisType);
+}
+
+
+Bool TypeHandlersParsingHandler::getThisIdentifierAndType(
+  Processing::ParserState *state, TiObject *astNode,
+  Core::Data::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Data::Ast::ParamPass> &thisType
+) {
+  if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+    thisIdentifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
+    if (thisIdentifier->getValue() != S("this")) {
+      state->addNotice(
+        newSrdObj<Spp::Notices::OpTargetNotThisNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      );
+      state->setData(SharedPtr<TiObject>(0));
+      return false;
+    }
+    thisType = this->prepareThisType(thisIdentifier->findSourceLocation());
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::Bracket>()) {
+    auto linkOp = static_cast<Core::Data::Ast::Bracket*>(astNode)->getOperand()
+      .ti_cast_get<Core::Data::Ast::LinkOperator>();
+    if (linkOp != 0 && linkOp->getType() == S(":")) {
+      thisIdentifier = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+      if (thisIdentifier == 0 || thisIdentifier->getValue() != S("this")) {
+        state->addNotice(
+          newSrdObj<Spp::Notices::OpTargetNotThisNotice>(Core::Data::Ast::findSourceLocation(astNode))
+        );
+        return false;
+      }
+      thisType = linkOp->getSecond().ti_cast<Core::Data::Ast::ParamPass>();
+      if (thisType == 0) {
+        thisType = Core::Data::Ast::ParamPass::create({
+          {S("sourceLocation"), Core::Data::Ast::findSourceLocation(linkOp->getSecond().get())},
+          {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+        }, {
+          {S("operand"), Core::Data::Ast::Identifier::create({
+            {S("sourceLocation"), Core::Data::Ast::findSourceLocation(linkOp->getSecond().get())},
+            {S("value"), TiStr(S("iref"))}
+          })},
+          {S("param"), linkOp->getSecond()}
+        });
+      }
+    } else {
+      state->addNotice(
+        newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      );
+      return false;
+    }
   }
   return true;
 }
@@ -623,22 +687,111 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareCompari
 
 
 SharedPtr<Core::Data::Ast::Definition> TypeHandlersParsingHandler::createDefinition(
-  Char const *funcName, Char const *op, SharedPtr<Spp::Ast::Function> func,
+  Char const *name, Char const *op, TioSharedPtr target,
   SharedPtr<Core::Data::SourceLocation> const &sourceLocation
 ) {
-  return Core::Data::Ast::Definition::create({
-    {S("name"), TiStr(funcName)}
-  }, {
-    {S("target"), func},
-    {S("modifiers"), Core::Data::Ast::List::create({}, {
-      Core::Data::Ast::ParamPass::create({
-        {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
-      }, {
-        {S("operand"), Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("operation"))} })},
-        {S("param"), Core::Data::Ast::StringLiteral::create({ {S("value"), TiStr(op)} })}
-      })
-    })}
-  });
+  if (op != 0) {
+    return Core::Data::Ast::Definition::create({
+      {S("name"), TiStr(name)}
+    }, {
+      {S("target"), target},
+      {S("modifiers"), Core::Data::Ast::List::create({}, {
+        Core::Data::Ast::ParamPass::create({
+          {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+        }, {
+          {S("operand"), Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("operation"))} })},
+          {S("param"), Core::Data::Ast::StringLiteral::create({ {S("value"), TiStr(op)} })}
+        })
+      })}
+    });
+  } else {
+    return Core::Data::Ast::Definition::create({
+      {S("name"), TiStr(name)}
+    }, {
+      {S("target"), target}
+    });
+  }
+}
+
+
+Bool TypeHandlersParsingHandler::onIncomingModifier(
+  Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+  TioSharedPtr const &modifierData, Bool prodProcessingComplete
+) {
+  if (!prodProcessingComplete) return false;
+
+  if (this->processExpnameModifier(state, modifierData)) return true;
+  else return this->processUnknownModifier(state, modifierData);
+}
+
+
+Bool TypeHandlersParsingHandler::processExpnameModifier(
+  Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+) {
+  // Look for expname modifier.
+  auto paramPass = modifierData.ti_cast_get<Core::Data::Ast::ParamPass>();
+  if (paramPass == 0) return false;
+  if (paramPass->getType() != Core::Data::Ast::BracketType::SQUARE) return false;
+  auto operand = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (operand == 0) return false;
+  auto symbolDef = state->refTopProdLevel().getProd();
+  if (symbolDef->getTranslatedModifierKeyword(operand->getValue().get()) != S("expname")) return false;
+  auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Text>();
+  if (param == 0) return false;
+
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto data = state->getData(levelOffset).get();
+  if (data == 0) return false;
+
+  // Find the function to update.
+  Spp::Ast::Function *function = 0;
+  if (data->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    auto def = static_cast<Core::Data::Ast::Definition*>(data);
+    function = def->getTarget().ti_cast_get<Spp::Ast::Function>();
+  } else if (data->isDerivedFrom<Core::Data::Ast::MergeList>()) {
+    auto mergeList = static_cast<Core::Data::Ast::MergeList*>(data);
+    for (Int i = 0; i < mergeList->getCount(); ++i) {
+      auto def = ti_cast<Core::Data::Ast::Definition>(mergeList->getElement(i));
+      if (def != 0) {
+        function = def->getTarget().ti_cast_get<Spp::Ast::Function>();
+        if (function != 0) break;
+      }
+    }
+  }
+  if (function == 0) return false;
+
+  function->setName(param->getValue());
+  return true;
+}
+
+
+Bool TypeHandlersParsingHandler::processUnknownModifier(
+  Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+) {
+  // Add an unknown modifier to the definition.
+  auto symbolDef = state->refTopProdLevel().getProd();
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto data = state->getData(levelOffset).get();
+  if (data == 0) return false;
+
+  Core::Data::Ast::Definition *def = 0;
+  if (data->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    def = static_cast<Core::Data::Ast::Definition*>(data);
+  } else if (data->isDerivedFrom<Core::Data::Ast::MergeList>()) {
+    auto mergeList = static_cast<Core::Data::Ast::MergeList*>(data);
+    for (Int i = 0; i < mergeList->getCount(); ++i) {
+      def = ti_cast<Core::Data::Ast::Definition>(mergeList->getElement(i));
+      if (def != 0) break;
+    }
+  }
+
+  if (def != 0) {
+    Core::Data::Ast::translateModifier(symbolDef, modifierData.get());
+    def->addModifier(modifierData);
+    return true;
+  } else {
+    return false;
+  }
 }
 
 } // namespace

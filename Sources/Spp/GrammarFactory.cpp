@@ -60,7 +60,9 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     S("integer"), S("صحيح"),
     S("string"), S("محارف"),
     S("any"), S("أيما"),
-    S("next_arg"), S("المعطى_التالي")
+    S("next_arg"), S("المعطى_التالي"),
+    S("as_ptr"), S("كمؤشر"),
+    S("set_ptr"), S("حدد_مؤشر")
   });
 
   // Add translations for def modifiers.
@@ -226,7 +228,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     state->setData(returnStatement);
   }));
 
-  //// TypeOp = "handler" + Exp + Statement
+  //// TypeOp = "handler" + Exp + TypeOpOptions + Statement
   this->createCommand(S("root.Main.TypeOp"), {{
     Map::create({}, { { S("handler"), 0 }, { S("عملية"), 0 } }),
     {
@@ -237,13 +239,27 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
-        PARSE_REF(S("module.BlockStatements.OuterStmt")),
+        PARSE_REF(S("module.TypeOpOptions")),
+        TiInt::create(0),
         TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.BlockStatements.OuterStmt")),
+        TiInt::create(0),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }
     }
   }}, newSrdObj<Handlers::TypeHandlersParsingHandler>());
+  this->createCommand(S("root.Main.TypeOpOptions"), {{
+    Map::create({}, {
+      { S("as_ptr"), 0 },
+      { S("كمؤشر"), newSrdObj<TiStr>(("as_ptr")) },
+      { S("set_ptr"), 0 },
+      { S("حدد_مؤشر"), newSrdObj<TiStr>(("set_ptr")) }
+    }), {}
+  }}, newSrdObj<GenericParsingHandler>());
 
   // Create inner commands.
 
@@ -782,7 +798,9 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
     S("integer"), S("صحيح"),
     S("string"), S("محارف"),
     S("any"), S("أيما"),
-    S("next_arg"), S("المعطى_التالي")
+    S("next_arg"), S("المعطى_التالي"),
+    S("as_ptr"), S("كمؤشر"),
+    S("set_ptr"), S("حدد_مؤشر")
   });
 
   // Add translation for static modifier.
@@ -853,6 +871,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->tryRemove(S("root.Main.Break"));
   this->tryRemove(S("root.Main.Return"));
   this->tryRemove(S("root.Main.TypeOp"));
+  this->tryRemove(S("root.Main.TypeOpOptions"));
 
   // Delete inner command definitions.
   this->tryRemove(S("root.Main.Module"));

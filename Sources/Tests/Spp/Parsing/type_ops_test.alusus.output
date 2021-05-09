@@ -5,12 +5,23 @@ ERROR CP1001 @ (13,26): Parser syntax error.
 ERROR CP1001 @ (14,26): Parser syntax error.
 ERROR CP1001 @ (15,25): Parser syntax error.
 ERROR CP1001 @ (40,21): Parser syntax error.
-ERROR SPPH1014 @ (42,11): Invalid handler statement.
-ERROR SPPH1014 @ (43,11): Invalid handler statement.
-ERROR SPPH1014 @ (44,11): Invalid handler statement.
-ERROR SPPH1014 @ (45,11): Invalid handler statement.
-ERROR SPPH1014 @ (47,18): Invalid handler statement.
+ERROR SPPH1020 @ (42,11): Operation target must be `this`.
+ERROR SPPH1020 @ (43,11): Operation target must be `this`.
+ERROR SPPH1020 @ (44,11): Operation target must be `this`.
+ERROR SPPH1020 @ (45,11): Operation target must be `this`.
+ERROR SPPH1022 @ (47,18): Invalid use of square brackets.
 ERROR SPPH1014 @ (48,19): Invalid handler statement.
+ERROR SPPH1018 @ (93,3): ~init operations cannot be pointer based.
+ERROR SPPH1014 @ (94,3): Invalid handler statement.
+ERROR SPPH1019 @ (95,11): Property getter is missing the return type.
+ERROR SPPH1020 @ (96,11): Operation target must be `this`.
+ERROR SPPH1006 @ (97,29): Invalid function arg name.
+ERROR SPPH1022 @ (99,18): Invalid use of square brackets.
+ERROR SPPH1020 @ (100,11): Operation target must be `this`.
+ERROR SPPH1023 @ (101,11): Invalid type property identifier.
+ERROR SPPH1020 @ (102,11): Operation target must be `this`.
+ERROR SPPH1020 @ (103,11): Operation target must be `this`.
+ERROR SPPH1014 @ (104,11): Invalid handler statement.
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]
@@ -92,7 +103,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: iref
        param: ThisTypeRef
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -115,7 +126,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: iref
        param: ThisTypeRef
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -138,7 +149,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: iref
        param: ThisTypeRef
-     body: Scope
+     body: Block
       AssignmentOperator += [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -161,7 +172,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: iref
        param: ThisTypeRef
-     body: Scope
+     body: Block
       AssignmentOperator /= [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -186,7 +197,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: iref
        param: ThisTypeRef
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -213,7 +224,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: iref
        param: ThisTypeRef
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -238,7 +249,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: Word
        param: IntegerLiteral: 1
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: ComparisonOperator > [Main.Expression.ComparisonExp]
         first: LinkOperator . [Main.Expression.LinkExp]
@@ -258,7 +269,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: AdditionOperator - [Main.Expression.AddExp]
         first: LinkOperator . [Main.Expression.LinkExp]
@@ -324,7 +335,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: BitwiseOperator $ [Main.Expression.BitwiseExp]
         first: LinkOperator . [Main.Expression.LinkExp]
@@ -343,7 +354,7 @@ UserType [Main.Type]
         operand: Identifier: iref
         param: ThisTypeRef
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -364,7 +375,7 @@ UserType [Main.Type]
         operand: Identifier: iref
         param: ThisTypeRef
       retType: NULL
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -382,7 +393,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: NULL
-     body: Scope
+     body: Block
       AssignmentOperator += [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -426,7 +437,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -445,7 +456,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        v: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -464,7 +475,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       AssignmentOperator += [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -483,7 +494,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       AssignmentOperator /= [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -506,7 +517,7 @@ UserType [Main.Type]
       retType: ParamPass [] [Main.Expression.ParamPassExp]
        operand: Identifier: ref [Main.BlockSubject.Identifier]
        param: ThisTypeRef [Main.ThisTypeRef]
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -531,7 +542,7 @@ UserType [Main.Type]
       retType: ParamPass [] [Main.Expression.ParamPassExp]
        operand: Identifier: ref [Main.BlockSubject.Identifier]
        param: ThisTypeRef [Main.ThisTypeRef]
-     body: Scope
+     body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -554,7 +565,7 @@ UserType [Main.Type]
       retType: ParamPass []
        operand: Identifier: Word
        param: IntegerLiteral: 1
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: ComparisonOperator > [Main.Expression.ComparisonExp]
         first: LinkOperator . [Main.Expression.LinkExp]
@@ -574,7 +585,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: AdditionOperator - [Main.Expression.AddExp]
         first: LinkOperator . [Main.Expression.LinkExp]
@@ -640,7 +651,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: BitwiseOperator $ [Main.Expression.BitwiseExp]
         first: LinkOperator . [Main.Expression.LinkExp]
@@ -659,7 +670,7 @@ UserType [Main.Type]
         operand: Identifier: iref
         param: ThisTypeRef
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -676,7 +687,7 @@ UserType [Main.Type]
         operand: Identifier: iref
         param: ThisTypeRef
       retType: NULL
-     body: Scope
+     body: Block
       ReturnStatement [Main.Return]
        operand: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -694,7 +705,7 @@ UserType [Main.Type]
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: NULL
-     body: Scope
+     body: Block
       AssignmentOperator += [Main.Expression.AssignmentExp]
        first: LinkOperator . [Main.Expression.LinkExp]
         first: Identifier: this [Main.Keywords]
@@ -725,4 +736,49 @@ UserType [Main.Type]
          operand: AdditionOperator + [Main.Expression.AddExp]
           first: Identifier: f [Main.BlockSubject.Identifier]
           second: FloatLiteral: 0.5 [Main.BlockSubject.Literal]
+  Definition [Main.LeadingCmdGrp] f1
+   modifiers:
+    ParamPass []
+     operand: Identifier: operation
+     param: StringLiteral: ()
+    ParamPass [] [Modifier.Expression.ParamPassExp]
+     operand: Identifier: customMod [Modifier.Subject.Identifier]
+     param: StringLiteral: hello [Main.BlockSubject.Literal]
+   target: Function f2
+     type: FunctionType shared: 1, bindDisabled: 0
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: iref
+        param: ThisTypeRef
+       d: Identifier: Int [Main.BlockSubject.Identifier]
+      retType: NULL
+     body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] myprop
+   modifiers:
+    ParamPass []
+     operand: Identifier: operation
+     param: StringLiteral: ()
+   target: Function 
+     type: FunctionType shared: 1, bindDisabled: 0
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: iref
+        param: ThisTypeRef
+      retType: NULL
+     body: NULL
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    ParamPass []
+     operand: Identifier: operation
+     param: StringLiteral: ()
+   target: Function 
+     type: FunctionType shared: 1, bindDisabled: 0
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: iref
+        param: ThisTypeRef
+       a: Identifier: Int [Main.BlockSubject.Identifier]
+       b: Identifier: Int [Main.BlockSubject.Identifier]
+      retType: NULL
+     body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------

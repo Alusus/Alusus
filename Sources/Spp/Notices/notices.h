@@ -134,6 +134,24 @@ DEFINE_NOTICE(InvalidTemplateArgNameNotice, "Spp.Notices", "Spp", "alusus.org", 
 DEFINE_NOTICE(InvalidTemplateArgTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1017", 1,
   "Invalid templatae arg type."
 );
+DEFINE_NOTICE(PtrBasedInitOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1018", 1,
+  "~init operations cannot be pointer based."
+);
+DEFINE_NOTICE(PropGetterMissingRetTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1019", 1,
+  "Property getter is missing the return type."
+);
+DEFINE_NOTICE(OpTargetNotThisNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1020", 1,
+  "Operation target must be `this`."
+);
+DEFINE_NOTICE(CastOpMissingTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1021", 1,
+  "Type is missing from ~cast operation."
+);
+DEFINE_NOTICE(InvalidUseOfSquareBracketNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1022", 1,
+  "Invalid use of square brackets."
+);
+DEFINE_NOTICE(InvalidPropIdentifierNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1023", 1,
+  "Invalid type property identifier."
+);
 
 } // namespace
 

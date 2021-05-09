@@ -14,7 +14,7 @@ Core.Data.Ast.List
    -second: Core.Data.Ast.Bracket
      الأعضاء:
      -type: صـحيح_بهوية 0
-     -prodId: طـبيعي_بهوية 313
+     -prodId: طـبيعي_بهوية 314
      -sourceLocation: Core.Data.SourceLocationRecord
      عناصر مسماة:
      -operand: Core.Data.Ast.List
@@ -29,19 +29,19 @@ Core.Data.Ast.List
    الأعضاء:
    -name: نـص_بهوية "د"
    -toMerge: ثـنائي_بهوية خطأ
-   -prodId: طـبيعي_بهوية 247
+   -prodId: طـبيعي_بهوية 248
    -sourceLocation: Core.Data.SourceLocationRecord
    عناصر مسماة:
    -target: Spp.Ast.Function
      الأعضاء:
      -name: نـص_بهوية ""
      -inlined: ثـنائي_بهوية خطأ
-     -prodId: طـبيعي_بهوية 247
+     -prodId: طـبيعي_بهوية 248
      -sourceLocation: Core.Data.SourceLocationRecord
      عناصر مسماة:
      -type: Spp.Ast.FunctionType
        الأعضاء:
-       -prodId: طـبيعي_بهوية 247
+       -prodId: طـبيعي_بهوية 248
        -sourceLocation: Core.Data.SourceLocationRecord
        -shared: ثـنائي_بهوية صح
        -bindDisabled: ثـنائي_بهوية خطأ
@@ -50,7 +50,7 @@ Core.Data.Ast.List
        -retType: عدم
      -body: Spp.Ast.Block
        الأعضاء:
-       -prodId: طـبيعي_بهوية 307
+       -prodId: طـبيعي_بهوية 308
        -sourceLocation: عدم
        عناصر:
    -modifiers: عدم
