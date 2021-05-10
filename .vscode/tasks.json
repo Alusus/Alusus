@@ -1,28 +1,36 @@
 {
   // See https://go.microsoft.com/fwlink/?LinkId=733558
   // for the documentation about the tasks.json format
-  "version": "0.1.0",
+  "version": "2.0.0",
   "tasks": [
     {
-      "taskName": "build",
+      "label": "build",
       "command": "${workspaceRoot}/Tools/build.sh",
-      "args": ["--bloc", ".", "--iloc", "."],
-      "options": {
-        "cwd": "${workspaceRoot}/"
-      },
-      "isBuildCommand": true,
-      "showOutput": "always",
+      "args": [
+        "--bloc",
+        ".",
+        "--iloc",
+        "."
+      ],
       "problemMatcher": {
         "owner": "cpp",
-        "fileLocation": ["absolute"],
-        "pattern": [{
-          "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-          "file": 1,
-          "line": 2,
-          "column": 3,
-          "severity": 4,
-          "message": 5
-        }]
+        "fileLocation": [
+          "absolute"
+        ],
+        "pattern": [
+          {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        ]
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
       }
     }
   ]

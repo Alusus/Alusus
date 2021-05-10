@@ -60,6 +60,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateMemberVarReference,
     &this->generateArrayReference,
     &this->generateFunctionCall,
+    &this->generateFunctionPtrCall,
     &this->prepareFunctionParams,
     &this->prepareCallee,
     &this->prepareCalleeLookupRequest,
@@ -111,6 +112,7 @@ void ExpressionGenerator::initBindings()
   this->generateMemberVarReference = &ExpressionGenerator::_generateMemberVarReference;
   this->generateArrayReference = &ExpressionGenerator::_generateArrayReference;
   this->generateFunctionCall = &ExpressionGenerator::_generateFunctionCall;
+  this->generateFunctionPtrCall = &ExpressionGenerator::_generateFunctionPtrCall;
   this->prepareFunctionParams = &ExpressionGenerator::_prepareFunctionParams;
   this->prepareCallee = &ExpressionGenerator::_prepareCallee;
   this->prepareCalleeLookupRequest = &ExpressionGenerator::_prepareCalleeLookupRequest;
@@ -377,13 +379,9 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       )) return false;
       TiObject *tgFuncPtrType = session->getEda()->getCodeGenData<TiObject>(derefCallee.astType);
       // Generate the call.
-      if (session->getTgContext() != 0) {
-        if (!session->getTg()->generateFunctionPtrCall(
-          session->getTgContext(), derefCallee.targetData.get(), tgFuncPtrType, paramTgValues, result.targetData
-        )) return false;
-      }
-      result.astType = astFuncType->traceRetType(expGenerator->astHelper);
-      return true;
+      return expGenerator->generateFunctionPtrCall(
+        astNode, astFuncType, derefCallee.targetData.get(), tgFuncPtrType, paramTgValues, g, session, result
+      );
     } else if (contentType != 0 && contentType->isDerivedFrom<Ast::ArrayType>()) {
       //// Reference array element.
       ////
@@ -2448,6 +2446,54 @@ Bool ExpressionGenerator::_generateFunctionCall(
     }
     return true;
   }
+}
+
+
+Bool ExpressionGenerator::_generateFunctionPtrCall(
+  TiObject *self, Core::Data::Node *astNode, Spp::Ast::FunctionType *astFuncType,
+  TiObject *tgFuncPtr, TiObject *tgFuncPtrType, Containing<TiObject> *paramTgValues,
+  Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  auto astRetType = astFuncType->traceRetType(expGenerator->astHelper);
+  if (astRetType->getInitializationMethod(
+    expGenerator->astHelper, session->getExecutionContext()
+  ) != Ast::TypeInitMethod::NONE) {
+    if (session->getTgContext() != 0) {
+      // Pass a reference to the return value.
+      if (!g->generateTempVar(astNode, astRetType, session, false)) return false;
+      TioSharedPtr tgResult;
+      if (!session->getTg()->generateVarReference(
+        session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(astRetType),
+        session->getEda()->getCodeGenData<TiObject>(astNode), tgResult
+      )) {
+        return false;
+      }
+      PlainList<TiObject> paramTgValuesWithRet;
+      paramTgValuesWithRet.add(tgResult.get());
+      for (Int i = 0; i < paramTgValues->getElementCount(); ++i) {
+        paramTgValuesWithRet.add(paramTgValues->getElement(i));
+      }
+      if (!session->getTg()->generateFunctionPtrCall(
+        session->getTgContext(), tgFuncPtr, tgFuncPtrType, &paramTgValuesWithRet, result.targetData
+      )) return false;
+      result.targetData = tgResult;
+      // Register temp var for destruction.
+      g->registerDestructor(
+        astNode, astRetType, session->getExecutionContext(), session->getDestructionStack()
+      );
+    }
+    result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
+  } else {
+    if (session->getTgContext() != 0) {
+      if (!session->getTg()->generateFunctionPtrCall(
+        session->getTgContext(), tgFuncPtr, tgFuncPtrType, paramTgValues, result.targetData
+      )) return false;
+    }
+    result.astType = astRetType;
+  }
+  return true;
 }
 
 
