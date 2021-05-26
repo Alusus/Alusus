@@ -2280,7 +2280,7 @@ Bool ExpressionGenerator::_generateVarReference(
       if (!g->generateVarDef(varDef, session)) return false;
       tgVar = session->getEda()->getCodeGenData<TiObject>(varAstNode);
     } else {
-      expGenerator->noticeStore->add(newSrdObj<Spp::Notices::UninitializedLocalVariableNotice>(
+      expGenerator->noticeStore->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
         Core::Data::Ast::findSourceLocation(refAstNode)
       ));
       return false;
@@ -2317,7 +2317,14 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   }
 
   // Get the member generated value and type.
-  auto tgMemberVar = session->getEda()->getCodeGenData<TiObject>(astMemberVar);
+  auto tgMemberVar = session->getEda()->tryGetCodeGenData<TiObject>(astMemberVar);
+  if (tgMemberVar == 0) {
+    expGenerator->noticeStore->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
+      Core::Data::Ast::findSourceLocation(astNode)
+    ));
+    return false;
+  }
+
   auto astMemberType = Ast::getAstType(astMemberVar);
   TiObject *tgMemberType;
   if (!g->getGeneratedType(astMemberType, session, tgMemberType, 0)) return false;
