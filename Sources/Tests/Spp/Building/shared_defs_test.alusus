@@ -17,7 +17,7 @@ def Main: module
 
     @shared def t: MyType;
 
-    def printIt: @shared function
+    def printIt: function
     {
       @shared def z: Int;
       print("x = %d\n", x);

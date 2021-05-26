@@ -265,9 +265,6 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getVariableDomain, DefinitionDomain, (TiObject const*));
   private: static DefinitionDomain _getVariableDomain(TiObject *self, TiObject const *def);
 
-  public: METHOD_BINDING_CACHE(getFunctionDomain, DefinitionDomain, (TiObject const*));
-  private: static DefinitionDomain _getFunctionDomain(TiObject *self, TiObject const *def);
-
   public: Bool doesModifierExistOnDef(Core::Data::Ast::Definition const *def, Char const *name);
   public: Bool isSharedDef(Core::Data::Ast::Definition const *def)
   {

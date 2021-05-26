@@ -43,8 +43,7 @@ Core.Data.Ast.List
        الأعضاء:
        -prodId: طـبيعي_بهوية 248
        -sourceLocation: Core.Data.SourceLocationRecord
-       -shared: ثـنائي_بهوية صح
-       -bindDisabled: ثـنائي_بهوية خطأ
+       -member: ثـنائي_بهوية خطأ
        عناصر مسماة:
        -argTypes: عدم
        -retType: عدم

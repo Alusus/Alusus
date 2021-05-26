@@ -22,10 +22,10 @@ import "Spp";
     type RefCounter {
         def count: Int;
         def singleAllocation: Bool;
-        def terminator: ptr[@shared @no_bind function (p: ptr)];
+        def terminator: ptr[function (p: ptr)];
         def managedObj: ptr;
 
-        @shared func alloc(size: ArchInt, terminator: ptr[function (ptr)]): ref[RefCounter] {
+        func alloc(size: ArchInt, terminator: ptr[function (ptr)]): ref[RefCounter] {
             // On macOS object addresses need to be aligned in memory to 16 bytes, so we'll compute a size for this
             // object that is aligned to 16 bytes so that the actual object, which follows, has an address that is
             // 16 bytes aligned.
@@ -53,7 +53,7 @@ import "Spp";
             return refCounter;
         }
 
-        @shared func alloc(managedObj: ptr, terminator: ptr[function (ptr)]): ref[RefCounter] {
+        func alloc(managedObj: ptr, terminator: ptr[function (ptr)]): ref[RefCounter] {
             def refCounter: ref[RefCounter];
             refCounter~ptr = Memory.alloc(RefCounter~size)~cast[ptr[RefCounter]];
             refCounter.count = 0;
@@ -63,7 +63,7 @@ import "Spp";
             return refCounter;
         }
 
-        @shared func release(refCounter: ref[RefCounter]) {
+        func release(refCounter: ref[RefCounter]) {
             refCounter.terminator(refCounter.managedObj);
             if !refCounter.singleAllocation {
                 Memory.free(refCounter.managedObj);
@@ -113,12 +113,12 @@ import "Spp";
         //=================
         // Member Functions
 
-        func _init {
+        handler this._init() {
             this.refCounter~ptr = 0;
             this.obj~ptr = 0;
         };
 
-        func alloc ():ref[T] {
+        handler this.alloc ():ref[T] {
             this.release();
             this.refCounter~no_deref = RefCounter.alloc(T~size, terminate~ptr);
             this.refCounter.count = 1;
@@ -126,23 +126,23 @@ import "Spp";
             return this.obj;
         };
 
-        @shared func alloc ():SrdRef[T] {
+        func alloc ():SrdRef[T] {
             def r: SrdRef[T];
             r.alloc()
             return r;
         };
 
-        func construct () {
+        handler this.construct () {
             this.alloc()~init();
         };
 
-        @shared func construct ():SrdRef[T] {
+        func construct ():SrdRef[T] {
             def r: SrdRef[T];
             r.construct();
             return r;
         };
 
-        func own (existingObj: ref[T]) {
+        handler this.own (existingObj: ref[T]) {
             if existingObj~ptr == this.obj~ptr return;
             this.release();
             if existingObj~ptr != 0 {
@@ -152,28 +152,28 @@ import "Spp";
             }
         };
 
-        @shared func own (existingObj: ref[T]): SrdRef[T] {
+        func own (existingObj: ref[T]): SrdRef[T] {
             def r: SrdRef[T];
             r.own(existingObj);
             return r;
         }
 
-        func release {
+        handler this.release() {
             if this.refCounter~ptr != 0 {
                 if --this.refCounter.count == 0 RefCounter.release(this.refCounter);
                 this._init();
             };
         };
 
-       func assign (sr: ref[SrdRef[T]]) {
+        handler this.assign (sr: ref[SrdRef[T]]) {
             this.assign(sr.refCounter, sr.obj);
         };
 
-        func assign (wr: ref[WkRef[T]]) {
+        handler this.assign (wr: ref[WkRef[T]]) {
             this.assign(wr.refCounter, wr.obj);
         };
 
-        func assign (c: ref[RefCounter], r: ref[T]) {
+        handler this.assign (c: ref[RefCounter], r: ref[T]) {
             if c~ptr != this.refCounter~ptr {
                 this.release();
                 this.refCounter~ptr = c~ptr;
@@ -184,7 +184,7 @@ import "Spp";
             this.obj~ptr = r~ptr;
         };
 
-        @shared func terminate (p: ptr) {
+        func terminate (p: ptr) {
             p~cast[ptr[T]]~cnt~terminate();
         }
 
@@ -232,26 +232,26 @@ import "Spp";
         //=================
         // Member Functions
 
-        func _init {
+        handler this._init() {
             this.refCounter~ptr = 0;
             this.obj~ptr = 0;
         };
 
-        func release {
+        handler this.release() {
             this._init();
         };
 
-        func assign (r: ref[WkRef[T]]) {
+        handler this.assign (r: ref[WkRef[T]]) {
             this.refCounter~ptr = r.refCounter~ptr;
             this.obj~ptr = r.obj~ptr;
         };
 
-        func assign (r: ref[SrdRef[T]]) {
+        handler this.assign (r: ref[SrdRef[T]]) {
             this.refCounter~ptr = r.refCounter~ptr;
             this.obj~ptr = r.obj~ptr;
         };
 
-        func assign (c: ref[RefCounter], r: ref[T]) {
+        handler this.assign (c: ref[RefCounter], r: ref[T]) {
             this.refCounter~ptr = c~ptr;
             this.obj~ptr = r~ptr;
         };
@@ -285,13 +285,13 @@ import "Spp";
 
         handler this~terminate() this.release();
 
-        func construct {
+        handler this.construct() {
             this.release();
             this.obj~ptr = Memory.alloc(T~size)~cast[ptr[T]];
             this.obj~init();
         };
 
-        func release {
+        handler this.release() {
             if this.obj~ptr != 0 {
                 this.obj~terminate();
                 Memory.free(this.obj~ptr);

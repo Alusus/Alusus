@@ -5,7 +5,7 @@ ERROR SPPH1011 @ (20,7): Invalid continue statement.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] start: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
   body: Block [Main.BlockStatements.StmtList]

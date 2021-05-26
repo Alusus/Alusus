@@ -188,7 +188,7 @@ Bool FunctionParsingHandler::onIncomingModifier(
   if (!prodProcessingComplete) return false;
 
   if (this->processExpnameModifier(state, modifierData)) return true;
-  else if (this->processSharedOrNoBindModifier(state, modifierData)) return true;
+  else if (this->processMemberModifier(state, modifierData)) return true;
   else return this->processUnknownModifier(state, modifierData);
 }
 
@@ -243,7 +243,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
 }
 
 
-Bool FunctionParsingHandler::processSharedOrNoBindModifier(
+Bool FunctionParsingHandler::processMemberModifier(
   Core::Processing::ParserState *state, TioSharedPtr const &modifierData
 ) {
   // Look for expname modifier.
@@ -252,10 +252,7 @@ Bool FunctionParsingHandler::processSharedOrNoBindModifier(
   auto symbolDef = state->refTopProdLevel().getProd();
   auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
 
-  Bool setShared;
-  if (keyword == S("shared")) setShared = true;
-  else if (keyword == S("no_bind")) setShared = false;
-  else return false;
+  if (keyword != S("member")) return false;
 
   // Find the funciton type to update.
   Int levelOffset = -state->getTopProdTermLevelCount();
@@ -273,8 +270,7 @@ Bool FunctionParsingHandler::processSharedOrNoBindModifier(
     throw EXCEPTION(GenericException, S("Unexpected data type found."));
   }
 
-  if (setShared) funcType->setShared(true);
-  else funcType->setBindDisabled(true);
+  funcType->setMember(true);
 
   return true;
 }

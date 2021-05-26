@@ -5,7 +5,7 @@ use Srl.Console;
 
 type InnerMost {
   def a: Int;
-  func getA ():Int { return this.a }
+  handler this.getA():Int { return this.a }
   handler this=Int { this.a = value };
 }
 
@@ -13,7 +13,7 @@ type Inner {
   @injection def rim: ref[InnerMost];
 
   def i: Int;
-  func getI ():Int { return this.i };
+  handler this.getI():Int { return this.i };
   handler this(): Int { return this.i * 2 }
 }
 

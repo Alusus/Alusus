@@ -292,7 +292,14 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
 
   // TODO: Should we skip if targetIsObject is false and the function is a member function?
 
-  Bool useThis = !func->getType()->isBindDisabled() && request.thisType != 0;
+  if (!func->getType()->isMember() && request.thisType != 0) {
+    result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
+      Core::Data::Ast::findSourceLocation(request.target)
+    );
+    return;
+  }
+
+  Bool useThis = request.thisType != 0;
 
   // Only allow this check if the funciton has the proper modifier.
   Char const *defOp = 0;
@@ -337,7 +344,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
       }
     }
     return;
-  } else if (request.op == S("") && !request.targetIsObject && defOp == 0) {
+  } else if (request.op == S("") && !request.targetIsObject) {
     // We are just trying to get a reference to the function itself.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
@@ -572,7 +579,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
   extTypes.setPreItem(0, request.thisType);
 
   auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
-  Bool useThis = !funcType->isBindDisabled() && request.thisType != 0;
+  Bool useThis = funcType->isMember() && request.thisType != 0;
 
   if (request.varTargetOp != 0 && SBSTR(request.varTargetOp) == S("")) {
     PlainList<TiObject> argTypes;

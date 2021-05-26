@@ -92,5 +92,5 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     }
 }
 
-def a: ref[Core.Basic.TiObject](ast a, b: (5, 6), c, @shared function fn {});
+def a: ref[Core.Basic.TiObject](ast a, b: (5, 6), c, function fn {});
 printAst(a, 0);

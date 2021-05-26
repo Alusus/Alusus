@@ -6,15 +6,15 @@ type A
 {
   def i: Int;
 
-  func print {
+  @member func print (this: ref[this_type]) {
     Root.print("this.i = %d\n", this.i);
   };
 
-  func setI (i: Int) {
+  @member func setI (this: ref[this_type], i: Int) {
     this.i = i;
   };
 
-  @shared func setI2 (this: ref[this_type], i: Int) {
+  @member func setI2 (this: ref[this_type], i: Int) {
     this.i = i;
   };
 };
@@ -22,24 +22,24 @@ type A
 type B
 {
   def a: A;
-  def f: ptr[@shared function];
+  def f: ptr[function];
 
   handler this~init() this.a.i = 7;
   handler this~init(that: ref[this_type]) this.a = that.a;
 
-  func getMyVal ()=>B {
+  @member func getMyVal (this: ref[this_type])=>B {
     return this;
   };
 
-  func getMyRef ()=>ref[B] {
+  @member func getMyRef (this: ref[this_type])=>ref[B] {
     return this;
   };
 
-  func printA {
+  @member func printA (this: ref[this_type]) {
     print("this.a.i = %d\n", this.a.i);
   };
 
-  func getA ()=>ref[A] {
+  @member func getA (this: ref[this_type])=>ref[A] {
     return this.a;
   }
 };
@@ -72,7 +72,7 @@ type C
 {
   def i: Int;
 
-  func setI (this: ref[this_type], i: Int) {
+  @member func setI (this: ref[this_type], i: Int) {
     this.i = i;
   };
 };

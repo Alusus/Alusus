@@ -44,16 +44,14 @@ class FunctionType : public Type, public MapContaining<TiObject>
 
   private: SharedPtr<Core::Data::Ast::Map> argTypes;
   private: TioSharedPtr retType;
-  private: TiBool shared;
-  private: TiBool bindDisabled;
+  private: TiBool member;
 
 
   //============================================================================
   // Implementations
 
   IMPLEMENT_BINDING(Type,
-    (shared, TiBool, VALUE, setShared(value), &shared),
-    (bindDisabled, TiBool, VALUE, setBindDisabled(value), &bindDisabled)
+    (member, TiBool, VALUE, setMember(value), &member)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
@@ -63,7 +61,7 @@ class FunctionType : public Type, public MapContaining<TiObject>
 
   IMPLEMENT_AST_MAP_PRINTABLE(
     FunctionType,
-    << S("shared: ") << this->shared.get() << S(", bindDisabled: ") << this->bindDisabled.get()
+    << S("member: ") << this->member.get()
   );
 
 
@@ -137,32 +135,18 @@ class FunctionType : public Type, public MapContaining<TiObject>
     TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
   );
 
-  public: void setShared(Bool s)
+  public: void setMember(Bool m)
   {
-    this->shared = s;
+    this->member = m;
   }
-  public: void setShared(TiBool const *s)
+  public: void setMember(TiBool const *m)
   {
-    this->shared = s == 0 ? false : s->get();
-  }
-
-  public: Bool isShared() const
-  {
-    return this->shared.get();
+    this->member = m == 0 ? false : m->get();
   }
 
-  public: void setBindDisabled(Bool bd)
+  public: Bool isMember() const
   {
-    this->bindDisabled = bd;
-  }
-  public: void setBindDisabled(TiBool const *bd)
-  {
-    this->bindDisabled = bd == 0 ? false : bd->get();
-  }
-
-  public: Bool isBindDisabled() const
-  {
-    return this->bindDisabled.get();
+    return this->member.get();
   }
 
 }; // class

@@ -37,7 +37,7 @@ import "Memory";
         //=================
         // Member Functions
 
-        func add (i: ArchInt) {
+        handler this.add (i: ArchInt) {
             if i == -1 {
                 // Add any new items at the end of the values list.
                 if this.values.getLength() <= this.indices.getLength() return;
@@ -64,7 +64,7 @@ import "Memory";
             }
         }
 
-        func remove(i: ArchInt) {
+        handler this.remove(i: ArchInt) {
             if i >= this.indices.getLength() {
                 System.fail(1, "Argument `i` is out of range.");
             }
@@ -79,17 +79,17 @@ import "Memory";
             }
         }
 
-        func clear {
+        handler this.clear() {
             this.indices.clear();
         }
 
-        func findPos(v: ref[T]): ArchInt {
+        handler this.findPos(v: ref[T]): ArchInt {
             def r: ArchInt;
             if this.findPos(v, r) return this.indices(r)
             else return -1;
         }
 
-        func findPos(v: ref[T], result: ref[ArchInt]): Bool {
+        handler this.findPos(v: ref[T], result: ref[ArchInt]): Bool {
             if this.indices.getLength() == 0 {
                 result = 0;
                 return 0;
@@ -116,7 +116,7 @@ import "Memory";
             return this._findPos(v, 0, this.indices.getLength() - 1, result);
         }
 
-        func _findPos(v: ref[T], startPos: ArchInt, endPos: ArchInt, result: ref[ArchInt]): Bool {
+        handler this._findPos(v: ref[T], startPos: ArchInt, endPos: ArchInt, result: ref[ArchInt]): Bool {
             if startPos == endPos - 1 {
                 result = endPos;
                 return 0;
@@ -134,14 +134,14 @@ import "Memory";
             }
         }
 
-        @shared func constructToNew (v: ref[Array[T]]): ref[ArrayIndex[T]] {
+        func constructToNew (v: ref[Array[T]]): ref[ArrayIndex[T]] {
             def ai: ref[ArrayIndex[T]];
             ai~ptr = Memory.alloc(ArrayIndex[T]~size)~cast[ptr[ArrayIndex[T]]];
             ai~init(v);
             return ai;
         }
 
-        @shared func release (ai: ref[ArrayIndex[T]]) {
+        func release (ai: ref[ArrayIndex[T]]) {
             ai~terminate();
             Memory.free(ai~ptr);
         }

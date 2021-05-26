@@ -99,7 +99,8 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   );
 
   private: Bool prepareInputArg(
-    Processing::ParserState *state, TioSharedPtr input, Char const *&inputName, TioSharedPtr &inputType
+    Processing::ParserState *state, TioSharedPtr input, Char const *&inputName, TioSharedPtr &inputType,
+    Char const *defaultname = S("value")
   );
 
   private: Bool getThisAndPropIdentifiers(

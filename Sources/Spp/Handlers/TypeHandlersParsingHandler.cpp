@@ -405,8 +405,13 @@ void TypeHandlersParsingHandler::createParensOpHandler(
     Char const *inputName;
     TioSharedPtr inputType;
     auto inputDef = params->get(i);
-    if (!this->prepareInputArg(state, inputDef, inputName, inputType)) return;
-    if (argTypes->findIndex(inputName) != -1) {
+    if (!this->prepareInputArg(state, inputDef, inputName, inputType, params->getCount() == 1 ? S("value") : S(""))) {
+      return;
+    }
+    if (inputName == S("")) {
+      inputName = S("__");
+      inputName += (LongInt)i;
+    } else if (argTypes->findIndex(inputName) != -1) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(
         Core::Data::Ast::findSourceLocation(inputDef.get())
       ));
@@ -444,7 +449,7 @@ TioSharedPtr TypeHandlersParsingHandler::createFunction(
 ) {
   // Create the function type.
   auto funcType = Spp::Ast::FunctionType::create({
-    {S("shared"), TiBool(true)}
+    {S("member"), TiBool(true)}
   }, {
     {S("argTypes"), argTypes},
     {S("retType"), retType}
@@ -527,7 +532,8 @@ TioSharedPtr TypeHandlersParsingHandler::createFunction(
 
 
 Bool TypeHandlersParsingHandler::prepareInputArg(
-  Processing::ParserState *state, TioSharedPtr input, Char const *&inputName, TioSharedPtr &inputType
+  Processing::ParserState *state, TioSharedPtr input, Char const *&inputName, TioSharedPtr &inputType,
+  Char const *defaultName
 ) {
   if (input->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = input.s_cast_get<Core::Data::Ast::Bracket>();
@@ -554,7 +560,7 @@ Bool TypeHandlersParsingHandler::prepareInputArg(
     inputName = inputNameId->getValue().get();
     inputType = linkOperator->getSecond();
   } else {
-    inputName = S("value");
+    inputName = defaultName;
     inputType = input;
   }
   return true;

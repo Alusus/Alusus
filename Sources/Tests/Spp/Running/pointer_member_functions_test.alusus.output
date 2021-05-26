@@ -7,4 +7,4 @@ M.printIt2 11
 M.printIt3 8
 M.printIt4 12
 ERROR SPPA1008 @ (79,3): Provided arguments do not match signature.
-ERROR SPPA1008 @ (80,3): Provided arguments do not match signature.
+ERROR SPPG1020 @ (80,3): Invalid access to global definition.

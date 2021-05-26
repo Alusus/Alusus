@@ -14,9 +14,9 @@ import "srl";
 import "Memory";
 import "String";
 
-@merge def Srl : module
+@merge module Srl
 {
-  def Fs: module
+  module Fs
   {
     def FILENAME_LENGTH: 256;
 

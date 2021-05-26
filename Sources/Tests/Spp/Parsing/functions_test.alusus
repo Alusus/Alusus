@@ -43,7 +43,7 @@ def funcs: {
   function f13 ()=>Void;
   function f14 {};
   function f15 (x:Int)=>Int {};
-  @expname[F16] @shared function f16 {};
+  @expname[F16] function f16 {};
   func f17 (Int)=>void;
   function f18=>void;
   function f19 int=>void;

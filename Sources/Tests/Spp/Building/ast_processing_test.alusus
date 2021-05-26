@@ -12,7 +12,7 @@ module MyMod {
 
 type Point {
   defInt[x];
-  func getDouble { return this.x * 2 }
+  handler this.getDouble() { return this.x * 2 }
   preprocess {
     print("Point preprocess\n");
   }

@@ -1,7 +1,7 @@
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] getInt: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: ParamPass [] [Main.FuncSigExpression.ParamPassExp]
     operand: Identifier: Int [Main.ParamOnlySubject.Identifier]
@@ -10,7 +10,7 @@ Module [Main.ModuleStatements.StmtList]
    ReturnStatement [Main.Return]
     operand: IntegerLiteral: 30 [Main.BlockSubject.Literal]
  Definition [Main.Def] getFloat: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: ParamPass [] [Main.FuncSigExpression.ParamPassExp]
     operand: Identifier: Float [Main.ParamOnlySubject.Identifier]
@@ -19,7 +19,7 @@ Module [Main.ModuleStatements.StmtList]
    ReturnStatement [Main.Return]
     operand: FloatLiteral: 5.5 [Main.BlockSubject.Literal]
  Definition [Main.Def] getAddition: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: ParamPass [] [Main.FuncSigExpression.ParamPassExp]
     operand: Identifier: Int [Main.ParamOnlySubject.Identifier]
@@ -30,7 +30,7 @@ Module [Main.ModuleStatements.StmtList]
      first: IntegerLiteral: 5 [Main.BlockSubject.Literal]
      second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
  Definition [Main.Def] getIntIndirect: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: ParamPass [] [Main.FuncSigExpression.ParamPassExp]
     operand: Identifier: Int [Main.ParamOnlySubject.Identifier]
@@ -41,14 +41,14 @@ Module [Main.ModuleStatements.StmtList]
      operand: Identifier: getInt [Main.BlockSubject.Identifier]
      param: NULL
  Definition [Main.Def] retVoid: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
   body: Block [Main.BlockStatements.StmtList]
    ReturnStatement [Main.Return]
     operand: NULL
  Definition [Main.Def] invalidRet: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
   body: Block [Main.BlockStatements.StmtList]

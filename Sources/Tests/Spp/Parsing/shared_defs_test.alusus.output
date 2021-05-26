@@ -12,7 +12,7 @@ Module [Main.ModuleStatements.StmtList]
      Identifier: shared [Modifier.Subject.Identifier]
     target: Identifier: MyType [Main.BlockSubject.Identifier]
    Definition [Main.Def] printIt: Function  [Main.Function]
-    type: FunctionType shared: 1, bindDisabled: 0 [Main.Function]
+    type: FunctionType member: 0 [Main.Function]
      argTypes: NULL
      retType: NULL
     body: Block [Main.BlockStatements.StmtList]

@@ -69,15 +69,15 @@ type A {
 
     @private def j: Int;
 
-    func getVarNames ():Array[String] {
+    @member func getVarNames (this: ref[this_type]):Array[String] {
         implementGetElementNames[elementType == "var", this_type~ast];
     }
 
-    @private func getFuncNames ():Array[String] {
+    @private @member func getFuncNames (this: ref[this_type]):Array[String] {
         implementGetElementNames[elementType == "function", this_type~ast];
     }
 
-    func getPrivateElementNames ():Array[String] {
+    @member func getPrivateElementNames (this: ref[this_type]):Array[String] {
         implementGetElementNames[modifier == "private", this_type~ast];
     }
 }

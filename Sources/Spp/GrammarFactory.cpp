@@ -348,8 +348,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   }}, newSrdObj<Handlers::FunctionParsingHandler>());
   this->set(S("root.Main.Function.modifierTranslations"), Map::create({}, {
     {S("تصدير"), TiStr::create(S("expname"))},
-    {S("مشترك"), TiStr::create(S("shared"))},
-    {S("دون_ربط"), TiStr::create(S("no_bind"))},
+    {S("عضو"), TiStr::create(S("member"))},
     {S("عملية"), TiStr::create(S("operation"))}
   }));
 
