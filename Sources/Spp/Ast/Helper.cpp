@@ -49,7 +49,6 @@ void Helper::initBindingCaches()
     &this->getNeededIntSize,
     &this->getNeededWordSize,
     &this->getVariableDomain,
-    &this->getFunctionDomain,
     &this->validateUseStatement
   });
 }
@@ -85,7 +84,6 @@ void Helper::initBindings()
   this->getNeededIntSize = &Helper::_getNeededIntSize;
   this->getNeededWordSize = &Helper::_getNeededWordSize;
   this->getVariableDomain = &Helper::_getVariableDomain;
-  this->getFunctionDomain = &Helper::_getFunctionDomain;
   this->validateUseStatement = &Helper::_validateUseStatement;
 }
 
@@ -781,49 +779,6 @@ DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
       return DefinitionDomain::FUNCTION;
     } else if (owner->isDerivedFrom<IfStatement>()) {
       return DefinitionDomain::FUNCTION;
-    }
-    owner = owner->getOwner();
-  }
-  return DefinitionDomain::GLOBAL;
-}
-
-
-DefinitionDomain Helper::_getFunctionDomain(TiObject *self, TiObject const *obj)
-{
-  // Find the function type.
-  Core::Data::Node const *owner;
-  FunctionType const *funcType;
-  if (obj->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    auto definition = static_cast<Core::Data::Ast::Definition const*>(obj);
-    auto function = definition->getTarget().ti_cast_get<Function const>();
-    funcType = function->getType().get();
-    owner = definition->getOwner();
-  } else if (obj->isDerivedFrom<Function>()) {
-    auto function = static_cast<Function const*>(obj);
-    funcType = function->getType().get();
-    owner = function->getOwner();
-  } else if (obj->isDerivedFrom<FunctionType>()) {
-    funcType = static_cast<FunctionType const*>(obj);
-    owner = funcType->getOwner();
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("obj"), S("Invalid type."));
-  }
-
-  while (owner != 0) {
-    if (owner->isDerivedFrom<Module>()) {
-      return DefinitionDomain::GLOBAL;
-    } else if (owner->isDerivedFrom<Type>()) {
-      return funcType->isShared() ? DefinitionDomain::GLOBAL : DefinitionDomain::OBJECT;
-    } else if (owner->isDerivedFrom<Function>()) {
-      return DefinitionDomain::GLOBAL;
-    } else if (owner->isDerivedFrom<PreprocessStatement>()) {
-      return DefinitionDomain::GLOBAL;
-    } else if (owner->isDerivedFrom<WhileStatement>()) {
-      return DefinitionDomain::GLOBAL;
-    } else if (owner->isDerivedFrom<ForStatement>()) {
-      return DefinitionDomain::GLOBAL;
-    } else if (owner->isDerivedFrom<IfStatement>()) {
-      return DefinitionDomain::GLOBAL;
     }
     owner = owner->getOwner();
   }

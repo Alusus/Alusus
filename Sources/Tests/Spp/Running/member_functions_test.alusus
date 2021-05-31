@@ -6,11 +6,11 @@ type A
 {
   def i: Int;
 
-  func print {
+  @member func print (this: ref[A]) {
     Root.print("this.i = %d\n", this.i);
   };
 
-  func setI (i: Int) {
+  @member func setI (this: ref[A], i: Int) {
     this.i = i;
   };
 };
@@ -18,20 +18,20 @@ type A
 type B
 {
   def a: A;
-  def f: ptr[function];
+  def f: ptr[@member function];
 
   handler this~init() this.a.i = 7;
   handler this~init(that: ref[this_type]) this.a = that.a;
 
-  func getMyVal ()=>B {
+  @member func getMyVal (this: ref[B])=>B {
     return this;
   };
 
-  func getMyRef ()=>ref[B] {
+  @member func getMyRef (this: ref[B])=>ref[B] {
     return this;
   };
 
-  func printA {
+  @member func printA (this: ref[B]) {
     print("this.a.i = %d\n", this.a.i);
   };
 };

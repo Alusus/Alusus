@@ -6,7 +6,7 @@ ERROR CD1003 @ (36,1): Invalid 'def' command.
 ERROR SPPH1003 @ (49,16): Invalid function signature.
 ------------------ Parsed Data Dump ------------------
 Function f1 [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -16,7 +16,7 @@ Function f1 [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -26,7 +26,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -36,7 +36,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -46,7 +46,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -55,7 +55,7 @@ Function  [Main.Function]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
-FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+FunctionType member: 0 [Main.Function]
  argTypes: Map
   X: Identifier: Int [Main.ParamOnlySubject.Identifier]
   args: ArgPack 0 0
@@ -64,7 +64,7 @@ FunctionType shared: 0, bindDisabled: 0 [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function f7 [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    X: ParamPass [] [Main.ParamOnlyExpression.ParamPassExp]
     operand: Identifier: ptr [Main.ParamOnlySubject.Identifier]
@@ -76,7 +76,7 @@ Function f7 [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    __0: Identifier: x [Main.ParamOnlySubject.Identifier]
   retType: Identifier: void [Main.ParamOnlySubject.Identifier]
@@ -84,7 +84,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: LinkOperator . [Main.ParamOnlyExpression.LinkExp]
     first: Identifier: Module [Main.ParamOnlySubject.Identifier]
@@ -97,38 +97,38 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Block [Main.BlockStatements.StmtList]
- Definition [Main.Function] f11: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ Definition [Main.Function] f11: FunctionType member: 0 [Main.Function]
   argTypes: NULL
   retType: NULL
- Definition [Main.Function] f12: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ Definition [Main.Function] f12: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
   retType: NULL
- Definition [Main.Function] f13: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ Definition [Main.Function] f13: FunctionType member: 0 [Main.Function]
   argTypes: NULL
   retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
  Definition [Main.Function] f14: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: NULL
   body: Block [Main.BlockStatements.StmtList]
  Definition [Main.Function] f15: Function  [Main.Function]
-  type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: Map
     x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    retType: Identifier: Int [Main.ParamOnlySubject.Identifier]
   body: Block [Main.BlockStatements.StmtList]
  Definition [Main.Function] f16: Function F16 [Main.Function]
-  type: FunctionType shared: 1, bindDisabled: 0 [Main.Function]
+  type: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: NULL
   body: Block [Main.BlockStatements.StmtList]
- Definition [Main.Function] f17: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ Definition [Main.Function] f17: FunctionType member: 0 [Main.Function]
   argTypes: Map
    __0: Identifier: Int [Main.ParamOnlySubject.Identifier]
   retType: Identifier: void [Main.ParamOnlySubject.Identifier]
  LinkOperator => [Main.Expression.LowLinkExp]
-  first: Definition [Main.Function] f18: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+  first: Definition [Main.Function] f18: FunctionType member: 0 [Main.Function]
    argTypes: NULL
    retType: NULL
   second: Identifier: void [Main.BlockSubject.Identifier]

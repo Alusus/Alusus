@@ -22,7 +22,7 @@ import "Srl/String";
         func getFromGlobalStorage (ptr[array[Word[8]]]): ptr;
 
         macro defTypeInfoGetter[typeName] {
-            @shared func getTypeInfo (): ref[TypeInfo] {
+            func getTypeInfo (): ref[TypeInfo] {
                 @shared def typeInfo: ref[TypeInfo];
                 if typeInfo~ptr == 0 {
                     typeInfo~ptr = getFromGlobalStorage(typeName)~cast[ptr[TypeInfo]];
@@ -32,11 +32,11 @@ import "Srl/String";
         }
 
         type TiObjectFactory {
-            def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
-            def createShared: ptr[@shared @no_bind function ():SrdRef[TiObject]];
-            def initialize: ptr[@shared @no_bind function (ref[TiObject])];
-            def terminate: ptr[@shared @no_bind function (ref[TiObject])];
-            def getSize: ptr[@shared @no_bind function ():ArchInt];
+            def createPlain: ptr[function ():ref[TiObject]];
+            def createShared: ptr[function ():SrdRef[TiObject]];
+            def initialize: ptr[function (ref[TiObject])];
+            def terminate: ptr[function (ref[TiObject])];
+            def getSize: ptr[function ():ArchInt];
         }
 
         type TypeInfo {
@@ -54,23 +54,23 @@ import "Srl/String";
             def wkThis: WkRef[this_type];
 
             @expname[TiObject_getMyTypeInfo]
-            func getMyTypeInfo (): ref[TypeInfo];
+            handler this.getMyTypeInfo (): ref[TypeInfo];
 
             @expname[TiObject_isDerivedFrom]
-            func isDerivedFrom (ref[TypeInfo]): Bool;
+            handler this.isDerivedFrom (ref[TypeInfo]): Bool;
 
             @expname[TiObject_getInterface]
-            func getInterface (ref[TypeInfo]): ref[TiInterface];
+            handler this.getInterface (ref[TypeInfo]): ref[TiInterface];
         }
 
         type TiInterface {
             def vtable: ptr;
 
             @expname[TiInterface_getMyInterfaceInfo]
-            func getMyInterfaceInfo (): ref[TypeInfo];
+            handler this.getMyInterfaceInfo (): ref[TypeInfo];
 
             @expname[TiInterface_getTiObject]
-            func getTiObject (): ref[TiObject];
+            handler this.getTiObject (): ref[TiObject];
         }
 
         macro getInterface [obj, T] castRef[obj.getInterface(T.getTypeInfo()), T];
@@ -137,31 +137,31 @@ import "Srl/String";
             @injection def tiInterface: TiInterface;
 
             @expname[Binding_setMemberByName]
-            func setMember (ptr[array[Char]], ref[TiObject]);
+            handler this.setMember (ptr[array[Char]], ref[TiObject]);
 
             @expname[Binding_setMemberByIndex]
-            func setMember (Int, ref[TiObject]);
+            handler this.setMember (Int, ref[TiObject]);
 
             @expname[Binding_getMemberCount]
-            func getMemberCount ():Word;
+            handler this.getMemberCount ():Word;
 
             @expname[Binding_getMemberByName]
-            func getMember (ptr[array[Char]]):ref[TiObject];
+            handler this.getMember (ptr[array[Char]]):ref[TiObject];
 
             @expname[Binding_getMemberByIndex]
-            func getMember (Int):ref[TiObject];
+            handler this.getMember (Int):ref[TiObject];
 
             @expname[Binding_getMemberNeededTypeByName]
-            func getMemberNeededType (ptr[array[Char]]):ref[TypeInfo];
+            handler this.getMemberNeededType (ptr[array[Char]]):ref[TypeInfo];
 
             @expname[Binding_getMemberNeededTypeByIndex]
-            func getMemberNeededType (Int):ref[TypeInfo];
+            handler this.getMemberNeededType (Int):ref[TypeInfo];
 
             @expname[Binding_getMemberKey]
-            func getMemberKey (Int): Srl.String;
+            handler this.getMemberKey (Int): Srl.String;
 
             @expname[Binding_findMemberIndex]
-            func findMemberIndex (ptr[array[Char]]): Int;
+            handler this.findMemberIndex (ptr[array[Char]]): Int;
 
             defTypeInfoGetter["alusus.org/Core/Core.Basic.Binding"]
         }
@@ -170,16 +170,16 @@ import "Srl/String";
             @injection def tiInterface: TiInterface;
 
             @expname[Containing_setElement]
-            func setElement (Int, ref[TiObject]);
+            handler this.setElement (Int, ref[TiObject]);
 
             @expname[Containing_getElementCount]
-            func getElementCount ():Word;
+            handler this.getElementCount ():Word;
 
             @expname[Containing_getElement]
-            func getElement (Int):ref[TiObject];
+            handler this.getElement (Int):ref[TiObject];
 
             @expname[Containing_getElementNeededType]
-            func getElementNeededType (Int):ref[TypeInfo];
+            handler this.getElementNeededType (Int):ref[TypeInfo];
 
             defTypeInfoGetter["alusus.org/Core/Core.Basic.Containing<alusus.org/Core/Core.Basic.TiObject>"]
         }
@@ -188,16 +188,16 @@ import "Srl/String";
             @injection def containing: Containing;
 
             @expname[DynamicContaining_addElement]
-            func addElement (ref[TiObject]): Int;
+            handler this.addElement (ref[TiObject]): Int;
 
             @expname[DynamicContaining_insertElement]
-            func insertElement (Int, ref[TiObject]);
+            handler this.insertElement (Int, ref[TiObject]);
 
             @expname[DynamicContaining_removeElement]
-            func removeElement (Int);
+            handler this.removeElement (Int);
 
             @expname[DynamicContaining_getElementsNeededType]
-            func getElementsNeededType ():ref[TypeInfo];
+            handler this.getElementsNeededType ():ref[TypeInfo];
 
             defTypeInfoGetter["alusus.org/Core/Core.Basic.DynamicContaining<alusus.org/Core/Core.Basic.TiObject>"]
         }
@@ -206,19 +206,19 @@ import "Srl/String";
             @injection def containing: Containing;
 
             @expname[MapContaining_setElement]
-            func setElement (ptr[array[Char]], ref[TiObject]): Int;
+            handler this.setElement (ptr[array[Char]], ref[TiObject]): Int;
 
             @expname[MapContaining_getElement]
-            func getElement (ptr[array[Char]]): ref[TiObject];
+            handler this.getElement (ptr[array[Char]]): ref[TiObject];
 
             @expname[MapContaining_getElementNeededType]
-            func getElementNeededType (ptr[array[Char]]):ref[TypeInfo];
+            handler this.getElementNeededType (ptr[array[Char]]):ref[TypeInfo];
 
             @expname[MapContaining_getElementKey]
-            func getElementKey (Int): Srl.String;
+            handler this.getElementKey (Int): Srl.String;
 
             @expname[MapContaining_findElementIndex]
-            func findElementIndex (ptr[array[Char]]): Int;
+            handler this.findElementIndex (ptr[array[Char]]): Int;
 
             defTypeInfoGetter["alusus.org/Core/Core.Basic.MapContaining<alusus.org/Core/Core.Basic.TiObject>"]
         }
@@ -227,19 +227,19 @@ import "Srl/String";
             @injection def mapContaining: MapContaining;
 
             @expname[DynamicMapContaining_addElement]
-            func addElement (ptr[array[Char]], ref[TiObject]): Int;
+            handler this.addElement (ptr[array[Char]], ref[TiObject]): Int;
 
             @expname[DynamicMapContaining_insertElement]
-            func insertElement (Int, ptr[array[Char]], ref[TiObject]);
+            handler this.insertElement (Int, ptr[array[Char]], ref[TiObject]);
 
             @expname[DynamicMapContaining_removeElementByIndex]
-            func removeElement (Int);
+            handler this.removeElement (Int);
 
             @expname[DynamicMapContaining_removeElementByKey]
-            func removeElement (ptr[array[Char]]);
+            handler this.removeElement (ptr[array[Char]]);
 
             @expname[DynamicMapContaining_getElementsNeededType]
-            func getElementsNeededType ():ref[TypeInfo];
+            handler this.getElementsNeededType ():ref[TypeInfo];
 
             defTypeInfoGetter["alusus.org/Core/Core.Basic.DynamicMapContaining<alusus.org/Core/Core.Basic.TiObject>"]
         }

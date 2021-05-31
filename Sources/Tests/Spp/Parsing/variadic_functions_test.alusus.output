@@ -12,7 +12,7 @@ ERROR SPPH1007 @ (47,41): Invalid function arg type.
 ERROR CD1003 @ (47,1): Invalid 'def' command.
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -22,7 +22,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -32,7 +32,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -42,7 +42,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 0 0
@@ -52,7 +52,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 1 5
@@ -62,7 +62,7 @@ Function  [Main.Function]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: Map
    x: Identifier: Int [Main.ParamOnlySubject.Identifier]
    args: ArgPack 1 5

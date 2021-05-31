@@ -10,7 +10,7 @@ type A {
         while c-- > 0 this.i += args~next_arg[Int];
     }
 
-    func update (c: Int, args: ...[Int, 1]) {
+    @member func update (this: ref[A], c: Int, args: ...[Int, 1]) {
         this.i = 0;
         while c-- > 0 this.i += args~next_arg[Int];
     }

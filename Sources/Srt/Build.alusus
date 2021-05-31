@@ -53,21 +53,21 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             this.addDependency(e);
         }
 
-        function addDependency (d: String) {
+        handler this.addDependency (d: String) {
             this.deps.add(d);
         }
 
-        function addDependencies(count: Int, args: ...String) {
+        handler this.addDependencies(count: Int, args: ...String) {
             while count-- > 0 this.deps.add(args~next_arg[String]);
         }
 
-        function addDependency (e: ref[TiObject]) => Bool {
+        handler this.addDependency (e: ref[TiObject]) => Bool {
             if !this.addDependenciesFromModifier(e, "deps") return false;
             if !this.addDependenciesFromModifier(e, "اعتماديات") return false;
             return true;
         }
 
-        function addDependenciesFromModifier (e: ref[TiObject], modifierKwd: ptr[array[Char]]) => Bool {
+        handler this.addDependenciesFromModifier (e: ref[TiObject], modifierKwd: ptr[array[Char]]) => Bool {
             def modifier: ref[TiObject](Spp.astMgr.findModifierForElement(e, modifierKwd));
             if modifier~ptr != 0 {
                 def deps: Array[String];
@@ -78,11 +78,11 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             return true;
         }
 
-        function addFlag(f: String) {
+        handler this.addFlag(f: String) {
             this.flags.add(f);
         }
 
-        function addFlags(count: Int, args: ...String) {
+        handler this.addFlags(count: Int, args: ...String) {
             while count-- > 0 this.flags.add(args~next_arg[String]);
         }
     }
@@ -94,7 +94,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             this.unit~init(e, fn);
         }
 
-        function getDepsString (): String {
+        handler this.getDepsString (): String {
             def depsString: String("");
             def i: Word;
             for i = 0, i < this.deps.getLength(), ++i {
@@ -104,7 +104,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             return depsString;
         }
 
-        function generate () => Bool {
+        handler this.generate () => Bool {
             if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", 0) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
                 return false;
@@ -122,7 +122,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             return true;
         }
 
-        @shared function getLinkerFilename (): ptr[array[Char]] {
+        function getLinkerFilename (): ptr[array[Char]] {
             def envCmd: ptr[array[Char]] = envCmd = System.getEnv("ALUSUS_GCC");
             if envCmd != 0 and doesExecutableExist(envCmd) return envCmd
             else if doesExecutableExist("gcc") return "gcc"
@@ -144,7 +144,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             this.unit~init(e, fn);
         }
 
-        function getDepsString (): String {
+        handler this.getDepsString (): String {
             def depsString: String("");
             def i: Word;
             for i = 0, i < this.deps.getLength(), ++i {
@@ -154,7 +154,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             return depsString;
         }
 
-        function generate () => Bool {
+        handler this.generate () => Bool {
             if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", "wasm32-unknown-unknown") {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
                 return false;
@@ -172,7 +172,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             return true;
         }
 
-        @shared function getLinkerFilename (): ptr[array[Char]] {
+        function getLinkerFilename (): ptr[array[Char]] {
             def envCmd: ptr[array[Char]] = envCmd = System.getEnv("ALUSUS_WASM_LD");
             if envCmd != 0 and doesExecutableExist(envCmd) return envCmd
             else if doesExecutableExist("wasm-ld") return "wasm-ld"

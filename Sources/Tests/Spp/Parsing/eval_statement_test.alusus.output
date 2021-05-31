@@ -1,6 +1,6 @@
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
- type: FunctionType shared: 0, bindDisabled: 0 [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
   argTypes: NULL
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]

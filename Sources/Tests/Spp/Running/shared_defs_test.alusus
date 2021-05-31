@@ -16,7 +16,7 @@ def Main: module
 
     @shared def t: MyType;
 
-    def printIt: @shared function
+    def printIt: function
     {
       @shared def z: Int(Int(1)); // initialize shared var from a temp var.
       print("y = %d\n", y);

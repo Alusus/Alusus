@@ -504,24 +504,24 @@ template<class T> class StringBase
 // Function Specializations
 
 template<> inline void StringBase<Char>::append(LongInt i) {
-  Char buf[20];
+  Char buf[22];
   sprintf(buf, "%ld", i);
   this->append(buf);
 }
 template<> inline void StringBase<WChar>::append(LongInt i) {
-  WChar buf[20];
-  swprintf(buf, 20, L"%ld", i);
+  WChar buf[22];
+  swprintf(buf, 22, L"%ld", i);
   this->append(buf);
 }
 
 template<> inline void StringBase<Char>::append(Double d) {
-  Char buf[20];
+  Char buf[22];
   sprintf(buf, "%f", d);
   this->append(buf);
 }
 template<> inline void StringBase<WChar>::append(Double d) {
-  WChar buf[20];
-  swprintf(buf, 20, L"%f", d);
+  WChar buf[22];
+  swprintf(buf, 22, L"%f", d);
   this->append(buf);
 }
 

@@ -7,7 +7,7 @@ module Core {
 module Spp {
     type BuildMgr {
         @expname[Spp_BuildMgr_dumpLlvmIrForElement]
-        function dumpLlvmIrForElement (element: ref[Core.Basic.TiObject]);
+        handler this.dumpLlvmIrForElement (element: ref[Core.Basic.TiObject]);
     };
     def buildMgr: ref[BuildMgr];
 }

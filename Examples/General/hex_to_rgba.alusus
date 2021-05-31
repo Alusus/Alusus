@@ -25,7 +25,7 @@ type Rgba {
     def b: Word[8];
     def a: Word[8];
 
-    func print {
+    handler this.print() {
         Console.print(
             "r=%d, g=%d, b=%d, a=%d\n", this.r~cast[Int], this.g~cast[Int], this.b~cast[Int], this.a~cast[Int]
         );

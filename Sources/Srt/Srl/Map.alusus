@@ -87,21 +87,21 @@ import "System";
         //=================
         // Member Functions
 
-        func keyAt(i: ArchInt): ref[T1] {
+        handler this.keyAt(i: ArchInt): ref[T1] {
             if i < 0 || i >= this.keys.getLength() {
                 System.fail(1, "Argument `i` is out of range.");
             }
             return this.keys(i);
         }
 
-        func valAt(i: ArchInt): ref[T2] {
+        handler this.valAt(i: ArchInt): ref[T2] {
             if i < 0 || i >= this.keys.getLength() {
                 System.fail(1, "Argument `i` is out of range.");
             }
             return this.values(i);
         }
 
-        func set(key: T1, value: T2): ref[Map[T1, T2]] {
+        handler this.set(key: T1, value: T2): ref[Map[T1, T2]] {
             def pos: ArchInt = this.findPos(key);
             if pos == -1 {
                 this.keys.add(key);
@@ -113,7 +113,7 @@ import "System";
             return this;
         };
 
-        func setAt(i: ArchInt, value: T2): ref[Map[T1, T2]] {
+        handler this.setAt(i: ArchInt, value: T2): ref[Map[T1, T2]] {
             if i < 0 || i >= this.keys.getLength() {
                 System.fail(1, "Argument `i` is out of range.");
             }
@@ -121,20 +121,20 @@ import "System";
             return this;
         }
 
-        func insert(i: ArchInt, key: T1, value: T2) {
+        handler this.insert(i: ArchInt, key: T1, value: T2) {
             this.keys.insert(key);
             this.values.insert(value);
             if this.keysIndex~ptr != 0 this.keysIndex.add(i);
         }
 
-        func remove(key: T1): Bool {
+        handler this.remove(key: T1): Bool {
             def pos: ArchInt = this.findPos(key);
             if pos == -1 return false;
             this.removeAt(pos);
             return true;
         };
 
-        func removeAt(i: ArchInt) {
+        handler this.removeAt(i: ArchInt) {
             if i < 0 || i >= this.keys.getLength() {
                 System.fail(1, "Argument `i` is out of range.");
             }
@@ -143,17 +143,17 @@ import "System";
             if this.keysIndex~ptr != 0 this.keysIndex.remove(i);
         };
 
-        func clear {
+        handler this.clear() {
             this.keys.clear();
             this.values.clear();
             if this.keysIndex~ptr != 0 this.keysIndex.clear();
         };
 
-        func getLength(): ArchInt {
+        handler this.getLength(): ArchInt {
             return this.keys.getLength();
         };
 
-        func findPos (key: T1): ArchInt {
+        handler this.findPos (key: T1): ArchInt {
             if this.keysIndex~ptr == 0 {
                 return this.keys.findPos(key);
             } else {

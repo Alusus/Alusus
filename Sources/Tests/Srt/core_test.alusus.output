@@ -43,8 +43,7 @@ Core.Data.Ast.List
        members:
        -prodId: TiWord 248
        -sourceLocation: Core.Data.SourceLocationRecord
-       -shared: TiBool true
-       -bindDisabled: TiBool false
+       -member: TiBool false
        map elements:
        -argTypes: NULL
        -retType: NULL

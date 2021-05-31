@@ -35,8 +35,8 @@ def Main: module
 
   def Rec: type
   {
-    def pget: ptr[@shared @no_bind function ()=>Int[32]];
-    def pmul: ptr[@shared @no_bind function (n: Int[32])=>Int[32]];
+    def pget: ptr[function ()=>Int[32]];
+    def pmul: ptr[function (n: Int[32])=>Int[32]];
   };
 
   def pget2: ptr[function ()=>Int[32]];

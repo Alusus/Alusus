@@ -6,12 +6,12 @@ type MyType [T: type, f: function, i: integer, s: string = "default string\n"]
 {
   def v: T;
 
-  function print()
+  @member function print(this: ref[this_type])
   {
     printf(s, this.v, i);
   };
 
-  function callAction
+  @member function callAction (this: ref[this_type])
   {
     f();
   };

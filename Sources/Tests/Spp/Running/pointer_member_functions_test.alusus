@@ -2,7 +2,7 @@ import "Srl/Console";
 use Srl;
 
 type N_vtable {
-    def printIt: ptr[@shared func(this: ref[N])];
+    def printIt: ptr[@member func(this: ref[N])];
 }
 
 type N {
@@ -10,7 +10,7 @@ type N {
     @no_bind @injection def vtableRef: ref[N_vtable];
     vtableRef~no_deref = vtable;
     def i: Int;
-    func printItImpl {
+    func printItImpl (this: ref[N]) {
         Console.print("N.printIt %d\n", this.i);
     }
     vtableRef.printIt = printItImpl~ptr;
@@ -23,7 +23,7 @@ type N2 {
     def j: Int;
     j = 0;
 
-    @shared func printItImpl (this: ref[N2]) {
+    func printItImpl (this: ref[N2]) {
         Console.print("N2.printIt %d\n", this.i + this.j);
     }
     vtableRef.printIt = printItImpl~ptr~cast[N_vtable.printIt~type];
@@ -45,27 +45,27 @@ Console.print("\n");
 type M {
     def i: Int;
 
-    func printItImpl {
+    func printItImpl (this: ref[M]) {
         Console.print("M.printIt %d\n", this.i);
     }
-    def printIt: ptr[func](printItImpl~ptr);
+    def printIt: ptr[@member func (ref[M])](printItImpl~ptr);
 
-    func printItImpl2(extra: Int) {
+    func printItImpl2(this: ref[M], extra: Int) {
         Console.print("M.printIt2 %d\n", this.i + extra);
     }
-    def printIt2: ptr[func(Int)](printItImpl2~ptr);
+    def printIt2: ptr[@member func(ref[M], Int)](printItImpl2~ptr);
 
-    @shared func printIt3 (self: ref[M]) {
+    @member func printIt3 (self: ref[M]) {
         Console.print("M.printIt3 %d\n", self.i);
     }
 
-    @shared func printIt4Impl (i: Int) {
+    func printIt4Impl (i: Int) {
         Console.print("M.printIt4 %d\n", i);
     }
-    def printIt4: ptr[@no_bind @shared func(Int)](printIt4Impl~ptr);
-    def printIt5: ptr[@shared func(Int)](printIt4Impl~ptr);
+    def printIt4: ptr[func(Int)](printIt4Impl~ptr);
+    def printIt5: ptr[@member func(Int)](printIt4Impl~ptr);
 
-    @no_bind @shared func printIt6 (self: ref[M]) {
+    func printIt6 (self: ref[M]) {
         Console.print("M.printIt6 %d\n", self.i);
     }
 }

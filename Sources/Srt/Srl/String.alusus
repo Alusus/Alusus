@@ -54,20 +54,20 @@ import "Array";
         //=================
         // Member Functions
 
-        func _init {
+        handler this._init() {
             @shared def strTerminator: T(0);
             this.buf = strTerminator~ptr~cast[ptr[array[T]]];
             this.refCount~ptr = 0;
         };
 
-        func _alloc (length: ArchInt) {
+        handler this._alloc (length: ArchInt) {
             if length < 0 length = 0;
             this.refCount~ptr = Memory.alloc(Int[32]~size + T~size * (length + 1))~cast[ptr[Int[32]]];
             this.buf = (this.refCount~ptr + 1)~cast[ptr[array[T]]];
             this.refCount = 1;
         };
 
-        func _realloc (newLength: ArchInt) {
+        handler this._realloc (newLength: ArchInt) {
             if newLength < 0 newLength = 0;
             this.refCount~ptr = Memory.realloc(
                 this.refCount~ptr, Int[32]~size + T~size * (newLength + 1)
@@ -75,7 +75,7 @@ import "Array";
             this.buf = (this.refCount~ptr + 1)~cast[ptr[array[T]]];
         };
 
-        func _release {
+        handler this._release() {
             if this.refCount~ptr != 0 {
                 --this.refCount;
                 if this.refCount == 0 Memory.free(this.refCount~ptr);
@@ -83,16 +83,16 @@ import "Array";
             };
         };
 
-        func getLength ():ArchInt {
+        handler this.getLength ():ArchInt {
             return getLength(this.buf);
         };
 
-        func alloc (length: ArchInt) {
+        handler this.alloc (length: ArchInt) {
             this._release();
             this._alloc(length);
         };
 
-        func assign (str: ref[StringBase[T]]) {
+        handler this.assign (str: ref[StringBase[T]]) {
             this._release();
             this.refCount~ptr = str.refCount~ptr;
             this.buf = str.buf;
@@ -101,7 +101,7 @@ import "Array";
             };
         };
 
-        func assign (buf: ptr[array[T]]) {
+        handler this.assign (buf: ptr[array[T]]) {
             this._release();
             if buf != 0 {
                 this._alloc(getLength(buf));
@@ -109,18 +109,18 @@ import "Array";
             }
         };
 
-        func assign (buf: ptr[array[T]], n: ArchInt) {
+        handler this.assign (buf: ptr[array[T]], n: ArchInt) {
             this._release();
             this._alloc(n);
             copy(this.buf, buf, n);
             this.buf~cnt(n) = 0;
         };
 
-        func append (buf: ptr[array[T]]) {
+        handler this.append (buf: ptr[array[T]]) {
             this.append(buf, getLength(buf));
         };
 
-        func append (buf: ptr[array[T]], n: ArchInt) {
+        handler this.append (buf: ptr[array[T]], n: ArchInt) {
             def bufLen: ArchInt = getLength(buf);
             if bufLen == 0 return;
             def thisBufLen: ArchInt = this.getLength();
@@ -146,45 +146,45 @@ import "Array";
             };
         };
 
-        func append (c: T) {
+        handler this.append (c: T) {
             this.append(c~ptr~cast[ptr[array[T]]], 1);
         };
 
-        func concat (buf: ptr[array[T]]): StringBase[T] {
+        handler this.concat (buf: ptr[array[T]]): StringBase[T] {
             def newStr: StringBase[T] = this;
             newStr.append(buf);
             return newStr;
         };
 
-        func concat (buf: ptr[array[T]], n: ArchInt): StringBase[T] {
+        handler this.concat (buf: ptr[array[T]], n: ArchInt): StringBase[T] {
             def newStr: StringBase[T] = this;
             newStr.append(buf, n);
             return newStr;
         };
 
-        func concat (c: T): StringBase[T] {
+        handler this.concat (c: T): StringBase[T] {
             def newStr: StringBase[T] = this;
             newStr.append(c);
             return newStr;
         };
 
-        func concat (i: Int[64]): StringBase[T] {
+        handler this.concat (i: Int[64]): StringBase[T] {
             def newStr: StringBase[T] = this;
             newStr.append(i);
             return newStr;
         };
 
-        func concat (f: Float[64]): StringBase[T] {
+        handler this.concat (f: Float[64]): StringBase[T] {
             def newStr: StringBase[T] = this;
             newStr.append(f);
             return newStr;
         };
 
-        func find (buf: ptr[array[T]]): ArchInt {
+        handler this.find (buf: ptr[array[T]]): ArchInt {
             return this.find(0, buf);
         };
 
-        func find (startPos: ArchInt, buf: ptr[array[T]]): ArchInt {
+        handler this.find (startPos: ArchInt, buf: ptr[array[T]]): ArchInt {
             def startBuf: ptr[array[T]] = this.buf;
             while startBuf~cnt(0) != 0 && startPos > 0 {
                 --startPos;
@@ -196,18 +196,18 @@ import "Array";
             return pos~cast[ArchInt] - this.buf~cast[ArchInt];
         };
 
-        func findLast (buf: ptr[array[T]]): ArchInt {
+        handler this.findLast (buf: ptr[array[T]]): ArchInt {
             if this.buf == 0 return -1;
             def pos: ptr = findLast(this.buf, buf);
             if pos == 0 return -1;
             return pos~cast[ArchInt] - this.buf~cast[ArchInt];
         };
 
-        func find (c: T): ArchInt {
+        handler this.find (c: T): ArchInt {
             return this.find(0, c);
         };
 
-        func find (startPos: ArchInt, c: T): ArchInt {
+        handler this.find (startPos: ArchInt, c: T): ArchInt {
             def startBuf: ptr[array[T]] = this.buf;
             while startBuf~cnt(0) != 0 && startPos > 0 {
                 --startPos;
@@ -219,22 +219,22 @@ import "Array";
             return pos~cast[ArchInt] - this.buf~cast[ArchInt];
         };
 
-        func findLast (c: T): ArchInt {
+        handler this.findLast (c: T): ArchInt {
             if this.buf == 0 return -1;
             def pos: ptr = findLast(this.buf, c);
             if pos == 0 return -1;
             return pos~cast[ArchInt] - this.buf~cast[ArchInt];
         };
 
-        func compare (s: ptr[array[T]]): Int {
+        handler this.compare (s: ptr[array[T]]): Int {
             return compare(this.buf, s);
         };
 
-        func compare(s: ptr[array[T]], n: ArchInt): Int {
+        handler this.compare(s: ptr[array[T]], n: ArchInt): Int {
             return compare(this.buf, s, n);
         };
 
-        func replace (match: ptr[array[T]], replacement: ptr[array[T]]): StringBase[T] {
+        handler this.replace (match: ptr[array[T]], replacement: ptr[array[T]]): StringBase[T] {
             def str: StringBase[T];
             def matchLength: ArchInt = getLength(match);
             def buf: ptr[array[T]] = this.buf;
@@ -252,19 +252,19 @@ import "Array";
             return str;
         };
 
-        func trim (): StringBase[T] {
+        handler this.trim (): StringBase[T] {
             return this._trim(true, true);
         };
 
-        func trimStart (): StringBase[T] {
+        handler this.trimStart (): StringBase[T] {
             return this._trim(true, false);
         };
 
-        func trimEnd (): StringBase[T] {
+        handler this.trimEnd (): StringBase[T] {
             return this._trim(false, true);
         };
 
-        func _trim (trimStart: Bool, trimEnd: Bool): StringBase[T] {
+        handler this._trim (trimStart: Bool, trimEnd: Bool): StringBase[T] {
             if this.getLength() == 0 return StringBase[T]();
             def begin: ArchInt = 0;
             def end: ArchInt = this.getLength() - 1;
@@ -279,7 +279,7 @@ import "Array";
             };
         };
 
-        func toUpperCase(): StringBase[T] {
+        handler this.toUpperCase(): StringBase[T] {
             def str: StringBase[T] = StringBase[T]();
             def charIndex: ArchInt;
             for charIndex=0, charIndex<this.getLength(), charIndex++ {
@@ -288,7 +288,7 @@ import "Array";
             return str;
         }
 
-        func toLowerCase(): StringBase[T] {
+        handler this.toLowerCase(): StringBase[T] {
             def str: StringBase[T] = StringBase[T]();
             def charIndex: ArchInt;
             for charIndex=0, charIndex<this.getLength(), charIndex++ {
@@ -297,7 +297,7 @@ import "Array";
             return str;
         }
 
-        func slice (begin: ArchInt, count: ArchInt): StringBase[T] {
+        handler this.slice (begin: ArchInt, count: ArchInt): StringBase[T] {
             def str: StringBase[T];
             def l: ArchInt = this.getLength();
             if begin >= l return str;
@@ -305,7 +305,7 @@ import "Array";
             return str;
         };
 
-        func split (separator: ptr[array[T]]): Array[StringBase[T]] {
+        handler this.split (separator: ptr[array[T]]): Array[StringBase[T]] {
             def ary: Array[StringBase[T]];
             def str: StringBase[T];
             def matchLength: ArchInt = getLength(separator);
@@ -325,7 +325,6 @@ import "Array";
             return ary;
         };
 
-        @shared
         func merge (ary: Array[StringBase[T]], separator: ptr[array[T]]): StringBase[T] {
             def str: StringBase[T];
             def i: ArchInt;
@@ -336,7 +335,6 @@ import "Array";
             return str;
         };
 
-        @shared
         func merge (ary: Array[ptr[array[T]]], separator: ptr[array[T]]): StringBase[T] {
             def str: StringBase[T];
             def i: ArchInt;
@@ -347,7 +345,7 @@ import "Array";
             return str;
         };
 
-        func clear {
+        handler this.clear() {
             this._release();
         }
 
@@ -384,17 +382,14 @@ import "Array";
         //=================
         // Static Functions
 
-        @shared
         func isSpace (c: T): Bool {
             return c != 0 && (c == ' ' || c == '\n' || c == '\r' || c == '\t');
         };
 
-        @shared
         func isEqual(s1: ptr[array[T]], s2: ptr[array[T]]): Bool {
             return compare(s1, s2) == 0;
         };
 
-        @shared
         func remove(chrs: ptr[array[T]], chr: T): ptr[array[T]] {
             def pointer: ptr[array[T]] = find(chrs, chr);
             while pointer != 0 {
@@ -404,7 +399,6 @@ import "Array";
             return chrs;
         };
 
-        @shared
         func replace(chrs: ptr[array[T]], fromCharacter: T, toCharacter: T): ptr[array[T]] {
             def pointer: ptr[T] = find(chrs, fromCharacter);
             while pointer != 0 {
@@ -414,7 +408,6 @@ import "Array";
             return chrs;
         };
 
-        @shared
         func charAt(chrs: ptr[array[T]], index: Int): ptr[array[T]] {
             @shared
             def buffer: array[T, 2];
@@ -423,7 +416,6 @@ import "Array";
             return buffer~ptr;
         };
 
-        @shared
         func findLast(haystack: ptr[T], needle: ptr[T]): ptr[T] {
             if (needle~cnt == 0) return haystack;
 
@@ -445,12 +437,12 @@ import "Array";
     def String: alias StringBase[Char];
 
     @merge type String {
-        func append (i: Int[64]) {
+        handler this.append (i: Int[64]) {
             this._append(i, 1);
         }
 
-        func _append (i: Int[64], minDigits: Int) {
-            def buf: array[Char, 20];
+        handler this._append (i: Int[64], minDigits: Int) {
+            def buf: array[Char, 22];
             def strptr: ptr[Char] = buf(19)~ptr;
             strptr~cnt = 0;
             def negative: Bool = 0;
@@ -470,7 +462,7 @@ import "Array";
             this.append(strptr~cast[CharsPtr]);
         };
 
-        func append (f: Float[64]) {
+        handler this.append (f: Float[64]) {
             if f < 0 {
                 f *= -1;
                 this.append('-');
@@ -481,58 +473,55 @@ import "Array";
             this._append((fractions * 1000000.0f64 + 0.5f64)~cast[Int[64]], 6);
         };
 
-        @shared @expname[strchr]
+        @expname[strchr]
         func find(s: ptr[Char], c: Int): ptr[Char];
 
-        @shared @expname[memchr]
+        @expname[memchr]
         func find(s: ptr[Void], c: Int, n: ArchInt): ptr[Void];
 
-        @shared @expname[strrchr]
+        @expname[strrchr]
         func findLast(s: ptr[Char], c: Int): ptr[Char];
 
-        @shared @expname[strstr]
+        @expname[strstr]
         func find(haystack: ptr[Char], needle: ptr[Char]): ptr[Char];
 
-        @shared @expname[strcmp]
+        @expname[strcmp]
         func compare(s1: ptr[Char], s2: ptr[Char]): Int;
 
-        @shared @expname[strncmp]
+        @expname[strncmp]
         func compare(s1: ptr[Char], s2: ptr[Char], n: ArchInt): Int;
 
-        @shared @expname[strcpy]
+        @expname[strcpy]
         func copy(dest: ptr[Char], src: ptr[Char]): ptr[Void];
 
-        @shared @expname[strncpy]
+        @expname[strncpy]
         func copy(dest: ptr[Char], src: ptr[Char], n: ArchInt): ptr[Void];
 
-        @shared @expname[strcat]
+        @expname[strcat]
         func concat(dest: ptr[Char], src: ptr[Char]): ptr[Char];
 
-        @shared @expname[strncat]
+        @expname[strncat]
         func concat(dest: ptr[Char], src: ptr[Char], n: ArchInt): ptr[Char];
 
-        @shared @expname[strlen]
+        @expname[strlen]
         func getLength(s: ptr[Char]): ArchInt;
 
-        @shared @expname[sprintf]
+        @expname[sprintf]
         func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];
 
-        @shared @expname[sscanf]
+        @expname[sscanf]
         func scan(source: ptr[Char], format: ptr[Char], args: ...any): Int[32];
 
-        @shared
         func toUpper(c: int): int {
             if c >= 'a' && c <= 'z' return c - 'a' + 'A'
             else return c;
         }
 
-        @shared
         func toLower(c: int): int {
             if c >= 'A' && c <= 'Z' return c - 'A' + 'a'
             else return c;
         }
 
-        @shared
         func format(format: ptr[array[Char]], args: ...any): String {
             def str: String;
             while 1 {
@@ -556,7 +545,6 @@ import "Array";
             return str;
         }
 
-        @shared
         func parseInt (chars: ptr[array[Char]]): Int[64] {
             def negative: Bool(0);
             def result: Int[64](0);
@@ -573,7 +561,6 @@ import "Array";
             if negative return -result else return result;
         }
 
-        @shared
         func parseFloat (chars: ptr[array[Char]]): Float[64] {
             def negative: Bool(0);
             def result: Float[64](0);

@@ -17,49 +17,49 @@ import "String";
     def WString: alias StringBase[Char];
 
     @merge type WString {
-        @shared @expname[wcschr]
+        @expname[wcschr]
         func find(s: ptr[Word], c: Word): ptr[Word];
 
-        @shared @expname[wmemchr]
+        @expname[wmemchr]
         func find(s: ptr[Word], c: Word, n: ArchInt): ptr[Word];
 
-        @shared @expname[wcsrchr]
+        @expname[wcsrchr]
         func findLast(s: ptr[Word], c: Word): ptr[Word];
 
-        @shared @expname[wcsstr]
+        @expname[wcsstr]
         func find(haystack: ptr[Word], needle: ptr[Word]): ptr[Word];
 
-        @shared @expname[wcscmp]
+        @expname[wcscmp]
         func compare(s1: ptr[Word], s2: ptr[Word]): Int;
 
-        @shared @expname[wcsncmp]
+        @expname[wcsncmp]
         func compare(s1: ptr[Word], s2: ptr[Word], n: ArchInt): Int;
 
-        @shared @expname[wcscpy]
+        @expname[wcscpy]
         func copy(dest: ptr[Word], src: ptr[Word]): ptr[Word];
 
-        @shared @expname[wcsncpy]
+        @expname[wcsncpy]
         func copy(dest: ptr[Word], src: ptr[Word], n: ArchInt): ptr[Word];
 
-        @shared @expname[wcscat]
+        @expname[wcscat]
         func concat(dest: ptr[Word], src: ptr[Word]): ptr[Word];
 
-        @shared @expname[wcsncat]
+        @expname[wcsncat]
         func concat(dest: ptr[Word], src: ptr[Word], n: ArchInt): ptr[Word];
 
-        @shared @expname[wcslen]
+        @expname[wcslen]
         func getLength(s: ptr[Word]): ArchInt;
 
-        // @shared @expname[sprintf]
+        // @expname[sprintf]
         // func assign(target: ptr[Char], format: ptr[Char], args: ...any): Int[32];
 
-        @shared @expname[swscanf]
+        @expname[swscanf]
         func scan(source: ptr[Word], format: ptr[Word], args: ...any): Int[32];
 
-        @shared @expname[towupper]
+        @expname[towupper]
         func toUpper(c: Word): Word;
 
-        @shared @expname[towlower]
+        @expname[towlower]
         func toLower(c: Word): Word;
     };
 };

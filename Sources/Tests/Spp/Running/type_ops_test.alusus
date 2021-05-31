@@ -78,8 +78,8 @@ type T {
     handler this.myprop1:Int return this.j;
 
     @operation[""]
-    def myprop2: ptr[function ():Int];
-    func myprop2Imp (): Int {
+    def myprop2: ptr[@member function (this: ref[this_type]):Int];
+    func myprop2Imp (this: ref[this_type]): Int {
         return this.a.k;
     }
     myprop2 = myprop2Imp~ptr;
@@ -88,33 +88,33 @@ type T {
     handler this.myprop4:ref[A] return this.a;
 
     @operation[""]
-    def myprop5: ptr[function ():ref[A]];
-    func myprop5Imp (): ref[A] {
+    def myprop5: ptr[@member function (this: ref[this_type]):ref[A]];
+    func myprop5Imp (this: ref[this_type]): ref[A] {
         return this.a;
     }
     myprop5 = myprop5Imp~ptr;
 
     @operation[""]
-    def prop6: ptr[func ():Int];
-    func prop6ReadImp (): Int { print("Fetching prop6...\n"); return this.a.k };
+    def prop6: ptr[@member func (this: ref[this_type]):Int];
+    func prop6ReadImp (this: ref[this_type]): Int { print("Fetching prop6...\n"); return this.a.k };
     prop6 = prop6ReadImp~ptr;
 
     @operation["="]
-    def prop6: ptr[func (Int)];
-    func prop6Imp (v: Int) { print("Assigning prop6...\n"); this.a.k = v }
+    def prop6: ptr[@member func (this: ref[this_type], Int)];
+    func prop6Imp (this: ref[this_type], v: Int) { print("Assigning prop6...\n"); this.a.k = v }
     prop6 = prop6Imp~ptr;
 
     handler this.prop7:Int { print("Fetching prop7...\n"); return this.a.k; }
     handler this.prop7=Int { print("Assigning prop7...\n"); this.a.k = value; return this.a.k; }
 
     @operation[""]
-    def prop8: ptr[func ():Int];
-    func prop8ReadImp (): Int { print("Fetching prop8...\n"); return this.a.k };
+    def prop8: ptr[@member func (this: ref[this_type]):Int];
+    func prop8ReadImp (this: ref[this_type]): Int { print("Fetching prop8...\n"); return this.a.k };
     prop8 = prop8ReadImp~ptr;
 
     @operation["+="]
-    def prop8: ptr[func (Int)];
-    func prop8Imp (v: Int) { print("Assigning prop8...\n"); this.a.k = v }
+    def prop8: ptr[@member func (this: ref[this_type], Int)];
+    func prop8Imp (this: ref[this_type], v: Int) { print("Assigning prop8...\n"); this.a.k = v }
     prop8 = prop8Imp~ptr;
 
     handler this.prop9:Int { print("Fetching prop9...\n"); return this.a.k; }

@@ -19,7 +19,6 @@ import "curl";
   def Net: module
   {
     type Curl {
-      @shared
       func exec(curlHandle: ptr[Curl], resultCount: ptr[Int], responseCode: ptr[Int]): ptr {
         def result: ptr = 0;
 
@@ -44,13 +43,11 @@ import "curl";
         return null;
       }
 
-      @shared
       func exec(curlHandle: ptr[Curl], resultCount: ptr[Int]): ptr {
         def responseCode: Int = 0;
         return exec(curlHandle, resultCount, responseCode~ptr);
       }
 
-      @shared
       func exec(curlHandle: ptr[Curl]): ptr {
         def resultCount: Int = 0;
         def responseCode: Int = 0;
@@ -321,23 +318,18 @@ import "curl";
     };
 
     type CurlSlist {
-      @shared
       @expname[curl_slist_append]
       func append(curlSlist: ptr[CurlSlist], string: ptr[array[Char]]): ptr[CurlSlist];
 
-      @shared
       @expname[Curl_slist_append_nodup]
       func appendNodup(curlSlist: ptr[CurlSlist], string: ptr[array[Char]]): ptr[CurlSlist];
 
-      @shared
       @expname[slist_get_last]
       func getLast(curlSlist: ptr[CurlSlist]): ptr[CurlSlist];
 
-      @shared
       @expname[Curl_slist_duplicate]
       func duplicate(curlSlist: ptr[CurlSlist]): ptr[CurlSlist];
 
-      @shared
       @expname[curl_slist_free_all]
       func freeAll(curlSlist: ptr[CurlSlist]): Void;
     };
