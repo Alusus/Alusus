@@ -1,0 +1,36 @@
+import "Srl/Console";
+use Srl;
+
+func callFunc(fp: ptr[function]) {
+    fp();
+}
+
+func testAnonymous {
+    callFunc(func {
+        Console.print("testAnonymous!\n");
+    });
+}
+testAnonymous();
+
+func testNamedInExp {
+    callFunc(func namedFunc {
+        Console.print("testNamedInExp!\n");
+    });
+}
+testNamedInExp();
+
+func testAccessingOwnerVars {
+    def i: Int;
+    i = 5;
+    callFunc(func {
+        Console.print("testAccessingOwnerVars %d!\n", i++);
+    });
+}
+testAccessingOwnerVars();
+
+func testAccessingOwnerArgs (i: Int) {
+    callFunc(func {
+        Console.print("testAccessingOwnerVars %d!\n", i++);
+    });
+}
+testAccessingOwnerArgs(6);

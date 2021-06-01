@@ -64,7 +64,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
   if (request.ref != 0) {
     auto target = request.target;
     Int tracingAlias = 0;
-    auto callback = [=, &request, &result, &target, &tracingAlias]
+    Bool searchingFunctionOwners = false;
+    auto callback = [=, &request, &result, &target, &tracingAlias, &searchingFunctionOwners]
       (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
         if (action == Core::Data::Seeker::Action::ERROR) {
@@ -83,6 +84,17 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         } else if (action == Core::Data::Seeker::Action::ALIAS_TRACE_END) {
           --tracingAlias;
           return Core::Data::Seeker::Verb::MOVE;
+        }
+
+        // If we are going out of the current function then we should only be able to access global variables.
+        if (
+          searchingFunctionOwners && tracer->helper->isAstReference(obj) &&
+          tracer->helper->getVariableDomain(obj) == Ast::DefinitionDomain::FUNCTION
+        ) {
+          result.notice = newSrdObj<Spp::Notices::AccessingLocalVarInOtherFuncNotice>(
+            Core::Data::Ast::findSourceLocation(request.astNode)
+          );
+          return Core::Data::Seeker::Verb::STOP;
         }
 
         if (action != Core::Data::Seeker::Action::TARGET_MATCH || obj == 0) return Core::Data::Seeker::Verb::MOVE;
@@ -203,6 +215,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       }
 
       if (!request.searchTargetOwners || result.isNameMatched()) break;
+
+      if (ti_cast<Ast::Function>(target) != 0) searchingFunctionOwners = true;
 
       target = static_cast<Core::Data::Node*>(target)->getOwner();
       if (ti_cast<Ast::DataType>(target) != 0) {

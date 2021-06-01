@@ -692,10 +692,16 @@ Str Helper::_resolveNodePath(TiObject *self, Core::Data::Node const *node)
 
 Str const& Helper::_getFunctionName(TiObject *self, Function *astFunc)
 {
+  static LongInt anonymousFuncIndex = 0;
   if (astFunc->getName().getStr() == S("")) {
-    PREPARE_SELF(helper, Helper);
-    Str name = helper->nodePathResolver->doResolve(astFunc, helper);
-    astFunc->setName(name);
+    if (ti_cast<Core::Data::Ast::Definition>(astFunc->getOwner()) == 0) {
+      // This is a anonymous function.
+      astFunc->setName(Str("__anonymousfunc__") + (anonymousFuncIndex++));
+    } else {
+      PREPARE_SELF(helper, Helper);
+      Str name = helper->nodePathResolver->doResolve(astFunc, helper);
+      astFunc->setName(name);
+    }
   }
   return astFunc->getName().getStr();
 }
