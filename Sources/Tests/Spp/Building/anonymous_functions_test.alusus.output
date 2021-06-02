@@ -11,11 +11,11 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 define void @"testAnonymous()"() {
 "#block0":
-  call void @"callFunc(ptr[()])"(void ()* @__anonymousfunc__3)
+  call void @"callFunc(ptr[()])"(void ()* @__anonymousfunc__0)
   ret void
 }
 
-define void @__anonymousfunc__3() {
+define void @__anonymousfunc__0() {
 "#block1":
   %0 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @"#anonymous0", i32 0, i32 0))
   ret void
@@ -83,11 +83,11 @@ define void @"testAccessingOwnerVars()"() {
 "#block0":
   %i = alloca i32
   store i32 5, i32* %i
-  call void @"callFunc(ptr[()])"(void ()* @__anonymousfunc__4)
+  call void @"callFunc(ptr[()])"(void ()* @__anonymousfunc__1)
   ret void
 }
 
-define void @__anonymousfunc__4() {
+define void @__anonymousfunc__1() {
 "#block1":
   ret void
 }

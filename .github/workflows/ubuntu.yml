@@ -23,4 +23,4 @@ jobs:
       run:  ./Tools/build.sh --bloc . --iloc .
     - name: automated tests alusus
       run:  |
-        cd Builds/Debug && make test
+        cd Builds/Debug && make ARGS=-V test
