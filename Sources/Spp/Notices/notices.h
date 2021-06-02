@@ -73,6 +73,9 @@ DEFINE_NOTICE(MissingTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1013",
 DEFINE_NOTICE(MissingTypeMergeTargetNotice, "Core.Notices", "Core", "alusus.org", "SPPA1014", 1,
   "Trying to merge a type with a non-existing target."
 );
+DEFINE_NOTICE(AccessingLocalVarInOtherFuncNotice, "Core.Notices", "Core", "alusus.org", "SPPA1015", 1,
+  "Trying to access a local variable from a different function."
+);
 
 } /// namespace
 

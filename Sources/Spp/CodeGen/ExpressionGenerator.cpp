@@ -55,6 +55,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateCharLiteral,
     &this->generateIntegerLiteral,
     &this->generateFloatLiteral,
+    &this->generateInnerFunction,
     &this->generateReferenceToNonObjectMember,
     &this->generateVarReference,
     &this->generateMemberVarReference,
@@ -107,6 +108,7 @@ void ExpressionGenerator::initBindings()
   this->generateCharLiteral = &ExpressionGenerator::_generateCharLiteral;
   this->generateIntegerLiteral = &ExpressionGenerator::_generateIntegerLiteral;
   this->generateFloatLiteral = &ExpressionGenerator::_generateFloatLiteral;
+  this->generateInnerFunction = &ExpressionGenerator::_generateInnerFunction;
   this->generateReferenceToNonObjectMember = &ExpressionGenerator::_generateReferenceToNonObjectMember;
   this->generateVarReference = &ExpressionGenerator::_generateVarReference;
   this->generateMemberVarReference = &ExpressionGenerator::_generateMemberVarReference;
@@ -192,6 +194,15 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
     auto floatLiteral = static_cast<Core::Data::Ast::FloatLiteral*>(astNode);
     return expGenerator->generateFloatLiteral(floatLiteral, g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::Function>()) {
+    auto astFunc = static_cast<Spp::Ast::Function*>(astNode);
+    return expGenerator->generateInnerFunction(astFunc, g, session, result);
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
+    auto astFunc = def->getTarget().ti_cast_get<Spp::Ast::Function>();
+    if (astFunc != 0) {
+      return expGenerator->generateInnerFunction(astFunc, g, session, result);
+    }
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(astNode);
     auto operand = bracket->getOperand().get();
@@ -1501,7 +1512,9 @@ Bool ExpressionGenerator::_generatePointerOp(
       throw EXCEPTION(GenericException, S("Failed to generate function pointer type."));
     }
     if (session->getTgContext() != 0) {
-      if (!session->getTg()->generateFunctionPointer(session->getTgContext(), tgFunction, tgFunctionPointerType, result.targetData)) return false;
+      if (!session->getTg()->generateFunctionPointer(
+        session->getTgContext(), tgFunction, tgFunctionPointerType, result.targetData
+      )) return false;
     }
     result.astType = astFunctionPointerType;
     return true;
@@ -2204,6 +2217,30 @@ Bool ExpressionGenerator::_generateFloatLiteral(
     if (!session->getTg()->generateFloatLiteral(session->getTgContext(), size, value, result.targetData)) return false;
   }
   result.astType = floatAstType;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateInnerFunction(
+  TiObject *self, Spp::Ast::Function *astFunction, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  if (!g->generateFunctionDecl(astFunction, session)) return false;
+  session->getFuncDeps()->add(astFunction);
+
+  auto tgFunction = session->getEda()->getCodeGenData<TiObject>(astFunction);
+  auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
+  TiObject *tgFunctionPointerType;
+  if (!g->getGeneratedType(astFunctionPointerType, session, tgFunctionPointerType, 0)) {
+    throw EXCEPTION(GenericException, S("Failed to generate function pointer type."));
+  }
+  if (session->getTgContext() != 0) {
+    if (!session->getTg()->generateFunctionPointer(
+      session->getTgContext(), tgFunction, tgFunctionPointerType, result.targetData
+    )) return false;
+  }
+  result.astType = astFunctionPointerType;
   return true;
 }
 

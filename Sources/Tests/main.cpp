@@ -292,6 +292,19 @@ int main(int argc, char **argv)
                "Version " ALUSUS_VERSION ALUSUS_REVISION " (" ALUSUS_RELEASE_DATE ")\n"
                "Copyright (C) " << alususReleaseYear << " Rafid Khalid Abdullah\n\n";
 
+  if (argc < 3 || argc > 4) {
+    std::cout << "Invalid arguments";
+    return EXIT_FAILURE;
+  }
+
+  Char const *subpath = argv[1];
+  Char const *ext = argv[2];
+  if (argc == 4 && compareStr(argv[3], S("ar")) == 0) {
+    Str l18nPath = Core::Main::getModuleDirectory();
+    l18nPath += S("../../../Notices_L18n/");
+    Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath);
+  }
+
   // Prepare a temporary filename.
   Char const * tempPath = getenv("TMPDIR");
   if (tempPath == 0) tempPath = getenv("TMP");
@@ -303,15 +316,7 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
-  if (!runEndToEndTests("./Core")) ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Spp")) ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Srt")) ret = EXIT_FAILURE;
-
-  Str l18nPath = Core::Main::getModuleDirectory();
-  l18nPath += S("../../../Notices_L18n/");
-  Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath);
-  if (!runEndToEndTests("./Arabic", ".أسس")) ret = EXIT_FAILURE;
-  if (!runEndToEndTests("./Srt", ".أسس")) ret = EXIT_FAILURE;
+  if (!runEndToEndTests(subpath, ext)) ret = EXIT_FAILURE;
 
   std::remove(resultFilename);
 

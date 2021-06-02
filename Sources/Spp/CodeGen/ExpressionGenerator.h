@@ -473,6 +473,16 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Core::Data::Ast::FloatLiteral *astNode, Generation *g, Session *session, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateInnerFunction,
+    Bool, (
+      Spp::Ast::Function* /* astFunction */, Generation* /* g */,
+      Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateInnerFunction(
+    TiObject *self, Spp::Ast::Function *astFunction, Generation *g, Session *session, GenResult &result
+  );
+
   /// @}
 
   /// @name Inner Generation Functions
