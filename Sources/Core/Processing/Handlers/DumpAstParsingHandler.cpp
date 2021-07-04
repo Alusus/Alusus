@@ -31,20 +31,26 @@ void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 
   try {
     Bool found = false;
-    this->rootManager->getSeeker()->foreach(data, state->getDataStack(),
-      [=, &found](TiInt action, TiObject *obj)->SeekVerb
-      {
-        if (action == Core::Data::Seeker::Action::TARGET_MATCH && obj != 0) {
-          outStream << S("------------------ Parsed Data Dump ------------------\n");
-          dumpData(outStream, obj, 0);
-          outStream << S("\n------------------------------------------------------\n");
-          found = true;
-        }
-        return SeekVerb::MOVE;
-      }, 0
-    );
-    if (!found) {
+    auto node = ti_cast<Core::Data::Node>(data);
+    if (node == 0) {
       state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
+    } else {
+      node->setOwner(parser->getRootScope().get());
+      this->rootManager->getSeeker()->foreach(data, state->getDataStack(),
+        [=, &found](TiInt action, TiObject *obj)->SeekVerb
+        {
+          if (action == Core::Data::Seeker::Action::TARGET_MATCH && obj != 0) {
+            outStream << S("------------------ Parsed Data Dump ------------------\n");
+            dumpData(outStream, obj, 0);
+            outStream << S("\n------------------------------------------------------\n");
+            found = true;
+          }
+          return SeekVerb::MOVE;
+        }, 0
+      );
+      if (!found) {
+        state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
+      }
     }
   } catch (InvalidArgumentException) {
     state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
