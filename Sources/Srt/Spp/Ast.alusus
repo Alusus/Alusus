@@ -14,7 +14,7 @@ import "Core/Data";
 
 @merge module Spp {
     module Ast {
-        def defAstType: alias Core.Data.defAstType;
+        def defAstType: alias Core.Data.Ast.defAstType;
 
         defAstType[Type, "alusus.org/Spp/Spp.Ast.Type"];
         defAstType[DataType, "alusus.org/Spp/Spp.Ast.DataType"];
