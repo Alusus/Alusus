@@ -1007,19 +1007,19 @@ void Lexer::clear()
 {
   if (this->states != 0) {
     for (Int i = 0; i < this->stateCount; ++i) delete this->states[i];
-    delete this->states;
+    delete[] this->states;
     this->states = 0;
     this->stateCount = 0;
   }
   if (this->nextStates != 0) {
     for (Int i = 0; i < this->nextStateCount; ++i) delete this->nextStates[i];
-    delete this->nextStates;
+    delete[] this->nextStates;
     this->nextStates = 0;
     this->nextStateCount = 0;
   }
   if (this->recycledStates != 0) {
     for (Int i = 0; i < this->recycledStateCount; ++i) delete this->recycledStates[i];
-    delete this->recycledStates;
+    delete[] this->recycledStates;
     this->recycledStates = 0;
     this->recycledStateCount = 0;
   }
