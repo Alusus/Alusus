@@ -114,7 +114,7 @@ import "Memory";
                 this.add(item);
             } else {
                 this._prepareToModify(true);
-                Memory.copy(
+                Memory.move(
                     this.buf(index + 1)~no_deref~ptr,
                     this.buf(index)~no_deref~ptr,
                     T~no_deref~size * (this.length - index)
@@ -129,7 +129,7 @@ import "Memory";
                 this._prepareToModify(false);
                 this.buf(index)~no_deref~terminate();
                 if index < this.getLength() - 1 {
-                    Memory.copy(
+                    Memory.move(
                         this.buf(index)~no_deref~ptr, this.buf(index + 1)~no_deref~ptr,
                         T~no_deref~size * (this.length - (index + 1))
                     );
