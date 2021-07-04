@@ -30,7 +30,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->calleeTracer = newSrdObj<Ast::CalleeTracer>(this->astHelper.get());
 
   // Create global repos.
-  this->astLiteralRepo = newSrdObj<SharedList<TiObject>>();
+  this->astNodeRepo = newSrdObj<SharedList<TiObject>>();
   this->globalItemRepo = newSrdObj<CodeGen::GlobalItemRepo>();
 
   // Create the generator.
@@ -38,7 +38,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->expressionGenerator = newSrdObj<CodeGen::ExpressionGenerator>(
     this->astHelper.get(),
     this->calleeTracer.get(),
-    this->astLiteralRepo.get()
+    this->astNodeRepo.get()
   );
   this->commandGenerator = newSrdObj<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = newSrdObj<CodeGen::Generator>(
@@ -65,7 +65,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   );
 
   this->astProcessor = newSrdObj<CodeGen::AstProcessor>(
-    this->astHelper.get(), this->buildManager.ti_cast_get<Executing>()
+    this->astHelper.get(), this->buildManager.ti_cast_get<Executing>(), this->astNodeRepo.get()
   );
   this->generator->setAstProcessor(this->astProcessor.get());
   this->typeGenerator->setAstProcessor(this->astProcessor.get());

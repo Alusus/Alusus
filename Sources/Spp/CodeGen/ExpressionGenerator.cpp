@@ -1571,7 +1571,7 @@ Bool ExpressionGenerator::_generateAstRefOp(
     return false;
   }
   // Capture the element in the repo so that it doesn't get freed while still needed by the generated code.
-  expGenerator->astLiteralRepo->addElement(targetAstNode);
+  expGenerator->astNodeRepo->addElement(targetAstNode);
   // Generate a pointer literal.
   if (!session->getTg()->generatePointerLiteral(
     session->getTgContext(), tgTiObjRefType, targetAstNode, result.targetData
@@ -1605,7 +1605,7 @@ Bool ExpressionGenerator::_generateAstLiteralCommand(
     return false;
   }
   // Capture the body in the repo so that it doesn't get freed while still needed by the generated code.
-  expGenerator->astLiteralRepo->add(body);
+  expGenerator->astNodeRepo->add(body);
   // Generate a pointer literal.
   if (!session->getTg()->generatePointerLiteral(
     session->getTgContext(), tgTiObjRefType, body.get(), result.targetData

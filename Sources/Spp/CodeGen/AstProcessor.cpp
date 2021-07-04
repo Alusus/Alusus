@@ -178,6 +178,8 @@ Bool AstProcessor::_processParamPass(
 }
 
 
+#define PREPROCESS_SESSION_KEY S("preprocessSession")
+
 Bool AstProcessor::_processPreprocessStatement(
   TiObject *self, Spp::Ast::PreprocessStatement *preprocess, TiObject *owner, TiInt indexInOwner
 ) {
@@ -185,21 +187,47 @@ Bool AstProcessor::_processPreprocessStatement(
 
   if (!astProcessor->process(preprocess->getBody().get())) return false;
 
-  // Build the preprocess statement.
-  SharedPtr<BuildSession> buildSession = astProcessor->executing->prepareBuild(
-    astProcessor->getNoticeStore(), BuildManager::BuildType::PREPROCESS, preprocess->getBody().get()
-  );
+  // Capture a shared pointer to avoid segfault in case a dependency processes the same statement, or in case
+  // elements from this preprocess statement are in use elsewhere, like in templates.
+  astProcessor->astNodeRepo->addElement(preprocess);
+
   Bool result = true;
-  auto block = preprocess->getBody().ti_cast_get<Ast::Block>();
-  if (block != 0) {
-    for (Int i = 0; i < block->getElementCount(); ++i) {
-      auto childData = block->getElement(i);
-      if (!astProcessor->executing->addElementToBuild(childData, buildSession.get())) result = false;
+
+  // Build the preprocess statement.
+  // Was the statement already built? This can happen when the same preprocess statement is encountered again while
+  // finalizing the build of that preprocess statement. We'll store the build session on the element and re-use it
+  // if encountered again in order to avoid double building the statement.
+  SharedPtr<BuildSession> buildSession = preprocess->getExtra(PREPROCESS_SESSION_KEY).ti_cast<BuildSession>();
+  if (buildSession == 0) {
+    buildSession = astProcessor->executing->prepareBuild(
+      astProcessor->getNoticeStore(), BuildManager::BuildType::PREPROCESS, preprocess->getBody().get()
+    );
+    setExtra(preprocess, PREPROCESS_SESSION_KEY, buildSession);
+
+    auto block = preprocess->getBody().ti_cast_get<Ast::Block>();
+    if (block != 0) {
+      for (Int i = 0; i < block->getElementCount(); ++i) {
+        auto childData = block->getElement(i);
+        if (!astProcessor->executing->addElementToBuild(childData, buildSession.get())) result = false;
+      }
+    } else {
+        if (!astProcessor->executing->addElementToBuild(preprocess->getBody().get(), buildSession.get())) result = false;
     }
+
+    astProcessor->executing->finalizeBuild(
+      astProcessor->getNoticeStore(), preprocess->getBody().get(), buildSession.get()
+    );
   } else {
-      if (!astProcessor->executing->addElementToBuild(preprocess->getBody().get(), buildSession.get())) result = false;
+    // Statement has already been generated; We'll only force the building of the remaining deps.
+    auto tmpBuildSession = astProcessor->executing->prepareBuild(
+      astProcessor->getNoticeStore(), BuildManager::BuildType::PREPROCESS, 0
+    );
+    astProcessor->executing->finalizeBuild(astProcessor->getNoticeStore(), 0, tmpBuildSession.get());
   }
-  astProcessor->executing->finalizeBuild(astProcessor->getNoticeStore(), preprocess->getBody().get(), buildSession.get());
+
+  // If the build session was removed from the element after finalizing the build it means one of the dependencies
+  // executed the statement, so we don't need to execute it again.
+  if (preprocess->getExtra(PREPROCESS_SESSION_KEY) == 0) return true;
 
   astProcessor->currentPreprocessOwner = owner;
   astProcessor->currentPreprocessInsertionPosition = indexInOwner;
@@ -223,6 +251,8 @@ Bool AstProcessor::_processPreprocessStatement(
 
     astProcessor->executing->execute(astProcessor->getNoticeStore(), buildSession.get());
   }
+
+  preprocess->removeExtra(PREPROCESS_SESSION_KEY);
 
   return result;
 }

@@ -39,6 +39,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
 
   private: Ast::Helper *astHelper;
   private: Executing *executing;
+  private: SharedList<TiObject> *astNodeRepo;
   private: Core::Notices::Store *noticeStore = 0;
   private: TiObject *currentPreprocessOwner;
   private: Int currentPreprocessInsertionPosition;
@@ -48,7 +49,8 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h, Executing *b) : astHelper(h), executing(b)
+  public: AstProcessor(Ast::Helper *h, Executing *b, SharedList<TiObject> *anr)
+    : astHelper(h), executing(b), astNodeRepo(anr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -61,6 +63,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
     this->executing = parent->getExecuting();
+    this->astNodeRepo = parent->getAstNodeRepo();
   }
 
   public: virtual ~AstProcessor()
@@ -85,6 +88,11 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   public: Executing* getExecuting() const
   {
     return this->executing;
+  }
+
+  public: SharedList<TiObject>* getAstNodeRepo() const
+  {
+    return this->astNodeRepo;
   }
 
   public: void setNoticeStore(Core::Notices::Store *ns)

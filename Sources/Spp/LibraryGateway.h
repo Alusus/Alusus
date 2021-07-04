@@ -33,7 +33,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<Ast::CalleeTracer> calleeTracer;
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
   private: SharedPtr<CodeGen::GlobalItemRepo> globalItemRepo;
-  private: SharedPtr<SharedList<TiObject>> astLiteralRepo;
+  private: SharedPtr<SharedList<TiObject>> astNodeRepo;
   private: SharedPtr<CodeGen::AstProcessor> astProcessor;
   private: SharedPtr<CodeGen::TypeGenerator> typeGenerator;
   private: SharedPtr<CodeGen::ExpressionGenerator> expressionGenerator;
