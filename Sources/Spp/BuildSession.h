@@ -34,9 +34,6 @@ class BuildSession : public TiObject
   private: TioSharedPtr globalEntryTgContext;
   private: Str globalEntryName;
 
-  private: std::vector<Str> globalCtorNames;
-  private: std::vector<Str> globalDtorNames;
-
   private: ExecutionContext execContext;
   private: CodeGen::DestructionStack destructionStack;
   private: CodeGen::Session codeGenSession;
@@ -92,17 +89,6 @@ class BuildSession : public TiObject
   {
     return this->globalEntryName;
   }
-
-  public: std::vector<Str>* getGlobalCtorNames()
-  {
-    return &this->globalCtorNames;
-  }
-
-  public: std::vector<Str>* getGlobalDtorNames()
-  {
-    return &this->globalDtorNames;
-  }
-
 
   public: CodeGen::DestructionStack* getDestructionStack()
   {

@@ -223,15 +223,17 @@ Bool BuildManager::_execute(TiObject *self, Core::Notices::Store *noticeStore, B
     if (buildSession->getBuildType() == BuildType::JIT) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
-      for (Int i = buildSession->getGlobalCtorNames()->size() - 1; i >= 0; --i) {
-        buildMgr->jitBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i));
+      while (buildSession->getDepsInfo()->globalCtorNames.getLength() > 0) {
+        buildMgr->jitBuildTarget->execute(buildSession->getDepsInfo()->globalCtorNames(0));
+        buildSession->getDepsInfo()->globalCtorNames.remove(0);
       }
       buildMgr->jitBuildTarget->execute(buildSession->getGlobalEntryName());
     } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
-      for (Int i = buildSession->getGlobalCtorNames()->size() - 1; i >= 0; --i) {
-        buildMgr->preprocessBuildTarget->execute(buildSession->getGlobalCtorNames()->at(i));
+      while (buildSession->getDepsInfo()->globalCtorNames.getLength() > 0) {
+        buildMgr->preprocessBuildTarget->execute(buildSession->getDepsInfo()->globalCtorNames(0));
+        buildSession->getDepsInfo()->globalCtorNames.remove(0);
       }
       buildMgr->preprocessBuildTarget->execute(buildSession->getGlobalEntryName());
     } else {
@@ -309,7 +311,7 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
           return true;
         }
       )) {
-        buildSession->getGlobalCtorNames()->push_back(ctorName);
+        buildSession->getDepsInfo()->globalCtorNames.add(ctorName);
       } else {
         result = false;
       }
@@ -331,7 +333,7 @@ Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noti
           return generation->generateVarDestruction(varAstType, varTgRef, varAstNode, childSession);
         }
       )) {
-        buildSession->getGlobalDtorNames()->push_back(dtorName);
+        buildSession->getDepsInfo()->globalDtorNames.add(dtorName);
       } else {
         result = false;
       }
@@ -425,14 +427,12 @@ void BuildManager::_dumpLlvmIrForElement(
   if (!buildMgr->finalizeBuild(noticeStore, globalFuncElement, buildSession.get())) result = false;
 
   if (element->isDerivedFrom<Ast::Module>()) {
-    buildSession->getGlobalCtorNames()->insert(
-      buildSession->getGlobalCtorNames()->begin(), buildSession->getGlobalEntryName()
-    );
+    buildSession->getDepsInfo()->globalCtorNames.insert(0, buildSession->getGlobalEntryName());
   }
 
   // Dump the IR code.
   Str ir = buildMgr->offlineBuildTarget->generateLlvmIr(
-    buildSession->getGlobalCtorNames(), buildSession->getGlobalDtorNames()
+    &buildSession->getDepsInfo()->globalCtorNames, &buildSession->getDepsInfo()->globalDtorNames
   );
   parser->flushApprovedNotices();
   if (result) {
@@ -467,14 +467,12 @@ Bool BuildManager::_buildObjectFileForElement(
   if (!buildMgr->finalizeBuild(noticeStore, globalFuncElement, buildSession.get())) result = false;
 
   if (element->isDerivedFrom<Ast::Module>()) {
-    buildSession->getGlobalCtorNames()->insert(
-      buildSession->getGlobalCtorNames()->begin(), buildSession->getGlobalEntryName()
-    );
+    buildSession->getDepsInfo()->globalCtorNames.insert(0, buildSession->getGlobalEntryName());
   }
 
   if (result) {
     buildMgr->offlineBuildTarget->generateObjectFile(
-      objectFilename, buildSession->getGlobalCtorNames(), buildSession->getGlobalDtorNames()
+      objectFilename, &buildSession->getDepsInfo()->globalCtorNames, &buildSession->getDepsInfo()->globalDtorNames
     );
   }
   parser->flushApprovedNotices();
@@ -500,6 +498,8 @@ void BuildManager::_resetBuild(TiObject *self, Int buildType)
     buildMgr->resetBuildData(root, &buildMgr->offlineEda);
     buildMgr->offlineTargetGenerator->setupBuild();
     buildMgr->offlineGlobalTgFuncType = TioSharedPtr::null;
+    buildMgr->offlineDepsInfo.globalCtorNames.clear();
+    buildMgr->offlineDepsInfo.globalDtorNames.clear();
   } else {
     throw EXCEPTION(InvalidArgumentException, S("buildType"), S("Unexpected build type."), buildType);
   }
