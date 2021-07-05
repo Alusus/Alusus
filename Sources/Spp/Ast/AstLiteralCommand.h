@@ -35,6 +35,7 @@ class AstLiteralCommand : public Core::Data::Node,
   // Member Variables
 
   private: TioSharedPtr body;
+  private: TiBool preprocessDisabled;
 
 
   //============================================================================
@@ -44,7 +45,8 @@ class AstLiteralCommand : public Core::Data::Node,
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get()),
+    (preprocessDisabled, TiBool, VALUE, setPreprocessDisabled(value), &preprocessDisabled)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (body, TiObject, SHARED_REF, setBody(value), body.get()));
@@ -82,6 +84,20 @@ class AstLiteralCommand : public Core::Data::Node,
   public: TioSharedPtr const& getBody() const
   {
     return this->body;
+  }
+
+  public: void setPreprocessDisabled(Bool d)
+  {
+    this->preprocessDisabled = d;
+  }
+  public: void setPreprocessDisabled(TiBool const *d)
+  {
+    this->preprocessDisabled = d == 0 ? false : d->get();
+  }
+
+  public: Bool isPreprocessDisabled() const
+  {
+    return this->preprocessDisabled.get();
   }
 
 }; // class

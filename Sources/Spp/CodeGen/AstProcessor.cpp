@@ -109,10 +109,16 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
       continue;
     } else if (child->isDerivedFrom<Ast::Type>()) {
       continue;
+    } else if (child->isDerivedFrom<Ast::Function>()) {
+      continue;
+    } else if (child->isDerivedFrom<Ast::AstLiteralCommand>()) {
+      if (!static_cast<Ast::AstLiteralCommand*>(child)->isPreprocessDisabled()) {
+        if (!astProcessor->process(child)) result = false;
+      }
     } else if (child->isDerivedFrom<Ast::PreprocessStatement>()) {
       if (astProcessor->processPreprocessStatement(static_cast<Ast::PreprocessStatement*>(child), owner, i)) --i;
       else result = false;
-    } else if (!child->isDerivedFrom<Ast::Function>()) {
+    } else {
       if (!astProcessor->process(child)) result = false;
     }
   }

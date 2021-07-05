@@ -1,3 +1,4 @@
+import "Core/Basic";
 import "Srl/Console.alusus";
 use Srl.Console;
 
@@ -52,3 +53,17 @@ test();
 dump_ast MyMod;
 dump_ast Point;
 dump_ast test;
+
+func testAstLiteral1 {
+    ast defInt[n];
+}
+
+func testAstLiteral2 {
+    @no_preprocess ast defInt[n];
+}
+
+testAstLiteral1();
+testAstLiteral2();
+
+dump_ast testAstLiteral1;
+dump_ast testAstLiteral2;

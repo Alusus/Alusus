@@ -490,19 +490,46 @@ void GrammarFactory::createGrammar()
       TiInt::create(1),
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }
-  }, newSrdObj<CustomParsingHandler>([](Core::Processing::Parser *parser, Core::Processing::ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
-    if (currentList == 0 || currentList->getElementCount() != 2) {
-      throw EXCEPTION(GenericException, S("Unexpected data type while parsing AST literal command."));
+  }, newSrdObj<CustomParsingHandler>(
+    [](Core::Processing::Parser *parser, Core::Processing::ParserState *state) {
+      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+      if (currentList == 0 || currentList->getElementCount() != 2) {
+        throw EXCEPTION(GenericException, S("Unexpected data type while parsing AST literal command."));
+      }
+      auto astLiteralCommand = Ast::AstLiteralCommand::create({
+        { "prodId", metadata->getProdId() },
+        { "sourceLocation", metadata->findSourceLocation() }
+      }, {
+        { "body", currentList->getElement(1) }
+      });
+      state->setData(astLiteralCommand);
+    },
+    true,
+    [](Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete)->Bool {
+      if (!prodProcessingComplete) return false;
+
+      // Look for no_preprocess modifier.
+      auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
+      if (identifier == 0) return false;
+      auto symbolDef = state->refTopProdLevel().getProd();
+      auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
+
+      if (keyword != S("no_preprocess")) return false;
+
+      // Update the AST literal command.
+      Int levelOffset = -state->getTopProdTermLevelCount();
+      auto astLiteral = state->getData(levelOffset).ti_cast_get<Spp::Ast::AstLiteralCommand>();
+      if (astLiteral == 0) {
+        throw EXCEPTION(GenericException, S("Unexpected data type found."));
+      }
+      astLiteral->setPreprocessDisabled(true);
+
+      return true;
     }
-    auto astLiteralCommand = Ast::AstLiteralCommand::create({
-      { "prodId", metadata->getProdId() },
-      { "sourceLocation", metadata->findSourceLocation() }
-    }, {
-      { "body", currentList->getElement(1) }
-    });
-    state->setData(astLiteralCommand);
+  ));
+  this->set(S("root.Main.AstLiteral.modifierTranslations"), Map::create({}, {
+    {S("بلا_تمهيد"), TiStr::create(S("no_preprocess"))}
   }));
 
   // BlockSet

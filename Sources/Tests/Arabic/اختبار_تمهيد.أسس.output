@@ -1,0 +1,23 @@
+مقدمة...
+بسم الله الرحمن الرحيم
+س = 5
+------------------ Parsed Data Dump ------------------
+Function اختبار_شبم_حرفي1() [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
+  AstLiteralCommand [Main.AstLiteral]
+   body: Definition [Main.Def] ن: Identifier: integer [Main.Keywords]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function اختبار_شبم_حرفي2() [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
+  AstLiteralCommand [Main.AstLiteral]
+   body: ParamPass [] [Main.Expression.ParamPassExp]
+    operand: Identifier: عرف_صحيح [Main.BlockSubject.Identifier]
+    param: Identifier: ن [Main.BlockSubject.Identifier]
+------------------------------------------------------

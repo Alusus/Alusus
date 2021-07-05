@@ -30,12 +30,15 @@ class CustomParsingHandler : public GenericParsingHandler
   // Types
 
   public: typedef std::function<void(Parser *parser, ParserState *state)> ProdEndHandler;
-
+  public: typedef std::function<Bool(
+    Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete
+  )> IncomingModifierHandler;
 
   //============================================================================
   // Member Variables
 
   private: ProdEndHandler prodEndHandler;
+  private: IncomingModifierHandler incomingModifierHandler;
   private: Bool callingParentEnabled;
 
 
@@ -44,6 +47,11 @@ class CustomParsingHandler : public GenericParsingHandler
 
   public: CustomParsingHandler(ProdEndHandler const &h, Bool parentEnabled=true) :
     prodEndHandler(h), callingParentEnabled(parentEnabled)
+  {
+  }
+
+  public: CustomParsingHandler(ProdEndHandler const &peh, Bool parentEnabled, IncomingModifierHandler const &imh) :
+    prodEndHandler(peh), callingParentEnabled(parentEnabled), incomingModifierHandler(imh)
   {
   }
 
@@ -57,6 +65,13 @@ class CustomParsingHandler : public GenericParsingHandler
       GenericParsingHandler::onProdEnd(parser, state);
     }
     this->prodEndHandler(parser, state);
+  }
+
+  public: virtual Bool onIncomingModifier(
+    Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete
+  ) {
+    if (this->incomingModifierHandler == nullptr) return false;
+    return this->incomingModifierHandler(parser, state, modifierData, prodProcessingComplete);
   }
 
 }; // class
