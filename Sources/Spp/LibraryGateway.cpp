@@ -306,10 +306,7 @@ void LibraryGateway::removeGlobalDefs(Core::Main::RootManager *manager)
   identifier.setValue(S("Process"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(S("Core"));
-  manager->getSeeker()->tryRemove(&identifier, root);
-
-  identifier.setValue(S("Spp"));
+  identifier.setValue(S("الـعملية"));
   manager->getSeeker()->tryRemove(&identifier, root);
 }
 
