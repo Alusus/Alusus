@@ -67,3 +67,31 @@ testAstLiteral2();
 
 dump_ast testAstLiteral1;
 dump_ast testAstLiteral2;
+
+// Testing double preprocessing, i.e. cases where the same preprocess statement is triggered twice due to a dependency
+// using the same element currently being preprocessed.
+
+type A {
+    def i: Int;
+    preprocess {
+        print("A->preprocess\n");
+    }
+}
+
+func testDoublePreprocess1 {
+    def a: A;
+    print("testDoublePreprocess1\n");
+}
+
+func testDoublePreprocess2 {
+    testDoublePreprocess1();
+    def a: A;
+    print("testDoublePreprocess2\n");
+}
+
+func testDoublePreprocess3 {
+    preprocess {
+        testDoublePreprocess2();
+    }
+}
+testDoublePreprocess3();

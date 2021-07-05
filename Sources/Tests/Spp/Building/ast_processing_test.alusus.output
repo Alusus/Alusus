@@ -205,3 +205,6 @@ Function testAstLiteral2() [Main.Function]
     operand: Identifier: defInt [Main.BlockSubject.Identifier]
     param: Identifier: n [Main.BlockSubject.Identifier]
 ------------------------------------------------------
+A->preprocess
+testDoublePreprocess1
+testDoublePreprocess2
