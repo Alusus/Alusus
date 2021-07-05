@@ -55,4 +55,15 @@ TypeMatchStatus FloatType::matchTargetType(
   }
 }
 
+
+Bool FloatType::isIdentical(Type const *type, Helper *helper) const
+{
+  if (this == type) return true;
+  auto floatType = ti_cast<FloatType const>(type);
+  if (floatType == 0) return false;
+  auto thisBitCount = this->getBitCount(helper);
+  auto targetBitCount = floatType->getBitCount(helper);
+  return thisBitCount == targetBitCount;
+}
+
 } // namespace

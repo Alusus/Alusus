@@ -357,7 +357,6 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     {S("baseRef"), PARSE_REF(S("module.owner.Expression")) },
     {S("startRef"), PARSE_REF(S("module.LowerLinkExp"))}
   }, {
-    {S("subject"), PARSE_REF(S("module.owner.ParamOnlySubject"))}
   }).get());
   this->set(S("root.Main.FuncSigExpression.LowerLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.LowerLinkExp"))},
@@ -554,6 +553,8 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
       { S("صحيح"), newSrdObj<TiStr>(("integer")) },
       { S("string"), 0 },
       { S("محارف"), newSrdObj<TiStr>(("string")) },
+      { S("ast"), 0 },
+      { S("شبم"), newSrdObj<TiStr>(("ast")) },
       { S("any"), 0 },
       { S("أيما"), newSrdObj<TiStr>(("any")) }
     }),
@@ -752,9 +753,9 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
     PARSE_REF(S("module.Function")),
     PARSE_REF(S("module.Macro")),
     PARSE_REF(S("module.Preprocess")),
+    PARSE_REF(S("module.AstLiteral")),
     PARSE_REF(S("module.Keywords")),
-    PARSE_REF(S("module.ThisTypeRef")),
-    PARSE_REF(S("module.AstLiteral"))
+    PARSE_REF(S("module.ThisTypeRef"))
   });
 }
 
@@ -841,9 +842,9 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
     S("module.Function"),
     S("module.Macro"),
     S("module.Preprocess"),
+    S("module.AstLiteral"),
     S("module.Keywords"),
-    S("module.ThisTypeRef"),
-    S("module.AstLiteral")
+    S("module.ThisTypeRef")
   });
 
   // Delete tilde command definitions.
@@ -884,9 +885,9 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->tryRemove(S("root.Main.Macro"));
   this->tryRemove(S("root.Main.MacroSignature"));
   this->tryRemove(S("root.Main.Preprocess"));
+  this->tryRemove(S("root.Main.AstLiteral"));
   this->tryRemove(S("root.Main.Keywords"));
   this->tryRemove(S("root.Main.ThisTypeRef"));
-  this->tryRemove(S("root.Main.AstLiteral"));
 
   // Delete block definitions.
   this->set(S("root.Main.Expression.subject"), getSharedPtr(this->get(S("root.Main.Expression._subjectBackup"))));

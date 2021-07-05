@@ -78,4 +78,20 @@ TypeMatchStatus ArrayType::matchTargetType(
   }
 }
 
+
+Bool ArrayType::isIdentical(Type const *type, Helper *helper) const
+{
+  if (this == type) return true;
+
+  auto arrayType = ti_cast<ArrayType const>(type);
+  if (arrayType == 0) return false;
+
+  auto thisContentType = this->getContentType(helper);
+  auto targetContentType = arrayType->getContentType(helper);
+  auto thisSize = this->getSize(helper);
+  auto targetSize = arrayType->getSize(helper);
+
+  return thisSize == targetSize && thisContentType->isIdentical(targetContentType, helper);
+}
+
 } // namespace

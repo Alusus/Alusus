@@ -68,4 +68,22 @@ TypeMatchStatus PointerType::matchTargetType(
   return TypeMatchStatus::NONE;
 }
 
+
+Bool PointerType::isIdentical(Type const *type, Helper *helper) const
+{
+  if (this == type) return true;
+
+  auto pointerType = ti_cast<PointerType const>(type);
+  if (pointerType == 0) return false;
+
+  Type const *targetContentType = pointerType->getContentType(helper);
+  Type const *thisContentType = this->getContentType(helper);
+  if (thisContentType == targetContentType) return true;
+  else if (thisContentType != 0 && targetContentType != 0) {
+    return thisContentType->isIdentical(targetContentType, helper);
+  } else {
+    return false;
+  }
+}
+
 } } // namespace

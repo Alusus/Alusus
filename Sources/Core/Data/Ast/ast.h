@@ -107,6 +107,8 @@ template <class T> SharedPtr<T> clone(T *obj, SourceLocation *sl = 0)
   return _clone(obj, sl).template s_cast<T>();
 }
 
+Bool isEqual(TiObject *obj1, TiObject *obj2);
+
 } // namespace
 
 #include "MetaHaving.h"

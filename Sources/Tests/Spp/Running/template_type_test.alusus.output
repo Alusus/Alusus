@@ -4,3 +4,5 @@ float: 5.600000, i = 6
 Two
 hello world
 default string
+MyOtherType: LogOperator
+MyOtherType: AdditionOperator

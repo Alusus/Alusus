@@ -139,6 +139,34 @@ Bool Template::prepareTemplateVars(
         break;
       }
 
+      case TemplateVarType::TYPE: {
+        auto var = ti_cast<Spp::Ast::Type>(
+          Template::traceObject(templateInput, TemplateVarType::TYPE, helper)
+        );
+        if (var == 0) {
+          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
+            Core::Data::Ast::findSourceLocation(templateInput)
+          );
+          return false;
+        }
+        vars->add(var);
+        break;
+      }
+
+      case TemplateVarType::FUNCTION: {
+        auto var = ti_cast<Spp::Ast::Function>(
+          Template::traceObject(templateInput, TemplateVarType::FUNCTION, helper)
+        );
+        if (var == 0) {
+          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
+            Core::Data::Ast::findSourceLocation(templateInput)
+          );
+          return false;
+        }
+        vars->add(var);
+        break;
+      }
+
       default: {
         auto var = Template::traceObject(templateInput, varDef->getType(), helper);
         if (var == 0) {
@@ -175,7 +203,7 @@ Bool Template::matchTemplateVar(
 ) {
   switch (varDef->getType().get()) {
     case TemplateVarType::INTEGER: {
-      auto var = ti_cast<Core::Data::Ast::IntegerLiteral>(
+      auto var = static_cast<Core::Data::Ast::IntegerLiteral*>(
         Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
@@ -187,7 +215,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::STRING: {
-      auto var = ti_cast<Core::Data::Ast::StringLiteral>(
+      auto var = static_cast<Core::Data::Ast::StringLiteral*>(
         Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
@@ -198,13 +226,41 @@ Bool Template::matchTemplateVar(
       return newVar->getValue() == var->getValue();
     }
 
-    default: {
+    case TemplateVarType::TYPE: {
+      auto var = static_cast<Spp::Ast::Type*>(
+        Template::getTemplateVar(instance, varDef->getName().get())
+      );
+      if (var == 0) {
+        throw EXCEPTION(GenericException, S("Missing or invalid variable in template instance."));
+      }
+      auto newVar = static_cast<Spp::Ast::Type*>(templateInput);
+      ASSERT(newVar != 0);
+      // For performance reason we'll only use `isIdentical` in case of function types since other types are
+      // guaranteed to be singletons.
+      if (var->isA<Spp::Ast::FunctionType>()) return newVar->isIdentical(var, helper);
+      else return newVar == var;
+    }
+
+    case TemplateVarType::FUNCTION: {
       auto var = Template::getTemplateVar(instance, varDef->getName().get());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
       ASSERT(templateInput != 0);
       return templateInput == var;
+    }
+
+    case TemplateVarType::AST: {
+      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      if (var == 0) {
+        throw EXCEPTION(GenericException, S("Missing or invalid variable in template instance."));
+      }
+      ASSERT(templateInput != 0);
+      return Core::Data::Ast::isEqual(var, templateInput);
+    }
+
+    default: {
+      throw EXCEPTION(GenericException, S("Unexpected template var type."));
     }
   }
 }
@@ -273,6 +329,8 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
     else {
       result = helper->traceType(ref);
     }
+  } else if (varType == TemplateVarType::AST) {
+    result = ref;
   }
   return result;
 }
@@ -333,6 +391,7 @@ void Template::print(OutStream &stream, Int indents) const
       case TemplateVarType::STRING: stream << S("String"); break;
       case TemplateVarType::TYPE: stream << S("Type"); break;
       case TemplateVarType::FUNCTION: stream << S("Function"); break;
+      case TemplateVarType::AST: stream << S("Ast"); break;
     }
   }
   // dump body

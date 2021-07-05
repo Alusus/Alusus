@@ -46,6 +46,11 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
     Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const;
 
+  public: virtual Bool isIdentical(Type const *type, Helper *helper) const
+  {
+    return this == type;
+  }
+
   public: virtual TypeInitMethod getInitializationMethod(Helper *helper, ExecutionContext const *ec) const;
 
   public: virtual TypeInitMethod getDestructionMethod(Helper *helper, ExecutionContext const *ec) const;
