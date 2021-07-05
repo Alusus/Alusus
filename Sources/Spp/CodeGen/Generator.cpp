@@ -879,7 +879,11 @@ Bool Generator::_generateStatementBlock(
         );
         return false;
       }
-      if (!generation->generateStatement(astNode, session, terminal)) result = false;
+      if (astNode->isDerivedFrom<Spp::Ast::Block>()) {
+        if (!generation->generateStatementBlock(astNode, session, terminal)) result = false;
+      } else {
+        if (!generation->generateStatement(astNode, session, terminal)) result = false;
+      }
     }
   } else {
     if (!generation->generateStatement(astBlock, session, terminal)) result = false;
@@ -907,7 +911,12 @@ Bool Generator::_generateStatement(
   if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
     auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
     auto target = def->getTarget().get();
-    if (target->isDerivedFrom<Spp::Ast::Module>()) {
+    if (target == 0) {
+      generator->noticeStore->add(
+        newSrdObj<Core::Notices::InvalidDefCommandNotice>(def->findSourceLocation())
+      );
+      retVal = false;
+    } else if (target->isDerivedFrom<Spp::Ast::Module>()) {
       retVal = generation->generateModuleInit(static_cast<Spp::Ast::Module*>(target), session);
     // } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
     //   // TODO: Generate function.

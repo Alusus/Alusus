@@ -141,7 +141,7 @@ Bool AstProcessor::_processParamPass(
     auto param = paramPass->getParam().get();
     Containing<TiObject> *args = &argsList;
     if (param) {
-      if (param->isDerivedFrom<Core::Data::Ast::List>()) {
+      if (param->isA<Core::Data::Ast::List>()) {
         args = static_cast<Core::Data::Ast::List*>(param);
       } else {
         argsList.add(param);
