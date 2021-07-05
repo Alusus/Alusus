@@ -162,6 +162,12 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations, TioSharedPtr &result
   );
 
+  public: METHOD_BINDING_CACHE(getCurrentPreprocessOwner, TiObject*);
+  private: static TiObject* _getCurrentPreprocessOwner(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getCurrentPreprocessInsertionPosition, Int);
+  private: static Int _getCurrentPreprocessInsertionPosition(TiObject *self);
+
   /// @}
 
 }; // class

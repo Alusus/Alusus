@@ -31,7 +31,9 @@ void AstMgr::initBindingCaches()
     &this->insertAst_plain,
     &this->insertAst_shared,
     &this->buildAst_plain,
-    &this->buildAst_shared
+    &this->buildAst_shared,
+    &this->getCurrentPreprocessOwner,
+    &this->getCurrentPreprocessInsertionPosition
   });
 }
 
@@ -50,6 +52,8 @@ void AstMgr::initBindings()
   this->insertAst_shared = &AstMgr::_insertAst_shared;
   this->buildAst_plain = &AstMgr::_buildAst_plain;
   this->buildAst_shared = &AstMgr::_buildAst_shared;
+  this->getCurrentPreprocessOwner = &AstMgr::_getCurrentPreprocessOwner;
+  this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
 }
 
 
@@ -68,6 +72,10 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_shared"), (void*)&AstMgr::_insertAst_shared);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_plain"), (void*)&AstMgr::_buildAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_shared"), (void*)&AstMgr::_buildAst_shared);
+  globalItemRepo->addItem(S("Spp_AstMgr_getCurrentPreprocessOwner"), (void*)&AstMgr::_getCurrentPreprocessOwner);
+  globalItemRepo->addItem(
+    S("Spp_AstMgr_getCurrentPreprocessInsertionPosition"), (void*)&AstMgr::_getCurrentPreprocessInsertionPosition
+  );
 }
 
 
@@ -248,6 +256,20 @@ Bool AstMgr::_buildAst_shared(
   );
   astMgr->parser->flushApprovedNotices();
   return ret;
+}
+
+
+TiObject* AstMgr::_getCurrentPreprocessOwner(TiObject *self)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astProcessor->getCurrentPreprocessOwner();
+}
+
+
+Int AstMgr::_getCurrentPreprocessInsertionPosition(TiObject *self)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astProcessor->getCurrentPreprocessInsertionPosition();
 }
 
 } // namespace

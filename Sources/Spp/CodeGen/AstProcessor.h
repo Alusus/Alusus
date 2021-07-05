@@ -105,6 +105,21 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->noticeStore;
   }
 
+  public: TiObject* getCurrentPreprocessOwner() const
+  {
+    return this->currentPreprocessOwner;
+  }
+
+  public: Int getCurrentPreprocessInsertionPosition() const
+  {
+    return this->currentPreprocessInsertionPosition;
+  }
+
+  public: SharedPtr<Core::Data::SourceLocation> getCurrentPreprocessSourceLocation() const
+  {
+    return this->currentPreprocessSourceLocation;
+  }
+
   /// @}
 
   /// @name Code Generation Functions

@@ -92,6 +92,32 @@ import "Srl/refs";
             interpolations: ref[Srl.Map[Srl.String, Srl.SrdRef[Core.Basic.TiObject]]],
             result: ref[Srl.SrdRef[Core.Basic.TiObject]]
         ) => Word[1];
+
+        handler this.buildAst(
+            tree: ref[Core.Basic.TiObject], args: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]]
+        ): Srl.SrdRef[Core.Basic.TiObject] {
+            def result: Srl.SrdRef[Core.Basic.TiObject];
+            this.buildAst(tree, args, result);
+            return result;
+        }
+
+        handler this.clone(obj: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
+            def result: Srl.SrdRef[Core.Basic.TiObject];
+            if obj~ptr != 0 {
+                this.buildAst(
+                    (ast item),
+                    Srl.Map[Srl.String, ref[Core.Basic.TiObject]]().set(Srl.String("item"), obj),
+                    result
+                );
+            }
+            return result;
+        }
+
+        @expname[Spp_AstMgr_getCurrentPreprocessOwner]
+        handler this.getCurrentPreprocessOwner(): ref[Core.Basic.TiObject];
+
+        @expname[Spp_AstMgr_getCurrentPreprocessInsertionPosition]
+        handler this.getCurrentPreprocessInsertionPosition(): Int;
     };
     def astMgr: ref[AstMgr];
 

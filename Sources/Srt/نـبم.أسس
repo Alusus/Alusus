@@ -39,6 +39,9 @@
         عرف هات_المسار_الكامل_لشفرة_عنصر: لقب getSourceFullPathForElement؛
         عرف احشر_شبم: لقب insertAst؛
         عرف أنشئ_شبم: لقب buildAst؛
+        عرف كرر: لقب clone؛
+        عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
+        عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
     }
 
     عرف مدير_البناء: لقب buildMgr؛
