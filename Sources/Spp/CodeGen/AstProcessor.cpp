@@ -707,9 +707,13 @@ Bool AstProcessor::_interpolateAst_dynContaining(
       if (child != 0) {
         if (!astProcessor->interpolateAst(child, argNames, args, sl, newChild)) return false;
       }
-      destObj->addElement(newChild.get());
+      Core::Data::Ast::addPossiblyMergeableElement(
+        newChild.get(), destObj, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
     } else {
-      destObj->addElement(obj->getElement(i));
+      Core::Data::Ast::addPossiblyMergeableElement(
+        obj->getElement(i), destObj, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+      );
     }
   }
   return true;
