@@ -70,6 +70,8 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
     // Prepare rtAstMgr & rtBuildMgr
+    rootManagerExt->rtGrammarMgr->setParser(parser);
+    rootManagerExt->rtGrammarMgr->setNoticeStore(state->getNoticeStore());
     rootManagerExt->rtAstMgr->setParser(parser);
     rootManagerExt->rtAstMgr->setNoticeStore(state->getNoticeStore());
     rootManagerExt->rtBuildMgr->setParser(parser);

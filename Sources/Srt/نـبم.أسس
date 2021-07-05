@@ -21,7 +21,12 @@
         عرف _تخطى_الأبناء_: لقب SeekerFlags.SKIP_CHILDREN؛
     }
 
-    @دمج
+    عرف مدير_القواعد: لقب grammarMgr؛
+    عرف مـدير_القواعد: لقب GrammarMgr؛
+    @دمج صنف مـدير_القواعد {
+        عرف أضف_أمرا_مخصصا: لقب addCustomCommand؛
+    }؛
+
     عرف مدير_شبم: لقب astMgr؛
     عرف مـدير_شبم: لقب AstMgr؛
     @دمج صنف AstMgr {

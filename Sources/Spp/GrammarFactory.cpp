@@ -23,10 +23,8 @@ using Map = Core::Data::Grammar::Map;
 //==============================================================================
 // Overloaded Abstract Functions
 
-void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
-  Core::Data::Ast::Scope *rootScope = root->getRootScope().get();
-  this->setRootScope(rootScope);
-
+void GrammarFactory::createGrammar()
+{
   Core::Data::clearCaches(this->context.getRoot());
 
   // Add additional keywords.
@@ -297,7 +295,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   this->set(S("root.Main.ModuleStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
   }, {
-    {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create(root->getSeeker())}
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create(this->rootManager->getSeeker())}
   }).get());
 
   //// type = "type" + Set
@@ -522,7 +520,7 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
   this->set(S("root.Main.BlockStatements.StmtList"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.StmtList"))},
   }, {
-    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create(root->getSeeker())}
+    {S("handler"), ScopeParsingHandler<Spp::Ast::Block>::create(this->rootManager->getSeeker())}
   }).get());
   this->createProdGroup(S("root.Main.BlockStatements.OuterStmt"), {
     PARSE_REF(S("module.owner.BlockSet")),
@@ -760,12 +758,11 @@ void GrammarFactory::createGrammar(Core::Main::RootManager *root) {
 }
 
 
-void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
+void GrammarFactory::cleanGrammar()
 {
-  Core::Data::Ast::Scope *rootScope = root->getRootScope().get();
-  this->setRootScope(rootScope);
+  Core::Data::clearCaches(this->rootManager->getRootScope().get());
 
-  Core::Data::clearCaches(rootScope);
+  this->cleanCustomCommands();
 
   // Add additional keywords.
   this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
@@ -803,7 +800,7 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
     S("set_ptr"), S("حدد_مؤشر")
   });
 
-  // Add translation for static modifier.
+  // Remove translation for static modifier.
   this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
   this->remove(S("root.Main.Def.modifierTranslations.دون_ربط"));
   this->remove(S("root.Main.Def.modifierTranslations.حقنة"));
@@ -895,6 +892,256 @@ void GrammarFactory::cleanGrammar(Core::Main::RootManager *root)
   this->tryRemove(S("root.Main.BlockSet"));
   this->tryRemove(S("root.Main.BlockStatements"));
   this->tryRemove(S("root.Main.BlockSubject"));
+}
+
+
+Bool GrammarFactory::createCustomCommand(
+  Char const *qualifier, TiObject *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
+) {
+  Core::Data::clearCaches(this->context.getRoot());
+
+  // TODO: Allow creating commands in places other than root.Main (like tilde commands for example).
+  Array<TiObject*> sectionList;
+  this->convertInfixOpIntoList(ast, S("+"), sectionList);
+  std::vector<Factory::CommandSection> sections;
+  for (Int i = 0; i < sectionList.getLength(); ++i) {
+    Factory::CommandSection section;
+    if (!this->parseCommandSection(sectionList.at(i), section, noticeStore)) return false;
+    sections.push_back(section);
+  }
+  this->createCommand(Str(S("root.Main.")) + qualifier, sections, newSrdObj<CustomParsingHandler>(
+    [=](Parser *parser, ParserState *state)
+    {
+      auto data = state->getData();
+      state->setData(func(data));
+    }
+  ));
+  this->addProdsToGroup(S("root.Main.SubjectCmdGrp"), {
+    PARSE_REF(Str(S("module.")) + qualifier),
+  });
+  // Add keywords.
+  auto tokenizingHandler = this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
+    S("root.LexerDefs.Identifier.handler")
+  );
+  for (Int i = 0; i < sections.size(); ++i) {
+    for (Int j = 0; j < sections.at(i).keywords->getCount(); j++) {
+      tokenizingHandler->addKeyword(sections.at(i).keywords->getKey(j));
+      this->customCommandKeywords.add(Str(sections.at(i).keywords->getKey(j)));
+    }
+  }
+  // Store qualifier for later deletion.
+  this->customCommandQualifiers.add(Str(qualifier));
+  return true;
+}
+
+
+Bool GrammarFactory::parseCommandSection(
+  TiObject *ast, Factory::CommandSection &section, Core::Notices::Store *noticeStore
+) {
+  TiObject *sectionAst;
+  if (!this->parseMinMax(ast, sectionAst, section.min, section.max, noticeStore)) return false;
+  auto scope = ti_cast<Core::Data::Ast::Scope>(sectionAst);
+  if (scope == 0) {
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(sectionAst))
+    );
+    return false;
+  }
+  for (Int i = 0; i < scope->getCount(); ++i) {
+    auto linkOp = ti_cast<Core::Data::Ast::LinkOperator>(scope->getElement(i));
+    if (linkOp == 0 || linkOp->getType() != S(":")) {
+      noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(scope->getElement(i)))
+      );
+      return false;
+    }
+    auto id = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+    if (id == 0) {
+      noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(linkOp))
+      );
+      return false;
+    }
+    if (id->getValue() == S("keywords") || id->getValue() == S("مفاتيح")) {
+      if (!this->parseCommandKeywords(linkOp->getSecond().get(), section.keywords, noticeStore)) return false;
+    } else if (id->getValue() == S("args") || id->getValue() == S("معطيات")) {
+      Array<TiObject*> argList;
+      this->convertInfixOpIntoList(linkOp->getSecond().get(), S("+"), argList);
+      for (Int j = 0; j < argList.getLength(); ++j) {
+        Factory::CommandArg arg;
+        if (!this->parseCommandArg(argList.at(j), arg, noticeStore)) return false;
+        section.args.push_back(arg);
+      }
+    } else {
+      noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(id))
+      );
+      return false;
+    }
+  }
+  if (section.keywords == 0) {
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(scope))
+    );
+    return false;
+  }
+  section.flags = TiInt::create(ParsingFlags::PASS_ITEMS_UP);
+  return true;
+}
+
+
+Bool GrammarFactory::parseCommandKeywords(
+  TiObject *ast, SharedPtr<Map> &keywords, Core::Notices::Store *noticeStore
+) {
+  Array<TiObject*> keywordList;
+  this->convertInfixOpIntoList(ast, S("|"), keywordList);
+  if (keywordList.getLength() == 0) {
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(ast))
+    );
+    return false;
+  }
+  keywords = Map::create();
+  for (Int i = 0; i < keywordList.getLength(); ++i) {
+    auto strLiteral = ti_cast<Core::Data::Ast::StringLiteral>(keywordList.at(i));
+    if (strLiteral == 0) {
+      noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(keywordList.at(i)))
+      );
+      return false;
+    }
+    keywords->add(strLiteral->getValue().get(), TioSharedPtr::null);
+  }
+  return true;
+}
+
+
+Bool GrammarFactory::parseCommandArg(
+  TiObject *ast, Factory::CommandArg &arg, Core::Notices::Store *noticeStore
+) {
+  TiObject *argAst;
+  if (!this->parseMinMax(ast, argAst, arg.min, arg.max, noticeStore)) return false;
+  Str qualifier;
+  if (!this->parseQualifier(argAst, qualifier, noticeStore)) return false;
+  arg.prod = PARSE_REF(qualifier);
+  arg.flags = TiInt::create(ParsingFlags::PASS_ITEMS_UP);
+  return true;
+}
+
+
+Bool GrammarFactory::parseMinMax(
+  TiObject *ast, TiObject *&resultAst, SharedPtr<TiInt> &min, SharedPtr<TiInt> &max, Core::Notices::Store *noticeStore
+) {
+  auto mulOp = ti_cast<Core::Data::Ast::MultiplicationOperator>(ast);
+  if (mulOp == 0 || mulOp->getType() != S("*")) {
+    resultAst = ast;
+    return true;
+  }
+  resultAst = mulOp->getFirst().get();
+  auto intLiteral = mulOp->getSecond().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+  if (intLiteral != 0) {
+    auto num = std::stoi(intLiteral->getValue().get());
+    min = newSrdObj<TiInt>(num);
+    max = newSrdObj<TiInt>(num);
+    return true;
+  }
+  auto bracket = mulOp->getSecond().ti_cast_get<Core::Data::Ast::Bracket>();
+  if (bracket == 0 || bracket->getType() != Core::Data::Ast::BracketType::ROUND) {
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(mulOp->getSecond().get()))
+    );
+    return false;
+  }
+  auto list = bracket->getOperand().ti_cast_get<Core::Data::Ast::List>();
+  if (list == 0 || list->getCount() != 2) {
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(bracket))
+    );
+    return false;
+  }
+  auto first = list->get(0).get();
+  if (first != 0) {
+    intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(first);
+    if (intLiteral == 0) {
+      noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(first))
+      );
+      return false;
+    }
+    auto num = std::stoi(intLiteral->getValue().get());
+    min = newSrdObj<TiInt>(num);
+  }
+  auto second = list->get(1).get();
+  if (second != 0) {
+    intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(second);
+    if (intLiteral == 0) {
+      noticeStore->add(
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(second))
+      );
+      return false;
+    }
+    auto num = std::stoi(intLiteral->getValue().get());
+    max = newSrdObj<TiInt>(num);
+  }
+  return true;
+}
+
+
+Bool GrammarFactory::parseQualifier(
+  TiObject *ast, Str &qualifier, Core::Notices::Store *noticeStore
+) {
+  if (ast->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+    auto identifier = static_cast<Core::Data::Ast::Identifier*>(ast);
+    qualifier += identifier->getValue().get();
+  } else if (ast->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+    auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(ast);
+    qualifier += stringLiteral->getValue().get();
+  } else if (ast->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(ast);
+    if (!this->parseQualifier(linkOp->getFirst().get(), qualifier, noticeStore)) return false;
+    qualifier += S(".");
+    if (!this->parseQualifier(linkOp->getSecond().get(), qualifier, noticeStore)) return false;
+  } else {
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(ast))
+    );
+    return false;
+  }
+  return true;
+}
+
+
+void GrammarFactory::convertInfixOpIntoList(TiObject *ast, Char const *op, Array<TiObject*> &list)
+{
+  auto infixOp = ti_cast<Core::Data::Ast::InfixOperator>(ast);
+  if (infixOp == 0 || infixOp->getType() != op) {
+    list.add(ast);
+  } else {
+    this->convertInfixOpIntoList(infixOp->getFirst().get(), op, list);
+    this->convertInfixOpIntoList(infixOp->getSecond().get(), op, list);
+  }
+}
+
+
+void GrammarFactory::cleanCustomCommands()
+{
+  // Clean all keywords.
+  auto tokenizingHandler = this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
+    S("root.LexerDefs.Identifier.handler")
+  );
+  for (Int i = 0; i < this->customCommandKeywords.getLength(); ++i) {
+    tokenizingHandler->removeKeyword(this->customCommandKeywords.at(i));
+  }
+  this->customCommandKeywords.clear();
+
+  // Clean the commands themselves.
+  for (Int i = 0; i < this->customCommandQualifiers.getLength(); ++i) {
+    this->removeProdsFromGroup(S("root.Main.SubjectCmdGrp"), {
+      Str(S("module.")) + this->customCommandQualifiers.at(i)
+    });
+    this->tryRemove(Str(S("root.Main.")) + this->customCommandQualifiers.at(i));
+  }
+  this->customCommandQualifiers.clear();
 }
 
 } // namespace

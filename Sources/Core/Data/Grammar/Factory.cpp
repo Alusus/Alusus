@@ -219,14 +219,14 @@ void Factory::generateKey(Char const *text, Str &result)
 
 
 void Factory::createCommand(
-  Char const *qualifier, std::initializer_list<CommandSection> sections, SharedPtr<BuildHandler> parsingHandler
+  Char const *qualifier, std::vector<CommandSection> sections, SharedPtr<BuildHandler> parsingHandler
 ) {
   if (sections.size() == 0) {
     throw EXCEPTION(InvalidArgumentException, S("sections"), S("You need at least one section in a command"));
   } else if (sections.size() == 1) {
     // Create a command with a single section.
     this->set(qualifier, SymbolDefinition::create({}, {
-      {S("term"), this->createCommandSection(sections.begin())},
+      {S("term"), this->createCommandSection(&sections.front())},
       {S("handler"), parsingHandler}
     }));
   } else {
@@ -290,7 +290,7 @@ SharedPtr<Term> Factory::createCommandSection(CommandSection const *section)
 
 
 void Factory::createStatementVariation(
-  Char const *qualifier, std::initializer_list<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
+  Char const *qualifier, std::vector<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
 ) {
   if (segments.size() == 0) {
     throw EXCEPTION(InvalidArgumentException, S("segments"), S("There should be at least one segment."));
@@ -318,7 +318,7 @@ void Factory::createStatementVariation(
 }
 
 
-void Factory::createProdGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods)
+void Factory::createProdGroup(Char const *qualifier, std::vector<SharedPtr<Reference>> prods)
 {
   auto prodTerms = List::create();
   for (auto prod: prods) prodTerms->add(ReferenceTerm::create({{ S("reference"), prod }}));
@@ -332,7 +332,7 @@ void Factory::createProdGroup(Char const *qualifier, std::initializer_list<Share
 }
 
 
-void Factory::addProdsToGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods)
+void Factory::addProdsToGroup(Char const *qualifier, std::vector<SharedPtr<Reference>> prods)
 {
   auto symbolDef = this->get<SymbolDefinition>(qualifier);
   auto term = symbolDef->getTerm().ti_cast_get<AlternateTerm>();
@@ -351,7 +351,7 @@ void Factory::addProdsToGroup(Char const *qualifier, std::initializer_list<Share
 }
 
 
-void Factory::removeProdsFromGroup(Char const *qualifier, std::initializer_list<Char const*> prods)
+void Factory::removeProdsFromGroup(Char const *qualifier, std::vector<Char const*> prods)
 {
   auto symbolDef = this->get<SymbolDefinition>(qualifier);
   auto term = symbolDef->getTerm().ti_cast_get<AlternateTerm>();

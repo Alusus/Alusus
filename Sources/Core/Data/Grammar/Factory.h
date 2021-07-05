@@ -37,6 +37,7 @@ class Factory
     public: SharedPtr<TiInt> min;
     public: SharedPtr<TiInt> max;
     public: SharedPtr<TiInt> flags;
+    public: CommandArg() {}
     public: CommandArg(
       SharedPtr<Reference> prod, SharedPtr<TiInt> min, SharedPtr<TiInt> max, SharedPtr<TiInt> flags
     ) : prod(prod), min(min), max(max), flags(flags)
@@ -47,17 +48,18 @@ class Factory
   public: struct CommandSection
   {
     public: SharedPtr<Map> keywords;
-    public: std::initializer_list<CommandArg> args;
+    public: std::vector<CommandArg> args;
     public: SharedPtr<TiInt> min;
     public: SharedPtr<TiInt> max;
     public: SharedPtr<TiInt> flags;
+    public: CommandSection() {}
     public: CommandSection(
-      SharedPtr<Map> keywords, std::initializer_list<CommandArg> args
+      SharedPtr<Map> keywords, std::vector<CommandArg> args
     ) : keywords(keywords), args(args)
     {
     }
     public: CommandSection(
-      SharedPtr<Map> keywords, std::initializer_list<CommandArg> args,
+      SharedPtr<Map> keywords, std::vector<CommandArg> args,
       SharedPtr<TiInt> min, SharedPtr<TiInt> max, SharedPtr<TiInt> flags
     ) : keywords(keywords), args(args), min(min), max(max), flags(flags)
     {
@@ -158,20 +160,20 @@ class Factory
   protected: static void generateKey(Char const *text, Str &result);
 
   protected: void createCommand(
-    Char const *qualifier, std::initializer_list<CommandSection> sections, SharedPtr<BuildHandler> parsingHandler
+    Char const *qualifier, std::vector<CommandSection> sections, SharedPtr<BuildHandler> parsingHandler
   );
 
   private: SharedPtr<Term> createCommandSection(CommandSection const *section);
 
   protected: void createStatementVariation(
-    Char const *qualifier, std::initializer_list<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
+    Char const *qualifier, std::vector<StatementSegment> segments, SharedPtr<BuildHandler> parsingHandler
   );
 
-  protected: void createProdGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods);
+  protected: void createProdGroup(Char const *qualifier, std::vector<SharedPtr<Reference>> prods);
 
-  protected: void addProdsToGroup(Char const *qualifier, std::initializer_list<SharedPtr<Reference>> prods);
+  protected: void addProdsToGroup(Char const *qualifier, std::vector<SharedPtr<Reference>> prods);
 
-  protected: void removeProdsFromGroup(Char const *qualifier, std::initializer_list<Char const*> prods);
+  protected: void removeProdsFromGroup(Char const *qualifier, std::vector<Char const*> prods);
 
 }; // class
 

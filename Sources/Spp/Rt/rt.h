@@ -29,6 +29,7 @@ namespace Spp::Rt
 //==============================================================================
 // Classes
 
+#include "GrammarMgr.h"
 #include "AstMgr.h"
 #include "BuildMgr.h"
 

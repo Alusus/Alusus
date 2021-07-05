@@ -29,6 +29,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SeekerExtension::Overrides *seekerExtensionOverrides = 0;
   private: RootScopeHandlerExtension::Overrides *rootScopeHandlerExtensionOverrides = 0;
   private: RootManagerExtension::Overrides *rootManagerExtensionOverrides = 0;
+  private: SharedPtr<GrammarFactory> grammarFactory;
   private: SharedPtr<Ast::Helper> astHelper;
   private: SharedPtr<Ast::CalleeTracer> calleeTracer;
   private: SharedPtr<Ast::NodePathResolver> nodePathResolver;
@@ -40,6 +41,7 @@ class LibraryGateway : public Core::Main::LibraryGateway
   private: SharedPtr<CodeGen::CommandGenerator> commandGenerator;
   private: SharedPtr<CodeGen::Generator> generator;
   private: SharedPtr<BuildManager> buildManager;
+  private: SharedPtr<Rt::GrammarMgr> rtGrammarMgr;
   private: SharedPtr<Rt::AstMgr> rtAstMgr;
   private: SharedPtr<Rt::BuildMgr> rtBuildMgr;
 
