@@ -1557,6 +1557,10 @@ Bool ExpressionGenerator::_generateAstRefOp(
     return false;
   }
 
+  // Unbox if we have a box.
+  auto box = ti_cast<TioWeakBox>(targetAstNode);
+  if (box != 0) targetAstNode = box->get().get();
+
   // Generate pointer to void.
   auto tiObjType = expGenerator->astHelper->getTiObjectType();
   if (tiObjType == 0) {
