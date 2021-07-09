@@ -167,6 +167,11 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     } else {
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
+  } else if (ref->isDerivedFrom<Core::Data::Ast::Bracket>()) {
+    auto bracket = static_cast<Core::Data::Ast::Bracket*>(ref);
+    if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+      return helper->traceType(bracket->getOperand().get());
+    }
   } else if (helper->isAstReference(ref)) {
     type = tryGetAstType(ref);
     if (type != 0) return type;

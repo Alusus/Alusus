@@ -361,6 +361,21 @@ void GrammarFactory::createGrammar()
   }, {
     {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(1)}})},
   }).get());
+  this->set(S("root.Main.FuncSigExpression.AssignmentExp"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.base.AssignmentExp"))},
+  }, {
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(0)}})},
+  }).get());
+  this->set(S("root.Main.FuncSigExpression.LogExp"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.base.LogExp"))},
+  }, {
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(0)}})},
+  }).get());
+  this->set(S("root.Main.FuncSigExpression.ComparisonExp"), SymbolDefinition::create({
+    {S("baseRef"), PARSE_REF(S("module.base.ComparisonExp"))},
+  }, {
+    {S("vars"), Map::create({}, {{S("enable"), newSrdObj<TiInt>(0)}})},
+  }).get());
   this->set(S("root.Main.FuncSigExpression.LowLinkExp"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("module.base.LowLinkExp"))},
   }, {
