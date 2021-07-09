@@ -20,12 +20,18 @@
         عرف _تخطى_الاستخدامات_: لقب SeekerFlags.SKIP_USES؛
         عرف _تخطى_الأبناء_: لقب SeekerFlags.SKIP_CHILDREN؛
     }
+    
+    عرف نـطاق_التعريف: {
+        عرف _دالة_: 0؛
+        عرف _كائن_: 1؛
+        عرف _عمومي_: 2؛
+    }
 
     عرف مدير_القواعد: لقب grammarMgr؛
     عرف مـدير_القواعد: لقب GrammarMgr؛
     @دمج صنف مـدير_القواعد {
         عرف أضف_أمرا_مخصصا: لقب addCustomCommand؛
-    }؛
+    }
 
     عرف مدير_شبم: لقب astMgr؛
     عرف مـدير_شبم: لقب AstMgr؛
@@ -42,6 +48,7 @@
         عرف كرر: لقب clone؛
         عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
         عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
+        عرف هات_نطاق_المتغير: لقب getVariableDomain؛
     }
 
     عرف مدير_البناء: لقب buildMgr؛
@@ -49,6 +56,7 @@
     @دمج صنف BuildMgr {
         عرف أدرج_تو_لعنصر: لقب dumpLlvmIrForElement؛
         عرف أنشء_ملفا_رقميا_لعنصر: لقب buildObjectFileForElement؛
+        عرف ارفع_إشعار_بناء: لقب raiseBuildNotice؛
     }
 }
 

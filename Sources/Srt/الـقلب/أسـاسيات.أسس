@@ -114,7 +114,8 @@
             عرف أزل_عنصرا: لقب removeElement؛
             عرف هات_الصنف_المطلوب_للعناصر: لقب getElementsNeededType؛
         }
-        
+
+        عرف رابـط: لقب BindingOf؛
         عرف حـاوية: لقب ContainerOf؛
         عرف حـاوية_مرنة: لقب DynContainerOf؛
         عرف حـاوية_تطبيقية: لقب MapContainerOf؛

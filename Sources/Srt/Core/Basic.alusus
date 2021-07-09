@@ -275,6 +275,7 @@ import "Srl/String";
             defTypeInfoGetter["alusus.org/Core/Core.Basic.DynamicMapContaining<alusus.org/Core/Core.Basic.TiObject>"]
         }
 
+        macro BindingOf [obj] ref[Core.Basic.Binding](Core.Basic.getInterface[obj, Core.Basic.Binding]);
         macro ContainerOf [obj] ref[Core.Basic.Containing](Core.Basic.getInterface[obj, Core.Basic.Containing]);
         macro DynContainerOf [obj] ref[Core.Basic.DynamicContaining](
             Core.Basic.getInterface[obj, Core.Basic.DynamicContaining]
