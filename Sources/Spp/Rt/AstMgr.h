@@ -37,6 +37,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   //============================================================================
   // Member Variables
 
+  private: Ast::Helper *astHelper;
   private: Core::Notices::Store *noticeStore;
   private: Core::Processing::Parser *parser;
   private: Core::Main::RootManager *rootManager;
@@ -57,6 +58,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
+    this->setAstHelper(parent->getAstHelper());
     this->setNoticeStore(parent->getNoticeStore());
     this->setParser(parent->getParser());
     this->setRootManager(parent->getRootManager());
@@ -78,6 +80,15 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: void initBindings();
 
   public: static void initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, AstMgr *astMgr);
+
+  public: void setAstHelper(Ast::Helper *h)
+  {
+    this->astHelper = h;
+  }
+  public: Ast::Helper* getAstHelper() const
+  {
+    return this->astHelper;
+  }
 
   public: void setNoticeStore(Core::Notices::Store *store)
   {
@@ -167,6 +178,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: METHOD_BINDING_CACHE(getCurrentPreprocessInsertionPosition, Int);
   private: static Int _getCurrentPreprocessInsertionPosition(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getVariableDomain, Int, (TiObject*));
+  public: static Int _getVariableDomain(TiObject *self, TiObject* ast);
 
   /// @}
 

@@ -33,7 +33,8 @@ void AstMgr::initBindingCaches()
     &this->buildAst_plain,
     &this->buildAst_shared,
     &this->getCurrentPreprocessOwner,
-    &this->getCurrentPreprocessInsertionPosition
+    &this->getCurrentPreprocessInsertionPosition,
+    &this->getVariableDomain
   });
 }
 
@@ -54,6 +55,7 @@ void AstMgr::initBindings()
   this->buildAst_shared = &AstMgr::_buildAst_shared;
   this->getCurrentPreprocessOwner = &AstMgr::_getCurrentPreprocessOwner;
   this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
+  this->getVariableDomain = &AstMgr::_getVariableDomain;
 }
 
 
@@ -76,6 +78,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(
     S("Spp_AstMgr_getCurrentPreprocessInsertionPosition"), (void*)&AstMgr::_getCurrentPreprocessInsertionPosition
   );
+  globalItemRepo->addItem(S("Spp_AstMgr_getVariableDomain"), (void*)&AstMgr::_getVariableDomain);
 }
 
 
@@ -270,6 +273,13 @@ Int AstMgr::_getCurrentPreprocessInsertionPosition(TiObject *self)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astProcessor->getCurrentPreprocessInsertionPosition();
+}
+
+
+Int AstMgr::_getVariableDomain(TiObject *self, TiObject* ast)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astHelper->getVariableDomain(ast);
 }
 
 } // namespace

@@ -23,6 +23,12 @@ import "Srl/refs";
         def SKIP_CHILDREN: 0h10000u;
     };
 
+    def DefinitionDomain: {
+        def FUNCTION: 0;
+        def OBJECT: 1;
+        def GLOBAL: 2;
+    };
+
     type GrammarMgr {
         @expname[Spp_GrammarMgr_addCustomCommand]
         handler this.addCustomCommand (
@@ -118,6 +124,9 @@ import "Srl/refs";
 
         @expname[Spp_AstMgr_getCurrentPreprocessInsertionPosition]
         handler this.getCurrentPreprocessInsertionPosition(): Int;
+
+        @expname[Spp_AstMgr_getVariableDomain]
+        handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
     };
     def astMgr: ref[AstMgr];
 

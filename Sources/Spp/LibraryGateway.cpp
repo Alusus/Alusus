@@ -78,6 +78,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Prepare run-time objects.
   this->rtGrammarMgr = newSrdObj<Rt::GrammarMgr>(this->grammarFactory.get());
   this->rtAstMgr = newSrdObj<Rt::AstMgr>();
+  this->rtAstMgr->setAstHelper(this->astHelper.get());
   this->rtAstMgr->setRootManager(manager);
   this->rtAstMgr->setAstProcessor(this->astProcessor.get());
   this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(this->buildManager.get());
