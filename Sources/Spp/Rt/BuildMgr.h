@@ -109,6 +109,13 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
     TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
   );
 
+  public: METHOD_BINDING_CACHE(raiseBuildNotice, void, (
+    Char const* /* code */, Int /* severity */, TiObject* /* astNode */
+  ));
+  public: static void _raiseBuildNotice(
+    TiObject *self, Char const *code, Int severity, TiObject *astNode
+  );
+
   /// @}
 
 }; // class

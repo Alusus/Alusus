@@ -1,0 +1,107 @@
+BLOCKER:BLOCKER
+ERROR:ERROR
+WARNING:WARNING
+ATTN:ATTN
+
+FROM:from
+
+CG1003:Importing failed. Could not load requested file: %s.
+CL1001:Lexer Error [Unrecognized Character(s)]: %s
+
+CL1002:Input buffer is full. A single token is too long to fit in the input buffer. The token may have been broken into more than one token.
+CL2003:Input buffer is full. A single token is too long to fit in the input buffer. Some characters that are part of the token has been ignored.
+
+CP1001:Parser syntax error.
+CP1002:Parsing exited while needing more tokens.
+CP1003:Parsing has already folded out to completion.
+CP2004:Ambiguity is causing state branching.
+CP1005:Unexpected modifier encountered.
+CP1006:Invalid import parameter.
+
+CD1001:Missing link expression in 'def' command.
+CD1002:Missing definition name in 'def' command.
+CD1003:Invalid 'def' command.
+CD1004:Incompatible 'def' merge.
+
+CG1001:Unrecognized error.
+CG1002:Invalid argument for 'dump_ast' command.
+
+SPPA1001:Template arguments mismatch.
+SPPA1002:Invalid template argument.
+SPPA1003:No valid match was found for the given type.
+SPPA1004:No valid match was found for the given type member.
+SPPA1005:Multiple matches were found for the given callee.
+SPPA1006:No matches were found for the given callee.
+SPPA1007:Unknown symbol.
+SPPA1008:Provided arguments do not match signature.
+SPPA1009:Multiple conflicting definitions were found for the given callee.
+SPPA1010:Use statement not pointing to a valid target.
+SPPA1011:Invalid operand for [] operator.
+SPPA1012:Given identifier does not refer to a type.
+SPPA1013:A needed type is missing. You may be missing an import.
+SPPA1014:Trying to merge a type with a non-existing target.
+SPPA1015:Trying to access a local variable from a different function.
+SPPA1016:Error in custom command definition AST.
+
+SPPH1001:Invalid argument for build command.
+SPPH1002:Missing signature in function definition.
+SPPH1003:Invalid function signature.
+SPPH1004:Invalid function element.
+SPPH1005:Invalid function argumnet.
+SPPH1006:Invalid function arg name.
+SPPH1007:Invalid function arg type.
+SPPH1008:Invalid while statement.
+SPPH1009:Invalid if statement.
+SPPH1010:Invalid for statement.
+SPPH1011:Invalid continue statement.
+SPPH1012:Invalid break statement.
+SPPH1013:Invalid macro argumnet definition.
+SPPH1014:Invalid handler statement.
+SPPH1015:Invalid type element.
+SPPH1016:Invalid template arg name.
+SPPH1017:Invalid templatae arg type.
+SPPH1018:~init operations cannot be pointer based.
+SPPH1019:Property getter is missing the return type.
+SPPH1020:Operation target must be `this`.
+SPPH1021:Type is missing from ~cast operation.
+SPPH1022:Invalid use of square brackets.
+SPPH1023:Invalid type property identifier.
+
+SPPG1001:Unsupported operation.
+SPPG1002:Invalid operation.
+SPPG1003:Invalid float bit count. Bit count should be either 32 or 64.
+SPPG1004:Invalid integer bit count.
+SPPG1005:Invalid cast.
+SPPG1006:Invalid return value.
+SPPG1007:Invalid condition value.
+SPPG1008:Invalid symbol.
+SPPG1009:Invalid operand for ~size operator.
+SPPG1010:Invalid expression list.
+SPPG1011:Invalid continue steps.
+SPPG1012:Invalid break steps.
+SPPG1013:Invalid operand of logical operator.
+SPPG1014:Circular user type definitions.
+SPPG1015:Incompatible types for the given operator.
+SPPG1016:Execution aborted due to previous errors.
+SPPG1017:Invalid macro argument.
+SPPG1018:Invalid macro.
+SPPG1019:Invalid access to object member.
+SPPG1020:Invalid access to global definition.
+SPPG1021:Unreachable code.
+SPPG1022:Missing a return statement for a non-void function.
+SPPG1023:Invalid modifier data.
+SPPG1024:Trying to access a variable before it's initialized.
+SPPG1025:Invalid operand for ~init operator.
+SPPG1026:Invalid operand for ~terminate operator.
+SPPG1027:Invalid redefinition of `this` in function args.
+SPPG1028:Trying to inject a shared definition.
+SPPG1029:Invalid type for an injected definition.
+SPPG1030:Assignment failed. This type needs an assignment operator.
+SPPG1031:Variable initialization failed. Custom init op matching the given data is needed for this type.
+SPPG1032:Invalid next_arg operation.
+SPPG1033:Invalid operand for ~deref operator.
+SPPG1034:Invalid operand for ~no_deref operator.
+SPPG1035:The requested member is not a variable definition.
+SPPG1036:Cannot use dot operator on this type of elements.
+SPPG1037:Incomplete infix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.
+SPPG1038:Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.

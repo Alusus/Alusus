@@ -129,6 +129,11 @@ import "Srl/refs";
         handler this.buildObjectFileForElement (
             element: ref[Core.Basic.TiObject], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]]
         ) => Word[1];
+
+        @expname[Spp_BuildMgr_raiseBuildNotice]
+        handler this.raiseBuildNotice (
+            code: ptr[array[Word[8]]], severity: Int, astNode: ref[Core.Basic.TiObject]
+        );
     };
     def buildMgr: ref[BuildMgr];
 };

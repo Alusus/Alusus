@@ -85,6 +85,7 @@ DEFINE_TYPE_NAME(Core::Notices::Store, "alusus.org/Core/Core.Notices.Store");
 #include "L18nDictionary.h"
 
 #include "Notice.h"
+#include "GenericNotice.h"
 #include "Store.h"
 
 #include "CustomNotice.h"

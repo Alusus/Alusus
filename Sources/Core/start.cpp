@@ -80,9 +80,9 @@ int main(int argCount, char * const args[])
   }
 
   auto lang = getSystemLanguage();
-  if (lang == S("ar")) {
+  if (lang == S("ar") || lang == S("en")) {
     // TODO: Support other locales.
-    Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"));
+    Core::Notices::L18nDictionary::getSingleton()->initialize(lang);
   }
 
   // We'll show help if now source file is given.
