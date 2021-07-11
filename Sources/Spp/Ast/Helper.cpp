@@ -117,6 +117,7 @@ TypeMatchStatus Helper::_lookupCustomCaster(
       helper->getSeeker()->extForeach(&ref, srcContentType->getBody().get(),
         [=, &retMatch, &caster, &argTypes] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
         {
+          if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
             auto funcType = func->getType().get();
@@ -184,7 +185,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (typeRef == 0) {
       throw EXCEPTION(GenericException, S("Invalid type reference."));
     }
-    helper->getSeeker()->foreach(typeRef, owner,
+    helper->getSeeker()->extForeach(typeRef, owner,
       [=, &foundObj, &type, &notice](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
         if (action == Core::Data::Seeker::Action::ERROR) {
@@ -231,8 +232,9 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   }
 
   if (type == 0 && helper->noticeStore != 0) {
-    if (notice != 0) helper->noticeStore->add(notice);
-    if (foundObj == 0) {
+    if (notice != 0) {
+      helper->noticeStore->add(notice);
+    } else if (foundObj == 0) {
       helper->noticeStore->add(
         newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
       );

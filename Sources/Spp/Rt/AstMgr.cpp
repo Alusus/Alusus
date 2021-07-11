@@ -100,6 +100,7 @@ Array<TiObject*> AstMgr::_findElements(TiObject *self, TiObject *ref, TiObject *
   astMgr->rootManager->getSeeker()->extForeach(ref, target,
     [&result](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
     {
+      if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
       if (obj != 0) result.add(obj);
       return Core::Data::Seeker::Verb::MOVE;
     },

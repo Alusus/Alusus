@@ -52,6 +52,7 @@ Bool mergeDefinition(
   Bool found = false;
   seeker->extForeach(&ref, target->getTiObject(),
     [=,&result,&found](TiInt action, TiObject *obj)->Seeker::Verb {
+      if (action != Seeker::Action::TARGET_MATCH) return Seeker::Verb::MOVE;
       found = true;
       auto targetObj = ti_cast<Mergeable>(obj);
       if (targetObj == 0) {

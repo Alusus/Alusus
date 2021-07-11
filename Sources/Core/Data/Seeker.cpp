@@ -92,7 +92,8 @@ Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val, Word f
 {
   Bool result = false;
   Int tracingAlias = 0;
-  this->set(ref, target, [=,&result, &tracingAlias](TiInt action, TiObject *&obj)->Verb {
+  Int tracingUse = 0;
+  this->set(ref, target, [=,&result, &tracingAlias, &tracingUse](TiInt action, TiObject *&obj)->Verb {
     if (action == Action::ALIAS_TRACE_START) {
       ++tracingAlias;
       return Verb::MOVE;
@@ -103,9 +104,18 @@ Bool Seeker::trySet(TiObject const *ref, TiObject *target, TiObject *val, Word f
       if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
       else return Verb::MOVE;
     } else if (action == Action::USE_SCOPES_START) {
-      if ((flags & Flags::SKIP_USES) != 0 && (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)) {
+      if (
+        (tracingUse > 0 || (flags & Flags::SKIP_USES) != 0) &&
+        (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)
+      ) {
         return Verb::SKIP;
-      } else return Verb::MOVE;
+      } else {
+        ++tracingUse;
+        return Verb::MOVE;
+      }
+    } else if (action == Action::USE_SCOPES_END) {
+      --tracingUse;
+      return Verb::MOVE;
     } else if (action != Action::TARGET_MATCH) {
       return Verb::MOVE;
     }
@@ -121,7 +131,8 @@ Bool Seeker::tryRemove(TiObject const *ref, TiObject *target, Word flags)
 {
   Bool ret = false;
   Int tracingAlias = 0;
-  this->remove(ref, target, [flags, &ret, &tracingAlias](TiInt action, TiObject *o)->Verb {
+  Int tracingUse = 0;
+  this->remove(ref, target, [flags, &ret, &tracingAlias, &tracingUse](TiInt action, TiObject *o)->Verb {
     if (action == Action::ALIAS_TRACE_START) {
       ++tracingAlias;
       return Verb::MOVE;
@@ -132,9 +143,18 @@ Bool Seeker::tryRemove(TiObject const *ref, TiObject *target, Word flags)
       if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
       else return Verb::MOVE;
     } else if (action == Action::USE_SCOPES_START) {
-      if ((flags & Flags::SKIP_USES) != 0 && (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)) {
+      if (
+        (tracingUse > 0 || (flags & Flags::SKIP_USES) != 0) &&
+        (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)
+      ) {
         return Verb::SKIP;
-      } else return Verb::MOVE;
+      } else {
+        ++tracingUse;
+        return Verb::MOVE;
+      }
+    } else if (action == Action::USE_SCOPES_END) {
+      --tracingUse;
+      return Verb::MOVE;
     } else if (action != Action::TARGET_MATCH) {
       return Verb::MOVE;
     }
@@ -149,6 +169,7 @@ Bool Seeker::tryGet(TiObject const *ref, TiObject *target, TiObject *&retVal, Wo
 {
   Bool ret = false;
   this->extForeach(ref, target, [&ret, &retVal](TiInt action, TiObject *o)->Verb {
+    if (action != Seeker::Action::TARGET_MATCH) return Seeker::Verb::MOVE;
     retVal = o;
     ret = true;
     return Verb::STOP;
@@ -161,6 +182,7 @@ Bool Seeker::find(TiObject const *ref, TiObject *target, TypeInfo const *ti, TiO
 {
   Bool ret = false;
   this->extForeach(ref, target, [ti, &ret, &retVal](TiInt action, TiObject *o)->Verb {
+    if (action != Seeker::Action::TARGET_MATCH) return Seeker::Verb::MOVE;
     if (o->isDerivedFrom(ti)) {
       retVal = o;
       ret = true;
@@ -222,7 +244,8 @@ Seeker::Verb Seeker::_extForeach(
 ) {
   PREPARE_SELF(seeker, Seeker);
   Int tracingAlias = 0;
-  return seeker->foreach(ref, target, [flags, cb, &tracingAlias](TiInt action, TiObject *o)->Verb {
+  Int tracingUse = 0;
+  return seeker->foreach(ref, target, [flags, cb, &tracingAlias, &tracingUse](TiInt action, TiObject *o)->Verb {
     if (action == Action::ALIAS_TRACE_START) {
       ++tracingAlias;
       return Verb::MOVE;
@@ -233,10 +256,19 @@ Seeker::Verb Seeker::_extForeach(
       if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
       else return Verb::MOVE;
     } else if (action == Action::USE_SCOPES_START) {
-      if ((flags & Flags::SKIP_USES) != 0 && (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)) {
+      if (
+        (tracingUse > 0 || (flags & Flags::SKIP_USES) != 0) &&
+        (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)
+      ) {
         return Verb::SKIP;
-      } else return Verb::MOVE;
-    } else if (action != Action::TARGET_MATCH) {
+      } else {
+        ++tracingUse;
+        return Verb::MOVE;
+      }
+    } else if (action == Action::USE_SCOPES_END) {
+      --tracingUse;
+      return Verb::MOVE;
+    } else if (action != Action::TARGET_MATCH && action != Action::ERROR) {
       return Verb::MOVE;
     }
     return cb(action, o);
