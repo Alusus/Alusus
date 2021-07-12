@@ -23,6 +23,21 @@ import "Srl/refs";
         def SKIP_CHILDREN: 0h10000u;
     };
 
+    def DefinitionDomain: {
+        def FUNCTION: 0;
+        def OBJECT: 1;
+        def GLOBAL: 2;
+    };
+
+    type GrammarMgr {
+        @expname[Spp_GrammarMgr_addCustomCommand]
+        handler this.addCustomCommand (
+            qualifier: ptr[array[Char]], grammarAst: ref[Core.Basic.TiObject],
+            handler: ptr[func (Srl.SrdRef[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject]]
+        );
+    };
+    def grammarMgr: ref[GrammarMgr];
+
     type AstMgr {
         @expname[Spp_AstMgr_findElements]
         handler this.findElements(
@@ -83,6 +98,35 @@ import "Srl/refs";
             interpolations: ref[Srl.Map[Srl.String, Srl.SrdRef[Core.Basic.TiObject]]],
             result: ref[Srl.SrdRef[Core.Basic.TiObject]]
         ) => Word[1];
+
+        handler this.buildAst(
+            tree: ref[Core.Basic.TiObject], args: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]]
+        ): Srl.SrdRef[Core.Basic.TiObject] {
+            def result: Srl.SrdRef[Core.Basic.TiObject];
+            this.buildAst(tree, args, result);
+            return result;
+        }
+
+        handler this.clone(obj: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
+            def result: Srl.SrdRef[Core.Basic.TiObject];
+            if obj~ptr != 0 {
+                this.buildAst(
+                    (ast item),
+                    Srl.Map[Srl.String, ref[Core.Basic.TiObject]]().set(Srl.String("item"), obj),
+                    result
+                );
+            }
+            return result;
+        }
+
+        @expname[Spp_AstMgr_getCurrentPreprocessOwner]
+        handler this.getCurrentPreprocessOwner(): ref[Core.Basic.TiObject];
+
+        @expname[Spp_AstMgr_getCurrentPreprocessInsertionPosition]
+        handler this.getCurrentPreprocessInsertionPosition(): Int;
+
+        @expname[Spp_AstMgr_getVariableDomain]
+        handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
     };
     def astMgr: ref[AstMgr];
 
@@ -94,6 +138,11 @@ import "Srl/refs";
         handler this.buildObjectFileForElement (
             element: ref[Core.Basic.TiObject], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]]
         ) => Word[1];
+
+        @expname[Spp_BuildMgr_raiseBuildNotice]
+        handler this.raiseBuildNotice (
+            code: ptr[array[Word[8]]], severity: Int, astNode: ref[Core.Basic.TiObject]
+        );
     };
     def buildMgr: ref[BuildMgr];
 };

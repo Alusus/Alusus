@@ -44,7 +44,7 @@ class JitEngine
 
   /// Destruct this instance. If a multi-threaded instance, waits for all
   /// compile threads to complete.
-  public: ~JitEngine();
+  public: virtual ~JitEngine();
 
   public: static llvm::Expected<std::unique_ptr<JitEngine>> Create(JitEngineBuilderState &s);
 

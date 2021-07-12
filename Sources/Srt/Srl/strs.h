@@ -125,7 +125,8 @@ template<class T> class StringBase
   }
 
   public: void append(T const *buf, LongInt n) {
-    auto bufLen = getLength(buf);
+    LongInt bufLen = 0;
+    while (bufLen < n && buf[bufLen] != 0) ++bufLen;
     if (bufLen == 0) return;
     auto thisBufLen = this->getLength();
     if (thisBufLen == 0) {

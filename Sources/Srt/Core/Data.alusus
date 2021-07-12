@@ -79,12 +79,30 @@ import "Srl/String";
 
             macro defAstType[name, uniqueName] {
                 type name {
-                    @injection def node: Node;
+                    @injection def node: Core.Data.Node;
 
-                    // Prevent instantiation of this object from Alusus.
-                    handler this~init(v: Unknown) {}
+                    preprocess {
+                        use Srl;
+                        def factory: ref[Core.Basic.TiObjectFactory](
+                            Core.Basic.getFromGlobalStorage(uniqueName)~cast[ptr[Core.Basic.TypeInfo]]~cnt.objectFactory
+                        );
+                        if factory~ptr != 0 {
+                            def paddingSize: ArchInt = factory.getSize() - Core.Data.Node~size;
+                            Spp.astMgr.insertAst(
+                                ast { def _data: array[Word[8], size] },
+                                Map[String, ref[Core.Basic.TiObject]]().set(String("size"), Core.Basic.TiInt(paddingSize))
+                            );
+                        }
+                    }
 
-                    defTypeInfoGetter[uniqueName];
+                    handler this~init() {
+                        getTypeInfo().objectFactory.initialize(this);
+                    }
+                    handler this~terminate() {
+                        getTypeInfo().objectFactory.terminate(this);
+                    }
+
+                    Core.Basic.defTypeInfoGetter[uniqueName];
                 }
             }
 

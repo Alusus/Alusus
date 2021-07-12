@@ -19,7 +19,7 @@ namespace Spp::Ast
 //============================================================================
 // Other Defs
 
-ti_s_enum(TemplateVarType, TiInt, "Spp.Ast", "Spp", "alusus.org", STRING, INTEGER, TYPE, FUNCTION);
+ti_s_enum(TemplateVarType, TiInt, "Spp.Ast", "Spp", "alusus.org", STRING, INTEGER, TYPE, FUNCTION, AST);
 
 
 //============================================================================

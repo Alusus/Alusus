@@ -1,4 +1,4 @@
-import "alusus_spp";
+import "Core/Basic";
 
 @expname[printf] function printf (s: ptr[Word[8]], ...any) => Int;
 
@@ -43,3 +43,16 @@ o3.print();
 
 def o4: MyType[Int, printOne, 0];
 o4.print();
+
+type MyOtherType [a: ast] {
+    preprocess {
+        printf("MyOtherType: %s\n", a~ast.getMyTypeInfo().typeName.buf);
+    }
+}
+
+function testAstTemplateArgs {
+    def a: MyOtherType[a || b];
+    def b: MyOtherType[a || b];
+    def c: MyOtherType[a + b];
+}
+testAstTemplateArgs();

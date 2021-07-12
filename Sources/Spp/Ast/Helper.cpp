@@ -117,6 +117,7 @@ TypeMatchStatus Helper::_lookupCustomCaster(
       helper->getSeeker()->extForeach(&ref, srcContentType->getBody().get(),
         [=, &retMatch, &caster, &argTypes] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
         {
+          if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
             auto funcType = func->getType().get();
@@ -167,6 +168,11 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     } else {
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
+  } else if (ref->isDerivedFrom<Core::Data::Ast::Bracket>()) {
+    auto bracket = static_cast<Core::Data::Ast::Bracket*>(ref);
+    if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+      return helper->traceType(bracket->getOperand().get());
+    }
   } else if (helper->isAstReference(ref)) {
     type = tryGetAstType(ref);
     if (type != 0) return type;
@@ -179,7 +185,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (typeRef == 0) {
       throw EXCEPTION(GenericException, S("Invalid type reference."));
     }
-    helper->getSeeker()->foreach(typeRef, owner,
+    helper->getSeeker()->extForeach(typeRef, owner,
       [=, &foundObj, &type, &notice](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
         if (action == Core::Data::Seeker::Action::ERROR) {
@@ -225,14 +231,15 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (type != 0) setAstType(ref, type);
   }
 
-  if (type == 0 && helper->noticeStore != 0) {
-    if (notice != 0) helper->noticeStore->add(notice);
-    if (foundObj == 0) {
-      helper->noticeStore->add(
+  if (type == 0 && helper->rootManager->getNoticeStore() != 0) {
+    if (notice != 0) {
+      helper->rootManager->getNoticeStore()->add(notice);
+    } else if (foundObj == 0) {
+      helper->rootManager->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
       );
     } else {
-      helper->noticeStore->add(
+      helper->rootManager->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IdentifierIsNotTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
       );
     }
@@ -354,7 +361,7 @@ ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type, Refe
   } else {
     auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
-      helper->noticeStore->add(notice);
+      helper->rootManager->getNoticeStore()->add(notice);
     }
     return 0;
   }
@@ -387,7 +394,7 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
   } else {
     auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
-      helper->noticeStore->add(notice);
+      helper->rootManager->getNoticeStore()->add(notice);
     }
     return 0;
   }
@@ -410,7 +417,7 @@ ArrayType* Helper::_getArrayTypeFor(TiObject *self, TiObject *type)
   } else {
     auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
-      helper->noticeStore->add(notice);
+      helper->rootManager->getNoticeStore()->add(notice);
     }
     return 0;
   }
@@ -826,7 +833,7 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
     }, 0
   );
   if (!found) {
-    helper->noticeStore->add(
+    helper->rootManager->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidUseStatementNotice>(bridge->findSourceLocation())
     );
   }

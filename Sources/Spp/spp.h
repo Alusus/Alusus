@@ -33,13 +33,20 @@ s_enum(LogLevel,
   LLVMCODEGEN_DIAGNOSTIC = 128
 );
 
+/// Function pointer type for parsing handlers that takes state input data and translates it to something else.
+typedef TioSharedPtr (*ParsingHandlerFunc)(TioSharedPtr);
+
 }
+
+// Type names
+DEFINE_TYPE_NAME(Spp::ParsingHandlerFunc, "alusus.org/Spp/Spp.ParsingHandlerFunc");
 
 // Forward declarations
 
 namespace Spp
 {
   class BuildSession;
+  class GrammarFactory;
 
   namespace Ast
   {

@@ -30,7 +30,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->calleeTracer = newSrdObj<Ast::CalleeTracer>(this->astHelper.get());
 
   // Create global repos.
-  this->astLiteralRepo = newSrdObj<SharedList<TiObject>>();
+  this->astNodeRepo = newSrdObj<SharedList<TiObject>>();
   this->globalItemRepo = newSrdObj<CodeGen::GlobalItemRepo>();
 
   // Create the generator.
@@ -38,7 +38,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->expressionGenerator = newSrdObj<CodeGen::ExpressionGenerator>(
     this->astHelper.get(),
     this->calleeTracer.get(),
-    this->astLiteralRepo.get()
+    this->astNodeRepo.get()
   );
   this->commandGenerator = newSrdObj<CodeGen::CommandGenerator>(this->astHelper.get());
   this->generator = newSrdObj<CodeGen::Generator>(
@@ -65,27 +65,30 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   );
 
   this->astProcessor = newSrdObj<CodeGen::AstProcessor>(
-    this->astHelper.get(), this->buildManager.ti_cast_get<Executing>()
+    this->astHelper.get(), this->buildManager.ti_cast_get<Executing>(), this->astNodeRepo.get()
   );
   this->generator->setAstProcessor(this->astProcessor.get());
   this->typeGenerator->setAstProcessor(this->astProcessor.get());
 
+  // Add the grammar.
+  this->grammarFactory = newSrdObj<GrammarFactory>();
+  this->grammarFactory->setRootManager(manager);
+  this->grammarFactory->createGrammar();
+
   // Prepare run-time objects.
+  this->rtGrammarMgr = newSrdObj<Rt::GrammarMgr>(manager, this->grammarFactory.get());
   this->rtAstMgr = newSrdObj<Rt::AstMgr>();
+  this->rtAstMgr->setAstHelper(this->astHelper.get());
   this->rtAstMgr->setRootManager(manager);
   this->rtAstMgr->setAstProcessor(this->astProcessor.get());
-  this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(this->buildManager.get());
+  this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(manager, this->buildManager.get());
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
   this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
   this->rootManagerExtensionOverrides = RootManagerExtension::extend(
-    manager, this->buildManager, this->astProcessor, this->rtAstMgr, this->rtBuildMgr
+    manager, this->buildManager, this->astProcessor, this->rtGrammarMgr, this->rtAstMgr, this->rtBuildMgr
   );
-
-  // Add the grammar.
-  GrammarFactory factory;
-  factory.createGrammar(manager);
 
   this->createBuiltInTypes(manager);
   this->createGlobalDefs(manager);
@@ -104,6 +107,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->rootManagerExtensionOverrides = 0;
 
   // Reset run-time objects.
+  this->rtGrammarMgr.reset();
   this->rtAstMgr.reset();
   this->rtBuildMgr.reset();
 
@@ -118,9 +122,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
   this->nodePathResolver.reset();
   this->astHelper.reset();
 
-  // Clean the grammar.
-  GrammarFactory factory;
-  factory.cleanGrammar(manager);
+  this->grammarFactory->cleanGrammar();
 
   this->removeGlobalDefs(manager);
   this->removeBuiltInTypes(manager);
@@ -305,10 +307,7 @@ void LibraryGateway::removeGlobalDefs(Core::Main::RootManager *manager)
   identifier.setValue(S("Process"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
-  identifier.setValue(S("Core"));
-  manager->getSeeker()->tryRemove(&identifier, root);
-
-  identifier.setValue(S("Spp"));
+  identifier.setValue(S("الـعملية"));
   manager->getSeeker()->tryRemove(&identifier, root);
 }
 
@@ -336,6 +335,7 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
   );
+  Rt::GrammarMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtGrammarMgr.get());
   Rt::AstMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtAstMgr.get());
   Rt::BuildMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtBuildMgr.get());
 }

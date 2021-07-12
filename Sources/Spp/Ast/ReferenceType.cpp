@@ -65,4 +65,27 @@ TypeMatchStatus ReferenceType::matchTargetType(
   return matchStatus;
 }
 
+
+Bool ReferenceType::isIdentical(Type const *type, Helper *helper) const
+{
+  if (this == type) return true;
+
+  auto referenceType = ti_cast<ReferenceType const>(type);
+  if (referenceType == 0) return false;
+
+  if (this->getMode() != referenceType->getMode()) return false;
+
+  Type const *thisContentType = this->getContentType(helper);
+  if (thisContentType == 0) {
+    throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
+  }
+
+  Type const *targetContentType = referenceType->getContentType(helper);
+  if (targetContentType == 0) {
+    throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
+  }
+
+  return thisContentType->isIdentical(targetContentType, helper);
+}
+
 } // namespace

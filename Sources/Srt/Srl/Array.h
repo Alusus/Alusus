@@ -152,7 +152,7 @@ template <class T> class Array
       this->add(item);
     } else {
       this->_prepareToModify(true);
-      memcpy(this->data->buf + index + 1, this->data->buf + index, sizeof(T) * (this->data->length - index));
+      memmove(this->data->buf + index + 1, this->data->buf + index, sizeof(T) * (this->data->length - index));
       new(this->data->buf + index) T(item);
       ++this->data->length;
     }
@@ -163,7 +163,7 @@ template <class T> class Array
       this->_prepareToModify(false);
       this->data->buf[index].~T();
       if (index < this->getLength() - 1) {
-        memcpy(this->data->buf + index, this->data->buf + index + 1, sizeof(T) * (this->data->length - (index + 1)));
+        memmove(this->data->buf + index, this->data->buf + index + 1, sizeof(T) * (this->data->length - (index + 1)));
       };
       --this->data->length;
     }

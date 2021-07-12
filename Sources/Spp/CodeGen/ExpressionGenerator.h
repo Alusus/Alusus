@@ -39,15 +39,14 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   private: Ast::Helper *astHelper;
   private: Ast::CalleeTracer *calleeTracer;
-  private: SharedList<TiObject> *astLiteralRepo;
-  private: Core::Notices::Store *noticeStore = 0;
+  private: SharedList<TiObject> *astNodeRepo;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: ExpressionGenerator(Ast::Helper *h, Ast::CalleeTracer *t, SharedList<TiObject> *alr)
-    : astHelper(h), calleeTracer(t), astLiteralRepo(alr)
+  public: ExpressionGenerator(Ast::Helper *h, Ast::CalleeTracer *t, SharedList<TiObject> *anr)
+    : astHelper(h), calleeTracer(t), astNodeRepo(anr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -60,7 +59,7 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
     this->calleeTracer = parent->getCalleeTracer();
-    this->astLiteralRepo = parent->getAstLiteralRepo();
+    this->astNodeRepo = parent->getAstNodeRepo();
   }
 
   public: virtual ~ExpressionGenerator()
@@ -87,19 +86,9 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     return this->calleeTracer;
   }
 
-  public: SharedList<TiObject>* getAstLiteralRepo() const
+  public: SharedList<TiObject>* getAstNodeRepo() const
   {
-    return this->astLiteralRepo;
-  }
-
-  public: void setNoticeStore(Core::Notices::Store *ns)
-  {
-    this->noticeStore = ns;
-  }
-
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
+    return this->astNodeRepo;
   }
 
   /// @}

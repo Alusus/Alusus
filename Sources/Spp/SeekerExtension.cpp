@@ -111,31 +111,44 @@ Core::Data::Seeker::Verb SeekerExtension::_extForeach(
 ) {
   PREPARE_SELF(seeker, Core::Data::Seeker);
   Int tracingAlias = 0;
-  return seeker->foreach(ref, target, [flags, cb, &tracingAlias](TiInt action, TiObject *o)->Core::Data::Seeker::Verb {
-    if (action == Core::Data::Seeker::Action::ALIAS_TRACE_START) {
-      ++tracingAlias;
-      return Core::Data::Seeker::Verb::MOVE;
-    } else if (action == Core::Data::Seeker::Action::ALIAS_TRACE_END) {
-      --tracingAlias;
-      return Core::Data::Seeker::Verb::MOVE;
-    } else if (action == Core::Data::Seeker::Action::OWNER_SCOPE) {
-      if (tracingAlias == 0 && (flags & Core::Data::Seeker::Flags::SKIP_OWNERS) != 0) {
-        return Core::Data::Seeker::Verb::SKIP_GROUP;
-      } else return Core::Data::Seeker::Verb::MOVE;
-    } else if (action == Core::Data::Seeker::Action::USE_SCOPES_START) {
-      if (
-        (flags & Core::Data::Seeker::Flags::SKIP_USES) != 0 &&
-        (tracingAlias == 0 || (flags & Core::Data::Seeker::Flags::SKIP_USES_FOR_ALIASES) != 0)
+  Int tracingUse = 0;
+  return seeker->foreach(ref, target,
+    [flags, cb, &tracingAlias, &tracingUse](TiInt action, TiObject *o)->Core::Data::Seeker::Verb {
+      if (action == Core::Data::Seeker::Action::ALIAS_TRACE_START) {
+        ++tracingAlias;
+        return Core::Data::Seeker::Verb::MOVE;
+      } else if (action == Core::Data::Seeker::Action::ALIAS_TRACE_END) {
+        --tracingAlias;
+        return Core::Data::Seeker::Verb::MOVE;
+      } else if (action == Core::Data::Seeker::Action::OWNER_SCOPE) {
+        if (tracingAlias == 0 && (flags & Core::Data::Seeker::Flags::SKIP_OWNERS) != 0) {
+          return Core::Data::Seeker::Verb::SKIP_GROUP;
+        } else return Core::Data::Seeker::Verb::MOVE;
+      } else if (action == Core::Data::Seeker::Action::USE_SCOPES_START) {
+        if (
+          (tracingUse > 0 || (flags & Core::Data::Seeker::Flags::SKIP_USES) != 0) &&
+          (tracingAlias == 0 || (flags & Core::Data::Seeker::Flags::SKIP_USES_FOR_ALIASES) != 0)
+        ) {
+          return Core::Data::Seeker::Verb::SKIP;
+        } else {
+          ++tracingUse;
+          return Core::Data::Seeker::Verb::MOVE;
+        }
+      } else if (action == Core::Data::Seeker::Action::USE_SCOPES_END) {
+        --tracingUse;
+        return Core::Data::Seeker::Verb::MOVE;
+      } else if (action == SeekerExtension::Action::CHILD_SCOPE) {
+        if ((flags & SeekerExtension::Flags::SKIP_CHILDREN) != 0) return Core::Data::Seeker::Verb::SKIP;
+      } else if (
+        action != Core::Data::Seeker::Action::TARGET_MATCH &&
+        action != Core::Data::Seeker::Action::ERROR
       ) {
-        return Core::Data::Seeker::Verb::SKIP;
-      } else return Core::Data::Seeker::Verb::MOVE;
-    } else if (action == SeekerExtension::Action::CHILD_SCOPE) {
-      if ((flags & SeekerExtension::Flags::SKIP_CHILDREN) != 0) return Core::Data::Seeker::Verb::SKIP;
-    } else if (action != Core::Data::Seeker::Action::TARGET_MATCH) {
-      return Core::Data::Seeker::Verb::MOVE;
-    }
-    return cb(action, o);
-  }, flags);
+        return Core::Data::Seeker::Verb::MOVE;
+      }
+      return cb(action, o);
+    },
+    flags
+  );
 }
 
 

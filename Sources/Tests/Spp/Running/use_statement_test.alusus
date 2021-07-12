@@ -13,12 +13,26 @@ def Std: module
   }
 };
 
+def TypeContainer: module {
+  type InnerType {
+    def j: Int;
+  }
+}
+
+use TypeContainer;
+
 def Other1: module
 {
   def printUse: function
   {
     Std.printf("Use ");
   }
+
+  type Tp1 {
+    def i: Int;
+  }
+
+  def Tp2: alias array[InnerType, 10];
 };
 
 def Other2: module
@@ -65,3 +79,23 @@ def Main: module
 };
 
 Main.start();
+
+def Secondary: module {
+    use Main;
+    function testTypeFromUse {
+        use Other1;
+        def t1: Tp1;
+        def t2: Tp2;
+        t1.i = 5;
+        t2(1).j = 6;
+        Std.printf("testTypeFromUse: %d, %d\n", t1.i, t2(1).j);
+    }
+
+    function testError {
+        def t1: Tp1;
+        t1.7;
+    }
+}
+
+Secondary.testTypeFromUse();
+Secondary.testError();

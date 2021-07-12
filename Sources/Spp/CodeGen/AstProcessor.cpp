@@ -67,13 +67,6 @@ void AstProcessor::initBindings()
 //==============================================================================
 // Main Functions
 
-void AstProcessor::preparePass(Core::Notices::Store *noticeStore)
-{
-  this->setNoticeStore(noticeStore);
-  this->getAstHelper()->prepare(noticeStore);
-}
-
-
 Bool AstProcessor::_process(TiObject *self, TiObject *owner)
 {
   PREPARE_SELF(astProcessor, AstProcessor);
@@ -86,7 +79,7 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
   auto def = ti_cast<Core::Data::Ast::Definition>(owner);
   if (def != 0 && def->isToMerge() && def->getTarget().ti_cast_get<Spp::Ast::Type>() != 0) {
     // Having a type definition with to-merge flag set means we eventually didn't find the merge target.
-    astProcessor->noticeStore->add(
+    astProcessor->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::MissingTypeMergeTargetNotice>(findSourceLocation(def))
     );
     // Reset the to-merge flag to avoid duplicate error messages.
@@ -109,10 +102,16 @@ Bool AstProcessor::_process(TiObject *self, TiObject *owner)
       continue;
     } else if (child->isDerivedFrom<Ast::Type>()) {
       continue;
+    } else if (child->isDerivedFrom<Ast::Function>()) {
+      continue;
+    } else if (child->isDerivedFrom<Ast::AstLiteralCommand>()) {
+      if (!static_cast<Ast::AstLiteralCommand*>(child)->isPreprocessDisabled()) {
+        if (!astProcessor->process(child)) result = false;
+      }
     } else if (child->isDerivedFrom<Ast::PreprocessStatement>()) {
       if (astProcessor->processPreprocessStatement(static_cast<Ast::PreprocessStatement*>(child), owner, i)) --i;
       else result = false;
-    } else if (!child->isDerivedFrom<Ast::Function>()) {
+    } else {
       if (!astProcessor->process(child)) result = false;
     }
   }
@@ -135,7 +134,7 @@ Bool AstProcessor::_processParamPass(
     auto param = paramPass->getParam().get();
     Containing<TiObject> *args = &argsList;
     if (param) {
-      if (param->isDerivedFrom<Core::Data::Ast::List>()) {
+      if (param->isA<Core::Data::Ast::List>()) {
         args = static_cast<Core::Data::Ast::List*>(param);
       } else {
         argsList.add(param);
@@ -164,10 +163,10 @@ Bool AstProcessor::_processParamPass(
     Bool result = true;
     if (macro != 0) {
       auto sl = paramPass->findSourceLocation();
-      astProcessor->noticeStore->pushPrefixSourceLocation(sl.get());
+      astProcessor->astHelper->getNoticeStore()->pushPrefixSourceLocation(sl.get());
       if (astProcessor->processMacro(macro, args, paramPass->getOwner(), indexInOwner, sl.get())) replaced = true;
       else result = false;
-      astProcessor->noticeStore->popPrefixSourceLocation(
+      astProcessor->astHelper->getNoticeStore()->popPrefixSourceLocation(
         Core::Data::getSourceLocationRecordCount(sl.get())
       );
     }
@@ -178,6 +177,8 @@ Bool AstProcessor::_processParamPass(
 }
 
 
+#define PREPROCESS_SESSION_KEY S("preprocessSession")
+
 Bool AstProcessor::_processPreprocessStatement(
   TiObject *self, Spp::Ast::PreprocessStatement *preprocess, TiObject *owner, TiInt indexInOwner
 ) {
@@ -185,21 +186,43 @@ Bool AstProcessor::_processPreprocessStatement(
 
   if (!astProcessor->process(preprocess->getBody().get())) return false;
 
-  // Build the preprocess statement.
-  SharedPtr<BuildSession> buildSession = astProcessor->executing->prepareBuild(
-    astProcessor->getNoticeStore(), BuildManager::BuildType::PREPROCESS, preprocess->getBody().get()
-  );
+  // Capture a shared pointer to avoid segfault in case a dependency processes the same statement, or in case
+  // elements from this preprocess statement are in use elsewhere, like in templates.
+  astProcessor->astNodeRepo->addElement(preprocess);
+
   Bool result = true;
-  auto block = preprocess->getBody().ti_cast_get<Ast::Block>();
-  if (block != 0) {
-    for (Int i = 0; i < block->getElementCount(); ++i) {
-      auto childData = block->getElement(i);
-      if (!astProcessor->executing->addElementToBuild(childData, buildSession.get())) result = false;
+
+  // Build the preprocess statement.
+  // Was the statement already built? This can happen when the same preprocess statement is encountered again while
+  // finalizing the build of that preprocess statement. We'll store the build session on the element and re-use it
+  // if encountered again in order to avoid double building the statement.
+  SharedPtr<BuildSession> buildSession = preprocess->getExtra(PREPROCESS_SESSION_KEY).ti_cast<BuildSession>();
+  if (buildSession == 0) {
+    buildSession = astProcessor->executing->prepareBuild(
+      BuildManager::BuildType::PREPROCESS, preprocess->getBody().get()
+    );
+    setExtra(preprocess, PREPROCESS_SESSION_KEY, buildSession);
+
+    auto block = preprocess->getBody().ti_cast_get<Ast::Block>();
+    if (block != 0) {
+      for (Int i = 0; i < block->getElementCount(); ++i) {
+        auto childData = block->getElement(i);
+        if (!astProcessor->executing->addElementToBuild(childData, buildSession.get())) result = false;
+      }
+    } else {
+        if (!astProcessor->executing->addElementToBuild(preprocess->getBody().get(), buildSession.get())) result = false;
     }
+
+    astProcessor->executing->finalizeBuild(preprocess->getBody().get(), buildSession.get());
   } else {
-      if (!astProcessor->executing->addElementToBuild(preprocess->getBody().get(), buildSession.get())) result = false;
+    // Statement has already been generated; We'll only force the building of the remaining deps.
+    auto tmpBuildSession = astProcessor->executing->prepareBuild(BuildManager::BuildType::PREPROCESS, 0);
+    astProcessor->executing->finalizeBuild(0, tmpBuildSession.get());
   }
-  astProcessor->executing->finalizeBuild(astProcessor->getNoticeStore(), preprocess->getBody().get(), buildSession.get());
+
+  // If the build session was removed from the element after finalizing the build it means one of the dependencies
+  // executed the statement, so we don't need to execute it again.
+  if (preprocess->getExtra(PREPROCESS_SESSION_KEY) == 0) return true;
 
   astProcessor->currentPreprocessOwner = owner;
   astProcessor->currentPreprocessInsertionPosition = indexInOwner;
@@ -221,8 +244,10 @@ Bool AstProcessor::_processPreprocessStatement(
       throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
     }
 
-    astProcessor->executing->execute(astProcessor->getNoticeStore(), buildSession.get());
+    astProcessor->executing->execute(buildSession.get());
   }
+
+  preprocess->removeExtra(PREPROCESS_SESSION_KEY);
 
   return result;
 }
@@ -265,7 +290,7 @@ Bool AstProcessor::_processMacro(
   TioSharedPtr macroInstance;
   if (!astProcessor->applyMacroArgs(macro, args, sl, macroInstance)) return false;
   if (macroInstance == 0) {
-    astProcessor->noticeStore->add(
+    astProcessor->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidMacroNotice>(macro->findSourceLocation())
     );
     return false;
@@ -287,7 +312,8 @@ Bool AstProcessor::_processMacro(
       ownerScope->remove(indexInOwner);
       Int index = indexInOwner;
       Core::Data::Ast::addPossiblyMergeableElements(
-        instanceScope, ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+        instanceScope, ownerScope, index, astProcessor->astHelper->getSeeker(),
+        astProcessor->astHelper->getNoticeStore()
       );
     } else {
       // Merge the element into the owner scope.
@@ -295,7 +321,8 @@ Bool AstProcessor::_processMacro(
       ownerScope->remove(indexInOwner);
       Int index = indexInOwner;
       Core::Data::Ast::addPossiblyMergeableElement(
-        macroInstance.get(), ownerScope, index, astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+        macroInstance.get(), ownerScope, index, astProcessor->astHelper->getSeeker(),
+        astProcessor->astHelper->getNoticeStore()
       );
     }
   } else {
@@ -343,14 +370,14 @@ Bool AstProcessor::_insertInterpolatedAst(
       auto insertedScope = result.s_cast_get<Core::Data::Ast::Scope>();
       Core::Data::Ast::addPossiblyMergeableElements(
         insertedScope, ownerScope, astProcessor->currentPreprocessInsertionPosition,
-        astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+        astProcessor->astHelper->getSeeker(), astProcessor->astHelper->getNoticeStore()
       );
     } else {
       // Add a single element to the scope
       auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentPreprocessOwner);
       Core::Data::Ast::addPossiblyMergeableElement(
         result.get(), ownerScope, astProcessor->currentPreprocessInsertionPosition,
-        astProcessor->astHelper->getSeeker(), astProcessor->noticeStore
+        astProcessor->astHelper->getSeeker(), astProcessor->astHelper->getNoticeStore()
       );
     }
   } else {
@@ -416,7 +443,7 @@ Bool AstProcessor::_interpolateAst_identifier(
         text = static_cast<TiStr*>(arg)->get();
       } else {
         auto elementSl = Core::Data::Ast::findSourceLocation(arg);
-        astProcessor->noticeStore->add(
+        astProcessor->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
         );
         return false;
@@ -479,7 +506,7 @@ Bool AstProcessor::_interpolateAst_stringLiteral(
         text = static_cast<TiStr*>(arg)->get();
       } else {
         auto elementSl = Core::Data::Ast::findSourceLocation(arg);
-        astProcessor->noticeStore->add(
+        astProcessor->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
         );
         return false;
@@ -521,7 +548,7 @@ Bool AstProcessor::_interpolateAst_tiStr(
       astProcessor->generateStringFromTemplate(obj->get(), prefixSize, arg->getValue().get(), suffix, newVar, 1000);
       result = TiStr::create(newVar);
     } else {
-      astProcessor->noticeStore->add(
+      astProcessor->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
       );
       return false;
@@ -609,7 +636,7 @@ Bool AstProcessor::_interpolateAst_binding(
           text = static_cast<TiStr*>(arg)->get();
         } else {
           auto elementSl = Core::Data::Ast::findSourceLocation(arg);
-          astProcessor->noticeStore->add(
+          astProcessor->astHelper->getNoticeStore()->add(
             newSrdObj<Spp::Notices::InvalidMacroArgNotice>(elementSl == 0 ? getSharedPtr(sl) : elementSl)
           );
           return false;
@@ -671,9 +698,13 @@ Bool AstProcessor::_interpolateAst_dynContaining(
       if (child != 0) {
         if (!astProcessor->interpolateAst(child, argNames, args, sl, newChild)) return false;
       }
-      destObj->addElement(newChild.get());
+      Core::Data::Ast::addPossiblyMergeableElement(
+        newChild.get(), destObj, astProcessor->astHelper->getSeeker(), astProcessor->astHelper->getNoticeStore()
+      );
     } else {
-      destObj->addElement(obj->getElement(i));
+      Core::Data::Ast::addPossiblyMergeableElement(
+        obj->getElement(i), destObj, astProcessor->astHelper->getSeeker(), astProcessor->astHelper->getNoticeStore()
+      );
     }
   }
   return true;
@@ -702,7 +733,7 @@ Bool AstProcessor::_interpolateAst_dynMapContaining(
         );
         // Make sure the new key isn't already used.
         if (obj->findElementIndex(newKey) != -1) {
-          astProcessor->noticeStore->add(
+          astProcessor->astHelper->getNoticeStore()->add(
             newSrdObj<Spp::Notices::InvalidMacroArgNotice>(arg->findSourceLocation())
           );
           return false;
@@ -711,7 +742,7 @@ Bool AstProcessor::_interpolateAst_dynMapContaining(
         obj->insertElement(index, newKey, value);
         obj->removeElement(index + 1);
       } else {
-        astProcessor->noticeStore->add(
+        astProcessor->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Data::Ast::findSourceLocation(arg))
         );
         return false;

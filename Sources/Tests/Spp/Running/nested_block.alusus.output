@@ -1,0 +1,10 @@
+A~init 1
+test 1
+A~init 2
+test 2
+A~terminate 2
+A~init 3
+test 3
+A~terminate 3
+test 4
+A~terminate 1

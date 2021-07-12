@@ -48,23 +48,6 @@ void Generator::initBindings()
 
 
 //==============================================================================
-// Main Operation Functions
-
-void Generator::prepareBuild(Core::Notices::Store *noticeStore)
-{
-  VALIDATE_NOT_NULL(noticeStore);
-
-  this->noticeStore = noticeStore;
-  this->noticeStore->clearPrefixSourceLocationStack();
-
-  this->astHelper->prepare(this->noticeStore);
-  this->typeGenerator->setNoticeStore(this->noticeStore);
-  this->commandGenerator->setNoticeStore(this->noticeStore);
-  this->expressionGenerator->setNoticeStore(this->noticeStore);
-}
-
-
-//==============================================================================
 // Code Generation Functions
 
 Bool Generator::_generateModules(TiObject *self, Core::Data::Ast::Scope *root, Session *session)
@@ -235,7 +218,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     if (!generator->astHelper->isVoid(astRetType) && terminal != TerminalStatement::YES) {
       // A block could have been terminated by a block or continue statement instead of a return, but that's fine
       // since top level breaks and returns will raise an error anyway.
-      generator->noticeStore->add(
+      generator->rootManager->getNoticeStore()->add(
         newSrdObj<Spp::Notices::MissingReturnStatementNotice>(astFunc->findSourceLocation())
       );
       return false;
@@ -600,7 +583,7 @@ Bool Generator::_generateVarInitialization(
       );
     } else if (paramAstTypes->getCount() != 1 || generator->getSeeker()->tryGet(&ref, varAstType) != 0) {
       // We have custom initialization but no constructors match the given params.
-      generator->noticeStore->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
+      generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       return false;
@@ -616,7 +599,7 @@ Bool Generator::_generateVarInitialization(
         session, paramAstType, varAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(0)),
         paramTgValues->getElement(0), true, castedValue)
       ) {
-        generator->noticeStore->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
+        generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
           Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(0))
         ));
         return false;
@@ -632,7 +615,7 @@ Bool Generator::_generateVarInitialization(
         return false;
       }
     } else if (paramAstTypes->getCount() > 0) {
-      generator->noticeStore->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
+      generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       return false;
@@ -874,12 +857,16 @@ Bool Generator::_generateStatementBlock(
       if (terminal == TerminalStatement::YES) {
         // Unreachable code.
         PREPARE_SELF(generator, Generator);
-        generator->noticeStore->add(
+        generator->rootManager->getNoticeStore()->add(
           newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(astNode))
         );
         return false;
       }
-      if (!generation->generateStatement(astNode, session, terminal)) result = false;
+      if (astNode->isDerivedFrom<Spp::Ast::Block>()) {
+        if (!generation->generateStatementBlock(astNode, session, terminal)) result = false;
+      } else {
+        if (!generation->generateStatement(astNode, session, terminal)) result = false;
+      }
     }
   } else {
     if (!generation->generateStatement(astBlock, session, terminal)) result = false;
@@ -907,17 +894,22 @@ Bool Generator::_generateStatement(
   if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
     auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
     auto target = def->getTarget().get();
-    if (target->isDerivedFrom<Spp::Ast::Module>()) {
+    if (target == 0) {
+      generator->rootManager->getNoticeStore()->add(
+        newSrdObj<Core::Notices::InvalidDefCommandNotice>(def->findSourceLocation())
+      );
+      retVal = false;
+    } else if (target->isDerivedFrom<Spp::Ast::Module>()) {
       retVal = generation->generateModuleInit(static_cast<Spp::Ast::Module*>(target), session);
     // } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
     //   // TODO: Generate function.
-    //   generator->noticeStore->add(
+    //   generator->rootManager->getNoticeStore()->add(
     //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
     //   );
     //   retVal = false;
     // } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
     //   // TODO: Generate type.
-    //   generator->noticeStore->add(
+    //   generator->rootManager->getNoticeStore()->add(
     //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
     //   );
     //   retVal = false;

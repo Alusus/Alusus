@@ -197,7 +197,7 @@ def build_llvm():
             "cmake",
             os.path.join("..", src_dir),
             f"-DCMAKE_INSTALL_PREFIX={os.path.join(DEPS_PATH, install_dir)}",
-            "-DCMAKE_BUILD_TYPE=MinSizeRel",
+            "-DCMAKE_BUILD_TYPE=Release",
             "-DLLVM_TARGETS_TO_BUILD=X86;WebAssembly"])
         if ret != 0:
             failMsg("Building LLVM.")
@@ -205,7 +205,7 @@ def build_llvm():
 
         if is_windows():
             ret = subprocess.call(
-                "msbuild INSTALL.vcxproj /p:Configuration=MinSizeRel /m".split())
+                "msbuild INSTALL.vcxproj /p:Configuration=Release /m".split())
             if ret != 0:
                 failMsg("Building LLVM.")
                 exit(1)

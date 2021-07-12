@@ -52,6 +52,7 @@ Bool mergeDefinition(
   Bool found = false;
   seeker->extForeach(&ref, target->getTiObject(),
     [=,&result,&found](TiInt action, TiObject *obj)->Seeker::Verb {
+      if (action != Seeker::Action::TARGET_MATCH) return Seeker::Verb::MOVE;
       found = true;
       auto targetObj = ti_cast<Mergeable>(obj);
       if (targetObj == 0) {
@@ -224,6 +225,71 @@ TioSharedPtr _clone(TiObject *obj, SourceLocation *sl)
   if (sl != 0) addSourceLocation(clone.get(), sl);
 
   return clone;
+}
+
+
+Bool isEqual(TiObject *obj1, TiObject *obj2)
+{
+  if (obj1 == 0 && obj2 == 0) return true;
+  else if (obj1 == 0 || obj2 == 0) return false;
+
+  if (obj1->getMyTypeInfo() != obj2->getMyTypeInfo()) return false;
+
+  // Check basic types.
+
+  if (obj1->isDerivedFrom<TiInt>()) {
+    auto tiInt1 = static_cast<TiInt*>(obj1);
+    auto tiInt2 = static_cast<TiInt*>(obj2);
+    return tiInt1->get() == tiInt2->get();
+  } else if (obj1->isDerivedFrom<TiWord>()) {
+    auto tiWord1 = static_cast<TiWord*>(obj1);
+    auto tiWord2 = static_cast<TiWord*>(obj2);
+    return tiWord1->get() == tiWord2->get();
+  } else if (obj1->isDerivedFrom<TiFloat>()) {
+    auto tiFloat1 = static_cast<TiFloat*>(obj1);
+    auto tiFloat2 = static_cast<TiFloat*>(obj2);
+    return tiFloat1->get() == tiFloat2->get();
+  } else if (obj1->isDerivedFrom<TiBool>()) {
+    auto tiBool1 = static_cast<TiBool*>(obj1);
+    auto tiBool2 = static_cast<TiBool*>(obj2);
+    return tiBool1->get() == tiBool2->get();
+  } else if (obj1->isDerivedFrom<TiStr>()) {
+    auto tiStr1 = static_cast<TiStr*>(obj1);
+    auto tiStr2 = static_cast<TiStr*>(obj2);
+    return tiStr1->getStr() == tiStr2->getStr();
+  } else if (obj1->isDerivedFrom<TiWStr>()) {
+    auto tiStr1 = static_cast<TiWStr*>(obj1);
+    auto tiStr2 = static_cast<TiWStr*>(obj2);
+    return tiStr1->getWStr() == tiStr2->getWStr();
+  }
+
+  // Check class properties.
+
+  auto bindings1 = ti_cast<Binding>(obj1);
+  auto bindings2 = ti_cast<Binding>(obj2);
+  if (bindings1 != 0 && bindings2 != 0) {
+    for (Int i = 0; i < bindings1->getMemberCount(); ++i) {
+      if (!isEqual(bindings1->getMember(i), bindings2->getMember(i))) return false;
+    }
+  } else if (bindings1 != 0 || bindings2 != 0) return false;
+
+  auto mapContainer1 = ti_cast<MapContaining<TiObject>>(obj1);
+  auto mapContainer2 = ti_cast<MapContaining<TiObject>>(obj2);
+  if (mapContainer1 != 0 && mapContainer2 != 0) {
+    for (Int i = 0; i < mapContainer1->getElementCount(); ++i) {
+      if (mapContainer1->getElementKey(i) != mapContainer2->getElementKey(i)) return false;
+    }
+  } else if (mapContainer1 != 0 || mapContainer2 != 0) return false;
+
+  auto container1 = ti_cast<Containing<TiObject>>(obj1);
+  auto container2 = ti_cast<Containing<TiObject>>(obj2);
+  if (container1 != 0 && container2 != 0) {
+    for (Int i = 0; i < container1->getElementCount(); ++i) {
+      if (!isEqual(container1->getElement(i), container2->getElement(i))) return false;
+    }
+  } else if (container1 != 0 || container2 != 0) return false;
+
+  return true;
 }
 
 } // namespace

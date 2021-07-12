@@ -39,7 +39,6 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
 
   private: Ast::Helper *astHelper;
   private: AstProcessor *astProcessor = 0;
-  private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
@@ -86,16 +85,6 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
   public: AstProcessor* getAstProcessor() const
   {
     return this->astProcessor;
-  }
-
-  public: void setNoticeStore(Core::Notices::Store *ns)
-  {
-    this->noticeStore = ns;
-  }
-
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
   }
 
   /// @}

@@ -31,6 +31,9 @@ import "srl";
         @expname[memcpy]
         function copy (dest: ptr[Void], src: ptr[Void], n: ArchInt) => ptr[Void];
 
+        @expname[memmove]
+        function move (dest: ptr[Void], src: ptr[Void], n: ArchInt) => ptr[Void];
+
         @expname[memcmp]
         function compare (s1: ptr[Void], s2: ptr[Void], n: ArchInt) => Int;
 

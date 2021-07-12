@@ -76,6 +76,9 @@ DEFINE_NOTICE(MissingTypeMergeTargetNotice, "Core.Notices", "Core", "alusus.org"
 DEFINE_NOTICE(AccessingLocalVarInOtherFuncNotice, "Core.Notices", "Core", "alusus.org", "SPPA1015", 1,
   "Trying to access a local variable from a different function."
 );
+DEFINE_NOTICE(InvalidCommandDefAstNotice, "Core.Notices", "Core", "alusus.org", "SPPA1016", 1,
+  "Error in custom command definition AST."
+);
 
 } /// namespace
 

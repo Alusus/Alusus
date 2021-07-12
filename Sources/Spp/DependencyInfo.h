@@ -21,6 +21,8 @@ struct DependencyInfo
   public: DependencyList<Core::Data::Node> globalVarInitializationDeps;
   public: DependencyList<Core::Data::Node> globalVarDestructionDeps;
   public: DependencyList<Ast::Function> funcDeps;
+  public: Array<Str> globalCtorNames;
+  public: Array<Str> globalDtorNames;
 };
 
 } // namespace

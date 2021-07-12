@@ -38,7 +38,6 @@ class CommandGenerator : public TiObject, public DynamicBinding, public DynamicI
   // Member Variables
 
   private: Ast::Helper *astHelper;
-  private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
@@ -75,16 +74,6 @@ class CommandGenerator : public TiObject, public DynamicBinding, public DynamicI
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
-  }
-
-  public: void setNoticeStore(Core::Notices::Store *ns)
-  {
-    this->noticeStore = ns;
-  }
-
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
   }
 
   /// @}

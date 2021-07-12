@@ -297,12 +297,14 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
+  Str l18nPath = Core::Main::getModuleDirectory();
+  l18nPath += S("../../../Notices_L18n/");
   Char const *subpath = argv[1];
   Char const *ext = argv[2];
   if (argc == 4 && compareStr(argv[3], S("ar")) == 0) {
-    Str l18nPath = Core::Main::getModuleDirectory();
-    l18nPath += S("../../../Notices_L18n/");
     Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath);
+  } else {
+    Core::Notices::L18nDictionary::getSingleton()->initialize(S("en"), l18nPath);
   }
 
   // Prepare a temporary filename.

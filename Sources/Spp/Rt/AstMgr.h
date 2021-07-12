@@ -37,8 +37,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   //============================================================================
   // Member Variables
 
-  private: Core::Notices::Store *noticeStore;
-  private: Core::Processing::Parser *parser;
+  private: Ast::Helper *astHelper;
   private: Core::Main::RootManager *rootManager;
   private: Spp::CodeGen::AstProcessor *astProcessor;
 
@@ -57,8 +56,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
-    this->setNoticeStore(parent->getNoticeStore());
-    this->setParser(parent->getParser());
+    this->setAstHelper(parent->getAstHelper());
     this->setRootManager(parent->getRootManager());
     this->setAstProcessor(parent->getAstProcessor());
   }
@@ -79,22 +77,13 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: static void initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, AstMgr *astMgr);
 
-  public: void setNoticeStore(Core::Notices::Store *store)
+  public: void setAstHelper(Ast::Helper *h)
   {
-    this->noticeStore = store;
+    this->astHelper = h;
   }
-  public: Core::Notices::Store* getNoticeStore() const
+  public: Ast::Helper* getAstHelper() const
   {
-    return this->noticeStore;
-  }
-
-  public: void setParser(Core::Processing::Parser *p)
-  {
-    this->parser = p;
-  }
-  public: Core::Processing::Parser* getParser() const
-  {
-    return this->parser;
+    return this->astHelper;
   }
 
   public: void setRootManager(Core::Main::RootManager *rm)
@@ -161,6 +150,15 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: static Bool _buildAst_shared(
     TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations, TioSharedPtr &result
   );
+
+  public: METHOD_BINDING_CACHE(getCurrentPreprocessOwner, TiObject*);
+  private: static TiObject* _getCurrentPreprocessOwner(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getCurrentPreprocessInsertionPosition, Int);
+  private: static Int _getCurrentPreprocessInsertionPosition(TiObject *self);
+
+  public: METHOD_BINDING_CACHE(getVariableDomain, Int, (TiObject*));
+  public: static Int _getVariableDomain(TiObject *self, TiObject* ast);
 
   /// @}
 

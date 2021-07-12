@@ -31,6 +31,7 @@ TypeMatchStatus FunctionType::matchTargetType(
   // Check return type.
   auto thisRetType = this->traceRetType(helper);
   auto retType = functionType->traceRetType(helper);
+  if (thisRetType == 0 || retType == 0) return TypeMatchStatus::NONE;
   if (!thisRetType->isEqual(retType, helper, ec)) return TypeMatchStatus::NONE;
 
   // Check args.
@@ -62,12 +63,58 @@ TypeMatchStatus FunctionType::matchTargetType(
         // Check regular args.
         Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
         Type *argType = arg == 0 ? 0 : helper->traceType(arg);
-        ASSERT(thisArgType != 0 && argType != 0);
+        if (thisArgType == 0 || argType == 0) return TypeMatchStatus::NONE;
         if (!thisArgType->isEqual(argType, helper, ec)) return TypeMatchStatus::NONE;
       }
     }
     return result;
   }
+}
+
+
+Bool FunctionType::isIdentical(Type const *type, Helper *helper) const
+{
+  if (this == type) return true;
+
+  auto functionType = ti_cast<FunctionType>(type);
+  if (functionType == 0) return false;
+
+  if (this->isMember() != functionType->isMember()) return false;
+
+  // Check return type.
+  auto thisRetType = this->traceRetType(helper);
+  auto retType = functionType->traceRetType(helper);
+  if (thisRetType == 0 || retType == 0) return false;
+  if (!thisRetType->isIdentical(retType, helper)) return false;
+
+  // Check args.
+  Word thisArgCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
+  Word argCount = functionType->argTypes == 0 ? 0 : functionType->argTypes->getCount();
+  if (thisArgCount != argCount) return false;
+
+  for (Int i = 0; i < argCount; ++i) {
+    auto thisArg = this->argTypes->getElement(i);
+    auto arg = functionType->argTypes->getElement(i);
+    auto thisArgPack = ti_cast<ArgPack>(thisArg);
+    auto argPack = ti_cast<ArgPack>(arg);
+
+    if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return false;
+    else if (argPack != 0) {
+      // Check arg packs.
+      if (thisArgPack->getMin() != argPack->getMin() || thisArgPack->getMax() != argPack->getMax()) return false;
+      Type *thisArgType = thisArgPack->getArgType() == 0 ? 0 : helper->traceType(thisArgPack->getArgType().get());
+      Type *argType = argPack->getArgType() == 0 ? 0 : helper->traceType(argPack->getArgType().get());
+      if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return false;
+      if (thisArgType != 0 && !thisArgType->isIdentical(argType, helper)) return false;
+    } else {
+      // Check regular args.
+      Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
+      Type *argType = arg == 0 ? 0 : helper->traceType(arg);
+      if (thisArgType == 0 || argType == 0) return false;
+      if (!thisArgType->isIdentical(argType, helper)) return false;
+    }
+  }
+  return true;
 }
 
 

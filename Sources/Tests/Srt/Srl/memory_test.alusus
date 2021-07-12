@@ -73,6 +73,8 @@ def Main: module
     Console.print("compare zeros to array: %d\n", Memory.compare(buf2, buf, Int~size * 10));
     Memory.copy(buf2, buf, Int~size * 10);
     Console.print("comparing equal arrays: %d\n", Memory.compare(buf, buf2, Int~size * 10));
+    Memory.move(buf2, buf2~cnt(1)~ptr, Int~size * 9);
+    Console.print("comparing non-equal arrays: %d\n", Memory.compare(buf, buf2, Int~size * 10));
     Memory.free(buf);
     Memory.free(buf2);
   };

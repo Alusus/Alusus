@@ -6,7 +6,6 @@ ERROR SPPG1008 @ (34,10): Invalid symbol.
 ERROR SPPG1008 @ (35,5): Invalid symbol.
 ERROR SPPA1003 @ (53,17): No valid match was found for the given type.
 ERROR SPPA1002 @ (53,17): Invalid template argument.
-ERROR SPPA1003 @ (53,13): No valid match was found for the given type.
 ERROR SPPG1015 @ (54,5): Incompatible types for the given operator.
 ERROR SPPG1005 @ (55,10): Invalid cast.
 ERROR SPPG1005 @ (64,10): Invalid cast.

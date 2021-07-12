@@ -96,13 +96,13 @@ class OfflineBuildTarget : public BuildTarget
 
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module);
 
-  public: Str generateLlvmIr(std::vector<Str> const *ctorNames, std::vector<Str> const *dtorNames);
+  public: Str generateLlvmIr(Array<Str> const *ctorNames, Array<Str> const *dtorNames);
 
   public: void generateObjectFile(
-    Char const *filename, std::vector<Str> const *ctorNames, std::vector<Str> const *dtorNames
+    Char const *filename, Array<Str> const *ctorNames, Array<Str> const *dtorNames
   );
 
-  private: void buildCtorOrDtorArray(std::vector<Str> const *funcNames, Char const *globalVarName);
+  private: void buildCtorOrDtorArray(Array<Str> const *funcNames, Char const *globalVarName);
 
 }; // class
 

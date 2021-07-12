@@ -185,3 +185,26 @@ Function test() [Main.Function]
    operand: Identifier: pf2 [Main.BlockSubject.Identifier]
    param: NULL
 ------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function testAstLiteral1() [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
+  AstLiteralCommand [Main.AstLiteral]
+   body: Definition [Main.Def] n: Identifier: Int [Main.BlockSubject.Identifier]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function testAstLiteral2() [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
+  argTypes: NULL
+  retType: NULL
+ body: Block [Main.BlockStatements.StmtList]
+  AstLiteralCommand [Main.AstLiteral]
+   body: ParamPass [] [Main.Expression.ParamPassExp]
+    operand: Identifier: defInt [Main.BlockSubject.Identifier]
+    param: Identifier: n [Main.BlockSubject.Identifier]
+------------------------------------------------------
+A->preprocess
+testDoublePreprocess1
+testDoublePreprocess2

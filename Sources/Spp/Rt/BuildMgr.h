@@ -37,15 +37,14 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
   //============================================================================
   // Member Variables
 
+  private: Core::Main::RootManager *rootManager;
   private: BuildManager *buildManager;
-  private: Core::Notices::Store *noticeStore;
-  private: Core::Processing::Parser *parser;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: BuildMgr(BuildManager *bm) : buildManager(bm)
+  public: BuildMgr(Core::Main::RootManager *rm, BuildManager *bm) : rootManager(rm), buildManager(bm)
   {
   }
 
@@ -54,6 +53,7 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
+    this->rootManager = parent->getRootManager();
     this->buildManager = parent->getBuildManager();
   }
 
@@ -73,27 +73,14 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
 
   public: static void initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, BuildMgr *buildMgr);
 
+  public: Core::Main::RootManager* getRootManager() const
+  {
+    return this->rootManager;
+  }
+
   public: BuildManager* getBuildManager() const
   {
     return this->buildManager;
-  }
-
-  public: void setNoticeStore(Core::Notices::Store *store)
-  {
-    this->noticeStore = store;
-  }
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
-  }
-
-  public: void setParser(Core::Processing::Parser *p)
-  {
-    this->parser = p;
-  }
-  public: Core::Processing::Parser* getParser() const
-  {
-    return this->parser;
   }
 
   /// @}
@@ -107,6 +94,13 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
   public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (TiObject*, Char const*, Char const*));
   public: static Bool _buildObjectFileForElement(
     TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
+  );
+
+  public: METHOD_BINDING_CACHE(raiseBuildNotice, void, (
+    Char const* /* code */, Int /* severity */, TiObject* /* astNode */
+  ));
+  public: static void _raiseBuildNotice(
+    TiObject *self, Char const *code, Int severity, TiObject *astNode
   );
 
   /// @}

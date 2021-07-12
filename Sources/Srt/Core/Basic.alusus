@@ -22,10 +22,10 @@ import "Srl/String";
         func getFromGlobalStorage (ptr[array[Word[8]]]): ptr;
 
         macro defTypeInfoGetter[typeName] {
-            func getTypeInfo (): ref[TypeInfo] {
-                @shared def typeInfo: ref[TypeInfo];
+            func getTypeInfo (): ref[Core.Basic.TypeInfo] {
+                @shared def typeInfo: ref[Core.Basic.TypeInfo];
                 if typeInfo~ptr == 0 {
-                    typeInfo~ptr = getFromGlobalStorage(typeName)~cast[ptr[TypeInfo]];
+                    typeInfo~ptr = Core.Basic.getFromGlobalStorage(typeName)~cast[ptr[Core.Basic.TypeInfo]];
                 }
                 return typeInfo;
             }
@@ -76,6 +76,32 @@ import "Srl/String";
         macro getInterface [obj, T] castRef[obj.getInterface(T.getTypeInfo()), T];
         macro isDerivedFrom [obj, T] obj.isDerivedFrom(T.getTypeInfo());
 
+        macro dynCastRef [obj, T] ref[T]().{
+            def self: ref[ref[T]](this);
+            obj.{
+                if this~ptr != 0 && this.isDerivedFrom(T.getTypeInfo())
+                    self~deref~no_deref = castRef[this, T]
+                else
+                    self~deref~no_deref = nullRef[T];
+            }
+        };
+
+        macro castSrdRef [r, T] SrdRef[T]().{
+            def self: ref[SrdRef[T]](this);
+            r.{
+                self.assign(this.refCounter, castRef[this.obj, T]);
+            }
+        };
+
+        macro dynCastSrdRef [r, T] SrdRef[T]().{
+            def self: ref[SrdRef[T]](this);
+            r.{
+                if this.obj~ptr != 0 && this.obj.isDerivedFrom(T.getTypeInfo()) {
+                    self.assign(this.refCounter, castRef[this.obj, T]);
+                }
+            }
+        };
+
         macro defDynCastedRef [name, obj, T] {
             def name: ref[T];
             if obj~ptr != 0 && obj.isDerivedFrom(T.getTypeInfo())
@@ -83,6 +109,11 @@ import "Srl/String";
             else
                 name~ptr = 0;
         }
+
+        macro newSrdObj [T] SrdRef[T]().{
+            construct();
+            wkThis.assign(this.refCounter, this.tiObject);
+        };
 
         macro defTiBasicType [name, dataType, uniqueName] {
             type name {
@@ -243,5 +274,17 @@ import "Srl/String";
 
             defTypeInfoGetter["alusus.org/Core/Core.Basic.DynamicMapContaining<alusus.org/Core/Core.Basic.TiObject>"]
         }
+
+        macro BindingOf [obj] ref[Core.Basic.Binding](Core.Basic.getInterface[obj, Core.Basic.Binding]);
+        macro ContainerOf [obj] ref[Core.Basic.Containing](Core.Basic.getInterface[obj, Core.Basic.Containing]);
+        macro DynContainerOf [obj] ref[Core.Basic.DynamicContaining](
+            Core.Basic.getInterface[obj, Core.Basic.DynamicContaining]
+        );
+        macro MapContainerOf [obj] ref[Core.Basic.MapContaining](
+            Core.Basic.getInterface[obj, Core.Basic.MapContaining]
+        );
+        macro DynMapContainerOf [obj] ref[Core.Basic.DynamicMapContaining](
+            Core.Basic.getInterface[obj, Core.Basic.DynamicMapContaining]
+        );
     }
 }

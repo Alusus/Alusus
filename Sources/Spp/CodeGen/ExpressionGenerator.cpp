@@ -209,13 +209,13 @@ Bool ExpressionGenerator::_generate(
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND && operand != 0) {
       return expGenerator->generate(operand, g, session, result);
     } else {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidOperationNotice>(bracket->findSourceLocation())
       );
       return false;
     }
   }
-  expGenerator->noticeStore->add(
+  expGenerator->astHelper->getNoticeStore()->add(
     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))
   );
   return false;
@@ -231,7 +231,7 @@ Bool ExpressionGenerator::_generateList(
   for (Int i = 0; i < astNode->getCount(); ++i) {
     auto innerNode = astNode->getElement(i);
     if (innerNode == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidExpressionListNotice>(astNode->findSourceLocation())
       );
       return false;
@@ -260,7 +260,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   if (astNode->getType() != S(".")) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidOperationNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -407,7 +407,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
         paramTgValues->getElement(0), static_cast<Ast::Type*>(paramAstTypes->getElement(0)), g, session, result
       );
     } else {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(astNode))
       );
       return false;
@@ -437,7 +437,7 @@ Bool ExpressionGenerator::_generateSquareParamPass(
     result.astNode = tplInstance.get();
     return true;
   } else {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidOperationNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -461,7 +461,7 @@ Bool ExpressionGenerator::_generateOperator(
   if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
     if (infixOp->getFirst() == 0 || infixOp->getSecond() == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IncompleteInfixOpNotice>(infixOp->findSourceLocation())
       );
       return false;
@@ -503,7 +503,7 @@ Bool ExpressionGenerator::_generateOperator(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
     if (outfixOp->getOperand() == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
       );
       return false;
@@ -521,7 +521,7 @@ Bool ExpressionGenerator::_generateOperator(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::PostfixOperator>()) {
     auto outfixOp = static_cast<Core::Data::Ast::PostfixOperator*>(astNode);
     if (outfixOp->getOperand() == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
       );
       return false;
@@ -592,7 +592,7 @@ Bool ExpressionGenerator::_generateOperator(
       auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
       return expGenerator->generateUnaryVarOp(outfixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else {
-      expGenerator->noticeStore->add(newSrdObj<Spp::Notices::NoCalleeMatchNotice>(
+      expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::NoCalleeMatchNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       return false;
@@ -732,7 +732,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     }
   } else {
     // Error.
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -838,7 +838,7 @@ Bool ExpressionGenerator::_generateBinaryOp(
     }
   } else {
     // Error.
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -961,7 +961,7 @@ Bool ExpressionGenerator::_generateComparisonOp(
       astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
     } else {
       // error
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
       );
       return false;
@@ -984,7 +984,7 @@ Bool ExpressionGenerator::_generateComparisonOp(
     astTargetType = param1.astType;
   } else {
     // Error.
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1081,7 +1081,7 @@ Bool ExpressionGenerator::_generateAssignOp(
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1092,7 +1092,7 @@ Bool ExpressionGenerator::_generateAssignOp(
   if (astContentType->getInitializationMethod(
     expGenerator->astHelper, session->getExecutionContext()
   ) != Ast::TypeInitMethod::NONE) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::TypeMissingAssignOpNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1112,7 +1112,7 @@ Bool ExpressionGenerator::_generateAssignOp(
     );
   }
   if (!retVal) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1187,7 +1187,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1199,7 +1199,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
   if (!astContentType->isDerivedFrom<Ast::IntegerType>() || !param.astType->isDerivedFrom<Ast::IntegerType>()) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1296,7 +1296,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
     astTargetType = expGenerator->astHelper->getIntType(bitCount);
   } else {
     // Error.
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1352,7 +1352,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
     astTargetType = static_cast<Ast::IntegerType*>(param.astType);
   } else {
     // Error.
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1364,7 +1364,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
     astTargetType->getBitCount(expGenerator->astHelper, session->getExecutionContext()) != 1
   ) {
     // Error.
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1416,7 +1416,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1424,7 +1424,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
   if (!astContentType->isDerivedFrom<Ast::IntegerType>() && !astContentType->isDerivedFrom<Ast::FloatType>()) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1496,7 +1496,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     // Check if the node is a function.
     auto astFunction = ti_cast<Ast::Function>(operandResult.astNode);
     if (astFunction == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
       );
       return false;
@@ -1522,7 +1522,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     // We have an expression.
     auto operandRefAstType = ti_cast<Ast::ReferenceType>(operandResult.astType);
     if (operandRefAstType == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
       );
       return false;
@@ -1551,16 +1551,20 @@ Bool ExpressionGenerator::_generateAstRefOp(
   }
   TiObject *targetAstNode;
   if (!expGenerator->astHelper->getSeeker()->tryGet(operand, astNode->getOwner(), targetAstNode)) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
   }
 
+  // Unbox if we have a box.
+  auto box = ti_cast<TioWeakBox>(targetAstNode);
+  if (box != 0) targetAstNode = box->get().get();
+
   // Generate pointer to void.
   auto tiObjType = expGenerator->astHelper->getTiObjectType();
   if (tiObjType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1571,7 +1575,7 @@ Bool ExpressionGenerator::_generateAstRefOp(
     return false;
   }
   // Capture the element in the repo so that it doesn't get freed while still needed by the generated code.
-  expGenerator->astLiteralRepo->addElement(targetAstNode);
+  expGenerator->astNodeRepo->addElement(targetAstNode);
   // Generate a pointer literal.
   if (!session->getTg()->generatePointerLiteral(
     session->getTgContext(), tgTiObjRefType, targetAstNode, result.targetData
@@ -1594,7 +1598,7 @@ Bool ExpressionGenerator::_generateAstLiteralCommand(
   // Generate pointer to void.
   auto tiObjType = expGenerator->astHelper->getTiObjectType();
   if (tiObjType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1605,7 +1609,7 @@ Bool ExpressionGenerator::_generateAstLiteralCommand(
     return false;
   }
   // Capture the body in the repo so that it doesn't get freed while still needed by the generated code.
-  expGenerator->astLiteralRepo->add(body);
+  expGenerator->astNodeRepo->add(body);
   // Generate a pointer literal.
   if (!session->getTg()->generatePointerLiteral(
     session->getTgContext(), tgTiObjRefType, body.get(), result.targetData
@@ -1630,7 +1634,7 @@ Bool ExpressionGenerator::_generateContentOp(
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult)) return false;
   if (operandResult.astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1641,7 +1645,7 @@ Bool ExpressionGenerator::_generateContentOp(
     operandResult.astType, Ast::ReferenceMode::IMPLICIT
   );
   if (result.astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
     );
     return false;
@@ -1666,7 +1670,7 @@ Bool ExpressionGenerator::_generateDerefOp(
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult)) return false;
   if (operandResult.astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1679,7 +1683,7 @@ Bool ExpressionGenerator::_generateDerefOp(
   )) return false;
   auto refType = ti_cast<Spp::Ast::ReferenceType>(target.astType);
   if (refType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1713,7 +1717,7 @@ Bool ExpressionGenerator::_generateNoDerefOp(
     )) return false;
     auto refType = ti_cast<Spp::Ast::ReferenceType>(target.astType);
     if (refType == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidNoDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
       );
       return false;
@@ -1742,7 +1746,7 @@ Bool ExpressionGenerator::_generateNoDerefOp(
     }
     return true;
   } else {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidNoDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1763,7 +1767,7 @@ Bool ExpressionGenerator::_generateCastOp(
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult)) return false;
   if (operandResult.astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1798,7 +1802,7 @@ Bool ExpressionGenerator::_generateCastOp(
     }
   }
   if (!retVal) {
-    expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidCastNotice>(astNode->getSourceLocation()));
+    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidCastNotice>(astNode->getSourceLocation()));
     return false;
   }
   return true;
@@ -1832,7 +1836,7 @@ Bool ExpressionGenerator::_generateSizeOp(
     }
   }
   if (astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidSizeOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1843,11 +1847,11 @@ Bool ExpressionGenerator::_generateSizeOp(
 
   // Get the allocation size.
   auto sourceLocation = Core::Data::Ast::findSourceLocation(operand).get();
-  if (sourceLocation != 0) expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
+  if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   Word size;
   auto retVal = g->getTypeAllocationSize(astType, session, size);
   if (sourceLocation != 0) {
-    expGenerator->noticeStore->popPrefixSourceLocation(Core::Data::getSourceLocationRecordCount(sourceLocation));
+    expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(Core::Data::getSourceLocationRecordCount(sourceLocation));
   }
   if (!retVal) return false;
 
@@ -1880,7 +1884,7 @@ Bool ExpressionGenerator::_generateInitOp(
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult)) return false;
   if (operandResult.astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidInitOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1893,7 +1897,7 @@ Bool ExpressionGenerator::_generateInitOp(
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidInitOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1932,7 +1936,7 @@ Bool ExpressionGenerator::_generateTerminateOp(
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult)) return false;
   if (operandResult.astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidTerminateOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1945,7 +1949,7 @@ Bool ExpressionGenerator::_generateTerminateOp(
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidTerminateOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1973,7 +1977,7 @@ Bool ExpressionGenerator::_generateNextArgOp(
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult)) return false;
   if (operandResult.astType == 0) {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
@@ -1985,7 +1989,7 @@ Bool ExpressionGenerator::_generateNextArgOp(
     operandResult.astType, operandResult.targetData.get(), false, false, session, derefResult
   )) return false;
   if (ti_cast<Ast::ReferenceType>(derefResult.astType) == 0) {
-    expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
+    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
     return false;
   }
 
@@ -2007,7 +2011,7 @@ Bool ExpressionGenerator::_generateNextArgOp(
       session->getTgContext(), targetTgType, derefResult.targetData.get(), result.targetData
     );
     if (!retVal) {
-      expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
+      expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
       return false;
     }
   }
@@ -2157,10 +2161,10 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
     astType = expGenerator->astHelper->getWordType(size);
   }
   auto sourceLocation = astNode->findSourceLocation().get();
-  expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
+  expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   TiObject *intTgType;
   Bool retVal = g->getGeneratedType(astType, session, intTgType, 0);
-  expGenerator->noticeStore->popPrefixSourceLocation(
+  expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(
     Core::Data::getSourceLocationRecordCount(sourceLocation)
   );
   if (!retVal) return false;
@@ -2204,10 +2208,10 @@ Bool ExpressionGenerator::_generateFloatLiteral(
   // Get the requested float type.
   auto floatAstType = expGenerator->astHelper->getFloatType(size);
   auto sourceLocation = astNode->findSourceLocation().get();
-  expGenerator->noticeStore->pushPrefixSourceLocation(sourceLocation);
+  expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   TiObject *floatTgType;
   Bool retVal = g->getGeneratedType(floatAstType, session, floatTgType, 0);
-  expGenerator->noticeStore->popPrefixSourceLocation(
+  expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(
     Core::Data::getSourceLocationRecordCount(sourceLocation)
   );
   if (!retVal) return false;
@@ -2258,7 +2262,7 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
   if (expGenerator->astHelper->isAstReference(obj)) {
     // Make sure the var is not an object member.
     if (expGenerator->getAstHelper()->getVariableDomain(obj) == Ast::DefinitionDomain::OBJECT) {
-      expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
+      expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
       ));
       retVal = false;
@@ -2292,7 +2296,7 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
       static_cast<Core::Data::Ast::FloatLiteral*>(obj), g, session, result
     );
   } else {
-    expGenerator->noticeStore->add(
+    expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
   }
@@ -2317,7 +2321,7 @@ Bool ExpressionGenerator::_generateVarReference(
       if (!g->generateVarDef(varDef, session)) return false;
       tgVar = session->getEda()->getCodeGenData<TiObject>(varAstNode);
     } else {
-      expGenerator->noticeStore->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
+      expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
         Core::Data::Ast::findSourceLocation(refAstNode)
       ));
       return false;
@@ -2347,7 +2351,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
 
   // Make sure the var is an object member.
   if (expGenerator->getAstHelper()->getVariableDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
-    expGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
+    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
       Core::Data::Ast::findSourceLocation(astNode)
     ));
     return false;
@@ -2356,7 +2360,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   // Get the member generated value and type.
   auto tgMemberVar = session->getEda()->tryGetCodeGenData<TiObject>(astMemberVar);
   if (tgMemberVar == 0) {
-    expGenerator->noticeStore->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
+    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
       Core::Data::Ast::findSourceLocation(astNode)
     ));
     return false;
@@ -2599,7 +2603,7 @@ Bool ExpressionGenerator::_prepareCallee(
   Ast::CalleeLookupResult lookupResult;
   expGenerator->calleeTracer->lookupCallee(lookupRequest, lookupResult);
   if (lookupResult.isFailure()) {
-    expGenerator->noticeStore->add(lookupResult.notice);
+    expGenerator->astHelper->getNoticeStore()->add(lookupResult.notice);
     return false;
   }
 
@@ -2669,7 +2673,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         block->remove(thisIndex);
         return true;
       } else {
-        expGenerator->noticeStore->add(
+        expGenerator->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
         );
         return false;
@@ -2684,13 +2688,13 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         calleeRequest.ref = linkOperator->getSecond().get();
         return true;
       } else {
-        expGenerator->noticeStore->add(
+        expGenerator->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
         );
         return false;
       }
     } else {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidDotOpTargetNotice>(linkOperator->findSourceLocation())
       );
       return false;
@@ -2876,7 +2880,7 @@ Bool ExpressionGenerator::_generateParams(
     GenResult result;
     if (!expGenerator->generate(astNode, g, session, result)) return false;
     if (result.astType == 0) {
-      expGenerator->noticeStore->add(
+      expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNode))
       );
       return false;
@@ -2924,20 +2928,20 @@ Bool ExpressionGenerator::castLogicalOperand(
 ) {
   auto boolType = this->astHelper->getBoolType();
   if (astType == 0) {
-    this->noticeStore->add(newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>());
+    this->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>());
     return false;
   }
   if (session->getTgContext() != 0) {
     GenResult castResult;
     if (!g->generateCast(session, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, castResult)) {
-      this->noticeStore->add(
+      this->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
       );
       return false;
     }
     result = castResult.targetData;
   } else if (!this->astHelper->isImplicitlyCastableTo(astType, boolType, session->getExecutionContext())) {
-    this->noticeStore->add(
+    this->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
     return false;

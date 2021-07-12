@@ -19,6 +19,15 @@ namespace Spp
 class GrammarFactory : public Core::Data::Grammar::Factory
 {
   //============================================================================
+  // Member Variables
+
+  private: Core::Main::RootManager *rootManager;
+
+  private: Array<Str> customCommandQualifiers;
+  private: Array<Str> customCommandKeywords;
+
+
+  //============================================================================
   // Constructor & Destructor
 
   public: GrammarFactory()
@@ -33,10 +42,45 @@ class GrammarFactory : public Core::Data::Grammar::Factory
   //============================================================================
   // Member Functions
 
-  /// Create the entire core grammar.
-  public: void createGrammar(Core::Main::RootManager *root);
+  public: void setRootManager(Core::Main::RootManager *root)
+  {
+    this->rootManager = root;
+    Core::Data::Ast::Scope *rootScope = root->getRootScope().get();
+    this->setRootScope(rootScope);
+  }
 
-  public: void cleanGrammar(Core::Main::RootManager *root);
+  /// Create the entire core grammar.
+  public: void createGrammar();
+
+  public: void cleanGrammar();
+
+  public: Bool createCustomCommand(
+    Char const *qualifier, TiObject *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
+  );
+
+  private: Bool parseCommandSection(
+    TiObject *ast, Factory::CommandSection &section, Core::Notices::Store *noticeStore
+  );
+
+  private: Bool parseCommandKeywords(
+    TiObject *ast, SharedPtr<Core::Data::Grammar::Map> &keywords, Core::Notices::Store *noticeStore
+  );
+
+  private: Bool parseCommandArg(
+    TiObject *ast, Factory::CommandArg &arg, Core::Notices::Store *noticeStore
+  );
+
+  private: Bool parseMinMax(
+    TiObject *ast, TiObject *&resultAst, SharedPtr<TiInt> &min, SharedPtr<TiInt> &max, Core::Notices::Store *noticeStore
+  );
+
+  private: Bool parseQualifier(
+    TiObject *ast, Str &qualifier, Core::Notices::Store *noticeStore
+  );
+
+  private: void convertInfixOpIntoList(TiObject *ast, Char const *op, Array<TiObject*> &list);
+
+  private: void cleanCustomCommands();
 
 }; // class
 

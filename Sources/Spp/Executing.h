@@ -66,19 +66,17 @@ class Executing : public ObjTiInterface
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareBuild,
-    SharedPtr<BuildSession>, (
-      Core::Notices::Store* /* noticeStore */, Int /* buildType */, TiObject* /* globalFuncElement */
-    )
+    SharedPtr<BuildSession>, (Int /* buildType */, TiObject* /* globalFuncElement */)
   );
 
   public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession* /* buildSession */));
 
   public: METHOD_BINDING_CACHE(finalizeBuild,
-    Bool, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, BuildSession* /* buildSession */)
+    Bool, (TiObject* /* globalFuncElement */, BuildSession* /* buildSession */)
   );
 
   public: METHOD_BINDING_CACHE(execute,
-    Bool, (Core::Notices::Store* /* noticeStore */, BuildSession* /* buildSession */)
+    Bool, (BuildSession* /* buildSession */)
   );
 
   /// @}

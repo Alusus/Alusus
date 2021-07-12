@@ -1,0 +1,8 @@
+------------------ Parsed Data Dump ------------------
+Block [Main.BlockStatements.StmtList]
+ ParamPass [] [Main.Expression.ParamPassExp]
+  operand: Identifier: أمر_اختبار [Main.BlockSubject.Identifier]
+  param: AdditionOperator + [Main.Expression.AddExp]
+   first: Identifier: ا [Main.BlockSubject.Identifier]
+   second: Identifier: ب [Main.BlockSubject.Identifier]
+------------------------------------------------------

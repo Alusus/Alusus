@@ -1,0 +1,26 @@
+import "Spp";
+import "Srl/refs";
+
+preprocess {
+    use Srl;
+    def TioSrdRef: alias SrdRef[Core.Basic.TiObject];
+    Spp.grammarMgr.addCustomCommand(
+        "TestCommand",
+        (ast {
+            keywords: "testcommand";
+            args: "module".Expression*(1,1);
+        }),
+        func (data: TioSrdRef): TioSrdRef {
+            def container: Core.Basic.ContainerOf[data.obj];
+            return Spp.astMgr.buildAst(
+                (ast testCommand[arg]),
+                Map[String, ref[Core.Basic.TiObject]]().set(String("arg"), container.getElement(1))
+            );
+        }
+    );
+}
+
+def a: {
+    testcommand a + b;
+}
+dump_ast a;

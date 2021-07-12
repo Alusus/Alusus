@@ -78,7 +78,7 @@ void OfflineBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
 }
 
 
-Str OfflineBuildTarget::generateLlvmIr(std::vector<Str> const *ctorNames, std::vector<Str> const *dtorNames)
+Str OfflineBuildTarget::generateLlvmIr(Array<Str> const *ctorNames, Array<Str> const *dtorNames)
 {
   if (this->llvmModule == 0) {
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
@@ -96,7 +96,7 @@ Str OfflineBuildTarget::generateLlvmIr(std::vector<Str> const *ctorNames, std::v
 
 
 void OfflineBuildTarget::generateObjectFile(
-  Char const *filename, std::vector<Str> const *ctorNames, std::vector<Str> const *dtorNames
+  Char const *filename, Array<Str> const *ctorNames, Array<Str> const *dtorNames
 ) {
   VALIDATE_NOT_NULL(filename);
   if (this->llvmModule == 0) {
@@ -127,7 +127,7 @@ void OfflineBuildTarget::generateObjectFile(
 }
 
 
-void OfflineBuildTarget::buildCtorOrDtorArray(std::vector<Str> const *funcNames, Char const *globalVarName)
+void OfflineBuildTarget::buildCtorOrDtorArray(Array<Str> const *funcNames, Char const *globalVarName)
 {
   if (this->llvmModule == 0) {
     throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
@@ -153,12 +153,12 @@ void OfflineBuildTarget::buildCtorOrDtorArray(std::vector<Str> const *funcNames,
   }
 
   auto llvmArrayType = llvm::ArrayType::get(
-    this->llvmGlobalCtorDtorEntryTypes.llvmStructType, funcNames->size()
+    this->llvmGlobalCtorDtorEntryTypes.llvmStructType, funcNames->getLength()
   );
 
   // Prepare array items.
   std::vector<llvm::Constant*> llvmArrayItems;
-  for (Int i = 0; i < funcNames->size(); i++) {
+  for (Int i = 0; i < funcNames->getLength(); i++) {
     llvm::Function *llvmFunc = this->llvmModule->getFunction(funcNames->at(i).getBuf());
     if (!llvmFunc) {
       throw EXCEPTION(GenericException, S("Failed to find constructor function."));

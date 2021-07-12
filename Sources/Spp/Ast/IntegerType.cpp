@@ -80,4 +80,20 @@ TypeMatchStatus IntegerType::matchTargetType(
   }
 }
 
+
+Bool IntegerType::isIdentical(Type const *type, Helper *helper) const
+{
+  if (this == type) return true;
+  auto integerType = ti_cast<IntegerType const>(type);
+  if (integerType == 0) return false;
+  // We want the bitcount to match regardless of the execution context. A bit count of 0 means we'll get the bit
+  // count from the execution context. In this case we want to actually compare the zero itself rather than what's
+  // coming from the execution context. In order to avoid code duplication we'll simply set the execution context
+  // pointer bit count to 0 so that if the type bit count is 0 we get the 0 back.
+  static ExecutionContext ec(0);
+  auto thisBitCount = this->getBitCount(helper, &ec);
+  auto targetBitCount = integerType->getBitCount(helper, &ec);
+  return thisBitCount == targetBitCount && this->isSigned() == integerType->isSigned();
+}
+
 } // namespace

@@ -33,7 +33,6 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: Core::Main::RootManager *rootManager;
   private: NodePathResolver *nodePathResolver;
 
-  private: Core::Notices::Store *noticeStore = 0;
   private: Template *refTemplate = 0;
   private: Template *trefTemplate = 0;
   private: Template *irefTemplate = 0;
@@ -89,9 +88,8 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   private: void initBindings();
 
-  public: void prepare(Core::Notices::Store *ns)
+  public: void prepare()
   {
-    this->noticeStore = ns;
     this->refTemplate = 0;
   }
 
@@ -117,7 +115,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: Core::Notices::Store* getNoticeStore() const
   {
-    return this->noticeStore;
+    return this->rootManager->getNoticeStore();
   }
 
   /// @}

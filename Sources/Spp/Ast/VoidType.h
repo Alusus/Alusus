@@ -48,6 +48,11 @@ class VoidType : public DataType
     else return TypeMatchStatus::NONE;
   }
 
+  public: virtual Bool isIdentical(Type const *type, Helper *helper) const
+  {
+    return this == type || type->isDerivedFrom<VoidType>();
+  }
+
 }; // class
 
 } // namespace

@@ -31,7 +31,10 @@ void AstMgr::initBindingCaches()
     &this->insertAst_plain,
     &this->insertAst_shared,
     &this->buildAst_plain,
-    &this->buildAst_shared
+    &this->buildAst_shared,
+    &this->getCurrentPreprocessOwner,
+    &this->getCurrentPreprocessInsertionPosition,
+    &this->getVariableDomain
   });
 }
 
@@ -50,6 +53,9 @@ void AstMgr::initBindings()
   this->insertAst_shared = &AstMgr::_insertAst_shared;
   this->buildAst_plain = &AstMgr::_buildAst_plain;
   this->buildAst_shared = &AstMgr::_buildAst_shared;
+  this->getCurrentPreprocessOwner = &AstMgr::_getCurrentPreprocessOwner;
+  this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
+  this->getVariableDomain = &AstMgr::_getVariableDomain;
 }
 
 
@@ -68,6 +74,11 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_shared"), (void*)&AstMgr::_insertAst_shared);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_plain"), (void*)&AstMgr::_buildAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_shared"), (void*)&AstMgr::_buildAst_shared);
+  globalItemRepo->addItem(S("Spp_AstMgr_getCurrentPreprocessOwner"), (void*)&AstMgr::_getCurrentPreprocessOwner);
+  globalItemRepo->addItem(
+    S("Spp_AstMgr_getCurrentPreprocessInsertionPosition"), (void*)&AstMgr::_getCurrentPreprocessInsertionPosition
+  );
+  globalItemRepo->addItem(S("Spp_AstMgr_getVariableDomain"), (void*)&AstMgr::_getVariableDomain);
 }
 
 
@@ -89,6 +100,7 @@ Array<TiObject*> AstMgr::_findElements(TiObject *self, TiObject *ref, TiObject *
   astMgr->rootManager->getSeeker()->extForeach(ref, target,
     [&result](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
     {
+      if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
       if (obj != 0) result.add(obj);
       return Core::Data::Seeker::Verb::MOVE;
     },
@@ -161,10 +173,10 @@ Bool AstMgr::_getModifierStringParams(TiObject *self, TiObject *modifier, Array<
   for (Int i = 0; i < strs->getElementCount(); ++i) {
     auto str = ti_cast<Core::Data::Ast::StringLiteral>(strs->getElement(i));
     if (str == 0) {
-      astMgr->noticeStore->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
+      astMgr->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
         Core::Data::Ast::findSourceLocation(strs->getElement(i))
       ));
-      astMgr->parser->flushApprovedNotices();
+      astMgr->rootManager->flushNotices();
       return false;
     }
     result.add(str->getValue().getStr());
@@ -193,7 +205,7 @@ Bool AstMgr::_insertAst(TiObject *self, TiObject* ast)
   Array<TiObject*> values;
   PlainArrayWrapperContainer<TiObject> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return result;
 }
 
@@ -205,7 +217,7 @@ Bool AstMgr::_insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*>
   Array<TiObject*> values = interpolations->getValues();
   PlainArrayWrapperContainer<TiObject> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return result;
 }
 
@@ -217,7 +229,7 @@ Bool AstMgr::_insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr
   Array<SharedPtr<TiObject>> values = interpolations->getValues();
   SharedArrayWrapperContainer<TiObject> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return result;
 }
 
@@ -231,7 +243,7 @@ Bool AstMgr::_buildAst_plain(TiObject *self, TiObject *ast, Map<Str, TiObject*> 
   Bool ret = astMgr->astProcessor->interpolateAst(
     ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
   );
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return ret;
 }
 
@@ -246,8 +258,29 @@ Bool AstMgr::_buildAst_shared(
   Bool ret = astMgr->astProcessor->interpolateAst(
     ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
   );
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return ret;
+}
+
+
+TiObject* AstMgr::_getCurrentPreprocessOwner(TiObject *self)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astProcessor->getCurrentPreprocessOwner();
+}
+
+
+Int AstMgr::_getCurrentPreprocessInsertionPosition(TiObject *self)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astProcessor->getCurrentPreprocessInsertionPosition();
+}
+
+
+Int AstMgr::_getVariableDomain(TiObject *self, TiObject* ast)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astHelper->getVariableDomain(ast);
 }
 
 } // namespace

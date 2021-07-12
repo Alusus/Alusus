@@ -48,6 +48,7 @@ class RootManagerExtension : public ObjTiInterface
       &this->importFile,
       &this->buildManager,
       &this->astProcessor,
+      &this->rtGrammarMgr,
       &this->rtAstMgr,
       &this->rtBuildMgr
     });
@@ -59,6 +60,7 @@ class RootManagerExtension : public ObjTiInterface
 
   public: BINDING_CACHE(buildManager, BuildManager);
   public: BINDING_CACHE(astProcessor, CodeGen::AstProcessor);
+  public: BINDING_CACHE(rtGrammarMgr, Rt::GrammarMgr);
   public: BINDING_CACHE(rtAstMgr, Rt::AstMgr);
   public: BINDING_CACHE(rtBuildMgr, Rt::BuildMgr);
 
@@ -88,6 +90,7 @@ class RootManagerExtension : public ObjTiInterface
     Core::Main::RootManager *rootManager,
     SharedPtr<BuildManager> const &buildManager,
     SharedPtr<CodeGen::AstProcessor> const &astProcessor,
+    SharedPtr<Rt::GrammarMgr> const &grammarM,
     SharedPtr<Rt::AstMgr> const &astM,
     SharedPtr<Rt::BuildMgr> const &buildM
   );

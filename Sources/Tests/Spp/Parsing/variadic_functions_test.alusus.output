@@ -14,59 +14,59 @@ ERROR CD1003 @ (47,1): Invalid 'def' command.
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
+   x: Identifier: Int [Main.BlockSubject.Identifier]
    args: ArgPack 0 0
-    argType: Identifier: Int [Main.ParamOnlySubject.Identifier]
-  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+    argType: Identifier: Int [Main.BlockSubject.Identifier]
+  retType: Identifier: void [Main.BlockSubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
-   args: ArgPack 0 0
-    argType: NULL
-  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
-------------------------------------------------------
------------------- Parsed Data Dump ------------------
-Function  [Main.Function]
- type: FunctionType member: 0 [Main.Function]
-  argTypes: Map
-   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
-   args: ArgPack 0 0
-    argType: Identifier: Int [Main.ParamOnlySubject.Identifier]
-  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
- body: Block [Main.BlockStatements.StmtList]
-------------------------------------------------------
------------------- Parsed Data Dump ------------------
-Function  [Main.Function]
- type: FunctionType member: 0 [Main.Function]
-  argTypes: Map
-   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
+   x: Identifier: Int [Main.BlockSubject.Identifier]
    args: ArgPack 0 0
     argType: NULL
-  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+  retType: Identifier: void [Main.BlockSubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
+   x: Identifier: Int [Main.BlockSubject.Identifier]
+   args: ArgPack 0 0
+    argType: Identifier: Int [Main.BlockSubject.Identifier]
+  retType: Identifier: void [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
+  argTypes: Map
+   x: Identifier: Int [Main.BlockSubject.Identifier]
+   args: ArgPack 0 0
+    argType: NULL
+  retType: Identifier: void [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
+  argTypes: Map
+   x: Identifier: Int [Main.BlockSubject.Identifier]
    args: ArgPack 1 5
-    argType: Identifier: Int [Main.ParamOnlySubject.Identifier]
-  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+    argType: Identifier: Int [Main.BlockSubject.Identifier]
+  retType: Identifier: void [Main.BlockSubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]
   argTypes: Map
-   x: Identifier: Int [Main.ParamOnlySubject.Identifier]
+   x: Identifier: Int [Main.BlockSubject.Identifier]
    args: ArgPack 1 5
     argType: NULL
-  retType: Identifier: void [Main.ParamOnlySubject.Identifier]
+  retType: Identifier: void [Main.BlockSubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------

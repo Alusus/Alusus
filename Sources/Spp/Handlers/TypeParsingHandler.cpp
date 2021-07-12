@@ -149,6 +149,7 @@ Bool TypeParsingHandler::parseTemplateArg(
     else if (identifier->getValue() == S("function")) type = Ast::TemplateVarType::FUNCTION;
     else if (identifier->getValue() == S("integer")) type = Ast::TemplateVarType::INTEGER;
     else if (identifier->getValue() == S("string")) type = Ast::TemplateVarType::STRING;
+    else if (identifier->getValue() == S("ast")) type = Ast::TemplateVarType::AST;
     else {
       state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
       return false;

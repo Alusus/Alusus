@@ -39,7 +39,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
 
   private: Ast::Helper *astHelper;
   private: Executing *executing;
-  private: Core::Notices::Store *noticeStore = 0;
+  private: SharedList<TiObject> *astNodeRepo;
   private: TiObject *currentPreprocessOwner;
   private: Int currentPreprocessInsertionPosition;
   private: SharedPtr<Core::Data::SourceLocation> currentPreprocessSourceLocation;
@@ -48,7 +48,8 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h, Executing *b) : astHelper(h), executing(b)
+  public: AstProcessor(Ast::Helper *h, Executing *b, SharedList<TiObject> *anr)
+    : astHelper(h), executing(b), astNodeRepo(anr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -61,6 +62,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
     this->executing = parent->getExecuting();
+    this->astNodeRepo = parent->getAstNodeRepo();
   }
 
   public: virtual ~AstProcessor()
@@ -87,22 +89,30 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->executing;
   }
 
-  public: void setNoticeStore(Core::Notices::Store *ns)
+  public: SharedList<TiObject>* getAstNodeRepo() const
   {
-    this->noticeStore = ns;
+    return this->astNodeRepo;
   }
 
-  public: Core::Notices::Store* getNoticeStore() const
+  public: TiObject* getCurrentPreprocessOwner() const
   {
-    return this->noticeStore;
+    return this->currentPreprocessOwner;
+  }
+
+  public: Int getCurrentPreprocessInsertionPosition() const
+  {
+    return this->currentPreprocessInsertionPosition;
+  }
+
+  public: SharedPtr<Core::Data::SourceLocation> getCurrentPreprocessSourceLocation() const
+  {
+    return this->currentPreprocessSourceLocation;
   }
 
   /// @}
 
   /// @name Code Generation Functions
   /// @{
-
-  public: void preparePass(Core::Notices::Store *noticeStore);
 
   public: METHOD_BINDING_CACHE(process, Bool, (TiObject* /* owner */));
   private: static Bool _process(TiObject *self, TiObject *owner);

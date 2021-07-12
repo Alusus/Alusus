@@ -94,6 +94,8 @@ class ReferenceType : public DataType
     Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const;
 
+  public: virtual Bool isIdentical(Type const *type, Helper *helper) const;
+
 }; // class
 
 } // namespace

@@ -110,11 +110,11 @@ Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, Session *ses
   Core::Data::SourceLocation *sourceLocation = 0;
   if (shouldPushSl && metadata->findSourceLocation() != 0) {
     sourceLocation = metadata->findSourceLocation().get();
-    this->noticeStore->pushPrefixSourceLocation(sourceLocation);
+    this->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   }
   Bool result = this->generateType(type, g, session);
   if (shouldPushSl && sourceLocation != 0) {
-    this->noticeStore->popPrefixSourceLocation(
+    this->astHelper->getNoticeStore()->popPrefixSourceLocation(
       Core::Data::getSourceLocationRecordCount(sourceLocation)
     );
   }
@@ -150,7 +150,7 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
   } else if (astType->isDerivedFrom<Spp::Ast::FunctionType>()) {
     return typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), g, session);
   } else {
-    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidTypeNotice>());
+    typeGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidTypeNotice>());
     return false;
   }
 }
@@ -171,7 +171,7 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
   auto bitCount = astType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
+    typeGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -187,7 +187,7 @@ Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astT
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
   if (bitCount != 32 && bitCount != 64) {
-    typeGenerator->noticeStore->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
+    typeGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
     return false;
   }
   TioSharedPtr tgType;
@@ -280,7 +280,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   auto prevInProgress = session->getEda()->tryGetCodeGenData<TiBool>(body);
   if (prevInProgress != 0) {
     if (prevInProgress->get()) {
-      typeGenerator->noticeStore->add(
+      typeGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
       );
       return false;
@@ -318,7 +318,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
           members.add(obj);
         } else {
           if (TypeGenerator::isInjection(def)) {
-            typeGenerator->noticeStore->add(
+            typeGenerator->astHelper->getNoticeStore()->add(
               newSrdObj<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
             );
             result = false;
@@ -331,7 +331,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         continue;
       } else {
         if (TypeGenerator::isInjection(def)) {
-          typeGenerator->noticeStore->add(
+          typeGenerator->astHelper->getNoticeStore()->add(
             newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
           );
           result = false;

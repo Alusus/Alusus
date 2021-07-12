@@ -6,7 +6,7 @@ ERROR CP1001 @ (40,40): Parser syntax error.
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]
   argTypes: NULL
-  retType: Identifier: Void [Main.ParamOnlySubject.Identifier]
+  retType: Identifier: Void [Main.BlockSubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
   IfStatement [Main.If]
    condition: ComparisonOperator == [Main.Expression.ComparisonExp]

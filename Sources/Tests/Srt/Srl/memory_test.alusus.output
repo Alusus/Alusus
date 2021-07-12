@@ -48,3 +48,4 @@ Testing set, copy, and compare:
 compare array to zeros: 2
 compare zeros to array: -2
 comparing equal arrays: 0
+comparing non-equal arrays: -2

@@ -22,6 +22,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   Core::Main::RootManager *rootManager,
   SharedPtr<BuildManager> const &buildManager,
   SharedPtr<CodeGen::AstProcessor> const &astProcessor,
+  SharedPtr<Rt::GrammarMgr> const &grammarM,
   SharedPtr<Rt::AstMgr> const &astM,
   SharedPtr<Rt::BuildMgr> const &buildM
 ) {
@@ -31,6 +32,7 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   auto overrides = new Overrides();
   extension->buildManager = buildManager;
   extension->astProcessor = astProcessor;
+  extension->rtGrammarMgr = grammarM;
   extension->rtAstMgr = astM;
   extension->rtBuildMgr = buildM;
 
@@ -46,6 +48,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   extension->importFile.reset(overrides->importFileRef);
   extension->buildManager.remove();
   extension->astProcessor.remove();
+  extension->rtGrammarMgr.remove();
   extension->rtAstMgr.remove();
   extension->rtBuildMgr.remove();
   rootManager->removeDynamicInterface<RootManagerExtension>();

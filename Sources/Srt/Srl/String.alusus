@@ -121,7 +121,8 @@ import "Array";
         };
 
         handler this.append (buf: ptr[array[T]], n: ArchInt) {
-            def bufLen: ArchInt = getLength(buf);
+            def bufLen: ArchInt = 0;
+            while bufLen < n and buf~cnt(bufLen) != 0 { ++bufLen };
             if bufLen == 0 return;
             def thisBufLen: ArchInt = this.getLength();
             if thisBufLen == 0 {

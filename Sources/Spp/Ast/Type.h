@@ -65,6 +65,8 @@ class Type : public Core::Data::Node,
       == TypeMatchStatus(TypeMatchStatus::EXACT);
   }
 
+  public: virtual Bool isIdentical(Type const *type, Helper *helper) const = 0;
+
   public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
   {
     return this->matchTargetType(type, helper, ec) >= TypeMatchStatus::IMPLICIT_CAST;

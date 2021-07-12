@@ -246,7 +246,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
 Bool FunctionParsingHandler::processMemberModifier(
   Core::Processing::ParserState *state, TioSharedPtr const &modifierData
 ) {
-  // Look for expname modifier.
+  // Look for member modifier.
   auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
   if (identifier == 0) return false;
   auto symbolDef = state->refTopProdLevel().getProd();

@@ -88,6 +88,8 @@ class FunctionType : public Type, public MapContaining<TiObject>
     Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const;
 
+  public: virtual Bool isIdentical(Type const *type, Helper *helper) const;
+
   public: void setArgTypes(SharedPtr<Core::Data::Ast::Map> const &args)
   {
     UPDATE_OWNED_SHAREDPTR(this->argTypes, args);

@@ -83,6 +83,7 @@
       <keyword>type</keyword>
       <keyword>macro</keyword>
       <keyword>handler</keyword>
+      <keyword>closure</keyword>
     </context>
 
     <context id="keyword" style-ref="keyword">
@@ -122,6 +123,7 @@
       <keyword>ماكرو</keyword>
       <keyword>صنف</keyword>
       <keyword>عملية</keyword>
+      <keyword>مغلفة</keyword>
     </context>
 
     <context id="ar-keyword" style-ref="keyword">
