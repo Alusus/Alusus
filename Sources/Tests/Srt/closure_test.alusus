@@ -1,0 +1,234 @@
+import "Srl/Console";
+import "closure";
+
+use Srl.Console;
+
+// No arg, no ret val
+
+func runNoArgNoRet (c: closure ()) {
+    c();
+}
+
+func prepareNoArgNoRet (): (closure ()) {
+    def i: Int = 1;
+    return closure () {
+        print("prepareNoArgNoRet: %d\n", i);
+    };
+}
+
+func testNoArgNoRet {
+    def c: closure() = prepareNoArgNoRet();
+    runNoArgNoRet(c);
+}
+testNoArgNoRet();
+
+// Args, no ret val
+
+func runArgNoRet (c: closure (Int):void) {
+    c(2);
+}
+
+func prepareArgNoRet (): (closure (Int)) {
+    def i: Int = 3;
+    return closure (j: Int) {
+        print("prepareArgNoRet: %d, %d\n", j, i);
+    };
+}
+
+func testArgNoRet {
+    def c: closure(i:Int) = prepareArgNoRet();
+    runArgNoRet(c);
+}
+testArgNoRet();
+
+// No args, ret val
+
+func runNoArgRet (c: closure ():Int) {
+    def r: Int = c();
+    print("runNoArgRet: %d\n", r);
+}
+
+func prepareNoArgRet (): (closure (): Int) {
+    def i: Int = 4;
+    return closure (): Int {
+        print("prepareNoArgRet: %d\n", i);
+        return i;
+    };
+}
+
+func testNoArgRet {
+    def c: closure():Int = prepareNoArgRet();
+    runNoArgRet(c);
+}
+testNoArgRet();
+
+// Args, ret val
+
+func runArgRet (c: closure (Int):Int) {
+    def r: Int = c(5);
+    print("runArgRet: %d\n", r);
+}
+
+func prepareArgRet (): (closure (Int):Int) {
+    def i: Int = 6;
+    return closure (j: Int): Int {
+        print("prepareArgRet: %d, %d\n", j, i);
+        return i;
+    };
+}
+
+func testArgRet {
+    def c: closure(Int):Int = prepareArgRet();
+    runArgRet(c);
+}
+testArgRet();
+
+// Input and ret types with dot
+
+module M {
+    type T {
+        def i: Int;
+    }
+}
+
+func runTypeWithDot (c: closure (M.T):M.T) {
+    def t: M.T;
+    t.i = 7;
+    def r: M.T = c(t);
+    print("runTypeWithDot: %d\n", r.i);
+}
+
+func prepareTypeWithDot (): (closure (M.T):M.T) {
+    def i: Int = 8;
+    return closure (j: M.T): M.T {
+        print("prepareTypeWithDot: %d, %d\n", j.i, i);
+        def r: M.T;
+        r.i = i;
+        return r;
+    };
+}
+
+func testTypeWithDot {
+    def c: closure(M.T):M.T = prepareTypeWithDot();
+    runTypeWithDot(c);
+}
+testTypeWithDot();
+
+// Shadowing vars
+
+func runVarShadow (c: closure ()) {
+    c();
+}
+
+func prepareVarShadow (): (closure ()) {
+    def i: Int = 10;
+    return closure () {
+        def i: Int = 9;
+        print("prepareVarShadow: %d\n", i);
+    };
+}
+
+func testVarShadow {
+    def c: closure() = prepareVarShadow();
+    runVarShadow(c);
+}
+testVarShadow();
+
+// Accessing global
+
+func runGlobalAccess (c: closure ()) {
+    c();
+}
+
+def globalI: Int = 9;
+func prepareGlobalAccess (): (closure ()) {
+    def i: Int = 10;
+    def c: closure () = closure () {
+        print("prepareGlobalAccess: %d, %d\n", i, globalI);
+    };
+    i = 12;
+    globalI = 11;
+    return c;
+}
+
+func testGlobalAccess {
+    def c: closure() = prepareGlobalAccess();
+    runGlobalAccess(c);
+}
+testGlobalAccess();
+
+// Accessing shared var
+
+func runSharedAccess (c: closure ()) {
+    c();
+}
+
+func prepareSharedAccess (): (closure ()) {
+    @shared def sharedI: Int(11);
+    def i: Int = 12;
+    def c: closure () = closure () {
+        print("prepareSharedAccess: %d, %d\n", i, sharedI);
+    };
+    i = 11;
+    sharedI = 13;
+    return c;
+}
+
+func testSharedAccess {
+    def c: closure() = prepareSharedAccess();
+    runSharedAccess(c);
+}
+testSharedAccess();
+
+// Releasing data
+
+type MyType {
+    def i: Int;
+    handler this~terminate() {
+        print("MyType~terminate %d\n", this.i);
+    }
+}
+
+func runDataRelease (c: closure ()) {
+    c();
+}
+
+func prepareDataRelease (): (closure ()) {
+    def t: MyType;
+    t.i = 15;
+    def c: closure () = closure () {
+        print("prepareDataRelease: %d\n", t.i);
+    };
+    t.i = 14;
+    return c;
+}
+
+func testDataRelease {
+    def c: closure() = prepareDataRelease();
+    runDataRelease(c);
+}
+testDataRelease();
+
+// Erro cases
+
+func testErrorCases {
+    def cInvalidArgType: closure (j: Invalid) = closure (j: Invalid) {
+    };
+
+    def cInvalidRetType: closure ():Invalid = closure ():Invalid {
+        return 0;
+    };
+
+    def cMissingVar: closure () = closure () {
+        missingVar = 0;
+    };
+}
+print("\ntestErrorCases:\n");
+testErrorCases();
+func testInvalidArgNameErrorCases {
+    def cInvalidArgName: closure ("i": Int) = closure ("i": Int) {
+    };
+
+    def cDuplicateArg: closure (i: Int, i: Int) = closure (i: Int, i: Int) {
+    };
+}

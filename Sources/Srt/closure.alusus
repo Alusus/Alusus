@@ -1,0 +1,333 @@
+import "Srl/Map";
+import "Srl/refs";
+import "Core/Basic";
+import "Core/Data";
+import "Spp";
+import "Spp/Ast";
+
+module Closures {
+    use Srl;
+    use Core.Basic;
+    use Core.Data;
+
+    def TioSrdRef: alias SrdRef[TiObject];
+
+    def AstTemplateMap: alias Map[String, ref[TiObject]];
+
+    type Closure [FnType:type] {
+        preprocess {
+            fillClosureBody(FnType~ast);
+        }
+        def data: SrdRef[void];
+
+        handler this~init() {}
+        handler this~init(value: ref[this_type]) {
+            this.data = value.data;
+            this.fp = value.fp;
+        }
+        handler this=ref[this_type] {
+            this.data = value.data;
+            this.fp = value.fp;
+        }
+        handler this.release() {
+            this.fp = 0;
+            this.data.release();
+        }
+    }
+
+    func fillClosureBody (rawFnType: ref[TiObject]) {
+        def fnType: TioSrdRef = generateFuncType(rawFnType, nullRef[TiObject], ast ref[Srl.RefCounter]);
+        def argList: TioSrdRef = generateFuncArgListFromType(fnType.obj);
+
+        def call: TioSrdRef;
+        if argList.obj~ptr != 0 {
+            call = Spp.astMgr.buildAst(
+                (ast this.fp(args)),
+                AstTemplateMap().set(String("args"), argList.obj),
+            );
+        } else {
+            call = Spp.astMgr.buildAst((ast this.fp()), AstTemplateMap());
+        }
+        def statement: TioSrdRef;
+        if isVoidRetType(fnType.obj) {
+            statement = call;
+        } else {
+            statement = Spp.astMgr.buildAst(
+                (ast return call),
+                AstTemplateMap().set(String("call"), call.obj)
+            );
+        }
+        def fn: TioSrdRef = Spp.astMgr.buildAst(
+            (ast func { statement }),
+            AstTemplateMap().set(String("statement"), statement.obj),
+        );
+        MapContainerOf[fn.obj].setElement(
+            "type",
+            generateFuncType(rawFnType, (ast ref[this_type]), nullRef[TiObject]).obj
+        );
+
+        Spp.astMgr.insertAst(
+            (ast def name: fn),
+            AstTemplateMap()
+                .set(String("name"), TiStr(String("()")))
+                .set(String("fn"), fn.obj)
+        );
+        Spp.astMgr.insertAst(
+            (ast def fp: ptr[fnType]),
+            AstTemplateMap().set(String("fnType"), fnType.obj)
+        );
+    }
+
+    func generateClosureInstance (fnTypeSpec: ref[TiObject], statements: ref[TiObject]) {
+        // Generate the function.
+        def fn: TioSrdRef = Spp.astMgr.buildAst(
+            (ast function {
+                @injection def __data: ref[Data];
+                __data~ptr = __payload.managedObj~cast[ptr[Data]];
+
+                statements
+            }),
+            AstTemplateMap().set(String("statements"), statements)
+        );
+        // Assign the function type.
+        def closureArgFnType: TioSrdRef = generateFuncType(fnTypeSpec, nullRef[TiObject], nullRef[TiObject]);
+        def fnType: TioSrdRef = generateFuncType(fnTypeSpec, nullRef[TiObject], ast ref[Srl.RefCounter]);
+        MapContainerOf[fn.obj].setElement("type", fnType.obj);
+        // Find external variables of that function.
+        def varDefs: AstTemplateMap;
+        findExternalVariables(
+            getInterface[fn.obj, Containing].getElement(1),
+            Spp.astMgr.getCurrentPreprocessOwner(),
+            varDefs
+        );
+        // Generate member var definitions and assignments.
+        def payloadDefs: SrdRef[Ast.MergeList] = newSrdObj[Ast.MergeList];
+        def defsContainer: DynContainerOf[payloadDefs.obj];
+        def payloadAssignments: SrdRef[Ast.MergeList] = newSrdObj[Ast.MergeList];
+        def assignContainer: DynContainerOf[payloadAssignments.obj];
+        def i: Int;
+        for i = 0, i < varDefs.getLength(), ++i {
+            def payloadDef: TioSrdRef = Spp.astMgr.buildAst(
+                (ast def varName: varType),
+                AstTemplateMap()
+                    .set(String("varName"), TiStr(varDefs.keys(i)))
+                    .set(String("varType"), varDefs.values(i))
+            );
+            defsContainer.addElement(payloadDef.obj);
+            def payloadAssignment: TioSrdRef = Spp.astMgr.buildAst(
+                (ast d.varName~no_deref = varName),
+                AstTemplateMap().set(String("varName"), Ast.Identifier(varDefs.keys(i)))
+            );
+            assignContainer.addElement(payloadAssignment.obj);
+        }
+        // Render the closure.
+        Spp.astMgr.insertAst(
+            ast {
+                Closures.Closure[closureArgFnType]().{
+                    type Data {
+                        payloadDefs
+                    }
+                    def d: Srl.SrdRef[Data];
+                    d.construct();
+
+                    payloadAssignments;
+
+                    this.data.assign(d.refCounter, castRef[d.obj, void]);
+                    this.fp = fn;
+                }
+            },
+            AstTemplateMap().{
+                set(String("closureArgFnType"), closureArgFnType.obj);
+                set(String("payloadDefs"), payloadDefs.obj);
+                set(String("payloadAssignments"), payloadAssignments.obj);
+                set(String("fn"), fn);
+            }
+        );
+    }
+
+    func generateFuncType (t: ref[TiObject], thisType: ref[TiObject], payloadType: ref[TiObject]): TioSrdRef {
+        def args: ref[TiObject];
+        def retVal: ref[TiObject];
+        if isDerivedFrom[t, Spp.Ast.FunctionType] or isDerivedFrom[t, Ast.LinkOperator] {
+            ContainerOf[t].{
+                args~no_deref = this.getElement(0);
+                retVal~no_deref = this.getElement(1);
+            }
+        } else {
+            args~no_deref = t;
+            retVal~ptr = 0;
+        }
+        def inputs: SrdRef[Ast.Map] = newSrdObj[Ast.Map];
+        DynMapContainerOf[inputs.obj].{
+            if thisType~ptr != 0 this.addElement("this", thisType);
+            addFuncArgs(args, 0, this);
+            if payloadType~ptr != 0 this.addElement("__payload", payloadType);
+        };
+        def fnType: TioSrdRef = TioSrdRef().{
+            if thisType~ptr != 0 this = Spp.astMgr.clone(ast @member func)
+            else this = Spp.astMgr.clone(ast func);
+        };
+        MapContainerOf[fnType.obj].{
+            this.setElement("argTypes", inputs.obj);
+            this.setElement("retType", retVal);
+        };
+        return fnType;
+    }
+
+    func addFuncArgs (input: ref[TiObject], index: Int, map: ref[DynamicMapContaining]) {
+        if input~ptr == 0 return;
+        def inputContaining: ContainerOf[input];
+        if isDerivedFrom[input, Ast.Bracket] {
+            addFuncArgs(inputContaining.getElement(0), index, map);
+        } else if isDerivedFrom[input, Ast.Map] {
+            getInterface[input, MapContaining].{
+                def i: Word;
+                for i = 0, i < inputContaining.getElementCount(), ++i {
+                    map.addElement(this.getElementKey(i), this.getElement(i));
+                }
+            };
+        } else if isDerivedFrom[input, Ast.List] {
+            def i: Word;
+            for i = 0, i < inputContaining.getElementCount(), ++i {
+                addFuncArgs(inputContaining.getElement(i), i, map);
+            }
+        } else if isDerivedFrom[input, Ast.LinkOperator] and isStringPropEqual(input, "type", ":") {
+            dynCastRef[inputContaining.getElement(0), Ast.Identifier].{
+                // Make sure the argument name is valid.
+                if this~ptr == 0  or map.findElementIndex(this.value.value) != -1 {
+                    Spp.buildMgr.raiseBuildNotice("SPPH1006", 1, input);
+                    return;
+                }
+                map.addElement(this.value.value, inputContaining.getElement(1));
+            };
+        } else {
+            map.addElement(String("__") + index, input);
+        }
+    }
+
+    func isStringPropEqual(item: ref[TiObject], name: CharsPtr, value: CharsPtr): Bool {
+        def bindings: BindingOf[item];
+        if bindings~ptr == 0 return false;
+        def prop: ref[TiObject](bindings.getMember(name));
+        if prop~ptr == 0 or not isDerivedFrom[prop, TiStr] return false;
+        return castRef[prop, TiStr].value == value;
+    }
+
+    func generateFuncArgListFromType (fnType: ref[TiObject]): TioSrdRef {
+        def args: ref[TiObject](ContainerOf[fnType].getElement(0));
+        if args~ptr == 0 return TioSrdRef();
+        def argsMap: MapContainerOf[args];
+        def list: SrdRef[Ast.List] = newSrdObj[Ast.List];
+        def listContainer: DynContainerOf[list.obj];
+        def i: Word;
+        for i = 0, i < argsMap.getElementCount() - 1, ++i {
+            def arg: SrdRef[Ast.Identifier] = newSrdObj[Ast.Identifier];
+            arg.value.value = String(argsMap.getElementKey(i).buf);
+            listContainer.addElement(arg.obj);
+        }
+        listContainer.addElement(Spp.astMgr.clone(ast this.data.refCounter).obj);
+        return castSrdRef[list, TiObject];
+    }
+
+    func findExternalVariables (
+        obj: ref[TiObject], injectionPos: ref[TiObject], result: ref[AstTemplateMap]
+    ) {
+        if obj~ptr == 0 return;
+
+        if isDerivedFrom[obj, Ast.Identifier] {
+            if result.findPos(castRef[obj, Ast.Identifier].value.value) == -1 {
+                def d: ref[TiObject](findDefinition(obj, castRef[obj, Ast.Identifier].owner));
+                if d~ptr == 0 {
+                    // The variable was not found in the function itself, so it's an external var.
+                    d~no_deref = findDefinition(obj, injectionPos);
+                    if d~ptr != 0 and isVarDefinition(d) {
+                        // Only add the variable if it's local to the outer function.
+                        if Spp.astMgr.getVariableDomain(d) == Spp.DefinitionDomain.FUNCTION {
+                            result(castRef[obj, Ast.Identifier].value.value)~no_deref = d;
+                        }
+                    }
+                }
+            }
+            return;
+        } else if isDerivedFrom[obj, Ast.LinkOperator] {
+            ContainerOf[obj].{
+                findExternalVariables(this.getElement(0), injectionPos, result);
+                def second: ref[TiObject](this.getElement(1));
+                if !isDerivedFrom[second, Ast.Identifier] {
+                    findExternalVariables(second, injectionPos, result);
+                }
+            };
+            return;
+        } else if isDerivedFrom[obj, Spp.Ast.Function] or isDerivedFrom[obj, Spp.Ast.Type] {
+            return;
+        }
+
+        ContainerOf[obj].{
+            if this~ptr != 0 {
+                def i: Int;
+                for i = 0, i < this.getElementCount()~cast[Int], ++i {
+                    findExternalVariables(this.getElement(i), injectionPos, result);
+                }
+            }
+        }
+    }
+
+    func findDefinition (obj: ref[TiObject], parent: ref[TiObject]): ref[TiObject] {
+        def elements: Array[ref[TiObject]];
+        elements = Spp.astMgr.findElements(obj, parent, Spp.SeekerFlags.SKIP_CHILDREN);
+        if elements.getLength() > 0 return elements(0)
+        else return nullRef[TiObject];
+    }
+
+    func isVoidRetType (fnType: ref[TiObject]): Bool {
+        def retType: ref[TiObject](MapContainerOf[fnType].getElement("retType"));
+        if retType~ptr == 0 return true;
+        def identifier: ref[Ast.Identifier](dynCastRef[retType, Ast.Identifier]);
+        if identifier~ptr == 0 return false;
+        return identifier.value.value.toLowerCase() == "void";
+    }
+
+    func isVarDefinition (obj: ref[TiObject]): Bool {
+        return isDerivedFrom[obj, Ast.ParamPass]
+            or isDerivedFrom[obj, Ast.LinkOperator]
+            or isDerivedFrom[obj, Ast.Identifier]
+            or isDerivedFrom[obj, Spp.Ast.ThisTypeRef]
+            or isDerivedFrom[obj, Spp.Ast.TypeOp];
+    }
+}
+
+preprocess {
+    use Srl;
+    use Core.Basic;
+    use Closures;
+    Spp.grammarMgr.addCustomCommand(
+        "Closure",
+        (ast {
+            keywords: "closure" | "مغلفة";
+            args: "module".FuncSigExpression*(1,1) + "module".BlockSet*(0,1);
+        }),
+        func (data: TioSrdRef): TioSrdRef {
+            def container: ContainerOf[data.obj];
+            if container.getElementCount() == 2u {
+                // Generate closure type reference.
+                def closureArgFnType: TioSrdRef = generateFuncType(
+                    container.getElement(1), nullRef[TiObject], nullRef[TiObject]
+                );
+                return Spp.astMgr.buildAst(
+                    (ast Closures.Closure[t]),
+                    AstTemplateMap().set(String("t"), closureArgFnType.obj)
+                );
+            } else {
+                // Generate closure instance.
+                return Spp.astMgr.buildAst(
+                    (@no_preprocess ast preprocess {
+                        Closures.generateClosureInstance((ast t), (ast b));
+                    }),
+                    AstTemplateMap()
+                        .set(String("t"), container.getElement(1))
+                        .set(String("b"), container.getElement(2)),
+                );
+            }
+        }
+    );
+}

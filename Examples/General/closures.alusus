@@ -1,0 +1,23 @@
+import "Srl/Console";
+import "closure";
+
+use Srl.Console;
+
+func runClosure (c: closure (Int):Int) {
+    def r: Int = c(5);
+    print("runClosure: %d\n", r);
+}
+
+func prepareClosure (): (closure (Int):Int) {
+    def i: Int = 6;
+    return closure (j: Int): Int {
+        print("prepareClosure: %d, %d\n", j, i);
+        return i;
+    };
+}
+
+func test {
+    def c: closure(Int):Int = prepareClosure();
+    runClosure(c);
+}
+test();
