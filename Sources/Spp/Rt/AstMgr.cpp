@@ -173,10 +173,10 @@ Bool AstMgr::_getModifierStringParams(TiObject *self, TiObject *modifier, Array<
   for (Int i = 0; i < strs->getElementCount(); ++i) {
     auto str = ti_cast<Core::Data::Ast::StringLiteral>(strs->getElement(i));
     if (str == 0) {
-      astMgr->noticeStore->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
+      astMgr->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
         Core::Data::Ast::findSourceLocation(strs->getElement(i))
       ));
-      astMgr->parser->flushApprovedNotices();
+      astMgr->rootManager->flushNotices();
       return false;
     }
     result.add(str->getValue().getStr());
@@ -205,7 +205,7 @@ Bool AstMgr::_insertAst(TiObject *self, TiObject* ast)
   Array<TiObject*> values;
   PlainArrayWrapperContainer<TiObject> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return result;
 }
 
@@ -217,7 +217,7 @@ Bool AstMgr::_insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*>
   Array<TiObject*> values = interpolations->getValues();
   PlainArrayWrapperContainer<TiObject> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return result;
 }
 
@@ -229,7 +229,7 @@ Bool AstMgr::_insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr
   Array<SharedPtr<TiObject>> values = interpolations->getValues();
   SharedArrayWrapperContainer<TiObject> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return result;
 }
 
@@ -243,7 +243,7 @@ Bool AstMgr::_buildAst_plain(TiObject *self, TiObject *ast, Map<Str, TiObject*> 
   Bool ret = astMgr->astProcessor->interpolateAst(
     ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
   );
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return ret;
 }
 
@@ -258,7 +258,7 @@ Bool AstMgr::_buildAst_shared(
   Bool ret = astMgr->astProcessor->interpolateAst(
     ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
   );
-  astMgr->parser->flushApprovedNotices();
+  astMgr->rootManager->flushNotices();
   return ret;
 }
 

@@ -52,6 +52,8 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   private: Data::Seeker seeker;
 
+  private: Notices::Store noticeStore;
+
   private: Int minNoticeSeverityEncountered = -1;
 
   private: Bool interactive;
@@ -62,6 +64,9 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   //============================================================================
   // Signals
+
+  /// Emitted when a build msg (error or warning) is generated.
+  private: Signal<void, SharedPtr<Notices::Notice> const&> inerNoticeSignal;
 
   /// Emitted when a build msg (error or warning) is generated.
   public: SignalRelay<void, SharedPtr<Notices::Notice> const&> noticeSignal;
@@ -90,30 +95,37 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   //============================================================================
   // Member Functions
 
-  public: virtual SharedPtr<Data::Ast::Scope> const& getRootScope()
+  public: SharedPtr<Data::Ast::Scope> const& getRootScope()
   {
     return this->rootScope;
   }
 
-  public: virtual SharedPtr<Data::Ast::Scope> const& getExprRootScope()
+  public: SharedPtr<Data::Ast::Scope> const& getExprRootScope()
   {
     return this->exprRootScope;
   }
 
-  public: virtual RootScopeHandler* getRootScopeHandler()
+  public: RootScopeHandler* getRootScopeHandler()
   {
     return &this->rootScopeHandler;
   }
 
-  public: virtual LibraryManager* getLibraryManager()
+  public: LibraryManager* getLibraryManager()
   {
     return &this->libraryManager;
   }
 
-  public: virtual Data::Seeker* getSeeker()
+  public: Data::Seeker* getSeeker()
   {
     return &this->seeker;
   }
+
+  public: Notices::Store* getNoticeStore()
+  {
+    return &this->noticeStore;
+  }
+
+  public: void flushNotices();
 
   public: virtual SharedPtr<TiObject> parseExpression(Char const *str);
 

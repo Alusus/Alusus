@@ -150,7 +150,7 @@ Bool TargetGenerator::generateIntType(Word bitCount, Bool withSign, TioSharedPtr
   if (bitCount == 0) bitCount = this->buildTarget->getPointerBitCount();
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    this->noticeStore->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
+    this->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
   auto llvmType = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), bitCount);
@@ -174,7 +174,7 @@ Bool TargetGenerator::generateFloatType(Word bitCount, TioSharedPtr &type)
     //   llvmType = llvm::Type::getFP128Ty(*this->buildTarget->getLlvmContext());
     //   break;
     default:
-      this->noticeStore->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
+      this->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
       return false;
   }
   type = newSrdObj<FloatType>(llvmType, bitCount);

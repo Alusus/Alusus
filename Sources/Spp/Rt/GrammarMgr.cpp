@@ -45,8 +45,8 @@ void GrammarMgr::_addCustomCommand(
   TiObject *self, Char const *qualifier, TiObject *ast, ParsingHandlerFunc func
 ) {
   PREPARE_SELF(grammarMgr, GrammarMgr);
-  grammarMgr->grammarFactory->createCustomCommand(qualifier, ast, func, grammarMgr->noticeStore);
-  grammarMgr->parser->flushApprovedNotices();
+  grammarMgr->grammarFactory->createCustomCommand(qualifier, ast, func, grammarMgr->rootManager->getNoticeStore());
+  grammarMgr->rootManager->flushNotices();
 }
 
 } // namespace

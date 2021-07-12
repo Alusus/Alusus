@@ -138,37 +138,27 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareBuild,
-    SharedPtr<BuildSession>, (
-      Core::Notices::Store* /* noticeStore */, Int /* buildType */, TiObject* /* globalFuncElement */
-    )
+    SharedPtr<BuildSession>, (Int /* buildType */, TiObject* /* globalFuncElement */)
   );
   private: static SharedPtr<BuildSession> _prepareBuild(
-    TiObject *self, Core::Notices::Store *noticeStore, Int buildType, TiObject *globalFuncElement
+    TiObject *self, Int buildType, TiObject *globalFuncElement
   );
 
   public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession* /* buildSession */));
   private: static Bool _addElementToBuild(TiObject *self, TiObject *element, BuildSession *buildSession);
 
   public: METHOD_BINDING_CACHE(finalizeBuild,
-    Bool, (Core::Notices::Store* /* noticeStore */, TiObject* /* globalFuncElement */, BuildSession* /* buildSession */)
+    Bool, (TiObject* /* globalFuncElement */, BuildSession* /* buildSession */)
   );
   private: static Bool _finalizeBuild(
-    TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession *buildSession
+    TiObject *self, TiObject *globalFuncElement, BuildSession *buildSession
   );
 
-  public: METHOD_BINDING_CACHE(execute,
-    Bool, (Core::Notices::Store* /* noticeStore */, BuildSession* /* buildSession */)
-  );
-  private: static Bool _execute(
-    TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession
-  );
+  public: METHOD_BINDING_CACHE(execute, Bool, (BuildSession* /* buildSession */));
+  private: static Bool _execute(TiObject *self, BuildSession *buildSession);
 
-  public: METHOD_BINDING_CACHE(buildDependencies,
-    Bool, (Core::Notices::Store* /* noticeStore */, BuildSession* /* buildSession */)
-  );
-  private: static Bool _buildDependencies(
-    TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession
-  );
+  public: METHOD_BINDING_CACHE(buildDependencies, Bool, (BuildSession* /* buildSession */));
+  private: static Bool _buildDependencies(TiObject *self, BuildSession *buildSession);
 
   private: Bool buildGlobalCtorOrDtor(
     BuildSession *buildSession, DependencyList<Core::Data::Node> *deps, Char const *funcName,
@@ -178,19 +168,12 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     )> varOpCallback
   );
 
-  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement,
-    void, (TiObject*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
-  public: static void _dumpLlvmIrForElement(
-    TiObject *self, TiObject *element, Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
-  );
+  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (TiObject*));
+  public: static void _dumpLlvmIrForElement(TiObject *self, TiObject *element);
 
-  public: METHOD_BINDING_CACHE(buildObjectFileForElement,
-    Bool, (TiObject*, Char const*, Char const*, Core::Notices::Store*, Core::Processing::Parser*)
-  );
+  public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (TiObject*, Char const*, Char const*));
   public: static Bool _buildObjectFileForElement(
-    TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple,
-    Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
+    TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
   );
 
   public: METHOD_BINDING_CACHE(resetBuild, void, (Int));

@@ -38,8 +38,6 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   // Member Variables
 
   private: Ast::Helper *astHelper;
-  private: Core::Notices::Store *noticeStore;
-  private: Core::Processing::Parser *parser;
   private: Core::Main::RootManager *rootManager;
   private: Spp::CodeGen::AstProcessor *astProcessor;
 
@@ -59,8 +57,6 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->setAstHelper(parent->getAstHelper());
-    this->setNoticeStore(parent->getNoticeStore());
-    this->setParser(parent->getParser());
     this->setRootManager(parent->getRootManager());
     this->setAstProcessor(parent->getAstProcessor());
   }
@@ -88,24 +84,6 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
-  }
-
-  public: void setNoticeStore(Core::Notices::Store *store)
-  {
-    this->noticeStore = store;
-  }
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
-  }
-
-  public: void setParser(Core::Processing::Parser *p)
-  {
-    this->parser = p;
-  }
-  public: Core::Processing::Parser* getParser() const
-  {
-    return this->parser;
   }
 
   public: void setRootManager(Core::Main::RootManager *rm)

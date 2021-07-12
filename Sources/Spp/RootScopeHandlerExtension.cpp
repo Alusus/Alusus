@@ -69,23 +69,14 @@ void RootScopeHandlerExtension::_addNewElement(
     auto rootManager = extension->rootManagerBox->get();
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 
-    // Prepare rtAstMgr & rtBuildMgr
-    rootManagerExt->rtGrammarMgr->setParser(parser);
-    rootManagerExt->rtGrammarMgr->setNoticeStore(state->getNoticeStore());
-    rootManagerExt->rtAstMgr->setParser(parser);
-    rootManagerExt->rtAstMgr->setNoticeStore(state->getNoticeStore());
-    rootManagerExt->rtBuildMgr->setParser(parser);
-    rootManagerExt->rtBuildMgr->setNoticeStore(state->getNoticeStore());
-
     // Process macros.
     auto astProcessor = rootManagerExt->astProcessor.get();
-    astProcessor->preparePass(state->getNoticeStore());
     if (!astProcessor->process(root)) return;
 
     auto executing = ti_cast<Executing>(rootManagerExt->buildManager.get());
 
     SharedPtr<BuildSession> buildSession = executing->prepareBuild(
-      state->getNoticeStore(), BuildManager::BuildType::JIT, rootManager->getRootScope().get()
+      BuildManager::BuildType::JIT, rootManager->getRootScope().get()
     );
 
     Bool execute = true;
@@ -109,9 +100,9 @@ void RootScopeHandlerExtension::_addNewElement(
       if (!executing->addElementToBuild(childData, buildSession.get())) execute = false;
     }
 
-    executing->finalizeBuild(state->getNoticeStore(), rootManager->getRootScope().get(), buildSession.get());
+    executing->finalizeBuild(rootManager->getRootScope().get(), buildSession.get());
     if (execute) {
-      executing->execute(state->getNoticeStore(), buildSession.get());
+      executing->execute(buildSession.get());
     }
   }
 }

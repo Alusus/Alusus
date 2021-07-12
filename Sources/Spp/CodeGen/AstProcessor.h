@@ -40,7 +40,6 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   private: Ast::Helper *astHelper;
   private: Executing *executing;
   private: SharedList<TiObject> *astNodeRepo;
-  private: Core::Notices::Store *noticeStore = 0;
   private: TiObject *currentPreprocessOwner;
   private: Int currentPreprocessInsertionPosition;
   private: SharedPtr<Core::Data::SourceLocation> currentPreprocessSourceLocation;
@@ -95,16 +94,6 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->astNodeRepo;
   }
 
-  public: void setNoticeStore(Core::Notices::Store *ns)
-  {
-    this->noticeStore = ns;
-  }
-
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
-  }
-
   public: TiObject* getCurrentPreprocessOwner() const
   {
     return this->currentPreprocessOwner;
@@ -124,8 +113,6 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
 
   /// @name Code Generation Functions
   /// @{
-
-  public: void preparePass(Core::Notices::Store *noticeStore);
 
   public: METHOD_BINDING_CACHE(process, Bool, (TiObject* /* owner */));
   private: static Bool _process(TiObject *self, TiObject *owner);

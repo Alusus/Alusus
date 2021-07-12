@@ -39,6 +39,7 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->rootScopeHandler.setSeeker(&this->seeker);
   this->rootScopeHandler.setRootScope(this->rootScope);
 
+  this->noticeSignal.relay(this->inerNoticeSignal);
   this->noticeSignal.connect(this->noticeSlot);
 
   Data::Grammar::StandardFactory factory;
@@ -75,6 +76,19 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
 
 //==============================================================================
 // Member Functions
+
+void RootManager::flushNotices()
+{
+  Int count = this->getNoticeStore()->getCount();
+  if (count == 0) return;
+
+  // Now emit the messages.
+  for (Int i = 0; i < count; ++i) {
+    this->inerNoticeSignal.emit(this->getNoticeStore()->get(i));
+  }
+  this->getNoticeStore()->flush(count);
+}
+
 
 SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
 {

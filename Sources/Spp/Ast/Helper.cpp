@@ -231,15 +231,15 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (type != 0) setAstType(ref, type);
   }
 
-  if (type == 0 && helper->noticeStore != 0) {
+  if (type == 0 && helper->rootManager->getNoticeStore() != 0) {
     if (notice != 0) {
-      helper->noticeStore->add(notice);
+      helper->rootManager->getNoticeStore()->add(notice);
     } else if (foundObj == 0) {
-      helper->noticeStore->add(
+      helper->rootManager->getNoticeStore()->add(
         newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
       );
     } else {
-      helper->noticeStore->add(
+      helper->rootManager->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IdentifierIsNotTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
       );
     }
@@ -361,7 +361,7 @@ ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type, Refe
   } else {
     auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
-      helper->noticeStore->add(notice);
+      helper->rootManager->getNoticeStore()->add(notice);
     }
     return 0;
   }
@@ -394,7 +394,7 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
   } else {
     auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
-      helper->noticeStore->add(notice);
+      helper->rootManager->getNoticeStore()->add(notice);
     }
     return 0;
   }
@@ -417,7 +417,7 @@ ArrayType* Helper::_getArrayTypeFor(TiObject *self, TiObject *type)
   } else {
     auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
-      helper->noticeStore->add(notice);
+      helper->rootManager->getNoticeStore()->add(notice);
     }
     return 0;
   }
@@ -833,7 +833,7 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
     }, 0
   );
   if (!found) {
-    helper->noticeStore->add(
+    helper->rootManager->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidUseStatementNotice>(bridge->findSourceLocation())
     );
   }

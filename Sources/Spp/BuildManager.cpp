@@ -68,7 +68,9 @@ void BuildManager::initTargets()
 {
   this->jitEda.setIdPrefix("jit");
   this->jitBuildTarget = newSrdObj<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
-  this->jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(this->jitBuildTarget.get(), false);
+  this->jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
+    this->rootManager, this->jitBuildTarget.get(), false
+  );
   this->jitTargetGenerator->setupBuild();
 
   this->preprocessEda.setIdPrefix("preprc");
@@ -90,9 +92,8 @@ void BuildManager::initTargets()
 //==============================================================================
 // Build Functions
 
-SharedPtr<BuildSession> BuildManager::_prepareBuild(
-  TiObject *self, Core::Notices::Store *noticeStore, Int buildType, TiObject *globalFuncElement
-) {
+SharedPtr<BuildSession> BuildManager::_prepareBuild(TiObject *self, Int buildType, TiObject *globalFuncElement)
+{
   PREPARE_SELF(buildMgr, BuildManager);
 
   if (buildType == BuildManager::BuildType::OFFLINE) {
@@ -101,10 +102,10 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
     // If we are running in an interactive mode and we faced previous errors, we'll try to clear the errors and start
     // fresh to give the user a chance to correct the errors if possible.
     auto minSeverity = buildMgr->rootManager->getMinNoticeSeverityEncountered();
-    auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
+    auto thisMinSeverity = buildMgr->rootManager->getNoticeStore()->getMinEncounteredSeverity();
     if ((minSeverity >= 0 && minSeverity <= 1) || (thisMinSeverity >= 0 && thisMinSeverity <= 1)) {
       buildMgr->rootManager->resetMinNoticeSeverityEncountered();
-      noticeStore->resetMinEncounteredSeverity();
+      buildMgr->rootManager->getNoticeStore()->resetMinEncounteredSeverity();
       buildMgr->resetBuild(buildType);
     }
   }
@@ -141,9 +142,8 @@ SharedPtr<BuildSession> BuildManager::_prepareBuild(
   globalEntryName << S("__entry__");
   if (!offlineExec) globalEntryName << buildMgr->funcNameIndex;
 
-  // Build the IR code.
-  targetGen->setNoticeStore(noticeStore);
-  buildMgr->generator->prepareBuild(noticeStore);
+  buildMgr->rootManager->getNoticeStore()->clearPrefixSourceLocationStack();
+  buildMgr->astHelper->prepare();
 
   auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(targetGen);
 
@@ -189,9 +189,8 @@ Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element, BuildSe
 }
 
 
-Bool BuildManager::_finalizeBuild(
-  TiObject *self, Core::Notices::Store *noticeStore, TiObject *globalFuncElement, BuildSession *buildSession
-) {
+Bool BuildManager::_finalizeBuild(TiObject *self, TiObject *globalFuncElement, BuildSession *buildSession)
+{
   PREPARE_SELF(buildMgr, BuildManager);
   auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
 
@@ -208,17 +207,20 @@ Bool BuildManager::_finalizeBuild(
     }
   }
 
-  if (!buildMgr->buildDependencies(noticeStore, buildSession)) result = false;
+  if (!buildMgr->buildDependencies(buildSession)) result = false;
+
+  buildMgr->rootManager->flushNotices();
+
   return result;
 }
 
 
-Bool BuildManager::_execute(TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession)
+Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
 {
   PREPARE_SELF(buildMgr, BuildManager);
 
   auto minSeverity = buildMgr->rootManager->getMinNoticeSeverityEncountered();
-  auto thisMinSeverity = noticeStore->getMinEncounteredSeverity();
+  auto thisMinSeverity = buildMgr->rootManager->getNoticeStore()->getMinEncounteredSeverity();
   if ((minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
     if (buildSession->getBuildType() == BuildType::JIT) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
@@ -246,7 +248,7 @@ Bool BuildManager::_execute(TiObject *self, Core::Notices::Store *noticeStore, B
 }
 
 
-Bool BuildManager::_buildDependencies(TiObject *self, Core::Notices::Store *noticeStore, BuildSession *buildSession)
+Bool BuildManager::_buildDependencies(TiObject *self, BuildSession *buildSession)
 {
   PREPARE_SELF(buildMgr, BuildManager);
   auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
@@ -411,20 +413,17 @@ Bool BuildManager::buildGlobalCtorOrDtor(
 }
 
 
-void BuildManager::_dumpLlvmIrForElement(
-  TiObject *self, TiObject *element, Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
-) {
-  VALIDATE_NOT_NULL(element, noticeStore);
+void BuildManager::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
+{
+  VALIDATE_NOT_NULL(element);
   PREPARE_SELF(buildMgr, BuildManager);
 
   TiObject *globalFuncElement = 0;
   if (element->isDerivedFrom<Ast::Module>()) globalFuncElement = element;
 
-  SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(
-    noticeStore, BuildManager::BuildType::OFFLINE, globalFuncElement
-  );
+  SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(BuildManager::BuildType::OFFLINE, globalFuncElement);
   auto result = buildMgr->addElementToBuild(element, buildSession.get());
-  if (!buildMgr->finalizeBuild(noticeStore, globalFuncElement, buildSession.get())) result = false;
+  if (!buildMgr->finalizeBuild(globalFuncElement, buildSession.get())) result = false;
 
   if (element->isDerivedFrom<Ast::Module>()) {
     buildSession->getDepsInfo()->globalCtorNames.insert(0, buildSession->getGlobalEntryName());
@@ -434,7 +433,6 @@ void BuildManager::_dumpLlvmIrForElement(
   Str ir = buildMgr->offlineBuildTarget->generateLlvmIr(
     &buildSession->getDepsInfo()->globalCtorNames, &buildSession->getDepsInfo()->globalDtorNames
   );
-  parser->flushApprovedNotices();
   if (result) {
     outStream << S("-------------------- Generated LLVM IR ---------------------\n");
     outStream << ir;
@@ -449,10 +447,9 @@ void BuildManager::_dumpLlvmIrForElement(
 
 
 Bool BuildManager::_buildObjectFileForElement(
-  TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple,
-  Core::Notices::Store *noticeStore, Core::Processing::Parser *parser
+  TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
 ) {
-  VALIDATE_NOT_NULL(element, noticeStore);
+  VALIDATE_NOT_NULL(element);
   PREPARE_SELF(buildMgr, BuildManager);
 
   TiObject *globalFuncElement = 0;
@@ -460,11 +457,9 @@ Bool BuildManager::_buildObjectFileForElement(
 
   buildMgr->offlineBuildTarget->setTargetTriple(targetTriple);
 
-  SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(
-    noticeStore, BuildManager::BuildType::OFFLINE, globalFuncElement
-  );
+  SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(BuildManager::BuildType::OFFLINE, globalFuncElement);
   auto result = buildMgr->addElementToBuild(element, buildSession.get());
-  if (!buildMgr->finalizeBuild(noticeStore, globalFuncElement, buildSession.get())) result = false;
+  if (!buildMgr->finalizeBuild(globalFuncElement, buildSession.get())) result = false;
 
   if (element->isDerivedFrom<Ast::Module>()) {
     buildSession->getDepsInfo()->globalCtorNames.insert(0, buildSession->getGlobalEntryName());
@@ -475,7 +470,6 @@ Bool BuildManager::_buildObjectFileForElement(
       objectFilename, &buildSession->getDepsInfo()->globalCtorNames, &buildSession->getDepsInfo()->globalDtorNames
     );
   }
-  parser->flushApprovedNotices();
 
   return result;
 }

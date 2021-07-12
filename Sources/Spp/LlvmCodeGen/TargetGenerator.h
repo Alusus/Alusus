@@ -37,7 +37,7 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   //============================================================================
   // Member Variables
 
-  private: Core::Notices::Store *noticeStore = 0;
+  private: Core::Main::RootManager *rootManager;
   private: BuildTarget *buildTarget = 0;
   private: Bool perFunctionModules = false;
   private: llvm::FunctionType *vaStartEndFnType = 0;
@@ -49,7 +49,8 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   //============================================================================
   // Constructors & Destructor
 
-  public: TargetGenerator(BuildTarget *bt, Bool perFnMods) : buildTarget(bt), perFunctionModules(perFnMods)
+  public: TargetGenerator(Core::Main::RootManager *rm, BuildTarget *bt, Bool perFnMods)
+    : rootManager(rm), buildTarget(bt), perFunctionModules(perFnMods)
   {
     this->addDynamicInterface(newSrdObj<Spp::CodeGen::TargetGeneration>(this));
     this->initBindings();
@@ -58,6 +59,7 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   public: TargetGenerator(TargetGenerator *parent, BuildTarget *bt, Bool perFnMods)
     : buildTarget(bt), perFunctionModules(perFnMods)
   {
+    this->rootManager = parent->getRootManager();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
   }
@@ -78,14 +80,9 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Property Getters and Setters
   /// @{
 
-  public: void setNoticeStore(Core::Notices::Store *ns)
+  public: Core::Main::RootManager* getRootManager() const
   {
-    this->noticeStore = ns;
-  }
-
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
+    return this->rootManager;
   }
 
   /// @}

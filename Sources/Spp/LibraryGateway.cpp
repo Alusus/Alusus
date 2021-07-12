@@ -76,12 +76,12 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->grammarFactory->createGrammar();
 
   // Prepare run-time objects.
-  this->rtGrammarMgr = newSrdObj<Rt::GrammarMgr>(this->grammarFactory.get());
+  this->rtGrammarMgr = newSrdObj<Rt::GrammarMgr>(manager, this->grammarFactory.get());
   this->rtAstMgr = newSrdObj<Rt::AstMgr>();
   this->rtAstMgr->setAstHelper(this->astHelper.get());
   this->rtAstMgr->setRootManager(manager);
   this->rtAstMgr->setAstProcessor(this->astProcessor.get());
-  this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(this->buildManager.get());
+  this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(manager, this->buildManager.get());
 
   // Extend Core singletons.
   this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);

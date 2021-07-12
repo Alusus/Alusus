@@ -50,7 +50,7 @@ void BuildMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo
 void BuildMgr::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
 {
   PREPARE_SELF(buildMgr, BuildMgr);
-  buildMgr->buildManager->dumpLlvmIrForElement(element, buildMgr->noticeStore, buildMgr->parser);
+  buildMgr->buildManager->dumpLlvmIrForElement(element);
 }
 
 
@@ -58,9 +58,7 @@ Bool BuildMgr::_buildObjectFileForElement(
   TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
 ) {
   PREPARE_SELF(buildMgr, BuildMgr);
-  return buildMgr->buildManager->buildObjectFileForElement(
-    element, objectFilename, targetTriple, buildMgr->noticeStore, buildMgr->parser
-  );
+  return buildMgr->buildManager->buildObjectFileForElement(element, objectFilename, targetTriple);
 }
 
 
@@ -68,10 +66,10 @@ void BuildMgr::_raiseBuildNotice(
   TiObject *self, Char const *code, Int severity, TiObject *astNode
 ) {
   PREPARE_SELF(buildMgr, BuildMgr);
-  buildMgr->noticeStore->add(newSrdObj<Core::Notices::GenericNotice>(
+  buildMgr->rootManager->getNoticeStore()->add(newSrdObj<Core::Notices::GenericNotice>(
     code, severity, Core::Data::Ast::findSourceLocation(astNode)
   ));
-  buildMgr->parser->flushApprovedNotices();
+  buildMgr->rootManager->flushNotices();
 }
 
 } // namespace

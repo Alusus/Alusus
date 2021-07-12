@@ -37,15 +37,14 @@ class GrammarMgr : public TiObject, public DynamicBinding, public DynamicInterfa
   //============================================================================
   // Member Variables
 
+  private: Core::Main::RootManager *rootManager;
   private: GrammarFactory *grammarFactory;
-  private: Core::Notices::Store *noticeStore;
-  private: Core::Processing::Parser *parser;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: GrammarMgr(GrammarFactory *gf) : grammarFactory(gf)
+  public: GrammarMgr(Core::Main::RootManager *rm, GrammarFactory *gf) : rootManager(rm), grammarFactory(gf)
   {
   }
 
@@ -54,6 +53,7 @@ class GrammarMgr : public TiObject, public DynamicBinding, public DynamicInterfa
     this->initBindingCaches();
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
+    this->rootManager = parent->getRootManager();
     this->grammarFactory = parent->getGrammarFactory();
   }
 
@@ -73,27 +73,14 @@ class GrammarMgr : public TiObject, public DynamicBinding, public DynamicInterfa
 
   public: static void initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, GrammarMgr *grammarMgr);
 
+  public: Core::Main::RootManager* getRootManager() const
+  {
+    return this->rootManager;
+  }
+
   public: GrammarFactory* getGrammarFactory() const
   {
     return this->grammarFactory;
-  }
-
-  public: void setNoticeStore(Core::Notices::Store *store)
-  {
-    this->noticeStore = store;
-  }
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
-  }
-
-  public: void setParser(Core::Processing::Parser *p)
-  {
-    this->parser = p;
-  }
-  public: Core::Processing::Parser* getParser() const
-  {
-    return this->parser;
   }
 
   /// @}

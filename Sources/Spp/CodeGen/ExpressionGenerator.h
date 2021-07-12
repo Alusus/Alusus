@@ -40,7 +40,6 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   private: Ast::Helper *astHelper;
   private: Ast::CalleeTracer *calleeTracer;
   private: SharedList<TiObject> *astNodeRepo;
-  private: Core::Notices::Store *noticeStore = 0;
 
 
   //============================================================================
@@ -90,16 +89,6 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: SharedList<TiObject>* getAstNodeRepo() const
   {
     return this->astNodeRepo;
-  }
-
-  public: void setNoticeStore(Core::Notices::Store *ns)
-  {
-    this->noticeStore = ns;
-  }
-
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
   }
 
   /// @}

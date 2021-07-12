@@ -46,7 +46,6 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   private: ExpressionGenerator *expressionGenerator;
 
   private: AstProcessor *astProcessor = 0;
-  private: Core::Notices::Store *noticeStore = 0;
   private: Int tempVarIndex = 0;
 
 
@@ -145,11 +144,6 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     return this->expressionGenerator;
   }
 
-  public: Core::Notices::Store* getNoticeStore() const
-  {
-    return this->noticeStore;
-  }
-
   public: void setAstProcessor(AstProcessor *ap)
   {
     this->astProcessor = ap;
@@ -159,13 +153,6 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   {
     return this->astProcessor;
   }
-
-  /// @}
-
-  /// @name Main Operation Functions
-  /// @{
-
-  public: void prepareBuild(Core::Notices::Store *noticeStore);
 
   /// @}
 
