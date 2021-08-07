@@ -93,7 +93,7 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   );
 
   private: TioSharedPtr createFunction(
-    Processing::ParserState *state, Char const *funcName, Char const *op,
+    Processing::ParserState *state, Char const *funcName, Char const *op, Bool member,
     SharedPtr<Core::Data::Ast::Map> const argTypes, TioSharedPtr const &retType, TioSharedPtr const &body,
     SharedPtr<Core::Data::SourceLocation> const &sourceLocation, Mode mode
   );
@@ -104,13 +104,13 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   );
 
   private: Bool getThisAndPropIdentifiers(
-    Processing::ParserState *state, TiObject *astNode,
+    Processing::ParserState *state, TiObject *astNode, Bool allowThisType,
     Core::Data::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Data::Ast::ParamPass> &thisType,
     Core::Data::Ast::Identifier *&propIdentifier
   );
 
   private: Bool getThisIdentifierAndType(
-    Processing::ParserState *state, TiObject *astNode,
+    Processing::ParserState *state, TiObject *astNode, Bool allowThisType,
     Core::Data::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Data::Ast::ParamPass> &thisType
   );
 
