@@ -1,6 +1,6 @@
 import "Srl/Console.alusus";
 
-type A
+class A
 {
   def i: Int;
 
@@ -26,13 +26,13 @@ type A
   };
 };
 
-type B
+class B
 {
   def a: A;
   def a2: A;
 };
 
-type C
+class C
 {
   def i: Int;
   def j: Int(17);
@@ -40,7 +40,7 @@ type C
   i = 3;
 };
 
-type D
+class D
 {
     def a: A;
     Srl.Console.print("D constructed!\n");

@@ -1,6 +1,6 @@
 import "defs-ignore.alusus";
 
-type T {
+class T {
   def i: Int;
 
   handler this~init() {};

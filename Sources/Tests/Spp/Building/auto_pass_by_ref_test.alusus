@@ -1,11 +1,11 @@
 import "defs-ignore.alusus";
 
-type Point1 {
+class Point1 {
   def x: Int;
   def y: Int;
 };
 
-type Point2 {
+class Point2 {
   def x: Int;
   def y: Int;
   handler this~init() {};

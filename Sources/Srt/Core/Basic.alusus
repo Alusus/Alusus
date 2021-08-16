@@ -31,7 +31,7 @@ import "Srl/String";
             }
         }
 
-        type TiObjectFactory {
+        class TiObjectFactory {
             def createPlain: ptr[function ():ref[TiObject]];
             def createShared: ptr[function ():SrdRef[TiObject]];
             def initialize: ptr[function (ref[TiObject])];
@@ -39,7 +39,7 @@ import "Srl/String";
             def getSize: ptr[function ():ArchInt];
         }
 
-        type TypeInfo {
+        class TypeInfo {
             def typeName: String;
             def typeNamespace: String;
             def packageName: String;
@@ -49,7 +49,7 @@ import "Srl/String";
             def objectFactory: ref[TiObjectFactory];
         }
 
-        type TiObject {
+        class TiObject {
             def vtable: ptr;
             def wkThis: WkRef[this_type];
 
@@ -63,7 +63,7 @@ import "Srl/String";
             handler this.getInterface (ref[TypeInfo]): ref[TiInterface];
         }
 
-        type TiInterface {
+        class TiInterface {
             def vtable: ptr;
 
             @expname[TiInterface_getMyInterfaceInfo]
@@ -116,7 +116,7 @@ import "Srl/String";
         };
 
         macro defTiBasicType [name, dataType, uniqueName] {
-            type name {
+            class name {
                 @injection def tiObject: TiObject;
                 def value: dataType;
                 handler this~init() {
@@ -142,7 +142,7 @@ import "Srl/String";
         }
 
         macro addExtraInitializer [name, dataType] {
-            @merge type name {
+            @merge class name {
                 handler this~init(v: dataType) {
                     getTypeInfo().objectFactory.initialize(this);
                     this.value = v;
@@ -164,7 +164,7 @@ import "Srl/String";
         defTiBasicType[TiStr, String, "alusus.org/Core/Core.Basic.TiStrBase<alusus.org/Core/Core.Basic.TiObject>"];
         addExtraInitializer[TiStr, ptr[array[Char]]];
 
-        type Binding {
+        class Binding {
             @injection def tiInterface: TiInterface;
 
             @expname[Binding_setMemberByName]
@@ -197,7 +197,7 @@ import "Srl/String";
             defTypeInfoGetter["alusus.org/Core/Core.Basic.Binding"]
         }
 
-        type Containing {
+        class Containing {
             @injection def tiInterface: TiInterface;
 
             @expname[Containing_setElement]
@@ -215,7 +215,7 @@ import "Srl/String";
             defTypeInfoGetter["alusus.org/Core/Core.Basic.Containing<alusus.org/Core/Core.Basic.TiObject>"]
         }
 
-        type DynamicContaining {
+        class DynamicContaining {
             @injection def containing: Containing;
 
             @expname[DynamicContaining_addElement]
@@ -233,7 +233,7 @@ import "Srl/String";
             defTypeInfoGetter["alusus.org/Core/Core.Basic.DynamicContaining<alusus.org/Core/Core.Basic.TiObject>"]
         }
 
-        type MapContaining {
+        class MapContaining {
             @injection def containing: Containing;
 
             @expname[MapContaining_setElement]
@@ -254,7 +254,7 @@ import "Srl/String";
             defTypeInfoGetter["alusus.org/Core/Core.Basic.MapContaining<alusus.org/Core/Core.Basic.TiObject>"]
         }
 
-        type DynamicMapContaining {
+        class DynamicMapContaining {
             @injection def mapContaining: MapContaining;
 
             @expname[DynamicMapContaining_addElement]

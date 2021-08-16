@@ -86,7 +86,7 @@ testArgRet();
 // Input and ret types with dot
 
 module M {
-    type T {
+    class T {
         def i: Int;
     }
 }
@@ -182,7 +182,7 @@ testSharedAccess();
 
 // Releasing data
 
-type MyType {
+class MyType {
     def i: Int;
     handler this~terminate() {
         print("MyType~terminate %d\n", this.i);

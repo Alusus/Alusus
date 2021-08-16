@@ -2,7 +2,7 @@ import "alusus_spp";
 
 def printf: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
-type A [T: type] {
+class A [T: type] {
     def i: T;
 
     @member func print (this: ref[this_type]) {
@@ -13,25 +13,25 @@ type A [T: type] {
 def AInt: alias A[Int];
 def AFloat: alias A[Float];
 
-@merge type AInt {
+@merge class AInt {
     @member func printValue (this: ref[this_type]) {
         printf("Int %d\n", this.i);
     }
 }
 
-@merge type AFloat {
+@merge class AFloat {
     @member func printValue (this: ref[this_type]) {
         printf("Float %f\n", this.i~cast[Float[64]]);
     }
 }
 
-@merge type A {
+@merge class A {
     @member func sayHello (this: ref[this_type]) {
         printf("hello\n");
     }
 }
 
-@merge type A {
+@merge class A {
     @member func broken (this: ref[this_type]) {
         printf(5);
     }
@@ -59,18 +59,18 @@ func testErrors {
 
 testErrors();
 
-@merge type MissingType {
+@merge class MissingType {
 }
 @merge module Mod {
-    type Alpha {
+    class Alpha {
     }
 }
 @merge module Mod {
-    @merge type Alpha {
+    @merge class Alpha {
     }
 }
 @merge module Mod {
-    @merge type Beta {
+    @merge class Beta {
     }
 }
 testErrors();

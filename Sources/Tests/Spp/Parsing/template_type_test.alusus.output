@@ -20,7 +20,7 @@ Template
      param: Identifier: S [Main.BlockSubject.Identifier]
  -instances:
 ------------------------------------------------------
-ERROR SPPA1002 @ (13,19): Invalid template argument.
-ERROR SPPA1002 @ (17,19): Invalid template argument.
-ERROR SPPH1017 @ (21,30): Invalid templatae arg type.
-ERROR SPPH1016 @ (25,29): Invalid template arg name.
+ERROR SPPA1002 @ (13,20): Invalid template argument.
+ERROR SPPA1002 @ (17,20): Invalid template argument.
+ERROR SPPH1017 @ (21,31): Invalid templatae arg type.
+ERROR SPPH1016 @ (25,30): Invalid template arg name.

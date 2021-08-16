@@ -156,7 +156,7 @@ Spp.buildMgr.dumpLlvmIrForElement(getObjectFromRefRef~ast);
 // ~deref & ~no_deref
 //
 
-type A {
+class A {
     def i: Int;
     handler this~init() {
         this.i = 7;
@@ -199,12 +199,12 @@ function receiveIntRef (r: ref[Int]) {
     print("receiveIntRef: %d\n", r);
 }
 
-type B {
+class B {
     def i: Int;
     handler this=temp_ref[Int] this.i = value;
 };
 
-type C {
+class C {
     def i: Int;
     handler this=ref[Int] this.i = value;
 };

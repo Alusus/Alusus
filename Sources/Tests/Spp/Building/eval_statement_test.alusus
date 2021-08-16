@@ -57,7 +57,7 @@ func testAstInsertion {
 
 Spp.buildMgr.dumpLlvmIrForElement(testAstInsertion~ast);
 
-type A {
+class A {
     def i: Int;
     handler this~init() {
         this.i = 1;

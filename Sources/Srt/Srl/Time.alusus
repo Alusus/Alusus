@@ -14,7 +14,7 @@ import "srl";
 
 @merge module Srl {
     module Time {
-        type DetailedTime {
+        class DetailedTime {
             def second: Int;
             def minute: Int;
             def hour: Int;

@@ -2,7 +2,7 @@ import "alusus_spp";
 
 @expname[printf] func print(format: ptr[Word[8]], args: ...any): Int[32];
 
-type A
+class A
 {
   def i: Int;
 
@@ -15,7 +15,7 @@ type A
   };
 };
 
-type B
+class B
 {
   def a: A;
   def f: ptr[@member function];

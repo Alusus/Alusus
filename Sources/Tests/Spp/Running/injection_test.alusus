@@ -2,7 +2,7 @@ import "Srl/Console.alusus";
 
 use Srl.Console;
 
-type InnerMost {
+class InnerMost {
   def a: Int;
   handler this.getA():Int { return this.a }
   handler this=Int { this.a = value };
@@ -10,7 +10,7 @@ type InnerMost {
 
 def im: InnerMost;
 
-type Inner {
+class Inner {
   @injection def rim: ref[InnerMost];
   rim~ptr = im~ptr;
 
@@ -21,7 +21,7 @@ type Inner {
   handler this(): Int { return this.i + this.j }
 }
 
-type Outer {
+class Outer {
   @injection def inner: Inner;
   def k: Int;
   a = 6;
@@ -46,7 +46,7 @@ print(
   getO().getA(), getO().getI(), getO().j, getO().k, getO()()
 );
 
-type Wrong {
+class Wrong {
   def i: Int;
   @shared @injection def o: Outer;
   @injection func test {}

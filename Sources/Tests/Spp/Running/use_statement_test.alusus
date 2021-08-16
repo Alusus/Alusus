@@ -14,7 +14,7 @@ def Std: module
 };
 
 def TypeContainer: module {
-  type InnerType {
+  class InnerType {
     def j: Int;
   }
 }
@@ -28,7 +28,7 @@ def Other1: module
     Std.printf("Use ");
   }
 
-  type Tp1 {
+  class Tp1 {
     def i: Int;
   }
 

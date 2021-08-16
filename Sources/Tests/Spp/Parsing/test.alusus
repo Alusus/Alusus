@@ -7,7 +7,7 @@ def a: {"hello", "world"; i++ };
 def b: module {
   def c: 124;
   c = c + 1;
-  def t: type {
+  def t: class {
     def x: float;
     def y: float;
   };
@@ -24,7 +24,7 @@ def f: function (x:int, y:int)=>int {
   }
 };
 
-def t: type {
+def t: class {
   def i: float;
   def j: float;
   dump_ast b.t;

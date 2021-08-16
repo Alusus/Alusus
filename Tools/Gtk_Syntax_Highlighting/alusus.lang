@@ -80,7 +80,7 @@
       <keyword>module</keyword>
       <keyword>function</keyword>
       <keyword>func</keyword>
-      <keyword>type</keyword>
+      <keyword>class</keyword>
       <keyword>macro</keyword>
       <keyword>handler</keyword>
       <keyword>closure</keyword>
@@ -110,6 +110,7 @@
       <keyword>use</keyword>
       <keyword>this</keyword>
       <keyword>this_type</keyword>
+      <keyword>type</keyword>
       <keyword>value</keyword>
       <keyword>init</keyword>
       <keyword>preprocess</keyword>

@@ -106,7 +106,7 @@ def Main: module
     print("%f\n", Other.Nested.gf);
   };
 
-  type MyType {
+  class MyType {
     @shared function init ():MyType {
       return MyType();
     }

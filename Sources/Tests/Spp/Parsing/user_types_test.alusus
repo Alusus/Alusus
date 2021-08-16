@@ -2,17 +2,17 @@ import "alusus_spp";
 
 def Main: module
 {
-  def EmptyType: type
+  def EmptyType: class
   {
   };
 
-  def MyType: type
+  def MyType: class
   {
     def x: Int[32];
     def y: Int[32];
   };
 
-  def WrongType: type;
+  def WrongType: class;
 
   def start: function ()=>Void
   {
@@ -22,12 +22,12 @@ def Main: module
     print("x, y = %d, %d", v.x, v.y)
   };
 
-  def MergeType: type
+  def MergeType: class
   {
     def x: Int;
   };
 
-  @merge def MergeType: type
+  @merge def MergeType: class
   {
     def xx: Int;
   };
@@ -41,14 +41,14 @@ def Main: module
     def y: Int;
   };
 
-  type WrongType2;
-  type MyType2 {
+  class WrongType2;
+  class MyType2 {
     def x: Int;
   };
-  type MergeType2 {
+  class MergeType2 {
     def y: Int;
   };
-  @merge type MergeType2 {
+  @merge class MergeType2 {
     def z: Int;
   };
 };

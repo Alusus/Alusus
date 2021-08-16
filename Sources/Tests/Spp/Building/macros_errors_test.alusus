@@ -11,7 +11,7 @@ def defGetMin: macro [n, T] {
 
 def Main: module
 {
-  def MyType: type
+  def MyType: class
   {
     defGetMin[b, Int];
   }

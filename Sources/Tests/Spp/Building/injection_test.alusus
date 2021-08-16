@@ -3,13 +3,13 @@ import "Srl/Console.alusus";
 
 use Srl.Console;
 
-type InnerMost {
+class InnerMost {
   def a: Int;
   handler this.getA():Int { return this.a }
   handler this=Int { this.a = value };
 }
 
-type Inner {
+class Inner {
   @injection def rim: ref[InnerMost];
 
   def i: Int;
@@ -17,7 +17,7 @@ type Inner {
   handler this(): Int { return this.i * 2 }
 }
 
-type Outer {
+class Outer {
   @injection def inner: Inner;
   def k: Int;
   a = 6;

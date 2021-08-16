@@ -2,7 +2,7 @@ import "defs-ignore.alusus";
 import "Srl/Console";
 use Srl;
 
-type A {
+class A {
     def i: Int;
     handler this~init() {
         this.i = 7;
@@ -15,7 +15,7 @@ type A {
 }
 
 module M {
-    type B {
+    class B {
         def i: Int;
         handler this~init() {
             this.i = 8;
@@ -28,7 +28,7 @@ module M {
     }
 }
 
-type C {
+class C {
     def i: Int;
     handler this~init(n: Int) {
         this.i = n;
@@ -46,7 +46,7 @@ type C {
     }
 }
 
-type D {
+class D {
     def a: A;
 }
 
@@ -54,7 +54,7 @@ func varArgFunc(count: Int, args: ...Int) {
     Console.print("varArgFunc\n");
 }
 
-type E {
+class E {
     def i: Int = A().i;
     def j: C({ A().i, A().i, 5 });
     varArgFunc({ A().i, A().i, A().i });

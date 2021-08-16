@@ -1,11 +1,11 @@
 import "alusus_spp";
 module Core {
     module Basic {
-        type TiObject {}
+        class TiObject {}
     }
 }
 module Spp {
-    type BuildMgr {
+    class BuildMgr {
         @expname[Spp_BuildMgr_dumpLlvmIrForElement]
         handler this.dumpLlvmIrForElement (element: ptr);
     };

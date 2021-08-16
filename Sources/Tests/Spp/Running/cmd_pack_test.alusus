@@ -1,7 +1,7 @@
 import "Srl/Console.alusus";
 use Srl;
 
-type A {
+class A {
     def i: Int;
     handler this(): Int return this.i;
 }

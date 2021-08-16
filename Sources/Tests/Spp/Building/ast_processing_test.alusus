@@ -11,7 +11,7 @@ module MyMod {
   }
 };
 
-type Point {
+class Point {
   defInt[x];
   handler this.getDouble() { return this.x * 2 }
   preprocess {
@@ -71,7 +71,7 @@ dump_ast testAstLiteral2;
 // Testing double preprocessing, i.e. cases where the same preprocess statement is triggered twice due to a dependency
 // using the same element currently being preprocessed.
 
-type A {
+class A {
     def i: Int;
     preprocess {
         print("A->preprocess\n");

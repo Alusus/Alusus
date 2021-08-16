@@ -19,7 +19,7 @@ def Main: module
     return i;
   };
 
-  def MyPoint: type
+  def MyPoint: class
   {
     def x: Int[32];
     def y: Int[32];
@@ -31,7 +31,7 @@ def Main: module
 
   def gpoint: MyPoint;
 
-  def MyNested: type
+  def MyNested: class
   {
     def p: MyPoint;
     def i: Int[8];

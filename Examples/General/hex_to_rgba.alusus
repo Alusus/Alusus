@@ -19,7 +19,7 @@ func parseHex (hex: ptr[array[Char]], len: Int): Int {
     return result;
 }
 
-type Rgba {
+class Rgba {
     def r: Word[8];
     def g: Word[8];
     def b: Word[8];

@@ -20,7 +20,7 @@ def Module2: module {
   def c2: 3;
 };
 
-@merge def Module2: type {
+@merge def Module2: class {
   def d2: 4;
 };
 

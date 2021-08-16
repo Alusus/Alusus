@@ -5,7 +5,7 @@ def Main: module
   def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
   def i: Int;
 
-  def Point: type
+  def Point: class
   {
     def x: Int[32];
     def y: Int[32];
@@ -17,25 +17,25 @@ def Main: module
 
   def gpoint: Point;
 
-  def Nested: type
+  def Nested: class
   {
     def p: Point;
     def i: Int[8];
     def j: Int[16];
   };
 
-  def DeepNested: type
+  def DeepNested: class
   {
     def n: Nested;
     def k: Int[8];
     def l: Int[16];
   };
 
-  def Empty: type
+  def Empty: class
   {
   };
 
-  def Wrong: type
+  def Wrong: class
   {
     def w: Invalid
   };

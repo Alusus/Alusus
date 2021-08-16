@@ -16,7 +16,7 @@ import "String";
 {
     def WString: alias StringBase[Char];
 
-    @merge type WString {
+    @merge class WString {
         @expname[wcschr]
         func find(s: ptr[Word], c: Word): ptr[Word];
 

@@ -2,7 +2,7 @@ import "Srl/refs.alusus";
 import "Srl/Console.alusus";
 use Srl;
 
-type Num {
+class Num {
     def x: Int;
     handler this~terminate() {
         Console.print("Num %d is terminated.\n", this.x);

@@ -1,7 +1,7 @@
 import "Srl/Console.alusus";
 import "Srl/Memory.alusus";
 
-type T {
+class T {
   def i: Int;
 
   handler this~init() {

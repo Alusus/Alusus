@@ -33,7 +33,7 @@ def Main: module
     print("%d\n", getFunc2()(pf));
   };
 
-  def Rec: type
+  def Rec: class
   {
     def pget: ptr[function ()=>Int[32]];
     def pmul: ptr[function (n: Int[32])=>Int[32]];

@@ -1,12 +1,12 @@
 import "Srl/Console.alusus";
 use Srl.Console;
 
-type A {
+class A {
     def k: Int;
     handler this(): Int return this.k;
 }
 
-type T {
+class T {
     def i: Int(0);
     def j: Int(0);
     def a: A;
@@ -225,7 +225,7 @@ print("%d\n", t.prop8);
 t.prop9 += 8;
 print("%d\n", t.prop9);
 
-type Parent {
+class Parent {
     handler this.f1(): ptr[Char] as_ptr {
         return "";
     }
@@ -249,7 +249,7 @@ type Parent {
     }
 }
 
-type Child1 {
+class Child1 {
     @injection def parent: Parent;
     def i: Int;
     handler (this: Parent).f1(): ptr[Char] set_ptr {
@@ -261,7 +261,7 @@ type Child1 {
     }
 }
 
-type Child2 {
+class Child2 {
     @injection def parent: Parent;
     def j: Int;
     handler (this: Parent).f1(): ptr[Char] set_ptr {
@@ -294,7 +294,7 @@ test();
 
 // Test error cases
 
-type Other {
+class Other {
   def j: Int;
 };
 

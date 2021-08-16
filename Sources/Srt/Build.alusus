@@ -39,7 +39,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         return result != 0;
     }
 
-    type Unit {
+    class Unit {
         def element: ref[TiObject];
         def outputFilename: CharsPtr;
         def deps: Array[String];
@@ -87,7 +87,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         }
     }
 
-    type Exe {
+    class Exe {
         @injection def unit: Unit;
 
         handler this~init(e: ref[TiObject], fn: CharsPtr) {
@@ -137,7 +137,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         }
     }
 
-    type Wasm {
+    class Wasm {
         @injection def unit: Unit;
 
         handler this~init(e: ref[TiObject], fn: CharsPtr) {

@@ -14,7 +14,7 @@ for i = 0, i < 6, ++i {
     Console.print("%c\n", (p2-i)~cnt);
 }
 
-type A {
+class A {
     def c: Char;
     def i: Int;
 }

@@ -136,7 +136,7 @@ printNum(rri);
 // ~deref & ~no_deref
 //
 
-type A {
+class A {
     def i: Int;
     handler this~init() {
         this.i = 7;
@@ -191,7 +191,7 @@ function receiveTempIntRef (r: temp_ref[Int]) {
 }
 receiveTempIntRef(5i32);
 
-type B {
+class B {
     def i: Int;
     handler this=temp_ref[Int] this.i = value;
 };

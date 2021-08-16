@@ -18,7 +18,7 @@ func sum (count: Int, args: ...Int): Int {
     return r;
 }
 
-type A {
+class A {
     def i: Int;
     handler this~init() { this.i = 7 };
     handler this~init(n: Int) { this.i = n };

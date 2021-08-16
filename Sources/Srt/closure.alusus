@@ -14,7 +14,7 @@ module Closures {
 
     def AstTemplateMap: alias Map[String, ref[TiObject]];
 
-    type Closure [FnType:type] {
+    class Closure [FnType:type] {
         preprocess {
             fillClosureBody(FnType~ast);
         }
@@ -124,7 +124,7 @@ module Closures {
         Spp.astMgr.insertAst(
             ast {
                 Closures.Closure[closureArgFnType]().{
-                    type Data {
+                    class Data {
                         payloadDefs
                     }
                     def d: Srl.SrdRef[Data];
