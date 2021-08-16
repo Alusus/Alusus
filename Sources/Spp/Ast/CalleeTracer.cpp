@@ -392,20 +392,33 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
     return;
   } else if (request.op == S("()")) {
-    // This is a constructor.
-    Function *customCaster;
-    static Core::Data::Ast::Identifier ref({ {S("value"), TiStr(S("~init"))} });
+    // Look for a () operator on the Type itself.
+    static Core::Data::Ast::Identifier ref;
     CalleeLookupRequest innerRequest = request;
     innerRequest.ref = &ref;
+    innerRequest.searchTargetOwners = false;
+    ref.setValue(S("()"));
+    innerRequest.op = S("()");
+    innerRequest.target = type;
+    innerRequest.thisType = 0;
+    tracer->lookupCallee(innerRequest, result);
+    if (result.isSuccessful()) {
+      return;
+    }
+
+    // Look for a constructor.
+    ref.setValue(S("~init"));
     innerRequest.op = S("~init");
     innerRequest.target = type;
-    innerRequest.searchTargetOwners = false;
     innerRequest.thisType = helper->getReferenceTypeFor(type, Ast::ReferenceMode::IMPLICIT);
     tracer->lookupCallee(innerRequest, result);
     if (result.isSuccessful()) {
-      // A constructor match was found.
       result.pushObject(type);
-    } else if (
+      return;
+    }
+    
+    Function *customCaster;
+    if (
       request.argTypes->getElementCount() == 0 &&
       (type->getInitializationMethod(helper, request.ec) & TypeInitMethod::USER) == 0
     ) {

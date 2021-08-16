@@ -781,4 +781,39 @@ UserType [Main.Type]
        b: Identifier: Int [Main.BlockSubject.Identifier]
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    ParamPass []
+     operand: Identifier: operation
+     param: StringLiteral: ()
+   target: Function 
+     type: FunctionType member: 0
+      argTypes: Map
+      retType: NULL
+     body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    ParamPass []
+     operand: Identifier: operation
+     param: StringLiteral: ()
+   target: Function 
+     type: FunctionType member: 0
+      argTypes: Map
+      retType: ParamPass [] [Main.Expression.ParamPassExp]
+       operand: Identifier: ref [Main.BlockSubject.Identifier]
+       param: Identifier: T [Main.BlockSubject.Identifier]
+     body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] ()
+   modifiers:
+    ParamPass []
+     operand: Identifier: operation
+     param: StringLiteral: ()
+   target: Function 
+     type: FunctionType member: 0
+      argTypes: Map
+       n: Identifier: Int [Main.BlockSubject.Identifier]
+      retType: ParamPass [] [Main.Expression.ParamPassExp]
+       operand: Identifier: ref [Main.BlockSubject.Identifier]
+       param: Identifier: T [Main.BlockSubject.Identifier]
+     body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------

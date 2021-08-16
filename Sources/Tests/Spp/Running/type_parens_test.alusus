@@ -1,0 +1,110 @@
+import "Srl/Console";
+use Srl;
+
+type A {
+    def i: Int;
+
+    handler this~init() {
+        this.i = 2;
+        Console.print("A~init\n");
+    }
+
+    handler this~terminate() {
+        Console.print("A~terminate\n");
+    }
+
+    handler this_type(): ref[A] {
+        @shared def a: A;
+        a.i = 1;
+        Console.print("A()\n");
+        return a;
+    }
+}
+
+type B {
+    def i: Int;
+
+    handler this~init(n: Int) {
+        this.i = n;
+        Console.print("B~init\n");
+    }
+
+    handler this~terminate() {
+        Console.print("B~terminate\n");
+    }
+
+    handler this_type(): ref[B] {
+        @shared def b: B(3);
+        Console.print("B()\n");
+        return b;
+    }
+}
+
+type C {
+    def i: Int;
+
+    handler this~init(n: Int) {
+        this.i = n;
+        Console.print("C~init\n");
+    }
+
+    handler this~terminate() {
+        Console.print("C~terminate\n");
+    }
+
+    handler this_type(n: Int): ref[C] {
+        @shared def c: C(0);
+        c.i = n;
+        Console.print("C()\n");
+        return c;
+    }
+}
+
+type D {
+    def i: Int;
+
+    handler this_type(n: Int): ref[D] {
+        @shared def d: D(0);
+        d.i = n;
+        Console.print("D()\n");
+        return d;
+    }
+}
+
+func test1 {
+    Console.print("test1\n");
+    Console.print("%d\n", A().i);
+}
+test1();
+
+Console.print("\n");
+
+func test2 {
+    Console.print("test2\n");
+    def a: A;
+    Console.print("%d\n", a.i);
+}
+test2();
+
+Console.print("\n");
+
+func test3 {
+    Console.print("test3\n");
+    Console.print("%d\n", B().i);
+}
+test3();
+
+Console.print("\n");
+
+func test4 {
+    Console.print("test4\n");
+    Console.print("%d\n", C(4).i);
+}
+test4();
+
+func testErrors {
+    Console.print("testErrors\n");
+    Console.print("%d\n", C("4").i);
+    Console.print("%d\n", D("4").i);
+}
+testErrors();

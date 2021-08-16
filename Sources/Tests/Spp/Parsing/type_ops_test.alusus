@@ -102,6 +102,10 @@ type T {
   handler (that:Parent)() {}
   handler (that:Parent).prop() {}
   handler (this->Parent).prop() {}
+
+  handler this_type() {}
+  handler this_type(): ref[T] {}
+  handler this_type(n: Int): ref[T] {}
 };
 
 dump_ast T;
