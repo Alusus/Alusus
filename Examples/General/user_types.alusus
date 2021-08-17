@@ -1,7 +1,7 @@
 import "Srl/Console";
 use Srl;
 
-type Point {
+class Point {
   def x: Int;
   def y: Int;
 }

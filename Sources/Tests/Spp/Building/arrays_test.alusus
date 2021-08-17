@@ -4,13 +4,13 @@ def Main: module
 {
   def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
 
-  def T: type
+  def T: class
   {
     def x: Int[32];
     def y: Int[32];
   };
 
-  def TA: type
+  def TA: class
   {
     def i: Int[32];
     def ai: array[Int[32], 4];

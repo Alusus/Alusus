@@ -19,7 +19,7 @@ import "Srl/String";
     module Data {
         use Basic;
 
-        type Node {
+        class Node {
             @injection def tiObject: TiObject;
             def owner: ref[Node];
 
@@ -28,7 +28,7 @@ import "Srl/String";
 
         module Ast {
             macro defTextAstType [name, uniqueName] {
-                type name {
+                class name {
                     @injection def node: Node;
                     def binding: TiInterface;
                     def metaHaving: TiInterface;
@@ -78,7 +78,7 @@ import "Srl/String";
             defTextAstType[StringLiteral, "alusus.org/Core/Core.Data.Ast.StringLiteral"];
 
             macro defAstType[name, uniqueName] {
-                type name {
+                class name {
                     @injection def node: Core.Data.Node;
 
                     preprocess {

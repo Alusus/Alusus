@@ -1,6 +1,6 @@
 import "Srl/Console.alusus";
 
-type A {
+class A {
     def i: Int;
     handler this~init(n: Int) {
         this.i = n;
@@ -30,7 +30,7 @@ func test {
 
 test();
 
-type B {
+class B {
     def a: A(4, 5, 6, 7, 8);
 }
 

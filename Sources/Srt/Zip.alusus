@@ -16,7 +16,7 @@ import "Core";
 import "libzip.so" or "libzip.dylib";
 
 def Zip: module {
-  def zip_t: type {};
+  def zip_t: class {};
   def _zip_entry_open: @expname[zip_entry_open] function(archive: ptr[zip_t], filename: ptr[array[Char]]);
   def _zip_entry_write: @expname[zip_entry_write] function(
     archive: ptr[zip_t], content: ptr[array[Char]], contentLength: Int

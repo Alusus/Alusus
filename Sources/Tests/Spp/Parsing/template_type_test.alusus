@@ -1,6 +1,6 @@
 import "alusus_spp";
 
-type MyType [T: type, F: function, I: integer, S: string]
+class MyType [T: type, F: function, I: integer, S: string]
 {
   def t: T;
   F();
@@ -10,18 +10,18 @@ type MyType [T: type, F: function, I: integer, S: string]
 
 dump_ast MyType;
 
-type MyWrongType1 []
+class MyWrongType1 []
 {
 };
 
-type MyWrongType2 [T: type, ]
+class MyWrongType2 [T: type, ]
 {
 };
 
-type MyWrongType3 [T1: type, T2: wrong]
+class MyWrongType3 [T1: type, T2: wrong]
 {
 };
 
-type MyWrongType4 [T: type, T: function]
+class MyWrongType4 [T: type, T: function]
 {
 };

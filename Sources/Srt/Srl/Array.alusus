@@ -14,7 +14,7 @@ import "Memory";
 
 @merge module Srl
 {
-    type Array [T: type] {
+    class Array [T: type] {
         //=================
         // Member Variables
 
@@ -164,7 +164,7 @@ import "Memory";
     //==========================================================================
     // Internal Types
 
-    type ArrayData [T: type] {
+    class ArrayData [T: type] {
         //=================
         // Member Variables
 

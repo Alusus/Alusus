@@ -17,7 +17,7 @@ import "Spp";
 
 @merge module Srl {
   module Regex {
-    type Context {
+    class Context {
       def buffer: ptr[array[Char]];
       def allocated: Word[64];
       def used: Word[64];
@@ -28,7 +28,7 @@ import "Spp";
       def flags: Word[64];
     };
 
-    type Match {
+    class Match {
         preprocess {
             if String.isEqual(Process.platform, "macos") {
                 Spp.astMgr.insertAst(

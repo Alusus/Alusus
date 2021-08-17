@@ -1,6 +1,6 @@
-ERROR CP1001 @ (15,22): Parser syntax error.
+ERROR CP1001 @ (15,23): Parser syntax error.
 ERROR CD1004 @ (35,25): Incompatible 'def' merge.
-ERROR CP1001 @ (44,18): Parser syntax error.
+ERROR CP1001 @ (44,19): Parser syntax error.
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] EmptyType: UserType [Main.Type]

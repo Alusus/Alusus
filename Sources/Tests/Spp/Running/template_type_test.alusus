@@ -2,7 +2,7 @@ import "Core/Basic";
 
 @expname[printf] function printf (s: ptr[Word[8]], ...any) => Int;
 
-type MyType [T: type, f: function, i: integer, s: string = "default string\n"]
+class MyType [T: type, f: function, i: integer, s: string = "default string\n"]
 {
   def v: T;
 
@@ -44,7 +44,7 @@ o3.print();
 def o4: MyType[Int, printOne, 0];
 o4.print();
 
-type MyOtherType [a: ast] {
+class MyOtherType [a: ast] {
     preprocess {
         printf("MyOtherType: %s\n", a~ast.getMyTypeInfo().typeName.buf);
     }

@@ -18,7 +18,7 @@ import "curl";
 {
   def Net: module
   {
-    type Curl {
+    class Curl {
       func exec(curlHandle: ptr[Curl], resultCount: ptr[Int], responseCode: ptr[Int]): ptr {
         def result: ptr = 0;
 
@@ -54,7 +54,8 @@ import "curl";
         return exec(curlHandle, resultCount~ptr, responseCode~ptr);
       }
     };
-    type CurlInfo {};
+
+    class CurlInfo {};
 
     module CurlOpt {
       def WRITEDATA: 10001;
@@ -317,7 +318,7 @@ import "curl";
       func reset(curl: ptr[Curl]);
     };
 
-    type CurlSlist {
+    class CurlSlist {
       @expname[curl_slist_append]
       func append(curlSlist: ptr[CurlSlist], string: ptr[array[Char]]): ptr[CurlSlist];
 
@@ -334,7 +335,7 @@ import "curl";
       func freeAll(curlSlist: ptr[CurlSlist]): Void;
     };
 
-    type _Content {
+    class _Content {
       def data: ptr[array[Word[8]]];
       def size: Int;
     };

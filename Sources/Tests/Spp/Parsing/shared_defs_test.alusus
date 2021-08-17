@@ -2,7 +2,7 @@ import "alusus_spp";
 
 def Main: module
 {
-  def MyType: type
+  def MyType: class
   {
     def x: Int;
     @shared def y: Int;

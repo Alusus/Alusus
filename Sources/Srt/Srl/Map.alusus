@@ -16,7 +16,7 @@ import "System";
 
 @merge module Srl
 {
-    type Map [T1: type, T2: type] {
+    class Map [T1: type, T2: type] {
         //=================
         // Member Variables
 

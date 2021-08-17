@@ -38,7 +38,7 @@ void GrammarFactory::createGrammar()
     S("break"), S("اقطع"),
     S("return"), S("أرجع"), S("ارجع"),
     S("module"), S("وحدة"),
-    S("type"), S("صنف"),
+    S("class"), S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
     S("macro"), S("ماكرو"),
     S("preprocess"), S("تمهيد"),
@@ -298,9 +298,9 @@ void GrammarFactory::createGrammar()
     {S("handler"), ScopeParsingHandler<Spp::Ast::Module>::create(this->rootManager->getSeeker())}
   }).get());
 
-  //// type = "type" + Set
+  //// type = "class" + Set
   this->createCommand(S("root.Main.Type"), {{
-    Map::create({}, { { S("type"), 0 }, { S("صنف"), 0 } }),
+    Map::create({}, { { S("class"), 0 }, { S("صنف"), 0 } }),
     {
       {
         PARSE_REF(S("module.ParamOnlySubject")),
@@ -817,7 +817,7 @@ void GrammarFactory::cleanGrammar()
     S("break"), S("اقطع"),
     S("return"), S("أرجع"), S("ارجع"),
     S("module"), S("وحدة"),
-    S("type"), S("صنف"),
+    S("class"), S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
     S("macro"), S("ماكرو"),
     S("preprocess"), S("تمهيد"),

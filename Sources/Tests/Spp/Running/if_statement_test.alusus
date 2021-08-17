@@ -35,7 +35,7 @@ def Main: module
     else { print("else-block") };
   };
 
-  type A
+  class A
   {
     def i: Int;
     handler this~terminate() {

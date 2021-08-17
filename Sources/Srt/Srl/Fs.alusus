@@ -20,16 +20,16 @@ import "String";
   {
     def FILENAME_LENGTH: 256;
 
-    def File: type {};
-    def Dir: type {};
-    def DirEnt: type {
+    def File: class {};
+    def Dir: class {};
+    def DirEnt: class {
       def ino: Int[64];
       def off: Int[64];
       def reclen: Int[16];
       def dType: Int[8];
       def dName: array[Char, FILENAME_LENGTH];
     };
-    def FileNames: type {
+    def FileNames: class {
       def count: Int;
       def names: array[array[Char, FILENAME_LENGTH]];
     };

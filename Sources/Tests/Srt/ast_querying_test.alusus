@@ -63,7 +63,7 @@ function dumpElementModifierParams2(element: ref[Core.Basic.TiObject], modName: 
     dumpModifierParams(modifier);
 }
 
-type A {
+class A {
     @modA @modB["abc", "def"] @modC["ijk", "lmn"]
     def i: Int;
 

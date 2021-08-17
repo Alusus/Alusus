@@ -6,7 +6,7 @@ import "Srl/Map";
 import "cpp_interop_test";
 use Srl;
 
-type Test {
+class Test {
     def i: Int;
     handler this~init() {
         Console.print("Test~init() from Alusus\n");

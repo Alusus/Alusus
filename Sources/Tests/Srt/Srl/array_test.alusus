@@ -35,7 +35,7 @@ test();
 
 def r: Array[ref[A]];
 
-type A {
+class A {
     def i: ref[Int];
     handler this~init() {
         r.add(this);
@@ -52,7 +52,7 @@ func test2 {
 }
 test2();
 
-type B {
+class B {
     def i: ref[Int];
     handler this~init() {
         Console.print("B~init\n");

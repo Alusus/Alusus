@@ -78,7 +78,7 @@ testAstInsertion();
 
 Srl.Console.print("\n");
 
-type A {
+class A {
     def i: Int;
     handler this~init() {
         this.i = 1;

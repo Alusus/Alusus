@@ -2,11 +2,11 @@ import "defs-ignore.alusus";
 import "Srl/Console";
 use Srl;
 
-type N_vtable {
+class N_vtable {
     def printIt: ptr[@member func(this: ref[N])];
 }
 
-type N {
+class N {
     @shared def vtable: N_vtable;
     @no_bind @injection def vtableRef: ref[N_vtable];
     vtableRef~no_deref = vtable;
@@ -17,7 +17,7 @@ type N {
     vtableRef.printIt = printItImpl~ptr;
 }
 
-type N2 {
+class N2 {
     @shared def vtable: N_vtable;
     @injection def super: N;
     vtableRef~no_deref = vtable;
@@ -46,7 +46,7 @@ Spp.buildMgr.dumpLlvmIrForElement(test1~ast);
 
 Console.print("\n");
 
-type M {
+class M {
     def i: Int;
 
     func printItImpl (this: ref[M]) {

@@ -16,7 +16,7 @@ import "Array";
 
 @merge module Srl
 {
-    type StringBase [T: type] {
+    class StringBase [T: type] {
         //============
         // Member Vars
 
@@ -437,7 +437,7 @@ import "Array";
 {
     def String: alias StringBase[Char];
 
-    @merge type String {
+    @merge class String {
         handler this.append (i: Int[64]) {
             this._append(i, 1);
         }

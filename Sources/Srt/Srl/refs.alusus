@@ -19,7 +19,7 @@ import "Spp";
     //==========================================================================
     // RefCounter
     // A ref counting object to be used by the shared references.
-    type RefCounter {
+    class RefCounter {
         def count: Int;
         def singleAllocation: Bool;
         def terminator: ptr[function (p: ptr)];
@@ -76,7 +76,7 @@ import "Spp";
     //==========================================================================
     // SharedRef
     // Shared Reference
-    type SrdRef [T: type] {
+    class SrdRef [T: type] {
         //=================
         // Member Variables
 
@@ -202,7 +202,7 @@ import "Spp";
     //==========================================================================
     // WkRef
     // Weak Reference
-    type WkRef [T: type] {
+    class WkRef [T: type] {
         //=================
         // Member Variables
 
@@ -270,7 +270,7 @@ import "Spp";
     //==========================================================================
     // UnqRef
     // Unique Reference
-    type UnqRef [T: type] {
+    class UnqRef [T: type] {
         //=================
         // Member Variables
 

@@ -1,11 +1,11 @@
 import "defs-ignore.alusus";
 
-type T1 {
+class T1 {
   def i: Int;
   handler this~cast[Int] return this.i;
 };
 
-type T2 {
+class T2 {
   def i: Int;
   handler this~cast[Int] {};
 };

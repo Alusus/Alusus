@@ -18,7 +18,7 @@ def loop: macro[counter, start, end, action] {
   for counter = start, counter <= end, ++counter action;
 };
 def defType: macro[name, var1, var2, Type] {
-  def name: type {
+  def name: class {
     def var1: Type;
     def var2: Type;
   };

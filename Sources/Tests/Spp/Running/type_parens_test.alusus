@@ -1,7 +1,7 @@
 import "Srl/Console";
 use Srl;
 
-type A {
+class A {
     def i: Int;
 
     handler this~init() {
@@ -21,7 +21,7 @@ type A {
     }
 }
 
-type B {
+class B {
     def i: Int;
 
     handler this~init(n: Int) {
@@ -40,7 +40,7 @@ type B {
     }
 }
 
-type C {
+class C {
     def i: Int;
 
     handler this~init(n: Int) {
@@ -60,7 +60,7 @@ type C {
     }
 }
 
-type D {
+class D {
     def i: Int;
 
     handler this_type(n: Int): ref[D] {

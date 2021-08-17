@@ -1,6 +1,6 @@
 import "alusus_spp";
 
-type T {
+class T {
   def i: Int;
 
   handler this~init() {};
