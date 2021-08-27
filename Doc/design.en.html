@@ -533,7 +533,7 @@ def ClassDefinition : module
    @public def getJ : function ()=>(int) { return this.j }
  };
 
- def ChildClass : type inherits BaseClass
+ def ChildClass : class inherits BaseClass
  {
    @private def k : int;
    @public def constructor : function (a:int, b:int, c:int)

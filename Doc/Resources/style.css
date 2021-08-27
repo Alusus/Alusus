@@ -414,3 +414,7 @@ html[dir="rtl"] .carousel-control-next-icon {
     color: rgba(0, 0, 0, 0.6);
     font-size: 0.8em;
 }
+
+.dict td {
+    min-width: 30pt;
+}
