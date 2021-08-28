@@ -502,7 +502,7 @@ TioSharedPtr TypeHandlersParsingHandler::createFunction(
         {S("second"), Spp::Ast::CastOp::create({
           {S("sourceLocation"), sourceLocation},
         }, {
-          {S("operand"), Spp:Ast::PointerOp::create({
+          {S("operand"), Spp::Ast::PointerOp::create({
             {S("sourceLocation"), sourceLocation},
           }, {
             {S("operand"), Core::Data::Ast::Identifier::create({

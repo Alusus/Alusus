@@ -57,17 +57,20 @@
                         <a href="#Functions" class="top-level">الدالّات</a><br>
                           <ul class="unstyled-list">
                             <li><a href="#Functions-variadic">المعطيات المرنة</a></li>
+                            <li><a href="#Functions-anonymous">الدالات الضمنية</a></li>
                           </ul>
                         <a href="#Types" class="top-level">أصناف المستخدم</a><br>
                           <ul class="unstyled-list">
                             <li><a href="#Types-templates">قوالب الأصناف</a></li>
                             <li><a href="#Types-methods">الوظائف (methods)</a></li>
+                            <li><a href="#Types-props">الخصال (properties)</a></li>
                             <li><a href="#Types-sharedmembers">العناصر المشتركة</a></li>
                             <li><a href="#Types-methodptrs">مؤشرات الوظائف</a></li>
                             <li><a href="#Types-custominit">تخصيص تهيئة الكائنات</a></li>
                             <li><a href="#Types-customterminate">تخصيص إتلاف الكائنات</a></li>
                             <li><a href="#Types-initorder">تسلسل تهيئة الكائنات</a></li>
                             <li><a href="#Types-customops">تخصيص المؤثرات</a></li>
+                            <li><a href="#Types-tempvarinitcustomization">تخصيص إنشاء المتغيرات المؤقتة</a></li>
                             <li><a href="#Types-injection">حقن التعريفات</a></li>
                           </ul>
                         <a href="#TypeInference" class="top-level">استنباط الأصناف</a><br>
@@ -83,7 +86,9 @@
                           </ul>
                         <a href="#Arrays" class="top-level">المصفوفات</a><br>
                         <a href="#Casting" class="top-level">تمثيل الأصناف</a><br>
-                        <a href="#Dynamicinit" class="top-level">حجز وتهيئة الكائنات ديناميكيا</a><br>
+                        <a href="#TempObjects" class="top-level">الكائنات المؤقتة</a><br>
+                        <a href="#CommandPacks" class="top-level">رزم الأوامر</a><br>
+                        <a href="#DynamicInit" class="top-level">حجز وتهيئة الكائنات ديناميكيا</a><br>
                         <a href="#Alias" class="top-level">الألقاب</a><br>
                         <a href="#Modules" class="top-level">الوحدات</a><br>
                         <a href="#Macros" class="top-level">الماكروهات</a><br>
@@ -466,6 +471,18 @@ ptr[the_type]</pre>
                                 </tr>
                             </table>
                         </li>
+                        <li><b>مؤثرات أخرى</b>
+                            <table class="dict">
+                                <tr>
+                                    <td>.</td>
+                                    <td>الولوج إلى أحد أعضاء عنصر</td>
+                                </tr>
+                                <tr>
+                                    <td>.{}</td>
+                                    <td>رزمة الأوامر</td>
+                                </tr>
+                            </table>
+                        </li>
                     </ul>
 
                     <h4 id="OperatorsAndOperations-priorities">التحكم بالأسبقية</h4>
@@ -710,6 +727,62 @@ ptr[the_type]</pre>
 
   print("#$##$", 5, 5.5, 8, 7, 2.3);
 </pre>
+
+                  <h4 id="Functions-anonymous">الدالات الضمنية</h4>
+                  الدالات الضمنية هي الدالات التي تُعرف ضمن تركيب دون أن يكون لها اسم، وتستخدم عادة عند الحاجة لتمرير مؤشر على دالة كمعطى لدالة أخرى. تعريف هذه الدالات يكون بكتابتها بطريقة عادية ضمن أي تركيب دون إعطائها إسمًا، وفي هذه الحالة ستترجم القيمة إلى مؤشر تلك الدالة، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+دالة رتب (
+    قيود: سند[مـصفوفة[قـيد]]،
+    قارن: مؤشر[دالة (سند[قـيد]، سند[قـيد])]
+) {
+    عرف م: صحيح؛
+    عرف ن: صحيح؛
+    لكل م = 0، م < قيود.هات_الطول() - 1، ++م {
+        لكل ن = م + 1، ن < قيود.هات_الطول()، ن++ {
+            إذا قارن(قيود(م)، قيود(ن)) {
+                // بدل م مكان ن
+            }
+        }
+    }
+}
+
+// رتب تصاعديا
+رتب(قيود، دالة (ق1: سند[قـيد]، ق2: سند[قـيد]) {
+    أرجع ق1.س > ق2.س؛
+})؛
+
+// رتب تنازليا
+رتب(قيود، دالة (ق1: سند[قـيد]، ق2: سند[قـيد]) {
+    أرجع ق1.س < ق2.س؛
+})؛
+</pre>
+<pre class="samplecode" dir=ltr>
+func sort (
+    records: ref[Array[Record]],
+    compare: ptr[func (ref[Record], ref[Record])]
+) {
+    def i: Int;
+    def j: Int;
+    for i = 0, i < records.getLength() - 1, ++i {
+        for j = i + 1, j < records.getLength(), ++j {
+            if compare(records(i), records(j)) {
+                // Replace i with j;
+            }
+        }
+    }
+}
+
+// Sort ascending.
+sort(records, func (r1: ref[Record], r2: ref[Record]) {
+    return r1.x > r2.x;
+});
+
+// Sort descending.
+sort(records, func (r1: ref[Record], r2: ref[Record]) {
+    return r1.x < r2.x;
+});
+</pre>
+                  يمكن للدالات الضمنية الولوج إلى المتغيرات العمومية خارجها، لكن لا يمكنها الولوج إلى المتغيرات المحلية ضمن دالة خارجية تحوي الدالة الضمنية، وذلك لأن الدالة الخارجية قد ينتهي تنفيذها وتُزال متغيراتها من الذاكرة قبل استدعاء الدالة الضمنية. للولوج إلى متغيرات محلية ضمن دالة خارجية يحتاج المستخدم لاستخدام <a href="./srt-reference.ar.html#closure">المغلفات</a> بدل الدالات الضمنية.
                 </div>
 
                 <!-- ********************************************************************** -->
@@ -721,7 +794,7 @@ ptr[the_type]</pre>
   عرّف &lt;اسم_الصنف&gt; : صنف { &lt;مجموعة_تعريفات&gt; }
 </pre>
 <pre class="code" dir=ltr>
-  def &lt;type_name&gt; : type { &lt;definition_statements&gt; }
+  def &lt;type_name&gt; : class { &lt;definition_statements&gt; }
 </pre>
  بعد تعريف الصنف يصبح الصنف متوفراً لتعريف المتغيرات. الولوج إلى عناصر الهيكل يتم باستخدام مؤثر النقطة. مثال:
                     <pre class="samplecode" dir=rtl style="text-align:right;">
@@ -735,7 +808,7 @@ ptr[the_type]</pre>
   ن.س = إقرأ_قيمة()؛
   ن.ص = إقرأ_قيمة()؛</pre>
 <pre class="samplecode" dir=ltr>
-  def Point : type {
+  def Point : class {
     def x : Float;
     def y : Float
   };
@@ -750,7 +823,7 @@ ptr[the_type]</pre>
   صنف &lt;اسم_الصنف&gt; { &lt;مجموعة_تعريفات&gt; }
 </pre>
 <pre class="code" dir=ltr>
-  type &lt;type_name&gt; { &lt;definition_statements&gt; }
+  class &lt;type_name&gt; { &lt;definition_statements&gt; }
 </pre>
  كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
@@ -765,7 +838,7 @@ ptr[the_type]</pre>
   ن.ص = إقرأ_قيمة()؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point {
+  class Point {
     def x : Float;
     def y : Float
   };
@@ -783,7 +856,7 @@ ptr[the_type]</pre>
   عرف &lt;اسم_المتغير&gt;: &lt;اسم_الصنف&gt;[&lt;معطيات_القالب&gt;]؛
 </pre>
 <pre class="code" dir=ltr>
-  type &lt;type_name&gt; [&lt;template_arg_defs&gt;] { &lt;type_body&gt; }
+  class &lt;type_name&gt; [&lt;template_arg_defs&gt;] { &lt;type_body&gt; }
 
   def &lt;var_name&gt;: &lt;type_name&gt;[&lt;template_args&gt;];
 </pre>
@@ -798,7 +871,7 @@ ptr[the_type]</pre>
   عرف موقع_عائم: نـقطة[عائم]؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point [T: type] {
+  class Point [T: type] {
     def x: T;
     def y: T;
   };
@@ -806,13 +879,15 @@ ptr[the_type]</pre>
   def intPoint: Point[int];
   def floatPoint: Point[float];
 </pre>
-                معطيات القوالب يمكن أن تكون من أربعة أنواع:
+                معطيات القوالب يمكن أن تكون من خمسة أنواع:
                 <ul>
                  <li>صنف type</li>
                  <li>دالة function</li>
                  <li>صحيح integer</li>
                  <li>محارف string</li>
+                 <li>شبم ast</li>
                 </ul>
+                <p>المعطيات من نوع `شبم` (ast) يمكن استخدامها في المعالجة التمهيدية للصنف، فهي تمكن المستخدم من تمرير شفرة مصدرية كمعطى للقالب، ثم أثناء المعالجة التمهيدية يمكن قراءة ذلك المعطى والتعامل معه بأي طريقة كانت ومن ثم حشر الشفرة المعطاة أو شفرة مشتقة منها داخل طبعة القالب الناتجة. من الجدير ملاحظ أن المعالجة التمهيدية لقوالب الأصناف تتكرر مع كل طبعة من ذلك الصنف.</p>
                 من الممكن أيضا تحديد قيم مبدئية لمعطيات القوالب، كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   صنف نـقطة [نوع: صنف، القيمة_المبدئية: صحيح = 0] {
@@ -824,7 +899,7 @@ ptr[the_type]</pre>
   عرف موقع2: نـقطة[صحيح، 1]؛ // س و ص سيكونان 1.
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point [T: type, V: integer = 0] {
+  class Point [T: type, V: integer = 0] {
     def x: T = V;
     def y: T = V;
   }
@@ -834,27 +909,31 @@ ptr[the_type]</pre>
 </pre>
 
                 <h4 id="Types-methods">الوظائف (methods)</h4>
-                الوظائف هي دالات تعرف داخل الأصناف ويتم استدعاؤها باستخدام كائن من ذلك الصنف. يمكن تعريف الوظائف كما تعرف أي دالة، فتعريف الدالة داخل متن صنف يجعلها وظيفة لذلك الصنف.
+                الوظائف هي دالات تعرف داخل الأصناف ويتم استدعاؤها باستخدام كائن من ذلك الصنف. تُعرف الوظائف بتعريف دالة داخل متن الصنف مع إضافة المبدل `@عضو` (@member) لتلك الدالة وجعل أول معطى لتلك الدالة سندًا لذلك الصنف.
 <pre class="code" dir=rtl style="text-align:right;">
-  صنف &lt;اسم_الصنف&gt; {
-    دالة &lt;اسم_الوظيفة&gt; (&lt;تعريفات_المعطيات&gt;): &lt;صنف_الإرجاع&gt; { &lt;متن_الوظيفة&gt; }؛
+صنف &lt;اسم_الصنف&gt; {
+  @عضو دالة &lt;اسم_الوظيفة&gt; (هذا: سند[هذا_الصنف]، &lt;تعريفات_المعطيات&gt;): &lt;صنف_الإرجاع&gt; {
+    &lt;متن_الوظيفة&gt;
   }؛
+}؛
 
-  &lt;اسم_الكائن&gt;.&lt;اسم_الوظيفة&gt;(&lt;المعطيات&gt;)؛
+&lt;اسم_الكائن&gt;.&lt;اسم_الوظيفة&gt;(&lt;المعطيات&gt;)؛
 </pre>
 <pre class="code" dir=ltr>
-  type &lt;type_name&gt; {
-    func &lt;method_name&gt; (&lt;arg_definitions&gt;): &lt;return_type&gt; { &lt;method_body&gt; };
+class &lt;type_name&gt; {
+  @member func &lt;method_name&gt; (this: ref[this_type], &lt;arg_definitions&gt;): &lt;ret_type&gt; {
+    &lt;method_body&gt;
   };
+};
 
-  &lt;object_name&gt;.&lt;method_name&gt;(&lt;arguments&gt;);
+&lt;object_name&gt;.&lt;method_name&gt;(&lt;arguments&gt;);
 </pre>
-                داخل الوظيفة يمكنك الوصول إلى الكائن المرتبط بذلك الاستدعاء باستخدام الكلمة المفتاحية `هذا` (this) كما لو كان المستخدم قد مرر ذلك الكائن إلى الدالة كمعطى باسم `هذا`. مثال:
+                داخل الوظيفة يمكنك الوصول إلى الكائن المرتبط بذلك الاستدعاء باستخدام المعطى الأول للدالة (هذا) كما لو كان المستخدم قد مرر ذلك الكائن إلى الدالة يدويًا. مثال:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   صنف نـقطة {
     عرف س: عائم؛
     عرف ص: عائم؛
-    دالة هات_المسافة (): عائم {
+    @عضو دالة هات_المسافة (هذا: سند[هذا_الصنف]): عائم {
       ارجع ريـاضيات.جذر(هذا.س * هذا.س + هذا.ص * هذا.ص)؛
     }؛
   }؛
@@ -864,10 +943,56 @@ ptr[the_type]</pre>
   اطبع(ن.هات_المسافة())؛ // سيطبع 5
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point {
+  class Point {
     def x: float;
     def y: float;
-    func getDistance ():float {
+    @member func getDistance (this: ref[this_type]):float {
+      return Math.sqrt(this.x * this.x + this.y * this.y);
+    };
+  }:
+  def p: Point;
+  p.x = 3;
+  p.y = 4;
+  print(p.getDistance()); // prints 5
+</pre>
+                يمكن أيضًا تعريف الوظائف باستخدام الأمر `عملية` (handler) وهو مجرد تجميل لغوي للطريقة المذكورة أعلاه:
+<pre class="code" dir=rtl style="text-align:right;">
+صنف &lt;اسم_الصنف&gt; {
+  عملية هذا.&lt;اسم_الوظيفة&gt; (&lt;تعريفات_المعطيات&gt;): &lt;صنف_الإرجاع&gt; {
+    &lt;متن_الوظيفة&gt;
+  }؛
+}؛
+
+&lt;اسم_الكائن&gt;.&lt;اسم_الوظيفة&gt;(&lt;المعطيات&gt;)؛
+</pre>
+<pre class="code" dir=ltr>
+class &lt;type_name&gt; {
+  handler this.&lt;method_name&gt; (&lt;arg_definitions&gt;): &lt;ret_type&gt; {
+    &lt;method_body&gt;
+  };
+};
+
+&lt;object_name&gt;.&lt;method_name&gt;(&lt;arguments&gt;);
+</pre>
+                مثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    عرف س: عائم؛
+    عرف ص: عائم؛
+    عملية هذا.هات_المسافة (): عائم {
+      ارجع ريـاضيات.جذر(هذا.س * هذا.س + هذا.ص * هذا.ص)؛
+    }؛
+  }؛
+  عرف ن: نـقطة؛
+  ن.س = 3؛
+  ن.ص = 4؛
+  اطبع(ن.هات_المسافة())؛ // سيطبع 5
+</pre>
+<pre class="samplecode" dir=ltr>
+  class Point {
+    def x: float;
+    def y: float;
+    handler this.getDistance ():float {
       return Math.sqrt(this.x * this.x + this.y * this.y);
     };
   }:
@@ -877,14 +1002,127 @@ ptr[the_type]</pre>
   print(p.getDistance()); // prints 5
 </pre>
 
+                <h4 id="Types-props">الخصال (properties)</h4>
+                الخصال وظائف لكنها تختلف بأن استدعاءها يتم باستخدام أحد المؤثرات التي يحددها تعريف الخصلة بدل استدعائها كدالة، كما هو موضح في المثال لاحقًا. تُعرف الخصال كما تُعرف الوظائف، لكن بإضافة المؤثر `@عملية` (@operation) إلى التعريف، كما يلي:
+<pre class="code" dir=rtl style="text-align:right;">
+صنف &lt;اسم_الصنف&gt; {
+  @عضو
+  @عملية["&lt;المؤثر&gt;"]
+  دالة &lt;اسم_الخصلة&gt; (هذا: سند[هذا_الصنف]، &lt;تعريف_المعطى&gt;): &lt;صنف_الإرجاع&gt; {
+    &lt;متن_الخصلة&gt;
+  }؛
+}؛
+
+&lt;اسم_الكائن&gt;.&lt;اسم_الوظيفة&gt; &lt;المؤثر&gt; &lt;المعطيات&gt;؛
+</pre>
+<pre class="code" dir=ltr>
+class &lt;type_name&gt; {
+  @member
+  @operation["&lt;operator&gt;"]
+  func &lt;method_name&gt; (this: ref[this_type], &lt;arg_def&gt;): &lt;ret_type&gt; {
+    &lt;method_body&gt;
+  };
+};
+
+&lt;object_name&gt;.&lt;method_name&gt; &lt;operator&gt; &lt;arguments&gt;;
+</pre>
+                المثال التالي يوضح تعريف عملية = على خصلة:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف مـدة {
+    عرف بداية: عائم؛
+    عرف نهاية: عائم؛
+    @عضو @عملية["="] دالة طول (هذا: سند[هذا_الصنف]، ط: عائم) {
+      هذا.نهاية = هذا.بداية + ط؛
+    }؛
+  }؛
+  عرف م: مـدة؛
+  م.بداية = 10؛
+  م.طول = 50؛ // ستوضع القيمة 60 في م.نهاية
+</pre>
+<pre class="samplecode" dir=ltr>
+  class Period {
+    def start: float;
+    def end: float;
+    @member @operation["="] func length (this: ref[this_type], l:float) {
+      this.end = this.start + l;
+    };
+  }:
+  def p: Period;
+  p.start = 10;
+  p.length = 50; // p.end will be set to 60
+</pre>
+                في المثال أعلاه عُرفت عملية التعيين على الخصلة `طول` (length) دون العمليات الأخرى، هذا يعني أن أي من العمليات الأخرى لا يمكن تطبيقها على هذه الخصلة، بما فيها محاولة قراءة الخصلة. للتمكن من قراءة الخصلة نحتاج لتعريف عملية جديدة للخصلة مع تحديد معطى العملية كسلسلة محارف فارغة بدل سلسلة محارف تحتوي المؤثر المطلوب. مثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف مـدة {
+    عرف بداية: عائم؛
+    عرف نهاية: عائم؛
+    @عضو @عملية[""] دالة طول (هذا: سند[هذا_الصنف]): عائم {
+      أرجع هذا.نهاية - هذا.بداية؛
+    }؛
+  }؛
+  عرف م: مـدة؛
+  م.بداية = 10؛
+  م.نهاية = 60؛
+  اطبع_عائم(م.طول)؛ // سيطبع 50
+</pre>
+<pre class="samplecode" dir=ltr>
+  class Period {
+    def start: float;
+    def end: float;
+    @member @operation[""] func length (this: ref[this_type]): float {
+      return this.end - this.start;
+    };
+  }:
+  def p: Period;
+  p.start = 10;
+  p.end = 60;
+  printFloat(p.length) // prints 50
+</pre>
+                يمكن أيضا استخدام الأمر `عملية` (handler) لتبسيط كتابة هذه الخصال، كما يلي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف مـدة {
+    عرف بداية: عائم؛
+    عرف نهاية: عائم؛
+    عملية هذا.طول = عائم {
+        هذا.نهاية = هذا.بداية + قيمة؛
+        أرجع قيمة؛
+    }؛
+    عملية هذا.طول: عائم {
+      أرجع هذا.نهاية - هذا.بداية؛
+    }؛
+  }؛
+  عرف م: مـدة؛
+  م.بداية = 10؛
+  م.طول = 50؛ // قيمة م.نهاية ستكون 60
+  اطبع_عائم(م.طول)؛ // سيطبع 50
+</pre>
+<pre class="samplecode" dir=ltr>
+  class Period {
+    def start: float;
+    def end: float;
+    handler this.length = float {
+        this.end = this.start + value;
+        return value;
+    };
+    handler this.length: float {
+      return this.end - this.start;
+    };
+  }:
+  def p: Period;
+  p.start = 10;
+  p.length = 50; // p.end will be 60;
+  printFloat(p.length) // prints 50
+</pre>
+                لاحظ في المثال أعلاه أن عملية التعيين فيها عبارة إرجاع، وذلك لأن الأمر `عملية` يُعرف تلقائيا صنف إرجاع لدالة الخصلة بصنف يطابق صنف المعطى.
+
                 <h4 id="Types-sharedmembers">العناصر المشتركة</h4>
-                يمكن تعريف متغيرات ودالات مشتركة داخل أصناف المستخدم، وهذه العناصر المشتركة تكون غير مرتبطة بأي كائن من هذا الصنف وإنما تتصرف كأنها دالات ومتغيرات عمومية وفرقها الوحيد عن تلك المتغيرات والدالات العمومية أنها معرفة داخل مجال مختلف ولاستدعائها تحتاج أن تسبق اسمها باسم ذلك الصنف، كما في المثال التالي:
+                يمكن تعريف متغيرات ودالات مشتركة داخل أصناف المستخدم، وهذه العناصر المشتركة تكون غير مرتبطة بأي كائن من هذا الصنف وإنما تتصرف كأنها دالات ومتغيرات عمومية وفرقها الوحيد عن المتغيرات والدالات العمومية أنها معرفة داخل مجال مختلف ولاستدعائها تحتاج أن تسبق اسمها باسم ذلك الصنف، كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   صنف نـقطة {
     @مشترك عرف عدد: صحيح = 0؛
     عرف س: صحيح؛
     عرف ص: صحيح؛
-    @مشترك دالة أنشئ_نقطة (ا: صحيح، ب: صحيح): نـقطة {
+    دالة أنشئ_نقطة (ا: صحيح، ب: صحيح): نـقطة {
       ++عدد؛
       س = ا؛ // خطأ
       ص = ب؛ // خطأ
@@ -900,11 +1138,11 @@ ptr[the_type]</pre>
   اطبع(نـقطة.س)؛ // خطأ
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point {
+  class Point {
     @shared def count: int;
     def x: int;
     def y: int;
-    @shared func getPoint (a: int, b: int): Point {
+    func getPoint (a: int, b: int): Point {
       ++count;
       x = a; // error
       y = b; // error
@@ -919,14 +1157,15 @@ ptr[the_type]</pre>
   print(p.count); // error
   print(Point.x); // error
 </pre>
+                كما هو موضح في المثال أعلاه، تعريف المتغيرات المشتركة يحتاج للمبدل `@مشترك` (@shared) بينما تعريف الدوال المشتركة لا يحتاج لأي مبدل خاص لأن أي دالة تعرف داخل صنف تكون مشتركة ما لم يُضف لتعريفها المبدل `@عضو` (@member).
 
                 <h4 id="Types-methodptrs">مؤشرات الوظائف</h4>
-                تعريف مؤشر على دالة داخل صنف يجعل ذلك المؤشر مؤشرا على وظيفة، أي أنك لن تستطيع تعيين قيمة المؤشر ليؤشر على دالة اعتيادية وإنما يجب لقيمة
+                تعريف مؤشر على دالة بمبدل `@عضو` (@member) يجعله مؤشرًا على وظيفة، أي أنك لن تستطيع تعيين قيمة المؤشر ليؤشر على دالة اعتيادية وإنما يجب لقيمة
                 المؤشر أن تشير إلى وظيفة في نفس الصنف. المثال التالي يوضح الأمر:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   صنف صـنفي {
-    دالة افعل (ص: صحيح) { ... }
-    عرف مد: مؤشر[دالة (ص: صحيح)]؛
+    @عضو دالة افعل (هذا: سند[هذا_الصنف]، ص: صحيح) { ... }
+    عرف مد: مؤشر[@عضو دالة (ص: صحيح)]؛
   }
 
   عرف ص: صـنفي؛
@@ -937,9 +1176,9 @@ ptr[the_type]</pre>
   ص.مد = افعل2~مؤشر؛ // خاطئ
 </pre>
 <pre class="samplecode" dir=ltr>
-  type MyType {
-    func doSomething (j: Int) { ... }
-    def pf: ptr[func (Int)];
+  class MyType {
+    @member func doSomething (this: ref[this_type], j: Int) { ... }
+    def pf: ptr[@member func (Int)];
   }
 
   def mt: MyType;
@@ -949,13 +1188,12 @@ ptr[the_type]</pre>
   func doSomething2 (j: Int) { ... }
   mt.pf = doSomething2~ptr; // error
 </pre>
-                مؤشرات الوظائف مفيدة لبعض خصائص البرمجة الكائنية مثل تعددية الأشكال الموروثة (polymorphism).<br>
-                لكن ماذا لو أردنا تعريف مؤشر على دالة عامة غير مرتبطة بالكائن الذي يحتوي المؤشر؟ لفعل ذلك نحتاج استخدام المبدل
-                <b>@مشترك</b> كما هو الحال مع الدالات، وكما في المثال التالي:
+                مؤشرات الوظائف مفيدة لبعض خصائص البرمجة الكائنية مثل تعددية الأشكال الموروثة (polymorphism). لاحظ أن الوظائف يجب أن تبدأ بالمعطى `هذا` (this) وإلا فلن يكون استدعاء الدالة ممكنًا.<br>
+                لكن ماذا لو أردنا تعريف مؤشر على دالة عامة غير مرتبطة بالكائن الذي يحتوي المؤشر؟ تعريف مؤشر على دالة بلا مبدل `@عضو` يؤدي الغرض، كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   صنف صـنفي {
-    دالة افعل (ص: صحيح) { ... }
-    عرف مد: مؤشر[@مشترك دالة (ص: صحيح)]؛
+    @عضو دالة افعل (هذا: سند[هذا_الصنف]، ص: صحيح) { ... }
+    عرف مد: مؤشر[دالة (ص: صحيح)]؛
   }
 
   عرف ص: صـنفي؛
@@ -965,9 +1203,9 @@ ptr[the_type]</pre>
   ص.مد = افعل2~مؤشر؛ // صحيح
 </pre>
 <pre class="samplecode" dir=ltr>
-  type MyType {
-    func doSomething (j: Int) { ... }
-    def pf: ptr[@shared func (Int)];
+  class MyType {
+    @member func doSomething (this: ref[this_type], j: Int) { ... }
+    def pf: ptr[func (Int)];
   }
 
   def mt: MyType;
@@ -976,59 +1214,41 @@ ptr[the_type]</pre>
   func doSomething2 (j: Int) { ... }
   mt.pf = doSomething2~ptr; // correct
 </pre>
-                يبقى هناك مشكلة عند محاولة استدعاء هذا المؤشر وهي أن استدعاء مؤشر دالة ضمن كائن يربط الكائن بذلك الاستدعاء،
-                أي أن الدالة ستستلم سند ذلك الكائن وفي حالة مؤشر الدالة المشتركة فإن محاولة الربط هذه سيرفضها المترجم. حل
-                هذه المشكلة ممكن باستخدام المبدل <b>@دون_ربط (@no_bind)</b> كما في المثال التالي:
+                يمكن استخدام الأمر `عملية` (handler) لتبسيط تعريف مؤشرات الوظائف، حيث أن تعريف مؤشر الوظيفة يشبه تعريف الوظيفة مع اختلاف واحد وهو إضافة الكلمة المفتاحية `كمؤشر` (as_ptr) في نهاية التعريف قبل متن الدالة، كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   صنف صـنفي {
-    عرف مد1: مؤشر[@مشترك دالة (ص: صحيح)]؛
-    عرف مد2: مؤشر[@دون_ربط @مشترك دالة (ص: صحيح)]؛
+    عملية هذا.مو(ص: صحيح) كمؤشر { ... }؛
   }
-  عرف ص: صـنفي؛
-  ...
-  ص.مد1(3)؛ // خطأ
-  ص.مد2(3)؛ // صحيح
 </pre>
 <pre class="samplecode" dir=ltr>
-  type MyType {
-    def pf1: ptr[@shared func (Int)];
-    def pf2: ptr[@no_bind @shared func (Int)];
+  class MyType {
+    handler this.mp(i: Int) as_ptr { ... };
   }
-  def mt: MyType;
-  ...
-  mt.pf1(3); // error
-  mt.pf2(3); // correct
 </pre>
-                قد يتساءل البعض، هل هناك استخدام لمؤشر دالة مشتركة دون استخدام مبدل @دون_ربط؟ الجواب نعم. هذه الحالة مفيدة
-                عند تعريف جداول الدالات الافتراضية (virtual table) حيث أنك في هذه الحالة تريد للدالة أن تُربط بالكائن الذي
-                سيستخدم الجدول وليس بصنف الجدول نفسه، والأمر نفسه قد ينطبق على حالات أخرى مثل تعريف الوسائط أو ما شابه.
-                انطر المثال التالي:
+                التعريف أعلاه يعرف المؤشر ويعرف في نفس الوقت الدالة ويقوم أيضًا بتعيين قيمة المؤشر أثناء تهيئة الكائن ليشير إلى الدالة.<br>
+                يمكن أيضًا استخدام `عملية` لتعريف المؤشر فقط دون دالة يشير إليها، كما يلي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  صنف جـدول {
-    عرف مد: مؤشر[@مشترك دالة (كائن: سند[صـنفي]، ص: صحيح)]؛
-  }
-  عرف جدول: جـدول؛
-  جدول.مد = ...
-
   صنف صـنفي {
-    @حقنة عرف جدولي: سند[جـدول](جدول)؛
+    عملية هذا.مو(ص: صحيح) كمؤشر؛
   }
-  عرف ص: صـنفي؛
-  ص.مد(3)؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Table {
-    def pf: ptr[@shared function (obj: ref[MyType], x: Int)];
+  class MyType {
+    handler this.mp(i: Int) as_ptr;
   }
-  def table: Table;
-  table.pf = ...
-
-  type MyType {
-    @injection def myTable: ref[Table](table);
-  }
-  def mt: MyType;
-  mt.pf(3);
 </pre>
+                وفي حالة توفر المؤشر مسبقًا والرغبة فقط بتعريف الدالة وتهيئة المؤشر الموجود مسبقًا ليشير إلى الدالة تستخدم الصيغة التالية:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف صـنفي {
+    عملية هذا.مو(ص: صحيح) حدد_مؤشر { ... }؛
+  }
+</pre>
+<pre class="samplecode" dir=ltr>
+  class MyType {
+    handler this.mp(i: Int) set_ptr { ... };
+  }
+</pre>
+                تعريف المؤشر بشكل منفصل عن تحديد قيمته مفيد في البرمجة الكائنية، وتحديدًا في تعددية الأشكال الموروثة (polymorphism)، حيث يُعرف المؤشر في الصنف الأصل وتحدد قيمته في الفرع.
 
                 <h4 id="Types-custominit">تخصيص تهيئة الكائنات</h4>
                 يمكن للمستخدم تخصيص عملية تهيئة الكائنات باستخدام الأمر `عملية` (handler) وهذه صيغته:
@@ -1063,7 +1283,7 @@ ptr[the_type]</pre>
   }؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point {
+  class Point {
     def x: int;
     def y: int;
 
@@ -1105,7 +1325,7 @@ ptr[the_type]</pre>
   عرف ن: نـقطة(5، 10)؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point {
+  class Point {
     def x: int;
     def y: int;
 
@@ -1140,7 +1360,7 @@ ptr[the_type]</pre>
   }؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point {
+  class Point {
     def x: int;
     def y: int;
 
@@ -1186,7 +1406,7 @@ ptr[the_type]</pre>
   إذا ن == "بسم الله" اطبع("النص مطابق")؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type String {
+  class String {
     ...
     handler this = ptr[array[char]] {
       this.copyChars(value);
@@ -1214,7 +1434,7 @@ ptr[the_type]</pre>
   اطبع(ن(1))؛ // سيطبع @
 </pre>
 <pre class="samplecode" dir=ltr>
-  type String {
+  class String {
     ...
     handler this(pos: int): char {
       return this.getChar(pos);
@@ -1224,6 +1444,37 @@ ptr[the_type]</pre>
   def s: String;
   s = "!@#$";
   print(s(1)); // prints @
+</pre>
+
+                <h4 id="Types-tempvarinitcustomization">تخصيص إنشاء المتغيرات المؤقتة</h4>
+                يمكن تخصيص عملية إنشاء المتغيرات المؤقتة، والتي يتم إنشاؤها بإتباع اسم الصنف بأقواس. تخصيص هذه العملية يتم بتخصيص مؤثر الأقواس على الصنف ذاته وليس على كائن من ذاك الصنف، أي مؤثر الأقواس على `هذا_الصنف` (this_type) بدل `هذا` (this). المثال التالي يوضح الطريقة:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+صنف قـيد {
+    ...
+    عملية هذا_الصنف(): سند[قـيد] {
+        عرف س: سند[قـيد]؛
+        س~مؤشر = ذاكـرة.احجز(قـيد~حجم)~مثل[مؤشر[قـيد]]؛
+        س~هيئ()؛
+        أرجع س؛
+    }
+}
+
+دالتي(قـيد())؛ // سيستدعي العملية المخصصة وسينشئ الكائن ديناميكيا
+    // بدل إنشاء متغير مؤقت على المكدس.
+</pre>
+<pre class="samplecode" dir=ltr>
+class Record {
+    ...
+    handler this_type(): ref[Record] {
+        def r: ref[Record];
+        r~ptr = Memory.alloc(Record~size)~cast[ptr[Record]];
+        r~init();
+        return r;
+    }
+};
+
+myFunc(Record()); // Will call the custom operation and allocate dynamically
+    // on the heap instead of creating a temp var on the heap.
 </pre>
 
                 <h4 id="Types-injection">حقن التعريفات</h4>
@@ -1247,12 +1498,12 @@ ptr[the_type]</pre>
   خ.اطبع_ص()؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Inner {
+  class Inner {
     def x: Int;
     func printX { ... };
   };
 
-  type Outer {
+  class Outer {
     @injection def i: Inner;
     def y: Int;
     func printY { ... };
@@ -1506,14 +1757,14 @@ ptr[the_type]</pre>
   عرف ن: صـنف2[سند[صحيح]]؛ // لا مشكلة. سيصفر قيمة س، اي قيمة المؤشر.
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Tp1 [T: type] {
+  class Tp1 [T: type] {
     def x: T;
     x = 0;
   }
   def i: Tp1[Int]; // No problem, x will be set to 0.
   def j: Tp1[ref[Int]]; // Causes segfault for updating a random location in memory.
 
-  type Tp2 [T: type] {
+  class Tp2 [T: type] {
     def x: T;
     x~no_deref = 0;
   }
@@ -1560,7 +1811,115 @@ ptr[the_type]</pre>
                 </div>
 
                 <!-- ********************************************************************** -->
-                <h3 id="Dynamicinit">حجز وتهيئة الكائنات ديناميكيا</h3>
+                <h3 id="TempObjects">الكائنات المؤقتة</h3>
+                <hr>
+                <div>
+                يمكن إنشاء الكائنات بشكل مؤقت دون ربطها بمتغير وذلك باستخدام أقواس فارغة أو مصحوبة بمعطيات التهيئة، كما في المثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  ارسم_نقطة(نـقطة())؛
+  ارسم_نقطة(نـقطة(5، 10))؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  drawPoint(Point());
+  drawPoint(Point(5, 10));
+</pre>
+                في المثال أعلاه يُنشأ كائن مؤقت من صنف `نـقطة` أثناء استدعاء دالة `ارسم_نقطة`، ويُتلف هذا الكائن تلقائيًا بعد الانتهاء من تنفيذ الجملة. إتلاف الكائنات المؤقتة يتم دائمًا بعد الانتهاء من تنفيذ الجملة كاملة (التي يُنشأ فيها الكائن المؤقت) وليس بعد انتهاء تنفيذ الجزء الذي يستخدم الكائن المؤقت. على سبيل المثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اطبع(احسب_المسافة(نـقطة(5، 10)، نـقطة(20، 25)))؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  print(calculateDistance(Point(5, 10), Point(20, 25)));
+</pre>
+                في المثال أعلاه يتم إتلاف الكائنين المؤقتين بعد الانتهاء من تنفيذ الجملة كلها، أي بعد الانتهاء من تنفيذ دالة الطباعة وليس بعد الانتهاء من تنفيذ دالة `احسب_المسافة`.
+
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="CommandPacks">رزم الأوامر</h3>
+                <hr>
+                <div>
+                تمكن هذه الخاصية المستخدم من تنفيذ مجموعة من الأوامر على كائن دون الخروج من السياق الحالي للتنفيذ ودون تكرار اسم الكائن وذلك باستخدام مؤثر النقطة متبوعًا برزمة من الجمل بين قوسين حاصرين، كما في المثال التالي:
+                المقصود بعدم الخروج من سياق التنفيذ الحالي أن البرنامج ينفذ رزمة الأوامر بشكل اعتراضي قبل أن يعود ليكمل التنفيذ من حيث كان قبل تنفيذ الرزمة.
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف نـقطة {
+    عرف س: صـحيح؛
+    عرف ص: صـحيح؛
+  }
+  
+  عرف ن: نـقطة؛
+  ن.{ س = 5؛ ص = 10 }؛
+  // الجملة أعلاه مطابقة ل:
+  // ن.س = 5؛
+  // ن.ص = 10؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  class Point {
+    def x: Int;
+    def y: Int;
+  }
+  
+  def p: Point;
+  p.{ x = 5; y = 10 };
+  // Upper statement is equivalent to:
+  // p.x = 5;
+  // p.y = 10;
+</pre>
+                المقصود بعدم الخروج من سياق التنفيذ الحالي أن البرنامج ينفذ رزمة الأوامر بشكل اعتراضي قبل أن يعود ليكمل التنفيذ من حيث كان قبل تنفيذ الرزمة. على سبيل المثال:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  ارسم_نقطة(ن.{ س = 5؛ ص = 10 })؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  drawPoint(p.{ x = 5; y = 10 });
+</pre>
+                في المثال أعلاه تُنفذ رزمة الأوامر على المتغير ن قبل تمريره إلى الدالة `ارسم_نقطة`، وبالتالي فإن الجملة مطابقة لـ:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  ن.س = 5؛
+  ن.ص = 10؛
+  ارسم_نقطة(ن)؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  p.x = 5;
+  p.y = 10;
+  drawPoint(p);
+</pre>
+                يمكن أيضًا تنفيذ رزمة الأوامر على كائن مؤقت، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  ارسم_نقطة(نـقطة().{ س = 5؛ ص = 10 })؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  drawPoint(Point().{ x = 5; y = 10 });
+</pre>
+                في داخل رزمة الأوامر، الكلمة المفتاحية `هذا` (this) تشير إلى الكائن الذي تُنفذ عليه رزمة الأوامر، وبالتالي يمكنك كتابة الجملة أعلاه بهذه الطريقة:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  نـقطة().{ س = 5؛ ص = 10؛ ارسم_نقطة(هذا) }؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  Point().{ x = 5; y = 10; drawPoint(this) };
+</pre>
+                يمكن أيضًا استخدام رزمة الأوامر مع الأصناف الأساسية، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  اطبع("أدخل رقمًا: ")؛
+  عرف ر: صحيح(أدخل_صحيح())؛
+  اطبع("الرقم %s.\ج"، مؤشر[محرف]().{
+      إذا ر > 0 هذا = "موجب"
+      وإلا إذا ر < 0 هذا = "سالب"
+      وإلا هذا = "صفر"
+  })؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  print("Enter a number: ");
+  def i: Int(getInt());
+  print("Number is %s.\n", ptr[Char]().{
+      if i > 0 this = "positive"
+      else if i < 0 this = "negative"
+      else this = "zero"
+  });
+</pre>
+
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="DynamicInit">حجز وتهيئة الكائنات ديناميكيا</h3>
                 <hr>
                 <div>
                 يمكن للمستخدم أن يهيئ الكائنات المنشأة ديناميكيًا باستخدام الأمر `~هيئ` (~init) كما في المثال التالي:
@@ -1576,7 +1935,7 @@ ptr[the_type]</pre>
   ن~هيئ()؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point {
+  class Point {
     handler this~init() { ... };
     handler this~terminate() { ... };
     ...
@@ -1826,6 +2185,19 @@ ptr[the_type]</pre>
 </pre>
                     اي أن الفرق بين إيعاز `شبم` والمؤثر `~شبم` أن الإيعاز يمكنك من كتابة الشفرة مباشرة ضمن الإيعاز بدل كتابتها ضمن تعريف ثم
                     استخدام المؤثر ~شبم على اسم ذلك التعريف.
+                     <p>
+                     مبدئيًا، يقوم المترجم بالمعالجة التمهيدية لمعطى الأمر `شبم` قبل استخدامه في مواقع أخرى من الشفرة المصدرية. على سبيل المثال، لنفرض أنك تستخدم الأمر `شبم` لكتابة شفرة مصدرية يتم حشرها باستخدام دالة `احشر_شبم`، والشفرة المصدرية المرغوب حشرها (معطى شبم) تحتوي على الأمر `تمهيد`. مبدئيًا، يعالج المترجم عبارة التمهيد ضمن معطى `شبم` نفسه، أي قبل تنفيذ الشفرة التي تحتوي استدعاء `احشر_شبم`. أحيانًا تحتاج لتأخير المعالجة التمهيدية لتتم بعد حشر الشفرة، أي بعد الانتهاء من تنفيذ دالة `احشر_شبم`. لفعل ذلك يمكن إضافة المبدل `@بلا_تمهيد` (@no_preprocess) للأمر `شبم`، كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  ماكرو م [اسم] "__{{اسم}}__"؛
+  مدير_شبم.احشر_شبم(شبم م[تجربة])؛ // سيحشر: "__تجربة__"
+  مدير_شبم.احشر_شبم(@بلا_تمهيد شبم م[تجربة])؛ // سيحشر: م[تجربة]
+</pre>
+<pre class="samplecode" dir=ltr>
+  macro m [name] "__{{name}}__";
+  astMgr.insertAst(ast m[test]); // inserts: "__test__"
+  astMgr.insertAst(@no_preprocess ast m[test]); // inserts: m[test]
+</pre>
+                     </p>
                     </li>
                   </ul>
                 </div>
@@ -1902,12 +2274,12 @@ ptr[the_type]</pre>
   }؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  def Point: type {
+  def Point: class {
     def x: Int;
   };
   .
   .
-  @merge def Point: type {
+  @merge def Point: class {
     def y: Int;
   };
   .
@@ -1934,14 +2306,14 @@ ptr[the_type]</pre>
   }
 </pre>
 <pre class="samplecode" dir=ltr>
-  type Point [T: type] {
+  class Point [T: type] {
     def x: T;
     def y: T;
   }
 
   def IntPoint: alias Point[Int];
 
-  @merge type IntPoint {
+  @merge class IntPoint {
     func print { ... } // This function will be added to Point[Int] only, not all template instances.
   }
 </pre>
@@ -2043,7 +2415,7 @@ ptr[the_type]</pre>
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2021م \ 1442هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2021م \ 1443هـ.</strong></li>
                         </ul>
                     </div>
                 </div>
