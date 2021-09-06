@@ -1,6 +1,73 @@
 # Alusus Changelog
 
+## Version 0.8.0 (2021-09-06)
+
+### Updates to the Compiler
+
+* Added support for command packs, which are sets of statements applied on an object using the `.{}` operator. This
+  enables applying those statements on the object without repeating that object name in every statement.
+* Added support for anonymous functions, which are functions defined inside expressions without a name.
+* Enable the `handler` command to define member functions in a syntactically cleaner way.
+* Added support for object properties which can be defined by applying `@operation` modifier on functions.
+* Enable the `handler` command to define class properties in a syntactically cleaner way.
+* Enable the `handler` command to define class methods and properties as function pointers rather than regular
+  functions. This is useful for polymorphism.
+* Added the `@no_preprocess` modifier to `ast` command to prevent preprocessing on the body of the command. This feature
+  enables the user to postpone preprocessing on `ast` bodies until that body is inserted into the target location.
+* Added a new type of template arguments, which is `ast` type. This type enables the user to pass a code as an argument
+  to templates.
+* Enable the `()` operator to be customized on classes (rather than objects). By default, applying the `()` op
+  on types results in a temp variable of that type on the stack. By customizing this operator the user can override
+  this behavior; for example, by creating an object on the heap instead of a temp variable on the stack.
+* Enable putting statement in nested blocks, i.e. enable writing a code block inside another code block without the
+  inner block being the body of some command (like if statements for example). This feature is useful in controlling
+  the lifecycle of local variables by defining them alongside the statements that use them inside a block, so it can
+  be automatically destructed once control goes out of the block.
+* Improve performance of type lookup by keeping temporary copies of lookup results to speed up future lookups.
+* Some internal refactoring and clean ups.
+
+### Updates to the Standard Libraries
+
+* Added a library to enable closures.
+* Enable the user to define custom commands by adding new entries to the grammar dynamically.
+* Added `astMgr.getVariableDomain` function for enquiring about the domain in which a variable is defined.
+* Enable raising build messages programmatically.
+* Enable programmatically enquiring about the current location of AST insertion point.
+* Enable instantiating AST objects from within Alusus programs.
+
+### Breaking Changes
+
+* Replace the `type` keyword with `class` for defining new user types.
+* Removed support for `@shared` and `@no_bind` modifiers from function definitions and instead added support for
+  `@member` modifier for marking functions as member functions. Definining functions within class bodies no
+  longer automatically make them member functions; the user will now need to add the `@member` modifier to make
+  them member functions. Also, defining member functions now require manually adding `this` argument to the
+  function definition. The aim for these changes is to simplify function definitions and remove the confusion
+  caused by these modifiers and by the preprocessing that updates function definitions behind the scenes.
+
+### Compiler Fixes
+
+* Fixed an issue with the `use` command that causes following the `use` target that are deeper than one level.
+* Fixed an issue in the grammar of function definitions.
+* Fixed an issue with type lookup when the type name is mentioned in parenthesis.
+* Fixed an issue with `~ast` operator.
+* Fixed an issue in the `preprocess` command where dependencies of the preprocessing code cause the re-compilation
+  of the same `preprocess` statement, which results in a segmentation fault.
+* Fixed an issue causing global constructors to be called more than once during the same program execution.
+* Fixed an issue with `dump_ast` command causing exceptions when the command target is not found.
+* Fixed an issue in reporting errors in member variable definitions causing exceptions instead of regular build errors.
+* Fixed an issue in calling function pointers when the return type has custom initializations (user defined
+  constructors).
+* Fixed some minor bugs in callee lookup.
+
+### Standard Libraries Fixes
+
+* Fixed an issue with memory handling in `Array.insert` and `Array.remove` functions.
+* Fixed an issue with memory handling in the `String` type.
+
+
 ## Version 0.7.0 (2021-02-22)
+<details>
 
 ### Updates to the Compiler
 
@@ -12,7 +79,8 @@
     - Added `preprocess` command to enable execution during compilation.
     - Added `ast` command to allow passing AST (source code trees) as data to compiler functions.
     - Added functions to dynamically generate and insert source code during the `preprocess` execution.
-    - Added interoperability between Alusus code and the compiler's C++ code. This allows the programmer access to the compiler and its data structures.
+    - Added interoperability between Alusus code and the compiler's C++ code. This allows the programmer access to the
+      compiler and its data structures.
     - Added functions for scanning and querying the source code.
   * Enable preprocessing in the root.
   * Preprocessing now happens on demand rather than up-front.
@@ -79,6 +147,7 @@
   * Fixed a bug in `Array` type.
   * Fixed a bug in defining dependencies in `Build` module.
   * Improved error messages in `Build` module.
+</details>
 
 
 ## Version 0.6.1 (2020-02-18)

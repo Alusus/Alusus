@@ -132,19 +132,42 @@
   م.أضف(2)؛ // الآن يتم إنشاء نسخة جديدة كي لا يتأثر م2
   اطبع_مصفوفة(م)؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
   // الآن يتم تحرير ذاكرة م وم2
-}؛
+}
 
 دالة هات_مصفوفة (): مـصفوفة[صـحيح] {
   عرف ن: مـصفوفة[صـحيح]؛
   ن.أضف(0)؛
   ارجع ن؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
-}؛
+}
 
 دالة اطبع_مصفوفة (ن: مـصفوفة[صـحيح]) {
   عرف ع: صـحيح؛
   لكل ع = 0، ع < ن.هات_الطول()، ++ع طـرفية.اطبع("%d\ج"، ن(ع))؛
-}؛
-</pre> يحتوي الصنف `مـصفوفة` على الدالات التالية:
+}
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def a: Array[Int] = getArray();
+  a.add(1); // Here the allocated memory block is expanded.
+  def a2: Array[Int] = a; // No new memory block is allocated here.
+  a.add(2); // Now a new copy of the buffer is created so a2 is not affected.
+  printArray(a); // No new memory block is created or copied here.
+  // Now the memory blocks of a and a2 are freed.
+}
+
+func getArray(): Array[Int] {
+  def a: Array[Int];
+  a.add(0);
+  return a; // No new memory block is allcoated here and memory copy happens.
+}
+
+func printArray (a: Array[Int]) {
+  def i: Int;
+  for i = 0, i < a.getLength(), ++i Console.print("%d\n", a(i));
+}
+</pre>
+
+يحتوي الصنف `مـصفوفة` على الدالات التالية:
                         <ul class="subsections">
                             <li>
                               <b>التهيئة</b><br/>
@@ -152,63 +175,103 @@
   عملية هذا~هيئ(سند[مـصفوفة[صـنف_المحتوى]])؛
   عملية هذا_هيئ(عدد_العناصر: صـحيح، العناصر: ...صـنف_المحتوى)؛
 </pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~init(ref[Array[ContentType]]);
+  handler this~init(count: Int, args: ...ContentType);
+</pre>
                               الصيغة الأولى تهيئ المصفوفة من مصفوفة أخرى. ستستخدم المصفوفة الجديدة نفس المحتوى الذي في المصفوفة المعطاة ولن يتم
                               نسخ المحتوى حتى تغير إحدى المصفوفتي المحتوى، وعندها ينسخ المحتوى قبل التغيير لضمان عدم تأثر المصفوفة الأخرى.<br>
                               الصيغة الثانية تهيئ المصفوفة من العناصر المعطاة كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  عرف م1: مـصوفة[صحيح]({ 5، 2، 1 })؛ // ستحتوي المصفوفة على 3 عناصر هي 5، 2، 1 على التوالي.
-  عرف م2: مـصفوفة[صحيح](3، 5، 2، 1)؛ // ستحتوي المصفوفة على 3 عناصر هي 5، 2، 1 على التوالي.
+عرف م1: مـصوفة[صحيح]({ 5، 2، 1 })؛ // ستحتوي المصفوفة على 3 عناصر: 5، 2، 1.
+عرف م2: مـصفوفة[صحيح](3، 5، 2، 1)؛ // ستحتوي المصفوفة على 3 عناصر: 5، 2، 1.
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+def a1: Array[Int]({ 5, 2, 1 }); // Array will contain 3 elements: 5, 2, and 1.
+def a2: Array[Int](3, 5, 2, 1); // Array will contain 3 elements: 5, 2, and 1.
 </pre>
                             </li>
                             <li>
                                 <b>هات_الطول (getLength)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة هات_الطول (): صـحيح_متكيف؛
-</pre> ترجع عدد العناصر في المصفوفة.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_الطول (): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getLength (): ArchInt;
+</pre>
+ترجع عدد العناصر في المصفوفة.
                             </li>
                             <li>
                                 <b>هات_حجم_الصوان (getBufSize)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة هات_حجم_الصوان (): صـحيح_متكيف؛
-</pre> ترجع عدد العناصر التي تتسع لها الذاكرة المحجوزة حاليًا. عند تجاوز هذا الحجم يقوم الكائن تلقائيا بتوسيع حجز الذاكرة.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_حجم_الصوان (): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getBufSize (): ArchInt;
+</pre>
+ترجع عدد العناصر التي تتسع لها الذاكرة المحجوزة حاليًا. عند تجاوز هذا الحجم يقوم الكائن تلقائيا بتوسيع حجز الذاكرة.
                             </li>
                             <li>
                                 <b>عيّن (assign)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة عين (م: سند[مـصفوفة[صـنف_المحتوى]])؛
-</pre> تعيين محتوى جديد للمصفوفة من مصفوفة أخرى. هذه الدالة لا تنسخ المحتوى من المصفوفة الأخرى وإنما تتشارك معها بنفس الصوان لحين حاجة إحدى المصفوفتين لتغيير المحتوى، حينها تنسخ تلك المصفوفة الصوان وتنتهي المشاركة.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.عين (م: سند[مـصفوفة[صـنف_المحتوى]])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.assign (a: ref[Array[ContentType]]);
+</pre>
+تعيين محتوى جديد للمصفوفة من مصفوفة أخرى. هذه الدالة لا تنسخ المحتوى من المصفوفة الأخرى وإنما تتشارك معها بنفس الصوان لحين حاجة إحدى المصفوفتين لتغيير المحتوى، حينها تنسخ تلك المصفوفة الصوان وتنتهي المشاركة.
                             </li>
                             <li>
                                 <b>أضف (add)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أضف (م: سند[صـنف_المحتوى])؛
-  دالة أضف (عدد_العناصر: صـحيح، العناصر: ...صـنف_المحتوى)؛
+عملية هذا.أضف (م: سند[صـنف_المحتوى])؛
+عملية هذا.أضف (عدد_العناصر: صـحيح، العناصر: ...صـنف_المحتوى)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.add (e: ref[ContentType]);
+handler this.add (argCount: Int, args: ...ContentType);
 </pre>
                               الصيغة الأولى تضيف عنصرا إلى المصفوفة بعد توسيع حجز الذاكرة إن وجب. إذا كان المحتوى
                               مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.<br>
                               الصيغة الثانية تضيف عدة عناصر مرة واحدة بدل أن تضيف عنصرا واحدًا.
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  م.أضف({ 5، 2، 1 })؛ // تضيف 3 عناصر هي 5، 2، 1 على التوالي.
-  م.أضف(3، 5، 2، 1)؛ // تضيف 3 عناصر هي 5، 2، 1 على التوالي.
+م.أضف({ 5، 2، 1 })؛ // تضيف 3 عناصر: 5، 2، 1.
+م.أضف(3، 5، 2، 1)؛ // تضيف 3 عناصر: 5، 2، 1.
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+a.add({ 5, 2, 1 }); // Adds 3 elements: 5, 2, 1.
+a.add(3, 5, 2, 1); // Adds 3 elements: 5, 2, 1.
 </pre>
                             </li>
                             <li>
                                 <b>احشر (insert)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة احشر (موقع: صـحيح_متكيف، عنصر: صـنف_المحتوى)؛
-</pre> إضافة عنصر جديد إلى المصفوفة في الموقع المحدد بعد توسيع حجز الذاكرة إن وجب. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.احشر (موقع: صـحيح_متكيف، عنصر: صـنف_المحتوى)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insert (index: ArchInt, element: ContentType);
+</pre>
+إضافة عنصر جديد إلى المصفوفة في الموقع المحدد بعد توسيع حجز الذاكرة إن وجب. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
                             </li>
                             <li>
                                 <b>أزل (remove)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة أزل (موقع: صـحيح_متكيف)؛
-</pre> إزالة العنصر الذي في الموقع المحدد. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.أزل (موقع: صـحيح_متكيف)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.remove (index: ArchInt);
+</pre>
+إزالة العنصر الذي في الموقع المحدد. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
                             </li>
                             <li>
                                 <b>فرّغ (clear)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة فرّغ ()؛
-</pre> إزالة جميع العناصر من المصفوفة. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.فرّغ ()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.clear ();
+</pre>
+إزالة جميع العناصر من المصفوفة. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
                             </li>
                         </ul>
                     </div>
@@ -217,7 +280,7 @@
                     <div>
                         الصنف `نـص` يسهل التعامل مع سلاسل المحارف فهو يتولى مسؤولية حجز وتحرير الذاكرة الخاصة بسلسلة المحارف مع مراعاة الأداء وتجنب عمليات النسخ وحجز الذاكرة غير الضرورية. يوفر الصنف دالات لتسهيل العمليات المختلفة على سلاسل الحارف. المثال التالي يوضح التعامل
                         مع سلاسل المحارف:
-                        <pre class="samplecode" dir=rtl style="text-align:right;">
+<pre class="samplecode" dir=rtl style="text-align:right;">
 دالة رئيسي {
   عرف نص: نـص = هات_نص()؛
   نص += " والحمد لله"؛ // هنا يتم تمديد حجم الذاكرة المحجوزة
@@ -225,207 +288,359 @@
   نص += "."؛ // الآن يتم إنشاء نسخة جديدة كي لا يتأثر نص2
   اطبع_نص(نص)؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
   // الآن يتم تحرير ذاكرة نص ونص2
-}؛
+}
 
 دالة هات_نص (): نـص {
   عرف ن: نـص = "بسم الله"؛
   ارجع ن؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
-}؛
+}
 
 دالة اطبع_نص (ن: نـص) {
   طـرفية.اطبع(ن)؛ // يتم هنا التحويل تلقائيا من صنف نـص إلى مؤشر على محارف.
-}؛
-</pre> يحتوي الصنف `نـص` على المتغيرات والدالات التالية:
+}
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def str: String = getString();
+  str += " world"; // Memory block is expanded here.
+  def str2: String = str; // No new memory is allocated here.
+  str += "."; // Copy of the string buffer is created so str2 is not affected.
+  printStr(str); // No new memory allocation or copy happens here.
+  // Now memory blocks of str and str2 are freed.
+}
+
+func getString (): String {
+  def s: String = "Hello";
+  return s; // No new memory allocation or copy happens here.
+}
+
+func printStr (s: String) {
+  Console.print(s); // s is automatically casted into ptr[array[Char]].
+}
+</pre>
+يحتوي الصنف `نـص` على المتغيرات والدالات التالية:
                         <ul class="subsections">
                             <li>
                                 <b>صوان (buf)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 عرف صوان: مؤشر[مصفوفة[مـحرف]]؛
-</pre> مؤشر على محتوى هذا النص.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+def buf: ptr[array[Char]];
+</pre>
+مؤشر على محتوى هذا النص.
                             </li>
                             <li>
                                 <b>مؤثر الأقواس</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 عملية هذا(م: صـحيح_متكيف): مـحرف
-</pre> يمكن استخدام هذا المؤثر لإرجاع المحرف في الموقع المحدد.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this(i: ArchInt): Char
+</pre>
+يمكن استخدام هذا المؤثر لإرجاع المحرف في الموقع المحدد.
                             </li>
                             <li>
                                 <b>مؤثرات المقارنة</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 عملية هذا == مؤشر[مصفوفة[مـحرف]]: ثـنائي
 عملية هذا < مؤشر[مصفوفة[مـحرف]]: ثـنائي
 عملية هذا > مؤشر[مصفوفة[مـحرف]]: ثـنائي
 عملية هذا <= مؤشر[مصفوفة[مـحرف]]: ثـنائي
 عملية هذا >= مؤشر[مصفوفة[مـحرف]]: ثـنائي
-</pre> تقارن هذا النص مع النص المعطى.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this == ptr[array[Char]]: Bool
+handler this > ptr[array[Char]]: Bool
+handler this < ptr[array[Char]]: Bool
+handler this >= ptr[array[Char]]: Bool
+handler this <= ptr[array[Char]]: Bool
+</pre>
+تقارن هذا النص مع النص المعطى.
                             </li>
                             <li>
                                 <b>هات_الطول (getLength)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1: دالة هات_الطول (): صـحيح_متكيف؛
-2: @مشترك دالة هات_الطول (م: مؤشر[مصفوفة[مـحرف]]): صـحيح_متكيف؛
-</pre> 1. ترجع طول هذا النص.<br> 2. ترجع طول سلسلة المحارف المعطاة.
+<pre class="code" dir=rtl style="text-align:right;">
+1: عملية هذا.هات_الطول (): صـحيح_متكيف؛
+2: دالة هات_الطول (م: مؤشر[مصفوفة[مـحرف]]): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1: handler this.getLength (): ArchInt;
+2: func getLength (p: ptr[array[Char]]): ArchInt;
+</pre>
+1. ترجع طول هذا النص.<br> 2. ترجع طول سلسلة المحارف المعطاة.
                             </li>
                             <li>
                                 <b>احجز (alloc)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة احجز (صـحيح_متكيف)؛
-</pre> تقوم بحجز مسبق للذاكرة. تمكن هذه الدالة المستخدم من حجز الذاكرة مسبقًا قبل تعبئتها بالمحتوى باستخدام التعامل المباشر مع صوان هذا النص. تنفع هذه الطريقة عند التعامل مع مكتبات تتعامل مع مؤشرات المحارف، مع الاستفادة
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.احجز (صـحيح_متكيف)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.alloc (ArchInt);
+</pre>
+تقوم بحجز مسبق للذاكرة. تمكن هذه الدالة المستخدم من حجز الذاكرة مسبقًا قبل تعبئتها بالمحتوى باستخدام التعامل المباشر مع صوان هذا النص. تنفع هذه الطريقة عند التعامل مع مكتبات تتعامل مع مؤشرات المحارف، مع الاستفادة
                                 من خاصيات إدارة الذاكرة التي يوفرها هذا الصنف.
                             </li>
                             <li>
                                 <b>عين (assign)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1. دالة عين (نص: سند[نـص])؛
-2. دالة عين (صوان: مؤشر[مصفوفة[مـحرف]])؛
-3. دالة عين (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف)؛
-4. @مشترك دالة عين (المقصد: مؤشر[مصفوفة[مـحرف]]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
-</pre> 1. تعيين محتوى جديد للنص من نص آخر. هذه الدالة لا تنسخ محتوى النص الآخر وإنما تتشارك معه بنفس الصوان لحين حاجة أحد النصين لتغيير المحتوى، حينها ينسخ ذاك النص الصوان وتنتهي المشاركة.<br> 2. تعيين محتوى جديد للنص من
+<pre class="code" dir=rtl style="text-align:right;">
+1. عملية هذا.عين (نص: سند[نـص])؛
+2. عملية هذا.عين (صوان: مؤشر[مصفوفة[مـحرف]])؛
+3. عملية هذا.عين (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف)؛
+4. دالة عين (المقصد: مؤشر[مصفوفة[مـحرف]]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1: handler this.assign (str: ref[String]);
+2: handler this.assign (buf: ptr[array[Char]]);
+3: handler this.assign (buf: ptr[array[Char]], count: ArchInt);
+4: func assign (target: ptr[array[Char]], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+1. تعيين محتوى جديد للنص من نص آخر. هذه الدالة لا تنسخ محتوى النص الآخر وإنما تتشارك معه بنفس الصوان لحين حاجة أحد النصين لتغيير المحتوى، حينها ينسخ ذاك النص الصوان وتنتهي المشاركة.<br> 2. تعيين محتوى جديد للنص من
                                 صوان في الذاكرة. تنسخ هذه الدالة المحتوى من ذلك الصوان إلى صوان جديد يديره هذا النص.<br> 3. مشابهة للدالة 2 لكنها تنسخ فقط العدد المحدد من المحارف من الصوان المعطى.<br> 4. تعيين قيمة جديدة من نسق (format) وعدد غير محدد
                                 من المعطيات إلى المقصد. يجب على المستخدم ضمان أن تكفي ذاكرة المقصد لاستيعاب الناتج كاملاً.<br> يمكن للمستخدم أيضًا استخدام المؤثر = للاستعاضة عن الدالتين 1 و 2.
                             </li>
                             <li>
                                 <b>ألحق (append)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1. دالة ألحق (صوان: مؤشر[مصفوفة[مـحرف]])؛
-2. دالة ألحق (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف)؛
-3. دالة ألحق (م: مـحرف)؛
-4. دالة ألحق (ص: صـحيح[64])؛
-5. دالة ألحق (ع: عـائم[64])؛
-</pre> 1. ألحق الصوان المعطى بنهاية محتوى هذا النص.<br> 2. ألحق العدد المحدد من المحارف من الصوان المعطى.<br> 3. ألحق محرفا بنهاية هذا النص.<br> 4. ألحق العدد المعطى بنهاية هذا النص. هذه الدالة تلحق تمثيلاً نصيا للعدد المعطى.<br>                                5. مشابهة للدالة 4 لكنها تلحق عددا عائما بدل عدد صحيح.<br> يمكن أيضا الاستعاضة عن هذه الدالات (باستثناء الدالة 2) بالمؤثر +=.
+<pre class="code" dir=rtl style="text-align:right;">
+1. عملية هذا.ألحق (صوان: مؤشر[مصفوفة[مـحرف]])؛
+2. عملية هذا.ألحق (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف)؛
+3. عملية هذا.ألحق (م: مـحرف)؛
+4. عملية هذا.ألحق (ص: صـحيح[64])؛
+5. عملية هذا.ألحق (ع: عـائم[64])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.append (buf: ptr[array[Char]]);
+2. handler this.append (buf: ptr[array[Char]], count: ArchInt);
+3. handler this.append (c: Char);
+4. handler this.append (i: Int[64]);
+5. handler this.append (f: Float[64]);
+</pre>
+1. ألحق الصوان المعطى بنهاية محتوى هذا النص.<br> 2. ألحق العدد المحدد من المحارف من الصوان المعطى.<br> 3. ألحق محرفا بنهاية هذا النص.<br> 4. ألحق العدد المعطى بنهاية هذا النص. هذه الدالة تلحق تمثيلاً نصيا للعدد المعطى.<br>                                5. مشابهة للدالة 4 لكنها تلحق عددا عائما بدل عدد صحيح.<br> يمكن أيضا الاستعاضة عن هذه الدالات (باستثناء الدالة 2) بالمؤثر +=.
                             </li>
                             <li>
                                 <b>سلسل (concat)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1. دالة سلسل (صوان: مؤشر[مصفوفة[مـحرف]])؛
-2. دالة سلسل (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف)؛
-3. دالة سلسل (م: مـحرف)؛
-4. دالة سلسل (ص: صـحيح[64])؛
-5. دالة سلسل (ع: عـائم[64])؛
-6. @مشترك دالة سلسل (المقصد: مؤشر[مصفوفة[مـحرف]]، المصدر: مؤشر[مصفوفة[مـحرف]]): مؤشر؛
-7. @مشترك دالة سلسل (المقصد: مؤشر[مصفوفة[مـحرف]]، المصدر: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف): مؤشر؛
-</pre> 1-5. هذه الدالات مشابهة لدالات `ألحق` لكنها ترجع النتيجة في نص جديد بدل تعديل النص الحالي. يمكن أيضًا الاستعاضة عن هذه الدالات 1 و3 و4 و5 بالمؤثر +.<br> 6. تلحق سلسلة محارف المصدر بنهاية سلسلة محارف المقصد. يجب على
+<pre class="code" dir=rtl style="text-align:right;">
+1. عملية هذا.سلسل (صوان: مؤشر[مصفوفة[مـحرف]])؛
+2. عملية هذا.سلسل (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف)؛
+3. عملية هذا.سلسل (م: مـحرف)؛
+4. عملية هذا.سلسل (ص: صـحيح[64])؛
+5. عملية هذا.سلسل (ع: عـائم[64])؛
+6. دالة سلسل (المقصد: مؤشر[مصفوفة[مـحرف]]، المصدر: مؤشر[مصفوفة[مـحرف]]): مؤشر؛
+7. دالة سلسل (المقصد: مؤشر[مصفوفة[مـحرف]]، المصدر: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف): مؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.concat (buf: ptr[array[Char]]);
+2. handler this.concat (buf: ptr[array[Char]], count: ArchInt);
+3. handler this.concat (c: Char);
+4. handler this.concat (i: Int[64]);
+5. handler this.concat (f: Float[64]);
+6. func concat (target: ptr[array[Char]], source: ptr[array[Char]]): ptr;
+7. func concat (target: ptr[array[Char]], source: ptr[array[Char]], count: ArchInt): ptr;
+</pre>
+1-5. هذه الدالات مشابهة لدالات `ألحق` لكنها ترجع النتيجة في نص جديد بدل تعديل النص الحالي. يمكن أيضًا الاستعاضة عن هذه الدالات 1 و3 و4 و5 بالمؤثر +.<br> 6. تلحق سلسلة محارف المصدر بنهاية سلسلة محارف المقصد. يجب على
                                 المستخدم ضمان أن تكون ذاكرة المقصد المحجوزة كافية لاستيعاب العناصر الجديدة.<br> 7. مشابهة للدالة 6 لكنها تنسخ فقط العدد المحدد من عناصر المصدر.
                             </li>
                             <li>
                                 <b>جد (find)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1: دالة جد (صوان: مؤشر[مصفوفة[محرف]]): صـحيح_متكيف؛
-2: دالة جد (م: مـحرف): صـحيح_متكيف؛
-3: @مشترك دالة جد (سلسلة: مؤشر[مصفوفة[مـحرف]]، مقطع: مؤشر[مصفوفة[مـحرف]]): مؤشر[مصفوفة[مـحرف]]؛
-4: @مشترك دالة جد (سلسلة: مؤشر[مصفوفة[مـحرف]]، م: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
-</pre> 1. بحث عن سلسلة محارف داخل هذا النص. ترجع موقع بداية سلسلة المحارف المكتشفة، أو -1 إذا فشل العثورة عليها.<br> 2. بحث عن محرف داخل هذ النص. ترجع موقع المحرف المكتشف، أو -1 إذا فشل العثور عليه.<br> 3. بحث عن مقطع داخل
+<pre class="code" dir=rtl style="text-align:right;">
+1: عملية هذا.جد (صوان: مؤشر[مصفوفة[محرف]]): صـحيح_متكيف؛
+2: عملية هذا.جد (م: مـحرف): صـحيح_متكيف؛
+3: دالة جد (سلسلة: مؤشر[مصفوفة[مـحرف]]، مقطع: مؤشر[مصفوفة[مـحرف]]): مؤشر[مصفوفة[مـحرف]]؛
+4: دالة جد (سلسلة: مؤشر[مصفوفة[مـحرف]]، م: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.find (buf: ptr[array[Char]]): ArchInt;
+2. handler this.find (c: Char): ArchInt;
+3. func find (haystack: ptr[array[Char]], needle: ptr[array[Char]]): ptr[array[Char]];
+4. func find (haystack: ptr[array[Char]], c: Char): ptr[array[Char]];
+</pre>
+1. بحث عن سلسلة محارف داخل هذا النص. ترجع موقع بداية سلسلة المحارف المكتشفة، أو -1 إذا فشل العثورة عليها.<br> 2. بحث عن محرف داخل هذ النص. ترجع موقع المحرف المكتشف، أو -1 إذا فشل العثور عليه.<br> 3. بحث عن مقطع داخل
                                 سلسلة المحارف المعطاة. ترجع مؤشر على بداية سلسلة المحارف المكتشفة، أو 0 إذا فشل العثور عليها.<br> 4. بحث عن محرف داخل سلسلة المحارف المعطاة. ترجع مؤشر على المحرف المكتشف، أو 0 إذا فشل العثور عليه.
                             </li>
                             <li>
                                 <b>جد_آخر (findLast)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1: دالة جد_آخر (صوان: مؤشر[مصفوفة[محرف]]): صـحيح_متكيف؛
-2: دالة جد_آخر (م: مـحرف): صـحيح_متكيف؛
-3: @مشترك دالة جد_آخر (سلسلة: مؤشر[مصفوفة[مـحرف]]، مقطع: مؤشر[مصفوفة[مـحرف]]): مؤشر[مصفوفة[مـحرف]]؛
-4: @مشترك دالة جد_آخر (سلسلة: مؤشر[مصفوفة[مـحرف]]، م: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
-</pre> هذه الدالات مشابهة لدالات `جد` لكنهن تبدأن البحث من نهاية النص بدل البحث من البداية.
+<pre class="code" dir=rtl style="text-align:right;">
+1: عملية هذا.جد_آخر (صوان: مؤشر[مصفوفة[محرف]]): صـحيح_متكيف؛
+2: عملية هذا.جد_آخر (م: مـحرف): صـحيح_متكيف؛
+3: دالة جد_آخر (سلسلة: مؤشر[مصفوفة[مـحرف]]، مقطع: مؤشر[مصفوفة[مـحرف]]): مؤشر[مصفوفة[مـحرف]]؛
+4: دالة جد_آخر (سلسلة: مؤشر[مصفوفة[مـحرف]]، م: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1: handler this.findLast (buf: ptr[array[Char]]): ArchInt;
+2: handler this.findLast (c: Char): ArchInt;
+3: func findLast (haystack: ptr[array[Char]], needle: ptr[array[Char]]): ptr[array[Char]];
+4: func findLast (haystack: ptr[array[Char]], c: Char): ptr[array[Char]];
+</pre>
+هذه الدالات مشابهة لدالات `جد` لكنهن تبدأن البحث من نهاية النص بدل البحث من البداية.
                             </li>
                             <li>
                                 <b>قارن (compare)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1. دالة قارن (صوان: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
-2. دالة قارن (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف): صـحيح؛
-3. @مشترك دالة قارن (نص1: مؤشر[مصفوفة[مـحرف]]، نص2: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
-4. @مشترك دالة قارن (نص1: مؤشر[مصفوفة[مـحرف]]، مص2: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف): صـحيح؛
-</pre> 1. تقارن النص الحالي بالنص المعطى وترجع 1 إذا كان النص الحالي أكبر أو -1 إذا كان أصغر أو 0 إذا كانا متطابقين.<br> 2. مشابهة للدالة 1 لكنها تقارن فقط العدد المحدد من عناصر الصوان المعطى.<br> 3. مشابهة للدالة 1 لكنها
+<pre class="code" dir=rtl style="text-align:right;">
+1. عملية هذا.قارن (صوان: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
+2. عملية هذا.قارن (صوان: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف): صـحيح؛
+3. دالة قارن (نص1: مؤشر[مصفوفة[مـحرف]]، نص2: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
+4. دالة قارن (نص1: مؤشر[مصفوفة[مـحرف]]، مص2: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.compare (buf: ptr[array[Char]]): Int;
+2. handler this.compare (buf: ptr[array[Char]], count: ArchInt): Int;
+3. func compare (str1: ptr[array[Char]], str2: ptr[array[Char]]): Int;
+4. func compare (str1: ptr[array[Char]], str2: ptr[array[Char]], count: ArchInt): Int;
+</pre>
+1. تقارن النص الحالي بالنص المعطى وترجع 1 إذا كان النص الحالي أكبر أو -1 إذا كان أصغر أو 0 إذا كانا متطابقين.<br> 2. مشابهة للدالة 1 لكنها تقارن فقط العدد المحدد من عناصر الصوان المعطى.<br> 3. مشابهة للدالة 1 لكنها
                                 تقارن مصفوفتي المحارف المعطاتين.<br> 4. مشابهة للدالة 3 لكنها تقارن عددا محددا فقط من محارف المصفوفة الثانية.
                             </li>
                             <li>
                                 <b>استبدل (replace)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1. دالة استبدل (التطابق: مؤشر[مصفوفة[محرف]]، البديل: مؤشر[مصفوفة[محرف]])؛
-2. @مشترك دالة استبدل (محارف: مؤشر[مصفوفة[مـحرف]]، من: مـحرف، إلى: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
-</pre> 1. تبدل جزءا من النص بآخر وترجع الناتج في نص جديد.<br> 2. تستبدل محرفًا مكان آخر في سلسلة المحارف المعطاة. هذه الدالة تغيّر المصفوفة المعطاة.
+<pre class="code" dir=rtl style="text-align:right;">
+1. عملية هذا.استبدل (التطابق: مؤشر[مصفوفة[محرف]]، البديل: مؤشر[مصفوفة[محرف]])؛
+2. دالة استبدل (محارف: مؤشر[مصفوفة[مـحرف]]، من: مـحرف، إلى: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.replace (match: ptr[array[Char]], replacement: ptr[array[Char]]);
+2. func replace (chars: ptr[array[Char]], from: Char, to: Char): ptr[array[Char]];
+</pre>
+1. تبدل جزءا من النص بآخر وترجع الناتج في نص جديد.<br> 2. تستبدل محرفًا مكان آخر في سلسلة المحارف المعطاة. هذه الدالة تغيّر المصفوفة المعطاة.
                             </li>
                             <li>
                                 <b>شذب (trim)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة شذب (): نـص؛
-</pre> تزيل الفراغات (المحارف غير المرئية سواء محرف المسافة أو غيرها) من طرفي النص وترجع الناتج في نص جديد.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.شذب (): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.trim (): String;
+</pre>
+تزيل الفراغات (المحارف غير المرئية سواء محرف المسافة أو غيرها) من طرفي النص وترجع الناتج في نص جديد.
                             </li>
                             <li>
                                 <b>شذب_البداية (trimStart)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة شذب_البداية (): نـص؛
-</pre> مشابهة لدالة `شذب` لكنها تشذب البداية فقط.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.شذب_البداية (): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.trimStart (): String;
+</pre>
+مشابهة لدالة `شذب` لكنها تشذب البداية فقط.
                             </li>
                             <li>
                                 <b>شذب_النهاية (trimEnd)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة شذب_النهاية (): نـص؛
-</pre> مشابهة لدالة `شذب` لكنها تشذب النهاية فقط.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.شذب_النهاية (): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.trimEnd (): String;
+</pre>
+مشابهة لدالة `شذب` لكنها تشذب النهاية فقط.
                             </li>
                             <li>
                                 <b>كبر (toUpperCase)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة كبر (): نـص؛
-</pre> تستبدل الأحرف اللاتينية الصغيرة بمثيلاتها الكبيرة وترجع الناتج في نص جديد.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.كبر (): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.toUpperCase (): String;
+</pre>
+تستبدل الأحرف اللاتينية الصغيرة بمثيلاتها الكبيرة وترجع الناتج في نص جديد.
                             </li>
                             <li>
                                 <b>صغر (toLowerCase)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة صغر (): نـص؛
-</pre> تستبدل الأحرف اللاتينية الكبيرة بمثيلاتها الصغيرة وترجع الناتج في نص جديد.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.صغر (): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.toLowerCase (): String;
+</pre>
+ تستبدل الأحرف اللاتينية الكبيرة بمثيلاتها الصغيرة وترجع الناتج في نص جديد.
                             </li>
                             <li>
                                 <b>اجتزء (slice)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة اجتزء (بداية: صـحيح_متكيف، عدد: صـحيح_متكيف): نـص؛
-</pre> ترجع جزءا من النص الحالي كنص جديد.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.اجتزء (بداية: صـحيح_متكيف، عدد: صـحيح_متكيف): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.slice (start: ArchInt, count: ArchInt): String;
+</pre>
+ ترجع جزءا من النص الحالي كنص جديد.
                             </li>
                             <li>
                                 <b>قطع (split)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة قطع (فاصل: مؤشر[مصفوفة[مـحرف]]): مـصفوفة[نـص]؛
-</pre> ترجع أجزاء النص الحالي التي يفصلها الفاصل المعطى. إذا لم يوجد هذا النص فإنها ترجع عنصرا واحدا يحتوي النص كاملا.
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.قطع (فاصل: مؤشر[مصفوفة[مـحرف]]): مـصفوفة[نـص]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.split (separator: ptr[array[Char]]): Array[String];
+</pre>
+ ترجع أجزاء النص الحالي التي يفصلها الفاصل المعطى. إذا لم يوجد هذا النص فإنها ترجع عنصرا واحدا يحتوي النص كاملا.
                             </li>
                             <li>
                                 <b>ادمج (merge)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 دالة ادمج (أجزاء: مـصفوفة[نـص]، فاصل: مؤشر[مصفوفة[مـحرف]]): نـص؛
-</pre> ترجع نصًا جديدا يحتوى الأجزاء المعطاة مفصولة بالفاصل المعطى.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func merge (parts: Array[String], separator: ptr[array[Char]]): String;
+</pre>
+ ترجع نصًا جديدا يحتوى الأجزاء المعطاة مفصولة بالفاصل المعطى.
                             </li>
                             <li>
                                 <b>انسخ (copy)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 1. دالة انسخ (المقصد: مؤشر[مصفوفة[مـحرف]]، المصدر: مؤشر[مصفوفة[مـحرف]]): مؤشر؛
 2. دالة انسخ (المقصد: مؤشر[مصفوفة[مـحرف]]، المصدر: مؤشر[مصفوفة[مـحرف]]، عدد: صـحيح_متكيف): مؤشر؛
-</pre> 1. تنسخ سلسلة المحارف من المصدر إلى المقصد. يجب على المستخدم ضمان أن تكون الذاكرة المحجوزة للمقصد كافية لاستيعاب كامل مصفوفة المصدر.<br> 2. مشابهة للدالة 1 لكنها تنسخ فقط العدد المحدد من عناصر المصدر.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. func copy (target: ptr[array[Char]], source: ptr[array[Char]]): ptr;
+2. func copy (target: ptr[array[Char]], source: ptr[array[Char]], count: ArchInt): ptr;
+</pre>
+ 1. تنسخ سلسلة المحارف من المصدر إلى المقصد. يجب على المستخدم ضمان أن تكون الذاكرة المحجوزة للمقصد كافية لاستيعاب كامل مصفوفة المصدر.<br> 2. مشابهة للدالة 1 لكنها تنسخ فقط العدد المحدد من عناصر المصدر.
                             </li>
                             <li>
                                 <b>امسح (scan)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@مشترك دالة امسح (المصدر: مؤشر[مصفوفة[مـحرف]]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
-</pre> امسح سلسلة المحارف المعطاة بحثًا عن العناصر المحددة في النسق وإرجاع هذه العناصر في المعطيات الملحقة بعد النسق. هذه الدالة مطابقة لدالة النظام sscanf.
+<pre class="code" dir=rtl style="text-align:right;">
+دالة امسح (المصدر: مؤشر[مصفوفة[مـحرف]]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func scan (source: ptr[array[Char]], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+ امسح سلسلة المحارف المعطاة بحثًا عن العناصر المحددة في النسق وإرجاع هذه العناصر في المعطيات الملحقة بعد النسق. هذه الدالة مطابقة لدالة النظام sscanf.
                             </li>
                             <li>
                                 <b>أهو_مسافة (isSpace)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@مشترك دالة أهو_مسافة (م: مـحرف): ثـنائي؛
-</pre> تخبرك فيما إذا كان المحرف المعطى مسافة أو إزاحة (tab) أو سطر جديد أو محرف الرجوع لبداية السطر.
+<pre class="code" dir=rtl style="text-align:right;">
+دالة أهو_مسافة (م: مـحرف): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func isSpace (c: Char): Bool;
+</pre>
+ تخبرك فيما إذا كان المحرف المعطى مسافة أو إزاحة (tab) أو سطر جديد أو محرف الرجوع لبداية السطر.
                             </li>
                             <li>
                                 <b>أمتطابق (isEqual)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@مشترك دالة أمتطابق (نص1: مؤشر[مصفوفة[مـحرف]]، نص2: مؤشر[مصفوفة[مـحرف]]): ثـنائي؛
-</pre> تخبرك فيما لو كانت سلسلتا المحارف المعطاتان متطابقتين.
+<pre class="code" dir=rtl style="text-align:right;">
+دالة أمتطابق (نص1: مؤشر[مصفوفة[مـحرف]]، نص2: مؤشر[مصفوفة[مـحرف]]): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func isEqual (str1: ptr[array[Char]], str2: ptr[array[Char]]): Bool;
+</pre>
+ تخبرك فيما لو كانت سلسلتا المحارف المعطاتان متطابقتين.
                             </li>
                             <li>
                                 <b>أزل (remove)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@مشترك دالة أزل (محارف: مؤشر[مصفوفة[مـحرف]]، م: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
-</pre> تزيل كل مطابقة للمحرف المعطى من سلسلة المحارف المعطاة. إزالة المحرف تؤدي إلى تزحيف المحارف التي بعده لتحل محله.
+<pre class="code" dir=rtl style="text-align:right;">
+دالة أزل (محارف: مؤشر[مصفوفة[مـحرف]]، م: مـحرف): مؤشر[مصفوفة[مـحرف]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func remove (chars: ptr[array[Char]], c: Char): ptr[array[Char]];
+</pre>
+ تزيل كل مطابقة للمحرف المعطى من سلسلة المحارف المعطاة. إزالة المحرف تؤدي إلى تزحيف المحارف التي بعده لتحل محله.
                             </li>
                             <li>
                                 <b>املأ (format)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-@مشترك دالة املأ (صيغة: مؤشر[مصفوفة[مـحرف]]، قيم: ...أيما): نـص؛
+دالة املأ (صيغة: مؤشر[مصفوفة[مـحرف]]، قيم: ...أيما): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func format (fmt: ptr[array[Char]], values: ...any): String;
 </pre>
 تنشئ نصًا جديدًا من الصيغة المعطاة بعد ملئها بالقيم المطاة. تعمل هذه الدالة بشكل مشابه لدالة sprintf، وذلك باستبدال الرموز البادئة ب% في
 الصيغة بقيمة من قائمة المعطيات تطابق الصنف المحدد. الرمز % يتبعه محرف يدل على صنف القيمة المعطاة، وهي كالتالي:
@@ -442,14 +657,20 @@
                             <li>
                                 <b>اقرأ_صحيح (parseInt)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-@مشترك دالة اقرأ_صحيح (نص: مؤشر[مصفوفة[مـحرف]]): صـحيح[64]؛
+دالة اقرأ_صحيح (نص: مؤشر[مصفوفة[مـحرف]]): صـحيح[64]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func parseInt (str: ptr[array[Char]]): Int[64];
 </pre>
 تقرأ عددًا صحيحًا من سلسلة المحارف المعطاة وترجعه.
                             </li>
                             <li>
                                 <b>اقرأ_عائم (parseFloat؛)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-@مشترك دالة اقرأ_عائم (نص: مؤشر[مصفوفة[مـحرف]]): عـائم[64]؛
+دالة اقرأ_عائم (نص: مؤشر[مصفوفة[مـحرف]]): عـائم[64]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func parseFloat (str: ptr[array[Char]]): Float[64];
 </pre>
 تقرأ عددًا عائمًا من سلسلة المحارف المعطاة وترجعه.
                             </li>
@@ -463,26 +684,51 @@
 دالة رئيسي {
   عرف ت1: تـطبيق[صـحيح، صـحيح] = هات_تطبيق()؛
   ت1.حدد(7، 50)؛ // هنا يتم تمديد حجم الذاكرة المحجوزة.
-  عرف ت2: تـطبيق[صـحيح، صـحيح] = ت؛ // هنا لا يتم إنشاء نسخة جديدة من الصوان.
+  عرف ت2: تـطبيق[صـحيح، صـحيح] = ت1؛ // هنا لا يتم إنشاء نسخة جديدة من الصوان.
   ت2.حدد(12، 7)؛ // الآن يتم إنشاء نسخة جديدة كي لا يتأثر ت1.
   اطبع_تطبيق(ت2)؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها.
   اطبع_صحيح(ت2(7))؛ // سيطبع 50.
   اطبع_صحيح(ت2(12))؛ // سيطبع 7.
   // الآن يتم تحرير ذاكرة ت1 و ت2.
-}؛
+}
 
 دالة هات_تطبيق (): تطبيق[صـحيح، صـحيح] {
   عرف ت: تـطبيق[صـحيح، صـحيح]؛
   ت.أضف(0، 10)؛
   ارجع ت؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها.
-}؛
+}
 
 دالة اطبع_تطبيق (ت: تـطبيق[صـحيح، صـحيح]) {
   عرف ع: صـحيح؛
-  لكل ع = 0، ع < ت.هات_الطول()، ++ت {
+  لكل ع = 0، ع < ت.هات_الطول()، ++ع {
     طـرفية.اطبع("%d = %d\ج"، ت.المفتاح_عند(ع)، ت.القيمة_عند(ع))؛
-  }؛
-}؛
+  }
+}
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def m1: Map[Int, Int] = getMap();
+  m1.set(7, 50); // Memory buffer is expanded here.
+  def m2: Map[Int, Int] = m1; // Buffer is not cloned here.
+  m2.set(12, 7); // Buffer is cloned here so that m1 is not affected.
+  printMap(m2); // No buffer cloning happens here.
+  printInt(m2(7)); // Prints 50.
+  printInt(m2(12)); // Prints 7.
+  // Now buffers of m1 and m2 are freed.
+}
+
+func getMap (): Map[Int, Int] {
+  def m: Map[Int, Int];
+  m.add(0, 10);
+  return m; // No buffer cloning happens here.
+}
+
+func printMap (m: Map[Int, Int]) {
+  def i: Int;
+  for i = 0, i < m.getLength(), ++i {
+    Console.print("%d = %d\n", m.keyAt(i), m.valAt(i));
+  }
+}
 </pre>
                         يحتوي الصنف `تـطبيق` على العناصر التالية:
                         <ul class="subsections">
@@ -492,6 +738,11 @@
   عملية هذا~هيئ(استخدم_فهرسا: ثـنائي)؛
   عملية هذا~هيئ(سند[تـطبيق[صـنف_المفتاح، صـنف_المحتوى]])؛
   عملية هذا~هيئ(سند[تـطبيق[صـنف_المفتاح، صـنف_المحتوى]]، استخدم_فهرسا: ثـنائي)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~init (useIndex: Bool);
+  handler this~init (ref[Map[KeyType, ValueType]]);
+  handler this~init (ref[Map[KeyType, ValueType]], useIndex: Bool);
 </pre>
                               الصيغة الأولى تهيئ تطبيقًا فارغًا مع الاختيار بين استخدام فهرس من عدمه. استخدام الفهرس يسرع البحث عن العناصر في التطبيق، على حساب استهلاك الذاكرة وتبطيء إضافة العناصر.<br>
                               الصيغة الثانية تهيئ التطبيق من تطبيق آخر. سيستخدم التطبيق الجديد نفس المحتوى الذي في التطبيق المعطى ولن يتم
@@ -505,6 +756,9 @@
 <pre class="code" dir=rtl style="text-align:right;">
   عرف مفاتيح: مـصفوفة[صـنف_المفتاح]؛
 </pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  def keys: Array[KeyType];
+</pre>
                               مصفوفة المفاتيح التي في هذا التطبيق.
                             </li>
                             <li>
@@ -512,35 +766,52 @@
 <pre class="code" dir=rtl style="text-align:right;">
   عرف قيم: مـصفوفة[صـنف_المحتوى]؛
 </pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  def values: Array[ValueType];
+</pre>
                               مصفوفة المحتويات التي في هذا التطبيق.
                             </li>
                             <li>
                                 <b>هات_الطول (getLength)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_الطول (): صـحيح_متكيف؛
+  عملية هذا.هات_الطول (): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getLength (): ArchInt;
 </pre>
                               ترجع عدد العناصر في التطبيق.
                             </li>
                             <li>
                                 <b>المفتاح_عند (keyAt)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة المفتاح_عند (صـحيح_متكيف): سند[صـنف_المفتاح]؛
+  عملية هذا.المفتاح_عند (صـحيح_متكيف): سند[صـنف_المفتاح]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.keyAt (ArchInt): ref[KeyType];
 </pre>
                               ترجع سندًا للمفتاح الذي عند الموقع المطلوب.
                             </li>
                             <li>
                                 <b>القيمة_عند (valAt)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة القيمة_عند (صـحيح_متكيف): سند[صـنف_المحتوى]؛
+  عملية هذا.القيمة_عند (صـحيح_متكيف): سند[صـنف_المحتوى]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.valAt (ArchInt): ref[ValueType];
 </pre>
                               ترجع سندًا للقيمة التي عند الموقع المطلوب.
                             </li>
                             <li>
                                 <b>حدد (set)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد (
+  عملية هذا.حدد (
       مفتاح: صـنف_المفتاح، قيمة: صـنف_القيمة
   ): سند[تـطبيق[صـنف_المفتاح، صـنف_المحتوى]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.set (
+    key: KeyType, value: ValueType
+  ): ref[Map[KeyType, ValueType]];
 </pre>
                               تحدد قيمة للمفتاح المعطى. إن كان لهذا المفتاح قيمة فإنها ستبدل بالقيمة الجديدة. هذه الدالة ترجع سندا للتطبيق نفسه،
                               ما يمكن المستخدم من سلسلة عدة عمليات تحديد في جملة واحدة.
@@ -548,45 +819,65 @@
                             <li>
                                 <b>حدد_عند (setAt)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد_عند (
+  عملية هذا.حدد_عند (
       تسلسل: صـحيح_متكيف، قيمة: صـنف_القيمة
   ): سند[تـطبيق[صـنف_المفتاح، صـنف_المحتوى]]؛
 </pre>
-                              تحدد قيمة جديدة عند التسلسل المعطى، أي تغيير القيمة باستخدام تسلسلها بدلاً من مفتاحها.
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setAt (
+    index: ArchInt, value: ValueType
+  ): ref[Map[KeyType, ValueType]];
+</pre>
+                              تحدد قيمة جيدة عند التسلسل المعطى، أي تغيير القيمة باستخدام تسلسلها بدلاً من مفتاحها.
                               هذه الدالة ترجع سندا للتطبيق نفسه، ما يمكن المستخدم من سلسلة عدة عمليات تحديد في جملة واحدة.
                             </li>
                             <li>
                                 <b>احشر (insert)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد_عند (تسلسل: صـحيح_متكيف، مفتاح: صـنف_المفتاح، قيمة: صـنف_القيمة)؛
+  عملية هذا.احشر (تسلسل: صـحيح_متكيف، مفتاح: صـنف_المفتاح، قيمة: صـنف_القيمة)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.insert (index: ArchInt, key: KeyType, value: ValueType);
 </pre>
                               تضيف مفتاحًا جديدًا وقيمته عند التسلسل المحدد.
                             </li>
                             <li>
                                 <b>أزل (remove)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد_عند (مفتاح: صـنف_المفتاح): ثـنائي؛
+  عملية هذا.أزل (مفتاح: صـنف_المفتاح): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.remove (key: KeyType): Bool;
 </pre>
                               تزيل المفتاح المحدد وقيمته. ترجع 1 إذا أُزيل المفتاح، و 0 إذا لم يوجد المفتاح ابتداءًا.
                             </li>
                             <li>
                                 <b>أزل_عند (removeAt)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد_عند (تسلسل: صـحيح_متكيف)؛
+  عملية هذا.أزل_عند (تسلسل: صـحيح_متكيف)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.removeAt (index: ArchInt);
 </pre>
                               تزيل المفتاح عند التسلسل المحدد وقيمتَه.
                             </li>
                             <li>
                                 <b>فرغ (clear)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة فرغ ()؛
+  عملية هذا.فرغ ()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.clear ();
 </pre>
                               تفرغ كل المحتوى وتبدأ بتطبيق فارغ.
                             </li>
                             <li>
                                 <b>جد_الموقع (findPos؛)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة جد_الموقع (مفتاح: صـنف_المفتاح): صـحيح_متكيف؛
+  عملية هذا.جد_الموقع (مفتاح: صـنف_المفتاح): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findPos (key: KeyType): ArchInt;
 </pre>
                               ترجع تسلسل المفتاح المعطى، أو -1 إن لم يوجد هذا المفتاح.
                             </li>
@@ -598,12 +889,20 @@
                         قالب سند مشترك يتولى تلقائيا تحرير الكائن عندما تنتهي الحاجة له. يحتفظ هذا السند بعداد لعدد السندات المشتركة
                         التي تشير لنفس الكائن. كلما يُتلف أحد السندات يُنقص العداد وعندما يصل العداد لصفر يُتلف الكائن وتحرر ذاكرته.
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  دالة رئيسي {
-    عرف س: سـندنا[صـنفي] = سـندنا[صـنفي].أنشئ()؛
-    عرف ص: سـندنا[صـنفي] = س؛ // الآن كلا السندين يشيران لنفس الكائن وعداده الآن 2.
-    س.حرر()؛ // العداد صار 1 لكن الكائن لم يُحرر بعد.
-    ص.حرر()؛ // الآن أتلف الكائن وحررت ذاكرته.
-  }؛
+دالة رئيسي {
+  عرف س: سـندنا[صـنفي] = سـندنا[صـنفي].أنشئ()؛
+  عرف ص: سـندنا[صـنفي] = س؛ // الآن كلا السندين يشيران لنفس الكائن وعداده الآن 2.
+  س.حرر()؛ // العداد صار 1 لكن الكائن لم يُحرر بعد.
+  ص.حرر()؛ // الآن أتلف الكائن وحررت ذاكرته.
+}
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def x: SrdRef[MyType] = SrdRef[MyType].construct();
+  def y: SrdRef[MyType] = x; // Both refs point to same object. Counter is now 2.
+  x.release(); // Counter is now 1 and the object is not freed yet.
+  y.release(); // Now the object is destructed and its memory is released.
+}
 </pre>
                         يحتوي الصنف `سـندنا` على المتغيرات والدالات التالية:
                         <ul class="subsections">
@@ -619,16 +918,24 @@
                             <li>
                               <b>احجز (alloc)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة احجز (): سند[صـنف_الكائن]؛
-  @مشترك دالة احجز (): سـندنا[صـنف_الكائن]؛
+  عملية هذا.احجز (): سند[صـنف_الكائن]؛
+  دالة احجز (): سـندنا[صـنف_الكائن]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.alloc (): ref[ObjType];
+  func alloc (): SrdRef[ObjType];
 </pre>
                               تقوم هذه الدالة بحجز ذاكرة للكائن، لكنها لا تهيئ الكائن وتترك للمستخدم مسؤولية التهيئة باستخدام `~هيئ`.
                             </li>
                             <li>
                               <b>أنشئ (construct)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أنشئ؛
-  @مشترك دالة أنشئ (): سـندنا[صـنف_الكائن]؛
+  عملية هذا.أنشئ ()؛
+  دالة أنشئ (): سـندنا[صـنف_الكائن]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.construct ();
+  func construct (): SrdRef[ObjType];
 </pre>
                               تقوم هذه الدالة بحجز ذاكرة للكائن وتهيئته أيضًا. تهيئة الكائن تتم دون أي معطيات لذا لاستخدام هذه الدالة يحتاج
                               الكائن لتمكين التهيئة دون معطيات. إذا احتجت تهيئة الكائن بمعطيات فستحتاج لاستخدام دالة `احجز` بدلًا من هذه الدالة
@@ -637,8 +944,12 @@
                             <li>
                               <b>تملك (own)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة تملك (كائن: سند[صـنف_الكائن])؛
-  @مشترك دالة تملك (كائن: سند[صـنف_الكائن]): سـندنا[صـنف_الكائن]؛
+  عملية هذا.تملك (كائن: سند[صـنف_الكائن])؛
+  دالة تملك (كائن: سند[صـنف_الكائن]): سـندنا[صـنف_الكائن]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.own (obj: ref[ObType]);
+  func own (obj: ref[ObjType]): SrdRef[ObjType];
 </pre>
                               هذه الدالة تعين كائن هذا السند بكائن متوفر سلفًا. بعد استدعاء هذه الدالة يتولى هذا السند مسؤولية تحرير الكائن
                               تلقائيًا. يجب تجنب هذه الدالة إذا لم يكن الكائن المعطى محجوزًا ديناميكيًا أو إذا تولت شفرة أخرى مسؤولية تحرير
@@ -647,16 +958,24 @@
                             <li>
                               <b>حرر (release)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حرر؛
+  عملية هذا.حرر()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.release();
 </pre>
                               تصفر هذا السند وإذا كان هذا آخر سند يشير إلى الكائن فتُحرر الكائن قبل تصفير السند.
                             </li>
                             <li>
                               <b>عين (assign)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة عين (س: سند[سـندنا[صـنف_الكائن]])؛
-  دالة عين (س: سند[سـندهم[صـنف_الكائن]])؛
-  دالة عين (ع: سند[عـداد_السندات]، ك: سند[صـنف_الكائن])؛
+  عملية هذا.عين (س: سند[سـندنا[صـنف_الكائن]])؛
+  عملية هذا.عين (س: سند[سـندهم[صـنف_الكائن]])؛
+  عملية هذا.عين (ع: سند[عـداد_السندات]، ك: سند[صـنف_الكائن])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.assign (r: ref[SrdRef[ObjType]]);
+  handler this.assign (r: ref[WkRef[ObjType]]);
+  handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
 </pre>
                               تعين قيمة جديدة للسند، أي تغير السند ليؤشر إلى الكائن المعطى. الدالتان الأولى والثانية تأخذان
                               قيمة السند من صنف `سـندنا` وصنف `سـندهم` على التوالي وبنفس صنف الكائن، أما الدالة الثالثة فتستخدم لجعل السند يشير
@@ -670,6 +989,15 @@
 
   س.حرر()؛ // لن يحرر شيئًا الآن لأن ص ما زال يحجز الكائن.
   ص.حرر()؛ // هنا سيُحرر كائن س نفسه وليس س.فرعي.
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def x: SrdRef[MyType];
+  x.construct();
+  def y: SrdRef[SubType];
+  y.assign(x.refCounter, x.subObj);
+  
+  x.release(); // Nothing will be released as y still holds the object.
+  y.release(); // Here x itself will be released, not x.subObj.
 </pre>
                             </li>
                         </ul>
@@ -700,16 +1028,24 @@
                           <li>
                             <b>حرر (release)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حرر؛
+  عملية هذا.حرر()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.release();
 </pre>
                             تصفر هذا السند دون تغيير شيء في عداد السندات.
                           </li>
                           <li>
                             <b>عين (assign)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة عين (س: سند[سـندنا[صـنف_الكائن]])؛
-  دالة عين (س: سند[سـندهم[صـنف_الكائن]])؛
-  دالة عين (ع: سند[عـداد_السندات]، ك: سند[صـنف_الكائن])؛
+  عملية هذا.عين (س: سند[سـندنا[صـنف_الكائن]])؛
+  عملية هذا.عين (س: سند[سـندهم[صـنف_الكائن]])؛
+  عملية هذا.عين (ع: سند[عـداد_السندات]، ك: سند[صـنف_الكائن])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.assign (r: ref[SrdRef[ObjType]]);
+  handler this.assign (r: ref[WkRef[ObjType]]);
+  handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
 </pre>
                             تعين قيمة جديدة للسند، أي تغير السند ليؤشر إلى الكائن المعطى. الدالتان الأولى والثانية تأخذان
                             قيمة السند من صنف `سـندنا` وصنف `سـندهم` على التوالي وبنفس صنف الكائن، أما الدالة الثالثة فتستخدم لجعل السند يشير
@@ -725,6 +1061,17 @@
 
   س.حرر()؛ // لن يحرر شيئًا الآن لأن ص ما زال يحجز الكائن.
   ص.حرر()؛ // هنا سيُحرر كائن س نفسه وليس س.فرعي.
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def x: SrdRef[MyType];
+  x.construct();
+  def y: WkRef[SubType];
+  y.assign(x.refCounter, x.subObj);
+  def z: SrdRef[SubType];
+  z = y;
+  
+  x.release(); // Nothing is released here.
+  z.release(); // x will be released here, not x.subObj.
 </pre>
                           </li>
                       </ul>
@@ -743,6 +1090,15 @@
 
   س.حرر()؛ // يُحرر الكائن هنا تلقائيا.
 </pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def x: UnqRef[MyType];
+  x.construct();
+  
+  def y: UnqRef[MyType];
+  y = x; // Error.
+  
+  x.release(); // Object will be released here.
+</pre>
                         يحتوي هذا الصنف على العناصر التالية:
                         <ul class="subsections">
                           <li>
@@ -753,7 +1109,10 @@
                           <li>
                             <b>أنشئ (construct)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-دالة أنشئ؛
+عملية هذا.أنشئ()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.construct();
 </pre>
                             تقوم هذه الدالة بحجز ذاكرة للكائن وتهيئته أيضًا. تهيئة الكائن تتم دون أي معطيات لذا لاستخدام هذه الدالة يحتاج
                             الكائن لتمكين التهيئة دون معطيات.
@@ -761,7 +1120,10 @@
                           <li>
                             <b>حرر (release)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حرر؛
+عملية هذا.حرر()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.release();
 </pre>
                             تصفر هذا السند وتحرر الكائن.
                           </li>
@@ -774,45 +1136,75 @@
                         <ul class="subsections">
                             <li>
                                 <b>احجز (alloc)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[malloc] دالة احجز (حجم: صـحيح[64]): مؤشر؛
-</pre> مطابقة لدالة malloc من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[malloc] دالة احجز (حجم: صـحيح_متكيف): مؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[malloc] func alloc (size: ArchInt): ptr;
+</pre>
+ مطابقة لدالة malloc من POSIX.
                             </li>
                             <li>
                                 <b>أعد_الحجز (realloc)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[realloc] دالة أعد_الحجز (م: مؤشر، الحجم_الجديد: صـحيح[64]): مؤشر؛
-</pre> مطابقة لدالة realloc من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[realloc] دالة أعد_الحجز (م: مؤشر، الحجم_الجديد: صـحيح_متكيف): مؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[realloc] func realloc (p: ptr, newSize: ArchInt): ptr;
+</pre>
+ مطابقة لدالة realloc من POSIX.
                             </li>
                             <li>
                                 <b>احجز_مرصوف (allocAligned)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[aligned_alloc] دالة احجز_مرصوف (رصف: صـحيح[64]، حجم: صـحيح[64]): مؤشر؛
-</pre> مطابقة لدالة aligned_alloc من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[aligned_alloc]
+دالة احجز_مرصوف (رصف: صـحيح_متكيف، حجم: صـحيح_متكيف): مؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[aligned_alloc]
+func allocAligned (alignment: ArchInt, size: ArchInt): ptr;
+</pre>
+ مطابقة لدالة aligned_alloc من POSIX.
                             </li>
                             <li>
                                 <b>حرر (free)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[free] دالة حرر (م: مؤشر)؛
-</pre> مطابقة لدالة free من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[free] func free (p: ptr);
+</pre>
+ مطابقة لدالة free من POSIX.
                             </li>
                             <li>
                                 <b>انسخ (copy)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[memcpy] دالة (مقصد: مؤشر، مصدر: مؤشر، حجم: صـحيح[64]): مؤشر؛
-</pre> مطابقة لدالة memcpy من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[memcpy] دالة (مقصد: مؤشر، مصدر: مؤشر، حجم: صـحيح_متكيف): مؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[memcpy] func (target: ptr, src: ptr, size: ArchInt): ptr;
+</pre>
+ مطابقة لدالة memcpy من POSIX.
                             </li>
                             <li>
                                 <b>قارن (compare)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[memcmp] دالة قارن (حيز1: مؤشر، حيز2: مؤشر: حجم: صـحيح[64]): صـحيح؛
-</pre> مطابقة لدالة memcmp من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[memcmp] دالة قارن (حيز1: مؤشر، حيز2: مؤشر: حجم: صـحيح_متكيف): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[memcmp] func compare (s1: ptr, s2: ptr, size: ArchInt): Int;
+</pre>
+ مطابقة لدالة memcmp من POSIX.
                             </li>
                             <li>
                                 <b>اضبط (set)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[memset] دالة (حيز: مؤشر، قيمة: صـحيح، عدد: صـحيح[64]): مؤشر؛
-</pre> مطابقة لدالة memset من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[memset] دالة (حيز: مؤشر، قيمة: صـحيح، عدد: صـحيح_متكيف): مؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[memset] func (s: ptr, c: Int, n: ArchInt): ptr;
+</pre>
+ مطابقة لدالة memset من POSIX.
                             </li>
                         </ul>
                     </div>
@@ -823,199 +1215,339 @@
                         <ul class="subsections">
                             <li>
                                 <b>مطلق (abs)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[abs] دالة مطلق (ع: صـحيح[32]): صـحيح[32]؛
 @تصدير[llabs] دالة مطلق (ع: صـحيح[64]): صـحيح[64]؛
 @تصدير[fabsf] دالة مطلق (ع: عـائم[32]): عـائم[32]؛
 @تصدير[fabs] دالة مطلق (ع: عـائم[64]): عـائم[64]؛
-</pre> للحصول على القيمة المطلقة لرقم.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[abs] func abs (i: Int[32]): Int[32];
+@expname[llabs] func abs (i: Int[64]): Int[64];
+@expname[fabsf] func abs (f: Float[32]): Float[32];
+@expname[fabs] func abs (f: Float[64]): Float[64];
+</pre>
+ للحصول على القيمة المطلقة لرقم.
                             </li>
                             <li>
                                 <b>باقي (mod)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[fmodf] دالة باقي (س: عـائم[32]، ص: عـائم[32]): عـائم[32]؛
 @تصدير[fmod] دالة باقي (س: عـائم[64]، ص: عـائم[64]): عـائم[64]؛
-</pre> للحصول على باقي قسمة رقمين حقيقيين.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fmodf] func mod (x: Float[32], y: Float[32]): Float[32];
+@expname[fmod] func mod (x: Float[64], y: Float[64]): Float[64];
+</pre>
+ للحصول على باقي قسمة رقمين حقيقيين.
                             </li>
                             <li>
                                 <b>أس_طبيعي (exp)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[expf] دالة (س: عـائم[32]): عـائم[32]؛
-@تصدير[exp] دالة (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي exp و expf من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[expf] دالة أس_طبيعي (س: عـائم[32]): عـائم[32]؛
+@تصدير[exp] دالة أس_طبيعي (س: عـائم[64]): عـائم[64]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[expf] func exp (x: Float[32]): Float[32];
+@expname[exp] func exp (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي exp و expf من POSIX.
                             </li>
                             <li>
                                 <b>أس_طبيعي2 (exp2)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[exp2f] دالة أس_طبيعي2 (س: عـائم[32]): عـائم[32]؛
 @تصدير[exp2] دالة أس_طبيعي2 (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي exp2 و exp2f من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[exp2f] func exp2 (x: Float[32]): Float[32];
+@expname[exp2] func exp2 (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي exp2 و exp2f من POSIX.
                             </li>
                             <li>
                                 <b>لو (log)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[logf] دالة لو (س: عـائم[32]): عـائم[32]؛
 @تصدير[log] دالة لو (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي log و logf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[logf] func log (x: Float[32]): Float[32];
+@expname[log] func log (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي log و logf من POSIX.
                             </li>
                             <li>
                                 <b>لو2 (log2)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[log2f] دالة لو2 (س: عـائم[32]): عـائم[32]؛
 @تصدير[log2] دالة لو2 (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي log2 و log2f من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[log2f] func log2 (x: Float[32]): Float[32];
+@expname[log2] func log2 (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي log2 و log2f من POSIX.
                             </li>
                             <li>
                                 <b>لو10 (log10)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[log10f] دالة لو10 (س: عـائم[32]): عـائم[32]؛
 @تصدير[log10] دالة لو10 (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي log10 و log10f من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[log10f] func log10 (x: Float[32]): Float[32];
+@expname[log10] func log10 (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي log10 و log10f من POSIX.
                             </li>
                             <li>
                                 <b>جذر (sqrt)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[sqrtf] دالة جذر (س: عـائم[32]): عـائم[32]؛
 @تصدير[sqrt] دالة جذر (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي sqrt و sqrtf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[sqrtf] func sqrt (x: Float[32]): Float[32];
+@expname[sqrt] func sqrt (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي sqrt و sqrtf من POSIX.
                             </li>
                             <li>
                                 <b>جذر3 (cbrt)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[cbrtf] دالة جذر3 (س: عـائم[32]): عـائم[32]؛
 @تصدير[cbrt] دالة جذر3 (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي cbrt و cbrtf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[cbrtf] func cbrt (x: Float[32]): Float[32];
+@expname[cbrt] func cbrt (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي cbrt و cbrtf من POSIX.
                             </li>
                             <li>
                                 <b>ارفع (pow)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[powf] دالة ارفع (أساس: عـائم[32]، أس: عـائم[32]): عـائم[32]؛
 @تصدير[pow] دالة ارفع (أساس: عـائم[64]، أس: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي pow و powf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[powf] func pow (b: Float[32], e: Float[32]): Float[32];
+@expname[pow] func pow (b: Float[64], e: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي pow و powf من POSIX.
                             </li>
                             <li>
                                 <b>جا (sin)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[sinf] دالة جا (س: عـائم[32]): عـائم[32]؛
 @تصدير[sin] دالة جا (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي sin و sinf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[sinf] func sin (x: Float[32]): Float[32];
+@expname[sin] func sin (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي sin و sinf من POSIX.
                             </li>
                             <li>
                                 <b>جا_عكسي (asin)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[asinf] دالة جا_عكسي (س: عـائم[32]): عـائم[32]؛
 @تصدير[asin] دلة جا_عكسي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي asin و asinf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[asinf] func asin (x: Float[32]): Float[32];
+@expname[asin] func asin (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي asin و asinf من POSIX.
                             </li>
                             <li>
                                 <b>جا_زائدي (sinh)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[sinhf] دالة جا_زائدي (س: عـائم[32]): عـائم[32]؛
 @تصدير[sinh] دالة جا_زائدي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي sinh و sinhf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[sinhf] func sinh (x: Float[32]): Float[32];
+@expname[sinh] func sinh (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي sinh و sinhf من POSIX.
                             </li>
                             <li>
                                 <b>جا_زائدي_عكسي (asinh)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[asinhf] دالة جا_زائدي_عكسي (س: عـائم[32]): عـائم[32]؛
 @تصدير[asinh] دالة جا_زائدي_عكسي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي asinh و asinhf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[asinhf] func asinh (x: Float[32]): Float[32];
+@expname[asinh] func asinh (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي asinh و asinhf من POSIX.
                             </li>
                             <li>
                                 <b>جتا (cos)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[cosf] دالة جتا (س: عـائم[32]): عـائم[32]؛
 @تصدير[cos] دالة جتا (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي cos و cosf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[cosf] func cos (x: Float[32]): Float[32];
+@expname[cos] func cos (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي cos و cosf من POSIX.
                             </li>
                             <li>
                                 <b>جتا_عكسي (acos)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[acosf] دالة جتا_عكسي (س: عـائم[32]): عـائم[32]؛
 @تصدير[acos] دالة جتا_عكسي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي acos و acosf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[acosf] func acos (x: Float[32]): Float[32];
+@expname[acos] func acos (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي acos و acosf من POSIX.
                             </li>
                             <li>
                                 <b>جتا_زائدي (cosh)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[coshf] دالة جتا_زائدي (س: عـائم[32]): عـائم[32]؛
 @تصدير[cosh] دالة جتا_عكسي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي cosh و coshf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[coshf] func cosh (x: Float[32]): Float[32];
+@expname[cosh] func cosh (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي cosh و coshf من POSIX.
                             </li>
                             <li>
                                 <b>جتا_زائجي_عكسي (acosh)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[acoshf] دالة جتا_زائجي_عكسي (س: عـائم[32]): عـائم[32]؛
 @تصدير[asoch] دالة جتا_زائجي_عكسي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي acosh و acoshf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[acoshf] func acosh (x: Float[32]): Float[32];
+@expname[acosh] func acosh (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي acosh و acoshf من POSIX.
                             </li>
                             <li>
                                 <b>ظل (tan)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[tanf] دالة ظل (س: عـائم[32]): عـائم[32]؛
 @تصدير[tan] دالة ظل (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي tan و tanf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[tanf] func tan (x: Float[32]): Float[32];
+@expname[tan] func tan (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي tan و tanf من POSIX.
                             </li>
                             <li>
                                 <b>ظل_عكسي (atan)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[atanf] دالة ظل_عكسي (س: عـائم[32]): عـائم[32]؛
 @تصدير[atan] دالة ظل_عكسي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي atan و atanf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[atanf] func atan (x: Float[32]): Float[32];
+@expname[atan] func atan (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي atan و atanf من POSIX.
                             </li>
                             <li>
                                 <b>ظل_عكسي2 (atan2)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[atan2f] دالة ظل_عكسي2 (ص: عـائم[32]، س: عـائم[32]): عـائم[32]؛
 @تصدير[atan2] دالة ظل_عكسي2 (ص: عـائم[64]، س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي atan2 و atan2f من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[atan2f] func atan2 (y: Float[32], x: Float[32]): Float[32];
+@expname[atan2] func atan2 (y: Float[64], x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي atan2 و atan2f من POSIX.
                             </li>
                             <li>
                                 <b>ظل_زائدي (tanh)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[tanhf] دالة ظل_زائدي (س: عـائم[32]): عـائم[32]؛
 @تصدير[tanh] دالة ظل_زائدي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي tanh و tanhf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[tanhf] func tanh (x: Float[32]): Float[32];
+@expname[tanh] func tanh (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي tanh و tanhf من POSIX.
                             </li>
                             <li>
                                 <b>ظل_زائدي_عكسي (atanh)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[atanhf] دالة ظل_زائدي_عكسي (س: عـائم[32]): عـائم[32]؛
 @تصدير[atanh] جالة ظل_زائدي_عكسي (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي atanh و atanhf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[atanhf] func atanh (x: Float[32]): Float[32];
+@expname[atanh] func atanh (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي atanh و atanhf من POSIX.
                             </li>
                             <li>
                                 <b>سقف (ceil)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[ceilf] دالة سقف (س: عـائم[32]): عـائم[32]؛
 @تصدير[ceil] دالة سقف (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي ceil و ceilf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[ceilf] func ceil (x: Float[32]): Float[32];
+@expname[ceil] func ceil (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي ceil و ceilf من POSIX.
                             </li>
                             <li>
                                 <b>جزء_صحيح (floor)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[floorf] دالة جزء_صحيح (س: عـائم[32]): عـائم[32]؛
 @تصدير[floor] دالة جزء_صحيح (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي floor و floorf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[floorf] func floor (x: Float[32]): Float[32];
+@expname[floor] func floor (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي floor و floorf من POSIX.
                             </li>
                             <li>
                                 <b>تقريب (round)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[roundf] دالة تقريب (س: عـائم[32]): عـائم[32]؛
 @تصدير[round] دالة تقريب (س: عـائم[64]): عـائم[64]؛
-</pre> مطابقة لدالتي round و roundf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[roundf] func round (x: Float[32]): Float[32];
+@expname[round] func round (x: Float[64]): Float[64];
+</pre>
+ مطابقة لدالتي round و roundf من POSIX.
                             </li>
                             <li>
                                 <b>عشوائي (random)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[rand] دالة عشوائي (): صـحيح؛
-</pre> مطابقة لدالة rand من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[rand] func random (): Int;
+</pre>
+ مطابقة لدالة rand من POSIX.
                             </li>
                             <li>
                                 <b>جهز_العشوائية (seedRandom)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[srand] دالة جهز_العشوائية (ب: طـبيعي[32])؛
-</pre> مطابقة لدالة srand من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[srand] func seedRandom (s: Word[32]);
+</pre>
+ مطابقة لدالة srand من POSIX.
                             </li>
                         </ul>
                     </div>
@@ -1026,10 +1558,23 @@
                         <ul class="subsections">
                             <li>
                                 <b>هات (get)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1: عرف هات: دالة (الرابط: مؤشر[مصفوفة[مـحرف]]، الناتج: مؤشر[مؤشر]، حجم_الناتج: مؤشر[صـحيح]) => ثـنائي؛
-2: عرف هات: دالة (الرابط: مؤشر[مصفوفة[مـحرف]]، اسم_الملف: مؤشر[مصفوفة[مـحرف]]) => ثـنائي؛
-</pre> 1: تجلب المورد المحدد بالرابط وترجعه.<br> 2: تجلب المورد المحدد بالرابط وتخزنه في الملف المحدد.
+<pre class="code" dir=rtl style="text-align:right;">
+1: دالة هات (
+     الرابط: مؤشر[مصفوفة[مـحرف]]، الناتج: مؤشر[مؤشر]، حجم_الناتج: مؤشر[صـحيح]
+   ) => ثـنائي؛
+2: دالة هات (
+     الرابط: مؤشر[مصفوفة[مـحرف]]، اسم_الملف: مؤشر[مصفوفة[مـحرف]]
+   ) => ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1: func get (
+     url: ptr[array[Char]], result: ptr[ptr], resultCount: ptr[Int]
+   ): Bool;
+2: func get (
+     url: ptr[array[Char]], filename: ptr[array[Char]]
+   ): Bool;
+</pre>
+ 1: تجلب المورد المحدد بالرابط وترجعه.<br> 2: تجلب المورد المحدد بالرابط وتخزنه في الملف المحدد.
                             </li>
                         </ul>
                     </div>
@@ -1040,48 +1585,79 @@
                         <ul class="subsections">
                             <li>
                                 <b>أدخل_محرفا (getChar)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[getchar] دالة (): صـحيح؛
-</pre> مطابقة لدالة getchar من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[getchar] دالة أدخل_محرفا (): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[getchar] func getChar (): Int;
+</pre>
+ مطابقة لدالة getchar من POSIX.
                             </li>
                             <li>
                                 <b>أخرج_محرفا (putChar)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[putchar] دالة (محرف: صـحيح): صـحيح؛
-</pre> مطابقة لدالة putchar من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[putchar] دالة أخرج_محرفا (محرف: صـحيح): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[putchar] func putChar (c: Int): Int;
+</pre>
+ مطابقة لدالة putchar من POSIX.
                             </li>
                             <li>
                                 <b>اطبع (print)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 1. @تصدير[printf] دالة اطبع (نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
 2. دالة اطبع (ص: صـحيح[64])؛
 3. دالة اطبع (ع: عـائم[64])؛
 4. دالة اطبع (ع: عـائم[64]، ص: صـحيح)؛
-</pre> 1: مطابقة لدالة printf من POSIX.<br> 2: تطبع عدداً صحيحاً.<br> 3: تطبع عدداً عائماً.<br> 4: تطبع عدداً عائماً مع تحكم بعدد الأصفار على يمين الفاصلة.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. @expname[printf] func print (fmt: ptr[array[Char]], ...any): Int;
+2. func print (i: Int[64]);
+3. func print (f: Float[64]);
+4. func print (f: Float[64], n: Int);
+</pre>
+ 1: مطابقة لدالة printf من POSIX.<br> 2: تطبع عدداً صحيحاً.<br> 3: تطبع عدداً عائماً.<br> 4: تطبع عدداً عائماً مع تحكم بعدد الأصفار على يمين الفاصلة.
                             </li>
                             <li>
                                 <b>امسح (scan)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[scanf] دالة امسح (نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
-</pre> مطابقة لدالة scanf من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[scanf] func scan (fmt: ptr[array[Char]], ...any): Int;
+</pre>
+ مطابقة لدالة scanf من POSIX.
                             </li>
                             <li>
                                 <b>أدخل_صحيح (getInt)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 دالة أدخل_صحيح (): صـحيح؛
-</pre> تطلب من المستخدم إدخال عدد صحيح.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func getInt (): Int;
+</pre>
+ تطلب من المستخدم إدخال عدد صحيح.
                             </li>
                             <li>
                                 <b>أدخل_عائم (getFloat)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 دالة أدخل_عائم (): عـائم؛
-</pre> تطلب من المستخدم إدخال عدد بفاصلة عائمة.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+print getFloat (): Float;
+</pre>
+ تطلب من المستخدم إدخال عدد بفاصلة عائمة.
                             </li>
                             <li>
                                 <b>أدخل_محارف (getString)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 دالة أدخل_محارف (محارف: مؤشر[مصفوفة[مـحرف]]، عدد: طـبيعي)؛
-</pre> تطلب من المستخدم إدخال سلسلة محارف.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func getString (str: ptr[array[Char]], size: Word);
+</pre>
+ تطلب من المستخدم إدخال سلسلة محارف.
                             </li>
                         </ul>
 
@@ -1123,33 +1699,61 @@
                         <ul class="subsections">
                             <li>
                                 <b>نم (sleep)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[usleep] دالة نم (ط: طـبيعي)؛
-</pre> مطابقة لدالة usleep من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[usleep] func sleep (w: Word);
+</pre>
+ مطابقة لدالة usleep من POSIX.
                             </li>
                             <li>
                                 <b>اضبط_متغير_محيطي (setEnv)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[setenv] دالة اضبط_متغير_محيطي (اسم: مؤشر[مصفوفة[مـحرف]]، قيمة: مؤشر[مصفوفة[مـحرف]]، استبدال: صـحيح): صـحيح؛
-</pre> مطابقة لدالة setenv من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[setenv]
+دالة اضبط_متغير_محيطي (
+    اسم: مؤشر[مصفوفة[مـحرف]]، قيمة: مؤشر[مصفوفة[مـحرف]]، استبدال: صـحيح
+): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[setenv]
+func setEnv (
+    name: ptr[array[Char]], value: ptr[array[Char]], overwrite: Int
+): Int;
+</pre>
+ مطابقة لدالة setenv من POSIX.
                             </li>
                             <li>
                                 <b>هات_متغير_محيطي (getEnv)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[getenv] دالة هات_متغير_محيطي (اسم: مؤشر[مصفوفة[مـحرف]]): مؤشر[مصفوفة[مـحرف]]؛
-</pre> مطابقة لدالة getenv من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[getenv]
+دالة هات_متغير_محيطي (اسم: مؤشر[مصفوفة[مـحرف]]): مؤشر[مصفوفة[مـحرف]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[getenv]
+func getEnv (name: ptr[array[Char]]): ptr[array[Char]];
+</pre>
+ مطابقة لدالة getenv من POSIX.
                             </li>
                             <li>
                                 <b>شغل (exec)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[system] دالة شغل (أمر: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
-</pre> مطابقة لدالة system من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[system] func exec (cmd: ptr[array[Char]]): Int;
+</pre>
+ مطابقة لدالة system من POSIX.
                             </li>
                             <li>
                                 <b>اخرج (exit)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[exit] دالة اخرج (رمز_الخروج: صـحيح)؛
-</pre> مطابقة لدالة exit من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[exit] func exit (status: Int);
+</pre>
+ مطابقة لدالة exit من POSIX.
                             </li>
                         </ul>
                     </div>
@@ -1160,169 +1764,282 @@
                         <ul class="subsections">
                             <li>
                                 <b>قـيد_مجلد (DirEnt)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-عرف قـيد_مجلد: صنف
-{
+<pre class="code" dir=rtl style="text-align:right;">
+صنف قـيد_مجلد {
   عرف نوع: صـحيح[8]؛
   عرف اسم: مصفوفة[مـحرف، 256]؛
-}</pre>
-                                <pre class="code" dir=ltr>
-def DirEnt: class {
+}
+</pre>
+<pre class="code" dir=ltr>
+class DirEnt {
   def dType: Int[8];
   def dName: array[Char, FILENAME_LENGTH];
-};</pre> سجل معلومات عنصر من عناصر المجلد.
+};
+</pre> سجل معلومات عنصر من عناصر المجلد.
                             </li>
                             <br>
 
                             <li>
                                 <b>اسـماء_ملفات (FileNames؛)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-عرف اسـماء_ملفات: صنف
-{
+<pre class="code" dir=rtl style="text-align:right;">
+صنف اسـماء_ملفات {
   عرف عدد: صـحيح؛
   عرف اسماء: مصفوفة[مصفوفة[مـحرف، 256]]؛
-}</pre>
-                                <pre class="code" dir=ltr>
-def FileNames: type
-{
+}
+</pre>
+<pre class="code" dir=ltr>
+class FileNames {
   def count: Int;
   def names: array[array[Char, FILENAME_LENGTH]];
-};</pre> قائمة بأسماء ملفات.
+}
+</pre> قائمة بأسماء ملفات.
                             </li>
                             <br>
 
                             <li>
                                 <b>انـتقال (Seek)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 عرف انـتقال: {
   عرف _بداية_: لقب 0؛
   عرف _حالي_: لقب 1؛
   عرف _نهاية_: لقب 2؛
-}؛</pre>
-                                <pre class="code" dir=ltr>
+}؛
+</pre>
+<pre class="code" dir=ltr>
 def Seek: {
   def SET: 0;
   def CUR: 1;
   def END: 2;
-};</pre> ثوابت التعامل مع دالة الانتقال.
+};
+</pre> ثوابت التعامل مع دالة الانتقال.
                             </li>
                             <br>
 
                             <li>
                                 <b>يوجد (exists)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 دالة يوجد (اسم_الملف: مؤشر[مصفوفة[مـحرف]]): ثـنائي؛
-</pre> تفحص وجود ملف أو مجلد معين.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func exists (filename: ptr[array[Char]]): Bool;
+</pre>
+ تفحص وجود ملف أو مجلد معين.
                             </li>
                             <li>
                                 <b>اعد_التسمية (rename)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[rename] دالة أعد_التسمية (الاسم_القديم: مؤشر[مصفوفة[مـحرف]]، الاسم_الجديد: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
-</pre> تعيد تسمية ملف أو مجلد.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[rename]
+دالة أعد_التسمية (
+    الاسم_القديم: مؤشر[مصفوفة[مـحرف]]، الاسم_الجديد: مؤشر[مصفوفة[مـحرف]]
+): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[rename]
+func rename (oldName: ptr[array[Char]], newName: ptr[array[Char]]): Int;
+</pre>
+ تعيد تسمية ملف أو مجلد.
                             </li>
                             <li>
                                 <b>امح (remove)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[remove] دالة امح (اسم_الملف: مؤشر[مصفوفة[مـحرف]]): ثـنائي؛
-</pre> تزيل ملفًا أو مجلدًا.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[remove] func remove (filename: ptr[array[Char]]): Bool;
+</pre>
+ تزيل ملفًا أو مجلدًا.
                             </li>
                             <li>
                                 <b>افتح_ملف (openFile)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[fopen] دالة افتح_ملف (اسم_الملف: مؤشر[مصفوفة[مـحرف]]، الوضع: مؤشر[مصفوفة[مـحرف]]): مؤشر[مـلف]؛
-</pre> مطابقة لدالة fopen من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[fopen]
+دالة افتح_ملف (
+    اسم_الملف: مؤشر[مصفوفة[مـحرف]]، الوضع: مؤشر[مصفوفة[مـحرف]]
+): مؤشر[مـلف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fopen]
+func openFile (filename: ptr[array[Char]], mode: ptr[array[Char]]): ptr[File];
+</pre>
+ مطابقة لدالة fopen من POSIX.
                             </li>
                             <li>
                                 <b>اغلق_ملف (closeFile)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[fclose] دالة اغلق_ملف (ملف: مؤشر[مـلف]): صـحيح؛
-</pre> مطابقة لدالة fclose من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fclose] func closeFile(f: ptr[File]): Int;
+</pre>
+ مطابقة لدالة fclose من POSIX.
                             </li>
                             <li>
                                 <b>اطبع (print)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[frpintf] دالة اطبع (ملف: مؤشر[مـلف]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
-</pre> مطابقة لدالة fprintf من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[frpintf]
+دالة اطبع (ملف: مؤشر[مـلف]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fprintf]
+func print (f: ptr[File], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+ مطابقة لدالة fprintf من POSIX.
                             </li>
                             <li>
                                 <b>امسح (scan)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[fscanf] دالة امسح (ملف: مؤشر[مـلف]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
-</pre> مطابقة لدالة fscanf من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[fscanf]
+دالة امسح (ملف: مؤشر[مـلف]، نسق: مؤشر[مصفوفة[مـحرف]]، ...أيما): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[scanf]
+func scan (f: ptr[File], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+ مطابقة لدالة fscanf من POSIX.
                             </li>
                             <li>
                                 <b>اكتب (write)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[fwrite] دالة اكتب (محتوى: مؤشر، حجم: صـحيح، عدد: صـحيح، ملف: مؤشر[مـلف]): صـحيح؛
-</pre> مطابقة لدالة fwrite من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[fwrite]
+دالة اكتب (
+    محتوى: مؤشر، حجم: صـحيح_متكيف، عدد: صـحيح_متكيف، ملف: مؤشر[مـلف]
+): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fwrite]
+func write (
+    content: ptr, size: ArchInt, count: ArchInt, f: ptr[File]
+): ArchInt;
+</pre>
+ مطابقة لدالة fwrite من POSIX.
                             </li>
                             <li>
                                 <b>اقرأ (read)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[fread] دالة اقرأ (محتوى: مؤشر، حجم: صـحيح، عدد: صـحيح، ملف: مؤشر[مـلف]): صـحيح؛
-</pre> مطابقة لدالة fread من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[fread]
+دالة اقرأ (
+    محتوى: مؤشر، حجم: صـحيح_متكيف، عدد: صـحيح_متكيف، ملف: مؤشر[مـلف]
+): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fread]
+func read (
+    content: ptr, size: ArchInt, count: ArchInt, f: ptr[File]
+): ArchInt;
+</pre>
+ مطابقة لدالة fread من POSIX.
                             </li>
                             <li>
                                 <b>اطلق (flush)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[fflush] دالة اطلق (ملف: مؤشر[مـلف]): صـحيح؛
-</pre> مطابقة لدالة fflush من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fflush] func flush (f: ptr[File]): Int;
+</pre>
+ مطابقة لدالة fflush من POSIX.
                             </li>
                             <li>
                                 <b>هات_الموقع (tell)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[ftell] دالة هات_الموقع (ملف: مؤشر[مـلف]): صـحيح؛
-</pre> مطابقة لدالة tell من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[ftell] دالة هات_الموقع (ملف: مؤشر[مـلف]): صـحيح_متكيف؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[ftell] func tell (f: ptr[File]): ArchInt;
+</pre>
+ مطابقة لدالة tell من POSIX.
                             </li>
                             <li>
                                 <b>انتقل (seek)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[fseek] دالة انتقل (ملف: مؤشر[مـلف]، إزاحة: صـحيح، انتقال: صـحيح): صـحيح؛
-</pre> مطابقة لدالة tell من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[fseek]
+دالة انتقل (ملف: مؤشر[مـلف]، إزاحة: صـحيح_متكيف، انتقال: صـحيح): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fseek]
+func seek (f: ptr[File], offset: ArchInt, seek: Int): Int;
+</pre>
+ مطابقة لدالة tell من POSIX.
                             </li>
                             <li>
                                 <b>أنشئ_ملف (createFile)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة أنشئ_ملف (اسم_الملف: مؤشر[مصفوفة[مـحرف]]، محتوى: مؤشر، حجم_المحتوى: صـحيح): ثـنائي؛
-</pre> تنشئ ملفًا وتخزن فيه المحتوى المعطى.
+<pre class="code" dir=rtl style="text-align:right;">
+دالة أنشئ_ملف (
+    اسم_الملف: مؤشر[مصفوفة[مـحرف]]، محتوى: مؤشر، حجم_المحتوى: صـحيح_متكيف
+): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func createFile (
+    filename: ptr[array[Char]], content: ptr, contentSize: ArchInt
+): Bool;
+</pre>
+ تنشئ ملفًا وتخزن فيه المحتوى المعطى.
                             </li>
                             <li>
                                 <b>اقرأ_ملف (readFile)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة اقرأ_ملف (اسم_الملف: مؤشر[مصفوفة[مـحرف]]، ناتج: مؤشر[مؤشر]، حجم: مؤشر[صـحيح]): ثـنائي؛
-</pr>
+<pre class="code" dir=rtl style="text-align:right;">
+دالة اقرأ_ملف (
+    اسم_الملف: مؤشر[مصفوفة[مـحرف]]، ناتج: مؤشر[مؤشر]، حجم: مؤشر[صـحيح_متكيف]
+): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func readFile (
+    filename: ptr[array[Char]], result: ptr[ptr], size: ptr[ArchInt]
+): Bool;
+</pre>
 تقرأ المحتوى الكامل لملف وترجعه.
                             </li>
                             <li>
                                 <b>انشئ_مجلد (makeDir)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 دالة أنشئ_مجلد (اسم_المجلد: مؤشر[مصفوفة[مـحرف]]، الوضع: صـحيح): ثـنائي؛
-</pre> تنشئ مجلدًا جديدًا.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func makeDir (folderName: ptr[array[Char]], mode: Int): Bool;
+</pre>
+ تنشئ مجلدًا جديدًا.
                             </li>
                             <li>
                                 <b>افتح_مجلد (openDir)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-@تصدير[opendir] دالة (اسم_المجلد: مؤشر[مصفوفة[مـحرف]]): مؤشر؛
-</pre> مطابقة لدالة opendir من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+@تصدير[opendir] دالة (اسم_المجلد: مؤشر[مصفوفة[مـحرف]]): مؤشر[مـجلد]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[opendir] func (folderName: ptr[array[Char]]): ptr[Dir];
+</pre>
+ مطابقة لدالة opendir من POSIX.
                             </li>
                             <li>
                                 <b>اغلق_مجلد (closeDir)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[closedir] دالة (مجلد: مؤشر[مـجلد]): صـحيح؛
-</pre> طابقة لدالة closedir من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[closedir] func (folder: ptr[Dir]): Int;
+</pre>
+ طابقة لدالة closedir من POSIX.
                             </li>
                             <li>
                                 <b>صفر_مؤشر_مجلد (rewindDir)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[rewindDir] دالة صفر_مؤشر_مجلد (مجلد: مؤشر[مـجلد])؛
-</pre> مطابقة لدالة rewinddir من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[rewindDir] func rewindDir (dir: ptr[Dir]);
+</pre>
+ مطابقة لدالة rewinddir من POSIX.
                             </li>
                             <li>
                                 <b>اقرأ_مجلد (readDir)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 1. @تصدير[readdir] دالة اقرأ_مجلد (مجلد: مؤشر[مـجلد]): مؤشر[قـيد_مجلد]؛
-2. دالة اقرأ_مجلد (اسم_المجلد: مؤشر[مصفوفة[مـحرف]]): مؤشر
-</pre> 1: مطابقة لدالة readdir من POSIX.<br> 2: ترجع قائمة بأسماء الملفات في مجلد معين.
+2. دالة اقرأ_مجلد (اسم_المجلد: مؤشر[مصفوفة[مـحرف]]): مؤشر[أسـماء_ملفات]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. @expname[readdir] func readDir (dir: ptr[Dir]): ptr[DirEnt];
+2. func readDir (name: ptr[array[Char]]): ptr[FileNames];
+</pre>
+ 1: مطابقة لدالة readdir من POSIX.<br> 2: ترجع قائمة بأسماء الملفات في مجلد معين.
                             </li>
                         </ul>
                     </div>
@@ -1333,9 +2050,17 @@ def Seek: {
                         <ul class="subsections">
                             <li>
                                 <b>طابق (match)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-دالة طابق (نمط: مؤشر[مصفوفة[مـحرف]]، محارف: مؤشر[مصفوفة[مـحرف]]، خيارات: صـحيح): مـصفوفة[نـص]؛
-</pre> تطبق النمط المعطى على سلسلة المحارف المعطاة وترجع مصفوفة من النصوص. في حالة وجود تطابق تحمل المصفوفة التطابق الكامل للنمط في أول عنصر من المصفوفة بينما تحمل العناصر التالية التطابقات الجزئية المحددة ضمن النمط بالأقواس.
+<pre class="code" dir=rtl style="text-align:right;">
+دالة طابق (
+    نمط: مؤشر[مصفوفة[مـحرف]]، محارف: مؤشر[مصفوفة[مـحرف]]، خيارات: صـحيح
+): مـصفوفة[نـص]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func match (
+    pattern: ptr[array[Char]], str: ptr[array[Char]], flags: Int
+): Array[String];
+</pre>
+ تطبق النمط المعطى على سلسلة المحارف المعطاة وترجع مصفوفة من النصوص. في حالة وجود تطابق تحمل المصفوفة التطابق الكامل للنمط في أول عنصر من المصفوفة بينما تحمل العناصر التالية التطابقات الجزئية المحددة ضمن النمط بالأقواس.
                                 في حالة عدم وجود تطابق تكون النتيجة مصفوفة فارغة.
                             </li>
                         </ul>
@@ -1379,28 +2104,53 @@ class DetailedTime {
                             </li>
                             <li>
                                 <b>هات_وقـت_مفصل (getDetailedTime)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
-1. @تصدير[localtime] دالة هات_وقـت_مفصل (خز: مؤشر[طـبيعي[64]]): مؤشر[وقـت_مفصل]؛
-2. @تصدير[localtime_r] دالة هات_وقت_مفصل (خز: مؤشر[طـبيعي[64]]، مؤشر[وقـت_مفصل]): مؤشر[وقـت_مفصل]؛
-</pre> 1. مطابقة لدالة localtime من POSIX. <br> 2. مطابقة لدالة localtime_r من POSIX.
+<pre class="code" dir=rtl style="text-align:right;">
+1. @تصدير[localtime] دالة هات_وقـت_مفصل (
+     خز: مؤشر[طـبيعي[64]]
+   ): مؤشر[وقـت_مفصل]؛
+2. @تصدير[localtime_r] دالة هات_وقت_مفصل (
+     خز: مؤشر[طـبيعي[64]]، مؤشر[وقـت_مفصل]
+   ): مؤشر[وقـت_مفصل]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+1. @expname[localtime] func getDetailedTime (
+     ts: ptr[Word[64]]
+   ): ptr[DetailedTime];
+2. @expname[localtime_r] func getDetailedTime (
+     ts: ptr[Word[64]], ptr[DetailedTime]
+   ): ptr[DetailedTime];
+</pre>
+ 1. مطابقة لدالة localtime من POSIX. <br> 2. مطابقة لدالة localtime_r من POSIX.
                             </li>
                             <li>
                                 <b>هات_الختم_الزمني (getTimestamp)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[time] دالة هات_الختم_الزمني (نتيجة: مؤشر[طـبيعي[64]]): مؤشر[طـبيعي[64]]؛
-</pre> مطابقة لدالة time من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[time] func getTimestamp (result: ptr[Word[64]]): ptr[Word[64]];
+</pre>
+ مطابقة لدالة time من POSIX.
                             </li>
                             <li>
                                 <b>هات_الساعة (getClock)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[clock] دالة هات_الساعة (): صـحيح[64]؛
-</pre> مطابقة لدالة clock من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[clock] func getClock (): Int[64];
+</pre>
+ مطابقة لدالة clock من POSIX.
                             </li>
                             <li>
                                 <b>إلى_نص (toString)</b><br/>
-                                <pre class="code" dir=rtl style="text-align:right;">
+<pre class="code" dir=rtl style="text-align:right;">
 @تصدير[clock] دالة إلى_نص (خز: مؤشر[طـبيعي[64]]): مؤشر[مصفوفة[مـحرف]]؛
-</pre> مطابقة لدالة ctime من POSIX.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[clock] func toString (ts: ptr[Word[64]]): ptr[array[Char]];
+</pre>
+ مطابقة لدالة ctime من POSIX.
                             </li>
                         </ul>
                     </div>
@@ -1695,21 +2445,35 @@ Console.print("%d\n", pc(3.5)); // Prints 35
                     <ul class="subsections">
                         <li>
                             <b>استخرج_من_ملف (extractFromFile)</b><br/>
-                            <pre class="code" dir=rtl style="text-align:right;">
-عرف استخرج_من_ملف: دالة (
+<pre class="code" dir=rtl style="text-align:right;">
+دالة استخرج_من_ملف (
   اسم_الملف: مؤشر[مصفوفة[مـحرف]]، اسم_المجلد: مؤشر[مصفوفة[مـحرف]]،
   مستلم_الاشعارات: مؤشر[دالة (مؤشر[مصفوفة[مـحرف]]، مؤشر) => صـحيح]، معطيات: مؤشر
 ) => صـحيح؛
-</pre> تستخرج ملفًا مضغوطا إلى المجلد المحدد.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func extractFromFile (
+    filename: ptr[array[Char]], folderName: ptr[array[Char]],
+    callback: ptr[func (ptr[array[Char]], ptr): Int], arguments: ptr
+): Int;
+</pre>
+ تستخرج ملفًا مضغوطا إلى المجلد المحدد.
                         </li>
                         <li>
                             <b>اضغط_إلى_ملف (compressToFile)</b><br/>
-                            <pre class="code" dir=rtl style="text-align:right;">
-عرف اضغط_إلى_ملف: دالة (
+<pre class="code" dir=rtl style="text-align:right;">
+دالة اضغط_إلى_ملف (
   اسم_المف: مؤشر[مصفوفة[مـحرف]]، ملفات: مؤشر[مصفوفة[مؤشر[مصفوفة[مـحرف]]]]، عدد_الملفات: صـحيح،
   نوع_الاستخراج: مؤشر[مصفوفة[مـحرف]]
 ) => صـحيح؛
-</pre> تنشئ ملفًا مضغوطا يحتوي على الملفات المعطاة.
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func compressToFile (
+    filename: ptr[array[Char]], files: ptr[array[ptr[array[Char]]]], fileCount: Int,
+    extractType: ptr[array[Char]]
+): Int;
+</pre>
+ تنشئ ملفًا مضغوطا يحتوي على الملفات المعطاة.
                         </li>
                     </ul>
                 </div>
@@ -1758,7 +2522,10 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                   <h4 id="Core-importFile">الدالة: اشمل_ملف (importFile)</h4>
                   <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة اشمل_ملف (اسم_الملف: مؤشر[مصفوفة[مـحرف]])؛
+دالة اشمل_ملف (اسم_الملف: مؤشر[مصفوفة[مـحرف]])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func importFile (filename: ptr[array[Char]]);
 </pre>
                     تشمل الملف المعطى اسمه. هذه الدالة تعمل عمل الإيعاز `اشمل` (import) ولا تختلف عن ذلك الإيعاز سوى بقدرتها
                     على شمول الملفات بشكل ديناميكي، أي باستخدام اسم ملف مولّد ديناميكيًا أثناء التنفيذ.
@@ -1827,35 +2594,35 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                       وغيرها، ويحوي المتغيرات التالية:
                       <ul class="subsections">
                         <li>
-                          <span class="inlinecode">اسم_الصنف (typeName): نـص</span><br>
+                          <span class="inlinecode">اسم_الصنف (typeName): نـص (String)</span><br>
                           نص يحمل اسم الصنف دون المسار الكامل.
                         </li>
                         <li>
-                          <span class="inlinecode">مسار_الصنف (typeNamespace): نـص</span><br>
+                          <span class="inlinecode">مسار_الصنف (typeNamespace): نـص (String)</span><br>
                           نص يحمل مسار الصنف الكامل دون اسم الصنف. فإذا كان عندك صنف <span class="inlinecode">وحـدة_خارجية.وحـدة_داخلية.صـنفي</span>
                           فإن هذا المتغير سيحوي القيمة `وحـدة_خارجية.وحـدة_داخلية`.
                         </li>
                         <li>
-                          <span class="inlinecode">اسم_الحزمة (packageName): نـص</span><br>
+                          <span class="inlinecode">اسم_الحزمة (packageName): نـص (String)</span><br>
                           نص يحمل اسم الحزمة التي تحوي الصنف. على سبيل المثال، كل الأصناف المعرفة داخل القلب تحمل اسم
                           الحزمة Core، بينما الأصناف المعرفة داخل مكتبة نمط البناء المعياري تحمل اسم الحزمة Spp.
                         </li>
                         <li>
-                          <span class="inlinecode">الرابط (url): نـص</span><br>
+                          <span class="inlinecode">الرابط (url): نـص (String)</span><br>
                           رابط الحزمة على الشبكة العنكبوتية. الأسس لا تتعامل مع الرابط بشكل مباشر وإنما تعامله فقط كمعلومة
                           للمستخدم لتمييز الصنف في حالة تشابه الأسماء.
                         </li>
                         <li>
-                          <span class="inlinecode">الاسم_الفريد (uniqueName): نـص</span><br>
+                          <span class="inlinecode">الاسم_الفريد (uniqueName): نـص (String)</span><br>
                           سلسلة محارف تتكون من جمع المعلومات أعلاه في معرف واحد فريد.
                         </li>
                         <li>
-                          <span class="inlinecode">هوية_صنف_السلف (baseTypeInfo): سند[هـوية_صنف]</span><br>
+                          <span class="inlinecode">هوية_صنف_السلف (baseTypeInfo): سند[هـوية_صنف] (ref[TypeInfo])</span><br>
                           سند لهوية سلف هذا الصنف، أي لهوية الصنف الذي أُشتُق منه هذا الصنف. تكون السند صفرًا إن لم يمكن
                           لهذا الصنف سلف.
                         </li>
                         <li>
-                          <span class="inlinecode">مصنع_الكائنات (objectFactory): سند[مـصنع_كائن_بهوية]</span><br>
+                          <span class="inlinecode">مصنع_الكائنات (objectFactory): سند[مـصنع_كائن_بهوية] (ref[TiObjectFactory])</span><br>
                           سند للمصنع الذي يُنشئ كائنات من هذا الصنف.
                         </li>
                       </ul>
@@ -1871,21 +2638,30 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">هات_هويتي (getMyTypeInfo)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_هويتي (): سند[هـوية_صنف]؛
+  عملية هذا.هات_هويتي (): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMyTypeInfo (): ref[TypeInfo];
 </pre>
                           تعطيك سندًا لهوية هذا الكائن.
                         </li>
                         <li>
                           <span class="inlinecode">أمشتق_من (isDerivedFrom)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أمشتق_من (سند[هـوية_صنف]): ثـنائي؛
+  عملية هذا.أمشتق_من (سند[هـوية_صنف]): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isDerivedFrom (ref[TypeInfo]): Bool;
 </pre>
                           تُعلمك إن كان الكائن من الصنف ذي الهوية المعطاة، أو من صنف مشتق من ذلك الصنف.
                         </li>
                         <li>
                           <span class="inlinecode">هات_وسيط (getInterface)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_وسيط (سند[هـوية_صنف]): سند[وسـيط_بهوية]؛
+  عملية هذا.هات_وسيط (سند[هـوية_صنف]): سند[وسـيط_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getInterface (ref[TypeInfo]): ref[TiInterface];
 </pre>
                           تستقبل سندًا لهوية وسيط وترجع سندًا لذلك الوسيط إن وجد، وإن لم يكن ذلك الوسيط مدعوما من هذا
                           الكائن فترجع صفرًا.
@@ -1902,14 +2678,20 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">هات_هويتي (getMyInterfaceInfo)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_هويتي (): سند[هـوية_صنف]؛
+  عملية هذا.هات_هويتي (): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMyInterfaceInfo (): ref[TypeInfo];
 </pre>
                           تعطيك سندًا لهوية هذا الوسيط.
                         </li>
                         <li>
                           <span class="inlinecode">هات_الكائن (getTiObject)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_الكائن (): سند[كـائن_بهوية]؛
+  عملية هذا.هات_الكائن (): سند[كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getTiObject (): ref[TiObject];
 </pre>
                           تُرجع الكائن الذي يملك هذا الوسيط.
                         </li>
@@ -1923,6 +2705,9 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
 <pre class="code" dir=rtl style="text-align:right;">
   وسيط~عطل_التتبع = هات_الوسيط[كائن، صـنف_الوسيط]
 </pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  interface~no_deref = getInterface[obj, InterfaceType];
+</pre>
                     </div>
 
                     <h5 id="Core-isDerivedFrom">الماكرو: أمشتق_من (isDerivedFrom)</h5>
@@ -1931,6 +2716,9 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                       يفحص ما إذا كان الكائن المعطى مشتقًا من الصنف المعطى، ويستخدم كالتالي:
 <pre class="code" dir=rtl style="text-align:right;">
   إذا أمشتق_من[كائن، صـنف_الكائن] { ... }
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  if isDerivedFrom[obj, ObjType] { ... }
 </pre>
                     </div>
 
@@ -1942,6 +2730,12 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
   دالة اختبار (كائن_جذري: سند[صـنف_الجذر]) {
     عرف_سندا_بتمثيل_آمن[كائن_فرعي، كائن_جذري، صـنف_الفرع]؛
     إذا كائن_فرعي~مؤشر != 0 كائن_فرعي.عملية(...)؛
+  }
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func test (parentObj: ref[ParentType]) {
+    defDynCastedRef[childObj, parentObj, ChildType];
+    if childObj~ptr != 0 childObj.someFunc(...);
   }
 </pre>
                     </div>
@@ -1961,14 +2755,20 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                       <li>
                         <span class="inlinecode">أنشئ (create)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  @مشترك دالة أنشئ (ق: الـصنف_الأساسي): سـندنا[صـنف_المعلومة]
+  دالة أنشئ (ق: الـصنف_الأساسي): سـندنا[صـنف_المعلومة]
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func create (v: BasicType): SrdRef[ObjType]
 </pre>
                         تنشئ كائنًا من هذا الصنف بالقيمة المعطاة وترجع سندًا مشتركًا للكائن.
                       </li>
                       <li>
                         <span class="inlinecode">هات_هوية_الصنف (getTypeInfo)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  @مشترك دالة هات_هوية_الصنف (): سند[هـوية_صنف]؛
+  دالة هات_هوية_الصنف (): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func getTypeInfo (): ref[TypeInfo];
 </pre>
                         هذه الدالة تُرجع سندًا لهوية هذا الصنف، أي لهوية الكائنات المشتقة من هذا الصنف.
                       </li>
@@ -1983,6 +2783,17 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
   إذا أمشتق_من[ك، صـحيح_بهوية] {
     عرف س: سند[صـحيح_بهوية](مثل_سند[ك، صـحيح_بهوية])؛
     اطبع_صحيح(س.القيمة)؛
+  }
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  def i: TiInt(45);
+  printInt(i.value);
+  i = 7;
+  
+  def o: ref[TiObject](i);
+  if isDerivedFrom[o, TiInt] {
+    def x: ref[TiInt](castRef[o, TiInt]);
+    printInt(x.value);
   }
 </pre>
                     فيما يلي قائمة الأصناف الأساسية بهوية:
@@ -2009,8 +2820,12 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">حدد_عضوا (setMember)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد_عضوا (اسم_العضو: مؤشر[مصفوفة[مـحرف]]، قيمة: سند[كـائن_بهوية])؛
-  دالة حدد_عضوا (تسلسل_العضو: صـحيح، قيمة: سند[كـائن_بهوية])؛
+  عملية هذا.حدد_عضوا (اسم_العضو: مؤشر[مصفوفة[مـحرف]]، قيمة: سند[كـائن_بهوية])؛
+  عملية هذا.حدد_عضوا (تسلسل_العضو: صـحيح، قيمة: سند[كـائن_بهوية])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setMember (memberName: ptr[array[Char]], value: ref[TiObject]);
+  handler this.setMember (memberIndex: Int, value: ref[TiObject]);
 </pre>
                           تحدد قيمة عضو من أعضاء الكائن. الصيغة الأولى لتحديد العضو اعتمادا على اسمه بينما الثانية تعتمد
                           على تسلسل العضو بين أعضاء الكائن.
@@ -2018,23 +2833,34 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">هات_عدد_الأعضاء (getMemberCount)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_عدد_الأعضاء (): طـبيعي؛
+  عملية هذا.هات_عدد_الأعضاء (): طـبيعي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMemberCount(): Word;
 </pre>
                           تستعلم عن عدد الأعضاء التي يمتلكها الكائن.
                         </li>
                         <li>
                           <span class="inlinecode">هات_عضوا (getMember)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_عضوا (اسم_ألعضو: مؤشر[مصفوفة[مـحرف]]): سند[كـائن_بهوية]؛
-  دالة هات_عضوا (تسلسل_العضو: صـحيح): سند[كـائن_بهوية]؛
+  عملية هذا.هات_عضوا (اسم_ألعضو: مؤشر[مصفوفة[مـحرف]]): سند[كـائن_بهوية]؛
+  عملية هذا.هات_عضوا (تسلسل_العضو: صـحيح): سند[كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMember (memberName: ptr[array[Char]]): ref[TiObject];
+  handler this.getMember (memberIndex: Int): ref[TiObject];
 </pre>
                           تجلب قيمة العضو ذي الإسم المعطى في الصيغة الأولى، أو التسلسل المعطى في الصيغة الثانية.
                         </li>
                         <li>
                           <span class="inlinecode">هات_الصنف_المطلوب_للعضو (getMemberNeededType)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_الصنف_المطلوب_للعضو (اسم_العضو: مؤشر[مصفوفة[مـحرف]]): سند[هـوية_صنف]؛
-  دالة هات_الصنف_المطلوب_للعضو (تسلسل_العضو: صـحيح): سند[هـوية_صنف]؛
+  عملية هذا.هات_الصنف_المطلوب_للعضو (اسم_العضو: مؤشر[مصفوفة[مـحرف]]): سند[هـوية_صنف]؛
+  عملية هذا.هات_الصنف_المطلوب_للعضو (تسلسل_العضو: صـحيح): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMemberNeededType (memberName: ptr[array[Char]]): ref[[TypeInfo];
+  handler this.getMemberNeededType (memberIndex: Int): ref[TypeInfo];
 </pre>
                           تجلب هوية الصنف المطلوب للعنصر ذي الإسم المعطى في الصيغة الأولى، أو التسلسل المعطى في الصيغة
                           الثانية.
@@ -2042,14 +2868,20 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">هات_اسم_العضو (getMemberKey)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_اسم_العضو (تسلسل_العضو: صـحيح): نـص؛
+  عملية هذا.هات_اسم_العضو (تسلسل_العضو: صـحيح): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMemberKey (index: Int): String;
 </pre>
                           تجلب اسم العضو ذي التسلسل المعطى.
                         </li>
                         <li>
                           <span class="inlinecode">جد_تسلسل_العضو (findMemberIndex)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة جد_تسلسل_العضو (اسم_العضو: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
+  عملية هذا.جد_تسلسل_العضو (اسم_العضو: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findMemberIndex (name: ptr[array[Char]]): Int;
 </pre>
                           ترجع تسلسل العضو ذي الاسم المعطى، أو -1 إن لم يوجد عضو بهذا الاسم.
                         </li>
@@ -2070,28 +2902,40 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">حدد_عنصرا (setElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد_عنصرا (تسلسل_العنصر: صـحيح، قيمة: سند[كـائن_بهوية])؛
+  عملية هذا.حدد_عنصرا (تسلسل_العنصر: صـحيح، قيمة: سند[كـائن_بهوية])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setElement (index: Int, value: ref[TiObject]);
 </pre>
                           تحديد كائن جديد للعنصر ذي التسلسل المعطى.
                         </li>
                         <li>
                           <span class="inlinecode">هات_عدد_العناصر (getElementCount)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_عدد_العناصر (): طـبيعي؛
+  عملية هذا.هات_عدد_العناصر (): طـبيعي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementCount (): Word;
 </pre>
                           تجلب عدد العناصر التي يحتويها الكائن.
                         </li>
                         <li>
                           <span class="inlinecode">هات_عنصرا (getElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_عنصرا (تسلسل_ألعنصر: صـحيح): سند[كـائن_بهوية]؛
+  عملية هذا.هات_عنصرا (تسلسل_ألعنصر: صـحيح): سند[كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElement (index: Int): ref[TiObject];
 </pre>
                           تجلب العنصر الواقع عند التسلسل المعطى.
                         </li>
                         <li>
                           <span class="inlinecode">هات_الصنف_المطلوب_للعنصر (getElementNeededType)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_الصنف_المطلوب_للعنصر (تسلسل_العنصر: صـحيح): سند[هـوية_صنف]؛
+  عملية هذا.هات_الصنف_المطلوب_للعنصر (تسلسل_العنصر: صـحيح): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementNeededType (index: Int): ref[TypeInfo];
 </pre>
                           تجلب هوية الصنف المطلوب للعنصر ذي التسلسل المعطى.
                         </li>
@@ -2108,28 +2952,40 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">أضف_عنصرا (addElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أضف_عنصرا (القيمة: سند[كـائن_بهوية]): صـحيح؛
+  عملية هذا.أضف_عنصرا (القيمة: سند[كـائن_بهوية]): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.addElement (value: ref[TiObject]): Int;
 </pre>
                           تضيف عنصرا جديدا إلى نهاية الحاوية وترجع تسلسل العنصر الجديد.
                         </li>
                         <li>
                           <span class="inlinecode">احشر_عنصرا (insertElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة احشر_عنصرا (تسلسل: صـحيح، قيمة: سند[كـائن_بهوية])؛
+  عملية هذا.احشر_عنصرا (تسلسل: صـحيح، قيمة: سند[كـائن_بهوية])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.insertElement (index: Int, value: ref[TiObject]);
 </pre>
                           تضيف عنصرا جديدا إلى الحاوية عند التسلسل المعطى بعد تزحيف كل العناصر التي عند ذلك التسلسل.
                         </li>
                         <li>
                           <span class="inlinecode">أزل_عنصرا (removeElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أزل_عنصرا (تسلسل_العنصر: صـحيح)؛
+  عملية هذا.أزل_عنصرا (تسلسل_العنصر: صـحيح)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.removeElement (index: Int);
 </pre>
                           تزيل العنصر الذي عند التسلسل المعين ثم تزحف كل العناصر التي تلي ذلك التسلسل.
                         </li>
                         <li>
                           <span class="inlinecode">هات_الصنف_المطلوب_للعناصر (getElementsNeededType)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_الصنف_المطلوب_للعناصر (): سند[هـوية_صنف]؛
+  عملية هذا.هات_الصنف_المطلوب_للعناصر (): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementsNeededType (): ref[TypeInfo];
 </pre>
                           تجلب هوية الصنف المطلوب لعناصر هذه الحاوية دون الحاجة لتحديد عنصر معين.
                         </li>
@@ -2145,39 +3001,58 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">حدد_عنصرا (setElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة حدد_عنصرا (
+  عملية هذا.حدد_عنصرا (
     اسم_ألعنصر: مؤشر[مصفوفة[مـحرف]]، قيمة: سند[كـائن_بهوية]
   ): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setElement (
+    elementName: ptr[array[Char]], value: ref[TiObject]
+  ): Int;
 </pre>
                           تحدد قيمة جديدة للعنصر ذي الاسم المعطى وترجع تسلسل هذا العنصر.
                         </li>
                         <li>
                           <span class="inlinecode">هات_عنصرا (getElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_عنصرا (اسم_العنصر: مؤشر[مصفوفة[مـحرف]]): سند[كـائن_بهوية]؛
+  عملية هذا.هات_عنصرا (اسم_العنصر: مؤشر[مصفوفة[مـحرف]]): سند[كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElement (elementName: ptr[array[Char]]): ref[TiObject];
 </pre>
                           تجلب قيمة العنصر ذي الاسم المعطى.
                         </li>
                         <li>
                           <span class="inlinecode">هات_الصنف_المطلوب_للعنصر (getElementNeededType)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_الصنف_المطلوب_للعنصر (
+  عملية هذا.هات_الصنف_المطلوب_للعنصر (
     اسم_العنصر: مؤشر[مصفوفة[مـحرف]]
   ): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementNeededType (
+    elementName: ptr[array[Char]]
+  ): ref[TypeInfo];
 </pre>
                           تجلب هوية الصنف المطلوب للعنصر ذي الاسم المعطى.
                         </li>
                         <li>
                           <span class="inlinecode">هات_اسم_العنصر (getElementKey)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_اسم_العنصر (تسلسل_العنصر: صـحيح): نـص)
+  عملية هذا.هات_اسم_العنصر (تسلسل_العنصر: صـحيح): نـص)
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementKey (index: Int): String;
 </pre>
                           تجلب اسم العنصر ذي التسلسل المعطى.
                         </li>
                         <li>
                           <span class="inlinecode">جد_تسلسل_العنصر (findElementIndex)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة جد_تسلسل_العنصر (اسم_العنصر: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
+  عملية هذا.جد_تسلسل_العنصر (اسم_العنصر: مؤشر[مصفوفة[مـحرف]]): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findElementIndex (name: ptr[array[Char]]): Int;
 </pre>
                           ترجع تسلسل العنصر ذي الاسم المعطى، أو -1 إن لم يوجد عنصر بهذا الاسم.
                         </li>
@@ -2193,33 +3068,50 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">أضف_عنصرا (addElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أضف_عنصرا (
+  عملية هذا.أضف_عنصرا (
     اسم_العنصر: مؤشر[مصفوفة[مـحرف]]، قيمة: سند[كـائن_بهوية]
   ): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.addElement (
+    name: ptr[array[Char]], value: ref[TiObject]
+  ): Int;
 </pre>
                           يضيف عنصرا جديدا باسم الجديد إلى الحاوية ويرجع تسلسل العنصر الجديد.
                         </li>
                         <li>
                           <span class="inlinecode">احشر_عنصرا (insertElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة احشر_عنصرا (
+  عملية هذا.احشر_عنصرا (
     تسلسل: صـحيح، اسم: مؤشر[مصفوفة[مـحرف]]، قيمة: سند[كـائن_بهوية]
   )؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.insertElement (
+    index: Int, name: ptr[array[Char]], value: ref[TiObject]
+  );
 </pre>
                           يضيف عنصرا جديدا عند التسلسل المحدد بعد تزحيف العناصر التي عند ذلك التسلسل أو تليه.
                         </li>
                         <li>
                           <span class="inlinecode">أزل_عنصرا (removeElement)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أزل_عنصرا (تسلسل_العنصر: صـحيح)؛
-  دالة أزل_عنصرا (اسم_ألعنصر: مؤشر[مصفوفة[مـحرف]])؛
+  عملية هذا.أزل_عنصرا (تسلسل_العنصر: صـحيح)؛
+  عملية هذا.أزل_عنصرا (اسم_ألعنصر: مؤشر[مصفوفة[مـحرف]])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.removeElement (index: Int);
+  handler this.removeElement (name: ptr[array[Char]]);
 </pre>
                           تزيل العنصر ذي التسلسل المعطى في الصيغة الأولى أو الاسم المعطى في الصيغة الثانية.
                         </li>
                         <li>
                           <span class="inlinecode">هات_الصنف_المطلوب_للعناصر (getElementsNeededType)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_الصنف_المطلوب_للعناصر (): سند[هـوية_صنف]؛
+  عملية هذا.هات_الصنف_المطلوب_للعناصر (): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementsNeededType (): ref[TypeInfo];
 </pre>
                           تجلب هوية الصنف المطلوب لعناصر هذه الحاوية دون الحاجة لتحديد عنصر معين.
                         </li>
@@ -2247,7 +3139,10 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                         <li>
                           <span class="inlinecode">هات_هوية_الصنف (getTypeInfo)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  @مشترك دالة هات_هوية_الصنف (): سند[هـوية_صنف]؛
+  دالة هات_هوية_الصنف (): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func getTypeInfo (): ref[TypeInfo];
 </pre>
                           هذه الدالة تُرجع سندًا لهوية هذا الصنف، أي لهوية الكائنات المشتقة من هذا الصنف.
                         </li>
@@ -2263,20 +3158,26 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                       محارف. تحوي هذه الأصناف العناصر التالية:
                       <ul class="subsections">
                         <li>
-                          <span class="inlinecode">القيمة (value): نـص_بهوية</span><br>
+                          <span class="inlinecode">القيمة (value): نـص_بهوية (TiStr)</span><br>
                           سلسلة المحارف المقروءة من الشفرة المصدرية.
                         </li>
                         <li>
                           <span class="inlinecode">هات_هوية_الصنف (getTypeInfo)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  @مشترك دالة هات_هوية_الصنف (): سند[هـوية_صنف]؛
+  دالة هات_هوية_الصنف (): سند[هـوية_صنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func getTypeInfo (): ref[TypeInfo];
 </pre>
                           هذه الدالة تُرجع سندًا لهوية هذا الصنف، أي لهوية الكائنات المشتقة من هذا الصنف.
                         </li>
                         <li>
                           <span class="inlinecode">أنشئ (create)</span><br>
 <pre class="code" dir=rtl style="text-align:right;">
-  @مشترك دالة أنشئ (قيمة: مؤشر[مصفوفة[مـحرف]]): سـندنا[الـصنف]؛
+  دالة أنشئ (قيمة: مؤشر[مصفوفة[مـحرف]]): سـندنا[الـصنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func create (value: ptr[array[Char]]): SrdRef[TheType];
 </pre>
                           تنشئ كائنًا من هذا الصنف بالقيمة المعطاة وترجع سندًا مشتركًا له.
                         </li>
@@ -2414,20 +3315,35 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                     <h5 id="Spp-buildMgr-dumpLlvmIrForElement">أدرج_تو_لعنصر (dumpLlvmIrForElement)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أدرج_تو_لعنصر (عنصر: مؤشر)
+  عملية هذا.أدرج_تو_لعنصر (عنصر: سند[كـائن_بهوية])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.dumpLlvmIrForElement (element: ref[TiObject]);
 </pre>
                     دالة `أدرج_تو_لعنصر` تقوم بطبع الترميز الوسطي لعنصر معين من الشفرة المصدرية. الترميز الوسطي المطبوع هو ترميز LLVM IR. تستقبل الدالة معطى واحد وهو مؤشر على شبكة البنية المجردة لذلك العنصر (Abstract Syntax Tree). يمكنك الحصول على هذا المؤشر باستخدام الأمر `~شبم` كما في المثال التالي:
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  نـبم.مدير_البناء.أدرج_تو_لعنصر(دالتي~شبم)
+  نـبم.مدير_البناء.أدرج_تو_لعنصر(دالتي~شبم)؛
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  Spp.buildMgr.dumpLlvmIrForElement(myFunc~ast);
 </pre>
                     </div>
 
                     <h5 id="Spp-buildMgr-buildObjectFileForElement">أنشء_ملفا_رقميا_لعنصر (buildObjectFileForElement)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أنشء_ملفا_رقميا_لعنصر (
-    عنصر: مؤشر، اسم_الملف: مؤشر[مصفوفة[محرف]]، وصف_المعمارية: مؤشر[مصفوفة[محرف]]
+  عملية هذا.أنشء_ملفا_رقميا_لعنصر (
+    عنصر: سند[كـائن_بهوية]،
+    اسم_الملف: مؤشر[مصفوفة[محرف]]،
+    وصف_المعمارية: مؤشر[مصفوفة[محرف]]
   ): ثنائي
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.buildObjectFileForElement (
+    element: ref[TiObject],
+    filename: ptr[array[Char]],
+    targetTriple: ptr[array[Char]]
+  ): Bool;
 </pre>
                     تنشئ هذه الدالة ملف شفرة مترجمة للعنصر المعني (object file). يمكن لاحقا تمرير هذا الملف إلى مُجمِّع (linker)
                     لإنشاء ملف تنفيذي. المعطى الثالث قيمة target triple تحدد المعمارية التي ستستخدم في البناء. في حالة تمرير 0
@@ -2435,7 +3351,10 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
                     القيمة "wasm32-unknown-unknown". يمكن مراجعة وثائق LLVM لمزيد من المعلومات حول هذه القيمة.<br>
                     ترجع الدالة 1 في حال نجح البناء، وبعكسه ترجع 0.
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  نـبم.مدير_البناء.أنشء_ملفا_رقميا_لعنصر(وحـدتي~شبم، "اسم_الملف_الناتج"، 0)
+  نـبم.مدير_البناء.أنشء_ملفا_رقميا_لعنصر(وحـدتي~شبم، "اسم_الملف_الناتج"، 0)؛
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  Spp.buildMgr.buildObjectFileForElement(MyModule~ast, "output_filename", 0);
 </pre>
                     </div>
 
@@ -2444,7 +3363,12 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
 <pre class="code" dir=rtl style="text-align:right;">
   دالة ارفع_إشعار_بناء (
     رمز: مؤشر[مصفوفة[مـحرف]]، حدة: صـحيح، عنصر_شبم: سند[الـقلب.أسـاسيات.كـائن_بهوية]
-  )
+  )؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func raiseBuildNotice (
+    code: ptr[array[Char]], severity: Int, astNode: ref[TiObject]
+  );
 </pre>
                     تمكن هذه الدالة المبرمج من رفع إشعار بناء بشكل برمجي أثناء المعالجة التمهيدية. تأخذ هذه الدالة ثلاث معطيات:
                     <ul>
@@ -2464,7 +3388,12 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
 <pre class="samplecode" dir=rtl style="text-align:right;">
   عرف رمز_خطأ: "SPPH1006"؛
   نـبم.مدير_البناء.ارفع_إشعار_بناء(رمز_خطأ، 1، عنصر_معطى_الدالة)؛
-  // السطر أعلاه سيظهر إشعار خطأ: اسم معطى الدالّة غير صالح
+  // السطر أعلاه سيظهر إشعار خطأ: اسم معطى الدالّة غير صالح.
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def errorCode: "SPPH1006";
+  Spp.buildMgr.raiseBuildNotice(errorCode, 1, funcArgNode);
+  // The above line will show an build error: Invalid function argument name.
 </pre>
                     </div>
                   </div>
@@ -2477,11 +3406,20 @@ $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
 <pre class="code" dir=rtl style="text-align:right;">
 عرف كـائن_بهوية: لقب الـقلب.أسـاسيات.كـائن_بهوية؛
 
-دالة أضف_أمرا_مخصصا (
+عملية هذا.أضف_أمرا_مخصصا (
     معرف: مؤشر[مصفوفة[مـحرف]]،
     شجرة_القاعدة: سند[كـائن_بهوية]
     معالج: مؤشر[دالة (سـندنا[كـائن_بهوية]): سـندنا[كـائن_بهوية]]
-)
+)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+def TiObject: alias Core.Basic.TiObject;
+
+handler this.addCustomCommand (
+    identifier: ptr[array[Char]],
+    grammarAst: ref[TiObject],
+    handler: ptr[func (SrdRef[TiObject]): SrdRef[TiObject]]
+);
 </pre>
                     تستخدم هذه الدالة لإضافة قاعدة لأمر جديد إلى قواعد اللغة ديناميكيًا. تستلم هذه الدالة ثلاث معطيات:
                     <ul>
@@ -2503,7 +3441,7 @@ ast {
                      </li>
                      <li><b>معالج</b>: دالة تستقبل شجرة البناء المجردة التي أنشأها المترجم أثناء إعراب الشفرة المصدرية وتعالجها ثم تعيد شجرة بناء مجردة يتم حشرها كنتيجة نهائية لإعراب هذا الأمر.</li>
                     </ul>
-                    ممثال:
+                    مثال:
 <pre class="samplecode" dir=rtl style="text-align:right;">
 نـبم.مدير_القواعد.أضف_أمرا_مخصصا(
     "أمـر_اختبار"،
@@ -2515,6 +3453,16 @@ ast {
     دالة (معطيات: سـندنا_بهوية): سـندنا_بهوية { ... }
 )؛
 </pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+Spp.grammarMgr.addCustomCommand(
+    "TestCommand",
+    ast {
+        keywords: "test_cmd";
+        args: "module".Expression(0, 2) + "module".Set*(1,1);
+    },
+    func (args: SrdRef[TiObject]): SrdRef[TiObject] { ... }
+);
+</pre>
                     المثال أعلاه يعرف أمرًا جديدا يبدأ إما بالكلمة المفتاحية `أمر_اختبار` أو بالكلمة المفتاحية `test_cmd`، ثم يتبع الكلمة المفتاحية معطى من نوع تركيب يمكن أن يظهر مرة واحدة أو مرتين متتابعتين أو لا يظهر أساسًا، ويتبع هذه التراكيب معطى من نوع كتلة (set) يجب أن يظهر مرة واحدة تحديدًا.
                     </div>
                   </div>
@@ -2525,11 +3473,18 @@ ast {
                     <h5 id="Spp-astMgr-findElements">جد_عناصر (findElements)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة جد_عناصر (
+  عملية هذا.جد_عناصر (
     معيار_البحث: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     موقع_البحث: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     خيارات: طـبيعي
   ): مـصفوفة[سند[الـقلب.أسـاسيات.كـائن_بهوية]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.findElements (
+    comparison: ref[Core.Basic.TiObject],
+    target: ref[Core.Basic.TiObject],
+    flags: Word
+): Array[ref[Core.Basic.TiObject]];
 </pre>
                       تبحث ضمن الشفرة المصدرية عن عناصر تطابق معيار البحث المعطى. المعطيان الأول والثاني سندان على شجرتي بنية مجردة،
                       الأولى لتركيب يمثل معيار البحث بينما الثانية هي الشجرة التي سيتم البحث فيها.<br>
@@ -2590,9 +3545,14 @@ ast {
                     <h5 id="Spp-astMgr-getModifiers">هات_المبدلات (getModifiers)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_المبدلات (
+  عملية هذا.هات_المبدلات (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]
-  ): سند[الـقلب.أسـاسيات.احـتواء]
+  ): سند[الـقلب.أسـاسيات.احـتواء]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getModifiers (
+      element: ref[Core.Basic.TiObject]
+  ): ref[Core.Basic.Containing];
 </pre>
                       تجلب قائمة المبدلات المطبقة على العنصر المُعطى.
                     </div>
@@ -2600,10 +3560,16 @@ ast {
                     <h5 id="Spp-astMgr-findModifier">جد_مبدلا (findModifier)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة جد_مبدلا (
+  عملية هذا.جد_مبدلا (
     مبدلات: سند[الـقلب.أسـاسيات.احـتواء]،
     كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]
   ): سند[الـقلب.أسـاسيات.كـائن_بهوية]
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findModifier(
+      modifiers: ref[Core.Basic.Containing],
+      kwd: ptr[array[Char]]
+  ): ref[Core.Basic.TiObject];
 </pre>
                       إيجاد مبدل ضمن قائمة مبدلات. يتم البحث باستخدام الكلمة المفتاحية للمبدل. مثلا، للبحث عن مبدل `@تصدير[...]`
                       نحتاج لتمرير الكلمة المفتاحية `تصدير`.
@@ -2612,10 +3578,16 @@ ast {
                     <h5 id="Spp-astMgr-findModifierForElement">جد_مبدلا_لعنصر (findModifierForElement)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة جد_مبدلا_لعنصر (
+  عملية هذا.جد_مبدلا_لعنصر (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]
   ): سند[الـقلب.أسـاسيات.كـائن_بهوية]
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findModifierForElement(
+    element: ref[Core.Basic.TiObject],
+    kwd: ptr[array[Char]]
+  ): ref[Core.Basic.TiObject];
 </pre>
                       إيجاد المبدل بالكلمة المعيارية المعطاة على العنصر المعطى.
                     </div>
@@ -2623,9 +3595,14 @@ ast {
                     <h5 id="Spp-astMgr-getModifierKeyword">هات_كلمة_المبدل_المفتاحية (getModifierKeyword)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_كلمة_المبدل_المفتاحية (
+  عملية هذا.هات_كلمة_المبدل_المفتاحية (
     مبدل: سند[الـقلب.أسـاسيات.كـائن_بهوية]
   ): نـص
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getModifierKeyword(
+    modifier: ref[Core.Basic.TiObject]
+  ): Srl.String;
 </pre>
                       تُرجع الكلمة المفتاحية للمبدل المعطى.
                     </div>
@@ -2633,10 +3610,16 @@ ast {
                     <h5 id="Spp-astMgr-getModifierStringParams">هات_المعطيات_النصية_لمبدل (getModifierStringParams)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_المعطيات_النصية_لمبدل (
+عملية هذا.هات_المعطيات_النصية_لمبدل (
     مبدل: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     الناتج: سند[مـصفوفة[نـص]]
-  ): ثـنائي
+): ثـنائي
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getModifierStringParams(
+    modifier: ref[Core.Basic.TiObject],
+    result: ref[Array[String]]
+) => Bool;
 </pre>
                       تُرجع قائمة بكل المعطيات النصية الممررة للمبدل. مثلاً لو كان عندنا مبدل `@اعتماديات["مكتبة1"، "مكتبة2"]`
                       واستخدمنا هذه الدالة فإننا سنحصل منها على مصفوفة من عنصرين، الأول قيمته "مكتبة1" والثاني "مكتبة2".
@@ -2646,9 +3629,14 @@ ast {
                     <h5 id="Spp-astMgr-getSourceFullPathForElement">هات_المسار_الكامل_لشفرة_عنصر (getSourceFullPathForElement)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_المسار_الكامل_لشفرة_عنصر (
+عملية هذا.هات_المسار_الكامل_لشفرة_عنصر (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]
-  ): نـص
+): نـص
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getSourceFullPathForElement(
+    element: ref[Core.Basic.TiObject]
+) => String;
 </pre>
                       ترجع اسم الملف الكامل مع المسار لملف الشفرة المصدرية الذي يحتوي العنصر المعطى.
                     </div>
@@ -2656,14 +3644,24 @@ ast {
                     <h5 id="Spp-astMgr-insertAst">احشر_شبم (insertAst)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة احشر_شبم (
+عملية هذا.احشر_شبم (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     استعاضات: سند[تـطبيق[نـص، سند[الـقلب.أسـاسيات.كـائن_بهوية]]]
-  ): ثـنائي
-  دالة احشر_شبم (
+): ثـنائي
+عملية هذا.احشر_شبم (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     استعاضات: سند[تـطبيق[نـص، سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]]]
-  ): ثـنائي
+): ثـنائي
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insertAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, ref[Core.Basic.TiObject]]]
+) => Bool;
+handler this.insertAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, SrdRef[Core.Basic.TiObject]]]
+) => Bool;
 </pre>
                       تحشر شجرة البنية المجردة المعطاة في الموضع الحالي بعد تطبيق الاستعاضات المعطاة على الشجرة المعطاة بنفس طريقة
                       عمل الماكروهات. المعطى الأول للدالة هو الشجرة التي سيتم حشرها بينما المعطى الثاني يحمل قائمة الاستعاضات.<br>
@@ -2694,16 +3692,36 @@ ast {
                     <h5 id="Spp-astMgr-buildAst">أنشئ_شبم (buildAst)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة أنشئ_شبم (
+عملية هذا.أنشئ_شبم (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     استعاضات: سند[تـطبيق[نـص، سند[الـقلب.أسـاسيات.كـائن_بهوية]]]،
-    النتيجة: سند[الـقلب.أسـاسيات.كـائن_بهوية]
-  ): ثـنائي
-  دالة أنشئ_شبم (
+    النتيجة: سند[سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]]
+): ثـنائي
+عملية هذا.أنشئ_شبم (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     استعاضات: سند[تـطبيق[نـص، سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]]]،
-    النتيجة: سند[الـقلب.أسـاسيات.كـائن_بهوية]
-  ): ثـنائي
+    النتيجة: سند[سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]]
+): ثـنائي
+عملية هذا.أنشئ_شبم (
+    عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    استعاضات: سند[تـطبيق[نـص، سند[الـقلب.أسـاسيات.كـائن_بهوية]]]
+): سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.buildAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, ref[Core.Basic.TiObject]]],
+    result: ref[SrdRef[Core.Basic.TiObject]]
+) => Bool;
+handler this.buildAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, SrdRef[Core.Basic.TiObject]]],
+    result: ref[SrdRef[Core.Basic.TiObject]]
+) => Bool;
+handler this.buildAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, ref[Core.Basic.TiObject]]]
+): SrdRef[Core.Basic.TiObject];
 </pre>
                       هذه الدالة مشابهة لدالة `احشر_شبم` غير أنها تنشئ شجرة البنية المجردة وترجعها للمستدعي بدل أن تحشرها
                       مباشرة في الموضع الحالي للمعالجة التميهدية. يمكن للمستخدم لاحقًا أن يحشر النتيجة المستلمة في الموضع
@@ -2757,7 +3775,10 @@ ast {
                     <h5 id="Spp-astMgr-getCurrentPreprocessOwner">هات_مالك_عبارة_التمهيد_الحالية (getCurrentPreprocessOwner)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_مالك_عبارة_التمهيد_الحالية (): سند[الـقلب.أسـاسيات.كـائن_بهوية]
+عملية هذا.هات_مالك_عبارة_التمهيد_الحالية (): سند[الـقلب.أسـاسيات.كـائن_بهوية]
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getCurrentPreprocessOwner(): ref[Core.Basic.TiObject];
 </pre>
                       ترجع هذه الدالة سندًا لعنصر شبم الذي يملك عبارة التمهيد قيد التنفيذ.
                     </div>
@@ -2765,7 +3786,10 @@ ast {
                     <h5 id="Spp-astMgr-getCurrentPreprocessInsertionPosition">هات_محشر_عبارة_التمهيد_الحالية (getCurrentPreprocessInsertionPosition)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_محشر_عبارة_التمهيد_الحالية (): صـحيح
+عملية هذا.هات_محشر_عبارة_التمهيد_الحالية (): صـحيح
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getCurrentPreprocessInsertionPosition(): Int;
 </pre>
                       ترجع هذه الدالة التسلسل (ضمن مالك عبارة التمهيد الحالية) الذي ستُحشر عنده عناصر شبم عند استدعاء دالة `احشر_شبم`.
                     </div>
@@ -2773,9 +3797,12 @@ ast {
                     <h5 id="Spp-astMgr-getVariableDomain">هات_نطاق_المتغير (getVariableDomain)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  دالة هات_نطاق_المتغير (
+عملية هذا.هات_نطاق_المتغير (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]
-  ): صـحيح
+): صـحيح
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
 </pre>
                       ترجع هذه الدالة قيمة توضح النطاق الذي عُرف فيه المتغير المعطى للدالة. الناتج واحد هذه القيم:
 <pre class="code" dir=rtl style="text-align:right;">
@@ -2803,7 +3830,7 @@ ast {
                       <ul class="subsections">
                         <li>
                           <span class="inlinecode">صـنف (Type)</span><br>
-                          مُشتق من <span class="inlinecode">عـقدة</span>.<br>
+                          مُشتق من <span class="inlinecode">عـقدة (Node)</span>.<br>
                           الجذر لكل الأصناف في لغة الأسس.
                         </li>
                         <li>
