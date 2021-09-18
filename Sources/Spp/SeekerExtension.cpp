@@ -274,7 +274,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
 Core::Data::Seeker::Verb SeekerExtension::_foreachByThisTypeRef(
   TiObject *self, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
-  auto node = static_cast<Core::Data::Node*>(data);
+  auto node = ti_cast<Core::Data::Node>(data);
   while (node != 0) {
     if (node->isDerivedFrom<Spp::Ast::DataType>()) {
       return cb(Core::Data::Seeker::Action::TARGET_MATCH, node);

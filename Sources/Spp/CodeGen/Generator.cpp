@@ -86,7 +86,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Ses
       } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
         if (!generation->generateUserTypeBody(static_cast<Spp::Ast::UserType*>(target), session)) result = false;
         // TODO: Generate member functions and sub-types.
-      } else if (generator->getAstHelper()->isAstReference(target)) {
+      } else if (generator->getAstHelper()->isVariable(target)) {
         // Generate global variable.
         if (!generation->generateVarDef(def, session)) {
           result = false;
@@ -913,7 +913,7 @@ Bool Generator::_generateStatement(
     //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
     //   );
     //   retVal = false;
-    } else if (generator->getAstHelper()->isAstReference(target)) {
+    } else if (generator->getAstHelper()->isVariable(target)) {
       // Generate local variable.
       retVal = generation->generateVarDef(def, session);
     } else {

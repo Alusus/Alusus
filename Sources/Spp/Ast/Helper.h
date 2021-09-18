@@ -126,6 +126,9 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(isAstReference, Bool, (TiObject*));
   private: static Bool _isAstReference(TiObject *self, TiObject *obj);
 
+  public: METHOD_BINDING_CACHE(isVariable, Bool, (TiObject*));
+  private: static Bool _isVariable(TiObject *self, TiObject *obj);
+
   public: METHOD_BINDING_CACHE(lookupCustomCaster,
     TypeMatchStatus, (
       Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */, Function *& /* caster */

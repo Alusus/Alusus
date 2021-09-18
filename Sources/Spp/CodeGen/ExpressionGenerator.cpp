@@ -1679,7 +1679,7 @@ Bool ExpressionGenerator::_generateDerefOp(
   // Dereference and get content type.
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), true, true, session, target
+    operandResult.astType, operandResult.targetData.get(), true, true, session, target
   )) return false;
   auto refType = ti_cast<Spp::Ast::ReferenceType>(target.astType);
   if (refType == 0) {
@@ -1713,7 +1713,7 @@ Bool ExpressionGenerator::_generateNoDerefOp(
     // Dereference and get content type.
     GenResult target;
     if (!expGenerator->dereferenceIfNeeded(
-      static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, true, session, target
+      operandResult.astType, operandResult.targetData.get(), false, true, session, target
     )) return false;
     auto refType = ti_cast<Spp::Ast::ReferenceType>(target.astType);
     if (refType == 0) {
@@ -1893,7 +1893,7 @@ Bool ExpressionGenerator::_generateInitOp(
   // Dereference and get content type.
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, false, session, target
+    operandResult.astType, operandResult.targetData.get(), false, false, session, target
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
@@ -1945,7 +1945,7 @@ Bool ExpressionGenerator::_generateTerminateOp(
   // Dereference and get content type.
   GenResult target;
   if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(operandResult.astType), operandResult.targetData.get(), false, false, session, target
+    operandResult.astType, operandResult.targetData.get(), false, false, session, target
   )) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
@@ -2259,7 +2259,7 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
 
   Bool retVal = false;
 
-  if (expGenerator->astHelper->isAstReference(obj)) {
+  if (expGenerator->astHelper->isVariable(obj)) {
     // Make sure the var is not an object member.
     if (expGenerator->getAstHelper()->getVariableDomain(obj) == Ast::DefinitionDomain::OBJECT) {
       expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(

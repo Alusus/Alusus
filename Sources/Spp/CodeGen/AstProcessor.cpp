@@ -305,21 +305,18 @@ Bool AstProcessor::_processMacro(
 
   // Replace macro reference with the clone.
   if (owner->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
+    ownerScope->remove(indexInOwner);
+    Int index = indexInOwner;
     if (macroInstance->isDerivedFrom<Core::Data::Ast::Scope>()) {
       // Merge the two scopes.
-      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
       auto instanceScope = macroInstance.s_cast_get<Core::Data::Ast::Scope>();
-      ownerScope->remove(indexInOwner);
-      Int index = indexInOwner;
       Core::Data::Ast::addPossiblyMergeableElements(
         instanceScope, ownerScope, index, astProcessor->astHelper->getSeeker(),
         astProcessor->astHelper->getNoticeStore()
       );
     } else {
       // Merge the element into the owner scope.
-      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(owner);
-      ownerScope->remove(indexInOwner);
-      Int index = indexInOwner;
       Core::Data::Ast::addPossiblyMergeableElement(
         macroInstance.get(), ownerScope, index, astProcessor->astHelper->getSeeker(),
         astProcessor->astHelper->getNoticeStore()
@@ -364,9 +361,9 @@ Bool AstProcessor::_insertInterpolatedAst(
   }
   // Insert the interpolated AST.
   if (astProcessor->currentPreprocessOwner->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentPreprocessOwner);
     if (result->isDerivedFrom<Core::Data::Ast::Scope>()) {
       // Merge the two scopes.
-      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentPreprocessOwner);
       auto insertedScope = result.s_cast_get<Core::Data::Ast::Scope>();
       Core::Data::Ast::addPossiblyMergeableElements(
         insertedScope, ownerScope, astProcessor->currentPreprocessInsertionPosition,
@@ -374,7 +371,6 @@ Bool AstProcessor::_insertInterpolatedAst(
       );
     } else {
       // Add a single element to the scope
-      auto ownerScope = static_cast<Core::Data::Ast::Scope*>(astProcessor->currentPreprocessOwner);
       Core::Data::Ast::addPossiblyMergeableElement(
         result.get(), ownerScope, astProcessor->currentPreprocessInsertionPosition,
         astProcessor->astHelper->getSeeker(), astProcessor->astHelper->getNoticeStore()

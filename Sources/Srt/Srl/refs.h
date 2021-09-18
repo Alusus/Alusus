@@ -74,6 +74,8 @@ class RefCounter
 // Shared Reference
 template<class T> class SrdRef
 {
+  friend WkRef<T>;
+
   //=================
   // Member Variables
 
@@ -293,6 +295,8 @@ template<class T> class SrdRef
 // Weak Reference
 template<class T> class WkRef
 {
+  friend SrdRef<T>;
+
   //=================
   // Member Variables
 
