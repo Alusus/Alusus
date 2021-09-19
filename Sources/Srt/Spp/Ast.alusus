@@ -46,6 +46,7 @@ import "Core/Data";
         defAstType[Function, "alusus.org/Spp/Spp.Ast.Function"];
         defAstType[Macro, "alusus.org/Spp/Spp.Ast.Macro"];
         defAstType[Module, "alusus.org/Spp/Spp.Ast.Module"];
+        defAstType[Variable, "alusus.org/Spp/Spp.Ast.Variable"];
 
         defAstType[IfStatement, "alusus.org/Spp/Spp.Ast.IfStatement"];
         defAstType[WhileStatement, "alusus.org/Spp/Spp.Ast.WhileStatement"];

@@ -34,7 +34,9 @@ void AstMgr::initBindingCaches()
     &this->buildAst_shared,
     &this->getCurrentPreprocessOwner,
     &this->getCurrentPreprocessInsertionPosition,
-    &this->getVariableDomain
+    &this->getVariableDomain,
+    &this->traceType,
+    &this->cloneAst
   });
 }
 
@@ -56,6 +58,8 @@ void AstMgr::initBindings()
   this->getCurrentPreprocessOwner = &AstMgr::_getCurrentPreprocessOwner;
   this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
   this->getVariableDomain = &AstMgr::_getVariableDomain;
+  this->traceType = &AstMgr::_traceType;
+  this->cloneAst = &AstMgr::_cloneAst;
 }
 
 
@@ -79,6 +83,8 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
     S("Spp_AstMgr_getCurrentPreprocessInsertionPosition"), (void*)&AstMgr::_getCurrentPreprocessInsertionPosition
   );
   globalItemRepo->addItem(S("Spp_AstMgr_getVariableDomain"), (void*)&AstMgr::_getVariableDomain);
+  globalItemRepo->addItem(S("Spp_AstMgr_traceType"), (void*)&AstMgr::_traceType);
+  globalItemRepo->addItem(S("Spp_AstMgr_cloneAst"), (void*)&AstMgr::_cloneAst);
 }
 
 
@@ -277,10 +283,25 @@ Int AstMgr::_getCurrentPreprocessInsertionPosition(TiObject *self)
 }
 
 
-Int AstMgr::_getVariableDomain(TiObject *self, TiObject* ast)
+Int AstMgr::_getVariableDomain(TiObject *self, TiObject *ast)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astHelper->getVariableDomain(ast);
+}
+
+
+Spp::Ast::Type* AstMgr::_traceType(TiObject *self, TiObject *astNode)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astHelper->traceType(astNode);
+}
+
+
+SharedPtr<TiObject> AstMgr::_cloneAst(TiObject *self, TiObject *astNodeToCopy, TiObject *astNodeForSourceLocation)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  auto sourceLocation = Core::Data::Ast::findSourceLocation(astNodeForSourceLocation).get();
+  return Core::Data::Ast::clone(astNodeToCopy, sourceLocation);
 }
 
 } // namespace

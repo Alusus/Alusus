@@ -160,6 +160,12 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getVariableDomain, Int, (TiObject*));
   public: static Int _getVariableDomain(TiObject *self, TiObject* ast);
 
+  public: METHOD_BINDING_CACHE(traceType, Spp::Ast::Type*, (TiObject*));
+  public: static Spp::Ast::Type* _traceType(TiObject *self, TiObject *astNode);
+
+  public: METHOD_BINDING_CACHE(cloneAst, SharedPtr<TiObject>, (TiObject*, TiObject*));
+  public: static SharedPtr<TiObject> _cloneAst(TiObject *self, TiObject *nodeToCopy, TiObject *nodeForSourceLocation);
+
   /// @}
 
 }; // class

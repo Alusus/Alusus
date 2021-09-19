@@ -22,6 +22,7 @@ void Helper::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
     &this->isAstReference,
+    &this->isVariable,
     &this->lookupCustomCaster,
     &this->traceType,
     &this->isVoid,
@@ -57,6 +58,7 @@ void Helper::initBindingCaches()
 void Helper::initBindings()
 {
   this->isAstReference = &Helper::_isAstReference;
+  this->isVariable = &Helper::_isVariable;
   this->lookupCustomCaster = &Helper::_lookupCustomCaster;
   this->traceType = &Helper::_traceType;
   this->isVoid = &Helper::_isVoid;
@@ -94,6 +96,19 @@ void Helper::initBindings()
 Bool Helper::_isAstReference(TiObject *self, TiObject *obj)
 {
   return
+    obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
+    obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
+    obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
+    obj->isDerivedFrom<Spp::Ast::ThisTypeRef>() ||
+    obj->isDerivedFrom<Spp::Ast::TypeOp>();
+}
+
+
+Bool Helper::_isVariable(TiObject *self, TiObject *obj)
+{
+  // TODO: Remove this in favor of obj->isDerivedFrom<Variable> once the Variable class is fully utilized.
+  return
+    obj->isDerivedFrom<Spp::Ast::Variable>() ||
     obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
     obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
     obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
@@ -168,6 +183,17 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     } else {
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
+  } else if (ref->isDerivedFrom<Spp::Ast::Variable>()) {
+    auto var = static_cast<Spp::Ast::Variable*>(ref);
+    // type = tryGetAstType(var);
+    if (var->getType() != 0) return var->getType();
+    // if (type != 0) return type;
+    if (var->getTypeRef() == 0) {
+      throw EXCEPTION(GenericException, S("Variable definition is missing the type reference."));
+    }
+    type = helper->traceType(var->getTypeRef().get());
+    // if (type != 0) setAstType(var, type);
+    var->setType(type);
   } else if (ref->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(ref);
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {

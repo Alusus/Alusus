@@ -209,6 +209,22 @@ func testDataRelease {
 }
 testDataRelease();
 
+// Templates
+
+class MyClass  [T: type] {
+    def MyClosure: alias closure (t: T);
+    def c: MyClosure;
+}
+
+func testTemplates {
+    def v: MyClass[Int];
+    v.c = closure (t: Int) {
+        print("testTemplates: %d\n", t);
+    };
+    v.c(7);
+}
+testTemplates();
+
 // Erro cases
 
 func testErrorCases {

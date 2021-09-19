@@ -129,11 +129,12 @@ Function* getDummyBuiltInOpFunction();
 #include "UserType.h"
 #include "FunctionType.h"
 #include "Macro.h"
-// Containers
+// Containers / Definitions
 #include "Module.h"
 #include "TemplateVarDef.h"
 #include "Template.h"
 #include "Function.h"
+#include "Variable.h"
 // Control Statements
 #include "ForStatement.h"
 #include "IfStatement.h"

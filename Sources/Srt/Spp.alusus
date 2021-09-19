@@ -107,18 +107,6 @@ import "Srl/refs";
             return result;
         }
 
-        handler this.clone(obj: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
-            def result: Srl.SrdRef[Core.Basic.TiObject];
-            if obj~ptr != 0 {
-                this.buildAst(
-                    (ast item),
-                    Srl.Map[Srl.String, ref[Core.Basic.TiObject]]().set(Srl.String("item"), obj),
-                    result
-                );
-            }
-            return result;
-        }
-
         @expname[Spp_AstMgr_getCurrentPreprocessOwner]
         handler this.getCurrentPreprocessOwner(): ref[Core.Basic.TiObject];
 
@@ -127,6 +115,17 @@ import "Srl/refs";
 
         @expname[Spp_AstMgr_getVariableDomain]
         handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
+
+        @expname[Spp_AstMgr_traceType]
+        handler this.traceType(element: ref[Core.Basic.TiObject]) => ref[Spp.Ast.Type];
+
+        @expname[Spp_AstMgr_cloneAst]
+        handler this.cloneAst(
+            element: ref[Core.Basic.TiObject], sourceLocationNode: ref[Core.Basic.TiObject]
+        ): Srl.SrdRef[Core.Basic.TiObject];
+        handler this.cloneAst(element: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
+            return this.cloneAst(element, nullRef[Core.Basic.TiObject]);
+        }
     };
     def astMgr: ref[AstMgr];
 

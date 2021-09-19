@@ -88,7 +88,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
 
         // If we are going out of the current function then we should only be able to access global variables.
         if (
-          searchingFunctionOwners && tracer->helper->isAstReference(obj) &&
+          searchingFunctionOwners && tracer->helper->isVariable(obj) &&
           tracer->helper->getVariableDomain(obj) == Ast::DefinitionDomain::FUNCTION
         ) {
           result.notice = newSrdObj<Spp::Notices::AccessingLocalVarInOtherFuncNotice>(
@@ -100,8 +100,11 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         if (action != Core::Data::Seeker::Action::TARGET_MATCH || obj == 0) return Core::Data::Seeker::Verb::MOVE;
 
         // Unbox if we have a box.
-        auto box = ti_cast<TioWeakBox>(obj);
-        if (box != 0) obj = box->get().get();
+        if (obj->isA<TioWeakBox>()) {
+          obj = static_cast<TioWeakBox*>(obj)->get().get();
+        } else if (obj->isA<TioSharedBox>()) {
+          obj = static_cast<TioSharedBox*>(obj)->get().get();
+        }
 
         if (
           result.stack.getLength() > 0 && result.stack(result.stack.getLength() - 1).obj == obj
@@ -218,7 +221,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
 
       if (ti_cast<Ast::Function>(target) != 0) searchingFunctionOwners = true;
 
-      target = static_cast<Core::Data::Node*>(target)->getOwner();
+      target = ti_cast<Core::Data::Node>(target)->getOwner();
       if (ti_cast<Ast::DataType>(target) != 0) {
         // Skip the type object itself.
         target = static_cast<Core::Data::Node*>(target)->getOwner();
@@ -274,7 +277,7 @@ void CalleeTracer::_lookupCallee_routing(TiObject *self, CalleeLookupRequest &re
     tracer->lookupCallee_scope(request, result);
   } else if (request.target != 0 && request.target->isDerivedFrom<ArgPack>()) {
     tracer->lookupCallee_argPack(request, result);
-  } else if (request.target != 0 && helper->isAstReference(request.target)) {
+  } else if (request.target != 0 && helper->isVariable(request.target)) {
     tracer->lookupCallee_var(request, result);
   } else if (request.target != 0 && request.target->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     tracer->lookupCallee_literal(request, result);
@@ -416,7 +419,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
       result.pushObject(type);
       return;
     }
-    
+
     Function *customCaster;
     if (
       request.argTypes->getElementCount() == 0 &&

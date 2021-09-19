@@ -21,7 +21,9 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
   //============================================================================
   // Type Info
 
+  typedef Box<CTYPE, PTYPE> _MyType;
   TEMPLATE_TYPE_INFO(Box, PTYPE, "Core.Basic", "Core", "alusus.org", (CTYPE, PTYPE));
+  OBJECT_FACTORY(_MyType);
 
 
   //============================================================================
