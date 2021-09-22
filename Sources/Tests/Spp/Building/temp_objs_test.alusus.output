@@ -77,33 +77,32 @@ define void @"test()"() {
   %16 = getelementptr %E, %E* %e, i32 0, i32 0
   %17 = getelementptr %E, %E* %e, i32 0, i32 1
   %18 = load i32, i32* %16
-  %19 = load %C, %C* %17
-  %20 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous9", i32 0, i32 0), i32 %18, %C %19)
+  %19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous9", i32 0, i32 0), i32 %18, %C* %17)
   %c = alloca %C
   %"#temp11" = alloca %A
   call void @"A.~init(iref[A])"(%A* %"#temp11")
-  %21 = getelementptr %A, %A* %"#temp11", i32 0, i32 0
+  %20 = getelementptr %A, %A* %"#temp11", i32 0, i32 0
   %"#temp12" = alloca %A
   call void @"A.~init(iref[A])"(%A* %"#temp12")
-  %22 = getelementptr %A, %A* %"#temp12", i32 0, i32 0
+  %21 = getelementptr %A, %A* %"#temp12", i32 0, i32 0
+  %22 = load i32, i32* %20
   %23 = load i32, i32* %21
-  %24 = load i32, i32* %22
-  call void (%C*, i32, ...) @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %c, i32 2, i32 %23, i32 %24)
+  call void (%C*, i32, ...) @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %c, i32 2, i32 %22, i32 %23)
   call void @"A.~terminate(iref[A])"(%A* %"#temp11")
   call void @"A.~terminate(iref[A])"(%A* %"#temp12")
   %"#temp13" = alloca %A
   call void @"A.~init(iref[A])"(%A* %"#temp13")
-  %25 = getelementptr %A, %A* %"#temp13", i32 0, i32 0
+  %24 = getelementptr %A, %A* %"#temp13", i32 0, i32 0
   %"#temp14" = alloca %A
   call void @"A.~init(iref[A])"(%A* %"#temp14")
-  %26 = getelementptr %A, %A* %"#temp14", i32 0, i32 0
+  %25 = getelementptr %A, %A* %"#temp14", i32 0, i32 0
+  %26 = load i32, i32* %24
   %27 = load i32, i32* %25
-  %28 = load i32, i32* %26
-  call void (i32, ...) @"varArgFunc(Int[32],ArgPack[Int[32],0,0])"(i32 2, i32 %27, i32 %28)
+  call void (i32, ...) @"varArgFunc(Int[32],ArgPack[Int[32],0,0])"(i32 2, i32 %26, i32 %27)
   call void @"A.~terminate(iref[A])"(%A* %"#temp13")
   call void @"A.~terminate(iref[A])"(%A* %"#temp14")
-  %29 = load i32, i32* getelementptr inbounds (%C, %C* @"!globalC", i32 0, i32 0)
-  %30 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous10", i32 0, i32 0), i32 %29)
+  %28 = load i32, i32* getelementptr inbounds (%C, %C* @"!globalC", i32 0, i32 0)
+  %29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous10", i32 0, i32 0), i32 %28)
   call void @E.__autoDestruct__(%E* %e)
   call void @"C.~terminate(iref[C])"(%C* %c)
   ret void

@@ -16,6 +16,9 @@ def Main: module
 
     f5({ 1, 2.3, -3, 7, 9 });
 
+    def mt: Mt;
+    f6({ mt });
+
     // errors:
     f1("hello");
     f2("hello");
@@ -57,6 +60,16 @@ def Main: module
   {
       while --count > 0 if args~next_arg[Int] > 0 return count;
       return count;
+  }
+
+  def f6: function (count: Int, args: ...any) {
+    def mt: Mt = args~next_arg[Mt];
+  }
+
+  class Mt {
+    def i: Int;
+    handler this~init() {}
+    handler this = (r: ref[Mt]) { this.i = r.i }
   }
 };
 

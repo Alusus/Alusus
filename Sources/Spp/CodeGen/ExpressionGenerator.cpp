@@ -1989,7 +1989,9 @@ Bool ExpressionGenerator::_generateNextArgOp(
     operandResult.astType, operandResult.targetData.get(), false, false, session, derefResult
   )) return false;
   if (ti_cast<Ast::ReferenceType>(derefResult.astType) == 0) {
-    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation()));
+    expGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::InvalidNextArgNotice>(astNode->getSourceLocation())
+    );
     return false;
   }
 
@@ -2573,8 +2575,17 @@ Bool ExpressionGenerator::_prepareFunctionParams(
     } else {
       // For var args we need to send values, not references.
       GenResult result;
-      if (!expGenerator->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, false, session, result)) {
-        throw EXCEPTION(GenericException, S("Unexpected error."));
+      auto contentType = expGenerator->astHelper->tryGetDeepReferenceContentType(srcType);
+      if (contentType->getInitializationMethod(
+        expGenerator->astHelper, session->getExecutionContext()
+      ) == Ast::TypeInitMethod::NONE) {
+        if (!expGenerator->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, false, session, result)) {
+          throw EXCEPTION(GenericException, S("Unexpected error."));
+        }
+      } else {
+        if (!expGenerator->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), false, false, session, result)) {
+          throw EXCEPTION(GenericException, S("Unexpected error."));
+        }
       }
       paramTgVals->set(i, result.targetData);
     }

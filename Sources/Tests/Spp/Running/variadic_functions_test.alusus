@@ -25,6 +25,10 @@ class A {
     handler this~cast[Int] { return this.i };
 };
 
+class B {
+    def i: Int;
+};
+
 Srl.Console.print("%d\n", sum({ 4, 2, 3, 6 }));
 Srl.Console.print("%d\n", sum({ 4, 2; 3, 6 }));
 Srl.Console.print("%d\n", sum({}));
@@ -36,6 +40,22 @@ func sumA(count: Int, args: ...A): Int {
     while count-- > 0 r += args~next_arg[A].i;
     return r;
 }
+func sumAnyA(count: Int, args: ...any): Int {
+    def r: Int = 0;
+    while count-- > 0 r += args~next_arg[A].i;
+    return r;
+}
 Srl.Console.print("%d\n", sumA({ A(12), A(23), A(3) }));
+Srl.Console.print("%d\n", sumAnyA({ A(12), A(23), A(3) }));
+
+func sumB(count: Int, args: ...B): Int {
+    def r: Int = 0;
+    while count-- > 0 r += args~next_arg[B].i;
+    return r;
+}
+Srl.Console.print("%d\n", sumB({ B().{ i = 13 }, B().{ i = 25 }, B().{ i = 7 } }));
+
+def sumBPtr: ptr[func (Int, ...B): Int] = sumB~ptr;
+Srl.Console.print("%d\n", sumBPtr({ B().{ i = 13 }, B().{ i = 25 }, B().{ i = 7 } }));
 
 Srl.Console.print("%d\n", sum({ 4, A(), "wrong" }));

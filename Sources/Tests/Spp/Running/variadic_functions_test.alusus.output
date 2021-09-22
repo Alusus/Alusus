@@ -6,4 +6,7 @@
 0
 14
 38
-ERROR SPPA1008 @ (41,27): Provided arguments do not match signature.
+38
+45
+45
+ERROR SPPA1008 @ (61,27): Provided arguments do not match signature.
