@@ -66,5 +66,5 @@ ERROR SPPA1008 @ (304,1): Provided arguments do not match signature.
 ERROR SPPA1005 @ (309,3): Multiple matches were found for the given callee.
 ERROR SPPG1002 @ (317,3): Invalid operation.
 ERROR SPPG1002 @ (318,3): Invalid operation.
-ERROR SPPG1002 @ (319,3): Invalid operation.
+ERROR SPPG1015 @ (319,3): Incompatible types for the given operator.
 ERROR SPPG1002 @ (320,3): Invalid operation.
