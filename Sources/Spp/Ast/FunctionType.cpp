@@ -50,7 +50,11 @@ TypeMatchStatus FunctionType::matchTargetType(
       if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return TypeMatchStatus::NONE;
       else if (argPack != 0) {
         // Check arg packs.
-        if (thisArgPack->getMin() <= argPack->getMin() || thisArgPack->getMax() >= argPack->getMax()) {
+        if (thisArgPack->getMin() > argPack->getMin()) {
+          return TypeMatchStatus::NONE;
+        } else if (thisArgPack->getMax() != 0 && argPack->getMax() != 0 && thisArgPack->getMax() < argPack->getMax()) {
+          return TypeMatchStatus::NONE;
+        } else if (thisArgPack->getMax() != 0 && argPack->getMax() == 0) {
           return TypeMatchStatus::NONE;
         } else if (thisArgPack->getMin() != argPack->getMin() || thisArgPack->getMax() != argPack->getMax()) {
           result = TypeMatchStatus::IMPLICIT_CAST;

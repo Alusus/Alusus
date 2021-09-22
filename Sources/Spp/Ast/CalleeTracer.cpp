@@ -734,7 +734,9 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
         result.pushObject(getDummyBuiltInOpFunction());
         result.pushThisMarker();
       } else {
-        if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>();
+        if (result.notice == 0 || result.notice->isA<Spp::Notices::InvalidOperationNotice>()) {
+          result.notice = newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>();
+        }
         return;
       }
     } else {

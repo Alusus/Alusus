@@ -84,7 +84,7 @@ func test {
     Console.print("%d\n", D().a.i);
     Console.print(String("string concat ") + M.B().i + "\n");
     def e: E;
-    Console.print("%d, %d\n", e.i, e.j);
+    Console.print("%d, %d\n", e.i, e.j.i);
     def c: C({ A().i, A().i });
     varArgFunc({ A().i, A().i });
     Console.print("%d\n", globalC.i);

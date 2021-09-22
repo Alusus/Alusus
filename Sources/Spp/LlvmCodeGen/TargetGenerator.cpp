@@ -979,6 +979,10 @@ Bool TargetGenerator::generateFunctionCall(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(function, funcWrapper, Function);
 
+  Bool variadic = funcWrapper->getFunctionType()->isVariadic();
+  auto argDefCount = funcWrapper->getFunctionType()->getArgs() != 0 ?
+    funcWrapper->getFunctionType()->getArgs()->getCount() : 0;
+
   // Prepare function args.
   std::vector<llvm::Value*> args;
   for (Int i = 0; i < arguments->getElementCount(); ++i) {
@@ -986,7 +990,16 @@ Bool TargetGenerator::generateFunctionCall(
     if (llvmValBox == 0) {
       throw EXCEPTION(InvalidArgumentException, S("arguments"), S("Some elements are null or of invalid type."));
     }
-    args.push_back(llvmValBox->getLlvmValue());
+
+    auto llvmValue = llvmValBox->getLlvmValue();
+
+    if (variadic && i >= argDefCount && llvmValue->getType()->isStructTy()) {
+      // Convert struct types to pointers.
+      llvmValue = block->getIrBuilder()->CreateAlloca(llvmValue->getType(), 0, "");
+      block->getIrBuilder()->CreateStore(llvmValBox->getLlvmValue(), llvmValue);
+    }
+
+    args.push_back(llvmValue);
   }
   // Make sure a declaration of this function exists in the current module.
   llvm::Module *llvmMod = this->perFunctionModules ?
@@ -1012,8 +1025,16 @@ Bool TargetGenerator::generateFunctionPtrCall(
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(functionPtr, llvmFuncPtrBox, Value);
+  PREPARE_ARG(functionPtrType, llvmFuncPtrTypeBox, PointerType);
 
   // TODO: Validate provided args against functionptrType.
+
+  auto llvmFuncTypeBox = llvmFuncPtrTypeBox->getContentType().ti_cast_get<FunctionType>();
+  if (llvmFuncTypeBox == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("functionPtrType"), S("Argument is not a function pointer type."));
+  }
+  Bool variadic = llvmFuncTypeBox->isVariadic();
+  auto argDefCount = llvmFuncTypeBox->getArgs() != 0 ? llvmFuncTypeBox->getArgs()->getCount() : 0;
 
   // Create function call.
   std::vector<llvm::Value*> args;
@@ -1022,7 +1043,16 @@ Bool TargetGenerator::generateFunctionPtrCall(
     if (llvmValBox == 0) {
       throw EXCEPTION(InvalidArgumentException, S("arguments"), S("Some elements are null or of invalid type."));
     }
-    args.push_back(llvmValBox->getLlvmValue());
+
+    auto llvmValue = llvmValBox->getLlvmValue();
+
+    if (variadic && i >= argDefCount && llvmValue->getType()->isStructTy()) {
+      // Convert struct types to pointers.
+      llvmValue = block->getIrBuilder()->CreateAlloca(llvmValue->getType(), 0, "");
+      block->getIrBuilder()->CreateStore(llvmValBox->getLlvmValue(), llvmValue);
+    }
+
+    args.push_back(llvmValue);
   }
   auto llvmCall = block->getIrBuilder()->CreateCall(llvmFuncPtrBox->getLlvmValue(), args);
   result = newSrdObj<Value>(llvmCall, false);
@@ -1658,7 +1688,15 @@ Bool TargetGenerator::generateNextArg(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, srcValBox, Value);
   PREPARE_ARG(type, tgType, Type);
-  auto llvmResult = block->getIrBuilder()->CreateVAArg(srcValBox->getLlvmValue(), tgType->getLlvmType());
+  llvm::Value *llvmResult;
+  if (tgType->getLlvmType()->isStructTy()) {
+    auto llvmPtrType = tgType->getLlvmType()->getPointerTo();
+    auto llvmPtr = block->getIrBuilder()->CreateVAArg(srcValBox->getLlvmValue(), llvmPtrType);
+    llvmResult = block->getIrBuilder()->CreateLoad(llvmPtr);
+  } else {
+    llvmResult = block->getIrBuilder()->CreateVAArg(srcValBox->getLlvmValue(), tgType->getLlvmType());
+  }
+
   result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
