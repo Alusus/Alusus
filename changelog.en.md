@@ -1,5 +1,14 @@
 # Alusus Changelog
 
+## Version 0.8.1 (2021-09-27)
+
+* Fixed a bug in closures when declared inside a template and using a template argument as the type of a closure
+  argument.
+* Fixed a bug in using user types as arguments to variadic functions.
+* Fixed a bug in comparing variadic function pointers.
+* Updated the error mwssage for type-mismatched assign operations when the assignee is a function pointer.
+
+
 ## Version 0.8.0 (2021-09-06)
 
 ### Updates to the Compiler
