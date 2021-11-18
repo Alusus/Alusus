@@ -239,7 +239,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Int _addThisDefinition(
-    TiObject *self, Ast::Block *body, Ast::Type *astThisType, TioSharedPtr const &tgThis, Session *session
+    TiObject *self, Ast::Block *body, Char const *thisName, Ast::Type *astThisType, TioSharedPtr const &tgThis,
+    Session *session
   );
 
   /// @}

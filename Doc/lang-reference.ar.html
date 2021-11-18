@@ -88,6 +88,9 @@
                         <a href="#Casting" class="top-level">تمثيل الأصناف</a><br>
                         <a href="#TempObjects" class="top-level">الكائنات المؤقتة</a><br>
                         <a href="#CommandPacks" class="top-level">رزم الأوامر</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#CommandPacks-usein">مؤثر ~استخدم_في (~use_in)</a></li>
+                          </ul>
                         <a href="#DynamicInit" class="top-level">حجز وتهيئة الكائنات ديناميكيا</a><br>
                         <a href="#Alias" class="top-level">الألقاب</a><br>
                         <a href="#Modules" class="top-level">الوحدات</a><br>
@@ -1915,7 +1918,34 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
       else this = "zero"
   });
 </pre>
-
+                  <h4 id="CommandPacks-usein">مؤثر ~استخدم_في (~use_in)</h4>
+                  في بعض الحالات تكون رزم الأوامر متداخلة، أو تكون داخل دالة عضو وقد يؤدي هذا إلى تضارب المتغير `هذا` (this) ما بين الرزم المتداخلة أو ما بين الرزمة والدالة العضو. لتجنب هذا التضارب يمكن استخدام المؤثر ~use-in الذي يستخدم لإنشاء رزم الأوامر كما هو الحال مع المؤثر `.{}` مع فرق واحد أنه يتيح للمستخدم تحديد اسم مختلف للمتغير بدل `هذا`. كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف صـنف {
+    عرف ع: صحيح؛
+    عملية هذا.هل_الرقم_موجب (): نـص {
+      أرجع نـص()~استخدم_في(أنا){
+        إذا هذا.ع > 0 أنا = "موجب"
+        وإلا إذا هذا.ع < 0 أنا = "سالب"
+        وإلا أنا = "صفر"؛
+      }؛
+    }
+  }
+</pre>
+<pre class="samplecode" dir=ltr>
+  class Type {
+    def i: int;
+    handler isNumPositive (): String {
+      return String()~use_in(self){
+        if this.i > 0 self = "positive"
+        else if this.i < 0 self = "negative"
+        else self = "zero"
+      };
+    }
+  }
+</pre>
+                  في هذا المثال رزمة أوامر تم إنشاؤها باستخدام المؤثر `~استخدم_في` بدل المؤثر `.{}`، وفي هذه الرزمة الكلمة `هذا` (this) تشير إلى الكائن بدل أن تشير إلى المتغير المؤقت ذي الصنف `نـص` (String) الذي أصبح يُشار إليه الآن بالكلمة `أنا` (self)،<br>
+                  في حال استخدم المؤثر ~استخدم_في دون إعداء اسم بين القوسين (أي بإعطائه متنا فقط) فإن النتيجة مطابقة تمامًا لاستخدام المؤثر `.{}`.
                 </div>
 
                 <!-- ********************************************************************** -->
