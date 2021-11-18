@@ -115,6 +115,8 @@
       <keyword>init</keyword>
       <keyword>preprocess</keyword>
       <keyword>ast</keyword>
+      <keyword>as_ptr</keyword>
+      <keyword>set_ptr</keyword>
     </context>
 
     <context id="ar-block-keyword" style-ref="block-keyword">
@@ -156,6 +158,8 @@
       <keyword>هيئ</keyword>
       <keyword>تمهيد</keyword>
       <keyword>شبم</keyword>
+      <keyword>كمؤشر</keyword>
+      <keyword>حدد_مؤشر</keyword>
     </context>
 
     <context id="constant" style-ref="constant">
