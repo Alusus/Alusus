@@ -42,29 +42,29 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 define void @"test()"() {
 "#block0":
   %"#temp0" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp0")
+  call void @"A.~init(ref[A])"(%A* %"#temp0")
   %0 = getelementptr %A, %A* %"#temp0", i32 0, i32 0
   %1 = load i32, i32* %0
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous0", i32 0, i32 0), i32 %1)
-  call void @"A.~terminate(iref[A])"(%A* %"#temp0")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp0")
   %"#temp1" = alloca %M_B
-  call void @"M.B.~init(iref[M.B])"(%M_B* %"#temp1")
+  call void @"M.B.~init(ref[M.B])"(%M_B* %"#temp1")
   %3 = getelementptr %M_B, %M_B* %"#temp1", i32 0, i32 0
   %4 = load i32, i32* %3
   %5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous1", i32 0, i32 0), i32 %4)
-  call void @"M.B.~terminate(iref[M.B])"(%M_B* %"#temp1")
+  call void @"M.B.~terminate(ref[M.B])"(%M_B* %"#temp1")
   %"#temp2" = alloca %C
-  call void @"C.~init(iref[C],Int[32])"(%C* %"#temp2", i32 9)
+  call void @"C.~init(ref[C],Int[32])"(%C* %"#temp2", i32 9)
   %6 = getelementptr %C, %C* %"#temp2", i32 0, i32 0
   %7 = load i32, i32* %6
   %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous2", i32 0, i32 0), i32 %7)
-  call void @"C.~terminate(iref[C])"(%C* %"#temp2")
+  call void @"C.~terminate(ref[C])"(%C* %"#temp2")
   %"#temp3" = alloca %C
-  call void (%C*, i32, ...) @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %"#temp3", i32 2, i32 9, i32 10)
+  call void (%C*, i32, ...) @"C.~init(ref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %"#temp3", i32 2, i32 9, i32 10)
   %9 = getelementptr %C, %C* %"#temp3", i32 0, i32 0
   %10 = load i32, i32* %9
   %11 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous3", i32 0, i32 0), i32 %10)
-  call void @"C.~terminate(iref[C])"(%C* %"#temp3")
+  call void @"C.~terminate(ref[C])"(%C* %"#temp3")
   %"#temp4" = alloca %D
   call void @D.__autoConstruct__(%D* %"#temp4")
   %12 = getelementptr %D, %D* %"#temp4", i32 0, i32 0
@@ -80,35 +80,35 @@ define void @"test()"() {
   %19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous9", i32 0, i32 0), i32 %18, %C* %17)
   %c = alloca %C
   %"#temp11" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp11")
+  call void @"A.~init(ref[A])"(%A* %"#temp11")
   %20 = getelementptr %A, %A* %"#temp11", i32 0, i32 0
   %"#temp12" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp12")
+  call void @"A.~init(ref[A])"(%A* %"#temp12")
   %21 = getelementptr %A, %A* %"#temp12", i32 0, i32 0
   %22 = load i32, i32* %20
   %23 = load i32, i32* %21
-  call void (%C*, i32, ...) @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %c, i32 2, i32 %22, i32 %23)
-  call void @"A.~terminate(iref[A])"(%A* %"#temp11")
-  call void @"A.~terminate(iref[A])"(%A* %"#temp12")
+  call void (%C*, i32, ...) @"C.~init(ref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %c, i32 2, i32 %22, i32 %23)
+  call void @"A.~terminate(ref[A])"(%A* %"#temp11")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp12")
   %"#temp13" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp13")
+  call void @"A.~init(ref[A])"(%A* %"#temp13")
   %24 = getelementptr %A, %A* %"#temp13", i32 0, i32 0
   %"#temp14" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp14")
+  call void @"A.~init(ref[A])"(%A* %"#temp14")
   %25 = getelementptr %A, %A* %"#temp14", i32 0, i32 0
   %26 = load i32, i32* %24
   %27 = load i32, i32* %25
   call void (i32, ...) @"varArgFunc(Int[32],ArgPack[Int[32],0,0])"(i32 2, i32 %26, i32 %27)
-  call void @"A.~terminate(iref[A])"(%A* %"#temp13")
-  call void @"A.~terminate(iref[A])"(%A* %"#temp14")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp13")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp14")
   %28 = load i32, i32* getelementptr inbounds (%C, %C* @"!globalC", i32 0, i32 0)
   %29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @"#anonymous10", i32 0, i32 0), i32 %28)
   call void @E.__autoDestruct__(%E* %e)
-  call void @"C.~terminate(iref[C])"(%C* %c)
+  call void @"C.~terminate(ref[C])"(%C* %c)
   ret void
 }
 
-define void @"A.~init(iref[A])"(%A* %this) {
+define void @"A.~init(ref[A])"(%A* %this) {
 "#block5":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -121,7 +121,7 @@ define void @"A.~init(iref[A])"(%A* %this) {
 
 declare i32 @printf(i8*, ...)
 
-define void @"A.~terminate(iref[A])"(%A* %this) {
+define void @"A.~terminate(ref[A])"(%A* %this) {
 "#block6":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -129,7 +129,7 @@ define void @"A.~terminate(iref[A])"(%A* %this) {
   ret void
 }
 
-define void @"M.B.~init(iref[M.B])"(%M_B* %this) {
+define void @"M.B.~init(ref[M.B])"(%M_B* %this) {
 "#block7":
   %this1 = alloca %M_B*
   store %M_B* %this, %M_B** %this1
@@ -140,7 +140,7 @@ define void @"M.B.~init(iref[M.B])"(%M_B* %this) {
   ret void
 }
 
-define void @"M.B.~terminate(iref[M.B])"(%M_B* %this) {
+define void @"M.B.~terminate(ref[M.B])"(%M_B* %this) {
 "#block8":
   %this1 = alloca %M_B*
   store %M_B* %this, %M_B** %this1
@@ -148,7 +148,7 @@ define void @"M.B.~terminate(iref[M.B])"(%M_B* %this) {
   ret void
 }
 
-define void @"C.~init(iref[C],Int[32])"(%C* %this, i32 %n) {
+define void @"C.~init(ref[C],Int[32])"(%C* %this, i32 %n) {
 "#block9":
   %this1 = alloca %C*
   store %C* %this, %C** %this1
@@ -162,7 +162,7 @@ define void @"C.~init(iref[C],Int[32])"(%C* %this, i32 %n) {
   ret void
 }
 
-define void @"C.~terminate(iref[C])"(%C* %this) {
+define void @"C.~terminate(ref[C])"(%C* %this) {
 "#block10":
   %this1 = alloca %C*
   store %C* %this, %C** %this1
@@ -170,7 +170,7 @@ define void @"C.~terminate(iref[C])"(%C* %this) {
   ret void
 }
 
-define void @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %this, i32 %count, ...) {
+define void @"C.~init(ref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %this, i32 %count, ...) {
 "#block11":
   %__vaList = alloca %__VaList
   %0 = bitcast %__VaList* %__vaList to i8*
@@ -210,54 +210,54 @@ define void @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %this, i32 %cou
 define void @D.__autoConstruct__(%D* %this) {
 "#block1":
   %0 = getelementptr %D, %D* %this, i32 0, i32 0
-  call void @"A.~init(iref[A])"(%A* %0)
+  call void @"A.~init(ref[A])"(%A* %0)
   ret void
 }
 
 define void @D.__autoDestruct__(%D* %this) {
 "#block2":
   %0 = getelementptr %D, %D* %this, i32 0, i32 0
-  call void @"A.~terminate(iref[A])"(%A* %0)
+  call void @"A.~terminate(ref[A])"(%A* %0)
   ret void
 }
 
 define void @E.__autoConstruct__(%E* %this) {
 "#block3":
   %"#temp5" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp5")
+  call void @"A.~init(ref[A])"(%A* %"#temp5")
   %0 = getelementptr %A, %A* %"#temp5", i32 0, i32 0
   %1 = getelementptr %E, %E* %this, i32 0, i32 0
   %2 = load i32, i32* %0
   store i32 %2, i32* %1
-  call void @"A.~terminate(iref[A])"(%A* %"#temp5")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp5")
   %3 = getelementptr %E, %E* %this, i32 0, i32 1
   %"#temp6" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp6")
+  call void @"A.~init(ref[A])"(%A* %"#temp6")
   %4 = getelementptr %A, %A* %"#temp6", i32 0, i32 0
   %"#temp7" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp7")
+  call void @"A.~init(ref[A])"(%A* %"#temp7")
   %5 = getelementptr %A, %A* %"#temp7", i32 0, i32 0
   %6 = load i32, i32* %4
   %7 = load i32, i32* %5
-  call void (%C*, i32, ...) @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %3, i32 3, i32 %6, i32 %7, i32 5)
-  call void @"A.~terminate(iref[A])"(%A* %"#temp6")
-  call void @"A.~terminate(iref[A])"(%A* %"#temp7")
+  call void (%C*, i32, ...) @"C.~init(ref[C],Int[32],ArgPack[Int[32],1,0])"(%C* %3, i32 3, i32 %6, i32 %7, i32 5)
+  call void @"A.~terminate(ref[A])"(%A* %"#temp6")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp7")
   %"#temp8" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp8")
+  call void @"A.~init(ref[A])"(%A* %"#temp8")
   %8 = getelementptr %A, %A* %"#temp8", i32 0, i32 0
   %"#temp9" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp9")
+  call void @"A.~init(ref[A])"(%A* %"#temp9")
   %9 = getelementptr %A, %A* %"#temp9", i32 0, i32 0
   %"#temp10" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp10")
+  call void @"A.~init(ref[A])"(%A* %"#temp10")
   %10 = getelementptr %A, %A* %"#temp10", i32 0, i32 0
   %11 = load i32, i32* %8
   %12 = load i32, i32* %9
   %13 = load i32, i32* %10
   call void (i32, ...) @"varArgFunc(Int[32],ArgPack[Int[32],0,0])"(i32 3, i32 %11, i32 %12, i32 %13)
-  call void @"A.~terminate(iref[A])"(%A* %"#temp8")
-  call void @"A.~terminate(iref[A])"(%A* %"#temp9")
-  call void @"A.~terminate(iref[A])"(%A* %"#temp10")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp8")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp9")
+  call void @"A.~terminate(ref[A])"(%A* %"#temp10")
   ret void
 }
 
@@ -277,7 +277,7 @@ define void @"varArgFunc(Int[32],ArgPack[Int[32],0,0])"(i32 %count, ...) {
 define void @E.__autoDestruct__(%E* %this) {
 "#block4":
   %0 = getelementptr %E, %E* %this, i32 0, i32 1
-  call void @"C.~terminate(iref[C])"(%C* %0)
+  call void @"C.~terminate(ref[C])"(%C* %0)
   ret void
 }
 
@@ -290,17 +290,17 @@ declare void @llvm.va_end(i8*) #0
 define void @__constructor__3() {
 "#block16":
   %"#temp15" = alloca %A
-  call void @"A.~init(iref[A])"(%A* %"#temp15")
+  call void @"A.~init(ref[A])"(%A* %"#temp15")
   %0 = getelementptr %A, %A* %"#temp15", i32 0, i32 0
   %1 = load i32, i32* %0
-  call void (%C*, i32, ...) @"C.~init(iref[C],Int[32],ArgPack[Int[32],1,0])"(%C* @"!globalC", i32 2, i32 %1, i32 2)
-  call void @"A.~terminate(iref[A])"(%A* %"#temp15")
+  call void (%C*, i32, ...) @"C.~init(ref[C],Int[32],ArgPack[Int[32],1,0])"(%C* @"!globalC", i32 2, i32 %1, i32 2)
+  call void @"A.~terminate(ref[A])"(%A* %"#temp15")
   ret void
 }
 
 define void @__destructor__4() {
 "#block17":
-  call void @"C.~terminate(iref[C])"(%C* @"!globalC")
+  call void @"C.~terminate(ref[C])"(%C* @"!globalC")
   ret void
 }
 
