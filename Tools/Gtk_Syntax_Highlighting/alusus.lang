@@ -16,14 +16,14 @@
   <styles>
     <style id="escaped-character" _name="Escaped Character"         map-to="def:special-char"/>
     <style id="literal"           _name="Literal"                   map-to="def:string"/>
-    <style id="keyword"           _name="Keyword"                   map-to="def:type"/>
-    <style id="def-keyword"       _name="Def Keyword"               map-to="def:keyword"/>
-    <style id="type"              _name="Data Type"                 map-to="def:comment"/>
-    <style id="modifier"          _name="Modifier"                  map-to="def:preprocessor"/>
+    <style id="keyword"           _name="Keyword"                   map-to="def:keyword"/>
+    <style id="block-keyword"     _name="Block Keyword"             map-to="alusus:block-keyword"/>
+    <style id="type"              _name="Data Type"                 map-to="def:type"/>
+    <style id="modifier"          _name="Modifier"                  map-to="alusus:modifier"/>
     <style id="constant"          _name="Constant"                  map-to="def:constant"/>
-    <style id="punctuation"       _name="Punctuation"               map-to="def:comment"/>
-    <style id="square-brackets"   _name="Square Brackets"           map-to="def:preprocessor"/>
-    <style id="comment"           _name="Comment"                   map-to="latex:display-math"/>
+    <style id="punctuation"       _name="Punctuation"               map-to="alusus:punctuation"/>
+    <style id="boldpunctuation"   _name="Bold Punctuation"          map-to="alusus:boldpunctuation"/>
+    <style id="comment"           _name="Comment"                   map-to="def:comment"/>
   </styles>
 
   <definitions>
@@ -37,11 +37,11 @@
     </define-regex>
 
     <context id="punctuation" style-ref="punctuation">
-      <match>[\.\(\)\{\},;،؛:+=!*/&lt;&gt;-]</match>
+      <match>[\[\]\(\);؛+=!*/&lt;&gt;-]</match>
     </context>
 
-    <context id="square-brackets" style-ref="square-brackets">
-      <match>[\[\]]</match>
+    <context id="boldpunctuation" style-ref="boldpunctuation">
+      <match>[\{\}\.,،:]</match>
     </context>
 
     <context id="string" style-ref="literal" end-at-line-end="true" class="string" class-disabled="no-spell-check">
@@ -76,7 +76,7 @@
       <keyword>null</keyword>
     </context>
 
-    <context id="def-keyword" style-ref="def-keyword">
+    <context id="block-keyword" style-ref="block-keyword">
       <keyword>module</keyword>
       <keyword>function</keyword>
       <keyword>func</keyword>
@@ -115,9 +115,11 @@
       <keyword>init</keyword>
       <keyword>preprocess</keyword>
       <keyword>ast</keyword>
+      <keyword>as_ptr</keyword>
+      <keyword>set_ptr</keyword>
     </context>
 
-    <context id="ar-def-keyword" style-ref="def-keyword">
+    <context id="ar-block-keyword" style-ref="block-keyword">
       <keyword>وحدة</keyword>
       <keyword>دالّة</keyword>
       <keyword>دالة</keyword>
@@ -156,6 +158,8 @@
       <keyword>هيئ</keyword>
       <keyword>تمهيد</keyword>
       <keyword>شبم</keyword>
+      <keyword>كمؤشر</keyword>
+      <keyword>حدد_مؤشر</keyword>
     </context>
 
     <context id="constant" style-ref="constant">
@@ -217,7 +221,7 @@
         <context ref="def:c-like-close-comment-outside-comment" style-ref="comment"/>
 
         <context ref="punctuation"/>
-        <context ref="square-brackets"/>
+        <context ref="boldpunctuation"/>
         <context ref="string"/>
         <context ref="char"/>
         <context ref="numeric"/>
@@ -227,9 +231,9 @@
         <context ref="constant"/>
         <context ref="ar_constant"/>
         <context ref="keyword"/>
-        <context ref="def-keyword"/>
+        <context ref="block-keyword"/>
         <context ref="ar-keyword"/>
-        <context ref="ar-def-keyword"/>
+        <context ref="ar-block-keyword"/>
         <context ref="type"/>
         <context ref="predef_type"/>
         <context ref="ar_type"/>

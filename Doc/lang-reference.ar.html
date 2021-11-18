@@ -1790,13 +1790,13 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   عرّف مصفوفتي : مصفوفة[صحيح، 10]؛
   عرّف ع : صحيح؛
   لكل ع=0، ع&lt;10، ع++ {
-    مصفوفتي[ع] = مضروب(ع)
+    مصفوفتي(ع) = مضروب(ع)
   }</pre>
                     <pre class="samplecode" dir=ltr>
   def myArray : array[Int, 10];
   def i : Int;
   for i=0, i&lt;10, i++ {
-    myArray[i] = factorial(i)
+    myArray(i) = factorial(i)
   }</pre>
                 </div>
 
