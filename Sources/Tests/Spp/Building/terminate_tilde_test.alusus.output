@@ -14,24 +14,24 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 define void @"test()"() {
 "#block0":
   %a = alloca %T
-  call void @"T.~init(iref[T])"(%T* %a)
-  call void @"T.~terminate(iref[T])"(%T* %a)
+  call void @"T.~init(ref[T])"(%T* %a)
+  call void @"T.~terminate(ref[T])"(%T* %a)
   %pa = alloca %T*
   %0 = load %T*, %T** %pa
-  call void @"T.~terminate(iref[T])"(%T* %0)
+  call void @"T.~terminate(ref[T])"(%T* %0)
   %i = alloca i32
-  call void @"T.~terminate(iref[T])"(%T* %a)
+  call void @"T.~terminate(ref[T])"(%T* %a)
   ret void
 }
 
-define void @"T.~init(iref[T])"(%T* %this) {
+define void @"T.~init(ref[T])"(%T* %this) {
 "#block1":
   %this1 = alloca %T*
   store %T* %this, %T** %this1
   ret void
 }
 
-define void @"T.~terminate(iref[T])"(%T* %this) {
+define void @"T.~terminate(ref[T])"(%T* %this) {
 "#block2":
   %this1 = alloca %T*
   store %T* %this, %T** %this1

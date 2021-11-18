@@ -456,7 +456,6 @@ Bool AstProcessor::_interpolateAst_identifier(
     } else {
       // We don't have an identifier string template, so we'll just copy the arg as is.
       // If the argument is a basic type we'll convert it into a literal, otherwise we'll clone as is.
-      auto arg = args->getElement(index);
       if (arg->isA<TiInt>()) {
         Str s;
         s.append((LongInt)static_cast<TiInt*>(arg)->get());

@@ -111,7 +111,7 @@ module Closures {
                 (ast def varName: varType),
                 AstTemplateMap()
                     .set(String("varName"), TiStr(varDefs.keys(i)))
-                    .set(String("varType"), varDefs.values(i))
+                    .set(String("varType"), createPayloadVarType(varDefs.values(i)).obj)
             );
             defsContainer.addElement(payloadDef.obj);
             def payloadAssignment: TioSrdRef = Spp.astMgr.buildAst(
@@ -123,7 +123,7 @@ module Closures {
         // Render the closure.
         Spp.astMgr.insertAst(
             ast {
-                Closures.Closure[closureArgFnType]().{
+                Closures.Closure[closureArgFnType]()~use_in(__this){
                     class Data {
                         payloadDefs
                     }
@@ -132,8 +132,8 @@ module Closures {
 
                     payloadAssignments;
 
-                    this.data.assign(d.refCounter, castRef[d.obj, void]);
-                    this.fp = fn;
+                    __this.data.assign(d.refCounter, castRef[d.obj, void]);
+                    __this.fp = fn;
                 }
             },
             AstTemplateMap().{
@@ -143,6 +143,12 @@ module Closures {
                 set(String("fn"), fn);
             }
         );
+    }
+
+    func createPayloadVarType (varType: ref[TiObject]): TioSrdRef {
+        return castSrdRef[newSrdObj[Spp.Ast.Variable].{
+            MapContainerOf[this].setElement("type", Spp.astMgr.traceType(varType));
+        }, TiObject];
     }
 
     func generateFuncType (

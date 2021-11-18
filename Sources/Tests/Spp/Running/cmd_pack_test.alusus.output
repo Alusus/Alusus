@@ -8,4 +8,6 @@
 13
 two
 Factorial of 5=120
-ERROR SPPG1015 @ (30,15): Incompatible types for the given operator.
+Factorial of 5=120
+Factorial of 5=120
+ERROR SPPG1015 @ (34,15): Incompatible types for the given operator.

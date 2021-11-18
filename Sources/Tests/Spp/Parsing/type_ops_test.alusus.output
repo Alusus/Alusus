@@ -35,7 +35,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
@@ -48,7 +48,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        a: Identifier: Int [Main.BlockSubject.Identifier]
        b: Identifier: Float [Main.BlockSubject.Identifier]
@@ -67,7 +67,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
@@ -80,7 +80,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
@@ -97,11 +97,11 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: ParamPass []
-       operand: Identifier: iref
+       operand: Identifier: ref
        param: ThisTypeRef
      body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
@@ -120,11 +120,11 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        v: Identifier: Int [Main.BlockSubject.Identifier]
       retType: ParamPass []
-       operand: Identifier: iref
+       operand: Identifier: ref
        param: ThisTypeRef
      body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
@@ -143,11 +143,11 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: ParamPass []
-       operand: Identifier: iref
+       operand: Identifier: ref
        param: ThisTypeRef
      body: Block
       AssignmentOperator += [Main.Expression.AssignmentExp]
@@ -166,11 +166,11 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: ParamPass []
-       operand: Identifier: iref
+       operand: Identifier: ref
        param: ThisTypeRef
      body: Block
       AssignmentOperator /= [Main.Expression.AssignmentExp]
@@ -189,13 +189,13 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: ParamPass [] [Main.Expression.ParamPassExp]
         operand: Identifier: ref [Main.BlockSubject.Identifier]
         param: ThisTypeRef [Main.ThisTypeRef]
       retType: ParamPass []
-       operand: Identifier: iref
+       operand: Identifier: ref
        param: ThisTypeRef
      body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
@@ -216,13 +216,13 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        v: ParamPass [] [Main.Expression.ParamPassExp]
         operand: Identifier: ref [Main.BlockSubject.Identifier]
         param: ThisTypeRef [Main.ThisTypeRef]
       retType: ParamPass []
-       operand: Identifier: iref
+       operand: Identifier: ref
        param: ThisTypeRef
      body: Block
       AssignmentOperator = [Main.Expression.AssignmentExp]
@@ -243,7 +243,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: ParamPass []
@@ -265,7 +265,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -285,7 +285,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: A [Main.BlockSubject.Identifier]
@@ -311,7 +311,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -331,7 +331,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -351,7 +351,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: Identifier: Int [Main.BlockSubject.Identifier]
      body: Block
@@ -372,7 +372,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: Block
@@ -389,7 +389,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: NULL
@@ -408,7 +408,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        f: Identifier: float [Main.BlockSubject.Identifier]
       retType: ParamPass [] [Main.Expression.ParamPassExp]
@@ -433,7 +433,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -452,7 +452,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        v: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -471,7 +471,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -490,7 +490,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -509,7 +509,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: ParamPass [] [Main.Expression.ParamPassExp]
         operand: Identifier: ref [Main.BlockSubject.Identifier]
@@ -534,7 +534,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        v: ParamPass [] [Main.Expression.ParamPassExp]
         operand: Identifier: ref [Main.BlockSubject.Identifier]
@@ -559,7 +559,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: ParamPass []
@@ -581,7 +581,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -601,7 +601,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: A [Main.BlockSubject.Identifier]
@@ -627,7 +627,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -647,7 +647,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
@@ -667,7 +667,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: Identifier: Int [Main.BlockSubject.Identifier]
      body: Block
@@ -684,7 +684,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: Block
@@ -701,7 +701,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        value: Identifier: Int [Main.BlockSubject.Identifier]
       retType: NULL
@@ -720,7 +720,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        f: Identifier: float [Main.BlockSubject.Identifier]
       retType: ParamPass [] [Main.Expression.ParamPassExp]
@@ -748,7 +748,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        d: Identifier: Int [Main.BlockSubject.Identifier]
       retType: NULL
@@ -762,7 +762,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: NULL
@@ -775,7 +775,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
        a: Identifier: Int [Main.BlockSubject.Identifier]
        b: Identifier: Int [Main.BlockSubject.Identifier]

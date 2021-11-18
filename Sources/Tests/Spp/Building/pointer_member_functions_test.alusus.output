@@ -87,11 +87,11 @@ define void @N2.__autoConstruct__(%N2* %this) {
   %5 = getelementptr %N, %N* %4, i32 0, i32 0
   %6 = load %N_vtable*, %N_vtable** %5
   %7 = getelementptr %N_vtable, %N_vtable* %6, i32 0, i32 0
-  store void (%N*)* bitcast (void (%N2*)* @"N2.printItImpl()(iref[N2])" to void (%N*)*), void (%N*)** %7
+  store void (%N*)* bitcast (void (%N2*)* @"N2.printItImpl()(ref[N2])" to void (%N*)*), void (%N*)** %7
   ret void
 }
 
-define void @"N2.printItImpl()(iref[N2])"(%N2* %this) {
+define void @"N2.printItImpl()(ref[N2])"(%N2* %this) {
 "#block4":
   %this1 = alloca %N2*
   store %N2* %this, %N2** %this1
