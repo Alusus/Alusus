@@ -1,0 +1,18 @@
+import "alusus_spp";
+
+def a: Var~use_in{
+    doSomething();
+}
+
+def b: Var~use_in(self){
+    doSomething();
+}
+
+dump_ast a;
+dump_ast b;
+
+Var~use_in("self"){}
+
+Var~use_in(self);
+
+Var~use_in(self) doSomething();

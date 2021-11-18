@@ -630,7 +630,7 @@ Bool TypeHandlersParsingHandler::getThisIdentifierAndType(
         }, {
           {S("operand"), Core::Data::Ast::Identifier::create({
             {S("sourceLocation"), Core::Data::Ast::findSourceLocation(linkOp->getSecond().get())},
-            {S("value"), TiStr(S("iref"))}
+            {S("value"), TiStr(S("ref"))}
           })},
           {S("param"), linkOp->getSecond()}
         });
@@ -663,7 +663,7 @@ SharedPtr<Core::Data::Ast::ParamPass> TypeHandlersParsingHandler::prepareThisTyp
   }, {
     {S("operand"), Core::Data::Ast::Identifier::create({
       {S("sourceLocation"), sourceLocation},
-      {S("value"), TiStr(S("iref"))}
+      {S("value"), TiStr(S("ref"))}
     })},
     {S("param"), Spp::Ast::ThisTypeRef::create()}
   });

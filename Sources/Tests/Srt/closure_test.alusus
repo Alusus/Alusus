@@ -180,6 +180,31 @@ func testSharedAccess {
 }
 testSharedAccess();
 
+// Accessing this
+
+func runThisAccess (c: closure ()) {
+    c();
+}
+
+class ThisAccessTester {
+    def i: Int = 15;
+
+    handler this.prepare (): (closure ()) {
+        def c: closure () = closure () {
+            print("ThisAccessTester.prepare: %d\n", this.i);
+        };
+        this.i = 14;
+        return c;
+    }
+}
+
+func testThisAccess {
+    def v: ThisAccessTester;
+    def c: closure() = v.prepare();
+    runThisAccess(c);
+}
+testThisAccess();
+
 // Releasing data
 
 class MyType {
@@ -195,11 +220,11 @@ func runDataRelease (c: closure ()) {
 
 func prepareDataRelease (): (closure ()) {
     def t: MyType;
-    t.i = 15;
+    t.i = 16;
     def c: closure () = closure () {
         print("prepareDataRelease: %d\n", t.i);
     };
-    t.i = 14;
+    t.i = 15;
     return c;
 }
 
@@ -221,7 +246,7 @@ func testTemplates {
     v.c = closure (t: Int) {
         print("testTemplates: %d\n", t);
     };
-    v.c(7);
+    v.c(17);
 }
 testTemplates();
 

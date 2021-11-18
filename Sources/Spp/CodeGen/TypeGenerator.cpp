@@ -402,7 +402,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   auto body = astType->getBody().get();
   session->getEda()->setCodeGenData(body, tgContext);
 
-  auto thisIndex = g->addThisDefinition(body, astType, args.get(0), &childSession);
+  auto thisIndex = g->addThisDefinition(body, S("this"), astType, args.get(0), &childSession);
 
   // Main loop.
   for (Int i = 0; i < thisIndex; ++i) {

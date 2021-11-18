@@ -16,12 +16,12 @@ define void @"test()"() {
 "#block0":
   %t1 = alloca %T1
   %t2 = alloca %T2
-  %0 = call i32 @"T1.~cast(iref[T1])=>(Int[32])"(%T1* %t1)
-  %1 = call i32 @"T2.~cast(iref[T2])=>(Int[32])"(%T2* %t2)
+  %0 = call i32 @"T1.~cast(ref[T1])=>(Int[32])"(%T1* %t1)
+  %1 = call i32 @"T2.~cast(ref[T2])=>(Int[32])"(%T2* %t2)
   ret void
 }
 
-define i32 @"T1.~cast(iref[T1])=>(Int[32])"(%T1* %this) {
+define i32 @"T1.~cast(ref[T1])=>(Int[32])"(%T1* %this) {
 "#block1":
   %this1 = alloca %T1*
   store %T1* %this, %T1** %this1
@@ -31,7 +31,7 @@ define i32 @"T1.~cast(iref[T1])=>(Int[32])"(%T1* %this) {
   ret i32 %2
 }
 
-define i32 @"T2.~cast(iref[T2])=>(Int[32])"(%T2* %this) {
+define i32 @"T2.~cast(ref[T2])=>(Int[32])"(%T2* %this) {
 "#block2":
   %this1 = alloca %T2*
   store %T2* %this, %T2** %this1

@@ -46,5 +46,6 @@ Bool parseNumber(
 #include "ModuleParsingHandler.h"
 #include "TypeParsingHandler.h"
 #include "TypeHandlersParsingHandler.h"
+#include "UseInParsingHandler.h"
 
 #endif

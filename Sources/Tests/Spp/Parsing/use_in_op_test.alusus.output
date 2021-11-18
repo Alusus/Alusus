@@ -1,0 +1,21 @@
+------------------ Parsed Data Dump ------------------
+UseInOp this [Main.UseInTilde]
+ operand: Identifier: Var [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+  ParamPass () [Main.Expression.ParamPassExp]
+   operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+   param: NULL
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+UseInOp self [Main.UseInTilde]
+ operand: Identifier: Var [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+  ParamPass () [Main.Expression.ParamPassExp]
+   operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+   param: NULL
+------------------------------------------------------
+ERROR CP1001 @ (14,12): Parser syntax error.
+ERROR CP1001 @ (14,18): Parser syntax error.
+ERROR CP1001 @ (16,17): Parser syntax error.
+ERROR CP1001 @ (18,18): Parser syntax error.
+ERROR SPPA1007 @ (18,18): Unknown symbol.

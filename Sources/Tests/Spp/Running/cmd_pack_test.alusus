@@ -27,4 +27,8 @@ Console.print("%s\n", ptr[Char]().{ if c == '1' this="one" else if c == '2' this
 def i: Int(5);
 Console.print("Factorial of %d=%d\n", i, Int().{ def n: Int(i); this = n; while --n > 1 this*=n });
 
+Console.print("Factorial of %d=%d\n", i, Int()~use_in{ def n: Int(i); this = n; while --n > 1 this*=n });
+
+Console.print("Factorial of %d=%d\n", i, Int()~use_in(self){ def n: Int(i); self = n; while --n > 1 self*=n });
+
 ptr[Char]().{ i = "wrong" };
