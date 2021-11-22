@@ -1008,7 +1008,8 @@ Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, 
 
 
 Int Generator::_addThisDefinition(
-  TiObject *self, Ast::Block *body, Ast::Type *astThisType, TioSharedPtr const &tgThis, Session *session
+  TiObject *self, Ast::Block *body, Char const *thisName, Ast::Type *astThisType, TioSharedPtr const &tgThis,
+  Session *session
 ) {
   PREPARE_SELF(generator, Generator);
   auto thisRef = Core::Data::Ast::ParamPass::create({
@@ -1018,7 +1019,7 @@ Int Generator::_addThisDefinition(
     {S("param"), Ast::ThisTypeRef::create()}
   });
   auto def = Core::Data::Ast::Definition::create({
-    {S("name"), TiStr(S("this"))}
+    {S("name"), TiStr(thisName)}
   }, {
     {S("target"), thisRef},
     {S("modifiers"), Core::Data::Ast::List::create({}, {

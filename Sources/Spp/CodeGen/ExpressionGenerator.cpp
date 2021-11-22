@@ -51,6 +51,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateInitOp,
     &this->generateTerminateOp,
     &this->generateNextArgOp,
+    &this->generateUseInOp,
     &this->generateStringLiteral,
     &this->generateCharLiteral,
     &this->generateIntegerLiteral,
@@ -104,6 +105,7 @@ void ExpressionGenerator::initBindings()
   this->generateInitOp = &ExpressionGenerator::_generateInitOp;
   this->generateTerminateOp = &ExpressionGenerator::_generateTerminateOp;
   this->generateNextArgOp = &ExpressionGenerator::_generateNextArgOp;
+  this->generateUseInOp = &ExpressionGenerator::_generateUseInOp;
   this->generateStringLiteral = &ExpressionGenerator::_generateStringLiteral;
   this->generateCharLiteral = &ExpressionGenerator::_generateCharLiteral;
   this->generateIntegerLiteral = &ExpressionGenerator::_generateIntegerLiteral;
@@ -182,6 +184,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::NextArgOp>()) {
     auto nextArgOp = static_cast<Spp::Ast::NextArgOp*>(astNode);
     return expGenerator->generateNextArgOp(nextArgOp, g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::UseInOp>()) {
+    auto useInOp = static_cast<Spp::Ast::UseInOp*>(astNode);
+    return expGenerator->generateUseInOp(useInOp, g, session, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
     return expGenerator->generateStringLiteral(stringLiteral, g, session, result);
@@ -2022,6 +2027,38 @@ Bool ExpressionGenerator::_generateNextArgOp(
 }
 
 
+Bool ExpressionGenerator::_generateUseInOp(
+  TiObject *self, Spp::Ast::UseInOp *astNode, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate the operand.
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, S("UseInOp operand is missing."));
+  }
+  if (!expGenerator->generate(operand, g, session, result)) return false;
+  if (result.astType == 0) {
+    expGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
+
+  // Generate the body.
+  auto refType = ti_cast<Ast::ReferenceType>(result.astType);
+  auto contentType = refType->getContentType(expGenerator->astHelper);
+  auto thisIndex = g->addThisDefinition(
+    astNode->getBody().get(), astNode->getOperandName().get(), contentType, result.targetData, session
+  );
+  TerminalStatement terminal = TerminalStatement::UNKNOWN;
+  if (!g->generateStatementBlock(astNode->getBody().get(), session, terminal)) return false;
+  astNode->getBody()->remove(thisIndex);
+
+  return true;
+}
+
+
 Bool ExpressionGenerator::_generateStringLiteral(
   TiObject *self, Core::Data::Ast::StringLiteral *astNode, Generation *g, Session *session, GenResult &result
 ) {
@@ -2667,7 +2704,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         auto block = linkOperator->getSecond().s_cast_get<Ast::Block>();
         auto refType = ti_cast<Ast::ReferenceType>(prevResult.astType);
         auto contentType = refType->getContentType(expGenerator->astHelper);
-        auto thisIndex = g->addThisDefinition(block, contentType, prevResult.targetData, session);
+        auto thisIndex = g->addThisDefinition(block, S("this"), contentType, prevResult.targetData, session);
         TerminalStatement terminal = TerminalStatement::UNKNOWN;
         if (!g->generateStatementBlock(block, session, terminal)) return false;
         Ast::Type *prevAstType;

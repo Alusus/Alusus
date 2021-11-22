@@ -53,7 +53,7 @@ define i32 @"Main.main()=>(Int[32])"() {
   %0 = call i32 (i32, ...) @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 5, i32 1, i32 2, i32 -3, i32 7, i32 9)
   %1 = call i32 (i32, ...) @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 5, i32 1, i32 2, i32 -3, i32 7, i32 9)
   %mt = alloca %Main_Mt
-  call void @"Main.Mt.~init(iref[Main.Mt])"(%Main_Mt* %mt)
+  call void @"Main.Mt.~init(ref[Main.Mt])"(%Main_Mt* %mt)
   call void (i32, ...) @"Main.f6(Int[32],ArgPack[any,0,0])"(i32 1, %Main_Mt* %mt)
 }
 
@@ -142,7 +142,7 @@ define i32 @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 %count, ...) 
   br label %"#block10"
 }
 
-define void @"Main.Mt.~init(iref[Main.Mt])"(%Main_Mt* %this) {
+define void @"Main.Mt.~init(ref[Main.Mt])"(%Main_Mt* %this) {
 "#block16":
   %this1 = alloca %Main_Mt*
   store %Main_Mt* %this, %Main_Mt** %this1
@@ -157,9 +157,9 @@ define void @"Main.f6(Int[32],ArgPack[any,0,0])"(i32 %count, ...) {
   %count1 = alloca i32
   store i32 %count, i32* %count1
   %mt = alloca %Main_Mt
-  call void @"Main.Mt.~init(iref[Main.Mt])"(%Main_Mt* %mt)
+  call void @"Main.Mt.~init(ref[Main.Mt])"(%Main_Mt* %mt)
   %1 = va_arg %__VaList* %__vaList, %Main_Mt*
-  %2 = call %Main_Mt* @"Main.Mt.=(iref[Main.Mt],ref[Main.Mt])=>(iref[Main.Mt])"(%Main_Mt* %mt, %Main_Mt* %1)
+  %2 = call %Main_Mt* @"Main.Mt.=(ref[Main.Mt],ref[Main.Mt])=>(ref[Main.Mt])"(%Main_Mt* %mt, %Main_Mt* %1)
   %3 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_end(i8* %3)
   ret void
@@ -207,7 +207,7 @@ define void @"Main.f4(ptr[Word[8]],ArgPack[Word[8],0,0])"(i8* %a, ...) {
   ret void
 }
 
-define %Main_Mt* @"Main.Mt.=(iref[Main.Mt],ref[Main.Mt])=>(iref[Main.Mt])"(%Main_Mt* %this, %Main_Mt* %r) {
+define %Main_Mt* @"Main.Mt.=(ref[Main.Mt],ref[Main.Mt])=>(ref[Main.Mt])"(%Main_Mt* %this, %Main_Mt* %r) {
 "#block17":
   %this1 = alloca %Main_Mt*
   store %Main_Mt* %this, %Main_Mt** %this1

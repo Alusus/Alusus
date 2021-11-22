@@ -760,6 +760,39 @@ void GrammarFactory::createGrammar()
       }
     }
   }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::NextArgOp>::create());
+  // ~use_in
+  this->createCommand(S("root.Main.UseInTilde"), {{
+    Map::create({}, {{S("use_in"), 0}, {S("استخدم_في"), 0}}),
+    {
+      {
+        PARSE_REF(S("module.UseInSubject")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.BlockSet")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, newSrdObj<Spp::Handlers::UseInParsingHandler>());
+  this->set(S("root.Main.UseInSubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
+  }).get());
+  this->set(S("root.Main.UseInSubject.Sbj"), SymbolDefinition::create({
+   {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
+  }, {
+    {S("vars"), Map::create({}, {
+      {S("sbj1"), PARSE_REF(S("module.Identifier"))},
+      {S("sbj2"), PARSE_REF(S("module.Identifier"))},
+      {S("sbj3"), PARSE_REF(S("module.Identifier"))},
+      {S("frc2"), newSrdObj<TiInt>(1)},
+      {S("frc3"), newSrdObj<TiInt>(1)},
+      {S("fltr"), newSrdObj<TiInt>(1)}
+    })}
+  }).get());
 
   // Add command references.
 
@@ -784,7 +817,8 @@ void GrammarFactory::createGrammar()
     PARSE_REF(S("module.PointerTilde")),
     PARSE_REF(S("module.InitTilde")),
     PARSE_REF(S("module.TerminateTilde")),
-    PARSE_REF(S("module.NextArgTilde"))
+    PARSE_REF(S("module.NextArgTilde")),
+    PARSE_REF(S("module.UseInTilde"))
   });
 
   this->addProdsToGroup(S("root.Main.SubjectCmdGrp"), {
@@ -860,7 +894,8 @@ void GrammarFactory::cleanGrammar()
     S("module.PointerTilde"),
     S("module.InitTilde"),
     S("module.TerminateTilde"),
-    S("module.NextArgTilde")
+    S("module.NextArgTilde"),
+    S("module.UseInTilde")
   });
 
   // Remove commands from leading commands list.
@@ -901,6 +936,8 @@ void GrammarFactory::cleanGrammar()
   this->tryRemove(S("root.Main.TerminateTilde"));
   this->tryRemove(S("root.Main.TerminateTildeSubject"));
   this->tryRemove(S("root.Main.NextArgTilde"));
+  this->tryRemove(S("root.Main.UseInTilde"));
+  this->tryRemove(S("root.Main.UseInSubject"));
 
   // Delete leading command definitions.
   this->tryRemove(S("root.Main.If"));

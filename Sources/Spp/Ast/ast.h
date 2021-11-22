@@ -155,6 +155,7 @@ Function* getDummyBuiltInOpFunction();
 #include "InitOp.h"
 #include "TerminateOp.h"
 #include "NextArgOp.h"
+#include "UseInOp.h"
 // Misc
 #include "ArgPack.h"
 #include "ThisTypeRef.h"

@@ -300,7 +300,7 @@ define void @"testDeref()"() {
   store %A* %4, %A** %2
   %5 = load %A**, %A*** %ra
   %6 = load %A*, %A** %5
-  call void @"A.~init(iref[A])"(%A* %6)
+  call void @"A.~init(ref[A])"(%A* %6)
   %7 = load %A**, %A*** %ra
   %8 = load %A*, %A** %7
   %9 = getelementptr %A, %A* %8, i32 0, i32 0
@@ -308,7 +308,7 @@ define void @"testDeref()"() {
   %11 = call i32 ([1 x i8]*, ...) @printf([1 x i8]* bitcast ([4 x i8]* @"#anonymous0" to [1 x i8]*), i32 %10)
   %12 = load %A**, %A*** %ra
   %13 = load %A*, %A** %12
-  call void @"A.~terminate(iref[A])"(%A* %13)
+  call void @"A.~terminate(ref[A])"(%A* %13)
   %i = alloca i32
   %ri = alloca i32*
   store i32* %i, i32** %ri
@@ -322,7 +322,7 @@ define void @"testDeref()"() {
 
 declare i8* @malloc(i64)
 
-define void @"A.~init(iref[A])"(%A* %this) {
+define void @"A.~init(ref[A])"(%A* %this) {
 "#block1":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -335,7 +335,7 @@ define void @"A.~init(iref[A])"(%A* %this) {
 
 declare i32 @printf([1 x i8]*, ...)
 
-define void @"A.~terminate(iref[A])"(%A* %this) {
+define void @"A.~terminate(ref[A])"(%A* %this) {
 "#block2":
   %this1 = alloca %A*
   store %A* %this, %A** %this1
@@ -363,7 +363,7 @@ define void @"testTempRefs()"() {
   %b = alloca %B
   %"#temp1" = alloca i32
   store i32 5, i32* %"#temp1"
-  %0 = call %B* @"B.=(iref[B],temp_ref[Int[32]])=>(iref[B])"(%B* %b, i32* %"#temp1")
+  %0 = call %B* @"B.=(ref[B],temp_ref[Int[32]])=>(ref[B])"(%B* %b, i32* %"#temp1")
   ret void
 }
 
@@ -377,7 +377,7 @@ define void @"receiveTempIntRef(temp_ref[Int[32]])"(i32* %r) {
   ret void
 }
 
-define %B* @"B.=(iref[B],temp_ref[Int[32]])=>(iref[B])"(%B* %this, i32* %value) {
+define %B* @"B.=(ref[B],temp_ref[Int[32]])=>(ref[B])"(%B* %this, i32* %value) {
 "#block2":
   %this1 = alloca %B*
   store %B* %this, %B** %this1

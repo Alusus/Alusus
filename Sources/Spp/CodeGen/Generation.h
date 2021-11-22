@@ -188,8 +188,8 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(addThisDefinition,
     Int, (
-      Ast::Block* /* body */, Ast::Type* /* astThisType */, TioSharedPtr const& /* tgThis */,
-      Session* /* session */
+      Ast::Block* /* body */, Char const* /* thisName */, Ast::Type* /* astThisType */,
+      TioSharedPtr const& /* tgThis */, Session* /* session */
     )
   );
 

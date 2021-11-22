@@ -28,21 +28,21 @@ define void @"test()"() {
   store i32 1, i32* %7
   store i32 2, i32* getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 0, i32 1)
   %8 = load %InnerMost*, %InnerMost** getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 0, i32 0)
-  %9 = call i32 @"InnerMost.getA()(iref[InnerMost])=>(Int[32])"(%InnerMost* %8)
-  %10 = call i32 @"Inner.getI()(iref[Inner])=>(Int[32])"(%Inner* getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 0))
-  %11 = call i32 @"Inner.()(iref[Inner])=>(Int[32])"(%Inner* getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 0))
+  %9 = call i32 @"InnerMost.getA()(ref[InnerMost])=>(Int[32])"(%InnerMost* %8)
+  %10 = call i32 @"Inner.getI()(ref[Inner])=>(Int[32])"(%Inner* getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 0))
+  %11 = call i32 @"Inner.()(ref[Inner])=>(Int[32])"(%Inner* getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 0))
   %12 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([34 x i8], [34 x i8]* @"#anonymous1", i32 0, i32 0), i32 %9, i32 %10, i32 %11)
   store i32 4, i32* getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 1)
   %13 = load %InnerMost*, %InnerMost** getelementptr inbounds (%Outer, %Outer* @"!o", i32 0, i32 0, i32 0)
-  %14 = call %InnerMost* @"InnerMost.=(iref[InnerMost],Int[32])=>(iref[InnerMost])"(%InnerMost* %13, i32 17)
+  %14 = call %InnerMost* @"InnerMost.=(ref[InnerMost],Int[32])=>(ref[InnerMost])"(%InnerMost* %13, i32 17)
   %15 = call %Outer* @"getO()=>(ref[Outer])"()
   %16 = getelementptr %Outer, %Outer* %15, i32 0, i32 0
   %17 = getelementptr %Inner, %Inner* %16, i32 0, i32 0
   %18 = load %InnerMost*, %InnerMost** %17
-  %19 = call i32 @"InnerMost.getA()(iref[InnerMost])=>(Int[32])"(%InnerMost* %18)
+  %19 = call i32 @"InnerMost.getA()(ref[InnerMost])=>(Int[32])"(%InnerMost* %18)
   %20 = call %Outer* @"getO()=>(ref[Outer])"()
   %21 = getelementptr %Outer, %Outer* %20, i32 0, i32 0
-  %22 = call i32 @"Inner.getI()(iref[Inner])=>(Int[32])"(%Inner* %21)
+  %22 = call i32 @"Inner.getI()(ref[Inner])=>(Int[32])"(%Inner* %21)
   %23 = call %Outer* @"getO()=>(ref[Outer])"()
   %24 = getelementptr %Outer, %Outer* %23, i32 0, i32 0
   %25 = getelementptr %Inner, %Inner* %24, i32 0, i32 1
@@ -50,7 +50,7 @@ define void @"test()"() {
   %27 = getelementptr %Outer, %Outer* %26, i32 0, i32 1
   %28 = call %Outer* @"getO()=>(ref[Outer])"()
   %29 = getelementptr %Outer, %Outer* %28, i32 0, i32 0
-  %30 = call i32 @"Inner.()(iref[Inner])=>(Int[32])"(%Inner* %29)
+  %30 = call i32 @"Inner.()(ref[Inner])=>(Int[32])"(%Inner* %29)
   %31 = load i32, i32* %25
   %32 = load i32, i32* %27
   %33 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([75 x i8], [75 x i8]* @"#anonymous2", i32 0, i32 0), i32 %19, i32 %22, i32 %31, i32 %32, i32 %30)
@@ -74,7 +74,7 @@ define void @Outer.__autoConstruct__(%Outer* %this) {
 
 declare i32 @printf(i8*, ...)
 
-define i32 @"InnerMost.getA()(iref[InnerMost])=>(Int[32])"(%InnerMost* %this) {
+define i32 @"InnerMost.getA()(ref[InnerMost])=>(Int[32])"(%InnerMost* %this) {
 "#block2":
   %this1 = alloca %InnerMost*
   store %InnerMost* %this, %InnerMost** %this1
@@ -84,7 +84,7 @@ define i32 @"InnerMost.getA()(iref[InnerMost])=>(Int[32])"(%InnerMost* %this) {
   ret i32 %2
 }
 
-define i32 @"Inner.getI()(iref[Inner])=>(Int[32])"(%Inner* %this) {
+define i32 @"Inner.getI()(ref[Inner])=>(Int[32])"(%Inner* %this) {
 "#block3":
   %this1 = alloca %Inner*
   store %Inner* %this, %Inner** %this1
@@ -94,7 +94,7 @@ define i32 @"Inner.getI()(iref[Inner])=>(Int[32])"(%Inner* %this) {
   ret i32 %2
 }
 
-define i32 @"Inner.()(iref[Inner])=>(Int[32])"(%Inner* %this) {
+define i32 @"Inner.()(ref[Inner])=>(Int[32])"(%Inner* %this) {
 "#block4":
   %this1 = alloca %Inner*
   store %Inner* %this, %Inner** %this1
@@ -105,7 +105,7 @@ define i32 @"Inner.()(iref[Inner])=>(Int[32])"(%Inner* %this) {
   ret i32 %3
 }
 
-define %InnerMost* @"InnerMost.=(iref[InnerMost],Int[32])=>(iref[InnerMost])"(%InnerMost* %this, i32 %value) {
+define %InnerMost* @"InnerMost.=(ref[InnerMost],Int[32])=>(ref[InnerMost])"(%InnerMost* %this, i32 %value) {
 "#block5":
   %this1 = alloca %InnerMost*
   store %InnerMost* %this, %InnerMost** %this1

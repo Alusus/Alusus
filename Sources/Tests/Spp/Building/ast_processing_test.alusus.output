@@ -25,7 +25,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
@@ -124,7 +124,7 @@ UserType [Main.Type]
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
-        operand: Identifier: iref
+        operand: Identifier: ref
         param: ThisTypeRef
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
