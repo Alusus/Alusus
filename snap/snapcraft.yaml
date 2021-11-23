@@ -1,0 +1,63 @@
+name: alusus # you probably want to 'snapcraft register <name>'
+base: core20 # the base snap is the execution environment for this snap
+version: git # just for humans, typically '1.2+git' or '1.3.2'
+summary: Alusus Programming Language # 79 char long summary
+description: |
+  Alusus is designed to be a language for everything by making language features hot-pluggable, and on a per-project basis
+  (rather than per-environment), which allows the language to:
+  * Expand vertically to cover low level features like those in C++ as well as high level features like those found in
+  languages like Python or Ruby.
+  * Expand horizonatally to cover all aspects of programming which saves the user having to use more than one language.
+  * Allow anyone to enhance the language in a decentralized way, which allows users to develop new programming techniques
+  or paradigms without having to start from scratch with a new language.
+  Imagine being able to write your client side code, server side code, DB access code, GPU shaders, etc, all in one
+  language. Imagine switching between programming paradigms becomes a matter of picking up a different library rather than
+  a different language. Imagine writing your program in a high level language while still being able to switch to low
+  level for performance critical components. The goal of Alusus is to eventually make all that possible, but development
+  is still in an early stage, and as of now Alusus provide low level procedural programming features.
+  Visit [alusus.org](https://alusus.org) for more info.
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: classic # use 'strict' once you have the right plugs and slots
+
+parts:
+  alusus:
+    # See 'snapcraft plugins'
+    plugin: nil
+    source: .
+    build-packages:
+      - cmake
+      - g++
+      - gcc
+      - python3
+      - python3-pip
+      - python3-setuptools
+      - python3-wget
+      - python3-colorama
+      - zlib1g-dev
+      - libssl-dev
+      - doxygen
+      - build-essential
+    override-build: |
+      Tools/build.sh --btype r --iloc . --bloc .
+      cp -r Bin Lib Notices_L18n $SNAPCRAFT_PART_INSTALL
+apps:
+  alusus:
+    command: Bin/alusus
+    plugs:
+      - desktop
+    slots:
+      - dbus-daemon
+    common-id: org.alusus
+  apm:
+    command: Bin/apm
+    plugs:
+      - desktop
+    slots:
+      - dbus-daemon
+    common-id: org.alusus.apm
+
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: org.alusus
