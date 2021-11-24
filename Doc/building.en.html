@@ -71,11 +71,11 @@ $ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev
                 Running the build script for the first time will take a long time to build all the dependencies (especially LLVM), but subsequent builds will not need to rebuild dependencies and therefore will be much faster. Launching the build script can be done as follows:
 <pre dir=ltr class="code nohighlight">
 $ cd &lt;path-to-Alusus&gt;
-$ ./Tools/build.sh --bloc . --iloc .
+$ ./Tools/build.sh
 </pre>
                 build.sh receives the following arguments:
                 <ul>
-                  <li><b>--bloc &lt;path&gt;</b>: The path where the Builds folder will be placed.</li>
+                  <li><b>--bloc &lt;path&gt;</b>: The path where build files will be placed.</li>
                   <li><b>--iloc &lt;path&gt;</b>: The path where Bin, Lib, and Include will be placed after the build is complete.</li>
                   <li><b>--btype &lt;build type&gt;</b>: The type of the build. Value p, which is the default, indicates a debug build, while r indicates a release build. Passing p results in a release build followed by a package generation.</li>
                 </ul>
