@@ -26,11 +26,10 @@ ALUSUS_ROOT = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.realpath(__file__))))
 ORIGINAL_PATH = os.path.realpath(os.getcwd())
 os.chdir(ALUSUS_ROOT)
-PRODUCT_PATH = ORIGINAL_PATH
-INSTALL_PATH = PRODUCT_PATH
+INSTALL_PATH = ORIGINAL_PATH
 RELEASE_INSTALL_PATH = os.path.join(
     '/', 'opt', 'Alusus') if os.name == "posix" else os.path.join('/', 'Alusus')
-BUILDS_PATH = os.path.join(PRODUCT_PATH, "Builds")
+BUILDS_PATH = os.path.join(ORIGINAL_PATH, "Builds")
 BUILD_PATH = os.path.join(BUILDS_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
 DEPS_PATH = os.path.join(BUILDS_PATH, 'Dependencies')
 PACKAGES_PATH = os.path.join(BUILDS_PATH, 'Packages')
@@ -80,7 +79,6 @@ def process_args():
     global RELEASE_INSTALL_PATH
     global DEPS_PATH
     global PACKAGES_PATH
-    global PRODUCT_PATH
 
     parser = argparse.ArgumentParser(add_help=False,
                                      formatter_class=argparse.RawTextHelpFormatter)
@@ -92,7 +90,7 @@ def process_args():
                         "    p: release and package build.",
                         choices=["d", "r", "p"], required=False, default="d")
     parser.add_argument("--bloc", metavar="BUILD_LOCATION", help="Set the build location (default is the sources root directory).",
-                        required=True, default=None)
+                        required=False, default=None)
     parser.add_argument("--iloc", metavar="INSTALL_LOCATION", help="Set the install location (default is the value of \"--bloc\").",
                         required=False, default=None)
     parser.add_argument("-g", action="store_true", help="Set the install location globally on the current system"
@@ -109,15 +107,13 @@ def process_args():
         CREATE_PACKAGES = "yes"
 
     if args.bloc:
-        PRODUCT_PATH = os.path.realpath(args.bloc)
-        if not os.path.isdir(PRODUCT_PATH):
-            os.makedirs(PRODUCT_PATH)
-        BUILDS_PATH = os.path.join(PRODUCT_PATH, "Builds")
+        BUILDS_PATH = os.path.realpath(args.bloc)
+        if not os.path.isdir(BUILDS_PATH):
+            os.makedirs(BUILDS_PATH)
         BUILD_PATH = os.path.join(
             BUILDS_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
         DEPS_PATH = os.path.join(BUILDS_PATH, "Dependencies")
         PACKAGES_PATH = os.path.join(BUILDS_PATH, "Packages")
-        INSTALL_PATH = os.path.join(PRODUCT_PATH, "LocalInstall")
 
     if args.g:
         INSTALL_PATH = RELEASE_INSTALL_PATH

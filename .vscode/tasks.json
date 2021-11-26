@@ -6,12 +6,7 @@
     {
       "label": "build",
       "command": "${workspaceRoot}/Tools/build.sh",
-      "args": [
-        "--bloc",
-        ".",
-        "--iloc",
-        "."
-      ],
+      "args": [],
       "problemMatcher": {
         "owner": "cpp",
         "fileLocation": [
