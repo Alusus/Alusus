@@ -311,4 +311,15 @@ import "Spp";
 
         handler this~cast[ptr[T]] return this.obj~ptr;
     };
+
+
+    //==========================================================================
+    // Macros
+
+    macro castSrdRef [r, T] SrdRef[T]().{
+        def self: ref[SrdRef[T]](this);
+        r.{
+            self.assign(this.refCounter, castRef[this.obj, T]);
+        }
+    };
 };
