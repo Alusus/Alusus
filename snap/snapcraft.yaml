@@ -39,7 +39,7 @@ parts:
       - build-essential
     override-build: |
       Tools/build.sh --btype r --bloc Builds/Snap --iloc Builds/Snap/Install 
-      cp -r Builds/Snap/Install/Bin Builds/Snap/Install/Lib Builds/Snap/Install/Notices_L18n $SNAPCRAFT_PART_INSTALL
+      cp -r Builds/Snap/Install/Bin Builds/Snap/Install/Lib Notices_L18n $SNAPCRAFT_PART_INSTALL
 apps:
   alusus:
     command: Bin/alusus
