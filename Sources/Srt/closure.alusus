@@ -33,6 +33,7 @@ module Closures {
             this.fp = 0;
             this.data.release();
         }
+        handler this == ref[this_type] return this.data.obj~ptr == value.data.obj~ptr;
     }
 
     func fillClosureBody (rawFnType: ref[TiObject]) {

@@ -86,13 +86,6 @@ import "Srl/String";
             }
         };
 
-        macro castSrdRef [r, T] SrdRef[T]().{
-            def self: ref[SrdRef[T]](this);
-            r.{
-                self.assign(this.refCounter, castRef[this.obj, T]);
-            }
-        };
-
         macro dynCastSrdRef [r, T] SrdRef[T]().{
             def self: ref[SrdRef[T]](this);
             r.{

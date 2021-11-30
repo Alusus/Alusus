@@ -17,141 +17,141 @@ testTemplates: 17
 
 testErrorCases:
 ERROR SPPA1003 @ (256,38)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,38)
-from (344,26)
-from (344,26)
-from (344,26): No valid match was found for the given type.
+from (345,26)
+from (345,26)
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,38)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,38)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,38)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,38)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,38)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (256,61)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26)
-from (344,26)
-from (344,26): No valid match was found for the given type.
+from (345,26)
+from (345,26)
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,37)
-from (344,26): No valid match was found for the given type.
+from (345,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1003 @ (259,58)
-from (350,41)
-from (350,41)
-from (350,41): No valid match was found for the given type.
+from (351,41)
+from (351,41)
+from (351,41): No valid match was found for the given type.
 ERROR SPPA1007 @ (264,9)
-from (350,41)
-from (84,18)
-from (350,41)
-from (350,41): Unknown symbol.
+from (351,41)
+from (85,18)
+from (351,41)
+from (351,41): Unknown symbol.
 ERROR SPPH1006 @ (270,35): Invalid function arg name.
 ERROR SPPH1006 @ (273,41): Invalid function arg name.
