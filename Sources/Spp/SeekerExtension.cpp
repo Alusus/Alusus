@@ -29,30 +29,30 @@ SeekerExtension::Overrides* SeekerExtension::extend(Core::Data::Seeker *seeker, 
   extension->astHelper = astHelper;
   overrides->foreachRef = seeker->foreach.set(&SeekerExtension::_foreach).get();
   overrides->extForeachRef = seeker->extForeach.set(&SeekerExtension::_extForeach).get();
-  overrides->foreachByIdentifier_levelRef =
-    seeker->foreachByIdentifier_level.set(&SeekerExtension::_foreachByIdentifier_level).get();
-  overrides->foreachByIdentifier_functionRef =
-    extension->foreachByIdentifier_function.set(&SeekerExtension::_foreachByIdentifier_function).get();
-  overrides->foreachByIdentifier_dataTypeRef =
-    extension->foreachByIdentifier_dataType.set(&SeekerExtension::_foreachByIdentifier_dataType).get();
-  overrides->foreachByLinkOperator_routingRef =
-    seeker->foreachByLinkOperator_routing.set(&SeekerExtension::_foreachByLinkOperator_routing).get();
-  overrides->foreachByParamPassRef =
-    extension->foreachByParamPass.set(&SeekerExtension::_foreachByParamPass).get();
-  overrides->foreachByParamPass_routingRef =
-    extension->foreachByParamPass_routing.set(&SeekerExtension::_foreachByParamPass_routing).get();
-  overrides->foreachByParamPass_templateRef =
-    extension->foreachByParamPass_template.set(&SeekerExtension::_foreachByParamPass_template).get();
-  overrides->foreachByThisTypeRefRef =
-    extension->foreachByThisTypeRef.set(&SeekerExtension::_foreachByThisTypeRef).get();
-  overrides->foreachByComparisonRef =
-    extension->foreachByComparison.set(&SeekerExtension::_foreachByComparison).get();
-  overrides->foreachByComparison_levelRef =
-    extension->foreachByComparison_level.set(&SeekerExtension::_foreachByComparison_level).get();
-  overrides->foreachByComparison_scopeRef =
-    extension->foreachByComparison_scope.set(&SeekerExtension::_foreachByComparison_scope).get();
-  overrides->foreachByComparison_computeRef =
-    extension->foreachByComparison_compute.set(&SeekerExtension::_foreachByComparison_compute).get();
+  overrides->foreach_identifierLevelRef =
+    seeker->foreach_identifierLevel.set(&SeekerExtension::_foreach_identifierLevel).get();
+  overrides->foreach_identifierOnFuncRef =
+    extension->foreach_identifierOnFunc.set(&SeekerExtension::_foreach_identifierOnFunc).get();
+  overrides->foreach_identifierOnDataTypeRef =
+    extension->foreach_identifierOnDataType.set(&SeekerExtension::_foreach_identifierOnDataType).get();
+  overrides->foreach_linkOperatorRoutingRef =
+    seeker->foreach_linkOperatorRouting.set(&SeekerExtension::_foreach_linkOperatorRouting).get();
+  overrides->foreach_paramPassRef =
+    extension->foreach_paramPass.set(&SeekerExtension::_foreach_paramPass).get();
+  overrides->foreach_paramPassRoutingRef =
+    extension->foreach_paramPassRouting.set(&SeekerExtension::_foreach_paramPassRouting).get();
+  overrides->foreach_paramPassOnTemplateRef =
+    extension->foreach_paramPassOnTemplate.set(&SeekerExtension::_foreach_paramPassOnTemplate).get();
+  overrides->foreach_thisTypeRefRef =
+    extension->foreach_thisTypeRef.set(&SeekerExtension::_foreach_thisTypeRef).get();
+  overrides->foreach_comparisonRef =
+    extension->foreach_comparison.set(&SeekerExtension::_foreach_comparison).get();
+  overrides->foreach_comparisonLevelRef =
+    extension->foreach_comparisonLevel.set(&SeekerExtension::_foreach_comparisonLevel).get();
+  overrides->foreach_comparisonOnScopeRef =
+    extension->foreach_comparisonOnScope.set(&SeekerExtension::_foreach_comparisonOnScope).get();
+  overrides->foreach_computeComparisonRef =
+    extension->foreach_computeComparison.set(&SeekerExtension::_foreach_computeComparison).get();
 
   return overrides;
 }
@@ -63,19 +63,19 @@ void SeekerExtension::unextend(Core::Data::Seeker *seeker, Overrides *overrides)
   auto extension = ti_cast<SeekerExtension>(seeker);
   seeker->foreach.reset(overrides->foreachRef);
   seeker->extForeach.reset(overrides->extForeachRef);
-  seeker->foreachByIdentifier_level.reset(overrides->foreachByIdentifier_levelRef);
-  seeker->foreachByLinkOperator_routing.reset(overrides->foreachByLinkOperator_routingRef);
+  seeker->foreach_identifierLevel.reset(overrides->foreach_identifierLevelRef);
+  seeker->foreach_linkOperatorRouting.reset(overrides->foreach_linkOperatorRoutingRef);
   extension->astHelper = SharedPtr<Ast::Helper>::null;
-  extension->foreachByIdentifier_function.reset(overrides->foreachByIdentifier_functionRef);
-  extension->foreachByIdentifier_dataType.reset(overrides->foreachByIdentifier_dataTypeRef);
-  extension->foreachByParamPass.reset(overrides->foreachByParamPassRef);
-  extension->foreachByParamPass_routing.reset(overrides->foreachByParamPass_routingRef);
-  extension->foreachByParamPass_template.reset(overrides->foreachByParamPass_templateRef);
-  extension->foreachByThisTypeRef.reset(overrides->foreachByThisTypeRefRef);
-  extension->foreachByComparison.reset(overrides->foreachByComparisonRef);
-  extension->foreachByComparison_level.reset(overrides->foreachByComparison_levelRef);
-  extension->foreachByComparison_scope.reset(overrides->foreachByComparison_scopeRef);
-  extension->foreachByComparison_compute.reset(overrides->foreachByComparison_computeRef);
+  extension->foreach_identifierOnFunc.reset(overrides->foreach_identifierOnFuncRef);
+  extension->foreach_identifierOnDataType.reset(overrides->foreach_identifierOnDataTypeRef);
+  extension->foreach_paramPass.reset(overrides->foreach_paramPassRef);
+  extension->foreach_paramPassRouting.reset(overrides->foreach_paramPassRoutingRef);
+  extension->foreach_paramPassOnTemplate.reset(overrides->foreach_paramPassOnTemplateRef);
+  extension->foreach_thisTypeRef.reset(overrides->foreach_thisTypeRefRef);
+  extension->foreach_comparison.reset(overrides->foreach_comparisonRef);
+  extension->foreach_comparisonLevel.reset(overrides->foreach_comparisonLevelRef);
+  extension->foreach_comparisonOnScope.reset(overrides->foreach_comparisonOnScopeRef);
+  extension->foreach_computeComparison.reset(overrides->foreach_computeComparisonRef);
 
   seeker->removeDynamicInterface<SeekerExtension>();
   delete overrides;
@@ -91,13 +91,13 @@ Core::Data::Seeker::Verb SeekerExtension::_foreach(
 ) {
   if (ref->isA<Data::Ast::ParamPass>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    return seekerExtension->foreachByParamPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb, flags);
+    return seekerExtension->foreach_paramPass(static_cast<Data::Ast::ParamPass const*>(ref), target, cb, flags);
   } else if (ref->isA<Spp::Ast::ThisTypeRef>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    return seekerExtension->foreachByThisTypeRef(target, cb, flags);
+    return seekerExtension->foreach_thisTypeRef(target, cb, flags);
   } else if (ref->isA<Core::Data::Ast::ComparisonOperator>() || ref->isA<Core::Data::Ast::LogOperator>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    return seekerExtension->foreachByComparison(ref, target, cb, flags);
+    return seekerExtension->foreach_comparison(ref, target, cb, flags);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
     return seeker->foreach.useCallee(base)(ref, target, cb, flags);
@@ -152,24 +152,24 @@ Core::Data::Seeker::Verb SeekerExtension::_extForeach(
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_level(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_identifierLevel(
   TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   if (data->isDerivedFrom<Ast::Function>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    return seekerExtension->foreachByIdentifier_function(identifier, static_cast<Ast::Function*>(data), cb, flags);
+    return seekerExtension->foreach_identifierOnFunc(identifier, static_cast<Ast::Function*>(data), cb, flags);
   } else if (data->isDerivedFrom<Ast::DataType>()) {
     PREPARE_SELF(seekerExtension, SeekerExtension);
-    return seekerExtension->foreachByIdentifier_dataType(identifier, static_cast<Ast::DataType*>(data), cb, flags);
+    return seekerExtension->foreach_identifierOnDataType(identifier, static_cast<Ast::DataType*>(data), cb, flags);
   } else {
     PREPARE_SELF(seeker, Core::Data::Seeker);
-    return seeker->foreachByIdentifier_level.useCallee(base)(identifier, data, cb, flags);
+    return seeker->foreach_identifierLevel.useCallee(base)(identifier, data, cb, flags);
   }
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_identifierOnFunc(
   TiObject *self, Data::Ast::Identifier const *identifier, Ast::Function *function,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
@@ -181,7 +181,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_function(
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_dataType(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_identifierOnDataType(
   TiObject *self, Data::Ast::Identifier const *identifier, Ast::DataType *type,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
@@ -190,12 +190,12 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByIdentifier_dataType(
   if ((block == 0) || (flags & Core::Data::Seeker::Flags::SKIP_OWNED)) {
     return Core::Data::Seeker::Verb::MOVE;
   } else {
-    return seeker->foreachByIdentifier_level(identifier, block, cb, flags);
+    return seeker->foreach_identifierLevel(identifier, block, cb, flags);
   }
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByLinkOperator_routing(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_linkOperatorRouting(
   TiFunctionBase *base, TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
@@ -212,11 +212,11 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByLinkOperator_routing(
       }
     }
   }
-  return seeker->foreachByLinkOperator_routing.useCallee(base)(link, data, cb, flags);
+  return seeker->foreach_linkOperatorRouting.useCallee(base)(link, data, cb, flags);
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_paramPass(
   TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
@@ -227,7 +227,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass(
     [=](TiInt action, TiObject *newData)->Core::Data::Seeker::Verb
     {
       if (action == Core::Data::Seeker::Action::TARGET_MATCH) {
-        return seekerExtension->foreachByParamPass_routing(paramPass, newData, cb, flags);
+        return seekerExtension->foreach_paramPassRouting(paramPass, newData, cb, flags);
       } else return cb(action, newData);
     },
     flags
@@ -235,7 +235,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass(
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_paramPassRouting(
   TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
@@ -243,7 +243,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
   if (paramPass->getType() == Core::Data::Ast::BracketType::SQUARE) {
     auto param = paramPass->getParam().get();
     if (data->isDerivedFrom<Ast::Template>()) {
-      return seekerExtension->foreachByParamPass_template(param, static_cast<Ast::Template*>(data), cb, flags);
+      return seekerExtension->foreach_paramPassOnTemplate(param, static_cast<Ast::Template*>(data), cb, flags);
     } else {
       auto notice = newSrdObj<Spp::Notices::InvalidSquareBracketOperandNotice>(
         Core::Data::Ast::findSourceLocation(paramPass)
@@ -256,7 +256,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_routing(
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_paramPassOnTemplate(
   TiObject *self, TiObject *param, Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
@@ -271,7 +271,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByParamPass_template(
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByThisTypeRef(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_thisTypeRef(
   TiObject *self, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   auto node = ti_cast<Core::Data::Node>(data);
@@ -285,7 +285,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByThisTypeRef(
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_comparison(
   TiObject *self, TiObject const *comparison, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
@@ -300,7 +300,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison(
         if (retVal == Core::Data::Seeker::Verb::SKIP) continue;
         else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || !Core::Data::Seeker::isMove(retVal)) break;
       }
-      retVal = seekerExtension->foreachByComparison_level(comparison, data, cb, flags);
+      retVal = seekerExtension->foreach_comparisonLevel(comparison, data, cb, flags);
       if (!Core::Data::Seeker::isMove(retVal)) return retVal;
     }
   } else if (data->isDerivedFrom<Core::Data::Node>()) {
@@ -313,7 +313,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison(
           continue;
         } else if (retVal == Core::Data::Seeker::Verb::SKIP_GROUP || !Core::Data::Seeker::isMove(retVal)) break;
       }
-      retVal = seekerExtension->foreachByComparison_level(comparison, node, cb, flags);
+      retVal = seekerExtension->foreach_comparisonLevel(comparison, node, cb, flags);
       if (!Core::Data::Seeker::isMove(retVal)) return retVal;
       node = node->getOwner();
       flags |= Core::Data::Seeker::Flags::SKIP_OWNED;
@@ -325,25 +325,25 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison(
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_level(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_comparisonLevel(
   TiObject *self, TiObject const *comparison, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
   if (data->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    return seekerExtension->foreachByComparison_scope(
+    return seekerExtension->foreach_comparisonOnScope(
       comparison, static_cast<Core::Data::Ast::Scope*>(data), cb, flags
     );
   } else if (data->isDerivedFrom<Ast::DataType>()) {
     auto dataType = static_cast<Ast::DataType*>(data);
     if (dataType->getBody() != 0) {
-      return seekerExtension->foreachByComparison_scope(comparison, dataType->getBody().get(), cb, flags);
+      return seekerExtension->foreach_comparisonOnScope(comparison, dataType->getBody().get(), cb, flags);
     }
   }
   return Core::Data::Seeker::Verb::MOVE;
 }
 
 
-Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_scope(
+Core::Data::Seeker::Verb SeekerExtension::_foreach_comparisonOnScope(
   TiObject *self, TiObject const *comparison, Core::Data::Ast::Scope *scope,
   Core::Data::Seeker::ForeachCallback const &cb, Word flags
 ) {
@@ -353,13 +353,13 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_scope(
     auto def = ti_cast<Data::Ast::Definition>(scope->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
-      if (seekerExtension->foreachByComparison_compute(comparison, obj)) {
+      if (seekerExtension->foreach_computeComparison(comparison, obj)) {
         verb = cb(Core::Data::Seeker::Action::TARGET_MATCH, obj);
         if (!Core::Data::Seeker::isMove(verb)) return verb;
       }
       verb = cb(SeekerExtension::Action::CHILD_SCOPE, obj);
       if (verb != Core::Data::Seeker::Verb::SKIP) {
-        verb = seekerExtension->foreachByComparison_level(comparison, obj, cb, flags);
+        verb = seekerExtension->foreach_comparisonLevel(comparison, obj, cb, flags);
       }
       if (!Core::Data::Seeker::isMove(verb)) return verb;
     }
@@ -380,7 +380,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_scope(
       if (verb == Core::Data::Seeker::Verb::SKIP) continue;
       else if (verb == Core::Data::Seeker::Verb::SKIP_GROUP || !Core::Data::Seeker::isMove(verb)) break;
 
-      verb = seekerExtension->foreachByComparison_level(comparison, bridgeTarget, cb, flags);
+      verb = seekerExtension->foreach_comparisonLevel(comparison, bridgeTarget, cb, flags);
       if (!Core::Data::Seeker::isMove(verb)) return verb;
     }
     verb = cb(Core::Data::Seeker::Action::USE_SCOPES_END, scope);
@@ -390,17 +390,17 @@ Core::Data::Seeker::Verb SeekerExtension::_foreachByComparison_scope(
 }
 
 
-Bool SeekerExtension::_foreachByComparison_compute(TiObject *self, TiObject const *comparison, TiObject *target)
+Bool SeekerExtension::_foreach_computeComparison(TiObject *self, TiObject const *comparison, TiObject *target)
 {
   PREPARE_SELF(seekerExtension, SeekerExtension);
   if (comparison->isDerivedFrom<Core::Data::Ast::LogOperator>()) {
     auto logOp = static_cast<Core::Data::Ast::LogOperator const*>(comparison);
     if (logOp->getType() == S("&&") || logOp->getType() == S("and")) {
-      if (!seekerExtension->foreachByComparison_compute(logOp->getFirst().get(), target)) return false;
-      return seekerExtension->foreachByComparison_compute(logOp->getSecond().get(), target);
+      if (!seekerExtension->foreach_computeComparison(logOp->getFirst().get(), target)) return false;
+      return seekerExtension->foreach_computeComparison(logOp->getSecond().get(), target);
     } else if (logOp->getType() == S("||") || logOp->getType() == S("or")) {
-      if (seekerExtension->foreachByComparison_compute(logOp->getFirst().get(), target)) return true;
-      return seekerExtension->foreachByComparison_compute(logOp->getSecond().get(), target);
+      if (seekerExtension->foreach_computeComparison(logOp->getFirst().get(), target)) return true;
+      return seekerExtension->foreach_computeComparison(logOp->getSecond().get(), target);
     }
   } else if (comparison->isDerivedFrom<Core::Data::Ast::ComparisonOperator>()) {
     auto compareOp = static_cast<Core::Data::Ast::ComparisonOperator const*>(comparison);

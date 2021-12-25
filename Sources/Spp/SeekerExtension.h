@@ -31,18 +31,18 @@ class SeekerExtension : public ObjTiInterface
   {
     TiFunctionBase *foreachRef;
     TiFunctionBase *extForeachRef;
-    TiFunctionBase *foreachByIdentifier_levelRef;
-    TiFunctionBase *foreachByIdentifier_functionRef;
-    TiFunctionBase *foreachByIdentifier_dataTypeRef;
-    TiFunctionBase *foreachByLinkOperator_routingRef;
-    TiFunctionBase *foreachByParamPassRef;
-    TiFunctionBase *foreachByParamPass_routingRef;
-    TiFunctionBase *foreachByParamPass_templateRef;
-    TiFunctionBase *foreachByThisTypeRefRef;
-    TiFunctionBase *foreachByComparisonRef;
-    TiFunctionBase *foreachByComparison_levelRef;
-    TiFunctionBase *foreachByComparison_scopeRef;
-    TiFunctionBase *foreachByComparison_computeRef;
+    TiFunctionBase *foreach_identifierLevelRef;
+    TiFunctionBase *foreach_identifierOnFuncRef;
+    TiFunctionBase *foreach_identifierOnDataTypeRef;
+    TiFunctionBase *foreach_linkOperatorRoutingRef;
+    TiFunctionBase *foreach_paramPassRef;
+    TiFunctionBase *foreach_paramPassRoutingRef;
+    TiFunctionBase *foreach_paramPassOnTemplateRef;
+    TiFunctionBase *foreach_thisTypeRefRef;
+    TiFunctionBase *foreach_comparisonRef;
+    TiFunctionBase *foreach_comparisonLevelRef;
+    TiFunctionBase *foreach_comparisonOnScopeRef;
+    TiFunctionBase *foreach_computeComparisonRef;
   };
 
   public: ti_s_enum(Action, TiInt, "Spp", "Spp", "alusus.org",
@@ -67,16 +67,16 @@ class SeekerExtension : public ObjTiInterface
   {
     Basic::initBindingCaches(this->owner, {
       &this->astHelper,
-      &this->foreachByIdentifier_function,
-      &this->foreachByIdentifier_dataType,
-      &this->foreachByParamPass,
-      &this->foreachByParamPass_routing,
-      &this->foreachByParamPass_template,
-      &this->foreachByThisTypeRef,
-      &this->foreachByComparison,
-      &this->foreachByComparison_level,
-      &this->foreachByComparison_scope,
-      &this->foreachByComparison_compute
+      &this->foreach_identifierOnFunc,
+      &this->foreach_identifierOnDataType,
+      &this->foreach_paramPass,
+      &this->foreach_paramPassRouting,
+      &this->foreach_paramPassOnTemplate,
+      &this->foreach_thisTypeRef,
+      &this->foreach_comparison,
+      &this->foreach_comparisonLevel,
+      &this->foreach_comparisonOnScope,
+      &this->foreach_computeComparison
     });
   }
 
@@ -126,97 +126,97 @@ class SeekerExtension : public ObjTiInterface
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  private: static Core::Data::Seeker::Verb _foreachByIdentifier_level(
+  private: static Core::Data::Seeker::Verb _foreach_identifierLevel(
     TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByIdentifier_function,
+  public: METHOD_BINDING_CACHE(foreach_identifierOnFunc,
     Core::Data::Seeker::Verb, (
       Data::Ast::Identifier const*, Ast::Function*, Core::Data::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreachByIdentifier_function(
+  private: static Core::Data::Seeker::Verb _foreach_identifierOnFunc(
     TiObject *self, Data::Ast::Identifier const *identifier, Ast::Function *function,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByIdentifier_dataType,
+  public: METHOD_BINDING_CACHE(foreach_identifierOnDataType,
     Core::Data::Seeker::Verb, (
       Data::Ast::Identifier const*, Ast::DataType*, Core::Data::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreachByIdentifier_dataType(
+  private: static Core::Data::Seeker::Verb _foreach_identifierOnDataType(
     TiObject *self, Data::Ast::Identifier const *identifier, Ast::DataType *type,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  private: static Core::Data::Seeker::Verb _foreachByLinkOperator_routing(
+  private: static Core::Data::Seeker::Verb _foreach_linkOperatorRouting(
     TiFunctionBase *base, TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByParamPass,
+  public: METHOD_BINDING_CACHE(foreach_paramPass,
     Core::Data::Seeker::Verb, (Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreachByParamPass(
+  private: static Core::Data::Seeker::Verb _foreach_paramPass(
     TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByParamPass_routing,
+  public: METHOD_BINDING_CACHE(foreach_paramPassRouting,
     Core::Data::Seeker::Verb, (
       Data::Ast::ParamPass const*, TiObject *, Core::Data::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreachByParamPass_routing(
+  private: static Core::Data::Seeker::Verb _foreach_paramPassRouting(
     TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByParamPass_template,
+  public: METHOD_BINDING_CACHE(foreach_paramPassOnTemplate,
     Core::Data::Seeker::Verb, (TiObject*, Spp::Ast::Template*, Core::Data::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreachByParamPass_template(
+  private: static Core::Data::Seeker::Verb _foreach_paramPassOnTemplate(
     TiObject *self, TiObject *param, Spp::Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb,
     Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByThisTypeRef,
+  public: METHOD_BINDING_CACHE(foreach_thisTypeRef,
     Core::Data::Seeker::Verb, (TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreachByThisTypeRef(
+  private: static Core::Data::Seeker::Verb _foreach_thisTypeRef(
     TiObject *self, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByComparison,
+  public: METHOD_BINDING_CACHE(foreach_comparison,
     Core::Data::Seeker::Verb, (TiObject const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreachByComparison(
+  private: static Core::Data::Seeker::Verb _foreach_comparison(
     TiObject *self, TiObject const *comparison, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByComparison_level,
+  public: METHOD_BINDING_CACHE(foreach_comparisonLevel,
     Core::Data::Seeker::Verb, (TiObject const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreachByComparison_level(
+  private: static Core::Data::Seeker::Verb _foreach_comparisonLevel(
     TiObject *self, TiObject const *comparison, TiObject *data,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByComparison_scope,
+  public: METHOD_BINDING_CACHE(foreach_comparisonOnScope,
     Core::Data::Seeker::Verb, (
       TiObject const*, Core::Data::Ast::Scope*, Core::Data::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreachByComparison_scope(
+  private: static Core::Data::Seeker::Verb _foreach_comparisonOnScope(
     TiObject *self, TiObject const *comparison, Core::Data::Ast::Scope *scope,
     Core::Data::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreachByComparison_compute, Bool, (TiObject const*, TiObject*));
-  private: static Bool _foreachByComparison_compute(TiObject *self, TiObject const *comparison, TiObject *target);
+  public: METHOD_BINDING_CACHE(foreach_computeComparison, Bool, (TiObject const*, TiObject*));
+  private: static Bool _foreach_computeComparison(TiObject *self, TiObject const *comparison, TiObject *target);
 
   /// @}
 
