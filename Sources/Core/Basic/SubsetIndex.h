@@ -49,7 +49,10 @@ class SubsetIndex
     if (pos == -1) {
       if (withinSubset) this->indices.add(index);
     } else {
-      if (withinSubset) this->indices.insert(pos, index);
+      if (withinSubset) {
+        this->indices.insert(pos, index);
+        ++pos;
+      }
       for (Int i = pos; i < this->indices.getLength(); ++i) ++this->indices(i);
     }
   }
