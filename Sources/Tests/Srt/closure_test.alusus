@@ -186,22 +186,65 @@ func runThisAccess (c: closure ()) {
     c();
 }
 
-class ThisAccessTester {
+class ThisAccessTester1 {
     def i: Int = 15;
 
     handler this.prepare (): (closure ()) {
         def c: closure () = closure () {
-            print("ThisAccessTester.prepare: %d\n", this.i);
+            print("ThisAccessTester1.prepare: %d\n", this.i);
         };
         this.i = 14;
         return c;
     }
 }
 
+def cThisAccessTester2: closure();
+
+class ThisAccessTester2 {
+    def i: Int = 16;
+
+    cThisAccessTester2 = closure () {
+        print("ThisAccessTester2~init: %d\n", this.i);
+    };
+    i = 15;
+}
+
 func testThisAccess {
-    def v: ThisAccessTester;
+    def v: ThisAccessTester1;
     def c: closure() = v.prepare();
     runThisAccess(c);
+    def v2: ThisAccessTester2;
+    runThisAccess(cThisAccessTester2);
+
+    def n1: Int(16);
+    def cb1: closure();
+    def cb2: closure();
+    def rcb2: ref[cb2~type](cb2);
+    n1.{
+        def n: Int(17);
+        cb1 = closure() {
+            print("testThisAccess n1.{} %d, %d\n", this, n);
+            this++;
+            def self: this~type(this);
+            rcb2 = closure() {
+                print("testThisAccess n1.{} inner %d, %d\n", this, self);
+                this++;
+                self++;
+            }
+        };
+    };
+    runThisAccess(cb1);
+    runThisAccess(cb2);
+    print("testThisAccess n1=%d\n", n1);
+
+    n1~use_in(self){
+        cb1 = closure() {
+            print("testThisAccess n1~useIn(self) %d\n", self);
+            self++;
+        };
+    };
+    runThisAccess(cb1);
+    print("testThisAccess n1=%d\n", n1);
 }
 testThisAccess();
 
@@ -220,11 +263,11 @@ func runDataRelease (c: closure ()) {
 
 func prepareDataRelease (): (closure ()) {
     def t: MyType;
-    t.i = 16;
+    t.i = 22;
     def c: closure () = closure () {
         print("prepareDataRelease: %d\n", t.i);
     };
-    t.i = 15;
+    t.i = 21;
     return c;
 }
 
@@ -246,11 +289,21 @@ func testTemplates {
     v.c = closure (t: Int) {
         print("testTemplates: %d\n", t);
     };
-    v.c(17);
+    v.c(23);
 }
 testTemplates();
 
 // Erro cases
+
+class ThisAccessError {
+    def i: Int;
+    func prepareCb () {
+        cb = closure() {
+            Console.print("%d\n", this.i);
+            this.i++;
+        }
+    }
+}
 
 func testErrorCases {
     def cInvalidArgType: closure (j: Invalid) = closure (j: Invalid) {
@@ -263,6 +316,8 @@ func testErrorCases {
     def cMissingVar: closure () = closure () {
         missingVar = 0;
     };
+
+    ThisAccessError.prepareCb();
 }
 print("\ntestErrorCases:\n");
 testErrorCases();
