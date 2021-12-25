@@ -219,6 +219,14 @@ Bool ExpressionGenerator::_generate(
       );
       return false;
     }
+  } else if (astNode->isDerivedFrom<Spp::Ast::PreGenTransformStatement>()) {
+    auto preGenTransformStatement = static_cast<Ast::PreGenTransformStatement*>(astNode);
+    if (!preGenTransformStatement->isTransformed()) {
+      auto transformedBody = preGenTransformStatement->getTransformFunc()(preGenTransformStatement->getBody().get());
+      preGenTransformStatement->setBody(transformedBody);
+      preGenTransformStatement->setTransformed(true);
+    }
+    return expGenerator->generate(preGenTransformStatement->getBody().get(), g, session, result);
   }
   expGenerator->astHelper->getNoticeStore()->add(
     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))

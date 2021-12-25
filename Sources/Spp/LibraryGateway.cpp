@@ -24,6 +24,10 @@ using namespace Core::Processing::Handlers;
 
 void LibraryGateway::initialize(Main::RootManager *manager)
 {
+  // Initialize type info for types that aren't initialized at the C++ side prior to being used on Alusus side.
+  TiPtr::getTypeInfo();
+  Ast::PreGenTransformStatement::getTypeInfo();
+
   // Create AST helpers.
   this->nodePathResolver = newSrdObj<Ast::NodePathResolver>();
   this->astHelper = newSrdObj<Ast::Helper>(manager, this->nodePathResolver.get());

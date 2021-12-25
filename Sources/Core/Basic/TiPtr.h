@@ -1,6 +1,6 @@
 /**
- * @file Core/Basic/TiBool.h
- * Contains the header of class Core::Basic::TiBool.
+ * @file Core/Basic/TiPtr.h
+ * Contains the header of class Core::Basic::TiPtr.
  *
  * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
  *
@@ -10,55 +10,55 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_TIBOOL_H
-#define CORE_BASIC_TIBOOL_H
+#ifndef CORE_BASIC_TIPTR_H
+#define CORE_BASIC_TIPTR_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 /**
- * @brief An identifiable object that holds a boolean.
+ * @brief An identifiable object that holds a ptr.
  * @ingroup basic_datatypes
  */
-template<class P> class TiBoolBase : public P
+template<class P> class TiPtrBase : public P
 {
   //============================================================================
   // Type Info
 
-  typedef TiBoolBase<P> _MyType;
-  TEMPLATE_TYPE_INFO(TiBoolBase, P, "Core.Basic", "Core", "alusus.org", (P));
+  typedef TiPtrBase<P> _MyType;
+  TEMPLATE_TYPE_INFO(TiPtrBase, P, "Core.Basic", "Core", "alusus.org", (P));
   OBJECT_FACTORY(_MyType);
 
 
   //============================================================================
   // Member Variables
 
-  private: Bool value;
+  private: void *value;
 
 
   //============================================================================
   // Constructor
 
-  public: TiBoolBase(Bool v=false) : value(v)
+  public: TiPtrBase(void *v=0) : value(v)
   {
   }
 
-  public: static SharedPtr<TiBoolBase<P>> create(Bool v=0)
+  public: static SharedPtr<TiPtrBase<P>> create(void *v=0)
   {
-    return newSrdObj<TiBoolBase<P>>(v);
+    return newSrdObj<TiPtrBase<P>>(v);
   }
 
 
   //============================================================================
   // Operators
 
-  public: TiBoolBase<P>& operator=(Bool v)
+  public: TiPtrBase<P>& operator=(void *v)
   {
     this->value = v;
     return *this;
   }
 
-  public: operator Bool() const
+  public: operator void*() const
   {
     return this->value;
   }
@@ -67,12 +67,12 @@ template<class P> class TiBoolBase : public P
   //============================================================================
   // Member Functions
 
-  public: void set(Bool v)
+  public: void set(void *v)
   {
     this->value = v;
   }
 
-  public: Bool get() const
+  public: void* get() const
   {
     return this->value;
   }
@@ -83,8 +83,8 @@ template<class P> class TiBoolBase : public P
 //==============================================================================
 // Typedefs
 
-typedef TiBoolBase<TiObject> TiBool;
+typedef TiPtrBase<TiObject> TiPtr;
 
-} } // namespace
+} // namespace
 
 #endif

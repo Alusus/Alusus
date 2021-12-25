@@ -41,6 +41,7 @@ import "Core/Data";
         defAstType[PointerOp, "alusus.org/Spp/Spp.Ast.PointerOp"];
         defAstType[SizeOp, "alusus.org/Spp/Spp.Ast.SizeOp"];
         defAstType[TypeOp, "alusus.org/Spp/Spp.Ast.TypeOp"];
+        defAstType[UseInOp, "alusus.org/Spp/Spp.Ast.UseInOp"];
 
         defAstType[Block, "alusus.org/Spp/Spp.Ast.Block"];
         defAstType[Function, "alusus.org/Spp/Spp.Ast.Function"];
@@ -55,6 +56,7 @@ import "Core/Data";
         defAstType[BreakStatement, "alusus.org/Spp/Spp.Ast.BreakStatement"];
         defAstType[ReturnStatement, "alusus.org/Spp/Spp.Ast.ReturnStatement"];
         defAstType[PreprocessStatement, "alusus.org/Spp/Spp.Ast.PreprocessStatement"];
+        defAstType[PreGenTransformStatement, "alusus.org/Spp/Spp.Ast.PreGenTransformStatement"];
 
         defAstType[ArgPack, "alusus.org/Spp/Spp.Ast.ArgPack"];
         defAstType[AstLiteralCommand, "alusus.org/Spp/Spp.Ast.AstLiteralCommand"];
