@@ -117,6 +117,7 @@
       <keyword>ast</keyword>
       <keyword>as_ptr</keyword>
       <keyword>set_ptr</keyword>
+      <keyword>no_injection</keyword>
     </context>
 
     <context id="ar-block-keyword" style-ref="block-keyword">
@@ -160,6 +161,7 @@
       <keyword>شبم</keyword>
       <keyword>كمؤشر</keyword>
       <keyword>حدد_مؤشر</keyword>
+      <keyword>بلا_حقن</keyword>
     </context>
 
     <context id="constant" style-ref="constant">

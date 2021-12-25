@@ -6,16 +6,16 @@ Author: Sarmad Khalid Abdullah <sarmad@alusus.org>
 function(hljs) {
   var KEYWORDS =
     'trule prule prule_group module type macro integer string list map lexer start as ref temp_ref in ' +
-    'prefix inherits self root dimension import def function output use cast cnt ptr array any ' +
+    'prefix inherits root dimension import def function output use cast cnt ptr array any ' +
     'null false while private catch export virtual operator sizeof closure ' +
     'dynamic_cast typedef const_cast|10 const struct for static_cast union namespace ' +
     'unsigned long throw volatile static protected template mutable if public friend ' +
     'do return goto auto enum else break new extern using true class case typeid ' +
     'short reinterpret_cast default double register explicit signed typename try this ' +
-    'switch continue inline delete alignof finally and or not handler this this_type value ' +
+    'switch continue inline delete alignof finally and or not handler this this_type value no_injection ' +
     'noexcept nullptr static_assert thread_local restrict alias dump_ast init preprocess ast as_ptr set_ptr ' +
     'اشمل عرف عرّف وحدة دالة دالّة هيكل إذا بينما لكل أرجع ارجع مؤشر محتوى مصفوفة أيما  لقب شبم مغلفة كمؤشر حدد_مؤشر ' +
-    'صنف وإلا اقطع أكمل أدرج_ش_ب_م و أو ليس ماكرو استخدم سند سند_مؤقت عملية هذا هذا_الصنف قيمة هيئ تمهيد';
+    'صنف وإلا اقطع أكمل أدرج_ش_ب_م و أو ليس ماكرو استخدم سند سند_مؤقت عملية هذا هذا_الصنف قيمة هيئ تمهيد بلا_حقن';
   return {
     aliases: ['alusus'],
     keywords: KEYWORDS,
