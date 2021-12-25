@@ -29,7 +29,7 @@ TypeMatchStatus UserType::matchTargetType(
         auto def = ti_cast<Core::Data::Ast::Definition>(body->getElement(i));
         if (def != 0 && !helper->isSharedDef(def)) {
           auto obj = def->getTarget().get();
-          if (obj != 0 && helper->isVariable(obj)) {
+          if (obj != 0 && helper->isInMemVariable(obj)) {
             auto memberType = helper->traceType(obj);
             auto memberMatchStatus = memberType->matchTargetType(type, helper, ec, opts | TypeMatchOptions::SKIP_DEREF);
             if (
@@ -81,7 +81,7 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper, ExecutionContex
               method |= TypeInitMethod::USER;
               if (method == TypeInitMethod::BOTH) break;
             }
-          } else if (helper->isVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
+          } else if (helper->isInMemVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
             auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(def->getTarget().get());
             if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
               // If there are args passed to the definition then it's an AUTO init method even if the object type
@@ -123,7 +123,7 @@ TypeInitMethod UserType::getDestructionMethod(Helper *helper, ExecutionContext c
               method |= TypeInitMethod::USER;
               if (method == TypeInitMethod::BOTH) break;
             }
-          } else if (helper->isVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
+          } else if (helper->isInMemVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
             auto type = helper->traceType(def->getTarget().get());
             if (type != 0 && type->getDestructionMethod(helper, ec) != TypeInitMethod::NONE) {
               method |= TypeInitMethod::AUTO;

@@ -31,4 +31,14 @@ Console.print("Factorial of %d=%d\n", i, Int()~use_in{ def n: Int(i); this = n; 
 
 Console.print("Factorial of %d=%d\n", i, Int()~use_in(self){ def n: Int(i); self = n; while --n > 1 self*=n });
 
+class B {
+    def j: Int;
+}
+
+Console.print("B().j = %d\n", B()~use_in(self){ j = 3 }.j);
+
+Console.print("B().j = %d\n", B()~use_in(self) no_injection { self.j = 4 }.j);
+
+Console.print("B().j = %d\n", B()~use_in(self) no_injection { j = 5 }.j);
+
 ptr[Char]().{ i = "wrong" };

@@ -16,13 +16,15 @@
 namespace Spp::Ast
 {
 
+s_enum(CalleeLookupMode, DIRECTLY_ACCESSIBLE, OBJECT_MEMBER, SCOPE_MEMBER);
+
 /// @ingroup spp_ast
 struct CalleeLookupRequest
 {
   Core::Data::Node *astNode = 0;
   TiObject *target = 0;
-  Bool targetIsObject = false;
-  Bool searchTargetOwners = false;
+  CalleeLookupMode mode = CalleeLookupMode::DIRECTLY_ACCESSIBLE;
+  Bool skipInjections = false;
   Char const *varTargetOp = 0;
   TiObject *ref = 0;
   Str op;

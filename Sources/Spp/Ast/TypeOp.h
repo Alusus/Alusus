@@ -35,6 +35,7 @@ class TypeOp : public Core::Data::Node,
   // Member Variables
 
   private: TioSharedPtr operand;
+  private: Type *type = 0;
 
 
   //============================================================================
@@ -47,7 +48,10 @@ class TypeOp : public Core::Data::Node,
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (operand, TiObject, SHARED_REF, setOperand(value), operand.get()));
+  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+    (operand, TiObject, SHARED_REF, setOperand(value), operand.get()),
+    (type, Type, PLAIN_REF, setType(value), type)
+  );
 
   IMPLEMENT_AST_MAP_PRINTABLE(TypeOp);
 
@@ -82,6 +86,16 @@ class TypeOp : public Core::Data::Node,
   public: TioSharedPtr const& getOperand() const
   {
     return this->operand;
+  }
+
+  public: void setType(Type *t)
+  {
+    this->type = t;
+  }
+
+  public: Type* getType() const
+  {
+    return this->type;
   }
 
 }; // class

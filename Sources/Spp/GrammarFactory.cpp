@@ -60,7 +60,8 @@ void GrammarFactory::createGrammar()
     S("any"), S("أيما"),
     S("next_arg"), S("المعطى_التالي"),
     S("as_ptr"), S("كمؤشر"),
-    S("set_ptr"), S("حدد_مؤشر")
+    S("set_ptr"), S("حدد_مؤشر"),
+    S("no_injection"), S("بلا_حقن")
   });
 
   // Add translations for def modifiers.
@@ -760,12 +761,18 @@ void GrammarFactory::createGrammar()
       }
     }
   }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::NextArgOp>::create());
-  // ~use_in
+  // ~use_in = "~use_in" + Subject + UseInOptions + Set
   this->createCommand(S("root.Main.UseInTilde"), {{
     Map::create({}, {{S("use_in"), 0}, {S("استخدم_في"), 0}}),
     {
       {
         PARSE_REF(S("module.UseInSubject")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.UseInOptions")),
         TiInt::create(0),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -793,6 +800,12 @@ void GrammarFactory::createGrammar()
       {S("fltr"), newSrdObj<TiInt>(1)}
     })}
   }).get());
+  this->createCommand(S("root.Main.UseInOptions"), {{
+    Map::create({}, {
+      { S("no_injection"), 0 },
+      { S("بلا_حقن"), newSrdObj<TiStr>(("no_injection")) }
+    }), {}
+  }}, newSrdObj<GenericParsingHandler>());
 
   // Add command references.
 
@@ -873,7 +886,8 @@ void GrammarFactory::cleanGrammar()
     S("any"), S("أيما"),
     S("next_arg"), S("المعطى_التالي"),
     S("as_ptr"), S("كمؤشر"),
-    S("set_ptr"), S("حدد_مؤشر")
+    S("set_ptr"), S("حدد_مؤشر"),
+    S("no_injection"), S("بلا_حقن")
   });
 
   // Remove translation for static modifier.
@@ -938,6 +952,7 @@ void GrammarFactory::cleanGrammar()
   this->tryRemove(S("root.Main.NextArgTilde"));
   this->tryRemove(S("root.Main.UseInTilde"));
   this->tryRemove(S("root.Main.UseInSubject"));
+  this->tryRemove(S("root.Main.UseInOptions"));
 
   // Delete leading command definitions.
   this->tryRemove(S("root.Main.If"));

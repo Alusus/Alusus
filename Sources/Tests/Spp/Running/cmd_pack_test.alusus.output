@@ -10,4 +10,7 @@ two
 Factorial of 5=120
 Factorial of 5=120
 Factorial of 5=120
-ERROR SPPG1015 @ (34,15): Incompatible types for the given operator.
+B().j = 3
+B().j = 4
+ERROR SPPA1007 @ (42,63): Unknown symbol.
+ERROR SPPG1015 @ (44,15): Incompatible types for the given operator.

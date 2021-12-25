@@ -35,6 +35,7 @@ class Variable : public Core::Data::Node,
   // Member Variables
 
   private: TioSharedPtr typeRef;
+  private: TiBool valueOnly;
   private: Type *type = 0;
 
 
@@ -44,6 +45,7 @@ class Variable : public Core::Data::Node,
   IMPLEMENT_METAHAVING(Variable);
 
   IMPLEMENT_BINDING(Binding,
+    (valueOnly, TiBool, VALUE, setValueOnly(value), &valueOnly),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
@@ -53,7 +55,7 @@ class Variable : public Core::Data::Node,
     (type, Type, PLAIN_REF, setType(value), type)
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(Variable);
+  IMPLEMENT_AST_MAP_PRINTABLE(Variable, << (this->valueOnly ? S("valueOnly") : S("inMem")));
 
 
   //============================================================================
@@ -86,6 +88,20 @@ class Variable : public Core::Data::Node,
   public: TioSharedPtr const& getTypeRef() const
   {
     return this->typeRef;
+  }
+
+  public: void setValueOnly(Bool vo)
+  {
+    this->valueOnly = vo;
+  }
+  public: void setValueOnly(TiBool const *vo)
+  {
+    this->valueOnly = vo == 0 ? false : vo->get();
+  }
+
+  public: Bool isValueOnly() const
+  {
+    return this->valueOnly.get();
   }
 
   public: void setType(Type *t)

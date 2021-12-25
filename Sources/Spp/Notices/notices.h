@@ -283,6 +283,9 @@ DEFINE_NOTICE(IncompleteOutfixOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPP
   "Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated"
   " to null."
 );
+DEFINE_NOTICE(InvalidUseInTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1039", 1,
+  "Invalid target for use_in operation."
+);
 
 } // namespace
 

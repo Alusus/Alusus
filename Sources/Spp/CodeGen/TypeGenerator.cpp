@@ -300,8 +300,8 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
     auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
-      if (typeGenerator->astHelper->isVariable(obj)) {
-        if (typeGenerator->astHelper->getVariableDomain(def) != Ast::DefinitionDomain::GLOBAL) {
+      if (typeGenerator->astHelper->isInMemVariable(obj)) {
+        if (typeGenerator->astHelper->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT) {
           TiObject *tgType;
           Ast::Type *astMemberType;
           if (!typeGenerator->getGeneratedType(obj, g, session, tgType, &astMemberType)) {
@@ -324,6 +324,8 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
             result = false;
           }
         }
+      } else if (typeGenerator->astHelper->isValueOnlyVariable(obj)) {
+        continue;
       } else if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
         if (!typeGenerator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) {
           result = false;
@@ -402,16 +404,17 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   auto body = astType->getBody().get();
   session->getEda()->setCodeGenData(body, tgContext);
 
-  auto thisIndex = g->addThisDefinition(body, S("this"), astType, args.get(0), &childSession);
+  auto astThisType = typeGenerator->getAstHelper()->getReferenceTypeFor(astType, Ast::ReferenceMode::EXPLICIT);
+  g->addThisDefinition(body, S("this"), astThisType, false, args.get(0), &childSession);
 
   // Main loop.
-  for (Int i = 0; i < thisIndex; ++i) {
+  for (Int i = 0; i < body->getElementCount(); ++i) {
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Data::Ast::Definition>(obj);
     if (def != 0) {
       auto target = def->getTarget().get();
       if (
-        typeGenerator->getAstHelper()->isVariable(target) &&
+        typeGenerator->getAstHelper()->isInMemVariable(target) &&
         typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Initialize member variable.
@@ -428,8 +431,6 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type constructor."));
   }
-
-  body->remove(thisIndex);
 
   session->getEda()->removeCodeGenData(body);
 
@@ -494,7 +495,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
     if (def != 0) {
       auto target = def->getTarget().get();
       if (
-        typeGenerator->getAstHelper()->isVariable(target) &&
+        typeGenerator->getAstHelper()->isInMemVariable(target) &&
         typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Destruct member variable.
@@ -876,7 +877,7 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
     auto def = ti_cast<Core::Data::Ast::Definition>(body->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
-      if (typeGenerator->getAstHelper()->isVariable(obj)) {
+      if (typeGenerator->getAstHelper()->isInMemVariable(obj)) {
         if (typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT) {
           TiObject *tgMemberType;
           Ast::Type *astMemberType;

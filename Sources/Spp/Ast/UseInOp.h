@@ -35,6 +35,7 @@ class UseInOp : public Core::Data::Node,
   // Member Variables
 
   private: TiStr operandName;
+  private: TiBool skipInjection;
   private: TioSharedPtr operand;
   private: SharedPtr<Spp::Ast::Block> body;
 
@@ -46,6 +47,7 @@ class UseInOp : public Core::Data::Node,
 
   IMPLEMENT_BINDING(Binding,
     (operandName, TiStr, VALUE, setOperandName(value), &operandName),
+    (skipInjection, TiBool, VALUE, setSkipInjection(value), &skipInjection),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
@@ -55,7 +57,7 @@ class UseInOp : public Core::Data::Node,
     (body, Spp::Ast::Block, SHARED_REF, setBody(value), body.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(UseInOp, << this->operandName.get());
+  IMPLEMENT_AST_MAP_PRINTABLE(UseInOp, << this->operandName.get() << (this->skipInjection ? S(" skipInjection") : ""));
 
 
   //============================================================================
@@ -103,6 +105,20 @@ class UseInOp : public Core::Data::Node,
   public: TioSharedPtr const& getOperand() const
   {
     return this->operand;
+  }
+
+  public: void setSkipInjection(Bool si)
+  {
+    this->skipInjection = si;
+  }
+  public: void setSkipInjection(TiBool const *si)
+  {
+    this->skipInjection = si == 0 ? false : si->get();
+  }
+
+  public: Bool isSkipInjection() const
+  {
+    return this->skipInjection.get();
   }
 
   public: void setBody(SharedPtr<Spp::Ast::Block> const &b)

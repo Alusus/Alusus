@@ -23,6 +23,8 @@ void Helper::initBindingCaches()
   Basic::initBindingCaches(this, {
     &this->isAstReference,
     &this->isVariable,
+    &this->isInMemVariable,
+    &this->isValueOnlyVariable,
     &this->lookupCustomCaster,
     &this->traceType,
     &this->isVoid,
@@ -59,6 +61,8 @@ void Helper::initBindings()
 {
   this->isAstReference = &Helper::_isAstReference;
   this->isVariable = &Helper::_isVariable;
+  this->isInMemVariable = &Helper::_isInMemVariable;
+  this->isValueOnlyVariable = &Helper::_isValueOnlyVariable;
   this->lookupCustomCaster = &Helper::_lookupCustomCaster;
   this->traceType = &Helper::_traceType;
   this->isVoid = &Helper::_isVoid;
@@ -117,6 +121,27 @@ Bool Helper::_isVariable(TiObject *self, TiObject *obj)
 }
 
 
+Bool Helper::_isInMemVariable(TiObject *self, TiObject *obj)
+{
+  return
+    (obj->isDerivedFrom<Spp::Ast::Variable>() && !static_cast<Spp::Ast::Variable*>(obj)->isValueOnly()) ||
+    // TODO: Remove the following once the Variable class is fully utilized.
+    obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
+    obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
+    obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
+    obj->isDerivedFrom<Spp::Ast::ThisTypeRef>() ||
+    obj->isDerivedFrom<Spp::Ast::TypeOp>();
+}
+
+
+Bool Helper::_isValueOnlyVariable(TiObject *self, TiObject *obj)
+{
+  return
+    obj->isDerivedFrom<Spp::Ast::Variable>() &&
+    static_cast<Spp::Ast::Variable*>(obj)->isValueOnly();
+}
+
+
 TypeMatchStatus Helper::_lookupCustomCaster(
   TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
 ) {
@@ -166,10 +191,13 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   TiObject *foundObj = 0;
   Spp::Ast::Type *type = 0;
   if (ref->isDerivedFrom<Spp::Ast::TypeOp>()) {
-    auto operand = static_cast<Spp::Ast::TypeOp*>(ref)->getOperand().ti_cast_get<Core::Data::Node>();
+    auto typeOp = static_cast<Spp::Ast::TypeOp*>(ref);
+    if (typeOp->getType() != 0) return typeOp->getType();
+    auto operand = typeOp->getOperand().ti_cast_get<Core::Data::Node>();
     auto typeRef = helper->getSeeker()->tryGet(operand, operand->getOwner());
     if (typeRef != 0) {
       type = helper->traceType(typeRef);
+      if (type != 0) typeOp->setType(type);
     }
   }
   else if (ref->isDerivedFrom<Spp::Ast::Type>()) {
@@ -185,15 +213,15 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     }
   } else if (ref->isDerivedFrom<Spp::Ast::Variable>()) {
     auto var = static_cast<Spp::Ast::Variable*>(ref);
-    // type = tryGetAstType(var);
     if (var->getType() != 0) return var->getType();
-    // if (type != 0) return type;
     if (var->getTypeRef() == 0) {
       throw EXCEPTION(GenericException, S("Variable definition is missing the type reference."));
     }
     type = helper->traceType(var->getTypeRef().get());
-    // if (type != 0) setAstType(var, type);
     var->setType(type);
+  } else if (ref->isDerivedFrom<Spp::Ast::ArgPack>()) {
+    // With arg packs we should aready have the type set during the generation of the function signature.
+    return getAstType(ref);
   } else if (ref->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(ref);
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
@@ -207,9 +235,8 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(ref);
     if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
       typeRef = paramPass->getOperand().ti_cast_get<Core::Data::Node>();
-    }
-    if (typeRef == 0) {
-      throw EXCEPTION(GenericException, S("Invalid type reference."));
+      if (typeRef == 0) throw EXCEPTION(GenericException, S("Invalid type reference."));
+      return helper->traceType(typeRef);
     }
     helper->getSeeker()->extForeach(typeRef, owner,
       [=, &foundObj, &type, &notice](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
@@ -800,6 +827,10 @@ DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
     }
   }
 
+  // Values are always treated as local.
+  auto var = def->getTarget().ti_cast_get<Ast::Variable>();
+  if (var != 0 && var->isValueOnly()) return DefinitionDomain::FUNCTION;
+
   auto owner = def->getOwner();
   while (owner != 0) {
     if (owner->isDerivedFrom<Module>()) {
@@ -818,6 +849,12 @@ DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
       return DefinitionDomain::FUNCTION;
     } else if (owner->isDerivedFrom<IfStatement>()) {
       return DefinitionDomain::FUNCTION;
+    } else if (owner->isDerivedFrom<Block>()) {
+      if (
+        owner->getOwner()->isDerivedFrom<UseInOp>() || owner->getOwner()->isDerivedFrom<Core::Data::Ast::LinkOperator>()
+      ) {
+        return DefinitionDomain::FUNCTION;
+      }
     }
     owner = owner->getOwner();
   }
