@@ -86,7 +86,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Ses
       } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
         if (!generation->generateUserTypeBody(static_cast<Spp::Ast::UserType*>(target), session)) result = false;
         // TODO: Generate member functions and sub-types.
-      } else if (generator->getAstHelper()->isVariable(target)) {
+      } else if (generator->getAstHelper()->isInMemVariable(target)) {
         // Generate global variable.
         if (!generation->generateVarDef(def, session)) {
           result = false;
@@ -554,15 +554,15 @@ Bool Generator::_generateVarInitialization(
 
     // Add `this` to parameter list.
     auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, Ast::ReferenceMode::IMPLICIT);
-    paramAstNodes->insertElement(0, astNode);
-    paramAstTypes->insertElement(0, varPtrAstType);
-    paramTgValues->insertElement(0, tgVarRef);
 
     // Do we have constructors matching the given vars?
     static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
     Ast::CalleeLookupRequest lookupRequest;
     lookupRequest.astNode = astNode;
     lookupRequest.target = varAstType;
+    lookupRequest.thisType = varPtrAstType;
+    lookupRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+    lookupRequest.skipInjections = true;
     lookupRequest.ref = &ref;
     lookupRequest.argTypes = paramAstTypes;
     lookupRequest.op = S("~init");
@@ -572,6 +572,9 @@ Bool Generator::_generateVarInitialization(
     if (lookupResult.isSuccessful() && lookupResult.stack.getLength() == 1) {
       auto callee = lookupResult.stack(lookupResult.stack.getLength() - 1);
       // Prepare the arguments to send.
+      paramAstNodes->insertElement(0, astNode);
+      paramAstTypes->insertElement(0, varPtrAstType);
+      paramTgValues->insertElement(0, tgVarRef);
       if (!generator->getExpressionGenerator()->prepareFunctionParams(
         static_cast<Ast::Function*>(callee.obj)->getType().get(), generation, session,
         paramAstNodes, paramAstTypes, paramTgValues
@@ -581,7 +584,7 @@ Bool Generator::_generateVarInitialization(
       return generator->getExpressionGenerator()->generateFunctionCall(
         astNode, static_cast<Ast::Function*>(callee.obj), paramAstTypes, paramTgValues, generation, session, result
       );
-    } else if (paramAstTypes->getCount() != 1 || generator->getSeeker()->tryGet(&ref, varAstType) != 0) {
+    } else if (paramAstTypes->getCount() != 0 || generator->getSeeker()->tryGet(&ref, varAstType) != 0) {
       // We have custom initialization but no constructors match the given params.
       generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)
@@ -718,14 +721,15 @@ Bool Generator::_generateVarDestruction(
   PlainList<TiObject> paramTgValues;
   PlainList<TiObject> paramAstTypes;
   auto ptrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, Ast::ReferenceMode::IMPLICIT);
-  paramAstTypes.insertElement(0, ptrAstType);
-  paramTgValues.insertElement(0, tgVarRef);
 
   // Find the destructor.
   static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
   Ast::CalleeLookupRequest lookupRequest;
   lookupRequest.astNode = astNode;
   lookupRequest.target = varAstType;
+  lookupRequest.thisType = ptrAstType;
+  lookupRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+  lookupRequest.skipInjections = true;
   lookupRequest.ref = &ref;
   lookupRequest.argTypes = &paramAstTypes;
   lookupRequest.op = S("~terminate");
@@ -735,6 +739,8 @@ Bool Generator::_generateVarDestruction(
   if (lookupResult.isSuccessful() && lookupResult.stack.getLength() == 1) {
     auto callee = static_cast<Ast::Function*>(lookupResult.stack(lookupResult.stack.getLength() - 1).obj);
     // Call the destructor.
+    paramAstTypes.insertElement(0, ptrAstType);
+    paramTgValues.insertElement(0, tgVarRef);
     GenResult result;
     if (!generator->getExpressionGenerator()->generateFunctionCall(
       astNode, callee, &paramAstTypes, &paramTgValues, generation, session, result
@@ -913,7 +919,7 @@ Bool Generator::_generateStatement(
     //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
     //   );
     //   retVal = false;
-    } else if (generator->getAstHelper()->isVariable(target)) {
+    } else if (generator->getAstHelper()->isInMemVariable(target)) {
       // Generate local variable.
       retVal = generation->generateVarDef(def, session);
     } else {
@@ -1008,28 +1014,51 @@ Bool Generator::_getTypeAllocationSize(TiObject *self, Spp::Ast::Type *astType, 
 
 
 Int Generator::_addThisDefinition(
-  TiObject *self, Ast::Block *body, Char const *thisName, Ast::Type *astThisType, TioSharedPtr const &tgThis,
-  Session *session
+  TiObject *self, Ast::Block *body, Char const *thisName, Ast::Type *astThisType, Bool skipInjection,
+  TioSharedPtr const &tgThis, Session *session
 ) {
   PREPARE_SELF(generator, Generator);
-  auto thisRef = Core::Data::Ast::ParamPass::create({
-    {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+  Core::Data::Ast::Definition *def = 0;
+  Int i;
+  // Do we already have the definition?
+  for (i = 0; i < body->getCount(); ++i) {
+    auto tempDef = body->get(i).ti_cast_get<Core::Data::Ast::Definition>();
+    if (
+      tempDef != 0 &&
+      tempDef->getName() == thisName &&
+      generator->getAstHelper()->doesModifierExistOnDef(tempDef, S("__autovar"))
+    ) {
+      def = tempDef;
+      break;
+    }
+  }
+  // We don't have the definition yet, so we'll create it.
+  if (def == 0) {
+    auto modifierList = Core::Data::Ast::List::create({}, {
+      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("__autovar"))} })
+    });
+    if (!skipInjection) {
+      modifierList->add(Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("injection"))} }));
+    }
+    auto newDef = Core::Data::Ast::Definition::create({
+      {S("sourceLocation"), body->getSourceLocation()},
+      {S("name"), TiStr(thisName)}
+    }, {
+      {S("modifiers"), modifierList}      
+    });
+    body->insert(0, newDef);
+    i = 0;
+    def = newDef.get();
+  }
+  // Now we can set the target to the new or existing definition.
+  def->setTarget(Spp::Ast::Variable::create({
+    {S("valueOnly"), TiBool(true)},
+    {S("sourceLocation"), body->getSourceLocation()}
   }, {
-    {S("operand"), Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("iref"))} })},
-    {S("param"), Ast::ThisTypeRef::create()}
-  });
-  auto def = Core::Data::Ast::Definition::create({
-    {S("name"), TiStr(thisName)}
-  }, {
-    {S("target"), thisRef},
-    {S("modifiers"), Core::Data::Ast::List::create({}, {
-      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("injection"))} }),
-      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("shared"))} })
-    })}
-  });
-  session->getEda()->setCodeGenData(thisRef.get(), tgThis);
-  Ast::setAstType(thisRef.get(), astThisType);
-  return body->add(def);
+    {S("type"), astThisType}
+  }));
+  session->getEda()->setCodeGenData(def->getTarget().get(), tgThis);
+  return i;
 }
 
 

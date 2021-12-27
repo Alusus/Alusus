@@ -2803,6 +2803,7 @@ func importFile (filename: ptr[array[Char]]);
                       <li><span class="inlinecode">عـائم_بهوية (TiFloat)</span></li>
                       <li><span class="inlinecode">ثـنائي_بهوية (TiBool)</span></li>
                       <li><span class="inlinecode">نـص_بهوية (TiStr)</span></li>
+                      <li><span class="inlinecode">مـؤشر_بهوية (TiPtr)</span></li>
                     </ul>
                   </div>
 
@@ -3911,6 +3912,9 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
                         <li>
                           <span class="inlinecode">مـؤثر_صنف (TypeOp)</span><br>
                         </li>
+                        <li>
+                          <span class="inlinecode">مـؤثر_استخدم_في (UseInOp)</span><br>
+                        </li>
                       </ul>
                     </div>
 
@@ -3940,6 +3944,9 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
                         <li>
                           <span class="inlinecode">عـبارة_تمهيد (PreprocessStatement)</span><br>
                         </li>
+                        <li>
+                          <span class="inlinecode">عـبارة_ترجمة_قبلية (PreGenTransformStatement)</span><br>
+                        </li>
                       </ul>
                     </div>
 
@@ -3965,6 +3972,9 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
                         </li>
                         <li>
                           <span class="inlinecode">وحـدة (Module)</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">مـتغير (Variable)</span><br>
                         </li>
                         <li>
                           <span class="inlinecode">رزمـة_معطيات (ArgPack)</span><br>

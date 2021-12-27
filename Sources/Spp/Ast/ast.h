@@ -129,7 +129,7 @@ Function* getDummyBuiltInOpFunction();
 #include "UserType.h"
 #include "FunctionType.h"
 #include "Macro.h"
-// Containers / Definitions
+// Containers & Definitions
 #include "Module.h"
 #include "TemplateVarDef.h"
 #include "Template.h"
@@ -143,6 +143,7 @@ Function* getDummyBuiltInOpFunction();
 #include "BreakStatement.h"
 #include "ReturnStatement.h"
 #include "PreprocessStatement.h"
+#include "PreGenTransformStatement.h"
 // Operators
 #include "PointerOp.h"
 #include "ContentOp.h"

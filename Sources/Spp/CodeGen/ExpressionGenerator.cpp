@@ -219,6 +219,14 @@ Bool ExpressionGenerator::_generate(
       );
       return false;
     }
+  } else if (astNode->isDerivedFrom<Spp::Ast::PreGenTransformStatement>()) {
+    auto preGenTransformStatement = static_cast<Ast::PreGenTransformStatement*>(astNode);
+    if (!preGenTransformStatement->isTransformed()) {
+      auto transformedBody = preGenTransformStatement->getTransformFunc()(preGenTransformStatement->getBody().get());
+      preGenTransformStatement->setBody(transformedBody);
+      preGenTransformStatement->setTransformed(true);
+    }
+    return expGenerator->generate(preGenTransformStatement->getBody().get(), g, session, result);
   }
   expGenerator->astHelper->getNoticeStore()->add(
     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))
@@ -2044,16 +2052,24 @@ Bool ExpressionGenerator::_generateUseInOp(
     );
     return false;
   }
+  auto refType = ti_cast<Ast::ReferenceType>(result.astType);
+  if (refType == 0) {
+    expGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::InvalidUseInTargetNotice>(Core::Data::Ast::findSourceLocation(operand))
+    );
+    return false;
+  }
 
   // Generate the body.
-  auto refType = ti_cast<Ast::ReferenceType>(result.astType);
-  auto contentType = refType->getContentType(expGenerator->astHelper);
-  auto thisIndex = g->addThisDefinition(
-    astNode->getBody().get(), astNode->getOperandName().get(), contentType, result.targetData, session
+  // Make sure the reference is not an implicit reference.
+  auto contentType = refType->getContentType(expGenerator->getAstHelper());
+  auto explicitRefType = expGenerator->astHelper->getReferenceTypeFor(contentType, Ast::ReferenceMode::EXPLICIT);
+  g->addThisDefinition(
+    astNode->getBody().get(), astNode->getOperandName().get(), explicitRefType, astNode->isSkipInjection(),
+    result.targetData, session
   );
   TerminalStatement terminal = TerminalStatement::UNKNOWN;
   if (!g->generateStatementBlock(astNode->getBody().get(), session, terminal)) return false;
-  astNode->getBody()->remove(thisIndex);
 
   return true;
 }
@@ -2367,14 +2383,19 @@ Bool ExpressionGenerator::_generateVarReference(
     }
   }
 
-  auto astType = Ast::getAstType(varAstNode);
+  Ast::Type *astType = expGenerator->getAstHelper()->traceType(varAstNode);
   TiObject *tgType;
   if (!g->getGeneratedType(astType, session, tgType, 0)) return false;
 
-  if (session->getTgContext() != 0) {
-    if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgVar, result.targetData)) return false;
+  if (expGenerator->getAstHelper()->isValueOnlyVariable(varAstNode)) {
+    result.targetData = getSharedPtr(tgVar);
+    result.astType = astType;
+  } else {
+    if (session->getTgContext() != 0) {
+      if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgVar, result.targetData)) return false;
+    }
+    result.astType = expGenerator->astHelper->getReferenceTypeFor(astType, Ast::ReferenceMode::IMPLICIT);
   }
-  result.astType = expGenerator->astHelper->getReferenceTypeFor(astType, Ast::ReferenceMode::IMPLICIT);
   return true;
 }
 
@@ -2673,8 +2694,8 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     //// A member of the current scope.
     ////
     calleeRequest.target = static_cast<Core::Data::Ast::Identifier*>(operand)->findOwner<Core::Data::Ast::Scope>();
+    calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
     calleeRequest.ref = operand;
-    calleeRequest.searchTargetOwners = true;
     prevResult = GenResult();
     return true;
   } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
@@ -2695,16 +2716,23 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
         auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
         calleeRequest.target = thisType;
-        calleeRequest.targetIsObject = true;
+        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.ref = linkOperator->getSecond().get();
         calleeRequest.thisType = thisRefType;
         return true;
       } else if (linkOperator->getSecond()->isDerivedFrom<Ast::Block>()) {
         // .{} operator
-        auto block = linkOperator->getSecond().s_cast_get<Ast::Block>();
         auto refType = ti_cast<Ast::ReferenceType>(prevResult.astType);
-        auto contentType = refType->getContentType(expGenerator->astHelper);
-        auto thisIndex = g->addThisDefinition(block, S("this"), contentType, prevResult.targetData, session);
+        if (refType == 0) {
+          expGenerator->astHelper->getNoticeStore()->add(
+            newSrdObj<Spp::Notices::InvalidUseInTargetNotice>(linkOperator->findSourceLocation())
+          );
+          return false;
+        }
+        auto contentType = refType->getContentType(expGenerator->getAstHelper());
+        auto explicitRefType = expGenerator->astHelper->getReferenceTypeFor(contentType, Ast::ReferenceMode::EXPLICIT);
+        auto block = linkOperator->getSecond().s_cast_get<Ast::Block>();
+        g->addThisDefinition(block, S("this"), explicitRefType, false, prevResult.targetData, session);
         TerminalStatement terminal = TerminalStatement::UNKNOWN;
         if (!g->generateStatementBlock(block, session, terminal)) return false;
         Ast::Type *prevAstType;
@@ -2717,8 +2745,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         }
         calleeRequest.target = prevAstType;
         calleeRequest.thisType = prevThisAstType;
-        calleeRequest.targetIsObject = true;
-        block->remove(thisIndex);
+        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         return true;
       } else {
         expGenerator->astHelper->getNoticeStore()->add(
@@ -2733,6 +2760,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       if (linkOperator->getSecond()->isDerivedFrom<Core::Data::Ast::Identifier>()) {
         // Calling a global in another module or type.
         calleeRequest.target = prevResult.astNode;
+        calleeRequest.mode = Ast::CalleeLookupMode::SCOPE_MEMBER;
         calleeRequest.ref = linkOperator->getSecond().get();
         return true;
       } else {
@@ -2765,7 +2793,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       } else {
         prevThisAstType = 0;
       }
-      calleeRequest.targetIsObject = true;
+      calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
     } else {
       prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
       prevThisAstType = 0;

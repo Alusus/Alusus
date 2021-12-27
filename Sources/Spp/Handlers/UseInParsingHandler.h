@@ -48,32 +48,32 @@ class UseInParsingHandler : public Core::Processing::Handlers::GenericParsingHan
     auto newObj = newSrdObj<Spp::Ast::UseInOp>();
     newObj->setSourceLocation(exprMetadata->findSourceLocation());
     newObj->setProdId(exprMetadata->getProdId());
+    newObj->setOperandName(S("this"));
+    newObj->setSkipInjection(false);
 
-    if (expr->getCount() == 2) {
-      newObj->setOperandName(S("this"));
-      auto body = expr->get(1).ti_cast<Spp::Ast::Block>();
-      if (body == 0) {
-        throw EXCEPTION(GenericException, S("Invalid use_in operator body."));
-      }
-      newObj->setBody(body);
-    } else if (expr->getCount() == 3) {
+    if (expr->getCount() >= 3) {
       auto operandName = expr->get(1).ti_cast_get<Core::Data::Ast::Bracket>();
       if (operandName == 0) {
-        throw EXCEPTION(GenericException, S("Unexpected use_in operand name."));
+        newObj->setOperandName(S("this"));
+        newObj->setSkipInjection(true);
+      } else {
+        auto identifier = operandName->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+        if (identifier == 0) {
+          throw EXCEPTION(GenericException, S("Unexpected use_in operand name."));
+        }
+        newObj->setOperandName(identifier->getValue());
+        if (expr->getCount() == 4) {
+          newObj->setSkipInjection(true);
+        }
       }
-      auto identifier = operandName->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
-      if (identifier == 0) {
-        throw EXCEPTION(GenericException, S("Unexpected use_in operand name."));
-      }
-      newObj->setOperandName(identifier->getValue());
-      auto body = expr->get(2).ti_cast<Spp::Ast::Block>();
-      if (body == 0) {
-        throw EXCEPTION(GenericException, S("Invalid use_in operator body."));
-      }
-      newObj->setBody(body);
-    } else {
-      throw EXCEPTION(GenericException, S("Unexpected use_in AST data."));
     }
+
+    // Set the body.
+    auto body = expr->get(expr->getCount() - 1).ti_cast<Spp::Ast::Block>();
+    if (body == 0) {
+      throw EXCEPTION(GenericException, S("Invalid use_in operator body."));
+    }
+    newObj->setBody(body);
 
     state->setData(newObj);
   }

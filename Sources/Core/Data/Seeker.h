@@ -13,7 +13,7 @@
 #ifndef CORE_DATA_SEEKER_H
 #define CORE_DATA_SEEKER_H
 
-namespace Core { namespace Data
+namespace Core::Data
 {
 
 class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
@@ -153,183 +153,184 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   /// @}
 
-  /// @name Main Seek Functions
+  /// @name Set Functions
   /// @{
 
   public: METHOD_BINDING_CACHE(set, Verb, (TiObject const*, TiObject*, SetCallback const&, Word));
-  public: METHOD_BINDING_CACHE(remove, Verb, (TiObject const*, TiObject*, RemoveCallback const&, Word));
-  public: METHOD_BINDING_CACHE(foreach, Verb, (TiObject const*, TiObject*, ForeachCallback const&, Word));
-  public: METHOD_BINDING_CACHE(extForeach, Verb, (TiObject const*, TiObject*, ForeachCallback const&, Word));
-
   private: static Verb _set(
     TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags
   );
+
+  public: METHOD_BINDING_CACHE(set_identifier,
+    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
+  );
+  private: static Verb _set_identifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(set_identifierLevel,
+    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
+  );
+  private: static Verb _set_identifierLevel(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(set_identifierOnScope,
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, SetCallback const&, Word)
+  );
+  private: static Verb _set_identifierOnScope(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(set_identifierOnMap,
+    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, SetCallback const&, Word)
+  );
+  private: static Verb _set_identifierOnMap(
+    TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map, SetCallback const &cb,
+    Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(set_linkOperator,
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
+  );
+  private: static Verb _set_linkOperator(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(set_linkOperatorRouting,
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
+  );
+  private: static Verb _set_linkOperatorRouting(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
+  );
+
+  /// @}
+
+  /// @name Remove Functions
+  /// @{
+
+  public: METHOD_BINDING_CACHE(remove, Verb, (TiObject const*, TiObject*, RemoveCallback const&, Word));
   private: static Verb _remove(
     TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags
   );
+
+  public: METHOD_BINDING_CACHE(remove_identifier,
+    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
+  );
+  private: static Verb _remove_identifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(remove_identifierLevel,
+    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
+  );
+  private: static Verb _remove_identifierLevel(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(remove_identifierOnScope,
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, RemoveCallback const&, Word)
+  );
+  private: static Verb _remove_identifierOnScope(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(remove_identifierOnMap,
+    Verb, (Data::Ast::Identifier const*, DynamicMapContaining<TiObject>*, RemoveCallback const&, Word)
+  );
+  private: static Verb _remove_identifierOnMap(
+    TiObject *self, Data::Ast::Identifier const *identifier, DynamicMapContaining<TiObject> *map,
+    RemoveCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(remove_linkOperator,
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
+  );
+  private: static Verb _remove_linkOperator(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(remove_linkOperatorRouting,
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
+  );
+  private: static Verb _remove_linkOperatorRouting(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
+  );
+
+  /// @}
+
+  /// @name Foreach Functions
+  /// @{
+
+  public: METHOD_BINDING_CACHE(foreach, Verb, (TiObject const*, TiObject*, ForeachCallback const&, Word));
   private: static Verb _foreach(
     TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
   );
+
+  public: METHOD_BINDING_CACHE(foreach_identifier,
+    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
+  );
+  private: static Verb _foreach_identifier(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreach_identifierLevel,
+    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
+  );
+  private: static Verb _foreach_identifierLevel(
+    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreach_identifierAtScope,
+    Verb, (Data::Ast::Identifier const*, Ast::Scope*, ForeachCallback const&, Word)
+  );
+  private: static Verb _foreach_identifierAtScope(
+    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreach_identifierOnScope,
+    Verb, (Data::Ast::Identifier*, Data::Ast::Scope*, ForeachCallback const&, Word)
+  );
+  private: static Verb _foreach_identifierOnScope(
+    TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreach_identifierOnMap,
+    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, ForeachCallback const&, Word)
+  );
+  private: static Verb _foreach_identifierOnMap(
+    TiObject *_self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map,
+    ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreach_linkOperator,
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
+  );
+  private: static Verb _foreach_linkOperator(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
+  );
+
+  public: METHOD_BINDING_CACHE(foreach_linkOperatorRouting,
+    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
+  );
+  private: static Verb _foreach_linkOperatorRouting(
+    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
+  );
+
+  /// @}
+
+  /// @name Other Functions
+  /// @{
+
+  public: METHOD_BINDING_CACHE(extForeach, Verb, (TiObject const*, TiObject*, ForeachCallback const&, Word));
   private: static Verb _extForeach(
     TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
   );
 
   /// @}
 
-  /// @name Identifier Seek Functions
-  /// @{
-
-  public: METHOD_BINDING_CACHE(setByIdentifier,
-    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(setByIdentifier_level,
-    Verb, (Data::Ast::Identifier const*, TiObject*, SetCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(setByIdentifier_scope,
-    Verb, (Data::Ast::Identifier const*, Ast::Scope*, SetCallback const&, Word)
-  );
-
-  private: static Verb _setByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
-  );
-  private: static Verb _setByIdentifier_level(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
-  );
-  private: static Verb _setByIdentifier_scope(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb, Word flags
-  );
-
-  public: METHOD_BINDING_CACHE(removeByIdentifier,
-    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(removeByIdentifier_level,
-    Verb, (Data::Ast::Identifier const*, TiObject*, RemoveCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(removeByIdentifier_scope,
-    Verb, (Data::Ast::Identifier const*, Ast::Scope*, RemoveCallback const&, Word)
-  );
-
-  private: static Verb _removeByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
-  );
-  private: static Verb _removeByIdentifier_level(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
-  );
-  private: static Verb _removeByIdentifier_scope(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb, Word flags
-  );
-
-  public: METHOD_BINDING_CACHE(foreachByIdentifier,
-    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(foreachByIdentifier_level,
-    Verb, (Data::Ast::Identifier const*, TiObject*, ForeachCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(foreachByIdentifier_scope,
-    Verb, (Data::Ast::Identifier const*, Ast::Scope*, ForeachCallback const&, Word)
-  );
-
-  private: static Verb _foreachByIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
-  );
-  private: static Verb _foreachByIdentifier_level(
-    TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
-  );
-  private: static Verb _foreachByIdentifier_scope(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb, Word flags
-  );
-
-  /// @}
-
-  /// @name LinkOperator Seek Functions
-  /// @{
-
-  public: METHOD_BINDING_CACHE(setByLinkOperator,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(setByLinkOperator_routing,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, SetCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(setByLinkOperator_scopeDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, SetCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(setByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, SetCallback const&, Word)
-  );
-
-  private: static Verb _setByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
-  );
-  private: static Verb _setByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
-  );
-  private: static Verb _setByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, SetCallback const &cb, Word flags
-  );
-  private: static Verb _setByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map, SetCallback const &cb,
-    Word flags
-  );
-
-  public: METHOD_BINDING_CACHE(removeByLinkOperator,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(removeByLinkOperator_routing,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, RemoveCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(removeByLinkOperator_scopeDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, Data::Ast::Scope*, RemoveCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(removeByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, DynamicMapContaining<TiObject>*, RemoveCallback const&, Word)
-  );
-
-  private: static Verb _removeByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
-  );
-  private: static Verb _removeByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
-  );
-  private: static Verb _removeByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, RemoveCallback const &cb,
-    Word flags
-  );
-  private: static Verb _removeByLinkOperator_mapDotIdentifier(
-    TiObject *self, Data::Ast::Identifier const *identifier, DynamicMapContaining<TiObject> *map,
-    RemoveCallback const &cb, Word flags
-  );
-
-  public: METHOD_BINDING_CACHE(foreachByLinkOperator,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(foreachByLinkOperator_routing,
-    Verb, (Data::Ast::LinkOperator const*, TiObject*, ForeachCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(foreachByLinkOperator_scopeDotIdentifier,
-    Verb, (Data::Ast::Identifier*, Data::Ast::Scope*, ForeachCallback const&, Word)
-  );
-  public: METHOD_BINDING_CACHE(foreachByLinkOperator_mapDotIdentifier,
-    Verb, (Data::Ast::Identifier const*, MapContaining<TiObject>*, ForeachCallback const&, Word)
-  );
-
-  private: static Verb _foreachByLinkOperator(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
-  );
-  private: static Verb _foreachByLinkOperator_routing(
-    TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
-  );
-  private: static Verb _foreachByLinkOperator_scopeDotIdentifier(
-    TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb, Word flags
-  );
-  private: static Verb _foreachByLinkOperator_mapDotIdentifier(
-    TiObject *_self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map,
-    ForeachCallback const &cb, Word flags
-  );
-
-  /// @}
-
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

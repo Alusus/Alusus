@@ -21,67 +21,69 @@ namespace Core::Data
 void Seeker::initBindingCaches()
 {
   Basic::initBindingCaches(this, {
+    // Set Functions
     &this->set,
+    &this->set_identifier,
+    &this->set_identifierLevel,
+    &this->set_identifierOnScope,
+    &this->set_identifierOnMap,
+    &this->set_linkOperator,
+    &this->set_linkOperatorRouting,
+    // Remove Functions
     &this->remove,
+    &this->remove_identifier,
+    &this->remove_identifierLevel,
+    &this->remove_identifierOnScope,
+    &this->remove_identifierOnMap,
+    &this->remove_linkOperator,
+    &this->remove_linkOperatorRouting,
+    // Foreach Functions
     &this->foreach,
-    &this->extForeach,
-    &this->setByIdentifier,
-    &this->setByIdentifier_level,
-    &this->setByIdentifier_scope,
-    &this->removeByIdentifier,
-    &this->removeByIdentifier_level,
-    &this->removeByIdentifier_scope,
-    &this->foreachByIdentifier,
-    &this->foreachByIdentifier_level,
-    &this->foreachByIdentifier_scope,
-    &this->setByLinkOperator,
-    &this->setByLinkOperator_routing,
-    &this->setByLinkOperator_scopeDotIdentifier,
-    &this->setByLinkOperator_mapDotIdentifier,
-    &this->removeByLinkOperator,
-    &this->removeByLinkOperator_routing,
-    &this->removeByLinkOperator_scopeDotIdentifier,
-    &this->removeByLinkOperator_mapDotIdentifier,
-    &this->foreachByLinkOperator,
-    &this->foreachByLinkOperator_routing,
-    &this->foreachByLinkOperator_scopeDotIdentifier,
-    &this->foreachByLinkOperator_mapDotIdentifier
+    &this->foreach_identifier,
+    &this->foreach_identifierLevel,
+    &this->foreach_identifierAtScope,
+    &this->foreach_identifierOnScope,
+    &this->foreach_identifierOnMap,
+    &this->foreach_linkOperator,
+    &this->foreach_linkOperatorRouting,
+    // Other Functions
+    &this->extForeach
   });
 }
 
 
 void Seeker::initBindings()
 {
-  // Main seek functions
+  // Set Functions
   this->set = &Seeker::_set;
+  this->set_identifier = &Seeker::_set_identifier;
+  this->set_identifierLevel = &Seeker::_set_identifierLevel;
+  this->set_identifierOnScope = &Seeker::_set_identifierOnScope;
+  this->set_identifierOnMap = &Seeker::_set_identifierOnMap;
+  this->set_linkOperator = &Seeker::_set_linkOperator;
+  this->set_linkOperatorRouting = &Seeker::_set_linkOperatorRouting;
+
+  // Remove Functions
   this->remove = &Seeker::_remove;
+  this->remove_identifier = &Seeker::_remove_identifier;
+  this->remove_identifierLevel = &Seeker::_remove_identifierLevel;
+  this->remove_identifierOnScope = &Seeker::_remove_identifierOnScope;
+  this->remove_identifierOnMap = &Seeker::_remove_identifierOnMap;
+  this->remove_linkOperator = &Seeker::_remove_linkOperator;
+  this->remove_linkOperatorRouting = &Seeker::_remove_linkOperatorRouting;
+
+  // Foreach Functions
   this->foreach = &Seeker::_foreach;
+  this->foreach_identifier = &Seeker::_foreach_identifier;
+  this->foreach_identifierLevel = &Seeker::_foreach_identifierLevel;
+  this->foreach_identifierAtScope = &Seeker::_foreach_identifierAtScope;
+  this->foreach_identifierOnScope = &Seeker::_foreach_identifierOnScope;
+  this->foreach_identifierOnMap = &Seeker::_foreach_identifierOnMap;
+  this->foreach_linkOperator = &Seeker::_foreach_linkOperator;
+  this->foreach_linkOperatorRouting = &Seeker::_foreach_linkOperatorRouting;
+
+  // Other Functions
   this->extForeach = &Seeker::_extForeach;
-
-  // Identifier seek functions
-  this->setByIdentifier = &Seeker::_setByIdentifier;
-  this->setByIdentifier_level = &Seeker::_setByIdentifier_level;
-  this->setByIdentifier_scope = &Seeker::_setByIdentifier_scope;
-  this->removeByIdentifier = &Seeker::_removeByIdentifier;
-  this->removeByIdentifier_level = &Seeker::_removeByIdentifier_level;
-  this->removeByIdentifier_scope = &Seeker::_removeByIdentifier_scope;
-  this->foreachByIdentifier = &Seeker::_foreachByIdentifier;
-  this->foreachByIdentifier_level = &Seeker::_foreachByIdentifier_level;
-  this->foreachByIdentifier_scope = &Seeker::_foreachByIdentifier_scope;
-
-  // LinkOperator seek functions
-  this->setByLinkOperator = &Seeker::_setByLinkOperator;
-  this->setByLinkOperator_routing = &Seeker::_setByLinkOperator_routing;
-  this->setByLinkOperator_scopeDotIdentifier = &Seeker::_setByLinkOperator_scopeDotIdentifier;
-  this->setByLinkOperator_mapDotIdentifier = &Seeker::_setByLinkOperator_mapDotIdentifier;
-  this->removeByLinkOperator = &Seeker::_removeByLinkOperator;
-  this->removeByLinkOperator_routing = &Seeker::_removeByLinkOperator_routing;
-  this->removeByLinkOperator_scopeDotIdentifier = &Seeker::_removeByLinkOperator_scopeDotIdentifier;
-  this->removeByLinkOperator_mapDotIdentifier = &Seeker::_removeByLinkOperator_mapDotIdentifier;
-  this->foreachByLinkOperator = &Seeker::_foreachByLinkOperator;
-  this->foreachByLinkOperator_routing = &Seeker::_foreachByLinkOperator_routing;
-  this->foreachByLinkOperator_scopeDotIdentifier = &Seeker::_foreachByLinkOperator_scopeDotIdentifier;
-  this->foreachByLinkOperator_mapDotIdentifier = &Seeker::_foreachByLinkOperator_mapDotIdentifier;
 }
 
 
@@ -196,90 +198,22 @@ Bool Seeker::find(TiObject const *ref, TiObject *target, TypeInfo const *ti, TiO
 
 
 //==============================================================================
-// Main Seek Functions
+// Set Functions
 
 Seeker::Verb Seeker::_set(TiObject *self, TiObject const *ref, TiObject *target, SetCallback const &cb, Word flags)
 {
   PREPARE_SELF(seeker, Seeker);
   if (ref->isA<Ast::Identifier>()) {
-    return seeker->setByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
+    return seeker->set_identifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
   } else if (ref->isA<Ast::LinkOperator>()) {
-    return seeker->setByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
+    return seeker->set_linkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
   } else {
     throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
   }
 }
 
 
-Seeker::Verb Seeker::_remove(
-  TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  if (ref->isA<Ast::Identifier>()) {
-    return seeker->removeByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
-  } else if (ref->isA<Ast::LinkOperator>()) {
-    return seeker->removeByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
-  }
-}
-
-
-Seeker::Verb Seeker::_foreach(
-  TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  if (ref->isA<Ast::Identifier>()) {
-    return seeker->foreachByIdentifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
-  } else if (ref->isA<Ast::LinkOperator>()) {
-    return seeker->foreachByLinkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
-  }
-}
-
-
-Seeker::Verb Seeker::_extForeach(
-  TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  Int tracingAlias = 0;
-  Int tracingUse = 0;
-  return seeker->foreach(ref, target, [flags, cb, &tracingAlias, &tracingUse](TiInt action, TiObject *o)->Verb {
-    if (action == Action::ALIAS_TRACE_START) {
-      ++tracingAlias;
-      return Verb::MOVE;
-    } else if (action == Action::ALIAS_TRACE_END) {
-      --tracingAlias;
-      return Verb::MOVE;
-    } else if (action == Action::OWNER_SCOPE) {
-      if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
-      else return Verb::MOVE;
-    } else if (action == Action::USE_SCOPES_START) {
-      if (
-        (tracingUse > 0 || (flags & Flags::SKIP_USES) != 0) &&
-        (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)
-      ) {
-        return Verb::SKIP;
-      } else {
-        ++tracingUse;
-        return Verb::MOVE;
-      }
-    } else if (action == Action::USE_SCOPES_END) {
-      --tracingUse;
-      return Verb::MOVE;
-    } else if (action != Action::TARGET_MATCH && action != Action::ERROR) {
-      return Verb::MOVE;
-    }
-    return cb(action, o);
-  }, flags);
-}
-
-
-//==============================================================================
-// Identifier set
-
-Seeker::Verb Seeker::_setByIdentifier(
+Seeker::Verb Seeker::_set_identifier(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
@@ -294,7 +228,7 @@ Seeker::Verb Seeker::_setByIdentifier(
         if (retVal == Verb::SKIP) continue;
         else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
-      retVal = seeker->setByIdentifier_level(identifier, data, cb, flags);
+      retVal = seeker->set_identifierLevel(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
     }
   } else if (data->isDerivedFrom<Node>()) {
@@ -308,7 +242,7 @@ Seeker::Verb Seeker::_setByIdentifier(
           continue;
         } else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
-      retVal = seeker->setByIdentifier_level(identifier, node, cb, flags);
+      retVal = seeker->set_identifierLevel(identifier, node, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
       node = node->getOwner();
       flags |= Seeker::Flags::SKIP_OWNED;
@@ -320,19 +254,19 @@ Seeker::Verb Seeker::_setByIdentifier(
 }
 
 
-Seeker::Verb Seeker::_setByIdentifier_level(
+Seeker::Verb Seeker::_set_identifierLevel(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, SetCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Ast::Scope>()) {
-    return seeker->setByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
+    return seeker->set_identifierOnScope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
   } else {
     return Seeker::Verb::MOVE;
   }
 }
 
 
-Seeker::Verb Seeker::_setByIdentifier_scope(
+Seeker::Verb Seeker::_set_identifierOnScope(
   TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
@@ -362,10 +296,81 @@ Seeker::Verb Seeker::_setByIdentifier_scope(
 }
 
 
-//==============================================================================
-// Identifier remove
+Seeker::Verb Seeker::_set_identifierOnMap(
+  TiObject *self, Ast::Identifier const *identifier, MapContaining<TiObject> *map, SetCallback const &cb, Word flags
+) {
+  Verb verb = Verb::MOVE;
+  auto obj = map->getElement(identifier->getValue().get());
+  verb = cb(Action::TARGET_MATCH, obj);
+  if (isPerform(verb)) {
+    map->setElement(identifier->getValue().get(), obj);
+  }
+  return verb;
+}
 
-Seeker::Verb Seeker::_removeByIdentifier(
+
+Seeker::Verb Seeker::_set_linkOperator(
+  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  auto first = link->getFirst().get();
+  return seeker->foreach(first, data,
+    [=](TiInt action, TiObject *newData)->Verb
+    {
+      if (action == Action::TARGET_MATCH) return seeker->set_linkOperatorRouting(link, newData, cb, flags);
+      else return cb(action, newData);
+    },
+    flags
+  );
+}
+
+
+Seeker::Verb Seeker::_set_linkOperatorRouting(
+  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  if (link->getType() == S(".")) {
+    auto second = link->getSecond().get();
+    if (second->isA<Ast::Identifier>()) {
+      if (data->isDerivedFrom<Ast::Scope>()) {
+        return seeker->set_identifierOnScope(
+          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
+        );
+      } else {
+        auto map = ti_cast<MapContaining<TiObject>>(data);
+        if (map != 0) {
+          return seeker->set_identifierOnMap(static_cast<Ast::Identifier*>(second), map, cb, flags);
+        } else {
+          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
+        }
+      }
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
+    }
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
+  }
+}
+
+
+//==============================================================================
+// Remove Functions
+
+Seeker::Verb Seeker::_remove(
+  TiObject *self, TiObject const *ref, TiObject *target, RemoveCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  if (ref->isA<Ast::Identifier>()) {
+    return seeker->remove_identifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
+  } else if (ref->isA<Ast::LinkOperator>()) {
+    return seeker->remove_linkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
+  }
+}
+
+
+Seeker::Verb Seeker::_remove_identifier(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
@@ -380,7 +385,7 @@ Seeker::Verb Seeker::_removeByIdentifier(
         if (retVal == Verb::SKIP) continue;
         else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
-      retVal = seeker->removeByIdentifier_level(identifier, data, cb, flags);
+      retVal = seeker->remove_identifierLevel(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
     }
   } else if (data->isDerivedFrom<Node>()) {
@@ -393,7 +398,7 @@ Seeker::Verb Seeker::_removeByIdentifier(
           continue;
         } else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
       }
-      retVal = seeker->removeByIdentifier_level(identifier, node, cb, flags);
+      retVal = seeker->remove_identifierLevel(identifier, node, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
       node = node->getOwner();
       flags |= Seeker::Flags::SKIP_OWNED;
@@ -405,19 +410,19 @@ Seeker::Verb Seeker::_removeByIdentifier(
 }
 
 
-Seeker::Verb Seeker::_removeByIdentifier_level(
+Seeker::Verb Seeker::_remove_identifierLevel(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, RemoveCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Ast::Scope>()) {
-    return seeker->removeByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
+    return seeker->remove_identifierOnScope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
   } else {
     return Seeker::Verb::MOVE;
   }
 }
 
 
-Seeker::Verb Seeker::_removeByIdentifier_scope(
+Seeker::Verb Seeker::_remove_identifierOnScope(
   TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, RemoveCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
@@ -437,10 +442,85 @@ Seeker::Verb Seeker::_removeByIdentifier_scope(
 }
 
 
-//==============================================================================
-// Identifier foreach
+Seeker::Verb Seeker::_remove_identifierOnMap(
+  TiObject *self, Data::Ast::Identifier const *identifier, DynamicMapContaining<TiObject> *map,
+  RemoveCallback const &cb, Word flags
+) {
+  Verb verb = Verb::MOVE;
+  auto index = map->findElementIndex(identifier->getValue().get());
+  if (index != -1) {
+    auto obj = map->getElement(index);
+    verb = cb(Action::TARGET_MATCH, obj);
+    if (isPerform(verb)) {
+      map->removeElement(index);
+    }
+  }
+  return verb;
+}
 
-Seeker::Verb Seeker::_foreachByIdentifier(
+
+Seeker::Verb Seeker::_remove_linkOperator(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  auto first = link->getFirst().get();
+  return seeker->foreach(first, data,
+    [=](TiInt action, TiObject *newData)->Verb
+    {
+      if (action == Action::TARGET_MATCH) return seeker->remove_linkOperatorRouting(link, newData, cb, flags);
+      else return cb(action, newData);
+    },
+    flags
+  );
+}
+
+
+Seeker::Verb Seeker::_remove_linkOperatorRouting(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  if (link->getType() == S(".")) {
+    auto second = link->getSecond().get();
+    if (second->isA<Ast::Identifier>()) {
+      if (data->isDerivedFrom<Ast::Scope>()) {
+        return seeker->remove_identifierOnScope(
+          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
+        );
+      } else {
+        auto map = ti_cast<DynamicMapContaining<TiObject>>(data);
+        if (map != 0) {
+          return seeker->remove_identifierOnMap(static_cast<Ast::Identifier*>(second), map, cb, flags);
+        } else {
+          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
+        }
+      }
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
+    }
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
+  }
+}
+
+
+//==============================================================================
+// Foreach Functions
+
+Seeker::Verb Seeker::_foreach(
+  TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  if (ref->isA<Ast::Identifier>()) {
+    return seeker->foreach_identifier(static_cast<Ast::Identifier const*>(ref), target, cb, flags);
+  } else if (ref->isA<Ast::LinkOperator>()) {
+    return seeker->foreach_linkOperator(static_cast<Ast::LinkOperator const*>(ref), target, cb, flags);
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("ref"), S("Unrecognized reference type."));
+  }
+}
+
+
+Seeker::Verb Seeker::_foreach_identifier(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
@@ -473,7 +553,7 @@ Seeker::Verb Seeker::_foreachByIdentifier(
           if (retVal == Verb::SKIP) continue;
           else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
         }
-        retVal = seeker->foreachByIdentifier_level(identifier, data, cb, flags);
+        retVal = seeker->foreach_identifierLevel(identifier, data, cb, flags);
         if (!Seeker::isMove(retVal)) return retVal;
       }
     } else if (data->isDerivedFrom<Node>()) {
@@ -486,7 +566,7 @@ Seeker::Verb Seeker::_foreachByIdentifier(
             continue;
           } else if (retVal == Verb::SKIP_GROUP || !Seeker::isMove(retVal)) break;
         }
-        retVal = seeker->foreachByIdentifier_level(identifier, node, cb, flags);
+        retVal = seeker->foreach_identifierLevel(identifier, node, cb, flags);
         if (!Seeker::isMove(retVal)) return retVal;
         node = node->getOwner();
         flags |= Seeker::Flags::SKIP_OWNED;
@@ -499,19 +579,19 @@ Seeker::Verb Seeker::_foreachByIdentifier(
 }
 
 
-Seeker::Verb Seeker::_foreachByIdentifier_level(
+Seeker::Verb Seeker::_foreach_identifierLevel(
   TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data, ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
   if (data->isDerivedFrom<Ast::Scope>()) {
-    return seeker->foreachByIdentifier_scope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
+    return seeker->foreach_identifierAtScope(identifier, static_cast<Ast::Scope*>(data), cb, flags);
   } else {
     return Seeker::Verb::MOVE;
   }
 }
 
 
-Seeker::Verb Seeker::_foreachByIdentifier_scope(
+Seeker::Verb Seeker::_foreach_identifierAtScope(
   TiObject *self, Data::Ast::Identifier const *identifier, Ast::Scope *scope, ForeachCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
@@ -556,7 +636,7 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
       if (verb == Verb::SKIP) continue;
       else if (verb == Verb::SKIP_GROUP || !Seeker::isMove(verb)) break;
 
-      verb = seeker->foreachByIdentifier_level(identifier, bridgeTarget, cb, flags);
+      verb = seeker->foreach_identifierLevel(identifier, bridgeTarget, cb, flags);
       if (!Seeker::isMove(verb)) return verb;
     }
     verb = cb(Action::USE_SCOPES_END, scope);
@@ -566,228 +646,7 @@ Seeker::Verb Seeker::_foreachByIdentifier_scope(
 }
 
 
-//==============================================================================
-// LinkOperator set
-
-Seeker::Verb Seeker::_setByLinkOperator(
-  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  auto first = link->getFirst().get();
-  return seeker->foreach(first, data,
-    [=](TiInt action, TiObject *newData)->Verb
-    {
-      if (action == Action::TARGET_MATCH) return seeker->setByLinkOperator_routing(link, newData, cb, flags);
-      else return cb(action, newData);
-    },
-    flags
-  );
-}
-
-
-Seeker::Verb Seeker::_setByLinkOperator_routing(
-  TiObject *self, Ast::LinkOperator const *link, TiObject *data, SetCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  if (link->getType() == S(".")) {
-    auto second = link->getSecond().get();
-    if (second->isA<Ast::Identifier>()) {
-      if (data->isDerivedFrom<Ast::Scope>()) {
-        return seeker->setByLinkOperator_scopeDotIdentifier(
-          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
-        );
-      } else {
-        auto map = ti_cast<MapContaining<TiObject>>(data);
-        if (map != 0) {
-          return seeker->setByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
-        } else {
-          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
-        }
-      }
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
-    }
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
-  }
-}
-
-
-Seeker::Verb Seeker::_setByLinkOperator_scopeDotIdentifier(
-  TiObject *self, Ast::Identifier const *identifier, Ast::Scope *scope, SetCallback const &cb, Word flags
-) {
-  Verb verb = Verb::MOVE;
-  for (Int i = 0; i < scope->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(scope->getElement(i));
-    if (def != 0 && def->getName() == identifier->getValue()) {
-      auto obj = def->getTarget().get();
-      verb = cb(Action::TARGET_MATCH, obj);
-      if (isPerform(verb)) {
-        def->setTarget(getSharedPtr(obj));
-      }
-      if (!Seeker::isMove(verb)) break;
-    }
-  }
-  if (Seeker::isMove(verb)) {
-    TiObject *obj = 0;
-    verb = cb(Action::TARGET_MATCH, obj);
-    if (isPerform(verb)) {
-      // Add a new definition.
-      auto def = Data::Ast::Definition::create();
-      def->setName(identifier->getValue());
-      def->setTarget(getSharedPtr(obj));
-      scope->add(def);
-    }
-  }
-  return verb;
-}
-
-
-Seeker::Verb Seeker::_setByLinkOperator_mapDotIdentifier(
-  TiObject *self, Ast::Identifier const *identifier, MapContaining<TiObject> *map, SetCallback const &cb, Word flags
-) {
-  Verb verb = Verb::MOVE;
-  auto obj = map->getElement(identifier->getValue().get());
-  verb = cb(Action::TARGET_MATCH, obj);
-  if (isPerform(verb)) {
-    map->setElement(identifier->getValue().get(), obj);
-  }
-  return verb;
-}
-
-
-//==============================================================================
-// LinkOperator remove
-
-Seeker::Verb Seeker::_removeByLinkOperator(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  auto first = link->getFirst().get();
-  return seeker->foreach(first, data,
-    [=](TiInt action, TiObject *newData)->Verb
-    {
-      if (action == Action::TARGET_MATCH) return seeker->removeByLinkOperator_routing(link, newData, cb, flags);
-      else return cb(action, newData);
-    },
-    flags
-  );
-}
-
-
-Seeker::Verb Seeker::_removeByLinkOperator_routing(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, RemoveCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  if (link->getType() == S(".")) {
-    auto second = link->getSecond().get();
-    if (second->isA<Ast::Identifier>()) {
-      if (data->isDerivedFrom<Ast::Scope>()) {
-        return seeker->removeByLinkOperator_scopeDotIdentifier(
-          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
-        );
-      } else {
-        auto map = ti_cast<DynamicMapContaining<TiObject>>(data);
-        if (map != 0) {
-          return seeker->removeByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
-        } else {
-          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
-        }
-      }
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
-    }
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
-  }
-}
-
-
-Seeker::Verb Seeker::_removeByLinkOperator_scopeDotIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, Data::Ast::Scope *scope, RemoveCallback const &cb, Word flags
-) {
-  Verb verb = Verb::MOVE;
-  for (Int i = 0; i < scope->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(scope->getElement(i));
-    if (def != 0 && def->getName() == identifier->getValue()) {
-      auto obj = def->getTarget().get();
-      verb = cb(Action::TARGET_MATCH, obj);
-      if (isPerform(verb)) {
-        scope->remove(i);
-        --i;
-      }
-      if (!Seeker::isMove(verb)) break;
-    }
-  }
-  return verb;
-}
-
-
-Seeker::Verb Seeker::_removeByLinkOperator_mapDotIdentifier(
-  TiObject *self, Data::Ast::Identifier const *identifier, DynamicMapContaining<TiObject> *map,
-  RemoveCallback const &cb, Word flags
-) {
-  Verb verb = Verb::MOVE;
-  auto index = map->findElementIndex(identifier->getValue().get());
-  if (index != -1) {
-    auto obj = map->getElement(index);
-    verb = cb(Action::TARGET_MATCH, obj);
-    if (isPerform(verb)) {
-      map->removeElement(index);
-    }
-  }
-  return verb;
-}
-
-
-//==============================================================================
-// LinkOperator foreach
-
-Seeker::Verb Seeker::_foreachByLinkOperator(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  auto first = link->getFirst().get();
-  return seeker->foreach(first, data,
-    [=](TiInt action, TiObject *newData)->Verb
-    {
-      if (action == Action::TARGET_MATCH) return seeker->foreachByLinkOperator_routing(link, newData, cb, flags);
-      else return cb(action, newData);
-    },
-    flags
-  );
-}
-
-
-Seeker::Verb Seeker::_foreachByLinkOperator_routing(
-  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
-) {
-  PREPARE_SELF(seeker, Seeker);
-  if (link->getType() == S(".")) {
-    auto second = link->getSecond().get();
-    if (second->isA<Ast::Identifier>()) {
-      if (data->isDerivedFrom<Ast::Scope>()) {
-        return seeker->foreachByLinkOperator_scopeDotIdentifier(
-          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
-        );
-      } else {
-        auto map = ti_cast<MapContaining<TiObject>>(data);
-        if (map != 0) {
-          return seeker->foreachByLinkOperator_mapDotIdentifier(static_cast<Ast::Identifier*>(second), map, cb, flags);
-        } else {
-          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
-        }
-      }
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
-    }
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
-  }
-}
-
-
-Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
+Seeker::Verb Seeker::_foreach_identifierOnScope(
   TiObject *self, Data::Ast::Identifier *identifier, Data::Ast::Scope *scope, ForeachCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
@@ -817,7 +676,7 @@ Seeker::Verb Seeker::_foreachByLinkOperator_scopeDotIdentifier(
 }
 
 
-Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
+Seeker::Verb Seeker::_foreach_identifierOnMap(
   TiObject *self, Data::Ast::Identifier const *identifier, MapContaining<TiObject> *map, ForeachCallback const &cb,
   Word flags
 ) {
@@ -838,6 +697,90 @@ Seeker::Verb Seeker::_foreachByLinkOperator_mapDotIdentifier(
   } else {
     return cb(Action::TARGET_MATCH, obj);
   }
+}
+
+
+Seeker::Verb Seeker::_foreach_linkOperator(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  auto first = link->getFirst().get();
+  return seeker->foreach(first, data,
+    [=](TiInt action, TiObject *newData)->Verb
+    {
+      if (action == Action::TARGET_MATCH) return seeker->foreach_linkOperatorRouting(link, newData, cb, flags);
+      else return cb(action, newData);
+    },
+    flags
+  );
+}
+
+
+Seeker::Verb Seeker::_foreach_linkOperatorRouting(
+  TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data, ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  if (link->getType() == S(".")) {
+    auto second = link->getSecond().get();
+    if (second->isA<Ast::Identifier>()) {
+      if (data->isDerivedFrom<Ast::Scope>()) {
+        return seeker->foreach_identifierOnScope(
+          static_cast<Ast::Identifier*>(second), static_cast<Ast::Scope*>(data), cb, flags
+        );
+      } else {
+        auto map = ti_cast<MapContaining<TiObject>>(data);
+        if (map != 0) {
+          return seeker->foreach_identifierOnMap(static_cast<Ast::Identifier*>(second), map, cb, flags);
+        } else {
+          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
+        }
+      }
+    } else {
+      throw EXCEPTION(InvalidArgumentException, S("link"), S("Unrecognized type for link operator's second part."));
+    }
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
+  }
+}
+
+
+//==============================================================================
+// Other Functions
+
+Seeker::Verb Seeker::_extForeach(
+  TiObject *self, TiObject const *ref, TiObject *target, ForeachCallback const &cb, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  Int tracingAlias = 0;
+  Int tracingUse = 0;
+  return seeker->foreach(ref, target, [flags, cb, &tracingAlias, &tracingUse](TiInt action, TiObject *o)->Verb {
+    if (action == Action::ALIAS_TRACE_START) {
+      ++tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::ALIAS_TRACE_END) {
+      --tracingAlias;
+      return Verb::MOVE;
+    } else if (action == Action::OWNER_SCOPE) {
+      if (tracingAlias == 0 && (flags & Flags::SKIP_OWNERS) != 0) return Verb::SKIP_GROUP;
+      else return Verb::MOVE;
+    } else if (action == Action::USE_SCOPES_START) {
+      if (
+        (tracingUse > 0 || (flags & Flags::SKIP_USES) != 0) &&
+        (tracingAlias == 0 || (flags & Flags::SKIP_USES_FOR_ALIASES) != 0)
+      ) {
+        return Verb::SKIP;
+      } else {
+        ++tracingUse;
+        return Verb::MOVE;
+      }
+    } else if (action == Action::USE_SCOPES_END) {
+      --tracingUse;
+      return Verb::MOVE;
+    } else if (action != Action::TARGET_MATCH && action != Action::ERROR) {
+      return Verb::MOVE;
+    }
+    return cb(action, o);
+  }, flags);
 }
 
 } // namespace

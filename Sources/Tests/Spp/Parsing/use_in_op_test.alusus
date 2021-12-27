@@ -8,8 +8,13 @@ def b: Var~use_in(self){
     doSomething();
 }
 
+def c: Var~use_in(self) no_injection {
+    doSomething();
+}
+
 dump_ast a;
 dump_ast b;
+dump_ast c;
 
 Var~use_in("self"){}
 

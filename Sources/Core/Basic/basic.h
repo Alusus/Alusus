@@ -716,6 +716,7 @@ extern std::istream &inStream;
 #include "TiStr.h"
 #include "TiWStr.h"
 #include "TiBool.h"
+#include "TiPtr.h"
 #include "ti_functions.h"
 
 #include "Binding.h"

@@ -113,7 +113,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         }
 
         auto node = ti_cast<Core::Data::Node>(obj);
-        if (request.targetIsObject) {
+        if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
           if (node == 0 || node->findOwner<Type>() != target) {
             // The found member was probably an alias to a non member.
             result.notice = newSrdObj<Spp::Notices::InvalidTypeMemberNotice>(
@@ -146,7 +146,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       tracer->getSeeker()->foreach(request.ref, target, callback, 0);
 
       // Try the injections if we don't have an exact match yet.
-      if (result.matchStatus < TypeMatchStatus::EXACT) {
+      if (!request.skipInjections && result.matchStatus < TypeMatchStatus::EXACT) {
         Block *block = 0;
         auto helper = tracer->helper;
         // Special handling for Type targets, but it's only needed if we are at the top of the stack to avoid re-testing
@@ -161,8 +161,10 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
           for (Int i = 0; i < block->getInjectionCount(); ++i) {
             auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
             if (def == 0 || def->getTarget() == 0) continue;
-            if (!helper->isAstReference(def->getTarget().get())) continue;
-            Bool isMember = helper->getVariableDomain(def) == DefinitionDomain::OBJECT;
+            if (!helper->isVariable(def->getTarget().get())) continue;
+            auto domain = helper->getVariableDomain(def);
+            if (domain == DefinitionDomain::FUNCTION && request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) continue;
+            Bool isMember = domain == DefinitionDomain::OBJECT;
             if ((isMember && request.thisType == 0) || (!isMember && request.thisType != 0)) continue;
             auto objType = helper->traceType(def->getTarget().get());
             if (objType == 0) continue;
@@ -171,8 +173,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             Bool noBindDef = helper->isNoBindDef(def);
             CalleeLookupRequest innerRequest = request;
             innerRequest.target = objType;
-            innerRequest.searchTargetOwners = false;
-            innerRequest.targetIsObject = true;
+            innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
             if (!noBindDef) innerRequest.thisType = refType;
             CalleeLookupResult innerResult;
             tracer->lookupCallee(innerRequest, innerResult);
@@ -188,7 +189,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       }
 
       // Try scope bridges if we haven't found any name match.
-      if (!result.isNameMatched() && !request.targetIsObject && request.searchTargetOwners) {
+      if (!result.isNameMatched() && request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
         Core::Data::Ast::Scope *scope = 0;
         // Special handling for Type targets, but it's only needed if we are at the top of the stack to avoid re-testing
         // the same scope again.
@@ -217,7 +218,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         }
       }
 
-      if (!request.searchTargetOwners || result.isNameMatched()) break;
+      if (request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE || result.isNameMatched()) break;
 
       if (ti_cast<Ast::Function>(target) != 0) searchingFunctionOwners = true;
 
@@ -259,7 +260,7 @@ void CalleeTracer::_lookupCallee_routing(TiObject *self, CalleeLookupRequest &re
   if (request.target != 0 && request.target->isDerivedFrom<Ast::Function>()) {
     tracer->lookupCallee_function(request, result);
   } else if (request.target != 0 && request.target->isDerivedFrom<Type>()) {
-    if (request.targetIsObject) {
+    if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
       auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
       if (funcType != 0) {
         tracer->lookupCallee_funcPtr(request, result);
@@ -307,7 +308,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
     return;
   }
 
-  // TODO: Should we skip if targetIsObject is false and the function is a member function?
+  // TODO: Should we skip if mode is not OBJECT_MEMBER and the function is a member function?
 
   if (!func->getType()->isMember() && request.thisType != 0) {
     result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
@@ -326,7 +327,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
   }
   if (defOp != 0 && SBSTR(defOp) == S("")) {
     PlainList<TiObject> argTypes;
-    if (useThis) argTypes.add(helper->getReferenceTypeFor(request.thisType, ReferenceMode::IMPLICIT));
+    if (useThis) argTypes.add(request.thisType);
     auto matchStatus = func->getType()->matchCall(&argTypes, helper, request.ec);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
       result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
@@ -347,7 +348,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
     } else {
       auto retType = helper->tryGetDeepReferenceContentType(func->getType()->traceRetType(helper));
       CalleeLookupRequest innerRequest = request;
-      innerRequest.targetIsObject = true;
+      innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
       innerRequest.target = retType;
       if (retType->isDerivedFrom<UserType>()) {
         innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
@@ -361,7 +362,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
       }
     }
     return;
-  } else if (request.op == S("") && !request.targetIsObject) {
+  } else if (request.op == S("") && request.mode != CalleeLookupMode::OBJECT_MEMBER) {
     // We are just trying to get a reference to the function itself.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
@@ -399,7 +400,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     static Core::Data::Ast::Identifier ref;
     CalleeLookupRequest innerRequest = request;
     innerRequest.ref = &ref;
-    innerRequest.searchTargetOwners = false;
+    innerRequest.mode = CalleeLookupMode::SCOPE_MEMBER;
     ref.setValue(S("()"));
     innerRequest.op = S("()");
     innerRequest.target = type;
@@ -414,6 +415,8 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     innerRequest.op = S("~init");
     innerRequest.target = type;
     innerRequest.thisType = helper->getReferenceTypeFor(type, Ast::ReferenceMode::IMPLICIT);
+    innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
+    innerRequest.skipInjections = true;
     tracer->lookupCallee(innerRequest, result);
     if (result.isSuccessful()) {
       result.pushObject(type);
@@ -493,7 +496,7 @@ void CalleeTracer::_lookupCallee_scope(TiObject *self, CalleeLookupRequest &requ
     return;
   }
 
-  if (request.op != S("") || request.targetIsObject) {
+  if (request.op != S("") || request.mode == CalleeLookupMode::OBJECT_MEMBER) {
     result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
   } else {
     result.matchStatus = TypeMatchStatus::EXACT;
@@ -537,13 +540,20 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
     result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(request.target));
     return;
   }
-  objType = helper->tryGetDeepReferenceContentType(objType);
+  Bool targetIsRef = false;
+  if (objType->isDerivedFrom<ReferenceType>()) {
+    targetIsRef = true;
+    objType = helper->tryGetDeepReferenceContentType(objType);
+  } else if (helper->isInMemVariable(request.target)) {
+    // If this is an in-mem variable (i.e. not a value) then it will always be a reference.
+    targetIsRef = true;
+  }
   if (objType == 0) {
     result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(request.target));
     return;
   }
 
-  if (request.targetIsObject) {
+  if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
     if (helper->getVariableDomain(request.target) != Ast::DefinitionDomain::OBJECT) {
       result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
         Core::Data::Ast::findSourceLocation(request.target)
@@ -563,9 +573,9 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
 
   CalleeLookupRequest innerRequest = request;
   innerRequest.varTargetOp = def == 0 ? 0 : Ast::findOperationModifier(def);
-  innerRequest.targetIsObject = true;
+  innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
   innerRequest.target = objType;
-  if (!noBindDef && objType->isDerivedFrom<UserType>()) {
+  if (!noBindDef && objType->isDerivedFrom<UserType>() && targetIsRef) {
     innerRequest.thisType = helper->getReferenceTypeFor(objType, ReferenceMode::IMPLICIT);
   }
   tracer->lookupCallee_routing(innerRequest, result);
@@ -603,7 +613,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
     return;
   }
 
-  // TODO: Should we skip if targetIsObject is false and the function is a member function?
+  // TODO: Should we skip if mode is not OBJECT_MEMBER and the function is a member function?
 
   ContainerExtender<TiObject, 1, 0> extTypes(request.argTypes);
   extTypes.setPreItem(0, request.thisType);
@@ -613,7 +623,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
 
   if (request.varTargetOp != 0 && SBSTR(request.varTargetOp) == S("")) {
     PlainList<TiObject> argTypes;
-    if (useThis) argTypes.add(helper->getReferenceTypeFor(request.thisType, ReferenceMode::IMPLICIT));
+    if (useThis) argTypes.add(request.thisType);
     auto matchStatus = funcType->matchCall(&argTypes, helper, request.ec);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
       result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
@@ -633,7 +643,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
     } else {
       auto retType = helper->tryGetDeepReferenceContentType(funcType->traceRetType(helper));
       CalleeLookupRequest innerRequest = request;
-      innerRequest.targetIsObject = true;
+      innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
       innerRequest.target = retType;
       innerRequest.varTargetOp = 0;
       if (retType->isDerivedFrom<UserType>()) {
@@ -681,7 +691,6 @@ void CalleeTracer::_lookupCallee_customOp(TiObject *self, CalleeLookupRequest &r
   Core::Data::Ast::Identifier ref({ {S("value"), TiStr(request.op)} });
   CalleeLookupRequest innerRequest = request;
   innerRequest.ref = &ref;
-  innerRequest.searchTargetOwners = false;
   tracer->lookupCallee(innerRequest, result);
   if (!result.isSuccessful()) {
     // If the ref symbol we provided here was not found we'll provide a better error message to the user since

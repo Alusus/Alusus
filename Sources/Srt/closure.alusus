@@ -79,7 +79,9 @@ module Closures {
         );
     }
 
-    func generateClosureInstance (fnTypeSpec: ref[TiObject], statements: ref[TiObject]) {
+    func generateClosureInstance (
+        fnTypeSpec: ref[TiObject], statements: ref[TiObject], owner: ref[TiObject]
+    ): TioSrdRef {
         // Generate the function.
         def fn: TioSrdRef = Spp.astMgr.buildAst(
             (ast function {
@@ -97,9 +99,7 @@ module Closures {
         // Find external variables of that function.
         def varDefs: AstTemplateMap;
         findExternalVariables(
-            getInterface[fn.obj, Containing].getElement(1),
-            Spp.astMgr.getCurrentPreprocessOwner(),
-            varDefs
+            getInterface[fn.obj, Containing].getElement(1), owner, varDefs
         );
         // Generate member var definitions and assignments.
         def payloadDefs: SrdRef[Ast.MergeList] = newSrdObj[Ast.MergeList];
@@ -122,9 +122,9 @@ module Closures {
             assignContainer.addElement(payloadAssignment.obj);
         }
         // Render the closure.
-        Spp.astMgr.insertAst(
+        return Spp.astMgr.buildAst(
             ast {
-                Closures.Closure[closureArgFnType]()~use_in(__this){
+                Closures.Closure[closureArgFnType]()~use_in(__this) no_injection {
                     class Data {
                         payloadDefs
                     }
@@ -320,7 +320,8 @@ module Closures {
             or isDerivedFrom[obj, Ast.LinkOperator]
             or isDerivedFrom[obj, Ast.Identifier]
             or isDerivedFrom[obj, Spp.Ast.ThisTypeRef]
-            or isDerivedFrom[obj, Spp.Ast.TypeOp];
+            or isDerivedFrom[obj, Spp.Ast.TypeOp]
+            or isDerivedFrom[obj, Spp.Ast.Variable];
     }
 }
 
@@ -347,13 +348,20 @@ preprocess {
                 );
             } else {
                 // Generate closure instance.
+                def transformStatement: SrdRef[Spp.Ast.PreGenTransformStatement];
+                transformStatement.{
+                    construct();
+                    MapContainerOf[obj].setElement("body", data);
+                    BindingOf[obj].setMember("transform", TiPtr(function (data: ref[TiObject]): TioSrdRef {
+                        def container: ContainerOf[data];
+                        return Closures.generateClosureInstance(
+                            container.getElement(1), container.getElement(2), castRef[data, Core.Data.Node].owner
+                        );
+                    }));
+                };
                 return Spp.astMgr.buildAst(
-                    (@no_preprocess ast preprocess {
-                        Closures.generateClosureInstance((ast t), (ast b));
-                    }),
-                    AstTemplateMap()
-                        .set(String("t"), container.getElement(1))
-                        .set(String("b"), container.getElement(2)),
+                    (ast t),
+                    AstTemplateMap().set(String("t"), transformStatement.obj)
                 );
             }
         }
