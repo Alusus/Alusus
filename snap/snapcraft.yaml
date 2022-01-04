@@ -40,8 +40,6 @@ parts:
     override-build: |
       Tools/build.sh --btype r --bloc Builds/Snap --iloc Builds/Snap/Install 
       cp -r Builds/Snap/Install/Bin Builds/Snap/Install/Lib Notices_L18n $SNAPCRAFT_PART_INSTALL
-      version=$(python3 Tools/BuildSrc/version_info.py | grep '\([0-9][0-9]*[.][0-9][0-9.]*\)' -o)
-      snapcraftctl set-version "$version-$(git rev-list v$version.. --count)"
 apps:
   alusus:
     command: Bin/alusus
