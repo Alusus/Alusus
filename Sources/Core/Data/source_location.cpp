@@ -2,7 +2,7 @@
  * @file Core/Data/source_location.cpp
  * Contains the implementation of source location classes.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,6 +24,10 @@ void SourceLocationStack::push(SourceLocation *sl)
     throw EXCEPTION(InvalidArgumentException, S("sl"), S("Cannot be null."));
   }
   if (sl->isA<SourceLocationRecord>()) {
+    if (this->getCount() > 0 && this->get(this->getCount() - 1)->operator==(*static_cast<SourceLocationRecord*>(sl))) {
+      // The new record is identical, so let's skip.
+      return;
+    }
     auto sharedSl = getSharedPtr(static_cast<SourceLocationRecord*>(sl));
     if (sharedSl == 0) {
       sharedSl = newSrdObj<SourceLocationRecord>(*static_cast<SourceLocationRecord*>(sl));
@@ -33,6 +37,10 @@ void SourceLocationStack::push(SourceLocation *sl)
     auto stack = static_cast<SourceLocationStack*>(sl);
     this->reserve(this->getCount() + stack->getCount());
     for (Int i = 0; i < stack->getCount(); ++i) {
+      if (this->getCount() > 0 && this->get(this->getCount() - 1)->operator==(*stack->get(i).get())) {
+        // The new record is identical, so let's skip.
+        continue;
+      }
       this->add(stack->get(i));
     }
   }
