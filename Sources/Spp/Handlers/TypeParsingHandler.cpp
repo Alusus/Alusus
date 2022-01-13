@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/TypeParsingHandler.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -43,7 +43,7 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
         state->setData(SharedPtr<TiObject>(0));
         return;
       }
-      if (!this->parseTemplateArgs(state, bracket, tmpltArgs)) {
+      if (!parseTemplateArgs(state, bracket, tmpltArgs)) {
         state->setData(SharedPtr<TiObject>(0));
         return;
       }
@@ -89,88 +89,6 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
   } else {
     state->setData(type);
   }
-}
-
-
-Bool TypeParsingHandler::parseTemplateArgs(
-  Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::List> &result
-) {
-  auto args = bracket->getOperand().get();
-  if (args == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
-    return false;
-  } else if (args->isDerivedFrom<Core::Data::Ast::List>()) {
-    auto argsList = static_cast<Core::Data::Ast::List*>(args);
-    result = newSrdObj<Core::Data::Ast::List>();
-    for (Int i = 0; i < argsList->getCount(); ++i) {
-      auto arg = argsList->get(i).get();
-      if (arg == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
-        return false;
-      }
-      if (!this->parseTemplateArg(state, arg, result)) return false;
-    }
-    return true;
-  } else {
-    result = newSrdObj<Core::Data::Ast::List>();
-    if (!this->parseTemplateArg(state, args, result)) return false;
-    return true;
-  }
-}
-
-
-Bool TypeParsingHandler::parseTemplateArg(
-  Core::Processing::ParserState *state, TiObject *astNode, SharedPtr<Core::Data::Ast::List> const &result
-) {
-  Str name;
-  Ast::TemplateVarType type;
-  TioSharedPtr defaultVal;
-  auto link = ti_cast<Core::Data::Ast::LinkOperator>(astNode);
-  if (link != 0 && link->getType() == S(":")) {
-    auto identifier = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
-    if (identifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
-      return false;
-    }
-    name = identifier->getValue().get();
-
-    auto second = link->getSecond().ti_cast_get<Core::Data::Ast::AssignmentOperator>();
-    if (second != 0 && second->getType() == S("=")) {
-      identifier = second->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
-      defaultVal = second->getSecond();
-    } else {
-      identifier = link->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
-    }
-    if (identifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
-      return false;
-    }
-    if (identifier->getValue() == S("type")) type = Ast::TemplateVarType::TYPE;
-    else if (identifier->getValue() == S("function")) type = Ast::TemplateVarType::FUNCTION;
-    else if (identifier->getValue() == S("integer")) type = Ast::TemplateVarType::INTEGER;
-    else if (identifier->getValue() == S("string")) type = Ast::TemplateVarType::STRING;
-    else if (identifier->getValue() == S("ast")) type = Ast::TemplateVarType::AST;
-    else {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
-      return false;
-    }
-  } else {
-    state->addNotice(
-      newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(astNode))
-    );
-    return false;
-  }
-
-  // Check if arg name is already used.
-  for (Int i = 0; i < result->getCount(); ++i) {
-    if (result->get(i).ti_cast_get<Ast::TemplateVarDef>()->getName() == name) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
-      return false;
-    }
-  }
-
-  result->add(newSrdObj<Ast::TemplateVarDef>(name, type, defaultVal));
-  return true;
 }
 
 

@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -46,6 +46,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   Core::Data::Ast::Identifier *defName = 0;
   SharedPtr<Core::Data::Ast::Map> args;
   TioSharedPtr retType;
+  SharedPtr<Core::Data::Ast::List> tmpltArgs;
   Core::Data::Ast::Scope *body = 0;
 
   for (Int i = 1; i < expr->getElementCount(); ++i) {
@@ -72,9 +73,16 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
       }
     } else if (obj->isDerivedFrom<Core::Data::Ast::Bracket>()) {
       auto bracket = static_cast<Core::Data::Ast::Bracket*>(obj);
-      if (!this->parseArgs(state, bracket, args)) {
-        state->setData(SharedPtr<TiObject>(0));
-        return;
+      if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+        if (!this->parseArgs(state, bracket, args)) {
+          state->setData(SharedPtr<TiObject>(0));
+          return;
+        }
+      } else {
+        if (!parseTemplateArgs(state, bracket, tmpltArgs)) {
+          state->setData(SharedPtr<TiObject>(0));
+          return;
+        }
       }
     } else {
       // Raise an error.
@@ -104,7 +112,21 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     function->setBody(getSharedPtr(body));
     function->setSourceLocation(exprMetadata->findSourceLocation());
     function->setProdId(exprMetadata->getProdId());
-    stateData = function;
+
+    if (tmpltArgs != 0) {
+      stateData = Ast::Template::create({}, {
+        { S("varDefs"), tmpltArgs },
+        { S("body"), function }
+      });
+    } else {
+      stateData = function;
+    }
+  } else if (tmpltArgs != 0) {
+    state->addNotice(
+      newSrdObj<Spp::Notices::TemplateFunctionLacksBodyNotice>(exprMetadata->findSourceLocation())
+    );
+    state->setData(SharedPtr<TiObject>(0));
+    return;
   }
 
   if (defName != 0) {
@@ -221,9 +243,13 @@ Bool FunctionParsingHandler::processExpnameModifier(
 
   // Set the function name.
   if (function == 0) {
-    // The data isn't a function, so it must be a FunctionType.
+    // The data isn't a function, so check if it's a FunctionType.
     auto functionType = ti_cast<Spp::Ast::FunctionType>(data);
-    ASSERT(functionType != 0);
+
+    // If it's not a function type then we can't accept this modifier. This could be because the object is a template
+    // which shouldn't accept expname modifiers.
+    if (functionType == 0) return false;
+
     auto newFunction = newSrdObj<Spp::Ast::Function>();
     newFunction->setType(functionType);
     newFunction->setSourceLocation(functionType->findSourceLocation());
@@ -256,16 +282,28 @@ Bool FunctionParsingHandler::processMemberModifier(
 
   // Find the funciton type to update.
   Int levelOffset = -state->getTopProdTermLevelCount();
+
+  TiObject *data = state->getData(levelOffset).get();
+  if (data == 0) return false;
+
+  // Grab the data from the definition, if any, otherwise use the data from the state level.
+  Core::Data::Ast::Definition *definition = 0;
+  if (data->isDerivedFrom<Core::Data::Ast::Definition>()) {
+    definition = static_cast<Core::Data::Ast::Definition*>(data);
+    data = definition->getTarget().get();
+  }
+
+  if (data->isDerivedFrom<Spp::Ast::Template>()) {
+    auto tpl = static_cast<Spp::Ast::Template*>(data);
+    data = tpl->getBody().get();
+  }
+
   Spp::Ast::FunctionType *funcType;
-  if (state->getData(levelOffset)->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    auto definition = state->getData(levelOffset).s_cast_get<Core::Data::Ast::Definition>();
-    auto function = definition->getTarget().ti_cast_get<Spp::Ast::Function>();
+  if (data->isDerivedFrom<Spp::Ast::Function>()) {
+    auto function = static_cast<Spp::Ast::Function*>(data);
     funcType = function->getType().get();
-  } else if (state->getData(levelOffset)->isDerivedFrom<Spp::Ast::Function>()) {
-    auto function = state->getData(levelOffset).s_cast_get<Spp::Ast::Function>();
-    funcType = function->getType().get();
-  } else if (state->getData(levelOffset)->isDerivedFrom<Spp::Ast::FunctionType>()) {
-    funcType = state->getData(levelOffset).s_cast_get<Spp::Ast::FunctionType>();
+  } else if (data->isDerivedFrom<Spp::Ast::FunctionType>()) {
+    funcType = static_cast<Spp::Ast::FunctionType*>(data);
   } else {
     throw EXCEPTION(GenericException, S("Unexpected data type found."));
   }

@@ -22,6 +22,9 @@ ERROR SPPH1023 @ (101,11): Invalid type property identifier.
 ERROR SPPH1020 @ (102,11): Operation target must be `this`.
 ERROR SPPH1020 @ (103,11): Operation target must be `this`.
 ERROR SPPH1014 @ (104,11): Invalid handler statement.
+ERROR SPPH1025 @ (111,3): Template handler statement must not be a pointer.
+ERROR SPPH1025 @ (112,3): Template handler statement must not be a pointer.
+ERROR SPPH1025 @ (113,3): Template handler statement must not be a pointer.
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]
@@ -816,4 +819,23 @@ UserType [Main.Type]
        operand: Identifier: ref [Main.BlockSubject.Identifier]
        param: Identifier: T [Main.BlockSubject.Identifier]
      body: Block [Main.BlockStatements.StmtList]
+  Definition [Main.LeadingCmdGrp] myprop
+   modifiers:
+    ParamPass []
+     operand: Identifier: operation
+     param: StringLiteral: ()
+   target: Template
+     -varDefs:
+      T: Type
+     -body:
+      Function 
+       type: FunctionType member: 1
+        argTypes: Map
+         this: ParamPass []
+          operand: Identifier: ref
+          param: ThisTypeRef
+         a: Identifier: T [Main.BlockSubject.Identifier]
+        retType: Identifier: T [Main.BlockSubject.Identifier]
+       body: Block [Main.BlockStatements.StmtList]
+     -instances:
 ------------------------------------------------------

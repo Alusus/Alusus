@@ -58,12 +58,14 @@
                           <ul class="unstyled-list">
                             <li><a href="#Functions-variadic">المعطيات المرنة</a></li>
                             <li><a href="#Functions-anonymous">الدالات الضمنية</a></li>
+                            <li><a href="#Functions-templates">قوالب الدالات</a></li>
                           </ul>
                         <a href="#Types" class="top-level">أصناف المستخدم</a><br>
                           <ul class="unstyled-list">
                             <li><a href="#Types-templates">قوالب الأصناف</a></li>
                             <li><a href="#Types-methods">الوظائف (methods)</a></li>
                             <li><a href="#Types-props">الخصال (properties)</a></li>
+                            <li><a href="#Types-handlertemplates">قوالب الوظائف والخصال</a></li>
                             <li><a href="#Types-sharedmembers">العناصر المشتركة</a></li>
                             <li><a href="#Types-methodptrs">مؤشرات الوظائف</a></li>
                             <li><a href="#Types-custominit">تخصيص تهيئة الكائنات</a></li>
@@ -786,6 +788,40 @@ sort(records, func (r1: ref[Record], r2: ref[Record]) {
 });
 </pre>
                   يمكن للدالات الضمنية الولوج إلى المتغيرات العمومية خارجها، لكن لا يمكنها الولوج إلى المتغيرات المحلية ضمن دالة خارجية تحوي الدالة الضمنية، وذلك لأن الدالة الخارجية قد ينتهي تنفيذها وتُزال متغيراتها من الذاكرة قبل استدعاء الدالة الضمنية. للولوج إلى متغيرات محلية ضمن دالة خارجية يحتاج المستخدم لاستخدام <a href="./srt-reference.ar.html#closure">المغلفات</a> بدل الدالات الضمنية.
+
+                  <h4 id="Functions-templates">قوالب الدالات</h4>
+                   يمكن تعريف قوالب الدالات بتعريف معطيات تستخدمها الدالة في متنها ويتم تمرير هذه معطيات القالب أثناء استدعاء الدالة إلى جانب معطيات الدالة نفسها، والفرق بين النوعين من المعطيات أن معطيات القالب يتم تمريرها أثناء الترجمة بينما معطيات الدالة تمرر أثناء التنفيذ. التعريف والاستخدام يأخذان الصيغة التالية:
+<pre class="code" dir=rtl style="text-align:right;">
+دالة &lt;اسم_الدالة&gt; [&lt;تعريف_معطيات_القالب&gt;] (&lt;تعريف_معطيات_الدالة&gt;): &lt;صنف_الإرجاع&gt; {
+    &lt;متن_الدالة&gt;
+}
+
+&lt;اسم_الدالة&gt;[&lt;معطيات_القالب&gt;](&lt;معطيات_الدالة&gt;)؛
+</pre>
+<pre class="code" dir=ltr>
+func &lt;func_name&gt; [&lt;template_arg_defs&gt;] (&lt;func_arg_defs&gt;): &lt;ret_type&gt; {
+    &lt;func_body&gt;
+}
+
+&lt;func_name&gt;[&lt;template_args&gt;](&lt;func_args&gt;);
+</pre>
+                كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+    دالة هات_الأعلى [صـنف: صنف] (م1: صـنف، م2، صـنف): صـنف {
+      إذا م1 > م2 أرجع م1 وإلا أرجع م2؛
+    }
+    هات_الأعلى[صـحيح](5، 7)؛ // ترجع 7
+    هات_الأعلى[عـائم](5.3، 7.7)؛ // ترجع 7.7
+</pre>
+<pre class="samplecode" dir=ltr>
+  func getMax [T: type] (a: T, b: T): T {
+    if a > b return a else return b;
+  }
+  getMax[Int](5, 7); // returns 7
+  getMax[Float](5.3, 7.7); // returns 7.7
+</pre>
+                   هناك عدة أنواع من المعطيات يمكن تمريرها للقالب. راجع <a href="#Types-templates">قوالب الأصناف</a> لمزيد من المعلومات حول أنواع معطيات القوالب.
+
                 </div>
 
                 <!-- ********************************************************************** -->
@@ -1117,6 +1153,45 @@ class &lt;type_name&gt; {
   printFloat(p.length) // prints 50
 </pre>
                 لاحظ في المثال أعلاه أن عملية التعيين فيها عبارة إرجاع، وذلك لأن الأمر `عملية` يُعرف تلقائيا صنف إرجاع لدالة الخصلة بصنف يطابق صنف المعطى.
+
+                <h4 id="Types-handlertemplates">قوالب الوظائف والخصال</h4>
+                مثلما هو الحال مع الدالات العمومية، يمكن تعريف قوالب للدالات الأعضاء، إما بتعريفها كدالة واستخدام المبدلات المطلوبة لتحويلها إلى دالة عضو، أو باستخدام الأمر `عملية` وإعطائها تعريف معطيات القالب بالصيغة التالية:
+<pre class="code" dir=rtl style="text-align:right;">
+عملية [&lt;تعريف_معطيات_القالب&gt;] &lt;تركيب_العملية&gt; {
+    &lt;متن_الدالة&gt;
+}
+
+&lt;اسم_المتغير&gt;.&lt;اسم_الدالة&gt;[&lt;معطيات_القالب&gt;] ...؛
+</pre>
+<pre class="code" dir=ltr>
+handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
+    &lt;func_body&gt;
+}
+
+&lt;var_name&gt;.&lt;func_name&gt;[&lt;template_args&gt;] ...;
+</pre>
+                كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+    صنف ريـاضيات {
+      عملية [صـنف: صنف] هذا.هات_الأعلى(م1: صـنف، م2، صـنف): صـنف {
+        إذا م1 > م2 أرجع م1 وإلا أرجع م2؛
+      }
+    }
+    عرف ر: ريـاضيات؛
+    ر.هات_الأعلى[صـحيح](5، 7)؛ // ترجع 7
+    ر.هات_الأعلى[عـائم](5.3، 7.7)؛ // ترجع 7.7
+</pre>
+<pre class="samplecode" dir=ltr>
+  class Math {
+    handler [T: type] this.getMax(a: T, b: T): T {
+      if a > b return a else return b;
+    }
+  }
+  def m: Math;
+  m.getMax[Int](5, 7); // returns 7
+  m.getMax[Float](5.3, 7.7); // returns 7.7
+</pre>
+                   هناك عدة أنواع من المعطيات يمكن تمريرها للقالب. راجع <a href="#Types-templates">قوالب الأصناف</a> لمزيد من المعلومات حول أنواع معطيات القوالب.
 
                 <h4 id="Types-sharedmembers">العناصر المشتركة</h4>
                 يمكن تعريف متغيرات ودالات مشتركة داخل أصناف المستخدم، وهذه العناصر المشتركة تكون غير مرتبطة بأي كائن من هذا الصنف وإنما تتصرف كأنها دالات ومتغيرات عمومية وفرقها الوحيد عن المتغيرات والدالات العمومية أنها معرفة داخل مجال مختلف ولاستدعائها تحتاج أن تسبق اسمها باسم ذلك الصنف، كما في المثال التالي:
@@ -2473,7 +2548,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2021م \ 1443هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2022م \ 1443هـ.</strong></li>
                         </ul>
                     </div>
                 </div>

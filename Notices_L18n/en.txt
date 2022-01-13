@@ -66,6 +66,8 @@ SPPH1020:Operation target must be `this`.
 SPPH1021:Type is missing from ~cast operation.
 SPPH1022:Invalid use of square brackets.
 SPPH1023:Invalid type property identifier.
+SPPH1024:Template function lacks a body.
+SPPH1025:Template handler statement must not be a pointer.
 
 SPPG1001:Unsupported operation.
 SPPG1002:Invalid operation.

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -439,22 +439,7 @@ Bool ExpressionGenerator::_generateSquareParamPass(
   PlainList<TiObject> paramAstTypes;
   GenResult thisResult;
   GenResult operandResult;
-  if (!expGenerator->prepareCallee(operand, &paramAstTypes, S("[]"), g, session, operandResult, thisResult)) {
-    return false;
-  }
-
-  if (operandResult.astNode != 0 && operandResult.astNode->isDerivedFrom<Spp::Ast::Template>()) {
-    auto tpl = static_cast<Spp::Ast::Template*>(operandResult.astNode);
-    TioSharedPtr tplInstance;
-    if (!tpl->matchInstance(astNode->getParam().get(), expGenerator->astHelper, tplInstance)) return false;
-    result.astNode = tplInstance.get();
-    return true;
-  } else {
-    expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidOperationNotice>(astNode->findSourceLocation())
-    );
-    return false;
-  }
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult);
 }
 
 
@@ -2776,6 +2761,20 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       return false;
     }
   } else {
+    if (
+      operand->isDerivedFrom<Core::Data::Ast::ParamPass>() &&
+      static_cast<Core::Data::Ast::ParamPass*>(operand)->getType() == Core::Data::Ast::BracketType::SQUARE
+    ) {
+      ////
+      //// Call a template function.
+      ////
+      auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(operand);
+      if (!expGenerator->prepareCalleeLookupRequest(
+        paramPass->getOperand().get(), g, session, prevResult, calleeRequest
+      )) return false;
+      calleeRequest.templateParam = paramPass->getParam().get();
+      return true;
+    } else {
     ////
     //// Call the result of a previous expression.
     ////
@@ -2801,6 +2800,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     calleeRequest.target = prevAstType;
     calleeRequest.thisType = prevThisAstType;
     return true;
+    }
   }
 }
 

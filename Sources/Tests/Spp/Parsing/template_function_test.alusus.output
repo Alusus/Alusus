@@ -1,0 +1,41 @@
+------------------ Parsed Data Dump ------------------
+Template
+ -varDefs:
+  T: Type
+  F: Function
+  I: Integer
+  S: String
+ -body:
+  Function  [Main.Function]
+   type: FunctionType member: 0 [Main.Function]
+    argTypes: Map
+     i: Identifier: Int [Main.BlockSubject.Identifier]
+    retType: Identifier: ptr [Main.BlockSubject.Identifier]
+   body: Block [Main.BlockStatements.StmtList]
+ -instances:
+------------------------------------------------------
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatements.StmtList]
+ Definition [Main.Function] myTplFunc2
+  modifiers:
+   Identifier: somemod [Modifier.Subject.Identifier]
+  target: Template
+    -varDefs:
+     T: Type
+     F: Function
+     I: Integer
+     S: String
+    -body:
+     Function  [Main.Function]
+      type: FunctionType member: 0 [Main.Function]
+       argTypes: Map
+        i: Identifier: Int [Main.BlockSubject.Identifier]
+       retType: Identifier: ptr [Main.BlockSubject.Identifier]
+      body: Block [Main.BlockStatements.StmtList]
+    -instances:
+------------------------------------------------------
+ERROR SPPH1024 @ (18,1): Template function lacks a body.
+ERROR SPPH1024 @ (20,1): Template function lacks a body.
+ERROR SPPH1024 @ (22,1): Template function lacks a body.
+ERROR SPPH1024 @ (26,12): Template function lacks a body.
+ERROR CD1003 @ (26,1): Invalid 'def' command.

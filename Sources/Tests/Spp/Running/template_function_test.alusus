@@ -1,0 +1,70 @@
+import "Core/Basic";
+
+@expname[printf] function printf (s: ptr[Word[8]], ...any) => Int;
+
+function min [T: type] (a: T, b: T): T {
+    if a <= b return a else return b;
+}
+module Math {
+    function max [T: type] (a: T, b: T): T {
+        if a >= b return a else return b;
+    }
+}
+
+printf("min[int]: %d\n", min[Int](7, 3));
+printf("min[float]: %f\n", min[Float[64]](7, 3));
+printf("Math.max[int]: %d\n", Math.max[Int](7, 3));
+printf("Math.max[float]: %f\n", Math.max[Float[64]](7, 3));
+
+class Data {
+    handler [T: type] this.min(a: T, b: T): T {
+        if a <= b return a else return b;
+    }
+    @member function max [T: type] (this: ref[this_type], a: T, b: T): T {
+        if a >= b return a else return b;
+    }
+    handler [T: type] this.num: T {
+        return 5.5;
+    }
+}
+
+def d: Data;
+printf("d.min[Int]: %d\n", d.min[Int](7, 3));
+printf("d.min[Float]: %f\n", d.min[Float[64]](7, 3));
+printf("d.max[Int]: %d\n", d.max[Int](7, 3));
+printf("d.max[Float]: %f\n", d.max[Float[64]](7, 3));
+printf("d.num[Int]: %d\n", d.num[Int]);
+printf("d.num[Float]: %f\n", d.num[Float[64]]);
+
+function myFunc [a: ast] {
+    preprocess {
+        printf("myFunc: %s\n", a~ast.getMyTypeInfo().typeName.buf);
+    }
+}
+function testAstTemplateArgs {
+    myFunc[a || b]();
+    myFunc[a || b]();
+    myFunc[a + b]();
+}
+testAstTemplateArgs();
+
+class Tpl [Tret: type] {
+    handler [Targ: type] this.min(a: Targ, b: Targ): Tret {
+        if a <= b return a else return b;
+    }
+}
+def t: Tpl[Int];
+printf("t.min[Float]: %d\n", t.min[Float](7.5, 3.2));
+
+// Error cases:
+
+function f1() {}
+function f2(d: Int) {}
+module Mod {
+    function f1() {}
+    function f2(d: Int) {}
+}
+f1[Int]();
+f2[Int](5);
+Mod.f1[Int]();
+Mod.f2[Int](5);

@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/TypeHandlersParsingHandler.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,6 +22,19 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   ASSERT(data != 0);
   auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(data);
   ASSERT(exprMetadata != 0);
+
+  // Is this a template?
+  SharedPtr<Core::Data::Ast::List> tmpltArgs;
+  if (data->getCount() > 1) {
+    auto bracket = data->get(1).ti_cast_get<Core::Data::Ast::Bracket>();
+    if (bracket != 0 && bracket->getType() == Core::Data::Ast::BracketType::SQUARE) {
+      if (!parseTemplateArgs(state, bracket, tmpltArgs)) {
+        state->setData(SharedPtr<TiObject>(0));
+        return;
+      }
+      data->remove(1);
+    }
+  }
 
   if (data->getCount() < 2) {
     state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
@@ -53,6 +66,14 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     }
   }
 
+  if (tmpltArgs != 0 && mode != Mode::FUNCTION) {
+    state->addNotice(
+      newSrdObj<Spp::Notices::InvalidTemplateHandlerStatementNotice>(exprMetadata->findSourceLocation())
+    );
+    state->setData(SharedPtr<TiObject>(0));
+    return;
+  }
+
   TioSharedPtr rawBody = 0;
   if (data->getCount() > bodyIndex) {
     rawBody = data->get(bodyIndex);
@@ -73,28 +94,26 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     retType = linkOp->getSecond();
   }
 
+  Bool success = true;
   if (expr->isDerivedFrom<Core::Data::Ast::AssignmentOperator>()) {
     this->createAssignmentHandler(
       state, static_cast<Core::Data::Ast::AssignmentOperator*>(expr), body, retType, mode
     );
-    return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::ComparisonOperator>()) {
     this->createComparisonHandler(state, static_cast<Core::Data::Ast::ComparisonOperator*>(expr), body, retType, mode);
-    return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
     auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(expr);
     if (paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
       this->createParensOpHandler(state, paramPass, body, retType, mode);
-      return;
+    } else {
+      success = false;
     }
   } else if (expr->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(expr);
     this->createReadHandler(state, linkOp, body, retType, mode);
-    return;
   } else if (expr->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(expr);
     this->createInfixOpHandler(state, infixOp, body, retType, mode);
-    return;
   } else if (expr->isDerivedFrom<Spp::Ast::InitOp>()) {
     if (mode != Mode::FUNCTION) {
       state->addNotice(newSrdObj<Spp::Notices::PtrBasedInitOpNotice>(exprMetadata->findSourceLocation()));
@@ -102,17 +121,26 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
       return;
     }
     this->createInitOpHandler(state, static_cast<Spp::Ast::InitOp*>(expr), body);
-    return;
   } else if (expr->isDerivedFrom<Spp::Ast::TerminateOp>()) {
     this->createTerminateOpHandler(state, static_cast<Spp::Ast::TerminateOp*>(expr), body, mode);
-    return;
   } else if (expr->isDerivedFrom<Spp::Ast::CastOp>()) {
     this->createCastHandler(state, static_cast<Spp::Ast::CastOp*>(expr), body, mode);
-    return;
+  } else {
+    success = false;
   }
 
-  state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
-  state->setData(SharedPtr<TiObject>(0));
+  if (success) {
+    if (tmpltArgs != 0) {
+      auto def = state->getData().s_cast_get<Core::Data::Ast::Definition>();
+      def->setTarget(Ast::Template::create({}, {
+        { S("varDefs"), tmpltArgs },
+        { S("body"), def->getTarget() }
+      }));
+    }
+  } else {
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
+    state->setData(SharedPtr<TiObject>(0));
+  }
 }
 
 

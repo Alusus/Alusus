@@ -2,7 +2,7 @@
  * @file Spp/Notices/notices.h
  * Contains the definitions and include statements of all user notices.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -157,6 +157,12 @@ DEFINE_NOTICE(InvalidUseOfSquareBracketNotice, "Spp.Notices", "Spp", "alusus.org
 );
 DEFINE_NOTICE(InvalidPropIdentifierNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1023", 1,
   "Invalid type property identifier."
+);
+DEFINE_NOTICE(TemplateFunctionLacksBodyNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1024", 1,
+  "Template function lacks a body."
+);
+DEFINE_NOTICE(InvalidTemplateHandlerStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1025", 1,
+  "Template handler statement must not be a pointer."
 );
 
 } // namespace
