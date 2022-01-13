@@ -108,3 +108,4 @@ SPPG1036:Cannot use dot operator on this type of elements.
 SPPG1037:Incomplete infix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.
 SPPG1038:Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.
 SPPG1039:Invalid target for use_in operation.
+SPPG1040:Circular code generation encountered while generating user type.

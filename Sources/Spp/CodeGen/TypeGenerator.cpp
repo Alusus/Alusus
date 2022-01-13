@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -253,6 +253,14 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
   );
 
   if (!typeGenerator->astProcessor->processTypeBody(astType)) return false;
+
+  // Did this type get generated during preprocessing? If so it means we ran into circular code generation.
+  if (session->getEda()->tryGetCodeGenData<TiObject>(astType) != 0) {
+    typeGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(astType->findSourceLocation())
+    );
+    return false;
+  }
 
   TioSharedPtr tgType;
   if (!session->getTg()->generateStructTypeDecl(name.c_str(), tgType)) return false;

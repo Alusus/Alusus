@@ -2405,7 +2405,8 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   // Get the member generated value and type.
   auto tgMemberVar = session->getEda()->tryGetCodeGenData<TiObject>(astMemberVar);
   if (tgMemberVar == 0) {
-    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
+    // This situation will only happen if we have circular code generation.
+    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
       Core::Data::Ast::findSourceLocation(astNode)
     ));
     return false;

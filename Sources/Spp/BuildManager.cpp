@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.cpp
  * Contains the implementation of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -511,7 +511,9 @@ void BuildManager::_resetBuildData(TiObject *self, TiObject *obj, CodeGen::Extra
   if (metahaving != 0) {
     eda->removeCodeGenData(metahaving);
     eda->removeAutoCtor(metahaving);
+    eda->removeAutoCtorType(metahaving);
     eda->removeAutoDtor(metahaving);
+    eda->removeAutoDtorType(metahaving);
     eda->resetCodeGenFailed(metahaving);
     eda->resetInitStatementsGenIndex(metahaving);
   }

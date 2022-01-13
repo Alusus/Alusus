@@ -292,6 +292,9 @@ DEFINE_NOTICE(IncompleteOutfixOpNotice, "Spp.Notices", "Spp", "alusus.org", "SPP
 DEFINE_NOTICE(InvalidUseInTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1039", 1,
   "Invalid target for use_in operation."
 );
+DEFINE_NOTICE(CircularUserTypeCodeGenNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1040", 1,
+  "Circular code generation encountered while generating user type."
+);
 
 } // namespace
 

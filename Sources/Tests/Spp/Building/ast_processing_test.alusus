@@ -84,6 +84,7 @@ func testDoublePreprocess1 {
 }
 
 func testDoublePreprocess2 {
+    A;
     testDoublePreprocess1();
     def a: A;
     print("testDoublePreprocess2\n");
