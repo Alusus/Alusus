@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.h
  * Contains the header of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -144,8 +144,13 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
   );
 
-  public: METHOD_BINDING_CACHE(traceType, Type*, (TiObject*));
-  private: static Type* _traceType(TiObject *self, TiObject *ref);
+  public: METHOD_BINDING_CACHE(_traceType, Type*, (TiObject*, Bool));
+  private: static Type* __traceType(TiObject *self, TiObject *ref, Bool skipErrors);
+
+  public: Type* traceType(TiObject *ref, Bool skipErrors = false)
+  {
+    return this->_traceType(ref, skipErrors);
+  }
 
   public: METHOD_BINDING_CACHE(isVoid, Bool, (TiObject const*));
   private: static Bool _isVoid(TiObject *self, TiObject const *ref);

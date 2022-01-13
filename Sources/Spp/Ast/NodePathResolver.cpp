@@ -2,7 +2,7 @@
  * @file Spp/Ast/NodePathResolver.cpp
  * Contains the implementation of class Spp::Ast::NodePathResolver.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -105,7 +105,7 @@ void NodePathResolver::_resolveFunctionType(
   }
   path << S(")");
   if (funcType->getRetType() != 0) {
-    auto type = helper->traceType(funcType->getRetType().get());
+    auto type = helper->traceType(funcType->getRetType().get(), true);
     path << S("=>(") << resolver->doResolve(type, helper) << S(")");
   }
 }
@@ -120,12 +120,12 @@ void NodePathResolver::_resolveFunctionArg(TiObject *self, TiObject *arg, Helper
     if (argPack->getArgType() == 0) {
       path << S("any");
     } else {
-      auto type = helper->traceType(argPack->getArgType().get());
+      auto type = helper->traceType(argPack->getArgType().get(), true);
       path << resolver->doResolve(type, helper);
     }
     path << C(',') << argPack->getMin().get() << C(',') << argPack->getMax().get() << C(']');
   } else {
-    auto type = helper->traceType(arg);
+    auto type = helper->traceType(arg, true);
     path << resolver->doResolve(type, helper);
   }
 }

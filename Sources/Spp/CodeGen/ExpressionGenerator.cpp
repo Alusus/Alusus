@@ -1844,14 +1844,8 @@ Bool ExpressionGenerator::_generateSizeOp(
   astType = expGenerator->astHelper->tryGetDeepReferenceContentType(astType);
 
   // Get the allocation size.
-  auto sourceLocation = Core::Data::Ast::findSourceLocation(operand).get();
-  if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   Word size;
-  auto retVal = g->getTypeAllocationSize(astType, session, size);
-  if (sourceLocation != 0) {
-    expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(Core::Data::getSourceLocationRecordCount(sourceLocation));
-  }
-  if (!retVal) return false;
+  if (!g->getTypeAllocationSize(astType, session, size)) return false;
 
   // Generate the Word64 type needed for the result.
   auto bitCount = expGenerator->astHelper->getNeededIntSize(size);
@@ -2320,8 +2314,16 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
     // If the found object is a type, then let's make sure it's preprocessed.
     auto dataType = ti_cast<Spp::Ast::DataType>(result.astNode);
     if (dataType != 0) {
+      auto sourceLocation = Core::Data::Ast::findSourceLocation(astNode).get();
+      if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
       TiObject *tgType;
-      if (!g->getGeneratedType(dataType, session, tgType, 0)) return false;
+      auto result = g->getGeneratedType(dataType, session, tgType, 0);
+      if (sourceLocation != 0) {
+        expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(
+          Core::Data::getSourceLocationRecordCount(sourceLocation)
+        );
+      }
+      if (!result) return false;
     }
   } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     retVal = expGenerator->generateStringLiteral(
@@ -2776,31 +2778,31 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       calleeRequest.templateParam = paramPass->getParam().get();
       return true;
     } else {
-    ////
-    //// Call the result of a previous expression.
-    ////
-    if (!expGenerator->generate(operand, g, session, prevResult)) return false;
+      ////
+      //// Call the result of a previous expression.
+      ////
+      if (!expGenerator->generate(operand, g, session, prevResult)) return false;
 
-    // Lookup a callee on the result.
-    Ast::Type *prevAstType;
-    Ast::Type *prevThisAstType;
-    if (prevResult.astType) {
-      prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-      // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
-      // to actually call that function.
-      if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
-        prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
+      // Lookup a callee on the result.
+      Ast::Type *prevAstType;
+      Ast::Type *prevThisAstType;
+      if (prevResult.astType) {
+        prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+        // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
+        // to actually call that function.
+        if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
+          prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
+        } else {
+          prevThisAstType = 0;
+        }
+        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
       } else {
+        prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
         prevThisAstType = 0;
       }
-      calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
-    } else {
-      prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
-      prevThisAstType = 0;
-    }
-    calleeRequest.target = prevAstType;
-    calleeRequest.thisType = prevThisAstType;
-    return true;
+      calleeRequest.target = prevAstType;
+      calleeRequest.thisType = prevThisAstType;
+      return true;
     }
   }
 }

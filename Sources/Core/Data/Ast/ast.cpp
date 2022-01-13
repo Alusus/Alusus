@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/ast.cpp
  * Contains the global implementations of Data::Ast namespace's declarations.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,6 +28,7 @@ SharedPtr<SourceLocation> const& findSourceLocation(TiObject const *obj)
 
 void addSourceLocation(TiObject *obj, SourceLocation *sl)
 {
+  if (sl == 0) return;
   auto metadata = ti_cast<MetaHaving>(obj);
   if (metadata == 0) return;
 

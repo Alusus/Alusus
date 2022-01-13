@@ -131,3 +131,87 @@ preprocess {
         }
     )
 }
+
+// Testing Circular Generation
+
+// CircularGen1
+
+class CircularGen1 {
+    preprocess {
+    }
+}
+
+func testCircularGen1 {
+   def r: ref[CircularGen1];
+}
+
+preprocess {
+    CircularGen1;
+    testCircularGen1();
+    def n: ref[CircularGen1];
+    if n~ptr == 0 {}
+    Console.print("CircularGen1\n");
+}
+
+// CircularGen2
+
+class CircularGen2a {
+    preprocess {
+    }
+}
+
+class CircularGen2b {
+    def d: CircularGen2a;
+}
+
+func testCircularGen2 {
+    def r: CircularGen2b;
+    r.d;
+}
+
+preprocess {
+    CircularGen2a;
+    testCircularGen2();
+    def r: CircularGen2b;
+    Console.print("CircularGen2\n");
+}
+
+// CircularGen3
+
+class CircularGen3 {
+    preprocess {
+    }
+}
+
+func testCircularGen3 {
+   def r: ref[CircularGen3];
+}
+
+preprocess {
+    testCircularGen3();
+    def n: ref[CircularGen3];
+    if n~ptr == 0 {}
+    Console.print("CircularGen3\n");
+}
+
+// CircularGen4
+
+class CircularGen4a {
+    preprocess {
+    }
+}
+
+class CircularGen4b {
+    def d: CircularGen4a;
+}
+
+func testCircularGen4 {
+    def r: CircularGen4b;
+    r.d;
+}
+
+preprocess {
+    testCircularGen4();
+    def r: CircularGen4b;
+    Console.print("CircularGen4\n");
+}

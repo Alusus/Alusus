@@ -2,7 +2,7 @@
  * @file Spp/Ast/FunctionType.cpp
  * Contains the implementation of class Spp::Ast::FunctionType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -102,18 +102,24 @@ Bool FunctionType::isIdentical(Type const *type, Helper *helper) const
     auto thisArgPack = ti_cast<ArgPack>(thisArg);
     auto argPack = ti_cast<ArgPack>(arg);
 
+    VoidType voidTp;
+
     if ((thisArgPack == 0 && argPack != 0) || (thisArgPack != 0 && argPack == 0)) return false;
     else if (argPack != 0) {
       // Check arg packs.
       if (thisArgPack->getMin() != argPack->getMin() || thisArgPack->getMax() != argPack->getMax()) return false;
-      Type *thisArgType = thisArgPack->getArgType() == 0 ? 0 : helper->traceType(thisArgPack->getArgType().get());
-      Type *argType = argPack->getArgType() == 0 ? 0 : helper->traceType(argPack->getArgType().get());
-      if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return false;
-      if (thisArgType != 0 && !thisArgType->isIdentical(argType, helper)) return false;
+      Type *thisArgType = thisArgPack->getArgType() == 0 ?
+        &voidTp :
+        helper->traceType(thisArgPack->getArgType().get(), true);
+      Type *argType = argPack->getArgType() == 0 ?
+        &voidTp :
+        helper->traceType(argPack->getArgType().get(), true);
+      if (thisArgType == 0 || argType == 0) return false;
+      if (!thisArgType->isIdentical(argType, helper)) return false;
     } else {
       // Check regular args.
-      Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
-      Type *argType = arg == 0 ? 0 : helper->traceType(arg);
+      Type *thisArgType = thisArg == 0 ? &voidTp : helper->traceType(thisArg, true);
+      Type *argType = arg == 0 ? &voidTp : helper->traceType(arg, true);
       if (thisArgType == 0 || argType == 0) return false;
       if (!thisArgType->isIdentical(argType, helper)) return false;
     }
