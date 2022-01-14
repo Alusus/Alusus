@@ -1,7 +1,7 @@
 /**
  * @file Spp/GrammarFactory.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -232,6 +232,12 @@ void GrammarFactory::createGrammar()
     Map::create({}, { { S("handler"), 0 }, { S("عملية"), 0 } }),
     {
       {
+        PARSE_REF(S("module.SquareArgsSubject")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
         PARSE_REF(S("module.Expression")),
         TiInt::create(1),
         TiInt::create(1),
@@ -306,7 +312,13 @@ void GrammarFactory::createGrammar()
       {
         PARSE_REF(S("module.ParamOnlySubject")),
         TiInt::create(0),
-        TiInt::create(2),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.SquareArgsSubject")),
+        TiInt::create(0),
+        TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
@@ -327,6 +339,12 @@ void GrammarFactory::createGrammar()
     {
       {
         PARSE_REF(S("module.Subject.Identifier")),
+        TiInt::create(0),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      },
+      {
+        PARSE_REF(S("module.SquareArgsSubject")),
         TiInt::create(0),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -434,7 +452,7 @@ void GrammarFactory::createGrammar()
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       },
       {
-        PARSE_REF(S("module.MacroSignature")),
+        PARSE_REF(S("module.SquareArgsSubject")),
         TiInt::create(0),
         TiInt::create(1),
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
@@ -447,11 +465,12 @@ void GrammarFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::MacroParsingHandler>());
-  // Macro Signature
-  this->set(S("root.Main.MacroSignature"), Module::create({
-    {S("baseRef"), PARSE_REF(S("module.owner.Subject")) }
+
+  // Square Arguments Signature
+  this->set(S("root.Main.SquareArgsSubject"), Module::create({
+    {S("baseRef"), PARSE_REF(S("module.owner.ParamOnlySubject")) }
   }).get());
-  this->set(S("root.Main.MacroSignature.Sbj"), SymbolDefinition::create({
+  this->set(S("root.Main.SquareArgsSubject.Sbj"), SymbolDefinition::create({
    {S("baseRef"), PARSE_REF(S("module.base.Sbj"))},
   }, {
     {S("vars"), Map::create({}, {
@@ -974,7 +993,7 @@ void GrammarFactory::cleanGrammar()
   this->tryRemove(S("root.Main.ParamOnlyExpression"));
   this->tryRemove(S("root.Main.ParamOnlySubject"));
   this->tryRemove(S("root.Main.Macro"));
-  this->tryRemove(S("root.Main.MacroSignature"));
+  this->tryRemove(S("root.Main.SquareArgsSubject"));
   this->tryRemove(S("root.Main.Preprocess"));
   this->tryRemove(S("root.Main.AstLiteral"));
   this->tryRemove(S("root.Main.Keywords"));

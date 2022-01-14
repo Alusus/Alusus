@@ -172,6 +172,17 @@ module Closures {
             addFuncArgs(args, 0, this, useBox);
             if payloadType~ptr != 0 this.addElement("__payload", payloadType);
         };
+        def retTypeVariable: SrdRef[Spp.Ast.Variable];
+        if useBox and retVal~ptr != 0 {
+            def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(retVal));
+            if targetType~ptr == 0 retVal~ptr = 0
+            else {
+                retTypeVariable = newSrdObj[Spp.Ast.Variable].{
+                    MapContainerOf[this].setElement("type", targetType);
+                };
+                retVal~no_deref = retTypeVariable.obj;
+            }
+        }
         def fnType: TioSrdRef = TioSrdRef().{
             if thisType~ptr != 0 this = Spp.astMgr.cloneAst(ast @member func)
             else this = Spp.astMgr.cloneAst(ast func);
@@ -194,8 +205,10 @@ module Closures {
                 for i = 0, i < inputContaining.getElementCount(), ++i {
                     def inputObj: ref[TiObject](this.getElement(i));
                     if useBox {
+                        def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(inputObj));
+                        if targetType~ptr == 0 continue;
                         map.addElement(this.getElementKey(i), newSrdObj[Spp.Ast.Variable].{
-                            MapContainerOf[this].setElement("type", Spp.astMgr.traceType(inputObj));
+                            MapContainerOf[this].setElement("type", targetType);
                         });
                     } else {
                         map.addElement(this.getElementKey(i), Spp.astMgr.cloneAst(inputObj));
@@ -215,18 +228,24 @@ module Closures {
                     return;
                 }
                 if useBox {
-                    map.addElement(this.value.value, newSrdObj[Spp.Ast.Variable].{
-                        MapContainerOf[this].setElement("type", Spp.astMgr.traceType(inputContaining.getElement(1)));
-                    });
+                    def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(inputContaining.getElement(1)));
+                    if targetType~ptr != 0 {
+                        map.addElement(this.value.value, newSrdObj[Spp.Ast.Variable].{
+                            MapContainerOf[this].setElement("type", targetType);
+                        });
+                    }
                 } else {
                     map.addElement(this.value.value, Spp.astMgr.cloneAst(inputContaining.getElement(1)));
                 }
             };
         } else {
             if useBox {
-                map.addElement(String("__") + index, newSrdObj[Spp.Ast.Variable].{
-                    MapContainerOf[this].setElement("type", Spp.astMgr.traceType(input));
-                });
+                def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(input));
+                if targetType~ptr != 0 {
+                    map.addElement(String("__") + index, newSrdObj[Spp.Ast.Variable].{
+                        MapContainerOf[this].setElement("type", targetType);
+                    });
+                }
             } else {
                 map.addElement(String("__") + index, Spp.astMgr.cloneAst(input));
             }
@@ -329,6 +348,11 @@ preprocess {
     use Srl;
     use Core.Basic;
     use Closures;
+
+    // Pre-generate needed types.
+    Spp.Ast.Type;
+    Spp.Ast.Variable;
+
     Spp.grammarMgr.addCustomCommand(
         "Closure",
         (ast {

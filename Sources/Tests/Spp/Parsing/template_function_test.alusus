@@ -1,0 +1,26 @@
+import "alusus_spp";
+
+function myTplFunc [T: type, F: function, I: integer, S: string] (i: Int): ptr
+{
+}
+
+dump_ast myTplFunc;
+
+module Mod {
+    @somemod
+    function myTplFunc2 [T: type, F: function, I: integer, S: string] (i: Int): ptr
+    {
+    }
+}
+
+dump_ast Mod;
+
+function [T: type] (i: Int): ptr;
+
+function [T: type];
+
+function tpl1 [T: type];
+
+function tpl2 [T: type] {}
+
+def fnptr: function [T: type] (i: Int): ptr;

@@ -2,7 +2,7 @@
  * @file Core/Data/Seeker.cpp
  * Contains the implementation of class Core::Data::Seeker.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -247,8 +247,6 @@ Seeker::Verb Seeker::_set_identifier(
       node = node->getOwner();
       flags |= Seeker::Flags::SKIP_OWNED;
     }
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
   }
   return retVal;
 }
@@ -340,8 +338,6 @@ Seeker::Verb Seeker::_set_linkOperatorRouting(
         auto map = ti_cast<MapContaining<TiObject>>(data);
         if (map != 0) {
           return seeker->set_identifierOnMap(static_cast<Ast::Identifier*>(second), map, cb, flags);
-        } else {
-          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
         }
       }
     } else {
@@ -350,6 +346,7 @@ Seeker::Verb Seeker::_set_linkOperatorRouting(
   } else {
     throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
+  return Seeker::Verb::MOVE;
 }
 
 
@@ -403,8 +400,6 @@ Seeker::Verb Seeker::_remove_identifier(
       node = node->getOwner();
       flags |= Seeker::Flags::SKIP_OWNED;
     }
-  } else {
-    throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
   }
   return retVal;
 }
@@ -490,8 +485,6 @@ Seeker::Verb Seeker::_remove_linkOperatorRouting(
         auto map = ti_cast<DynamicMapContaining<TiObject>>(data);
         if (map != 0) {
           return seeker->remove_identifierOnMap(static_cast<Ast::Identifier*>(second), map, cb, flags);
-        } else {
-          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
         }
       }
     } else {
@@ -500,6 +493,7 @@ Seeker::Verb Seeker::_remove_linkOperatorRouting(
   } else {
     throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
+  return Seeker::Verb::MOVE;
 }
 
 
@@ -534,13 +528,10 @@ Seeker::Verb Seeker::_foreach_identifier(
           return cb(Action::TARGET_MATCH, element);
         }
       }
-      throw EXCEPTION(InvalidArgumentException, S("data"), S("The stack is empty."));
     } else if (data->isDerivedFrom<Node>()) {
       auto node = static_cast<Node*>(data);
       while (node->getOwner() != 0) node = node->getOwner();
       return cb(Action::TARGET_MATCH, node);
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
     }
   } else {
     if (data->isDerivedFrom<DataStack>()) {
@@ -571,8 +562,6 @@ Seeker::Verb Seeker::_foreach_identifier(
         node = node->getOwner();
         flags |= Seeker::Flags::SKIP_OWNED;
       }
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid data type."));
     }
   }
   return retVal;
@@ -731,8 +720,6 @@ Seeker::Verb Seeker::_foreach_linkOperatorRouting(
         auto map = ti_cast<MapContaining<TiObject>>(data);
         if (map != 0) {
           return seeker->foreach_identifierOnMap(static_cast<Ast::Identifier*>(second), map, cb, flags);
-        } else {
-          throw EXCEPTION(InvalidArgumentException, S("data"), S("Unrecognized target data type."));
         }
       }
     } else {
@@ -741,6 +728,7 @@ Seeker::Verb Seeker::_foreach_linkOperatorRouting(
   } else {
     throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
+  return Seeker::Verb::MOVE;
 }
 
 

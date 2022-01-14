@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.cpp
  * Contains the implementation of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -26,7 +26,7 @@ void Helper::initBindingCaches()
     &this->isInMemVariable,
     &this->isValueOnlyVariable,
     &this->lookupCustomCaster,
-    &this->traceType,
+    &this->_traceType,
     &this->isVoid,
     &this->isImplicitlyCastableTo,
     &this->isExplicitlyCastableTo,
@@ -64,7 +64,7 @@ void Helper::initBindings()
   this->isInMemVariable = &Helper::_isInMemVariable;
   this->isValueOnlyVariable = &Helper::_isValueOnlyVariable;
   this->lookupCustomCaster = &Helper::_lookupCustomCaster;
-  this->traceType = &Helper::_traceType;
+  this->_traceType = &Helper::__traceType;
   this->isVoid = &Helper::_isVoid;
   this->isImplicitlyCastableTo = &Helper::_isImplicitlyCastableTo;
   this->isExplicitlyCastableTo = &Helper::_isExplicitlyCastableTo;
@@ -183,7 +183,7 @@ TypeMatchStatus Helper::_lookupCustomCaster(
 }
 
 
-Type* Helper::_traceType(TiObject *self, TiObject *ref)
+Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
 {
   PREPARE_SELF(helper, Helper);
 
@@ -196,7 +196,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     auto operand = typeOp->getOperand().ti_cast_get<Core::Data::Node>();
     auto typeRef = helper->getSeeker()->tryGet(operand, operand->getOwner());
     if (typeRef != 0) {
-      type = helper->traceType(typeRef);
+      type = helper->_traceType(typeRef, skipErrors);
       if (type != 0) typeOp->setType(type);
     }
   }
@@ -217,7 +217,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (var->getTypeRef() == 0) {
       throw EXCEPTION(GenericException, S("Variable definition is missing the type reference."));
     }
-    type = helper->traceType(var->getTypeRef().get());
+    type = helper->_traceType(var->getTypeRef().get(), skipErrors);
     var->setType(type);
   } else if (ref->isDerivedFrom<Spp::Ast::ArgPack>()) {
     // With arg packs we should aready have the type set during the generation of the function signature.
@@ -225,7 +225,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
   } else if (ref->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(ref);
     if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
-      return helper->traceType(bracket->getOperand().get());
+      return helper->_traceType(bracket->getOperand().get(), skipErrors);
     }
   } else if (helper->isAstReference(ref)) {
     type = tryGetAstType(ref);
@@ -236,7 +236,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
       typeRef = paramPass->getOperand().ti_cast_get<Core::Data::Node>();
       if (typeRef == 0) throw EXCEPTION(GenericException, S("Invalid type reference."));
-      return helper->traceType(typeRef);
+      return helper->_traceType(typeRef, skipErrors);
     }
     helper->getSeeker()->extForeach(typeRef, owner,
       [=, &foundObj, &type, &notice](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
@@ -284,7 +284,7 @@ Type* Helper::_traceType(TiObject *self, TiObject *ref)
     if (type != 0) setAstType(ref, type);
   }
 
-  if (type == 0 && helper->rootManager->getNoticeStore() != 0) {
+  if (type == 0 && helper->rootManager->getNoticeStore() != 0 && !skipErrors) {
     if (notice != 0) {
       helper->rootManager->getNoticeStore()->add(notice);
     } else if (foundObj == 0) {

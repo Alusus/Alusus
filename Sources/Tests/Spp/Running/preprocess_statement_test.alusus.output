@@ -31,3 +31,9 @@ do3 called
 
 Root preprocess insert 1
 Root preprocess insert 2
+CircularGen1
+CircularGen2
+ERROR SPPG1040 @ (181,1)
+from (192,12): Circular code generation encountered while generating user type.
+ERROR SPPG1024 @ (193,8): Trying to access a variable before it's initialized.
+ERROR SPPG1040 @ (210,5): Circular code generation encountered while generating user type.

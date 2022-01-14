@@ -2,7 +2,7 @@
  * @file Spp/Ast/CalleeTracer.cpp
  * Contains the implementation of class Spp::Ast::CalleeTracer.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -257,6 +257,11 @@ void CalleeTracer::_lookupCallee_routing(TiObject *self, CalleeLookupRequest &re
   PREPARE_SELF(tracer, CalleeTracer);
   auto helper = tracer->helper;
 
+  if (request.templateParam != 0 && ti_cast<Template>(request.target) == 0) {
+    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
+  }
+
   if (request.target != 0 && request.target->isDerivedFrom<Ast::Function>()) {
     tracer->lookupCallee_function(request, result);
   } else if (request.target != 0 && request.target->isDerivedFrom<Type>()) {
@@ -475,13 +480,16 @@ void CalleeTracer::_lookupCallee_template(TiObject *self, CalleeLookupRequest &r
     return;
   }
 
-  // TODO: Look-up template functions as well.
-  auto objType = tracer->helper->traceType(request.target);
-  if (objType == 0) {
-    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+  auto tpl = static_cast<Ast::Template*>(request.target);
+  Core::Data::Ast::List list;
+  TiObject *tplParam = request.templateParam != 0 ? request.templateParam : &list;
+  TioSharedPtr instance;
+  if (!tpl->matchInstance(tplParam, tracer->helper, instance)) {
+    result.notice = instance.s_cast<Core::Notices::Notice>();
   } else {
     CalleeLookupRequest innerRequest = request;
-    innerRequest.target = objType;
+    innerRequest.templateParam = 0;
+    innerRequest.target = instance.get();
     tracer->lookupCallee_routing(innerRequest, result);
   }
 }

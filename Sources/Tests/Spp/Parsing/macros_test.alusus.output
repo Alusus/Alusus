@@ -21,13 +21,13 @@ Macro [Main.Macro]
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.BlockSubject.Identifier]
+  x: Identifier: Identifier [Main.ParamOnlySubject.Identifier]
  body: Identifier: x [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.BlockSubject.Identifier]
+  x: Identifier: Identifier [Main.ParamOnlySubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
   Identifier: x [Main.BlockSubject.Identifier]
 ------------------------------------------------------
@@ -43,8 +43,8 @@ Macro [Main.Macro]
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.BlockSubject.Identifier]
-  y: Identifier: String [Main.BlockSubject.Identifier]
+  x: Identifier: Identifier [Main.ParamOnlySubject.Identifier]
+  y: Identifier: String [Main.ParamOnlySubject.Identifier]
  body: List [Main.Expression.ListExp]
   Identifier: x [Main.BlockSubject.Identifier]
   Identifier: y [Main.BlockSubject.Identifier]
@@ -52,8 +52,8 @@ Macro [Main.Macro]
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.BlockSubject.Identifier]
-  y: Identifier: String [Main.BlockSubject.Identifier]
+  x: Identifier: Identifier [Main.ParamOnlySubject.Identifier]
+  y: Identifier: String [Main.ParamOnlySubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
   List [Main.Expression.ListExp]
    Identifier: x [Main.BlockSubject.Identifier]
@@ -62,7 +62,7 @@ Macro [Main.Macro]
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map
-  x: Identifier: Identifier [Main.BlockSubject.Identifier]
+  x: Identifier: Identifier [Main.ParamOnlySubject.Identifier]
   y: NULL
  body: Block [Main.BlockStatements.StmtList]
   List [Main.Expression.ListExp]
@@ -73,7 +73,7 @@ Macro [Main.Macro]
 Macro [Main.Macro]
  argTypes: Map
   x: NULL
-  y: Identifier: String [Main.BlockSubject.Identifier]
+  y: Identifier: String [Main.ParamOnlySubject.Identifier]
  body: Block [Main.BlockStatements.StmtList]
   List [Main.Expression.ListExp]
    Identifier: x [Main.BlockSubject.Identifier]

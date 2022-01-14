@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.h
  * Contains the header of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,6 +28,7 @@ class Template : public Core::Data::Node,
     Core::Data::Node, Binding, MapContaining<TiObject>, Core::Data::Ast::Mergeable,
     Core::Data::Ast::MetaHaving, Core::Data::Printable
   );
+  OBJECT_FACTORY(Template);
 
 
   //============================================================================

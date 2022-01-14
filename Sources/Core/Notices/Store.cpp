@@ -2,7 +2,7 @@
  * @file Core/Notices/Store.cpp
  * Contains the implementation of class Core::Notices::Store.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,7 +27,12 @@ void Store::add(SharedPtr<Notice> const &notice)
     stack->push(&this->prefixSourceLocationStack);
     auto sl = notice->getSourceLocation().get();
     if (sl != 0) stack->push(sl);
-    notice->setSourceLocation(stack);
+    // Did we still end up with a single record? This can happen if records are identical.
+    if (stack->getCount() == 1) {
+      notice->setSourceLocation(stack->get(0));
+    } else {
+      notice->setSourceLocation(stack);
+    }
   } else if (count == 1) {
     // We have a single record in the stack and no record in the notice.
     notice->setSourceLocation(this->prefixSourceLocationStack.get(0));

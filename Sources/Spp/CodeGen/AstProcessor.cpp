@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/AstProcessor.cpp
  * Contains the implementation of class Spp::CodeGen::AstProcessor.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -192,6 +192,9 @@ Bool AstProcessor::_processPreprocessStatement(
 
   Bool result = true;
 
+  Core::Notices::Store backup;
+  backup.copyPrefixSourceLocationStack(astProcessor->astHelper->getNoticeStore());
+
   // Build the preprocess statement.
   // Was the statement already built? This can happen when the same preprocess statement is encountered again while
   // finalizing the build of that preprocess statement. We'll store the build session on the element and re-use it
@@ -220,6 +223,8 @@ Bool AstProcessor::_processPreprocessStatement(
     astProcessor->executing->finalizeBuild(0, tmpBuildSession.get());
   }
 
+  astProcessor->astHelper->getNoticeStore()->copyPrefixSourceLocationStack(&backup);
+
   // If the build session was removed from the element after finalizing the build it means one of the dependencies
   // executed the statement, so we don't need to execute it again.
   if (preprocess->getExtra(PREPROCESS_SESSION_KEY) == 0) return true;
@@ -228,26 +233,28 @@ Bool AstProcessor::_processPreprocessStatement(
   astProcessor->currentPreprocessInsertionPosition = indexInOwner;
   astProcessor->currentPreprocessSourceLocation = preprocess->findSourceLocation();
 
+  // Remove the preprocess statement.
+  DynamicContaining<TiObject> *dynContainer;
+  DynamicMapContaining<TiObject> *dynMapContainer;
+  Containing<TiObject> *container;
+  if ((dynContainer = ti_cast<DynamicContaining<TiObject>>(owner)) != 0) {
+    dynContainer->removeElement(indexInOwner);
+  } else if ((dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(owner)) != 0) {
+    dynMapContainer->removeElement(indexInOwner);
+  } else if ((container = ti_cast<Containing<TiObject>>(owner)) != 0) {
+    container->setElement(indexInOwner, 0);
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
+  }
+
   // Execute the preprocess statement.
   if (result) {
-    // Remove the preprocess statement.
-    DynamicContaining<TiObject> *dynContainer;
-    DynamicMapContaining<TiObject> *dynMapContainer;
-    Containing<TiObject> *container;
-    if ((dynContainer = ti_cast<DynamicContaining<TiObject>>(owner)) != 0) {
-      dynContainer->removeElement(indexInOwner);
-    } else if ((dynMapContainer = ti_cast<DynamicMapContaining<TiObject>>(owner)) != 0) {
-      dynMapContainer->removeElement(indexInOwner);
-    } else if ((container = ti_cast<Containing<TiObject>>(owner)) != 0) {
-      container->setElement(indexInOwner, 0);
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("owner"), S("Invalid owner type."));
-    }
-
     astProcessor->executing->execute(buildSession.get());
   }
 
   preprocess->removeExtra(PREPROCESS_SESSION_KEY);
+
+  astProcessor->currentPreprocessSourceLocation = 0;
 
   return result;
 }

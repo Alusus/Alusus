@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -439,22 +439,7 @@ Bool ExpressionGenerator::_generateSquareParamPass(
   PlainList<TiObject> paramAstTypes;
   GenResult thisResult;
   GenResult operandResult;
-  if (!expGenerator->prepareCallee(operand, &paramAstTypes, S("[]"), g, session, operandResult, thisResult)) {
-    return false;
-  }
-
-  if (operandResult.astNode != 0 && operandResult.astNode->isDerivedFrom<Spp::Ast::Template>()) {
-    auto tpl = static_cast<Spp::Ast::Template*>(operandResult.astNode);
-    TioSharedPtr tplInstance;
-    if (!tpl->matchInstance(astNode->getParam().get(), expGenerator->astHelper, tplInstance)) return false;
-    result.astNode = tplInstance.get();
-    return true;
-  } else {
-    expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidOperationNotice>(astNode->findSourceLocation())
-    );
-    return false;
-  }
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult);
 }
 
 
@@ -1859,14 +1844,8 @@ Bool ExpressionGenerator::_generateSizeOp(
   astType = expGenerator->astHelper->tryGetDeepReferenceContentType(astType);
 
   // Get the allocation size.
-  auto sourceLocation = Core::Data::Ast::findSourceLocation(operand).get();
-  if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   Word size;
-  auto retVal = g->getTypeAllocationSize(astType, session, size);
-  if (sourceLocation != 0) {
-    expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(Core::Data::getSourceLocationRecordCount(sourceLocation));
-  }
-  if (!retVal) return false;
+  if (!g->getTypeAllocationSize(astType, session, size)) return false;
 
   // Generate the Word64 type needed for the result.
   auto bitCount = expGenerator->astHelper->getNeededIntSize(size);
@@ -2335,8 +2314,16 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
     // If the found object is a type, then let's make sure it's preprocessed.
     auto dataType = ti_cast<Spp::Ast::DataType>(result.astNode);
     if (dataType != 0) {
+      auto sourceLocation = Core::Data::Ast::findSourceLocation(astNode).get();
+      if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
       TiObject *tgType;
-      if (!g->getGeneratedType(dataType, session, tgType, 0)) return false;
+      auto result = g->getGeneratedType(dataType, session, tgType, 0);
+      if (sourceLocation != 0) {
+        expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(
+          Core::Data::getSourceLocationRecordCount(sourceLocation)
+        );
+      }
+      if (!result) return false;
     }
   } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
     retVal = expGenerator->generateStringLiteral(
@@ -2420,7 +2407,8 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   // Get the member generated value and type.
   auto tgMemberVar = session->getEda()->tryGetCodeGenData<TiObject>(astMemberVar);
   if (tgMemberVar == 0) {
-    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
+    // This situation will only happen if we have circular code generation.
+    expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
       Core::Data::Ast::findSourceLocation(astNode)
     ));
     return false;
@@ -2776,31 +2764,46 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       return false;
     }
   } else {
-    ////
-    //// Call the result of a previous expression.
-    ////
-    if (!expGenerator->generate(operand, g, session, prevResult)) return false;
+    if (
+      operand->isDerivedFrom<Core::Data::Ast::ParamPass>() &&
+      static_cast<Core::Data::Ast::ParamPass*>(operand)->getType() == Core::Data::Ast::BracketType::SQUARE
+    ) {
+      ////
+      //// Call a template function.
+      ////
+      auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(operand);
+      if (!expGenerator->prepareCalleeLookupRequest(
+        paramPass->getOperand().get(), g, session, prevResult, calleeRequest
+      )) return false;
+      calleeRequest.templateParam = paramPass->getParam().get();
+      return true;
+    } else {
+      ////
+      //// Call the result of a previous expression.
+      ////
+      if (!expGenerator->generate(operand, g, session, prevResult)) return false;
 
-    // Lookup a callee on the result.
-    Ast::Type *prevAstType;
-    Ast::Type *prevThisAstType;
-    if (prevResult.astType) {
-      prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-      // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
-      // to actually call that function.
-      if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
-        prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
+      // Lookup a callee on the result.
+      Ast::Type *prevAstType;
+      Ast::Type *prevThisAstType;
+      if (prevResult.astType) {
+        prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+        // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
+        // to actually call that function.
+        if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
+          prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
+        } else {
+          prevThisAstType = 0;
+        }
+        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
       } else {
+        prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
         prevThisAstType = 0;
       }
-      calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
-    } else {
-      prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
-      prevThisAstType = 0;
+      calleeRequest.target = prevAstType;
+      calleeRequest.thisType = prevThisAstType;
+      return true;
     }
-    calleeRequest.target = prevAstType;
-    calleeRequest.thisType = prevThisAstType;
-    return true;
   }
 }
 
