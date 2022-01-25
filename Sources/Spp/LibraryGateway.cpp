@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -75,7 +75,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->typeGenerator->setAstProcessor(this->astProcessor.get());
 
   // Add the grammar.
-  this->grammarFactory = newSrdObj<GrammarFactory>();
+  this->grammarFactory = newSrdObj<Grammar::SppFactory>();
   this->grammarFactory->setRootManager(manager);
   this->grammarFactory->createGrammar();
 

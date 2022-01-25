@@ -1,8 +1,8 @@
 /**
- * @file Spp/GrammarFactory.h
- * Contains the header of class Spp::GrammarFactory.
+ * @file Spp/SppFactory.h
+ * Contains the header of class Spp::SppFactory.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,13 +10,13 @@
  */
 //==============================================================================
 
-#ifndef SPP_GRAMMARFACTORY_H
-#define SPP_GRAMMARFACTORY_H
+#ifndef SPP_GRAMMAR_SPPFACTORY_H
+#define SPP_GRAMMAR_SPPFACTORY_H
 
-namespace Spp
+namespace Spp::Grammar
 {
 
-class GrammarFactory : public Core::Data::Grammar::Factory
+class SppFactory : public Core::Data::Grammar::Factory
 {
   //============================================================================
   // Member Variables
@@ -25,16 +25,17 @@ class GrammarFactory : public Core::Data::Grammar::Factory
 
   private: Array<Str> customCommandQualifiers;
   private: Array<Str> customCommandKeywords;
+  private: Array<Str> customGrammarQualifiers;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: GrammarFactory()
+  public: SppFactory()
   {
   }
 
-  public: virtual ~GrammarFactory()
+  public: virtual ~SppFactory()
   {
   }
 
@@ -58,29 +59,11 @@ class GrammarFactory : public Core::Data::Grammar::Factory
     Char const *qualifier, TiObject *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
   );
 
-  private: Bool parseCommandSection(
-    TiObject *ast, Factory::CommandSection &section, Core::Notices::Store *noticeStore
+  public: Bool createCustomGrammar(
+    Char const *qualifier, Char const *baseQualifier, TiObject *overridesAst, Core::Notices::Store *noticeStore
   );
 
-  private: Bool parseCommandKeywords(
-    TiObject *ast, SharedPtr<Core::Data::Grammar::Map> &keywords, Core::Notices::Store *noticeStore
-  );
-
-  private: Bool parseCommandArg(
-    TiObject *ast, Factory::CommandArg &arg, Core::Notices::Store *noticeStore
-  );
-
-  private: Bool parseMinMax(
-    TiObject *ast, TiObject *&resultAst, SharedPtr<TiInt> &min, SharedPtr<TiInt> &max, Core::Notices::Store *noticeStore
-  );
-
-  private: Bool parseQualifier(
-    TiObject *ast, Str &qualifier, Core::Notices::Store *noticeStore
-  );
-
-  private: void convertInfixOpIntoList(TiObject *ast, Char const *op, Array<TiObject*> &list);
-
-  private: void cleanCustomCommands();
+  private: void cleanCustomGrammarAndCommands();
 
 }; // class
 

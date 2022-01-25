@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Sarmad Khalid Abdullah
+# Copyright (C) 2022 Sarmad Khalid Abdullah
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
@@ -26,7 +26,7 @@ llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native orcjit WebA
 include_directories("${AlususSpp_SOURCE_DIR}")
 
 # Create the list of files to be added to the project.
-set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers CodeGen LlvmCodeGen Rt)
+set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers Grammar CodeGen LlvmCodeGen Rt)
 set(AlususSpp_SOURCE_FILES
   spp.h
   LibraryGateway.h
@@ -40,8 +40,6 @@ set(AlususSpp_SOURCE_FILES
   RootScopeHandlerExtension.cpp
   RootManagerExtension.h
   RootManagerExtension.cpp
-  GrammarFactory.h
-  GrammarFactory.cpp
   main.cpp
   )
 foreach (dir ${AlususSpp_SOURCE_SUBDIRS})

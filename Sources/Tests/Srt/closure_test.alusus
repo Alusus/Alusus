@@ -293,13 +293,84 @@ func testTemplates {
 }
 testTemplates();
 
+// Payload capture modes
+
+print("\ntestCaptureByRef:\n");
+func testCaptureByRef (n: Int) {
+    def c: closure (i: Int): Int;
+    c = closure (n: by_ref)&(i: Int): Int {
+        return i * n++;
+    };
+    print("%d\n", c(3));
+    print("%d\n", n);
+}
+testCaptureByRef(5);
+
+print("\ntestCaptureByValue:\n");
+func testCaptureByValue (n: Int) {
+    def c: closure (i: Int): Int = closure (n: by_val)&(i: Int): Int {
+        return i * n++;
+    };
+    print("%d\n", c(3));
+    print("%d\n", n);
+}
+testCaptureByValue(5);
+
+print("\ntestCaptureIdentical:\n");
+func testCaptureIdentical (n: Int) {
+    def rn: ref[Int](n);
+    def c: closure ();
+    c = closure (n: identical, rn: identical)&() {
+        print("%d\n", n);
+        print("%d\n", rn);
+    };
+    ++n;
+    c();
+}
+testCaptureIdentical(5);
+
+print("\ntestCaptureAuto:\n");
+class CaptureAuto {
+    def i: Int;
+    handler this.getClosure (): (closure()) {
+        return closure() {
+            print("%d\n", this.i);
+        }
+    }
+}
+func testCaptureAuto (n: Int) {
+    def ca: CaptureAuto;
+    ca.i = 7;
+    def rn: ref[Int](n);
+    def c: closure () = closure () {
+        print("%d\n", n);
+        print("%d\n", rn);
+    };
+    ++n;
+    c();
+    c = ca.getClosure();
+    ca.i = 8;
+    c();
+    def i: Srl.SrdRef[Int];
+    i.{
+        construct();
+        this.obj = 10;
+        c = closure() {
+            print("%d\n", this.obj);
+        }
+    }
+    i.release();
+    c();
+}
+testCaptureAuto(5);
+
 // Erro cases
 
 class ThisAccessError {
     def i: Int;
     func prepareCb () {
         cb = closure() {
-            Console.print("%d\n", this.i);
+            print("%d\n", this.i);
             this.i++;
         }
     }
@@ -328,3 +399,12 @@ func testInvalidArgNameErrorCases {
     def cDuplicateArg: closure (i: Int, i: Int) = closure (i: Int, i: Int) {
     };
 }
+
+func testCaptureModeError (n: Int) {
+    def c: closure ();
+    c = closure (n: unknown)&() { n };
+    c = closure (n: ())&() { n };
+    c = closure (n: ref[Int])&() { n };
+    c();
+}
+testCaptureModeError(5);

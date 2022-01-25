@@ -2,7 +2,7 @@
  * @file Spp/Rt/GrammarMgr.h
  * Contains the header of class Spp::Rt::GrammarMgr.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,13 +38,13 @@ class GrammarMgr : public TiObject, public DynamicBinding, public DynamicInterfa
   // Member Variables
 
   private: Core::Main::RootManager *rootManager;
-  private: GrammarFactory *grammarFactory;
+  private: Spp::Grammar::SppFactory *grammarFactory;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: GrammarMgr(Core::Main::RootManager *rm, GrammarFactory *gf) : rootManager(rm), grammarFactory(gf)
+  public: GrammarMgr(Core::Main::RootManager *rm, Spp::Grammar::SppFactory *gf) : rootManager(rm), grammarFactory(gf)
   {
   }
 
@@ -78,7 +78,7 @@ class GrammarMgr : public TiObject, public DynamicBinding, public DynamicInterfa
     return this->rootManager;
   }
 
-  public: GrammarFactory* getGrammarFactory() const
+  public: Spp::Grammar::SppFactory* getGrammarFactory() const
   {
     return this->grammarFactory;
   }
@@ -93,6 +93,13 @@ class GrammarMgr : public TiObject, public DynamicBinding, public DynamicInterfa
   );
   public: static void _addCustomCommand(
     TiObject *self, Char const *qualifier, TiObject *ast, ParsingHandlerFunc func
+  );
+
+  public: METHOD_BINDING_CACHE(addCustomGrammar,
+    Bool, (Char const* /* qualifier */, Char const* /* baseQualifier */, TiObject* /* ast */)
+  );
+  public: static Bool _addCustomGrammar(
+    TiObject *self, Char const *qualifier, Char const *baseQualifier, TiObject *ast
   );
 
   /// @}

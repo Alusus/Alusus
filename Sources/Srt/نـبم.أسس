@@ -2,7 +2,7 @@
  * نـبم.أسس
  * يحتوي على تعريفات لمكتبة نمط البرمجة المعياري.
  *
- * جميع الحقوق محفوظة (C) 2021 سرمد خالد عبد الله
+ * جميع الحقوق محفوظة (C) 2022 سرمد خالد عبد الله
  *
  * نُشر هذا الملف بالرخصة التالية:
  * رخصة الأسس العامة، الإصدار 1.0، https://alusus.org/ar/license.html
@@ -31,6 +31,7 @@
     عرف مـدير_القواعد: لقب GrammarMgr؛
     @دمج صنف مـدير_القواعد {
         عرف أضف_أمرا_مخصصا: لقب addCustomCommand؛
+        عرف أضف_قاعدة_مخصصة: لقب addCustomGrammar؛
     }
 
     عرف مدير_شبم: لقب astMgr؛
@@ -49,6 +50,10 @@
         عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
         عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
         عرف هات_نطاق_المتغير: لقب getVariableDomain؛
+        عرف أدرج_بيانات: لقب dumpData؛
+        عرف هات_صنف_السند_ل: لقب getReferenceTypeFor؛
+        عرف هات: لقب tryGetDeepReferenceContentType؛
+        عرف حاول_جلب_صنف_المحتوى_العميق: لقب tryGetDeepReferenceContentType؛
     }
 
     عرف مدير_البناء: لقب buildMgr؛
