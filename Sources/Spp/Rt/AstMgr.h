@@ -2,7 +2,7 @@
  * @file Spp/Rt/AstMgr.h
  * Contains the header of class Spp::Rt::AstMgr.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -112,42 +112,42 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(findElements,
     Array<TiObject*>, (TiObject* /* ref */, TiObject* /* target */, Word /* flags */)
   );
-  public: static Array<TiObject*> _findElements(TiObject *self, TiObject *ref, TiObject *target, Word flags);
+  private: static Array<TiObject*> _findElements(TiObject *self, TiObject *ref, TiObject *target, Word flags);
 
   public: METHOD_BINDING_CACHE(getModifiers, Containing<TiObject>*, (TiObject* /* element */));
-  public: static Containing<TiObject>* _getModifiers(TiObject *self, TiObject *element);
+  private: static Containing<TiObject>* _getModifiers(TiObject *self, TiObject *element);
 
   public: METHOD_BINDING_CACHE(findModifier, TiObject*, (Containing<TiObject>* /* modifiers */, Char const* /* kwd */));
-  public: static TiObject* _findModifier(TiObject *self, Containing<TiObject> *modifiers, Char const *kwd);
+  private: static TiObject* _findModifier(TiObject *self, Containing<TiObject> *modifiers, Char const *kwd);
 
   public: METHOD_BINDING_CACHE(findModifierForElement, TiObject*, (TiObject* /* element */, Char const* /* kwd */));
-  public: static TiObject* _findModifierForElement(TiObject *self, TiObject *element, Char const *kwd);
+  private: static TiObject* _findModifierForElement(TiObject *self, TiObject *element, Char const *kwd);
 
   public: METHOD_BINDING_CACHE(getModifierKeyword, String, (TiObject* /* modifier */));
-  public: static String _getModifierKeyword(TiObject *self, TiObject *modifier);
+  private: static String _getModifierKeyword(TiObject *self, TiObject *modifier);
 
   public: METHOD_BINDING_CACHE(getModifierStringParams, Bool, (TiObject* /* modifier */, Array<String>& /* result */));
-  public: static Bool _getModifierStringParams(TiObject *self, TiObject *modifier, Array<String> &result);
+  private: static Bool _getModifierStringParams(TiObject *self, TiObject *modifier, Array<String> &result);
 
   public: METHOD_BINDING_CACHE(getSourceFullPathForElement, String, (TiObject* /* element */));
-  public: static String _getSourceFullPathForElement(TiObject *self, TiObject *element);
+  private: static String _getSourceFullPathForElement(TiObject *self, TiObject *element);
 
   public: METHOD_BINDING_CACHE(insertAst, Bool, (TiObject*));
-  public: static Bool _insertAst(TiObject *self, TiObject* ast);
+  private: static Bool _insertAst(TiObject *self, TiObject* ast);
 
   public: METHOD_BINDING_CACHE(insertAst_plain, Bool, (TiObject*, Map<Str, TiObject*>*));
-  public: static Bool _insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
+  private: static Bool _insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations);
 
   public: METHOD_BINDING_CACHE(insertAst_shared, Bool, (TiObject*, Map<Str, SharedPtr<TiObject>>*));
-  public: static Bool _insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations);
+  private: static Bool _insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations);
 
   public: METHOD_BINDING_CACHE(buildAst_plain, Bool, (TiObject*, Map<Str, TiObject*>*, TioSharedPtr&));
-  public: static Bool _buildAst_plain(
+  private: static Bool _buildAst_plain(
     TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations, TioSharedPtr &result
   );
 
   public: METHOD_BINDING_CACHE(buildAst_shared, Bool, (TiObject*, Map<Str, SharedPtr<TiObject>>*, TioSharedPtr&));
-  public: static Bool _buildAst_shared(
+  private: static Bool _buildAst_shared(
     TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations, TioSharedPtr &result
   );
 
@@ -158,13 +158,22 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: static Int _getCurrentPreprocessInsertionPosition(TiObject *self);
 
   public: METHOD_BINDING_CACHE(getVariableDomain, Int, (TiObject*));
-  public: static Int _getVariableDomain(TiObject *self, TiObject* ast);
+  private: static Int _getVariableDomain(TiObject *self, TiObject* ast);
 
   public: METHOD_BINDING_CACHE(traceType, Spp::Ast::Type*, (TiObject*));
-  public: static Spp::Ast::Type* _traceType(TiObject *self, TiObject *astNode);
+  private: static Spp::Ast::Type* _traceType(TiObject *self, TiObject *astNode);
 
   public: METHOD_BINDING_CACHE(cloneAst, SharedPtr<TiObject>, (TiObject*, TiObject*));
-  public: static SharedPtr<TiObject> _cloneAst(TiObject *self, TiObject *nodeToCopy, TiObject *nodeForSourceLocation);
+  private: static SharedPtr<TiObject> _cloneAst(TiObject *self, TiObject *nodeToCopy, TiObject *nodeForSourceLocation);
+
+  public: METHOD_BINDING_CACHE(dumpData, void, (TiObject*));
+  private: static void _dumpData(TiObject *self, TiObject *obj);
+
+  public: METHOD_BINDING_CACHE(getReferenceTypeFor, Spp::Ast::ReferenceType*, (TiObject*));
+  private: static Spp::Ast::ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type);
+
+  public: METHOD_BINDING_CACHE(tryGetDeepReferenceContentType, Spp::Ast::Type*, (Spp::Ast::Type*));
+  private: static Spp::Ast::Type* _tryGetDeepReferenceContentType(TiObject *self, Spp::Ast::Type *type);
 
   /// @}
 

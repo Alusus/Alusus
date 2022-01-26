@@ -3,7 +3,7 @@
  * The main header file of the SPP. Contains include statements for the entire
  * Standard Programming Paradigm library.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -46,7 +46,6 @@ DEFINE_TYPE_NAME(Spp::ParsingHandlerFunc, "alusus.org/Spp/Spp.ParsingHandlerFunc
 namespace Spp
 {
   class BuildSession;
-  class GrammarFactory;
 
   namespace Ast
   {
@@ -70,6 +69,8 @@ namespace Spp
 
 #include "Handlers/handlers.h"
 
+#include "Grammar/grammar.h"
+
 #include "BuildSession.h"
 #include "BuildManager.h"
 
@@ -79,7 +80,6 @@ namespace Spp
 #include "RootScopeHandlerExtension.h"
 #include "RootManagerExtension.h"
 
-#include "GrammarFactory.h"
 #include "LibraryGateway.h"
 
 #endif

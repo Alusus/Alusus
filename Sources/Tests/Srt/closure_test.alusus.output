@@ -13,77 +13,101 @@ ThisAccessTester1.prepare: 14
 ThisAccessTester2~init: 15
 testThisAccess n1.{} 16, 17
 testThisAccess n1.{} inner 17, 17
-testThisAccess n1=19
-testThisAccess n1~useIn(self) 19
-testThisAccess n1=20
+testThisAccess n1=16
+testThisAccess n1~useIn(self) 16
+testThisAccess n1=16
 MyType~terminate 21
 prepareDataRelease: 22
 MyType~terminate 22
 testTemplates: 23
 
+testCaptureByRef:
+15
+6
+
+testCaptureByValue:
+15
+5
+
+testCaptureIdentical:
+5
+6
+
+testCaptureAuto:
+5
+5
+8
+10
+
 testErrorCases:
-ERROR SPPA1003 @ (309,38)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (309,38)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (309,61)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,37)
-from (370,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (312,58)
-from (387,26)
-from (127,17): No valid match was found for the given type.
-ERROR SPPA1007 @ (317,9)
-from (387,26)
-from (87,18)
-from (127,17): Unknown symbol.
-ERROR SPPA1007 @ (301,9): Unknown symbol.
-ERROR SPPA1007 @ (302,35)
-from (387,26)
-from (87,18)
-from (127,17): Unknown symbol.
-ERROR SPPA1007 @ (303,13)
-from (387,26)
-from (87,18)
-from (127,17): Unknown symbol.
-ERROR SPPH1006 @ (325,35): Invalid function arg name.
-ERROR SPPH1006 @ (328,41): Invalid function arg name.
+ERROR SPPA1003 @ (380,38)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (380,38)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (380,61)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,37)
+from (472,26): No valid match was found for the given type.
+ERROR SPPA1003 @ (383,58)
+from (489,26)
+from (160,17): No valid match was found for the given type.
+ERROR SPPA1007 @ (388,9)
+from (489,26)
+from (100,18)
+from (160,17): Unknown symbol.
+ERROR SPPA1007 @ (372,9): Unknown symbol.
+ERROR SPPA1007 @ (373,27)
+from (489,26)
+from (100,18)
+from (160,17): Unknown symbol.
+ERROR SPPA1007 @ (374,13)
+from (489,26)
+from (100,18)
+from (160,17): Unknown symbol.
+ERROR SPPH1006 @ (396,35): Invalid function arg name.
+ERROR SPPH1006 @ (399,41): Invalid function arg name.
+ERROR SRT1001 @ (405,21)
+from (489,26): Closure payload capture mode is invalid.
+ERROR SRT1001 @ (406,21)
+from (489,26): Closure payload capture mode is invalid.
+ERROR SRT1001 @ (407,21)
+from (489,26): Closure payload capture mode is invalid.

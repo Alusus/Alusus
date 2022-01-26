@@ -2,7 +2,7 @@
  * @file Spp.alusus
  * Contains definitions of SPP's astMgr and buildMgr.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,6 +34,11 @@ import "Srl/refs";
         handler this.addCustomCommand (
             qualifier: ptr[array[Char]], grammarAst: ref[Core.Basic.TiObject],
             handler: ptr[func (Srl.SrdRef[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject]]
+        );
+
+        @expname[Spp_GrammarMgr_addCustomGrammar]
+        handler this.addCustomGrammar (
+            qualifier: ptr[array[Char]], baseQualifier: ptr[array[Char]], grammarAst: ref[Core.Basic.TiObject]
         );
     };
     def grammarMgr: ref[GrammarMgr];
@@ -126,6 +131,15 @@ import "Srl/refs";
         handler this.cloneAst(element: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
             return this.cloneAst(element, nullRef[Core.Basic.TiObject]);
         }
+
+        @expname[Spp_AstMgr_dumpData]
+        handler this.dumpData(obj: ref[Core.Basic.TiObject]);
+
+        @expname[Spp_AstMgr_getReferenceTypeFor]
+        handler this.getReferenceTypeFor(astType: ref[Core.Basic.TiObject]): ref[Spp.Ast.ReferenceType];
+
+        @expname[Spp_AstMgr_tryGetDeepReferenceContentType]
+        handler this.tryGetDeepReferenceContentType(astType: ref[Spp.Ast.Type]): ref[Spp.Ast.Type];
     };
     def astMgr: ref[AstMgr];
 

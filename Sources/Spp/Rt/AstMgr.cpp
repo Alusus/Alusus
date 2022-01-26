@@ -1,7 +1,7 @@
 /**
  * @file Spp/Rt/AstMgr.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -36,7 +36,10 @@ void AstMgr::initBindingCaches()
     &this->getCurrentPreprocessInsertionPosition,
     &this->getVariableDomain,
     &this->traceType,
-    &this->cloneAst
+    &this->cloneAst,
+    &this->dumpData,
+    &this->getReferenceTypeFor,
+    &this->tryGetDeepReferenceContentType
   });
 }
 
@@ -60,6 +63,9 @@ void AstMgr::initBindings()
   this->getVariableDomain = &AstMgr::_getVariableDomain;
   this->traceType = &AstMgr::_traceType;
   this->cloneAst = &AstMgr::_cloneAst;
+  this->dumpData = &AstMgr::_dumpData;
+  this->getReferenceTypeFor = &AstMgr::_getReferenceTypeFor;
+  this->tryGetDeepReferenceContentType = &AstMgr::_tryGetDeepReferenceContentType;
 }
 
 
@@ -85,6 +91,11 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_getVariableDomain"), (void*)&AstMgr::_getVariableDomain);
   globalItemRepo->addItem(S("Spp_AstMgr_traceType"), (void*)&AstMgr::_traceType);
   globalItemRepo->addItem(S("Spp_AstMgr_cloneAst"), (void*)&AstMgr::_cloneAst);
+  globalItemRepo->addItem(S("Spp_AstMgr_dumpData"), (void*)&AstMgr::_dumpData);
+  globalItemRepo->addItem(S("Spp_AstMgr_getReferenceTypeFor"), (void*)&AstMgr::_getReferenceTypeFor);
+  globalItemRepo->addItem(
+    S("Spp_AstMgr_tryGetDeepReferenceContentType"), (void*)&AstMgr::_tryGetDeepReferenceContentType
+  );
 }
 
 
@@ -302,6 +313,26 @@ SharedPtr<TiObject> AstMgr::_cloneAst(TiObject *self, TiObject *astNodeToCopy, T
   PREPARE_SELF(astMgr, AstMgr);
   auto sourceLocation = Core::Data::Ast::findSourceLocation(astNodeForSourceLocation).get();
   return Core::Data::Ast::clone(astNodeToCopy, sourceLocation);
+}
+
+
+void AstMgr::_dumpData(TiObject *self, TiObject *obj)
+{
+  Core::Data::dumpData(outStream, obj, 0);
+}
+
+
+Spp::Ast::ReferenceType* AstMgr::_getReferenceTypeFor(TiObject *self, TiObject *type)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astHelper->getReferenceTypeFor(type, Spp::Ast::ReferenceMode::EXPLICIT);
+}
+
+
+Spp::Ast::Type* AstMgr::_tryGetDeepReferenceContentType(TiObject *self, Spp::Ast::Type *type)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astHelper->tryGetDeepReferenceContentType(type);
 }
 
 } // namespace

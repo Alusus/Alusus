@@ -1,3 +1,15 @@
+/**
+ * @file closure.alusus
+ * Adds support for closures.
+ *
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
 import "Srl/Map";
 import "Srl/refs";
 import "Core/Basic";
@@ -9,6 +21,7 @@ module Closures {
     use Srl;
     use Core.Basic;
     use Core.Data;
+    def captureModeTranslations: Map[String, String];
 
     def TioSrdRef: alias SrdRef[TiObject];
 
@@ -80,7 +93,7 @@ module Closures {
     }
 
     func generateClosureInstance (
-        fnTypeSpec: ref[TiObject], statements: ref[TiObject], owner: ref[TiObject]
+        rawFnTypeSpec: ref[TiObject], statements: ref[TiObject], owner: ref[TiObject]
     ): TioSrdRef {
         // Generate the function.
         def fn: TioSrdRef = Spp.astMgr.buildAst(
@@ -92,15 +105,18 @@ module Closures {
             }),
             AstTemplateMap().set(String("statements"), statements)
         );
+        // Extract payload mode defs.
+        def payloadModeDefs: Ast.Map;
+        def fnTypeSpec: TioSrdRef;
+        extractPayloadVarDefs(rawFnTypeSpec, fnTypeSpec, payloadModeDefs);
+        def payloadModeDefsMap: ref[Core.Basic.MapContaining](MapContainerOf[payloadModeDefs]);
         // Assign the function type.
         def closureArgFnType: TioSrdRef = generateFuncType(fnTypeSpec, nullRef[TiObject], nullRef[TiObject], false);
         def fnType: TioSrdRef = generateFuncType(fnTypeSpec, nullRef[TiObject], (ast ref[Srl.RefCounter]), false);
         MapContainerOf[fn.obj].setElement("type", fnType.obj);
         // Find external variables of that function.
         def varDefs: AstTemplateMap;
-        findExternalVariables(
-            getInterface[fn.obj, Containing].getElement(1), owner, varDefs
-        );
+        findExternalVariables(getInterface[fn.obj, Containing].getElement(1), owner, varDefs);
         // Generate member var definitions and assignments.
         def payloadDefs: SrdRef[Ast.MergeList] = newSrdObj[Ast.MergeList];
         def defsContainer: DynContainerOf[payloadDefs.obj];
@@ -108,17 +124,34 @@ module Closures {
         def assignContainer: DynContainerOf[payloadAssignments.obj];
         def i: Int;
         for i = 0, i < varDefs.getLength(), ++i {
+            def useNoDeref: Bool;
             def payloadDef: TioSrdRef = Spp.astMgr.buildAst(
                 (ast def varName: varType),
                 AstTemplateMap()
                     .set(String("varName"), TiStr(varDefs.keys(i)))
-                    .set(String("varType"), createPayloadVarType(varDefs.values(i)).obj)
+                    .set(String("varType"), createPayloadVarType(
+                        varDefs.values(i),
+                        ref[TiObject]().{
+                            def index: Int = payloadModeDefsMap.findElementIndex(varDefs.keys(i));
+                            if index == -1 this~ptr = 0
+                            else this~ptr = payloadModeDefsMap.getElement(index)~ptr;
+                        },
+                        useNoDeref
+                    ).obj)
             );
             defsContainer.addElement(payloadDef.obj);
-            def payloadAssignment: TioSrdRef = Spp.astMgr.buildAst(
-                (ast d.varName~no_deref = varName),
-                AstTemplateMap().set(String("varName"), Ast.Identifier(varDefs.keys(i)))
-            );
+            def payloadAssignment: TioSrdRef;
+            if useNoDeref {
+                payloadAssignment = Spp.astMgr.buildAst(
+                    (ast d.varName~no_deref = varName),
+                    AstTemplateMap().set(String("varName"), Ast.Identifier(varDefs.keys(i)))
+                );
+            } else {
+                payloadAssignment = Spp.astMgr.buildAst(
+                    (ast d.varName = varName),
+                    AstTemplateMap().set(String("varName"), Ast.Identifier(varDefs.keys(i)))
+                );
+            }
             assignContainer.addElement(payloadAssignment.obj);
         }
         // Render the closure.
@@ -146,9 +179,70 @@ module Closures {
         );
     }
 
-    func createPayloadVarType (varType: ref[TiObject]): TioSrdRef {
+    func extractPayloadVarDefs (
+        fnTypeSpec: ref[TiObject], fnTypeSpecResult: ref[TioSrdRef], payloadSpec: ref[Ast.Map]
+    ) {
+        def linkOp: ref[Ast.LinkOperator](dynCastRef[fnTypeSpec, Ast.LinkOperator]);
+        if linkOp~ptr != 0 {
+            def recursiveRes: TioSrdRef;
+            extractPayloadVarDefs(MapContainerOf[linkOp].getElement("first"), recursiveRes, payloadSpec);
+            fnTypeSpecResult = castSrdRef[newSrdObj[Ast.LinkOperator].{
+                BindingOf[this].setMember("type", TiStr(":"));
+                MapContainerOf[this].setElement("first", recursiveRes);
+                MapContainerOf[this].setElement("second", MapContainerOf[linkOp].getElement("second"));
+            }, TiObject];
+            return;
+        }
+
+        def bitwiseOp: ref[Ast.BitwiseOperator](dynCastRef[fnTypeSpec, Ast.BitwiseOperator]);
+        if bitwiseOp~ptr != 0 {
+            def rawPayloadDefs: ref[TiObject](MapContainerOf[bitwiseOp].getElement("first"));
+            addFuncArgs(rawPayloadDefs, 0, DynMapContainerOf[payloadSpec], false);
+            fnTypeSpecResult = MapContainerOf[bitwiseOp].getElement("second").wkThis;
+            return;
+        }
+
+        fnTypeSpecResult = fnTypeSpec.wkThis;
+    }
+
+    func createPayloadVarType (
+        varTypeRef: ref[TiObject], captureMode: ref[TiObject], useNoDeref: ref[Bool]
+    ): TioSrdRef {
+        def varType: ref[Spp.Ast.Type](Spp.astMgr.traceType(varTypeRef));
+        def identifier: ref[Ast.Identifier](dynCastRef[captureMode, Ast.Identifier]);
+        if identifier~ptr != 0 {
+            def captureMode: String = captureModeTranslations(identifier.value.value);
+            if captureMode == "" captureMode = identifier.value.value;
+            if captureMode == "by_ref" {
+                // Capture by reference.
+                varType~no_deref = castRef[Spp.astMgr.getReferenceTypeFor(varType), Spp.Ast.Type];
+                useNoDeref = true;
+            } else if captureMode == "by_val" {
+                // Capture by value.
+                varType~no_deref = Spp.astMgr.tryGetDeepReferenceContentType(varType);
+                useNoDeref = false;
+            } else if captureMode == "identical" {
+                // Capture by exact copy
+                useNoDeref = true;
+            } else {
+                Spp.buildMgr.raiseBuildNotice("SRT1001", 1, identifier);
+            }
+        } else if captureMode~ptr != 0 {
+            Spp.buildMgr.raiseBuildNotice("SRT1001", 1, captureMode);
+        } else {
+            // Automatic determination of capture mode.
+            // If the content type is a user type that isn't SrdRef, then we'll use `exact` mode, otherwise we'll
+            // capture by value.
+            def contentType: ref[Spp.Ast.Type](Spp.astMgr.tryGetDeepReferenceContentType(varType));
+            if isDerivedFrom[contentType, Spp.Ast.UserType] and !contentType.isOwnedBy(SrdRef~ast) {
+                useNoDeref = true;
+            } else {
+                varType~no_deref = contentType;
+                useNoDeref = false;
+            }
+        }
         return castSrdRef[newSrdObj[Spp.Ast.Variable].{
-            MapContainerOf[this].setElement("type", Spp.astMgr.traceType(varType));
+            MapContainerOf[this].setElement("type", varType);
         }, TiObject];
     }
 
@@ -353,11 +447,19 @@ preprocess {
     Spp.Ast.Type;
     Spp.Ast.Variable;
 
+    Spp.grammarMgr.addCustomGrammar(
+        "ClosureSigExp",
+        "FuncSigExpression",
+        ast {
+            BitwiseExp.vars: { enable: 1 }
+        }
+    );
+
     Spp.grammarMgr.addCustomCommand(
         "Closure",
         (ast {
             keywords: "closure" | "مغلفة";
-            args: "module".FuncSigExpression*(1,1) + "module".BlockSet*(0,1);
+            args: "module".ClosureSigExp*(1,1) + "module".BlockSet*(0,1);
         }),
         func (data: TioSrdRef): TioSrdRef {
             def container: ContainerOf[data.obj];
@@ -390,4 +492,10 @@ preprocess {
             }
         }
     );
+
+    captureModeTranslations.{
+        this(String("كسند")) = String("by_ref");
+        this(String("كقيمة")) = String("by_val");
+        this(String("مطابق")) = String("identical");
+    }
 }

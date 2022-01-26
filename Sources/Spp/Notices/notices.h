@@ -79,6 +79,9 @@ DEFINE_NOTICE(AccessingLocalVarInOtherFuncNotice, "Core.Notices", "Core", "alusu
 DEFINE_NOTICE(InvalidCommandDefAstNotice, "Core.Notices", "Core", "alusus.org", "SPPA1016", 1,
   "Error in custom command definition AST."
 );
+DEFINE_NOTICE(InvalidGrammarAstNotice, "Core.Notices", "Core", "alusus.org", "SPPA1017", 1,
+  "Error in custom grammar definition AST."
+);
 
 } /// namespace
 

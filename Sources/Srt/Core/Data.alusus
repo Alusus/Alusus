@@ -2,7 +2,7 @@
  * @file Core/Data.alusus
  * Interoperability definitions for the Core's data classes.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,6 +22,12 @@ import "Srl/String";
         class Node {
             @injection def tiObject: TiObject;
             def owner: ref[Node];
+
+            handler this.isOwnedBy(obj: ref[TiObject]): Bool {
+                def o: ref[Node](this.owner);
+                while o~ptr != 0 && o~ptr != obj~ptr { o~no_deref = o.owner };
+                return o~ptr == obj~ptr;
+            }
 
             defTypeInfoGetter["alusus.org/Core/Core.Data.Node"];
         }

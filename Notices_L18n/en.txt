@@ -42,6 +42,7 @@ SPPA1013:A needed type is missing. You may be missing an import.
 SPPA1014:Trying to merge a type with a non-existing target.
 SPPA1015:Trying to access a local variable from a different function.
 SPPA1016:Error in custom command definition AST.
+SPPA1017:Error in custom grammar definition AST.
 
 SPPH1001:Invalid argument for build command.
 SPPH1002:Missing signature in function definition.
@@ -109,3 +110,5 @@ SPPG1037:Incomplete infix operator. This is likely caused by a macro or a prepro
 SPPG1038:Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.
 SPPG1039:Invalid target for use_in operation.
 SPPG1040:Circular code generation encountered while generating user type.
+
+SRT1001:Closure payload capture mode is invalid.

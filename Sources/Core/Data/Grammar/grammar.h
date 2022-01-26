@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data::Grammar
  * namespace.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -210,6 +210,7 @@ template <class T> SharedPtr<T> cloneInherited(T *obj)
 
 // Grammar Helpers
 #include "Context.h"
+#include "factory_types.h"
 #include "Factory.h"
 #include "StandardFactory.h"
 
