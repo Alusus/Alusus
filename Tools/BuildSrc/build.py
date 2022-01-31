@@ -110,10 +110,10 @@ def process_args():
         BUILDS_PATH = os.path.realpath(args.bloc)
         if not os.path.isdir(BUILDS_PATH):
             os.makedirs(BUILDS_PATH)
-        BUILD_PATH = os.path.join(
-            BUILDS_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
-        DEPS_PATH = os.path.join(BUILDS_PATH, "Dependencies")
-        PACKAGES_PATH = os.path.join(BUILDS_PATH, "Packages")
+
+    BUILD_PATH = os.path.join(BUILDS_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
+    DEPS_PATH = os.path.join(BUILDS_PATH, "Dependencies")
+    PACKAGES_PATH = os.path.join(BUILDS_PATH, "Packages")
 
     if args.g:
         INSTALL_PATH = RELEASE_INSTALL_PATH
