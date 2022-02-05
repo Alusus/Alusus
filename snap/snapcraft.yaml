@@ -43,17 +43,7 @@ parts:
 apps:
   alusus:
     command: Bin/alusus
-    slots:
-      - dbus-daemon
     common-id: org.alusus
   apm:
     command: Bin/apm
-    slots:
-      - dbus-daemon
     common-id: org.alusus.apm
-
-slots:
-  dbus-daemon:
-    interface: dbus
-    bus: session
-    name: org.alusus
