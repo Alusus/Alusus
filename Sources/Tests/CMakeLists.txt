@@ -75,7 +75,7 @@ target_link_libraries(AlususTests AlususSrlLib AlususCoreLib AlususStorage "dl")
 # Build C++ interoperability test lib.
 set(CppInteropTest_Source_Files cpp_interop_test.cpp)
 add_library(CppInteropTest SHARED ${CppInteropTest_Source_Files})
-set_target_properties(CppInteropTest PROPERTIES COMPILE_FLAGS "-fpic ${Alusus_COMPILE_FLAGS}")
+set_target_properties(CppInteropTest PROPERTIES COMPILE_FLAGS "${FPIC} ${Alusus_COMPILE_FLAGS}")
 set_target_properties(CppInteropTest PROPERTIES OUTPUT_NAME cpp_interop_test)
 set_target_properties(CppInteropTest PROPERTIES DEBUG_OUTPUT_NAME cpp_interop_test)
 set_target_properties(CppInteropTest PROPERTIES VERSION ${AlususVersion})

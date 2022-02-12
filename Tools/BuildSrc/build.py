@@ -401,11 +401,17 @@ def build_alusus(llvm_path):
     os.chdir(BUILD_PATH)
 
     try:
+        # Determine fpic flag based on architecture type. For arm64 we'll use -fPIC to avoid the `too many GOT entries`
+        # error. For everything else we'll use -fpic to maintain higher performance.
+        arch = subprocess.check_output(['uname', '-m']).decode('utf-8').strip()
+        fpic = '-fPIC' if arch == 'arm64' or arch == 'aarch64' else '-fpic'
+
         cmake_cmd = ["cmake",
                      os.path.join(ALUSUS_ROOT, "Sources"),
                      f"-DCMAKE_BUILD_TYPE={BUILD_TYPE}".format(),
                      f"-DCMAKE_INSTALL_PREFIX={INSTALL_PATH}".format(),
-                     f"-DLLVM_PATH={llvm_path}".format()]
+                     f"-DLLVM_PATH={llvm_path}".format(),
+                     f"-DFPIC={fpic}".format()]
 
         ret = subprocess.call(cmake_cmd)
         if ret != 0:

@@ -46,6 +46,8 @@ else()
   message(STATUS "The following LLVM path was provided: " ${LLVM_PATH} ".")
 endif()
 
+set(FPIC "" CACHE STRING "The PIC flag to use. This can either be -fpic or -fPIC.")
+
 # Prepare compile and link flags.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   message(STATUS "Using Clang")

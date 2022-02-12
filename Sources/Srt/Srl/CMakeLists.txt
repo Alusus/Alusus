@@ -24,7 +24,7 @@ file(GLOB headers *.h)
 file(GLOB sources *.cpp)
 set(AlususSrlLib_Source_Files ${AlususSrlLib_Source_Files} ${sources} ${headers})
 add_library(AlususSrlLib STATIC ${AlususSrlLib_Source_Files})
-set_target_properties(AlususSrlLib PROPERTIES COMPILE_FLAGS "-fpic ${AlususSrl_COMPILE_FLAGS}")
+set_target_properties(AlususSrlLib PROPERTIES COMPILE_FLAGS "${FPIC} ${AlususSrl_COMPILE_FLAGS}")
 ADD_PRECOMPILED_HEADER(AlususSrlLib "srl.h")
 
 # Set library and executable output names.

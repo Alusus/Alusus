@@ -20,7 +20,7 @@ set(CMAKE_MODULE_PATH "${AlususCore_SOURCE_DIR}")
 # Add a target for Alusus global storage.
 set(AlususStorage_Source_Files core_global_storage.cpp core_global_storage.h)
 add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
-set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
+set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "${FPIC} ${AlususCore_COMPILE_FLAGS}")
 
 # Add a target for Alusus core library.
 set(AlususCoreLib_Source_Subdirs Basic Data Data/Grammar Data/Ast Notices Processing Processing/Handlers Main)
@@ -33,7 +33,7 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
   set(AlususCoreLib_Source_Files ${AlususCoreLib_Source_Files} ${sources} ${headers})
 endforeach(DIR)
 add_library(AlususCoreLib STATIC ${AlususCoreLib_Source_Files})
-set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "-fpic ${AlususCore_COMPILE_FLAGS}")
+set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "${FPIC} ${AlususCore_COMPILE_FLAGS}")
 ADD_PRECOMPILED_HEADER(AlususCoreLib "core.h")
 
 # Add a target for Alusus core executable.
