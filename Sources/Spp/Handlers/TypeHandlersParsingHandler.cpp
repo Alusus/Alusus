@@ -650,19 +650,16 @@ Bool TypeHandlersParsingHandler::getThisIdentifierAndType(
         );
         return false;
       }
-      thisType = linkOp->getSecond().ti_cast<Core::Data::Ast::ParamPass>();
-      if (thisType == 0) {
-        thisType = Core::Data::Ast::ParamPass::create({
+      thisType = Core::Data::Ast::ParamPass::create({
+        {S("sourceLocation"), Core::Data::Ast::findSourceLocation(linkOp->getSecond().get())},
+        {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
+      }, {
+        {S("operand"), Core::Data::Ast::Identifier::create({
           {S("sourceLocation"), Core::Data::Ast::findSourceLocation(linkOp->getSecond().get())},
-          {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
-        }, {
-          {S("operand"), Core::Data::Ast::Identifier::create({
-            {S("sourceLocation"), Core::Data::Ast::findSourceLocation(linkOp->getSecond().get())},
-            {S("value"), TiStr(S("ref"))}
-          })},
-          {S("param"), linkOp->getSecond()}
-        });
-      }
+          {S("value"), TiStr(S("ref"))}
+        })},
+        {S("param"), linkOp->getSecond()}
+      });
     } else {
       state->addNotice(
         newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
