@@ -56,3 +56,26 @@ function testAstTemplateArgs {
     def c: MyOtherType[a + b];
 }
 testAstTemplateArgs();
+
+// Errors
+
+class Parent [ResultType: type] {
+    def i: Int;
+    def child: Child;
+}
+
+class Child [ResultType: type] {
+    def result: ResultType;
+}
+
+class OtherParent [ResultType: type] {
+    def child: Child;
+}
+
+func testTemplateArgErrors {
+    def obj1: Parent[Int];
+    def obj2: OtherParent[Int];
+    obj1 = OtherParent[Int]();
+    printf("Error...\n");
+}
+testTemplateArgErrors();

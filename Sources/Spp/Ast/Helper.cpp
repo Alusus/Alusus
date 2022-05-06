@@ -265,6 +265,7 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
         auto tpl = ti_cast<Spp::Ast::Template>(foundObj);
         if (tpl != 0) {
           Core::Data::Ast::List list;
+          list.setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
           TioSharedPtr result;
           if (tpl->matchInstance(&list, helper, result)) {
             type = result.ti_cast_get<Spp::Ast::Type>();

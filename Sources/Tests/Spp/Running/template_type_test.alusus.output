@@ -6,3 +6,18 @@ hello world
 default string
 MyOtherType: LogOperator
 MyOtherType: AdditionOperator
+ERROR SPPA1001 @ (64,16)
+from (76,22)
+from (76,15): Template arguments mismatch.
+ERROR SPPA1001 @ (72,16)
+from (77,27)
+from (77,15): Template arguments mismatch.
+ERROR SPPA1001 @ (72,16)
+from (77,27): Template arguments mismatch.
+ERROR SPPA1001 @ (72,16)
+from (77,27): Template arguments mismatch.
+ERROR SPPA1001 @ (72,16)
+from (77,27): Template arguments mismatch.
+ERROR SPPA1001 @ (72,16)
+from (77,27): Template arguments mismatch.
+ERROR SPPG1015 @ (78,5): Incompatible types for the given operator.
