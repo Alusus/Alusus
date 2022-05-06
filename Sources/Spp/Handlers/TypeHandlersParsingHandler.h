@@ -2,7 +2,7 @@
  * @file Spp/Handlers/TypeHandlersParsingHandler.h
  * Contains the header of class Spp::Handlers::TypeHandlersParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -46,42 +46,42 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
 
   private: SharedPtr<Spp::Ast::Block> prepareBody(TioSharedPtr const &stmt);
 
-  private: void createAssignmentHandler(
+  private: Bool createAssignmentHandler(
     Processing::ParserState *state, Core::Data::Ast::AssignmentOperator *assignmentOp,
     SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
   );
 
-  private: void createComparisonHandler(
+  private: Bool createComparisonHandler(
     Processing::ParserState *state, Core::Data::Ast::ComparisonOperator *comparisonOp,
     SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
   );
 
-  private: void createInfixOpHandler(
+  private: Bool createInfixOpHandler(
     Processing::ParserState *state, Core::Data::Ast::InfixOperator *infixOp,
     SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
   );
 
-  private: void createReadHandler(
+  private: Bool createReadHandler(
     Processing::ParserState *state, Core::Data::Ast::LinkOperator *linkOp,
     SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
   );
 
-  private: void createInitOpHandler(
+  private: Bool createInitOpHandler(
     Processing::ParserState *state, Spp::Ast::InitOp *initOp,
     SharedPtr<Spp::Ast::Block> const &body
   );
 
-  private: void createTerminateOpHandler(
+  private: Bool createTerminateOpHandler(
     Processing::ParserState *state, Spp::Ast::TerminateOp *terminateOp,
     SharedPtr<Spp::Ast::Block> const &body, Mode mode
   );
 
-  private: void createCastHandler(
+  private: Bool createCastHandler(
     Processing::ParserState *state, Spp::Ast::CastOp *castOp,
     SharedPtr<Spp::Ast::Block> const &body, Mode mode
   );
 
-  private: void createParensOpHandler(
+  private: Bool createParensOpHandler(
     Processing::ParserState *state, Core::Data::Ast::ParamPass *parensOp,
     SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
   );

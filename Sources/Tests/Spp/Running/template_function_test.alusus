@@ -35,6 +35,7 @@ printf("d.max[Int]: %d\n", d.max[Int](7, 3));
 printf("d.max[Float]: %f\n", d.max[Float[64]](7, 3));
 printf("d.num[Int]: %d\n", d.num[Int]);
 printf("d.num[Float]: %f\n", d.num[Float[64]]);
+printf("Data().min[Int]: %d\n", Data().min[Int](7, 3));
 
 function myFunc [a: ast] {
     preprocess {

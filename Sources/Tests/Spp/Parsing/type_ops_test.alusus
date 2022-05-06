@@ -43,6 +43,7 @@ class T {
   handler notThis == Int return notThis.i == value;
   handler notThis + Int: Int return notThis.i + value;
   handler notThis~cast[Int] return notThis.i;
+  handler notThis() {}
 
   handler this = [v: Int] this.i = value;
   handler this = (this: Int) this.i = 5;
@@ -111,6 +112,8 @@ class T {
   handler [T: type] this.myprop(a: T): T as_ptr {}
   handler [T: type] this.myprop(a: T): T as_ptr;
   handler [T: type] this.myprop(a: T): T set_ptr {}
+
+  handler [T: type] myprop(a: T): T {}
 };
 
 dump_ast T;
