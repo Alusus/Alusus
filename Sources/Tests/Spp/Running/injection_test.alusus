@@ -46,6 +46,26 @@ print(
   getO().getA(), getO().getI(), getO().j, getO().k, getO()()
 );
 
+// Test incorrectly accessing a member of an injection through an auto generated `this`.
+
+class Parent {
+    def result: Int;
+}
+
+class Child {
+    @injection def parent: Parent;
+    def j: Int = 0;
+
+    handler this.test() {
+        result = 5;
+    }
+}
+
+def c: Child;
+c.test();
+
+// Test other injection errors
+
 class Wrong {
   def i: Int;
   @shared @injection def o: Outer;

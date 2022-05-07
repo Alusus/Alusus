@@ -179,6 +179,9 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             // looking through object members.
             if (domain == DefinitionDomain::FUNCTION && request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) continue;
 
+            // If we are going out of the current function then we should ignore local variables of outer functions.
+            if (domain == DefinitionDomain::FUNCTION && searchingFunctionOwners) continue;
+
             Bool isMember = domain == DefinitionDomain::OBJECT;
             if ((isMember && request.thisType == 0) || (!isMember && request.thisType != 0)) continue;
             auto objType = helper->traceType(def->getTarget().get());
