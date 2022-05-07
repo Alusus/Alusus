@@ -16,6 +16,21 @@
 namespace Spp::Ast
 {
 
+/**
+ * @enum CalleeLookupMode
+ * @ingroup spp_test
+ * Specifies what sort of callees are you looking for.
+ * 
+ * @var CalleeLookupMode::DIRECTLY_ACCESSIBLE
+ * Specifies that we are looking for elements that are directly accessible from the current scope. These can be members
+ * of the current scope or members of outer scopes.
+ * 
+ * @var CalleeLookupMode::OBJECT_MEMBER
+ * Specifies that we are looking for a member of a specific object.
+ * 
+ * @var CalleeLookupMode::SCOPE_MEMBER
+ * Specifies that we are looking for global variables in a specific scope.
+ */
 s_enum(CalleeLookupMode, DIRECTLY_ACCESSIBLE, OBJECT_MEMBER, SCOPE_MEMBER);
 
 /// @ingroup spp_ast

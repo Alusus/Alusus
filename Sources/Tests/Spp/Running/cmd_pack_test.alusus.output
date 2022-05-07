@@ -12,5 +12,6 @@ Factorial of 5=120
 Factorial of 5=120
 B().j = 3
 B().j = 4
-ERROR SPPA1007 @ (42,63): Unknown symbol.
-ERROR SPPG1015 @ (44,15): Incompatible types for the given operator.
+Success. Auto created `this` was successfully ignored.
+ERROR SPPA1007 @ (73,63): Unknown symbol.
+ERROR SPPG1015 @ (75,15): Incompatible types for the given operator.
