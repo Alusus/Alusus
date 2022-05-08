@@ -251,7 +251,7 @@ Core::Data::Seeker::Verb SeekerExtension::_foreach_paramPassRouting(
       return cb(Core::Data::Seeker::Action::ERROR, notice.get());
     }
   } else {
-    throw EXCEPTION(InvalidArgumentException, S("paramPass"), S("Invalid bracket type."), paramPass->getType());
+    return Core::Data::Seeker::Verb::MOVE;
   }
 }
 

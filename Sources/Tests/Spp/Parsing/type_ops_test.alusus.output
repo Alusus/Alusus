@@ -9,22 +9,24 @@ ERROR SPPH1020 @ (42,11): Operation target must be `this`.
 ERROR SPPH1020 @ (43,11): Operation target must be `this`.
 ERROR SPPH1020 @ (44,11): Operation target must be `this`.
 ERROR SPPH1020 @ (45,11): Operation target must be `this`.
-ERROR SPPH1022 @ (47,18): Invalid use of square brackets.
-ERROR SPPH1014 @ (48,19): Invalid handler statement.
-ERROR SPPH1018 @ (93,3): ~init operations cannot be pointer based.
-ERROR SPPH1014 @ (94,3): Invalid handler statement.
-ERROR SPPH1019 @ (95,11): Property getter is missing the return type.
-ERROR SPPH1020 @ (96,11): Operation target must be `this`.
-ERROR SPPH1006 @ (97,29): Invalid function arg name.
-ERROR SPPH1022 @ (99,18): Invalid use of square brackets.
-ERROR SPPH1020 @ (100,11): Operation target must be `this`.
-ERROR SPPH1023 @ (101,11): Invalid type property identifier.
-ERROR SPPH1020 @ (102,11): Operation target must be `this`.
+ERROR SPPH1020 @ (46,11): Operation target must be `this`.
+ERROR SPPH1022 @ (48,18): Invalid use of square brackets.
+ERROR SPPH1014 @ (49,19): Invalid handler statement.
+ERROR SPPH1018 @ (94,3): ~init operations cannot be pointer based.
+ERROR SPPH1014 @ (95,3): Invalid handler statement.
+ERROR SPPH1019 @ (96,11): Property getter is missing the return type.
+ERROR SPPH1020 @ (97,11): Operation target must be `this`.
+ERROR SPPH1006 @ (98,29): Invalid function arg name.
+ERROR SPPH1022 @ (100,18): Invalid use of square brackets.
+ERROR SPPH1020 @ (101,11): Operation target must be `this`.
+ERROR SPPH1023 @ (102,11): Invalid type property identifier.
 ERROR SPPH1020 @ (103,11): Operation target must be `this`.
-ERROR SPPH1014 @ (104,11): Invalid handler statement.
-ERROR SPPH1025 @ (111,3): Template handler statement must not be a pointer.
+ERROR SPPH1020 @ (104,11): Operation target must be `this`.
+ERROR SPPH1014 @ (105,11): Invalid handler statement.
 ERROR SPPH1025 @ (112,3): Template handler statement must not be a pointer.
 ERROR SPPH1025 @ (113,3): Template handler statement must not be a pointer.
+ERROR SPPH1025 @ (114,3): Template handler statement must not be a pointer.
+ERROR SPPH1020 @ (116,21): Operation target must be `this`.
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]

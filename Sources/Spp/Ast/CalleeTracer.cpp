@@ -86,15 +86,24 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
           return Core::Data::Seeker::Verb::MOVE;
         }
 
-        // If we are going out of the current function then we should only be able to access global variables.
-        if (
-          searchingFunctionOwners && tracer->helper->isVariable(obj) &&
-          tracer->helper->getVariableDomain(obj) == Ast::DefinitionDomain::FUNCTION
-        ) {
-          result.notice = newSrdObj<Spp::Notices::AccessingLocalVarInOtherFuncNotice>(
-            Core::Data::Ast::findSourceLocation(request.astNode)
-          );
-          return Core::Data::Seeker::Verb::STOP;
+        if (tracer->helper->isVariable(obj)) {
+          auto domain = tracer->helper->getVariableDomain(obj);
+          
+          // If we are going out of the current function then we should only be able to access global variables.
+          if (domain == Ast::DefinitionDomain::FUNCTION && searchingFunctionOwners) {
+            result.notice = newSrdObj<Spp::Notices::AccessingLocalVarInOtherFuncNotice>(
+              Core::Data::Ast::findSourceLocation(request.astNode)
+            );
+            return Core::Data::Seeker::Verb::STOP;
+          }
+
+          // If we are not requesting directly accessible members and instead looking for object or scope members and
+          // we encounter local variables or values (like the auto created this) then we should skip that. This is to
+          // avoid cases where an auto created local variable (for example: this) is unintentionally picked up while
+          // looking through object members.
+          if (domain == DefinitionDomain::FUNCTION && request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
+            return Core::Data::Seeker::Verb::MOVE;
+          }
         }
 
         if (action != Core::Data::Seeker::Action::TARGET_MATCH || obj == 0) return Core::Data::Seeker::Verb::MOVE;
@@ -163,7 +172,16 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             if (def == 0 || def->getTarget() == 0) continue;
             if (!helper->isVariable(def->getTarget().get())) continue;
             auto domain = helper->getVariableDomain(def);
+
+            // If we are not requesting directly accessible members and instead looking for object or scope members and
+            // we encounter local variables or values (like the auto created this) then we should skip that. This is to
+            // avoid cases where an auto created local variable (for example: this) is unintentionally picked up while
+            // looking through object members.
             if (domain == DefinitionDomain::FUNCTION && request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) continue;
+
+            // If we are going out of the current function then we should ignore local variables of outer functions.
+            if (domain == DefinitionDomain::FUNCTION && searchingFunctionOwners) continue;
+
             Bool isMember = domain == DefinitionDomain::OBJECT;
             if ((isMember && request.thisType == 0) || (!isMember && request.thisType != 0)) continue;
             auto objType = helper->traceType(def->getTarget().get());

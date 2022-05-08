@@ -8,10 +8,11 @@ d.max[Int]: 7
 d.max[Float]: 7.000000
 d.num[Int]: 5
 d.num[Float]: 5.500000
+Data().min[Int]: 3
 myFunc: LogOperator
 myFunc: AdditionOperator
 t.min[Float]: 3
-ERROR SPPG1002 @ (67,1): Invalid operation.
 ERROR SPPG1002 @ (68,1): Invalid operation.
-ERROR SPPG1002 @ (69,5): Invalid operation.
+ERROR SPPG1002 @ (69,1): Invalid operation.
 ERROR SPPG1002 @ (70,5): Invalid operation.
+ERROR SPPG1002 @ (71,5): Invalid operation.

@@ -349,9 +349,13 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
       }
     }
   }
+
+  // Even some members fail, we'll still try to generate a target struct with whatever members we have so that we don't
+  // end up with a struct that has no body, which can cause exceptions later on during other operations.
+  if (!session->getTg()->generateStructTypeBody(tgType, &tgMemberTypes, &tgMembers)) return false;
+
   if (!result) return false;
 
-  if (!session->getTg()->generateStructTypeBody(tgType, &tgMemberTypes, &tgMembers)) return false;
   if (tgMemberTypes.getElementCount() != tgMembers.getCount()) {
     throw EXCEPTION(GenericException, S("Unexpected error while generating struct body."));
   }

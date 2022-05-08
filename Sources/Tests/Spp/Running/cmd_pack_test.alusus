@@ -39,6 +39,37 @@ Console.print("B().j = %d\n", B()~use_in(self){ j = 3 }.j);
 
 Console.print("B().j = %d\n", B()~use_in(self) no_injection { self.j = 4 }.j);
 
+// Test the case of unintentionally hitting auto-created `this`.
+// Test the case where an auto created `this` gets incorrectly picked by the compiler instead of `this` from an upper
+// scope.
+
+class Parent {
+    def child: Child;
+    handler this~init() {}
+    handler this~init(val: ref[this_type]) {}
+
+    function new (): Parent {
+        return Parent()~use_in(this){
+            child~use_in(self){
+                parent~no_deref = this;
+            };
+        };
+    }
+}
+
+class Child {
+    def i2: Int = 0;
+    def parent: ref[Parent];
+}
+
+func testSkippingAutoThis {
+    Parent.new();
+    Console.print("Success. Auto created `this` was successfully ignored.\n");
+}
+testSkippingAutoThis();
+
+// Test Errors
+
 Console.print("B().j = %d\n", B()~use_in(self) no_injection { j = 5 }.j);
 
 ptr[Char]().{ i = "wrong" };

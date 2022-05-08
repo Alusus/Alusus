@@ -31,7 +31,9 @@ TypeMatchStatus UserType::matchTargetType(
           auto obj = def->getTarget().get();
           if (obj != 0 && helper->isInMemVariable(obj)) {
             auto memberType = helper->traceType(obj);
-            auto memberMatchStatus = memberType->matchTargetType(type, helper, ec, opts | TypeMatchOptions::SKIP_DEREF);
+            auto memberMatchStatus = memberType != 0 ?
+              memberType->matchTargetType(type, helper, ec, opts | TypeMatchOptions::SKIP_DEREF) :
+              TypeMatchStatus::NONE;
             if (
               memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION ||
               memberMatchStatus == TypeMatchStatus::REF_AGGREGATION
