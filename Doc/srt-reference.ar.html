@@ -3525,6 +3525,58 @@ Spp.grammarMgr.addCustomCommand(
 </pre>
                     المثال أعلاه يعرف أمرًا جديدا يبدأ إما بالكلمة المفتاحية `أمر_اختبار` أو بالكلمة المفتاحية `test_cmd`، ثم يتبع الكلمة المفتاحية معطى من نوع تركيب يمكن أن يظهر مرة واحدة أو مرتين متتابعتين أو لا يظهر أساسًا، ويتبع هذه التراكيب معطى من نوع كتلة (set) يجب أن يظهر مرة واحدة تحديدًا.
                     </div>
+
+                    <h5 id="Spp-buildMgr-addCustomCommand">أضف_قاعدة_مخصصة (addCustomGrammar)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عرف كـائن_بهوية: لقب الـقلب.أسـاسيات.كـائن_بهوية؛
+
+عملية هذا.أضف_قاعدة_مخصصة (
+    معرف: مؤشر[مصفوفة[مـحرف]]،
+    معرف_الأصل: مؤشر[مصفوفة[مـحرف]]،
+    شجرة_القاعدة: سند[كـائن_بهوية]
+)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+def TiObject: alias Core.Basic.TiObject;
+
+handler this.addCustomGrammar (
+    identifier: ptr[array[Char]],
+    baseIdentifier: ptr[array[Char]],
+    grammarAst: ref[TiObject]
+);
+</pre>
+                      تستخدم هذه الدالة لإضافة قاعدة جديدة إلى قواعد اللغة ديناميكيًا. تختلف هذه الدالة عن دالة `أضف_أمرا_مخصصا` (addCustomCommand) بأنها القاعدة الجديدة لا يشترط أن تكون أمرًا (وإنما يمكنها أن تكون تركيبا أو أي شيء) وتكون القاعدة الجديدة مشتقة من قاعدة أخرى. تستلم هذه الدالة ثلاث معطيات:
+                    <ul>
+                     <li><b>معرف</b>: سلسلة محارف تستخدم كمعرف للقاعدة الجديدة. يمكن تمرير أي قيمة لهذا المعرف طالما أنها من حروف وأرقام فقط ولا تتضارب مع معرف موجود مسبقًا.</li>
+                     <li><b>معرف_الأصل</b>: معرف القاعد الأصل التي ستُشتق منها القاعدة الجديدة.</li>
+                     <li><b>شجرة_القاعدة</b>: شجرة بنية مجردة تصف التغييرات التي ستطبق على القاعدة الجديدة مقارنة بالقاعدة الأصل. تأخذ هذه الشجرة الشكل التالي:
+<pre class="code" dir=rtl style="text-align:right;">
+شبم {
+    &lt;مسار_القيمة_المراد_تعديلها&gt;: { &lt;القيمة_الجديدة&gt; }؛
+    ...
+}
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+ast {
+    &lt;path_to_value_to_update&gt;: { &lt;new_value&gt; };
+    ...
+}
+</pre>
+                      شجرة القاعدة تحتوي مجموعة من المدخلات، كل مدخلة تتكون من المسار للقيمة المراد تعديلها ثم القيمة الجديدة. المسار يكون نسبة لجذر القاعدة.
+                     </li>
+                    </ul>
+                      في المثال التالي سيتم إنشاء قاعدة جديدة مشتقة من القاعدة FuncSigExpression مع تعديل واحد وهو تغيير معطيات القاعدة الفرعية BitwiseExp. اطلع على قواعد لغة الأسس لتعرف القاعدات التي يمكنك الاشتقاق منها وما تحتاج لتعديله عند الاشتقاق.
+<pre class="code" dir=ltr style="text-align:left;">
+Spp.grammarMgr.addCustomGrammar(
+    "ClosureSigExp",
+    "FuncSigExpression",
+    ast {
+        BitwiseExp.vars: { enable: 1 }
+    }
+);
+</pre>
+                  </div>
                   </div>
 
                   <h4 id="Spp-astMgr">الكائن: مدير_شبم (astMgr)</h4>
@@ -4243,7 +4295,7 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2021م \ 1443هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2022م \ 1443هـ.</strong></li>
                         </ul>
                     </div>
                 </div>
