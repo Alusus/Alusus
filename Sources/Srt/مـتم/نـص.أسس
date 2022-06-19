@@ -34,7 +34,7 @@
         عرف شذب_النهاية: لقب trimEnd؛
         عرف كبر: لقب toUpperCase؛
         عرف صغر: لقب toLowerCase؛
-        عرف اجتزء: لقب slice؛
+        عرف اجتزئ: لقب slice؛
         عرف قطع: لقب split؛
         عرف ادمج: لقب merge؛
         عرف فرغ: لقب clear؛
