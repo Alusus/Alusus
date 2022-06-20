@@ -1,15 +1,74 @@
 # Alusus Changelog
 
+## Version 0.9.0 (2022-06-20)
+
+### Updates to the Compiler
+
+* Added support for function and handler templates.
+* Added support for creating custom grammars, like custom expressions.
+* Added ~use_in operator which can be used to write command packs with the ability to specify the name of the target
+  variable instead of always defaulting to `this`.
+* Implemented PreGenTransformStatement class which allows preprocess statements to insert code translation that
+  would be performed right before generation instead of being performed during preprocessing.
+* Detect circular class code generation that can be triggered in some cases of nested preprocess statements.
+* Make callee tracing smarter about using or skipping the auto defined `this`.
+* Minor rafactoring for better source readability and maintainability.
+
+### Updates to the Standard Libraries
+
+* Added support for closure payload capture modes.
+* Added comparison operator to closures.
+
+### Breaking Changes
+
+* Fixed a typo in the Arabic name of the String.slice function.
+
+### Compiler Fixes
+
+* Fixed a bug in handling auto created this, where an auto created `this` (for class constructors) is incorrectly
+  picked up during callee lookup in some cases.
+* Fixed a bug in handling missing template arguments.
+* Fixed a bug in handling invalid member variables.
+* Fixed a bug in handling parsing errors in handler operation.
+* Fixed a bug causing exceptions during preprocessing when handling parenthesis in some cases.
+* Fixed a bug in handler command when specifying a different type for `this`.
+* Fixed various issues in build notices:
+  - Reduce unnecessary build notice duplicates in some cases.
+  - Prevent loss of source location stack when a preprocess is triggered.
+  - Fixed missing build notice location stack in the ~size operator.
+* Other minor fixes.
+
+### Standard Libraries Fixes
+
+* Reduced build notice duplicates in closures.
+* Fixed an issue when closures try to access `this` in command packs or in class bodies outside of functions or
+  handlers.
+* Fixed an issue with String._release.
+* Fixed a bug where a closure cannot use `this` of a containing member function due to conflict with the clsoure's
+  own `this` variable.
+* Other minor bug fixes.
+
+### Other Updates
+
+* Fix the build on arm64 architecture.
+* Documentation updates and typo fixes.
+* Updated the logo in the documentation.
+* Various updates to GTK syntax highlighting.
+
+
 ## Version 0.8.1 (2021-09-27)
+<details>
 
 * Fixed a bug in closures when declared inside a template and using a template argument as the type of a closure
   argument.
 * Fixed a bug in using user types as arguments to variadic functions.
 * Fixed a bug in comparing variadic function pointers.
 * Updated the error mwssage for type-mismatched assign operations when the assignee is a function pointer.
+</details>
 
 
 ## Version 0.8.0 (2021-09-06)
+<details>
 
 ### Updates to the Compiler
 
@@ -73,6 +132,7 @@
 
 * Fixed an issue with memory handling in `Array.insert` and `Array.remove` functions.
 * Fixed an issue with memory handling in the `String` type.
+</details>
 
 
 ## Version 0.7.0 (2021-02-22)
