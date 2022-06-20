@@ -84,13 +84,13 @@ hr {
 }
 
 .site-logo {
-    height: 45px;
+    height: 3.5em;
 }
 
 @media (min-width: 992px) {
     .navbar {
-        height: 4em;
-        padding-top: 20px;
+        height: 4.8em;
+        padding-top: 24px;
     }
     .site-logo {
         margin-bottom: 15px;

@@ -17,7 +17,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html"><img src="Resources/logo.gif" alt="Alusus Programming Language" class="site-logo"></a>
+            <a class="navbar-brand" href="index.html"><img src="Resources/logo.svg" alt="Alusus Programming Language" class="site-logo"></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -40,7 +40,7 @@
                             <li><a href="#Map">الصنف: تـطبيق (Map)</a></li>
                             <li><a href="#SrdRef">الصنف: سـندنا (SrdRef)</a></li>
                             <li><a href="#WkRef">الصنف: سـندهم (WkRef)</a></li>
-                            <li><a href="#UnqRef">الصنف: سـندنا (UnqRef)</a></li>
+                            <li><a href="#UnqRef">الصنف: سـندي (UnqRef)</a></li>
                             <li><a href="#Memory">الوحدة: ذاكـرة (Memory)</a></li>
                             <li><a href="#Math">الوحدة: ريـاضيات (Math)</a></li>
                             <li><a href="#Net">الوحدة: شـبكة (Net)</a></li>
@@ -553,9 +553,9 @@ handler this.toLowerCase (): String;
  تستبدل الأحرف اللاتينية الكبيرة بمثيلاتها الصغيرة وترجع الناتج في نص جديد.
                             </li>
                             <li>
-                                <b>اجتزء (slice)</b><br/>
+                                <b>اجتزئ (slice)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-عملية هذا.اجتزء (بداية: صـحيح_متكيف، عدد: صـحيح_متكيف): نـص؛
+عملية هذا.اجتزئ (بداية: صـحيح_متكيف، عدد: صـحيح_متكيف): نـص؛
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
 handler this.slice (start: ArchInt, count: ArchInt): String;
@@ -2319,6 +2319,65 @@ func prepareClosure {
 prepareClosure();
 Console.print("%d\n", pc(3.5)); // Prints 35
 </pre>
+                    <h4 id="Build-Exe">أسلوب التقاط البيانات المحيطة</h4>
+                    <div>
+                      يمكنك تحديد الأسلوب الذي تُلتقط فيه البيانات من محيط الدالة المغلفة، ويمكنك تحديد ذلك لكل متغير على حدة. على سبيل المثال إذا أردت قراءة قيمة من محيد الدالة لكنك لا تحتاج لتغييرها داخل المغلفة فقد يكفيك التقاط نسخة من ذلك المتغير، بينما إذا أردت تغيير قيمة المتغير داخل الدالة المغلفة فستحتاج لالتقاط سند إلى المتغير بدلاً من ذلك. للتحكم بأسلوب التقاط البيانات نتبع الصيغة التالية في تعريف المغلفة:
+<pre class="code" dir=rtl style="text-align:right;">
+مغلفة (/*تعريفات_اسلوب_الالتقاط*/)&amp;(/*تعريفات_المدخلات*/): /*صنف_الإرجاع*/ {
+  // متن المغلفة
+}
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+closure (/*capture_mode_defs*/)&(/*args_defs*/): /*ret_type*/ {
+  // closure body
+}
+</pre>
+                      في المثال التالي نحدد أسلوب الالتقاط للمتغير `ن` (n) بـ `كسند` (by_ref) وذلك يخبر يجعل المغلفة تحتفظ بسند للمتغير بدل الاحتفاظ بنسخة، وبالتالي فإن تغير قيمة المتغير داخل المغلفة سيؤدي لتغيير المنغير الأصلي خارج المغلفة.
+<pre class="code" dir=rtl style="text-align:right;">
+دالة اختبر_التقط_كسند (ن: صحيح) {
+    عرف م: مغلفة (ع: صحيح): صحيح؛
+    م = مغلفة (ن: كسند)&(ع: صحيح): صحيح {
+        أرجع ع * ن++؛
+    }
+    اطبع("ن قبل استدعاء المغلفة: %d\ج"، ن)؛
+    اطبع("نتيجة المغلفة: %d\ج"، م(3))؛
+    اطبع("ن بعد استدعاء المغلفة: %d\ج"، ن)؛
+}
+اختبر_التقط_كسند(5)؛
+/*
+النتيجة:
+ن قبل استدعاء المغلفة: 5
+نتيجة المغلفة: 15
+ن بعد استدعاء المغلفة: 6
+*/
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func testCaptureByRef (n: Int) {
+    def c: closure (i: Int): Int;
+    c = closure (n: by_ref)&(i: Int): Int {
+        return i * n++;
+    };
+    print("n before calling c: %d\n", n);
+    print("closure result: %d\n", c(3));
+    print("n after calling c: %d\n", n);
+}
+testCaptureByRef(5);
+/*
+output:
+n before calling c: 5
+closure result: 15
+n after calling c: 6
+*/
+</pre>
+                      <p>في هذا المثال لو غيرنا أسلوب التقاط ن من `كسند` إلى `كقيمة` لكانت القيمة المطبوعة بعد استعداء المغلفة 5 بدلاً من 6.</p>
+                      تتوفر الأنماط التالية لالتقاط البيانات:
+                      <ul>
+                        <li><b>كسند (by_ref)</b>: تلتقط المغلفة سندًا على المتغير. إذا كان المتغير سندًا فإن المغلفة ستلتقط ذلك السند وليس سندا إلى السند.</b></li>
+                        <li><b>كقيمة (by_val)</b>: تلتقط المغلفة قيمة المتغير. إذا كان المتغير المذكور سندا فإن الدالة ستلتقط القيمة التي يشير إليها السند وليس السند نفسه.</b></li>
+                        <li><b>مطابق (identical)</b>: تلتقط المغلفة المتغير حرفيًا، فإذا كان المتغير سندا فتلتقط ذلك السند وإذا كان قيمة فتلتقط تلك القيمة..</b></li>
+                        <li><b>تلقائي</b>: إذا لم تحدد نمط الالتقاط يدويا فإن النمط المعتمد هو التلقائي وفي هذا النمط يحدد المترجم أسلوب الالتقاط اعتمادًا على صنف المتغير، فإن كان الصنف من أصناف المستخدم وليس صنف `سـندنا` (SrdRef) فيستخدم الأسلوب `مطابق` وإلا (أي إذا كان `سـندنا` أو صنفًا أساسيًا) فيستخدم الأسلوب `كقيمة`.</li>
+                      </ul>
+                    </div>
                 </div>
 
                 <br>
@@ -3466,6 +3525,58 @@ Spp.grammarMgr.addCustomCommand(
 </pre>
                     المثال أعلاه يعرف أمرًا جديدا يبدأ إما بالكلمة المفتاحية `أمر_اختبار` أو بالكلمة المفتاحية `test_cmd`، ثم يتبع الكلمة المفتاحية معطى من نوع تركيب يمكن أن يظهر مرة واحدة أو مرتين متتابعتين أو لا يظهر أساسًا، ويتبع هذه التراكيب معطى من نوع كتلة (set) يجب أن يظهر مرة واحدة تحديدًا.
                     </div>
+
+                    <h5 id="Spp-buildMgr-addCustomCommand">أضف_قاعدة_مخصصة (addCustomGrammar)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عرف كـائن_بهوية: لقب الـقلب.أسـاسيات.كـائن_بهوية؛
+
+عملية هذا.أضف_قاعدة_مخصصة (
+    معرف: مؤشر[مصفوفة[مـحرف]]،
+    معرف_الأصل: مؤشر[مصفوفة[مـحرف]]،
+    شجرة_القاعدة: سند[كـائن_بهوية]
+)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+def TiObject: alias Core.Basic.TiObject;
+
+handler this.addCustomGrammar (
+    identifier: ptr[array[Char]],
+    baseIdentifier: ptr[array[Char]],
+    grammarAst: ref[TiObject]
+);
+</pre>
+                      تستخدم هذه الدالة لإضافة قاعدة جديدة إلى قواعد اللغة ديناميكيًا. تختلف هذه الدالة عن دالة `أضف_أمرا_مخصصا` (addCustomCommand) بأنها القاعدة الجديدة لا يشترط أن تكون أمرًا (وإنما يمكنها أن تكون تركيبا أو أي شيء) وتكون القاعدة الجديدة مشتقة من قاعدة أخرى. تستلم هذه الدالة ثلاث معطيات:
+                    <ul>
+                     <li><b>معرف</b>: سلسلة محارف تستخدم كمعرف للقاعدة الجديدة. يمكن تمرير أي قيمة لهذا المعرف طالما أنها من حروف وأرقام فقط ولا تتضارب مع معرف موجود مسبقًا.</li>
+                     <li><b>معرف_الأصل</b>: معرف القاعد الأصل التي ستُشتق منها القاعدة الجديدة.</li>
+                     <li><b>شجرة_القاعدة</b>: شجرة بنية مجردة تصف التغييرات التي ستطبق على القاعدة الجديدة مقارنة بالقاعدة الأصل. تأخذ هذه الشجرة الشكل التالي:
+<pre class="code" dir=rtl style="text-align:right;">
+شبم {
+    &lt;مسار_القيمة_المراد_تعديلها&gt;: { &lt;القيمة_الجديدة&gt; }؛
+    ...
+}
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+ast {
+    &lt;path_to_value_to_update&gt;: { &lt;new_value&gt; };
+    ...
+}
+</pre>
+                      شجرة القاعدة تحتوي مجموعة من المدخلات، كل مدخلة تتكون من المسار للقيمة المراد تعديلها ثم القيمة الجديدة. المسار يكون نسبة لجذر القاعدة.
+                     </li>
+                    </ul>
+                      في المثال التالي سيتم إنشاء قاعدة جديدة مشتقة من القاعدة FuncSigExpression مع تعديل واحد وهو تغيير معطيات القاعدة الفرعية BitwiseExp. اطلع على قواعد لغة الأسس لتعرف القاعدات التي يمكنك الاشتقاق منها وما تحتاج لتعديله عند الاشتقاق.
+<pre class="code" dir=ltr style="text-align:left;">
+Spp.grammarMgr.addCustomGrammar(
+    "ClosureSigExp",
+    "FuncSigExpression",
+    ast {
+        BitwiseExp.vars: { enable: 1 }
+    }
+);
+</pre>
+                  </div>
                   </div>
 
                   <h4 id="Spp-astMgr">الكائن: مدير_شبم (astMgr)</h4>
@@ -4184,7 +4295,7 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2021م \ 1443هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2022م \ 1443هـ.</strong></li>
                         </ul>
                     </div>
                 </div>
