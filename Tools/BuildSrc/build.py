@@ -368,6 +368,18 @@ def copy_other_installation_files():
                      "Gtk_Syntax_Highlighting", "alusus.lang")
     )
     shutil.copy2(
+        os.path.join(ALUSUS_ROOT, "Tools",
+                     "Gtk_Syntax_Highlighting", "alusus_dark_style.xml"),
+        os.path.join(INSTALL_PATH, "Tools",
+                     "Gtk_Syntax_Highlighting", "alusus_dark_style.xml")
+    )
+    shutil.copy2(
+        os.path.join(ALUSUS_ROOT, "Tools",
+                     "Gtk_Syntax_Highlighting", "alusus_light_style.xml"),
+        os.path.join(INSTALL_PATH, "Tools",
+                     "Gtk_Syntax_Highlighting", "alusus_light_style.xml")
+    )
+    shutil.copy2(
         os.path.join(ALUSUS_ROOT, "changelog.en.md"),
         os.path.join(INSTALL_PATH, "changelog.en.md")
     )
