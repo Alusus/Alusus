@@ -263,7 +263,12 @@ Bool RootManager::findFile(Char const *filename, std::array<Char,PATH_MAX> &resu
 
   // Is the filename an absolute path already?
   if (filename[0] == C('/')) {
-    if (this->tryFileName(filename, resultFilename)) {
+    if (this->tryFileName(filename, tmpFilename)) {
+        #ifdef WINDOWS
+          _fullpath(resultFilename.data(), tmpFilename.data(), PATH_MAX);
+        #else
+          realpath(tmpFilename.data(), resultFilename.data());
+        #endif
       return true;
     }
   } else {
