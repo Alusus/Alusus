@@ -12,3 +12,17 @@ Hello World
 Hello World, Again
 p = (5.500000, 7.300000)
 Hello World, a third time
+m1
+m2
+m3
+m4 non-member 3
+m4 member 3
+m4 member 4
+m4 non-member 3, additional-arg
+m4 member 3, additional-arg
+m4 member 4, additional-arg
+m4 member 5, after-addition
+ERROR SPPG1002 @ (127,7): Invalid operation.
+ERROR SPPG1002 @ (128,12): Invalid operation.
+ERROR SPPG1039 @ (98,9)
+from (129,5): Invalid target for use_in operation.

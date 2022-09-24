@@ -69,7 +69,10 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   );
 
   this->astProcessor = newSrdObj<CodeGen::AstProcessor>(
-    this->astHelper.get(), this->buildManager.ti_cast_get<Executing>(), this->astNodeRepo.get()
+    this->astHelper.get(),
+    this->buildManager.ti_cast_get<Executing>(),
+    this->buildManager.ti_cast_get<ExpressionComputation>(),
+    this->astNodeRepo.get()
   );
   this->generator->setAstProcessor(this->astProcessor.get());
   this->typeGenerator->setAstProcessor(this->astProcessor.get());
@@ -83,6 +86,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->rtGrammarMgr = newSrdObj<Rt::GrammarMgr>(manager, this->grammarFactory.get());
   this->rtAstMgr = newSrdObj<Rt::AstMgr>();
   this->rtAstMgr->setAstHelper(this->astHelper.get());
+  this->rtAstMgr->setExpressionComputation(this->buildManager.ti_cast_get<ExpressionComputation>());
   this->rtAstMgr->setRootManager(manager);
   this->rtAstMgr->setAstProcessor(this->astProcessor.get());
   this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(manager, this->buildManager.get());

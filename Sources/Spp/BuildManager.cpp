@@ -38,7 +38,8 @@ void BuildManager::initBindingCaches()
     &this->dumpLlvmIrForElement,
     &this->buildObjectFileForElement,
     &this->resetBuild,
-    &this->resetBuildData
+    &this->resetBuildData,
+    &this->computeResultType
   });
 }
 
@@ -46,11 +47,13 @@ void BuildManager::initBindingCaches()
 void BuildManager::initBindings()
 {
   auto executing = ti_cast<Executing>(this);
-
   executing->prepareBuild = &BuildManager::_prepareBuild;
   executing->addElementToBuild = &BuildManager::_addElementToBuild;
   executing->finalizeBuild = &BuildManager::_finalizeBuild;
   executing->execute = &BuildManager::_execute;
+
+  auto expressionComputation = ti_cast<ExpressionComputation>(this);
+  expressionComputation->computeResultType = &BuildManager::_computeResultType;
 
   this->prepareBuild = &BuildManager::_prepareBuild;
   this->addElementToBuild = &BuildManager::_addElementToBuild;
@@ -61,6 +64,7 @@ void BuildManager::initBindings()
   this->buildObjectFileForElement = &BuildManager::_buildObjectFileForElement;
   this->resetBuild = &BuildManager::_resetBuild;
   this->resetBuildData = &BuildManager::_resetBuildData;
+  this->computeResultType = &BuildManager::_computeResultType;
 }
 
 
@@ -538,6 +542,48 @@ void BuildManager::_resetBuildData(TiObject *self, TiObject *obj, CodeGen::Extra
       buildMgr->resetBuildData(tpl->getInstance(i).get(), eda);
     }
   }
+}
+
+
+Bool BuildManager::_computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue)
+{
+  PREPARE_SELF(buildMgr, BuildManager);
+
+  static DependencyInfo depsInfo;
+  static CodeGen::ExtraDataAccessor eda;
+  static CodeGen::DestructionStack destructionStack;
+  ExecutionContext execContext(buildMgr->preprocessBuildTarget->getPointerBitCount());
+  auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(buildMgr->preprocessTargetGenerator.get());
+
+  CodeGen::Session session(
+    &eda, targetGeneration, &execContext, 0, 0,
+    &destructionStack,
+    &depsInfo.globalVarInitializationDeps,
+    &depsInfo.globalVarDestructionDeps,
+    &depsInfo.funcDeps,
+    false
+  );
+
+  buildMgr->rootManager->getNoticeStore()->clearPrefixSourceLocationStack();
+  buildMgr->astHelper->prepare();
+
+  CodeGen::GenResult genResult;
+
+  auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
+  if (!generation->generateExpression(astNode, &session, genResult)) {
+    buildMgr->rootManager->flushNotices();
+    return false;
+  }
+
+  if (genResult.astType != 0) {
+    result = genResult.astType;
+    resultIsValue = true;
+  } else {
+    result = genResult.astNode;
+    resultIsValue = false;
+  }
+
+  return true;
 }
 
 

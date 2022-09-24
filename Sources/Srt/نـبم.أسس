@@ -46,13 +46,14 @@
         عرف هات_المسار_الكامل_لشفرة_عنصر: لقب getSourceFullPathForElement؛
         عرف احشر_شبم: لقب insertAst؛
         عرف أنشئ_شبم: لقب buildAst؛
-        عرف كرر: لقب clone؛
         عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
         عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
         عرف هات_نطاق_المتغير: لقب getVariableDomain؛
+        عرف تتبع_الصنف: لقب traceType؛
+        عرف استنبط_صنف_الناتج: لقب computeResultType؛
+        عرف كرر_شبم: لقب cloneAst؛
         عرف أدرج_بيانات: لقب dumpData؛
         عرف هات_صنف_السند_ل: لقب getReferenceTypeFor؛
-        عرف هات: لقب tryGetDeepReferenceContentType؛
         عرف حاول_جلب_صنف_المحتوى_العميق: لقب tryGetDeepReferenceContentType؛
     }
 

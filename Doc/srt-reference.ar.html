@@ -3932,6 +3932,106 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
   }
 </pre>
                     </div>
+
+                    <h5 id="Spp-astMgr-traceType">تتبع_الصنف (traceType)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.تتبع_الصنف (عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]): سند[نـبم.شـبم.صـنف]
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.traceType(element: ref[Core.Basic.TiObject]) => ref[Spp.Ast.Type];
+</pre>
+                      تتبع هذه الدالة الصنف المشار إليه بعنصر ش.ب.م المعطى وترجع ذلك الصنف.
+                    </div>
+
+                    <h5 id="Spp-astMgr-computeResultType">استنبط_صنف_الناتج (computeResultType)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.استنبط_صنف_الناتج (
+    عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    ناتج: سند[سند[الـقلب.أسـاسيات.كـائن_بهوية]]،
+    الناتج_قيمة: سند[ثـنائي]
+): سند[ثـنائي]
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.computeResultType(
+    element: ref[Core.Basic.TiObject],
+    result: ref[ref[Core.Basic.TiObject]],
+    resultIsValue: ref[Bool]
+) => Bool;
+</pre>
+                      تستنبط هذه الدالة الناتج من التركيب المعطى وترجعه. الناتج قد يكون صنفًا وقد يكون أي تعريف آخر مثل
+                      وحدة أو صنف. المعطى الأخير يخبرك إن كان الناتج قيمة (مثلاً متغير من الصنف المعطى) أم الصنف
+                      نفسه (أي يخبرك فيما لو كان التركيب معرفا لصنف أم معرفًا لمتغير من ذلك الصنف).
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">كرر_شبم (cloneAst)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.كرر_شبم (
+    عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]
+): مـتم.سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]؛
+عملية هذا.كرر_شبم (
+    عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    عنصر_موقع_الشفرة_المصدرية: سند[الـقلب.أسـاسيات.كـائن_بهوية]
+): مـتم.سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.cloneAst(element: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
+    return this.cloneAst(element, nullRef[Core.Basic.TiObject]);
+}
+handler this.cloneAst(
+    element: ref[Core.Basic.TiObject], sourceLocationNode: ref[Core.Basic.TiObject]
+): Srl.SrdRef[Core.Basic.TiObject];
+</pre>
+                      تنسخ هذه الدالة شجرة الكائنات المعطاة. النسخة الثانية من هذه الدالة تتيح لك إضافة موقع في الشفرة
+                      المصدرية إلى مكدس مواقع الشفرة المصدرية المرتبطة بالشجرة المولدة. المعطى الثاني في النسخة الثانية
+                      ليس موقع الشفرة المصدرية المراد إضافته إلى المكدس وإنما عنصر ش.ب.م المراد أخذ الموقع منه.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">أدرج_بيانات (dumpData)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.أدرج_بيانات (عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية])؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.dumpData(obj: ref[Core.Basic.TiObject]);
+</pre>
+                      تطبع شجرة البيانات المعطاة في الطرفية بصيغة نصية.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">هات_صنف_السند_ل (getReferenceTypeFor)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_صنف_السند_ل (
+    صنف_شبم: سند[الـقلب.أسـاسيات.كـائن_بهوية]
+): سند[نـبم.شـبم.صـنف_سند]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getReferenceTypeFor(
+    astType: ref[Core.Basic.TiObject]
+): ref[Spp.Ast.ReferenceType];
+</pre>
+                      ترجع صنف السند للصنف المعطى.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">حاول_جلب_صنف_المحتوى_العميق (tryGetDeepReferenceContentType)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.حاول_جلب_صنف_المحتوى_العميق (
+    صنف_شبم: سند[نـبم.شـبم.صـنف]
+): سند[نـبم.شـبم.صـنف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.tryGetDeepReferenceContentType(
+    astType: ref[Spp.Ast.Type]
+): ref[Spp.Ast.Type];
+</pre>
+                      ترجع صنف المحتوى للصنف المعطى. إن كان الصنف المعطى سندا فإن الدالة ترجع المحتوى الذي يشير إليه
+                      ذلك السند، وإلا فإنها ترجع الصنف نفسه. إن كان الصنف المعطى سندا لسند فإن الدالة تستمر بالبحث
+                      عن المحتوى بشكل تعاودي (recursive) حتى تصل إلى صنف غير سند فترجعه.
+                    </div>
+
                   </div>
 
                   <h4 id="Spp-ast">أصناف شجرة البنية المجردة (AST)</h4>
@@ -4295,7 +4395,7 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2022م \ 1443هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2022م \ 1444هـ.</strong></li>
                         </ul>
                     </div>
                 </div>

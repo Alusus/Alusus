@@ -465,6 +465,9 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::MacroParsingHandler>());
+  this->set(S("root.Main.Macro.modifierTranslations"), Map::create({}, {
+    {S("عضو"), TiStr::create(S("member"))}
+  }));
 
   // Square Arguments Signature
   this->set(S("root.Main.SquareArgsSubject"), Module::create({

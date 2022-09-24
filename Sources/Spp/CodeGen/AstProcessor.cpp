@@ -141,9 +141,31 @@ Bool AstProcessor::_processParamPass(
       }
     }
 
+    Bool result = true;
+
+    auto operand = paramPass->getOperand().get();
+    if (!astProcessor->process(operand)) result = false;
+    TiObject *owner;
+    Word foreachFlags = 0;
+    Bool member = false;
+
     // Find matching macro.
+    if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+      auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(operand);
+      auto thisArg = linkOp->getFirst().get();
+      if (!astProcessor->expressionComputation->computeResultType(thisArg, owner, member)) return false;
+      if (owner->isDerivedFrom<Spp::Ast::Type>()) {
+        owner = astProcessor->astHelper->tryGetDeepReferenceContentType(static_cast<Spp::Ast::Type*>(owner));
+        if (member) argsList.insert(0, thisArg);
+      }
+      operand = linkOp->getSecond().get();
+      foreachFlags = Core::Data::Seeker::Flags::SKIP_OWNERS;
+    } else {
+      owner = paramPass->getOwner();
+    }
+
     Ast::Macro *macro = 0;
-    astProcessor->astHelper->getSeeker()->foreach(paramPass->getOperand().get(), paramPass->getOwner(),
+    astProcessor->astHelper->getSeeker()->foreach(operand, owner,
       [=, &macro] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
       {
         if (action != Core::Data::Seeker::Action::TARGET_MATCH) {
@@ -151,16 +173,15 @@ Bool AstProcessor::_processParamPass(
         }
 
         auto m = ti_cast<Ast::Macro>(obj);
-        if (m != 0 && m->matchCall(args, astProcessor->astHelper)) {
+        if (m != 0 && m->isMember() == member && m->matchCall(args, astProcessor->astHelper)) {
           macro = m;
           return Core::Data::Seeker::Verb::STOP;
         } else {
           return Core::Data::Seeker::Verb::MOVE;
         }
-      }, 0
+      }, foreachFlags
     );
 
-    Bool result = true;
     if (macro != 0) {
       auto sl = paramPass->findSourceLocation();
       astProcessor->astHelper->getNoticeStore()->pushPrefixSourceLocation(sl.get());

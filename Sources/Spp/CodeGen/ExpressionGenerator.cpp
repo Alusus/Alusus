@@ -354,25 +354,28 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
   } else if (callee.astNode != 0 && callee.astNode->isDerivedFrom<Ast::Type>()) {
     // Generate temp variable.
     Ast::Type *astType;
-    TiObject *tgType;
-    if (!g->getGeneratedType(callee.astNode, session, tgType, &astType)) return false;
-    if (!g->generateTempVar(astNode, astType, session, false)) return false;
-    TioSharedPtr tempVarRef;
-    if (!session->getTg()->generateVarReference(
-      session->getTgContext(), tgType,
-      session->getEda()->getCodeGenData<TiObject>(astNode), tempVarRef
-    )) {
-      return false;
+    if (session->getTgContext() != 0) {
+      TiObject *tgType;
+      if (!g->getGeneratedType(callee.astNode, session, tgType, &astType)) return false;
+      if (!g->generateTempVar(astNode, astType, session, false)) return false;
+      TioSharedPtr tempVarRef;
+      if (!session->getTg()->generateVarReference(
+        session->getTgContext(), tgType,
+        session->getEda()->getCodeGenData<TiObject>(astNode), tempVarRef
+      )) {
+        return false;
+      }
+      if (!g->generateVarInitialization(
+        astType, tempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
+      )) return false;
+      // Register temp var for destruction.
+      g->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
+      result.targetData = tempVarRef;
+    } else {
+      astType = expGenerator->astHelper->traceType(callee.astNode);
     }
-    if (!g->generateVarInitialization(
-      astType, tempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
-    )) return false;
-    // Register temp var for destruction.
-    g->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
-    // Set result
     result.astNode = 0;
     result.astType = expGenerator->astHelper->getReferenceTypeFor(astType, Ast::ReferenceMode::IMPLICIT);
-    result.targetData = tempVarRef;
     return true;
   } else {
     auto contentType = expGenerator->astHelper->tryGetDeepReferenceContentType(callee.astType);
@@ -1116,16 +1119,16 @@ Bool ExpressionGenerator::_generateAssignOp(
     return false;
   }
 
-  TiObject *tgContentType;
-  if (!g->getGeneratedType(paramCastResult.astType, session, tgContentType, 0)) {
-    throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
-  }
-
   if (
     astNode->getType() == S("=") ||
     (astNode->getType().getStr().getLength() > 1 && astNode->getType().get()[1] == C('='))
   ) {
     if (session->getTgContext() != 0) {
+      TiObject *tgContentType;
+      if (!g->getGeneratedType(paramCastResult.astType, session, tgContentType, 0)) {
+        throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
+      }
+
       if (!session->getTg()->generateAssign(
         session->getTgContext(), tgContentType, paramCastResult.targetData.get(), target.targetData.get(),
         result.targetData
@@ -2353,7 +2356,7 @@ Bool ExpressionGenerator::_generateVarReference(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   auto tgVar = session->getEda()->tryGetCodeGenData<TiObject>(varAstNode);
-  if (tgVar == 0) {
+  if (tgVar == 0 && session->getTgContext() != 0) {
     // Generate the variable definition.
     auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(varAstNode)->getOwner());
     if (varDef == 0) {

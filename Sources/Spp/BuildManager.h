@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.h
  * Contains the header of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -85,6 +85,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     globalItemRepo(globalItemRepo)
   {
     this->addDynamicInterface(newSrdObj<Executing>(this));
+    this->addDynamicInterface(newSrdObj<ExpressionComputation>(this));
     this->initBindingCaches();
     this->initBindings();
 
@@ -181,6 +182,11 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
 
   public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*, CodeGen::ExtraDataAccessor*));
   private: static void _resetBuildData(TiObject *self, TiObject *obj, CodeGen::ExtraDataAccessor *eda);
+
+  public: METHOD_BINDING_CACHE(computeResultType,
+    Bool, (TiObject* /* astNode */, TiObject*& /* result */, Bool& /* resultIsValue */)
+  );
+  private: static Bool _computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue);
 
   /// @}
 

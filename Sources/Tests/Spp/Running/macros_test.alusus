@@ -65,3 +65,67 @@ def Main: module
 Main.start();
 
 callPrint["Hello World, a third time\n"];
+
+
+macro m1 {
+    print("m1\n");
+}
+
+module M1 {
+    macro m2 {
+        print("m2\n");
+    }
+}
+
+class C1 {
+    def i: Int;
+    macro m3 {
+        print("m3\n");
+    }
+    macro m4 [self] {
+        print("m4 non-member %d\n", self.i);
+    }
+    @member macro m4 [self] {
+        print("m4 member %d\n", self.i);
+    }
+    macro m4 [self, text] {
+        print("m4 non-member %d, %s\n", self.i, text);
+    }
+    @member macro m4 [self, text] {
+        print("m4 member %d, %s\n", self.i, text);
+    }
+    @member macro add [self, v] {
+        self.{
+            i += v;
+        }
+    }
+}
+
+func getC (): C1 {
+    return C1().{ i = 4 };
+}
+
+func test {
+    m1[];
+    M1.m2[];
+    C1.m3[];
+    def c: C1;
+    c.i = 3;
+    C1.m4[c];
+    c.m4[];
+    getC().m4[];
+
+    C1.m4[c, "additional-arg"];
+    c.m4["additional-arg"];
+    getC().m4["additional-arg"];
+    c.add[2].m4["after-addition"];
+}
+test();
+
+func testErrors {
+    def c: C1;
+    c.m3[];
+    getC().m3[];
+    getC().add[2];
+}
+testErrors();

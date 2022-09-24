@@ -59,6 +59,7 @@ namespace Spp
 #include "DependencyList.h"
 #include "DependencyInfo.h"
 #include "Executing.h"
+#include "ExpressionComputation.h"
 
 #include "Notices/notices.h"
 

@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/MacroParsingHandler.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -154,18 +154,31 @@ Bool MacroParsingHandler::onIncomingModifier(
 ) {
   if (!prodProcessingComplete) return false;
 
-  // Prepare to modify.
+  auto symbolDef = state->refTopProdLevel().getProd();
   Int levelOffset = -state->getTopProdTermLevelCount();
   auto data = state->getData(levelOffset).get();
   auto definition = ti_cast<Core::Data::Ast::Definition>(data);
 
-  if (definition == 0) return false;
+  // Is this a @member modifier?
+  auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
+  if (identifier != 0) {
+    auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
+    if (keyword == S("member")) {
+      Spp::Ast::Macro *macro;
+      if (definition != 0) macro = definition->getTarget().ti_cast_get<Spp::Ast::Macro>();
+      else macro = ti_cast<Spp::Ast::Macro>(data);
+      if (macro == 0) {
+        throw EXCEPTION(GenericException, S("Unexpected data type while parsing macro modifier."));
+      }
+      macro->setMember(true);
+      return true;
+    }
+  }
 
   // Add an unknown modifier.
-  auto symbolDef = state->refTopProdLevel().getProd();
+  if (definition == 0) return false;
   Core::Data::Ast::translateModifier(symbolDef, modifierData.get());
   definition->addModifier(modifierData);
-
   return true;
 }
 
