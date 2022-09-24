@@ -124,6 +124,11 @@ import "Srl/refs";
         @expname[Spp_AstMgr_traceType]
         handler this.traceType(element: ref[Core.Basic.TiObject]) => ref[Spp.Ast.Type];
 
+        @expname[Spp_AstMgr_computeResultType]
+        handler this.computeResultType(
+            element: ref[Core.Basic.TiObject], result: ref[ref[Core.Basic.TiObject]], resultIsValue: ref[Bool]
+        ) => Bool;
+
         @expname[Spp_AstMgr_cloneAst]
         handler this.cloneAst(
             element: ref[Core.Basic.TiObject], sourceLocationNode: ref[Core.Basic.TiObject]

@@ -37,9 +37,10 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   //============================================================================
   // Member Variables
 
-  private: Ast::Helper *astHelper;
-  private: Core::Main::RootManager *rootManager;
-  private: Spp::CodeGen::AstProcessor *astProcessor;
+  private: Ast::Helper *astHelper = 0;
+  private: ExpressionComputation *expressionComputation = 0;
+  private: Core::Main::RootManager *rootManager = 0;
+  private: Spp::CodeGen::AstProcessor *astProcessor = 0;
 
 
   //============================================================================
@@ -57,6 +58,7 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->setAstHelper(parent->getAstHelper());
+    this->setExpressionComputation(parent->getExpressionComputation());
     this->setRootManager(parent->getRootManager());
     this->setAstProcessor(parent->getAstProcessor());
   }
@@ -84,6 +86,15 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: void setExpressionComputation(ExpressionComputation *ec)
+  {
+    this->expressionComputation = ec;
+  }
+  public: ExpressionComputation* getExpressionComputation() const
+  {
+    return this->expressionComputation;
   }
 
   public: void setRootManager(Core::Main::RootManager *rm)
@@ -162,6 +173,11 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: METHOD_BINDING_CACHE(traceType, Spp::Ast::Type*, (TiObject*));
   private: static Spp::Ast::Type* _traceType(TiObject *self, TiObject *astNode);
+
+  public: METHOD_BINDING_CACHE(computeResultType,
+    Bool, (TiObject* /* astNode */, TiObject*& /* result */, Bool& /* resultIsValue */)
+  );
+  private: static Bool _computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue);
 
   public: METHOD_BINDING_CACHE(cloneAst, SharedPtr<TiObject>, (TiObject*, TiObject*));
   private: static SharedPtr<TiObject> _cloneAst(TiObject *self, TiObject *nodeToCopy, TiObject *nodeForSourceLocation);

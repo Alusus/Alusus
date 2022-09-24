@@ -36,6 +36,7 @@ void AstMgr::initBindingCaches()
     &this->getCurrentPreprocessInsertionPosition,
     &this->getVariableDomain,
     &this->traceType,
+    &this->computeResultType,
     &this->cloneAst,
     &this->dumpData,
     &this->getReferenceTypeFor,
@@ -62,6 +63,7 @@ void AstMgr::initBindings()
   this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
   this->getVariableDomain = &AstMgr::_getVariableDomain;
   this->traceType = &AstMgr::_traceType;
+  this->computeResultType = &AstMgr::_computeResultType;
   this->cloneAst = &AstMgr::_cloneAst;
   this->dumpData = &AstMgr::_dumpData;
   this->getReferenceTypeFor = &AstMgr::_getReferenceTypeFor;
@@ -90,6 +92,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   );
   globalItemRepo->addItem(S("Spp_AstMgr_getVariableDomain"), (void*)&AstMgr::_getVariableDomain);
   globalItemRepo->addItem(S("Spp_AstMgr_traceType"), (void*)&AstMgr::_traceType);
+  globalItemRepo->addItem(S("Spp_AstMgr_computeResultType"), (void*)&AstMgr::_computeResultType);
   globalItemRepo->addItem(S("Spp_AstMgr_cloneAst"), (void*)&AstMgr::_cloneAst);
   globalItemRepo->addItem(S("Spp_AstMgr_dumpData"), (void*)&AstMgr::_dumpData);
   globalItemRepo->addItem(S("Spp_AstMgr_getReferenceTypeFor"), (void*)&AstMgr::_getReferenceTypeFor);
@@ -305,6 +308,13 @@ Spp::Ast::Type* AstMgr::_traceType(TiObject *self, TiObject *astNode)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astHelper->traceType(astNode);
+}
+
+
+Bool AstMgr::_computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->expressionComputation->computeResultType(astNode, result, resultIsValue);
 }
 
 

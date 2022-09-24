@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/AstProcessor.h
  * Contains the header of class Spp::CodeGen::AstProcessor.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -39,6 +39,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
 
   private: Ast::Helper *astHelper;
   private: Executing *executing;
+  private: ExpressionComputation *expressionComputation;
   private: SharedList<TiObject> *astNodeRepo;
   private: TiObject *currentPreprocessOwner;
   private: Int currentPreprocessInsertionPosition;
@@ -48,8 +49,8 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h, Executing *b, SharedList<TiObject> *anr)
-    : astHelper(h), executing(b), astNodeRepo(anr)
+  public: AstProcessor(Ast::Helper *h, Executing *b, ExpressionComputation *ec, SharedList<TiObject> *anr)
+    : astHelper(h), executing(b), expressionComputation(ec), astNodeRepo(anr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -62,6 +63,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
     this->executing = parent->getExecuting();
+    this->expressionComputation = parent->getExpressionComputation();
     this->astNodeRepo = parent->getAstNodeRepo();
   }
 
@@ -87,6 +89,11 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   public: Executing* getExecuting() const
   {
     return this->executing;
+  }
+
+  public: ExpressionComputation* getExpressionComputation() const
+  {
+    return this->expressionComputation;
   }
 
   public: SharedList<TiObject>* getAstNodeRepo() const

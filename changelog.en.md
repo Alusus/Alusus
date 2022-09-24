@@ -1,5 +1,21 @@
 # Alusus Changelog
 
+## Version 0.x.x (202x-xx-xx)
+
+### Updates to the Compiler
+
+* Added support for member macros.
+
+### Updates to the Standard Libraries
+
+* Added function for computing result type of an expression AST.
+
+### Compiler Fixes
+
+* Fixed an issue with imports when symbolic links are involved causing multiple imports of the same file to appear to
+  the compiler as imports of different files resulting in duplicate code.
+
+
 ## Version 0.9.0 (2022-06-20)
 
 ### Updates to the Compiler

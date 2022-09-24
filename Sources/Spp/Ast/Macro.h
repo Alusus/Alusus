@@ -2,7 +2,7 @@
  * @file Spp/Ast/Macro.h
  * Contains the header of class Spp::Ast::Macro.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -39,6 +39,7 @@ class Macro : public Core::Data::Node,
 
   private: SharedPtr<Core::Data::Ast::Map> argTypes;
   private: TioSharedPtr body;
+  private: TiBool member;
 
 
   //============================================================================
@@ -47,6 +48,7 @@ class Macro : public Core::Data::Node,
   IMPLEMENT_METAHAVING(Macro);
 
   IMPLEMENT_BINDING(Binding,
+    (member, TiBool, VALUE, setMember(value), &member),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
@@ -116,6 +118,20 @@ class Macro : public Core::Data::Node,
     VALIDATE_NOT_NULL(args);
     // TODO: Match arg types as well.
     return args->getElementCount() == this->getArgCount();
+  }
+
+  public: void setMember(Bool m)
+  {
+    this->member = m;
+  }
+  public: void setMember(TiBool const *m)
+  {
+    this->member = m == 0 ? false : m->get();
+  }
+
+  public: Bool isMember() const
+  {
+    return this->member.get();
   }
 
 }; // class
