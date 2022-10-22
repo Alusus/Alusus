@@ -25,11 +25,8 @@ import "Zip.alusus";
   def moduleName: array[Char, 250];
   def moduleAuthor: array[Char, 250];
   def moduleReleaseTag: array[Char, 250];
-  def globalPackageName: String;
-  def localPackageName: String;
 
-  func importFile(packageName: ptr[array[Char]], requestedFile: ptr[array[Char]]): bool
-  {
+  func importFile(packageName: ptr[array[Char]], requestedFileCount: Int, requestedFiles: ...ptr[array[Char]]): bool {
     def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
 
     if (String.find(packageName,'@') != 0){
@@ -38,29 +35,42 @@ import "Zip.alusus";
       String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
     };
 
-    if requestedFile == 0 {
+    if requestedFileCount == 0 {
       String.assign(fileName~ptr, "%s.alusus", moduleName~ptr);
     } else {
-      String.assign(fileName~ptr, requestedFile);
+      String.assign(fileName~ptr, requestedFiles~next_arg[ptr[array[Char]]]);
+      --requestedFileCount;
     };
 
     def buffer: array[Char, 1024];
-    String.assign(buffer~ptr, "%s/.apm/%s/%s", homeDir, packageName, fileName~ptr);
-    globalPackageName = buffer~ptr;
-    String.assign(buffer~ptr, ".apm/%s/%s", packageName, fileName~ptr);
-    localPackageName = buffer~ptr;
+    def filePos: Int;
+    // First try local cache.
+    String.assign(buffer~ptr, ".apm/%s/", packageName);
+    filePos = String.getLength(buffer~ptr);
+    String.copy(buffer(filePos)~ptr, fileName~ptr);
+    if !Fs.exists(buffer~ptr) {
+      // Not found locally, try the global cache.
+      String.assign(buffer~ptr, "%s/.apm/%s/", homeDir, packageName);
+      filePos = String.getLength(buffer~ptr);
+      String.copy(buffer(filePos)~ptr, fileName~ptr);
+      if !Fs.exists(buffer~ptr) {
+        installRelease(packageName, 1, 0);
+      }
+    }
+    Core.importFile(buffer~ptr);
 
-    if Fs.exists(localPackageName) {
-      Core.importFile(localPackageName);
-    } else if Fs.exists(globalPackageName) {
-      Core.importFile(globalPackageName);
-    } else {
-      installRelease(packageName, 1, 0);
-      Core.importFile(globalPackageName);
-    };
+    // Import any extra files
+    while requestedFileCount-- > 0 {
+      String.copy(buffer(filePos)~ptr, requestedFiles~next_arg[ptr[array[Char]]]);
+      Core.importFile(buffer~ptr);
+    }
 
     return 1;
   };
+
+  func importFile(packageName: ptr[array[Char]], requestedFile: ptr[array[Char]]): bool {
+    return importFile(packageName, { requestedFile });
+  }
 
   func importFile(packageName: ptr[array[Char]]): bool
   {
