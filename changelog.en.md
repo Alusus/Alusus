@@ -15,6 +15,10 @@
 * Fixed an issue with imports when symbolic links are involved causing multiple imports of the same file to appear to
   the compiler as imports of different files resulting in duplicate code.
 
+### Other Fixes
+
+* Fixed an issue in `apm link` command when dealing with spaces in folder names.
+
 
 ## Version 0.9.0 (2022-06-20)
 
