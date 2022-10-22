@@ -66,8 +66,7 @@
     // Create the author directory.
     def authorDir: String = ".apm/";
     authorDir += packageInfo(0);
-    def createDirCmd: String = "mkdir -p ";
-    createDirCmd += authorDir;
+    def createDirCmd: String = String.format("mkdir -p \"%s\"", authorDir.buf);
     if System.exec(createDirCmd) != 0 {
       Console.print(I18n.authorDirCreationFailed, Console.Style.FG_RED, authorDir);
       return;
@@ -78,7 +77,7 @@
     String.assign(linkName~ptr, ".apm/%s", packageName);
 
     def cmd: array[Char, 1000];
-    String.assign(cmd~ptr, "ln -s %s %s", absolutePath~ptr, linkName~ptr);
+    String.assign(cmd~ptr, "ln -s \"%s\" \"%s\"", absolutePath~ptr, linkName~ptr);
     if System.exec(cmd~ptr) != 0 {
       Console.print(I18n.linkCreationFailed, Console.Style.FG_RED, linkName~ptr);
       return;
@@ -100,7 +99,7 @@
     String.assign(linkName~ptr, ".apm/%s", packageName);
 
     def cmd: array[Char, 1000];
-    String.assign(cmd~ptr, "rm -f %s", linkName~ptr);
+    String.assign(cmd~ptr, "rm -f \"%s\"", linkName~ptr);
     if System.exec(cmd~ptr) != 0 {
       Console.print(I18n.linkRemovalFailed, Console.Style.FG_RED, linkName~ptr);
       return;

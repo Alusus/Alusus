@@ -9,11 +9,17 @@
 ### Updates to the Standard Libraries
 
 * Added function for computing result type of an expression AST.
+* Enabled importing multiple files at once from a package using a single call to Apm.importFile. This is useful for
+  avoiding unnecessary network requests that would result from multiple calls to Apm.importFile on the same package.
 
 ### Compiler Fixes
 
 * Fixed an issue with imports when symbolic links are involved causing multiple imports of the same file to appear to
   the compiler as imports of different files resulting in duplicate code.
+
+### Other Fixes
+
+* Fixed an issue in `apm link` command when dealing with spaces in folder names.
 
 
 ## Version 0.9.0 (2022-06-20)
