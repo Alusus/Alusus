@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.cpp
  * Contains the implementation of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -370,7 +370,8 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       session->getEda()->setCodeGenData(astVar, tgGlobalVar);
 
       if (!session->isOfflineExecution()) {
-        if (generator->globalItemRepo->findItem(name) == -1) {
+        Int itemIndex = generator->globalItemRepo->findItem(name);
+        if (itemIndex == -1) {
           // Add an entry for the variable in the repo.
           Word size;
           if (!generator->typeGenerator->getTypeAllocationSize(astType, generation, session, size)) {
@@ -378,7 +379,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
             return false;
           }
           generator->globalItemRepo->addItem(name, size);
-        } else {
+        } else if (generator->globalItemRepo->isItemInitialized(itemIndex)) {
           return true;
         }
       }

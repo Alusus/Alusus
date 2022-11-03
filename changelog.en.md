@@ -11,11 +11,14 @@
 * Added function for computing result type of an expression AST.
 * Enabled importing multiple files at once from a package using a single call to Apm.importFile. This is useful for
   avoiding unnecessary network requests that would result from multiple calls to Apm.importFile on the same package.
+* Added `String.realloc` method.
 
 ### Compiler Fixes
 
 * Fixed an issue with imports when symbolic links are involved causing multiple imports of the same file to appear to
   the compiler as imports of different files resulting in duplicate code.
+* Fixed a bug with global variable initialization when the same var is used in jit as well as preprocess during the
+  execution of the same root statement, resulting in the variable being used before initialization.
 
 ### Other Fixes
 

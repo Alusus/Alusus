@@ -337,7 +337,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     ////
     auto func = static_cast<Ast::Function*>(callee.astNode);
     // Prepare the arguments to send.
-    if (thisArg.targetData != 0 && func->getType()->isMember()) {
+    if (thisArg.astType != 0 && func->getType()->isMember()) {
       GenResult refThisArg;
       if (!expGenerator->referencifyThisIfNeeded(astNode, thisArg, g, session, refThisArg)) return false;
       paramAstNodes->insert(0, astNode);
@@ -388,7 +388,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
         throw EXCEPTION(GenericException, S("Invalid callee type."));
       }
       // Prepare the arguments to send.
-      if (thisArg.targetData != 0 && astFuncType->isMember()) {
+      if (thisArg.astType != 0 && astFuncType->isMember()) {
         GenResult refThisArg;
         if (!expGenerator->referencifyThisIfNeeded(astNode, thisArg, g, session, refThisArg)) return false;
         paramAstNodes->insert(0, astNode);

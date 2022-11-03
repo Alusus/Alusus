@@ -202,6 +202,12 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     TioSharedPtr &tgFunc
   );
 
+  private: void markGlobalItemsAsInitialized(Array<Str> const &initializedVarNames);
+
+  private: static Array<Str> getGlobalCtorNames(DependencyInfo *info);
+
+  private: static Array<Str> getGlobalDtorNames(DependencyInfo *info);
+
   /// @}
 
 }; // class

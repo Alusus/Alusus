@@ -132,6 +132,36 @@ preprocess {
     )
 }
 
+// Test global var initialization when it's needed through multiple routes combining
+// jit and preprocess executions.
+
+Console.print("\n");
+
+func getSharedValue(): Int {
+    @shared def sharedVar: Int(3);
+    return sharedVar;
+}
+
+func useSharedValueFromJit() {
+    def i: Int = getSharedValue();
+    Console.print("shared value from jit: %d\n", i);
+}
+
+func useSharedValueFromPreprocess() {
+    preprocess {
+        def i: Int = getSharedValue();
+        Console.print("shared value from preprocess: %d\n", i);
+    };
+}
+
+func indirectlyUseSharedValueFromPreprocess {
+    useSharedValueFromPreprocess();
+}
+
+Int().{ useSharedValueFromJit() }.{ indirectlyUseSharedValueFromPreprocess() };
+
+Console.print("\n");
+
 // Testing Circular Generation
 
 // CircularGen1
