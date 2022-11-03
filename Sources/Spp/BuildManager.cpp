@@ -229,17 +229,19 @@ Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
     if (buildSession->getBuildType() == BuildType::JIT) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
-      while (buildSession->getDepsInfo()->globalCtorNames.getLength() > 0) {
-        buildMgr->jitBuildTarget->execute(buildSession->getDepsInfo()->globalCtorNames(0));
-        buildSession->getDepsInfo()->globalCtorNames.remove(0);
+      while (buildSession->getDepsInfo()->globalCtors.getLength() > 0) {
+        buildMgr->jitBuildTarget->execute(buildSession->getDepsInfo()->globalCtors(0).name);
+        buildMgr->markGlobalItemsAsInitialized(buildSession->getDepsInfo()->globalCtors(0).initializedVarNames);
+        buildSession->getDepsInfo()->globalCtors.remove(0);
       }
       buildMgr->jitBuildTarget->execute(buildSession->getGlobalEntryName());
     } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
-      while (buildSession->getDepsInfo()->globalCtorNames.getLength() > 0) {
-        buildMgr->preprocessBuildTarget->execute(buildSession->getDepsInfo()->globalCtorNames(0));
-        buildSession->getDepsInfo()->globalCtorNames.remove(0);
+      while (buildSession->getDepsInfo()->globalCtors.getLength() > 0) {
+        buildMgr->preprocessBuildTarget->execute(buildSession->getDepsInfo()->globalCtors(0).name);
+        buildMgr->markGlobalItemsAsInitialized(buildSession->getDepsInfo()->globalCtors(0).initializedVarNames);
+        buildSession->getDepsInfo()->globalCtors.remove(0);
       }
       buildMgr->preprocessBuildTarget->execute(buildSession->getGlobalEntryName());
     } else {
@@ -280,10 +282,11 @@ Bool BuildManager::_buildDependencies(TiObject *self, BuildSession *buildSession
       // Build the constructor function.
       StrStream ctorNameStream;
       ctorNameStream << S("__constructor__") << buildMgr->funcNameIndex;
-      Str ctorName = ctorNameStream.str().c_str();
+      GlobalCtorDtorInfo ctorInfo;
+      ctorInfo.name = ctorNameStream.str().c_str();
       if (buildMgr->buildGlobalCtorOrDtor(
-        buildSession, &buildSession->getDepsInfo()->globalVarInitializationDeps, ctorName,
-        [=](
+        buildSession, &buildSession->getDepsInfo()->globalVarInitializationDeps, ctorInfo.name,
+        [=,&ctorInfo](
           Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
           CodeGen::Session *childSession
         )->Bool {
@@ -314,10 +317,16 @@ Bool BuildManager::_buildDependencies(TiObject *self, BuildSession *buildSession
             return false;
           }
           childSession->getDestructionStack()->popScope();
+
+          // Add the name of this var to the ctor info.
+          Str name = S("!");
+          name += buildMgr->getAstHelper()->resolveNodePath(varAstNode->getOwner());
+          ctorInfo.initializedVarNames.add(name);
+
           return true;
         }
       )) {
-        buildSession->getDepsInfo()->globalCtorNames.add(ctorName);
+        buildSession->getDepsInfo()->globalCtors.add(ctorInfo);
       } else {
         result = false;
       }
@@ -329,9 +338,10 @@ Bool BuildManager::_buildDependencies(TiObject *self, BuildSession *buildSession
       // Build the destructor function.
       StrStream dtorNameStream;
       dtorNameStream << S("__destructor__") << buildMgr->funcNameIndex;
-      Str dtorName = dtorNameStream.str().c_str();
+      GlobalCtorDtorInfo dtorInfo;
+      dtorInfo.name = dtorNameStream.str().c_str();
       if (buildMgr->buildGlobalCtorOrDtor(
-        buildSession, &buildSession->getDepsInfo()->globalVarDestructionDeps, dtorName,
+        buildSession, &buildSession->getDepsInfo()->globalVarDestructionDeps, dtorInfo.name,
         [=](
           Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
           CodeGen::Session *childSession
@@ -339,7 +349,7 @@ Bool BuildManager::_buildDependencies(TiObject *self, BuildSession *buildSession
           return generation->generateVarDestruction(varAstType, varTgRef, varAstNode, childSession);
         }
       )) {
-        buildSession->getDepsInfo()->globalDtorNames.add(dtorName);
+        buildSession->getDepsInfo()->globalDtors.add(dtorInfo);
       } else {
         result = false;
       }
@@ -430,13 +440,14 @@ void BuildManager::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
   if (!buildMgr->finalizeBuild(globalFuncElement, buildSession.get())) result = false;
 
   if (element->isDerivedFrom<Ast::Module>()) {
-    buildSession->getDepsInfo()->globalCtorNames.insert(0, buildSession->getGlobalEntryName());
+    buildSession->getDepsInfo()->globalCtors.insert(0, GlobalCtorDtorInfo(buildSession->getGlobalEntryName()));
   }
 
+  Array<Str> globalCtorNames = BuildManager::getGlobalCtorNames(buildSession->getDepsInfo());
+  Array<Str> globalDtorNames = BuildManager::getGlobalDtorNames(buildSession->getDepsInfo());
+
   // Dump the IR code.
-  Str ir = buildMgr->offlineBuildTarget->generateLlvmIr(
-    &buildSession->getDepsInfo()->globalCtorNames, &buildSession->getDepsInfo()->globalDtorNames
-  );
+  Str ir = buildMgr->offlineBuildTarget->generateLlvmIr(&globalCtorNames, &globalDtorNames);
   if (result) {
     outStream << S("-------------------- Generated LLVM IR ---------------------\n");
     outStream << ir;
@@ -466,13 +477,13 @@ Bool BuildManager::_buildObjectFileForElement(
   if (!buildMgr->finalizeBuild(globalFuncElement, buildSession.get())) result = false;
 
   if (element->isDerivedFrom<Ast::Module>()) {
-    buildSession->getDepsInfo()->globalCtorNames.insert(0, buildSession->getGlobalEntryName());
+    buildSession->getDepsInfo()->globalCtors.insert(0, GlobalCtorDtorInfo(buildSession->getGlobalEntryName()));
   }
 
   if (result) {
-    buildMgr->offlineBuildTarget->generateObjectFile(
-      objectFilename, &buildSession->getDepsInfo()->globalCtorNames, &buildSession->getDepsInfo()->globalDtorNames
-    );
+    Array<Str> globalCtorNames = BuildManager::getGlobalCtorNames(buildSession->getDepsInfo());
+    Array<Str> globalDtorNames = BuildManager::getGlobalDtorNames(buildSession->getDepsInfo());
+    buildMgr->offlineBuildTarget->generateObjectFile(objectFilename, &globalCtorNames, &globalDtorNames);
   }
 
   return result;
@@ -496,8 +507,8 @@ void BuildManager::_resetBuild(TiObject *self, Int buildType)
     buildMgr->resetBuildData(root, &buildMgr->offlineEda);
     buildMgr->offlineTargetGenerator->setupBuild();
     buildMgr->offlineGlobalTgFuncType = TioSharedPtr::null;
-    buildMgr->offlineDepsInfo.globalCtorNames.clear();
-    buildMgr->offlineDepsInfo.globalDtorNames.clear();
+    buildMgr->offlineDepsInfo.globalCtors.clear();
+    buildMgr->offlineDepsInfo.globalDtors.clear();
   } else {
     throw EXCEPTION(InvalidArgumentException, S("buildType"), S("Unexpected build type."), buildType);
   }
@@ -643,6 +654,35 @@ void BuildManager::prepareFunction(
   ) {
     throw EXCEPTION(GenericException, S("Failed to prepare function body for root scope execution."));
   }
+}
+
+
+void BuildManager::markGlobalItemsAsInitialized(Array<Str> const &initializedVarNames)
+{
+  for (Int i = 0; i < initializedVarNames.getLength(); ++i) {
+    Int itemIndex = this->globalItemRepo->findItem(initializedVarNames(i));
+    this->globalItemRepo->setItemInitialized(itemIndex);
+  }
+}
+
+
+Array<Str> BuildManager::getGlobalCtorNames(DependencyInfo *info)
+{
+  Array<Str> globalCtorNames;
+  for (Int i = 0; i < info->globalCtors.getLength(); ++i) {
+    globalCtorNames.add(info->globalCtors(i).name);
+  }
+  return globalCtorNames;
+}
+
+
+Array<Str> BuildManager::getGlobalDtorNames(DependencyInfo *info)
+{
+  Array<Str> globalDtorNames;
+  for (Int i = 0; i < info->globalDtors.getLength(); ++i) {
+    globalDtorNames.add(info->globalDtors(i).name);
+  }
+  return globalDtorNames;
 }
 
 } // namespace

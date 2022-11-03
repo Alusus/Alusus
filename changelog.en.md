@@ -17,6 +17,8 @@
 
 * Fixed an issue with imports when symbolic links are involved causing multiple imports of the same file to appear to
   the compiler as imports of different files resulting in duplicate code.
+* Fixed a bug with global variable initialization when the same var is used in jit as well as preprocess during the
+  execution of the same root statement, resulting in the variable being used before initialization.
 
 ### Other Fixes
 
