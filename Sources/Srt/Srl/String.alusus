@@ -92,6 +92,11 @@ import "Array";
             this._alloc(length);
         };
 
+        handler this.realloc (newLength: ArchInt) {
+            if this.refCount~ptr == 0 this._alloc(newLength)
+            else this._realloc(newLength);
+        }
+
         handler this.assign (str: ref[StringBase[T]]) {
             this._release();
             this.refCount~ptr = str.refCount~ptr;

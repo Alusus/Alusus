@@ -382,6 +382,16 @@ handler this.alloc (ArchInt);
                                 من خاصيات إدارة الذاكرة التي يوفرها هذا الصنف.
                             </li>
                             <li>
+                                <b>غير_الحجز (realloc)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.غير_الحجز (صـحيح_متكيف)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.realloc (ArchInt);
+</pre>
+تغير حجم الذاكرة المحجوزة لهذا النص. تمكن هذه الدالة المستخدم من تغيير حجم الذاكرة المحجوزة قبل تغيير المحتوى باستخدام التعامل المباشر مع صوان هذا النص.
+                            </li>
+                            <li>
                                 <b>عين (assign)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 1. عملية هذا.عين (نص: سند[نـص])؛
