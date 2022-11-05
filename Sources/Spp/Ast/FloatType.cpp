@@ -2,7 +2,7 @@
  * @file Spp/Ast/FloatType.cpp
  * Contains the implementation of class Spp::Ast::FloatType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -48,7 +48,10 @@ TypeMatchStatus FloatType::matchTargetType(
       else if (targetBitCount > thisBitCount) return TypeMatchStatus::PROMOTION;
       else return TypeMatchStatus::IMPLICIT_CAST;
     } else if (type->isDerivedFrom<IntegerType>()) {
-      return TypeMatchStatus::IMPLICIT_CAST;
+      auto integerType = static_cast<IntegerType const*>(type);
+      auto targetBitCount = integerType->getBitCount(helper, ec);
+      if (targetBitCount == 1) return TypeMatchStatus::NONE;
+      else return TypeMatchStatus::IMPLICIT_CAST;
     } else {
       return TypeMatchStatus::NONE;
     }

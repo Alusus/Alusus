@@ -77,22 +77,39 @@ def Main: module
     if (i > 10 || j > 10) && (i < 5 || j < 5) print("And of two ors.");
   };
 
+  class BoolCastable {
+    def i: Int;
+    handler this~cast[Word[1]] return this.i == 5;
+  }
+
+  class BoolNotCastable {
+    def i: Int;
+  }
+
   def testNot: function () => Void
   {
     def b: Word[1];
     def i: Int[32];
     def f: Float[32];
+    def bc: BoolCastable;
+    def bnc: BoolNotCastable;
     b = 1;
     i = 10;
     f = 5.0;
+    bc.i = 4;
+    bnc.i = 3;
 
     if not b print("not b");
     if not i print("not i");
     if not f print("not f");
+    if not bc print("not bc");
+    if not bnc print("not bnc");
 
     if !!b print("!! b");
     if !!i print("!! i");
     if !!f print("!! f");
+    if !!bc print("!! bc");
+    if !!bnc print("!! bnc");
 
     i = !i;
     i = !!i;
