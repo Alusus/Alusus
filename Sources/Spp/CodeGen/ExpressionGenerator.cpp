@@ -1344,38 +1344,36 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
   }
 
   GenResult param;
-  if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, false, session, param
-  )) return false;
 
-  Ast::IntegerType *astTargetType = 0;
-  if (param.astType->isDerivedFrom<Ast::IntegerType>()) {
-    astTargetType = static_cast<Ast::IntegerType*>(param.astType);
+  if (astNode->getType() == S("!!") || astNode->getType() == S("not")) {
+    // Cast logical not to boolean types.
+    if (!expGenerator->castLogicalOperand(
+      g, session, astNode, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0),
+      param.targetData
+    )) return false;
+    param.astType = expGenerator->astHelper->getBoolType();
   } else {
-    // Error.
-    expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
-    );
-    return false;
-  }
+    if (!expGenerator->dereferenceIfNeeded(
+      static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), true, false, session, param
+    )) return false;
 
-  // Limit logical not to boolean types.
-  if (
-    (astNode->getType() == S("!!") || astNode->getType() == S("not")) &&
-    astTargetType->getBitCount(expGenerator->astHelper, session->getExecutionContext()) != 1
-  ) {
-    // Error.
-    expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
-    );
-    return false;
-  }
+    Ast::IntegerType *astTargetType = 0;
+    if (param.astType->isDerivedFrom<Ast::IntegerType>()) {
+      astTargetType = static_cast<Ast::IntegerType*>(param.astType);
+    } else {
+      // Error.
+      expGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      );
+      return false;
+    }
 
-  if (session->getTgContext() != 0) {
-    if (!g->generateCast(
-      session, param.astType, astTargetType, astNode, param.targetData.get(), false, param
-    )) {
-      throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
+    if (session->getTgContext() != 0) {
+      if (!g->generateCast(
+        session, param.astType, astTargetType, astNode, param.targetData.get(), false, param
+      )) {
+        throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
+      }
     }
   }
 

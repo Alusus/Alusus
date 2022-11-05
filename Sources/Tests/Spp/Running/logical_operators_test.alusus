@@ -108,6 +108,11 @@ def Main: module
     if (i > 10 || j > 10) && (i < 5 || j < 5) print("And of two true ors.");
   };
 
+  class BoolCastable {
+    def i: Int;
+    handler this~cast[Word[1]] return this.i == 5;
+  }
+
   def testNot: function () => Void
   {
     def b: Word[1];
@@ -117,6 +122,13 @@ def Main: module
     b = 1;
     if not b print("b is false... 3");
     if !!b print("b is false... 4");
+    def bc: BoolCastable;
+    bc.i = 4;
+    if not bc print("bc is false... 1");
+    if !!bc print("bc is false... 2");
+    bc.i = 5;
+    if not bc print("bc is false... 3");
+    if !!bc print("bc is false... 4");
   };
 };
 
