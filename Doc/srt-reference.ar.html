@@ -64,6 +64,7 @@
                         <a href="#Core" class="top-level">دليل الوحدة `الـقلب` (Core)</a><br>
                           <ul class="unstyled-list">
                             <li><a href="#Core-importFile">الدالة: اشمل_ملف (importFile)</a></li>
+                            <li><a href="#Core-addLocalization">الدالة: أضف_ترجمة (addLocalization)</a></li>
                             <li>
                               <a href="#Core-typesInfo">هوية الأصناف</a><br>
                               <ul class="unstyled-list">
@@ -2602,6 +2603,29 @@ func importFile (filename: ptr[array[Char]]);
 </pre>
                     تشمل الملف المعطى اسمه. هذه الدالة تعمل عمل الإيعاز `اشمل` (import) ولا تختلف عن ذلك الإيعاز سوى بقدرتها
                     على شمول الملفات بشكل ديناميكي، أي باستخدام اسم ملف مولّد ديناميكيًا أثناء التنفيذ.
+                  </div>
+
+                  <h4 id="Core-addLocalization">الدالة: أضف_ترجمة (addLocalization)</h4>
+                  <div>
+<pre class="code" dir=rtl style="text-align:right;">
+دالة أضف_ترجمة (
+    رمز_اللغة: مؤشر[مصفوفة[مـحرف]]،
+    المفتاح: مؤشر[مصفوفة[مـحرف]]،
+    القيمة: مؤشر[مصفوفة[مـحرف]]
+)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func addLocalization (
+    locale: ptr[array[Char]],
+    key: ptr[array[Char]],
+    value: ptr[array[Char]]
+);
+</pre>
+                    تضيف ترجمة إلى قائمة الترجمات للغة معينة. إن لم توجد مدخلة مسبقًا للمفتاح المطلوب فإن الترجمة ستضاف
+                    حتى لو كانت اللغة الحالية مختلفة عن لغة الترجمة المقدمة والسبب في ذلك أن وجود النص بلغة مغايرة خير
+                    من عدم وجود نص على الإطلاق. أما إن وجدت مدخلة بهذا المفتاح فإن الترجمة ستُضاف فقط إذا طابقت لغة
+                    الترجمة لغة النظام الحالية.<br>
+                    تستخدم هذه الدالة لإضافة نصوص لإشعارات الأخطاء المخصصة، وتكون قيمة مفتاح الترجمة مساوية لرمز الخطأ.
                   </div>
 
                   <h4 id="Core-typesInfo">هوية الأصناف</h4>

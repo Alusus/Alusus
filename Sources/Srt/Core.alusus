@@ -2,7 +2,7 @@
  * @file Core.alusus
  * Contains other misc definitions of Core elements.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,4 +21,7 @@ module Core {
     func importFile(filename: ptr[array[Word[8]]]) {
         _importFile(rootManager, filename);
     }
+
+    @expname[addLocalization]
+    func addLocalization (locale: ptr[array[Word[8]]], key: ptr[array[Word[8]]], value: ptr[array[Word[8]]]);
 }

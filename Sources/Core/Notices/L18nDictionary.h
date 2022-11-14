@@ -2,7 +2,7 @@
  * @file Core/Notices/L18nDictionary.h
  * Contains the header of class Core::Notices::L18nDictionary.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,6 +21,7 @@ class L18nDictionary
   //============================================================================
   // Member Variables
 
+  private: Str currentLocale;
   private: SharedMap<TiStr> dictionary;
 
 
@@ -37,6 +38,8 @@ class L18nDictionary
   // Member Functions
 
   public: void initialize(Char const *locale, Char const *l18nPath = 0);
+
+  public: void addEntry(Char const *locale, Char const *key, Char const *value);
 
   public: Char const* get(Char const *key) const;
 
