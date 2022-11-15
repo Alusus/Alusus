@@ -2,7 +2,7 @@
  * @file Core/interop.cpp
  * Contains functions for Alusus-Cpp interoperability.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,6 +20,11 @@
 DL_EXPORTED void* getFromGlobalStorage(Char const *name)
 {
   return GLOBAL_STORAGE->getObject(name);
+}
+
+DL_EXPORTED void addLocalization(Char const *locale, Char const *key, Char const *value)
+{
+  Core::Notices::L18nDictionary::getSingleton()->addEntry(locale, key, value);
 }
 
 

@@ -2,7 +2,7 @@
  * @file Core/Notices/L18nDictionary.cpp
  * Contains the implementation of class Core::Notices::L18nDictionary.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,6 +21,7 @@ namespace Core::Notices
 void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
 {
   this->dictionary.clear();
+  this->currentLocale = locale;
   Srl::String filename;
   if (l18nPath != 0) {
     filename = l18nPath;
@@ -42,6 +43,20 @@ void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
         this->dictionary.add(key, value);
       }
     }
+  }
+}
+
+
+void L18nDictionary::addEntry(Char const *locale, Char const *key, Char const *value)
+{
+  auto index = this->dictionary.findIndex(key);
+  if (index == -1) {
+    // If we don't already have an entry, then use the provided one even if it's not the correct locale.
+    this->dictionary.add(Str(key), TiStr::create(value));
+  } else if (this->currentLocale == locale) {
+    // We already have an entry, but the new entry is of the current locale, so we'll overwrite what we have, which is
+    // likely of a different locale, with the new value.
+    this->dictionary.set(index, TiStr::create(value));
   }
 }
 

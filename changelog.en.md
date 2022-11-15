@@ -12,6 +12,7 @@
 * Enabled importing multiple files at once from a package using a single call to Apm.importFile. This is useful for
   avoiding unnecessary network requests that would result from multiple calls to Apm.importFile on the same package.
 * Added `String.realloc` method.
+* Added `Core.addLocalization` function.
 
 ### Compiler Fixes
 
