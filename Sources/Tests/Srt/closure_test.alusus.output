@@ -41,73 +41,73 @@ testCaptureAuto:
 
 testErrorCases:
 ERROR SPPA1003 @ (380,38)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (380,38)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (380,61)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,37)
-from (472,26): No valid match was found for the given type.
+from (473,26): No valid match was found for the given type.
 ERROR SPPA1003 @ (383,58)
-from (489,26)
-from (160,17): No valid match was found for the given type.
+from (490,26)
+from (161,17): No valid match was found for the given type.
 ERROR SPPA1007 @ (388,9)
-from (489,26)
-from (100,18)
-from (160,17): Unknown symbol.
+from (490,26)
+from (101,18)
+from (161,17): Unknown symbol.
 ERROR SPPA1007 @ (372,9): Unknown symbol.
 ERROR SPPA1007 @ (373,27)
-from (489,26)
-from (100,18)
-from (160,17): Unknown symbol.
+from (490,26)
+from (101,18)
+from (161,17): Unknown symbol.
 ERROR SPPA1007 @ (374,13)
-from (489,26)
-from (100,18)
-from (160,17): Unknown symbol.
+from (490,26)
+from (101,18)
+from (161,17): Unknown symbol.
 ERROR SPPH1006 @ (396,35): Invalid function arg name.
 ERROR SPPH1006 @ (399,41): Invalid function arg name.
 ERROR SRT1001 @ (405,21)
-from (489,26): Closure payload capture mode is invalid.
+from (490,26): Closure payload capture mode is invalid.
 ERROR SRT1001 @ (406,21)
-from (489,26): Closure payload capture mode is invalid.
+from (490,26): Closure payload capture mode is invalid.
 ERROR SRT1001 @ (407,21)
-from (489,26): Closure payload capture mode is invalid.
+from (490,26): Closure payload capture mode is invalid.

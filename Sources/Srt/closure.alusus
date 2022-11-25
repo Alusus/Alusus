@@ -46,6 +46,7 @@ module Closures {
             this.fp = 0;
             this.data.release();
         }
+        handler this.isNull(): Bool return this.fp == 0;
         handler this == ref[this_type] return this.data.obj~ptr == value.data.obj~ptr;
     }
 
@@ -87,7 +88,7 @@ module Closures {
                 .set(String("fn"), fn.obj)
         );
         Spp.astMgr.insertAst(
-            (ast def fp: ptr[fnType]),
+            (ast def fp: ptr[fnType] = 0),
             AstTemplateMap().set(String("fnType"), fnType.obj)
         );
     }

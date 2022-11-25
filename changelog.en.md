@@ -13,6 +13,8 @@
   avoiding unnecessary network requests that would result from multiple calls to Apm.importFile on the same package.
 * Added `String.realloc` method.
 * Added `Core.addLocalization` function.
+* Added `isNull` to SrdRef, WkRef, and UnqRef.
+* Added `isNull` to closures.
 
 ### Compiler Fixes
 
@@ -21,6 +23,10 @@
 * Fixed a bug with global variable initialization when the same var is used in jit as well as preprocess during the
   execution of the same root statement, resulting in the variable being used before initialization.
 * Fixed `not` operator issue causing the operator not to accept classes having Bool casting handlers.
+
+### Standard Libraries Fixes
+
+* Fixed an issue in closure pointer initialization.
 
 ### Other Fixes
 
