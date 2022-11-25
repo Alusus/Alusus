@@ -1011,6 +1011,16 @@ func main {
   y.release(); // Here x itself will be released, not x.subObj.
 </pre>
                             </li>
+                            <li>
+                              <b>أهو_لعدم (isNull)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا.أهو_لعدم(): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isNull(): Bool;
+</pre>
+                              تتحقق فيما لو كان السند يشير لعدم، أي فيما لو كان مؤشره صفرًا.
+                            </li>
                         </ul>
                     </div>
 
@@ -1085,6 +1095,16 @@ func main {
   z.release(); // x will be released here, not x.subObj.
 </pre>
                           </li>
+                          <li>
+                              <b>أهو_لعدم (isNull)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا.أهو_لعدم(): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isNull(): Bool;
+</pre>
+                              تتحقق فيما لو كان السند يشير لعدم، أي فيما لو كان مؤشره صفرًا.
+                          </li>
                       </ul>
                     </div>
 
@@ -1137,6 +1157,16 @@ handler this.construct();
 handler this.release();
 </pre>
                             تصفر هذا السند وتحرر الكائن.
+                          </li>
+                          <li>
+                              <b>أهو_لعدم (isNull)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا.أهو_لعدم(): ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isNull(): Bool;
+</pre>
+                              تتحقق فيما لو كان السند يشير لعدم، أي فيما لو كان مؤشره صفرًا.
                           </li>
                         </ul>
                     </div>
@@ -2388,6 +2418,20 @@ n after calling c: 6
                         <li><b>مطابق (identical)</b>: تلتقط المغلفة المتغير حرفيًا، فإذا كان المتغير سندا فتلتقط ذلك السند وإذا كان قيمة فتلتقط تلك القيمة..</b></li>
                         <li><b>تلقائي</b>: إذا لم تحدد نمط الالتقاط يدويا فإن النمط المعتمد هو التلقائي وفي هذا النمط يحدد المترجم أسلوب الالتقاط اعتمادًا على صنف المتغير، فإن كان الصنف من أصناف المستخدم وليس صنف `سـندنا` (SrdRef) فيستخدم الأسلوب `مطابق` وإلا (أي إذا كان `سـندنا` أو صنفًا أساسيًا) فيستخدم الأسلوب `كقيمة`.</li>
                       </ul>
+                      
+                      يمكن التحقق فيما إن كان مؤشر المغلفة صفرا أم لا باستخدام الدالة `أهو_لعدم` (isNull).
+<pre class="code" dir=rtl style="text-align:right;">
+    عرف م: مغلفة (ع: صحيح): صحيح؛
+    م.أهو_لعدم() // يرجع 1
+    م = مغلفة (ع: صحيح): صحيح { أرجع 0؛ }؛
+    م.أهو_لعدم() // يرجع 0
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+    def c: closure (i: Int): Int;
+    c.isNull() // returns true
+    c = closure (i: Int): Int { return 0 };
+    c.isNull() // returns false
+</pre>
                     </div>
                 </div>
 

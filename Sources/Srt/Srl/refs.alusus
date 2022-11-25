@@ -184,6 +184,8 @@ import "Spp";
             this.obj~ptr = r~ptr;
         };
 
+        handler this.isNull(): Bool return this.obj~ptr == 0;
+
         func terminate (p: ptr) {
             p~cast[ptr[T]]~cnt~terminate();
         }
@@ -256,6 +258,8 @@ import "Spp";
             this.obj~ptr = r~ptr;
         };
 
+        handler this.isNull(): Bool return this.obj~ptr == 0;
+
         //==========
         // Operators
 
@@ -298,6 +302,8 @@ import "Spp";
                 this.obj~ptr = 0;
             }
         };
+
+        handler this.isNull(): Bool return this.obj~ptr == 0;
 
         //==========
         // Operators
