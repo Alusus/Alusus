@@ -2044,6 +2044,12 @@ Bool ExpressionGenerator::_generateUseInOp(
     return false;
   }
 
+  if (session->getTgContext() == 0) {
+    // If we don't have a context, then we are just trying to deduce the output type which means we don't need to
+    // generate the body.
+    return true;
+  }
+
   // Generate the body.
   // Make sure the reference is not an implicit reference.
   auto contentType = refType->getContentType(expGenerator->getAstHelper());
