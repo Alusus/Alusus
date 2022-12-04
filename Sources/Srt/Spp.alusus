@@ -13,7 +13,7 @@
 import "Core/Basic";
 import "Srl/Map";
 import "Srl/String";
-import "Srl/refs";
+import "Srl/refs_base";
 
 @merge module Spp {
     def SeekerFlags: {

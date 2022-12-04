@@ -11,7 +11,7 @@
 //==============================================================================
 
 import "Srl/Map";
-import "Srl/refs";
+import "Srl/refs_base";
 import "Core/Basic";
 import "Core/Data";
 import "Spp";

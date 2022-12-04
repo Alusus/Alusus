@@ -227,6 +227,10 @@ Bool ExpressionGenerator::_generate(
       preGenTransformStatement->setTransformed(true);
     }
     return expGenerator->generate(preGenTransformStatement->getBody().get(), g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::PreprocessStatement>()) {
+    // Skip preprocess statements.
+    // This can only happen in cases where a merge operation happens after preprocessing is complete.
+    return true;
   }
   expGenerator->astHelper->getNoticeStore()->add(
     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))

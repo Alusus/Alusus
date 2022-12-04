@@ -1,5 +1,5 @@
 import "Spp";
-import "Srl/refs";
+import "Srl/refs_base";
 
 preprocess {
     use Srl;

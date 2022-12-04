@@ -15,6 +15,7 @@
 * Added `Core.addLocalization` function.
 * Added `isNull` to SrdRef, WkRef, and UnqRef.
 * Added `isNull` to closures.
+* Enable auto casting of `SrdRef` and `WkRef` to refs of parent classes.
 
 ### Compiler Fixes
 
