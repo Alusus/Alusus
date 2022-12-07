@@ -27,6 +27,8 @@
 * Fixed a bug with global variable initialization when the same var is used in jit as well as preprocess during the
   execution of the same root statement, resulting in the variable being used before initialization.
 * Fixed `not` operator issue causing the operator not to accept classes having Bool casting handlers.
+* Fixed an issue with temp var definitions when the var needs to be casted using a custom caster before it can be
+  assigned to the target var.
 
 ### Standard Libraries Fixes
 
