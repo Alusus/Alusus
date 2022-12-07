@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Ast
  * namespace.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -104,6 +104,8 @@ class Function;
 // Functions
 
 Char const* findOperationModifier(Core::Data::Ast::Definition const *def);
+
+Bool isInjection(Core::Data::Ast::Definition *def);
 
 Function* getDummyBuiltInOpFunction();
 

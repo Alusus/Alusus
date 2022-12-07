@@ -19,14 +19,14 @@ def Main: module
 
   def Nested: class
   {
-    def p: Point;
+    @injection def p: Point;
     def i: Int[8];
     def j: Int[16];
   };
 
   def DeepNested: class
   {
-    def n: Nested;
+    @injection def n: Nested;
     def k: Int[8];
     def l: Int[16];
   };

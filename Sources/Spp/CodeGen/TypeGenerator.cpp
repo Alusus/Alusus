@@ -325,7 +325,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
           tgMemberTypes.add(defName.getBuf(), tgType);
           members.add(obj);
         } else {
-          if (TypeGenerator::isInjection(def)) {
+          if (Spp::Ast::isInjection(def)) {
             typeGenerator->astHelper->getNoticeStore()->add(
               newSrdObj<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
             );
@@ -340,7 +340,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         }
         continue;
       } else {
-        if (TypeGenerator::isInjection(def)) {
+        if (Spp::Ast::isInjection(def)) {
           typeGenerator->astHelper->getNoticeStore()->add(
             newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
           );
@@ -914,22 +914,6 @@ Bool TypeGenerator::_getTypeAllocationSize(
   if (!typeGenerator->getGeneratedType(astType, g, session, tgType, 0)) return false;
   result = session->getTg()->getTypeAllocationSize(tgType);
   return true;
-}
-
-
-//==============================================================================
-// Helper Functions
-
-Bool TypeGenerator::isInjection(Core::Data::Ast::Definition *def)
-{
-  auto modifiers = def->getModifiers().get();
-  if (modifiers != 0) {
-    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-      auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
-      if (identifier != 0 && identifier->getValue() == S("injection")) return true;
-    }
-  }
-  return false;
 }
 
 } } // namespace

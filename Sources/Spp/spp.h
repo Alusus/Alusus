@@ -29,8 +29,10 @@ namespace Spp
  * @ingroup spp
  */
 s_enum(LogLevel,
-  LLVMCODEGEN_IR = 64,
-  LLVMCODEGEN_DIAGNOSTIC = 128
+  PREPROCESS = 64,
+  CODEGEN = 128,
+  LLVMCODEGEN_IR = 268,
+  LLVMCODEGEN_DIAGNOSTIC = 512
 );
 
 /// Function pointer type for parsing handlers that takes state input data and translates it to something else.
