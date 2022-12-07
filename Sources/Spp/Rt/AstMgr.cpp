@@ -40,7 +40,8 @@ void AstMgr::initBindingCaches()
     &this->cloneAst,
     &this->dumpData,
     &this->getReferenceTypeFor,
-    &this->tryGetDeepReferenceContentType
+    &this->tryGetDeepReferenceContentType,
+    &this->isInjection
   });
 }
 
@@ -68,6 +69,7 @@ void AstMgr::initBindings()
   this->dumpData = &AstMgr::_dumpData;
   this->getReferenceTypeFor = &AstMgr::_getReferenceTypeFor;
   this->tryGetDeepReferenceContentType = &AstMgr::_tryGetDeepReferenceContentType;
+  this->isInjection = &AstMgr::_isInjection;
 }
 
 
@@ -99,6 +101,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(
     S("Spp_AstMgr_tryGetDeepReferenceContentType"), (void*)&AstMgr::_tryGetDeepReferenceContentType
   );
+  globalItemRepo->addItem(S("Spp_AstMgr_isInjection"), (void*)&AstMgr::_isInjection);
 }
 
 
@@ -343,6 +346,19 @@ Spp::Ast::Type* AstMgr::_tryGetDeepReferenceContentType(TiObject *self, Spp::Ast
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astHelper->tryGetDeepReferenceContentType(type);
+}
+
+
+Bool AstMgr::_isInjection(TiObject *self, TiObject *obj)
+{
+  auto def = ti_cast<Core::Data::Ast::Definition>(obj);
+  if (def == 0) {
+    auto node = ti_cast<Core::Data::Node>(obj);
+    if (node == 0) return false;
+    def = ti_cast<Core::Data::Ast::Definition>(node->getOwner());
+    if (def == 0) return false;
+  }
+  return Ast::isInjection(def);
 }
 
 } // namespace

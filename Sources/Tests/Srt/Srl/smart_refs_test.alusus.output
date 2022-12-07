@@ -15,4 +15,4 @@ test7: auto cast
 5
 ComplexNum 6 is terminated.
 Num 5 is terminated.
-ERROR SPPA1008 @ (89,9): Provided arguments do not match signature.
+ERROR SPPA1008 @ (90,9): Provided arguments do not match signature.

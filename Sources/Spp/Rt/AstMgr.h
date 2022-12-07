@@ -191,6 +191,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(tryGetDeepReferenceContentType, Spp::Ast::Type*, (Spp::Ast::Type*));
   private: static Spp::Ast::Type* _tryGetDeepReferenceContentType(TiObject *self, Spp::Ast::Type *type);
 
+  public: METHOD_BINDING_CACHE(isInjection, Bool, (TiObject*));
+  private: static Bool _isInjection(TiObject *self, TiObject *obj);
+
   /// @}
 
 }; // class

@@ -15,23 +15,28 @@ if 1 {
 
 @merge module Srl {
     @merge class SrdRef {
-        preprocess { generateSmartRefAutoImplicitCasts(T~ast, ast SrdRef) }
+        preprocess { generateSmartRefAutoImplicitCasts(this_type~ast, T~ast, ast SrdRef) }
     }
 
     @merge class WkRef {
-        preprocess { generateSmartRefAutoImplicitCasts(T~ast, ast WkRef) }
+        preprocess { generateSmartRefAutoImplicitCasts(this_type~ast, T~ast, ast WkRef) }
     }
 
-    func generateSmartRefAutoImplicitCasts(t: ref[Core.Basic.TiObject], className: ref[Core.Basic.TiObject]) {
-        if not Core.Basic.isDerivedFrom[t, Spp.Ast.UserType] return;
+    func generateSmartRefAutoImplicitCasts(
+        originalTp: ref[Core.Basic.TiObject], tp: ref[Core.Basic.TiObject], className: ref[Core.Basic.TiObject]
+    ) {
+        if not Core.Basic.isDerivedFrom[tp, Spp.Ast.UserType] return;
         def elements: Array[ref[Core.Basic.TiObject]] = Spp.astMgr.findElements(
             (ast elementType == "var"),
-            t,
+            tp,
             Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN
         );
         if elements.getLength() == 0 return;
 
+        if not Spp.astMgr.isInjection(elements(0)) return;
+
         def varType: ref[Spp.Ast.Type](Spp.astMgr.traceType(elements(0)));
+        if varType~ptr == originalTp~ptr return;
 
         Spp.astMgr.insertAst(
             (ast handler this~cast[ClassName[OutType]] {
@@ -44,6 +49,6 @@ if 1 {
                 })
         );
 
-        generateSmartRefAutoImplicitCasts(varType, className);
+        generateSmartRefAutoImplicitCasts(originalTp, varType, className);
     }
 }
