@@ -27,6 +27,9 @@
 * Fixed a bug with global variable initialization when the same var is used in jit as well as preprocess during the
   execution of the same root statement, resulting in the variable being used before initialization.
 * Fixed `not` operator issue causing the operator not to accept classes having Bool casting handlers.
+* Fixed an issue with callee lookup of assign operators where indirect casting operators are given equal rank as
+  direct casting operators resulting in multiple-match error.
+* Fixed an issue with callee lookup of assign operators where multiple-match errors are not reported correctly.
 * Fixed an issue with temp var definitions when the var needs to be casted using a custom caster before it can be
   assigned to the target var.
 
@@ -194,12 +197,15 @@
   * Preprocessing now happens on demand rather than up-front.
   * Enabled pointer arithmetic.
   * Enabled generating web assembly output.
-  * Added `ArchInt` and `ArchWord` types as integer types with bit count equal to the bitcount of pointers on the current architecture.
-  * Added `temp_ref` type to enable automatic conversion of values to variables during funciton calls, when the function expects a reference rather than a value.
+  * Added `ArchInt` and `ArchWord` types as integer types with bit count equal to the bitcount of pointers on the
+    current architecture.
+  * Added `temp_ref` type to enable automatic conversion of values to variables during function calls, when the function
+    expects a reference rather than a value.
   * Added support for variadic functions.
   * Using the curly brackets in variadic function calls saves the user from having to provide the number of arguments.
   * Template types improvements:
-    - Added `~no_deref` operator to force operations to be applied to the reference rather than the referenced object. This enables supporting reference in template types.
+    - Added `~no_deref` operator to force operations to be applied to the reference rather than the referenced object.
+      This enables supporting reference in template types.
     - Enabled extending a specific template instance.
     - Enabled default values for template arguments.
   * Added the global var `Process.platform` to detect the current operating system.
@@ -226,9 +232,11 @@
 
 ### Breaking Changes
 
-  * Defining a function pointer inside a type makes that a member function pointer instead of a global function pointer. To define a global function pointer inside a type the `@shared` modifier has to be used.
+  * Defining a function pointer inside a type makes that a member function pointer instead of a global function pointer.
+    To define a global function pointer inside a type the `@shared` modifier has to be used.
   * Removed the `globals.alusus` file and moved its definitions to `Srl/srl.alusus`.
-  * Removed the `Build.Exe.new` function in favor of depending on type initialization handlers. Users should now define a variable of type `Build.Exe` instead of using `new`.
+  * Removed the `Build.Exe.new` function in favor of depending on type initialization handlers. Users should now define
+    a variable of type `Build.Exe` instead of using `new`.
 
 ### Compiler Fixes
 

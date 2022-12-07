@@ -760,17 +760,25 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
   } else if (request.op == S("=")) {
     // Type must be castable to the target type for assignment operators.
     if (request.argTypes != 0 && request.argTypes->getElementCount() == 1) {
-      Function *caster;
-      auto ms = helper->matchTargetType(request.argTypes->getElement(0), type, request.ec, caster);
-      if (ms >= TypeMatchStatus::CUSTOM_CASTER) {
-        result.matchStatus = ms;
-        result.stack.clear();
-        result.notice.reset();
-        result.pushObject(getDummyBuiltInOpFunction());
-        result.pushThisMarker();
+      // Type must also have no custom initialization.
+      if (type->getInitializationMethod(helper, request.ec) == Ast::TypeInitMethod::NONE) {
+        Function *caster;
+        auto ms = helper->matchTargetType(request.argTypes->getElement(0), type, request.ec, caster);
+        if (ms >= TypeMatchStatus::CUSTOM_CASTER) {
+          result.matchStatus = ms;
+          result.stack.clear();
+          result.notice.reset();
+          result.pushObject(getDummyBuiltInOpFunction());
+          result.pushThisMarker();
+        } else {
+          if (result.notice == 0 || result.notice->isA<Spp::Notices::InvalidOperationNotice>()) {
+            result.notice = newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>();
+          }
+          return;
+        }
       } else {
         if (result.notice == 0 || result.notice->isA<Spp::Notices::InvalidOperationNotice>()) {
-          result.notice = newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>();
+          result.notice = newSrdObj<Spp::Notices::TypeMissingAssignOpNotice>();
         }
         return;
       }

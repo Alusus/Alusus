@@ -20,3 +20,66 @@ module Test {
 }
 def garr: Array[Int]({ 3 });
 Test.test(garr, printInt~ptr);
+
+
+// Test the scenario of multiple assign operators are matched, one is a direct match and the other is indirect match.
+
+class Ref [T: type] {
+    def r: ref[T];
+    handler this~init() { this.r~ptr = 0 }
+    handler this~init(r: ref[T]) { this.r~no_deref = r }
+    handler this~init(r: ref[Ref[T]]) { this.r~no_deref = r.r }
+    handler this~cast[ref[T]] return this.r;
+    handler this = temp_ref[Ref[T]] { this.r~no_deref = value.r }
+    handler this = temp_ref[Ref2[T]] { this.r~no_deref = value.r }
+}
+
+class Ref2 [T: type] {
+    def r: ref[T];
+    handler this~init() { this.r~ptr = 0 }
+    handler this~init(r: ref[T]) { this.r~no_deref = r }
+    handler this~cast[ref[T]] return this.r;
+    handler this = temp_ref[Ref[T]] { this.r~no_deref = value.r }
+}
+
+class Parent {
+    def wkthis: Ref2[Parent];
+    def i: Int;
+}
+
+class Child {
+    @injection def parent: Parent;
+    def j: Int;
+}
+
+def ChildRef: alias Ref[Child];
+@merge class ChildRef {
+    handler this~cast[Ref[Parent]] {
+        Console.print("cast\n");
+        return Ref[Parent](castRef[this.r, Parent]);
+    }
+}
+
+def c: Child;
+def p: Parent;
+
+func test {
+    def rp: Ref[Parent] = Ref[Child](c);
+    Console.print("done\n");
+}
+test();
+
+
+// Test the error scenario of multiple assign operators matched.
+
+class Type1 {
+    handler this = Int { }
+    handler this = ptr[Char] { }
+}
+
+class Type2 {
+    handler this~cast[Int] { return 0; }
+    handler this~cast[ptr[Char]] { return ""; }
+}
+
+def t: Type1 = Type2();
