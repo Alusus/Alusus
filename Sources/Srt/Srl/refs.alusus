@@ -1,331 +1,54 @@
-/**
- * @file Srl/refs.alusus
- * Contains definitions of different reference types.
- *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
- *
- * @license This file is released under Alusus Public License, Version 1.0.
- * For details on usage and copying conditions read the full license in the
- * accompanying license file or at <https://alusus.org/license.html>.
- */
-//==============================================================================
-
-import "Memory";
-import "String";
-import "Spp";
-
-@merge module Srl
-{
-    //==========================================================================
-    // RefCounter
-    // A ref counting object to be used by the shared references.
-    class RefCounter {
-        def count: Int;
-        def singleAllocation: Bool;
-        def terminator: ptr[function (p: ptr)];
-        def managedObj: ptr;
-
-        func alloc(size: ArchInt, terminator: ptr[function (ptr)]): ref[RefCounter] {
-            // On macOS object addresses need to be aligned in memory to 16 bytes, so we'll compute a size for this
-            // object that is aligned to 16 bytes so that the actual object, which follows, has an address that is
-            // 16 bytes aligned.
-            preprocess {
-                if String.isEqual(Process.platform, "macos") {
-                    Spp.astMgr.insertAst(
-                        ast {
-                            @shared def alignedSize: ArchInt(16 * ((RefCounter~size + 15) / 16));
-                        }
-                    );
-                } else {
-                    Spp.astMgr.insertAst(
-                        ast {
-                            @shared def alignedSize: ArchInt(8 * ((RefCounter~size + 7) / 8));
-                        }
-                    );
-                }
-            }
-            def refCounter: ref[RefCounter];
-            refCounter~ptr = Memory.alloc(alignedSize + size)~cast[ptr[RefCounter]];
-            refCounter.count = 0;
-            refCounter.singleAllocation = 1;
-            refCounter.terminator = terminator;
-            refCounter.managedObj = refCounter~ptr~cast[ptr[Char]] + alignedSize;
-            return refCounter;
-        }
-
-        func alloc(managedObj: ptr, terminator: ptr[function (ptr)]): ref[RefCounter] {
-            def refCounter: ref[RefCounter];
-            refCounter~ptr = Memory.alloc(RefCounter~size)~cast[ptr[RefCounter]];
-            refCounter.count = 0;
-            refCounter.singleAllocation = 0;
-            refCounter.terminator = terminator;
-            refCounter.managedObj = managedObj;
-            return refCounter;
-        }
-
-        func release(refCounter: ref[RefCounter]) {
-            refCounter.terminator(refCounter.managedObj);
-            if !refCounter.singleAllocation {
-                Memory.free(refCounter.managedObj);
-            }
-            Memory.free(refCounter~ptr);
-        }
-    };
-
-
-    //==========================================================================
-    // SharedRef
-    // Shared Reference
-    class SrdRef [T: type] {
-        //=================
-        // Member Variables
-
-        def refCounter: ref[RefCounter];
-        @injection def obj: ref[T];
-
-        //===============
-        // Initialization
-
-        handler this~init() this._init();
-
-        handler this~init(r: temp_ref[SrdRef[T]]) {
-            this._init();
-            this.assign(r);
-        };
-
-        handler this~init(r: temp_ref[WkRef[T]]) {
-            this._init();
-            this.assign(r);
-        };
-
-        handler this~init(c: ref[RefCounter], r: ref[T]) {
-            this._init();
-            this.assign(c, r);
-        };
-
-        handler this~init(p: ref[T]) {
-            this._init();
-            this.own(p);
-        };
-
-        handler this~terminate() this.release();
-
-        //=================
-        // Member Functions
-
-        handler this._init() {
-            this.refCounter~ptr = 0;
-            this.obj~ptr = 0;
-        };
-
-        handler this.alloc ():ref[T] {
-            this.release();
-            this.refCounter~no_deref = RefCounter.alloc(T~size, terminate~ptr);
-            this.refCounter.count = 1;
-            this.obj~ptr = this.refCounter.managedObj~cast[ptr[T]];
-            return this.obj;
-        };
-
-        func alloc ():SrdRef[T] {
-            def r: SrdRef[T];
-            r.alloc()
-            return r;
-        };
-
-        handler this.construct () {
-            this.alloc()~init();
-        };
-
-        func construct ():SrdRef[T] {
-            def r: SrdRef[T];
-            r.construct();
-            return r;
-        };
-
-        handler this.own (existingObj: ref[T]) {
-            if existingObj~ptr == this.obj~ptr return;
-            this.release();
-            if existingObj~ptr != 0 {
-                this.refCounter~no_deref = RefCounter.alloc(existingObj~ptr, terminate~ptr);
-                this.refCounter.count = 1;
-                this.obj~ptr = existingObj~ptr;
-            }
-        };
-
-        func own (existingObj: ref[T]): SrdRef[T] {
-            def r: SrdRef[T];
-            r.own(existingObj);
-            return r;
-        }
-
-        handler this.release() {
-            if this.refCounter~ptr != 0 {
-                if --this.refCounter.count == 0 RefCounter.release(this.refCounter);
-                this._init();
-            };
-        };
-
-        handler this.assign (sr: ref[SrdRef[T]]) {
-            this.assign(sr.refCounter, sr.obj);
-        };
-
-        handler this.assign (wr: ref[WkRef[T]]) {
-            this.assign(wr.refCounter, wr.obj);
-        };
-
-        handler this.assign (c: ref[RefCounter], r: ref[T]) {
-            if c~ptr != this.refCounter~ptr {
-                this.release();
-                this.refCounter~ptr = c~ptr;
-                if this.refCounter~ptr != 0 {
-                    ++this.refCounter.count;
-                };
-            }
-            this.obj~ptr = r~ptr;
-        };
-
-        handler this.isNull(): Bool return this.obj~ptr == 0;
-
-        func terminate (p: ptr) {
-            p~cast[ptr[T]]~cnt~terminate();
-        }
-
-        //==========
-        // Operators
-
-        handler this = temp_ref[SrdRef[T]] this.assign(value);
-
-        handler this = temp_ref[WkRef[T]] this.assign(value);
-
-        handler this~cast[ref[T]] return this.obj;
-    };
-
-
-    //==========================================================================
-    // WkRef
-    // Weak Reference
-    class WkRef [T: type] {
-        //=================
-        // Member Variables
-
-        def refCounter: ref[RefCounter];
-        @injection def obj: ref[T];
-
-        //===============
-        // Initialization
-
-        handler this~init() this._init();
-
-        handler this~init(r: temp_ref[SrdRef[T]]) {
-            this._init();
-            this.assign(r);
-        };
-
-        handler this~init(r: temp_ref[WkRef[T]]) {
-            this._init();
-            this.assign(r);
-        };
-
-        handler this~init(c: ref[RefCounter], r: ref[T]) {
-            this._init();
-            this.assign(c, r);
-        };
-
-        //=================
-        // Member Functions
-
-        handler this._init() {
-            this.refCounter~ptr = 0;
-            this.obj~ptr = 0;
-        };
-
-        handler this.release() {
-            this._init();
-        };
-
-        handler this.assign (r: ref[WkRef[T]]) {
-            this.refCounter~ptr = r.refCounter~ptr;
-            this.obj~ptr = r.obj~ptr;
-        };
-
-        handler this.assign (r: ref[SrdRef[T]]) {
-            this.refCounter~ptr = r.refCounter~ptr;
-            this.obj~ptr = r.obj~ptr;
-        };
-
-        handler this.assign (c: ref[RefCounter], r: ref[T]) {
-            this.refCounter~ptr = c~ptr;
-            this.obj~ptr = r~ptr;
-        };
-
-        handler this.isNull(): Bool return this.obj~ptr == 0;
-
-        //==========
-        // Operators
-
-        handler this = temp_ref[SrdRef[T]] this.assign(value);
-
-        handler this = temp_ref[WkRef[T]] this.assign(value);
-
-        handler this~cast[ref[T]] return this.obj;
-    };
-
-
-    //==========================================================================
-    // UnqRef
-    // Unique Reference
-    class UnqRef [T: type] {
-        //=================
-        // Member Variables
-
-        @injection def obj: ref[T];
-
-        //===============
-        // Initialization
-
-        handler this~init() this.obj~ptr = 0;
-
-        handler this~init(r: ptr[T]) this.obj~ptr = r;
-
-        handler this~terminate() this.release();
-
-        handler this.construct() {
-            this.release();
-            this.obj~ptr = Memory.alloc(T~size)~cast[ptr[T]];
-            this.obj~init();
-        };
-
-        handler this.release() {
-            if this.obj~ptr != 0 {
-                this.obj~terminate();
-                Memory.free(this.obj~ptr);
-                this.obj~ptr = 0;
-            }
-        };
-
-        handler this.isNull(): Bool return this.obj~ptr == 0;
-
-        //==========
-        // Operators
-
-        handler this = ptr[T] {
-            this.release();
-            this.obj~ptr = value;
-        };
-
-        handler this~cast[ref[T]] return this.obj;
-
-        handler this~cast[ptr[T]] return this.obj~ptr;
-    };
-
-
-    //==========================================================================
-    // Macros
-
-    macro castSrdRef [r, T] SrdRef[T]().{
-        def self: ref[SrdRef[T]](this);
-        r.{
-            self.assign(this.refCounter, castRef[this.obj, T]);
-        }
-    };
-};
+import "Srl/refs_base";
+import "Core/Basic";
+import "Core/Data";
+import "Spp/Ast";
+
+// Pre-generate shared refs to avoid circular dependency.
+if 1 {
+    Srl.SrdRef[Core.Basic.TiObject]();
+    Srl.SrdRef[Core.Data.Ast.MergeList]();
+    Srl.SrdRef[Core.Data.Ast.LinkOperator]();
+    Srl.SrdRef[Core.Data.Ast.List]();
+    Srl.SrdRef[Core.Data.Ast.Identifier]();
+    Srl.SrdRef[Spp.Ast.Variable]();
+}
+
+@merge module Srl {
+    @merge class SrdRef {
+        preprocess { generateSmartRefAutoImplicitCasts(this_type~ast, T~ast, ast SrdRef) }
+    }
+
+    @merge class WkRef {
+        preprocess { generateSmartRefAutoImplicitCasts(this_type~ast, T~ast, ast WkRef) }
+    }
+
+    func generateSmartRefAutoImplicitCasts(
+        originalTp: ref[Core.Basic.TiObject], tp: ref[Core.Basic.TiObject], className: ref[Core.Basic.TiObject]
+    ) {
+        if not Core.Basic.isDerivedFrom[tp, Spp.Ast.UserType] return;
+        def elements: Array[ref[Core.Basic.TiObject]] = Spp.astMgr.findElements(
+            (ast elementType == "var"),
+            tp,
+            Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN
+        );
+        if elements.getLength() == 0 return;
+
+        if not Spp.astMgr.isInjection(elements(0)) return;
+
+        def varType: ref[Spp.Ast.Type](Spp.astMgr.traceType(elements(0)));
+        if varType~ptr == originalTp~ptr return;
+
+        Spp.astMgr.insertAst(
+            (ast handler this~cast[ClassName[OutType]] {
+                return ClassName[OutType](this.refCounter, castRef[this.obj, OutType]);
+            }),
+            Map[String, ref[Core.Basic.TiObject]]()
+                .set(String("ClassName"), className)
+                .set(String("OutType"), Spp.Ast.Variable().{
+                    Core.Basic.MapContainerOf[this].setElement("type", varType);
+                })
+        );
+
+        generateSmartRefAutoImplicitCasts(originalTp, varType, className);
+    }
+}

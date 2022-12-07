@@ -13,7 +13,7 @@
 import "Core/Basic";
 import "Srl/Map";
 import "Srl/String";
-import "Srl/refs";
+import "Srl/refs_base";
 
 @merge module Spp {
     def SeekerFlags: {
@@ -145,6 +145,9 @@ import "Srl/refs";
 
         @expname[Spp_AstMgr_tryGetDeepReferenceContentType]
         handler this.tryGetDeepReferenceContentType(astType: ref[Spp.Ast.Type]): ref[Spp.Ast.Type];
+
+        @expname[Spp_AstMgr_isInjection]
+        handler this.isInjection(obj: ref[Core.Basic.TiObject]): Bool;
     };
     def astMgr: ref[AstMgr];
 

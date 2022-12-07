@@ -1,2 +1,5 @@
 outer 5
 outer 3
+cast
+done
+ERROR SPPA1005 @ (85,5): Multiple matches were found for the given callee.

@@ -378,7 +378,7 @@ TypeMatchStatus Helper::_matchTargetType(
         )) ||
         (!negativeDeref && customMatchType>=TypeMatchStatus::IMPLICIT_CAST)
       ) {
-        return TypeMatchStatus(TypeMatchStatus::CUSTOM_CASTER, deref);
+        return TypeMatchStatus(customMatchType, TypeMatchStatus::CUSTOM_CASTER, deref);
       }
       ++deref;
       srcType = static_cast<ReferenceType*>(srcType)->getContentType(helper);

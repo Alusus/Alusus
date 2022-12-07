@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Ast
  * namespace.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -57,24 +57,37 @@ class TypeMatchStatus : public TiObject
   };
   Int value;
   Int derefs;
-  TypeMatchStatus() : value(0), derefs(0) {}
-  TypeMatchStatus(Status v, Int d = 0) : value(v), derefs(d) {}
-  TypeMatchStatus const& operator=(Status v) { this->value = v; return *this; }
+  Int rank;
+  TypeMatchStatus() : value(0), derefs(0) {
+    this->rank = 0;
+  }
+  TypeMatchStatus(Status v, Int d = 0) : value(v), derefs(d) {
+    this->rank = 100000000 * this->value;
+  }
+  TypeMatchStatus(TypeMatchStatus const &prevValue, Status v, Int d = 0) : value(v), derefs(d) {
+    this->rank = 100000000 * this->value + prevValue.rank / 10;
+  }
+  TypeMatchStatus const& operator=(Status v) {
+    this->value = v;
+    this->rank = 100000000 * value;
+    return *this;
+  }
   TypeMatchStatus const& operator=(TypeMatchStatus const &v) {
     this->value = v.value;
     this->derefs = v.derefs;
+    this->rank = v.rank;
     return *this;
   }
-  bool operator ==(TypeMatchStatus const &v) const { return this->value == v.value && this->derefs == v.derefs; }
-  bool operator !=(TypeMatchStatus const &v) const { return this->value != v.value || this->derefs != v.derefs; }
+  bool operator ==(TypeMatchStatus const &v) const { return this->rank == v.rank && this->derefs == v.derefs; }
+  bool operator !=(TypeMatchStatus const &v) const { return this->rank != v.rank || this->derefs != v.derefs; }
   bool operator ==(Status v) const { return this->value == v; }
   bool operator !=(Status v) const { return this->value != v; }
-  bool operator >(TypeMatchStatus const &v) const { return this->value > v.value; }
-  bool operator >=(TypeMatchStatus const &v) const { return this->value >= v.value; }
+  bool operator >(TypeMatchStatus const &v) const { return this->rank > v.rank; }
+  bool operator >=(TypeMatchStatus const &v) const { return this->rank >= v.rank; }
   bool operator >(Status v) const { return this->value > v; }
   bool operator >=(Status v) const { return this->value >= v; }
-  bool operator <(TypeMatchStatus const &v) const { return this->value < v.value; }
-  bool operator <=(TypeMatchStatus const &v) const { return this->value <= v.value; }
+  bool operator <(TypeMatchStatus const &v) const { return this->rank < v.rank; }
+  bool operator <=(TypeMatchStatus const &v) const { return this->rank <= v.rank; }
   bool operator <(Status v) const { return this->value < v; }
   bool operator <=(Status v) const { return this->value <= v; }
 };
@@ -104,6 +117,8 @@ class Function;
 // Functions
 
 Char const* findOperationModifier(Core::Data::Ast::Definition const *def);
+
+Bool isInjection(Core::Data::Ast::Definition *def);
 
 Function* getDummyBuiltInOpFunction();
 

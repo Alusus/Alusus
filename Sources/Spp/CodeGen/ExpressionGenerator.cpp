@@ -227,6 +227,10 @@ Bool ExpressionGenerator::_generate(
       preGenTransformStatement->setTransformed(true);
     }
     return expGenerator->generate(preGenTransformStatement->getBody().get(), g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::PreprocessStatement>()) {
+    // Skip preprocess statements.
+    // This can only happen in cases where a merge operation happens after preprocessing is complete.
+    return true;
   }
   expGenerator->astHelper->getNoticeStore()->add(
     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))
@@ -357,11 +361,15 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     if (session->getTgContext() != 0) {
       TiObject *tgType;
       if (!g->getGeneratedType(callee.astNode, session, tgType, &astType)) return false;
-      if (!g->generateTempVar(astNode, astType, session, false)) return false;
+      // Assign the temp var code gen data to the operand of the ParamPass rather than the ParamPass itself to avoid
+      // colliding with another potential temp var generated for casting the temp var to the target type.
+      auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(astNode);
+      Core::Data::Node *tmpVarNode = paramPass != 0 ? paramPass->getOperand().s_cast_get<Core::Data::Node>() : astNode;
+      if (!g->generateTempVar(tmpVarNode, astType, session, false)) return false;
       TioSharedPtr tempVarRef;
       if (!session->getTg()->generateVarReference(
         session->getTgContext(), tgType,
-        session->getEda()->getCodeGenData<TiObject>(astNode), tempVarRef
+        session->getEda()->getCodeGenData<TiObject>(tmpVarNode), tempVarRef
       )) {
         return false;
       }
@@ -369,7 +377,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
         astType, tempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
       )) return false;
       // Register temp var for destruction.
-      g->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
+      g->registerDestructor(tmpVarNode, astType, session->getExecutionContext(), session->getDestructionStack());
       result.targetData = tempVarRef;
     } else {
       astType = expGenerator->astHelper->traceType(callee.astNode);
@@ -572,9 +580,6 @@ Bool ExpressionGenerator::_generateOperator(
     } else if (opType == OpType::COMPARISON) {
       auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
       return expGenerator->generateComparisonOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
-    } else if (opType == OpType::ASSIGN) {
-      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
-      return expGenerator->generateAssignOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::ARITHMETIC_ASSIGN) {
       auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
       return expGenerator->generateArithmeticAssignOp(
@@ -2038,6 +2043,12 @@ Bool ExpressionGenerator::_generateUseInOp(
       newSrdObj<Spp::Notices::InvalidUseInTargetNotice>(Core::Data::Ast::findSourceLocation(operand))
     );
     return false;
+  }
+
+  if (session->getTgContext() == 0) {
+    // If we don't have a context, then we are just trying to deduce the output type which means we don't need to
+    // generate the body.
+    return true;
   }
 
   // Generate the body.

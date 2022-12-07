@@ -2,7 +2,7 @@
  * @file Spp/Ast/UserType.cpp
  * Contains the implementation of class Spp::Ast::UserType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,6 +30,7 @@ TypeMatchStatus UserType::matchTargetType(
         if (def != 0 && !helper->isSharedDef(def)) {
           auto obj = def->getTarget().get();
           if (obj != 0 && helper->isInMemVariable(obj)) {
+            if (!isInjection(def)) break;
             auto memberType = helper->traceType(obj);
             auto memberMatchStatus = memberType != 0 ?
               memberType->matchTargetType(type, helper, ec, opts | TypeMatchOptions::SKIP_DEREF) :

@@ -285,6 +285,9 @@ Bool AstProcessor::_processFunctionBody(TiObject *self, Spp::Ast::Function *func
 {
   PREPARE_SELF(astProcessor, AstProcessor);
   VALIDATE_NOT_NULL(func);
+  LOG(
+    Spp::LogLevel::PREPROCESS, S("Preprocessing function body: ") << astProcessor->astHelper->getFunctionName(func)
+  );
   auto body = func->getBody().get();
   if (body == 0) return true;
   if (isAstProcessed(body)) return true;

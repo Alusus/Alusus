@@ -11,7 +11,7 @@
 //==============================================================================
 
 import "../Core";
-import "Srl/refs";
+import "Srl/refs_base";
 import "Srl/String";
 
 @merge module Core {

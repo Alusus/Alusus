@@ -134,6 +134,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
 
   auto astBlock = astFunc->getBody().get();
   if (astBlock != 0 && session->getEda()->tryGetCodeGenData<TiObject>(astBlock) == 0) {
+    LOG(
+      Spp::LogLevel::CODEGEN, S("Generating function body: ") << generator->astHelper->getFunctionName(astFunc)
+    );
     auto astFuncType = astFunc->getType().get();
     auto tgFuncType = session->getEda()->tryGetCodeGenData<TiObject>(astFuncType);
     ASSERT(tgFuncType != 0);
