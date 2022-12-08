@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususTests)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.20)
 
 # Prepare compile flags.
 set(AlususTests_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
@@ -86,40 +86,40 @@ add_test(NAME Core
   COMMAND AlususTests "./Core" ".alusus"
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties(Core PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
 
 add_test(NAME "Spp/Parsing"
   COMMAND AlususTests "./Spp/Parsing" ".alusus"
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties("Spp/Parsing" PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
 
 add_test(NAME "Spp/Building"
   COMMAND AlususTests "./Spp/Building" ".alusus"
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties("Spp/Building" PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
 
 add_test(NAME "Spp/Running"
   COMMAND AlususTests "./Spp/Running" ".alusus"
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties("Spp/Running" PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
 
 add_test(NAME Arabic
   COMMAND AlususTests "./Arabic" ".أسس" "ar"
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties(Arabic PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
 
 add_test(NAME Srt
   COMMAND AlususTests "./Srt" ".alusus"
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties(Srt PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
 
 add_test(NAME مـتم
   COMMAND AlususTests "./Srt" ".أسس" "ar"
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties(مـتم PROPERTIES
-  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/Lib;ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/Lib:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")

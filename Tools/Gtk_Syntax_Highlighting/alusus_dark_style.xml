@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <style-scheme id="Alusus-dark" _name="Alusus-dark" version="1.0">
+    <author>Sarmad Abdullah</author>
+    <_description>A GtkSourceView style for Alusus, styled around Yaru-dark</_description>
+    <!-- Primary Accent -->
+    <color name="primary" value="#E95420" />
+
+    <!-- Blacks -->
+    <color name="black" value="#000000" />
+    <color name="jet" value="#282828" />
+    <color name="inkstone" value="#333333" />
+    <!-- Whites -->
+    <color name="white" value="#FFFFFF" />
+    <color name="porcelain" value="#F7F7F7" />
+    <color name="chalk" value="#E5E5E5" />
+    <color name="silk" value="#C4C4C4" />
+    <color name="ash" value="#878787" />
+    <!-- Purples -->
+    <color name="aubergine" value="#D25DAB" />
+    <color name="purple" value="#762572" />
+    <color name="light_aubergine" value="#A7219F" />
+    <!-- Reds -->
+    <color name="red" value="#c7162b" />
+    <!-- Oranges -->
+    <color name="orange" value="#E95420" />
+    <color name="satsuma" value="#ED764D" />
+    <color name="clementine" value="#F29879" />
+    <!-- Yellows -->
+    <color name="yellow" value="#f99b11" />
+    <color name="strongyellow" value="#D5CA4A" />
+    <!-- Greens -->
+    <color name="green" value="#3eC450" />
+    <!-- Blues -->
+    <color name="blue" value="#19B6EE" />
+
+    <!-- UI -->
+    <style name="text" foreground="silk" background="inkstone" />
+    <style name="selection" foreground="white" background="primary" />
+    <style name="selection-unfocused" foreground="silk" background="primary" />
+    <style name="cursor" foreground="orange" />
+    <style name="secondary-cursor" foreground="satsuma" />
+    <style name="current-line" background="jet" />
+    <style name="line-numbers" foreground="silk" background="jet" bold="True" />
+    <style name="current-line-number" background="jet" />
+    <style name="bracket-match" foreground="green" background="inkstone" />
+    <style name="bracket-mismatch" foreground="red" background="inkstone" />
+    <style name="right-margin" foreground="ash" background="black" />
+    <style name="draw-spaces" foreground="ash" background="inkstone" />
+    <style name="search-match" foreground="white" background="green" />
+
+    <!-- Comments -->
+    <style name="def:comment" foreground="ash" italic="True" />
+    <style name="def:shebang" foreground="aubergine" bold="True" />
+    <style name="def:doc-comment" foreground="aubergine" italic="True" />
+    <style name="def:doc-comment-element" italic="True" />
+    <style name="def:net-address-in-comment" foreground="white" italic="False" underline="True" />
+
+    <!-- Constants and Variables-->
+    <style name="def:constant" foreground="clementine" />
+    <style name="def:string" foreground="yellow" />
+    <style name="def:special-char" foreground="green" />
+    <style name="def:special-constant" foreground="green" bold="True" />
+    <style name="def:number" foreground="blue" />
+    <style name="def:complex" foreground="blue" />
+    <style name="def:floating-point" foreground="blue" />
+    <style name="def:decimal" foreground="blue" />
+    <style name="def:keyword" foreground="blue" />
+    <style name="def:builtin" foreground="green" bold="True" />
+    <style name="def:variable" foreground="purple"/>
+    <style name="def:preprocessor" foreground="white" bold="True" />
+    <style name="def:operator" foreground="white" bold="True" />
+    <style name="sh:variable-definition" foreground="white" bold="True" />
+
+    <!-- Identifiers -->
+    <style name="def:identifier" foreground="light_aubergine" />
+    <style name="def:function" foreground="light_aubergine" bold="True" />
+
+    <!-- Statements -->
+    <style name="def:statement" foreground="satsuma" bold="True" />
+
+    <!-- Types -->
+    <style name="def:type" foreground="green" />
+
+    <!-- Annotations -->
+    <style name="def:error" foreground="red" background="jet" bold="True" underline="True" strikethrough="False" />
+    <style name="def:warning" foreground="orange" background="jet" bold="True" underline="True" strikethrough="False" />
+    <style name="def:note" foreground="black" background="clementine" bold="True" italic="False" />
+    <style name="def:underlined" foreground="chalk" underline="True" />
+
+    <!-- Alusus -->
+    <style name="alusus:block-keyword" foreground="strongyellow" bold="True" />
+    <style name="alusus:modifier" foreground="aubergine" />
+    <style name="alusus:punctuation" foreground="white" />
+    <style name="alusus:boldpunctuation" foreground="porcelain" bold="True" />
+
+</style-scheme>

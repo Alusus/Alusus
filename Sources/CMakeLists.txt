@@ -3,7 +3,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(Alusus)
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.20)
 
 # Read version info from version file.
 execute_process(COMMAND python3 version_info.py
@@ -38,15 +38,18 @@ else()
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_LOGS)
 endif()
 
-# LLVM path
-set(LLVM_PATH "" CACHE PATH "Path to LLVM root folder.")
-if (NOT EXISTS "${LLVM_PATH}/include/llvm")
-  message(SEND_ERROR "Please specify the path to LLVM root folder in LLVM_PATH.")
-else()
-  message(STATUS "The following LLVM path was provided: " ${LLVM_PATH} ".")
-endif()
+set(ALUSUS_BIN_DIR_NAME "bin" CACHE STRING "The Alusus \"bin\" directory name")
+set(ALUSUS_LIB_DIR_NAME "lib" CACHE STRING "The Alusus \"lib\" directory name")
+set(ALUSUS_INCLUDE_DIR_NAME "include" CACHE STRING "The Alusus \"include\" directory name")
 
-set(FPIC "" CACHE STRING "The PIC flag to use. This can either be -fpic or -fPIC.")
+if (NOT WIN32)
+  if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(FPIC "-fPIC")
+  else ()
+    set(FPIC "-fpic")
+  endif ()
+endif ()
+
 
 # Prepare compile and link flags.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -83,9 +86,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "")
 set(CMAKE_CXX_FLAGS_DEBUG "")
 set(CMAKE_CXX_FLAGS "")
 
-# Incorporate the CMake features provided by LLVM:
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${LLVM_PATH}/lib/cmake/llvm")
-include(LLVMConfig)
+# Incorporate the CMake features provided by LLVM.
+find_package(LLVM)
 
 # Macro for generating pre-compiled headers.
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${Alusus_SOURCE_DIR}")

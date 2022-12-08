@@ -17,8 +17,8 @@
 # package for the Islamic date.
 
 
-import os
 import datetime
+from alusus_common import ALUSUS_REPO_PATH
 try:
     import ummalqura.hijri_date as ummalqura_hijri_date
 except ImportError:
@@ -27,10 +27,6 @@ try:
     import pygit2
 except ImportError:
     pygit2 = None
-
-
-_ALUSUS_REPO_PATH = os.path.dirname(
-    os.path.dirname(os.path.realpath(__file__)))
 
 
 class AlususVersionInfo:
@@ -80,6 +76,14 @@ class AlususVersionInfo:
         return self._revision
 
     @property
+    def version_lossy(self):
+        return self._version if self._version else "0.0.0"
+
+    @property
+    def revision_lossy(self):
+        return self._revision if self._revision else "DEV"
+
+    @property
     def date(self):
         return self._date
 
@@ -87,23 +91,24 @@ class AlususVersionInfo:
     def hijri_date(self):
         return self._hijri_date
 
+    @property
+    def hijri_date_lossy(self):
+        return self._hijri_date if self._hijri_date else "N/A"
+
 
 def print_version_info(alusus_repo):
     version_info = AlususVersionInfo(alusus_repo)
-    print("VERSION: {}".format(
-        version_info.version if version_info.version else "0.0.0"))
-    print("REVISION: {}".format(
-        version_info.revision if version_info.revision else "DEV"))
+    print("VERSION: {}".format(version_info.version_lossy))
+    print("REVISION: {}".format(version_info.revision_lossy))
     print("DATE: {}".format(version_info.date))
-    print("HIJRI_DATE: {}".format(
-        version_info.hijri_date if version_info.hijri_date else "N/A"))
+    print("HIJRI_DATE: {}".format(version_info.hijri_date_lossy))
 
 
 if __name__ == "__main__":
     alusus_repo = None
     try:
         alusus_repo = pygit2.Repository(
-            path=_ALUSUS_REPO_PATH) if pygit2 else None
+            path=ALUSUS_REPO_PATH) if pygit2 else None
     except pygit2.GitError:
         pass
     print_version_info(alusus_repo)
