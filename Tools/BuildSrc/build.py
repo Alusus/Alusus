@@ -413,9 +413,9 @@ def build_alusus(alusus_build_location: str,
                     break
 
             # Empty current overlay port folder.
-            if os.path.isdir(overlay_port_location) or not os.path.exists(overlay_port_location):
+            if os.path.isdir(overlay_port_location):
                 shutil.rmtree(overlay_port_location, ignore_errors=True)
-            else:
+            elif os.path.isfile(overlay_port_location):
                 os.remove(overlay_port_location)
 
             # Restore the upstream port files inside Alusus build directory.
@@ -446,7 +446,7 @@ def build_alusus(alusus_build_location: str,
                         if os.path.isdir(item_dst_full_path):
                             shutil.rmtree(item_dst_full_path,
                                           ignore_errors=True)
-                        else:
+                        elif os.path.isfile(item_dst_full_path):
                             os.remove(item_dst_full_path)
                         shutil.copyfile(
                             item_src_full_path, item_dst_full_path, follow_symlinks=False)
@@ -456,6 +456,7 @@ def build_alusus(alusus_build_location: str,
             msg.success_msg("Updating dependency {package_name}'s port overlay.".format(
                 package_name=json.dumps(package_name)))
 
+    alusus_build_location = os.path.join(alusus_build_location, alusus_build_type.value.cmake_build_type)
     if alusus_clean_and_build:
         shutil.rmtree(alusus_build_location, ignore_errors=True)
         shutil.rmtree(alusus_install_location, ignore_errors=True)

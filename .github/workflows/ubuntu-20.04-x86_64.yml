@@ -1,0 +1,51 @@
+name: Ubuntu 20.04 - X64
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install system dependencies
+        run: >
+          sudo apt-get install -y git build-essential python3 python3-pip ruby rpm &&
+
+          sudo gem install --no-document fpm &&
+
+          wget -O "/tmp/alusus-cmake-3.25.1-linux-x86_64.sh" https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-linux-x86_64.sh &&
+          chmod +x "/tmp/alusus-cmake-3.25.1-linux-x86_64.sh" &&
+          sudo "/tmp/alusus-cmake-3.25.1-linux-x86_64.sh" --prefix=/usr --skip-license &&
+          rm -rf "/tmp/alusus-cmake-3.25.1-linux-x86_64.sh" &&
+
+          git clone https://github.com/libgit2/libgit2.git "/tmp/alusus-libgit2" &&
+          ORIGINAL_PATH="$(pwd)" &&
+          cd "/tmp/alusus-libgit2" &&
+          git checkout v1.5.0 &&
+          mkdir build &&
+          cd build &&
+          cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr &&
+          make -j &&
+          sudo make install &&
+          cd "$ORIGINAL_PATH" &&
+          rm -rf "/tmp/alusus-libgit2"
+
+      - name: Clone and bootstrap vcpkg
+        run: >
+          git clone https://github.com/microsoft/vcpkg.git "$HOME/vcpkg" &&
+          cd "$HOME/vcpkg" &&
+          chmod +x bootstrap-vcpkg.sh &&
+          ./bootstrap-vcpkg.sh &&
+          cd -
+
+      - name: Build Alusus
+        run: PATH="$HOME/vcpkg:$PATH" ./Tools/build.sh
+
+      - name: Automated tests Alusus
+        run: |
+          cd AlususLocalBuild/Debug && make ARGS=-V test
