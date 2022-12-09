@@ -6,7 +6,7 @@
 
 * Added support for member macros.
 * Casting of pointers and references from a user type to the type of the first member variable of that user type is no
-  longer implicit unless if that member var is defiend as an injection. In other words, casting is only implicit in
+  longer implicit unless if that member var is defined as an injection. In other words, casting is only implicit in
   cases of inheritance.
 
 ### Updates to the Standard Libraries
@@ -54,7 +54,7 @@
   would be performed right before generation instead of being performed during preprocessing.
 * Detect circular class code generation that can be triggered in some cases of nested preprocess statements.
 * Make callee tracing smarter about using or skipping the auto defined `this`.
-* Minor rafactoring for better source readability and maintainability.
+* Minor refactoring for better source readability and maintainability.
 
 ### Updates to the Standard Libraries
 
@@ -86,7 +86,7 @@
 * Fixed an issue when closures try to access `this` in command packs or in class bodies outside of functions or
   handlers.
 * Fixed an issue with String._release.
-* Fixed a bug where a closure cannot use `this` of a containing member function due to conflict with the clsoure's
+* Fixed a bug where a closure cannot use `this` of a containing member function due to conflict with the closure's
   own `this` variable.
 * Other minor bug fixes.
 
@@ -105,7 +105,7 @@
   argument.
 * Fixed a bug in using user types as arguments to variadic functions.
 * Fixed a bug in comparing variadic function pointers.
-* Updated the error mwssage for type-mismatched assign operations when the assignee is a function pointer.
+* Updated the error message for type-mismatched assign operations when the assignee is a function pointer.
 </details>
 
 
@@ -149,7 +149,7 @@
 
 * Replace the `type` keyword with `class` for defining new user types.
 * Removed support for `@shared` and `@no_bind` modifiers from function definitions and instead added support for
-  `@member` modifier for marking functions as member functions. Definining functions within class bodies no
+  `@member` modifier for marking functions as member functions. Defining functions within class bodies no
   longer automatically make them member functions; the user will now need to add the `@member` modifier to make
   them member functions. Also, defining member functions now require manually adding `this` argument to the
   function definition. The aim for these changes is to simplify function definitions and remove the confusion
@@ -317,7 +317,7 @@
 
 ### Breaking Changes
 
-  * Moved regular expressions fucntions to a separate module (Regex).
+  * Moved regular expressions functions to a separate module (Regex).
   * Moved the function `dumpLlvmIrForElement` to `Spp` module.
   * Renamed the type `Time` to `DetailedTime` in `Time` module.
 
@@ -350,10 +350,10 @@
   * Added a simple package manager.
   * Enabled shorter syntax for functions, modules, types, and macros. You can now define functions using the `function`
     keyword directly without the need for `def`. The same applies to modules, types, and macros.
-  * Enabled mult-line comments.
+  * Enabled multi-line comments.
   * Enabled \u, \U, \x, and \f escape sequences in strings.
-  * Added a library for sendign network requests.
-  * Added a library for extracing zip files.
+  * Added a library for sending network requests.
+  * Added a library for extracting zip files.
   * Added regular expression functions.
   * Added `Process.language` global variable to carry the code of the currently
     selected system language.
@@ -406,7 +406,7 @@ runtime liraries.
 
   * Added support for macros which allow the programmer to put a group of
     commands into a macro that can then be reused elsewhere. This feature is
-    conceptuatlly similar to C macros, but its implementation is different.
+    conceptually similar to C macros, but its implementation is different.
     While macros in C are executed as a preprocessor working on characters, in
     Alusus macros are part of the parsing process, which leads to the following
     differences:
@@ -430,7 +430,7 @@ runtime liraries.
     to a certain constant value. For example: `def PI: 3.141592`.
   * Empty brackets can now be dropped from function definitions if those
     functions take no args and return nothing.
-  * Definining a pointer without specifying its content type now defaults it to
+  * Defining a pointer without specifying its content type now defaults it to
     a void pointer.
   * Allow the definition of global vars and functions inside the bodies of user
     types. This is similar to the use of `static` keyword in C++ class members.
@@ -438,12 +438,12 @@ runtime liraries.
     the first member within that user type. For example, if you have a user type
     whose first element is an Int, then a pointer to that user type will now
     implicitly be castable to an Int pointer.
-  * Added an experimental GUI library based on GTK. This is still expecimental
+  * Added an experimental GUI library based on GTK. This is still experimental
     and it only includes a small subset of GTK, but the user can easily add
     any missing parts. The included elements are windows, header bars, message
     dialogs, buttons, toggle buttons, checkboxes, menus, entry fields as well as
     images. If the user needs anything outside of this it can be added by simply
-    definining the needed functions. The user can refer to Alusus GTK library to
+    defining the needed functions. The user can refer to Alusus GTK library to
     know how it's done.
 
 ### Fixes
@@ -581,7 +581,7 @@ runtime liraries.
       of the statement after an error.
     - Error location is properly reported now. Error messages include the source
       file, line, and column at which the error is found.
-    - More errors are reported before the compiler quites.
+    - More errors are reported before the compiler quits.
   * Eliminated the need to modify LD_LIBRARY_PATH environment variable to run
     the compiler.
   * Internal refactoring:
