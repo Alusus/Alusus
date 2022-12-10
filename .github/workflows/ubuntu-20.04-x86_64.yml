@@ -44,7 +44,7 @@ jobs:
           cd -
 
       - name: Build Alusus
-        run: PATH="$HOME/vcpkg:$PATH" ./Tools/build.sh
+        run: PATH="$HOME/vcpkg:$PATH" ./Tools/build.sh --alusus-target-triplet x64-linux
 
       - name: Automated tests Alusus
         run: |
