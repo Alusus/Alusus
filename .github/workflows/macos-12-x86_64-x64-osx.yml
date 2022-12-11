@@ -1,4 +1,4 @@
-name: macOS 12 - X64
+name: macOS 12 X64 - x64-osx
 
 on: [push, pull_request]
 
@@ -14,16 +14,15 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '14.0'
+          xcode-version: "14.0"
 
       - name: Install dependencies
         run: >
-          brew install git python3 ruby libgit2 &&
-          
-          gem install --no-document fpm &&
-          
-          curl https://bootstrap.pypa.io/get-pip.py | python3
+          brew install git ninja python3 ruby libgit2 &&
 
+          gem install --no-document fpm &&
+
+          curl https://bootstrap.pypa.io/get-pip.py | python3
 
       - name: Clone and bootstrap vcpkg
         run: >
@@ -34,8 +33,8 @@ jobs:
           cd -
 
       - name: Build Alusus
-        run: PATH="$HOME/vcpkg:$PATH" ./Tools/build.sh --alusus-target-triplet x64-osx
+        run: ALUSUS_VCPKG_REPO_PATH="$HOME/vcpkg" ./Tools/build.sh --clean-and-build --target-triplet x64-osx
 
       - name: Automated tests Alusus
         run: |
-          cd AlususLocalBuild/Debug && make ARGS=-V test
+          cd $(ALUSUS_VCPKG_REPO_PATH="$HOME/vcpkg" ./Tools/build.sh --target-triplet x64-osx --print-build-location) && ctest --output-on-failure

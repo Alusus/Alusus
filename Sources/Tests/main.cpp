@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <regex>
+#include <filesystem>
 
 using Core::Notices::Notice;
 using Core::Data::Ast::List;
@@ -296,15 +297,14 @@ int main(int argc, char **argv)
     std::cout << "Invalid arguments";
     return EXIT_FAILURE;
   }
-
-  Str l18nPath = Core::Main::getModuleDirectory();
-  l18nPath += S("../../../Notices_L18n/");
-  Char const *subpath = argv[1];
+  std::filesystem::path repoPath = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+  std::filesystem::path l18nPath = repoPath / "Notices_L18n";
+  std::filesystem::path subpath = repoPath / "Sources" / "Tests" / argv[1];
   Char const *ext = argv[2];
   if (argc == 4 && compareStr(argv[3], S("ar")) == 0) {
-    Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath);
+    Core::Notices::L18nDictionary::getSingleton()->initialize(S("ar"), l18nPath.c_str());
   } else {
-    Core::Notices::L18nDictionary::getSingleton()->initialize(S("en"), l18nPath);
+    Core::Notices::L18nDictionary::getSingleton()->initialize(S("en"), l18nPath.c_str());
   }
 
   // Prepare a temporary filename.
@@ -318,7 +318,7 @@ int main(int argc, char **argv)
   resultFilename += "AlususEndToEndTest.txt";
 
   auto ret = EXIT_SUCCESS;
-  if (!runEndToEndTests(subpath, ext)) ret = EXIT_FAILURE;
+  if (!runEndToEndTests(subpath.c_str(), ext)) ret = EXIT_FAILURE;
 
   std::remove(resultFilename);
 
