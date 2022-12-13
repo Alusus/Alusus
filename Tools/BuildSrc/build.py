@@ -9,7 +9,6 @@ import os
 import shutil
 import platform
 import multiprocessing
-import pygit2
 import json
 import checksumdir
 import filecmp
@@ -17,12 +16,13 @@ import tarfile
 import hashlib
 import sanitize_filename
 from version_info import AlususVersionInfo
+from alusus_git import AlususGitFromRepoPathWithGitBinary
 
 
 class ExtendedEnum(Enum):
     @classmethod
     def list(cls):
-        for item in cls:
+        for _ in cls:
             return list(map(lambda c: c, cls))
 
 
@@ -268,7 +268,7 @@ class AlususTargetTriplet(ExtendedEnum):
         os.makedirs(alusus_packages_location, exist_ok=True)
 
         version_info = AlususVersionInfo(
-            pygit2.Repository(path=alusus_common.ALUSUS_REPO_PATH))
+            AlususGitFromRepoPathWithGitBinary(alusus_common.ALUSUS_REPO_PATH))
         package_basename = "Alusus-{version}{revision}-{platform}{abi}-{machine}".format(
             version=version_info.version_lossy,
             revision="-" + version_info.revision_lossy if version_info.revision_lossy else "",
@@ -450,18 +450,8 @@ def build_alusus(alusus_build_location: str,
                 os.remove(overlay_port_location)
 
             # Restore the upstream port files inside Alusus build directory.
-            def _restore_upstream_port(git_tree, current_path):
-                os.makedirs(current_path, exist_ok=True)
-                for item in git_tree:
-                    if item.type == pygit2.GIT_OBJ_TREE:
-                        _restore_upstream_port(item, os.path.join(item.name))
-                    elif item.type == pygit2.GIT_OBJ_BLOB:
-                        with open(os.path.join(current_path, item.name), "wb") as fd:
-                            fd.write(item.data)
-            if not repo:
-                repo = pygit2.Repository(vcpkg_repo_path)
-            _restore_upstream_port(
-                repo.get(git_tree_hash), overlay_port_location)
+            AlususGitFromRepoPathWithGitBinary(vcpkg_repo_path).restore_git_tree_to_path(
+                git_tree_hash, overlay_port_location)
 
             # Apply Alusus port overlay changes to the restored port files.
             def _apply_alusus_overlay_port_changes(current_src_path, current_dst_path):
@@ -487,8 +477,6 @@ def build_alusus(alusus_build_location: str,
             msg.success_msg("Updating dependency {package_name}'s port overlay.".format(
                 package_name=json.dumps(package_name)))
 
-    if alusus_clean_and_build:
-        shutil.rmtree(alusus_build_location, ignore_errors=True)
     os.makedirs(alusus_build_location, exist_ok=True)
 
     # Add the "vcpkg" path in the PATH/Path variables.
@@ -543,6 +531,8 @@ def build_alusus(alusus_build_location: str,
     msg.info_msg("Building Alusus...")
     cmake_cmd = ["cmake", "--build", alusus_build_location,
                  "--parallel", str(multiprocessing.cpu_count())]
+    if alusus_clean_and_build:
+        cmake_cmd += ["--clean-first"]
     ret = subprocess.run(cmake_cmd, cwd=alusus_build_location, env=environ)
     if ret.returncode:
         raise OSError(ret)

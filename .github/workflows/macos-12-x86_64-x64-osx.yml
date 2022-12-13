@@ -18,7 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: >
-          brew install git ninja python3 ruby libgit2 &&
+          brew install git ninja python3 ruby &&
 
           gem install --no-document fpm &&
 
@@ -37,4 +37,4 @@ jobs:
 
       - name: Automated tests Alusus
         run: |
-          cd $(ALUSUS_VCPKG_REPO_PATH="$HOME/vcpkg" ./Tools/build.sh --target-triplet x64-osx --print-build-location) && ctest --output-on-failure
+          cd "$(./Tools/build.sh --target-triplet x64-osx --print-build-location)" && ctest --output-on-failure

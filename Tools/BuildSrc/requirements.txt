@@ -1,6 +1,5 @@
 termcolor==2.1.1
 colorama==0.4.4
-pygit2==1.11.1
 ummalqura==2.0.1
 checksumdir==1.2.0
 sanitize-filename==1.2.0

@@ -13,8 +13,7 @@
 
 # Note:
 #
-# This script requires "pygit2" Pip package for Git operations and "ummalqura" Pip
-# package for the Islamic date.
+# This script requires "ummalqura" Pip package for the Islamic date.
 
 
 import datetime
@@ -23,10 +22,7 @@ try:
     import ummalqura.hijri_date as ummalqura_hijri_date
 except ImportError:
     ummalqura_hijri_date = None
-try:
-    import pygit2
-except ImportError:
-    pygit2 = None
+import alusus_git
 
 
 class AlususVersionInfo:
@@ -41,23 +37,21 @@ class AlususVersionInfo:
             now.month).rjust(2, '0'), str(now.day).rjust(2, '0'))
         self._hijri_date = None
 
-        if alusus_repo and pygit2 and isinstance(alusus_repo, pygit2.Repository):
+        if alusus_repo and isinstance(alusus_repo, alusus_git.AlususGit):
             try:
-                # Use "pygit2" to get the Git information.
-                release_string = alusus_repo.describe(
-                    describe_strategy=pygit2.GIT_DESCRIBE_TAGS)
-                current_repo = alusus_repo.head.shorthand
+                release_string = alusus_repo.describe_tags()
+                current_branch = alusus_repo.get_current_branch()
 
                 # Parse the version and the revision.
                 self._version = release_string.split("-")[0][1:]
                 if release_string.find("-") != -1:
-                    if current_repo == "vb{}".format(self._version):
+                    if current_branch == "vb{}".format(self._version):
                         self._revision = str(
                             int(release_string.split("-")[1]) + 1)
                     else:
                         self._revision = "GIT{}".format(
                             release_string.split("-")[2][1:])
-            except pygit2.GitError:
+            except OSError:
                 pass
 
         # Set the Islamic date.
@@ -105,10 +99,4 @@ def print_version_info(alusus_repo):
 
 
 if __name__ == "__main__":
-    alusus_repo = None
-    try:
-        alusus_repo = pygit2.Repository(
-            path=ALUSUS_REPO_PATH) if pygit2 else None
-    except pygit2.GitError:
-        pass
-    print_version_info(alusus_repo)
+    print_version_info(alusus_git.AlususGitFromRepoPathWithGitBinary(ALUSUS_REPO_PATH))
