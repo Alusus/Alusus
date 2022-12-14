@@ -1,5 +1,5 @@
 termcolor==2.1.1
 colorama==0.4.4
 ummalqura==2.0.1
-checksumdir==1.2.0
+checksum==1.0.4
 sanitize-filename==1.2.0

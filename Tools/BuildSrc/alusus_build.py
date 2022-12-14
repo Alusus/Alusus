@@ -98,7 +98,10 @@ def build_alusus(alusus_build_location: str,
 
     # Install STD dependencies.
     if not skip_installing_std_deps:
-        alusus_msg.info_msg("Install Alusus STD dependencies...")
+        alusus_msg.info_msg("Installing Alusus STD dependencies...")
+
+        # Install STD libraries.
+        alusus_msg.info_msg("Installing Alusus STD library dependencies...")
         libs_to_install = []
         if alusus_target_triplet.value.platform == "linux":
             libs_to_install = [
@@ -134,17 +137,56 @@ def build_alusus(alusus_build_location: str,
                 alusus_libs_install_location, dst_libname)
 
             # Only copy the shared library if different.
-            if not os.path.isfile(shlib_install_location) or \
-                    not (os.path.isfile(shlib_install_location) and filecmp.cmp(shlib_build_location, shlib_install_location)):
-                alusus_msg.info_msg("Installing STD libname={libname}...".format(
-                    libname=json.dumps(dst_libname)))
-                alusus_common.remove_path(shlib_install_location)
-                shutil.copyfile(shlib_build_location, shlib_install_location)
+            ret = alusus_common.copy_if_different(
+                shlib_build_location, shlib_install_location, follow_dst_symlinks=False)
+            if ret == alusus_common.CopyIfDifferentReturnType.DstUpdated:
                 alusus_msg.success_msg("Installing STD libname={libname}.".format(
                     libname=json.dumps(dst_libname)))
-            else:
+            elif ret == alusus_common.CopyIfDifferentReturnType.DstUpToDate:
                 alusus_msg.info_msg("STD libname={libname} is up to date.".format(
                     libname=json.dumps(dst_libname)))
+            elif ret == alusus_common.CopyIfDifferentReturnType.NoSrc:
+                alusus_msg.err_msg("STD libname={libname} doesn't exist.".format(
+                    libname=json.dumps(dst_libname)))
+
+        # Install STD binaries.
+        alusus_msg.info_msg("Installing Alusus STD binary dependencies...")
+        bins_to_install = []
+        if alusus_target_triplet.value.platform == "linux":
+            bins_to_install = [
+                ("wasm-ld", "wasm-ld")
+            ]
+            # TODO: Add more bins to install as needed here.
+        elif alusus_target_triplet.value.platform == "darwin":
+            bins_to_install = [
+                ("wasm-ld", "wasm-ld")
+            ]
+            # TODO: Add more bins to install as needed here.
+        # TODO: Add more logic for other targets here.
+
+        std_bins_location = os.path.join(
+            alusus_build_location, "vcpkg_installed", alusus_target_triplet.value.vcpkg_target_triplet, "bin")
+        alusus_bins_install_location = os.path.join(
+            alusus_install_location, alusus_bin_dirname)
+
+        for source_binname, dst_binname in bins_to_install:
+            bin_build_location = os.path.join(
+                std_bins_location, source_binname)
+            bin_install_location = os.path.join(
+                alusus_bins_install_location, dst_binname)
+
+            # Only copy the shared library if different.
+            ret = alusus_common.copy_if_different(
+                bin_build_location, bin_install_location, follow_dst_symlinks=False)
+            if ret == alusus_common.CopyIfDifferentReturnType.DstUpdated:
+                alusus_msg.success_msg("Installing STD binname={binname}.".format(
+                    binname=json.dumps(dst_binname)))
+            elif ret == alusus_common.CopyIfDifferentReturnType.DstUpToDate:
+                alusus_msg.info_msg("STD binname={binname} is up to date.".format(
+                    binname=json.dumps(dst_binname)))
+            elif ret == alusus_common.CopyIfDifferentReturnType.NoSrc:
+                alusus_msg.err_msg("STD binname={binname} doesn't exist.".format(
+                    binname=json.dumps(dst_binname)))
 
     alusus_msg.success_msg("Building and installing Alusus.")
 

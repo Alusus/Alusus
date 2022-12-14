@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-import checksumdir
+import checksum
 
 # Alusus imports.
 from alusus_git import AlususGitFromRepoPathWithGitBinary
@@ -55,7 +55,7 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
         hash_algorithm = hash_data["Algorithm"] if "Algorithm" in hash_data else "sha256"
         hash = hash_data["Hash"]
         if os.path.isdir(overlay_port_location) and\
-                checksumdir.dirhash(overlay_port_location, hashfunc=hash_algorithm) == hash:
+                checksum.get_for_directory(overlay_port_location, hash_mode=hash_algorithm) == hash:
             alusus_msg.info_msg("Dependency {package_name}'s vcpkg port overlay is up to date.".format(
                 package_name=json.dumps(package_name)))
             continue
@@ -111,7 +111,7 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
             ))
 
         # Empty current overlay port folder.
-        alusus_common.remove_path(overlay_port_location)
+        alusus_common.remove_path(overlay_port_location, follow_symlinks=False)
 
         # Restore the upstream port files inside Alusus build directory.
         AlususGitFromRepoPathWithGitBinary(vcpkg_repo_path).restore_git_tree_to_path(

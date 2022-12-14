@@ -23,7 +23,7 @@ def _create_to_be_packaged_dir(alusus_install_location, alusus_packages_location
     if sys.platform == "win32":
         to_be_packaged_dir = os.path.join(
             alusus_packages_location, "AlususToBePackaged")
-    alusus_common.remove_path(to_be_packaged_dir)
+    alusus_common.remove_path(to_be_packaged_dir, follow_symlinks=False)
     shutil.copytree(alusus_install_location, to_be_packaged_dir)
     if sys.platform == "win32":
         import ctypes
@@ -182,7 +182,7 @@ def _create_packages(alusus_build_packages, alusus_install_location, alusus_pack
         alusus_install_location, alusus_packages_location)
     alusus_packages_location = os.path.join(
         alusus_packages_location, "AlususPackages")
-    alusus_common.remove_path(alusus_packages_location)
+    alusus_common.remove_path(alusus_packages_location, follow_symlinks=False)
     os.makedirs(alusus_packages_location, exist_ok=True)
 
     version_info = AlususVersionInfo(
