@@ -10,7 +10,7 @@ import filecmp
 import hashlib
 import sanitize_filename
 
-# Alusus imports.
+# Alusus import(s).
 import alusus_common
 import alusus_msg
 import alusus_vcpkg
@@ -27,15 +27,24 @@ def build_alusus(alusus_build_location: str,
                  alusus_bin_dirname: str,
                  alusus_lib_dirname: str,
                  alusus_include_dirname: str,
-                 skip_installing_std_deps: bool):
+                 skip_installing_std_deps: bool,
+                 verbose_output: bool = False):
 
     os.makedirs(alusus_build_location, exist_ok=True)
+    os.makedirs(alusus_install_location, exist_ok=True)
 
     # Add the "vcpkg" path in the PATH/Path variable.
     environ = os.environ.copy()
-    vcpkg_repo_path = alusus_vcpkg.get_vcpkg_repo_path(environ)
-    alusus_msg.info_msg("Using vcpkg repo path={}".format(
-        json.dumps(vcpkg_repo_path)))
+    vcpkg_repo_path = None
+    try:
+        alusus_msg.info_msg("Finding vcpkg Git repository...")
+        vcpkg_repo_path = alusus_vcpkg.get_vcpkg_repo_path(environ)
+    except Exception as e:
+        alusus_common.eprint(e)
+        alusus_msg.fail_msg("Finding vcpkg Git repository.")
+        return False
+    alusus_msg.info_msg("Using vcpkg repo path={vcpkg_repo_path}.".format(
+        vcpkg_repo_path=json.dumps(vcpkg_repo_path)))
     vcpkg_toolchain_file_path = os.path.join(
         vcpkg_repo_path, "scripts", "buildsystems", "vcpkg.cmake")
     path_env_var = "Path" if sys.platform == "win32" else "PATH"
@@ -44,13 +53,19 @@ def build_alusus(alusus_build_location: str,
                              ) if path_env_var in environ else vcpkg_repo_path
 
     # Set the path to the updated vcpkg ports overlays and restore the ports overlays if they are changed.
+    alusus_msg.info_msg("Restoring vcpkg dependency ports overlays...")
     alusus_vcpkg_ports_overlays_location = os.path.join(
         alusus_build_location, "AlususVcpkgPortsOverlay")
-    alusus_vcpkg.restore_ports_overlays(
-        alusus_vcpkg_ports_overlays_location, vcpkg_repo_path)
+    try:
+        alusus_vcpkg.restore_ports_overlays(
+            alusus_vcpkg_ports_overlays_location, vcpkg_repo_path)
+    except Exception as e:
+        alusus_common.eprint(e)
+        alusus_msg.fail_msg("Restoring vcpkg dependency ports overlays.")
+        return False
 
     # Configure the build directory.
-    alusus_msg.info_msg("Configuring Alusus...")
+    alusus_msg.info_msg("Configuring Alusus with CMake...")
     cmake_cmd = [
         "cmake", alusus_common.ALUSUS_SOURCES_DIR,
         "-DCMAKE_INSTALL_PREFIX={alusus_install_location}".format(
@@ -74,10 +89,17 @@ def build_alusus(alusus_build_location: str,
             alusus_include_dirname=alusus_include_dirname)
     ]
     if alusus_target_triplet.value.cmake_generator:
+        alusus_msg.info_msg("Using preferred {cmake_generator} CMake generator with the CMake configuration...".format(
+            cmake_generator=json.dumps(
+                alusus_target_triplet.value.cmake_generator
+            )
+        ))
         cmake_cmd += ["-G", alusus_target_triplet.value.cmake_generator]
-    ret = subprocess.run(cmake_cmd, cwd=alusus_build_location, env=environ)
+    ret = alusus_common.subprocess_run_hidden_except_on_error(
+        cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
     if ret.returncode:
-        raise OSError(ret)
+        alusus_msg.fail_msg("Configuring Alusus with CMake.")
+        return False
 
     # Build Alusus.
     alusus_msg.info_msg("Building Alusus...")
@@ -85,16 +107,20 @@ def build_alusus(alusus_build_location: str,
                  "--parallel", str(multiprocessing.cpu_count())]
     if alusus_clean_and_build:
         cmake_cmd += ["--clean-first"]
-    ret = subprocess.run(cmake_cmd, cwd=alusus_build_location, env=environ)
+    ret = alusus_common.subprocess_run_hidden_except_on_error(
+        cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
     if ret.returncode:
-        raise OSError(ret)
+        alusus_msg.fail_msg("Building Alusus.")
+        return False
 
     # Install Alusus.
-    alusus_msg.info_msg("Install Alusus...")
+    alusus_msg.info_msg("Installing Alusus...")
     cmake_cmd = ["cmake", "--install", alusus_build_location]
-    ret = subprocess.run(cmake_cmd, cwd=alusus_build_location, env=environ)
+    ret = alusus_common.subprocess_run_hidden_except_on_error(
+        cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
     if ret.returncode:
-        raise OSError(ret)
+        alusus_msg.fail_msg("Installing Alusus.")
+        return False
 
     # Install STD dependencies.
     if not skip_installing_std_deps:
@@ -189,6 +215,7 @@ def build_alusus(alusus_build_location: str,
                     binname=json.dumps(dst_binname)))
 
     alusus_msg.success_msg("Building and installing Alusus.")
+    return True
 
 
 def parse_cmd_args(args):
@@ -216,26 +243,22 @@ def parse_cmd_args(args):
                         type=str, default="Include", help="Alusus include folder name inside Alusus install location")
     parser.add_argument("--skip-installing-std-deps",
                         help="Whether or not to skip installing the standard libraries dependencies", action="store_true")
-    parser.add_argument("--print-build-location", action="store_true",
-                        help="Prints the build location and exits")
-    parser.add_argument("--print-install-location", action="store_true",
-                        help="Prints the install location and exits")
-    parser.add_argument("--print-packages-location", action="store_true",
-                        help="Prints the packages location and exits")
     parser.add_argument("--print-supported-build-types", action="store_true",
                         help="Prints the supported build types list and exits")
     parser.add_argument("--print-supported-target-triplets", action="store_true",
                         help="Prints the supported target triplets list and exits")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Verbose output when calling sub commands")
     processed_args = parser.parse_args(args)
 
     # Set the default build, install, and packages paths if no custom paths provided.
     alusus_local_build_path = os.path.join(
         os.path.abspath(os.getcwd()), "AlususBuild")
-    target_dirname = "{target_triplet}-{build_type}".format(
-        target_triplet=processed_args.target_triplet.value.alusus_target_triplet, build_type=processed_args.build_type.value.alusus_build_type)
-    target_dirname = "{sanitized_target_dirname}-{name_hash}".format(
-        sanitized_target_dirname=sanitize_filename.sanitize(target_dirname), name_hash=hashlib.sha256(
-            target_dirname.encode()).hexdigest()[-8:]
+    target_dirname = sanitize_filename.sanitize(
+        "{target_triplet}-{build_type}".format(
+            target_triplet=processed_args.target_triplet.value.alusus_target_triplet,
+            build_type=processed_args.build_type.value.alusus_build_type
+        )
     )
     if processed_args.build_location == None:
         processed_args.build_location = os.path.join(
@@ -255,15 +278,6 @@ if __name__ == "__main__":
     args = parse_cmd_args(sys.argv[1:])
 
     # Process print arguments first.
-    if args.print_build_location:
-        print(args.build_location)
-        exit(0)
-    if args.print_install_location:
-        print(args.install_location)
-        exit(0)
-    if args.print_packages_location:
-        print(args.packages_location)
-        exit(0)
     if args.print_supported_build_types:
         for target in AlususBuildType.list():
             print(target.value.alusus_build_type)
@@ -273,17 +287,27 @@ if __name__ == "__main__":
             print(target.value.alusus_target_triplet)
         exit(0)
 
-    build_alusus(args.build_location,
-                 args.install_location,
-                 args.build_type,
-                 args.target_triplet,
-                 args.clean_and_build,
-                 args.bin_dirname,
-                 args.lib_dirname,
-                 args.include_dirname,
-                 args.skip_installing_std_deps)
+    ret = build_alusus(args.build_location,
+                       args.install_location,
+                       args.build_type,
+                       args.target_triplet,
+                       args.clean_and_build,
+                       args.bin_dirname,
+                       args.lib_dirname,
+                       args.include_dirname,
+                       args.skip_installing_std_deps,
+                       verbose_output=args.verbose)
+    if not ret:
+        exit(1)
 
     if args.build_packages:
-        AlususBuildPackages.from_alusus_target_triplet(args.target_triplet).create_packages(
-            args.install_location, args.packages_location
-        )
+        try:
+            alusus_msg.info_msg("Building packages...")
+            AlususBuildPackages.from_alusus_target_triplet(args.target_triplet).create_packages(
+                args.install_location, args.packages_location, verbose_output=args.verbose
+            )
+        except Exception as e:
+            alusus_common.eprint(e)
+            alusus_msg.fail_msg("Building required packages.")
+            exit(1)
+    exit(0)

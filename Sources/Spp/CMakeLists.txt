@@ -58,7 +58,7 @@ endif(MSVC)
 # Create AlususSpp library project.
 add_library(AlususSpp SHARED ${AlususSpp_SOURCE_FILES})
 set_target_properties(AlususSpp PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
-target_precompile_headers(AlususSpp PUBLIC "spp.h")
+target_precompile_headers(AlususSpp PRIVATE "spp.h")
 
 # Set output names.
 set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)

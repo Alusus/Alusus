@@ -5,6 +5,9 @@ import types
 from typing import cast
 import json
 
+# Alusus import(s).
+from alusus_common import subprocess_run_hidden_except_on_error
+
 
 # This abstract class has some of the common Git operations used by Alusus build scripts.
 class AlususGit:
@@ -32,11 +35,12 @@ class AlususGitFromRepoPathWithGitBinary(AlususGit):
     _git_bin = None
     _environ = None
 
-    def __init__(self, repo_path, git_bin="git", environ=os.environ.copy()) -> None:
+    def __init__(self, repo_path, git_bin="git", environ=os.environ.copy(), verbose_output=False) -> None:
         super().__init__()
         self.set_repo_path(repo_path)
         self.set_git_bin(git_bin)
         self.set_environ(environ)
+        self.set_verbose_output(verbose_output)
 
     @property
     def git_bin(self):
@@ -53,6 +57,13 @@ class AlususGitFromRepoPathWithGitBinary(AlususGit):
         self._repo_path = repo_path
         if os.path.basename(self._repo_path) != ".git":
             self._repo_path = os.path.join(self._repo_path, ".git")
+    
+    @property
+    def verbose_output(self):
+        return self._verbose_output
+
+    def set_verbose_output(self, verbose_output):
+        self._verbose_output = verbose_output
 
     @property
     def environ(self):
@@ -62,11 +73,9 @@ class AlususGitFromRepoPathWithGitBinary(AlususGit):
         self._environ = environ
 
     def _exec_git_cmd(self, git_args, cwd=os.getcwd()) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(
+        return subprocess_run_hidden_except_on_error(
             [self.git_bin, "--git-dir", self.repo_path] + git_args,
             env=self.environ,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
             cwd=cwd
         )
 

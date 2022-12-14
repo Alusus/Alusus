@@ -3,7 +3,7 @@ import os
 import shutil
 import checksum
 
-# Alusus imports.
+# Alusus import(s).
 from alusus_git import AlususGitFromRepoPathWithGitBinary
 import alusus_common
 import alusus_msg as alusus_msg
@@ -17,7 +17,7 @@ def get_vcpkg_repo_path(environ=os.environ.copy()):
         vcpkg_bin_path = shutil.which("vcpkg")
         if vcpkg_bin_path == None:
             raise OSError(
-                "Unable to find \"vcpkg\" binary. Make sure it exists in your PATH variable.")
+                "Unable to find vcpkg binary. Make sure it exists in your PATH variable.")
         vcpkg_bin_path = os.path.realpath(vcpkg_bin_path)
         vcpkg_repo_path = os.path.dirname(vcpkg_bin_path)
 
@@ -35,10 +35,10 @@ def _get_vcpkg_version_from_json_object(json_obj) -> str:
         return json_obj["version-string"]
     else:
         raise NotImplementedError(
-            "Unsupported \"vcpkg\" versioning scheme.")
+            "Unsupported vcpkg versioning scheme.")
 
 
-def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path=get_vcpkg_repo_path()):
+def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path=get_vcpkg_repo_path(), verbose_output=False):
     manifest_file_data = None
 
     for package_name in os.listdir(alusus_common.VCPKG_ALUSUS_PORTS_OVERLAY_CHANGES_DIR):
@@ -59,9 +59,6 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
             alusus_msg.info_msg("Dependency {package_name}'s vcpkg port overlay is up to date.".format(
                 package_name=json.dumps(package_name)))
             continue
-
-        alusus_msg.info_msg("Updating dependency {package_name}'s port overlay...".format(
-            package_name=json.dumps(package_name)))
 
         # Get the package version and port number from the "vcpkg.json" manifest file.
         if manifest_file_data == None:
@@ -114,7 +111,7 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
         alusus_common.remove_path(overlay_port_location, follow_symlinks=False)
 
         # Restore the upstream port files inside Alusus build directory.
-        AlususGitFromRepoPathWithGitBinary(vcpkg_repo_path).restore_git_tree_to_path(
+        AlususGitFromRepoPathWithGitBinary(vcpkg_repo_path, verbose_output=verbose_output).restore_git_tree_to_path(
             git_tree_hash, overlay_port_location)
 
         # Apply Alusus port overlay changes to the restored port files.

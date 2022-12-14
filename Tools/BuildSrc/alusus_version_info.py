@@ -22,7 +22,7 @@ try:
 except ImportError:
     ummalqura_hijri_date = None
 
-# Alusus imports.
+# Alusus import(s).
 from alusus_common import ALUSUS_REPO_PATH
 import alusus_git
 
@@ -47,12 +47,12 @@ class AlususVersionInfo:
                 # Parse the version and the revision.
                 self._version = release_string.split("-")[0][1:]
                 if release_string.find("-") != -1:
-                    if current_branch == "vb{}".format(self._version):
+                    if current_branch == "vb{version}".format(version=self._version):
                         self._revision = str(
                             int(release_string.split("-")[1]) + 1)
                     else:
-                        self._revision = "GIT{}".format(
-                            release_string.split("-")[2][1:])
+                        self._revision = "GIT{release_string}".format(
+                            release_string=release_string.split("-")[2][1:])
             except OSError:
                 pass
 
@@ -94,10 +94,10 @@ class AlususVersionInfo:
 
 def print_version_info(alusus_repo):
     version_info = AlususVersionInfo(alusus_repo)
-    print("VERSION: {}".format(version_info.version_lossy))
-    print("REVISION: {}".format(version_info.revision_lossy))
-    print("DATE: {}".format(version_info.date))
-    print("HIJRI_DATE: {}".format(version_info.hijri_date_lossy))
+    print("VERSION: {version}".format(version=version_info.version_lossy))
+    print("REVISION: {revision}".format(revision=version_info.revision_lossy))
+    print("DATE: {date}".format(date=version_info.date))
+    print("HIJRI_DATE: {hijri_date}".format(hijri_date=version_info.hijri_date_lossy))
 
 
 if __name__ == "__main__":

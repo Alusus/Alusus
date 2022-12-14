@@ -14,7 +14,7 @@ def success_msg(txt, end=os.linesep, file=sys.stdout):
         "DONE:", "green"), txt=txt), end=end, file=file)
 
 
-def warn_msg(txt, end=os.linesep, file=sys.stdout):
+def warn_msg(txt, end=os.linesep, file=sys.stderr):
     print('{msg_type} {txt}'.format(msg_type=colored(
         "WARNING:", "yellow"), txt=txt), end=end, file=file)
 

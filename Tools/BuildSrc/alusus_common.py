@@ -1,6 +1,7 @@
 from enum import Enum
 import os
 import shutil
+import subprocess
 import sys
 
 ALUSUS_REPO_PATH = os.path.dirname(os.path.dirname(
@@ -39,6 +40,19 @@ def remove_path(path, follow_symlinks=True):
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+
+def subprocess_run_hidden_except_on_error(*args, verbose_output=False, **kwargs):
+    ret = None
+    if verbose_output:
+        ret = subprocess.run(*args, **kwargs)
+    else:
+        ret = subprocess.run(*args, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, **kwargs)
+        if ret.returncode:
+            sys.stdout.buffer.write(ret.stdout)
+            sys.stderr.buffer.write(ret.stderr)
+    return ret
 
 
 class CopyIfDifferentReturnType(ExtendedEnum):

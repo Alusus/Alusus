@@ -34,13 +34,13 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
 endforeach(DIR)
 add_library(AlususCoreLib STATIC ${AlususCoreLib_Source_Files})
 set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "${FPIC} ${AlususCore_COMPILE_FLAGS}")
-target_precompile_headers(AlususCoreLib PUBLIC "core.h")
+target_precompile_headers(AlususCoreLib PRIVATE "core.h")
 
 # Add a target for Alusus core executable.
 set(AlususCore_Source_Files start.cpp interop.cpp)
 add_executable(AlususCore ${AlususCore_Source_Files})
 set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
-target_precompile_headers(AlususCore PUBLIC "core.h")
+target_precompile_headers(AlususCore PRIVATE "core.h")
 
 # Finally, we link the executable to the libraries.
 target_link_libraries(AlususCore AlususSrlLib AlususCoreLib AlususStorage "dl")

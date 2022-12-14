@@ -2,7 +2,7 @@ import platform
 import shutil
 import sys
 
-# Alusus imports.
+# Alusus import(s).
 from alusus_common import ExtendedEnum
 
 
@@ -50,8 +50,7 @@ def _get_unix_cmake_generator():
     # Prefer using "ninja" over "make" if available in Unix operating systems.
     if shutil.which("ninja"):
         return "Ninja"
-    else:
-        return "Unix Makefiles"
+    return None
 
 
 class AlususTargetTriplet(ExtendedEnum):
