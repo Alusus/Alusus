@@ -31,4 +31,4 @@ jobs:
 
       - name: Automated tests Alusus
         run: |
-          cd "$(./Tools/build.sh --target-triplet x64-linux --print-build-location)" && ctest --output-on-failure
+          bash -c "cd \"$(./Tools/build.sh --target-triplet x64-linux --print-build-location)\" && ctest --output-on-failure"

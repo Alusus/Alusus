@@ -15,6 +15,6 @@ PYTHON_EXECUTABLE=python3
 if [ ! $(which $PYTHON_EXECUTABLE) ]; then
     PYTHON_EXECUTABLE=python
 fi
-$PYTHON_EXECUTABLE "$SCRIPT_DIR/BuildSrc/install_packages.py" &&\
-$PYTHON_EXECUTABLE "$SCRIPT_DIR/BuildSrc/build.py" "$@"
+$PYTHON_EXECUTABLE "$SCRIPT_DIR/BuildSrc/alusus_install_deps.py" &&\
+$PYTHON_EXECUTABLE "$SCRIPT_DIR/BuildSrc/alusus_build.py" "$@"
 exit $?

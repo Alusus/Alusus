@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususCore)
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Prepare compile flags.
 set(AlususCore_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
@@ -55,7 +55,7 @@ target_link_libraries(AlususCore AlususSrlLib AlususCoreLib AlususStorage "dl")
 set_target_properties(AlususStorage PROPERTIES OUTPUT_NAME alusus_storage)
 set_target_properties(AlususStorage PROPERTIES DEBUG_OUTPUT_NAME alusus_storage)
 set_target_properties(AlususStorage PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususStorage PROPERTIES SOVERSION ${AlususSoVersion})
+set_target_properties(AlususStorage PROPERTIES SHLIBVERSION ${AlususShlibVersion})
 set_target_properties(AlususCoreLib PROPERTIES OUTPUT_NAME alusus_core)
 set_target_properties(AlususCoreLib PROPERTIES DEBUG_OUTPUT_NAME alusus_core.dbg)
 set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})

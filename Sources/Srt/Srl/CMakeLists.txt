@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususSrl)
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Prepare compile flags.
 set(AlususSrl_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")

@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususSrt)
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20.0)
 
 add_subdirectory(Srl)
 

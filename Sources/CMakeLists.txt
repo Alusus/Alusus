@@ -3,15 +3,28 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(Alusus)
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20.0)
 
-# Read version info from version file.
-execute_process(COMMAND python3 version_info.py
+# Read version info.
+if (NOT DEFINED Python3_EXECUTABLE)
+  # Only find Python executable once and cache it. Calling it twice will result in an
+  # index out of bound error.
+  #
+  # E.g.:
+  #
+  # CMake Error at /usr/share/cmake-3.25/Modules/FindPython/Support.cmake:1887 (list):
+  # list index: 10 out of range (-10, 9)
+
+  find_package(Python3 COMPONENTS Interpreter)
+  set(Python3_EXECUTABLE "${Python3_EXECUTABLE}" CACHE STRING
+    "Python 3 executable")
+endif ()
+execute_process(COMMAND ${Python3_EXECUTABLE} alusus_version_info.py
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
                 OUTPUT_VARIABLE VersionInfo)
 string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})
 set(AlususVersion ${CMAKE_MATCH_1})
-string(REGEX MATCH "^[0-9]+\\.[0-9]+" AlususSoVersion ${AlususVersion})
+string(REGEX MATCH "^[0-9]+\\.[0-9]+" AlususShlibVersion ${AlususVersion})
 string(REGEX MATCH "REVISION: ([A-Za-z0-9]+)" _dummy_ ${VersionInfo})
 set(AlususRevision ${CMAKE_MATCH_1})
 if (NOT ${AlususRevision} STREQUAL "")
@@ -23,7 +36,7 @@ string(REGEX MATCH "HIJRI_DATE: ([0-9]+-[0-9]+-[0-9]+)" _dummy_ ${VersionInfo})
 set(AlususHijriReleaseDate ${CMAKE_MATCH_1})
 message(STATUS "Alusus Version: " ${AlususVersion})
 message(STATUS "Alusus Revision: " ${AlususRevision})
-message(STATUS "Alusus So Version: " ${AlususSoVersion})
+message(STATUS "Alusus Shlib Version: " ${AlususShlibVersion})
 message(STATUS "Alusus Release Date: " ${AlususReleaseDate})
 message(STATUS "Alusus Hijri Release Date: " ${AlususHijriReleaseDate})
 

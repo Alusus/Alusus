@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususSpp)
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Header and library files paths for LLVM
 include_directories("${LLVM_INCLUDE_DIRS}")
@@ -64,7 +64,7 @@ target_precompile_headers(AlususSpp PUBLIC "spp.h")
 set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
 set_target_properties(AlususSpp PROPERTIES DEBUG_OUTPUT_NAME alusus_spp.dbg)
 set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
+set_target_properties(AlususSpp PROPERTIES SHLIBVERSION ${AlususShlibVersion})
 
 # Finally, we link LLVM and AlususCore libraries to our library.
 target_link_libraries(AlususSpp PRIVATE ${REQ_LLVM_LIBRARIES})

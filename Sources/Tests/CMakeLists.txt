@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususTests)
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Prepare compile flags.
 set(AlususTests_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
@@ -79,7 +79,7 @@ set_target_properties(CppInteropTest PROPERTIES COMPILE_FLAGS "${FPIC} ${Alusus_
 set_target_properties(CppInteropTest PROPERTIES OUTPUT_NAME cpp_interop_test)
 set_target_properties(CppInteropTest PROPERTIES DEBUG_OUTPUT_NAME cpp_interop_test)
 set_target_properties(CppInteropTest PROPERTIES VERSION ${AlususVersion})
-set_target_properties(CppInteropTest PROPERTIES SOVERSION ${AlususSoVersion})
+set_target_properties(CppInteropTest PROPERTIES SHLIBVERSION ${AlususShlibVersion})
 target_link_libraries(CppInteropTest AlususSrlLib AlususCoreLib AlususStorage)
 
 add_test(NAME Core

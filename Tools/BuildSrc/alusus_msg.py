@@ -1,14 +1,7 @@
 from __future__ import print_function
 import sys
 import os
-try:
-    from termcolor import colored
-except ImportError:
-    from typing import Iterable
-
-    # No colored output if "termcolor" is not present.
-    def colored(text: str, color: str | None = ..., on_color: str | None = ..., attrs: Iterable[str] | None = ...) -> str:
-        return text
+from termcolor import colored
 
 
 def info_msg(txt, end=os.linesep, file=sys.stdout):

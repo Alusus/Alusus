@@ -17,11 +17,13 @@
 
 
 import datetime
-from alusus_common import ALUSUS_REPO_PATH
 try:
     import ummalqura.hijri_date as ummalqura_hijri_date
 except ImportError:
     ummalqura_hijri_date = None
+
+# Alusus imports.
+from alusus_common import ALUSUS_REPO_PATH
 import alusus_git
 
 
@@ -99,4 +101,5 @@ def print_version_info(alusus_repo):
 
 
 if __name__ == "__main__":
-    print_version_info(alusus_git.AlususGitFromRepoPathWithGitBinary(ALUSUS_REPO_PATH))
+    print_version_info(
+        alusus_git.AlususGitFromRepoPathWithGitBinary(ALUSUS_REPO_PATH))
