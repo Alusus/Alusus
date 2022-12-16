@@ -4,13 +4,17 @@ import inspect
 import types
 from typing import cast
 import json
+import sys
 
+# fmt: off
 # Alusus import(s).
-from alusus_common import subprocess_run_hidden_except_on_error
+sys.path.insert(0, os.path.dirname(__file__))
+from common import subprocess_run_hidden_except_on_error
+# fmt: on
 
 
 # This abstract class has some of the common Git operations used by Alusus build scripts.
-class AlususGit:
+class Git:
     @staticmethod
     def _generate_method_not_implemented_error():
         caller_function_name = cast(
@@ -20,17 +24,17 @@ class AlususGit:
         ))
 
     def restore_git_tree_to_path(self, git_hash, path):
-        raise AlususGit._generate_method_not_implemented_error()
+        raise Git._generate_method_not_implemented_error()
 
     def get_current_branch(self) -> str:
-        raise AlususGit._generate_method_not_implemented_error()
+        raise Git._generate_method_not_implemented_error()
 
     def describe_tags(self) -> str:
-        raise AlususGit._generate_method_not_implemented_error()
+        raise Git._generate_method_not_implemented_error()
 
 
-# AlususGit backend that operates on a repository path and calls the Git binary.
-class AlususGitFromRepoPathWithGitBinary(AlususGit):
+# Git backend that operates on a repository path and calls the Git binary.
+class GitFromRepoPathWithGitBinary(Git):
     _repo_path = None
     _git_bin = None
     _environ = None
@@ -57,7 +61,7 @@ class AlususGitFromRepoPathWithGitBinary(AlususGit):
         self._repo_path = repo_path
         if os.path.basename(self._repo_path) != ".git":
             self._repo_path = os.path.join(self._repo_path, ".git")
-    
+
     @property
     def verbose_output(self):
         return self._verbose_output

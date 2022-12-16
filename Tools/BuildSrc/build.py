@@ -1,28 +1,27 @@
 import argparse
 import sys
 from colorama import init as init_colorama
-import subprocess
 import os
-import shutil
 import multiprocessing
 import json
-import filecmp
-import hashlib
 import sanitize_filename
 
+# fmt: off
 # Alusus import(s).
-import alusus_common
-import alusus_msg
-import alusus_vcpkg
-from alusus_build_type import AlususBuildType
-from alusus_target_triplet import AlususTargetTriplet
-from alusus_build_packages import AlususBuildPackages
+sys.path.insert(0, os.path.dirname(__file__))
+import common
+import msg
+import vcpkg
+from build_type import BuildType
+from target_triplet import TargetTriplet
+from build_packages import BuildPackages
+# fmt: on
 
 
 def build_alusus(alusus_build_location: str,
                  alusus_install_location: str,
-                 alusus_build_type: AlususBuildType,
-                 alusus_target_triplet: AlususTargetTriplet,
+                 alusus_build_type: BuildType,
+                 alusus_target_triplet: TargetTriplet,
                  alusus_clean_and_build: bool,
                  alusus_bin_dirname: str,
                  alusus_lib_dirname: str,
@@ -37,13 +36,13 @@ def build_alusus(alusus_build_location: str,
     environ = os.environ.copy()
     vcpkg_repo_path = None
     try:
-        alusus_msg.info_msg("Finding vcpkg Git repository...")
-        vcpkg_repo_path = alusus_vcpkg.get_vcpkg_repo_path(environ)
+        msg.info_msg("Finding vcpkg Git repository...")
+        vcpkg_repo_path = vcpkg.get_vcpkg_repo_path(environ)
     except Exception as e:
-        alusus_common.eprint(e)
-        alusus_msg.fail_msg("Finding vcpkg Git repository.")
+        common.eprint(e)
+        msg.fail_msg("Finding vcpkg Git repository.")
         return False
-    alusus_msg.info_msg("Using vcpkg repo path={vcpkg_repo_path}.".format(
+    msg.info_msg("Using vcpkg repo path={vcpkg_repo_path}.".format(
         vcpkg_repo_path=json.dumps(vcpkg_repo_path)))
     vcpkg_toolchain_file_path = os.path.join(
         vcpkg_repo_path, "scripts", "buildsystems", "vcpkg.cmake")
@@ -53,21 +52,21 @@ def build_alusus(alusus_build_location: str,
                              ) if path_env_var in environ else vcpkg_repo_path
 
     # Set the path to the updated vcpkg ports overlays and restore the ports overlays if they are changed.
-    alusus_msg.info_msg("Restoring vcpkg dependency ports overlays...")
+    msg.info_msg("Restoring vcpkg dependency ports overlays...")
     alusus_vcpkg_ports_overlays_location = os.path.join(
         alusus_build_location, "AlususVcpkgPortsOverlay")
     try:
-        alusus_vcpkg.restore_ports_overlays(
+        vcpkg.restore_ports_overlays(
             alusus_vcpkg_ports_overlays_location, vcpkg_repo_path)
     except Exception as e:
-        alusus_common.eprint(e)
-        alusus_msg.fail_msg("Restoring vcpkg dependency ports overlays.")
+        common.eprint(e)
+        msg.fail_msg("Restoring vcpkg dependency ports overlays.")
         return False
 
     # Configure the build directory.
-    alusus_msg.info_msg("Configuring Alusus with CMake...")
+    msg.info_msg("Configuring Alusus with CMake...")
     cmake_cmd = [
-        "cmake", alusus_common.ALUSUS_SOURCES_DIR,
+        "cmake", common.ALUSUS_SOURCES_DIR,
         "-DCMAKE_INSTALL_PREFIX={alusus_install_location}".format(
             alusus_install_location=alusus_install_location),
         "-DCMAKE_BUILD_TYPE={alusus_build_type}".format(
@@ -75,7 +74,7 @@ def build_alusus(alusus_build_location: str,
         "-DCMAKE_TOOLCHAIN_FILE={vcpkg_toolchain_file_path}".format(
             vcpkg_toolchain_file_path=vcpkg_toolchain_file_path),
         "-DVCPKG_MANIFEST_DIR={vcpkg_alusus_manifest_dir}".format(
-            vcpkg_alusus_manifest_dir=alusus_common.VCPKG_ALUSUS_MANIFEST_DIR),
+            vcpkg_alusus_manifest_dir=common.VCPKG_ALUSUS_MANIFEST_DIR),
         "-DVCPKG_TARGET_TRIPLET={vcpkg_target_triplet}".format(
             vcpkg_target_triplet=alusus_target_triplet.value.vcpkg_target_triplet),
         "-DVCPKG_OVERLAY_PORTS={vcpkg_alusus_overlay_ports}".format(
@@ -89,45 +88,45 @@ def build_alusus(alusus_build_location: str,
             alusus_include_dirname=alusus_include_dirname)
     ]
     if alusus_target_triplet.value.cmake_generator:
-        alusus_msg.info_msg("Using preferred {cmake_generator} CMake generator with the CMake configuration...".format(
+        msg.info_msg("Using preferred {cmake_generator} CMake generator with the CMake configuration.".format(
             cmake_generator=json.dumps(
                 alusus_target_triplet.value.cmake_generator
             )
         ))
         cmake_cmd += ["-G", alusus_target_triplet.value.cmake_generator]
-    ret = alusus_common.subprocess_run_hidden_except_on_error(
+    ret = common.subprocess_run_hidden_except_on_error(
         cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
     if ret.returncode:
-        alusus_msg.fail_msg("Configuring Alusus with CMake.")
+        msg.fail_msg("Configuring Alusus with CMake.")
         return False
 
     # Build Alusus.
-    alusus_msg.info_msg("Building Alusus...")
+    msg.info_msg("Building Alusus...")
     cmake_cmd = ["cmake", "--build", alusus_build_location,
                  "--parallel", str(multiprocessing.cpu_count())]
     if alusus_clean_and_build:
         cmake_cmd += ["--clean-first"]
-    ret = alusus_common.subprocess_run_hidden_except_on_error(
+    ret = common.subprocess_run_hidden_except_on_error(
         cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
     if ret.returncode:
-        alusus_msg.fail_msg("Building Alusus.")
+        msg.fail_msg("Building Alusus.")
         return False
 
     # Install Alusus.
-    alusus_msg.info_msg("Installing Alusus...")
+    msg.info_msg("Installing Alusus...")
     cmake_cmd = ["cmake", "--install", alusus_build_location]
-    ret = alusus_common.subprocess_run_hidden_except_on_error(
+    ret = common.subprocess_run_hidden_except_on_error(
         cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
     if ret.returncode:
-        alusus_msg.fail_msg("Installing Alusus.")
+        msg.fail_msg("Installing Alusus.")
         return False
 
     # Install STD dependencies.
     if not skip_installing_std_deps:
-        alusus_msg.info_msg("Installing Alusus STD dependencies...")
+        msg.info_msg("Installing Alusus STD dependencies...")
 
         # Install STD libraries.
-        alusus_msg.info_msg("Installing Alusus STD library dependencies...")
+        msg.info_msg("Installing Alusus STD library dependencies...")
         libs_to_install = []
         if alusus_target_triplet.value.platform == "linux":
             libs_to_install = [
@@ -163,20 +162,20 @@ def build_alusus(alusus_build_location: str,
                 alusus_libs_install_location, dst_libname)
 
             # Only copy the shared library if different.
-            ret = alusus_common.copy_if_different(
+            ret = common.copy_if_different(
                 shlib_build_location, shlib_install_location, follow_dst_symlinks=False)
-            if ret == alusus_common.CopyIfDifferentReturnType.DstUpdated:
-                alusus_msg.success_msg("Installing STD libname={libname}.".format(
+            if ret == common.CopyIfDifferentReturnType.DstUpdated:
+                msg.success_msg("Installing STD libname={libname}.".format(
                     libname=json.dumps(dst_libname)))
-            elif ret == alusus_common.CopyIfDifferentReturnType.DstUpToDate:
-                alusus_msg.info_msg("STD libname={libname} is up to date.".format(
+            elif ret == common.CopyIfDifferentReturnType.DstUpToDate:
+                msg.info_msg("STD libname={libname} is up to date.".format(
                     libname=json.dumps(dst_libname)))
-            elif ret == alusus_common.CopyIfDifferentReturnType.NoSrc:
-                alusus_msg.err_msg("STD libname={libname} doesn't exist.".format(
+            elif ret == common.CopyIfDifferentReturnType.NoSrc:
+                msg.err_msg("STD libname={libname} doesn't exist.".format(
                     libname=json.dumps(dst_libname)))
 
         # Install STD binaries.
-        alusus_msg.info_msg("Installing Alusus STD binary dependencies...")
+        msg.info_msg("Installing Alusus STD binary dependencies...")
         bins_to_install = []
         if alusus_target_triplet.value.platform == "linux":
             bins_to_install = [
@@ -202,19 +201,19 @@ def build_alusus(alusus_build_location: str,
                 alusus_bins_install_location, dst_binname)
 
             # Only copy the shared library if different.
-            ret = alusus_common.copy_if_different(
+            ret = common.copy_if_different(
                 bin_build_location, bin_install_location, follow_dst_symlinks=False)
-            if ret == alusus_common.CopyIfDifferentReturnType.DstUpdated:
-                alusus_msg.success_msg("Installing STD binname={binname}.".format(
+            if ret == common.CopyIfDifferentReturnType.DstUpdated:
+                msg.success_msg("Installing STD binname={binname}.".format(
                     binname=json.dumps(dst_binname)))
-            elif ret == alusus_common.CopyIfDifferentReturnType.DstUpToDate:
-                alusus_msg.info_msg("STD binname={binname} is up to date.".format(
+            elif ret == common.CopyIfDifferentReturnType.DstUpToDate:
+                msg.info_msg("STD binname={binname} is up to date.".format(
                     binname=json.dumps(dst_binname)))
-            elif ret == alusus_common.CopyIfDifferentReturnType.NoSrc:
-                alusus_msg.err_msg("STD binname={binname} doesn't exist.".format(
+            elif ret == common.CopyIfDifferentReturnType.NoSrc:
+                msg.err_msg("STD binname={binname} doesn't exist.".format(
                     binname=json.dumps(dst_binname)))
 
-    alusus_msg.success_msg("Building and installing Alusus.")
+    msg.success_msg("Building and installing Alusus.")
     return True
 
 
@@ -225,10 +224,10 @@ def parse_cmd_args(args):
     parser.add_argument("--install-location", type=str,
                         default=None, help="Alusus install location")
     parser.add_argument("--build-type",
-                        type=AlususBuildType.from_alusus_build_type_str, default=AlususBuildType.DEBUG, help="Alusus build type")
+                        type=BuildType.from_alusus_build_type_str, default=BuildType.DEBUG, help="Alusus build type")
     parser.add_argument("--target-triplet",
-                        type=AlususTargetTriplet.from_alusus_target_triplet_str,
-                        default=AlususTargetTriplet.host_default_target_triplet(), help="Alusus target triplet")
+                        type=TargetTriplet.from_alusus_target_triplet_str,
+                        default=TargetTriplet.host_default_target_triplet(), help="Alusus target triplet")
     parser.add_argument("--clean-and-build", action="store_true",
                         help="Whether or not to clean Alusus before building")
     parser.add_argument("--build-packages", action="store_true",
@@ -279,11 +278,11 @@ if __name__ == "__main__":
 
     # Process print arguments first.
     if args.print_supported_build_types:
-        for target in AlususBuildType.list():
+        for target in BuildType.list():
             print(target.value.alusus_build_type)
         exit(0)
     if args.print_supported_target_triplets:
-        for target in AlususTargetTriplet.list():
+        for target in TargetTriplet.list():
             print(target.value.alusus_target_triplet)
         exit(0)
 
@@ -302,12 +301,12 @@ if __name__ == "__main__":
 
     if args.build_packages:
         try:
-            alusus_msg.info_msg("Building packages...")
-            AlususBuildPackages.from_alusus_target_triplet(args.target_triplet).create_packages(
+            msg.info_msg("Building packages...")
+            BuildPackages.from_alusus_target_triplet(args.target_triplet).create_packages(
                 args.install_location, args.packages_location, verbose_output=args.verbose
             )
         except Exception as e:
-            alusus_common.eprint(e)
-            alusus_msg.fail_msg("Building required packages.")
+            common.eprint(e)
+            msg.fail_msg("Building required packages.")
             exit(1)
     exit(0)

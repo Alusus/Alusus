@@ -19,7 +19,7 @@ if (NOT DEFINED Python3_EXECUTABLE)
   set(Python3_EXECUTABLE "${Python3_EXECUTABLE}" CACHE STRING
     "Python 3 executable")
 endif ()
-execute_process(COMMAND ${Python3_EXECUTABLE} alusus_version_info.py
+execute_process(COMMAND ${Python3_EXECUTABLE} version_info.py
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Tools/BuildSrc
                 OUTPUT_VARIABLE VersionInfo)
 string(REGEX MATCH "VERSION: ([0-9]+\\.[0-9]+\\.[0-9]+)" _dummy_ ${VersionInfo})

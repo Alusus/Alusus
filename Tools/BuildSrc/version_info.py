@@ -21,13 +21,18 @@ try:
     import ummalqura.hijri_date as ummalqura_hijri_date
 except ImportError:
     ummalqura_hijri_date = None
+import sys
+import os
 
+# fmt: off
 # Alusus import(s).
-from alusus_common import ALUSUS_REPO_PATH
-import alusus_git
+sys.path.insert(0, os.path.dirname(__file__))
+from common import ALUSUS_REPO_PATH
+import git
+# fmt: on
 
 
-class AlususVersionInfo:
+class VersionInfo:
     def __init__(self, alusus_repo) -> None:
         self.update_version_info(alusus_repo)
 
@@ -39,7 +44,7 @@ class AlususVersionInfo:
             now.month).rjust(2, '0'), str(now.day).rjust(2, '0'))
         self._hijri_date = None
 
-        if alusus_repo and isinstance(alusus_repo, alusus_git.AlususGit):
+        if alusus_repo and isinstance(alusus_repo, git.Git):
             try:
                 release_string = alusus_repo.describe_tags()
                 current_branch = alusus_repo.get_current_branch()
@@ -93,13 +98,14 @@ class AlususVersionInfo:
 
 
 def print_version_info(alusus_repo):
-    version_info = AlususVersionInfo(alusus_repo)
+    version_info = VersionInfo(alusus_repo)
     print("VERSION: {version}".format(version=version_info.version_lossy))
     print("REVISION: {revision}".format(revision=version_info.revision_lossy))
     print("DATE: {date}".format(date=version_info.date))
-    print("HIJRI_DATE: {hijri_date}".format(hijri_date=version_info.hijri_date_lossy))
+    print("HIJRI_DATE: {hijri_date}".format(
+        hijri_date=version_info.hijri_date_lossy))
 
 
 if __name__ == "__main__":
     print_version_info(
-        alusus_git.AlususGitFromRepoPathWithGitBinary(ALUSUS_REPO_PATH))
+        git.GitFromRepoPathWithGitBinary(ALUSUS_REPO_PATH))

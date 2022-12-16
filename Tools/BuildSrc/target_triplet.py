@@ -1,12 +1,16 @@
 import platform
 import shutil
 import sys
+import os
 
+# fmt: off
 # Alusus import(s).
-from alusus_common import ExtendedEnum
+sys.path.insert(0, os.path.dirname(__file__))
+from common import ExtendedEnum
+# fmt: on
 
 
-class _AlususCombinedTargetTriplet:
+class _CombinedTargetTriplet:
     def __init__(self,
                  alusus_target_triplet: str,
                  vcpkg_target_triplet: str,
@@ -53,24 +57,24 @@ def _get_unix_cmake_generator():
     return None
 
 
-class AlususTargetTriplet(ExtendedEnum):
+class TargetTriplet(ExtendedEnum):
     @staticmethod
     def host_default_target_triplet():
-        for item in AlususTargetTriplet.list():
+        for item in TargetTriplet.list():
             if item.value.platform == sys.platform and item.value.machine == platform.machine():
                 return item
         raise NotImplementedError("Current host has no matching build target.")
 
     @staticmethod
     def from_alusus_target_triplet_str(alusus_target_triplet_str: str):
-        for item in AlususTargetTriplet.list():
+        for item in TargetTriplet.list():
             if item.value.alusus_target_triplet == alusus_target_triplet_str:
                 return item
         raise NotImplementedError("Unsupported target triplet.")
 
     # Target triplets we support building for.
-    X64_LINUX = _AlususCombinedTargetTriplet(
+    X64_LINUX = _CombinedTargetTriplet(
         "x64-linux", "x64-linux-release", "linux", "x86_64", abi="gnu", cmake_generator=_get_unix_cmake_generator())
-    X64_OSX = _AlususCombinedTargetTriplet(
+    X64_OSX = _CombinedTargetTriplet(
         "x64-osx", "x64-osx-release", "darwin", "x86_64", cmake_generator=_get_unix_cmake_generator())
     # TODO: Add more targets here when we add support building for.

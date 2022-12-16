@@ -1,15 +1,17 @@
 from __future__ import print_function
-import subprocess
 import sys
 import os
 
+# fmt: off
 # Alusus import(s).
-import alusus_common
+sys.path.insert(0, os.path.dirname(__file__))
+import common
+# fmt: on
 
 
 if __name__ == "__main__":
-    exit(alusus_common.subprocess_run_hidden_except_on_error(
+    exit(common.subprocess_run_hidden_except_on_error(
         [
             sys.executable, "-m", "pip", "install", "-r", os.path.join(
-                alusus_common.ALUSUS_TOOLS_DIR, "BuildSrc", "requirements.txt")
+                common.ALUSUS_TOOLS_DIR, "BuildSrc", "requirements.txt")
         ]).returncode)

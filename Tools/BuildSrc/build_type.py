@@ -1,7 +1,7 @@
-from alusus_common import ExtendedEnum
+from common import ExtendedEnum
 
 
-class _AlususToCMakeBuildType:
+class _ToCMakeBuildType:
     def __init__(self, alusus_build_type: str, cmake_build_type: str) -> None:
         self._alusus_build_type = alusus_build_type
         self._cmake_build_type = cmake_build_type
@@ -15,14 +15,14 @@ class _AlususToCMakeBuildType:
         return self._cmake_build_type
 
 
-class AlususBuildType(ExtendedEnum):
+class BuildType(ExtendedEnum):
     @staticmethod
     def from_alusus_build_type_str(alusus_build_type_str: str):
-        for item in AlususBuildType.list():
+        for item in BuildType.list():
             if item.value.alusus_build_type == alusus_build_type_str:
                 return item
         raise NotImplementedError("Unknown build type.")
 
     # Alusus build types.
-    DEBUG = _AlususToCMakeBuildType("debug", "Debug")
-    RELEASE = _AlususToCMakeBuildType("release", "Release")
+    DEBUG = _ToCMakeBuildType("debug", "Debug")
+    RELEASE = _ToCMakeBuildType("release", "Release")

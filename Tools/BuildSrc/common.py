@@ -48,7 +48,7 @@ def subprocess_run_hidden_except_on_error(*args, verbose_output=False, **kwargs)
         ret = subprocess.run(*args, **kwargs)
     else:
         ret = subprocess.run(*args, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, **kwargs)
+                             stderr=subprocess.PIPE, **kwargs)
         if ret.returncode:
             sys.stdout.buffer.write(ret.stdout)
             sys.stderr.buffer.write(ret.stderr)

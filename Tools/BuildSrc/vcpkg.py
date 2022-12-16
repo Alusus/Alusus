@@ -2,17 +2,21 @@ import json
 import os
 import shutil
 import checksum
+import sys
 
+# fmt: off
 # Alusus import(s).
-from alusus_git import AlususGitFromRepoPathWithGitBinary
-import alusus_common
-import alusus_msg as alusus_msg
+sys.path.insert(0, os.path.dirname(__file__))
+from git import GitFromRepoPathWithGitBinary
+import common
+import msg
+# fmt: on
 
 
 def get_vcpkg_repo_path(environ=os.environ.copy()):
     vcpkg_repo_path = None
-    if alusus_common.ALUSUS_VCPKG_REPO_PATH_ENV_VAR in environ:
-        vcpkg_repo_path = environ[alusus_common.ALUSUS_VCPKG_REPO_PATH_ENV_VAR]
+    if common.ALUSUS_VCPKG_REPO_PATH_ENV_VAR in environ:
+        vcpkg_repo_path = environ[common.ALUSUS_VCPKG_REPO_PATH_ENV_VAR]
     else:
         vcpkg_bin_path = shutil.which("vcpkg")
         if vcpkg_bin_path == None:
@@ -41,14 +45,14 @@ def _get_vcpkg_version_from_json_object(json_obj) -> str:
 def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path=get_vcpkg_repo_path(), verbose_output=False):
     manifest_file_data = None
 
-    for package_name in os.listdir(alusus_common.VCPKG_ALUSUS_PORTS_OVERLAY_CHANGES_DIR):
+    for package_name in os.listdir(common.VCPKG_ALUSUS_PORTS_OVERLAY_CHANGES_DIR):
         overlay_port_location = os.path.join(
             alusus_vcpkg_ports_overlays_location, package_name)
 
         # Check for port overlay hash change.
         hash_data = None
         with open(
-            os.path.join(alusus_common.VCPKG_ALUSUS_PORTS_OVERLAY_HASHES_DIR, "{package_name}.json".format(
+            os.path.join(common.VCPKG_ALUSUS_PORTS_OVERLAY_HASHES_DIR, "{package_name}.json".format(
                 package_name=package_name)), "r"
         ) as fd:
             hash_data = json.load(fd)
@@ -56,13 +60,13 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
         hash = hash_data["Hash"]
         if os.path.isdir(overlay_port_location) and\
                 checksum.get_for_directory(overlay_port_location, hash_mode=hash_algorithm) == hash:
-            alusus_msg.info_msg("Dependency {package_name}'s vcpkg port overlay is up to date.".format(
+            msg.info_msg("Dependency {package_name}'s vcpkg port overlay is up to date.".format(
                 package_name=json.dumps(package_name)))
             continue
 
         # Get the package version and port number from the "vcpkg.json" manifest file.
         if manifest_file_data == None:
-            with open(os.path.join(alusus_common.VCPKG_ALUSUS_MANIFEST_DIR, "vcpkg.json"), "r") as fd:
+            with open(os.path.join(common.VCPKG_ALUSUS_MANIFEST_DIR, "vcpkg.json"), "r") as fd:
                 manifest_file_data = json.load(fd)
         package_version = None
         package_port_num = None
@@ -108,19 +112,19 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
             ))
 
         # Empty current overlay port folder.
-        alusus_common.remove_path(overlay_port_location, follow_symlinks=False)
+        common.remove_path(overlay_port_location, follow_symlinks=False)
 
         # Restore the upstream port files inside Alusus build directory.
-        AlususGitFromRepoPathWithGitBinary(vcpkg_repo_path, verbose_output=verbose_output).restore_git_tree_to_path(
+        GitFromRepoPathWithGitBinary(vcpkg_repo_path, verbose_output=verbose_output).restore_git_tree_to_path(
             git_tree_hash, overlay_port_location)
 
         # Apply Alusus port overlay changes to the restored port files.
         shutil.copytree(
             os.path.join(
-                alusus_common.VCPKG_ALUSUS_PORTS_OVERLAY_CHANGES_DIR, package_name),
+                common.VCPKG_ALUSUS_PORTS_OVERLAY_CHANGES_DIR, package_name),
             overlay_port_location, dirs_exist_ok=True,
             symlinks=True, ignore_dangling_symlinks=True
         )
 
-        alusus_msg.success_msg("Updating dependency {package_name}'s port overlay.".format(
+        msg.success_msg("Updating dependency {package_name}'s port overlay.".format(
             package_name=json.dumps(package_name)))
