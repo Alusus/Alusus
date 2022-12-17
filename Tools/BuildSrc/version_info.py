@@ -33,10 +33,11 @@ import git
 
 
 class VersionInfo:
-    def __init__(self, alusus_repo) -> None:
-        self.update_version_info(alusus_repo)
+    def __init__(self, alusus_repo_path, verbose_output=False) -> None:
+        self.update_version_info(
+            alusus_repo_path, verbose_output=verbose_output)
 
-    def update_version_info(self, alusus_repo):
+    def update_version_info(self, alusus_repo_path, verbose_output=False):
         self._version = None
         self._revision = None
         now = datetime.datetime.now()
@@ -44,22 +45,23 @@ class VersionInfo:
             now.month).rjust(2, '0'), str(now.day).rjust(2, '0'))
         self._hijri_date = None
 
-        if alusus_repo and isinstance(alusus_repo, git.Git):
-            try:
-                release_string = alusus_repo.describe_tags()
-                current_branch = alusus_repo.get_current_branch()
+        try:
+            release_string = git.describe_tags(
+                alusus_repo_path, verbose_output=verbose_output)
+            current_branch = git.get_current_branch(
+                alusus_repo_path, verbose_output=verbose_output)
 
-                # Parse the version and the revision.
-                self._version = release_string.split("-")[0][1:]
-                if release_string.find("-") != -1:
-                    if current_branch == "vb{version}".format(version=self._version):
-                        self._revision = str(
-                            int(release_string.split("-")[1]) + 1)
-                    else:
-                        self._revision = "GIT{release_string}".format(
-                            release_string=release_string.split("-")[2][1:])
-            except OSError:
-                pass
+            # Parse the version and the revision.
+            self._version = release_string.split("-")[0][1:]
+            if release_string.find("-") != -1:
+                if current_branch == "vb{version}".format(version=self._version):
+                    self._revision = str(
+                        int(release_string.split("-")[1]) + 1)
+                else:
+                    self._revision = "GIT{release_string}".format(
+                        release_string=release_string.split("-")[2][1:])
+        except OSError:
+            pass
 
         # Set the Islamic date.
         if ummalqura_hijri_date:
@@ -97,8 +99,8 @@ class VersionInfo:
         return self._hijri_date if self._hijri_date else "N/A"
 
 
-def print_version_info(alusus_repo):
-    version_info = VersionInfo(alusus_repo)
+def print_version_info(alusus_repo_path):
+    version_info = VersionInfo(alusus_repo_path)
     print("VERSION: {version}".format(version=version_info.version_lossy))
     print("REVISION: {revision}".format(revision=version_info.revision_lossy))
     print("DATE: {date}".format(date=version_info.date))
@@ -107,5 +109,4 @@ def print_version_info(alusus_repo):
 
 
 if __name__ == "__main__":
-    print_version_info(
-        git.GitFromRepoPathWithGitBinary(ALUSUS_REPO_PATH))
+    print_version_info(ALUSUS_REPO_PATH)

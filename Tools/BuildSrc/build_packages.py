@@ -8,7 +8,6 @@ import sanitize_filename
 # fmt: off
 # Alusus import(s).
 sys.path.insert(0, os.path.dirname(__file__))
-from git import GitFromRepoPathWithGitBinary
 from target_triplet import TargetTriplet
 import msg
 import common
@@ -222,7 +221,7 @@ def _create_packages(alusus_build_packages, alusus_install_location, alusus_pack
     os.makedirs(alusus_packages_location, exist_ok=True)
 
     version_info = VersionInfo(
-        GitFromRepoPathWithGitBinary(common.ALUSUS_REPO_PATH, verbose_output=verbose_output))
+        common.ALUSUS_REPO_PATH, verbose_output=verbose_output)
     package_basename = sanitize_filename.sanitize("alusus-{version}{revision}-{machine}-{platform}{abi}".format(
         version=version_info.version_lossy,
         revision="-" + version_info.revision_lossy if version_info.revision_lossy else "",

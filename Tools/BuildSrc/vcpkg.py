@@ -7,7 +7,7 @@ import sys
 # fmt: off
 # Alusus import(s).
 sys.path.insert(0, os.path.dirname(__file__))
-from git import GitFromRepoPathWithGitBinary
+from git import restore_git_tree_to_path
 import common
 import msg
 # fmt: on
@@ -115,8 +115,8 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
         common.remove_path(overlay_port_location, follow_symlinks=False)
 
         # Restore the upstream port files inside Alusus build directory.
-        GitFromRepoPathWithGitBinary(vcpkg_repo_path, verbose_output=verbose_output).restore_git_tree_to_path(
-            git_tree_hash, overlay_port_location)
+        restore_git_tree_to_path(vcpkg_repo_path, git_tree_hash,
+                                 overlay_port_location, verbose_output=verbose_output)
 
         # Apply Alusus port overlay changes to the restored port files.
         shutil.copytree(
