@@ -6,7 +6,7 @@
     {
       "label": "build",
       "command": "${workspaceRoot}/Tools/build.sh",
-      "args": [],
+      "args": ["--verbose"],
       "problemMatcher": {
         "owner": "cpp",
         "fileLocation": [
