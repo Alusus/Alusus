@@ -32,10 +32,13 @@
 * Fixed an issue with callee lookup of assign operators where multiple-match errors are not reported correctly.
 * Fixed an issue with temp var definitions when the var needs to be casted using a custom caster before it can be
   assigned to the target var.
+* Fixed an issue with the compiler when defining a class inside the init handler of another class, causing the
+  initialization of the inner class to fail.
 
 ### Standard Libraries Fixes
 
 * Fixed an issue in closure pointer initialization.
+* Fixed an issue with closures causing conflict with closure payload variables named `d`.
 
 ### Other Updates and Fixes
 
