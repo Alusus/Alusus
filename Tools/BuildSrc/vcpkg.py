@@ -45,23 +45,12 @@ def _get_vcpkg_version_from_json_object(json_obj) -> str:
 def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path=get_vcpkg_repo_path(), verbose_output=False):
     manifest_file_data = None
 
-    for package_name in os.listdir(common.VCPKG_ALUSUS_PORTS_OVERLAY_CHANGES_DIR):
+    for package_name in os.listdir(common.VCPKG_ALUSUS_PORTS_OVERLAY_DIR):
         overlay_port_location = os.path.join(
             alusus_vcpkg_ports_overlays_location, package_name)
 
         # Check for port overlay hash change.
-        hash_data = None
-        with open(
-            os.path.join(common.VCPKG_ALUSUS_PORTS_OVERLAY_HASHES_DIR, "{package_name}.json".format(
-                package_name=package_name)), "r"
-        ) as fd:
-            hash_data = json.load(fd)
-        hash_algorithm = hash_data["Algorithm"] if "Algorithm" in hash_data else "sha256"
-        hash = hash_data["Hash"]
-        if os.path.isdir(overlay_port_location) and\
-                checksum.get_for_directory(overlay_port_location, hash_mode=hash_algorithm) == hash:
-            msg.info_msg("Dependency {package_name}'s vcpkg port overlay is up to date.".format(
-                package_name=json.dumps(package_name)))
+        if os.path.exists(os.path.join(overlay_port_location, "vcpkg.json")):
             continue
 
         # Get the package version and port number from the "vcpkg.json" manifest file.
@@ -115,13 +104,12 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
         common.remove_path(overlay_port_location, follow_symlinks=False)
 
         # Restore the upstream port files inside Alusus build directory.
-        restore_git_tree_to_path(vcpkg_repo_path, git_tree_hash,
-                                 overlay_port_location, verbose_output=verbose_output)
+        restore_git_tree_to_path(vcpkg_repo_path, git_tree_hash, overlay_port_location)
 
         # Apply Alusus port overlay changes to the restored port files.
         shutil.copytree(
             os.path.join(
-                common.VCPKG_ALUSUS_PORTS_OVERLAY_CHANGES_DIR, package_name),
+                common.VCPKG_ALUSUS_PORTS_OVERLAY_DIR, package_name),
             overlay_port_location, dirs_exist_ok=True,
             symlinks=True, ignore_dangling_symlinks=True
         )

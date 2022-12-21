@@ -2,7 +2,8 @@
 {
   "search.exclude": {
     "Include/**/*": true,
-    "Builds/**/*": true
+    "Builds/**/*": true,
+    "AlususBuild/**/*": true
   },
   "files.associations": {
     "*.ipp": "cpp",
@@ -83,6 +84,7 @@
     "Include": true,
     "Lib": true,
     "Builds": true,
+    "AlususBuild": true,
     "Bin": true
   },
   "C_Cpp.errorSquiggles": "Disabled",

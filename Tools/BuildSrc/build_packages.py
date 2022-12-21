@@ -212,13 +212,9 @@ def _create_packages_osx(alusus_packages_location, to_be_packaged_dir, package_b
     return err
 
 
-def _create_packages(alusus_build_packages, alusus_install_location, alusus_packages_location, verbose_output=False):
+def create_packages(alusus_build_packages, alusus_install_location, alusus_packages_location, verbose_output=False):
     to_be_packaged_dir = _create_to_be_packaged_dir(
         alusus_install_location, alusus_packages_location)
-    alusus_packages_location = os.path.join(
-        alusus_packages_location, "AlususPackages")
-    common.remove_path(alusus_packages_location, follow_symlinks=False)
-    os.makedirs(alusus_packages_location, exist_ok=True)
 
     version_info = VersionInfo(
         common.ALUSUS_REPO_PATH, verbose_output=verbose_output)
@@ -268,8 +264,6 @@ class BuildPackages(common.ExtendedEnum):
                 alusus_target_triplet_class_name=json.dumps(
                     alusus_target_triplet.__class__.__name__)
             ))
-
-    create_packages = _create_packages
 
     X64_LINUX = _BuildPackagesWithPackageBuildingFunc(
         TargetTriplet.X64_LINUX, _create_packages_linux)

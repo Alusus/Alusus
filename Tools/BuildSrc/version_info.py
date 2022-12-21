@@ -46,10 +46,8 @@ class VersionInfo:
         self._hijri_date = None
 
         try:
-            release_string = git.describe_tags(
-                alusus_repo_path, verbose_output=verbose_output)
-            current_branch = git.get_current_branch(
-                alusus_repo_path, verbose_output=verbose_output)
+            release_string = git.describe_tags(alusus_repo_path)
+            current_branch = git.get_current_branch(alusus_repo_path)
 
             # Parse the version and the revision.
             self._version = release_string.split("-")[0][1:]

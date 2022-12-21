@@ -1,7 +1,7 @@
 /**
  * @file Build.alusus
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -159,33 +159,17 @@ if Srl.String.compare(Process.language, "ar") == 0 {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
                 return false;
             }
-            def linkerFilename: ptr[array[Char]] = getLinkerFilename();
+            def linkerFilename: String = String(Process.coreBinPath) + "wasm-ld";
             def cmd: array[Char, 600];
             String.assign(
                 cmd~ptr, "%s --no-entry --allow-undefined --export-dynamic %s %s /tmp/output.o -o %s ",
-                linkerFilename, String.merge(this.flags, " ").buf, this.getDepsString().buf, this.outputFilename
+                linkerFilename.buf, String.merge(this.flags, " ").buf, this.getDepsString().buf, this.outputFilename
             );
             if System.exec(cmd~ptr) != 0 {
                 Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
                 return false;
             }
             return true;
-        }
-
-        function getLinkerFilename (): ptr[array[Char]] {
-            def envCmd: ptr[array[Char]] = envCmd = System.getEnv("ALUSUS_WASM_LD");
-            if envCmd != 0 and doesExecutableExist(envCmd) return envCmd
-            else if doesExecutableExist("wasm-ld") return "wasm-ld"
-            else if doesExecutableExist("wasm-ld-10") return "wasm-ld-10"
-            else if doesExecutableExist("wasm-ld-11") return "wasm-ld-11"
-            else if doesExecutableExist("wasm-ld-12") return "wasm-ld-12"
-            else {
-                System.fail(1, "Building wasm failed. Could not find wasm-ld command. "
-                    "Please install it using your system's package manager. "
-                    "It's usually included in the lld package which is likely "
-                    "already available in your operating system's default repos.");
-                return 0;
-            }
         }
     }
 

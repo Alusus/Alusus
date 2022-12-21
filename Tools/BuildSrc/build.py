@@ -14,7 +14,7 @@ import msg
 import vcpkg
 from build_type import BuildType
 from target_triplet import TargetTriplet
-from build_packages import BuildPackages
+from build_packages import create_packages, BuildPackages
 # fmt: on
 
 
@@ -131,13 +131,13 @@ def build_alusus(alusus_build_location: str,
         if alusus_target_triplet.value.platform == "linux":
             libs_to_install = [
                 ("libcurl.so", "libcurl.so"),
-                ("libzip.so", "libzip.so")
+                ("libkubazip.so", "libkubazip.so")
             ]
             # TODO: Add more libs to install as needed here.
         elif alusus_target_triplet.value.platform == "darwin":
             libs_to_install = [
                 ("libcurl.dylib", "libcurl.dylib"),
-                ("libzip.dylib", "libzip.dylib")
+                ("libkubazip.dylib", "libkubazip.dylib")
             ]
             # TODO: Add more libs to install as needed here.
         # TODO: Add more logic for other targets here.
@@ -262,12 +262,18 @@ def parse_cmd_args(args):
     if processed_args.build_location == None:
         processed_args.build_location = os.path.join(
             alusus_local_build_path, "Intermediate", target_dirname)
+    else:
+        processed_args.build_location = os.path.abspath(processed_args.build_location)
     if processed_args.install_location == None:
         processed_args.install_location = os.path.join(
             alusus_local_build_path, "Install", target_dirname)
+    else:
+        processed_args.install_location = os.path.abspath(processed_args.install_location)
     if processed_args.packages_location == None:
         processed_args.packages_location = os.path.join(
             alusus_local_build_path, "Packages", target_dirname)
+    else:
+        processed_args.packages_location = os.path.abspath(processed_args.packages_location)
 
     return processed_args
 
@@ -302,8 +308,11 @@ if __name__ == "__main__":
     if args.build_packages:
         try:
             msg.info_msg("Building packages...")
-            BuildPackages.from_alusus_target_triplet(args.target_triplet).create_packages(
-                args.install_location, args.packages_location, verbose_output=args.verbose
+            create_packages(
+                BuildPackages.from_alusus_target_triplet(args.target_triplet),
+                args.install_location,
+                args.packages_location,
+                verbose_output=args.verbose
             )
         except Exception as e:
             common.eprint(e)

@@ -5,48 +5,11 @@
       "name": "C++ Launch",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/Bin/alusus.dbg",
+      "program": "${workspaceRoot}/AlususBuild/Install/x64-linux-debug/Bin/alusus.dbg",
       "args": ["--log", "0", "Examples/General/hello_world.alusus"],
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
       "environment": [],
-      "externalConsole": false,
-      "linux": {
-        "MIMode": "gdb",
-        "setupCommands": [
-          {
-            "description": "Enable pretty-printing for gdb",
-            "text": "-enable-pretty-printing",
-            "ignoreFailures": true
-          }
-        ]
-      },
-      "osx": {
-        "MIMode": "lldb"
-      },
-      "windows": {
-        "MIMode": "gdb",
-        "setupCommands": [
-          {
-            "description": "Enable pretty-printing for gdb",
-            "text": "-enable-pretty-printing",
-            "ignoreFailures": true
-          }
-        ]
-      }
-    },
-    {
-      "name": "C++ Tests",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceRoot}/Builds/debug/Tests/alusus_tests.dbg",
-      "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceRoot}/Sources/Tests",
-      "environment": [
-        { "name": "LD_LIBRARY_PATH", "value": "${workspaceRoot}/Lib" },
-        { "name": "ALUSUS_LIBS", "value": "${workspaceRoot}/Lib" }
-      ],
       "externalConsole": false,
       "linux": {
         "MIMode": "gdb",

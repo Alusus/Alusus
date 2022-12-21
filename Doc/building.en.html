@@ -44,19 +44,33 @@
                 <div class="alert alert-warning" role="alert">Build scripts depends on GIT tags to determine the version number. If you copy the source files outside the GIT repository and build from there you'll get a version number of 0.0.0-DEV.</div>
                 <br>
                 You can build Alusus on Linux or macOS. For Linux any distro can be used as long as it includes version 7 or higher of GCC. For macOS we tested building on macOS 10.13 with Xcode 9.3. It might be possible to build on older versions, but we haven't tested that.
+                <br>
 
                 <!-- ********************************************************************** -->
                 <h3 id="ExternalDependencies">External Dependencies</h3>
-                You'll need GCC (version 7 or above) CMake, Python3, and Pip to be able to build the binaries from the source code. LLVM also has its own dependencies like zlib and valgrind for example that you might need
-                to install manually. You'll also need libssl-dev to be able to use https in the Standard Runtime Library.<br/> To install the build tools in Ubuntu use the following command:
+                You'll need GCC (version 7 or above) CMake, Python3, Pip, and vcpkg to be able to build the binaries from the source code.<br/>
+                To install the build tools in Ubuntu use the following command:
 <pre dir=ltr class="code nohighlight">
-$ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev
+$ sudo apt-get install cmake build-essential python3 python3-pip
 </pre>
-                For other distros you'll need to check their documentation on how to install these tools. Notice that the build
-                script assumes that the Python executable is named `python3` in the system, which is the case on Ubuntu systems. If you are on other distros you might need to create some sym links or update the `build.sh` script.<br/>
-                You don't need to manually install LLVM as this will be done automatically by the build script.<br>
-                If you also want to generate install packages you'll need to install <a href="https://github.com/jordansissel/fpm" target="__blank">fpm</a>.
-                <div class="alert alert-warning" role="alert">You'll need GCC version 7 or newer. You won't be able to build Alusus code with older versions.</div>
+                For other distros you'll need to check their documentation on how to install these tools.<br/>
+                To install vcpkg follow these steps:
+<pre dir=ltr class="code nohighlight">
+$ git clone https://github.com/microsoft/vcpkg.git "$HOME/vcpkg"
+$ cd "$HOME/vcpkg"
+$ chmod +x bootstrap-vcpkg.sh
+$ ./bootstrap-vcpkg.sh
+</pre>
+                You can install vcpkg in any location and not necessarily "$HOME/vcpkg". After installing vcpkg you'll need to define an environment variable named ALUSUS_VCPKG_REPO_PATH containing the path to vcpkg:
+<pre dir=ltr class="code nohighlight">
+$ export ALUSUS_VCPKG_REPO_PATH="$HOME/vcpkg"
+</pre>
+                If you also want to generate install packages you'll need to install <a href="https://github.com/jordansissel/fpm" target="__blank">fpm</a>, as well as 7zip. On Ubuntu:
+<pre dir=ltr class="code nohighlight">
+$ sudo apt install p7zip-full ruby rpm libarchive-tools
+$ sudo gem install --no-document fpm
+</pre>
+                <div class="alert alert-warning" role="alert">You'll need GCC version 7 or newer. You won't be able to build Alusus code with older versions. You also need version 3.20 or higher of cmake.</div>
 
                 <!-- ********************************************************************** -->
                 <h3 id="BuildingUsingShellScript">Starting the Build</h3>
@@ -64,7 +78,7 @@ $ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev
                 <ul>
                   <li>Download and build LLVM, if not already built.</li>
                   <li>Download and build libcurl, if not already built.</li>
-                  <li>Download and build libzip, if not already built.</li>
+                  <li>Download and build kubazip, if not already built.</li>
                   <li>Build Alusus.</li>
                   <li>Generate install package(s) if requested.</li>
                 </ul>
@@ -73,29 +87,43 @@ $ sudo apt-get install gcc g++ cmake python3 python3-pip zlib1g-dev libssl-dev
 $ cd &lt;path-to-Alusus&gt;
 $ ./Tools/build.sh
 </pre>
-                build.sh receives the following arguments:
-                <ul>
-                  <li><b>--bloc &lt;path&gt;</b>: The path where build files will be placed.</li>
-                  <li><b>--iloc &lt;path&gt;</b>: The path where Bin, Lib, and Include will be placed after the build is complete.</li>
-                  <li><b>--btype &lt;build type&gt;</b>: The type of the build. Value p, which is the default, indicates a debug build, while r indicates a release build. Passing p results in a release build followed by a package generation.</li>
-                </ul>
-                When you pass p as btype the script will generate deb and rpm packages if you are building on Linux, while building on macOS will result in a pkg file.
+                You can pass different options to build.sh to control the build like deciding build type, build location, requesting instlal packages, etc. You can pass the --help option to view all available options. For example, to make a release build with install packages:
+<pre dir=ltr class="code nohighlight">
+$ cd &lt;path-to-Alusus&gt;
+$ ./Tools/build.sh --build-type release --build-packages
+</pre>
+                <br>
 
                 <!-- ********************************************************************** -->
                 <h3 id="ExecutingAutomatedTests">Executing Automated Tests</h3>
-                <hr> Executing the automated tests is simple. All you need to do is to run the following command inside the Alusus' build folder (Builds/Debug in the example above) after the build is complete:
-                <pre dir=ltr class="code nohighlight">$ make test</pre>
+                Executing the automated tests is simple. All you need to do is to run the following command inside Alusus' build folder (AlususBuild/Intermediate/x64-linux-release in the example above) after the build is complete:
+<pre dir=ltr class="code nohighlight">
+$ cd &lt;path-to-Alusus&gt;/AlususBuild/Intermediate/x64-linux-release
+$ ctest
+</pre>
+                <br>
 
                 <!-- ********************************************************************** -->
                 <h3 id="UsingAlusus">Using Alusus</h3>
-                <hr> After the build is complete you'll have the executable under Bin and the libraries will go under Lib. You'll be able to run the examples as follows:
+                After the build is complete you'll have the executable under Bin and the libraries will go under Lib. You'll be able to run the examples as follows:
                 <pre dir=ltr class="code nohighlight">$ export PATH=&lt;path-to-Alusus&gt;/Bin:$PATH
 $ cd &lt;path-to-Alusus&gt;/Examples
 $ alusus hello_world.alusus</pre> The Core's executalbe's name when building in debug mode will be alusus.dbg. If the build is in release mode the name will be alusus, i.e. without the dbg extension.
-                <p>If the Core is built in debug mode logging can be enabled using the --log command line argument, which accepts a number representing the details level of the log as in the following example:
-                    <pre dir=ltr class="code nohighlight">$ alusus helloworld.alusus --log 16</pre> The details level is determined through binary flags representing each different details level with the least significant bit representing the lowest level.
-                    A value of 1 for each level means details for that level will be logged to the screen. The following table explains the different levels:<br/> Lexer, low level = 1<br/> Lexer, mid level = 2<br/> Lexer, high level = 4<br/> Parser, low
-                    level = 8<br/> Parser, mid level = 16<br/> Parser, high level = 32<br/> The flags can be combined to display more than one level at the same time. For example, a value of 7 means logging all levels for the lexer.</p>
+                <p>If Alusus is built in debug mode logging can be enabled using the --log command line argument, which accepts a number representing the details level of the log as in the following example:
+                    <pre dir=ltr class="code nohighlight">$ alusus.dbg --log 16 helloworld.alusus</pre>
+                    The details level is determined through binary flags representing each different details level with the least significant bit representing the lowest level.
+                    A value of 1 for each level means details for that level will be logged to the screen. The following table explains the different levels:<br/>
+                    Lexer, low level = 1<br/>
+                    Lexer, mid level = 2<br/>
+                    Lexer, high level = 4<br/>
+                    Parser, low level = 8<br/>
+                    Parser, mid level = 16<br/>
+                    Parser, high level = 32<br/>
+                    Preprocessing = 64<br/>
+                    Code generation = 128<br/>
+                    Generating LLVM IR = 256<br/>
+                    LLVM diagnostics = 512<br/>
+                    The flags can be combined to display more than one level at the same time. For example, a value of 7 means logging all levels for the lexer.</p>
             </div>
         </div>
         <!--content-separator-->

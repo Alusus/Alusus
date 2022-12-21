@@ -13,7 +13,7 @@
 import "Srl/Fs.alusus";
 import "Srl/String";
 import "Core";
-import "libzip.so" or "libzip.dylib";
+import "libkubazip.so" or "libkubazip.dylib";
 
 def Zip: module {
   def zip_t: class {};

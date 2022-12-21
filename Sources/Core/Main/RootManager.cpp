@@ -2,7 +2,7 @@
  * @file Core/Main/RootManager.cpp
  * Contains the implementation of class Core::Main::RootManager.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -50,9 +50,11 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->processArgCount = 0;
   this->processArgs = 0;
 
+  this->coreBinPath = getModuleDirectory();
+
   // Initialize current paths.
-  this->pushSearchPath(getModuleDirectory());
-  this->pushSearchPath((getModuleDirectory()+S("../Lib/")));
+  this->pushSearchPath(this->coreBinPath);
+  this->pushSearchPath((this->coreBinPath + S("../Lib/")));
   this->pushSearchPath(getWorkingDirectory());
   // Add the paths from ALUSUS_LIBS environment variable, after splitting it by ':'.
   Char *alususLibs = getenv(S("ALUSUS_LIBS"));
