@@ -262,12 +262,18 @@ def parse_cmd_args(args):
     if processed_args.build_location == None:
         processed_args.build_location = os.path.join(
             alusus_local_build_path, "Intermediate", target_dirname)
+    else:
+        processed_args.build_location = os.path.abspath(processed_args.build_location)
     if processed_args.install_location == None:
         processed_args.install_location = os.path.join(
             alusus_local_build_path, "Install", target_dirname)
+    else:
+        processed_args.install_location = os.path.abspath(processed_args.install_location)
     if processed_args.packages_location == None:
         processed_args.packages_location = os.path.join(
             alusus_local_build_path, "Packages", target_dirname)
+    else:
+        processed_args.packages_location = os.path.abspath(processed_args.packages_location)
 
     return processed_args
 
