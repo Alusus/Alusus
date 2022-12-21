@@ -38,6 +38,7 @@
 ### Standard Libraries Fixes
 
 * Fixed an issue in closure pointer initialization.
+* Fixed an issue with closures causing conflict with closure payload variables named `d`.
 
 ### Other Updates and Fixes
 

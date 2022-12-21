@@ -144,12 +144,12 @@ module Closures {
             def payloadAssignment: TioSrdRef;
             if useNoDeref {
                 payloadAssignment = Spp.astMgr.buildAst(
-                    (ast d.varName~no_deref = varName),
+                    (ast __d.varName~no_deref = varName),
                     AstTemplateMap().set(String("varName"), Ast.Identifier(varDefs.keys(i)))
                 );
             } else {
                 payloadAssignment = Spp.astMgr.buildAst(
-                    (ast d.varName = varName),
+                    (ast __d.varName = varName),
                     AstTemplateMap().set(String("varName"), Ast.Identifier(varDefs.keys(i)))
                 );
             }
@@ -162,12 +162,12 @@ module Closures {
                     class Data {
                         payloadDefs
                     }
-                    def d: Srl.SrdRef[Data];
-                    d.construct();
+                    def __d: Srl.SrdRef[Data];
+                    __d.construct();
 
                     payloadAssignments;
 
-                    __this.data.assign(d.refCounter, castRef[d.obj, void]);
+                    __this.data.assign(__d.refCounter, castRef[__d.obj, void]);
                     __this.fp = fn;
                 }
             },
