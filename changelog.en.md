@@ -37,8 +37,12 @@
 
 * Fixed an issue in closure pointer initialization.
 
-### Other Fixes
+### Other Updates and Fixes
 
+* Modernize Alusus build scripts and make it depend on vcpkg to manage dependencies in addition to other various
+  improvements to the build scripts.
+* Build wasm-ld and include it with Alusus to avoid potential conflict between the version of LLVM used by
+  Alusus and the version LLVM used by the wasm-ld provided by the OS.
 * Fixed an issue in `apm link` command when dealing with spaces in folder names.
 
 
