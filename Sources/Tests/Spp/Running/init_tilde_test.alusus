@@ -34,3 +34,14 @@ Srl.Memory.free(pa);
 def i: Int;
 i~init(8);
 Srl.Console.print("i = %d\n", i);
+
+class Container {
+  handler this~init() {
+    class Data {
+        def t: T;
+    }
+    def d: Data;
+    Srl.Console.print("Container~init\n");
+  }
+}
+Container();

@@ -588,7 +588,10 @@ Bool Generator::_generateVarInitialization(
       return generator->getExpressionGenerator()->generateFunctionCall(
         astNode, static_cast<Ast::Function*>(callee.obj), paramAstTypes, paramTgValues, generation, session, result
       );
-    } else if (paramAstTypes->getCount() != 0 || generator->getSeeker()->tryGet(&ref, varAstType) != 0) {
+    } else if (
+      paramAstTypes->getCount() != 0 ||
+      generator->getSeeker()->tryGet(&ref, varAstType, Core::Data::Seeker::Flags::SKIP_OWNERS) != 0
+    ) {
       // We have custom initialization but no constructors match the given params.
       generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
         Core::Data::Ast::findSourceLocation(astNode)

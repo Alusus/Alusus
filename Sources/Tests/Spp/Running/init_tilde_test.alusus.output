@@ -5,3 +5,5 @@ init: 6, 8
 init!
 pa.i = 7
 i = 8
+init!
+Container~init
