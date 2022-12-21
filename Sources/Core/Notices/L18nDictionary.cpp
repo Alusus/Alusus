@@ -10,6 +10,8 @@
  */
 //==============================================================================
 
+#include <filesystem>
+
 #include "core.h"
 
 namespace Core::Notices
@@ -22,16 +24,14 @@ void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
 {
   this->dictionary.clear();
   this->currentLocale = locale;
-  Srl::String filename;
-  if (l18nPath != 0) {
-    filename = l18nPath;
+  std::filesystem::path l18nPathFilesystemPath;
+  if (l18nPath) {
+    l18nPathFilesystemPath = std::filesystem::path(l18nPath);
   } else {
-    filename = Main::getModuleDirectory();
-    filename += S("../Notices_L18n/");
+    l18nPathFilesystemPath = std::filesystem::path(Main::getModuleDirectory().getBuf()).parent_path() / "Notices_L18n";
   }
-  filename += locale;
-  filename += ".txt";
-  std::ifstream fin(filename);
+  l18nPathFilesystemPath = l18nPathFilesystemPath / (std::string(locale) + ".txt");
+  std::ifstream fin(l18nPathFilesystemPath.c_str());
   if (!fin.fail()) {
     while (!fin.eof()) {
       std::string line;

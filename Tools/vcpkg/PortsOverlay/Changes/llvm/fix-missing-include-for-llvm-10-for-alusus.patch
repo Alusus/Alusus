@@ -1,0 +1,13 @@
+diff --git a/llvm/utils/benchmark/src/benchmark_register.h b/llvm/utils/benchmark/src/benchmark_register.h
+index 0705e219f2fa..f553b3d11317 100644
+--- a/llvm/utils/benchmark/src/benchmark_register.h
++++ b/llvm/utils/benchmark/src/benchmark_register.h
+@@ -1,6 +1,8 @@
+ #ifndef BENCHMARK_REGISTER_H
+ #define BENCHMARK_REGISTER_H
+ 
++#include <limits> // Just to pass Alusus builds on GCC compilers with versions >= 11.
++                  // The actual LLVM fix is introduced in LLVM 12.0.0.
+ #include <vector>
+ 
+ #include "check.h"

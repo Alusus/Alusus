@@ -6,11 +6,11 @@
 
 # ALUSUS PROGRAMMING LANGUAGE [[عربي]](readme.ar.md)
 
-Alusus is designed to be a language for everything by making language features hot-pluggable, and on a per-project basis
+Alusus is designed to be a language for everything by making language features hot-plugable, and on a per-project basis
  (rather than per-environment), which allows the language to:
 * Expand vertically to cover low level features like those in C++ as well as high level features like those found in
 languages like Python or Ruby.
-* Expand horizonatally to cover all aspects of programming which saves the user having to use more than one language.
+* Expand horizontally to cover all aspects of programming which saves the user having to use more than one language.
 * Allow anyone to enhance the language in a decentralized way, which allows users to develop new programming techniques
 or paradigms without having to start from scratch with a new language.
 

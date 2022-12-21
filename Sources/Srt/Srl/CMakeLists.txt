@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususSrl)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Prepare compile flags.
 set(AlususSrl_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
@@ -25,7 +25,7 @@ file(GLOB sources *.cpp)
 set(AlususSrlLib_Source_Files ${AlususSrlLib_Source_Files} ${sources} ${headers})
 add_library(AlususSrlLib STATIC ${AlususSrlLib_Source_Files})
 set_target_properties(AlususSrlLib PROPERTIES COMPILE_FLAGS "${FPIC} ${AlususSrl_COMPILE_FLAGS}")
-ADD_PRECOMPILED_HEADER(AlususSrlLib "srl.h")
+target_precompile_headers(AlususSrlLib PRIVATE "srl.h")
 
 # Set library and executable output names.
 set_target_properties(AlususSrlLib PROPERTIES OUTPUT_NAME alusus_srl)
@@ -33,15 +33,15 @@ set_target_properties(AlususSrlLib PROPERTIES DEBUG_OUTPUT_NAME alusus_srl.dbg)
 set_target_properties(AlususSrlLib PROPERTIES VERSION ${AlususVersion})
 
 # Copy libary header files to installation directory.
-install_files("/Include/Srl" FILES srl.h)
+install_files("/${ALUSUS_INCLUDE_DIR_NAME}/Srl" FILES srl.h)
 foreach (DIR ${AlususSrlLib_Source_Subdirs})
   file(GLOB headers ${DIR}/*.h)
-  install_files("/Include/Srl/${DIR}" FILES ${headers})
+  install_files("/${ALUSUS_INCLUDE_DIR_NAME}/Srl/${DIR}" FILES ${headers})
 endforeach(DIR)
 
 # Install library and executable files.
 install(TARGETS AlususSrlLib
-  RUNTIME DESTINATION Bin
-  LIBRARY DESTINATION Lib
-  ARCHIVE DESTINATION Lib
+  RUNTIME DESTINATION ${ALUSUS_BIN_DIR_NAME}
+  LIBRARY DESTINATION ${ALUSUS_LIB_DIR_NAME}
+  ARCHIVE DESTINATION ${ALUSUS_LIB_DIR_NAME}
 )

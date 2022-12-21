@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 62fee8e6d..270850121 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -99,7 +99,7 @@ include_directories(${CURL_SOURCE_DIR}/include)
+ option(CURL_WERROR "Turn compiler warnings into errors" OFF)
+ option(PICKY_COMPILER "Enable picky compiler options" ON)
+ option(BUILD_CURL_EXE "Set to ON to build curl executable." ON)
+-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
++set(BUILD_SHARED_LIBS ON) # Force build CUrl as a shared library for Alusus.
+ option(ENABLE_ARES "Set to ON to enable c-ares support" OFF)
+ if(WIN32)
+   option(CURL_STATIC_CRT "Set to ON to build libcurl with static CRT on Windows (/MT)." OFF)

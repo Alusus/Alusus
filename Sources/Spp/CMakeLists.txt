@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususSpp)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Header and library files paths for LLVM
 include_directories("${LLVM_INCLUDE_DIRS}")
@@ -58,37 +58,37 @@ endif(MSVC)
 # Create AlususSpp library project.
 add_library(AlususSpp SHARED ${AlususSpp_SOURCE_FILES})
 set_target_properties(AlususSpp PROPERTIES COMPILE_FLAGS "${Alusus_COMPILE_FLAGS}")
-ADD_PRECOMPILED_HEADER(AlususSpp "spp.h")
+target_precompile_headers(AlususSpp PRIVATE "spp.h")
 
 # Set output names.
 set_target_properties(AlususSpp PROPERTIES OUTPUT_NAME alusus_spp)
 set_target_properties(AlususSpp PROPERTIES DEBUG_OUTPUT_NAME alusus_spp.dbg)
 set_target_properties(AlususSpp PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususSpp PROPERTIES SOVERSION ${AlususSoVersion})
+set_target_properties(AlususSpp PROPERTIES SHLIBVERSION ${AlususShlibVersion})
 
-# Finally, we link the LLVM and AlususCore libraries to our library.
-target_link_libraries(AlususSpp ${REQ_LLVM_LIBRARIES})
-target_link_libraries(AlususSpp AlususSrlLib AlususCoreLib AlususStorage)
+# Finally, we link LLVM and AlususCore libraries to our library.
+target_link_libraries(AlususSpp PRIVATE ${REQ_LLVM_LIBRARIES})
+target_link_libraries(AlususSpp PRIVATE AlususSrlLib AlususCoreLib AlususStorage)
 # Prevent the exporting of LLVM symbols
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LinkerVersionScript -Wl,-exported_symbols_list,${AlususSpp_SOURCE_DIR}/macos_exported_symbols.txt)
 else()
   set(LinkerVersionScript -Wl,--version-script,${AlususSpp_SOURCE_DIR}/linker_version_script.map)
 endif()
-target_link_libraries(AlususSpp ${LinkerVersionScript})
+target_link_libraries(AlususSpp PRIVATE ${LinkerVersionScript})
 
 # Copy libary header files to installation directory.
-install_files("/Include/Spp" FILES
+install_files("/${ALUSUS_INCLUDE_DIR_NAME}/Spp" FILES
   spp.h
   LibraryGateway.h
   )
 foreach (dir ${AlususSpp_SOURCE_SUBDIRS})
   file(GLOB headers ${dir}/*.h)
-  install_files("/Include/Spp/${dir}" FILES ${headers})
+  install_files("/${ALUSUS_INCLUDE_DIR_NAME}/Spp/${dir}" FILES ${headers})
 endforeach(dir)
 
 install(TARGETS AlususSpp
-  RUNTIME DESTINATION Bin
-  LIBRARY DESTINATION Lib
-  ARCHIVE DESTINATION Lib
+  RUNTIME DESTINATION ${ALUSUS_BIN_DIR_NAME}
+  LIBRARY DESTINATION ${ALUSUS_LIB_DIR_NAME}
+  ARCHIVE DESTINATION ${ALUSUS_LIB_DIR_NAME}
 )

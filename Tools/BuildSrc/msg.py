@@ -1,43 +1,29 @@
 from __future__ import print_function
-try:
-    import install_dep
-except ImportError:
-    import sys
-    if os.path.dirname(os.path.realpath(__file__)) not in sys.path:
-        sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-    import install_dep
-install_dep.install_package('termcolor'); from termcolor import colored
-
-def infoMsg(txt, newline=True):
-    if newline:
-        print('{0} {1}'.format(colored("INFO:", "blue"), txt))
-    else:
-        print('{0} {1}'.format(colored("INFO:", "blue"), txt), end='')
+import sys
+import os
+from termcolor import colored
 
 
-def successMsg(txt, newline=True):
-    if newline:
-        print('{0} {1}'.format(colored("DONE:", "green"), txt))
-    else:
-        print('{0} {1}'.format(colored("DONE:", "green"), txt), end='')
+def info_msg(txt, end=os.linesep, file=sys.stdout):
+    print('{msg_type} {txt}'.format(msg_type=colored(
+        "INFO:", "blue"), txt=txt), end=end, file=file)
 
 
-def warnMsg(txt, newline=True):
-    if newline:
-        print('{0} {1}'.format(colored("WARNING:", "yellow"), txt))
-    else:
-        print('{0} {1}'.format(colored("WARNING:", "yellow"), txt), end='')
+def success_msg(txt, end=os.linesep, file=sys.stdout):
+    print('{msg_type} {txt}'.format(msg_type=colored(
+        "DONE:", "green"), txt=txt), end=end, file=file)
 
 
-def errMsg(txt, newline=True):
-    if newline:
-        print('{0} {1}'.format(colored("ERROR:", "red"), txt))
-    else:
-        print('{0} {1}'.format(colored("ERROR:", "red"), txt), end='')
+def warn_msg(txt, end=os.linesep, file=sys.stderr):
+    print('{msg_type} {txt}'.format(msg_type=colored(
+        "WARNING:", "yellow"), txt=txt), end=end, file=file)
 
 
-def failMsg(txt, newline=True):
-    if newline:
-        print('{0} {1}'.format(colored("FAILED:", "red"), txt))
-    else:
-        print('{0} {1}'.format(colored("FAILED:", "red"), txt), end='')
+def err_msg(txt, end=os.linesep, file=sys.stderr):
+    print('{msg_type} {txt}'.format(msg_type=colored(
+        "ERROR:", "red"), txt=txt), end=end, file=file)
+
+
+def fail_msg(txt, end=os.linesep, file=sys.stderr):
+    print('{msg_type} {txt}'.format(msg_type=colored(
+        "FAILED:", "red"), txt=txt), end=end, file=file)

@@ -1,589 +1,312 @@
-#!/usr/bin/env python3
-from __future__ import print_function
-import colorama
-import wget
-import termcolor
 import argparse
-import site
+import sys
+from colorama import init as init_colorama
 import os
 import multiprocessing
-import shutil
-import tarfile
-from zipfile import ZipFile
-import subprocess
-import platform
-from urllib.request import urlretrieve
-from version_info import get_version_info
-from msg import errMsg, failMsg, infoMsg, successMsg, warnMsg
-import lzma
+import json
+import sanitize_filename
 
-# Build Args
-MAKE_THREAD_COUNT = multiprocessing.cpu_count()
-BUILD_TYPE = "debug"
-
-# Paths.
-ALUSUS_ROOT = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.realpath(__file__))))
-ORIGINAL_PATH = os.path.realpath(os.getcwd())
-os.chdir(ALUSUS_ROOT)
-INSTALL_PATH = ORIGINAL_PATH
-RELEASE_INSTALL_PATH = os.path.join(
-    '/', 'opt', 'Alusus') if os.name == "posix" else os.path.join('/', 'Alusus')
-BUILDS_PATH = os.path.join(ORIGINAL_PATH, "Builds")
-BUILD_PATH = os.path.join(BUILDS_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
-DEPS_PATH = os.path.join(BUILDS_PATH, 'Dependencies')
-PACKAGES_PATH = os.path.join(BUILDS_PATH, 'Packages')
-os.chdir(ORIGINAL_PATH)
-
-# Package Creation Args.
-CREATE_PACKAGES = "no"
-ARCHITECTURE = "native"
-PACKAGE_NAME = "alusus"
-PACKAGE_DESCRIPTION = "Alusus Programming Language's core compilation system and standard libraries."
-PACKAGE_MAINTAINER = "Sarmad Khalid Abdullah <sarmad@alusus.org>"
-PACKAGE_URL = "https://alusus.org"
-
-# Current system.
-THIS_SYSTEM = platform.system()
+# fmt: off
+# Alusus import(s).
+sys.path.insert(0, os.path.dirname(__file__))
+import common
+import msg
+import vcpkg
+from build_type import BuildType
+from target_triplet import TargetTriplet
+from build_packages import BuildPackages
+# fmt: on
 
 
-def is_windows():
-    return THIS_SYSTEM == "Windows"
+def build_alusus(alusus_build_location: str,
+                 alusus_install_location: str,
+                 alusus_build_type: BuildType,
+                 alusus_target_triplet: TargetTriplet,
+                 alusus_clean_and_build: bool,
+                 alusus_bin_dirname: str,
+                 alusus_lib_dirname: str,
+                 alusus_include_dirname: str,
+                 skip_installing_std_deps: bool,
+                 verbose_output: bool = False):
 
+    os.makedirs(alusus_build_location, exist_ok=True)
+    os.makedirs(alusus_install_location, exist_ok=True)
 
-def is_macos():
-    return THIS_SYSTEM == "Darwin"
-
-
-def is_linux():
-    return THIS_SYSTEM == "Linux"
-
-
-def get_lib_filename(name):
-    if is_linux():
-        return "lib{}.so".format(name)
-    elif is_macos():
-        return "lib{}.dylib".format(name)
-    elif is_windows():
-        return "{}.dll".format(name)
-    else:
-        raise NotImplementedError("Unsupported system.")
-
-
-def process_args():
-    global BUILD_TYPE
-    global BUILDS_PATH
-    global BUILD_PATH
-    global CREATE_PACKAGES
-    global INSTALL_PATH
-    global RELEASE_INSTALL_PATH
-    global DEPS_PATH
-    global PACKAGES_PATH
-
-    parser = argparse.ArgumentParser(add_help=False,
-                                     formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
-                        help='Show this help message and exit.')
-    parser.add_argument("--btype", metavar="BUILD_TYPE", help="Set the build type of Alusus:\n" +
-                        "    d [default]: debug build.\n" +
-                        "    r: release build.\n" +
-                        "    p: release and package build.",
-                        choices=["d", "r", "p"], required=False, default="d")
-    parser.add_argument("--bloc", metavar="BUILD_LOCATION", help="Set the build location (default is the sources root directory).",
-                        required=False, default=None)
-    parser.add_argument("--iloc", metavar="INSTALL_LOCATION", help="Set the install location (default is the value of \"--bloc\").",
-                        required=False, default=None)
-    parser.add_argument("-g", action="store_true", help="Set the install location globally on the current system"
-                                                        " (located in \"{}\" - MAY REQUIRE ROOT PRIVILEGE)."
-                                                        " This will be overridden by the value of \"--iloc\" option.".format(
-                                                            RELEASE_INSTALL_PATH),
-                        required=False, default=False)
-    args = parser.parse_args()
-
-    if args.btype == "r":
-        BUILD_TYPE = "release"
-    elif args.btype == "p":
-        BUILD_TYPE = "release"
-        CREATE_PACKAGES = "yes"
-
-    if args.bloc:
-        BUILDS_PATH = os.path.realpath(args.bloc)
-        if not os.path.isdir(BUILDS_PATH):
-            os.makedirs(BUILDS_PATH)
-
-    BUILD_PATH = os.path.join(BUILDS_PATH, BUILD_TYPE[0].upper() + BUILD_TYPE[1:])
-    DEPS_PATH = os.path.join(BUILDS_PATH, "Dependencies")
-    PACKAGES_PATH = os.path.join(BUILDS_PATH, "Packages")
-
-    if args.g:
-        INSTALL_PATH = RELEASE_INSTALL_PATH
-        shutil.rmtree(INSTALL_PATH, ignore_errors=True)
-        os.makedirs(INSTALL_PATH)
-
-    if args.iloc:
-        INSTALL_PATH = os.path.realpath(args.iloc)
-
-
-def create_dirs():
-    """
-    Create the directories required during the build process. These are:
-    - the build directory: where Alusus is built.
-    - the dependencies directory: where Alusus's dependencies are built.
-    """
-    global BUILD_PATH
-    global DEPS_PATH
-    os.makedirs(BUILD_PATH, exist_ok=True)
-    os.makedirs(DEPS_PATH, exist_ok=True)
-    os.makedirs(os.path.join(os.path.realpath(
-        INSTALL_PATH), "Lib"), exist_ok=True)
-
-
-def fetch_dep(dep_name, url, dir_name, filename):
-    if not os.path.exists(os.path.join(dir_name, "EXTRACTED")):
-        if not os.path.exists(filename):
-            infoMsg(f"Downloading {dep_name} from {url}...")
-            wget.download(url)
-        else:
-            infoMsg(f"{dep_name} already available at {filename}.")
-        if filename.endswith(".zip"):
-            with ZipFile(filename,"r") as zip_ref:
-                zip_ref.extractall(".")
-        else:
-            with lzma.open(filename) as fd:
-                with tarfile.open(fileobj=fd) as tar:
-                    infoMsg(f"Extracting {dep_name} sources from {filename}...")
-                    tar.extractall()
-        os.remove(filename)
-        with open(os.path.join(dir_name, "EXTRACTED"), "w") as fd:
-            fd.write(f"{dep_name} EXTRACTED CHECKER")
-        infoMsg(f"Finished extracting {dep_name} sources.")
-    else:
-        infoMsg(f"{dep_name} sources are already available.")
-
-
-def build_llvm():
-    global DEPS_PATH
-    global MAKE_THREAD_COUNT
-    url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.0/llvm-10.0.0.src.tar.xz"
-    filename = "llvm-10.0.0.src.tar.xz"
-    src_dir, build_dir, install_dir = "llvm-10.0.0.src", "llvm-10.0.0.build", "llvm-10.0.0.install"
-
-    old_path = os.path.realpath(os.getcwd())
-    os.chdir(DEPS_PATH)
-
-    fetch_dep("LLVM", url, src_dir, filename)
-
-    if os.path.exists(os.path.join(install_dir, "INSTALLED")):
-        infoMsg("LLVM is already built and installed.")
-        successMsg("Building LLVM.")
-        return os.path.realpath(install_dir)
+    # Add the "vcpkg" path in the PATH/Path variable.
+    environ = os.environ.copy()
+    vcpkg_repo_path = None
     try:
-        os.makedirs(install_dir)
-    except OSError:
-        pass
-    if not os.path.exists(build_dir):
-        try:
-            os.makedirs(build_dir)
-        except OSError:
-            pass
-    os.chdir(build_dir)
+        msg.info_msg("Finding vcpkg Git repository...")
+        vcpkg_repo_path = vcpkg.get_vcpkg_repo_path(environ)
+    except Exception as e:
+        common.eprint(e)
+        msg.fail_msg("Finding vcpkg Git repository.")
+        return False
+    msg.info_msg("Using vcpkg repo path={vcpkg_repo_path}.".format(
+        vcpkg_repo_path=json.dumps(vcpkg_repo_path)))
+    vcpkg_toolchain_file_path = os.path.join(
+        vcpkg_repo_path, "scripts", "buildsystems", "vcpkg.cmake")
+    path_env_var = "Path" if sys.platform == "win32" else "PATH"
+    path_sep = ";" if sys.platform == "win32" else ":"
+    environ[path_env_var] = (vcpkg_repo_path + path_sep + environ[path_env_var]
+                             ) if path_env_var in environ else vcpkg_repo_path
 
+    # Set the path to the updated vcpkg ports overlays and restore the ports overlays if they are changed.
+    msg.info_msg("Restoring vcpkg dependency ports overlays...")
+    alusus_vcpkg_ports_overlays_location = os.path.join(
+        alusus_build_location, "AlususVcpkgPortsOverlay")
     try:
-        ret = subprocess.call([
-            "cmake",
-            os.path.join("..", src_dir),
-            f"-DCMAKE_INSTALL_PREFIX={os.path.join(DEPS_PATH, install_dir)}",
-            "-DCMAKE_BUILD_TYPE=Release",
-            "-DLLVM_TARGETS_TO_BUILD=X86;WebAssembly"])
-        if ret != 0:
-            failMsg("Building LLVM.")
-            exit(1)
+        vcpkg.restore_ports_overlays(
+            alusus_vcpkg_ports_overlays_location, vcpkg_repo_path)
+    except Exception as e:
+        common.eprint(e)
+        msg.fail_msg("Restoring vcpkg dependency ports overlays.")
+        return False
 
-        if is_windows():
-            ret = subprocess.call(
-                "msbuild INSTALL.vcxproj /p:Configuration=Release /m".split())
-            if ret != 0:
-                failMsg("Building LLVM.")
-                exit(1)
-        else:
-            ret = subprocess.call(
-                "make install -j{}".format(MAKE_THREAD_COUNT).split())
-            if ret != 0:
-                failMsg("Building LLVM.")
-                exit(1)
-
-        os.chdir(DEPS_PATH)
-        with open(os.path.join(install_dir, "INSTALLED"), "w") as fd:
-            fd.write("LLVM INSTALLED CHECKER")
-
-    except (OSError, subprocess.CalledProcessError):
-        failMsg("Building LLVM.")
-        exit(1)
-    successMsg("Building LLVM.")
-    os.chdir(DEPS_PATH)
-    return os.path.realpath(install_dir)
-
-
-def build_libcurl():
-    global DEPS_PATH
-    global MAKE_THREAD_COUNT
-    global INSTALL_PATH
-    url = "https://github.com/curl/curl/releases/download/curl-7_70_0/curl-7.70.0.tar.xz"
-    src_dir = "curl-7.70.0"
-    filename = "curl-7.70.0.tar.xz"
-    output = get_lib_filename("curl")
-
-    old_path = os.path.realpath(os.getcwd())
-    os.chdir(DEPS_PATH)
-
-    fetch_dep("libcurl", url, src_dir, filename)
-
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)):
-        infoMsg("libcurl is already built and installed.")
-        successMsg("Building libcurl.")
-        return
-
-    os.chdir(src_dir)
-
-    try:
-        if is_windows():
-            # TODO: Build libcurl for windows.
-            raise NotImplementedError(
-                "Building libcurl for Windows OS is not implemented yet!")
-        else:
-            if is_macos():
-                ret = subprocess.call(["./configure", "--with-darwinssl"])
-            else:
-                ret = subprocess.call("./configure")
-            if ret != 0:
-                failMsg("Building libcurl (./configure).")
-                exit(1)
-            ret = subprocess.call(
-                "make -j{}".format(MAKE_THREAD_COUNT).split())
-            if ret != 0:
-                failMsg("Building libcurl (make).")
-                exit(1)
-
-            shutil.copy2(
-                os.path.join(DEPS_PATH, src_dir, "lib", ".libs", output),
-                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)
-            )
-            if ret != 0:
-                failMsg(f"Building libcurl. Couldn't copy {output}.")
-                exit(1)
-
-    except (OSError, subprocess.CalledProcessError) as e:
-        failMsg(f"Building libcurl. Exception: {e}")
-        exit(1)
-    successMsg("Building libcurl.")
-    os.chdir(old_path)
-
-
-def build_libzip():
-    global DEPS_PATH
-    global MAKE_THREAD_COUNT
-    global INSTALL_PATH
-
-    url = "https://github.com/kuba--/zip/archive/v0.1.19.zip"
-    src_dir = "zip-0.1.19"
-    filename = "zip-0.1.19.zip"
-    output = get_lib_filename("zip")
-
-    old_path = os.path.realpath(os.getcwd())
-    os.chdir(DEPS_PATH)
-
-    fetch_dep("libzip", url, src_dir, filename)
-
-    if os.path.exists(os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)):
-        infoMsg("libzip is already built and installed.")
-        successMsg("Building libzip.")
-        return
-
-    os.chdir(src_dir)
-
-    try:
-        if is_windows():
-            # TODO: Build libzip for windows.
-            raise NotImplementedError(
-                "Building libzip for Windows OS is not implemented yet!")
-        else:
-            build_dir = os.path.join(DEPS_PATH, src_dir, "build")
-            if not os.path.exists(build_dir):
-                try:
-                    os.mkdir(build_dir)
-                except:
-                    failMsg(f'Cannot make "{build_dir}" directory.')
-                    exit(1)
-
-            os.chdir("build")
-
-            ret = subprocess.call(["cmake", "-DBUILD_SHARED_LIBS=true", ".."])
-            if ret != 0:
-                failMsg("Building libzip.")
-                exit(1)
-            ret = subprocess.call(
-                "make -j{}".format(MAKE_THREAD_COUNT).split())
-            if ret != 0:
-                failMsg("Building libzip.")
-                exit(1)
-
-            shutil.copy2(
-                os.path.join(DEPS_PATH, build_dir, output),
-                os.path.join(os.path.realpath(INSTALL_PATH), "Lib", output)
-            )
-            if ret != 0:
-                failMsg("Building libzip.")
-                exit(1)
-    except (OSError, subprocess.CalledProcessError):
-        failMsg("Building libzip.")
-        exit(1)
-    successMsg("Building libzip.")
-    os.chdir(old_path)
-
-
-def copy_other_installation_files():
-    global ALUSUS_ROOT
-    global INSTALL_PATH
-    infoMsg("Copying other installation files...")
-    shutil.rmtree(os.path.join(INSTALL_PATH, "Doc"), ignore_errors=True)
-    shutil.copytree(
-        os.path.join(ALUSUS_ROOT, "Doc"),
-        os.path.join(INSTALL_PATH, "Doc")
-    )
-    shutil.rmtree(os.path.join(INSTALL_PATH, "Notices_L18n"),
-                  ignore_errors=True)
-    shutil.copytree(
-        os.path.join(ALUSUS_ROOT, "Notices_L18n"),
-        os.path.join(INSTALL_PATH, "Notices_L18n")
-    )
-    try:
-        os.makedirs(os.path.join(INSTALL_PATH, "Tools",
-                                 "Gtk_Syntax_Highlighting"))
-    except OSError:
-        pass
-    shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus.lang"),
-        os.path.join(INSTALL_PATH, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus.lang")
-    )
-    shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus_dark_style.xml"),
-        os.path.join(INSTALL_PATH, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus_dark_style.xml")
-    )
-    shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus_light_style.xml"),
-        os.path.join(INSTALL_PATH, "Tools",
-                     "Gtk_Syntax_Highlighting", "alusus_light_style.xml")
-    )
-    shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "changelog.en.md"),
-        os.path.join(INSTALL_PATH, "changelog.en.md")
-    )
-    shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "changelog.ar.md"),
-        os.path.join(INSTALL_PATH, "changelog.ar.md")
-    )
-    shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "license.pdf"),
-        os.path.join(INSTALL_PATH, "license.pdf")
-    )
-    shutil.copy2(
-        os.path.join(ALUSUS_ROOT, "license.txt"),
-        os.path.join(INSTALL_PATH, "license.txt")
-    )
-    successMsg("Copying other installation files.")
-
-
-def build_alusus(llvm_path):
-    global BUILD_PATH
-    global ALUSUS_ROOT
-    global BUILD_TYPE
-    global INSTALL_PATH
-    global DEPS_PATH
-    global MAKE_THREAD_COUNT
-    global CREATE_PACKAGES
-    global DLFCN_WIN32_NAME
-
-    infoMsg("Building Alusus...")
-    old_path = os.path.realpath(os.getcwd())
-    os.chdir(BUILD_PATH)
-
-    try:
-        # Determine fpic flag based on architecture type. For arm64 we'll use -fPIC to avoid the `too many GOT entries`
-        # error. For everything else we'll use -fpic to maintain higher performance.
-        arch = subprocess.check_output(['uname', '-m']).decode('utf-8').strip()
-        fpic = '-fPIC' if arch == 'arm64' or arch == 'aarch64' else '-fpic'
-
-        cmake_cmd = ["cmake",
-                     os.path.join(ALUSUS_ROOT, "Sources"),
-                     f"-DCMAKE_BUILD_TYPE={BUILD_TYPE}".format(),
-                     f"-DCMAKE_INSTALL_PREFIX={INSTALL_PATH}".format(),
-                     f"-DLLVM_PATH={llvm_path}".format(),
-                     f"-DFPIC={fpic}".format()]
-
-        ret = subprocess.call(cmake_cmd)
-        if ret != 0:
-            failMsg("Building Alusus.")
-            exit(1)
-        if is_windows():
-            ret = subprocess.call("msbuild INSTALL.vcxproj /m".split())
-            if ret != 0:
-                failMsg("Building Alusus.")
-                exit(1)
-        else:
-            ret = subprocess.call(
-                "make install -j{}".format(MAKE_THREAD_COUNT).split())
-            if ret != 0:
-                failMsg("Building Alusus.")
-                exit(1)
-
-    except (OSError, subprocess.CalledProcessError):
-        failMsg("Building Alusus.")
-        exit(1)
-    os.chdir(old_path)
-    successMsg("Building Alusus.")
-
-
-def create_packages_windows():
-    # TODO: Implement Windows packaging.
-    raise NotImplementedError("Windows OS packaging is not implemented yet!")
-
-
-def create_zip():
-    global ALUSUS_ROOT
-    global PACKAGES_PATH
-    global ARCHITECTURE
-    global PACKAGE_NAME
-    global PACKAGE_DESCRIPTION
-    global PACKAGE_URL
-    global PACKAGE_MAINTAINER
-    global RELEASE_INSTALL_PATH
-    global INSTALL_PATH
-
-    old_path = os.path.realpath(os.getcwd())
-    os.chdir(BUILDS_PATH)
-
-    subprocess.call(["rm", "-rf", "Alusus"])
-    shutil.copytree(INSTALL_PATH, "Alusus", True)
-
-    if is_linux():
-        postfix = "linux"
-    else:
-        postfix = "macos"
-
-    version, revision, _, _ = get_version_info()
-
-    if revision != "":
-        filename = "alusus_" + version + "-" + revision + "_x86_64_" + postfix + ".zip"
-    else:
-        filename = "alusus_" + version + "_x86_64_" + postfix + ".zip"
-
-    current_cmd = ["zip", "--symlinks", "-r", os.path.join(PACKAGES_PATH, filename), "Alusus/"]
-    ret = subprocess.call(current_cmd)
-    if ret != 0:
-        failMsg("Creating Zip Package.")
-        exit(1)
-
-    os.chdir(old_path)
-
-
-def create_packages_unix():
-    global ALUSUS_ROOT
-    global PACKAGES_PATH
-    global ARCHITECTURE
-    global PACKAGE_NAME
-    global PACKAGE_DESCRIPTION
-    global PACKAGE_URL
-    global PACKAGE_MAINTAINER
-    global RELEASE_INSTALL_PATH
-    global INSTALL_PATH
-
-    old_path = os.path.realpath(os.getcwd())
-    os.chdir(PACKAGES_PATH)
-
-    input_type = "dir"
-    version, revision, _, _ = get_version_info()
-    after_install_script = os.path.join(
-        ALUSUS_ROOT, "Tools", "BuildSrc", "Package_Scripts", "post_install.sh")
-    after_remove_script = os.path.join(
-        ALUSUS_ROOT, "Tools", "BuildSrc", "Package_Scripts", "post_remove.sh")
-
-    current_cmd = [
-        "fpm", "-s", input_type, "-t", "deb" if is_linux() else "osxpkg", "-a", ARCHITECTURE,
-        "-n", PACKAGE_NAME, "-v", version, "--description", PACKAGE_DESCRIPTION,
-        "--url", PACKAGE_URL, "-m", PACKAGE_MAINTAINER,
-        "--after-install", after_install_script,
-        "--after-remove", after_remove_script, "-f",
-        "--prefix", RELEASE_INSTALL_PATH,
-        "-C",
-        INSTALL_PATH
+    # Configure the build directory.
+    msg.info_msg("Configuring Alusus with CMake...")
+    cmake_cmd = [
+        "cmake", common.ALUSUS_SOURCES_DIR,
+        "-DCMAKE_INSTALL_PREFIX={alusus_install_location}".format(
+            alusus_install_location=alusus_install_location),
+        "-DCMAKE_BUILD_TYPE={alusus_build_type}".format(
+            alusus_build_type=alusus_build_type.value.cmake_build_type),
+        "-DCMAKE_TOOLCHAIN_FILE={vcpkg_toolchain_file_path}".format(
+            vcpkg_toolchain_file_path=vcpkg_toolchain_file_path),
+        "-DVCPKG_MANIFEST_DIR={vcpkg_alusus_manifest_dir}".format(
+            vcpkg_alusus_manifest_dir=common.VCPKG_ALUSUS_MANIFEST_DIR),
+        "-DVCPKG_TARGET_TRIPLET={vcpkg_target_triplet}".format(
+            vcpkg_target_triplet=alusus_target_triplet.value.vcpkg_target_triplet),
+        "-DVCPKG_OVERLAY_PORTS={vcpkg_alusus_overlay_ports}".format(
+            vcpkg_alusus_overlay_ports=alusus_vcpkg_ports_overlays_location
+        ),
+        "-DALUSUS_BIN_DIR_NAME={alusus_bin_dirname}".format(
+            alusus_bin_dirname=alusus_bin_dirname),
+        "-DALUSUS_LIB_DIR_NAME={alusus_lib_dirname}".format(
+            alusus_lib_dirname=alusus_lib_dirname),
+        "-DALUSUS_INCLUDE_DIR_NAME={alusus_include_dirname}".format(
+            alusus_include_dirname=alusus_include_dirname)
     ]
+    if alusus_target_triplet.value.cmake_generator:
+        msg.info_msg("Using preferred {cmake_generator} CMake generator with the CMake configuration.".format(
+            cmake_generator=json.dumps(
+                alusus_target_triplet.value.cmake_generator
+            )
+        ))
+        cmake_cmd += ["-G", alusus_target_triplet.value.cmake_generator]
+    ret = common.subprocess_run_hidden_except_on_error(
+        cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
+    if ret.returncode:
+        msg.fail_msg("Configuring Alusus with CMake.")
+        return False
 
-    if revision != "":
-        # Insert just before "--description".
-        idx = current_cmd.index("--description")
-        current_cmd.insert(idx, revision)
-        current_cmd.insert(idx, "--iteration")
+    # Build Alusus.
+    msg.info_msg("Building Alusus...")
+    cmake_cmd = ["cmake", "--build", alusus_build_location,
+                 "--parallel", str(multiprocessing.cpu_count())]
+    if alusus_clean_and_build:
+        cmake_cmd += ["--clean-first"]
+    ret = common.subprocess_run_hidden_except_on_error(
+        cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
+    if ret.returncode:
+        msg.fail_msg("Building Alusus.")
+        return False
 
-    ret = subprocess.call(current_cmd)
-    if ret != 0:
-        failMsg("Creating {} Package.".format(
-            "DEB" if is_linux() else "OSXPKG"))
-        exit(1)
+    # Install Alusus.
+    msg.info_msg("Installing Alusus...")
+    cmake_cmd = ["cmake", "--install", alusus_build_location]
+    ret = common.subprocess_run_hidden_except_on_error(
+        cmake_cmd, cwd=alusus_build_location, env=environ, verbose_output=verbose_output)
+    if ret.returncode:
+        msg.fail_msg("Installing Alusus.")
+        return False
 
-    # Create additional package of type RPM for Linux systems.
-    if is_linux():
-        # Generate rpm package.
-        current_cmd[current_cmd.index("-t") + 1] = "rpm"
-        ret = subprocess.call(current_cmd)
-        if ret != 0:
-            failMsg("Creating RPM Package.")
-            exit(1)
+    # Install STD dependencies.
+    if not skip_installing_std_deps:
+        msg.info_msg("Installing Alusus STD dependencies...")
 
-        # Generate pacman package.
-        current_cmd[current_cmd.index("-t") + 1] = "pacman"
-        ret = subprocess.call(current_cmd)
-        if ret != 0:
-            failMsg("Creating pacman Package.")
-            exit(1)
+        # Install STD libraries.
+        msg.info_msg("Installing Alusus STD library dependencies...")
+        libs_to_install = []
+        if alusus_target_triplet.value.platform == "linux":
+            libs_to_install = [
+                ("libcurl.so", "libcurl.so"),
+                ("libzip.so", "libzip.so")
+            ]
+            # TODO: Add more libs to install as needed here.
+        elif alusus_target_triplet.value.platform == "darwin":
+            libs_to_install = [
+                ("libcurl.dylib", "libcurl.dylib"),
+                ("libzip.dylib", "libzip.dylib")
+            ]
+            # TODO: Add more libs to install as needed here.
+        # TODO: Add more logic for other targets here.
 
-    create_zip()
+        std_libs_location = os.path.join(
+            alusus_build_location, "vcpkg_installed", alusus_target_triplet.value.vcpkg_target_triplet, "lib")
+        alusus_libs_install_location = os.path.join(
+            alusus_install_location, alusus_lib_dirname)
+        if alusus_target_triplet.value.platform == "win32":
+            # DLLs are found in the binary folder in Windows STD builds.
+            std_libs_location = os.path.join(
+                alusus_build_location, "vcpkg_installed", alusus_target_triplet.value.vcpkg_target_triplet, "bin")
 
-    os.chdir(old_path)
+            # Install the DLL in the binaries folder in Windows.
+            alusus_libs_install_location = os.path.join(
+                alusus_install_location, alusus_bin_dirname)
+
+        for source_libname, dst_libname in libs_to_install:
+            shlib_build_location = os.path.join(
+                std_libs_location, source_libname)
+            shlib_install_location = os.path.join(
+                alusus_libs_install_location, dst_libname)
+
+            # Only copy the shared library if different.
+            ret = common.copy_if_different(
+                shlib_build_location, shlib_install_location, follow_dst_symlinks=False)
+            if ret == common.CopyIfDifferentReturnType.DstUpdated:
+                msg.success_msg("Installing STD libname={libname}.".format(
+                    libname=json.dumps(dst_libname)))
+            elif ret == common.CopyIfDifferentReturnType.DstUpToDate:
+                msg.info_msg("STD libname={libname} is up to date.".format(
+                    libname=json.dumps(dst_libname)))
+            elif ret == common.CopyIfDifferentReturnType.NoSrc:
+                msg.err_msg("STD libname={libname} doesn't exist.".format(
+                    libname=json.dumps(dst_libname)))
+
+        # Install STD binaries.
+        msg.info_msg("Installing Alusus STD binary dependencies...")
+        bins_to_install = []
+        if alusus_target_triplet.value.platform == "linux":
+            bins_to_install = [
+                ("wasm-ld", "wasm-ld")
+            ]
+            # TODO: Add more bins to install as needed here.
+        elif alusus_target_triplet.value.platform == "darwin":
+            bins_to_install = [
+                ("wasm-ld", "wasm-ld")
+            ]
+            # TODO: Add more bins to install as needed here.
+        # TODO: Add more logic for other targets here.
+
+        std_bins_location = os.path.join(
+            alusus_build_location, "vcpkg_installed", alusus_target_triplet.value.vcpkg_target_triplet, "bin")
+        alusus_bins_install_location = os.path.join(
+            alusus_install_location, alusus_bin_dirname)
+
+        for source_binname, dst_binname in bins_to_install:
+            bin_build_location = os.path.join(
+                std_bins_location, source_binname)
+            bin_install_location = os.path.join(
+                alusus_bins_install_location, dst_binname)
+
+            # Only copy the shared library if different.
+            ret = common.copy_if_different(
+                bin_build_location, bin_install_location, follow_dst_symlinks=False)
+            if ret == common.CopyIfDifferentReturnType.DstUpdated:
+                msg.success_msg("Installing STD binname={binname}.".format(
+                    binname=json.dumps(dst_binname)))
+            elif ret == common.CopyIfDifferentReturnType.DstUpToDate:
+                msg.info_msg("STD binname={binname} is up to date.".format(
+                    binname=json.dumps(dst_binname)))
+            elif ret == common.CopyIfDifferentReturnType.NoSrc:
+                msg.err_msg("STD binname={binname} doesn't exist.".format(
+                    binname=json.dumps(dst_binname)))
+
+    msg.success_msg("Building and installing Alusus.")
+    return True
 
 
-def create_packages():
-    global PACKAGES_PATH
-    global THIS_SYSTEM
+def parse_cmd_args(args):
+    parser = argparse.ArgumentParser(description="Alusus build script")
+    parser.add_argument("--build-location", type=str,
+                        default=None, help="Alusus build location")
+    parser.add_argument("--install-location", type=str,
+                        default=None, help="Alusus install location")
+    parser.add_argument("--build-type",
+                        type=BuildType.from_alusus_build_type_str, default=BuildType.DEBUG, help="Alusus build type")
+    parser.add_argument("--target-triplet",
+                        type=TargetTriplet.from_alusus_target_triplet_str,
+                        default=TargetTriplet.host_default_target_triplet(), help="Alusus target triplet")
+    parser.add_argument("--clean-and-build", action="store_true",
+                        help="Whether or not to clean Alusus before building")
+    parser.add_argument("--build-packages", action="store_true",
+                        help="Whether or not to build Alusus packages")
+    parser.add_argument("--packages-location", type=str,
+                        default=None, help="Alusus built packages location")
+    parser.add_argument("--bin-dirname", type=str, default="Bin",
+                        help="Alusus binary folder name inside Alusus install location")
+    parser.add_argument("--lib-dirname", type=str, default="Lib",
+                        help="Alusus library folder name inside Alusus install location")
+    parser.add_argument("--include-dirname",
+                        type=str, default="Include", help="Alusus include folder name inside Alusus install location")
+    parser.add_argument("--skip-installing-std-deps",
+                        help="Whether or not to skip installing the standard libraries dependencies", action="store_true")
+    parser.add_argument("--print-supported-build-types", action="store_true",
+                        help="Prints the supported build types list and exits")
+    parser.add_argument("--print-supported-target-triplets", action="store_true",
+                        help="Prints the supported target triplets list and exits")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Verbose output when calling sub commands")
+    processed_args = parser.parse_args(args)
 
-    infoMsg("Creating installation packages...")
-    shutil.rmtree(PACKAGES_PATH, ignore_errors=True)
-    os.makedirs(PACKAGES_PATH)
-    copy_other_installation_files()
-    if is_windows():
-        create_packages_windows()
-    elif is_linux() or is_macos():
-        create_packages_unix()
-    else:
-        raise NotImplementedError(
-            "Packaging is not supported on \"{}\"!".format(THIS_SYSTEM))
-    successMsg("Creating installation packages.")
+    # Set the default build, install, and packages paths if no custom paths provided.
+    alusus_local_build_path = os.path.join(
+        os.path.abspath(os.getcwd()), "AlususBuild")
+    target_dirname = sanitize_filename.sanitize(
+        "{target_triplet}-{build_type}".format(
+            target_triplet=processed_args.target_triplet.value.alusus_target_triplet,
+            build_type=processed_args.build_type.value.alusus_build_type
+        )
+    )
+    if processed_args.build_location == None:
+        processed_args.build_location = os.path.join(
+            alusus_local_build_path, "Intermediate", target_dirname)
+    if processed_args.install_location == None:
+        processed_args.install_location = os.path.join(
+            alusus_local_build_path, "Install", target_dirname)
+    if processed_args.packages_location == None:
+        processed_args.packages_location = os.path.join(
+            alusus_local_build_path, "Packages", target_dirname)
+
+    return processed_args
 
 
 if __name__ == "__main__":
-    colorama.init()
-    process_args()
+    init_colorama()
+    args = parse_cmd_args(sys.argv[1:])
 
-    infoMsg("Building dependencies...")
-    create_dirs()
-    llvm_path = build_llvm()
-    build_libcurl()
-    build_libzip()
-    successMsg("Building dependencies.")
-    build_alusus(llvm_path)
-    if CREATE_PACKAGES == "yes":
-        create_packages()
+    # Process print arguments first.
+    if args.print_supported_build_types:
+        for target in BuildType.list():
+            print(target.value.alusus_build_type)
+        exit(0)
+    if args.print_supported_target_triplets:
+        for target in TargetTriplet.list():
+            print(target.value.alusus_target_triplet)
+        exit(0)
+
+    ret = build_alusus(args.build_location,
+                       args.install_location,
+                       args.build_type,
+                       args.target_triplet,
+                       args.clean_and_build,
+                       args.bin_dirname,
+                       args.lib_dirname,
+                       args.include_dirname,
+                       args.skip_installing_std_deps,
+                       verbose_output=args.verbose)
+    if not ret:
+        exit(1)
+
+    if args.build_packages:
+        try:
+            msg.info_msg("Building packages...")
+            BuildPackages.from_alusus_target_triplet(args.target_triplet).create_packages(
+                args.install_location, args.packages_location, verbose_output=args.verbose
+            )
+        except Exception as e:
+            common.eprint(e)
+            msg.fail_msg("Building required packages.")
+            exit(1)
+    exit(0)

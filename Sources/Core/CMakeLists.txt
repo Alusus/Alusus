@@ -5,7 +5,7 @@
 # accompanying license file or at <https://alusus.org/license.html>.
 
 project(AlususCore)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.20.0)
 
 # Prepare compile flags.
 set(AlususCore_COMPILE_FLAGS "${Alusus_COMPILE_FLAGS} -fvisibility=hidden")
@@ -34,13 +34,13 @@ foreach (DIR ${AlususCoreLib_Source_Subdirs})
 endforeach(DIR)
 add_library(AlususCoreLib STATIC ${AlususCoreLib_Source_Files})
 set_target_properties(AlususCoreLib PROPERTIES COMPILE_FLAGS "${FPIC} ${AlususCore_COMPILE_FLAGS}")
-ADD_PRECOMPILED_HEADER(AlususCoreLib "core.h")
+target_precompile_headers(AlususCoreLib PRIVATE "core.h")
 
 # Add a target for Alusus core executable.
 set(AlususCore_Source_Files start.cpp interop.cpp)
 add_executable(AlususCore ${AlususCore_Source_Files})
 set_target_properties(AlususCore PROPERTIES COMPILE_FLAGS "${AlususCore_COMPILE_FLAGS}")
-ADD_PRECOMPILED_HEADER(AlususCore "core.h")
+target_precompile_headers(AlususCore PRIVATE "core.h")
 
 # Finally, we link the executable to the libraries.
 target_link_libraries(AlususCore AlususSrlLib AlususCoreLib AlususStorage "dl")
@@ -55,7 +55,7 @@ target_link_libraries(AlususCore AlususSrlLib AlususCoreLib AlususStorage "dl")
 set_target_properties(AlususStorage PROPERTIES OUTPUT_NAME alusus_storage)
 set_target_properties(AlususStorage PROPERTIES DEBUG_OUTPUT_NAME alusus_storage)
 set_target_properties(AlususStorage PROPERTIES VERSION ${AlususVersion})
-set_target_properties(AlususStorage PROPERTIES SOVERSION ${AlususSoVersion})
+set_target_properties(AlususStorage PROPERTIES SHLIBVERSION ${AlususShlibVersion})
 set_target_properties(AlususCoreLib PROPERTIES OUTPUT_NAME alusus_core)
 set_target_properties(AlususCoreLib PROPERTIES DEBUG_OUTPUT_NAME alusus_core.dbg)
 set_target_properties(AlususCoreLib PROPERTIES VERSION ${AlususVersion})
@@ -72,31 +72,31 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # The following article also has a good explanation:
   #
   # https://blogs.oracle.com/dipol/dynamic-libraries,-rpath,-and-mac-os
-  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../Lib/")
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,@executable_path,-rpath,@executable_path/../${ALUSUS_LIB_DIR_NAME}/")
 else()
-  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,$ORIGIN,-rpath,$ORIGIN/../Lib/")
+  set_target_properties(AlususCore PROPERTIES LINK_FLAGS "-Wl,-rpath,$ORIGIN,-rpath,$ORIGIN/../${ALUSUS_LIB_DIR_NAME}/")
 endif()
 
 # Copy libary header files to installation directory.
-install_files("/Include/Core" FILES core.h core_global_storage.h)
+install_files("/${ALUSUS_INCLUDE_DIR_NAME}/Core" FILES core.h core_global_storage.h)
 foreach (DIR ${AlususCoreLib_Source_Subdirs})
   file(GLOB headers ${DIR}/*.h)
-  install_files("/Include/Core/${DIR}" FILES ${headers})
+  install_files("/${ALUSUS_INCLUDE_DIR_NAME}/Core/${DIR}" FILES ${headers})
 endforeach(DIR)
 
 # Install library and executable files.
 install(TARGETS AlususStorage AlususCoreLib AlususCore
-  RUNTIME DESTINATION Bin
-  LIBRARY DESTINATION Lib
-  ARCHIVE DESTINATION Lib
+  RUNTIME DESTINATION ${ALUSUS_BIN_DIR_NAME}
+  LIBRARY DESTINATION ${ALUSUS_LIB_DIR_NAME}
+  ARCHIVE DESTINATION ${ALUSUS_LIB_DIR_NAME}
 )
 
 # Add an install command to create the Arabic symbolic link.
 if ("${CMAKE_BUILD_TYPE_UPPER}" STREQUAL "RELEASE")
-  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/Bin/الأسس)
+  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/${ALUSUS_BIN_DIR_NAME}/الأسس)
   set(AlususArabicLinkTarget alusus)
 else()
-  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/Bin/الأسس.نقح)
+  set(AlususArabicLink ${CMAKE_INSTALL_PREFIX}/${ALUSUS_BIN_DIR_NAME}/الأسس.نقح)
   set(AlususArabicLinkTarget alusus.dbg)
 endif()
 string(REPLACE "//" "/" AlususArabicLink ${AlususArabicLink})
