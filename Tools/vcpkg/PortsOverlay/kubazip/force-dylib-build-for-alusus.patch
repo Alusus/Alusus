@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c2bc2f9..9cacd8c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,6 +17,8 @@ option(CMAKE_ENABLE_SANITIZERS "Enable zip sanitizers" OFF)
+ option(ZIP_STATIC_PIC "Build static zip with PIC" ON)
+ option(ZIP_BUILD_DOCS "Generate API documentation with Doxygen" OFF)
+ 
++set(BUILD_SHARED_LIBS ON) # Force build kubazip as a shared library for Alusus.
++
+ if(ZIP_ENABLE_SHARABLE_FILE_OPEN)
+ 	add_definitions(-DZIP_ENABLE_SHARABLE_FILE_OPEN)
+ endif()

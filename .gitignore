@@ -2,6 +2,7 @@ Bin/*
 Lib/*
 Include/*
 Builds/*
+AlususBuild/*
 LocalInstall/*
 Examples/*.log
 Draft/*

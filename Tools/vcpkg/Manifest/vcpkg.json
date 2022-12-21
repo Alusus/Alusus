@@ -22,7 +22,7 @@
       ]
     },
     {
-      "name": "libzip",
+      "name": "kubazip",
       "default-features": false
     }
   ],
@@ -39,8 +39,8 @@
       "port-version": 0
     },
     {
-      "name": "libzip",
-      "version": "1.9.0",
+      "name": "kubazip",
+      "version": "0.2.4",
       "port-version": 0
     }
   ]
