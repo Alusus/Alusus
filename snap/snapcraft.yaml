@@ -35,6 +35,7 @@ parts:
       - python3-setuptools
       - python3-wget
       - python3-colorama
+      - pkg-config
       - zlib1g-dev
       - libssl-dev
       - build-essential
