@@ -63,7 +63,10 @@ class TargetTriplet(ExtendedEnum):
         for item in TargetTriplet.list():
             if item.value.platform == sys.platform and item.value.machine == platform.machine():
                 return item
-        raise NotImplementedError("Current host has no matching build target.")
+        raise NotImplementedError("Current host has no matching build target. Platform: {0}, Machine: {1}".format(
+            sys.platform,
+            platform.machine()
+        ))
 
     @staticmethod
     def from_alusus_target_triplet_str(alusus_target_triplet_str: str):
