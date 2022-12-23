@@ -79,13 +79,13 @@ class TargetTriplet(ExtendedEnum):
     X64_LINUX = _CombinedTargetTriplet(
         "x64-linux", "x64-linux-release", "linux", "x86_64", abi="gnu", cmake_generator=_get_unix_cmake_generator())
     ARM7L_LINUX = _CombinedTargetTriplet(
-        "armv7l-linux", "arm-linux", "linux", "armv7l", abi="gnu", cmake_generator=None)
+        "armv7l-linux", "arm-linux-release", "linux", "armv7l", abi="gnu", cmake_generator=None)
     AARCH64_LINUX = _CombinedTargetTriplet(
-        "aarch64-linux", "arm64-linux", "linux", "aarch64", abi="gnu", cmake_generator=None)
+        "aarch64-linux", "arm64-linux-release", "linux", "aarch64", abi="gnu", cmake_generator=None)
     PPC64LE_LINUX = _CombinedTargetTriplet(
-        "ppc64le-linux", "ppc64le-linux", "linux", "ppc64le", abi="gnu", cmake_generator=None)
+        "ppc64le-linux", "ppc64le-linux-release", "linux", "ppc64le", abi="gnu", cmake_generator=None)
     S390X_LINUX = _CombinedTargetTriplet(
-        "s390x-linux", "s390x-linux", "linux", "s390x", abi="gnu", cmake_generator=None)
+        "s390x-linux", "s390x-linux-release", "linux", "s390x", abi="gnu", cmake_generator=None)
     X64_OSX = _CombinedTargetTriplet(
         "x64-osx", "x64-osx-release", "darwin", "x86_64", cmake_generator=_get_unix_cmake_generator())
     # TODO: Add more targets here when we add support building for.

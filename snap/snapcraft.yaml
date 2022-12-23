@@ -38,7 +38,7 @@ parts:
       - libssl-dev
       - build-essential
     override-build: |
-      git clone https://github.com/microsoft/vcpkg.git "AlususBuild/vcpkg"
+      git clone https://github.com/Alusus/vcpkg.git "AlususBuild/vcpkg"
       cd "AlususBuild/vcpkg"
       ./bootstrap-vcpkg.sh
       cd -
