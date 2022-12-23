@@ -20,8 +20,10 @@ include_directories("${AlususCore_SOURCE_DIR}")
 
 # Let's suppose we want to build a JIT compiler with support for
 # binary code (no interpreter):
-llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native orcjit WebAssembly)
-
+execute_process(COMMAND ${LLVM_TOOLS_BINARY_DIR}/llvm-config --libs core mcjit orcjit x86 aarch64 arm powerpc systemz webassembly
+                OUTPUT_VARIABLE REQ_LLVM_LIBRARIES)
+execute_process(COMMAND ${LLVM_TOOLS_BINARY_DIR}/llvm-config --system-libs
+                OUTPUT_VARIABLE REQ_SYSTEM_LIBRARIES)
 # Make sure the compiler finds the source files.
 include_directories("${AlususSpp_SOURCE_DIR}")
 
@@ -68,6 +70,7 @@ set_target_properties(AlususSpp PROPERTIES SHLIBVERSION ${AlususShlibVersion})
 
 # Finally, we link LLVM and AlususCore libraries to our library.
 target_link_libraries(AlususSpp PRIVATE ${REQ_LLVM_LIBRARIES})
+target_link_libraries(AlususSpp PRIVATE ${REQ_SYSTEM_LIBRARIES})
 target_link_libraries(AlususSpp PRIVATE AlususSrlLib AlususCoreLib AlususStorage)
 # Prevent the exporting of LLVM symbols
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

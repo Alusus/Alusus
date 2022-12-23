@@ -11,6 +11,10 @@
         "tools",
         "utils",
         "target-x86",
+        "target-aarch64",
+        "target-arm",
+        "target-powerpc",
+        "target-systemz",
         "target-webassembly"
       ]
     },

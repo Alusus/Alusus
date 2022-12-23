@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Rafid Khalid Abdullah
+# Copyright (C) 2022 Rafid Khalid Abdullah
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
@@ -66,8 +66,6 @@ set_target_properties(AlususTests PROPERTIES COMPILE_FLAGS "${AlususTests_COMPIL
 set_target_properties(AlususTests PROPERTIES OUTPUT_NAME alusus_tests)
 set_target_properties(AlususTests PROPERTIES DEBUG_OUTPUT_NAME alusus_tests.dbg)
 set_target_properties(AlususTests PROPERTIES VERSION ${AlususVersion})
-
-llvm_map_components_to_libnames(REQ_LLVM_LIBRARIES core mcjit native)
 
 # Finally, we link Alusus libraries to our UnitTests project.
 target_link_libraries(AlususTests AlususSrlLib AlususCoreLib AlususStorage "dl")

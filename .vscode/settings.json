@@ -91,6 +91,5 @@
   "cmake.configureOnOpen": false,
   "[alusus]": {
     "editor.tabSize": 4
-  },
-  "cmake.sourceDirectory": "${workspaceFolder}/Sources"
+  }
 }
