@@ -42,7 +42,7 @@ parts:
       cd "AlususBuild/vcpkg"
       ./bootstrap-vcpkg.sh
       cd -
-      ALUSUS_VCPKG_REPO_PATH="$(pwd)/AlususBuild/vcpkg" ./Tools/build.sh --build-type release --install-location AlususBuild/Install/
+      VCPKG_FORCE_SYSTEM_BINARIES=1 ALUSUS_VCPKG_REPO_PATH="$(pwd)/AlususBuild/vcpkg" ./Tools/build.sh --build-type release --install-location AlususBuild/Install/
       cp -r AlususBuild/Install/Bin AlususBuild/Install/Lib Notices_L18n $SNAPCRAFT_PART_INSTALL
 apps:
   alusus:
