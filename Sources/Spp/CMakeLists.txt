@@ -24,6 +24,11 @@ execute_process(COMMAND ${LLVM_TOOLS_BINARY_DIR}/llvm-config --libs core mcjit o
                 OUTPUT_VARIABLE REQ_LLVM_LIBRARIES)
 execute_process(COMMAND ${LLVM_TOOLS_BINARY_DIR}/llvm-config --system-libs
                 OUTPUT_VARIABLE REQ_SYSTEM_LIBRARIES)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # Replace -llibxml2.tbd with -llibxml2 in REQ_SYSTEM_LIBRARIES to fix issue in macOS.
+  # TODO: Remove this hack after moving to a newer version of LLVM that fixes it.
+  string(REPLACE "-llibxml2.tbd" "-llibxml2" REQ_SYSTEM_LIBRARIES ${REQ_SYSTEM_LIBRARIES})
+endif()
 # Make sure the compiler finds the source files.
 include_directories("${AlususSpp_SOURCE_DIR}")
 
