@@ -28,7 +28,8 @@ void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
   if (l18nPath) {
     l18nPathFilesystemPath = std::filesystem::path(l18nPath);
   } else {
-    l18nPathFilesystemPath = std::filesystem::path(Main::getModuleDirectory().getBuf()).parent_path() / "Notices_L18n";
+    auto modulePath = Main::getModuleDirectory();
+    l18nPathFilesystemPath = std::filesystem::path(modulePath.getBuf()).parent_path().parent_path() / "Notices_L18n";
   }
   l18nPathFilesystemPath = l18nPathFilesystemPath / (std::string(locale) + ".txt");
   std::ifstream fin(l18nPathFilesystemPath.c_str());
