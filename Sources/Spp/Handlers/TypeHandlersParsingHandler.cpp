@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/TypeHandlersParsingHandler.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -513,9 +513,6 @@ TioSharedPtr TypeHandlersParsingHandler::createFunction(
         {S("type"), funcTypeClone},
         {S("body"), body}
       });
-      // Create the implementation.
-      auto funcImpName = Str(funcName) + this->getImplementationPostfix();
-      mergeList->add(this->createDefinition(funcImpName, 0, func, sourceLocation));
       // Assign the function pointer.
       mergeList->add(Core::Data::Ast::AssignmentOperator::create({
         {S("sourceLocation"), sourceLocation},
@@ -528,14 +525,7 @@ TioSharedPtr TypeHandlersParsingHandler::createFunction(
         {S("second"), Spp::Ast::CastOp::create({
           {S("sourceLocation"), sourceLocation},
         }, {
-          {S("operand"), Spp::Ast::PointerOp::create({
-            {S("sourceLocation"), sourceLocation},
-          }, {
-            {S("operand"), Core::Data::Ast::Identifier::create({
-              {S("sourceLocation"), sourceLocation},
-              {S("value"), TiStr(funcImpName.getBuf())}
-            })}
-          })},
+          {S("operand"), func},
           {S("targetType"), Core::Data::Ast::ParamPass::create({
             {S("sourceLocation"), sourceLocation},
             {S("type"), Core::Data::Ast::BracketType(Core::Data::Ast::BracketType::SQUARE)}
@@ -815,14 +805,6 @@ Bool TypeHandlersParsingHandler::processUnknownModifier(
   } else {
     return false;
   }
-}
-
-
-Str TypeHandlersParsingHandler::getImplementationPostfix()
-{
-  static LongInt index = 0;
-  ++index;
-  return Str("Imp") + index;
 }
 
 } // namespace

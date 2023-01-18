@@ -34,6 +34,8 @@
   assigned to the target var.
 * Fixed an issue with the compiler when defining a class inside the init handler of another class, causing the
   initialization of the inner class to fail.
+* Fixed an issue with `handler` command when using the `set_ptr` option multiple times in the same class on the same
+  function to override the previous implementation.
 
 ### Standard Libraries Fixes
 

@@ -2,7 +2,7 @@
  * @file Spp/Handlers/TypeHandlersParsingHandler.h
  * Contains the header of class Spp::Handlers::TypeHandlersParsingHandler
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -139,8 +139,6 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   private: Bool processUnknownModifier(
     Core::Processing::ParserState *state, TioSharedPtr const &modifierData
   );
-
-  private: Str getImplementationPostfix();
 
 }; // class
 
