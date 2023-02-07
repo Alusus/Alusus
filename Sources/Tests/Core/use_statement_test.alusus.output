@@ -1,4 +1,5 @@
-ERROR CP1001 @ (9,6): Parser syntax error.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  use_statement_test.alusus (9,6)
 ------------------ Parsed Data Dump ------------------
 Scope [Main.Statements.StmtList]
  Bridge [Main.Use]

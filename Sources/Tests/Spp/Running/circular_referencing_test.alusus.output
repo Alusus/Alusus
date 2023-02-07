@@ -1,2 +1,3 @@
 Did not crash!
-ERROR SPPG1015 @ (19,5): Incompatible types for the given operator.
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  circular_referencing_test.alusus (19,5)

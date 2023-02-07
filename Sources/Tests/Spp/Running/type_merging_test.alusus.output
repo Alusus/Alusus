@@ -2,9 +2,13 @@ Int 5
 Float 5.500000
 hello
 hello
-ERROR SPPA1008 @ (36,9)
-from (13,19): Provided arguments do not match signature.
-ERROR SPPA1008 @ (36,9)
-from (14,21): Provided arguments do not match signature.
-ERROR SPPA1014 @ (62,8): Trying to merge a type with a non-existing target.
-ERROR SPPA1014 @ (73,12): Trying to merge a type with a non-existing target.
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  - type_merging_test.alusus (36,9)
+    type_merging_test.alusus (13,19)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  - type_merging_test.alusus (36,9)
+    type_merging_test.alusus (14,21)
+[0;31mERROR SPPA1014: Trying to merge a type with a non-existing target.[0m
+  type_merging_test.alusus (62,8)
+[0;31mERROR SPPA1014: Trying to merge a type with a non-existing target.[0m
+  type_merging_test.alusus (73,12)

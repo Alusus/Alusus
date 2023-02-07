@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -114,9 +114,7 @@ Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, Session *ses
   }
   Bool result = this->generateType(type, g, session);
   if (shouldPushSl && sourceLocation != 0) {
-    this->astHelper->getNoticeStore()->popPrefixSourceLocation(
-      Core::Data::getSourceLocationRecordCount(sourceLocation)
-    );
+    this->astHelper->getNoticeStore()->popPrefixSourceLocation();
   }
 
   return result;

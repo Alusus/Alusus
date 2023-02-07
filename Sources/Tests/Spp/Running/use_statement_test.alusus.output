@@ -1,6 +1,7 @@
 Use Statement!
 Root Use Statement
 testTypeFromUse: 5, 6
-ERROR SPPA1003 @ (95,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (95,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (96,9): No valid match was found for the given type.
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  use_statement_test.alusus (95,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  use_statement_test.alusus (96,9)

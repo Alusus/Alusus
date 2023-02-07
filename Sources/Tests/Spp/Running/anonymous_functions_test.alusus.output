@@ -1,4 +1,6 @@
 testAnonymous!
 testNamedInExp!
-ERROR SPPA1015 @ (26,55): Trying to access a local variable from a different function.
-ERROR SPPA1015 @ (33,55): Trying to access a local variable from a different function.
+[0;31mERROR SPPA1015: Trying to access a local variable from a different function.[0m
+  anonymous_functions_test.alusus (26,55)
+[0;31mERROR SPPA1015: Trying to access a local variable from a different function.[0m
+  anonymous_functions_test.alusus (33,55)

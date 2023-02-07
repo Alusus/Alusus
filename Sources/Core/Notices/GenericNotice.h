@@ -2,7 +2,7 @@
  * @file Core/Notices/GenericNotice.h
  * Contains the header of class Core::Notices::GenericNotice.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -56,6 +56,15 @@ class GenericNotice : public Core::Notices::Notice
   public: virtual void buildDescription(Str &str) const
   {
     str = Core::Notices::L18nDictionary::getSingleton()->get(this->getCode());
+  }
+
+  public: virtual Bool isEqual(Notice *notice) const
+  {
+    auto genericNotice = ti_cast<GenericNotice>(notice);
+    if (genericNotice == 0) return false;
+    return this->code == genericNotice->code &&
+      this->severity == genericNotice->severity &&
+      Data::isEqual(this->getSourceLocation().get(), genericNotice->getSourceLocation().get());
   }
 
 }; // class

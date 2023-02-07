@@ -1,6 +1,9 @@
-ERROR SPPG1015 @ (15,34): Incompatible types for the given operator.
-ERROR SPPG1015 @ (21,39): Incompatible types for the given operator.
-ERROR SPPG1015 @ (34,36): Incompatible types for the given operator.
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  integer_signs_test.alusus (15,34)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  integer_signs_test.alusus (21,39)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  integer_signs_test.alusus (34,36)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

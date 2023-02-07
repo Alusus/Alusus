@@ -1,5 +1,7 @@
-ERROR SPPA1001 @ (5,28): Template arguments mismatch.
-ERROR SPPG1003 @ (8,24): Invalid float bit count. Bit count should be either 32 or 64.
+[0;31mERROR SPPA1001: Template arguments mismatch.[0m
+  invalid_types_test.alusus (5,28)
+[0;31mERROR SPPG1003: Invalid float bit count. Bit count should be either 32 or 64.[0m
+  invalid_types_test.alusus (8,24)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

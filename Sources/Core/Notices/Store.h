@@ -2,7 +2,7 @@
  * @file Core/Notices/Store.h
  * Contains the header of class Core::Notices::Store.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -158,17 +158,9 @@ class Store
     this->prefixSourceLocationStack.push(sl);
   }
 
-  public: void popPrefixSourceLocation(Word count)
+  public: void popPrefixSourceLocation()
   {
-    this->prefixSourceLocationStack.pop(count);
-  }
-
-  public: void copyPrefixSourceLocationStack(Store *store)
-  {
-    this->clearPrefixSourceLocationStack();
-    for (Int i = 0; i < store->getPrefixSourceLocationStack().getCount(); ++i) {
-      this->pushPrefixSourceLocation(store->getPrefixSourceLocationStack().get(i).get());
-    }
+    this->prefixSourceLocationStack.pop();
   }
 
   /// @}

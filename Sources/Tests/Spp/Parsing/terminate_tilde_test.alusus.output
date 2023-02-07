@@ -2,7 +2,11 @@
 TerminateOp [Main.TerminateTilde]
  operand: Identifier: aa [Main.BlockSubject.Identifier]
 ------------------------------------------------------
-ERROR CP1001 @ (6,21): Parser syntax error.
-ERROR CP1001 @ (8,20): Parser syntax error.
-ERROR CP1001 @ (10,20): Parser syntax error.
-ERROR SPPG1002 @ (10,20): Invalid operation.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  terminate_tilde_test.alusus (6,21)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  terminate_tilde_test.alusus (8,20)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  terminate_tilde_test.alusus (10,20)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  terminate_tilde_test.alusus (10,20)

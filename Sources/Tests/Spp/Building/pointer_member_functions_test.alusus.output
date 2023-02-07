@@ -110,8 +110,10 @@ define void @"N2.printItImpl()(ref[N2])"(%N2* %this) {
 declare i32 @printf(i8*, ...)
 ------------------------------------------------------------
 
-ERROR SPPG1020 @ (86,7): Invalid access to global definition.
-ERROR SPPG1020 @ (89,7): Invalid access to global definition.
+[0;31mERROR SPPG1020: Invalid access to global definition.[0m
+  pointer_member_functions_test.alusus (86,7)
+[0;31mERROR SPPG1020: Invalid access to global definition.[0m
+  pointer_member_functions_test.alusus (89,7)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

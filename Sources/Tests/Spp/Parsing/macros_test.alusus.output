@@ -1,17 +1,31 @@
-ERROR SPPH1013 @ (15,17): Invalid macro argumnet definition.
-ERROR CD1003 @ (15,1): Invalid 'def' command.
-ERROR SPPH1013 @ (16,17): Invalid macro argumnet definition.
-ERROR CD1003 @ (16,1): Invalid 'def' command.
-ERROR SPPH1013 @ (17,17): Invalid macro argumnet definition.
-ERROR CD1003 @ (17,1): Invalid 'def' command.
-ERROR SPPH1013 @ (18,20): Invalid macro argumnet definition.
-ERROR CD1003 @ (18,1): Invalid 'def' command.
-ERROR SPPH1013 @ (19,20): Invalid macro argumnet definition.
-ERROR CD1003 @ (19,1): Invalid 'def' command.
-ERROR SPPH1013 @ (20,20): Invalid macro argumnet definition.
-ERROR CD1003 @ (20,1): Invalid 'def' command.
-ERROR SPPH1013 @ (21,16): Invalid macro argumnet definition.
-ERROR CD1003 @ (21,1): Invalid 'def' command.
+[0;31mERROR SPPH1013: Invalid macro argumnet definition.[0m
+  macros_test.alusus (15,17)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  macros_test.alusus (15,1)
+[0;31mERROR SPPH1013: Invalid macro argumnet definition.[0m
+  macros_test.alusus (16,17)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  macros_test.alusus (16,1)
+[0;31mERROR SPPH1013: Invalid macro argumnet definition.[0m
+  macros_test.alusus (17,17)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  macros_test.alusus (17,1)
+[0;31mERROR SPPH1013: Invalid macro argumnet definition.[0m
+  macros_test.alusus (18,20)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  macros_test.alusus (18,1)
+[0;31mERROR SPPH1013: Invalid macro argumnet definition.[0m
+  macros_test.alusus (19,20)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  macros_test.alusus (19,1)
+[0;31mERROR SPPH1013: Invalid macro argumnet definition.[0m
+  macros_test.alusus (20,20)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  macros_test.alusus (20,1)
+[0;31mERROR SPPH1013: Invalid macro argumnet definition.[0m
+  macros_test.alusus (21,16)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  macros_test.alusus (21,1)
 ------------------ Parsed Data Dump ------------------
 Macro [Main.Macro]
  argTypes: Map

@@ -1,15 +1,27 @@
-ERROR SPPG1002 @ (58,5): Invalid operation.
-ERROR SPPG1002 @ (59,11): Invalid operation.
-ERROR SPPA1007 @ (60,11): Unknown symbol.
-ERROR SPPG1008 @ (61,10): Invalid symbol.
-ERROR SPPG1008 @ (62,10): Invalid symbol.
-ERROR SPPA1007 @ (63,16): Unknown symbol.
-ERROR SPPA1012 @ (65,17): Given identifier does not refer to a type.
-ERROR SPPA1003 @ (66,18): No valid match was found for the given type.
-ERROR SPPA1007 @ (101,11): Unknown symbol.
-ERROR SPPA1007 @ (102,25): Unknown symbol.
-ERROR SPPA1007 @ (105,18): Unknown symbol.
-ERROR SPPA1007 @ (106,32): Unknown symbol.
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  variables_test.alusus (58,5)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  variables_test.alusus (59,11)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  variables_test.alusus (60,11)
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  variables_test.alusus (61,10)
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  variables_test.alusus (62,10)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  variables_test.alusus (63,16)
+[0;31mERROR SPPA1012: Given identifier does not refer to a type.[0m
+  variables_test.alusus (65,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  variables_test.alusus (66,18)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  variables_test.alusus (101,11)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  variables_test.alusus (102,25)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  variables_test.alusus (105,18)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  variables_test.alusus (106,32)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

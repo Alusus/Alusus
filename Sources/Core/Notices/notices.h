@@ -2,7 +2,7 @@
  * @file Core/Notices/notices.h
  * Contains the definitions and include statements of all user notices.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -69,6 +69,14 @@ namespace Core::Notices
  * description.
  */
 void printNotice(Notice const *msg);
+
+/**
+ * @brief Get a string representation of a source location.
+ * @ingroup core_notices
+ */
+Str getSourceLocationString(Data::SourceLocation *sl, Int indentation = 0);
+
+void setSourceLocationPathSkipping(Bool skip);
 
 } // namespace
 

@@ -620,7 +620,8 @@ define void @C.__autoConstruct__(%C* %this) {
 
 declare i32 @printf(i8*, ...)
 ------------------------------------------------------------
-ERROR SPPG1030 @ (138,3): Assignment failed. This type needs an assignment operator.
+[0;31mERROR SPPG1030: Assignment failed. This type needs an assignment operator.[0m
+  custom_init_test.alusus (138,3)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

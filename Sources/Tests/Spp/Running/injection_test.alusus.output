@@ -1,8 +1,11 @@
 o.a=6, o.i=7, o.j=0, o.k=8
 o.getA()=1, o.getI()=2, o.getJ()=3, o()=5
 getO().getA()=17, getO().getI()=2, getO().j=3, getO().k=4, getO()()=5
-ERROR SPPA1007 @ (60,9): Unknown symbol.
-ERROR SPPG1028 @ (71,22)
-from (74,8): Trying to inject a shared definition.
-ERROR SPPG1029 @ (72,14)
-from (74,8): Invalid type for an injected definition.
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  injection_test.alusus (60,9)
+[0;31mERROR SPPG1028: Trying to inject a shared definition.[0m
+  - injection_test.alusus (71,22)
+    injection_test.alusus (74,8)
+[0;31mERROR SPPG1029: Invalid type for an injected definition.[0m
+  - injection_test.alusus (72,14)
+    injection_test.alusus (74,8)

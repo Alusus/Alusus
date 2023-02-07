@@ -2,7 +2,7 @@
  * @file Core/Notices/Store.cpp
  * Contains the implementation of class Core::Notices::Store.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,23 +20,16 @@ namespace Core::Notices
 
 void Store::add(SharedPtr<Notice> const &notice)
 {
-  auto count = this->prefixSourceLocationStack.getCount();
-  if (count > 1 || (count == 1 && notice->getSourceLocation() != 0)) {
-    // We have more than one record, so we need a new stack.
-    auto stack = newSrdObj<Data::SourceLocationStack>();
-    stack->push(&this->prefixSourceLocationStack);
-    auto sl = notice->getSourceLocation().get();
-    if (sl != 0) stack->push(sl);
-    // Did we still end up with a single record? This can happen if records are identical.
-    if (stack->getCount() == 1) {
-      notice->setSourceLocation(stack->get(0));
-    } else {
-      notice->setSourceLocation(stack);
-    }
-  } else if (count == 1) {
-    // We have a single record in the stack and no record in the notice.
-    notice->setSourceLocation(this->prefixSourceLocationStack.get(0));
+  notice->setSourceLocation(Core::Data::concatFlattenedSourceLocation(
+    notice->getSourceLocation().get(),
+    this->prefixSourceLocationStack
+  ));
+
+  // Skip this notice if it's a duplicate.
+  for (Int i = 0; i < this->notices.size(); ++i) {
+    if (this->notices[i]->isEqual(notice.get())) return;
   }
+
   this->notices.push_back(notice);
   if (this->minEncounteredSeverity == -1 || notice->getSeverity() < this->minEncounteredSeverity) {
     this->minEncounteredSeverity = notice->getSeverity();

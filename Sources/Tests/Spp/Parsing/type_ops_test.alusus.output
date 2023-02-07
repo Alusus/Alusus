@@ -1,32 +1,61 @@
-ERROR SPPH1006 @ (8,24): Invalid function arg name.
-ERROR CP1001 @ (9,21): Parser syntax error.
-ERROR CP1001 @ (10,20): Parser syntax error.
-ERROR CP1001 @ (13,26): Parser syntax error.
-ERROR CP1001 @ (14,26): Parser syntax error.
-ERROR CP1001 @ (15,25): Parser syntax error.
-ERROR CP1001 @ (40,21): Parser syntax error.
-ERROR SPPH1020 @ (42,11): Operation target must be `this`.
-ERROR SPPH1020 @ (43,11): Operation target must be `this`.
-ERROR SPPH1020 @ (44,11): Operation target must be `this`.
-ERROR SPPH1020 @ (45,11): Operation target must be `this`.
-ERROR SPPH1020 @ (46,11): Operation target must be `this`.
-ERROR SPPH1022 @ (48,18): Invalid use of square brackets.
-ERROR SPPH1014 @ (49,19): Invalid handler statement.
-ERROR SPPH1018 @ (94,3): ~init operations cannot be pointer based.
-ERROR SPPH1014 @ (95,3): Invalid handler statement.
-ERROR SPPH1019 @ (96,11): Property getter is missing the return type.
-ERROR SPPH1020 @ (97,11): Operation target must be `this`.
-ERROR SPPH1006 @ (98,29): Invalid function arg name.
-ERROR SPPH1022 @ (100,18): Invalid use of square brackets.
-ERROR SPPH1020 @ (101,11): Operation target must be `this`.
-ERROR SPPH1023 @ (102,11): Invalid type property identifier.
-ERROR SPPH1020 @ (103,11): Operation target must be `this`.
-ERROR SPPH1020 @ (104,11): Operation target must be `this`.
-ERROR SPPH1014 @ (105,11): Invalid handler statement.
-ERROR SPPH1025 @ (112,3): Template handler statement must not be a pointer.
-ERROR SPPH1025 @ (113,3): Template handler statement must not be a pointer.
-ERROR SPPH1025 @ (114,3): Template handler statement must not be a pointer.
-ERROR SPPH1020 @ (116,21): Operation target must be `this`.
+[0;31mERROR SPPH1006: Invalid function arg name.[0m
+  type_ops_test.alusus (8,24)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  type_ops_test.alusus (9,21)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  type_ops_test.alusus (10,20)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  type_ops_test.alusus (13,26)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  type_ops_test.alusus (14,26)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  type_ops_test.alusus (15,25)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  type_ops_test.alusus (40,21)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (42,11)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (43,11)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (44,11)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (45,11)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (46,11)
+[0;31mERROR SPPH1022: Invalid use of square brackets.[0m
+  type_ops_test.alusus (48,18)
+[0;31mERROR SPPH1014: Invalid handler statement.[0m
+  type_ops_test.alusus (49,19)
+[0;31mERROR SPPH1018: ~init operations cannot be pointer based.[0m
+  type_ops_test.alusus (94,3)
+[0;31mERROR SPPH1014: Invalid handler statement.[0m
+  type_ops_test.alusus (95,3)
+[0;31mERROR SPPH1019: Property getter is missing the return type.[0m
+  type_ops_test.alusus (96,11)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (97,11)
+[0;31mERROR SPPH1006: Invalid function arg name.[0m
+  type_ops_test.alusus (98,29)
+[0;31mERROR SPPH1022: Invalid use of square brackets.[0m
+  type_ops_test.alusus (100,18)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (101,11)
+[0;31mERROR SPPH1023: Invalid type property identifier.[0m
+  type_ops_test.alusus (102,11)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (103,11)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (104,11)
+[0;31mERROR SPPH1014: Invalid handler statement.[0m
+  type_ops_test.alusus (105,11)
+[0;31mERROR SPPH1025: Template handler statement must not be a pointer.[0m
+  type_ops_test.alusus (112,3)
+[0;31mERROR SPPH1025: Template handler statement must not be a pointer.[0m
+  type_ops_test.alusus (113,3)
+[0;31mERROR SPPH1025: Template handler statement must not be a pointer.[0m
+  type_ops_test.alusus (114,3)
+[0;31mERROR SPPH1020: Operation target must be `this`.[0m
+  type_ops_test.alusus (116,21)
 ------------------ Parsed Data Dump ------------------
 UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]

@@ -1,7 +1,11 @@
-ERROR SPPG1008 @ (145,28): Invalid symbol.
-ERROR SPPG1008 @ (146,23): Invalid symbol.
-ERROR SPPG1002 @ (147,19): Invalid operation.
-ERROR SPPG1015 @ (136,32): Incompatible types for the given operator.
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  expressions_test.alusus (145,28)
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  expressions_test.alusus (146,23)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  expressions_test.alusus (147,19)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  expressions_test.alusus (136,32)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

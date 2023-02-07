@@ -66,7 +66,8 @@ define void @"callFunc(ptr[()])"(void ()* %fp) {
 
 declare i64 @printf(i8*, ...)
 ------------------------------------------------------------
-ERROR SPPA1015 @ (25,47): Trying to access a local variable from a different function.
+[0;31mERROR SPPA1015: Trying to access a local variable from a different function.[0m
+  anonymous_functions_test.alusus (25,47)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

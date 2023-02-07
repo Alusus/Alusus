@@ -2,7 +2,7 @@
  * @file Spp/Ast/CalleeTracer.cpp
  * Contains the implementation of class Spp::Ast::CalleeTracer.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -816,17 +816,25 @@ void CalleeTracer::selectBetterResult(CalleeLookupResult const &newResult, Calle
       // If the results are identical it means we have reached the same target twice, which can happen if the user has
       // an alias at a parent scope with the same name pointing to the same element. In this case we ignore the second
       // match without raising an error.
-      Bool identicalStack = true;
-      if (newResult.stack.getLength() != result.stack.getLength()) identicalStack = false;
-      else for (Int i = 0; i < newResult.stack.getLength(); ++i) {
+      Int diffPoint = -1;
+      for (Int i = 0; i < newResult.stack.getLength(); ++i) {
         if (newResult.stack(i) != result.stack(i)) {
-          identicalStack = false;
+          diffPoint = i;
           break;
         }
       }
-      if (!identicalStack) {
+      if (diffPoint != -1) {
         // Multiple callee match.
-        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>();
+        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
+          Core::Data::Ast::findSourceLocation(result.stack(diffPoint).obj),
+          Core::Data::Ast::findSourceLocation(newResult.stack(diffPoint).obj)
+        );
+      } else if (newResult.stack.getLength() != result.stack.getLength()) {
+        // Multiple callee match.
+        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
+          Core::Data::Ast::findSourceLocation(result.stack(result.stack.getLength() - 1).obj),
+          Core::Data::Ast::findSourceLocation(newResult.stack(newResult.stack.getLength() - 1).obj)
+        );
       }
     }
   } else if (!result.isNameMatched()) {

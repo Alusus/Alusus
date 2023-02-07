@@ -1,7 +1,11 @@
-ERROR SPPG1015 @ (16,15): Incompatible types for the given operator.
-ERROR SPPG1015 @ (17,15): Incompatible types for the given operator.
-ERROR SPPG1015 @ (18,15): Incompatible types for the given operator.
-ERROR SPPG1015 @ (19,15): Incompatible types for the given operator.
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  pointer_arithmetic_test.alusus (16,15)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  pointer_arithmetic_test.alusus (17,15)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  pointer_arithmetic_test.alusus (18,15)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  pointer_arithmetic_test.alusus (19,15)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

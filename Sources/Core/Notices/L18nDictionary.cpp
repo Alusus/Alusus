@@ -2,7 +2,7 @@
  * @file Core/Notices/L18nDictionary.cpp
  * Contains the implementation of class Core::Notices::L18nDictionary.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,7 +40,7 @@ void L18nDictionary::initialize(Char const *locale, Char const *l18nPath)
       Int pos = line.find(C(':'));
       if (pos != -1) {
         Str key(line.c_str(), pos);
-        auto value = TiStr::create(line.c_str() + pos + 1);
+        auto value = TiStr::create(Str(line.c_str() + pos + 1).replace("\\n", "\n"));
         this->dictionary.add(key, value);
       }
     }

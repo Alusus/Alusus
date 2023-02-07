@@ -1,6 +1,9 @@
-ERROR CP1001 @ (26,25): Parser syntax error.
-ERROR SPPH1010 @ (27,3): Invalid for statement.
-ERROR CP1001 @ (28,40): Parser syntax error.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  for_statement_test.alusus (26,25)
+[0;31mERROR SPPH1010: Invalid for statement.[0m
+  for_statement_test.alusus (27,3)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  for_statement_test.alusus (28,40)
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]

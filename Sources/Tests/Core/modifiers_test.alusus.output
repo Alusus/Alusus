@@ -1,14 +1,25 @@
-ERROR CP1005 @ (17,4): Unexpected modifier encountered.
-ERROR CP1001 @ (18,8): Parser syntax error.
-ERROR CP1005 @ (18,4): Unexpected modifier encountered.
-ERROR CP1001 @ (20,33): Parser syntax error.
-ERROR CP1005 @ (22,4): Unexpected modifier encountered.
-ERROR CP1005 @ (23,8): Unexpected modifier encountered.
-ERROR CP1005 @ (24,10): Unexpected modifier encountered.
-ERROR CP1005 @ (25,14): Unexpected modifier encountered.
-ERROR CP1005 @ (26,7): Unexpected modifier encountered.
-ERROR CP1005 @ (27,8): Unexpected modifier encountered.
-ERROR CP1005 @ (28,5): Unexpected modifier encountered.
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (17,4)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  modifiers_test.alusus (18,8)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (18,4)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  modifiers_test.alusus (20,33)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (22,4)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (23,8)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (24,10)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (25,14)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (26,7)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (27,8)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  modifiers_test.alusus (28,5)
 ------------------ Parsed Data Dump ------------------
 Scope [Main.Statements.StmtList]
  GenericCommand do [Main.Do]

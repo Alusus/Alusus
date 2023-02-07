@@ -2,7 +2,7 @@
  * @file Core/Notices/Notice.h
  * Contains the header of class Core::Notices::Notice.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -120,6 +120,12 @@ class Notice : public TiObject
   public: SharedPtr<Data::SourceLocation> const& getSourceLocation() const
   {
     return this->sourceLocation;
+  }
+
+  public: virtual Bool isEqual(Notice *notice) const
+  {
+    return this->getCode() == notice->getCode() &&
+      Data::isEqual(this->getSourceLocation().get(), notice->getSourceLocation().get());
   }
 
 }; // class

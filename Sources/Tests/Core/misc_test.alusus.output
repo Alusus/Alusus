@@ -1,7 +1,11 @@
-ERROR CP1001 @ (4,11): Parser syntax error.
-ERROR CP1001 @ (9,12): Parser syntax error.
-ERROR CP1001 @ (17,7): Parser syntax error.
-ERROR CP1001 @ (39,9): Parser syntax error.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  misc_test.alusus (4,11)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  misc_test.alusus (9,12)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  misc_test.alusus (17,7)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  misc_test.alusus (39,9)
 ------------------ Parsed Data Dump ------------------
 Scope [Main.Statements.StmtList]
  ParamPass () [Main.Expression.ParamPassExp]

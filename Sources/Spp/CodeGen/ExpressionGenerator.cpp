@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -2210,9 +2210,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   TiObject *intTgType;
   Bool retVal = g->getGeneratedType(astType, session, intTgType, 0);
-  expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(
-    Core::Data::getSourceLocationRecordCount(sourceLocation)
-  );
+  expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation();
   if (!retVal) return false;
 
   // Generate the literal.
@@ -2257,9 +2255,7 @@ Bool ExpressionGenerator::_generateFloatLiteral(
   expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   TiObject *floatTgType;
   Bool retVal = g->getGeneratedType(floatAstType, session, floatTgType, 0);
-  expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(
-    Core::Data::getSourceLocationRecordCount(sourceLocation)
-  );
+  expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation();
   if (!retVal) return false;
 
   // Generate the literal.
@@ -2331,9 +2327,7 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
       TiObject *tgType;
       auto result = g->getGeneratedType(dataType, session, tgType, 0);
       if (sourceLocation != 0) {
-        expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation(
-          Core::Data::getSourceLocationRecordCount(sourceLocation)
-        );
+        expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation();
       }
       if (!result) return false;
     }

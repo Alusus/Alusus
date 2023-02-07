@@ -1,11 +1,11 @@
-ERROR SPPG1017 @ (16,15)
-from (16,5): Invalid macro argument.
-ERROR SPPG1017 @ (21,12)
-from (21,5): Invalid macro argument.
-ERROR SPPG1017 @ (22,13)
-from (22,5): Invalid macro argument.
-ERROR SPPG1017 @ (23,12)
-from (23,5): Invalid macro argument.
+[0;31mERROR SPPG1017: Invalid macro argument.[0m
+  macros_errors_test.alusus (16,15)
+[0;31mERROR SPPG1017: Invalid macro argument.[0m
+  macros_errors_test.alusus (21,12)
+[0;31mERROR SPPG1017: Invalid macro argument.[0m
+  macros_errors_test.alusus (22,13)
+[0;31mERROR SPPG1017: Invalid macro argument.[0m
+  macros_errors_test.alusus (23,12)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

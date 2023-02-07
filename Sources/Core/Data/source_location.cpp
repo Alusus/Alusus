@@ -2,7 +2,7 @@
  * @file Core/Data/source_location.cpp
  * Contains the implementation of source location classes.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,34 +23,15 @@ void SourceLocationStack::push(SourceLocation *sl)
   if (sl == 0) {
     throw EXCEPTION(InvalidArgumentException, S("sl"), S("Cannot be null."));
   }
-  if (sl->isA<SourceLocationRecord>()) {
-    if (this->getCount() > 0 && this->get(this->getCount() - 1)->operator==(*static_cast<SourceLocationRecord*>(sl))) {
-      // The new record is identical, so let's skip.
-      return;
-    }
-    auto sharedSl = getSharedPtr(static_cast<SourceLocationRecord*>(sl));
-    if (sharedSl == 0) {
-      sharedSl = newSrdObj<SourceLocationRecord>(*static_cast<SourceLocationRecord*>(sl));
-    }
-    this->add(sharedSl);
-  } else {
-    auto stack = static_cast<SourceLocationStack*>(sl);
-    this->reserve(this->getCount() + stack->getCount());
-    for (Int i = 0; i < stack->getCount(); ++i) {
-      if (this->getCount() > 0 && this->get(this->getCount() - 1)->operator==(*stack->get(i).get())) {
-        // The new record is identical, so let's skip.
-        continue;
-      }
-      this->add(stack->get(i));
-    }
-  }
+  auto sharedSl = getSharedPtr(sl);
+  this->add(sharedSl);
 }
 
 
-void SourceLocationStack::pop(Word count)
+void SourceLocationStack::pop()
 {
-  Word c = std::min(count, (Word)this->getCount());
-  for (Word i = 0; i < c; ++i) this->remove(this->getCount() - 1);
+  if (this->getCount() == 0) return;
+  this->remove(this->getCount() - 1);
 }
 
 } } // namespace

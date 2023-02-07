@@ -2,7 +2,7 @@
  * @file Core/Data/SourceLocationRecord.h
  * Contains the header of class Core::Data::SourceLocationRecord.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -79,12 +79,12 @@ class SourceLocationRecord : public SourceLocation
 }; // class
 
 
-class SourceLocationStack : public SharedListBase<SourceLocationRecord, SourceLocation>
+class SourceLocationStack : public SharedListBase<SourceLocation, SourceLocation>
 {
   //============================================================================
   // Type Info
 
-  typedef SharedListBase<SourceLocationRecord, SourceLocation> _MyBase;
+  typedef SharedListBase<SourceLocation, SourceLocation> _MyBase;
   TYPE_INFO(SourceLocationStack, _MyBase, "Core.Data", "Core", "alusus.org");
 
 
@@ -95,7 +95,7 @@ class SourceLocationStack : public SharedListBase<SourceLocationRecord, SourceLo
   {
   }
 
-  public: SourceLocationStack(std::initializer_list<SharedPtr<SourceLocationRecord>> const &args)
+  public: SourceLocationStack(std::initializer_list<SharedPtr<SourceLocation>> const &args)
   {
     this->add(args);
   }
@@ -109,25 +109,25 @@ class SourceLocationStack : public SharedListBase<SourceLocationRecord, SourceLo
   //============================================================================
   // Member Functions
 
-  protected: virtual SharedPtr<SourceLocationRecord> prepareForSet(
-    Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited, Bool newEntry
+  protected: virtual SharedPtr<SourceLocation> prepareForSet(
+    Int index, SharedPtr<SourceLocation> const &obj, Bool inherited, Bool newEntry
   ) {
     return obj;
   }
 
   protected: virtual void finalizeSet(
-    Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited, Bool newEntry
+    Int index, SharedPtr<SourceLocation> const &obj, Bool inherited, Bool newEntry
   ) {
   }
 
   protected: virtual void prepareForUnset(
-    Int index, SharedPtr<SourceLocationRecord> const &obj, Bool inherited
+    Int index, SharedPtr<SourceLocation> const &obj, Bool inherited
   ) {
   }
 
   public: void push(SourceLocation *sl);
 
-  public: void pop(Word count = 1);
+  public: void pop();
 
 }; // class
 

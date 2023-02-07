@@ -1,24 +1,12 @@
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPA1003 @ (7,38)
-from (63,5): No valid match was found for the given type.
-ERROR SPPG1037 @ (65,5): Incomplete infix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.
-ERROR SPPG1038 @ (66,5): Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.
-ERROR SPPG1038 @ (67,5): Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - macros_test.alusus (7,38)
+    macros_test.alusus (63,5)
+[0;31mERROR SPPG1037: Incomplete infix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.[0m
+  macros_test.alusus (65,5)
+[0;31mERROR SPPG1038: Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.[0m
+  macros_test.alusus (66,5)
+[0;31mERROR SPPG1038: Incomplete prefix or postfix operator. This is likely caused by a macro or a preprocess statement that evaluated to null.[0m
+  macros_test.alusus (67,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
