@@ -1,6 +1,9 @@
-ERROR CP1001 @ (15,23): Parser syntax error.
-ERROR CD1004 @ (35,25): Incompatible 'def' merge.
-ERROR CP1001 @ (44,19): Parser syntax error.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  user_types_test.alusus (15,23)
+[0;31mERROR CD1004: Incompatible 'def' merge.[0m
+  user_types_test.alusus (35,25)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  user_types_test.alusus (44,19)
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] EmptyType: UserType [Main.Type]

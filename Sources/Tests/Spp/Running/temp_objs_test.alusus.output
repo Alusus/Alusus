@@ -52,7 +52,11 @@ A terminated.
 end of successful test
 C terminated.
 C terminated.
-ERROR SPPA1008 @ (97,27): Provided arguments do not match signature.
-ERROR SPPA1007 @ (98,27): Unknown symbol.
-ERROR SPPA1008 @ (99,27): Provided arguments do not match signature.
-ERROR SPPG1002 @ (100,27): Invalid operation.
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  temp_objs_test.alusus (97,27)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  temp_objs_test.alusus (98,27)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  temp_objs_test.alusus (99,27)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  temp_objs_test.alusus (100,27)

@@ -1,4 +1,5 @@
-ERROR SPPA1003 @ (25,16): No valid match was found for the given type.
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  typeop_test.alusus (25,16)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

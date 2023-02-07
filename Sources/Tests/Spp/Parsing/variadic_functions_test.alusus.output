@@ -1,15 +1,27 @@
-ERROR SPPH1007 @ (27,31): Invalid function arg type.
-ERROR CD1003 @ (27,1): Invalid 'def' command.
-ERROR SPPH1007 @ (31,34): Invalid function arg type.
-ERROR CD1003 @ (31,1): Invalid 'def' command.
-ERROR SPPH1007 @ (35,35): Invalid function arg type.
-ERROR CD1003 @ (35,1): Invalid 'def' command.
-ERROR SPPH1007 @ (39,34): Invalid function arg type.
-ERROR CD1003 @ (39,1): Invalid 'def' command.
-ERROR SPPH1007 @ (43,40): Invalid function arg type.
-ERROR CD1003 @ (43,1): Invalid 'def' command.
-ERROR SPPH1007 @ (47,41): Invalid function arg type.
-ERROR CD1003 @ (47,1): Invalid 'def' command.
+[0;31mERROR SPPH1007: Invalid function arg type.[0m
+  variadic_functions_test.alusus (27,31)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  variadic_functions_test.alusus (27,1)
+[0;31mERROR SPPH1007: Invalid function arg type.[0m
+  variadic_functions_test.alusus (31,34)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  variadic_functions_test.alusus (31,1)
+[0;31mERROR SPPH1007: Invalid function arg type.[0m
+  variadic_functions_test.alusus (35,35)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  variadic_functions_test.alusus (35,1)
+[0;31mERROR SPPH1007: Invalid function arg type.[0m
+  variadic_functions_test.alusus (39,34)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  variadic_functions_test.alusus (39,1)
+[0;31mERROR SPPH1007: Invalid function arg type.[0m
+  variadic_functions_test.alusus (43,40)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  variadic_functions_test.alusus (43,1)
+[0;31mERROR SPPH1007: Invalid function arg type.[0m
+  variadic_functions_test.alusus (47,41)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  variadic_functions_test.alusus (47,1)
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]

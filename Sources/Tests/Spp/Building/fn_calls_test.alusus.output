@@ -1,8 +1,13 @@
-ERROR SPPA1008 @ (12,11): Provided arguments do not match signature.
-ERROR SPPA1007 @ (13,11): Unknown symbol.
-ERROR SPPA1007 @ (15,18): Unknown symbol.
-ERROR SPPG1008 @ (16,10): Invalid symbol.
-ERROR SPPG1022 @ (5,13): Missing a return statement for a non-void function.
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  fn_calls_test.alusus (12,11)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  fn_calls_test.alusus (13,11)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  fn_calls_test.alusus (15,18)
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  fn_calls_test.alusus (16,10)
+[0;31mERROR SPPG1022: Missing a return statement for a non-void function.[0m
+  fn_calls_test.alusus (5,13)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

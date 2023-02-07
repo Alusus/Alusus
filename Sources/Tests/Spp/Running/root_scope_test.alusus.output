@@ -5,10 +5,12 @@
 6
 24
 factorial of 6 using function pointer: 720
-ERROR SPPA1003 @ (25,10): No valid match was found for the given type.
-ERROR SPPA1007 @ (26,7): Unknown symbol.
-ERROR SPPA1003 @ (25,10): No valid match was found for the given type.
-ERROR SPPA1003 @ (27,10): No valid match was found for the given type.
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  root_scope_test.alusus (25,10)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  root_scope_test.alusus (26,7)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  root_scope_test.alusus (27,10)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

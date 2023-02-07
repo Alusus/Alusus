@@ -2,4 +2,8 @@ outer 5
 outer 3
 cast
 done
-ERROR SPPA1005 @ (85,5): Multiple matches were found for the given callee.
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+callee_priority_test.alusus (76,13)
+callee_priority_test.alusus (77,13)
+Called from:[0m
+  callee_priority_test.alusus (85,5)

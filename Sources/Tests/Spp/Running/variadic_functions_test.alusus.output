@@ -9,4 +9,5 @@
 38
 45
 45
-ERROR SPPA1008 @ (61,27): Provided arguments do not match signature.
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  variadic_functions_test.alusus (61,27)

@@ -13,5 +13,7 @@ Factorial of 5=120
 B().j = 3
 B().j = 4
 Success. Auto created `this` was successfully ignored.
-ERROR SPPA1007 @ (73,63): Unknown symbol.
-ERROR SPPG1015 @ (75,15): Incompatible types for the given operator.
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  cmd_pack_test.alusus (73,63)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  cmd_pack_test.alusus (75,15)

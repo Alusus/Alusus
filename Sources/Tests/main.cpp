@@ -2,7 +2,7 @@
  * @file Tests/main.cpp
  * Contains the end-to-end test's main program.
  *
- * @copyright Copyright (C) 2021 Rafid Khalid Abdullah
+ * @copyright Copyright (C) 2023 Rafid Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,45 +30,6 @@ namespace Tests
 {
 
 Str resultFilename;
-
-/**
- * @brief Print the provided notices to the console.
- *
- * Printed notice includes severity, msg code, location, as well as
- * description.
- */
-void printNotice(const SharedPtr<Notice> &msg)
-{
-  // Print severity.
-  switch (msg->getSeverity()) {
-  case 0: std::cout << "BLOCKER "; break;
-  case 1: std::cout << "ERROR "; break;
-  case 2: case 3: std::cout << "WARNING "; break;
-  case 4: std::cout << "ATTN "; break;
-  }
-  // Print msg code.
-  std::cout << msg->getCode() << " @ ";
-  // Print location.
-  auto sl = msg->getSourceLocation().get();
-  if (Core::Data::getSourceLocationRecordCount(sl) > 0) {
-    if (sl->isDerivedFrom<Core::Data::SourceLocationRecord>()) {
-      auto slRecord = static_cast<Core::Data::SourceLocationRecord*>(sl);
-      outStream << "(" << slRecord->line << "," << slRecord->column << ")";
-    } else {
-      auto stack = static_cast<Core::Data::SourceLocationStack*>(sl);
-      for (Int i = stack->getCount() - 1; i >= 0; --i) {
-        if (i < stack->getCount() -1) outStream << NEW_LINE << S("from ");
-        outStream << "(" << stack->get(i)->line << "," << stack->get(i)->column << ")";
-      }
-    }
-    outStream << S(": ");
-  } else {
-    std::cout << "unknown location: ";
-  }
-  // Print description.
-  std::cout << msg->getDescription() << NEW_LINE;
-}
-
 
 Bool isDirectory(Char const *path)
 {
@@ -106,7 +67,12 @@ Bool runSourceFile(Str const &fileName)
   {
     // Prepare the root object;
     RootManager root;
-    Slot<void, SharedPtr<Core::Notices::Notice> const&> noticeSlot(printNotice);
+    Slot<void, SharedPtr<Core::Notices::Notice> const&> noticeSlot(
+      [](SharedPtr<Core::Notices::Notice> const &notice)->void
+      {
+        Core::Notices::printNotice(notice.get());
+      }
+    );
     root.noticeSignal.connect(noticeSlot);
 
     // Parse the provided filename.
@@ -306,6 +272,8 @@ int main(int argc, char **argv)
   } else {
     Core::Notices::L18nDictionary::getSingleton()->initialize(S("en"), l18nPath.c_str());
   }
+
+  Core::Notices::setSourceLocationPathSkipping(true);
 
   // Prepare a temporary filename.
   Char const * tempPath = getenv("TMPDIR");

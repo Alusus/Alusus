@@ -15,4 +15,5 @@ test7: auto cast
 5
 ComplexNum 6 is terminated.
 Num 5 is terminated.
-ERROR SPPA1008 @ (90,9): Provided arguments do not match signature.
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  smart_refs_test.alusus (90,9)

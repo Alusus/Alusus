@@ -1,2 +1,4 @@
-ERROR CP1002 @ (2,2): Parsing exited while needing more tokens.
-ERROR CD1003 @ (1,1): Invalid 'def' command.
+[0;31mERROR CP1002: Parsing exited while needing more tokens.[0m
+  eof_error_test.alusus (2,2)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  eof_error_test.alusus (1,1)

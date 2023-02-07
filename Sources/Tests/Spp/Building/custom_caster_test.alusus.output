@@ -1,4 +1,5 @@
-ERROR SPPG1022 @ (10,11): Missing a return statement for a non-void function.
+[0;31mERROR SPPG1022: Missing a return statement for a non-void function.[0m
+  custom_caster_test.alusus (10,11)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

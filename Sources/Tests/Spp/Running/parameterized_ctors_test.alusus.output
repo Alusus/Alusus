@@ -4,4 +4,5 @@ a3.i = 7
 b.a.i = 26
 ag.i = 3
 ri = 26
-ERROR SPPG1031 @ (46,10): Variable initialization failed. Custom init op matching the given data is needed for this type.
+[0;31mERROR SPPG1031: Variable initialization failed. Custom init op matching the given data is needed for this type.[0m
+  parameterized_ctors_test.alusus (46,10)

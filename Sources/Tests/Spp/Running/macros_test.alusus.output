@@ -22,7 +22,10 @@ m4 non-member 3, additional-arg
 m4 member 3, additional-arg
 m4 member 4, additional-arg
 m4 member 5, after-addition
-ERROR SPPG1002 @ (127,7): Invalid operation.
-ERROR SPPG1002 @ (128,12): Invalid operation.
-ERROR SPPG1039 @ (98,9)
-from (129,5): Invalid target for use_in operation.
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  macros_test.alusus (127,7)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  macros_test.alusus (128,12)
+[0;31mERROR SPPG1039: Invalid target for use_in operation.[0m
+  - macros_test.alusus (98,9)
+    macros_test.alusus (129,5)

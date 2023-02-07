@@ -1,6 +1,9 @@
-ERROR SPPA1007 @ (96,10): Unknown symbol.
-ERROR SPPA1007 @ (97,13): Unknown symbol.
-ERROR SPPG1002 @ (102,5): Invalid operation.
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  member_functions_test.alusus (96,10)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  member_functions_test.alusus (97,13)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  member_functions_test.alusus (102,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

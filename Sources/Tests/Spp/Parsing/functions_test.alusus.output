@@ -1,9 +1,15 @@
-ERROR CP1005 @ (11,10): Unexpected modifier encountered.
-ERROR CP1005 @ (15,10): Unexpected modifier encountered.
-ERROR CP1005 @ (19,10): Unexpected modifier encountered.
-ERROR SPPH1006 @ (36,28): Invalid function arg name.
-ERROR CD1003 @ (36,1): Invalid 'def' command.
-ERROR SPPH1003 @ (49,16): Invalid function signature.
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  functions_test.alusus (11,10)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  functions_test.alusus (15,10)
+[0;31mERROR CP1005: Unexpected modifier encountered.[0m
+  functions_test.alusus (19,10)
+[0;31mERROR SPPH1006: Invalid function arg name.[0m
+  functions_test.alusus (36,28)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  functions_test.alusus (36,1)
+[0;31mERROR SPPH1003: Invalid function signature.[0m
+  functions_test.alusus (49,16)
 ------------------ Parsed Data Dump ------------------
 Function f1 [Main.Function]
  type: FunctionType member: 0 [Main.Function]

@@ -1,0 +1,17 @@
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  - build_notices1_test.alusus (45,15)
+    - - build_notices1_test.alusus (15,40)
+        build_notices1_test.alusus (45,11)
+      - build_notices1_test.alusus (13,5)
+        build_notices1_test.alusus (45,11)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  - build_notices1_test.alusus (23,9)
+    - build_notices1_test.alusus (28,5)
+      build_notices1_test.alusus (31,1)
+[0;31mERROR SPPG1004: Invalid integer bit count.[0m
+  build_notices1_test.alusus (34,27)
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+build_notices1_test.alusus (37,1)
+build_notices1_test.alusus (38,1)
+Called from:[0m
+  build_notices1_test.alusus (41,5)

@@ -1,7 +1,11 @@
-ERROR CP1001 @ (37,5): Parser syntax error.
-ERROR CP1001 @ (38,19): Parser syntax error.
-ERROR CP1001 @ (39,29): Parser syntax error.
-ERROR CP1001 @ (40,40): Parser syntax error.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  if_statement_test.alusus (37,5)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  if_statement_test.alusus (38,19)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  if_statement_test.alusus (39,29)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  if_statement_test.alusus (40,40)
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]

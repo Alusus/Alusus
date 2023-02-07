@@ -1,5 +1,7 @@
-ERROR SPPG1031 @ (30,5): Variable initialization failed. Custom init op matching the given data is needed for this type.
-ERROR SPPG1031 @ (31,5): Variable initialization failed. Custom init op matching the given data is needed for this type.
+[0;31mERROR SPPG1031: Variable initialization failed. Custom init op matching the given data is needed for this type.[0m
+  parameterized_ctors_test.alusus (30,5)
+[0;31mERROR SPPG1031: Variable initialization failed. Custom init op matching the given data is needed for this type.[0m
+  parameterized_ctors_test.alusus (31,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

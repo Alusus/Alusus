@@ -1,10 +1,20 @@
-ERROR SPPA1005 @ (23,5): Multiple matches were found for the given callee.
-ERROR SPPA1008 @ (24,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (25,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (26,5): Provided arguments do not match signature.
-ERROR SPPA1007 @ (27,5): Unknown symbol.
-ERROR SPPG1022 @ (5,13): Missing a return statement for a non-void function.
-ERROR SPPG1032 @ (56,7): Invalid next_arg operation.
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+variadic_functions_test.alusus (34,11)
+variadic_functions_test.alusus (38,11)
+Called from:[0m
+  variadic_functions_test.alusus (23,5)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  variadic_functions_test.alusus (24,5)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  variadic_functions_test.alusus (25,5)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  variadic_functions_test.alusus (26,5)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  variadic_functions_test.alusus (27,5)
+[0;31mERROR SPPG1022: Missing a return statement for a non-void function.[0m
+  variadic_functions_test.alusus (5,13)
+[0;31mERROR SPPG1032: Invalid next_arg operation.[0m
+  variadic_functions_test.alusus (56,7)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

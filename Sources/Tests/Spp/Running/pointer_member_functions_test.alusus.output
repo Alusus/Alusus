@@ -6,5 +6,7 @@ M.printIt 8
 M.printIt2 11
 M.printIt3 8
 M.printIt4 12
-ERROR SPPA1008 @ (79,3): Provided arguments do not match signature.
-ERROR SPPG1020 @ (80,3): Invalid access to global definition.
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  pointer_member_functions_test.alusus (79,3)
+[0;31mERROR SPPG1020: Invalid access to global definition.[0m
+  pointer_member_functions_test.alusus (80,3)

@@ -1,7 +1,11 @@
-ERROR SPPH1011 @ (12,7): Invalid continue statement.
-ERROR SPPH1011 @ (13,7): Invalid continue statement.
-ERROR SPPH1011 @ (19,7): Invalid continue statement.
-ERROR SPPH1011 @ (20,7): Invalid continue statement.
+[0;31mERROR SPPH1011: Invalid continue statement.[0m
+  continue_statement_test.alusus (12,7)
+[0;31mERROR SPPH1011: Invalid continue statement.[0m
+  continue_statement_test.alusus (13,7)
+[0;31mERROR SPPH1011: Invalid continue statement.[0m
+  continue_statement_test.alusus (19,7)
+[0;31mERROR SPPH1011: Invalid continue statement.[0m
+  continue_statement_test.alusus (20,7)
 ------------------ Parsed Data Dump ------------------
 Module [Main.ModuleStatements.StmtList]
  Definition [Main.Def] start: Function  [Main.Function]

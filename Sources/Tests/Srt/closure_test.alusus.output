@@ -40,74 +40,70 @@ testCaptureAuto:
 10
 
 testErrorCases:
-ERROR SPPA1003 @ (380,38)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (380,38)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (380,61)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,37)
-from (473,26): No valid match was found for the given type.
-ERROR SPPA1003 @ (383,58)
-from (490,26)
-from (161,17): No valid match was found for the given type.
-ERROR SPPA1007 @ (388,9)
-from (490,26)
-from (101,18)
-from (161,17): Unknown symbol.
-ERROR SPPA1007 @ (372,9): Unknown symbol.
-ERROR SPPA1007 @ (373,27)
-from (490,26)
-from (101,18)
-from (161,17): Unknown symbol.
-ERROR SPPA1007 @ (374,13)
-from (490,26)
-from (101,18)
-from (161,17): Unknown symbol.
-ERROR SPPH1006 @ (396,35): Invalid function arg name.
-ERROR SPPH1006 @ (399,41): Invalid function arg name.
-ERROR SRT1001 @ (405,21)
-from (490,26): Closure payload capture mode is invalid.
-ERROR SRT1001 @ (406,21)
-from (490,26): Closure payload capture mode is invalid.
-ERROR SRT1001 @ (407,21)
-from (490,26): Closure payload capture mode is invalid.
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - closure_test.alusus (380,38)
+    - closure.alusus (473,43)
+      closure.alusus (473,26)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - closure_test.alusus (380,38)
+    - closure.alusus (473,43)
+      closure.alusus (473,26)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - - closure_test.alusus (380,61)
+      closure.alusus (490,26)
+    - closure.alusus (171,33)
+      closure.alusus (161,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - closure_test.alusus (383,37)
+    - closure.alusus (473,43)
+      closure.alusus (473,26)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - - closure_test.alusus (383,58)
+      closure.alusus (490,26)
+    - closure.alusus (161,34)
+      closure.alusus (161,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - closure_test.alusus (383,37)
+    - closure.alusus (473,43)
+      closure.alusus (473,26)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - - closure_test.alusus (383,58)
+      closure.alusus (490,26)
+    - closure.alusus (171,33)
+      closure.alusus (161,17)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  - - - closure_test.alusus (388,9)
+        closure.alusus (490,26)
+      - closure.alusus (105,17)
+        closure.alusus (101,18)
+    - closure.alusus (171,33)
+      closure.alusus (161,17)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  closure_test.alusus (372,9)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  - - - closure_test.alusus (373,27)
+        closure.alusus (490,26)
+      - closure.alusus (105,17)
+        closure.alusus (101,18)
+    - closure.alusus (171,33)
+      closure.alusus (161,17)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  - - - closure_test.alusus (374,13)
+        closure.alusus (490,26)
+      - closure.alusus (105,17)
+        closure.alusus (101,18)
+    - closure.alusus (171,33)
+      closure.alusus (161,17)
+[0;31mERROR SPPH1006: Invalid function arg name.[0m
+  closure_test.alusus (396,35)
+[0;31mERROR SPPH1006: Invalid function arg name.[0m
+  closure_test.alusus (399,41)
+[0;31mERROR SRT1001: Closure payload capture mode is invalid.[0m
+  - closure_test.alusus (405,21)
+    closure.alusus (490,26)
+[0;31mERROR SRT1001: Closure payload capture mode is invalid.[0m
+  - closure_test.alusus (406,21)
+    closure.alusus (490,26)
+[0;31mERROR SRT1001: Closure payload capture mode is invalid.[0m
+  - closure_test.alusus (407,21)
+    closure.alusus (490,26)

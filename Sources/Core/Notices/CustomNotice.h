@@ -2,7 +2,7 @@
  * @file Core/Notices/CustomNotice.h
  * Contains the header of class Core::Notices::CustomNotice.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -79,6 +79,17 @@ class CustomNotice : public Notice
       str += S(": ");
       str += param;
     }
+  }
+
+  public: virtual Bool isEqual(Notice *notice) const
+  {
+    auto customNotice = ti_cast<CustomNotice>(notice);
+    if (customNotice == 0) return false;
+    return this->code == customNotice->code &&
+      this->msg == customNotice->msg &&
+      this->param == customNotice->param &&
+      this->severity == customNotice->severity &&
+      Data::isEqual(this->getSourceLocation().get(), customNotice->getSourceLocation().get());
   }
 
 }; // class

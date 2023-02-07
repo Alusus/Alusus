@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/AstProcessor.cpp
  * Contains the implementation of class Spp::CodeGen::AstProcessor.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -184,12 +184,8 @@ Bool AstProcessor::_processParamPass(
 
     if (macro != 0) {
       auto sl = paramPass->findSourceLocation();
-      astProcessor->astHelper->getNoticeStore()->pushPrefixSourceLocation(sl.get());
       if (astProcessor->processMacro(macro, args, paramPass->getOwner(), indexInOwner, sl.get())) replaced = true;
       else result = false;
-      astProcessor->astHelper->getNoticeStore()->popPrefixSourceLocation(
-        Core::Data::getSourceLocationRecordCount(sl.get())
-      );
     }
     return result;
   } else{
@@ -212,9 +208,6 @@ Bool AstProcessor::_processPreprocessStatement(
   astProcessor->astNodeRepo->addElement(preprocess);
 
   Bool result = true;
-
-  Core::Notices::Store backup;
-  backup.copyPrefixSourceLocationStack(astProcessor->astHelper->getNoticeStore());
 
   // Build the preprocess statement.
   // Was the statement already built? This can happen when the same preprocess statement is encountered again while
@@ -243,8 +236,6 @@ Bool AstProcessor::_processPreprocessStatement(
     auto tmpBuildSession = astProcessor->executing->prepareBuild(BuildManager::BuildType::PREPROCESS, 0);
     astProcessor->executing->finalizeBuild(0, tmpBuildSession.get());
   }
-
-  astProcessor->astHelper->getNoticeStore()->copyPrefixSourceLocationStack(&backup);
 
   // If the build session was removed from the element after finalizing the build it means one of the dependencies
   // executed the statement, so we don't need to execute it again.
@@ -501,7 +492,10 @@ Bool AstProcessor::_interpolateAst_identifier(
         result = Core::Data::Ast::StringLiteral::create({ {S("value"), static_cast<TiStr*>(arg)} });
         result.s_cast<Core::Data::Ast::StringLiteral>()->setSourceLocation(sl);
       } else {
-        result = Core::Data::Ast::clone(args->getElement(index), sl);
+        result = Core::Data::Ast::clone(
+          args->getElement(index),
+          Core::Data::concatSourceLocation(obj->getSourceLocation().get(), sl).get()
+        );
       }
     }
   } else {

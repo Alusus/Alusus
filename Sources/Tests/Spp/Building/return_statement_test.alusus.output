@@ -1,11 +1,19 @@
-ERROR SPPG1006 @ (58,5): Invalid return value.
-ERROR SPPG1006 @ (63,5): Invalid return value.
-ERROR SPPG1006 @ (68,5): Invalid return value.
-ERROR SPPG1022 @ (71,23): Missing a return statement for a non-void function.
-ERROR SPPG1022 @ (75,23): Missing a return statement for a non-void function.
-ERROR SPPG1022 @ (81,23): Missing a return statement for a non-void function.
-ERROR SPPG1021 @ (96,5): Unreachable code.
-ERROR SPPG1021 @ (103,5): Unreachable code.
+[0;31mERROR SPPG1006: Invalid return value.[0m
+  return_statement_test.alusus (58,5)
+[0;31mERROR SPPG1006: Invalid return value.[0m
+  return_statement_test.alusus (63,5)
+[0;31mERROR SPPG1006: Invalid return value.[0m
+  return_statement_test.alusus (68,5)
+[0;31mERROR SPPG1022: Missing a return statement for a non-void function.[0m
+  return_statement_test.alusus (71,23)
+[0;31mERROR SPPG1022: Missing a return statement for a non-void function.[0m
+  return_statement_test.alusus (75,23)
+[0;31mERROR SPPG1022: Missing a return statement for a non-void function.[0m
+  return_statement_test.alusus (81,23)
+[0;31mERROR SPPG1021: Unreachable code.[0m
+  return_statement_test.alusus (96,5)
+[0;31mERROR SPPG1021: Unreachable code.[0m
+  return_statement_test.alusus (103,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

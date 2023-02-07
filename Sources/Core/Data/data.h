@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Data
  * namespace.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,6 +32,7 @@ namespace Core::Data
   class Node;
   class Seeker;
   class SourceLocation;
+  class SourceLocationStack;
 }
 
 namespace Core::Notices
@@ -75,7 +76,11 @@ template <class T> T* findOwner(Node *obj)
  */
 void dumpData(OutStream &stream, TiObject *ptr, int indents);
 
-Word getSourceLocationRecordCount(SourceLocation const *sl);
+SharedPtr<SourceLocation> concatSourceLocation(SourceLocation *sl1, SourceLocation *sl2);
+
+SharedPtr<SourceLocation> concatFlattenedSourceLocation(SourceLocation *sl, SourceLocationStack const &stack);
+
+Bool isEqual(SourceLocation const *sl1, SourceLocation const *sl2);
 
 // TODO: Find module for other dimensions.
 

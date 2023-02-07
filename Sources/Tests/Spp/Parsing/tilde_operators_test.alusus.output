@@ -1,6 +1,9 @@
-ERROR CP1001 @ (27,5): Parser syntax error.
-ERROR CP1001 @ (36,10): Parser syntax error.
-ERROR CP1001 @ (37,11): Parser syntax error.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  tilde_operators_test.alusus (27,5)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  tilde_operators_test.alusus (36,10)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  tilde_operators_test.alusus (37,11)
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]

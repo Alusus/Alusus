@@ -15,6 +15,9 @@ InitOp [Main.InitTilde]
   IntegerLiteral: 1 [Main.BlockSubject.Literal]
   IntegerLiteral: 2 [Main.BlockSubject.Literal]
 ------------------------------------------------------
-ERROR CP1001 @ (12,15): Parser syntax error.
-ERROR CP1001 @ (14,15): Parser syntax error.
-ERROR SPPG1002 @ (14,15): Invalid operation.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  init_tilde_test.alusus (12,15)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  init_tilde_test.alusus (14,15)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  init_tilde_test.alusus (14,15)

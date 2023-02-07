@@ -37,7 +37,9 @@ shared value from jit: 3
 
 CircularGen1
 CircularGen2
-ERROR SPPG1040 @ (211,1)
-from (222,12): Circular code generation encountered while generating user type.
-ERROR SPPG1024 @ (223,8): Trying to access a variable before it's initialized.
-ERROR SPPG1040 @ (240,5): Circular code generation encountered while generating user type.
+[0;31mERROR SPPG1040: Circular code generation encountered while generating user type.[0m
+  preprocess_statement_test.alusus (211,1)
+[0;31mERROR SPPG1024: Trying to access a variable before it's initialized.[0m
+  preprocess_statement_test.alusus (223,8)
+[0;31mERROR SPPG1040: Circular code generation encountered while generating user type.[0m
+  preprocess_statement_test.alusus (240,5)

@@ -2,7 +2,7 @@
  * @file Core/Data/data.cpp
  * Contains the global implementations of Data namespace's declarations.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -111,11 +111,42 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
 }
 
 
-Word getSourceLocationRecordCount(SourceLocation const *sl)
+SharedPtr<SourceLocation> concatSourceLocation(SourceLocation *sl1, SourceLocation *sl2)
 {
-  if (sl == 0) return 0;
-  else if (sl->isA<SourceLocationRecord>())  return 1;
-  else return static_cast<SourceLocationStack const*>(sl)->getCount();
+  if (sl1 == 0) return getSharedPtr(sl2);
+  else if (sl2 == 0 || sl2 == sl1) return getSharedPtr(sl1);
+
+  auto newSl = newSrdObj<SourceLocationStack>();
+  newSl->push(sl2);
+  newSl->push(sl1);
+  return newSl;
+}
+
+
+SharedPtr<SourceLocation> concatFlattenedSourceLocation(SourceLocation *sl, SourceLocationStack const &stack)
+{
+  if (stack.getCount() == 0) return getSharedPtr(sl);
+  else if (sl == 0 && stack.getCount() == 1) return stack.get(0);
+
+  auto newSl = newSrdObj<SourceLocationStack>();
+  for (Int i = 0; i < stack.getCount(); ++i) newSl->push(stack.get(i).get());
+  if (sl != 0) newSl->push(sl);
+  return newSl;
+}
+
+
+Bool isEqual(SourceLocation const *sl1, SourceLocation const *sl2)
+{
+  if (sl1 == sl2) return true;
+  auto stack1 = ti_cast<SourceLocationStack const>(sl1);
+  if (stack1 == 0) return false;
+  auto stack2 = ti_cast<SourceLocationStack const>(sl2);
+  if (stack2 == 0) return false;
+  if (stack1->getCount() != stack1->getCount()) return false;
+  for (Int i = 0; i < stack1->getCount(); ++i) {
+    if (!isEqual(stack1->get(i).get(), stack2->get(i).get())) return false;
+  }
+  return true;
 }
 
 } } // namespace

@@ -2,7 +2,7 @@
  * @file Core/Notices/notices.cpp
  * Contains the global implementations of Notices namespace's declarations.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,10 +15,41 @@
 namespace Core::Notices
 {
 
+Bool *sourceLocationPathSkipping = 0;
+
+Bool* getSourceLocationPathSkippingPtr()
+{
+  if (sourceLocationPathSkipping == 0) {
+    sourceLocationPathSkipping =
+      reinterpret_cast<Bool*>(GLOBAL_STORAGE->getObject(S("Core::Notices::sourceLocationPathSkipping")));
+    if (sourceLocationPathSkipping == 0) {
+      sourceLocationPathSkipping = new Bool(false);
+      GLOBAL_STORAGE->setObject(
+        S("Core::Notices::sourceLocationPathSkipping"),
+        reinterpret_cast<void*>(sourceLocationPathSkipping)
+      );
+    }
+  }
+  return sourceLocationPathSkipping;
+}
+
+
+void setSourceLocationPathSkipping(Bool skipping)
+{
+  *(getSourceLocationPathSkippingPtr()) = skipping;
+}
+
+
+Bool getSourceLocationPathSkipping()
+{
+  return *(getSourceLocationPathSkippingPtr());
+}
+
+
 void printNotice(Notice const *msg)
 {
   // We will only print the error message if we have a source location for it.
-  if (Data::getSourceLocationRecordCount(msg->getSourceLocation().get()) == 0) return;
+  if (msg->getSourceLocation() == 0) return;
 
   // Print severity.
   switch (msg->getSeverity()) {
@@ -37,25 +68,32 @@ void printNotice(Notice const *msg)
       break;
   }
   // Print msg code.
-  outStream << msg->getCode() << " @ ";
+  outStream << msg->getCode() << ": ";
+  // Print description.
+  outStream << msg->getDescription() << S("\033[0m") << NEW_LINE << S("  ");
   // Print location.
-  auto sl = msg->getSourceLocation().get();
+  outStream << getSourceLocationString(msg->getSourceLocation().get(), 2) << NEW_LINE;
+}
+
+
+Str getSourceLocationString(Data::SourceLocation *sl, Int indentation) {
+  StrStream stream;
   if (sl->isDerivedFrom<Data::SourceLocationRecord>()) {
     auto slRecord = static_cast<Data::SourceLocationRecord*>(sl);
-    outStream << slRecord->filename << " (" << slRecord->line << "," << slRecord->column << ")";
+    auto filename = getSourceLocationPathSkipping() ?
+      strrchr(slRecord->filename.getBuf(), C('/')) + 1 :
+      slRecord->filename.getBuf();
+    stream << filename << " (" << slRecord->line << "," << slRecord->column << ")";
   } else {
     auto stack = static_cast<Data::SourceLocationStack*>(sl);
-    for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      if (i < stack->getCount() -1) {
-        outStream << NEW_LINE << L18nDictionary::getSingleton()->get(S("FROM"), S("from")) << S(" ");
-      }
-      outStream << stack->get(i)->filename
-        << " (" << stack->get(i)->line << "," << stack->get(i)->column << ")";
+    stream << S("- ") << getSourceLocationString(stack->get(stack->getCount() - 1).get(), indentation + 2);
+    for (Int i = stack->getCount() - 2; i >= 0; --i) {
+      stream << NEW_LINE;
+      for (Int j = 0; j < indentation; ++j) stream << S(" ");
+      stream << S("  ") << getSourceLocationString(stack->get(i).get(), indentation + 2);
     }
   }
-  outStream << S(": ");
-  // Print description.
-  outStream << msg->getDescription() << S("\033[0m") << NEW_LINE;
+  return stream.str().c_str();
 }
 
 } // namespace

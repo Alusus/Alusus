@@ -1,15 +1,27 @@
-ERROR SPPG1013 @ (40,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (41,17): Invalid operand of logical operator.
-ERROR SPPG1013 @ (64,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (65,17): Invalid operand of logical operator.
-ERROR SPPG1013 @ (103,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (104,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (106,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (109,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (110,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (112,8): Invalid operand of logical operator.
-ERROR SPPG1013 @ (115,9): Invalid operand of logical operator.
-ERROR SPPG1013 @ (116,9): Invalid operand of logical operator.
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (40,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (41,17)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (64,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (65,17)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (103,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (104,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (106,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (109,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (110,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (112,8)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (115,9)
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (116,9)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

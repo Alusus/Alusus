@@ -8,6 +8,7 @@
 * Casting of pointers and references from a user type to the type of the first member variable of that user type is no
   longer implicit unless if that member var is defined as an injection. In other words, casting is only implicit in
   cases of inheritance.
+* Improved build notice reporting.
 
 ### Updates to the Standard Libraries
 

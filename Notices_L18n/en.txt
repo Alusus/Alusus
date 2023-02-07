@@ -30,7 +30,7 @@ SPPA1001:Template arguments mismatch.
 SPPA1002:Invalid template argument.
 SPPA1003:No valid match was found for the given type.
 SPPA1004:No valid match was found for the given type member.
-SPPA1005:Multiple matches were found for the given callee.
+SPPA1005:Multiple matches were found for the given callee at these locations:\n%s\n%s\nCalled from:
 SPPA1006:No matches were found for the given callee.
 SPPA1007:Unknown symbol.
 SPPA1008:Provided arguments do not match signature.

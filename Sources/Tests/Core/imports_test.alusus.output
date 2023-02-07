@@ -7,6 +7,9 @@ StringLiteral: imported2 [Main.Subject.Literal]
 ------------------ Parsed Data Dump ------------------
 StringLiteral: imported3 [Main.Subject.Literal]
 ------------------------------------------------------
-ERROR CP1006 @ (4,8): Invalid import parameter.
-ERROR CP1006 @ (5,10): Invalid import parameter.
-ERROR CP1006 @ (6,8): Invalid import parameter.
+[0;31mERROR CP1006: Invalid import parameter.[0m
+  imports_test.alusus (4,8)
+[0;31mERROR CP1006: Invalid import parameter.[0m
+  imports_test.alusus (5,10)
+[0;31mERROR CP1006: Invalid import parameter.[0m
+  imports_test.alusus (6,8)

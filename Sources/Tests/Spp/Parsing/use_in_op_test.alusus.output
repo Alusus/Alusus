@@ -22,8 +22,13 @@ UseInOp self skipInjection [Main.UseInTilde]
    operand: Identifier: doSomething [Main.BlockSubject.Identifier]
    param: NULL
 ------------------------------------------------------
-ERROR CP1001 @ (19,12): Parser syntax error.
-ERROR CP1001 @ (19,18): Parser syntax error.
-ERROR CP1001 @ (21,17): Parser syntax error.
-ERROR CP1001 @ (23,18): Parser syntax error.
-ERROR SPPA1007 @ (23,18): Unknown symbol.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  use_in_op_test.alusus (19,12)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  use_in_op_test.alusus (19,18)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  use_in_op_test.alusus (21,17)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  use_in_op_test.alusus (23,18)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  use_in_op_test.alusus (23,18)

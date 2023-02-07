@@ -20,7 +20,11 @@ Template
      param: Identifier: S [Main.BlockSubject.Identifier]
  -instances:
 ------------------------------------------------------
-ERROR CP1001 @ (13,21): Parser syntax error.
-ERROR SPPA1002 @ (17,20): Invalid template argument.
-ERROR SPPH1017 @ (21,31): Invalid templatae arg type.
-ERROR SPPH1016 @ (25,30): Invalid template arg name.
+[0;31mERROR CP1001: Parser syntax error.[0m
+  template_type_test.alusus (13,21)
+[0;31mERROR SPPA1002: Invalid template argument.[0m
+  template_type_test.alusus (17,20)
+[0;31mERROR SPPH1017: Invalid templatae arg type.[0m
+  template_type_test.alusus (21,31)
+[0;31mERROR SPPH1016: Invalid template arg name.[0m
+  template_type_test.alusus (25,30)

@@ -394,13 +394,20 @@ define %B* @"B.=(ref[B],temp_ref[Int[32]])=>(ref[B])"(%B* %this, i32* %value) {
 
 declare i32 @printf([1 x i8]*, ...)
 ------------------------------------------------------------
-ERROR SPPG1015 @ (227,5): Incompatible types for the given operator.
-ERROR SPPG1015 @ (228,5): Incompatible types for the given operator.
-ERROR SPPG1015 @ (229,5): Incompatible types for the given operator.
-ERROR SPPG1015 @ (230,5): Incompatible types for the given operator.
-ERROR SPPG1033 @ (232,5): Invalid operand for ~deref operator.
-ERROR SPPA1008 @ (234,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (236,5): Provided arguments do not match signature.
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  references_test.alusus (227,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  references_test.alusus (228,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  references_test.alusus (229,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  references_test.alusus (230,5)
+[0;31mERROR SPPG1033: Invalid operand for ~deref operator.[0m
+  references_test.alusus (232,5)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  references_test.alusus (234,5)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  references_test.alusus (236,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

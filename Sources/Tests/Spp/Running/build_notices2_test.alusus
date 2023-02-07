@@ -1,0 +1,38 @@
+import "Srl/Console";
+import "Srl/Map";
+import "Srl/String";
+import "Core/Basic";
+import "Spp";
+use Srl;
+
+def AstTemplateMap: alias Map[String, ref[Core.Basic.TiObject]];
+
+def i: Int(5);
+
+func test1 [a: ast] () {
+    Console.print("%d\n", preprocess { Spp.astMgr.insertAst(a~ast) });
+}
+
+func test2 [a: ast] () {
+    preprocess {
+        Spp.astMgr.insertAst(
+            (ast test1[n]()),
+            AstTemplateMap().set(String("n"), a~ast)
+        )
+    }
+}
+
+macro buildtest3 {
+    func test3 [a: ast] () {
+        preprocess {
+            Spp.astMgr.insertAst(
+                (ast test2[n]()),
+                AstTemplateMap().set(String("n"), a~ast)
+            )
+        }
+    }
+}
+
+buildtest3[];
+
+test3[i + k]();

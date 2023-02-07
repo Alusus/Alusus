@@ -1,7 +1,11 @@
-ERROR SPPG1015 @ (70,5): Incompatible types for the given operator.
-ERROR SPPG1015 @ (71,5): Incompatible types for the given operator.
-ERROR SPPA1008 @ (72,5): Provided arguments do not match signature.
-ERROR SPPA1008 @ (73,5): Provided arguments do not match signature.
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  arrays_test.alusus (70,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  arrays_test.alusus (71,5)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  arrays_test.alusus (72,5)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  arrays_test.alusus (73,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

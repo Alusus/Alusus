@@ -2,7 +2,7 @@
  * @file Spp/Notices/notices.h
  * Contains the definitions and include statements of all user notices.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -43,9 +43,6 @@ DEFINE_NOTICE(InvalidTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1003",
 DEFINE_NOTICE(InvalidTypeMemberNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1004", 1,
   "No valid match was found for the given type member."
 );
-DEFINE_NOTICE(MultipleCalleeMatchNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1005", 1,
-  "Multiple matches were found for the given callee."
-);
 DEFINE_NOTICE(NoCalleeMatchNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1006", 1,
   "No matches were found for the given callee."
 );
@@ -84,6 +81,8 @@ DEFINE_NOTICE(InvalidGrammarAstNotice, "Core.Notices", "Core", "alusus.org", "SP
 );
 
 } /// namespace
+
+#include "MultipleCalleeMatchNotice.h";
 
 
 //==============================================================================

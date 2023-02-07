@@ -1,6 +1,9 @@
-ERROR SPPA1007 @ (47,5): Unknown symbol.
-ERROR SPPA1007 @ (50,5): Unknown symbol.
-ERROR SPPA1007 @ (57,5): Unknown symbol.
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  use_statement_test.alusus (47,5)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  use_statement_test.alusus (50,5)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  use_statement_test.alusus (57,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -63,5 +66,7 @@ define void @"Std.Inner.printExclamation()"() {
   ret void
 }
 ------------------------------------------------------------
-ERROR SPPA1010 @ (65,3): Use statement not pointing to a valid target.
-ERROR SPPA1010 @ (68,5): Use statement not pointing to a valid target.
+[0;31mERROR SPPA1010: Use statement not pointing to a valid target.[0m
+  use_statement_test.alusus (65,3)
+[0;31mERROR SPPA1010: Use statement not pointing to a valid target.[0m
+  use_statement_test.alusus (68,5)

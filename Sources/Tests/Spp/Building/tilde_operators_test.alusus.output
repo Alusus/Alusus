@@ -1,20 +1,37 @@
-ERROR SPPG1001 @ (22,5): Unsupported operation.
-ERROR SPPG1001 @ (23,10): Unsupported operation.
-ERROR SPPG1015 @ (26,5): Incompatible types for the given operator.
-ERROR SPPG1015 @ (29,5): Incompatible types for the given operator.
-ERROR SPPG1008 @ (34,10): Invalid symbol.
-ERROR SPPG1008 @ (35,5): Invalid symbol.
-ERROR SPPA1003 @ (53,17): No valid match was found for the given type.
-ERROR SPPA1002 @ (53,17): Invalid template argument.
-ERROR SPPG1015 @ (54,5): Incompatible types for the given operator.
-ERROR SPPG1005 @ (55,10): Invalid cast.
-ERROR SPPG1005 @ (64,10): Invalid cast.
-ERROR SPPA1003 @ (65,16): No valid match was found for the given type.
-ERROR SPPG1008 @ (68,9): Invalid symbol.
-ERROR SPPG1009 @ (76,31): Invalid operand for ~size operator.
-ERROR SPPA1007 @ (77,34): Unknown symbol.
-ERROR SPPG1004 @ (83,34): Invalid integer bit count.
-ERROR SPPG1004 @ (85,39): Invalid integer bit count.
+[0;31mERROR SPPG1001: Unsupported operation.[0m
+  tilde_operators_test.alusus (22,5)
+[0;31mERROR SPPG1001: Unsupported operation.[0m
+  tilde_operators_test.alusus (23,10)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (26,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (29,5)
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  tilde_operators_test.alusus (34,10)
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  tilde_operators_test.alusus (35,5)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  tilde_operators_test.alusus (53,17)
+[0;31mERROR SPPA1002: Invalid template argument.[0m
+  tilde_operators_test.alusus (53,17)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (54,5)
+[0;31mERROR SPPG1005: Invalid cast.[0m
+  tilde_operators_test.alusus (55,10)
+[0;31mERROR SPPG1005: Invalid cast.[0m
+  tilde_operators_test.alusus (64,10)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  tilde_operators_test.alusus (65,16)
+[0;31mERROR SPPG1008: Invalid symbol.[0m
+  tilde_operators_test.alusus (68,9)
+[0;31mERROR SPPG1009: Invalid operand for ~size operator.[0m
+  tilde_operators_test.alusus (76,31)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  tilde_operators_test.alusus (77,34)
+[0;31mERROR SPPG1004: Invalid integer bit count.[0m
+  tilde_operators_test.alusus (83,34)
+[0;31mERROR SPPG1004: Invalid integer bit count.[0m
+  tilde_operators_test.alusus (85,39)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

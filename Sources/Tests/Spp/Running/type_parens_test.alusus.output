@@ -17,5 +17,7 @@ C~init
 test4
 C()
 4
-ERROR SPPA1008 @ (107,27): Provided arguments do not match signature.
-ERROR SPPA1008 @ (108,27): Provided arguments do not match signature.
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  type_parens_test.alusus (107,27)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  type_parens_test.alusus (108,27)

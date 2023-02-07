@@ -1,7 +1,11 @@
-ERROR SPPG1011 @ (58,21): Invalid continue steps.
-ERROR SPPG1011 @ (59,21): Invalid continue steps.
-ERROR SPPG1011 @ (71,21): Invalid continue steps.
-ERROR SPPG1011 @ (72,21): Invalid continue steps.
+[0;31mERROR SPPG1011: Invalid continue steps.[0m
+  continue_statement_test.alusus (58,21)
+[0;31mERROR SPPG1011: Invalid continue steps.[0m
+  continue_statement_test.alusus (59,21)
+[0;31mERROR SPPG1011: Invalid continue steps.[0m
+  continue_statement_test.alusus (71,21)
+[0;31mERROR SPPG1011: Invalid continue steps.[0m
+  continue_statement_test.alusus (72,21)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

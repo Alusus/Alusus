@@ -34,8 +34,13 @@ Module [Main.ModuleStatements.StmtList]
       body: Block [Main.BlockStatements.StmtList]
     -instances:
 ------------------------------------------------------
-ERROR SPPH1024 @ (18,1): Template function lacks a body.
-ERROR SPPH1024 @ (20,1): Template function lacks a body.
-ERROR SPPH1024 @ (22,1): Template function lacks a body.
-ERROR SPPH1024 @ (26,12): Template function lacks a body.
-ERROR CD1003 @ (26,1): Invalid 'def' command.
+[0;31mERROR SPPH1024: Template function lacks a body.[0m
+  template_function_test.alusus (18,1)
+[0;31mERROR SPPH1024: Template function lacks a body.[0m
+  template_function_test.alusus (20,1)
+[0;31mERROR SPPH1024: Template function lacks a body.[0m
+  template_function_test.alusus (22,1)
+[0;31mERROR SPPH1024: Template function lacks a body.[0m
+  template_function_test.alusus (26,12)
+[0;31mERROR CD1003: Invalid 'def' command.[0m
+  template_function_test.alusus (26,1)

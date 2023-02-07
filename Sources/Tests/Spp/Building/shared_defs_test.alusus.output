@@ -1,7 +1,11 @@
-ERROR SPPG1019 @ (37,12): Invalid access to object member.
-ERROR SPPG1020 @ (38,7): Invalid access to global definition.
-ERROR SPPG1019 @ (23,25): Invalid access to object member.
-ERROR SPPG1019 @ (24,25): Invalid access to object member.
+[0;31mERROR SPPG1019: Invalid access to object member.[0m
+  shared_defs_test.alusus (37,12)
+[0;31mERROR SPPG1020: Invalid access to global definition.[0m
+  shared_defs_test.alusus (38,7)
+[0;31mERROR SPPG1019: Invalid access to object member.[0m
+  shared_defs_test.alusus (23,25)
+[0;31mERROR SPPG1019: Invalid access to object member.[0m
+  shared_defs_test.alusus (24,25)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
