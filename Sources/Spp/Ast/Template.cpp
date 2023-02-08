@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.cpp
  * Contains the implementation of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -110,75 +110,14 @@ Bool Template::prepareTemplateVars(
       return false;
     }
 
-    switch (varDef->getType().get()) {
-      case TemplateVarType::INTEGER: {
-        auto var = ti_cast<Core::Data::Ast::IntegerLiteral>(
-          Template::traceObject(templateInput, TemplateVarType::INTEGER, helper)
-        );
-        if (var == 0) {
-          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
-            Core::Data::Ast::findSourceLocation(templateInput)
-          );
-          return false;
-        }
-        vars->add(var);
-        break;
-      }
-
-      case TemplateVarType::STRING: {
-        auto var = ti_cast<Core::Data::Ast::StringLiteral>(
-          Template::traceObject(templateInput, TemplateVarType::STRING, helper)
-        );
-        if (var == 0) {
-          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
-            Core::Data::Ast::findSourceLocation(templateInput)
-          );
-          return false;
-        }
-        vars->add(var);
-        break;
-      }
-
-      case TemplateVarType::TYPE: {
-        auto var = ti_cast<Spp::Ast::Type>(
-          Template::traceObject(templateInput, TemplateVarType::TYPE, helper)
-        );
-        if (var == 0) {
-          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
-            Core::Data::Ast::findSourceLocation(templateInput)
-          );
-          return false;
-        }
-        vars->add(var);
-        break;
-      }
-
-      case TemplateVarType::FUNCTION: {
-        auto var = ti_cast<Spp::Ast::Function>(
-          Template::traceObject(templateInput, TemplateVarType::FUNCTION, helper)
-        );
-        if (var == 0) {
-          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
-            Core::Data::Ast::findSourceLocation(templateInput)
-          );
-          return false;
-        }
-        vars->add(var);
-        break;
-      }
-
-      default: {
-        auto var = Template::traceObject(templateInput, varDef->getType(), helper);
-        if (var == 0) {
-          notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
-            Core::Data::Ast::findSourceLocation(templateInput)
-          );
-          return false;
-        }
-        vars->add(var);
-        break;
-      }
+    auto var = Template::traceObject(templateInput, varDef->getType(), helper);
+    if (var == 0) {
+      notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
+        Core::Data::Ast::findSourceLocation(templateInput)
+      );
+      return false;
     }
+    vars->add(var);
   }
   return true;
 }
@@ -226,6 +165,15 @@ Bool Template::matchTemplateVar(
       return newVar->getValue() == var->getValue();
     }
 
+    case TemplateVarType::MODULE: {
+      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      if (var == 0) {
+        throw EXCEPTION(GenericException, S("Missing variable in template instance."));
+      }
+      ASSERT(templateInput != 0);
+      return templateInput == var;
+    }
+
     case TemplateVarType::TYPE: {
       auto var = static_cast<Spp::Ast::Type*>(
         Template::getTemplateVar(instance, varDef->getName().get())
@@ -257,6 +205,15 @@ Bool Template::matchTemplateVar(
       }
       ASSERT(templateInput != 0);
       return Core::Data::Ast::isEqual(var, templateInput);
+    }
+
+    case TemplateVarType::AST_REF: {
+      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      if (var == 0) {
+        throw EXCEPTION(GenericException, S("Missing variable in template instance."));
+      }
+      ASSERT(templateInput != 0);
+      return templateInput == var;
     }
 
     default: {
@@ -310,18 +267,18 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
   }
   if (varType == TemplateVarType::INTEGER) {
     if (ref->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) result = ref;
-    else {
+    else if (helper->isAstReference(ref)) {
       helper->getSeeker()->find<Core::Data::Ast::IntegerLiteral>(ref, refNode->getOwner(), result, 0);
     }
   } else if (varType == TemplateVarType::STRING) {
     if (ref->isDerivedFrom<Core::Data::Ast::StringLiteral>()) result = ref;
-    else {
+    else if (helper->isAstReference(ref)) {
       helper->getSeeker()->find<Core::Data::Ast::StringLiteral>(ref, refNode->getOwner(), result, 0);
     }
   } else if (varType == TemplateVarType::FUNCTION) {
     // TODO: Replace with Helper::traceFunction that considers templates.
     if (ref->isDerivedFrom<Spp::Ast::Function>()) result = ref;
-    else {
+    else if (helper->isAstReference(ref)) {
       helper->getSeeker()->find<Spp::Ast::Function>(ref, refNode->getOwner(), result, 0);
     }
   } else if (varType == TemplateVarType::TYPE) {
@@ -329,8 +286,17 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
     else {
       result = helper->traceType(ref);
     }
+  } else if (varType == TemplateVarType::MODULE) {
+    if (ref->isDerivedFrom<Spp::Ast::Module>()) result = ref;
+    else if (helper->isAstReference(ref)) {
+      helper->getSeeker()->find<Spp::Ast::Module>(ref, refNode->getOwner(), result, 0);
+    }
   } else if (varType == TemplateVarType::AST) {
     result = ref;
+  } else if (varType == TemplateVarType::AST_REF) {
+    if (helper->isAstReference(ref)) {
+      helper->getSeeker()->find<TiObject>(ref, refNode->getOwner(), result, 0);
+    }
   }
   return result;
 }
@@ -389,9 +355,11 @@ void Template::print(OutStream &stream, Int indents) const
     switch (varDef->getType().get()) {
       case TemplateVarType::INTEGER: stream << S("Integer"); break;
       case TemplateVarType::STRING: stream << S("String"); break;
+      case TemplateVarType::MODULE: stream << S("Module"); break;
       case TemplateVarType::TYPE: stream << S("Type"); break;
       case TemplateVarType::FUNCTION: stream << S("Function"); break;
       case TemplateVarType::AST: stream << S("Ast"); break;
+      case TemplateVarType::AST_REF: stream << S("AstRef"); break;
     }
   }
   // dump body

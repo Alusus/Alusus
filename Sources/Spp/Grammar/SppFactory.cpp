@@ -1,7 +1,7 @@
 /**
  * @file Spp/SppFactory.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -49,6 +49,7 @@ void SppFactory::createGrammar()
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
     S("ast"), S("شبم"),
+    S("ast_ref"), S("سند_شبم"),
     S("this_type"), S("هذا_الصنف"),
     S("handler"), S("عملية"),
     S("this"), S("هذا"),
@@ -608,6 +609,8 @@ void SppFactory::createGrammar()
       { S("هذا"), newSrdObj<TiStr>(("this")) },
       { S("value"), 0 },
       { S("قيمة"), newSrdObj<TiStr>(("value")) },
+      { S("module"), 0 },
+      { S("وحدة"), newSrdObj<TiStr>(("module")) },
       { S("type"), 0 },
       { S("صنف"), newSrdObj<TiStr>(("type")) },
       { S("function"), 0 },
@@ -618,6 +621,8 @@ void SppFactory::createGrammar()
       { S("محارف"), newSrdObj<TiStr>(("string")) },
       { S("ast"), 0 },
       { S("شبم"), newSrdObj<TiStr>(("ast")) },
+      { S("ast_ref"), 0 },
+      { S("سند_شبم"), newSrdObj<TiStr>(("ast_ref")) },
       { S("any"), 0 },
       { S("أيما"), newSrdObj<TiStr>(("any")) }
     }),
@@ -897,6 +902,7 @@ void SppFactory::cleanGrammar()
     S("cast"), S("مثّل"), S("مثل"),
     S("size"), S("حجم"),
     S("ast"), S("شبم"),
+    S("ast_ref"), S("سند_شبم"),
     S("this_type"), S("هذا_الصنف"),
     S("handler"), S("عملية"),
     S("this"), S("هذا"),

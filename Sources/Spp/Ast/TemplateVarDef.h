@@ -2,7 +2,7 @@
  * @file Spp/Ast/TemplateVarDef.h
  * Contains the header of class Spp::Ast::TemplateVarDef.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,7 +19,15 @@ namespace Spp::Ast
 //============================================================================
 // Other Defs
 
-ti_s_enum(TemplateVarType, TiInt, "Spp.Ast", "Spp", "alusus.org", STRING, INTEGER, TYPE, FUNCTION, AST);
+ti_s_enum(TemplateVarType, TiInt, "Spp.Ast", "Spp", "alusus.org",
+  STRING,
+  INTEGER,
+  MODULE,
+  TYPE,
+  FUNCTION,
+  AST,
+  AST_REF
+);
 
 
 //============================================================================
