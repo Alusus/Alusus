@@ -12,11 +12,23 @@ Data().min[Int]: 3
 myFunc: LogOperator
 myFunc: AdditionOperator
 t.min[Float]: 3
+testArgReuse1
+testModArg
+testAstRef 15
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  - template_function_test.alusus (102,8)
+    - template_function_test.alusus (86,31)
+      - template_function_test.alusus (89,17)
+        - - template_function_test.alusus (93,21)
+            template_function_test.alusus (96,1)
+          template_function_test.alusus (103,13)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  template_function_test.alusus (68,1)
+  template_function_test.alusus (111,1)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  template_function_test.alusus (69,1)
+  template_function_test.alusus (112,1)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  template_function_test.alusus (70,5)
+  template_function_test.alusus (113,5)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  template_function_test.alusus (71,5)
+  template_function_test.alusus (114,5)
+[0;31mERROR SPPA1002: Invalid template argument.[0m
+  template_function_test.alusus (116,1)

@@ -57,7 +57,50 @@ class Tpl [Tret: type] {
 def t: Tpl[Int];
 printf("t.min[Float]: %d\n", t.min[Float](7.5, 3.2));
 
+// test temp arg reuse
+
+func testArgReuse1 {
+    printf("testArgReuse1\n");
+}
+func testArgReuse2 [f: function] {
+    f();
+}
+func testArgReuse3 [f: function] {
+    testArgReuse2[f]();
+}
+testArgReuse3[testArgReuse1]();
+
+// module args
+
+module Mod1 {
+}
+func testModArg [m: module] {
+    printf("testModArg\n");
+}
+testModArg[Mod1]();
+
+// ast_ref args
+
+def i: Int(5);
+func testAstRef1 [a: ast_ref] () {
+    printf("testAstRef %d\n", preprocess { Spp.astMgr.insertAst(a~ast) });
+}
+func testAstRef2 [a: ast_ref] () {
+    testAstRef1[a]();
+}
+macro buildtestAstRef3 {
+    func testAstRef3 [a: ast_ref] () {
+        testAstRef2[a]();
+    }
+}
+buildtestAstRef3[];
+def b: i * 3;
+testAstRef3[b]();
+
 // Error cases:
+
+def c: unknownarg * 3;
+testAstRef3[c]();
 
 function f1() {}
 function f2(d: Int) {}
@@ -69,3 +112,5 @@ f1[Int]();
 f2[Int](5);
 Mod.f1[Int]();
 Mod.f2[Int](5);
+
+testModArg[f1]();

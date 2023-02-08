@@ -2,7 +2,7 @@
  * @file Spp/Handlers/handlers.cpp
  * Contains the global implementations of Spp::Handlers namespace's declarations.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -175,11 +175,13 @@ Bool parseTemplateArg(
       state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
       return false;
     }
-    if (identifier->getValue() == S("type")) type = Ast::TemplateVarType::TYPE;
+    if (identifier->getValue() == S("module")) type = Ast::TemplateVarType::MODULE;
+    else if (identifier->getValue() == S("type")) type = Ast::TemplateVarType::TYPE;
     else if (identifier->getValue() == S("function")) type = Ast::TemplateVarType::FUNCTION;
     else if (identifier->getValue() == S("integer")) type = Ast::TemplateVarType::INTEGER;
     else if (identifier->getValue() == S("string")) type = Ast::TemplateVarType::STRING;
     else if (identifier->getValue() == S("ast")) type = Ast::TemplateVarType::AST;
+    else if (identifier->getValue() == S("ast_ref")) type = Ast::TemplateVarType::AST_REF;
     else {
       state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
       return false;
