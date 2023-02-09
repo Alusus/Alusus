@@ -31,7 +31,7 @@ func test2 {
 }
 
 func test3 {
-    def n1: SrdRef[Num](Memory.alloc(Num~size)~cast[ptr[Num]]~cnt);
+    def n1: SrdRef[Num] = SrdRef[Num].own(Memory.alloc(Num~size)~cast[ptr[Num]]~cnt);
     def n2: SrdRef[Num] = n1;
     n2 = n1;
     n2.x = 9;

@@ -103,11 +103,6 @@ import "Spp";
             this.assign(c, r);
         };
 
-        handler this~init(p: ref[T]) {
-            this._init();
-            this.own(p);
-        };
-
         handler this~terminate() this.release();
 
         //=================

@@ -51,4 +51,31 @@ if 1 {
 
         generateSmartRefAutoImplicitCasts(originalTp, varType, className);
     }
+
+    // Manually define casters for those refs that were pre-generated.
+    macro _defineSrdRefCaster [Alias, SrcType, TargetType] {
+        def Alias: alias SrdRef[SrcType];
+        @merge class Alias {
+            handler this~cast[SrdRef[TargetType]] {
+                return SrdRef[TargetType](this.refCounter, castRef[this.obj, TargetType]);
+            }
+        }
+    }
+    macro _defineSrdRefCaster [Alias, SrcType, TargetType1, TargetType2] {
+        def Alias: alias SrdRef[SrcType];
+        @merge class Alias {
+            handler this~cast[SrdRef[TargetType1]] {
+                return SrdRef[TargetType1](this.refCounter, castRef[this.obj, TargetType1]);
+            }
+            handler this~cast[SrdRef[TargetType2]] {
+                return SrdRef[TargetType2](this.refCounter, castRef[this.obj, TargetType2]);
+            }
+        }
+    }
+    _defineSrdRefCaster[CoreDataNodeSrdRef, Core.Data.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstMergeListSrdRef, Core.Data.Ast.MergeList, Core.Data.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstLinkOperatorSrdRef, Core.Data.Ast.LinkOperator, Core.Data.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstListSrdRef, Core.Data.Ast.List, Core.Data.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstIdentifierSrdRef, Core.Data.Ast.Identifier, Core.Data.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[SppAstVariableSrdRef, Spp.Ast.Variable, Core.Data.Node, Core.Basic.TiObject];
 }

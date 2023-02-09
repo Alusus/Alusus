@@ -107,6 +107,9 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
       printIndents(stream, indents+1);
       stream << tiStr->get();
     }
+
+    // No-op statement to work around a bug in GCC optimizer causing undefined behavior.
+    ptr->isA<TiObject>();
   }
 }
 
