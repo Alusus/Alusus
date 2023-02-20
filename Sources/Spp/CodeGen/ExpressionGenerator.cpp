@@ -636,17 +636,23 @@ Bool ExpressionGenerator::_generateLogicalOp(
   Session childSession(session, secondContext.get(), session->getTgAllocContext());
 
   // Generate 2nd operand.
+  session->getDestructionStack()->pushScope();
   GenResult secondResult;
-  if (!expGenerator->generate(astNode->getSecond().get(), g, &childSession, secondResult)) {
-    return false;
-  }
+  Bool res = expGenerator->generate(astNode->getSecond().get(), g, &childSession, secondResult);
 
   // Cast 2nd operand to boolean.
   TioSharedPtr secondCastedResult;
   if (!expGenerator->castLogicalOperand(
     g, &childSession, astNode->getSecond().get(), secondResult.astType,
     secondResult.targetData.get(), secondCastedResult
-  )) return false;
+  )) res = false;
+
+  // Terminate 2nd operand temp vars.
+  if (!g->generateVarGroupDestruction(
+    &childSession, session->getDestructionStack()->getScopeStartIndex(-1)
+  )) res = false;
+  session->getDestructionStack()->popScope();
+  if (!res) return false;
 
   // Finalize the operator.
   if (astNode->getType() == S("||") || astNode->getType() == S("or")) {
