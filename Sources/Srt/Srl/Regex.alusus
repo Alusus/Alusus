@@ -2,7 +2,7 @@
  * @file Srl/Regex.alusus
  * Contains the Srl.Regex module.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,67 +16,80 @@ import "Memory";
 import "Spp";
 
 @merge module Srl {
-  module Regex {
-    class Context {
-      def buffer: ptr[array[Char]];
-      def allocated: Word[64];
-      def used: Word[64];
-      def syntax: Word[64];
-      def fastmap: ptr[array[Char]];
-      def translate: ptr[array[Char]];
-      def re_nsub: Word[64];
-      def flags: Word[64];
-    };
+    module Regex {
+        class Context {
+            def buffer: ptr[array[Char]];
+            def allocated: Word[64];
+            def used: Word[64];
+            def syntax: Word[64];
+            def fastmap: ptr[array[Char]];
+            def translate: ptr[array[Char]];
+            def re_nsub: Word[64];
+            def flags: Word[64];
+        };
 
-    class Match {
-        preprocess {
-            if String.isEqual(Process.platform, "macos") {
-                Spp.astMgr.insertAst(
-                    ast {
-                        def rm_so: Int[64];  // Byte offset from string's start to substring's start.
-                        def rm_eo: Int[64];  // Byte offset from string's start to substring's end.
+        class Match {
+            preprocess {
+                if String.isEqual(Process.platform, "macos") {
+                    Spp.astMgr.insertAst(
+                        ast {
+                            def rm_so: Int[64];  // Byte offset from string's start to substring's start.
+                            def rm_eo: Int[64];  // Byte offset from string's start to substring's end.
+                        }
+                    );
+                } else {
+                    Spp.astMgr.insertAst(
+                        ast {
+                            def rm_so: Int;  // Byte offset from string's start to substring's start.
+                            def rm_eo: Int;  // Byte offset from string's start to substring's end.
+                        }
+                    );
+                }
+            }
+        };
+
+        @expname[regcomp]
+        func regcomp(preg: ptr[Context], pattern: ptr[array[Char]], cflags: Int): Int[32];
+
+        @expname[regexec]
+        func regexec(preg: ptr[Context], pattern: ptr[array[Char]], size: Int, match: ptr[array[Match]], cflags: Int): Int[32];
+
+        @expname[regfree]
+        func regfree(preg: ptr[Context]);
+
+        func match(pattern: ptr[array[Char]], string: ptr[array[Char]], flags: Int): Array[String] {
+            def matcher: Matcher(pattern, flags);
+            return matcher.match(string);
+        };
+
+        class Matcher {
+            def context: Context;
+
+            handler this~init() {
+            }
+
+            handler this~init(regexStr: CharsPtr, flags: Int) {
+                regcomp(this.context~ptr, regexStr, flags);
+            }
+
+            handler this~terminate() {
+                regfree(this.context~ptr);
+            }
+
+            handler this.match(content: CharsPtr): Array[String] {
+                def regmatch: array[Match, 100];
+                def matches: Array[String];
+                if regexec(this.context~ptr, content, regmatch~size / Match~size, regmatch~ptr, 0) == 0 {
+                    def str: String;
+                    def i: Int;
+                    for i = 0, i < 100 && regmatch(i).rm_so != -1, ++i {
+                        def len: Int = regmatch(i).rm_eo - regmatch(i).rm_so;
+                        str.assign(content~cnt(regmatch(i).rm_so)~ptr~cast[ptr[array[Char]]], len);
+                        matches.add(str);
                     }
-                );
-            } else {
-                Spp.astMgr.insertAst(
-                    ast {
-                        def rm_so: Int;  // Byte offset from string's start to substring's start.
-                        def rm_eo: Int;  // Byte offset from string's start to substring's end.
-                    }
-                );
+                }
+                return matches;
             }
         }
     };
-
-    @expname[regcomp]
-    func regcomp(preg: ptr[Context], pattern: ptr[array[Char]], cflags: Int): Int[32];
-
-    @expname[regexec]
-    func regexec(preg: ptr[Context], pattern: ptr[array[Char]], size: Int, match: ptr[array[Match]], cflags: Int): Int[32];
-
-    @expname[regfree]
-    func regfree(preg: ptr[Context]);
-
-    def _regmatch: array[Match, 255];
-
-    func match(pattern: ptr[array[Char]], string: ptr[array[Char]], flags: Int): Array[String] {
-      def matches: Array[String];
-      def i: Int;
-      def context: Context;
-
-      regcomp(context~ptr, pattern, flags);
-      if regexec(context~ptr, string, _regmatch~size / Match~size, _regmatch~ptr, 0) == 0 {
-        def str: String;
-        for i = 0, i < 255 && _regmatch(i).rm_so != -1, ++i {
-          def len: Int = _regmatch(i).rm_eo - _regmatch(i).rm_so;
-          str.assign(string~cnt(_regmatch(i).rm_so)~ptr~cast[ptr[array[Char]]], len);
-          matches.add(str);
-        };
-      };
-
-      regfree(context~ptr);
-
-      return matches;
-    };
-  };
 };

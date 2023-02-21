@@ -115,6 +115,27 @@ def Main: module
     i = !!i;
     i = not i;
   };
+
+  class Obj {
+    def b: Int[1];
+    handler this~init() {}
+    handler this~init(ref[this_type]) {}
+    handler this~terminate() {}
+  }
+
+  func getObj(): Obj {
+    return Obj();
+  }
+
+  func testTempVars {
+    def i: Int = 0;
+    if i != 5 or getObj().b {
+        print("or temp var");
+    }
+    if i != 5 and getObj().b {
+        print("and temp var");
+    }
+  }
 };
 
 Spp.buildMgr.dumpLlvmIrForElement(Main~ast);

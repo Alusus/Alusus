@@ -10,6 +10,7 @@
   cases of inheritance.
 * Added two new template argument types: module and ast_ref.
 * Improved build notice reporting.
+* Fixed an issue in compiling logical oeprators when the second operand uses temporary variables.
 
 ### Updates to the Standard Libraries
 
@@ -21,6 +22,8 @@
 * Added `isNull` to SrdRef, WkRef, and UnqRef.
 * Added `isNull` to closures.
 * Enable auto casting of `SrdRef` and `WkRef` to refs of parent classes.
+* Added `Regex.Matcher` type to allow initializing a regular expression once and useing it with multiple match
+  operations instead of re-initializing the regex with every match operation.
 
 ### Compiler Fixes
 

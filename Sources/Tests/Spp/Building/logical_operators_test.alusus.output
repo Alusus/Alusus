@@ -31,6 +31,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 %LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
 %Main_BoolCastable = type { i32 }
 %Main_BoolNotCastable = type { i32 }
+%Main_Obj = type { i1 }
 
 @"#anonymous0" = private constant [4 x i8] c"%s\0A\00"
 @"#anonymous1" = private constant [11 x i8] c"dual check\00"
@@ -47,6 +48,8 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @"#anonymous12" = private constant [7 x i8] c"not bc\00"
 @"#anonymous13" = private constant [5 x i8] c"!! b\00"
 @"#anonymous14" = private constant [6 x i8] c"!! bc\00"
+@"#anonymous15" = private constant [12 x i8] c"or temp var\00"
+@"#anonymous16" = private constant [13 x i8] c"and temp var\00"
 @llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__, i32* null }]
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
@@ -503,7 +506,7 @@ define void @"Main.testNot()=>(Void)"() {
 }
 
 define i1 @"Main.BoolCastable.~cast(ref[Main.BoolCastable])=>(Word[1])"(%Main_BoolCastable* %this) {
-"#block93":
+"#block103":
   %this1 = alloca %Main_BoolCastable*
   store %Main_BoolCastable* %this, %Main_BoolCastable** %this1
   %0 = load %Main_BoolCastable*, %Main_BoolCastable** %this1
@@ -511,5 +514,86 @@ define i1 @"Main.BoolCastable.~cast(ref[Main.BoolCastable])=>(Word[1])"(%Main_Bo
   %2 = load i32, i32* %1
   %3 = icmp eq i32 %2, 5
   ret i1 %3
+}
+
+define void @"Main.getObj()=>(Main.Obj)"(%Main_Obj* %"#ret") {
+"#block93":
+  %"#temp0" = alloca %Main_Obj
+  call void @"Main.Obj.~init(ref[Main.Obj])"(%Main_Obj* %"#temp0")
+  call void @"Main.Obj.~init(ref[Main.Obj],ref[Main.Obj])"(%Main_Obj* %"#ret", %Main_Obj* %"#temp0")
+  call void @"Main.Obj.~terminate(ref[Main.Obj])"(%Main_Obj* %"#temp0")
+  ret void
+}
+
+define void @"Main.Obj.~init(ref[Main.Obj])"(%Main_Obj* %this) {
+"#block104":
+  %this1 = alloca %Main_Obj*
+  store %Main_Obj* %this, %Main_Obj** %this1
+  ret void
+}
+
+define void @"Main.Obj.~init(ref[Main.Obj],ref[Main.Obj])"(%Main_Obj* %this, %Main_Obj* %value) {
+"#block105":
+  %this1 = alloca %Main_Obj*
+  store %Main_Obj* %this, %Main_Obj** %this1
+  %value2 = alloca %Main_Obj*
+  store %Main_Obj* %value, %Main_Obj** %value2
+  ret void
+}
+
+define void @"Main.Obj.~terminate(ref[Main.Obj])"(%Main_Obj* %this) {
+"#block106":
+  %this1 = alloca %Main_Obj*
+  store %Main_Obj* %this, %Main_Obj** %this1
+  ret void
+}
+
+define void @"Main.testTempVars()"() {
+"#block94":
+  %i = alloca i32
+  store i32 0, i32* %i
+  %0 = load i32, i32* %i
+  %1 = icmp ne i32 %0, 5
+  %"#temp1" = alloca %Main_Obj
+  br i1 %1, label %"#block97", label %"#block96"
+
+"#block95":                                       ; preds = %"#block97"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @"#anonymous15", i32 0, i32 0))
+  br label %"#block98"
+
+"#block96":                                       ; preds = %"#block94"
+  call void @"Main.getObj()=>(Main.Obj)"(%Main_Obj* %"#temp1")
+  %2 = getelementptr %Main_Obj, %Main_Obj* %"#temp1", i32 0, i32 0
+  %3 = load i1, i1* %2
+  call void @"Main.Obj.~terminate(ref[Main.Obj])"(%Main_Obj* %"#temp1")
+  br label %"#block97"
+
+"#block97":                                       ; preds = %"#block94", %"#block96"
+  %4 = phi i1 [ %1, %"#block94" ], [ %3, %"#block96" ]
+  br i1 %4, label %"#block95", label %"#block98"
+
+"#block98":                                       ; preds = %"#block97", %"#block95"
+  %5 = load i32, i32* %i
+  %6 = icmp ne i32 %5, 5
+  %"#temp2" = alloca %Main_Obj
+  br i1 %6, label %"#block100", label %"#block101"
+
+"#block99":                                       ; preds = %"#block101"
+  call void @"Main.print(ptr[Word[8]])=>(Void)"(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous16", i32 0, i32 0))
+  br label %"#block102"
+
+"#block100":                                      ; preds = %"#block98"
+  call void @"Main.getObj()=>(Main.Obj)"(%Main_Obj* %"#temp2")
+  %7 = getelementptr %Main_Obj, %Main_Obj* %"#temp2", i32 0, i32 0
+  %8 = load i1, i1* %7
+  call void @"Main.Obj.~terminate(ref[Main.Obj])"(%Main_Obj* %"#temp2")
+  br label %"#block101"
+
+"#block101":                                      ; preds = %"#block98", %"#block100"
+  %9 = phi i1 [ %6, %"#block98" ], [ %8, %"#block100" ]
+  br i1 %9, label %"#block99", label %"#block102"
+
+"#block102":                                      ; preds = %"#block101", %"#block99"
+  ret void
 }
 ------------------------------------------------------------
