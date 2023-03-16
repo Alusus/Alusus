@@ -41,6 +41,7 @@
   initialization of the inner class to fail.
 * Fixed an issue with `handler` command when using the `set_ptr` option multiple times in the same class on the same
   function to override the previous implementation.
+* Fixed a bug with `~no_deref` operator causing an exception in certain cases.
 
 ### Standard Libraries Fixes
 

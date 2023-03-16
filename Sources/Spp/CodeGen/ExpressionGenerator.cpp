@@ -1740,6 +1740,9 @@ Bool ExpressionGenerator::_generateNoDerefOp(
       cntAstType = expGenerator->astHelper->getReferenceTypeFor(
         refType->getContentType(expGenerator->astHelper), Ast::ReferenceMode::NO_DEREF
       );
+      // Make sure the ndref type is generated.
+      TiObject *cntTgType;
+      if (!g->getGeneratedType(cntAstType, session, cntTgType, 0)) return false;
     }
     result.astType = expGenerator->astHelper->getReferenceTypeFor(cntAstType, Ast::ReferenceMode::IMPLICIT);
     result.targetData = target.targetData;
