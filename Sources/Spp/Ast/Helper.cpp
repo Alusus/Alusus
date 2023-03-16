@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.cpp
  * Contains the implementation of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -366,11 +366,11 @@ TypeMatchStatus Helper::_matchTargetType(
     --matchType.derefs;
     if (matchType == TypeMatchStatus::AGGREGATION) matchType.value = TypeMatchStatus::REF_AGGREGATION;
     return matchType;
-  } else if (!negativeDeref && matchType >= TypeMatchStatus::EXPLICIT_CAST) {
+  } else if (!negativeDeref && matchType >= TypeMatchStatus::IMPLICIT_CAST) {
     return matchType;
   } else {
     Int deref = 0;
-    while (srcType->isDerivedFrom<ReferenceType>()) {
+    while (srcType->isDerivedFrom<ReferenceType>() && static_cast<ReferenceType*>(srcType)->isAutoDeref()) {
       auto customMatchType = helper->lookupCustomCaster(srcType, targetType, ec, caster);
       if (
         (negativeDeref && (

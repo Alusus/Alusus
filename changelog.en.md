@@ -11,6 +11,7 @@
 * Added two new template argument types: module and ast_ref.
 * Improved build notice reporting.
 * Fixed an issue in compiling logical oeprators when the second operand uses temporary variables.
+* Enabled using the `~cast` operator to cast ref types to other ref types.
 
 ### Updates to the Standard Libraries
 

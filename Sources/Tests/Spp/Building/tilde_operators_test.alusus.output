@@ -140,10 +140,9 @@ define void @"Main.testCast()=>(Void)"() {
   %18 = load i32, i32* %i
   %19 = sitofp i32 %18 to float
   store float %19, float* %f
-  %20 = load float, float* %f
-  %21 = load i32, i32* @"!Other.i"
-  %22 = sitofp i32 %21 to float
-  store float %22, float* %f
+  %20 = load i32, i32* @"!Other.i"
+  %21 = sitofp i32 %20 to float
+  store float %21, float* %f
   ret void
 }
 

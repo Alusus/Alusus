@@ -218,6 +218,35 @@ function testTempRefs {
 Spp.buildMgr.dumpLlvmIrForElement(testTempRefs~ast);
 
 //
+// casting
+//
+
+class TypeWithCaster {
+    def n: Int;
+    handler this~cast[ref[Int]] {
+        return this.n;
+    }
+}
+
+func testRefCasting {
+    def rri64: ref[ref[Int[64]]];
+    rri64~cast[ptr];
+    rri64~cast[ref[ptr]];
+    rri64~no_deref~cast[ref[ptr]];
+
+    def ri: ref[Int];
+    def s: Int;
+    s~no_deref = ri;
+
+    def a: TypeWithCaster;
+    def ra: ref[TypeWithCaster](a);
+    ra~cast[ref[Int]];
+    ra~no_deref~cast[ref[Int]];
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(testRefCasting~ast);
+
+//
 // Error cases
 //
 

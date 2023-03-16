@@ -394,20 +394,67 @@ define %B* @"B.=(ref[B],temp_ref[Int[32]])=>(ref[B])"(%B* %this, i32* %value) {
 
 declare i32 @printf([1 x i8]*, ...)
 ------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%TypeWithCaster = type { i32 }
+
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"testRefCasting()"() {
+"#block0":
+  %rri64 = alloca i64**
+  %0 = load i64**, i64*** %rri64
+  %1 = load i64*, i64** %0
+  %2 = load i64, i64* %1
+  %3 = inttoptr i64 %2 to i8*
+  %4 = load i64**, i64*** %rri64
+  %5 = load i64*, i64** %4
+  %6 = bitcast i64* %5 to i8**
+  %7 = load i64**, i64*** %rri64
+  %8 = bitcast i64** %7 to i8**
+  %ri = alloca i32*
+  %s = alloca i32
+  %9 = load i32*, i32** %ri
+  %10 = load i32, i32* %9
+  store i32 %10, i32* %s
+  %a = alloca %TypeWithCaster
+  %ra = alloca %TypeWithCaster*
+  store %TypeWithCaster* %a, %TypeWithCaster** %ra
+  %11 = load %TypeWithCaster*, %TypeWithCaster** %ra
+  %12 = call i32* @"TypeWithCaster.~cast(ref[TypeWithCaster])=>(ref[Int[32]])"(%TypeWithCaster* %11)
+  %13 = load %TypeWithCaster*, %TypeWithCaster** %ra
+  %14 = bitcast %TypeWithCaster* %13 to i32*
+  ret void
+}
+
+define i32* @"TypeWithCaster.~cast(ref[TypeWithCaster])=>(ref[Int[32]])"(%TypeWithCaster* %this) {
+"#block1":
+  %this1 = alloca %TypeWithCaster*
+  store %TypeWithCaster* %this, %TypeWithCaster** %this1
+  %0 = load %TypeWithCaster*, %TypeWithCaster** %this1
+  %1 = getelementptr %TypeWithCaster, %TypeWithCaster* %0, i32 0, i32 0
+  ret i32* %1
+}
+------------------------------------------------------------
 [0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
-  references_test.alusus (227,5)
+  references_test.alusus (256,5)
 [0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
-  references_test.alusus (228,5)
+  references_test.alusus (257,5)
 [0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
-  references_test.alusus (229,5)
+  references_test.alusus (258,5)
 [0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
-  references_test.alusus (230,5)
+  references_test.alusus (259,5)
 [0;31mERROR SPPG1033: Invalid operand for ~deref operator.[0m
-  references_test.alusus (232,5)
+  references_test.alusus (261,5)
 [0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
-  references_test.alusus (234,5)
+  references_test.alusus (263,5)
 [0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
-  references_test.alusus (236,5)
+  references_test.alusus (265,5)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

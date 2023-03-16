@@ -199,8 +199,7 @@ define void @"Main.testOr()=>(Void)"() {
   %33 = phi i1 [ %32, %"#block26" ], [ %29, %"#block24" ]
   store i1 %33, i1* %b
   %34 = load i32, i32* %i
-  %35 = load i32, i32* %i
-  %36 = icmp sgt i32 %35, 6
+  %35 = icmp sgt i32 %34, 6
   ret void
 
 "#block28":                                       ; No predecessors!
@@ -210,7 +209,6 @@ define void @"Main.testOr()=>(Void)"() {
 "#block30":                                       ; No predecessors!
 
 "#block31":                                       ; No predecessors!
-  %37 = load i32, i32* %j
 }
 
 define void @"Main.testAnd()=>(Void)"() {
@@ -334,8 +332,7 @@ define void @"Main.testAnd()=>(Void)"() {
   %33 = phi i1 [ %32, %"#block55" ], [ %29, %"#block53" ]
   store i1 %33, i1* %b
   %34 = load i32, i32* %i
-  %35 = load i32, i32* %i
-  %36 = icmp sgt i32 %35, 6
+  %35 = icmp sgt i32 %34, 6
   ret void
 
 "#block57":                                       ; No predecessors!
@@ -345,7 +342,6 @@ define void @"Main.testAnd()=>(Void)"() {
 "#block59":                                       ; No predecessors!
 
 "#block60":                                       ; No predecessors!
-  %37 = load i32, i32* %j
 }
 
 define void @"Main.testMixed()=>(Void)"() {
@@ -452,11 +448,9 @@ define void @"Main.testNot()=>(Void)"() {
   br label %"#block80"
 
 "#block80":                                       ; preds = %"#block78", %"#block79"
-  %4 = load i32, i32* %i
-  %5 = load float, float* %f
-  %6 = call i1 @"Main.BoolCastable.~cast(ref[Main.BoolCastable])=>(Word[1])"(%Main_BoolCastable* %bc)
-  %7 = xor i1 %6, true
-  br i1 %7, label %"#block83", label %"#block84"
+  %4 = call i1 @"Main.BoolCastable.~cast(ref[Main.BoolCastable])=>(Word[1])"(%Main_BoolCastable* %bc)
+  %5 = xor i1 %4, true
+  br i1 %5, label %"#block83", label %"#block84"
 
 "#block81":                                       ; No predecessors!
 
@@ -467,10 +461,9 @@ define void @"Main.testNot()=>(Void)"() {
   br label %"#block84"
 
 "#block84":                                       ; preds = %"#block80", %"#block83"
-  %8 = load %Main_BoolNotCastable, %Main_BoolNotCastable* %bnc
-  %9 = load i1, i1* %b
-  %10 = xor i1 %9, true
-  br i1 %10, label %"#block86", label %"#block87"
+  %6 = load i1, i1* %b
+  %7 = xor i1 %6, true
+  br i1 %7, label %"#block86", label %"#block87"
 
 "#block85":                                       ; No predecessors!
 
@@ -479,11 +472,9 @@ define void @"Main.testNot()=>(Void)"() {
   br label %"#block87"
 
 "#block87":                                       ; preds = %"#block84", %"#block86"
-  %11 = load i32, i32* %i
-  %12 = load float, float* %f
-  %13 = call i1 @"Main.BoolCastable.~cast(ref[Main.BoolCastable])=>(Word[1])"(%Main_BoolCastable* %bc)
-  %14 = xor i1 %13, true
-  br i1 %14, label %"#block90", label %"#block91"
+  %8 = call i1 @"Main.BoolCastable.~cast(ref[Main.BoolCastable])=>(Word[1])"(%Main_BoolCastable* %bc)
+  %9 = xor i1 %8, true
+  br i1 %9, label %"#block90", label %"#block91"
 
 "#block88":                                       ; No predecessors!
 
@@ -494,12 +485,9 @@ define void @"Main.testNot()=>(Void)"() {
   br label %"#block91"
 
 "#block91":                                       ; preds = %"#block87", %"#block90"
-  %15 = load %Main_BoolNotCastable, %Main_BoolNotCastable* %bnc
-  %16 = load i32, i32* %i
-  %17 = xor i32 %16, -1
-  store i32 %17, i32* %i
-  %18 = load i32, i32* %i
-  %19 = load i32, i32* %i
+  %10 = load i32, i32* %i
+  %11 = xor i32 %10, -1
+  store i32 %11, i32* %i
   ret void
 
 "#block92":                                       ; No predecessors!
