@@ -2,7 +2,7 @@
  * @file Spp/Ast/ReferenceType.cpp
  * Contains the implementation of class Spp::Ast::ReferenceType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -60,8 +60,11 @@ TypeMatchStatus ReferenceType::matchTargetType(
 
   if (opts & TypeMatchOptions::SKIP_DEREF) return TypeMatchStatus::NONE;
 
-  auto matchStatus = thisContentType->matchTargetType(type, helper, ec, opts);
-  ++matchStatus.derefs;
+  auto matchStatus = this->isAutoDeref() ?
+    thisContentType->matchTargetType(type, helper, ec, opts) :
+    TypeMatchStatus::NONE;
+  if (matchStatus != TypeMatchStatus::NONE) ++matchStatus.derefs;
+  else if (referenceType != 0 && !this->isImplicit()) matchStatus = TypeMatchStatus::EXPLICIT_CAST;
   return matchStatus;
 }
 

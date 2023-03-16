@@ -11,6 +11,7 @@
 * Added two new template argument types: module and ast_ref.
 * Improved build notice reporting.
 * Fixed an issue in compiling logical oeprators when the second operand uses temporary variables.
+* Enabled using the `~cast` operator to cast ref types to other ref types.
 
 ### Updates to the Standard Libraries
 
@@ -41,6 +42,7 @@
   initialization of the inner class to fail.
 * Fixed an issue with `handler` command when using the `set_ptr` option multiple times in the same class on the same
   function to override the previous implementation.
+* Fixed a bug with `~no_deref` operator causing an exception in certain cases.
 
 ### Standard Libraries Fixes
 

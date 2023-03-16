@@ -198,3 +198,44 @@ class B {
 def b: B;
 b = 5i32;
 print("b=%d\n", b.i);
+
+//
+// casting
+//
+
+func printInt(n: Int) {
+    print("%d\n", n);
+}
+
+func testRefCasting {
+    print("testRefCasting:\n");
+    def i: Int(5);
+    def f: Float;
+    def ri: ref[Int](i);
+    def rf: ref[Float];
+
+    rf~no_deref = ri~cast[ref[Float]];
+    def ri2: ref[Int];
+    ri2~no_deref = rf~cast[ref[Int]];
+    printInt(ri2);
+
+    rf~no_deref = f;
+    rf = i~cast[Float];
+    print("%f\n", rf~cast[Float[64]]);
+
+    def rrf: ref[ref[Float]];
+    rrf~no_deref = rf;
+    print("%f\n", rrf~cast[Float[64]]);
+
+    def rri: ref[ref[Int]](ri);
+    i = 3;
+    rrf = rri~cast[Float];
+    print("%f\n", f~cast[Float[64]]);
+
+    def ra: ref[A];
+    ra~no_deref = rrf~no_deref~cast[ref[A]];
+    rrf~no_deref = ra~cast[ref[ref[Float]]];
+    print("%f\n", rrf~cast[Float[64]]);
+}
+
+testRefCasting();
