@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generation.h
  * Contains the header of class Spp::CodeGen::Generation.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -107,7 +107,8 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateTempVar,
     Bool, (
-      Core::Data::Node* /* astNode */, Spp::Ast::Type* /* astType */, Session* /* session */, Bool /* initialize */
+      Core::Data::Node* /* astNode */, Spp::Ast::Type* /* astType */, Session* /* session */, Bool /* initialize */,
+      TioSharedPtr& /* tgVar */
     )
   );
 
@@ -134,8 +135,8 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(registerDestructor,
     void, (
-      Core::Data::Node* /* varAstNode */, Ast::Type* /* astType */, ExecutionContext const* /* ec */,
-      DestructionStack* /* destructionStack */
+      Core::Data::Node* /* varAstNode */, Ast::Type* /* astType */, TioSharedPtr /* tgVar */,
+      ExecutionContext const* /* ec */, DestructionStack* /* destructionStack */
     )
   );
 

@@ -13,7 +13,10 @@ Num 13 is terminated.
 n1 and n2 are both released
 test7: auto cast
 5
+7
 ComplexNum 6 is terminated.
 Num 5 is terminated.
+ComplexNum 8 is terminated.
+Num 7 is terminated.
 [0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
-  smart_refs_test.alusus (90,9)
+  smart_refs_test.alusus (96,9)

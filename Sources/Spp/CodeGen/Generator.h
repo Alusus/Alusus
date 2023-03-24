@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.h
  * Contains the header of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -176,7 +176,8 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _generateTempVar(
-    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize
+    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize,
+    TioSharedPtr &tgVar
   );
 
   private: static Bool _generateVarInitialization(
@@ -198,7 +199,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static void _registerDestructor(
-    TiObject *self, Core::Data::Node *varAstNode, Ast::Type *astType, ExecutionContext const *ec,
+    TiObject *self, Core::Data::Node *varAstNode, Ast::Type *astType, TioSharedPtr tgVar, ExecutionContext const *ec,
     DestructionStack *destructionStack
   );
 

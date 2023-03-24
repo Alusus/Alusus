@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/DestructionStack.h
  * Contains the header of class Spp::CodeGen::DestructionStack.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,7 +27,7 @@ class DestructionStack : public TiObject
   //============================================================================
   // Member Variables
 
-  private: PlainList<Core::Data::Node> items;
+  private: SharedList<DestructionNode> items;
   private: std::vector<Int> scopeIndexes;
 
 
@@ -51,14 +51,14 @@ class DestructionStack : public TiObject
 
   public: Int getScopeStartIndex(Int scope) const;
 
-  public: void pushItem(Core::Data::Node *item)
+  public: void pushItem(SharedPtr<DestructionNode> const &item)
   {
     this->items.add(item);
   }
 
-  public: Core::Data::Node* getItem(Int index) const
+  public: DestructionNode* getItem(Int index) const
   {
-    return this->items.get(index);
+    return this->items.get(index).get();
   }
 
   public: Word getItemCount() const

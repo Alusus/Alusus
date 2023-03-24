@@ -220,7 +220,7 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
     type = helper->_traceType(var->getTypeRef().get(), skipErrors);
     var->setType(type);
   } else if (ref->isDerivedFrom<Spp::Ast::ArgPack>()) {
-    // With arg packs we should aready have the type set during the generation of the function signature.
+    // With arg packs we should already have the type set during the generation of the function signature.
     return getAstType(ref);
   } else if (ref->isDerivedFrom<Core::Data::Ast::Bracket>()) {
     auto bracket = static_cast<Core::Data::Ast::Bracket*>(ref);
