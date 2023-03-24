@@ -361,24 +361,20 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
     if (session->getTgContext() != 0) {
       TiObject *tgType;
       if (!g->getGeneratedType(callee.astNode, session, tgType, &astType)) return false;
-      // Assign the temp var code gen data to the operand of the ParamPass rather than the ParamPass itself to avoid
-      // colliding with another potential temp var generated for casting the temp var to the target type.
-      auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(astNode);
-      Core::Data::Node *tmpVarNode = paramPass != 0 ? paramPass->getOperand().s_cast_get<Core::Data::Node>() : astNode;
-      if (!g->generateTempVar(tmpVarNode, astType, session, false)) return false;
-      TioSharedPtr tempVarRef;
-      if (!session->getTg()->generateVarReference(
-        session->getTgContext(), tgType,
-        session->getEda()->getCodeGenData<TiObject>(tmpVarNode), tempVarRef
-      )) {
+      TioSharedPtr tgTempVar;
+      if (!g->generateTempVar(astNode, astType, session, false, tgTempVar)) return false;
+      TioSharedPtr tgTempVarRef;
+      if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgTempVar.get(), tgTempVarRef)) {
         return false;
       }
       if (!g->generateVarInitialization(
-        astType, tempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
+        astType, tgTempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
       )) return false;
       // Register temp var for destruction.
-      g->registerDestructor(tmpVarNode, astType, session->getExecutionContext(), session->getDestructionStack());
-      result.targetData = tempVarRef;
+      g->registerDestructor(
+        astNode, astType, tgTempVar, session->getExecutionContext(), session->getDestructionStack()
+      );
+      result.targetData = tgTempVarRef;
     } else {
       astType = expGenerator->astHelper->traceType(callee.astNode);
     }
@@ -2524,11 +2520,12 @@ Bool ExpressionGenerator::_generateFunctionCall(
     ) != Ast::TypeInitMethod::NONE) {
       if (session->getTgContext() != 0) {
         // Pass a reference to the return value.
-        if (!g->generateTempVar(astNode, astRetType, session, false)) return false;
+        TioSharedPtr tgTempVar;
+        if (!g->generateTempVar(astNode, astRetType, session, false, tgTempVar)) return false;
         TioSharedPtr tgResult;
         if (!session->getTg()->generateVarReference(
           session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(astRetType),
-          session->getEda()->getCodeGenData<TiObject>(astNode), tgResult
+          tgTempVar.get(), tgResult
         )) {
           return false;
         }
@@ -2543,7 +2540,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
         result.targetData = tgResult;
         // Register temp var for destruction.
         g->registerDestructor(
-          astNode, astRetType, session->getExecutionContext(), session->getDestructionStack()
+          astNode, astRetType, tgTempVar, session->getExecutionContext(), session->getDestructionStack()
         );
       }
       result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
@@ -2573,11 +2570,12 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
   ) != Ast::TypeInitMethod::NONE) {
     if (session->getTgContext() != 0) {
       // Pass a reference to the return value.
-      if (!g->generateTempVar(astNode, astRetType, session, false)) return false;
+      TioSharedPtr tgTempVar;
+      if (!g->generateTempVar(astNode, astRetType, session, false, tgTempVar)) return false;
       TioSharedPtr tgResult;
       if (!session->getTg()->generateVarReference(
         session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(astRetType),
-        session->getEda()->getCodeGenData<TiObject>(astNode), tgResult
+        tgTempVar.get(), tgResult
       )) {
         return false;
       }
@@ -2592,7 +2590,7 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
       result.targetData = tgResult;
       // Register temp var for destruction.
       g->registerDestructor(
-        astNode, astRetType, session->getExecutionContext(), session->getDestructionStack()
+        astNode, astRetType, tgTempVar, session->getExecutionContext(), session->getDestructionStack()
       );
     }
     result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
@@ -2897,13 +2895,14 @@ Bool ExpressionGenerator::_referencifyThisIfNeeded(
       // Member functions need a reference so we'll create a temp var.
       // This code path should not be reached with custom-initialization variables, so we don't need to
       // register the destructor here.
-      if (!g->generateTempVar(astNode, thisArg.astType, session, false)) return false;
+      TioSharedPtr tgTempVar;
+      if (!g->generateTempVar(astNode, thisArg.astType, session, false, tgTempVar)) return false;
       PlainList<TiObject> thisParamAstNodes({ astNode });
       PlainList<TiObject> thisParamAstTypes({ thisArg.astType });
       SharedList<TiObject> thisParamTgValues({ thisArg.targetData });
       if (!session->getTg()->generateVarReference(
         session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(thisArg.astType),
-        session->getEda()->getCodeGenData<TiObject>(astNode), thisResult.targetData
+        tgTempVar.get(), thisResult.targetData
       )) {
         return false;
       }

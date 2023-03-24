@@ -626,20 +626,21 @@ Bool TypeGenerator::_generateCast(
   } else if (matchType.derefs == -1) {
     // The match type returned a negative deref, which means we have a value when we actually need a reference, so we
     // will store the value into a temp var and get a reference to that.
-    if (!g->generateTempVar(astNode, srcType, session, false)) return false;
+    TioSharedPtr tgTempVar;
+    if (!g->generateTempVar(astNode, srcType, session, false, tgTempVar)) return false;
     PlainList<TiObject> paramAstNodes({ astNode });
     PlainList<TiObject> paramAstTypes({ srcType });
     SharedList<TiObject> paramTgValues({ getSharedPtr(tgValue) });
     TioSharedPtr tgRef;
     if (!session->getTg()->generateVarReference(
       session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(srcType),
-      session->getEda()->getCodeGenData<TiObject>(astNode), tgRef
+      tgTempVar.get(), tgRef
     )) return false;
     if (!g->generateVarInitialization(
       srcType, tgRef.get(), astNode, &paramAstNodes, &paramAstTypes, &paramTgValues, session
     )) return false;
     // Register temp var for destruction.
-    g->registerDestructor(astNode, srcType, session->getExecutionContext(), session->getDestructionStack());
+    g->registerDestructor(astNode, srcType, tgTempVar, session->getExecutionContext(), session->getDestructionStack());
     Ast::Type *refAstType = typeGenerator->astHelper->getReferenceTypeFor(srcType, Ast::ReferenceMode::IMPLICIT);
     return typeGenerator->generateCast(
       g, session, refAstType, targetType, astNode, tgRef.get(), implicit, result

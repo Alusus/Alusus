@@ -68,10 +68,16 @@ func test6 {
     Console.print("n1 and n2 are both released\n");
 }
 
+func getComplexNum(): SrdRef[ComplexNum] {
+    return SrdRef[ComplexNum]().{ construct(); x = 7; y = 8 };
+}
+
 func test7 {
     def n: SrdRef[Num] = SrdRef[ComplexNum]().{ construct(); x = 5; y = 6 };
     Console.print("test7: auto cast\n");
     Console.print("%d\n", n.x);
+    def n2: SrdRef[Num] = getComplexNum();
+    Console.print("%d\n", n2.x);
 }
 
 func testAll {

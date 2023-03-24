@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.cpp
  * Contains the implementation of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -208,7 +208,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
         return false;
       }
       generation->registerDestructor(
-        ti_cast<Core::Data::Node>(argType), argAstType, session->getExecutionContext(),
+        ti_cast<Core::Data::Node>(argType), argAstType, argTgVar, session->getExecutionContext(),
         childSession.getDestructionStack()
       );
     }
@@ -456,7 +456,8 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       session->getDestructionStack()->popScope();
 
       generation->registerDestructor(
-        ti_cast<Core::Data::Node>(astVar), astType, session->getExecutionContext(), session->getDestructionStack()
+        ti_cast<Core::Data::Node>(astVar), astType, tgLocalVar,
+        session->getExecutionContext(), session->getDestructionStack()
       );
     }
   }
@@ -466,68 +467,65 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
 
 Bool Generator::_generateTempVar(
-  TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize
+  TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize,
+  TioSharedPtr &tgVar
 ) {
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
 
-  TiObject *tgVar = session->getEda()->tryGetCodeGenData<TiObject>(astNode);
+  // Generate the type of the variable.
+  TiObject *tgType;
+  if (!generator->typeGenerator->getGeneratedType(astType, generation, session, tgType, 0)) return false;
 
-  if (tgVar == 0) {
-    // Generate the type of the variable.
-    TiObject *tgType;
-    if (!generator->typeGenerator->getGeneratedType(astType, generation, session, tgType, 0)) return false;
+  // Also generate the reference type of this type.
+  Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);
+  if (astRefType == 0) {
+    throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
+  }
+  TiObject *tgRefType;
+  if (!generator->typeGenerator->getGeneratedType(astRefType, generation, session, tgRefType, 0)) {
+    throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
+  }
 
-    // Also generate the reference type of this type.
-    Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);
-    if (astRefType == 0) {
-      throw EXCEPTION(GenericException, S("Could not find reference type for the given var type."));
-    }
-    TiObject *tgRefType;
-    if (!generator->typeGenerator->getGeneratedType(astRefType, generation, session, tgRefType, 0)) {
-      throw EXCEPTION(GenericException, S("Failed to generate pointer type for the given var type."));
-    }
+  // Ast::setAstType(astNode, astType);
 
-    Ast::setAstType(astNode, astType);
+  Core::Data::Ast::Definition tempDef;
+  tempDef.setOwner(astNode->getOwner());
 
-    Core::Data::Ast::Definition tempDef;
-    tempDef.setOwner(astNode->getOwner());
+  // At this point we should already have a TG context.
+  if (session->getTgAllocContext() == 0) {
+    throw EXCEPTION(GenericException, S("Missing TG allocation context."));
+  }
 
-    // At this point we should already have a TG context.
-    if (session->getTgAllocContext() == 0) {
-      throw EXCEPTION(GenericException, S("Missing TG allocation context."));
-    }
+  // Create the llvm local var.
+  Str name = generator->getTempVarName();
+  if (!session->getTg()->generateLocalVariable(session->getTgAllocContext(), tgType, name, 0, tgVar)) {
+    return false;
+  }
 
-    // Create the llvm local var.
-    TioSharedPtr tgLocalVar;
-    Str name = generator->getTempVarName();
-    if (!session->getTg()->generateLocalVariable(session->getTgAllocContext(), tgType, name, 0, tgLocalVar)) {
+  if (initialize) {
+    // Initialize the variable.
+    // TODO: Should we use default values with local variables?
+    // TioSharedPtr tgDefaultValue;
+    // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
+    //   if (!generator->typeGenerator->generateDefaultValue(
+    //     astType, generation, tg, tgContext, tgDefaultValue
+    //   )) return false;
+    // }
+    TioSharedPtr tgVarRef;
+    if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgVar.get(), tgVarRef)) {
       return false;
     }
-    session->getEda()->setCodeGenData(astNode, tgLocalVar);
+    SharedList<TiObject> initTgVals;
+    PlainList<TiObject> initAstTypes;
+    PlainList<TiObject> initAstNodes;
+    if (!generation->generateVarInitialization(
+      astType, tgVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
+    )) return false;
 
-    if (initialize) {
-      // Initialize the variable.
-      // TODO: Should we use default values with local variables?
-      // TioSharedPtr tgDefaultValue;
-      // if (!astType->isDerivedFrom<Ast::ArrayType>() && !astType->isDerivedFrom<Ast::UserType>()) {
-      //   if (!generator->typeGenerator->generateDefaultValue(
-      //     astType, generation, tg, tgContext, tgDefaultValue
-      //   )) return false;
-      // }
-      TioSharedPtr tgLocalVarRef;
-      if (!session->getTg()->generateVarReference(session->getTgContext(), tgType, tgLocalVar.get(), tgLocalVarRef)) {
-        return false;
-      }
-      SharedList<TiObject> initTgVals;
-      PlainList<TiObject> initAstTypes;
-      PlainList<TiObject> initAstNodes;
-      if (!generation->generateVarInitialization(
-        astType, tgLocalVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
-      )) return false;
-
-      generation->registerDestructor(astNode, astType, session->getExecutionContext(), session->getDestructionStack());
-    }
+    generation->registerDestructor(
+      astNode, astType, tgVar, session->getExecutionContext(), session->getDestructionStack()
+    );
   }
 
   return true;
@@ -814,7 +812,7 @@ Bool Generator::_generateMemberVarDestruction(
 
 
 void Generator::_registerDestructor(
-  TiObject *self, Core::Data::Node *varAstNode, Ast::Type *astType, ExecutionContext const *ec,
+  TiObject *self, Core::Data::Node *varAstNode, Ast::Type *astType, TioSharedPtr tgVar, ExecutionContext const *ec,
   DestructionStack *destructionStack
 ) {
   PREPARE_SELF(generator, Generator);
@@ -828,7 +826,11 @@ void Generator::_registerDestructor(
   }
 
   // Add the var node to the list.
-  destructionStack->pushItem(varAstNode);
+  auto node = newSrdObj<DestructionNode>();
+  node->astNode = varAstNode;
+  node->astType = astType;
+  node->tgVar = tgVar;
+  destructionStack->pushItem(node);
 }
 
 
@@ -838,19 +840,14 @@ Bool Generator::_generateVarGroupDestruction(
   PREPARE_SELF(generation, Generation);
 
   for (; index < session->getDestructionStack()->getItemCount(); ++index) {
-    auto astNode = session->getDestructionStack()->getItem(index);
+    auto node = session->getDestructionStack()->getItem(index);
 
-    TiObject *tgVar = session->getEda()->getCodeGenData<TiObject>(astNode);
-    auto astType = Ast::getAstType(astNode);
-    if (tgVar == 0 || astType == 0) {
-      throw EXCEPTION(GenericException, S("The provided node does not seem to be a variable."));
-    }
     TioSharedPtr tgVarRef;
-    if (!session->getTg()->generateVarReference(session->getTgContext(), astType, tgVar, tgVarRef)) {
+    if (!session->getTg()->generateVarReference(session->getTgContext(), node->astType, node->tgVar.get(), tgVarRef)) {
       return false;
     }
 
-    if (!generation->generateVarDestruction(astType, tgVarRef.get(), astNode, session)) return false;
+    if (!generation->generateVarDestruction(node->astType, tgVarRef.get(), node->astNode, session)) return false;
   }
 
   return true;
