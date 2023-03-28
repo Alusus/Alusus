@@ -181,7 +181,7 @@ import "Zip.alusus";
       Console.print(I18n.downloadingPkg, Console.Style.FG_YELLOW, downloadLink~ptr, "/tmp/temp.zip");
     };
 
-    if Net.get(downloadLink~ptr, "/tmp/temp.zip") {
+    if Net.getFile(downloadLink~ptr, "/tmp/temp.zip") {
       if logs {
         Console.print(I18n.downloadedPkg, Console.Style.FG_BLUE);
         Console.print(I18n.unzipToTmp, Console.Style.FG_BLUE, "temp.zip", "/tmp/temp_zip/");
