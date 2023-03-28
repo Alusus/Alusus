@@ -13,6 +13,10 @@
 * Fixed an issue in compiling logical oeprators when the second operand uses temporary variables.
 * Enabled using the `~cast` operator to cast ref types to other ref types.
 
+### Standard Libraries Breaking Changes
+
+* Renamed the file version of `Net.get` into `Net.getFile`.
+
 ### Updates to the Standard Libraries
 
 * Added function for computing result type of an expression AST.
@@ -25,6 +29,8 @@
 * Enable auto casting of `SrdRef` and `WkRef` to refs of parent classes.
 * Added `Regex.Matcher` type to allow initializing a regular expression once and useing it with multiple match
   operations instead of re-initializing the regex with every match operation.
+* Added authentication option to `Net.getFile`.
+* Added `Net.putFile` function for uploading files.
 
 ### Compiler Fixes
 
