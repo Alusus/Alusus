@@ -43,5 +43,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: packages
-          path: AlususBuild/Packages/x64-linux-release
+          path: AlususBuild/Packages
           retention-days: 5
