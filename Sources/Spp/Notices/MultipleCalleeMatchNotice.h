@@ -68,28 +68,9 @@ class MultipleCalleeMatchNotice : public Core::Notices::Notice
     return 1;
   }
 
-  public: virtual void buildDescription(Str &str) const
-  {
-    auto fmt = Core::Notices::L18nDictionary::getSingleton()->get(
-      this->getCode(),
-      S("Multiple matches were found for the given callee at these locations:\n%s\n%s\nCalled from:")
-    );
-    Char buf[1024];
-    sprintf(buf, fmt,
-      Core::Notices::getSourceLocationString(this->sourceLocation1.get()).getBuf(),
-      Core::Notices::getSourceLocationString(this->sourceLocation2.get()).getBuf()
-    );
-    str = buf;
-  }
+  public: virtual void buildDescription(Str &str) const;
 
-  public: virtual Bool isEqual(Notice *notice) const
-  {
-    auto mcmNotice = ti_cast<MultipleCalleeMatchNotice>(notice);
-    if (mcmNotice == 0) return false;
-    return Data::isEqual(this->getSourceLocation().get(), mcmNotice->getSourceLocation().get()) &&
-      Data::isEqual(this->sourceLocation1.get(), mcmNotice->sourceLocation1.get()) &&
-      Data::isEqual(this->sourceLocation2.get(), mcmNotice->sourceLocation2.get());
-  }
+  public: virtual Bool isEqual(Notice *notice) const;
 };
 
 } // namespace

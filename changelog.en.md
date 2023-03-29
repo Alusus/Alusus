@@ -49,6 +49,7 @@
 * Fixed an issue with `handler` command when using the `set_ptr` option multiple times in the same class on the same
   function to override the previous implementation.
 * Fixed a bug with `~no_deref` operator causing an exception in certain cases.
+* Fixed a bug with handling multiple callee match errors resulting in compiler crash.
 
 ### Standard Libraries Fixes
 

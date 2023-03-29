@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
 
       - name: Install system dependencies
         run: >
@@ -32,3 +34,10 @@ jobs:
       - name: Automated tests Alusus
         run: |
           bash -c "cd ./AlususBuild/Intermediate/x64-linux-release && ctest --output-on-failure"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: AlususBuild/Packages
+          retention-days: 5

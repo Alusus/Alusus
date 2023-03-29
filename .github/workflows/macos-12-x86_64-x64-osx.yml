@@ -10,7 +10,9 @@ jobs:
     runs-on: macos-12
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -38,3 +40,10 @@ jobs:
       - name: Automated tests Alusus
         run: |
           bash -c "cd ./AlususBuild/Intermediate/x64-osx-release && ctest --output-on-failure"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: AlususBuild/Packages
+          retention-days: 5
