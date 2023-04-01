@@ -452,5 +452,35 @@ import "curl";
       if resultCode == CurlCode.OK return true
       else return false;
     };
+
+    func post(url: ptr[array[Char]], filename: ptr[array[Char]], postedData : ptr[array[Char]]): Bool {
+      return post(url,filename,postedData,0);
+    };
+
+    func post(url: ptr[array[Char]], filename: ptr[array[Char]] , postedData : ptr[array[Char]], auth: ptr[array[Char]]): Bool {
+      def curlHandle: ptr[Curl];
+      def resultCode: Int;
+      curlHandle = CurlEasy.init();
+      if curlHandle == 0 return false;
+      def file: ptr[Srl.Fs.File];
+      file = Srl.Fs.openFile(filename, "wb");
+      if file == 0 {
+        CurlEasy.cleanup(curlHandle);
+        return false;
+      };
+      CurlEasy.setOpt(curlHandle, CurlOpt.URL, url);
+      CurlEasy.setOpt(curlHandle, CurlOpt.POSTFIELDS, postedData);
+      if auth != 0 CurlEasy.setOpt(curlHandle, CurlOpt.USERPWD, auth);
+      CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, file);
+      CurlEasy.setOpt(curlHandle, CurlOpt.USERAGENT, "ALUSUS NETWORK LIBRARY");
+      CurlEasy.setOpt(curlHandle, CurlOpt.FOLLOWLOCATION, 1);
+      CurlEasy.setOpt(curlHandle, CurlOpt.SSL_VERIFYPEER, 0);
+      resultCode = CurlEasy.perform(curlHandle);
+      CurlEasy.cleanup(curlHandle);
+      Srl.Fs.closeFile(file);
+      if resultCode == CurlCode.OK return true
+      else return false;
+    };
+
   };
 };
