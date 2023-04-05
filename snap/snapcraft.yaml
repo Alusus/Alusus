@@ -25,9 +25,11 @@ parts:
     plugin: nil
     source: .
     stage-packages:
-      - libc6
-      - libstdc++6
+      - libc6=2.35-0ubuntu3.1
+      - libstdc++6=12.1.0-2ubuntu1~22.04
     build-packages:
+      - libc6-dev=2.35-0ubuntu3.1
+      - libstdc++6=12.1.0-2ubuntu1~22.04
       - curl
       - zip
       - unzip
