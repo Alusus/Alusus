@@ -24,6 +24,9 @@ parts:
     # See 'snapcraft plugins'
     plugin: nil
     source: .
+    stage-packages:
+      - libc6
+      - libstdc++6
     build-packages:
       - curl
       - zip
