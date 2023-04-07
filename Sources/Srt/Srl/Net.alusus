@@ -55,7 +55,9 @@ import "curl";
       }
     };
 
-    class CurlInfo {};
+    module CurlInfo {
+      def RESPONSE_CODE: 0x200002;
+    };
 
     module CurlOpt {
       def WRITEDATA: 10001;
@@ -312,7 +314,7 @@ import "curl";
       func perform(curl: ptr[Curl]): Int;
 
       @expname[curl_easy_getinfo]
-      func getInfo(curl: ptr[Curl], info: CurlInfo, arguments: ...any): Int;
+      func getInfo(curl: ptr[Curl], info: Int, arguments: ...any): Int;
 
       @expname[curl_easy_reset]
       func reset(curl: ptr[Curl]);
