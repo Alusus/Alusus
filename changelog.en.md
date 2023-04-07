@@ -55,6 +55,8 @@
 
 * Fixed an issue in closure pointer initialization.
 * Fixed an issue with closures causing conflict with closure payload variables named `d`.
+* Fixed the signature of `Srl.Net.CurlEasy.getInfo`.
+* Fixed issues in Arabic localizatoin of `Srl.Net` module.
 
 ### Other Updates and Fixes
 
