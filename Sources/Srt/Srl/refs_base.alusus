@@ -317,10 +317,9 @@ import "Spp";
     //==========================================================================
     // Macros
 
-    macro castSrdRef [r, T] SrdRef[T]().{
-        def self: ref[SrdRef[T]](this);
+    macro castSrdRef [r, T] SrdRef[T]()~use_in(__self) no_injection {
         r.{
-            self.assign(this.refCounter, castRef[this.obj, T]);
+            __self.assign(this.refCounter, castRef[this.obj, T]);
         }
     };
 };
