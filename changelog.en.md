@@ -14,9 +14,8 @@
 * Enabled using the `~cast` operator to cast ref types to other ref types.
 
 ### Standard Libraries Breaking Changes
-
+* Added `Net.post` function for posting data.
 * Renamed the file version of `Net.get` into `Net.getFile`.
-
 ### Updates to the Standard Libraries
 
 * Added function for computing result type of an expression AST.
