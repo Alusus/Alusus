@@ -31,6 +31,7 @@
   operations instead of re-initializing the regex with every match operation.
 * Added authentication option to `Net.getFile`.
 * Added `Net.putFile` function for uploading files.
+* Added `initialize` and `release` methods to class `Srl.Regex.Matcher`.
 
 ### Compiler Fixes
 

@@ -2109,13 +2109,21 @@ func match (
                                 <b>مـطابق (Matcher)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 صـنف مـطابق (
+    عملية هذا~هيئ(نمط: مؤشر[مصفوفة[مـحرف]])؛
     عملية هذا~هيئ(نمط: مؤشر[مصفوفة[مـحرف]]، خيارات: صـحيح)؛
+    عملية هذا.هيئ(نمط: مؤشر[مصفوفة[مـحرف]])؛
+    عملية هذا.هيئ(نمط: مؤشر[مصفوفة[مـحرف]]، خيارات: صـحيح)؛
+    عملية هذا.حرر()؛
     عملية هذا.طابق(محارف: مؤشر[مصفوفة[مـحرف]]): مـصفوفة[نـص]؛
 }
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
 class Matcher {
+    handler this~init(pattern: ptr[array[Char]]);
     handler this~init(pattern: ptr[array[Char]], flags: Int);
+    handler this.initialize(pattern: ptr[array[Char]]);
+    handler this.initialize(pattern: ptr[array[Char]], flags: Int);
+    handler this.release();
     handler this.match (str: ptr[array[Char]]): Array[String];
 }
 </pre>
