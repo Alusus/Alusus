@@ -265,6 +265,16 @@ handler this.remove (index: ArchInt);
 إزالة العنصر الذي في الموقع المحدد. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
                             </li>
                             <li>
+                                <b>اجتزئ (slice)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.اجتزئ (بداية: صـحيح_متكيف، عدد: صـحيح_متكيف)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.slice (start: ArchInt, count: ArchInt);
+</pre>
+نسخ جزء من المصفوفة وإرجاعه كمصفوفة جديدة. يبدأ النسخ من العنصر `بداية` ويستمر حتى نسخ `عدد` من العناصر، أو حتى وصول نهاية المصفوفة (إن وصلنا نهاية المصفوفة قبل استيفاء العدد المطلوب).
+                            </li>
+                            <li>
                                 <b>فرّغ (clear)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 عملية هذا.فرّغ ()؛

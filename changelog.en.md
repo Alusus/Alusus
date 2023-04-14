@@ -32,6 +32,7 @@
 * Added authentication option to `Net.getFile`.
 * Added `Net.putFile` function for uploading files.
 * Added `initialize` and `release` methods to class `Srl.Regex.Matcher`.
+* Added `slice` method to class `Srl.Array`.
 
 ### Compiler Fixes
 

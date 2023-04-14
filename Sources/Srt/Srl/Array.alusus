@@ -2,7 +2,7 @@
  * @file Srl/Array.alusus
  * Contains the class Srl.Array.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -136,6 +136,12 @@ import "Memory";
                 };
                 --this.length;
             };
+        };
+
+        handler this.slice (begin: ArchInt, count: ArchInt): Array[T] {
+            def result: Array[T];
+            while count-- > 0 and begin < this.getLength() result.add(this(begin++));
+            return result;
         };
 
         handler this.clear() {
