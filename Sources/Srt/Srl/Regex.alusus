@@ -64,16 +64,37 @@ import "Spp";
 
         class Matcher {
             def context: Context;
+            def initialized: Bool = false;
 
             handler this~init() {
             }
 
+            handler this~init(regexStr: CharsPtr) {
+                this.initialize(regexStr);
+            }
+
             handler this~init(regexStr: CharsPtr, flags: Int) {
-                regcomp(this.context~ptr, regexStr, flags);
+                this.initialize(regexStr, flags);
             }
 
             handler this~terminate() {
+                this.release();
+            }
+
+            handler this.initialize(regexStr: CharsPtr) {
+                this.initialize(regexStr, 1);
+            }
+
+            handler this.initialize(regexStr: CharsPtr, flags: Int) {
+                this.release();
+                regcomp(this.context~ptr, regexStr, flags);
+                this.initialized = true;                
+            }
+
+            handler this.release() {
+                if not this.initialized return;
                 regfree(this.context~ptr);
+                this.initialized = false;
             }
 
             handler this.match(content: CharsPtr): Array[String] {

@@ -265,6 +265,16 @@ handler this.remove (index: ArchInt);
 إزالة العنصر الذي في الموقع المحدد. إذا كان المحتوى مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.
                             </li>
                             <li>
+                                <b>اجتزئ (slice)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.اجتزئ (بداية: صـحيح_متكيف، عدد: صـحيح_متكيف)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.slice (start: ArchInt, count: ArchInt);
+</pre>
+نسخ جزء من المصفوفة وإرجاعه كمصفوفة جديدة. يبدأ النسخ من العنصر `بداية` ويستمر حتى نسخ `عدد` من العناصر، أو حتى وصول نهاية المصفوفة (إن وصلنا نهاية المصفوفة قبل استيفاء العدد المطلوب).
+                            </li>
+                            <li>
                                 <b>فرّغ (clear)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 عملية هذا.فرّغ ()؛
@@ -2109,13 +2119,21 @@ func match (
                                 <b>مـطابق (Matcher)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 صـنف مـطابق (
+    عملية هذا~هيئ(نمط: مؤشر[مصفوفة[مـحرف]])؛
     عملية هذا~هيئ(نمط: مؤشر[مصفوفة[مـحرف]]، خيارات: صـحيح)؛
+    عملية هذا.هيئ(نمط: مؤشر[مصفوفة[مـحرف]])؛
+    عملية هذا.هيئ(نمط: مؤشر[مصفوفة[مـحرف]]، خيارات: صـحيح)؛
+    عملية هذا.حرر()؛
     عملية هذا.طابق(محارف: مؤشر[مصفوفة[مـحرف]]): مـصفوفة[نـص]؛
 }
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
 class Matcher {
+    handler this~init(pattern: ptr[array[Char]]);
     handler this~init(pattern: ptr[array[Char]], flags: Int);
+    handler this.initialize(pattern: ptr[array[Char]]);
+    handler this.initialize(pattern: ptr[array[Char]], flags: Int);
+    handler this.release();
     handler this.match (str: ptr[array[Char]]): Array[String];
 }
 </pre>
