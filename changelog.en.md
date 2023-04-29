@@ -36,6 +36,7 @@
 * Updated `Build` module to allow adding multiple string dependencies in one call.
 * Updated `Build` module to allow linking against non-system shared objects. The build class will automatically
   copy non-system shared objects to the target directory after the build.
+* Added `getThisSourceDirectory` macro for getting the directory where the current source file resides.
 
 ### Compiler Fixes
 
