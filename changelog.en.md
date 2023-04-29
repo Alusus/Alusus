@@ -52,6 +52,8 @@
   function to override the previous implementation.
 * Fixed a bug with `~no_deref` operator causing an exception in certain cases.
 * Fixed a bug with handling multiple callee match errors resulting in compiler crash.
+* Fixed an issue with nested preprocess statements causing AST trees to be inserted in the wrong location in some
+  cases.
 
 ### Standard Libraries Fixes
 
