@@ -33,6 +33,9 @@
 * Added `Net.putFile` function for uploading files.
 * Added `initialize` and `release` methods to class `Srl.Regex.Matcher`.
 * Added `slice` method to class `Srl.Array`.
+* Updated `Build` module to allow adding multiple string dependencies in one call.
+* Updated `Build` module to allow linking against non-system shared objects. The build class will automatically
+  copy non-system shared objects to the target directory after the build.
 
 ### Compiler Fixes
 
