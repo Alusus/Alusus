@@ -23,9 +23,9 @@ import "curl";
     func getBuildDependencies(): Array[String] {
       return Array[String]({ String(getThisSourceDirectory[]) + preprocess {
         if String.isEqual(Process.platform, "macos") {
-          Spp.astMgr.insertAst(ast "libcurl.dylib");
+          Spp.astMgr.insertAst(ast "../libcurl.dylib");
         } else {
-          Spp.astMgr.insertAst(ast "libcurl.so");
+          Spp.astMgr.insertAst(ast "../libcurl.so");
         }
       } });
     }
