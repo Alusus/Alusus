@@ -33,6 +33,12 @@
 * Added `Net.putFile` function for uploading files.
 * Added `initialize` and `release` methods to class `Srl.Regex.Matcher`.
 * Added `slice` method to class `Srl.Array`.
+* Updated `Build` module to allow adding multiple string dependencies in one call.
+* Updated `Build` module to allow linking against non-system shared objects. The build class will automatically
+  copy non-system shared objects to the target directory after the build.
+* Added `getThisSourceDirectory` macro for getting the directory where the current source file resides.
+* Added a version of `Array.add` to add an entire array to the current array.
+* Added the function `getBuildDependencies` to `Net` module.
 
 ### Compiler Fixes
 
@@ -52,6 +58,8 @@
   function to override the previous implementation.
 * Fixed a bug with `~no_deref` operator causing an exception in certain cases.
 * Fixed a bug with handling multiple callee match errors resulting in compiler crash.
+* Fixed an issue with nested preprocess statements causing AST trees to be inserted in the wrong location in some
+  cases.
 
 ### Standard Libraries Fixes
 

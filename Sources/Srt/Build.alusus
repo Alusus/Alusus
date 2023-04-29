@@ -1,7 +1,7 @@
 /**
  * @file Build.alusus
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -41,7 +41,8 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
     class Unit {
         def element: ref[TiObject];
-        def outputFilename: CharsPtr;
+        def outputFilename: String;
+        def outputPath: String;
         def deps: Array[String];
         def flags: Array[String];
 
@@ -49,11 +50,21 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this~init(e: ref[TiObject], fn: CharsPtr) {
             this.element~no_deref = e;
-            this.outputFilename = fn;
             this.addDependency(e);
+            this.outputFilename = fn;
+            def nameStart: ptr[Char] = String.findLast(fn, '/');
+            if nameStart == 0 {
+                this.outputPath = "./";
+            } else {
+                this.outputPath = String(fn, (nameStart~cast[ArchInt] - fn~cast[ArchInt]) + 1);
+            }
         }
 
         handler this.addDependency (d: String) {
+            this.deps.add(d);
+        }
+
+        handler this.addDependencies(d: Array[String]) {
             this.deps.add(d);
         }
 
@@ -96,30 +107,55 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.getDepsString (): String {
             def depsString: String("");
+            def nonSystemDeps: Bool = 0;
             def i: Word;
             for i = 0, i < this.deps.getLength(), ++i {
-                depsString += " -l:";
-                depsString += this.deps(i);
+                def fileNameStart: Int = this.deps(i).findLast('/');
+                if fileNameStart != -1 {
+                    depsString += " -L";
+                    depsString += this.deps(i).slice(0, fileNameStart + 1);
+                    depsString += " -l:";
+                    depsString += (this.deps(i).buf + fileNameStart + 1);
+                    nonSystemDeps = 1;
+                } else {
+                    depsString += " -l:";
+                    depsString += this.deps(i);
+                }
+            }
+            if nonSystemDeps {
+                depsString += " -Wl,-rpath='$ORIGIN'";
             }
             return depsString;
         }
 
         handler this.generate () => Bool {
+            if this.outputPath != "./" System.exec(String.format("mkdir -p \"%s\"", this.outputPath.buf));
             if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", 0) {
-                Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
+                Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
             def linkerFilename: ptr[array[Char]] = getLinkerFilename();
             def cmd: array[Char, 600];
             String.assign(
                 cmd~ptr, "%s -no-pie %s /tmp/output.o -o %s %s", linkerFilename,
-                String.merge(this.flags, " ").buf, this.outputFilename, this.getDepsString().buf
+                String.merge(this.flags, " ").buf, this.outputFilename.buf, this.getDepsString().buf
             );
             if System.exec(cmd~ptr) != 0 {
-                Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
+                Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
+            this.copyNonSystemDependencies();
             return true;
+        }
+
+        handler this.copyNonSystemDependencies() {
+            def i: Int;
+            for i = 0, i < this.deps.getLength(), ++i {
+                if this.deps(i).find('/') == -1 continue;
+                def cmd: array[Char, 600];
+                String.assign(cmd~ptr, "cp %s %s", this.deps(i).buf, this.outputPath.buf);
+                System.exec(cmd~ptr);
+            }
         }
 
         function getLinkerFilename (): ptr[array[Char]] {
@@ -155,18 +191,19 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         }
 
         handler this.generate () => Bool {
+            if this.outputPath != "./" System.exec(String.format("mkdir -p \"%s\"", this.outputPath.buf));
             if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", "wasm32-unknown-unknown") {
-                Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename);
+                Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
             def linkerFilename: String = String(Process.coreBinPath) + "wasm-ld";
             def cmd: array[Char, 600];
             String.assign(
                 cmd~ptr, "%s --no-entry --allow-undefined --export-dynamic %s %s /tmp/output.o -o %s ",
-                linkerFilename.buf, String.merge(this.flags, " ").buf, this.getDepsString().buf, this.outputFilename
+                linkerFilename.buf, String.merge(this.flags, " ").buf, this.getDepsString().buf, this.outputFilename.buf
             );
             if System.exec(cmd~ptr) != 0 {
-                Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename);
+                Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
             return true;

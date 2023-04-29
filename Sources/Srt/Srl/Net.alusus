@@ -12,12 +12,24 @@
 
 import "Srl/Memory.alusus";
 import "Srl/Fs.alusus";
+import "Srl/Array";
+import "Srl/String";
 import "curl";
 
 @merge def Srl : module
 {
   def Net: module
   {
+    func getBuildDependencies(): Array[String] {
+      return Array[String]({ String(getThisSourceDirectory[]) + preprocess {
+        if String.isEqual(Process.platform, "macos") {
+          Spp.astMgr.insertAst(ast "libcurl.dylib");
+        } else {
+          Spp.astMgr.insertAst(ast "libcurl.so");
+        }
+      } });
+    }
+
     class Curl {
       func exec(curlHandle: ptr[Curl], resultCount: ptr[Int], responseCode: ptr[Int]): ptr {
         def result: ptr = 0;

@@ -241,6 +241,10 @@ Bool AstProcessor::_processPreprocessStatement(
   // executed the statement, so we don't need to execute it again.
   if (preprocess->getExtra(PREPROCESS_SESSION_KEY) == 0) return true;
 
+  TiObject *prevPreprocessOwner = astProcessor->currentPreprocessOwner;
+  Int prevPreprocessInsertionPosition = astProcessor->currentPreprocessInsertionPosition;
+  SharedPtr<Core::Data::SourceLocation> prevPreprocessSourceLocation = astProcessor->currentPreprocessSourceLocation;
+
   astProcessor->currentPreprocessOwner = owner;
   astProcessor->currentPreprocessInsertionPosition = indexInOwner;
   astProcessor->currentPreprocessSourceLocation = preprocess->findSourceLocation();
@@ -266,7 +270,9 @@ Bool AstProcessor::_processPreprocessStatement(
 
   preprocess->removeExtra(PREPROCESS_SESSION_KEY);
 
-  astProcessor->currentPreprocessSourceLocation = 0;
+  astProcessor->currentPreprocessOwner = prevPreprocessOwner;
+  astProcessor->currentPreprocessInsertionPosition = prevPreprocessInsertionPosition;
+  astProcessor->currentPreprocessSourceLocation = prevPreprocessSourceLocation;
 
   return result;
 }

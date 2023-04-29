@@ -97,6 +97,11 @@ import "Memory";
             ++this.length;
         };
 
+        handler this.add (items: Array[T]) {
+            def i: Int;
+            for i = 0, i < items.getLength(), ++i this.add(items(i));
+        };
+
         handler this.add (count: Int, items: ...[T, 1]) {
             while count-- > 0 this.add(items~next_arg[T]);
         };

@@ -225,16 +225,20 @@ handler this.assign (a: ref[Array[ContentType]]);
                             <li>
                                 <b>أضف (add)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-عملية هذا.أضف (م: سند[صـنف_المحتوى])؛
+عملية هذا.أضف (م: صـنف_المحتوى)؛
 عملية هذا.أضف (عدد_العناصر: صـحيح، العناصر: ...صـنف_المحتوى)؛
+عملية هذا.أضف (م: مـصفوفة[صـنف_المحتوى])؛
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
-handler this.add (e: ref[ContentType]);
+handler this.add (e: ContentType);
 handler this.add (argCount: Int, args: ...ContentType);
+handler this.add (e: Array[ContentType]);
 </pre>
                               الصيغة الأولى تضيف عنصرا إلى المصفوفة بعد توسيع حجز الذاكرة إن وجب. إذا كان المحتوى
                               مشارك مع مصفوفة أخرى تقوم الدالة بنسخ المحتوى إلى صوان جديد.<br>
-                              الصيغة الثانية تضيف عدة عناصر مرة واحدة بدل أن تضيف عنصرا واحدًا.
+                              الصيغة الثانية تضيف عدة عناصر مرة واحدة بدل أن تضيف عنصرا واحدًا.<br>
+                              الصيغة الثالثة تضيف مصفوفة إلى المصفوفة الحالية، أي تضيف كل عناصر المصفوفة
+                              المعطاة إلى المصفوفة الحالية. المصفوفة المعطاة لن تتأثر بهذا الاستدعاء.
 <pre class="samplecode" dir=rtl style="text-align:right;">
 م.أضف({ 5، 2، 1 })؛ // تضيف 3 عناصر: 5، 2، 1.
 م.أضف(3، 5، 2، 1)؛ // تضيف 3 عناصر: 5، 2، 1.
@@ -1608,6 +1612,20 @@ func allocAligned (alignment: ArchInt, size: ArchInt): ptr;
                         تحتوي وحدة `شـبكة` على العناصر التالية:
                         <ul class="subsections">
                             <li>
+                                <b>هات_اعتماديات_البناء (getBuildDependencies)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+دالة هات_اعتماديات_البناء (): مـصفوفة[نـص]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func getBuildDependencies(): Array[String];
+</pre>
+                        ترجع أسماء الاعتماديات المطلوبة في حالة بناء نسخة تنفيذية من مشروع يعتمد على
+                        وحدة `شـبكة`. في حالة `شـبكة` ترجع الدالة مكتبة واحدة وهي Curl. القيمة المرجعة
+                        تحتوي المسار الكامل للملف وليس فقط الاسم لأن الأسس تعتمد على نسخة من Curl مضمنة
+                        مع مكتبات الأسس.
+                            </li>
+
+                            <li>
                                 <b>هات (get)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 1: دالة هات (
@@ -2245,9 +2263,15 @@ class DetailedTime {
                         <br>
 
                         <li><b>هات_المسار_الكامل_لهذه_الشفرة (getThisSourceFullPath)</b><br>
-                          ماكرو يعطيك سلسلة محارف حرفية (string literal) تحتوي على المسار الكامل لملف الشفرة المصدرية الحالي. لا يأخذ هذا الماكرو أي معطيات.
+                          ماكرو يعطيك سلسلة محارف حرفية (string literal) تحتوي على المسار الكامل لملف الشفرة
+                          المصدرية الحالي. لا يأخذ هذا الماكرو أي معطيات.
                         </li>
                         <br>
+
+                        <li><b>هات_مجلد_هذه_الشفرة (getThisSourceDirectory)</b><br>
+                          ماكرو يعطيك سلسلة محارف حرفية (string literal) تحتوي على المسار الكامل للمجلد الذي
+                          يحتوي ملف الشفرة المصدرية الحالي. لا يأخذ هذا الماكرو أي معطيات.
+                        </li>
                       </ul>
                     </div>
                 </div>
@@ -2504,6 +2528,7 @@ n after calling c: 6
 <pre class="samplecode" dir=rtl style="text-align:right;">
   عرف تنفيذي: مؤشر[بـناء.تـنفيذي](الـبسملة.ابدأ~شبم، "البسملة")؛
   تنفيذي.أضف_اعتمادية(جـتك~شبم)؛ // أو: تنفيذي.أضف_اعتمادية(نـص("libgtk..."))؛
+  تنفيذي.أضف_اعتماديات(مـصفوفة[نـص]({ نـص("libcurl.so")، ... }))؛
   تنفيذي.أضف_خيار("-Wl,-rpath,@executable_path")؛
   إذا تنفيذي.أنتج() {
     مـتم.طـرفية.اطبع("اكتمل البناء.\ج")؛
@@ -2514,6 +2539,7 @@ n after calling c: 6
 <pre class="samplecode" dir=ltr>
   def exe: ptr[Build.Exe](WidgetGuide.start~ast, "hello_world");
   exe.addDependency(Gtk~ast); // or exe.addDependency(String("libgtk...."));
+  exe.addDependencies(Array[String]({ String("libcurl.so"), ... }));
   exe.addFlag("-Wl,-rpath,@executable_path");
   if exe.generate() {
     Srl.Console.print("Build complete.\n");
@@ -3868,6 +3894,21 @@ handler this.getSourceFullPathForElement(
 ) => String;
 </pre>
                       ترجع اسم الملف الكامل مع المسار لملف الشفرة المصدرية الذي يحتوي العنصر المعطى.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getSourceDirectoryForElement">هات_مجلد_شفرة_عنصر (getSourceDirectoryForElement)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_مجلد_شفرة_عنصر (
+    عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]
+): نـص
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getSourceDirectoryForElement(
+    element: ref[Core.Basic.TiObject]
+) => String;
+</pre>
+                      ترجع المسار الكامل للمجلد الذي يحتوي ملف الشفرة المصدرية الذي يحتوي العنصر المعطى.
                     </div>
 
                     <h5 id="Spp-astMgr-insertAst">احشر_شبم (insertAst)</h5>

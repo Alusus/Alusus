@@ -2,7 +2,7 @@
  * @file Srl/srl.alusus
  * Contains basic defs of Basic Runtime Library.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -37,6 +37,16 @@ macro getThisSourceFullPath {
             ast { "{{name}}" },
             Srl.Map[Srl.String, ref[Core.Basic.TiObject]]()
                 .set(Srl.String("name"), Core.Basic.TiStr(Spp.astMgr.getSourceFullPathForElement(dummy~ast)))
+        );
+    }
+}
+macro getThisSourceDirectory {
+    preprocess {
+        def dummy: 1;
+        Spp.astMgr.insertAst(
+            ast { "{{name}}" },
+            Srl.Map[Srl.String, ref[Core.Basic.TiObject]]()
+                .set(Srl.String("name"), Core.Basic.TiStr(Spp.astMgr.getSourceDirectoryForElement(dummy~ast)))
         );
     }
 }

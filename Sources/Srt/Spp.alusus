@@ -2,7 +2,7 @@
  * @file Spp.alusus
  * Contains definitions of SPP's astMgr and buildMgr.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -74,6 +74,11 @@ import "Srl/refs_base";
 
         @expname[Spp_AstMgr_getSourceFullPathForElement]
         handler this.getSourceFullPathForElement(element: ref[Core.Basic.TiObject]) => Srl.String;
+
+        handler this.getSourceDirectoryForElement(element: ref[Core.Basic.TiObject]) => Srl.String {
+            def fullPath: Srl.String = this.getSourceFullPathForElement(element);
+            return fullPath.slice(0, fullPath.findLast('/') + 1);
+        }
 
         @expname[Spp_AstMgr_insertAst]
         handler this.insertAst(element: ref[Core.Basic.TiObject]) => Word[1];
