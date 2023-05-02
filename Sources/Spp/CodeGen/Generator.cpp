@@ -544,8 +544,9 @@ Bool Generator::_generateVarInitialization(
   if (varAstType->getInitializationMethod(
     generator->getAstHelper(), session->getExecutionContext()
   ) != Ast::TypeInitMethod::NONE) {
+    TiObject *tgAutoCtor;
+    if (!generator->typeGenerator->getGeneratedTypeAutoCtor(varAstType, generation, session, tgAutoCtor)) return false;
     // Call automatic constructors, if any.
-    auto tgAutoCtor = session->getEda()->tryGetAutoCtor<TiObject>(varAstType);
     if (tgAutoCtor != 0) {
       PlainList<TiObject> autoTgValues({ tgVarRef });
       TioSharedPtr dummy;
@@ -652,7 +653,14 @@ Bool Generator::_generateMemberVarInitialization(
   }
 
   // Get the member generated value and type.
-  auto tgMemberVar = session->getEda()->getCodeGenData<TiObject>(astMemberNode);
+  auto tgMemberVar = session->getEda()->tryGetCodeGenData<TiObject>(astMemberNode);
+  if (tgMemberVar == 0) {
+    // This situation will only happen if we have circular code generation.
+    generator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
+      Core::Data::Ast::findSourceLocation(astMemberNode)
+    ));
+    return false;
+  }
   auto astMemberType = Ast::getAstType(astMemberNode);
   auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(astMemberNode);
   if (!paramPass || paramPass->getType() != Core::Data::Ast::BracketType::ROUND) {
@@ -753,7 +761,8 @@ Bool Generator::_generateVarDestruction(
   }
 
   // Call auto destructor, if any.
-  auto tgAutoDtor = session->getEda()->tryGetAutoDtor<TiObject>(varAstType);
+  TiObject *tgAutoDtor;
+  if (!generator->typeGenerator->getGeneratedTypeAutoDtor(varAstType, generation, session, tgAutoDtor)) return false;
   if (tgAutoDtor != 0) {
     PlainList<TiObject> autoTgValues({ tgVarRef });
     TioSharedPtr dummy;

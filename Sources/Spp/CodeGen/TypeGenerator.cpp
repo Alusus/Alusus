@@ -121,6 +121,36 @@ Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, Session *ses
 }
 
 
+Bool TypeGenerator::getGeneratedTypeAutoCtor(
+  Spp::Ast::Type *astType, Generation *g, Session *session, TiObject *&tgAutoCtor
+) {
+  auto astUserType = ti_cast<Spp::Ast::UserType>(astType);
+  if (astUserType == 0) {
+    tgAutoCtor = 0;
+    return true;
+  }
+
+  if (!this->generateUserTypeAutoConstructor(astUserType, g, session)) return false;
+  tgAutoCtor = session->getEda()->tryGetAutoCtor<TiObject>(astType);
+  return true;
+}
+
+
+Bool TypeGenerator::getGeneratedTypeAutoDtor(
+  Spp::Ast::Type *astType, Generation *g, Session *session, TiObject *&tgAutoDtor
+) {
+  auto astUserType = ti_cast<Spp::Ast::UserType>(astType);
+  if (astUserType == 0) {
+    tgAutoDtor = 0;
+    return true;
+  }
+
+  if (!this->generateUserTypeAutoDestructor(astUserType, g, session)) return false;
+  tgAutoDtor = session->getEda()->tryGetAutoDtor<TiObject>(astType);
+  return true;
+}
+
+
 //==============================================================================
 // Code Generation Functions
 
@@ -264,8 +294,6 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
   if (!session->getTg()->generateStructTypeDecl(name.c_str(), tgType)) return false;
   session->getEda()->setCodeGenData(astType, tgType);
   if (!typeGenerator->generateUserTypeMemberVars(astType, g, session)) return false;
-  if (!typeGenerator->generateUserTypeAutoConstructor(astType, g, session)) return false;
-  if (!typeGenerator->generateUserTypeAutoDestructor(astType, g, session)) return false;
   return true;
 }
 
@@ -371,6 +399,8 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
+  if (session->getEda()->tryGetAutoCtor<TiObject>(astType) != 0) return true;
+
   // Validate that the type has custom initialization.
   if ((astType->getInitializationMethod(
     typeGenerator->astHelper, session->getExecutionContext()
@@ -456,6 +486,8 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
   TiObject *self, Spp::Ast::UserType *astType, Generation *g, Session *session
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
+
+  if (session->getEda()->tryGetAutoDtor<TiObject>(astType) != 0) return true;
 
   // Validate that the type has custom initialization.
   if ((astType->getDestructionMethod(

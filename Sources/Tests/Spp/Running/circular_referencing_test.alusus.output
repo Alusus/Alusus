@@ -1,3 +1,4 @@
-Did not crash!
+Did not crash 1!
+did not crash 2!
 [0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
-  circular_referencing_test.alusus (19,5)
+  circular_referencing_test.alusus (44,5)

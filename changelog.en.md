@@ -60,6 +60,7 @@
 * Fixed a bug with handling multiple callee match errors resulting in compiler crash.
 * Fixed an issue with nested preprocess statements causing AST trees to be inserted in the wrong location in some
   cases.
+* Fixed a segfault during compilation of some cases of circular references.
 
 ### Standard Libraries Fixes
 
