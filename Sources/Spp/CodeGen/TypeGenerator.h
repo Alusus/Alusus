@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.h
  * Contains the header of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -101,6 +101,14 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
   );
 
   private: Bool _getGeneratedType(TiObject *ref, Generation *g, Session *session, Spp::Ast::Type *&type);
+
+  public: Bool getGeneratedTypeAutoCtor(
+    Spp::Ast::Type *astType, Generation *g, Session *session, TiObject *&tgAutoCtor
+  );
+
+  public: Bool getGeneratedTypeAutoDtor(
+    Spp::Ast::Type *astType, Generation *g, Session *session, TiObject *&tgAutoCtor
+  );
 
   /// @}
 

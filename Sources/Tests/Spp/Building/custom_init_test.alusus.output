@@ -565,6 +565,8 @@ define void @"A.~init(ref[A])"(%A* %this) {
   ret void
 }
 
+declare i32 @printf(i8*, ...)
+
 define void @B.__autoDestruct__(%B* %this) {
 "#block2":
   %0 = getelementptr %B, %B* %this, i32 0, i32 0
@@ -584,8 +586,6 @@ define void @"A.~terminate(ref[A])"(%A* %this) {
   %2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @"#anonymous2", i32 0, i32 0))
   ret void
 }
-
-declare i32 @printf(i8*, ...)
 ------------------------------------------------------------
 -------------------- Generated LLVM IR ---------------------
 ; ModuleID = 'AlususProgram'

@@ -15,5 +15,30 @@ class B {
 def b: B;
 def bs: Array[B];
 bs.add(b);
-Console.print("Did not crash!\n");
+Console.print("Did not crash 1!\n");
+
+// Test circular refs with auto initialization.
+
+class MyRef [T: type] {
+    def obj: ref[T];
+    handler this~init() {}
+}
+
+class A2 {
+    def b: ref[B2];
+    def i: Int;
+}
+
+class B2 {
+    def a: MyRef[A2];
+}
+
+func testCircularRefWithAutoCtor {
+    def a: MyRef[A2];
+    Console.print("did not crash 2!\n");
+}
+testCircularRefWithAutoCtor();
+
+// Test error cases
+
 def i: Int = b;
