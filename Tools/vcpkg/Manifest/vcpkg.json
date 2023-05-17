@@ -22,7 +22,8 @@
       "name": "curl",
       "default-features": false,
       "features": [
-        "ssl"
+        "ssl",
+        "non-http"
       ]
     },
     {
