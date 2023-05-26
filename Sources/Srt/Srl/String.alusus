@@ -2,7 +2,7 @@
  * @file Srl/String.alusus
  * Contains the class Srl.String.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -157,31 +157,31 @@ import "Array";
         };
 
         handler this.concat (buf: ptr[array[T]]): StringBase[T] {
-            def newStr: StringBase[T] = this;
+            def newStr: StringBase[T] = this.buf;
             newStr.append(buf);
             return newStr;
         };
 
         handler this.concat (buf: ptr[array[T]], n: ArchInt): StringBase[T] {
-            def newStr: StringBase[T] = this;
+            def newStr: StringBase[T] = this.buf;
             newStr.append(buf, n);
             return newStr;
         };
 
         handler this.concat (c: T): StringBase[T] {
-            def newStr: StringBase[T] = this;
+            def newStr: StringBase[T] = this.buf;
             newStr.append(c);
             return newStr;
         };
 
         handler this.concat (i: Int[64]): StringBase[T] {
-            def newStr: StringBase[T] = this;
+            def newStr: StringBase[T] = this.buf;
             newStr.append(i);
             return newStr;
         };
 
         handler this.concat (f: Float[64]): StringBase[T] {
-            def newStr: StringBase[T] = this;
+            def newStr: StringBase[T] = this.buf;
             newStr.append(f);
             return newStr;
         };
