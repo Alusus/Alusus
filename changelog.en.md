@@ -30,7 +30,6 @@
 * Added `Regex.Matcher` type to allow initializing a regular expression once and useing it with multiple match
   operations instead of re-initializing the regex with every match operation.
 * Added authentication option to `Net.getFile`.
-* Added `Net.putFile` function for uploading files.
 * Added `initialize` and `release` methods to class `Srl.Regex.Matcher`.
 * Added `slice` method to class `Srl.Array`.
 * Updated `Build` module to allow adding multiple string dependencies in one call.
