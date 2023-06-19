@@ -1,0 +1,25 @@
+import "Srl/Nullable";
+import "Srl/Possible";
+import "Srl/Console";
+
+use Srl;
+
+func test {
+    def n1: Nullable[Int];
+    def n2: Nullable[Int](3);
+    def n3: Nullable[Int];
+    def p1: Possible[Int] = Possible[Int].success(4);
+    def p2: Possible[Int] = Possible[Int].failure(SrdRef[GenericError].construct().{ code = 1; message = "fail!" });
+
+    Console.print("n1.isNull: %d\n", n1.isNull~cast[Int]);
+    Console.print("n2.isNull: %d, n2.value: %d\n", n2.isNull~cast[Int], n2.value);
+    n3 = n2;
+    Console.print("n3 = n2 -> n3.isNull: %d, n3.value: %d\n", n3.isNull~cast[Int], n3.value);
+    n3 = n1;
+    Console.print("n3 = n1 -> n3.isNull: %d\n", n3.isNull~cast[Int]);
+
+    Console.print("p1.value: %d, p1.error: %ld\n", p1.value, p1.error.obj~ptr);
+    Console.print("p2.error.code: %d, p2.error.message: %s\n", p2.error.getCode(), p2.error.getMessage().buf);
+}
+
+test();

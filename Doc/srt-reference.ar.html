@@ -41,6 +41,10 @@
                             <li><a href="#SrdRef">الصنف: سـندنا (SrdRef)</a></li>
                             <li><a href="#WkRef">الصنف: سـندهم (WkRef)</a></li>
                             <li><a href="#UnqRef">الصنف: سـندي (UnqRef)</a></li>
+                            <li><a href="#Error">الصنف: خـطأ (Error)</a></li>
+                            <li><a href="#GenericError">الصنف: خـطأ_عام (GenericError)</a></li>
+                            <li><a href="#Possible">الصنف: لـا_مضمون (Possible)</a></li>
+                            <li><a href="#Nullable">الصنف: بـعدم (Nullable)</a></li>
                             <li><a href="#Memory">الوحدة: ذاكـرة (Memory)</a></li>
                             <li><a href="#Math">الوحدة: ريـاضيات (Math)</a></li>
                             <li><a href="#Net">الوحدة: شـبكة (Net)</a></li>
@@ -1183,6 +1187,145 @@ handler this.release();
                               تتحقق فيما لو كان السند يشير لعدم، أي فيما لو كان مؤشره صفرًا.
                           </li>
                         </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Error">الصنف: خـطأ (Error)</h4>
+                    <div>
+                    جذر لأصناف حمل بيانات الأخطاء التنفيذية. يحتوي على وظيفتين مجردتين:
+                      <ul>
+                        <li>
+                          <b>هات_الرمز (getCode)</b><br>
+                          ترجع رمزًا يميز الخطأ عن غيره بدقة.
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا.هات_الرمز(): صـحيح كمؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getCode(): Int as_ptr;
+</pre>
+                        </li>
+                        <li>
+                          <b>هات_الرسالة (getMessage)</b><br>
+                          ترجع وصفا نصيا للخطأ يمكن عرضه للمستخدم.
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا.هات_الرسالة(): نـص كمؤشر؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMessage(): String as_ptr;
+</pre>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="GenericError">الصنف: خـطأ_عام (GenericError)</h4>
+                    <div>
+                    صنف خطأ عام مُشتق من الصنف `خـطأ` (`Error`) يمكّن المستخدم من تحديد رمزه ورسالته يدويا لكل كائن منه.
+                    يحتوي على متغيرين:
+                      <ul>
+                        <li><b>الرمز (code)</b>: صـحيح (Int)</li>
+                        <li><b>الرسالة (message)</b>: نـص (String)</li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Possible">الصنف: لـا_مضمون (Possible)</h4>
+                    <div>
+                    قالب أصناف لحمل بيانات بصنف غير محدد (يحدده المستخدم) مع إمكانية حمل إشعار خطأ بدل البيانات في حالة
+                    فشل العملية. يحتاج المستخدم الذي يستلم متغيرا من هذا الصنف لفحص حالة الخطأ قبل التعامل مع البيانات
+                    التي يحملها هذا الصنف. يحتوي على العناصر التالية:
+                      <ul>
+                        <li>
+                          <b>القيمة (value)</b><br>
+                          البيانات التي يحملها الكائن. الصنف `صـنف_البيانات` (`DataType`) يشير إلى معطى القالب.
+<pre class="code" dir=rtl style="text-align:right;">
+  @حقنة عرف القيمة: صـنف_البيانات؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  @injection def value: DataType;
+</pre>
+                        </li>
+                        <li>
+                          <b>الخطأ (error)</b><br>
+                          سند إلى الخطأ في حال وجوده. إن كان حُددت قيمة هذا الخطأ فالعملية فاشلة والبيانات في `القيمة`
+                          غير صالحة للاستخدام.
+<pre class="code" dir=rtl style="text-align:right;">
+  عرف الخطأ: سـندنا[خـطأ]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  def error: SrdRef[Error];
+</pre>
+                        </li>
+                        <li>
+                          <b>عمليات التمثيل</b><br>
+                          يحتوي هذا الصنف عمليات التمثيل التالية:
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا~مثل[سند[صـنف_البيانات]] أرجع هذا.القيمة؛
+  عملية هذا~مثل[ثـنائي] أرجع هذا.الخطأ.أهو_عدم()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~cast[ref[DataType]] return this.value;
+  handler this~cast[Bool] return this.error.isNull();
+</pre>
+                          عملية التمثيل كـ`ثـنائي` (`Bool`) ترجع 1 إن كانت العملية ناجحة، أي إن كانت البيانات صالحة
+                          للاستخدام.
+                        </li>
+                        <li>
+                          <b>نجاح (success)</b><br>
+                          دالة لتسهيل إنشاء كائن يحمل قيمة صالحة.
+<pre class="code" dir=rtl style="text-align:right;">
+  دالة نجاح (ق: صـنف_البيانات): لـا_مضمون[صـنف_البيانات]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func success (v: DataType): Possible[DataType];
+</pre>
+                        </li>
+                        <li>
+                          <b>فشل (failure)</b><br>
+                          دالة لتسهيل إنشاء كائن خطأ.
+<pre class="code" dir=rtl style="text-align:right;">
+  دالة فشل (خ: سـندنا[خـطأ]): لـا_مضمون[صـنف_البيانات]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  func failure (err: SrdRef[Error]): Possible[DataType];
+</pre>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Nullable">الصنف: بـعدم (Nullable)</h4>
+                    <div>
+                    قالب أصناف لحمل بيانات بصنف غير محدد (يحددث المستخدم) مع إضافة القيمة `عدم` (`null`) كأحد القيم
+                    المتاحة.
+                      <ul>
+                        <li>
+                          <b>القيمة (value)</b><br>
+                          البيانات التي يحملها الكائن. الصنف `صـنف_البيانات` (`DataType`) يشير إلى معطى القالب.
+<pre class="code" dir=rtl style="text-align:right;">
+  @حقنة عرف القيمة: صـنف_البيانات؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  @injection def value: DataType;
+</pre>
+                        </li>
+                        <li>
+                          <b>أهو_عدم (isNull)</b><br>
+                          قيمة ثنائية تحدد إن كانت القيمة `عدم` (`null`) أم لا.
+<pre class="code" dir=rtl style="text-align:right;">
+  عرف أهو_عدم: ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  def isNull: Bool;
+</pre>
+                        </li>
+                        <li>
+                          <b>عمليات التمثيل</b><br>
+                          يحتوي هذا الصنف عملية تمثيل تحول تلقائيا إلى صنف البيانات الأصلي.
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا~مثل[سند[صـنف_البيانات]] أرجع هذا.القيمة؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~cast[ref[DataType]] return this.value;
+</pre>
+                        </li>
+                      </ul>
                     </div>
 
                     <h4 class="foldable" id="Memory">الوحدة: ذاكـرة (Memory)</h4>

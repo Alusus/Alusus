@@ -1,0 +1,39 @@
+/**
+ * @file Srl/Possible.alusus
+ * Contains the class Srl.Possible.
+ *
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "errors";
+import "refs";
+
+@merge module Srl {
+    class Possible [DataType: type] {
+        @injection def value: DataType;
+        def error: SrdRef[Error];
+
+        handler this~init() {}
+        handler this~init(ref[this_type]) {
+            this = value;
+        }
+        handler this = ref[this_type] {
+            this.value = value.value;
+            this.error = value.error;
+        }
+        handler this~cast[ref[DataType]] return this.value;
+        handler this~cast[Bool] return this.error.isNull();
+
+        func success (v: DataType): Possible[DataType] {
+            return Possible[DataType]().{ value = v };
+        }
+        func failure (err: SrdRef[Error]): Possible[DataType] {
+            return Possible[DataType]().{ error = err };
+        }
+    }
+}

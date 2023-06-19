@@ -1,0 +1,36 @@
+/**
+ * @file Srl/Nullable.alusus
+ * Contains the class Srl.Nullable.
+ *
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "srl";
+
+@merge module Srl {
+    class Nullable [DataType: type] {
+        def isNull: Bool;
+        @injection def value: DataType;
+
+        handler this~init() {
+            this.isNull = true;
+        }
+        handler this~init(DataType) {
+            this.isNull = false;
+            this.value = value;
+        }
+        handler this~init(ref[this_type]) {
+            this = value;
+        }
+        handler this = ref[this_type] {
+            this.isNull = value.isNull;
+            this.value = value.value;
+        }
+        handler this~cast[ref[DataType]] return this.data;
+    }
+}

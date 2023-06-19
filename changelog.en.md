@@ -38,6 +38,7 @@
 * Added `getThisSourceDirectory` macro for getting the directory where the current source file resides.
 * Added a version of `Array.add` to add an entire array to the current array.
 * Added the function `getBuildDependencies` to `Net` module.
+* Added the classes: `Error`, `GenericError`, `Possible`, and `Nullable`.
 
 ### Compiler Fixes
 
