@@ -1,0 +1,32 @@
+/**
+ * @file Srl/errors.alusus
+ * Contains classes for runtime errors.
+ *
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "String";
+
+@merge module Srl {
+    class Error {
+        handler this.getCode(): Int as_ptr;
+        handler this.getMessage(): String as_ptr;
+    }
+
+    class GenericError {
+        @injection def error: Error;
+        def code: Int;
+        def message: String;
+        handler (this: Error).getCode(): Int set_ptr {
+            return this.code;
+        }
+        handler (this: Error).getMessage(): String set_ptr {
+            return this.message;
+        }
+    }
+}
