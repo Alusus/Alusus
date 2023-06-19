@@ -31,40 +31,6 @@ import "curl";
     }
 
     class Curl {
-      func exec(curlHandle: ptr[Curl], resultCount: ptr[Int], responseCode: ptr[Int]): ptr {
-        def result: ptr = 0;
-
-        def content: _Content;
-        content.data = 0;
-        content.size = 0;
-
-        if (curlHandle == 0) return null;
-
-        CurlEasy.setOpt(curlHandle, CurlOpt.WRITEFUNCTION, _getCallbackFunction~ptr);
-        CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, content~ptr);
-
-        responseCode~cnt = CurlEasy.perform(curlHandle);
-        if responseCode~cnt == CurlCode.OK {
-          result = Srl.Memory.realloc(content.data, content.size + 1);
-          result~cast[ptr[array[Word[8]]]]~cnt(content.size) = 0;
-          resultCount~cnt = content.size;
-          return result;
-        }
-
-        resultCount~cnt = 0;
-        return null;
-      }
-
-      func exec(curlHandle: ptr[Curl], resultCount: ptr[Int]): ptr {
-        def responseCode: Int = 0;
-        return exec(curlHandle, resultCount, responseCode~ptr);
-      }
-
-      func exec(curlHandle: ptr[Curl]): ptr {
-        def resultCount: Int = 0;
-        def responseCode: Int = 0;
-        return exec(curlHandle, resultCount~ptr, responseCode~ptr);
-      }
     };
 
     module CurlInfo {
@@ -349,12 +315,12 @@ import "curl";
       func freeAll(curlSlist: ptr[CurlSlist]): Void;
     };
 
-    class _Content {
+    class ResponseContent {
       def data: ptr[array[Word[8]]];
       def size: Int;
     };
 
-    func _getCallbackFunction(chunk: ptr, size: Int[64], count: Int[64], content: ptr[_Content]): Int {
+    func responseCallback(chunk: ptr, size: Int[64], count: Int[64], content: ptr[ResponseContent]): Int {
       def newSize: Int;
       newSize = (content~cnt.size + size * count)~cast[Int];
       if content~cnt.data == 0 {
@@ -374,7 +340,7 @@ import "curl";
       result~cnt = 0;
       resultCount~cnt = 0;
 
-      def content: _Content;
+      def content: ResponseContent;
       content.data = 0;
       content.size = 0;
 
@@ -383,7 +349,7 @@ import "curl";
 
       CurlEasy.setOpt(curlHandle, CurlOpt.URL, url);
       CurlEasy.setOpt(curlHandle, CurlOpt.HTTPGET, 1);
-      CurlEasy.setOpt(curlHandle, CurlOpt.WRITEFUNCTION, _getCallbackFunction~ptr);
+      CurlEasy.setOpt(curlHandle, CurlOpt.WRITEFUNCTION, responseCallback~ptr);
       CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, content~ptr);
       CurlEasy.setOpt(curlHandle, CurlOpt.USERAGENT, "ALUSUS NETWORK LIBRARY");
       CurlEasy.setOpt(curlHandle, CurlOpt.FOLLOWLOCATION, 1);
@@ -401,11 +367,7 @@ import "curl";
       };
     };
 
-    func getFile(url: ptr[array[Char]], filename: ptr[array[Char]]): Bool {
-      return getFile(url, filename, 0);
-    }
-
-    func getFile(url: ptr[array[Char]], filename: ptr[array[Char]], auth: ptr[array[Char]]): Bool {
+    func get(url: ptr[array[Char]], filename: ptr[array[Char]]): Bool {
       def curlHandle: ptr[Curl];
       def resultCode: Int;
 
@@ -419,7 +381,6 @@ import "curl";
         return false;
       };
       CurlEasy.setOpt(curlHandle, CurlOpt.URL, url);
-      if auth != 0 CurlEasy.setOpt(curlHandle, CurlOpt.USERPWD, auth);
       CurlEasy.setOpt(curlHandle, CurlOpt.HTTPGET, 1);
       CurlEasy.setOpt(curlHandle, CurlOpt.WRITEDATA, file);
       CurlEasy.setOpt(curlHandle, CurlOpt.USERAGENT, "ALUSUS NETWORK LIBRARY");
