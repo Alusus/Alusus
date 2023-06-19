@@ -1026,9 +1026,9 @@ func main {
 </pre>
                             </li>
                             <li>
-                              <b>أهو_لعدم (isNull)</b><br/>
+                              <b>أهو_عدم (isNull)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  عملية هذا.أهو_لعدم(): ثـنائي؛
+  عملية هذا.أهو_عدم(): ثـنائي؛
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
   handler this.isNull(): Bool;
@@ -1110,9 +1110,9 @@ func main {
 </pre>
                           </li>
                           <li>
-                              <b>أهو_لعدم (isNull)</b><br/>
+                              <b>أهو_عدم (isNull)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  عملية هذا.أهو_لعدم(): ثـنائي؛
+  عملية هذا.أهو_عدم(): ثـنائي؛
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
   handler this.isNull(): Bool;
@@ -1173,9 +1173,9 @@ handler this.release();
                             تصفر هذا السند وتحرر الكائن.
                           </li>
                           <li>
-                              <b>أهو_لعدم (isNull)</b><br/>
+                              <b>أهو_عدم (isNull)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
-  عملية هذا.أهو_لعدم(): ثـنائي؛
+  عملية هذا.أهو_عدم(): ثـنائي؛
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
   handler this.isNull(): Bool;
@@ -2478,12 +2478,12 @@ n after calling c: 6
                         <li><b>تلقائي</b>: إذا لم تحدد نمط الالتقاط يدويا فإن النمط المعتمد هو التلقائي وفي هذا النمط يحدد المترجم أسلوب الالتقاط اعتمادًا على صنف المتغير، فإن كان الصنف من أصناف المستخدم وليس صنف `سـندنا` (SrdRef) فيستخدم الأسلوب `مطابق` وإلا (أي إذا كان `سـندنا` أو صنفًا أساسيًا) فيستخدم الأسلوب `كقيمة`.</li>
                       </ul>
                       
-                      يمكن التحقق فيما إن كان مؤشر المغلفة صفرا أم لا باستخدام الدالة `أهو_لعدم` (isNull).
+                      يمكن التحقق فيما إن كان مؤشر المغلفة صفرا أم لا باستخدام الدالة `أهو_عدم` (isNull).
 <pre class="code" dir=rtl style="text-align:right;">
     عرف م: مغلفة (ع: صحيح): صحيح؛
-    م.أهو_لعدم() // يرجع 1
+    م.أهو_عدم() // يرجع 1
     م = مغلفة (ع: صحيح): صحيح { أرجع 0؛ }؛
-    م.أهو_لعدم() // يرجع 0
+    م.أهو_عدم() // يرجع 0
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
     def c: closure (i: Int): Int;
