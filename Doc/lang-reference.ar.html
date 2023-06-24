@@ -159,25 +159,32 @@
                     <pre class="code" dir=ltr>
   import "Srl/Console.alusus";</pre> أو:
                     <pre class="code" dir=rtl style="text-align:right;">
-  اشمل "مـتم/طـرفية.أسس"؛</pre> يحتوي كل برنامج على تعريف لوحدة وهذه الوحدة هي التي تحتوي على تعريفات البرنامج.
+  اشمل "مـتم/طـرفية.أسس"؛</pre>
+  تحتوي البرامج في العادة على تعريف لوحدة تشمل كافة تعريفات البرنامج من دالات وأصناف ومتغيرات عمومية وماكروهات وثوابت.
+  كل جملة خارج الدالات تُنفذ مباشرة حال ترجمتها، لذلك تحتوي البرامج عادة على استدعاء للدالة الرئيسية للبرنامج وهذا
+  الاستدعاء يكون عادة في نهاية البرنامج بعد كافة تعريفات البرنامج.
                     <pre dir=ltr class="samplecode">
-  def HelloWorld : module
-  {
-    ...
-  }</pre>
-                    <pre dir=rtl class="samplecode" style="text-align:right;">
-  عرّف الـبسملة : وحدة
-  {
-    ...
-  }</pre> بعد ذلك يجب أن يضم البرنامج الأمر نفّذ (run) لتنفيذ البرنامج. السبب في ذلك يكمن في قدرة المبرمج على الاختيار بين التنفيذ المباشر (JIT compilation) أو التحويل إلى ملف تشغيلي (عبر الأمر build). خاصية التحويل إلى ملف تنفيذي
-                    ليست مكتملة بعد وسيتم إكمالها في إصدار آخر. الأمر "نفّذ" يكتب بالشكل التالي:
-                    <pre dir=rtl class="code" style="text-align:right;">
-  نفّذ &lt;اسم_وحدة&gt.&lt;اسم_الدالة&gt؛</pre>
-                    <pre dir=ltr class="code">
-  run &lt;module_name&gt;.&lt;function_name&gt;</pre>
+  def HelloWorld : module {
+    function start {
+      ...
+    }
+  }
+  
+  HelloWorld.start(); // Call the program's entry point.
+</pre>
+<pre dir=rtl class="samplecode" style="text-align:right;">
+  عرّف الـبسملة : وحدة {
+    دالة البداية {
+      ...
+    }
+  }
+  
+  البـسملة.البداية()؛ // استدعاء مدخل البرنامج
+</pre>
 
                     <h4 id="General-comments">التعليقات</h4>
-                    التعليقات في لغة الأسُس تبدأ بالرمز // وتنتهي عند نهاية السطر، أي أنها مشابهة للتعليقات مفردة السطر (single line comment) في لغة سي++ أو جافا.
+                    تعليقات السطر الواحد في لغة الأسُس تبدأ بالرمز `//` وتنتهي عند نهاية السطر، بينما تبدأ التعليقات المتعددة الأسطر
+                    بـ`/*` وتنتهي بـ`*/، كما هو الحال في لغة سي++ أو جافا.
 
                 <h4 id="General-modifiers">المبدلات</h4>
                 يمكن وسم عناصر الشفرة المصدرية بمبدلات تستخدم لاحقا في مجالات مختلفة. المبدل يمكن أن يغير طريقة ترجمة وتنفيذ الشفرة الموسومة ويمكن أن لا يفعل سوى إضافة بيانات وصفية. المبدل له النسق التالي:
@@ -189,7 +196,8 @@
   @&lt;keyword&gt; &lt;def_of_element_to_be_tagged&gt;
   @&lt;keyword&gt;[&lt;arguments&gt;] &lt;def_of_element_to_be_tagged&gt;
 </pre>
-                يعتمد المترجم على مبدلات معرفة مسبقا لإضافة خواص معينة على التعريفات المختلفة كما هو موضح في مواضع عدة من هذه الوثيقة. وبإمكان المستخدم إضافة مبدلات خاصة وقراءتها لاحقا باستخدام دالة `نـبم.هات_محارف_مبدل`.
+                يعتمد المترجم على مبدلات معرفة مسبقا لإضافة خواص معينة على التعريفات المختلفة كما هو موضح في مواضع عدة
+                من هذه الوثيقة. وبإمكان المستخدم إضافة مبدلات خاصة وقراءتها لاحقا باستخدام `نـبم.مدير_شبم` (`Spp.astMgr`).
 <pre class="samplecode" dir=rtl style="text-align:right;">
   @مبدلي["معطى1"، "معطى2"] دالة دالتي { ... }؛
 </pre>
@@ -919,7 +927,7 @@ func &lt;func_name&gt; [&lt;template_arg_defs&gt;] (&lt;func_arg_defs&gt;): &lt;
   def intPoint: Point[int];
   def floatPoint: Point[float];
 </pre>
-                معطيات القوالب يمكن أن تكون من خمسة أنواع:
+                معطيات القوالب يمكن أن تكون من الأنواع التالية:
                 <ul>
                  <li>صنف type</li>
                  <li>دالة function</li>
@@ -1330,7 +1338,20 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     handler this.mp(i: Int) set_ptr { ... };
   }
 </pre>
-                تعريف المؤشر بشكل منفصل عن تحديد قيمته مفيد في البرمجة الكائنية، وتحديدًا في تعددية الأشكال الموروثة (polymorphism)، حيث يُعرف المؤشر في الصنف الأصل وتحدد قيمته في الفرع.
+                تعريف المؤشر بشكل منفصل عن تحديد قيمته مفيد في البرمجة الكائنية، وتحديدًا في تعددية الأشكال
+                الموروثة (polymorphism)، حيث يُعرف المؤشر في الصنف الأصل وتحدد قيمته في الفرع. لكن، عند تحديد
+                مؤشر وظيفة من صنف فرعي نحتاج لتحديد صنف `هذا` (`this`) وإلا سيبحث المترجم عن ذلك المؤشر في
+                الصنف الحالي بدل الصنف الجذر. يتم تحديد صنف `هذا` كما في المثال التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  صنف صـنفي {
+    عملية (هذا:صـنف_الجذر).مو(ص: صحيح) حدد_مؤشر { ... }؛
+  }
+</pre>
+<pre class="samplecode" dir=ltr>
+  class MyType {
+    handler (this:ParentType).mp(i: Int) set_ptr { ... };
+  }
+</pre>
 
                 <h4 id="Types-custominit">تخصيص تهيئة الكائنات</h4>
                 يمكن للمستخدم تخصيص عملية تهيئة الكائنات باستخدام الأمر `عملية` (handler) وهذه صيغته:
@@ -1884,12 +1905,14 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
                 <hr>
                 <div>
                     يمكن تمثيل المتغيرات بصنف غير صنفها الحقيقي باستخدام المؤثر "~مثّل" (~cast) متبوعاً بقوسين معقوفين بينهما الصنف المراد تمثيله، كما في المثال التالي:
-                    <pre class="samplecode" dir=rtl style="text-align:right;">
+<pre class="samplecode" dir=rtl style="text-align:right;">
   عرّف ح : عـائم؛
-  إطبع_عددا_صحيحا(ح~مثّل[صحيح])؛</pre>
-                    <pre class="samplecode" dir=ltr>
+  إطبع_عددا_صحيحا(ح~مثّل[صحيح])؛
+</pre>
+<pre class="samplecode" dir=ltr>
   def f : Float;
-  printInteger(f~cast[Int]);</pre> في الوقت الحالي عملية التمثيل محدودة ومازالت قيد التطوير، لكنها قريباً ستدعم تمثيل الأصناف دون قيود، مثل تمثيل عدد صحيح كمؤشر أو تمثيل مؤشر لصنف ما كمؤشر لصنف آخر.
+  printInteger(f~cast[Int]);
+</pre>
                 </div>
 
                 <!-- ********************************************************************** -->
@@ -2113,7 +2136,30 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
                     <pre class="code" dir=rtl style="text-align:right;">
   عرّف &lt;اسم_الوحدة&gt; : وحدة { &lt;التعريفات&gt; }؛</pre>
                     <pre class="code" dir=ltr>
-  def &lt;module_name&gt; : module { &lt;definitions&gt; };</pre> يمكن الوصول إلى تعريفات داخل وحدة أخرى بأحد الطرق التالية:
+  def &lt;module_name&gt; : module { &lt;definitions&gt; };
+</pre>
+                    يمكن أيضًا استخدام الصيغة المختصرة التي تغنيك عن الأمر "عرف":
+                    <pre class="code" dir=rtl style="text-align:right;">
+  وحدة &lt;اسم_الوحدة&gt; { &lt;التعريفات&gt; }؛</pre>
+                    <pre class="code" dir=ltr>
+  module &lt;module_name&gt; { &lt;definitions&gt; };</pre> كما في المثال التالي:
+                    <pre class="samplecode" dir=rtl style="text-align:right;">
+  وحدة الـخارجية {
+    وحدة الـداخلية1 {
+      وحدة الـداخلية2 {
+        عرف م: صـحيح؛
+      }؛
+    }؛
+  }</pre>
+                    <pre class="samplecode" dir=ltr>
+  module Outer {
+    module Inner1 {
+      module Inner2 {
+        def v: Int;
+      };
+    };
+  }</pre>
+ يمكن الوصول إلى تعريفات داخل وحدة أخرى بأحد الطرق التالية:
                     <ul>
                         <li>أن تكون الوحدة الحالية نفسها داخل الوحدة التي تحتوي التعريف المطلوب كما في المثال التالي:
                             <pre class="samplecode" dir=rtl style="text-align:right;">
@@ -2167,7 +2213,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
                             <pre class="code" dir=rtl style="text-align:right;">
   استخدم &lt;المجال_الكامل_للوحدة_المستهدفة&gt;؛</pre>
                             <pre class="code" dir=ltr>
-  use &lt;full_path_of_targetted_module&gt;;</pre> هذا الأمر مفيد لتجنب الحاجة لتكرار ذكر المجال الكامل. يمكن استخدام هذا الأمر داخل وحدة أخرى أو داخل دالة ولا يمكن استخدامه في المجال الرئيسي خارج الوحدات. المثال التالي يوضح
+  use &lt;full_path_of_targetted_module&gt;;</pre> هذا الأمر مفيد لتجنب الحاجة لتكرار ذكر المجال الكامل. المثال التالي يوضح
                             استخدام الأمر:
                             <pre class="samplecode" dir=rtl style="text-align:right;">
   عرف الـخارجية: وحدة {
@@ -2199,27 +2245,6 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   }</pre>
                         </li>
                     </ul>
-                    يمكن أيضًا استخدام الصيغة المختصرة التي تغنيك عن الأمر "عرف":
-                    <pre class="code" dir=rtl style="text-align:right;">
-  وحدة &lt;اسم_الوحدة&gt; { &lt;التعريفات&gt; }؛</pre>
-                    <pre class="code" dir=ltr>
-  module &lt;module_name&gt; { &lt;definitions&gt; };</pre> كما في المثال التالي:
-                    <pre class="samplecode" dir=rtl style="text-align:right;">
-  وحدة الـخارجية {
-    وحدة الـداخلية1 {
-      وحدة الـداخلية2 {
-        عرف م: صـحيح؛
-      }؛
-    }؛
-  }</pre>
-                    <pre class="samplecode" dir=ltr>
-  module Outer {
-    module Inner1 {
-      module Inner2 {
-        def v: Int;
-      };
-    };
-  }</pre>
                 </div>
 
                 <!-- ********************************************************************** -->
@@ -2331,7 +2356,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 <pre class="samplecode" dir=ltr>
   class C1 {
     def i: Int;
-    macro print_vars [self, v] {
+    @member macro print_vars [self, v] {
       print("this.i + {{v}}1 = %d\n", self.i + __v__1);
       print("this.i + {{v}}2 = %d\n", self.i + __v__2);
     }
