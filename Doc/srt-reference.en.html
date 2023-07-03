@@ -1,0 +1,3541 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+    <title>SRT Reference | Alusus Programming Language</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="Resources/bootstrap.min.css">
+    <link rel="stylesheet" href="Resources/font-awesome.min.css">
+    <link rel="stylesheet" href="Resources/style.css">
+    <link rel="stylesheet" href="Resources/highlight.default.css">
+    <script src="Resources/jquery.min.js"></script>
+    <script src="Resources/popper.min.js"></script>
+    <script src="Resources/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><img src="Resources/logo.svg" alt="Alusus Programming Language" class="site-logo"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <h3 style="padding-top: 0px; margin-top: 0px;">SRT Reference | Alusus Programming Language</h3>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <!--content-separator-->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card side-sticky">
+                    <div class="card-header">SRT Reference</div>
+                    <div class="card-content">
+                        <a href="#Srl">Srl Reference</a><br>
+                        <ul class="unstyled-list">
+                            <li><a href="#Array">Array Class</a></li>
+                            <li><a href="#String">String Class</a></li>
+                            <li><a href="#Map">Map Class</a></li>
+                            <li><a href="#SrdRef">SrdRef Class</a></li>
+                            <li><a href="#WkRef">WkRef Class</a></li>
+                            <li><a href="#UnqRef">UnqRef Class</a></li>
+                            <li><a href="#Error">Error Class</a></li>
+                            <li><a href="#GenericError">GenericError Class</a></li>
+                            <li><a href="#Possible">Possible Class</a></li>
+                            <li><a href="#Nullable">Nullable Class</a></li>
+                            <li><a href="#Memory">Memory Module</a></li>
+                            <li><a href="#Math">Math Module</a></li>
+                            <li><a href="#Net">Net Module</a></li>
+                            <li><a href="#Console">Console Module</a></li>
+                            <li><a href="#System">System Module</a></li>
+                            <li><a href="#Fs">Fs Module</a></li>
+                            <li><a href="#Regex">Regex Module</a></li>
+                            <li><a href="#Time">Time Module</a></li>
+                            <li><a href="#Srl-other">Other Definitions</a></li>
+                        </ul>
+                        <a href="#closure">closure Library Reference</a><br>
+                        <a href="#Build">Build Library Reference</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#Build-Exe">Exe Class</a></li>
+                            <li><a href="#Build-Wasm">Wasm Class</a></li>
+                            <li><a href="#Build-genExecutable">genExecutable Function</a></li>
+                            <li><a href="#Build-genWasm">genWasm Function</a></li>
+                          </ul>
+                        <a href="#Zip">Zip Library Reference</a><br>
+                        <a href="#Apm">Apm Reference</a><br>
+                        <a href="#Core" class="top-level">Core Module Reference</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#Core-importFile">importFile Function</a></li>
+                            <li><a href="#Core-addLocalization">addLocalization Function</a></li>
+                            <li>
+                              <a href="#Core-typesInfo">Types Info</a><br>
+                              <ul class="unstyled-list">
+                                <li><a href="#Core-TiObjectFactory">TiObjectFactory Class</a></li>
+                                <li><a href="#Core-TypeInfo">TypeInfo Class</a></li>
+                                <li><a href="#Core-TiObject">TiObject Class</a></li>
+                                <li><a href="#Core-TiInterface">TiInterface Class</a></li>
+                                <li><a href="#Core-getInterface">getInterface Macro</a></li>
+                                <li><a href="#Core-isDerivedFrom">isDerivedFrom Macro</a></li>
+                                <li><a href="#Core-defDynCastedRef">defDynCastedRef Macro</a></li>
+                              </ul>
+                            </li>
+                            <li><a href="#Core-basicTypes">Basic Types with Type Info</a></li>
+                            <li>
+                              <a href="#Core-dynamicDataAccess">Dynamic Data Access</a><br>
+                              <ul class="unstyled-list">
+                                <li><a href="#Core-Binding">Binding Interface</a></li>
+                                <li><a href="#Core-Containing">Containing Interface</a></li>
+                                <li><a href="#Core-DynamicContaining">DynamicContaining Interface</a></li>
+                                <li><a href="#Core-MapContaining">MapContaining Interface</a></li>
+                                <li><a href="#Core-DynamicMapContaining">DynamicMapContaining Interface</a></li>
+                              </ul>
+                            </li>
+                            <li>
+                              <a href="#Core-ast">AST Types</a>
+                              <ul class="unstyled-list">
+                                <li><a href="#Core-Node">Node Class</a></li>
+                                <li><a href="#Core-textAstTypes">Text Types</a></li>
+                                <li><a href="#Core-expAstTypes">Commands And Expressions Types</a></li>
+                              </ul>
+                            </li>
+                          </ul>
+                        <a href="#Spp" class="top-level">Spp Module Reference</a><br>
+                          <ul class="unstyled-list">
+                            <li><a href="#Spp-buildMgr">buildMgr Object</a></li>
+                            <li><a href="#Spp-grammarMgr">grammarMgr Object</a></li>
+                            <li><a href="#Spp-astMgr">astMgr Object</a></li>
+                            <li>
+                              <a href="#Spp-ast">AST Types</a>
+                              <ul class="unstyled-list">
+                                <li><a href="#Spp-typesAstTypes">Types</a></li>
+                                <li><a href="#Spp-opsAstTypes">Operators</a></li>
+                                <li><a href="#Spp-stmtAstTypes">Statements</a></li>
+                                <li><a href="#Spp-otherAstTypes">Others</a></li>
+                              </ul>
+                            </li>
+                          </ul>
+                        <a href="#astManipulation" class="top-level">AST Processing</a><br>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h3 id="Srl">Srl Library Reference</h3>
+                <hr>
+                <div>
+                    Standard Runtime Library consists of one module named `Srl` which contains the following modules and classes:
+                    <h4 class="foldable" id="Array">Array Class</h4>
+                    <div>
+                        A dynamic array template that automatically manages the array buffer, taking performance into account and avoiding
+                        unnecessary memory allocation and copying operations.
+                        The following example shows usage of this dynamic array.
+
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def a: Array[Int] = getArray();
+  a.add(1); // Here the allocated memory block is expanded.
+  def a2: Array[Int] = a; // No new memory block is allocated here.
+  a.add(2); // Now a new copy of the buffer is created so a2 is not affected.
+  printArray(a); // No new memory block is created or copied here.
+  // Now the memory blocks of a and a2 are freed.
+}
+
+func getArray(): Array[Int] {
+  def a: Array[Int];
+  a.add(0);
+  return a; // No new memory block is allocated here and memory copy happens.
+}
+
+func printArray (a: Array[Int]) {
+  def i: Int;
+  for i = 0, i < a.getLength(), ++i Console.print("%d\n", a(i));
+}
+</pre>
+
+`Array` class contains the following members:
+                        <ul class="subsections">
+                            <li>
+                              <b>Initialization</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~init(ref[Array[ContentType]]);
+  handler this~init(count: Int, args: ...ContentType);
+</pre>
+                              The first form initializes an array from another. The new array will use the same content of the given array, and no
+                              copy will happen until one of them changes the content. In that case, the content is copied before the change occurs
+                              to ensure that the other array is not affected.
+                              <br>
+                              The second form initializes the array from the given items, as shown in the example below:
+<pre class="samplecode" dir=ltr style="text-align:left;">
+def a1: Array[Int]({ 5, 2, 1 }); // Array will contain 3 elements: 5, 2, and 1.
+def a2: Array[Int](3, 5, 2, 1); // Array will contain 3 elements: 5, 2, and 1.
+</pre>
+                            </li>
+                            <li>
+                                <b>getLength</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getLength (): ArchInt;
+</pre>
+Returns the number of items in the array.
+                            </li>
+                            <li>
+                                <b>getBufSize</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getBufSize (): ArchInt;
+</pre>
+Returns the number of items that the current allocated memory could store. When exceeding that size the object will extend the memory capacity
+automatically.
+                            </li>
+                            <li>
+                                <b>assign</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.assign (a: ref[Array[ContentType]]);
+</pre>
+Assigns new content to the array from another array. This function does not copy the contents of the other array, instead both arrays share
+the same buffer until one of the them needs to change its content, in which case that array will copy the buffer and end the sharing.
+                            </li>
+                            <li>
+                                <b>add</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.add (e: ContentType);
+handler this.add (argCount: Int, args: ...ContentType);
+handler this.add (e: Array[ContentType]);
+</pre>
+                              The first form adds an item to the array after extending the allocated memory if necessary.
+                              If the content is shared with another array, this function copies the content to a new buffer.
+                              <br>
+                              The second form adds many items at once.
+                              <br>
+                              The third form adds an array to the current array. It adds all items of the given array to the
+                              current array. The given array will not be affected by this call.
+<pre class="samplecode" dir=ltr style="text-align:left;">
+a.add({ 5, 2, 1 }); // Adds 3 elements: 5, 2, 1.
+a.add(3, 5, 2, 1); // Adds 3 elements: 5, 2, 1.
+</pre>
+                            </li>
+                            <li>
+                                <b>insert</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insert (index: ArchInt, element: ContentType);
+</pre>
+Adds new item to the array in the specified location after extending the allocated memory if necessary.
+If the content is shared with another array, this function copies the content to a new buffer.
+                            </li>
+                            <li>
+                                <b>remove</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.remove (index: ArchInt);
+</pre>
+Removes the item at the specified index. If the content is shared with another array, this function copies the content to a new buffer.
+                            </li>
+                            <li>
+                                <b>slice</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.slice (start: ArchInt, count: ArchInt);
+</pre>
+Copys part of the array and returns it as a new array. The copy starts from the item at index `start` and continues until `count` items
+are copied or the end of the array is reached.
+                            </li>
+                            <li>
+                                <b>clear</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.clear ();
+</pre>
+Removes all items from the array. If the content is not shared with another array the buffer will be released.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="String">String Class</h4>
+                    <div>
+                        `String` class simplifies dealing with strings. It is responsible for allocating and releasing the memory
+                        allocated for the string, taking performance into account and avoiding unnecessary memory allocation and
+                        copy operations.
+                        This class provides functions to simplify different operations on strings. The following example
+                        shows this class in use.
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def str: String = getString();
+  str += " world"; // Memory block is expanded here.
+  def str2: String = str; // No new memory is allocated here.
+  str += "."; // Copy of the string buffer is created so str2 is not affected.
+  printStr(str); // No new memory allocation or copy happens here.
+  // Now memory blocks of str and str2 are freed.
+}
+
+func getString (): String {
+  def s: String = "Hello";
+  return s; // No new memory allocation or copy happens here.
+}
+
+func printStr (s: String) {
+  Console.print(s); // s is automatically casted into ptr[array[Char]].
+}
+</pre>
+`String` class contains the following members:
+                        <ul class="subsections">
+                            <li>
+                                <b>buf</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+def buf: ptr[array[Char]];
+</pre>
+A pointer to this string content.
+                            </li>
+                            <li>
+                                <b>parentheses operators</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this(i: ArchInt): Char
+</pre>
+This operator could be used to retrieve the character at the specified location.
+                            </li>
+                            <li>
+                                <b>comparison operators</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this == ptr[array[Char]]: Bool
+handler this > ptr[array[Char]]: Bool
+handler this < ptr[array[Char]]: Bool
+handler this >= ptr[array[Char]]: Bool
+handler this <= ptr[array[Char]]: Bool
+</pre>
+Compares this string to the given string.
+                            </li>
+                            <li>
+                                <b>getLength</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1: handler this.getLength (): ArchInt;
+2: func getLength (p: ptr[array[Char]]): ArchInt;
+</pre>
+1. Returns this string's length.
+<br>
+2. Returns the length of the given string.
+                            </li>
+                            <li>
+                                <b>alloc</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.alloc (ArchInt);
+</pre>
+Allocate memory in advance. This function allows the user to allocate memory in advance for use with string operations that deals with the string
+buffer directly. This function is useful for dealing with libraries that deal with char pointers, while benefiting from the memory management
+functionality that this class provides.
+                            </li>
+                            <li>
+                                <b>realloc</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.realloc (ArchInt);
+</pre>
+Changes the size of allocated memory for this string. This function enables the user to change the buffer size while doing string operations
+directly on the buffer.
+                            </li>
+                            <li>
+                                <b>assign</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1: handler this.assign (str: ref[String]);
+2: handler this.assign (buf: ptr[array[Char]]);
+3: handler this.assign (buf: ptr[array[Char]], count: ArchInt);
+4: func assign (target: ptr[array[Char]], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+1. Assigns new content to ths string from another string. This function does not copy the content of the other string, instead they both share the same buffer
+until one of them needs to change it, at which point the buffer is copied and the sharing ends.
+<br>
+2. Assigns new content for the string from a buffer in the memory. This function copies the content from that buffer into a new buffer managed by this string.
+<br>
+3. This is similar to the second variant but it copies only the specified number of characters from the given buffer.
+<br>
+4. Assigns new value from a `format` and unspecified number of arguments to the target. User should ensure that there is enough memory in the target
+to hold the whole result.
+<br>
+User could also use `=` operator to replace functions 1 and 2.
+                            </li>
+                            <li>
+                                <b>append</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.append (buf: ptr[array[Char]]);
+2. handler this.append (buf: ptr[array[Char]], count: ArchInt);
+3. handler this.append (c: Char);
+4. handler this.append (i: Int[64]);
+5. handler this.append (f: Float[64]);
+</pre>
+1. Appends the given buffer to the content's end of the string.
+<br>
+2. Appends the specified number of of characters from the given buffer.
+<br>
+3. Appends a character to the string's end.
+<br>
+4. Appends the given number to the end of the string. This function appends a string representation of the given number.
+<br>
+5. This is similar to the 4th variant but it appends a float number instead of an integer.
+<br>
+It is possible to replace these functions (except for the second function) by `+=` operator.
+                            </li>
+                            <li>
+                                <b>concat</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.concat (buf: ptr[array[Char]]);
+2. handler this.concat (buf: ptr[array[Char]], count: ArchInt);
+3. handler this.concat (c: Char);
+4. handler this.concat (i: Int[64]);
+5. handler this.concat (f: Float[64]);
+6. func concat (target: ptr[array[Char]], source: ptr[array[Char]]): ptr;
+7. func concat (target: ptr[array[Char]], source: ptr[array[Char]], count: ArchInt): ptr;
+</pre>
+1-5. These functions are similar to `append` functions but they return the value in new string instead of editing the current string.
+It is possible to replace functions 1, 3, 4, and 5 with the `+` operator.
+<br>
+6. Append the source string to the end of target string. User should ensure that the target buffer is enough to hold the new items.
+<br>
+7. This is similar to variant 6 but it only copies the specified number from the source string.
+                            </li>
+                            <li>
+                                <b>find</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.find (buf: ptr[array[Char]]): ArchInt;
+2. handler this.find (c: Char): ArchInt;
+3. func find (haystack: ptr[array[Char]], needle: ptr[array[Char]]): ptr[array[Char]];
+4. func find (haystack: ptr[array[Char]], c: Char): ptr[array[Char]];
+</pre>
+1. Searches for a string inside this string. It returns the start location of the found string, or -1 if nothing is found.
+<br>
+2. Searches for a character inside this string. It returns the location of the found character, or -1 if nothing is found.
+<br>
+3. Searches for a string inside the given string. It returns a pointer to the beginning of the found string, or 0 if nothing is found.
+<br>
+4. Searches for a character inside the given string. It returns a pointer to the found character, or 0 if nothing is found.
+                            </li>
+                            <li>
+                                <b>findLast</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1: handler this.findLast (buf: ptr[array[Char]]): ArchInt;
+2: handler this.findLast (c: Char): ArchInt;
+3: func findLast (haystack: ptr[array[Char]], needle: ptr[array[Char]]): ptr[array[Char]];
+4: func findLast (haystack: ptr[array[Char]], c: Char): ptr[array[Char]];
+</pre>
+These functions are similar to `find` functions, but they start the search from the end of the string instead of the beginning.
+                            </li>
+                            <li>
+                                <b>compare</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.compare (buf: ptr[array[Char]]): Int;
+2. handler this.compare (buf: ptr[array[Char]], count: ArchInt): Int;
+3. func compare (str1: ptr[array[Char]], str2: ptr[array[Char]]): Int;
+4. func compare (str1: ptr[array[Char]], str2: ptr[array[Char]], count: ArchInt): Int;
+</pre>
+1. Compares the current string with the given string and returns 1 if the current one is bigger, -1 if it is smaller, or 0 if they are the same.
+<br>
+2. This is similar to the first function but it compares only the specified number of the given buffer's items.
+<br>
+3. This is similar to the first function bit it compares the two given arrays of chars.
+<br>
+4. This is similar to function 3 but it compares only a specified number of characters from the second array.
+                            </li>
+                            <li>
+                                <b>replace</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. handler this.replace (match: ptr[array[Char]], replacement: ptr[array[Char]]): String;
+2. func replace (chars: ptr[array[Char]], from: Char, to: Char): ptr[array[Char]];
+</pre>
+1. Replaces a part of the string with another string, and returns the result in a new string.
+<br>
+2. Replaces all occurances of a character with another character in the given array of chars. This function modifies the given array of chars.
+                            </li>
+                            <li>
+                                <b>trim</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.trim (): String;
+</pre>
+Removes the spaces (space, new line, or tab characters) from both sides of the string and returns the result in a new string.
+                            </li>
+                            <li>
+                                <b>trimStart</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.trimStart (): String;
+</pre>
+This is similar to `trim` function but it trims from the beginning only.
+                            </li>
+                            <li>
+                                <b>trimEnd</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.trimEnd (): String;
+</pre>
+This is similar to `trim` function but it trims from the end only.
+                            </li>
+                            <li>
+                                <b>toUpperCase</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.toUpperCase (): String;
+</pre>
+Replaces the latin small characters with their corresponding capital characters and returns the result in a new string.
+                            </li>
+                            <li>
+                                <b>toLowerCase</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.toLowerCase (): String;
+</pre>
+Replaces the latin capital characters with their corresponding small characters and returns the result in a new string.
+                            </li>
+                            <li>
+                                <b>slices</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.slice (start: ArchInt, count: ArchInt): String;
+</pre>
+Returns a part of the current string in a new string.
+                            </li>
+                            <li>
+                                <b>split</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.split (separator: ptr[array[Char]]): Array[String];
+</pre>
+Splits the current string into an array of strings using the given separator. The separator is not included in the result.
+If that separator is not found, it returns and array of one element which is the whole string.
+                            </li>
+                            <li>
+                                <b>merge</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func merge (parts: Array[String], separator: ptr[array[Char]]): String;
+</pre>
+Returns a new string which contains the given parts separated with the given separator.
+                            </li>
+                            <li>
+                                <b>copy</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. func copy (target: ptr[array[Char]], source: ptr[array[Char]]): ptr;
+2. func copy (target: ptr[array[Char]], source: ptr[array[Char]], count: ArchInt): ptr;
+</pre>
+1. Copies the array of chars from the source to the target. User should ensure that the memory allocated for target is enough to hold the source content.
+<br>
+2. This is similar to the first function except that it copies only the specified number of items from the source.
+                            </li>
+                            <li>
+                                <b>scan</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func scan (source: ptr[array[Char]], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+Scans the given string searching for the given items in the format and returns those items in the arguments after the format.
+This function is similar to `sscanf` system function.
+                            </li>
+                            <li>
+                                <b>isSpace</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func isSpace (c: Char): Bool;
+</pre>
+Tells whether the given character is a space, a tab, a new line, or a carriage return.
+                            </li>
+                            <li>
+                                <b>isEqual</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func isEqual (str1: ptr[array[Char]], str2: ptr[array[Char]]): Bool;
+</pre>
+Tells whether the two given strings are the same.
+                            </li>
+                            <li>
+                                <b>remove</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func remove (chars: ptr[array[Char]], c: Char): ptr[array[Char]];
+</pre>
+Removes every match of the given character from the given array of chars. Removing that character results in shifting following characters to replace it.
+This function modifies the provided string.
+                            </li>
+                            <li>
+                                <b>format</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func format (fmt: ptr[array[Char]], values: ...any): String;
+</pre>
+Create a new string from given format after filling it with the given arguments. This function is similar to `sprintf` function, by replacing symbols starting
+with `%` in the format by a value from arguments that match the type specified. The symbol `%` is followed by a character specifying the type of the given
+argument. As follows:
+                              <ul>
+                                <li><b>%s</b> Array of chars.</li>
+                                <li><b>%c</b> A single char.</li>
+                                <li><b>%i</b> 32 bits integer</li>
+                                <li><b>%l</b> 64 bits integer</li>
+                                <li><b>%f</b> 32 bits float</li>
+                                <li><b>%d</b> 64 bits float</li>
+                                <li><b>%%</b> Prints the `%` symbol</li>
+                              </ul>
+                            </li>
+                            <li>
+                                <b>parseInt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func parseInt (str: ptr[array[Char]]): Int[64];
+</pre>
+Reads an integer from the given array of chars and returns it.
+                            </li>
+                            <li>
+                                <b>parseFloat</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func parseFloat (str: ptr[array[Char]]): Float[64];
+</pre>
+Reads a float from the given array of chars and returns it.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Map">Map Class</h4>
+                    <div>
+A map template that allows specifying the types of the key and the value, and takes the responsibility for managing memory while taking
+performance into consideration and avoiding unnecessary memory allocation and copying. The following example shows the class in use.
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def m1: Map[Int, Int] = getMap();
+  m1.set(7, 50); // Memory buffer is expanded here.
+  def m2: Map[Int, Int] = m1; // Buffer is not cloned here.
+  m2.set(12, 7); // Buffer is cloned here so that m1 is not affected.
+  printMap(m2); // No buffer cloning happens here.
+  printInt(m2(7)); // Prints 50.
+  printInt(m2(12)); // Prints 7.
+  // Now buffers of m1 and m2 are freed.
+}
+
+func getMap (): Map[Int, Int] {
+  def m: Map[Int, Int];
+  m.add(0, 10);
+  return m; // No buffer cloning happens here.
+}
+
+func printMap (m: Map[Int, Int]) {
+  def i: Int;
+  for i = 0, i < m.getLength(), ++i {
+    Console.print("%d = %d\n", m.keyAt(i), m.valAt(i));
+  }
+}
+</pre>
+Class `Map` contains the following members:
+                        <ul class="subsections">
+                            <li>
+                              <b>Initialization</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~init (useIndex: Bool);
+  handler this~init (ref[Map[KeyType, ValueType]]);
+  handler this~init (ref[Map[KeyType, ValueType]], useIndex: Bool);
+</pre>
+The first form initializes empty Map and choosing between using an index or not. The use of index increases the speed of searching for items in the Map
+at the expense of consuming more memory and slowing down write operations.
+<br>
+The second form initialize the Map from another Map. The new Map will use the same content as the given Map, and no content copy will occurs until
+one of the two Maps changes its content at which point the content is copied to ensure the other Map is not affected.
+In this form index won't be used even if the given Map uses one.
+<br>
+The third form is similar to the second one, but allows the user to use an index. If the user asked for using an index then it will be created even
+if the given Map does not have one.
+                            </li>
+                            <li>
+                                <b>keys</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  def keys: Array[KeyType];
+</pre>
+The array of the keys in the map.
+                            </li>
+                            <li>
+                                <b>values</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  def values: Array[ValueType];
+</pre>
+The array of the values in the map.
+                            </li>
+                            <li>
+                                <b>getLength</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getLength (): ArchInt;
+</pre>
+Returns the number of items in the map.
+                            </li>
+                            <li>
+                                <b>keyAt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.keyAt (ArchInt): ref[KeyType];
+</pre>
+Returns a reference to the key at the given location.
+                            </li>
+                            <li>
+                                <b>valAt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.valAt (ArchInt): ref[ValueType];
+</pre>
+Returns a reference to the value at the given location.
+                            </li>
+                            <li>
+                                <b>set</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.set (
+    key: KeyType, value: ValueType
+  ): ref[Map[KeyType, ValueType]];
+</pre>
+Sets a value for the given key. If that key doesn't exist it will be added. If it already exists its value will be replaced by the new one.
+This functions will return a reference to the Map itself which allows the user to chain multiple `set` operations in one statement.
+                            </li>
+                            <li>
+                                <b>setAt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setAt (
+    index: ArchInt, value: ValueType
+  ): ref[Map[KeyType, ValueType]];
+</pre>
+Sets a new value on the given index, which means changing the value based on its index instead of its key.
+Returns a reference to the Map itself which allows the user to chain multiple `setAt` operations in a one statement.
+                            </li>
+                            <li>
+                                <b>insert</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.insert (index: ArchInt, key: KeyType, value: ValueType);
+</pre>
+Inserts a new key and its value at the given index.
+                            </li>
+                            <li>
+                                <b>remove</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.remove (key: KeyType): Bool;
+</pre>
+Removes the specified key and its value. Returns 1 if the key is removed, and 0 if the key does not exist.
+                            </li>
+                            <li>
+                                <b>removeAt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.removeAt (index: ArchInt);
+</pre>
+Removes the specified key and its value at the given index.
+                            </li>
+                            <li>
+                                <b>clear</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.clear ();
+</pre>
+Clear all content and starts with an empty Map.
+                            </li>
+                            <li>
+                                <b>findPos</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findPos (key: KeyType): ArchInt;
+</pre>
+Returns the index of the given key, or -1 if the key does not exist.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="SrdRef">SrdRef Class</h4>
+                    <div>
+Shared reference template that manages releasing the object automatically when the need for it ends. This reference keeps a count of the number
+of shared references that point to the same object. Every time one of the reference is terminated, the count decremented by 1. When the count
+reaches zero, the object is terminated and its memory is released.
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def x: SrdRef[MyType] = SrdRef[MyType].construct();
+  def y: SrdRef[MyType] = x; // Both refs point to same object. Counter is now 2.
+  x.release(); // Counter is now 1 and the object is not freed yet.
+  y.release(); // Now the object is destructed and its memory is released.
+}
+</pre>
+`SrdRef` Class contains the following members:
+                        <ul class="subsections">
+                            <li>
+                                <b>obj</b><br/>
+The object pointed to by this reference. In some cases, one could need to access the object itself, like when a regular pointer of reference to
+an object is needed, or in case of accessing one of object's methods with the same name as one of `SrdRef` methods.
+                            </li>
+                            <li>
+                              <b>refCounter</b><br/>
+The record that holds the number of references that point to the same object and the necessary information to terminate and release the object.
+                            </li>
+                            <li>
+                              <b>alloc</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.alloc (): ref[ObjType];
+  func alloc (): SrdRef[ObjType];
+</pre>
+This function allocates memory for the object, but does not initialize the object and leaves that to the user who can use `~init`.
+                            </li>
+                            <li>
+                              <b>construct</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.construct ();
+  func construct (): SrdRef[ObjType];
+</pre>
+This function allocates memory for the object and initialize it also. Initializing the object is done without any arguments, so to use this
+function the object must enable initialization without arguments. If you need to initialize an object with arguments then you should use `allocate`
+then `~init`.
+                            </li>
+                            <li>
+                              <b>own</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.own (obj: ref[ObType]);
+  func own (obj: ref[ObjType]): SrdRef[ObjType];
+</pre>
+This function assigns the object of this reference with a given object. After calling this function the reference takes the responsibility of
+releasing the object automatically. This function should be avoided if the given object is not allocated dynamically or if another code is
+responsible for releasing the object, since this will lead to segmentation fault.
+                            </li>
+                            <li>
+                              <b>release</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.release();
+</pre>
+Release this reference, and if this reference is the last to point to the object then it will release the object before that.
+                            </li>
+                            <li>
+                              <b>assign</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.assign (r: ref[SrdRef[ObjType]]);
+  handler this.assign (r: ref[WkRef[ObjType]]);
+  handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
+</pre>
+Set a new value to the reference, it changes the reference to point to the given object. The first two functions takes the value of the reference
+from types `SrdRef` and `WkRef` respectively with the same object type. On the other hand, the third function is used to make the reference points to
+an object with the same type of this reference, but belongs to a reference with another type. This function is used in casting while ensuring
+that releasing the object when terminating the reference will leads to releasing the original object with its original type that is created with.
+The next example explains the difference:                              
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def x: SrdRef[MyType];
+  x.construct();
+  def y: SrdRef[SubType];
+  y.assign(x.refCounter, x.subObj);
+  
+  x.release(); // Nothing will be released as y still holds the object.
+  y.release(); // Here x itself will be released, not x.subObj.
+</pre>
+                            </li>
+                            <li>
+                              <b>isNull</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isNull(): Bool;
+</pre>
+Returns true if the reference is null.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="WkRef">WkRef</h4>
+                    <div>
+Reference template that points to a shared object but it does not participate in owning the object, which means it does not update the reference
+count of the object. If all `SrdRef` instances pointing to a specific object are terminated then that object
+will be released even if some `WkRef` instances are still pointing to it. This type of references is useful to avoid circular references which lead to memory leaks.
+So if you have an object that owns another object through `SrdRef` reference, and the inner object needs a reference to the outer object, then using
+`SrdRef` in the inner object will lead to a circular reference, whereas using `WkRef` in the inner object won't lead to that because releasing the outer object
+in this case will cause both objects to be released.
+<br>
+The difference between using `WkRef` and using `ref`, is that the first holds references count's information even if it does not use it, whereas the later
+does not hold this information, so it is possible to get `SrdRef` from `WkRef` but we could not get `SrdRef` from `ref` because the later does not
+holds the count information that `SrdRef` needs.
+<br>
+The way to use `WkRef` is the same as `SrdRef`. `WkRef` class has the following items:                       
+                        <ul class="subsections">
+                          <li>
+                              <b>obj</b><br/>
+The object that this reference points to. In some cases you will need to access the object itself like when you need a pointer or a regular reference
+to the object, or in case you want to access one of object's methods that has the same name as one of `WkRef` methods.
+                          </li>
+                          <li>
+                            <b>refCounter</b><br/>
+                            The record that holds the number of references that point to the same object and the necessary information to terminate and release the object.
+                          </li>
+                          <li>
+                            <b>release</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.release();
+</pre>
+Release this reference without changing references count.
+                          </li>
+                          <li>
+                            <b>assign</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.assign (r: ref[SrdRef[ObjType]]);
+  handler this.assign (r: ref[WkRef[ObjType]]);
+  handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
+</pre>
+Sets a new value to the reference, it changes the reference to point to the given object. The first two functions takes the value of the reference
+from types `SrdRef` and `WkRef` respectively with the same object type. On the other hand, the third function is used to make the reference points to
+an object with the same type of this reference, but belongs to a reference with another type. This function is used in casting while ensuring
+that releasing the object when terminating the reference will leads to releasing the original object with its original type that is created with.
+The next example explains the difference:   
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def x: SrdRef[MyType];
+  x.construct();
+  def y: WkRef[SubType];
+  y.assign(x.refCounter, x.subObj);
+  def z: SrdRef[SubType];
+  z = y;
+  
+  x.release(); // Nothing is released here.
+  z.release(); // x will be released here, not x.subObj.
+</pre>
+                          </li>
+                          <li>
+                              <b>isNull</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isNull(): Bool;
+</pre>
+Returns true if the reference is null.
+                          </li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="UnqRef">UnqRef Class</h4>
+                    <div>
+The simplest type of smart references. This reference is not shared and does not use a reference count. When terminating this reference it will
+release the object that it owns directly. For example:
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def x: UnqRef[MyType];
+  x.construct();
+  
+  def y: UnqRef[MyType];
+  y = x; // Error.
+  
+  x.release(); // Object will be released here.
+</pre>
+This class contains the following items:
+                        <ul class="subsections">
+                          <li>
+                              <b>obj</b><br/>
+                              The object that this reference points to. In some cases you will need to access the object itself like when you need a pointer or a regular reference
+                              to the object, or in case you want to access one of object's methods that has the same name as one of `UnqRef` methods.
+                          </li>
+                          <li>
+                            <b>construct</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.construct();
+</pre>
+This function allocate memory for the object and initialize it also. Initialization of the object is done without arguments, so to use this function
+the object must be able to initialize without arguments.
+                          </li>
+                          <li>
+                            <b>release</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.release();
+</pre>
+Release this reference and release the object.
+                          </li>
+                          <li>
+                              <b>isNull</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isNull(): Bool;
+</pre>
+Returns true if the reference is null.
+                          </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Error">Error Class</h4>
+                    <div>
+A root for classes that hold runtime error information. It contains two abstract methods:
+                      <ul>
+                        <li>
+                          <b>getCode</b><br>
+Returns a code that distinguish between this error and the others.
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getCode(): Int as_ptr;
+</pre>
+                        </li>
+                        <li>
+                          <b>getMessage</b><br>
+Returns a string representation of the error the could be displayed to the user.
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMessage(): String as_ptr;
+</pre>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="GenericError">GenericError Class</h4>
+                    <div>
+Inherited from `Error` class. It allows the user to specify a custom error code and message manually for each instance.
+It contains two variables:
+                      <ul>
+                        <li><b>code</b>: Int</li>
+                        <li><b>message</b>: String</li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Possible">Possible Class</h4>
+                    <div>
+Template class to hold information of unspecified type (user specify it) with the possibility of holding an error value
+in cases of failure. Users who receive a variable of this class should check the error status before using the information held by this class.
+It contains the following items:    
+                      <ul>
+                        <li>
+                          <b>value</b><br>
+The information held by this object. `DataType` class refer to template argument.
+<pre class="code" dir=ltr style="text-align:left;">
+  @injection def value: DataType;
+</pre>
+                        </li>
+                        <li>
+                          <b>error</b><br>
+A reference to the error if exists. If this error is set then operation was failed and the information in `value` is not valid.
+<pre class="code" dir=ltr style="text-align:left;">
+  def error: SrdRef[Error];
+</pre>
+                        </li>
+                        <li>
+                          <b>casting operations</b><br>
+This class contains the following casting operations:
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~cast[ref[DataType]] return this.value;
+  handler this~cast[Bool] return this.error.isNull();
+</pre>
+Casting operation as `Bool` returns 1 if the operation succeed, which means the information is valid.
+                        </li>
+                        <li>
+                          <b>success</b><br>
+A function to ease the creation of an object holding valid value.
+<pre class="code" dir=ltr style="text-align:left;">
+  func success (v: DataType): Possible[DataType];
+</pre>
+                        </li>
+                        <li>
+                          <b>failure</b><br>
+A function to ease the creation of error object.
+<pre class="code" dir=ltr style="text-align:left;">
+  func failure (err: SrdRef[Error]): Possible[DataType];
+</pre>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Nullable">Nullable Class</h4>
+                    <div>
+Template class to hold information of unspecified type (user specifies it) in addition to `null` value as one of the possible values.
+                      <ul>
+                        <li>
+                          <b>value</b><br>
+                          The information held by this object. `DataType` class refer to template argument.
+<pre class="code" dir=ltr style="text-align:left;">
+  @injection def value: DataType;
+</pre>
+                        </li>
+                        <li>
+                          <b>isNull</b><br>
+Boolean value to specify whether the value is `null` or not.
+<pre class="code" dir=ltr style="text-align:left;">
+  def isNull: Bool;
+</pre>
+                        </li>
+                        <li>
+                          <b>casting operations</b><br>
+This class contains casting operation that automatically casts to original information type.
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~cast[ref[DataType]] return this.value;
+</pre>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Memory">Memory Module</h4>
+                    <div>
+Memory module contains the following functions:
+                        <ul class="subsections">
+                            <li>
+                                <b>alloc</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[malloc] func alloc (size: ArchInt): ptr;
+</pre>
+Allocates a memory block on the heap and returns its pointer. This is the same as `malloc` function from POSIX.
+                            </li>
+                            <li>
+                                <b>realloc</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[realloc] func realloc (p: ptr, newSize: ArchInt): ptr;
+</pre>
+Changes the size of an allocated memory block. This may result in copying the memory block to a new location.
+This is the same as `realloc` function from POSIX.
+                            </li>
+                            <li>
+                                <b>allocAligned</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[aligned_alloc]
+func allocAligned (alignment: ArchInt, size: ArchInt): ptr;
+</pre>
+This is the same as `aligned_alloc` function from POSIX.
+                            </li>
+                            <li>
+                                <b>free</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[free] func free (p: ptr);
+</pre>
+Frees an allocated memory blockl. This is the same as `free` function from POSIX.
+                            </li>
+                            <li>
+                                <b>copy</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[memcpy] func copy (target: ptr, src: ptr, size: ArchInt): ptr;
+</pre>
+Copies a memory block to a new location. This is the same as `memcpy` function from POSIX.
+                            </li>
+                            <li>
+                                <b>compare</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[memcmp] func compare (s1: ptr, s2: ptr, size: ArchInt): Int;
+</pre>
+Compares two memory blocks. Returns a value < 0 if the first non-matching byte in s1 is smaller than its
+counterpart in s2. Returns a value > 0 if it's greater. Returns 0 if the two blocks are identical.
+This is the same as `memcmp` function from POSIX.
+                            </li>
+                            <li>
+                                <b>set</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[memset] func set (s: ptr, c: Int, n: ArchInt): ptr;
+</pre>
+Sets all bytes in the specified memory buffer to the given value.
+This is the same as `memset` function from POSIX.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Math">Math Module</h4>
+                    <div>
+`Math` module contains the following math functions:
+                        <ul class="subsections">
+                            <li>
+                                <b>abs</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[abs] func abs (i: Int[32]): Int[32];
+@expname[llabs] func abs (i: Int[64]): Int[64];
+@expname[fabsf] func abs (f: Float[32]): Float[32];
+@expname[fabs] func abs (f: Float[64]): Float[64];
+</pre>
+Get the absolute value of a number.
+                            </li>
+                            <li>
+                                <b>mod</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fmodf] func mod (x: Float[32], y: Float[32]): Float[32];
+@expname[fmod] func mod (x: Float[64], y: Float[64]): Float[64];
+</pre>
+Get division remainder of two numbers.
+                            </li>
+                            <li>
+                                <b>exp</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[expf] func exp (x: Float[32]): Float[32];
+@expname[exp] func exp (x: Float[64]): Float[64];
+</pre>
+This is the same as `expf` and `exp` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>exp2</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[exp2f] func exp2 (x: Float[32]): Float[32];
+@expname[exp2] func exp2 (x: Float[64]): Float[64];
+</pre>
+This is the same as `exp2f` and `exp2` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>log</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[logf] func log (x: Float[32]): Float[32];
+@expname[log] func log (x: Float[64]): Float[64];
+</pre>
+This is the same as `logf` and `log` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>log2</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[log2f] func log2 (x: Float[32]): Float[32];
+@expname[log2] func log2 (x: Float[64]): Float[64];
+</pre>
+This is the same as `log2f` and `log2` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>log10</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[log10f] func log10 (x: Float[32]): Float[32];
+@expname[log10] func log10 (x: Float[64]): Float[64];
+</pre>
+This is the same as `log10f` and `log10` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>sqrt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[sqrtf] func sqrt (x: Float[32]): Float[32];
+@expname[sqrt] func sqrt (x: Float[64]): Float[64];
+</pre>
+This is the same as `sqrtf` and `sqrt` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>cbrt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[cbrtf] func cbrt (x: Float[32]): Float[32];
+@expname[cbrt] func cbrt (x: Float[64]): Float[64];
+</pre>
+This is the same as `cbrtf` and `cbrt` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>pow</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[powf] func pow (b: Float[32], e: Float[32]): Float[32];
+@expname[pow] func pow (b: Float[64], e: Float[64]): Float[64];
+</pre>
+This is the same as `powf` and `pow` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>sin</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[sinf] func sin (x: Float[32]): Float[32];
+@expname[sin] func sin (x: Float[64]): Float[64];
+</pre>
+This is the same as `sinf` and `sin` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>asin</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[asinf] func asin (x: Float[32]): Float[32];
+@expname[asin] func asin (x: Float[64]): Float[64];
+</pre>
+This is the same as `asinf` and `asin` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>sinh</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[sinhf] func sinh (x: Float[32]): Float[32];
+@expname[sinh] func sinh (x: Float[64]): Float[64];
+</pre>
+This is the same as `sinhf` and `sinh` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>asinh</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[asinhf] func asinh (x: Float[32]): Float[32];
+@expname[asinh] func asinh (x: Float[64]): Float[64];
+</pre>
+This is the same as `asinhf` and `asinh` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>cos</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[cosf] func cos (x: Float[32]): Float[32];
+@expname[cos] func cos (x: Float[64]): Float[64];
+</pre>
+This is the same as `cosf` and `cos` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>acos</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[acosf] func acos (x: Float[32]): Float[32];
+@expname[acos] func acos (x: Float[64]): Float[64];
+</pre>
+This is the same as `acosf` and `acos` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>cosh</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[coshf] func cosh (x: Float[32]): Float[32];
+@expname[cosh] func cosh (x: Float[64]): Float[64];
+</pre>
+This is the same as `coshf` and `cosh` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>acosh</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[acoshf] func acosh (x: Float[32]): Float[32];
+@expname[acosh] func acosh (x: Float[64]): Float[64];
+</pre>
+This is the same as `acoshf` and `acosh` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>tan</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[tanf] func tan (x: Float[32]): Float[32];
+@expname[tan] func tan (x: Float[64]): Float[64];
+</pre>
+This is the same as `tanf` and `tan` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>atan</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[atanf] func atan (x: Float[32]): Float[32];
+@expname[atan] func atan (x: Float[64]): Float[64];
+</pre>
+This is the same as `atanf` and `atan` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>atan2</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[atan2f] func atan2 (y: Float[32], x: Float[32]): Float[32];
+@expname[atan2] func atan2 (y: Float[64], x: Float[64]): Float[64];
+</pre>
+This is the same as `atan2f` and `atan2` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>tanh</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[tanhf] func tanh (x: Float[32]): Float[32];
+@expname[tanh] func tanh (x: Float[64]): Float[64];
+</pre>
+This is the same as `tanhf` and `tanh` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>atanh</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[atanhf] func atanh (x: Float[32]): Float[32];
+@expname[atanh] func atanh (x: Float[64]): Float[64];
+</pre>
+This is the same as `atanhf` and `atanh` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>ceil</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[ceilf] func ceil (x: Float[32]): Float[32];
+@expname[ceil] func ceil (x: Float[64]): Float[64];
+</pre>
+This is the same as `ceilf` and `ceil` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>floor</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[floorf] func floor (x: Float[32]): Float[32];
+@expname[floor] func floor (x: Float[64]): Float[64];
+</pre>
+This is the same as `floorf` and `floor` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>round</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[roundf] func round (x: Float[32]): Float[32];
+@expname[round] func round (x: Float[64]): Float[64];
+</pre>
+This is the same as `roundf` and `round` functions from POSIX.
+                            </li>
+                            <li>
+                                <b>random</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[rand] func random (): Int;
+</pre>
+This is the same as `rand` function from POSIX.
+                            </li>
+                            <li>
+                                <b>seedRandom</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[srand] func seedRandom (s: Word[32]);
+</pre>
+This is the same as `srand` function from POSIX.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Net">Net Module</h4>
+                    <div>
+`Net` module contains functions for making network requests. It has the following members:
+                        <ul class="subsections">
+                            <li>
+                                <b>getBuildDependencies</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func getBuildDependencies(): Array[String];
+</pre>
+Returns the required dependencies names needed in case of building executable version of projects that use this module.
+In the case of `Net` module the function returns one library which is Curl.
+`Net` module contains the full path for the file, not only its name because Alusus depends on a version of Curl bundled with Alusus.
+                            </li>
+
+                            <li>
+                                <b>get</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1: func get (
+     url: ptr[array[Char]], result: ptr[ptr], resultCount: ptr[Int]
+   ): Bool;
+2: func get (
+     url: ptr[array[Char]], filename: ptr[array[Char]]
+   ): Bool;
+</pre>
+1. Get the resource specified by the url and return it.
+<br>
+2. Get the resource specified by the url and store it in the specified file.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Console">Console Module</h4>
+                    <div>
+`Console` module contains functions for dealing with the terminal. It has the following functions:
+                        <ul class="subsections">
+                            <li>
+                                <b>getChar</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[getchar] func getChar (): Int;
+</pre>
+This is similar to `getChar` function from POSIX.
+                            </li>
+                            <li>
+                                <b>putChar</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[putchar] func putChar (c: Int): Int;
+</pre>
+This is similar to `putchar` function from POSIX.
+                            </li>
+                            <li>
+                                <b>print</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. @expname[printf] func print (fmt: ptr[array[Char]], ...any): Int;
+2. func print (i: Int[64]);
+3. func print (f: Float[64]);
+4. func print (f: Float[64], n: Int);
+</pre>
+1. This is the same as `printf` function from POSIX.
+<br>
+2. Prints an integer.
+<br>
+3. Prints a floating point number.
+<br>
+4. Prints a floating point number with the specified number of digits to the right of the decimal point.
+                            </li>
+                            <li>
+                                <b>scan</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[scanf] func scan (fmt: ptr[array[Char]], ...any): Int;
+</pre>
+This is the same as `scanf` function from POSIX.
+                            </li>
+                            <li>
+                                <b>getInt</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func getInt (): Int;
+</pre>
+Asks the user to enter an integer.
+                            </li>
+                            <li>
+                                <b>getFloat</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+print getFloat (): Float;
+</pre>
+Asks the user to enter a floating point number.
+                            </li>
+                            <li>
+                                <b>getString</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func getString (str: ptr[array[Char]], size: Word);
+</pre>
+Asks the user to enter a string.
+                            </li>
+                        </ul>
+
+                        <h5 class="foldable">Style</h5>
+                        <div>
+`Style` module contains functions to control the style of writing in the console.
+Each one of these functions returns a pointer to an array of chars which could be printed to the console to get the required style.
+                            <ul>
+                                <li><b>reset</b></li>
+                                <li><b>bright</b></li>
+                                <li><b>dim</b></li>
+                                <li><b>italic</b></li>
+                                <li><b>underscore</b></li>
+                                <li><b>blink</b></li>
+                                <li><b>reverse</b></li>
+                                <li><b>hidden</b></li>
+                                <li><b>fgBlack</b></li>
+                                <li><b>fgRed</b></li>
+                                <li><b>fgGreen</b></li>
+                                <li><b>fgYellow</b></li>
+                                <li><b>fgBlue</b></li>
+                                <li><b>fgMagenta</b></li>
+                                <li><b>fgCyan</b></li>
+                                <li><b>fgWhite</b></li>
+                                <li><b>bgBlack</b></li>
+                                <li><b>bgRed</b></li>
+                                <li><b>bgGreen</b></li>
+                                <li><b>bgYellow</b></li>
+                                <li><b>bgBlue</b></li>
+                                <li><b>bgMagenta</b></li>
+                                <li><b>bgCyan</b></li>
+                                <li><b>bgWhite</b></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h4 class="foldable" id="System">System Module</h4>
+                    <div>
+`System` module contains the following definitions:
+                        <ul class="subsections">
+                            <li>
+                                <b>sleep</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[usleep] func sleep (w: Word);
+</pre>
+This is the same as `usleep` function from POSIX.
+                            </li>
+                            <li>
+                                <b>setEnv</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[setenv]
+func setEnv (
+    name: ptr[array[Char]], value: ptr[array[Char]], overwrite: Int
+): Int;
+</pre>
+This is the same as `setenv` function from POSIX.
+                            </li>
+                            <li>
+                                <b>getEnv</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[getenv]
+func getEnv (name: ptr[array[Char]]): ptr[array[Char]];
+</pre>
+This is the same as `getenv` function from POSIX.
+                            </li>
+                            <li>
+                                <b>exec</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[system] func exec (cmd: ptr[array[Char]]): Int;
+</pre>
+This is the same as `system` function from POSIX.
+                            </li>
+                            <li>
+                                <b>exit</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[exit] func exit (status: Int);
+</pre>
+This is the same as `exit` function from POSIX.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Fs">Fs Module</h4>
+                    <div>
+`Fs` module contains functionality for dealing with the file system.
+                        <ul class="subsections">
+                            <li>
+                                <b>DirEnt</b><br/>
+<pre class="code" dir=ltr>
+class DirEnt {
+  def dType: Int[8];
+  def dName: array[Char, FILENAME_LENGTH];
+};
+</pre> 
+Information record about an item from folder items.
+                            </li>
+                            <br>
+
+                            <li>
+                                <b>FileNames؛</b><br/>
+<pre class="code" dir=ltr>
+class FileNames {
+  def count: Int;
+  def names: array[array[Char, FILENAME_LENGTH]];
+}
+</pre> 
+A list of files' names.
+                            </li>
+                            <br>
+
+                            <li>
+                                <b>Seek</b><br/>
+<pre class="code" dir=ltr>
+def Seek: {
+  def SET: 0;
+  def CUR: 1;
+  def END: 2;
+};
+</pre> 
+Constants to deal with `seek` function.
+                            </li>
+                            <br>
+
+                            <li>
+                                <b>exists</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func exists (filename: ptr[array[Char]]): Bool;
+</pre>
+Check if a specific file or folder exists.
+                            </li>
+                            <li>
+                                <b>rename</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[rename]
+func rename (oldName: ptr[array[Char]], newName: ptr[array[Char]]): Int;
+</pre>
+Renames a file or a folder.
+                            </li>
+                            <li>
+                                <b>remove</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[remove] func remove (filename: ptr[array[Char]]): Bool;
+</pre>
+Removes a file or a folder.
+                            </li>
+                            <li>
+                                <b>openFile</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fopen]
+func openFile (filename: ptr[array[Char]], mode: ptr[array[Char]]): ptr[File];
+</pre>
+Opens a file. This is the same as `fopen` function from POSIX.
+                            </li>
+                            <li>
+                                <b>closeFile</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fclose] func closeFile(f: ptr[File]): Int;
+</pre>
+Closes an open file. This is the same as `fclose` function from POSIX.
+                            </li>
+                            <li>
+                                <b>print</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fprintf]
+func print (f: ptr[File], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+Print a string to the file. This is the same as `fprintf` function from POSIX.
+                            </li>
+                            <li>
+                                <b>scan</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[scanf]
+func scan (f: ptr[File], fmt: ptr[array[Char]], ...any): Int;
+</pre>
+Reads inputs from the file. This is the same as `scanf` function from POSIX.
+                            </li>
+                            <li>
+                                <b>write</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fwrite]
+func write (
+    content: ptr, size: ArchInt, count: ArchInt, f: ptr[File]
+): ArchInt;
+</pre>
+Writes a memory block to a file. This is the same as `fwrite` function from POSIX.
+                            </li>
+                            <li>
+                                <b>read</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fread]
+func read (
+    content: ptr, size: ArchInt, count: ArchInt, f: ptr[File]
+): ArchInt;
+</pre>
+Reads a block of data from the file. This is the same as `fread` function from POSIX.
+                            </li>
+                            <li>
+                                <b>flush</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fflush] func flush (f: ptr[File]): Int;
+</pre>
+Flushes the write buffer. This is the same as `fflush` function from POSIX.
+                            </li>
+                            <li>
+                                <b>tell</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[ftell] func tell (f: ptr[File]): ArchInt;
+</pre>
+Get the current seek position of the file. This is the same as `ftell` function from POSIX.
+                            </li>
+                            <li>
+                                <b>seek</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[fseek]
+func seek (f: ptr[File], offset: ArchInt, seek: Int): Int;
+</pre>
+Moves the file read/write pointer. This is the same as `fseek` function from POSIX.
+                            </li>
+                            <li>
+                                <b>createFile</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func createFile (
+    filename: ptr[array[Char]], content: ptr, contentSize: ArchInt
+): Bool;
+</pre>
+Creates a file and store the given content in it.
+                            </li>
+                            <li>
+                                <b>readFile</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func readFile (
+    filename: ptr[array[Char]], result: ptr[ptr], size: ptr[ArchInt]
+): Bool;
+</pre>
+Reads the full contents of the file and returns it in a new block of memory. The caller is responsible
+for releasing the allocated memory buffer.
+                            </li>
+                            <li>
+                                <b>makeDir</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func makeDir (folderName: ptr[array[Char]], mode: Int): Bool;
+</pre>
+Create a new folder.
+                            </li>
+                            <li>
+                                <b>openDir</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[opendir] func (folderName: ptr[array[Char]]): ptr[Dir];
+</pre>
+Opens a folder for reading. This is the same as `opendir` function from POSIX.
+                            </li>
+                            <li>
+                                <b>closeDir</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[closedir] func (folder: ptr[Dir]): Int;
+</pre>
+Closes an open folder. This is the same as `closedir` function from POSIX.
+                            </li>
+                            <li>
+                                <b>rewindDir</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[rewinddir] func rewindDir (dir: ptr[Dir]);
+</pre>
+Reset the position of a directory stream to the beginning of a directory. This is the same as `rewinddir` function from POSIX.
+                            </li>
+                            <li>
+                                <b>readDir</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. @expname[readdir] func readDir (dir: ptr[Dir]): ptr[DirEnt];
+2. func readDir (name: ptr[array[Char]]): ptr[FileNames];
+</pre>
+1. This is the same as `readdir` function from POSIX.
+<br>
+2. Return a list of files' names in a speicic folder.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Regex">Regex Module</h4>
+                    <div>
+`Regex` module contains functions for dealing with regular expressions.
+                        <ul class="subsections">
+                            <li>
+                                <b>match</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func match (
+    pattern: ptr[array[Char]], str: ptr[array[Char]], flags: Int
+): Array[String];
+</pre>
+Apply the given pattern to the given string and return the result as an array if strings. In case of match the array contains the whole match for the pattern 
+in the first item in the array, whereas the following items contain the partial match determined by the pattern inside parentheses.
+In case of no match, the result is an empty array.
+                            </li>
+
+                            <li>
+                                <b>Matcher</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+class Matcher {
+    handler this~init(pattern: ptr[array[Char]]);
+    handler this~init(pattern: ptr[array[Char]], flags: Int);
+    handler this.initialize(pattern: ptr[array[Char]]);
+    handler this.initialize(pattern: ptr[array[Char]], flags: Int);
+    handler this.release();
+    handler this.match (str: ptr[array[Char]]): Array[String];
+}
+</pre>
+A class that allows the user to intialize regular expression then use it in multiple searching operations. The method `match` applies the pattern to the given string
+and returns an array of strings. In case there exists a match the array contains the whole match of the pattern in the first item in the array
+whereas the following items contain the partial match determined by the pattern inside parentheses.
+In case of no match, the result is an empty array.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Time">Time Module</h4>
+                    <div>
+`Time` module contains the following definitions:
+                        <ul class="subsections">
+                            <li>
+                                <b>Time</b><br/>
+                                <pre class="code" dir=ltr>
+class DetailedTime {
+  def second: Int;
+  def minute: Int;
+  def hour: Int;
+  def day: Int;
+  def month: Int;
+  def year: Int;
+  def weekDay: Int;
+  def yearDay: Int;
+  def daylightSaving: Int;
+  def timezoneOffset: Int[64];
+  def timezone: ptr[array[Char]];
+};
+</pre> 
+A record that holds the date and time information.
+                            </li>
+                            <li>
+                                <b>getDetailedTime</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+1. @expname[localtime] func getDetailedTime (
+     ts: ptr[Word[64]]
+   ): ptr[DetailedTime];
+2. @expname[localtime_r] func getDetailedTime (
+     ts: ptr[Word[64]], ptr[DetailedTime]
+   ): ptr[DetailedTime];
+</pre>
+1. This is the same as `localtime` function for POSIX. <br/>
+2. This is the same as `localtime_r` function for POSIX.
+                            </li>
+                            <li>
+                                <b>getTimestamp</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[time] func getTimestamp (result: ptr[Word[64]]): ptr[Word[64]];
+</pre>
+Returns the time as the number of seconds since the Epoch. This is the same as `time` function for POSIX.
+                            </li>
+                            <li>
+                                <b>getClock</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[clock] func getClock (): Int[64];
+</pre>
+This is the same as `clock` function for POSIX.
+                            </li>
+                            <li>
+                                <b>toString</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+@expname[clock] func toString (ts: ptr[Word[64]]): ptr[array[Char]];
+</pre>
+This is the same as `clock` function for POSIX.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h4 class="foldable" id="Srl-other">Other definistions</h4>
+                    <div>
+                      <ul>
+                        <li><b>castRef</b><br>
+A macro that is used to represent a reference as a reference of another type. This macro accepts two arguments, the first is the variable we want to represent,
+and the second is the type we want to represent to its reference.
+                        </li>
+                        <br>
+
+                        <li><b>nullRef</b><br>
+A macro that returns a reference with a pointer value of 0. It takes one argument which is the type of the reference's target.
+                        </li>
+                        <br>
+
+                        <li><b>getThisSourceFullPath</b><br>
+A macro that gives a string that contains the full path to the current source code file. It does not take any arguments.
+                        </li>
+                        <br>
+
+                        <li><b>getThisSourceDirectory</b><br>
+A macro that returns a string containing the full path to the directory containing the current source code file. This macro does not take any arguments.
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+
+                <br>
+                <h3 id="closure">Closure Library Reference</h3>
+                <hr>
+                <div>
+                  <p>
+This library adds support for closures.
+Closures are functions that carry needed environment data with them, i.e. carries a payload which includes values of outer
+variables accessed by the function.
+<br>
+Inner functions can access global variables outside of it, but it can not access local variables inside an outer function that contains the inner function,
+because the outer function could be terminated and its variables removed from memory before the inner function is called.
+For example:
+<pre class="samplecode" dir=ltr>
+def pf: ptr[func];
+func prepareFunc {
+    def i: Int = 10;
+    pf = func {
+        Console.print("%d\n", i); // Error: by the time this line is executed
+            // i would have been removed from memory
+    };
+}
+
+prepareFunc();
+pf();
+</pre>
+To enable an inner function to access the outer function's variable, the function must carry a copy from the data
+that it uses from the external function, which is what closures provide. Closures are provided by `closure` library.
+The compiler automatically prepares a payload that encapsulates accessed outer variables and attaches them to the clsoure.
+The definitions of the closure are similar to inner function definition except that they
+use `closure` keyword instead of `function` keyword. Example of closure:
+
+<pre class="samplecode" dir=ltr>
+import "closure";
+
+def pc: closure ();
+func prepareClosure {
+    def i: Int = 10;
+    pf = closure () {
+        Console.print("%d\n", i); // Correct: access to i will be replaced
+            // by the compiler to an access to a copy of i
+    };
+}
+
+prepareClosure();
+pc();
+</pre>
+We can notice from the previous example that writing a closure without a body makes it a closure definition, and it is important to know that
+closure record contains a pointer to the function in addition to a shared reference to information record. Responsibility remains on the programmer
+to ensure that accessing shared references will not lead to circular references, and hence a memory leak.
+For example, if you access a shared reference from a closure and that reference is pointing to the record that contains the closure, then
+this will result in memory leak (the record holds the closure which in turn holds the record so both will stay in the memory).
+In that case, all we need to do is to make the closure hold a non-shared reference to avoid memory leaks. For example:
+<pre class="samplecode" dir=ltr>
+import "closure";
+
+class Record {
+    def c: closure ();
+    def i: Int;
+}
+
+def r1: SrdRef[Record];
+r1.construct();
+r1.i = 10;
+r1.c = closure() {
+    Console.print("%d\n", r1.i);
+};
+r1.release(); // r1 will not be released and neither will the closure it owns.
+
+def r2: SrdRef[Record];
+r2.construct();
+r2.i = 10;
+def r22: WkRef[Record] = r2;
+r2.c = closure() {
+    Console.print("%d\n", r22.i);
+};
+r2.release(); // r2 will be released along with the closure it owns.
+</pre>
+Closure can receive values and return values as regular functions.
+<pre class="samplecode" dir=ltr>
+import "closure";
+
+def pc: closure (Float): Int;
+func prepareClosure {
+    def i: Int = 10;
+    pf = closure (j: Float): Int {
+        return i * j;
+    };
+}
+
+prepareClosure();
+Console.print("%d\n", pc(3.5)); // Prints 35
+</pre>
+                    <h4 id="Build-Exe">Data Capture Modes</h4>
+                    <div>
+It is possible to specify the way data is captured from the closure's surrounding context, and it is possible to specify that to each
+variable independently. For example, if you want to read a variable from the surrounding context but you don't want to modify its value inside
+the closure, then it is enough to capture a copy of that variable, whereas if you want to change the value of a variable inside the closure
+then you need to capture a reference to the variable instead. To control the way to capture data, we should follow the following form in
+the closure's definition:
+<pre class="code" dir=ltr style="text-align:left;">
+closure (/*capture_mode_defs*/)&(/*args_defs*/): /*ret_type*/ {
+  // closure body
+}
+</pre>
+In the next example we set the way to capture `n` as `by_ref` and that tells the closure to store a reference to that variable instead
+of a copy, so changing the variable's value inside the closure will lead to changing the original variable outside the closure.
+<pre class="code" dir=ltr style="text-align:left;">
+func testCaptureByRef (n: Int) {
+    def c: closure (i: Int): Int;
+    c = closure (n: by_ref)&(i: Int): Int {
+        return i * n++;
+    };
+    print("n before calling c: %d\n", n);
+    print("closure result: %d\n", c(3));
+    print("n after calling c: %d\n", n);
+}
+testCaptureByRef(5);
+/*
+output:
+n before calling c: 5
+closure result: 15
+n after calling c: 6
+*/
+</pre>
+                      <p>
+                      In that example if we change the way if capturing `n` from `by_ref` to `by_val` then the output after calling the closure is 5 instead of 6.
+                      </p>
+                      The following modes of data capturing are available:
+                      <ul>
+                        <li>
+                          <b>by_ref</b>: closure captures a reference to the variable.
+                           if the variable is a reference then the closure will captures that reference, not a reference to the reference.
+                          </li>
+                        <li><b>by_val</b>: closure captures the variable's value.
+                           If that variable is a reference, then the closure will capture the value that this reference points to, not the reference itself.
+                          </li>
+                        <li><b>identical</b>: closure captures the variable literally.
+                           If that variable is a reference then the closure will capture the reference, and if it is a value then it will capture the value.
+                          </li>
+                        <li>
+                          <b>auto</b>: If you don't set the capturing way manually then auto way will be used.
+                          In that way the compiler determines the way to capture based on the variable's type.
+                          If it is a user-defined type and not `SrdRef` then it will use `identical`, otherwise it will
+                          use `by_val` instead.
+                          </li>
+                      </ul>
+It is possible to check whether the closure's pointer is null or not by using `isNull` function.
+<pre class="code" dir=ltr style="text-align:left;">
+    def c: closure (i: Int): Int;
+    c.isNull() // returns true
+    c = closure (i: Int): Int { return 0 };
+    c.isNull() // returns false
+</pre>
+                    </div>
+                </div>
+
+                <br>
+                <h3 id="Build">Build Library Reference</h3>
+                <hr>
+                <div>
+                    `Build` library allows the user to build an executable file for their program. The library contains the following items:
+                    <h4 id="Build-Exe">Exe Class</h4>
+                    <div>
+                        Allows the user to build an executable file for their program that works on the current operating system.
+                        This class needs `gcc` tools to be available on the operating system.
+                        Building an executable file is done following these steps:
+                        <ul>
+                          <li>
+                            Create an object from `Exe` class and pass to it a pointer to the source code element that we want to convert
+                            it to an executable file, in addition to the executable file's name that we want to build.
+                            It is possible to get the element's pointer using `~ast` command.
+                          </li>
+                          <li>
+                            Adding any dependencies using `addDependency` function and pass to it a pointer to the module that the program
+                            depends on. Notice that adding dependency is required only when the module needs external libraries.
+                            The module set what external libraries it needs using `@deps` modifier, but if the module does not need
+                            external libraries then no need to add it as a dependency manually because the compiler does that automatically.
+                            <br>
+                            It is also possible to give the function dependency file's name instead of giving it a pointer to a module,
+                            and in case of using dependencies files' names then it is possible to use `addDependencies` function to pass
+                            mutilple dependencies to the function at once.
+                          </li>
+                          <li>
+                            Adding any other options that linker needs using `addFlag` or `addFlags` functions.
+                          </li>
+                          <li>
+                            Creating an executable file by calling `generate` function.
+                          </li>
+                        </ul>
+                        The following example shows how to do these steps:
+<pre class="samplecode" dir=ltr>
+  def exe: ptr[Build.Exe](WidgetGuide.start~ast, "hello_world");
+  exe.addDependency(Gtk~ast); // or exe.addDependency(String("libgtk...."));
+  exe.addDependencies(Array[String]({ String("libcurl.so"), ... }));
+  exe.addFlag("-Wl,-rpath,@executable_path");
+  if exe.generate() {
+    Srl.Console.print("Build complete.\n");
+  } else {
+    Srl.Console.print("Build failed.\n");
+  };
+</pre>
+                          The next code shows how libraries developers could add external dependencies information to their modules:
+<pre class="samplecode" dir=ltr>
+  @deps["libmyextlib.so"] module MyLib {
+    ...
+  };
+</pre>
+                      Without adding `@deps` modifier, the `addDependency` function does nothing.
+                    </div>
+
+                    <h4 id="Build-Wasm">Wasm Class</h4>
+                    <div>
+                      This class is similar to `Exe` class and used in the same way but it generates web assemply code instead of a code
+                      that targets operating system and curren device architecture.
+<pre class="samplecode" dir=ltr>
+  def wasm: ptr[Build.Wasm](HelloWorld.start~ast, "hello_world");
+  wasm.addDependency(String("stdlib.wasm"));
+  wasm.addFlags({ String("--export=malloc"), String("--export=realloc") });
+  if wasm.generate() {
+    Srl.Console.print("Build complete.\n");
+  } else {
+    Srl.Console.print("Build failed.\n");
+  };
+</pre>
+                    </div>
+
+                    <h4 id="Build-genExecutable">genExeceutable Function</h4>
+                    <div>
+                      A helper function to create an executable file in one step. This function is useful in case building process does not
+                      need any dependencies or additional options. This function is just a interface for `Exe` class since internally it is using
+                      the `Exe` class to do the work.
+<pre class="samplecode" dir=ltr>
+  Build.genExecutable(start~ast, "hello_world");
+</pre>
+                    </div>
+
+                    <h4 id="Build-genWasm">genWasm Function</h4>
+                    <div>
+                      A helper function to create a web assemply file in one step. This function is useful in case building process does not
+                      need any dependencies or additional options. This function is just a interface for `Wasm` class since internally it is using
+                      the `Wasm` class to do the work.
+<pre class="samplecode" dir=ltr>
+  Build.genWasm(start~ast, "hello_world");
+</pre>
+                    </div>
+                </div>
+
+                <br>
+                <h3 id="Zip">Zip Library Reference</h3>
+                <hr>
+                <div>
+                    `Zip` library contains the following functions:
+                    <ul class="subsections">
+                        <li>
+                            <b>extractFromFile</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func extractFromFile (
+    filename: ptr[array[Char]], folderName: ptr[array[Char]],
+    callback: ptr[func (ptr[array[Char]], ptr): Int], arguments: ptr
+): Int;
+</pre>
+Extracts a zip compressed file to the specified directory.
+                        </li>
+                        <li>
+                            <b>compressToFile</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func compressToFile (
+    filename: ptr[array[Char]], files: ptr[array[ptr[array[Char]]]], fileCount: Int,
+    extractType: ptr[array[Char]]
+): Int;
+</pre>
+Creates a zip compressed file containing the given files.
+                        </li>
+                    </ul>
+                </div>
+
+                <br>
+                <h3 id="Apm">Apm Reference</h3>
+                <hr>
+                <div>
+                    `Apm` (Alusus Package Manager) is used to install and import packages directly from GitHub. It is possible to use this class
+                    from inside the program directly, or use the corresponding `apm` command line tool.
+                    <br>
+                    To get usage guideline for Apm from the command line you can write the following command:
+<pre class="code" dir=ltr>
+$ apm help
+</pre> 
+Importing packages using Apm inside a program is done using `importFile` function:
+<pre class="code" dir=ltr>
+import "Apm.alusus";
+Apm.importFile("&lt;author&gt;/&lt;pkg name&gt;" [, "&lt;filename&gt;"]);
+Apm.importFile("&lt;author&gt;/&lt;pkg name&gt;", { "&lt;filename1&gt;", "&lt;filename2&gt;", ... });
+</pre>
+The second form of the function allows the user to include multiple files from the package at once.
+Using the second form to include multiple files is faster than calling the first form multiple times, because each call to this function will
+cause reading information from GitHub.
+<br>
+While developing packages usually the developer needs to try the package locally before pushing the changes to GitHub.
+Users can use the link command to link a certain package with a local folder, then Apm will use the local copy instead of
+downloading the GitHub copy.
+Link command must be executed inside the project directory that uses the package and has the following form:
+<pre class="samplecode" dir=ltr>
+$ cd &lt;example_project_folder&gt;
+$ apm link &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt; &lt;path_to_local_package_copy&gt;
+</pre> 
+It is possible to remove the link using `unlink` command, which has the following form:
+                    <pre class="samplecode" dir=ltr>
+$ cd &lt;example_project_folder&gt;
+$ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
+</pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <br>
+                <h3 id="Core">Core Module Reference</h3>
+                <hr>
+                <div>
+                  `Core` module contains definitions for allowing interop between the Core and the user's program.
+                  This module contains definitions for some classes and functions that the Core uses while processing source code files and 
+                  hence allows the programmer to deal directly with the Core and the data it creates. Not every element in the Core is exposed
+                  in the Alusus-based definitions, instead, only definitions useful to end users are exposed.
+
+                  <h4 id="Core-importFile">importFile Function</h4>
+                  <div>
+<pre class="code" dir=ltr style="text-align:left;">
+func importFile (filename: ptr[array[Char]]);
+</pre>
+                    Include the file with the given name. This function do the work of `import` directive and does not differ from it
+                    except that it is able to include files dynamically, by using the name of a file generated dynamically at run time.
+                  </div>
+
+                  <h4 id="Core-addLocalization">addLocalization Function</h4>
+                  <div>
+<pre class="code" dir=ltr style="text-align:left;">
+func addLocalization (
+    locale: ptr[array[Char]],
+    key: ptr[array[Char]],
+    value: ptr[array[Char]]
+);
+</pre>
+                    Adds a translation to translations list for a specific language. If there is no previous entry for the required key
+                    then the translation will be added even if the current language is different from given translation language.
+                    The reason behind this is that having a text with another language is better than no text at all.
+                    But if there is an entry for the given key then the translation will be added only if it matches the current
+                    system language. <br>
+                    This function is used to add text to custom errors notifications, and key's value will be equal to error's code.
+                  </div>
+
+                  <h4 id="Core-typesInfo">Type Info</h4>
+                  <div>
+                    In the module <span class="inlinecode">Core.Basic</span> there exist definitions to allow objects to dynamically
+                    provide information about their types, i.e. during runtime.
+                    Most used classes in the Core and Spp contain type info.
+                    The following are the definitions that provide type information:
+                    <h5 id="Core-TiObjectFactory">TiObjectFactory Class</h5>
+                    <div>
+                      Defined inside <span class="inlinecode">Core.Basic</span> module <br>
+                      This class is used to enable the creation of new objects dynamically from a certain class's type info,
+                      which means that that type's info contains a reference to this factory.
+                      Therefore, if you have a reference to a type with information, then using this information you could access
+                      its factory and create new objects from the same type.
+                      `TiObjectFactory` contains pointers to the following functions:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">createPlain</span><br/>
+<pre class="code" dir=ltr>
+  def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
+</pre>
+                          Create an object and return a regular reference to it after initializing it.
+                        </li>
+                        <li>
+                          <span class="inlinecode">createShared</span><br/>
+<pre class="code" dir=ltr>
+  def createShared؛: ptr[@shared @no_bind function ():SrdRef[TiObject]];
+</pre>
+Create an object and return a `SrdRef` to it after initializing it.
+                          </li>
+                        <li>
+                          <span class="inlinecode">initialize</span><br/>
+<pre class="code" dir=ltr>
+  def initialize: ptr[@shared @no_bind function (ref[TiObject])];
+</pre>
+                          Intialize an object that already allocated in memory.
+                        </li>
+                        <li>
+                          <span class="inlinecode">terminate</span><br/>
+<pre class="code" dir=ltr>
+  def terminate: ptr[@shared @no_bind function (ref[TiObject])];
+</pre>
+                          Terminate an object without releasing its memory.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-TypeInfo">TypeInfo Class</h5>
+                    <div>
+                      Defined inside <span class="inlinecode">Core.Basic</span>. <br>
+                      Holds type information for a specific class. This information includes type's name, the module
+                      that it belongs to, objects factory, and more. It contains the following variables:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">typeName:  (String)</span><br>
+                          A string that holds type name without its full path.
+                        </li>
+                        <li>
+                          <span class="inlinecode">typeNamespace: (String)</span><br>
+                          A string that holds class' full path without the name of the class.
+                          If you have <span class="inlinecode">OuterModule.InnerModule.MyClass</span>
+                          class then this variable will contain the value `OuterModule.InnerModule`.
+                        </li>
+                        <li>
+                          <span class="inlinecode">packageName: (String)</span><br>
+                          A string contains the name of the package that contains the class. For example, all known classes inside the core
+                          have `Core` as thier package name. Wheras classes deined inside Spp library have `Spp` as their package name.
+                        </li>
+                        <li>
+                          <span class="inlinecode">url: (String)</span><br>
+                          Package url on internet. Alusus does not deal with the url directly, instead it deal with it as an information
+                          to the use to distinguish the class from others in case of similar names.
+                        </li>
+                        <li>
+                          <span class="inlinecode">uniqueName: (String)</span><br>
+                          A string constructed from adding all previous information in one unique identifier.
+                        </li>
+                        <li>
+                          <span class="inlinecode">baseTypeInfo: (ref[TypeInfo])</span><br>
+                          A reference for base type info, in other words, it is a reference for type's info for the class that
+                          this class inherits from. Reference could be 0 in case of no base class.
+                        </li>
+                        <li>
+                          <span class="inlinecode">objectFactory: (ref[TiObjectFactory])</span><br>
+                          A reference to the factory that creates objects from this class.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-TiObject">TiObject Class</h5>
+                    <div>
+                      Defined inside the module <span class="inlinecode">Core.Basic</span>.<br>
+                      The root for all classes with type info. Provides the ability to access type's info, in addition to
+                      accessing the interfaces that this class implements. Also, it provides the ability for dynamic casting.
+                      This class contains the following items:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">getMyTypeInfo</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMyTypeInfo (): ref[TypeInfo];
+</pre>
+                          Gives a reference to this type info.
+                        </li>
+                        <li>
+                          <span class="inlinecode">isDerivedFrom</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.isDerivedFrom (ref[TypeInfo]): Bool;
+</pre>
+                          Tell you whether this object is from the class with the given info, or from a class derived from that class.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getInterface</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getInterface (ref[TypeInfo]): ref[TiInterface];
+</pre>
+                          Receives a reference for interface info and retruns a reference to that interface if exists, else it return 0.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-TiInterface">TiInterface Class</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      The root for all interfaces classes. It provides the ability to access the interface's type info, in addition to accessing the object
+                      that owns the interface. This class contains the following items:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">getMyInterfaceInfo</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMyInterfaceInfo (): ref[TypeInfo];
+</pre>
+                          Gives a reference to this inference info.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getTiObject</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getTiObject (): ref[TiObject];
+</pre>
+                          Returns the object that owns this inference.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-getInterface">getInterface Macro</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      A macro to ease getting an interface from a specific object. It is used in the following way:
+<pre class="code" dir=ltr style="text-align:left;">
+  interface~no_deref = getInterface[obj, InterfaceType];
+</pre>
+                    </div>
+
+                    <h5 id="Core-isDerivedFrom">isDerivedFrom Macro</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      Check whether the given object is derived from the given class. It is used in the following way:
+<pre class="code" dir=ltr style="text-align:left;">
+  if isDerivedFrom[obj, ObjType] { ... }
+</pre>
+                    </div>
+
+                    <h5 id="Core-defDynCastedRef">defDynCastedRef Macro</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      A macro used to shorten the operation of dynamically casting the class and storing the result in a new variable.
+                      For example:
+<pre class="code" dir=ltr style="text-align:left;">
+  func test (parentObj: ref[ParentType]) {
+    defDynCastedRef[childObj, parentObj, ChildType];
+    if childObj~ptr != 0 childObj.someFunc(...);
+  }
+</pre>
+                    </div>
+                  </div>
+
+                  <h4 id="Core-basicTypes">Basic Data Types with Type Info</h4>
+                  <div>
+                    Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                    Many classes are available that correspond to the basic types like integers and strings, but are derived from
+                    <span class="inlinecode">TiObject Class</span> to provide runtime type info.
+                    These classes define equality and initialization operations in addition to the following items:
+                    <ul class="subsections">
+                      <li>
+                        <span class="inlinecode">value</span><br>
+                        The variable containing the original value in its original class.
+                      </li>
+                      <li>
+                        <span class="inlinecode">create</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  func create (v: BasicType): SrdRef[ObjType]
+</pre>
+                        Creates an object from this class with the given value and return a `SrdRef` to that object.
+                      </li>
+                      <li>
+                        <span class="inlinecode">getTypeInfo</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  func getTypeInfo (): ref[TypeInfo];
+</pre>
+                        This function returns a reference to the type's info, which means to the info of objects derived from this type.
+                      </li>
+                    </ul>
+                    The following example shows how to define and use these classes:
+<pre class="code" dir=ltr style="text-align:left;">
+  def i: TiInt(45);
+  printInt(i.value);
+  i = 7;
+  
+  def o: ref[TiObject](i);
+  if isDerivedFrom[o, TiInt] {
+    def x: ref[TiInt](castRef[o, TiInt]);
+    printInt(x.value);
+  }
+</pre>
+                    What follows show a list of the basic classes with an info.
+                    <ul class="subsections">
+                      <li><span class="inlinecode">TiInt</span></li>
+                      <li><span class="inlinecode">TiWord</span></li>
+                      <li><span class="inlinecode">TiFloat</span></li>
+                      <li><span class="inlinecode">TiBool</span></li>
+                      <li><span class="inlinecode">TiStr</span></li>
+                      <li><span class="inlinecode">TiPtr</span></li>
+                    </ul>
+                  </div>
+
+                  <h4 id="Core-dynamicDataAccess">Dynamic Data Access</h4>
+                  <div>
+                    The types used in Abstract Syntax Tree support a group of interfaces to allow traversing the tree dynamically.
+                    These interfaces allow querying the object's properties and accessing to those values to read or modify it.
+
+                    <h5 id="Core-Binding">Binding Interface</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      This interface allows the user to access the members of the object, and contains the following functions:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">setMember</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setMember (memberName: ptr[array[Char]], value: ref[TiObject]);
+  handler this.setMember (memberIndex: Int, value: ref[TiObject]);
+</pre>
+                          Set the value of an object's member, the first to specify the member based on its name, wheras the second
+                          is based on the order of the member amongs other members.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getMemberCount</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMemberCount(): Word;
+</pre>
+                          Querying number of members for this object.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getMember</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMember (memberName: ptr[array[Char]]): ref[TiObject];
+  handler this.getMember (memberIndex: Int): ref[TiObject];
+</pre>
+                          Get the value of the member, with the given name in the first form, or the index in the second form.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getMemberNeededType</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMemberNeededType (memberName: ptr[array[Char]]): ref[[TypeInfo];
+  handler this.getMemberNeededType (memberIndex: Int): ref[TypeInfo];
+</pre>
+                          Get the type info for the specified member with given name in the first form, or the index in the second form.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getMemberKey</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getMemberKey (index: Int): String;
+</pre>
+                          Get the name of the memnber with the given index.
+                        </li>
+                        <li>
+                          <span class="inlinecode">findMemberIndex</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findMemberIndex (name: ptr[array[Char]]): Int;
+</pre>
+                          Returns the index of the memnber with the given name, or -1 if not found.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-Containing">Containing Interface</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      This interface is used to query other objects that this object contains, which means the other nodes that 
+                      this class contains in the tree. <br>
+                      The difference between this interface and `Binding` interface is that the later is used to query the properties of the object itself
+                      which are considered a description of that node, while the first is used to to query other nodes separate from this node but associated to it.
+                      For example, if you have an object that represents binary operator between two values, then the operator type is considered to be a property
+                      and is queried using `Binding` interface, while the other two values are queried using `Containing` interface. <br>
+                      This interface contains the following functions:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">setElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setElement (index: Int, value: ref[TiObject]);
+</pre>
+                          Set a new object to the element with the given index.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElementCount</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementCount (): Word;
+</pre>
+                          Get the number of elements that this object contains.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElement (index: Int): ref[TiObject];
+</pre>
+                          Get the element with the given index.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElementNeededType</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementNeededType (index: Int): ref[TypeInfo];
+</pre>
+                          Get the info of the required type for the element with the given index.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-DynamicContaining">DynamicContaining Interface</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      It is derived from <span class="inlinecode">Containing</span> and adds the ability to dynamically add and remove elements
+                      to the object. This interface is used with containers that could change their size, and contains the following
+                      functions in addition to the functions that are available in `Containing` interface:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">addElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.addElement (value: ref[TiObject]): Int;
+</pre>
+                          Adds new element to the end of the container, and returns the index of the new element.
+                        </li>
+                        <li>
+                          <span class="inlinecode">insertElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.insertElement (index: Int, value: ref[TiObject]);
+</pre>
+                          Adds new element to the container at the given index, after shifting all elements that are at that index or after it.
+                        </li>
+                        <li>
+                          <span class="inlinecode">removeElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.removeElement (index: Int);
+</pre>
+                          تزيل العنصر الذي عند التسلسل المعين ثم تزحف كل العناصر التي تلي ذلك التسلسل.
+                          Removes the element at the given index, and shifts all elements that are after that index.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElementsNeededType</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementsNeededType (): ref[TypeInfo];
+</pre>
+                          Get the info of the required type for the container's elements without the need to set any specific element.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-MapContaining">MapContaining Interface</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      It is derived from <span class="inlinecode">Containing</span> and adds the ability to access elements by their names
+                      instead if their index. This interface contains the following functions:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">setElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.setElement (
+    elementName: ptr[array[Char]], value: ref[TiObject]
+  ): Int;
+</pre>
+                          Set a new value for the element with the given name and returns the index of that element.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElement (elementName: ptr[array[Char]]): ref[TiObject];
+</pre>
+                          Get the value of the element with the given name.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElementNeededType</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementNeededType (
+    elementName: ptr[array[Char]]
+  ): ref[TypeInfo];
+</pre>
+                          Get the info for the required type of the element with the given name.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElementKey</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementKey (index: Int): String;
+</pre>
+                          Get the name of the element with the given index.
+                        </li>
+                        <li>
+                          <span class="inlinecode">findElementIndex</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findElementIndex (name: ptr[array[Char]]): Int;
+</pre>
+                          Get the index of the element with the given name, or -1 if not found.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-DynamicMapContaining">DynamicMapContaining Interface</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Basic</span>.<br>
+                      It is derived from <span class="inlinecode">MapContaining</span> and adds the ability to dynamically remove or add new elements.
+                      This interface contains the following functions:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">addElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.addElement (
+    name: ptr[array[Char]], value: ref[TiObject]
+  ): Int;
+</pre>
+                          Adds ew element with the given name to the container and returns the index of that new element.
+                        </li>
+                        <li>
+                          <span class="inlinecode">insertElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.insertElement (
+    index: Int, name: ptr[array[Char]], value: ref[TiObject]
+  );
+</pre>
+                          Adds new element at the given index after shifting all elements that are at that index or after it.
+                        </li>
+                        <li>
+                          <span class="inlinecode">removeElement</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.removeElement (index: Int);
+  handler this.removeElement (name: ptr[array[Char]]);
+</pre>
+                          Removes the element with the given index (the first form), or the given name (the second form).
+                        </li>
+                        <li>
+                          <span class="inlinecode">getElementsNeededType</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getElementsNeededType (): ref[TypeInfo];
+</pre>
+                          Get the info of the required type for the container's elements without the need to specify a specific element.
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <h4 id="Core-ast">AST</h4>
+                  <div>
+                    All classes that make AST are derived from class <span class="inlinecode">Node</span>
+                    and support interfaces for dynamic data access, so it is possible at run time to traverse the AST dynamically
+                    that allows the user to read and create ASTs from inside their program which allows them to develop new grammatical structures
+                    to ease their work.
+
+                    <h5 id="Core-Node">Node Class</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Data</span>.<br>
+                      It is derived from <span class="inlinecode">TiObject</span>.
+                      This is a root for other data classes like AST's classes. This class allows an object to access its owner.
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">owner: ref[Node]</span><br>
+                          A reference to the owner of this object.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getTypeInfo</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  func getTypeInfo (): ref[TypeInfo];
+</pre>
+                          This function returns a reference to this type info, which means the info of objects derived from this type.
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-textAstTypes">Text Types</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Data.Ast</span>.<br>
+                      It is derived from <span class="inlinecode">Node</span>.
+                      These classes contain a single text section from the source code, without operators or expressions.
+                      The text section as one symbol so it could be an identifier, a number, or a lexer (a sequence of characters that compiler interprets).
+                      These classes contain the following items:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">value: TiStr</span><br>
+                          The string read from the source code.
+                        </li>
+                        <li>
+                          <span class="inlinecode">getTypeInfo</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  func getTypeInfo (): ref[TypeInfo];
+</pre>
+                          This function returns a reference to this type, which means the type of objects derived from this type.
+                        </li>
+                        <li>
+                          <span class="inlinecode">create</span><br>
+<pre class="code" dir=ltr style="text-align:left;">
+  func create (value: ptr[array[Char]]): SrdRef[TheType];
+</pre>
+                          Creates an object from this class with the given value, and returns `SrdRef` to this object.
+                        </li>
+                      </ul>
+                      A list of text types:
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">Identifier</span><br>
+                          Any identifier from the source code, like a variable name, a function name, or anyting similar to that.
+                        </li>
+                        <li>
+                          <span class="inlinecode">StringLiteral</span><br>
+                          Contains a string, which means a sequence of characters enclosed in double quotes. The value stored in this object
+                          does not include the double quote character, and does not include the whole composite character (like \) instead it only
+                          include the character itself. For example, when the user write \" then the value for this object will contain only " without
+                          \.<br>
+                          In case the user splits their string into multiple parts (by closing the double quote and reopening it) then the value
+                          stored in that object will be a string containing all parts without spaces between them.
+                          For example, if the user enter <span class="inlinecode">"Hello " "World"</span> then the
+                          value will be <span class="inlinecode">Hello World</span>
+                        </li>
+                        <li>
+                          <span class="inlinecode">CharLiteral</span><br>
+                          Cotains a character. Which means the character enclosed in the source code between single quotes, but the value in this
+                          object will be without the quotes.
+                        </li>
+                        <li>
+                          <span class="inlinecode">IntegerLiteral</span><br>
+                          Contains an integer with the symbols related to Int class. For example, "456i32".
+                        </li>
+                        <li>
+                          <span class="inlinecode">FloatLiteral</span><br>
+                          Contains an integer with the symbols related to Float class. For example, "1.2f32".
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Core-expAstTypes">Commands And Expressions Types</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Core.Data.Ast</span>.<br>
+                      It is derived from <span class="inlinecode">Node</span>.
+                      The following is a list of types that represent expressions and commands. These classes do not have public functions
+                      other than <span class="inlinecode">getTypeInfo</span>. To access their members the user can use the dynamic member
+                      access interfaces mentioned above.
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">Alias</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Bracket</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Bridge</span><br>
+                          This class represent `use` expression that creates a bridge from a namespace which allows it to automatically access
+                          another namespace items.
+                        </li>
+                        <li>
+                          <span class="inlinecode">Definition</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">GenericCommand</span><br>
+                          A generic class used for holding unspecified command's information. It contains a string for the keyword and a dynamic list of data.
+                        </li>
+                        <li>
+                          <span class="inlinecode">List</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Map</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">MergeList</span><br>
+                          A private class that tells the parser to merge its elements directly into the upper namespace instead of letting it be a sub-list inside
+                          the upper namespace.
+                        </li>
+                        <li>
+                          <span class="inlinecode">ParamPass</span><br>
+                          Represents the operation of passing data to an element, like calling a function, a macro, or a template.
+                        </li>
+                        <li>
+                          <span class="inlinecode">Scope</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Token</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">PrefixOperator</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">PostfixOperator</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">AssignmentOperator</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ComparisonOperator</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">AdditionOperator</span><br>
+                          For addition and subtraction operators.
+                        </li>
+                        <li>
+                          <span class="inlinecode">MultiplicationOperator</span><br>
+                          For multiplication and division operators.
+                        </li>
+                        <li>
+                          <span class="inlinecode">BitwiseOperator</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">LogOperator</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">LinkOperator</span><br>
+                          For the operators that link between an element and a member from it like dot operator, -> operator, or anything similar to that.
+                        </li>
+                        <li>
+                          <span class="inlinecode">ConditionalOperator</span><br>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <br>
+                <h3 id="Spp">Spp Module Reference</h3>
+                <hr>
+                <div>
+                <p>
+                  The module `Spp` contains functions to deal directly with `spp` library.
+                  Which is the library that is responsible for supporting standard programming paradigm. The elements of this module allow users to deal
+                  directly with the compiler from their programs.
+                </p>
+                  <h4 id="Spp-buildMgr">buildMgr Object</h4>
+                  <div>
+                    This singleton object allows the user to deal with the executable code generator, and contains the following functions:
+                    <h5 id="Spp-buildMgr-dumpLlvmIrForElement">dumpLlvmIrForElement</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.dumpLlvmIrForElement (element: ref[TiObject]);
+</pre>
+                    `dumpLlvmIrForElement` function prints the intermediate code for a specific element from the source code. The printed intermediate code
+                    is a `LLVM IR` code.
+                    The function accepts one argument which is a pointer to the AST for that element. It is possible to get this pointer using `~ast` command as
+                    shown in the next example:
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  Spp.buildMgr.dumpLlvmIrForElement(myFunc~ast);
+</pre>
+                    </div>
+
+                    <h5 id="Spp-buildMgr-buildObjectFileForElement">buildObjectFileForElement</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.buildObjectFileForElement (
+    element: ref[TiObject],
+    filename: ptr[array[Char]],
+    targetTriple: ptr[array[Char]]
+  ): Bool;
+</pre>
+                    This function creates object file for the fiven element. Later it is possible to pass that file to the linker to create an executable file.
+                    The third argument is a value that determines the architecture used in the building. In case of passing 0 to this argument, the system's current
+                    architecture will be used. For example, to build an executable code with web assembly architecture we should pass "wasm32-unknown-unknown".
+                    For more information about this value, it is possible to refer to `LLVM` documentation. <br>
+                    This function returns 1 in case of success, 0 otherwise.
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  Spp.buildMgr.buildObjectFileForElement(MyModule~ast, "output_filename", 0);
+</pre>
+                    </div>
+
+                    <h5 id="Spp-buildMgr-raiseBuildNotice">raiseBuildNotice</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  func raiseBuildNotice (
+    code: ptr[array[Char]], severity: Int, astNode: ref[TiObject]
+  );
+</pre>
+                    This function allows the programmer to raise a build notification programitically during preprocessing. This function takes 3 arguments:
+                    <ul>
+                      <li><b>code</b>: Error notification code we want to show to the user. The list of available codes could be found inside `Notices_L18n` folder.</li>
+                      <li><b>severity</b>: A value that indicates the severity of the notification and could be one of the following values:</li>
+                       <ul>
+                         <li><b>0</b>: The notification was for a root error and build could not proceed after it.</li>
+                         <li><b>1</b>: An error notification but the compiling could proceed to find other errors if exists.</li>
+                         <li><b>2</b>: An imporatant error notification that user should revise it.</li>
+                         <li><b>3</b>: Non important error notification that could be ignored.</li>
+                         <li><b>4</b>: An informative notification which is not an error.</li>
+                       </ul>
+                      </li>
+                      <li><b>astNode</b>: A reference for the ast element related to the notification. The notification will point to the location
+                        of the source code that the element appears in.</li>
+                    </ul>
+                    Example:
+<pre class="samplecode" dir=ltr style="text-align:left;">
+  def errorCode: "SPPH1006";
+  Spp.buildMgr.raiseBuildNotice(errorCode, 1, funcArgNode);
+  // The above line will show an build error: Invalid function argument name.
+</pre>
+                    </div>
+                  </div>
+
+                  <h4 id="Spp-grammarMgr">grammarMgr Object</h4>
+                  <div>
+                    This singleton object allows the user to create new grammar rules for the language, and contains the following functions:
+                    <h5 id="Spp-buildMgr-addCustomCommand">addCustomCommand</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+def TiObject: alias Core.Basic.TiObject;
+
+handler this.addCustomCommand (
+    identifier: ptr[array[Char]],
+    grammarAst: ref[TiObject],
+    handler: ptr[func (SrdRef[TiObject]): SrdRef[TiObject]]
+);
+</pre>
+                    This function is used to dynamically add a grammar rule for a new command to the language. This function accepts three arguments:
+                    <ul>
+                     <li><b>identifier</b>: A string used as an identifier for the new rule.
+                       It is possible to pass any value for this identifier as long as we use letters and digits only and this identifier does
+                       not conflict with an existing identifier.
+                      </li>
+                     <li><b>grammarAst</b>: An ast that explains the new command. This tree takes the following form:
+<pre class="code" dir=ltr style="text-align:left;">
+ast {
+    keywords: &lt;keywords of the command&gt;;
+    args: &lt;description of the args following the keyword&gt;;
+}
+</pre>
+                      The command could have one keyword, or multiple ones (separated by | in the definition). The command could accepts no
+                      arguments, or accepts one argument or multiple arguments (separated by + in the definition). Every argument from these arguments
+                      consits of the path that leads to the parsing rule for the argument followed by * sign followed by parentheses that contain the lower
+                      and upper limits (respectively) for this argument appearence inside the command.
+                      Refer to the source code for Alsus rules for more information about the available commands that could be used as arguments.
+                     </li>
+                     <li><b>handler</b>: A function the accepts the ast that compiler created when parsing the source code.
+                      It processes it then then return an ast that inserted as a final result for parsing this command.</li>
+                    </ul>
+                    Example:
+<pre class="samplecode" dir=ltr style="text-align:left;">
+Spp.grammarMgr.addCustomCommand(
+    "TestCommand",
+    ast {
+        keywords: "test_cmd";
+        args: "module".Expression(0, 2) + "module".Set*(1,1);
+    },
+    func (args: SrdRef[TiObject]): SrdRef[TiObject] { ... }
+);
+</pre>
+                    The above example defines a new command that starts with the keyword `test_cmd` then followed by an argument with struct type
+                    that could appear once or twice consecutively or not at all, these expressions are followed by an expression with type set that
+                    must appear exactly once.
+                    </div>
+
+                    <h5 id="Spp-buildMgr-addCustomCommand">addCustomGrammar</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+def TiObject: alias Core.Basic.TiObject;
+
+handler this.addCustomGrammar (
+    identifier: ptr[array[Char]],
+    baseIdentifier: ptr[array[Char]],
+    grammarAst: ref[TiObject]
+);
+</pre>
+                      This function is used to dynamically add a new grammar rule to the language. It is different from `addCustomCommand` function in that the new
+                      rule is not restricted to be a command (it could be an expresssion or anything) and the new rule is derived from another rule.
+                      This function accepts three arguments:
+                    <ul>
+                     <li><b>identifier</b>: A string that is used as an identifier for the new rule.
+                       It is possible any value to this identifier as long as it consists of letters and digits only, and does not conflict with an already
+                       existed identifier.
+                      </li>
+                     <li><b>baseIdentifier</b>: The identifier of the base rule that this rule is derived from it.</li>
+                     <li><b>grammarAst</b>: An ast that describes the changes that will applied on the new rule compared to the base rule.
+                      This tree takes the following form:
+<pre class="code" dir=ltr style="text-align:left;">
+ast {
+    &lt;path_to_value_to_update&gt;: { &lt;new_value&gt; };
+    ...
+}
+</pre>
+                      Rule's tree contains a set of inputs, each input is consist from the path to the value we want to change then the new value.
+                      The path is relative to the root of the rule.
+                     </li>
+                    </ul>
+                      In the next example a new rule will be created that is derived from the rule `FuncSigExpression` with one change which is changing the
+                      arguments of the sub-rule `BitwiseExp`. Look at Alusus rules to know the rules that could be derived from and what you need to change
+                      when you derive from them.
+<pre class="code" dir=ltr style="text-align:left;">
+Spp.grammarMgr.addCustomGrammar(
+    "ClosureSigExp",
+    "FuncSigExpression",
+    ast {
+        BitwiseExp.vars: { enable: 1 }
+    }
+);
+</pre>
+                  </div>
+                  </div>
+
+                  <h4 id="Spp-astMgr">astMgr Object</h4>
+                  <div>
+                    This singleton object contains a functions for dealing with AST. It contains the following functions:
+                    <h5 id="Spp-astMgr-findElements">findElements</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.findElements (
+    comparison: ref[Core.Basic.TiObject],
+    target: ref[Core.Basic.TiObject],
+    flags: Word
+): Array[ref[Core.Basic.TiObject]];
+</pre>
+                      Searches through the soruce code for elements that match the given search criteria. The first two arguments are references on two
+                      ASTs. The first one to an expression that represents the search criteria while the second is the ast that we want to search in it.
+                      <br>
+                      The third option could be one of the following values:
+                      <ul>
+                        <li>
+                          <b>SeekerFlags.SKIP_OWNERS</b><br/>
+                          Tell the seeker to not search in namespaces that the current search location is in. For example, if you search in
+                          `Main.Sub` then it will look in `Sub` first then in `Main`, so if you add this option it will look only in `Sub`.
+                        </li>
+                        <li>
+                          <b>SeekerFlags.SKIP_USES</b><br/>
+                          Tells the seeker to ignore `use` statements while searching. Without this option, the seeker will search in namespaces
+                          where these expressions point to.
+                        </li>
+                        <li><b>SeekerFlags.SKIP_CHILDREN</b><br/>
+                          Tells the seeker to not look in sub-namespaces. For example, if you search in `Main` namespace and this namespace contains
+                          the sub-namespace `Sub` then the seeker will search in `Main` then in `Sub` if you not give it this option. If you do it will look
+                          in `Main` only.
+                        </li>
+                      </ul>
+                      The next example search in all functions inside a specific class:
+<pre class="samplecode" dir=ltr>
+  elements = Spp.astMgr.findElements(
+    ast { elementType == "function" },
+    MyClass~ast,
+    Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN
+  );
+</pre>
+                      It is possible to use search criteria by type or by the modifiers applied on the element. It is also possible to use a composite
+                      condition that contains `and` and `or` operators. Some examples of search criteria:
+<pre class="samplecode" dir=ltr>
+  elementType == "function" // search for functions
+  elementType == "type" // search for types
+  elementType == "module" // search for modules
+  elementType == "var" // serach for variables
+  modifier == "public" // search for elements with @public modifier
+  elementType == "func" && modifier == "public" // search for functions with @public modifier
+</pre>
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">getModifiers</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getModifiers (
+      element: ref[Core.Basic.TiObject]
+  ): ref[Core.Basic.Containing];
+</pre>
+                      Get the list of modifiers applied on the given element.
+                    </div>
+
+                    <h5 id="Spp-astMgr-findModifier">findModifier</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findModifier(
+      modifiers: ref[Core.Basic.Containing],
+      kwd: ptr[array[Char]]
+  ): ref[Core.Basic.TiObject];
+</pre>
+                      Find a modifier inside a list of modifiers. Seach is done using the keyword of the modifier. For example, to seach for
+                      `@expname` you need to pass the keyword `expname`.
+                    </div>
+
+                    <h5 id="Spp-astMgr-findModifierForElement">findModifierForElement</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.findModifierForElement(
+    element: ref[Core.Basic.TiObject],
+    kwd: ptr[array[Char]]
+  ): ref[Core.Basic.TiObject];
+</pre>
+                      Find the modifier by the given keyword on the given element.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifierKeyword">getModifierKeyword</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getModifierKeyword(
+    modifier: ref[Core.Basic.TiObject]
+  ): Srl.String;
+</pre>
+                      Returns the keyword for the given modifier.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifierStringParams">getModifierStringParams</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getModifierStringParams(
+    modifier: ref[Core.Basic.TiObject],
+    result: ref[Array[String]]
+) => Bool;
+</pre>
+                      Returns a list of all string arguments passed to the modifier. For example, if we have `deps["lib1", "lib2"]` modifier and we use
+                      this function, then we get from it a list for two elements, the first is "lib1", and the second is "lib2".
+                      This functions returns a boolean with value 1 on success, and 0 on failure.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getSourceFullPathForElement">getSourceFullPathForElement</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getSourceFullPathForElement(
+    element: ref[Core.Basic.TiObject]
+) => String;
+</pre>
+                      Returns the full file name with the path for the source code file that contains the given element.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getSourceDirectoryForElement">getSourceDirectoryForElement</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getSourceDirectoryForElement(
+    element: ref[Core.Basic.TiObject]
+) => String;
+</pre>
+                      Returns the full folder path which contains the source code file that contains the given element.
+                    </div>
+
+                    <h5 id="Spp-astMgr-insertAst">insertAst</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insertAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, ref[Core.Basic.TiObject]]]
+) => Bool;
+handler this.insertAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, SrdRef[Core.Basic.TiObject]]]
+) => Bool;
+</pre>
+                      Inserts the given ast in the current position after applying the given interpolations on the given ast in a way similar to how macros work.
+                      The first argument to this function is the tree to be inserted, while the second argument holds the interpolations list. <br>
+                      The position where the ast will be inserted is the current position for the preprocessing, which means the position where `preprocess`
+                      expression that called `insertAst` appeared. The next example inserts 10 definitions to variables with type `Int`, its names are
+                      `n0` to `n9`:
+
+<pre class="samplecode" dir=ltr>
+  def i: Int;
+  for i = 0, i < 10, ++i {
+      def counter: TiStr = String.format("%i", i);
+      Spp.astMgr.insertAst(
+          ast { def n__counter__: Int },
+          Map[String, ref[TiObject]]().set(String("counter"), counter)
+      );
+  }
+</pre>
+                    </div>
+
+                    <h5 id="Spp-astMgr-buildAst">buildAst</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.buildAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, ref[Core.Basic.TiObject]]],
+    result: ref[SrdRef[Core.Basic.TiObject]]
+) => Bool;
+handler this.buildAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, SrdRef[Core.Basic.TiObject]]],
+    result: ref[SrdRef[Core.Basic.TiObject]]
+) => Bool;
+handler this.buildAst(
+    element: ref[Core.Basic.TiObject],
+    interpolations: ref[Map[String, ref[Core.Basic.TiObject]]]
+): SrdRef[Core.Basic.TiObject];
+</pre>
+                      This function is similar to `insertAst` function, except that it creates ast and returns it to the caller instead of inserting it
+                      directly in the current position of preprocessing. The user could later insert the result in the current position using `insertAst`.
+                      The next example, is a modification of the previous one to use this function and also clearing the variables that it defines.
+                      The example creates a definition then use that definition as an interpolation in later call to `insertAst` function:
+<pre class="samplecode" dir=ltr>
+  def i: Int;
+  for i = 0, i < 10, ++i {
+      def counter: TiStr = String.format("%i", i);
+      def result: SrdRef[TiObject];
+      Spp.astMgr.buildAst(
+          ast { def n__counter__: Int },
+          Map[String, ref[TiObject]]().set(String("counter"), counter),
+          result
+      );
+      Spp.astMgr.insertAst(
+          ast {
+              definition;
+              n__counter = 0;
+          },
+          Map[String, ref[TiObject]]()
+              .set(String("counter"), counter)
+              .set(String("definition"), result)
+      );
+  }
+</pre>
+                    </div>
+
+                    <h5 id="Spp-astMgr-getCurrentPreprocessOwner">getCurrentPreprocessOwner</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getCurrentPreprocessOwner(): ref[Core.Basic.TiObject];
+</pre>
+                      Returns a reference to the AST element that owns the currenly running preprocessing expression.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getCurrentPreprocessInsertionPosition">getCurrentPreprocessInsertionPosition</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getCurrentPreprocessInsertionPosition(): Int;
+</pre>
+                      Returns the position (inside the owner of the current preprocessing experssion) in which AST elements will be inserted when
+                      calling `insertAst` function.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getVariableDomain">getVariableDomain</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
+</pre>
+                      Returns a value that show the domain in which the given variable is defined. The result is one of the following values:
+<pre class="code" dir=ltr style="text-align:left;">
+  def DefinitionDomain: {
+      def FUNCTION: 0; // Var is a function local variable.
+      def OBJECT:   1; // Var is a class member.
+      def GLOBAL:   2; // Var is a global or shared variable.
+  }
+</pre>
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">traceType</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.traceType(element: ref[Core.Basic.TiObject]) => ref[Spp.Ast.Type];
+</pre>
+                      Traces the type that the given SPP element points to, and returns that type.
+                    </div>
+
+                    <h5 id="Spp-astMgr-computeResultType">computeResultType</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.computeResultType(
+    element: ref[Core.Basic.TiObject],
+    result: ref[ref[Core.Basic.TiObject]],
+    resultIsValue: ref[Bool]
+) => Bool;
+</pre>
+                      This function computes the result from the given expression and returns it. The result could be a class or any other defintion
+                      like module or function. The last argument tells us if the result is a value (a variable from the given class for example) or the class
+                      itself (which means it tells you whether the expression is a definition for a class, or a variable from that class).
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">cloneAst</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.cloneAst(element: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
+    return this.cloneAst(element, nullRef[Core.Basic.TiObject]);
+}
+handler this.cloneAst(
+    element: ref[Core.Basic.TiObject], sourceLocationNode: ref[Core.Basic.TiObject]
+): Srl.SrdRef[Core.Basic.TiObject];
+</pre>
+                      This function clonse the given AST. The second form of this function allows the addition of a position in the source code to the
+                      source code positions stack related to the generated tree. The next argument in the next form is not the position in source code
+                      that we want to add to the stack, instead it is a the AST element we want to take the position from.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">dumpData</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.dumpData(obj: ref[Core.Basic.TiObject]);
+</pre>
+                      Prints the given ast to the console in a string format.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">getReferenceTypeFor</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getReferenceTypeFor(
+    astType: ref[Core.Basic.TiObject]
+): ref[Spp.Ast.ReferenceType];
+</pre>
+                      Returns the reference type of the given type.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">tryGetDeepReferenceContentType</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.tryGetDeepReferenceContentType(
+    astType: ref[Spp.Ast.Type]
+): ref[Spp.Ast.Type];
+</pre>
+                      Returns the content type of the given type. If the given type is a reference then the function returns the content that this
+                      reference points to, otherwise it returns the type itself. If the given type is a reference to a reference then the function
+                      search recursively until it reaches a non-reference type and returns it.
+                    </div>
+
+                  </div>
+
+                  <h4 id="Spp-ast">AST Types</h4>
+                  <div>
+                    <h5 id="Spp-typesAstTypes">Types</h5>
+                    <div>
+                      defined inside module <span class="inlinecode">Spp.Ast</span>.<br>
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">Type</span><br>
+                          Derived from <span class="inlinecode">Node</span>.<br>
+                          The root for all classes in Alusus.
+                        </li>
+                        <li>
+                          <span class="inlinecode">DataType</span><br>
+                          Derived from <span class="inlinecode">Type</span>.<br>
+                          The root for all data types.
+                        </li>
+                        <li>
+                          <span class="inlinecode">IntegerType</span><br>
+                          Derived from <span class="inlinecode">DataType</span>.<br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">FloatType</span><br>
+                          Derived from <span class="inlinecode">DataType</span>.<br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ArrayType</span><br>
+                          Derived from <span class="inlinecode">DataType</span>.<br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">PointerType</span><br>
+                          Derived from <span class="inlinecode">DataType</span>.<br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ReferenceType</span><br>
+                          Derived from <span class="inlinecode">DataType</span>.<br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">VoidType</span><br>
+                          Derived from <span class="inlinecode">DataType</span>.<br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">UserType</span><br>
+                          Derived from <span class="inlinecode">DataType</span>.<br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">FunctionType</span><br>
+                          Derived from <span class="inlinecode">Type</span>.<br>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Spp-opsAstTypes">Operators</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Spp.Ast</span>.<br>
+                      Derived from <span class="inlinecode">Node</span>.<br>
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">AstRefOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">CastOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">InitOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">TerminateOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">NextArgOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">DerefOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">NoDerefOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ContentOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">PointerOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">SizeOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">TypeOp</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">UseInOp</span><br>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Spp-stmtAstTypes">Statements</h5>
+                    <div>
+                      Defined inside <span class="inlinecode">Spp.Ast</span>.<br>
+                      Derived from <span class="inlinecode">Node</span>.<br>
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">IfStatement</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">WhileStatement</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ForStatement</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ContinueStatement</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">BreakStatement</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ReturnStatement</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">PreprocessStatement</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">PreGenTransformStatement</span><br>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 id="Spp-otherAstTypes">Others</h5>
+                    <div>
+                      Defined inside module <span class="inlinecode">Spp.Ast</span>.<br>
+                      Derived from <span class="inlinecode">Node</span>.<br>
+                      <ul class="subsections">
+                        <li>
+                          <span class="inlinecode">Template</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">TemplateVarDef</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Block</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Function</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Macro</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Module</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">Variable</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ArgPack</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">AstLiteralCommand</span><br>
+                        </li>
+                        <li>
+                          <span class="inlinecode">ThisTypeRef</span><br>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <br>
+                <h3 id="astManipulation">AST Processing</h3>
+                <hr>
+                <div>
+                  The ability for Alusus programs to read and create an AST at run time allows programmers to develop the language from inside their program
+                  by adding new rules to interpret the source code. In the next example, we define a macro that interprets the given expression to a string containing
+                  the condition statement, and replacing the variables by their real values at execution.
+<pre class="samplecode" dir=ltr>
+  import "Srl/Console";
+  import "Srl/refs";
+  import "Srl/System";
+  import "Core/Data";
+  import "Spp";
+
+  use Srl;
+  use Core.Basic;
+  use Core.Data;
+  use Core.Data.Ast;
+  def TioSrdRef: alias SrdRef[Core.Basic.TiObject];
+
+  func generateWhere (obj: ref[TiObject]): TioSrdRef {
+      def result: TioSrdRef;
+      if obj~ptr == 0 {
+          System.fail(1, "generateWhere: obj is null.\n");
+      }
+
+      if isDerivedFrom[obj, ComparisonOperator] {
+          def binding: ref[Binding](getInterface[obj, Binding]);
+          def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+          if !Spp.astMgr.buildAst(
+              ast { String("{{name}}") + String(" {{op}} '") + val  + String("'") },
+              Map[String, ref[TiObject]]()
+                  .set(String("name"), mapContaining.getElement("first"))
+                  .set(String("op"), binding.getMember("type"))
+                  .set(String("val"), mapContaining.getElement("second")),
+              result
+          ) {
+              System.fail(1, "generateWhere/ComparisonOperator: error\n");
+          }
+      } else if isDerivedFrom[obj, LogOperator] {
+          def binding: ref[Binding](getInterface[obj, Binding]);
+          def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+          if !Spp.astMgr.buildAst(
+              ast { (cond1) + String(" {{op}} ") + (cond2) },
+              Map[String, ref[TiObject]]()
+                  .set(String("cond1"), generateWhere(mapContaining.getElement("first")).obj)
+                  .set(String("op"), binding.getMember("type"))
+                  .set(String("cond2"), generateWhere(mapContaining.getElement("second")).obj),
+              result
+          ) {
+              System.fail(1, "generateWhere/LogOperator: error\n");
+          }
+      } else if isDerivedFrom[obj, Bracket] {
+          def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+          if !Spp.astMgr.buildAst(
+              ast { String("(") + (cond) + String(")") },
+              Map[String, ref[TiObject]]()
+                  .set(String("cond"), generateWhere(mapContaining.getElement("operand")).obj),
+              result
+          ) {
+              System.fail(1, "generateWhere/Bracket: error\n");
+          }
+      } else {
+          if !Spp.astMgr.buildAst(
+              obj,
+              Map[String, ref[TiObject]](),
+              result
+          ) {
+              System.fail(1, "Failed to build condition.\n");
+          }
+      }
+      return result;
+  }
+
+  macro where [condition] {
+      preprocess {
+          if !Spp.astMgr.insertAst(
+              generateWhere(ast condition).obj
+          ) {
+              System.fail(1, "Failed to insert condition.\n");
+          }
+      }
+  }
+
+  func test {
+      def firstName: String("Mohammed");
+      def position: String("Engineer");
+      def query: String = where[name == firstName && (pos == position || pos == "Lawyer")];
+      Console.print("%s\n", query.buf);
+      // Execution output: name == 'Mohammed' && (pos == 'Engineer' || pos == 'Lawyer')
+  }
+  test();
+</pre>
+                </div>
+              </div>
+        </div>
+        <!--content-separator-->
+        <footer class="footer">
+            <hr>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-8 pull-left1">
+                        <ul class="nav nav-pills.nav">
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2023م \ 1444هـ.</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="Resources/highlight.pack.js"></script>
+    <script src="Resources/index.js"></script>
+
+</body>
+
+</html>
