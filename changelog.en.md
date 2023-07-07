@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.x.x (202x-xx-xx)
+## Version 0.10.0 (2023-07-07)
 
 ### Updates to the Compiler
 
@@ -75,6 +75,7 @@
 
 
 ## Version 0.9.0 (2022-06-20)
+<details>
 
 ### Updates to the Compiler
 
@@ -128,6 +129,7 @@
 * Documentation updates and typo fixes.
 * Updated the logo in the documentation.
 * Various updates to GTK syntax highlighting.
+</details>
 
 
 ## Version 0.8.1 (2021-09-27)
