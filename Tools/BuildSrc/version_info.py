@@ -82,7 +82,9 @@ class VersionInfo:
 
     @property
     def revision_lossy(self):
-        return self._revision if self._revision else "DEV"
+        if not self._version: return "DEV"
+        elif not self._revision: return ""
+        else: return self._revision
 
     @property
     def date(self):
