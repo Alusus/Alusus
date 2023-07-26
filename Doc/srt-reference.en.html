@@ -926,7 +926,7 @@ A root for classes that hold runtime error information. It contains two abstract
                           <b>getCode</b><br>
 Returns a code that distinguish between this error and the others.
 <pre class="code" dir=ltr style="text-align:left;">
-  handler this.getCode(): Int as_ptr;
+  handler this.getCode(): String as_ptr;
 </pre>
                         </li>
                         <li>
@@ -944,7 +944,7 @@ Returns a string representation of the error the could be displayed to the user.
 Inherited from `Error` class. It allows the user to specify a custom error code and message manually for each instance.
 It contains two variables:
                       <ul>
-                        <li><b>code</b>: Int</li>
+                        <li><b>code</b>: String</li>
                         <li><b>message</b>: String</li>
                       </ul>
                     </div>

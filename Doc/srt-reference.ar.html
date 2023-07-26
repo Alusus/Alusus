@@ -1207,10 +1207,10 @@ handler this.release();
                           <b>هات_الرمز (getCode)</b><br>
                           ترجع رمزًا يميز الخطأ عن غيره بدقة.
 <pre class="code" dir=rtl style="text-align:right;">
-  عملية هذا.هات_الرمز(): صـحيح كمؤشر؛
+  عملية هذا.هات_الرمز(): نـص كمؤشر؛
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
-  handler this.getCode(): Int as_ptr;
+  handler this.getCode(): String as_ptr;
 </pre>
                         </li>
                         <li>
@@ -1231,7 +1231,7 @@ handler this.release();
                     صنف خطأ عام مُشتق من الصنف `خـطأ` (`Error`) يمكّن المستخدم من تحديد رمزه ورسالته يدويا لكل كائن منه.
                     يحتوي على متغيرين:
                       <ul>
-                        <li><b>الرمز (code)</b>: صـحيح (Int)</li>
+                        <li><b>الرمز (code)</b>: نـص (String)</li>
                         <li><b>الرسالة (message)</b>: نـص (String)</li>
                       </ul>
                     </div>

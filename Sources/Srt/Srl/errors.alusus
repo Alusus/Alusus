@@ -14,19 +14,30 @@ import "String";
 
 @merge module Srl {
     class Error {
-        handler this.getCode(): Int as_ptr;
+        handler this.getCode(): String as_ptr;
         handler this.getMessage(): String as_ptr;
     }
 
     class GenericError {
         @injection def error: Error;
-        def code: Int;
+        def code: String;
         def message: String;
-        handler (this: Error).getCode(): Int set_ptr {
+        handler (this: Error).getCode(): String set_ptr {
             return this.code;
         }
         handler (this: Error).getMessage(): String set_ptr {
             return this.message;
+        }
+
+        func new(c: String, m: String): SrdRef[GenericError] {
+            return SrdRef[GenericError].construct().{
+                code = c;
+                message = m;
+            }
+        }
+
+        func new(c: CharsPtr, m: CharsPtr): SrdRef[GenericError] {
+            return new(String(c), String(m));
         }
     }
 }
