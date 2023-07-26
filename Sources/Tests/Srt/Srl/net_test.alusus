@@ -3,7 +3,7 @@ import "Srl/Console.alusus";
 
 module Main
 {
-  function start
+  function testGet
   {
     def data: ptr;
     def size: Int;
@@ -14,6 +14,14 @@ module Main
       Srl.Console.print("Error!\n");
     };
   };
+
+  function testUriEncode
+  {
+    def encoded: Srl.String = Srl.Net.uriEncode("https://example.com");
+    Srl.Console.print("Encoded: %s\n", encoded.buf);
+    Srl.Console.print("Decoded: %s\n", Srl.Net.uriDecode(encoded).buf);
+  }
 };
 
-Main.start();
+Main.testGet();
+Main.testUriEncode();

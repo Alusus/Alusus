@@ -320,6 +320,62 @@ import "curl";
       def size: Int;
     };
 
+    function uriEncode(input: CharsPtr): String {
+      def result: String;
+      // Worst case scenario is that all characters need to be encoded, so we'll
+      // allocate enough for that.
+      result.alloc(String.getLength(input) * 3 + 1);
+
+      def hex: CharsPtr = "0123456789abcdef";
+
+      def pos: Int = 0;
+      def i: Int = 0;
+      while input~cnt(i) != 0 {
+        if (input~cnt(i) >= 'a' and input~cnt(i) <= 'z')
+        or (input~cnt(i) >= 'A' and input~cnt(i) <= 'Z')
+        or (input~cnt(i) >= '0' and input~cnt(i) <= '9')
+        or input~cnt(i) == '*' or input~cnt(i) == '-' or input~cnt(i) == '.' or input~cnt(i) == '_' {
+          result.buf~cnt(pos++) = input~cnt(i);
+        } else if input~cnt(i) == ' ' {
+          result.buf~cnt(pos++) = '+';
+        } else {
+          result.buf~cnt(pos++) = '%';
+          result.buf~cnt(pos++) = hex~cnt(input~cnt(i) >> 4);
+          result.buf~cnt(pos++) = hex~cnt(input~cnt(i) & 15);
+        }
+        ++i;
+      }
+      result.buf~cnt(pos) = 0;
+      return result;
+    }
+
+    function uriDecode(input: CharsPtr): String {
+      def result: String;
+      result.alloc(String.getLength(input));
+
+      def buf: array[Char, 3];
+      buf(0) = buf(1) = buf(2) = 0;
+
+      def pos: Int = 0;
+      def i: Int = 0;
+      while input~cnt(i) != 0 {
+        if input~cnt(i) == '%' {
+          if input~cnt(i + 1) == 0 or input~cnt(i + 2) == 0 break;
+          result.buf~cnt(pos++) =
+            String.parseHexDigit(input~cnt(i + 1)) << 4 | String.parseHexDigit(input~cnt(i + 2));
+          i += 3;
+        } else if input~cnt(i) == '+' {
+          result.buf~cnt(pos++) = ' ';
+          ++i;
+        } else {
+          result.buf~cnt(pos++) = input~cnt(i);
+          ++i;
+        }
+      }
+      result.buf~cnt(pos) = 0;
+      return result;
+    }
+
     func responseCallback(chunk: ptr, size: Int[64], count: Int[64], content: ptr[ResponseContent]): Int {
       def newSize: Int;
       newSize = (content~cnt.size + size * count)~cast[Int];

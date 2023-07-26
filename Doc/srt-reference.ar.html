@@ -1798,6 +1798,26 @@ func getBuildDependencies(): Array[String];
 </pre>
  1: تجلب المورد المحدد بالرابط وترجعه.<br> 2: تجلب المورد المحدد بالرابط وتخزنه في الملف المحدد.
                             </li>
+                            <li>
+                                <b>شفر_عنوانيا (uriEncode)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+دالة شفر_عنوانيا (مـؤشر_محارف): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func uriEncode(CharsPtr): String;
+</pre>
+تشفر النص المعطى بتشفير الURI وترجع القيمة المشفرة.
+                            </li>
+                            <li>
+                                <b>فك_عنوانيا (uriDecode)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+دالة فك_عنوانيا (مـؤشر_محارف): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func uriDecode(CharsPtr): String;
+</pre>
+تفك تشفير النص المعطى المشفر بتشفير الURI.
+                            </li>
                         </ul>
                     </div>
 
