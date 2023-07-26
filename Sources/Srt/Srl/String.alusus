@@ -591,5 +591,12 @@ import "Array";
             }
             if negative && result != 0 return -result else return result;
         }
+
+        func parseHexDigit(letter: Char): Int {
+            if letter >= '0' and letter <= '9' return letter - '0'
+            else if letter >= 'a' and letter <= 'f' return 10 + letter - 'a'
+            else if letter >= 'A' and letter <= 'F' return 10 + letter - 'A'
+            else return 0;
+        }
     };
 };

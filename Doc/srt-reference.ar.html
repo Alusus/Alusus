@@ -694,7 +694,7 @@ func parseInt (str: ptr[array[Char]]): Int[64];
 تقرأ عددًا صحيحًا من سلسلة المحارف المعطاة وترجعه.
                             </li>
                             <li>
-                                <b>اقرأ_عائم (parseFloat؛)</b><br/>
+                                <b>اقرأ_عائم (parseFloat)</b><br/>
 <pre class="code" dir=rtl style="text-align:right;">
 دالة اقرأ_عائم (نص: مؤشر[مصفوفة[مـحرف]]): عـائم[64]؛
 </pre>
@@ -702,6 +702,16 @@ func parseInt (str: ptr[array[Char]]): Int[64];
 func parseFloat (str: ptr[array[Char]]): Float[64];
 </pre>
 تقرأ عددًا عائمًا من سلسلة المحارف المعطاة وترجعه.
+                            </li>
+                            <li>
+                                <b>اقرأ_محرف_هكس (parseHexDigit)</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+دالة اقرأ_محرف_هكس (م: مـحرف): صـحيح؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+func parseHexDigit (c: Char): Int;
+</pre>
+تحول محرفا يمثل رقمًا ست عشريًا إلى قيمته الرقمية.
                             </li>
                         </ul>
                     </div>

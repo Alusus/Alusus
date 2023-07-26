@@ -16,6 +16,7 @@ zero int: 0, negative int: -32, zero float: 0.000000, negative float -0.005200
 parseInt: 0 0 4324 -1443 0 -123
 parseFloat: 0.000000 0.000000 123.000000 324.760000 -757.000000 0.000000 123.000000
 
+parseHexDigit: 7 10 12 0
 Alusus
 length: 6
 s(0) = A

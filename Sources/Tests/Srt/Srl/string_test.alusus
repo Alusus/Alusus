@@ -63,6 +63,12 @@ def Main: module
         String.parseFloat("abc"),
         String.parseFloat("123abc")
     );
+    Console.print("parseHexDigit: %d %d %d %d\n",
+        String.parseHexDigit('7'),
+        String.parseHexDigit('a'),
+        String.parseHexDigit('C'),
+        String.parseHexDigit('N')
+    );
   };
 
   func testType {
