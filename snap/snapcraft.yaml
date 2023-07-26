@@ -40,6 +40,7 @@ parts:
     override-build: |
       git clone https://github.com/microsoft/vcpkg.git "AlususBuild/vcpkg"
       cd "AlususBuild/vcpkg"
+      git checkout 2023.06.20
       ./bootstrap-vcpkg.sh
       cd -
       export VCPKG_FORCE_SYSTEM_BINARIES=1
