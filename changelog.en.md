@@ -1,5 +1,19 @@
 # Alusus Changelog
 
+## Version 0.11.0 (2023-07-26)
+
+### Compiler Fixes
+
+* Fixed an issue with >> operator causing unsigned integer to be converted to signed.
+
+### Updates to the Standard Libraries
+
+* Added `String.parseHexDigit`.
+* Added `Net.uriEncode`.
+* Added `Net.uriDecode`.
+* Changed the type of `Error.getCode()` from Int to String.
+
+
 ## Version 0.10.0 (2023-07-08)
 
 ### Updates to the Compiler
