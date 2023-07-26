@@ -136,11 +136,20 @@ def Main: module
     print("1i32 + ptr = %f\n", 1i32 + 1i64~cast[ptr[Int[32]]]);
   };
 
+  def testShift: function ()=>Void
+  {
+    def i: Int = 128;
+    def w: Word = 128;
+    i >> 1;
+    w >> 1;
+  }
+
   def start: function ()=>Void
   {
     testInteger();
     testFloat();
     testMixed();
+    testShift();
 
     print("%d\n", Other1 + Other2);
     print("%d\n", 5 * Other2);

@@ -1,9 +1,9 @@
 [0;31mERROR SPPG1008: Invalid symbol.[0m
-  expressions_test.alusus (145,28)
+  expressions_test.alusus (154,28)
 [0;31mERROR SPPG1008: Invalid symbol.[0m
-  expressions_test.alusus (146,23)
+  expressions_test.alusus (155,23)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  expressions_test.alusus (147,19)
+  expressions_test.alusus (156,19)
 [0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
   expressions_test.alusus (136,32)
 Build Failed...
@@ -122,6 +122,7 @@ define void @"Main.start()=>(Void)"() {
   call void @"Main.testInteger()=>(Void)"()
   call void @"Main.testFloat()=>(Void)"()
   call void @"Main.testMixed()=>(Void)"()
+  call void @"Main.testShift()=>(Void)"()
   ret void
 }
 
@@ -429,6 +430,19 @@ define void @"Main.testMixed()=>(Void)"() {
   %9 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @"#anonymous96", i32 0, i32 0), float 2.000000e+00)
   %10 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @"#anonymous97", i32 0, i32 0), float 2.000000e+00)
   %11 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @"#anonymous98", i32 0, i32 0), float 2.000000e+00)
+  ret void
+}
+
+define void @"Main.testShift()=>(Void)"() {
+"#block4":
+  %i = alloca i32
+  store i32 128, i32* %i
+  %w = alloca i32
+  store i32 128, i32* %w
+  %0 = load i32, i32* %i
+  %1 = ashr i32 %0, 1
+  %2 = load i32, i32* %w
+  %3 = lshr i32 %2, 1
   ret void
 }
 

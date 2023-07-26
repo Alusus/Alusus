@@ -834,15 +834,19 @@ Bool ExpressionGenerator::_generateBinaryOp(
 
   if (param1.astType->isDerivedFrom<Ast::IntegerType>() && param2.astType->isDerivedFrom<Ast::IntegerType>()) {
     // Two integers.
-    auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
-    auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
-    auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
-    if (!integerType1->isSigned() && !integerType2->isSigned()) {
-      astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
+    if (astNode->getType() == S(">>") || astNode->getType() == S("<<")) {
+      astTargetType = static_cast<Ast::IntegerType*>(param1.astType);
     } else {
-      astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+      auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
+      auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
+      auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+      auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+      auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
+      if (!integerType1->isSigned() && !integerType2->isSigned()) {
+        astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
+      } else {
+        astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
+      }
     }
   } else {
     // Error.

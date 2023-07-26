@@ -2,7 +2,7 @@
  * @file Spp/Ast/IntegerType.h
  * Contains the header of class Spp::Ast::IntegerType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,7 +24,11 @@ class IntegerType : public DataType
   TYPE_INFO(IntegerType, DataType, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(IntegerType);
 
-  IMPLEMENT_AST_MAP_PRINTABLE(IntegerType);
+  IMPLEMENT_AST_MAP_PRINTABLE(
+    IntegerType,
+    << (this->nullLiteral ? S("null_literal ") : S(""))
+    << (this->withSign ? S("signed") : S("unsigned"))
+  );
 
 
   //============================================================================
