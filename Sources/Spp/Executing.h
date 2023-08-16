@@ -2,7 +2,7 @@
  * @file Spp/Executing.h
  * Contains the header of class Spp::Executing.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -66,7 +66,7 @@ class Executing : public ObjTiInterface
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareBuild,
-    SharedPtr<BuildSession>, (Int /* buildType */, TiObject* /* globalFuncElement */)
+    SharedPtr<BuildSession>, (Int /* buildType */, Char const* /* targetTriple */, TiObject* /* globalFuncElement */)
   );
 
   public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession* /* buildSession */));

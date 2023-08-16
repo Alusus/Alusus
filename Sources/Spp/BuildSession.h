@@ -2,7 +2,7 @@
  * @file Spp/BuildSession.h
  * Contains the header of class Spp::BuildSession.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,14 +27,18 @@ class BuildSession : public TiObject
   //============================================================================
   // Member Variables
 
-  private: DependencyInfo *depsInfo;
-
+  private: SharedPtr<DependencyInfo> depsInfo;
+  private: SharedPtr<CodeGen::ExtraDataAccessor> extraDataAccessor;
+  private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
+  private: SharedPtr<LlvmCodeGen::BuildTarget> buildTarget;
+  private: ExecutionContext execContext;
   private: Word buildType;
+
+  private: TioSharedPtr voidNoArgsFuncTgType;
   private: TioSharedPtr globalEntryTgFunc;
   private: TioSharedPtr globalEntryTgContext;
   private: Str globalEntryName;
 
-  private: ExecutionContext execContext;
   private: CodeGen::DestructionStack destructionStack;
   private: CodeGen::Session codeGenSession;
 
@@ -43,31 +47,101 @@ class BuildSession : public TiObject
   // Constructor
 
   public: BuildSession(
-    DependencyInfo *depsInfo, CodeGen::ExtraDataAccessor *eda, CodeGen::TargetGeneration *tg, Bool offlineExec,
-    Word pointerBc, Word bType, TioSharedPtr const &geTgFunc, TioSharedPtr const &geTgContext, Char const *geName
-  ) : depsInfo(depsInfo)
+    SharedPtr<LlvmCodeGen::TargetGenerator> tg, SharedPtr<LlvmCodeGen::BuildTarget> bt, Bool offlineExec, Word bType
+  ) : depsInfo(newSrdObj<DependencyInfo>())
+    , extraDataAccessor(newSrdObj<CodeGen::ExtraDataAccessor>())
+    , targetGenerator(tg)
+    , buildTarget(bt)
+    , execContext(bt->getPointerBitCount())
     , buildType(bType)
-    , globalEntryTgFunc(geTgFunc)
-    , globalEntryTgContext(geTgContext)
-    , globalEntryName(geName)
-    , execContext(pointerBc)
     , codeGenSession(
-      eda, tg, &execContext, geTgContext.get(), geTgContext.get(),
+      extraDataAccessor.get(),
+      tg->getInterface<CodeGen::TargetGeneration>(),
+      &execContext,
+      0,
+      0,
       &destructionStack,
       &depsInfo->globalVarInitializationDeps,
       &depsInfo->globalVarDestructionDeps,
       &depsInfo->funcDeps,
       offlineExec
     )
-  {}
+  {
+  }
+
+  public: BuildSession(BuildSession *bs)
+    : depsInfo(bs->getDepsInfo())
+    , extraDataAccessor(bs->getExtraDataAccessor())
+    , targetGenerator(bs->getTargetGenerator())
+    , buildTarget(bs->getBuildTarget())
+    , execContext(bs->getExecutionContext()->getPointerBitCount())
+    , buildType(bs->getBuildType())
+    , voidNoArgsFuncTgType(bs->voidNoArgsFuncTgType)
+    , codeGenSession(
+      extraDataAccessor.get(),
+      targetGenerator->getInterface<CodeGen::TargetGeneration>(),
+      &execContext,
+      0,
+      0,
+      &destructionStack,
+      &depsInfo->globalVarInitializationDeps,
+      &depsInfo->globalVarDestructionDeps,
+      &depsInfo->funcDeps,
+      bs->getCodeGenSession()->isOfflineExecution()
+    )
+  {
+  }
+
+  public: BuildSession(BuildSession *bs, SharedPtr<DependencyInfo> const &di)
+    : depsInfo(di)
+    , extraDataAccessor(bs->getExtraDataAccessor())
+    , targetGenerator(bs->getTargetGenerator())
+    , buildTarget(bs->getBuildTarget())
+    , execContext(bs->getExecutionContext()->getPointerBitCount())
+    , buildType(bs->getBuildType())
+    , voidNoArgsFuncTgType(bs->voidNoArgsFuncTgType)
+    , codeGenSession(
+      extraDataAccessor.get(),
+      targetGenerator->getInterface<CodeGen::TargetGeneration>(),
+      &execContext,
+      0,
+      0,
+      &destructionStack,
+      &depsInfo->globalVarInitializationDeps,
+      &depsInfo->globalVarDestructionDeps,
+      &depsInfo->funcDeps,
+      bs->getCodeGenSession()->isOfflineExecution()
+    )
+  {
+  }
 
 
   //============================================================================
   // Member Variables
 
-  public: DependencyInfo* getDepsInfo() const
+  public: SharedPtr<DependencyInfo> const& getDepsInfo()
   {
     return this->depsInfo;
+  }
+
+  public: SharedPtr<CodeGen::ExtraDataAccessor> const& getExtraDataAccessor()
+  {
+    return this->extraDataAccessor;
+  }
+
+  public: SharedPtr<LlvmCodeGen::TargetGenerator> const& getTargetGenerator() const
+  {
+    return this->targetGenerator;
+  }
+
+  public: ExecutionContext* getExecutionContext()
+  {
+    return &this->execContext;
+  }
+
+  public: SharedPtr<LlvmCodeGen::BuildTarget> const& getBuildTarget() const
+  {
+    return this->buildTarget;
   }
 
   public: Word getBuildType() const
@@ -75,14 +149,41 @@ class BuildSession : public TiObject
     return this->buildType;
   }
 
+  public: void setVoidNoArgsFuncTgType(TioSharedPtr const &tgType)
+  {
+    this->voidNoArgsFuncTgType = tgType;
+  }
+
+  public: TioSharedPtr const& getVoidNoArgsFuncTgType() const
+  {
+    return this->voidNoArgsFuncTgType;
+  }
+
+  public: void setGlobalEntryTgFunc(TioSharedPtr const &tgFunc)
+  {
+    this->globalEntryTgFunc = tgFunc;
+  }
+
   public: TioSharedPtr const& getGlobalEntryTgFunc() const
   {
     return this->globalEntryTgFunc;
   }
 
+  public: void setGlobalEntryTgContext(TioSharedPtr const &tgContext)
+  {
+    this->globalEntryTgContext = tgContext;
+    this->codeGenSession.setTgContext(this->globalEntryTgContext.get());
+    this->codeGenSession.setTgAllocContext(this->globalEntryTgContext.get());
+  }
+
   public: TioSharedPtr const& getGlobalEntryTgContext() const
   {
     return this->globalEntryTgContext;
+  }
+
+  public: void setGlobalEntryName(Char const *gen)
+  {
+    this->globalEntryName = gen;
   }
 
   public: Str const& getGlobalEntryName() const

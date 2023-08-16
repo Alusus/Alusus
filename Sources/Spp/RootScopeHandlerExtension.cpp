@@ -2,7 +2,7 @@
  * @file Spp/RootScopeHandlerExtension.cpp
  * Contains the implementation of class Spp::RootScopeHandlerExtension.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -76,7 +76,7 @@ void RootScopeHandlerExtension::_addNewElement(
     auto executing = ti_cast<Executing>(rootManagerExt->buildManager.get());
 
     SharedPtr<BuildSession> buildSession = executing->prepareBuild(
-      BuildManager::BuildType::JIT, rootManager->getRootScope().get()
+      BuildManager::BuildType::JIT, 0, rootManager->getRootScope().get()
     );
 
     Bool execute = true;

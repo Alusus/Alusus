@@ -216,7 +216,7 @@ Bool AstProcessor::_processPreprocessStatement(
   SharedPtr<BuildSession> buildSession = preprocess->getExtra(PREPROCESS_SESSION_KEY).ti_cast<BuildSession>();
   if (buildSession == 0) {
     buildSession = astProcessor->executing->prepareBuild(
-      BuildManager::BuildType::PREPROCESS, preprocess->getBody().get()
+      BuildManager::BuildType::PREPROCESS, 0, preprocess->getBody().get()
     );
     setExtra(preprocess, PREPROCESS_SESSION_KEY, buildSession);
 
@@ -233,7 +233,7 @@ Bool AstProcessor::_processPreprocessStatement(
     astProcessor->executing->finalizeBuild(preprocess->getBody().get(), buildSession.get());
   } else {
     // Statement has already been generated; We'll only force the building of the remaining deps.
-    auto tmpBuildSession = astProcessor->executing->prepareBuild(BuildManager::BuildType::PREPROCESS, 0);
+    auto tmpBuildSession = astProcessor->executing->prepareBuild(BuildManager::BuildType::PREPROCESS, 0, 0);
     astProcessor->executing->finalizeBuild(0, tmpBuildSession.get());
   }
 

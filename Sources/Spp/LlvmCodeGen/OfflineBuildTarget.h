@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/OfflineBuildTarget.h
  * Contains the header of class Spp::LlvmCodeGen::OfflineBuildTarget.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -39,7 +39,7 @@ class OfflineBuildTarget : public BuildTarget
   // Member Variables
 
   private: std::string targetTriple;
-  private: llvm::TargetMachine *targetMachine;
+  private: std::unique_ptr<llvm::TargetMachine> targetMachine;
   private: std::unique_ptr<llvm::DataLayout> llvmDataLayout;
   private: std::unique_ptr<llvm::LLVMContext> llvmContext;
   private: std::unique_ptr<llvm::Module> llvmModule;

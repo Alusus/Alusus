@@ -1,5 +1,13 @@
 # Alusus Changelog
 
+## Version 0.11.1 (2023-08-15)
+
+### Compiler Fixes
+
+* Fixed an issue with nested compilation (compilation that is triggered during the preprocessing of another
+  compilation).
+
+
 ## Version 0.11.0 (2023-07-26)
 
 ### Compiler Fixes

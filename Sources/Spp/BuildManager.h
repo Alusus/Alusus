@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.h
  * Contains the header of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -48,26 +48,10 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: CodeGen::Generator *generator;
   private: CodeGen::GlobalItemRepo *globalItemRepo;
 
-  private: DependencyInfo jitDepsInfo;
-  private: CodeGen::ExtraDataAccessor jitEda;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> jitTargetGenerator;
-  private: SharedPtr<LlvmCodeGen::JitBuildTarget> jitBuildTarget;
-  private: TioSharedPtr jitGlobalTgFuncType;
-
-  private: DependencyInfo preprocessDepsInfo;
-  private: CodeGen::ExtraDataAccessor preprocessEda;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> preprocessTargetGenerator;
-  private: SharedPtr<LlvmCodeGen::LazyJitBuildTarget> preprocessBuildTarget;
-  private: TioSharedPtr preprocessGlobalTgFuncType;
-
-  private: DependencyInfo offlineDepsInfo;
-  private: CodeGen::ExtraDataAccessor offlineEda;
-  private: SharedPtr<LlvmCodeGen::TargetGenerator> offlineTargetGenerator;
-  private: SharedPtr<LlvmCodeGen::OfflineBuildTarget> offlineBuildTarget;
-  private: TioSharedPtr offlineGlobalTgFuncType;
+  private: SharedPtr<BuildSession> jitBuildSession;
+  private: SharedPtr<BuildSession> preprocessBuildSession;
 
   private: Int funcNameIndex = 0;
-
 
 
   //============================================================================
@@ -89,7 +73,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     this->initBindingCaches();
     this->initBindings();
 
-    this->initTargets();
+    this->initNonOfflineBuildSessions();
   }
 
   public: BuildManager(BuildManager *parent)
@@ -102,7 +86,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     this->astHelper = parent->getAstHelper();
     this->generator = parent->getGenerator();
 
-    this->initTargets();
+    this->initNonOfflineBuildSessions();
   }
 
   public: virtual ~BuildManager();
@@ -117,7 +101,8 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: void initBindingCaches();
   private: void initBindings();
 
-  private: void initTargets();
+  private: void initNonOfflineBuildSessions();
+  private: SharedPtr<BuildSession> createOfflineBuildSession(Char const *targetTriple);
 
   public: Core::Main::RootManager* getRootManager() const
   {
@@ -139,10 +124,10 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareBuild,
-    SharedPtr<BuildSession>, (Int /* buildType */, TiObject* /* globalFuncElement */)
+    SharedPtr<BuildSession>, (Int /* buildType */, Char const* /* targetTriple */, TiObject* /* globalFuncElement */)
   );
   private: static SharedPtr<BuildSession> _prepareBuild(
-    TiObject *self, Int buildType, TiObject *globalFuncElement
+    TiObject *self, Int buildType, Char const *targetTriple, TiObject *globalFuncElement
   );
 
   public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession* /* buildSession */));
@@ -177,8 +162,8 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
     TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
   );
 
-  public: METHOD_BINDING_CACHE(resetBuild, void, (Int));
-  private: static void _resetBuild(TiObject *self, Int buildType);
+  public: METHOD_BINDING_CACHE(resetBuild, void, (BuildSession*));
+  private: static void _resetBuild(TiObject *self, BuildSession *buildSession);
 
   public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*, CodeGen::ExtraDataAccessor*));
   private: static void _resetBuildData(TiObject *self, TiObject *obj, CodeGen::ExtraDataAccessor *eda);
@@ -193,7 +178,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   /// @name Helper Functions
   /// @{
 
-  private: TiObject* getVoidNoArgsFuncTgType(Int buildType);
+  private: TiObject* getVoidNoArgsFuncTgType(BuildSession *buildSession);
 
   private: TioSharedPtr createVoidNoArgsFuncTgType(LlvmCodeGen::TargetGenerator *targetGen);
 

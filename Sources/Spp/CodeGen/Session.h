@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Session.h
  * Contains the header of class Spp::CodeGen::Session.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -124,8 +124,18 @@ class Session : public TiObject
     return this->execContext;
   }
 
+  public: void setTgContext(TiObject *tgc)
+  {
+    this->tgContext = tgc;
+  }
+
   public: TiObject* getTgContext() {
     return this->tgContext;
+  }
+
+  public: void setTgAllocContext(TiObject *tgac)
+  {
+    this->tgAllocContext = tgac;
   }
 
   public: TiObject* getTgAllocContext() {
