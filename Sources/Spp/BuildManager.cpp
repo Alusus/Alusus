@@ -570,8 +570,9 @@ Bool BuildManager::_computeResultType(TiObject *self, TiObject *astNode, TiObjec
 
   CodeGen::GenResult genResult;
 
+  CodeGen::TerminalStatement terminal;
   auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
-  if (!generation->generateExpression(astNode, buildSession.getCodeGenSession(), genResult)) {
+  if (!generation->generateExpression(astNode, buildSession.getCodeGenSession(), genResult, terminal)) {
     buildMgr->rootManager->flushNotices();
     return false;
   }

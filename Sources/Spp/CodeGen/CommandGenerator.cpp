@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/CommandGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -61,8 +61,15 @@ Bool CommandGenerator::_generateReturnStatement(
   auto operand = astNode->getOperand().get();
   if (operand != 0) {
     // Generate the expression to return.
+    TerminalStatement terminal;
     GenResult operandResult;
-    if (!g->generateExpression(operand, session, operandResult)) return false;
+    if (!g->generateExpression(operand, session, operandResult, terminal)) return false;
+    if (terminal == TerminalStatement::YES) {
+      cmdGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(operand))
+      );
+      return false;
+    }
     // Generate the return statement.
     if (retType->getInitializationMethod(
       cmdGenerator->astHelper, session->getExecutionContext()
@@ -235,9 +242,18 @@ Bool CommandGenerator::_generateForStatement(
   session->getDestructionStack()->pushScope();
   GenResult updateResult;
   Session updaterSession(session, loopTgContext->getUpdaterContext(), session->getTgAllocContext());
+  TerminalStatement terminal;
   if (!g->generateExpression(
-    astNode->getUpdater().get(), &updaterSession, updateResult
+    astNode->getUpdater().get(), &updaterSession, updateResult, terminal
   )) return false;
+  if (terminal == TerminalStatement::YES) {
+    cmdGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(
+        Core::Data::Ast::findSourceLocation(astNode->getUpdater().get())
+      )
+    );
+    return false;
+  }
   if (!g->generateVarGroupDestruction(
     &updaterSession, session->getDestructionStack()->getScopeStartIndex(-1)
   )) result = false;
@@ -252,7 +268,6 @@ Bool CommandGenerator::_generateForStatement(
       static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
     );
   }
-  TerminalStatement terminal;
   if (!g->generateStatementBlock(body, &bodySession, terminal)) return false;
 
   return session->getTg()->finishForStatement(
@@ -367,7 +382,14 @@ Bool CommandGenerator::generateCondition(TiObject *astNode, Generation *g, Sessi
   Bool retVal = true;
   session->getDestructionStack()->pushScope();
   GenResult conditionResult;
-  if (!g->generateExpression(astNode, session, conditionResult)) retVal = false;
+  TerminalStatement terminal;
+  if (!g->generateExpression(astNode, session, conditionResult, terminal)) retVal = false;
+  if (terminal == TerminalStatement::YES) {
+    this->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
+    return false;
+  }
   if (retVal && conditionResult.astType == 0) {
     this->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))

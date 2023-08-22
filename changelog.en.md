@@ -1,5 +1,12 @@
 # Alusus Changelog
 
+## Version 0.11.2 (2023-08-22)
+
+### Compiler Fixes
+
+* Fixed the detection of terminal statements inside command packs (~use_in operator).
+
+
 ## Version 0.11.1 (2023-08-15)
 
 ### Compiler Fixes

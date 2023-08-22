@@ -966,11 +966,14 @@ Bool Generator::_generateStatement(
     session->getDestructionStack()->pushScope();
 
     GenResult result;
-    retVal = generation->generateExpression(astNode, session, result);
+    retVal = generation->generateExpression(astNode, session, result, terminal);
 
-    if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
-      retVal = false;
+    if (terminal != TerminalStatement::YES) {
+      if (!generation->generateVarGroupDestruction(session, session->getDestructionStack()->getScopeStartIndex(-1))) {
+        retVal = false;
+      }
     }
+
     session->getDestructionStack()->popScope();
   }
 
@@ -979,10 +982,10 @@ Bool Generator::_generateStatement(
 
 
 Bool Generator::_generateExpression(
-  TiObject *self, TiObject *astNode, Session *session, GenResult &result
+  TiObject *self, TiObject *astNode, Session *session, GenResult &result, TerminalStatement &terminal
 ) {
   PREPARE_SELF(generator, Generator);
-  return generator->expressionGenerator->generate(astNode, ti_cast<Generation>(self), session, result);
+  return generator->expressionGenerator->generate(astNode, ti_cast<Generation>(self), session, result, terminal);
 }
 
 

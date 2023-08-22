@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.h
  * Contains the header of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -98,20 +98,23 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generate,
     Bool, (
-      TiObject* /* astNode */, Generation* /* g */, Session* /* session */, GenResult& /* result */
+      TiObject* /* astNode */, Generation* /* g */, Session* /* session */, GenResult& /* result */,
+      TerminalStatement& /* terminal */
     )
   );
   private: static Bool _generate(
-    TiObject *self, TiObject *astNode, Generation *g, Session *session, GenResult &result
+    TiObject *self, TiObject *astNode, Generation *g, Session *session, GenResult &result, TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateList,
     Bool, (
-      Core::Data::Ast::List* /* astNode */, Generation* /* g */, Session* /* session */, GenResult& /* result */
+      Core::Data::Ast::List* /* astNode */, Generation* /* g */, Session* /* session */, GenResult& /* result */,
+      TerminalStatement& /* terminal */
     )
   );
   private: static Bool _generateList(
-    TiObject *self, Core::Data::Ast::List *astNode, Generation *g, Session *session, GenResult &result
+    TiObject *self, Core::Data::Ast::List *astNode, Generation *g, Session *session, GenResult &result,
+    TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateIdentifier,
@@ -127,11 +130,12 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: METHOD_BINDING_CACHE(generateLinkOperator,
     Bool, (
       Core::Data::Ast::LinkOperator* /* astNode */, Generation* /* g */,
-      Session* /* session */, GenResult& /* result */
+      Session* /* session */, GenResult& /* result */, TerminalStatement& /* terminal */
     )
   );
   private: static Bool _generateLinkOperator(
-    TiObject *self, Core::Data::Ast::LinkOperator *astNode, Generation *g, Session *session, GenResult &result
+    TiObject *self, Core::Data::Ast::LinkOperator *astNode, Generation *g, Session *session, GenResult &result,
+    TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateParamPass,
@@ -425,11 +429,13 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: METHOD_BINDING_CACHE(generateUseInOp,
     Bool, (
       Spp::Ast::UseInOp* /* astNode */, Generation* /* g */,
-      Session* /* session */, GenResult& /* result */
+      Session* /* session */, GenResult& /* result */,
+      TerminalStatement& /* terminal */
     )
   );
   private: static Bool _generateUseInOp(
-    TiObject *self, Spp::Ast::UseInOp *astNode, Generation *g, Session *session, GenResult &result
+    TiObject *self, Spp::Ast::UseInOp *astNode, Generation *g, Session *session, GenResult &result,
+    TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateStringLiteral,
@@ -571,23 +577,27 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: METHOD_BINDING_CACHE(prepareCallee,
     Bool, (
       Core::Data::Node* /* astNode */, Containing<TiObject>* /* argTypes */, Char const* /* op */,
-      Generation* /* g */, Session* /* session */, GenResult& /* calleeResult */, GenResult& /* thisResult */
+      Generation* /* g */, Session* /* session */, GenResult& /* calleeResult */, GenResult& /* thisResult */,
+      TerminalStatement& /* terminal */
     )
   );
   private: static Bool _prepareCallee(
     TiObject *self, Core::Data::Node *astNode, Containing<TiObject> *argTypes, Char const *op,
-    Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
+    Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult,
+    TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(prepareCalleeLookupRequest,
     Bool, (
       TiObject* /* operand */, Generation* /* g */, Session* /* session */,
-      GenResult& /* prevResult */, Ast::CalleeLookupRequest& /* calleeRequest */
+      GenResult& /* prevResult */, Ast::CalleeLookupRequest& /* calleeRequest */,
+      TerminalStatement& /* terminal */
     )
   );
   private: static Bool _prepareCalleeLookupRequest(
     TiObject *self, TiObject *operand, Generation *g, Session *session,
-    GenResult &prevResult, Ast::CalleeLookupRequest &calleeRequest
+    GenResult &prevResult, Ast::CalleeLookupRequest &calleeRequest,
+    TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(generateCalleeReferenceChain,

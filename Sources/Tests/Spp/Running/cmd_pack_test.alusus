@@ -68,7 +68,47 @@ func testSkippingAutoThis {
 }
 testSkippingAutoThis();
 
+function testNonTerminalReturn():Int {
+    Int().{
+        Console.print("testNonTerminalReturn\n");
+        if 1 return 1;
+    }
+    return 0;
+}
+testNonTerminalReturn();
+
+function testTerminalReturn():Int {
+    Int().{
+        Console.print("testTerminalReturn\n");
+        return 1;
+    }
+}
+testTerminalReturn();
+
 // Test Errors
+
+function testNonTerminalReturnError():Int {
+    Int().{
+        Console.print("testNonTerminalReturnError\n");
+        if 1 return 1;
+    }
+}
+testNonTerminalReturnError();
+
+function testTerminalReturnError():Int {
+    Int().{
+        return 0;
+    }
+    return 1;
+}
+testTerminalReturnError();
+
+function testUnexpectedTerminalStatement() {
+    Int().{ return } + 5;
+    Int().{ return }~ptr;
+    A().{ return }.i;
+}
+testUnexpectedTerminalStatement();
 
 Console.print("B().j = %d\n", B()~use_in(self) no_injection { j = 5 }.j);
 

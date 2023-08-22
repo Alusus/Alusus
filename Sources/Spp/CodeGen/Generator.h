@@ -217,7 +217,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _generateExpression(
-    TiObject *self, TiObject *astNode, Session *session, GenResult &result
+    TiObject *self, TiObject *astNode, Session *session, GenResult &result, TerminalStatement &terminal
   );
 
   private: static Bool _generateCast(

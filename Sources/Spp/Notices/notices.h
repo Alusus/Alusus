@@ -297,6 +297,9 @@ DEFINE_NOTICE(InvalidUseInTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPP
 DEFINE_NOTICE(CircularUserTypeCodeGenNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1040", 1,
   "Circular code generation encountered while generating user type."
 );
+DEFINE_NOTICE(UnexpectedTerminalStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1041", 1,
+  "Unexpected terminal statement encountered."
+);
 
 } // namespace
 

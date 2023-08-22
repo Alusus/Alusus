@@ -158,7 +158,7 @@ class Generation : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(generateExpression,
-    Bool, (TiObject* /* astNode */, Session* /* session */, GenResult& /* result */)
+    Bool, (TiObject* /* astNode */, Session* /* session */, GenResult& /* result */, TerminalStatement& /* terminal */)
   );
 
   public: METHOD_BINDING_CACHE(generateCast,
