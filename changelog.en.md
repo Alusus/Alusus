@@ -1,5 +1,12 @@
 # Alusus Changelog
 
+## Version 0.x.x (2023-xx-xx)
+
+### Compiler Fixes
+
+* Fixed the error detefction when passing a function as a boolean value in conditional statements.
+
+
 ## Version 0.11.2 (2023-08-22)
 
 ### Compiler Fixes

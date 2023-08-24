@@ -40,3 +40,5 @@ b is false... 1
 b is false... 2
 bc is false... 1
 bc is false... 2
+[0;31mERROR SPPG1013: Invalid operand of logical operator.[0m
+  logical_operators_test.alusus (139,9)

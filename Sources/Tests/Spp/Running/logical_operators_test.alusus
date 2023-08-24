@@ -133,3 +133,9 @@ def Main: module
 };
 
 Main.start();
+
+// Test error cases.
+
+if 1 or Main.start {
+  print("");
+}
