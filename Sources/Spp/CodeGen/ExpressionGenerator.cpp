@@ -3167,7 +3167,9 @@ Bool ExpressionGenerator::castLogicalOperand(
 ) {
   auto boolType = this->astHelper->getBoolType();
   if (astType == 0) {
-    this->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>());
+    this->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    );
     return false;
   }
   if (session->getTgContext() != 0) {
