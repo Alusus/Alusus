@@ -11,6 +11,7 @@
 //==============================================================================
 
 import "srl";
+import "Srl/String";
 
 @merge module Srl {
     class Nullable [DataType: type] {
@@ -21,16 +22,35 @@ import "srl";
             this.isNull = true;
         }
         handler this~init(DataType) {
-            this.isNull = false;
-            this.value = value;
+            this = value;
         }
         handler this~init(ref[this_type]) {
             this = value;
+        }
+        handler this = DataType {
+            this.isNull = false;
+            this.value = value;
         }
         handler this = ref[this_type] {
             this.isNull = value.isNull;
             this.value = value.value;
         }
-        handler this~cast[ref[DataType]] return this.data;
+        handler this.nullify() {
+            this.isNull = true;
+        }
+        handler this~cast[ref[DataType]] return this.value;
+    }
+}
+
+@merge module Srl {
+    def NullableString: alias Nullable[String];
+    @merge class NullableString {
+        handler this~init(CharsPtr) {
+            this = value;
+        }
+        handler this = CharsPtr {
+            this.isNull = false;
+            this.value = value;
+        }
     }
 }
