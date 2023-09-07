@@ -2,9 +2,21 @@
 
 ## Version 0.x.x (2023-xx-xx)
 
+### Updates to the Compiler
+
+* Enable implicit deep custom casting. This allows implicit casting in situations where the target
+  type is only reachable through multiple layers of custom casting. Previously, it was allowing only
+  a single level.
+
 ### Compiler Fixes
 
 * Fixed the error detefction when passing a function as a boolean value in conditional statements.
+* Fixed an issue in prioritizing local callees over injected ones. This solves an issue around
+  overriding functions in child classes.
+
+### Standard Libraries Fixes
+
+* Fixes to assignment and casting handlers of `Nullable` class.
 
 
 ## Version 0.11.2 (2023-08-22)
