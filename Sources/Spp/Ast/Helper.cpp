@@ -164,8 +164,9 @@ TypeMatchStatus Helper::_lookupCustomCaster(
             auto match = funcType->matchCall(&argTypes, helper, ec);
             if (match == TypeMatchStatus::EXACT) {
               auto retType = funcType->traceRetType(helper);
-              auto rmatch = retType->matchTargetType(targetType, helper, ec);
-              if ((rmatch>=TypeMatchStatus::IMPLICIT_CAST || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
+              Function *innerCaster;
+              auto rmatch = helper->matchTargetType(retType, targetType, ec, innerCaster);
+              if ((rmatch>=TypeMatchStatus::CUSTOM_CASTER || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
                 retMatch = rmatch;
                 caster = func;
                 if (rmatch == TypeMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
@@ -376,7 +377,7 @@ TypeMatchStatus Helper::_matchTargetType(
         (negativeDeref && (
           customMatchType==TypeMatchStatus::AGGREGATION || customMatchType>=TypeMatchStatus::REF_AGGREGATION
         )) ||
-        (!negativeDeref && customMatchType>=TypeMatchStatus::IMPLICIT_CAST)
+        (!negativeDeref && customMatchType>=TypeMatchStatus::CUSTOM_CASTER)
       ) {
         return TypeMatchStatus(customMatchType, TypeMatchStatus::CUSTOM_CASTER, deref);
       }
