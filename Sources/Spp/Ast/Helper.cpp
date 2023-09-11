@@ -164,8 +164,12 @@ TypeMatchStatus Helper::_lookupCustomCaster(
             auto match = funcType->matchCall(&argTypes, helper, ec);
             if (match == TypeMatchStatus::EXACT) {
               auto retType = funcType->traceRetType(helper);
-              auto rmatch = retType->matchTargetType(targetType, helper, ec);
-              if ((rmatch>=TypeMatchStatus::IMPLICIT_CAST || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
+              if (retType->getInitializationMethod(helper, ec) != Ast::TypeInitMethod::NONE) {
+                retType = helper->getReferenceTypeFor(retType, Ast::ReferenceMode::IMPLICIT);
+              }
+              Function *innerCaster;
+              auto rmatch = helper->matchTargetType(retType, targetType, ec, innerCaster);
+              if ((rmatch>=TypeMatchStatus::CUSTOM_CASTER || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
                 retMatch = rmatch;
                 caster = func;
                 if (rmatch == TypeMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
@@ -369,15 +373,17 @@ TypeMatchStatus Helper::_matchTargetType(
   } else if (!negativeDeref && matchType >= TypeMatchStatus::IMPLICIT_CAST) {
     return matchType;
   } else {
+    if (!srcType->isDerivedFrom<ReferenceType>()) {
+      auto srcReferenceType = helper->getReferenceTypeFor(srcType, Ast::ReferenceMode::TEMP_EXPLICIT);
+      auto customMatchType = helper->lookupCustomCaster(srcReferenceType, targetType, ec, caster);
+      if (customMatchType >= TypeMatchStatus::IMPLICIT_CAST) {
+        return TypeMatchStatus(customMatchType, TypeMatchStatus::CUSTOM_CASTER, -1);
+      }
+    }
     Int deref = 0;
     while (srcType->isDerivedFrom<ReferenceType>() && static_cast<ReferenceType*>(srcType)->isAutoDeref()) {
       auto customMatchType = helper->lookupCustomCaster(srcType, targetType, ec, caster);
-      if (
-        (negativeDeref && (
-          customMatchType==TypeMatchStatus::AGGREGATION || customMatchType>=TypeMatchStatus::REF_AGGREGATION
-        )) ||
-        (!negativeDeref && customMatchType>=TypeMatchStatus::IMPLICIT_CAST)
-      ) {
+      if (customMatchType>=TypeMatchStatus::CUSTOM_CASTER) {
         return TypeMatchStatus(customMatchType, TypeMatchStatus::CUSTOM_CASTER, deref);
       }
       ++deref;

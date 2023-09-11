@@ -1,3 +1,4 @@
+import "Srl/String";
 import "Srl/Nullable";
 import "Srl/Possible";
 import "Srl/Console";
@@ -19,9 +20,18 @@ func test {
     Console.print("n3 = n2 -> n3.isNull: %d, n3.value: %d\n", n3.isNull~cast[Int], n3.value);
     n3 = n1;
     Console.print("n3 = n1 -> n3.isNull: %d\n", n3.isNull~cast[Int]);
+    n3 = 5;
+    Console.print("n3 = 5 -> n3.isNull: %d, n3.value: %d\n", n3.isNull~cast[Int], n3.value);
 
     Console.print("p1.value: %d, p1.error: %ld\n", p1.value, p1.error.obj~ptr);
     Console.print("p2.error.code: %s, p2.error.message: %s\n", p2.error.getCode().buf, p2.error.getMessage().buf);
+
+    def ns: Nullable[String];
+    Console.print("ns.isNull: %d\n", ns.isNull~cast[Int]);
+    ns = "NS";
+    Console.print("ns = \"NS\" -> ns.isNull: %d, ns.value: %s\n", ns.isNull~cast[Int], ns.buf);
+    ns = String("Nullable[String] implicit casting to CharsPtr\n");
+    Console.print(ns);
 }
 
 test();

@@ -2,5 +2,9 @@ n1.isNull: 1
 n2.isNull: 0, n2.value: 3
 n3 = n2 -> n3.isNull: 0, n3.value: 3
 n3 = n1 -> n3.isNull: 1
+n3 = 5 -> n3.isNull: 0, n3.value: 5
 p1.value: 4, p1.error: 0
 p2.error.code: test_err1, p2.error.message: fail!
+ns.isNull: 1
+ns = "NS" -> ns.isNull: 0, ns.value: NS
+Nullable[String] implicit casting to CharsPtr

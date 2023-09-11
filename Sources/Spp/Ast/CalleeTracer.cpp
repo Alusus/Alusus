@@ -198,6 +198,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             if (innerResult.isSuccessful()) {
               if (!noBindDef) innerResult.pushThisMarker();
               innerResult.pushObject(def->getTarget().get());
+              ++innerResult.injectionLevel;
             }
             CalleeTracer::selectBetterResult(innerResult, result);
             // No need to keep looking if we already found an exact match.
@@ -813,28 +814,32 @@ void CalleeTracer::selectBetterResult(CalleeLookupResult const &newResult, Calle
       // Better result is found.
       result = newResult;
     } else if (newResult.matchStatus == result.matchStatus) {
-      // If the results are identical it means we have reached the same target twice, which can happen if the user has
-      // an alias at a parent scope with the same name pointing to the same element. In this case we ignore the second
-      // match without raising an error.
-      Int diffPoint = -1;
-      for (Int i = 0; i < newResult.stack.getLength(); ++i) {
-        if (newResult.stack(i) != result.stack(i)) {
-          diffPoint = i;
-          break;
+      if (newResult.injectionLevel < result.injectionLevel) {
+        result = newResult;
+      } else if (newResult.injectionLevel == result.injectionLevel) {
+        // If the results are identical it means we have reached the same target twice, which can happen if the user has
+        // an alias at a parent scope with the same name pointing to the same element. In this case we ignore the second
+        // match without raising an error.
+        Int diffPoint = -1;
+        for (Int i = 0; i < newResult.stack.getLength(); ++i) {
+          if (newResult.stack(i) != result.stack(i)) {
+            diffPoint = i;
+            break;
+          }
         }
-      }
-      if (diffPoint != -1) {
-        // Multiple callee match.
-        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
-          Core::Data::Ast::findSourceLocation(result.stack(diffPoint).obj),
-          Core::Data::Ast::findSourceLocation(newResult.stack(diffPoint).obj)
-        );
-      } else if (newResult.stack.getLength() != result.stack.getLength()) {
-        // Multiple callee match.
-        result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
-          Core::Data::Ast::findSourceLocation(result.stack(result.stack.getLength() - 1).obj),
-          Core::Data::Ast::findSourceLocation(newResult.stack(newResult.stack.getLength() - 1).obj)
-        );
+        if (diffPoint != -1) {
+          // Multiple callee match.
+          result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
+            Core::Data::Ast::findSourceLocation(result.stack(diffPoint).obj),
+            Core::Data::Ast::findSourceLocation(newResult.stack(diffPoint).obj)
+          );
+        } else if (newResult.stack.getLength() != result.stack.getLength()) {
+          // Multiple callee match.
+          result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
+            Core::Data::Ast::findSourceLocation(result.stack(result.stack.getLength() - 1).obj),
+            Core::Data::Ast::findSourceLocation(newResult.stack(newResult.stack.getLength() - 1).obj)
+          );
+        }
       }
     }
   } else if (!result.isNameMatched()) {
