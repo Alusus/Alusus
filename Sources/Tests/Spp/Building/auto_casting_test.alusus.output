@@ -1,0 +1,406 @@
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%B = type { %A, i32 }
+%A = type { i32 }
+
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"testCastToParentRef()"() {
+"#block0":
+  %b = alloca %B*
+  %0 = load %B*, %B** %b
+  %1 = bitcast %B* %0 to %A*
+  call void @"takeA(ref[A])"(%A* %1)
+  %2 = load %B*, %B** %b
+  %3 = bitcast %B* %2 to %A*
+  call void @"takeA(ref[A])"(%A* %3)
+  ret void
+}
+
+define void @"takeA(ref[A])"(%A* %r) {
+"#block1":
+  %r1 = alloca %A*
+  store %A* %r, %A** %r1
+  ret void
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%Aa = type { i32 }
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%Cc = type {}
+%Dd = type {}
+
+@"!Cc.~cast(ref[Cc])=>(Aa).t" = global %Aa zeroinitializer
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__5, i32* null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"testCustomCaster()"() {
+"#block0":
+  %cc = alloca %Cc
+  %dd = alloca %Dd
+  %"#temp0" = alloca %Aa
+  call void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#temp0", %Cc* %cc)
+  %0 = call %Dd* @"Dd.=(ref[Dd],ref[Aa])=>(ref[Dd])"(%Dd* %dd, %Aa* %"#temp0")
+  %"#temp1" = alloca %Aa
+  call void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#temp1", %Cc* %cc)
+  call void @"takeAa(ref[Aa])"(%Aa* %"#temp1")
+  %"#temp2" = alloca %Cc
+  %"#temp3" = alloca %Aa
+  call void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#temp3", %Cc* %"#temp2")
+  %1 = call %Dd* @"Dd.=(ref[Dd],ref[Aa])=>(ref[Dd])"(%Dd* %dd, %Aa* %"#temp3")
+  %"#temp4" = alloca %Cc
+  %"#temp5" = alloca %Aa
+  call void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#temp5", %Cc* %"#temp4")
+  call void @"takeAa(ref[Aa])"(%Aa* %"#temp5")
+  ret void
+}
+
+define void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#ret", %Cc* %this) {
+"#block1":
+  %this1 = alloca %Cc*
+  store %Cc* %this, %Cc** %this1
+  call void @"Aa.~init(ref[Aa],ref[Aa])"(%Aa* %"#ret", %Aa* @"!Cc.~cast(ref[Cc])=>(Aa).t")
+  ret void
+}
+
+define %Dd* @"Dd.=(ref[Dd],ref[Aa])=>(ref[Dd])"(%Dd* %this, %Aa* %v) {
+"#block2":
+  %this1 = alloca %Dd*
+  store %Dd* %this, %Dd** %this1
+  %v2 = alloca %Aa*
+  store %Aa* %v, %Aa** %v2
+  %0 = load %Dd*, %Dd** %this1
+  ret %Dd* %0
+}
+
+define void @"takeAa(ref[Aa])"(%Aa* %t) {
+"#block3":
+  %t1 = alloca %Aa*
+  store %Aa* %t, %Aa** %t1
+  ret void
+}
+
+define void @"Aa.~init(ref[Aa],ref[Aa])"(%Aa* %this, %Aa* %value) {
+"#block4":
+  %this1 = alloca %Aa*
+  store %Aa* %this, %Aa** %this1
+  %value2 = alloca %Aa*
+  store %Aa* %value, %Aa** %value2
+  ret void
+}
+
+define void @__constructor__5() {
+"#block5":
+  call void @"Aa.~init(ref[Aa])"(%Aa* @"!Cc.~cast(ref[Cc])=>(Aa).t")
+  ret void
+}
+
+define void @"Aa.~init(ref[Aa])"(%Aa* %this) {
+"#block6":
+  %this1 = alloca %Aa*
+  store %Aa* %this, %Aa** %this1
+  ret void
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%Aa = type { i32 }
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%Cc = type {}
+
+@"!Cc.~cast(ref[Cc])=>(Aa).t" = global %Aa zeroinitializer
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__8, i32* null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"testValueTypeCustomCaster()"() {
+"#block0":
+  %0 = call %Cc @"giveCc()=>(Cc)"()
+  %"#temp6" = alloca %Cc
+  store %Cc %0, %Cc* %"#temp6"
+  %"#temp7" = alloca %Aa
+  call void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#temp7", %Cc* %"#temp6")
+  call void @"takeAa(ref[Aa])"(%Aa* %"#temp7")
+  ret void
+}
+
+define %Cc @"giveCc()=>(Cc)"() {
+"#block1":
+  %"#temp8" = alloca %Cc
+  %0 = load %Cc, %Cc* %"#temp8"
+  ret %Cc %0
+}
+
+define void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#ret", %Cc* %this) {
+"#block2":
+  %this1 = alloca %Cc*
+  store %Cc* %this, %Cc** %this1
+  call void @"Aa.~init(ref[Aa],ref[Aa])"(%Aa* %"#ret", %Aa* @"!Cc.~cast(ref[Cc])=>(Aa).t")
+  ret void
+}
+
+define void @"takeAa(ref[Aa])"(%Aa* %t) {
+"#block3":
+  %t1 = alloca %Aa*
+  store %Aa* %t, %Aa** %t1
+  ret void
+}
+
+define void @"Aa.~init(ref[Aa],ref[Aa])"(%Aa* %this, %Aa* %value) {
+"#block4":
+  %this1 = alloca %Aa*
+  store %Aa* %this, %Aa** %this1
+  %value2 = alloca %Aa*
+  store %Aa* %value, %Aa** %value2
+  ret void
+}
+
+define void @__constructor__8() {
+"#block5":
+  call void @"Aa.~init(ref[Aa])"(%Aa* @"!Cc.~cast(ref[Cc])=>(Aa).t")
+  ret void
+}
+
+define void @"Aa.~init(ref[Aa])"(%Aa* %this) {
+"#block6":
+  %this1 = alloca %Aa*
+  store %Aa* %this, %Aa** %this1
+  ret void
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%ContainerB = type { %B* }
+%B = type { %A, i32 }
+%A = type { i32 }
+%ContainerC = type {}
+%ContainerA = type { %A }
+%ContainerBb = type { %Bb* }
+%Bb = type { %Aa, i32 }
+%Aa = type { i32 }
+%ContainerCc = type {}
+%ContainerAa = type { %Aa }
+
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"testMultiLevelCustomCaster()"() {
+"#block0":
+  %"#temp9" = alloca %ContainerB
+  %0 = call %B* @"ContainerB.~cast(ref[ContainerB])=>(ref[B])"(%ContainerB* %"#temp9")
+  %1 = bitcast %B* %0 to %A*
+  call void @"takeA(ref[A])"(%A* %1)
+  %"#temp10" = alloca %ContainerC
+  %2 = call %ContainerA @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(%ContainerC* %"#temp10")
+  %"#temp11" = alloca %ContainerA
+  store %ContainerA %2, %ContainerA* %"#temp11"
+  %3 = call %A* @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(%ContainerA* %"#temp11")
+  call void @"takeA(ref[A])"(%A* %3)
+  %"#temp12" = alloca %ContainerBb
+  %4 = call %Bb* @"ContainerBb.~cast(ref[ContainerBb])=>(ref[Bb])"(%ContainerBb* %"#temp12")
+  %5 = bitcast %Bb* %4 to %Aa*
+  call void @"takeAa(ref[Aa])"(%Aa* %5)
+  %"#temp13" = alloca %ContainerCc
+  %"#temp14" = alloca %ContainerAa
+  call void @"ContainerCc.~cast(ref[ContainerCc])=>(ContainerAa)"(%ContainerAa* %"#temp14", %ContainerCc* %"#temp13")
+  %6 = call %Aa* @"ContainerAa.~cast(ref[ContainerAa])=>(ref[Aa])"(%ContainerAa* %"#temp14")
+  call void @"takeAa(ref[Aa])"(%Aa* %6)
+  ret void
+}
+
+define %B* @"ContainerB.~cast(ref[ContainerB])=>(ref[B])"(%ContainerB* %this) {
+"#block1":
+  %this1 = alloca %ContainerB*
+  store %ContainerB* %this, %ContainerB** %this1
+  %0 = load %ContainerB*, %ContainerB** %this1
+  %1 = getelementptr %ContainerB, %ContainerB* %0, i32 0, i32 0
+  %2 = load %B*, %B** %1
+  ret %B* %2
+}
+
+define void @"takeA(ref[A])"(%A* %r) {
+"#block2":
+  %r1 = alloca %A*
+  store %A* %r, %A** %r1
+  ret void
+}
+
+define %ContainerA @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(%ContainerC* %this) {
+"#block3":
+  %this1 = alloca %ContainerC*
+  store %ContainerC* %this, %ContainerC** %this1
+  %"#temp15" = alloca %ContainerA
+  %0 = load %ContainerA, %ContainerA* %"#temp15"
+  ret %ContainerA %0
+}
+
+define %A* @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(%ContainerA* %this) {
+"#block4":
+  %this1 = alloca %ContainerA*
+  store %ContainerA* %this, %ContainerA** %this1
+  %0 = load %ContainerA*, %ContainerA** %this1
+  %1 = getelementptr %ContainerA, %ContainerA* %0, i32 0, i32 0
+  ret %A* %1
+}
+
+define %Bb* @"ContainerBb.~cast(ref[ContainerBb])=>(ref[Bb])"(%ContainerBb* %this) {
+"#block5":
+  %this1 = alloca %ContainerBb*
+  store %ContainerBb* %this, %ContainerBb** %this1
+  %0 = load %ContainerBb*, %ContainerBb** %this1
+  %1 = getelementptr %ContainerBb, %ContainerBb* %0, i32 0, i32 0
+  %2 = load %Bb*, %Bb** %1
+  ret %Bb* %2
+}
+
+define void @"takeAa(ref[Aa])"(%Aa* %t) {
+"#block6":
+  %t1 = alloca %Aa*
+  store %Aa* %t, %Aa** %t1
+  ret void
+}
+
+define void @"ContainerCc.~cast(ref[ContainerCc])=>(ContainerAa)"(%ContainerAa* %"#ret", %ContainerCc* %this) {
+"#block7":
+  %this1 = alloca %ContainerCc*
+  store %ContainerCc* %this, %ContainerCc** %this1
+  %"#temp16" = alloca %ContainerAa
+  call void @ContainerAa.__autoConstruct__(%ContainerAa* %"#temp16")
+  call void @"ContainerAa.~init(ref[ContainerAa])"(%ContainerAa* %"#temp16")
+  call void @ContainerAa.__autoConstruct__(%ContainerAa* %"#ret")
+  call void @"ContainerAa.~init(ref[ContainerAa],ref[ContainerAa])"(%ContainerAa* %"#ret", %ContainerAa* %"#temp16")
+  ret void
+}
+
+define %Aa* @"ContainerAa.~cast(ref[ContainerAa])=>(ref[Aa])"(%ContainerAa* %this) {
+"#block9":
+  %this1 = alloca %ContainerAa*
+  store %ContainerAa* %this, %ContainerAa** %this1
+  %0 = load %ContainerAa*, %ContainerAa** %this1
+  %1 = getelementptr %ContainerAa, %ContainerAa* %0, i32 0, i32 0
+  ret %Aa* %1
+}
+
+define void @ContainerAa.__autoConstruct__(%ContainerAa* %this) {
+"#block8":
+  %0 = getelementptr %ContainerAa, %ContainerAa* %this, i32 0, i32 0
+  call void @"Aa.~init(ref[Aa])"(%Aa* %0)
+  ret void
+}
+
+define void @"Aa.~init(ref[Aa])"(%Aa* %this) {
+"#block10":
+  %this1 = alloca %Aa*
+  store %Aa* %this, %Aa** %this1
+  ret void
+}
+
+define void @"ContainerAa.~init(ref[ContainerAa])"(%ContainerAa* %this) {
+"#block11":
+  %this1 = alloca %ContainerAa*
+  store %ContainerAa* %this, %ContainerAa** %this1
+  ret void
+}
+
+define void @"ContainerAa.~init(ref[ContainerAa],ref[ContainerAa])"(%ContainerAa* %this, %ContainerAa* %aa) {
+"#block12":
+  %this1 = alloca %ContainerAa*
+  store %ContainerAa* %this, %ContainerAa** %this1
+  %aa2 = alloca %ContainerAa*
+  store %ContainerAa* %aa, %ContainerAa** %aa2
+  ret void
+}
+------------------------------------------------------------
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, void ()*, i32* }
+%Ee = type {}
+%Ff = type {}
+
+@"#anonymous0" = private constant [1 x i8] zeroinitializer
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"testPrioritizingImplicitCast()"() {
+"#block0":
+  %"#temp17" = alloca %Ee
+  call void @"Ee.~init(ref[Ee])"(%Ee* %"#temp17")
+  call void @"takeEe(Ee)"(%Ee* %"#temp17")
+  %"#temp18" = alloca %Ff
+  call void @"Ff.~init(ref[Ff])"(%Ff* %"#temp18")
+  call void @"takeFf(Ff)"(%Ff* %"#temp18")
+  ret void
+}
+
+define void @"Ee.~init(ref[Ee])"(%Ee* %this) {
+"#block1":
+  %this1 = alloca %Ee*
+  store %Ee* %this, %Ee** %this1
+  ret void
+}
+
+define void @"takeEe(Ee)"(%Ee* %ee) {
+"#block2":
+  %ee1 = alloca %Ee
+  call void @"Ee.~init(ref[Ee],ref[Ee])"(%Ee* %ee1, %Ee* %ee)
+  ret void
+}
+
+define void @"Ff.~init(ref[Ff])"(%Ff* %this) {
+"#block3":
+  %this1 = alloca %Ff*
+  store %Ff* %this, %Ff** %this1
+  ret void
+}
+
+define void @"takeFf(Ff)"(%Ff* %ff) {
+"#block4":
+  %ff1 = alloca %Ff
+  %0 = call [1 x i8]* @"Ff.~cast(ref[Ff])=>(ptr[array[Word[8],1]])"(%Ff* %ff)
+  call void @"Ff.~init(ref[Ff],ptr[array[Word[8],1]])"(%Ff* %ff1, [1 x i8]* %0)
+  ret void
+}
+
+define void @"Ee.~init(ref[Ee],ref[Ee])"(%Ee* %this, %Ee* %str) {
+"#block5":
+  %this1 = alloca %Ee*
+  store %Ee* %this, %Ee** %this1
+  %str2 = alloca %Ee*
+  store %Ee* %str, %Ee** %str2
+  ret void
+}
+
+define [1 x i8]* @"Ff.~cast(ref[Ff])=>(ptr[array[Word[8],1]])"(%Ff* %this) {
+"#block6":
+  %this1 = alloca %Ff*
+  store %Ff* %this, %Ff** %this1
+  ret [1 x i8]* @"#anonymous0"
+}
+
+define void @"Ff.~init(ref[Ff],ptr[array[Word[8],1]])"(%Ff* %this, [1 x i8]* %buf) {
+"#block7":
+  %this1 = alloca %Ff*
+  store %Ff* %this, %Ff** %this1
+  %buf2 = alloca [1 x i8]*
+  store [1 x i8]* %buf, [1 x i8]** %buf2
+  ret void
+}
+------------------------------------------------------------
