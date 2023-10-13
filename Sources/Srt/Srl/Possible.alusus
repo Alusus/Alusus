@@ -15,8 +15,8 @@ import "refs";
 
 @merge module Srl {
     class Possible [DataType: type] {
-        @injection def value: DataType;
         def error: SrdRef[Error];
+        @injection def value: DataType;
 
         handler this~init() {}
         handler this~init(ref[this_type]) {
