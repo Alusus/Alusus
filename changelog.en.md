@@ -1,5 +1,12 @@
 # Alusus Changelog
 
+## Version 0.xx.x (xxxx-xx-xx)
+
+### Standard Libraries Fixes
+
+* Fix in `Possible` to prevent unintentional casting to `value` without going through the custom caster.
+
+
 ## Version 0.11.3 (2023-09-11)
 
 ### Updates to the Compiler
