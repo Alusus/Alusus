@@ -23,7 +23,7 @@ class JitEngine
   // Member Variables
 
   protected: std::unique_ptr<llvm::orc::ExecutionSession> es;
-  protected: llvm::orc::JITDylib &main;
+  protected: llvm::Expected<llvm::orc::JITDylib&> main;
 
   protected: llvm::DataLayout dl;
   protected: std::unique_ptr<llvm::ThreadPool> compileThreads;
@@ -59,7 +59,7 @@ class JitEngine
   public: const llvm::DataLayout &getDataLayout() const { return dl; }
 
   /// Returns a reference to the JITDylib representing the JIT'd main program.
-  public: llvm::orc::JITDylib &getMainJITDylib() { return main; }
+  public: llvm::orc::JITDylib &getMainJITDylib() { return main.get(); }
 
   /// Returns the JITDylib with the given name, or nullptr if no JITDylib with
   /// that name exists.
@@ -73,7 +73,7 @@ class JitEngine
   /// input or elsewhere in the environment then the client should check
   /// (e.g. by calling getJITDylibByName) that the given name is not already in
   /// use.
-  public: llvm::orc::JITDylib &createJITDylib(std::string name) {
+  public: llvm::Expected<llvm::orc::JITDylib&> createJITDylib(std::string name) {
     return es->createJITDylib(std::move(name));
   }
 
@@ -85,7 +85,7 @@ class JitEngine
 
   /// Adds an IR module to the main JITDylib.
   public: llvm::Error addIRModule(llvm::orc::ThreadSafeModule tsm) {
-    return addIRModule(main, std::move(tsm));
+    return addIRModule(main.get(), std::move(tsm));
   }
 
   /// Adds an object file to the given JITDylib.
@@ -93,7 +93,7 @@ class JitEngine
 
   /// Adds an object file to the given JITDylib.
   public: llvm::Error addObjectFile(std::unique_ptr<llvm::MemoryBuffer> obj) {
-    return addObjectFile(main, std::move(obj));
+    return addObjectFile(main.get(), std::move(obj));
   }
 
   /// Look up a symbol in JITDylib jd by the symbol's linker-mangled name (to
@@ -106,7 +106,7 @@ class JitEngine
   /// (to look up symbols based on their IR name use the lookup function
   /// instead).
   public: llvm::Expected<llvm::JITEvaluatedSymbol> lookupLinkerMangled(llvm::StringRef name) {
-    return lookupLinkerMangled(main, name);
+    return lookupLinkerMangled(main.get(), name);
   }
 
   /// Look up a symbol in JITDylib jd based on its IR symbol name.
@@ -116,7 +116,7 @@ class JitEngine
 
   /// Look up a symbol in the main JITDylib based on its IR symbol name.
   public: llvm::Expected<llvm::JITEvaluatedSymbol> lookup(llvm::StringRef unmangledName) {
-    return lookup(main, unmangledName);
+    return lookup(main.get(), unmangledName);
   }
 
   /// Runs all not-yet-run static constructors.
@@ -199,7 +199,7 @@ class LazyJitEngine : public JitEngine
 
   /// Add a module to be lazily compiled to the main JITDylib.
   public: llvm::Error addLazyIRModule(llvm::orc::ThreadSafeModule m) {
-    return addLazyIRModule(main, std::move(m));
+    return addLazyIRModule(main.get(), std::move(m));
   }
 
 };
@@ -227,13 +227,14 @@ class JitEngineBuilderState
 
 
 //==============================================================================
-class GlobalMappingGenerator : public llvm::orc::JITDylib::DefinitionGenerator {
+class GlobalMappingGenerator : public llvm::orc::DefinitionGenerator {
   private: CodeGen::GlobalItemRepo *itemRepo;
 
   public: GlobalMappingGenerator(CodeGen::GlobalItemRepo *itemRepo) : itemRepo(itemRepo) {}
 
   llvm::Error tryToGenerate(
-    llvm::orc::LookupKind K, llvm::orc::JITDylib &JD, llvm::orc::JITDylibLookupFlags JDLookupFlags,
+    llvm::orc::LookupState &LS, llvm::orc::LookupKind K, llvm::orc::JITDylib &JD,
+    llvm::orc::JITDylibLookupFlags JDLookupFlags,
     const llvm::orc::SymbolLookupSet &Names
   ) {
     llvm::orc::SymbolMap NewDefs;

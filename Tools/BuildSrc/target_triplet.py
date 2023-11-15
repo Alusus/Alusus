@@ -12,12 +12,19 @@ from common import ExtendedEnum
 
 class _CombinedTargetTriplet:
     def __init__(self,
+                 # Alusus build command target triplet string.
                  alusus_target_triplet: str,
+                 # Matching Vcpkg target triplet string used.
                  vcpkg_target_triplet: str,
+                 # Python sys.platform string to match.
                  platform: str,
+                 # Python platform.machine() string to match.
                  machine: str,
+                 # ABI string when building packages.
                  abi=None,
-                 cmake_generator=None) -> None:
+                 # CMake custom generator.
+                 cmake_generator=None
+                 ) -> None:
         self._alusus_target_triplet = alusus_target_triplet
         self._vcpkg_target_triplet = vcpkg_target_triplet
         self._platform = platform
@@ -50,8 +57,8 @@ class _CombinedTargetTriplet:
         return self._cmake_generator
 
 
-def _get_unix_cmake_generator():
-    # Prefer using "ninja" over "make" if available in Unix operating systems.
+def _prefer_ninja():
+    # Prefer using "ninja" over the default build system if available.
     if shutil.which("ninja"):
         return "Ninja"
     return None
@@ -63,7 +70,7 @@ class TargetTriplet(ExtendedEnum):
         for item in TargetTriplet.list():
             if item.value.platform == sys.platform and item.value.machine == platform.machine():
                 return item
-        raise NotImplementedError("Current host has no matching build target. Platform: {0}, Machine: {1}".format(
+        raise NotImplementedError("Current host has no matching build target. Platform: {0}, Machine: {1}. Specify a build target.".format(
             sys.platform,
             platform.machine()
         ))
@@ -77,15 +84,15 @@ class TargetTriplet(ExtendedEnum):
 
     # Target triplets we support building for.
     X64_LINUX = _CombinedTargetTriplet(
-        "x64-linux", "x64-linux-release", "linux", "x86_64", abi="gnu", cmake_generator=_get_unix_cmake_generator())
-    ARM7L_LINUX = _CombinedTargetTriplet(
-        "armv7l-linux", "arm-linux-release", "linux", "armv7l", abi="gnu", cmake_generator=None)
-    AARCH64_LINUX = _CombinedTargetTriplet(
-        "aarch64-linux", "arm64-linux-release", "linux", "aarch64", abi="gnu", cmake_generator=None)
+        "x64-linux", "x64-linux-release", "linux", "x86_64", abi="gnu", cmake_generator=_prefer_ninja())
+    ARM_LINUX = _CombinedTargetTriplet(
+        "arm-linux", "arm-linux-release", "linux", "armv7l", abi="gnu", cmake_generator=_prefer_ninja())
+    ARM64_LINUX = _CombinedTargetTriplet(
+        "arm64-linux", "arm64-linux-release", "linux", "aarch64", abi="gnu", cmake_generator=_prefer_ninja())
     PPC64LE_LINUX = _CombinedTargetTriplet(
-        "ppc64le-linux", "ppc64le-linux-release", "linux", "ppc64le", abi="gnu", cmake_generator=None)
+        "ppc64le-linux", "ppc64le-linux-release", "linux", "ppc64le", abi="gnu", cmake_generator=_prefer_ninja())
     S390X_LINUX = _CombinedTargetTriplet(
-        "s390x-linux", "s390x-linux-release", "linux", "s390x", abi="gnu", cmake_generator=None)
+        "s390x-linux", "s390x-linux-release", "linux", "s390x", abi="gnu", cmake_generator=_prefer_ninja())
     X64_OSX = _CombinedTargetTriplet(
-        "x64-osx", "x64-osx-release", "darwin", "x86_64", cmake_generator=_get_unix_cmake_generator())
+        "x64-osx", "x64-osx-release", "darwin", "x86_64", cmake_generator=_prefer_ninja())
     # TODO: Add more targets here when we add support building for.

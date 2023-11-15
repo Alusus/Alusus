@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import sys
+import distutils.dir_util
 
 ALUSUS_REPO_PATH = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.realpath(__file__))))
@@ -101,7 +102,7 @@ def copy_if_different(src, dst, follow_src_symlinks=True, follow_dst_symlinks=Tr
     if not follow_src_symlinks and src_type == PathType.LINK:
         os.link(os.readlink(src), dst)
     elif src_type == PathType.DIR:
-        shutil.copytree(src, dst)
+        distutils.dir_util.copy_tree(src, dst, preserve_symlinks=1)
     elif src_type == PathType.FILE:
         shutil.copy(src, dst)
 

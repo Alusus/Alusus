@@ -3,6 +3,7 @@ import os
 import shutil
 import checksum
 import sys
+import distutils.dir_util
 
 # fmt: off
 # Alusus import(s).
@@ -42,15 +43,17 @@ def _get_vcpkg_version_from_json_object(json_obj) -> str:
             "Unsupported vcpkg versioning scheme.")
 
 
-def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path=get_vcpkg_repo_path(), verbose_output=False):
+def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path=None, verbose_output=False):
+    if vcpkg_repo_path == None:
+        vcpkg_repo_path = get_vcpkg_repo_path()
     manifest_file_data = None
 
     for package_name in os.listdir(common.VCPKG_ALUSUS_PORTS_OVERLAY_DIR):
         overlay_port_location = os.path.join(
             alusus_vcpkg_ports_overlays_location, package_name)
 
-        # Check for port overlay hash change.
-        if os.path.exists(os.path.join(overlay_port_location, "vcpkg.json")):
+        # Check if the port overlay exists.
+        if os.path.exists(os.path.join(overlay_port_location, "DONE")):
             continue
 
         # Get the package version and port number from the "vcpkg.json" manifest file.
@@ -107,12 +110,15 @@ def restore_ports_overlays(alusus_vcpkg_ports_overlays_location, vcpkg_repo_path
         restore_git_tree_to_path(vcpkg_repo_path, git_tree_hash, overlay_port_location)
 
         # Apply Alusus port overlay changes to the restored port files.
-        shutil.copytree(
+        distutils.dir_util.copy_tree(
             os.path.join(
                 common.VCPKG_ALUSUS_PORTS_OVERLAY_DIR, package_name),
-            overlay_port_location, dirs_exist_ok=True,
-            symlinks=True, ignore_dangling_symlinks=True
+            overlay_port_location, preserve_symlinks=1
         )
+
+        # Add check that the overlay changes are fully written to disk.
+        with open(os.path.join(overlay_port_location, "DONE"), "w") as fd:
+            fd.write("")
 
         msg.success_msg("Updating dependency {package_name}'s port overlay.".format(
             package_name=json.dumps(package_name)))

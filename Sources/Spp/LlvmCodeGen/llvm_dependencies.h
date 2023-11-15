@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/llvm_dependencies.h
  * Contains include statement for LLVM dependencies.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,8 +30,10 @@
 #include <llvm/IR/DiagnosticPrinter.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_os_ostream.h>
-#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/Process.h>
 #include <llvm/Support/ThreadPool.h>
+#include <llvm/Support/Host.h>
+#include <llvm/MC/TargetRegistry.h>
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
@@ -45,6 +47,9 @@
 #include <llvm/ExecutionEngine/Orc/ObjectTransformLayer.h>
 #include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
 #include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
+#include <llvm/ExecutionEngine/Orc/ExecutorProcessControl.h>
+#include <llvm/Analysis/TargetLibraryInfo.h>
+#include <llvm/Analysis/TargetTransformInfo.h>
 
 #define C(x)	u8##x
 #define S(x)	u8##x

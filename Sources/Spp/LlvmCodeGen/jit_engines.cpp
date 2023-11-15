@@ -38,7 +38,7 @@ Error JitEngineBuilderState::prepareForConstruction() {
           [](ExecutionSession &es,
              const Triple &) -> std::unique_ptr<ObjectLayer> {
         return std::make_unique<ObjectLinkingLayer>(
-            es, std::make_unique<jitlink::InProcessMemoryManager>());
+            es, std::make_unique<jitlink::InProcessMemoryManager>(llvm::sys::Process::getPageSize().get()));
       };
     }
   }
@@ -59,7 +59,7 @@ JitEngine::~JitEngine() {
 Error JitEngine::defineAbsolute(StringRef name, JITEvaluatedSymbol sym) {
   auto InternedName = es->intern(name);
   SymbolMap Symbols({{InternedName, sym}});
-  return main.define(absoluteSymbols(std::move(Symbols)));
+  return main.get().define(absoluteSymbols(std::move(Symbols)));
 }
 
 
@@ -70,9 +70,9 @@ Error JitEngine::addIRModule(JITDylib &jd, ThreadSafeModule tsm) {
     return err;
 
   if (optimizeLayer.get() != 0) {
-    return optimizeLayer->add(jd, std::move(tsm), es->allocateVModule());
+    return optimizeLayer->add(jd, std::move(tsm));
   } else {
-    return compileLayer->add(jd, std::move(tsm), es->allocateVModule());
+    return compileLayer->add(jd, std::move(tsm));
   }
 }
 
@@ -80,7 +80,7 @@ Error JitEngine::addIRModule(JITDylib &jd, ThreadSafeModule tsm) {
 Error JitEngine::addObjectFile(JITDylib &jd, std::unique_ptr<MemoryBuffer> obj) {
   assert(obj && "Can not add null object");
 
-  return objTransformLayer.add(jd, std::move(obj), es->allocateVModule());
+  return objTransformLayer.add(jd, std::move(obj));
 }
 
 
@@ -136,11 +136,11 @@ Expected<std::unique_ptr<IRCompileLayer::IRCompiler>> JitEngine::createCompileFu
 
 
 JitEngine::JitEngine(JitEngineBuilderState &s, Error &err, Bool useOptimizeLayer)
-    : es(s.es ? std::move(s.es) : std::make_unique<ExecutionSession>()),
+    : es(s.es ? std::move(s.es) : std::make_unique<ExecutionSession>(std::move(*SelfExecutorProcessControl::Create()))),
       main(this->es->createJITDylib("<main>")), dl(""),
       objLinkingLayer(createObjectLinkingLayer(s, *es)),
-      objTransformLayer(*this->es, *objLinkingLayer), ctorRunner(main),
-      dtorRunner(main) {
+      objTransformLayer(*this->es, *objLinkingLayer), ctorRunner(main.get()),
+      dtorRunner(main.get()) {
 
   ErrorAsOutParameter _(&err);
 
@@ -163,12 +163,11 @@ JitEngine::JitEngine(JitEngineBuilderState &s, Error &err, Bool useOptimizeLayer
 
   if (s.numCompileThreads > 0) {
     compileLayer->setCloneToNewContextOnEmit(true);
-    compileThreads = std::make_unique<ThreadPool>(s.numCompileThreads);
-    es->setDispatchMaterialization(
-      [this](JITDylib &jd, std::unique_ptr<MaterializationUnit> mu) {
-        // FIXME: Switch to move capture once we have c++14.
-        auto sharedMu = std::shared_ptr<MaterializationUnit>(std::move(mu));
-        auto work = [sharedMu, &jd]() { sharedMu->doMaterialize(jd); };
+    compileThreads = std::make_unique<ThreadPool>();
+    es->setDispatchTask(
+      [this](std::unique_ptr<Task> task) {
+        auto sharedTask = std::shared_ptr<Task>(std::move(task));
+        auto work = [sharedTask]() { sharedTask->run(); };
         compileThreads->async(std::move(work));
       }
     );
@@ -279,7 +278,7 @@ Error LazyJitEngine::addLazyIRModule(JITDylib &jd, ThreadSafeModule tsm) {
       }))
     return err;
 
-  return optimizeLayer->add(jd, std::move(tsm), es->allocateVModule());
+  return optimizeLayer->add(jd, std::move(tsm));
 }
 
 

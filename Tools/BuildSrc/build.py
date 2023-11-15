@@ -85,7 +85,10 @@ def build_alusus(alusus_build_location: str,
         "-DALUSUS_LIB_DIR_NAME={alusus_lib_dirname}".format(
             alusus_lib_dirname=alusus_lib_dirname),
         "-DALUSUS_INCLUDE_DIR_NAME={alusus_include_dirname}".format(
-            alusus_include_dirname=alusus_include_dirname)
+            alusus_include_dirname=alusus_include_dirname),
+        "-DPython3_EXECUTABLE={python3_exec}".format(
+            python3_exec=sys.executable
+        )
     ]
     if alusus_target_triplet.value.cmake_generator:
         msg.info_msg("Using preferred {cmake_generator} CMake generator with the CMake configuration.".format(
@@ -179,18 +182,25 @@ def build_alusus(alusus_build_location: str,
         bins_to_install = []
         if alusus_target_triplet.value.platform == "linux":
             bins_to_install = [
-                ("wasm-ld", "wasm-ld")
+                (os.path.join("llvm", "ld.lld"), "ld.lld"),
+                (os.path.join("llvm", "wasm-ld"), "wasm-ld")
             ]
-            # TODO: Add more bins to install as needed here.
         elif alusus_target_triplet.value.platform == "darwin":
             bins_to_install = [
-                ("wasm-ld", "wasm-ld")
+                (os.path.join("llvm", "ld64.lld"), "ld64.lld"),
+                (os.path.join("llvm", "wasm-ld"), "wasm-ld")
+            ]
+            # TODO: Add more bins to install as needed here.
+        elif alusus_target_triplet.value.platform == "win32":
+            bins_to_install = [
+                (os.path.join("llvm", "lld-link.exe"), "lld-link.exe"),
+                (os.path.join("llvm", "wasm-ld.exe"), "wasm-ld.exe")
             ]
             # TODO: Add more bins to install as needed here.
         # TODO: Add more logic for other targets here.
 
         std_bins_location = os.path.join(
-            alusus_build_location, "vcpkg_installed", alusus_target_triplet.value.vcpkg_target_triplet, "bin")
+            alusus_build_location, "vcpkg_installed", alusus_target_triplet.value.vcpkg_target_triplet, "tools")
         alusus_bins_install_location = os.path.join(
             alusus_install_location, alusus_bin_dirname)
 
@@ -227,7 +237,7 @@ def parse_cmd_args(args):
                         type=BuildType.from_alusus_build_type_str, default=BuildType.DEBUG, help="Alusus build type")
     parser.add_argument("--target-triplet",
                         type=TargetTriplet.from_alusus_target_triplet_str,
-                        default=TargetTriplet.host_default_target_triplet(), help="Alusus target triplet")
+                        help="Alusus target triplet")
     parser.add_argument("--clean-and-build", action="store_true",
                         help="Whether or not to clean Alusus before building")
     parser.add_argument("--build-packages", action="store_true",
@@ -249,6 +259,10 @@ def parse_cmd_args(args):
     parser.add_argument("--verbose", action="store_true",
                         help="Verbose output when calling sub commands")
     processed_args = parser.parse_args(args)
+
+    # Set default target triplet.
+    if processed_args.target_triplet == None:
+        processed_args.target_triplet = TargetTriplet.host_default_target_triplet()
 
     # Set the default build, install, and packages paths if no custom paths provided.
     alusus_local_build_path = os.path.join(
@@ -280,7 +294,12 @@ def parse_cmd_args(args):
 
 if __name__ == "__main__":
     init_colorama()
-    args = parse_cmd_args(sys.argv[1:])
+    args = None
+    try:
+        args = parse_cmd_args(sys.argv[1:])
+    except NotImplementedError as e:
+        common.eprint(e)
+        exit(1)
 
     # Process print arguments first.
     if args.print_supported_build_types:

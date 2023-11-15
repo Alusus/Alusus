@@ -111,7 +111,7 @@ void OfflineBuildTarget::generateObjectFile(
   this->llvmModule->setTargetTriple(this->targetTriple);
 
   std::error_code ec;
-  llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::F_None);
+  llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);
 
   if (ec) {
     throw EXCEPTION(FileException, ec.message().c_str(), C('w'));
