@@ -1,3 +1,16 @@
+diff --git a/llvm/include/llvm/Support/Signals.h b/llvm/include/llvm/Support/Signals.h
+index e0a18e72f2a7..eb3135b6e150 100644
+--- a/llvm/include/llvm/Support/Signals.h
++++ b/llvm/include/llvm/Support/Signals.h
+@@ -14,6 +14,8 @@
+ #ifndef LLVM_SUPPORT_SIGNALS_H
+ #define LLVM_SUPPORT_SIGNALS_H
+ 
++#include <cstdint> // Just to pass Alusus builds on GCC compilers with versions >= 11.
++                   // The actual LLVM fix is introduced in LLVM 12.0.0.
+ #include <string>
+ 
+ namespace llvm {
 diff --git a/llvm/utils/benchmark/src/benchmark_register.h b/llvm/utils/benchmark/src/benchmark_register.h
 index 0705e219f2fa..f553b3d11317 100644
 --- a/llvm/utils/benchmark/src/benchmark_register.h

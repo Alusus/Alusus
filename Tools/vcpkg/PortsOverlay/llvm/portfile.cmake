@@ -13,9 +13,9 @@ vcpkg_from_github(
     PATCHES
         0001-allow-to-use-commas.patch
         0002-fix-install-paths.patch
-        fix-missing-include-for-llvm-10-for-alusus.patch # Alusus patch to fix LLVM 10 with missing
-                                                         # "limits" include error introduced in GCC 11.
-                                                         # The released fix is in LLVM 12.0.0.
+        fix-missing-includes-for-newer-gcc.patch # Alusus patch to fix LLVM 10 with missing include
+                                                 # errors introduced in newer versions of GCC.
+                                                 # The released fix is in LLVM 12.0.0.
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
