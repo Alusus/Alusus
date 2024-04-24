@@ -28,7 +28,7 @@ namespace Core::Main
 
 using namespace Data;
 
-#ifdef WINDOWS
+#ifdef WINDOW
   #define _getWorkingDirectory _getcwd
 #else
   #define _getWorkingDirectory getcwd
