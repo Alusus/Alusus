@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.xx.x (xxxx-xx-xx)
+## Version 0.12.0 (2024-07-05)
 
 ### Updates to the Compiler
 
