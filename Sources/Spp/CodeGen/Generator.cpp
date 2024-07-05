@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.cpp
  * Contains the implementation of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -109,6 +109,10 @@ Bool Generator::_generateModuleInit(TiObject *self, Spp::Ast::Module *astModule,
   Int i;
   for (i = startIndex; i < astModule->getCount(); ++i) {
     auto obj = astModule->getElement(i);
+    if (obj->isDerivedFrom<Core::Data::Ast::Definition>()) {
+      auto definition = static_cast<Core::Data::Ast::Definition*>(obj);
+      if (definition->getTarget().ti_cast_get<Spp::Ast::Module>() == 0) continue;
+    }
     TerminalStatement terminal;
     if (!generation->generateStatement(obj, session, terminal)) retVal = false;
   }
@@ -387,16 +391,20 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
         }
       }
 
+      // Determine whether the variable initialization is high priority.
+      // TODO: Switch to using an integer priority value instead of the boolean priority.
+      auto highPriority = generator->getAstHelper()->doesModifierExistOnDef(definition, "priority");
+
       if (astParams != 0 || astType->getInitializationMethod(
         generator->astHelper, session->getExecutionContext()
       ) != Ast::TypeInitMethod::NONE) {
-        session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar));
+        session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
       }
 
       if (astType->getDestructionMethod(
         generator->astHelper, session->getExecutionContext()
       ) != Ast::TypeInitMethod::NONE) {
-        session->getGlobalVarDestructionDeps()->add(static_cast<Core::Data::Node*>(astVar));
+        session->getGlobalVarDestructionDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
       }
     } else {
       // Generate a local variable.

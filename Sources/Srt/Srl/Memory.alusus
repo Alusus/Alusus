@@ -2,7 +2,7 @@
  * @file Srl/Memory.alusus
  * Contains functions for memory management.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,16 +17,40 @@ import "srl";
     module Memory
     {
         @expname[malloc]
-        function alloc (size: ArchInt) => ptr[Void];
+        function sysAlloc (size: ArchInt) => ptr[Void];
 
         @expname[realloc]
-        function realloc (p: ptr[Void], newSize: ArchInt) => ptr[Void];
+        function sysRealloc (p: ptr[Void], newSize: ArchInt) => ptr[Void];
 
         @expname[aligned_alloc]
-        function allocAligned (alignment: ArchInt, size: ArchInt) => ptr[Void];
+        function sysAllocAligned (alignment: ArchInt, size: ArchInt) => ptr[Void];
 
         @expname[free]
-        function free (pointer: ptr[Void]);
+        function sysFree (pointer: ptr[Void]);
+
+        @priority def alloc: ptr[function (size: ArchInt) => ptr[Void]](sysAlloc~ptr);
+        @priority def realloc: ptr[function (p: ptr[Void], newSize: ArchInt) => ptr[Void]](sysRealloc~ptr);
+        @priority def allocAligned: ptr[function (alignment: ArchInt, size: ArchInt) => ptr[Void]](sysAllocAligned~ptr);
+        @priority def free: ptr[function (pointer: ptr[Void])](sysFree~ptr);
+
+        function overrideAllocator(
+            customAlloc: ptr[function (size: ArchInt) => ptr[Void]],
+            customRealloc: ptr[function (p: ptr[Void], newSize: ArchInt) => ptr[Void]],
+            customAllocAligned: ptr[function (alignment: ArchInt, size: ArchInt) => ptr[Void]],
+            customFree: ptr[function (pointer: ptr[Void])]
+        ) {
+            alloc = customAlloc;
+            realloc = customRealloc;
+            allocAligned = customAllocAligned;
+            free = customFree;
+        }
+
+        function resetAllocator() {
+            alloc = sysAlloc~ptr;
+            realloc = sysRealloc~ptr;
+            allocAligned = sysAllocAligned~ptr;
+            free = sysFree~ptr;
+        }
 
         @expname[memcpy]
         function copy (dest: ptr[Void], src: ptr[Void], n: ArchInt) => ptr[Void];

@@ -1,7 +1,7 @@
 /**
  * @file Spp/SppFactory.cpp
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -70,6 +70,7 @@ void SppFactory::createGrammar()
   this->set(S("root.Main.Def.modifierTranslations.دون_ربط"), TiStr::create(S("no_bind")));
   this->set(S("root.Main.Def.modifierTranslations.حقنة"), TiStr::create(S("injection")));
   this->set(S("root.Main.Def.modifierTranslations.عملية"), TiStr::create(S("operation")));
+  this->set(S("root.Main.Def.modifierTranslations.أولوية"), TiStr::create(S("priority")));
 
   // Create leading commands.
 

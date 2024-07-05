@@ -40,6 +40,7 @@
                             <li><a href="#General-comments">Comments</a></li>
                             <li><a href="#General-modifiers">Modifiers</a></li>
                           </ul>
+                        <a href="#Variables" class="top-level">Variables</a><br>
                         <a href="#BasicTypes" class="top-level">Basic Types</a><br>
                         <a href="#OperatorsAndExpressions" class="top-level">Operators And Expressions</a><br>
                           <ul class="unstyled-list">
@@ -198,6 +199,71 @@
 <pre class="samplecode">
   @mymodifier["arg1", "arg2"] func myFunc { ... };
 </pre>
+                </div>
+
+                <!-- ********************************************************************** -->
+                <h3 id="Variables">Variables</h3>
+                <hr>
+                <div>
+                  Variables are defined like this:
+<pre dir=ltr class="code">
+def &lt;var_name&gt;: &lt;var_type&gt;;
+</pre>
+                  For example, to define a variable of an integer type:
+<pre class="samplecode" dir=ltr>
+def x: Int;
+</pre>
+                  And to initialize the variable with a value (or values) we pass those values
+                  in parenthesis following the type, like this:
+<pre class="samplecode" dir=ltr>
+def x: Int(5);
+</pre>
+
+                    <ul>
+                      <li>
+                        When a variable is define inside a function body, the variable is allocated
+                        on the stack, so it's allocated upon entry to the function and is freed
+                        upon leaving the function.
+                      </li>
+                      <li>
+                        When a variable is defined inside the body of a class it becomes a member
+                        variable.
+                      </li>
+                      <li>
+                        When a variable is defined at the root scope, or within the body of a module
+                        it becomes a global varaible allocated on the heap, and it remains valid
+                        throughout the entire execution of the program.
+                      </li>
+                    </ul>
+                    
+                    <h4>Shared Variables</h4>
+                    <p>
+                      Shared varialbes can be defined inside function bodies or class bodies by
+                      attaching the `@shared` modifier to the definition. This makes the variable
+                      allocated on the heap and makes it similar to global variables with the only
+                      difference being that it's scoped within the body of the class or function.
+<pre class="samplecode" dir=ltr>
+@shared def x: Int;
+</pre>
+                    </p>
+
+                    <h4>Global Variable Initialization</h4>
+                    <p>
+                      Global variables are initialized in global constructors before the program's
+                      execution starts. The order of initialization of those variables is dependant
+                      on the compilation process. The compiler tries to initialize them in the right
+                      order so that variables are initialized after the initialization of other
+                      varaibles that are used during the initialization. However, in some cases,
+                      depending on the structure of the prgram being compiled, the compiler might
+                      not be able to make the correct ordering decision.<br>
+                      The user can manually give priority to certain variables through the
+                      `@priority` modifier. This modifier doesn't take any params and it makes the
+                      variables carrying it have higher initialization priority than variables
+                      without this modifier.
+<pre class="samplecode" dir=ltr>
+@shared def x: Int(5);
+</pre>
+                    </p>
                 </div>
 
                 <!-- ********************************************************************** -->

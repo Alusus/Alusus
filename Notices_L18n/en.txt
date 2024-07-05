@@ -113,3 +113,5 @@ SPPG1040:Circular code generation encountered while generating user type.
 SPPG1041:Unexpected terminal statement encountered.
 
 SRT1001:Closure payload capture mode is invalid.
+SRT1002:Invalid @format modifier within StringBuilder class.
+SRT1003:Invalid formatting function within StringBuilder class.

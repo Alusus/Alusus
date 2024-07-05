@@ -2,7 +2,7 @@
  * @file Srl/exceptions.cpp
  * Contains the implementation of exception classes.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,8 +20,10 @@ namespace Srl
 
 String Exception::getVerboseErrorMessage() const throw()
 {
+  #pragma GCC diagnostic ignored "-Wstringop-overread"
   return this->getErrorMessage() + S("\nLocation:\n") + this->functionName + S("\n") +
       this->sourceFile + S(" : ") + (LongInt)this->lineNumber;
+  #pragma GCC diagnostic warning "-Wstringop-overread"
 }
 
 

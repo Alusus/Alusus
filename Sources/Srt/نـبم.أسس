@@ -2,7 +2,7 @@
  * نـبم.أسس
  * يحتوي على تعريفات لمكتبة نمط البرمجة المعياري.
  *
- * جميع الحقوق محفوظة (C) 2023 سرمد خالد عبد الله
+ * جميع الحقوق محفوظة (C) 2024 سرمد خالد عبد الله
  *
  * نُشر هذا الملف بالرخصة التالية:
  * رخصة الأسس العامة، الإصدار 1.0، https://alusus.org/ar/license.html
@@ -38,15 +38,19 @@
     عرف مـدير_شبم: لقب AstMgr؛
     @دمج صنف AstMgr {
         عرف جد_عناصر: لقب findElements؛
+        عرف هات_اسم_تعريف: لقب getDefinitionName؛
         عرف هات_المبدلات: لقب getModifiers؛
         عرف جد_مبدلا: لقب findModifier؛
         عرف جد_مبدلا_لعنصر: لقب findModifierForElement؛
         عرف هات_كلمة_المبدل_المفتاحية: لقب getModifierKeyword؛
         عرف هات_المعطيات_النصية_لمبدل: لقب getModifierStringParams؛
+        عرف هات_أصناف_معطيات_دالة: لقب getFuncArgTypes؛
+        عرف هات_صنف_معطى_دالة: لقب getFuncArgType؛
         عرف هات_المسار_الكامل_لشفرة_عنصر: لقب getSourceFullPathForElement؛
         عرف هات_مجلد_شفرة_عنصر: لقب getSourceDirectoryForElement؛
         عرف احشر_شبم: لقب insertAst؛
         عرف أنشئ_شبم: لقب buildAst؛
+        عرف احشر_مكون: لقب insertMixin؛
         عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
         عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
         عرف هات_نطاق_المتغير: لقب getVariableDomain؛

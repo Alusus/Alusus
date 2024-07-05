@@ -2,7 +2,7 @@
  * @file Srl/strs.h
  * Contains string classes.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -41,7 +41,7 @@ template<class T> class StringBase
     this->assign(buf);
   }
 
-  public: StringBase(T const *buf, LongInt n) {
+  public: StringBase(T const *buf, ArchInt n) {
     this->_init();
     this->assign(buf, n);
   }
@@ -68,13 +68,13 @@ template<class T> class StringBase
     this->refCount = 0;
   }
 
-  private: void _alloc(LongInt length) {
+  private: void _alloc(ArchInt length) {
     this->refCount = (Int*)malloc(sizeof(Int) + sizeof(T) * (length + 1));
     this->buf = (T*)((ArchInt)this->refCount + sizeof(*this->refCount));
     *this->refCount = 1;
   }
 
-  private: void _realloc(LongInt newLength) {
+  private: void _realloc(ArchInt newLength) {
     this->refCount = (Int*)realloc(this->refCount, sizeof(Int) + sizeof(T) * (newLength + 1));
     this->buf = (T*)((ArchInt)this->refCount + sizeof(*this->refCount));
   }
@@ -87,11 +87,11 @@ template<class T> class StringBase
     }
   }
 
-  public: LongInt getLength() const {
+  public: ArchInt getLength() const {
     return getLength(this->buf);
   }
 
-  public: void alloc(LongInt length) {
+  public: void alloc(ArchInt length) {
     this->_release();
     this->_alloc(length);
   }
@@ -113,7 +113,7 @@ template<class T> class StringBase
     }
   }
 
-  public: void assign(T const *buf, LongInt n) {
+  public: void assign(T const *buf, ArchInt n) {
     this->_release();
     this->_alloc(n);
     copy(this->buf, buf, n);
@@ -124,31 +124,24 @@ template<class T> class StringBase
     this->append(buf, getLength(buf));
   }
 
-  public: void append(T const *buf, LongInt n) {
-    LongInt bufLen = 0;
-    while (bufLen < n && buf[bufLen] != 0) ++bufLen;
+  public: void append(T const *buf, ArchInt bufLen) {
     if (bufLen == 0) return;
-    auto thisBufLen = this->getLength();
-    if (thisBufLen == 0) {
-      this->assign(buf, n);
-      return;
+    ArchInt currentLen = this->getLength();
+    if (currentLen == 0) {
+        this->assign(buf, bufLen);
+        return;
     }
-    LongInt newLength = thisBufLen + bufLen;
-    if (this->refCount == 0) {
-      T *currentBuf = this->buf;
-      this->_alloc(newLength);
-      copy(this->buf, currentBuf);
-      concat(this->buf, buf, n);
-    } else if (*this->refCount > 1) {
-      T *currentBuf = this->buf;
-      --*this->refCount;
-      this->_alloc(newLength);
-      copy(this->buf, currentBuf);
-      concat(this->buf, buf, n);
+    ArchInt newLength = currentLen + bufLen;
+    if (this->refCount == 0 || *this->refCount > 1) {
+        T *currentBuf = this->buf;
+        this->alloc(newLength);
+        copy(this->buf, currentBuf);
+        copy(this->buf + currentLen, buf, bufLen);
     } else {
-      this->_realloc(newLength);
-      concat(this->buf, buf, n);
-    }
+        this->_realloc(newLength);
+        copy(this->buf + currentLen, buf, bufLen);
+    };
+    this->buf[newLength] = 0;
   }
 
   public: void append(T c) {
@@ -165,7 +158,7 @@ template<class T> class StringBase
     return newStr;
   }
 
-  public: StringBase<T> concat(T const *buf, LongInt n) const {
+  public: StringBase<T> concat(T const *buf, ArchInt n) const {
     StringBase<T> newStr = *this;
     newStr.append(buf, n);
     return newStr;
@@ -189,11 +182,11 @@ template<class T> class StringBase
     return newStr;
   }
 
-  public: LongInt find(T const *buf) const {
-    return this->find((LongInt)0, buf);
+  public: ArchInt find(T const *buf) const {
+    return this->find((ArchInt)0, buf);
   }
 
-  public: LongInt find(LongInt startPos, T const *buf) const {
+  public: ArchInt find(ArchInt startPos, T const *buf) const {
     T *startBuf = this->buf;
     while (*startBuf != 0 && startPos > 0) { --startPos; ++startBuf; }
     if (startPos > 0) return -1;
@@ -209,11 +202,11 @@ template<class T> class StringBase
     return (ArchInt)pos - (ArchInt)this->buf;
   };
 
-  public: LongInt find(T c) const {
-    return this->find((LongInt)0, c);
+  public: ArchInt find(T c) const {
+    return this->find((ArchInt)0, c);
   }
 
-  public: LongInt find(LongInt startPos, T c) const {
+  public: ArchInt find(ArchInt startPos, T c) const {
     T *startBuf = this->buf;
     while (*startBuf != 0 && startPos > 0) { --startPos; ++startBuf; }
     if (startPos > 0) return -1;
@@ -233,13 +226,13 @@ template<class T> class StringBase
     return compare(this->buf, s);
   }
 
-  public: Int compare(T const *s, LongInt n) const {
+  public: Int compare(T const *s, ArchInt n) const {
     return compare(this->buf, s, n);
   }
 
   public: StringBase<T> replace(T const *match, T const *replacement) const {
     StringBase<T> str;
-    LongInt matchLength = getLength(match);
+    ArchInt matchLength = getLength(match);
     T *buf = this->buf;
     while (1) {
       T const *found = find(buf, match);
@@ -269,8 +262,8 @@ template<class T> class StringBase
 
   public: StringBase<T> _trim(Bool trimStart, Bool trimEnd) const {
     if (this->getLength() == 0) return StringBase<T>();
-    LongInt begin = 0;
-    LongInt end = this->getLength() - 1;
+    ArchInt begin = 0;
+    ArchInt end = this->getLength() - 1;
     if (trimStart) while (isSpace(this->buf[begin])) { ++begin; }
     if (trimEnd) while (isSpacce(this->buf[end])) { --end; }
     if (end >= begin) {
@@ -284,23 +277,29 @@ template<class T> class StringBase
 
   public: StringBase<T> toUpperCase() const {
     StringBase<T> str = StringBase<T>();
-    for (LongInt charIndex = 0; charIndex < this->getLength(); ++charIndex) {
-      str += toUpper(this->at(charIndex));
+    str.alloc(this->getLength());
+    ArchInt charIndex;
+    for (charIndex = 0; charIndex < this->getLength(); ++charIndex) {
+      str.buf[charIndex] = toUpper(this->at(charIndex));
     }
+    str.buf[charIndex] = 0;
     return str;
   }
 
   public: StringBase<T> toLowerCase() const {
     StringBase<T> str = StringBase<T>();
-    for (LongInt charIndex = 0; charIndex < this->getLength(); ++charIndex) {
-      str += toLower(this->at(charIndex));
+    str.alloc(this->getLength());
+    ArchInt charIndex;
+    for (charIndex = 0; charIndex < this->getLength(); ++charIndex) {
+      str.buf[charIndex] = toLower(this->at(charIndex));
     }
+    str.buf[charIndex] = 0;
     return str;
   }
 
-  public: StringBase<T> slice(LongInt begin, LongInt count) const {
+  public: StringBase<T> slice(ArchInt begin, ArchInt count) const {
     StringBase<T> str;
-    LongInt l = this->getLength();
+    ArchInt l = this->getLength();
     if (begin >= l) return str;
     str.assign((T*)((ArchInt)this->buf + begin), count);
     return str;
@@ -309,7 +308,7 @@ template<class T> class StringBase
   public: Array<StringBase<T>> split(T const *separator) const {
     Array<StringBase<T>> ary;
     StringBase<T> str;
-    LongInt matchLength = getLength(separator);
+    ArchInt matchLength = getLength(separator);
     T *buf = this->buf;
     while (1) {
       T *found = find(buf, separator);
@@ -328,7 +327,7 @@ template<class T> class StringBase
 
   public: static StringBase<T> merge(Array<StringBase<T>> ary, T const *separator) {
     StringBase<T> str;
-    for (LongInt i = 0; i < ary.getLength(); ++i) {
+    for (ArchInt i = 0; i < ary.getLength(); ++i) {
       if (i != 0) str += separator;
       str += ary(i);
     }
@@ -337,7 +336,7 @@ template<class T> class StringBase
 
   public: static StringBase<T> merge(Array<T*> ary, T const *separator) {
     StringBase<T> str;
-    for (LongInt i = 0; i < ary.getLength(); ++i) {
+    for (ArchInt i = 0; i < ary.getLength(); ++i) {
       if (i != 0) str += separator;
       str += ary(i);
     }
@@ -399,7 +398,7 @@ template<class T> class StringBase
     return *this;
   }
 
-  public: T operator()(LongInt i) const {
+  public: T operator()(ArchInt i) const {
     return this->buf[i];
   }
 
@@ -451,7 +450,7 @@ template<class T> class StringBase
     return chrs;
   }
 
-  public: static T* charAt(T const *chrs, LongInt index) {
+  public: static T* charAt(T const *chrs, ArchInt index) {
     static T buffer[2];
     copy(&buffer, (T*)((ArchInt)chrs + index), 1);
     buffer[1] = 0;
@@ -460,7 +459,7 @@ template<class T> class StringBase
 
   public: static T const* find(T const *s, T c);
 
-  public: static T const* find(T const *s, T c, LongInt n);
+  public: static T const* find(T const *s, T c, ArchInt n);
 
   public: static T const* find(T const *haystack, T const *needle);
 
@@ -483,17 +482,17 @@ template<class T> class StringBase
 
   public: static Int compare(T const *s1, T const *s2);
 
-  public: static Int compare(T const *s1, T const *s2, LongInt n);
+  public: static Int compare(T const *s1, T const *s2, ArchInt n);
 
   public: static T* copy(T *dest, T const *src);
 
-  public: static T* copy(T *dest, T const *src, LongInt n);
+  public: static T* copy(T *dest, T const *src, ArchInt n);
 
   public: static T* concat(T *dest, T const *src);
 
-  public: static T* concat(T *dest, T const *src, LongInt n);
+  public: static T* concat(T *dest, T const *src, ArchInt n);
 
-  public: static LongInt getLength(T const *s);
+  public: static ArchInt getLength(T const *s);
 
   public: static T toUpper(T c);
 
@@ -533,10 +532,10 @@ template<> inline WChar const* StringBase<WChar>::find(WChar const *s, WChar c) 
   return wcschr(s, c);
 }
 
-template<> inline Char const* StringBase<Char>::find(Char const *s, Char c, LongInt n) {
+template<> inline Char const* StringBase<Char>::find(Char const *s, Char c, ArchInt n) {
   return (Char*)memchr(s, c, n);
 }
-template<> inline WChar const* StringBase<WChar>::find(WChar const *s, WChar c, LongInt n) {
+template<> inline WChar const* StringBase<WChar>::find(WChar const *s, WChar c, ArchInt n) {
   return wmemchr(s, c, n);
 }
 
@@ -561,10 +560,10 @@ template<> inline Int StringBase<WChar>::compare(WChar const *s1, WChar const *s
   return wcscmp(s1, s2);
 }
 
-template<> inline Int StringBase<Char>::compare(Char const *s1, Char const *s2, LongInt n) {
+template<> inline Int StringBase<Char>::compare(Char const *s1, Char const *s2, ArchInt n) {
   return strncmp(s1, s2, n);
 }
-template<> inline Int StringBase<WChar>::compare(WChar const *s1, WChar const *s2, LongInt n) {
+template<> inline Int StringBase<WChar>::compare(WChar const *s1, WChar const *s2, ArchInt n) {
   return wcsncmp(s1, s2, n);
 }
 
@@ -575,10 +574,10 @@ template<> inline WChar* StringBase<WChar>::copy(WChar *dest, WChar const *src) 
   return wcscpy(dest, src);
 }
 
-template<> inline Char* StringBase<Char>::copy(Char *dest, Char const *src, LongInt n) {
+template<> inline Char* StringBase<Char>::copy(Char *dest, Char const *src, ArchInt n) {
   return strncpy(dest, src, n);
 }
-template<> inline WChar* StringBase<WChar>::copy(WChar *dest, WChar const *src, LongInt n) {
+template<> inline WChar* StringBase<WChar>::copy(WChar *dest, WChar const *src, ArchInt n) {
   return wcsncpy(dest, src, n);
 }
 
@@ -589,17 +588,17 @@ template<> inline WChar* StringBase<WChar>::concat(WChar *dest, WChar const *src
   return wcscat(dest, src);
 }
 
-template<> inline Char* StringBase<Char>::concat(Char *dest, Char const *src, LongInt n) {
+template<> inline Char* StringBase<Char>::concat(Char *dest, Char const *src, ArchInt n) {
   return strncat(dest, src, n);
 }
-template<> inline WChar* StringBase<WChar>::concat(WChar *dest, WChar const *src, LongInt n) {
+template<> inline WChar* StringBase<WChar>::concat(WChar *dest, WChar const *src, ArchInt n) {
   return wcsncat(dest, src, n);
 }
 
-template<> inline LongInt StringBase<Char>::getLength(Char const *s) {
+template<> inline ArchInt StringBase<Char>::getLength(Char const *s) {
   return strlen(s);
 }
-template<> inline LongInt StringBase<WChar>::getLength(WChar const *s) {
+template<> inline ArchInt StringBase<WChar>::getLength(WChar const *s) {
   return wcslen(s);
 }
 
