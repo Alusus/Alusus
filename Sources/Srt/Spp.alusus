@@ -2,7 +2,7 @@
  * @file Spp.alusus
  * Contains definitions of SPP's astMgr and buildMgr.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,115 +44,189 @@ import "Srl/refs_base";
     def grammarMgr: ref[GrammarMgr];
 
     class AstMgr {
+        use Srl;
+        use Core.Basic;
+
         @expname[Spp_AstMgr_findElements]
         handler this.findElements(
-            comparison: ref[Core.Basic.TiObject],
-            target: ref[Core.Basic.TiObject],
+            comparison: ref[TiObject],
+            target: ref[TiObject],
             flags: Word
-        ): Srl.Array[ref[Core.Basic.TiObject]];
+        ): Array[ref[TiObject]];
+
+        handler this.getDefinitionName (element: ref[TiObject]): String {
+            use Core.Data;
+            def node: ref[Node](castRef[element, Node]);
+            def d: ref[Ast.Definition](castRef[node.owner, Ast.Definition]);
+            def binding: ref[Binding](getInterface[d, Binding]);
+            return castRef[binding.getMember("name"), TiStr].value;
+        }
 
         @expname[Spp_AstMgr_getModifiers]
-        handler this.getModifiers(element: ref[Core.Basic.TiObject]): ref[Core.Basic.Containing];
+        handler this.getModifiers(element: ref[TiObject]): ref[Containing];
 
         @expname[Spp_AstMgr_findModifier]
         handler this.findModifier(
-            modifiers: ref[Core.Basic.Containing], kwd: ptr[array[Char]]
-        ): ref[Core.Basic.TiObject];
+            modifiers: ref[Containing], kwd: ptr[array[Char]]
+        ): ref[TiObject];
 
         @expname[Spp_AstMgr_findModifierForElement]
         handler this.findModifierForElement(
-            element: ref[Core.Basic.TiObject], kwd: ptr[array[Char]]
-        ): ref[Core.Basic.TiObject];
+            element: ref[TiObject], kwd: ptr[array[Char]]
+        ): ref[TiObject];
+
+        handler this.findModifierForElement (
+            element: ref[TiObject],
+            kwd: ptr[array[Char]],
+            kwdTranslations: Map[String, String]
+        ): ref[TiObject] {
+            def modifiers: ref[Containing](this.getModifiers(element));
+            if modifiers~ptr == 0 return nullRef[TiObject];
+            def i: Int;
+            for i = 0, i < modifiers.getElementCount()~cast[Int], ++i {
+                def modifier: ref[TiObject](modifiers.getElement(i));
+                if modifier~ptr == 0 continue;
+                def modKwd: String = this.getModifierKeyword(modifier);
+                def translatedKwd: String = kwdTranslations(modKwd);
+                if translatedKwd == "" translatedKwd = modKwd;
+                if translatedKwd == kwd return modifier;
+            }
+            return nullRef[TiObject];
+        }
 
         @expname[Spp_AstMgr_getModifierKeyword]
-        handler this.getModifierKeyword(modifier: ref[Core.Basic.TiObject]): Srl.String;
+        handler this.getModifierKeyword(modifier: ref[TiObject]): String;
 
         @expname[Spp_AstMgr_getModifierStringParams]
         handler this.getModifierStringParams(
-            modifier: ref[Core.Basic.TiObject], result: ref[Srl.Array[Srl.String]]
+            modifier: ref[TiObject], result: ref[Array[String]]
         ) => Word[1];
 
-        @expname[Spp_AstMgr_getSourceFullPathForElement]
-        handler this.getSourceFullPathForElement(element: ref[Core.Basic.TiObject]) => Srl.String;
+        handler this.getFuncArgTypes (element: ref[TiObject]): ref[TiObject] {
+            def fnType: ref[TiObject](MapContainerOf[element].getElement("type"));
+            return MapContainerOf[fnType].getElement("argTypes");
+        }
 
-        handler this.getSourceDirectoryForElement(element: ref[Core.Basic.TiObject]) => Srl.String {
-            def fullPath: Srl.String = this.getSourceFullPathForElement(element);
+        handler this.getFuncArgType (element: ref[TiObject], index: Int): ref[TiObject] {
+            ContainerOf[this.getFuncArgTypes(element)].{
+                if getElementCount()~cast[Int] <= index return nullRef[TiObject]
+                else return getElement(index);
+            }
+        }
+
+        @expname[Spp_AstMgr_getSourceFullPathForElement]
+        handler this.getSourceFullPathForElement(element: ref[TiObject]) => String;
+
+        handler this.getSourceDirectoryForElement(element: ref[TiObject]) => String {
+            def fullPath: String = this.getSourceFullPathForElement(element);
             return fullPath.slice(0, fullPath.findLast('/') + 1);
         }
 
         @expname[Spp_AstMgr_insertAst]
-        handler this.insertAst(element: ref[Core.Basic.TiObject]) => Word[1];
+        handler this.insertAst(element: ref[TiObject]) => Word[1];
 
         @expname[Spp_AstMgr_insertAst_plain]
         handler this.insertAst(
-            element: ref[Core.Basic.TiObject],
-            interpolations: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]]
+            element: ref[TiObject],
+            interpolations: ref[Map[String, ref[TiObject]]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_insertAst_shared]
         handler this.insertAst(
-            element: ref[Core.Basic.TiObject],
-            interpolations: ref[Srl.Map[Srl.String, Srl.SrdRef[Core.Basic.TiObject]]]
+            element: ref[TiObject],
+            interpolations: ref[Map[String, SrdRef[TiObject]]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_buildAst_plain]
         handler this.buildAst(
-            element: ref[Core.Basic.TiObject],
-            interpolations: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]],
-            result: ref[Srl.SrdRef[Core.Basic.TiObject]]
+            element: ref[TiObject],
+            interpolations: ref[Map[String, ref[TiObject]]],
+            result: ref[SrdRef[TiObject]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_buildAst_shared]
         handler this.buildAst(
-            element: ref[Core.Basic.TiObject],
-            interpolations: ref[Srl.Map[Srl.String, Srl.SrdRef[Core.Basic.TiObject]]],
-            result: ref[Srl.SrdRef[Core.Basic.TiObject]]
+            element: ref[TiObject],
+            interpolations: ref[Map[String, SrdRef[TiObject]]],
+            result: ref[SrdRef[TiObject]]
         ) => Word[1];
 
         handler this.buildAst(
-            tree: ref[Core.Basic.TiObject], args: ref[Srl.Map[Srl.String, ref[Core.Basic.TiObject]]]
-        ): Srl.SrdRef[Core.Basic.TiObject] {
-            def result: Srl.SrdRef[Core.Basic.TiObject];
+            tree: ref[TiObject], args: ref[Map[String, ref[TiObject]]]
+        ): SrdRef[TiObject] {
+            def result: SrdRef[TiObject];
             this.buildAst(tree, args, result);
             return result;
         }
 
+        handler this.insertMixin(obj: ref[TiObject]) {
+            use Core.Data;
+            use Core.Data.Ast;
+            def bitwiseOp: ref[BitwiseOperator](dynCastRef[obj, BitwiseOperator]);
+            if bitwiseOp~ptr != 0 {
+                this.insertMixin(MapContainerOf[bitwiseOp].getElement("first"));
+                this.insertMixin(MapContainerOf[bitwiseOp].getElement("second"));
+                return;
+            }
+            if isDerivedFrom[obj, ParamPass] or isDerivedFrom[obj, LinkOperator] or isDerivedFrom[obj, Identifier] {
+                def elements: Array[ref[TiObject]] = this.findElements(obj, castRef[obj, Node].owner, 0);
+                if elements.getLength() == 0 {
+                    buildMgr.raiseBuildNotice("SPPA1007", 1, obj);
+                    return;
+                }
+                def i: Int;
+                for i = 0, i < elements.getLength(), ++i this.insertMixin(elements(i));
+                return;
+            }
+            def scope: ref[Scope](dynCastRef[obj, Scope]);
+            if scope~ptr == 0 {
+                this.insertAst(obj);
+                return;
+            }
+            def container: ContainerOf[scope];
+            def i: Word;
+            for i = 0, i < container.getElementCount(), ++i {
+                this.insertAst(container.getElement(i));
+            }
+        }
+        @member macro insertMixin [this, target] preprocess { this.insertMixin(target~ast) }
+
         @expname[Spp_AstMgr_getCurrentPreprocessOwner]
-        handler this.getCurrentPreprocessOwner(): ref[Core.Basic.TiObject];
+        handler this.getCurrentPreprocessOwner(): ref[TiObject];
 
         @expname[Spp_AstMgr_getCurrentPreprocessInsertionPosition]
         handler this.getCurrentPreprocessInsertionPosition(): Int;
 
         @expname[Spp_AstMgr_getVariableDomain]
-        handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
+        handler this.getVariableDomain(element: ref[TiObject]) => Int;
 
         @expname[Spp_AstMgr_traceType]
-        handler this.traceType(element: ref[Core.Basic.TiObject]) => ref[Spp.Ast.Type];
+        handler this.traceType(element: ref[TiObject]) => ref[Spp.Ast.Type];
 
         @expname[Spp_AstMgr_computeResultType]
         handler this.computeResultType(
-            element: ref[Core.Basic.TiObject], result: ref[ref[Core.Basic.TiObject]], resultIsValue: ref[Bool]
+            element: ref[TiObject], result: ref[ref[TiObject]], resultIsValue: ref[Bool]
         ) => Bool;
 
         @expname[Spp_AstMgr_cloneAst]
         handler this.cloneAst(
-            element: ref[Core.Basic.TiObject], sourceLocationNode: ref[Core.Basic.TiObject]
-        ): Srl.SrdRef[Core.Basic.TiObject];
-        handler this.cloneAst(element: ref[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject] {
-            return this.cloneAst(element, nullRef[Core.Basic.TiObject]);
+            element: ref[TiObject], sourceLocationNode: ref[TiObject]
+        ): SrdRef[TiObject];
+        handler this.cloneAst(element: ref[TiObject]): SrdRef[TiObject] {
+            return this.cloneAst(element, nullRef[TiObject]);
         }
 
         @expname[Spp_AstMgr_dumpData]
-        handler this.dumpData(obj: ref[Core.Basic.TiObject]);
+        handler this.dumpData(obj: ref[TiObject]);
 
         @expname[Spp_AstMgr_getReferenceTypeFor]
-        handler this.getReferenceTypeFor(astType: ref[Core.Basic.TiObject]): ref[Spp.Ast.ReferenceType];
+        handler this.getReferenceTypeFor(astType: ref[TiObject]): ref[Spp.Ast.ReferenceType];
 
         @expname[Spp_AstMgr_tryGetDeepReferenceContentType]
         handler this.tryGetDeepReferenceContentType(astType: ref[Spp.Ast.Type]): ref[Spp.Ast.Type];
 
         @expname[Spp_AstMgr_isInjection]
-        handler this.isInjection(obj: ref[Core.Basic.TiObject]): Bool;
+        handler this.isInjection(obj: ref[TiObject]): Bool;
     };
     def astMgr: ref[AstMgr];
 

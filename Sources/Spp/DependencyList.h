@@ -2,7 +2,7 @@
  * @file Spp/DependencyList.h
  * Contains the header of class Spp::DependencyList.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,10 +27,11 @@ template<class CTYPE> class DependencyList : public PlainList<CTYPE>
   //============================================================================
   // Member Functions
 
-  public: void add(CTYPE *f)
+  public: void add(CTYPE *f, Bool highPriority)
   {
     for (Int i = 0; i < this->getCount(); ++i) if (this->get(i) == f) return;
-    PlainList<CTYPE>::add(f);
+    if (highPriority) PlainList<CTYPE>::insert(0, f);
+    else PlainList<CTYPE>::add(f);
   }
 
 }; // class

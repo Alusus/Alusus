@@ -1,0 +1,240 @@
+/**
+ * @file Srl/StringBuilder.alusus
+ * Contains the class Srl.StringBuilder.
+ *
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "Srl/String";
+import "Srl/Array";
+import "Srl/Map";
+import "Core/Basic";
+import "Spp";
+import "Spp/Ast";
+
+@merge module Srl {
+    def _emptyMixin: {}
+
+    class StringBuilder [formatMixin: ast_ref = _emptyMixin] {
+        Spp.astMgr.insertMixin[formatMixin];
+
+        //============
+        // Shared Vars
+
+        @shared def modifierKeywordTranslations: Map[String, String];
+
+        //============
+        // Member Vars
+
+        def string: String;
+        def bufferSize: ArchInt;
+        def bufferGrowSize: ArchInt;
+        def length: ArchInt;
+
+        //===============
+        // Initialization
+
+        handler this~init() {
+            this.bufferSize = 0;
+            this.bufferGrowSize = 1024;
+            this.length = 0;
+        }
+
+        handler this~init(initialSize: ArchInt, growSize: ArchInt) {
+            this.init(initialSize, growSize);
+        }
+
+        handler this~init(str: String, growSize: ArchInt) {
+            this.init(str, growSize);
+        }
+
+        //=================
+        // Member Functions
+
+        handler this.init(initialSize: ArchInt, growSize: ArchInt) {
+            this.string.alloc(initialSize);
+            this.bufferSize = initialSize;
+            this.bufferGrowSize = growSize;
+            this.length = 0;
+        }
+
+        handler this.init(str: String, growSize: ArchInt) {
+            this.string = str;
+            this.length = this.string.getLength();
+            if this.length > 0 this.bufferSize = this.length
+            else {
+                this.bufferSize = growSize;
+                this.string.alloc(this.bufferSize);
+            }
+            this.bufferGrowSize = growSize;
+        }
+
+        handler this.append (buf: CharsPtr) {
+            this.append(buf, String.getLength(buf));
+        }
+
+        handler this.append (buf: CharsPtr, bufLen: ArchInt) {
+            if bufLen == 0 return;
+            def newLength: ArchInt = this.length + bufLen;
+            def newBufSize: ArchInt = this.bufferSize;
+            if newLength > newBufSize {
+                def growSize: ArchInt = newLength - this.bufferSize;
+                def remainder: ArchInt = growSize % this.bufferGrowSize;
+                if remainder != 0 growSize += this.bufferGrowSize - remainder;
+                newBufSize = this.bufferSize + growSize;
+            }
+
+            if this.string.refCount~ptr == 0 or this.string.refCount > 1 {
+                def currentBuf: CharsPtr = this.string.buf;
+                this.string.alloc(newBufSize);
+                this.bufferSize = newBufSize;
+                String.copy(this.string.buf, currentBuf);
+            } else if newBufSize > this.bufferSize {
+                this.string.realloc(newBufSize);
+                this.bufferSize = newBufSize;
+            }
+            String.copy(this.string.buf + this.length, buf, bufLen);
+            this.string.buf~cnt(newLength) = 0;
+            this.length = newLength;
+        }
+
+        handler this.append (c: Char) {
+            this.append(c~ptr~cast[CharsPtr], 1);
+        }
+
+        handler this.append (i: Int[64]) {
+            this._append(i, 1);
+        }
+
+        handler this._append (i: Int[64], minDigits: Int) {
+            def buf: array[Char, 22];
+            def strptr: ptr[Char] = buf(19)~ptr;
+            strptr~cnt = 0;
+            def negative: Bool = 0;
+            if i < 0 {
+                negative = 1;
+                i = -i;
+            }
+            while minDigits-- > 0 || i > 0 {
+                strptr = strptr - 1;
+                strptr~cnt = '0' + i % 10;
+                i /= 10;
+            }
+            if negative {
+                strptr = strptr - 1;
+                strptr~cnt = '-';
+            }
+            this.append(strptr~cast[CharsPtr]);
+        };
+
+        handler this.append (f: Float[64]) {
+            if f < 0 {
+                f *= -1;
+                this.append('-');
+            }
+            this.append(f~cast[Int[64]]);
+            def fractions: Float[64] = f - f~cast[Int[64]];
+            this.append('.');
+            this._append((fractions * 1000000.0f64 + 0.5f64)~cast[Int[64]], 6);
+        };
+
+        handler this.format(fmt: ptr[array[Char]], args: ...any) {
+            while 1 {
+                def pos: ptr[Char] = String.find(fmt, '%');
+                if pos == 0 {
+                    this += fmt;
+                    break;
+                } else {
+                    this.append(fmt, pos~cast[ArchInt] - fmt~cast[ArchInt]);
+                    pos = pos + 1; // Move to the character after the % mark.
+                    preprocess { _insertFormattingCalls() };
+                    def c: Char = pos~cnt;
+                    if c == 's' this += args~next_arg[ptr[array[Char]]]
+                    else if c == 'c' this += args~next_arg[Char]
+                    else if c == 'i' this += args~next_arg[Int]
+                    else if c == 'l' this += args~next_arg[Int[64]]
+                    else if c == 'f' this += args~next_arg[Float]
+                    else if c == 'd' this += args~next_arg[Float[64]]
+                    else if c == '%' this += '%';
+                    fmt = (pos + 1)~cast[CharsPtr];
+                }
+            }
+        }
+
+        function _insertFormattingCalls() {
+            use Core.Basic;
+            def elements: Array[ref[TiObject]] = Spp.astMgr.findElements(
+                (ast elementType == "function"),
+                this_type~ast,
+                Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN
+            );
+            def i: Int;
+            for i = 0, i < elements.getLength(), ++i {
+                def modifier: ref[TiObject](Spp.astMgr.findModifierForElement(
+                    elements(i), "format", modifierKeywordTranslations
+                ));
+                if modifier~ptr != 0 {
+                    def params: Array[String];
+                    Spp.astMgr.getModifierStringParams(modifier, params);
+                    if params.getLength() != 1 {
+                        Spp.buildMgr.raiseBuildNotice("SRT1002", 1, modifier);
+                        continue;
+                    }
+                    def fmtKey: String = params(0);
+                    def fnName: String = Spp.astMgr.getDefinitionName(elements(i));
+                    def argTypes: ContainerOf[Spp.astMgr.getFuncArgTypes(elements(i))];
+                    if argTypes~ptr == 0 or argTypes.getElementCount() != 2u {
+                        Spp.buildMgr.raiseBuildNotice("SRT1003", 1, elements(i));
+                        continue;
+                    }
+                    def argType: ref[TiObject](argTypes.getElement(1));
+                    Spp.astMgr.insertAst(
+                        ast {
+                            if String.compare(pos~cast[CharsPtr], fmtKey, fmtKeyLen) == 0 {
+                                this.fnName(args~next_arg[argType]);
+                                fmt = (pos + fmtKeyLen)~cast[CharsPtr];
+                                continue;
+                            }
+                        },
+                        Map[String, ref[TiObject]]()
+                            .set(String("fnName"), Core.Data.Ast.Identifier(fnName))
+                            .set(String("fmtKey"), Core.Data.Ast.StringLiteral(fmtKey))
+                            .set(String("fmtKeyLen"), Core.Data.Ast.IntegerLiteral(String() + fmtKey.getLength()))
+                            .set(String("argType"), newSrdObj[Spp.Ast.TypeOp].{
+                                MapContainerOf[this].setElement("type", Spp.astMgr.traceType(argType));
+                            }.obj)
+                    );
+                }
+            }
+        }
+
+        handler this.clear() {
+            if this.string.refCount~ptr == 0 or this.string.refCount > 1 {
+                this.string.alloc(this.bufferSize);
+            }
+            this.string.buf~cnt(0) = 0;
+            this.length = 0;
+        }
+
+        handler this.getLength(): ArchInt {
+            return this.length;
+        }
+
+        //==========
+        // Operators
+
+        handler this += CharsPtr this.append(value);
+        handler this += Char this.append(value);
+        handler this += Int[64] this.append(value);
+        handler this += Float[64] this.append(value);
+
+        handler this~cast[ref[String]] {
+            return this.string;
+        }
+    }
+}

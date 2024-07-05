@@ -2,7 +2,7 @@
  * @file Srl/String.alusus
  * Contains the class Srl.String.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -94,7 +94,12 @@ import "Array";
 
         handler this.realloc (newLength: ArchInt) {
             if this.refCount~ptr == 0 this._alloc(newLength)
-            else this._realloc(newLength);
+            else if this.refCount == 1 this._realloc(newLength)
+            else {
+                def currentBuf: ptr[array[T]] = this.buf;
+                this.alloc(newLength);
+                copy(this.buf, currentBuf);
+            }
         }
 
         handler this.assign (str: ref[StringBase[T]]) {
@@ -125,31 +130,24 @@ import "Array";
             this.append(buf, getLength(buf));
         };
 
-        handler this.append (buf: ptr[array[T]], n: ArchInt) {
-            def bufLen: ArchInt = 0;
-            while bufLen < n and buf~cnt(bufLen) != 0 { ++bufLen };
+        handler this.append (buf: ptr[array[T]], bufLen: ArchInt) {
             if bufLen == 0 return;
-            def thisBufLen: ArchInt = this.getLength();
-            if thisBufLen == 0 {
-                this.assign(buf, n);
+            def currentLen: ArchInt = this.getLength();
+            if currentLen == 0 {
+                this.assign(buf, bufLen);
                 return;
-            };
-            def newLength: ArchInt = thisBufLen + bufLen;
-            if this.refCount~ptr == 0 {
+            }
+            def newLength: ArchInt = currentLen + bufLen;
+            if this.refCount~ptr == 0 or this.refCount > 1 {
                 def currentBuf: ptr[array[T]] = this.buf;
-                this._alloc(newLength);
+                this.alloc(newLength);
                 copy(this.buf, currentBuf);
-                concat(this.buf, buf, n);
-            } else if this.refCount > 1 {
-                def currentBuf: ptr[array[T]] = this.buf;
-                --this.refCount;
-                this._alloc(newLength);
-                copy(this.buf, currentBuf);
-                concat(this.buf, buf, n);
+                copy(this.buf + currentLen, buf, bufLen);
             } else {
                 this._realloc(newLength);
-                concat(this.buf, buf, n);
+                copy(this.buf + currentLen, buf, bufLen);
             };
+            this.buf~cnt(newLength) = 0;
         };
 
         handler this.append (c: T) {
@@ -287,19 +285,23 @@ import "Array";
 
         handler this.toUpperCase(): StringBase[T] {
             def str: StringBase[T] = StringBase[T]();
+            str.alloc(this.getLength());
             def charIndex: ArchInt;
             for charIndex=0, charIndex<this.getLength(), charIndex++ {
-                str += toUpper(this(charIndex)~cast[T])~cast[T];
+                str.buf~cnt(charIndex) = toUpper(this(charIndex)~cast[T])~cast[T];
             };
+            str.buf~cnt(charIndex) = 0;
             return str;
         }
 
         handler this.toLowerCase(): StringBase[T] {
             def str: StringBase[T] = StringBase[T]();
+            str.alloc(this.getLength());
             def charIndex: ArchInt;
             for charIndex=0, charIndex<this.getLength(), charIndex++ {
-                str += toLower(this(charIndex)~cast[T])~cast[T];
+                str.buf~cnt(charIndex) = toLower(this(charIndex)~cast[T])~cast[T];
             };
+            str.buf~cnt(charIndex) = 0;
             return str;
         }
 
@@ -414,7 +416,7 @@ import "Array";
             return chrs;
         };
 
-        func charAt(chrs: ptr[array[T]], index: Int): ptr[array[T]] {
+        func charAt(chrs: ptr[array[T]], index: ArchInt): ptr[array[T]] {
             @shared
             def buffer: array[T, 2];
             copy(buffer~ptr, chrs~cnt(index)~ptr~cast[ptr[array[T]]], 1);

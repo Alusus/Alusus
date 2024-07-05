@@ -1,7 +1,7 @@
 /**
  * @file Build.alusus
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,7 +29,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     use Core.Basic;
     use Srl;
 
-    function doesExecutableExist (filename: ptr[array[Char]]): Bool {
+    function doesExecutableExist (filename: CharsPtr): Bool {
         def command: array[Char, 50];
         String.assign(command~ptr, "which %s", filename);
         def file: ptr[Fs.File] = Fs.openProcess(command~ptr, "r");
@@ -78,7 +78,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             return true;
         }
 
-        handler this.addDependenciesFromModifier (e: ref[TiObject], modifierKwd: ptr[array[Char]]) => Bool {
+        handler this.addDependenciesFromModifier (e: ref[TiObject], modifierKwd: CharsPtr) => Bool {
             def modifier: ref[TiObject](Spp.astMgr.findModifierForElement(e, modifierKwd));
             if modifier~ptr != 0 {
                 def deps: Array[String];
@@ -100,6 +100,8 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
     class Exe {
         @injection def unit: Unit;
+        def targetTriple: CharsPtr(0);
+        def linkerFilename: CharsPtr(0);
 
         handler this~init(e: ref[TiObject], fn: CharsPtr) {
             this.unit~init(e, fn);
@@ -130,14 +132,13 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.generate () => Bool {
             if this.outputPath != "./" System.exec(String.format("mkdir -p \"%s\"", this.outputPath.buf));
-            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", 0) {
+            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", this.targetTriple) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
-            def linkerFilename: ptr[array[Char]] = getLinkerFilename();
             def cmd: array[Char, 600];
             String.assign(
-                cmd~ptr, "%s -no-pie %s /tmp/output.o -o %s %s", linkerFilename,
+                cmd~ptr, "%s -no-pie %s /tmp/output.o -o %s %s", this.getLinkerFilename(),
                 String.merge(this.flags, " ").buf, this.outputFilename.buf, this.getDepsString().buf
             );
             if System.exec(cmd~ptr) != 0 {
@@ -158,8 +159,9 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             }
         }
 
-        function getLinkerFilename (): ptr[array[Char]] {
-            def envCmd: ptr[array[Char]] = envCmd = System.getEnv("ALUSUS_GCC");
+        handler this.getLinkerFilename (): CharsPtr {
+            if this.linkerFilename != 0 return this.linkerFilename;
+            def envCmd: CharsPtr = envCmd = System.getEnv("ALUSUS_GCC");
             if envCmd != 0 and doesExecutableExist(envCmd) return envCmd
             else if doesExecutableExist("gcc") return "gcc"
             else {

@@ -2,10 +2,32 @@
 
 ## Version 0.xx.x (xxxx-xx-xx)
 
+### Updates to the Compiler
+
+* Added `@priority` modifier to allow the user to give priority to certain global var
+  initializations.
+
+### Updates to the Standard Libraries
+
+* Added support for mixins through the `Spp.astMgr.insertMixin` method.
+* Added the following methods to `Spp.astMgr`:
+  - `getDefinitionName`
+  - `getFuncArgTypes`
+  - `getFuncArgType`
+* Enable updating the linker's filename as well as the target triple in `Build` module.
+* Enable overriding memory allocation functions in `Memory` module.
+* Added `StringBuilder` class to enable high performance string building.
+
+### Compiler Fixes
+
+* Fixed a compiler issue causing global vars within modules to be compiled and included in the
+  generated unit even if those vars aren't referenced by any code being compiled.
+* Fixed an issue with the order of executing global constructors.
+
 ### Standard Libraries Fixes
 
 * Fix in `Possible` to prevent unintentional casting to `value` without going through the custom caster.
-
+* Fixed some issues in `String` class.
 
 ## Version 0.11.3 (2023-09-11)
 

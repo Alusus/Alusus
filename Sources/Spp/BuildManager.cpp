@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.cpp
  * Contains the implementation of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -230,22 +230,24 @@ Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
       while (buildSession->getDepsInfo()->globalCtors.getLength() > 0) {
-        buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute
-          (buildSession->getDepsInfo()->globalCtors(0).name
+        auto index = buildSession->getDepsInfo()->globalCtors.getLength() - 1;
+        buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
+          buildSession->getDepsInfo()->globalCtors(index).name
         );
-        buildMgr->markGlobalItemsAsInitialized(buildSession->getDepsInfo()->globalCtors(0).initializedVarNames);
-        buildSession->getDepsInfo()->globalCtors.remove(0);
+        buildMgr->markGlobalItemsAsInitialized(buildSession->getDepsInfo()->globalCtors(index).initializedVarNames);
+        buildSession->getDepsInfo()->globalCtors.remove(index);
       }
       buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(buildSession->getGlobalEntryName());
     } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
       // First run all the constructors. Constructors need to be run in reverse order since the deeper dependencies
       // are generated after the immediate dependencies.
       while (buildSession->getDepsInfo()->globalCtors.getLength() > 0) {
+        auto index = buildSession->getDepsInfo()->globalCtors.getLength() - 1;
         buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
-          buildSession->getDepsInfo()->globalCtors(0).name
+          buildSession->getDepsInfo()->globalCtors(index).name
         );
-        buildMgr->markGlobalItemsAsInitialized(buildSession->getDepsInfo()->globalCtors(0).initializedVarNames);
-        buildSession->getDepsInfo()->globalCtors.remove(0);
+        buildMgr->markGlobalItemsAsInitialized(buildSession->getDepsInfo()->globalCtors(index).initializedVarNames);
+        buildSession->getDepsInfo()->globalCtors.remove(index);
       }
       buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
         buildSession->getGlobalEntryName()

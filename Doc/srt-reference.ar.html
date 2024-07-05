@@ -37,6 +37,7 @@
                         <ul class="unstyled-list">
                             <li><a href="#Array">الصنف: مـصفوفة (Array)</a></li>
                             <li><a href="#String">الصنف: نـص (String)</a></li>
+                            <li><a href="#StringBuilder">الصنف: مـنشئ_نص (StringBuilder)</a></li>
                             <li><a href="#Map">الصنف: تـطبيق (Map)</a></li>
                             <li><a href="#SrdRef">الصنف: سـندنا (SrdRef)</a></li>
                             <li><a href="#WkRef">الصنف: سـندهم (WkRef)</a></li>
@@ -56,6 +57,7 @@
                             <li><a href="#Srl-other">تعريفات أخرى</a></li>
                         </ul>
                         <a href="#closure">دليل مكتبة `مغلفة` (closure)</a><br>
+                        <a href="#mixins">خاصية الخلط (mixins)</a><br>
                         <a href="#Build">دليل مكتبة `بـناء` (Build)</a><br>
                           <ul class="unstyled-list">
                             <li><a href="#Build-Exe">الصنف: تـنفيذي (Exe)</a></li>
@@ -714,6 +716,165 @@ func parseHexDigit (c: Char): Int;
 تحول محرفا يمثل رقمًا ست عشريًا إلى قيمته الرقمية.
                             </li>
                         </ul>
+                    </div>
+
+                    <h4 class="foldable" id="StringBuilder">الصنف: مـنشئ_نص (StringBuilder)</h4>
+                    <div>
+                        يستخدم الصنف `مـنشئ_نص` لتمكين إنشاء النصوص بأداء عالي يقلل عمليات حجز الذاكرة المتكررة الناتجة عن تعديل النص.
+                        يُنصح بشدة باستخدام هذا الصنف بدل الاستخدام المباشر لصنف `نـص` (`String`) عند إنشاء نص متكون من دمج عدد كبير من
+                        النصوص.
+<pre class="samplecode" dir=rtl style="text-align:right;">
+صنف مـنشئ_نص [مكون_الملء: سند_شبم = _مكون_فارغ] {
+  عملية هذا~هيئ()؛
+  عملية هذا~هيئ(الحجم_الأولي: صـحيح_متكيف, الزيادة: صـحيح_متكيف)؛
+  عملية هذا~هيئ(نص: نـص, الزيادة: صـحيح_متكيف)؛
+  عملية هذا.الحق (صوان: مـؤشر_محارف)؛
+  عملية هذا.ألحق (صوان: مـؤشر_محارف, طول_الصوان: صـحيح_متكيف)؛
+  عملية هذا.ألحق (م: مـحرف)؛
+  عملية هذا.ألحق (ص: صـحيح[64])؛
+  عملية هذا.ألحق (ع: عـائم[64])؛
+  عملية هذا.املأ(صيغة: مـؤشر_محارف, معطيات: ...أيما)؛
+  عملية هذا.فرغ()؛
+  عملية هذا.هات_الطول()؛
+  عملية هذا += مـؤشر_محارف؛
+  عملية هذا += مـحرف؛
+  عملية هذا += صـحيح[64]؛
+  عملية هذا += عـائم[64]؛
+  عملية هذا~مثل[سند[نـص]]؛
+}
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+class StringBuilder [formatMixin: ast_ref = _emptyMixin] {
+  handler this~init();
+  handler this~init(initialSize: ArchInt, growSize: ArchInt);
+  handler this~init(str: String, growSize: ArchInt);
+  handler this.append (buf: CharsPtr);
+  handler this.append (buf: CharsPtr, bufLen: ArchInt);
+  handler this.append (c: Char);
+  handler this.append (i: Int[64]);
+  handler this.append (f: Float[64]);
+  handler this.format(fmt: ptr[array[Char]], args: ...any);
+  handler this.clear();
+  handler this.getLength();
+  handler this += CharsPtr this.append(value);
+  handler this += Char this.append(value);
+  handler this += Int[64] this.append(value);
+  handler this += Float[64] this.append(value);
+  handler this~cast[ref[String]];
+}
+</pre>
+                        المثال التالي يوضح استخدام هذا الصنف:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+دالة رئيسي {
+  عرف من: مـنشئ_نص(
+    1024، // احجز 1024 بايت من الذاكرة مسبقا
+    512   // وسع الذاكرة بمقدار 512 بايت كلما امتلأت
+  )؛
+  من.ألحق("ناتج ")؛
+  من.املأ("7 + 7 = %i\ج"، 7 + 7)؛
+  عرف ن: نـص = من؛
+  طـرفية.اطبع(ن)؛ // سيطبع: ناتج 7 + 7 = 14
+}
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def sb: StringBuilder(
+    1024, // preallocate 1024 bytes
+    512   // enlarge memory block by 512 whenever it's full
+  );
+  sb.append("Result of ");
+  sb.format("7 + 7 = %i\n", 7 + 7);
+  def s: String = sb;
+  Console.print(s); // Prints: Result of 7 + 7 = 14
+}
+</pre>
+
+                        <ul class="subsections">
+                            <li>
+                              <b>التهيئة</b><br/>
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا~هيئ()؛
+  عملية هذا~هيئ(الحجم_المبدئي: صـحيح_متكيف، الزيادة: صـحيح_متكيف)؛
+  عملية هذا~هيئ(نص: نـص، الزيادة: صـحيح_متكيف)؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this~init();
+  handler this~init(initialSize: ArchInt, growSize: ArchInt);
+  handler this~init(str: String, growSize: ArchInt);
+</pre>
+                              الصيغة الثانية تهيئ الكائن بحجز ذاكرة مسبقًا بالحجم المعطى، والمعطى الثاني يحدد مقدار الزيادة في حجم الذاكرة
+                              المحجوزة كلما امتلأ الصوان. حتى لو احتاج الكائن بايتا إضافيا واحدا فإنه سيوسع الذاكرة بهذا المقدار لكي يقلل
+                              من عمليات حجز الذاكرة.<br>
+                              الصيغة الثالثة مشابهة للثانية، لكنها تهيئ الصوان بالنص المعطى بدل تهيئته بمساحة فارغة. في هذه الحالة سيتشارك
+                              الكائن الصوان مع النص المعطى لحين إجراء أي تعديل على النص، عندها سيُنسخ الصوان، إن وجب، ويوسع بالمقدار المحدد
+                              في المعطى الثاني.
+                            </li>
+                            <li>
+                              <b>ألحق (apppend)</b><br/>
+                              تُلحق نصًّا إضافيًا بالنص الحالي. هذه الدالة مشابهة تماما لدالة `ألحق` (`append`) التابعة لصنف `نـص` (`String`).
+                            </li>
+                            <li>
+                              <b>املأ (format)</b><br/>
+                              مشابهة لدالة `املأ` التابعة للصنف `نـص` (`String`) مع اختلافين:
+                              <ul>
+                                <li>
+                                  أنها تلحق النص المنتج بالنص الحالي بدل إنشاء نص جديد.
+                                </li>
+                                <li>
+                                  تفهم نفس الأصناف التي تفهمها نسخة `نـص` لكن يمكن للمستخدم توسيع الأصناف التي تفهمها هذه الدالة عبر تمرير
+                                  مكون (mixin) للصنف يحتوي على دالات مقابلة للأصناف الجديدة، كما هو موضح لاحقًا.
+                                </li>
+                              </ul>
+                            </li>
+                            <li>
+                              <b>فرغ (clear)</b><br/>
+                              تفرغ الصوان. هذه الدالة لا تحرر الذاكرة المحجوزة وإنما فقط تبدل محتواه بنص فارغ.
+                            </li>
+                            <li>
+                              <b>هات_الطول (getLength)</b><br/>
+                              ترجع الطول الحالي للنص. هذه الدالة لا ترجع حجم الصوان، وإنما طول النص الذي داخل الصوان، والذي غالبا ما
+                              يكون أصغر من حجم الصوان.
+                            </li>
+                          </ul>
+
+                        <h5>توسيع أصناف دالة `املأ`</h5>
+                        لتوسيع الأصناف التي تفهما دالة املأ يمكن استخدام خاصية الخلط (mixins) لإضافة دالات إلى الصنف تستدعيها
+                        دالة املأ للتعامل مع الأصناف الجديدة. يمكن لصنف البيانات نفسه أن يكون مطابقا لأصناف أخرى تفهمها الدالة
+                        طالما أن الرمز المحدد لها لا يطابق أي رمز آخر مستعمل مبدئيا من قبل دالة `املأ` نفسها أو من قبل دالة
+                        أخرى من دالات المكون المعطى. على سبيل المثال، يمكن إنشاء دالتين تستقبلان معطى من صنف `صـحيح[64]` يمثل
+                        ختمًا زمنيًا، الاولى تستخدم الرمز %gd لتحويل العدد الصحيح إلى نص تاريخ ميلادي، بينما تستخدم الثانية
+                        الرمز %hd لتحويل العدد الصحيح إلى نص تاريخ هجري.<br>
+                        يجب للدالة كي تُستدعى من قبل `املأ` أن تستقبل معطى واحدًا فقط بالصنف المطلوب وأن تُعلّم بالمبدل
+                        `@بنية` (`@format`) مع إعطاء الرمز المطلوب كمعطى لذلك المبدل.<br>
+                        المثال التالي يوضح توسيع الصنف `مـنشئ_نص` برمز جديد لتحويل الختم الزمني إلى نص تاريخ:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+عرف مـكون_منشئ_نص {
+  @بنية["gd"]
+  عملية هذا.املأ_ختما_زمنيا(خز: صـحيح[64]) {
+    هذا.ألحق(وقـت.إلى_نص(خز))؛
+  }
+}
+دالة رئيسي {
+  عرف من: مـنشئ_نص[مـكون_منشئ_نص](1024، 512)؛
+  عرف خز: صـحيح[64] = ...؛
+  من.املأ("تاريخ اليوم هو %gd\ج"، خز)؛
+  ...
+}
+</pre>
+<pre class="samplecode" dir=ltr style="text-align:left;">
+def StringBuilderMixin {
+  @format["gd"]
+  handler this.formatTimestamp(ts: Int[64]) {
+    this.append(Time.toString(ts));
+  }
+}
+func main {
+  def sb: StringBuilder[StringBuilderMixin](1024, 512);
+  def timestamp: Int[64] = ...;
+  sb.format("Today's date is %gd", timestamp);
+  ...
+}
+</pre>
                     </div>
 
                     <h4 class="foldable" id="Map">الصنف: تـطبيق (Map)</h4>
@@ -1415,6 +1576,36 @@ func allocAligned (alignment: ArchInt, size: ArchInt): ptr;
  مطابقة لدالة memset من POSIX.
                             </li>
                         </ul>
+                        <h5 class="foldable">تخصيص حجز الذاكرة</h5>
+                        التعريفات `احجز` و `أعد_الحجز` و `احجز_مرصوف` و `حرر` في واقع الأمر مؤشرات على الدالات المعيارية
+                        ويمكن للمستخدم تخصيص هذه الدالات إذا أراد التحكم بإدارة الذاكرة عبر استدعاء الدالة
+                        `خصص_الحجز` (`overrideAllocator`) ويمكن بعد ذلك إعادة إدارة الذاكرة لتستخدم الدالات المعيارية عبر
+                        الدالة `أعد_ضبط_الحجز` (`resetAllocator`).
+<pre class="code" dir=rtl style="text-align:right;">
+دالة خصص_الحجز(
+    احجز_مخصص: مؤشر[دالة (حجم: صـحيح_متكيف) => مؤشر]،
+    أعد_الحجز_مخصص: مؤشر[دالة (م: مؤشر، الحجم_الجديد: صـحيح_متكيف) => مؤشر]،
+    احجز_مرصوف_مخصص: مؤشر[دالة (رصف: صـحيح_متكيف، حجم: صـحيح_متكيف) => مؤشر]،
+    حرر_مخصص: مؤشر[دالة (م: مؤشر)]
+)؛
+
+دالة أعد_ضبط_الحجز()؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+function overrideAllocator(
+    customAlloc: ptr[function (size: ArchInt) => ptr[Void]],
+    customRealloc: ptr[function (p: ptr[Void], newSize: ArchInt) => ptr[Void]],
+    customAllocAligned: ptr[function (alignment: ArchInt, size: ArchInt) => ptr[Void]],
+    customFree: ptr[function (pointer: ptr[Void])]
+);
+
+function resetAllocator();
+</pre>
+                        الدالات المخصصة ستحتاج الوصول المباشر لدالات الججز التابعة للنظام، والتي تحمل الأسماء التالية:<br>
+                        `احجز_نظامية` (`sysAlloc`): تقابل دالة `احجز`.<br>
+                        `أعد_الحجز_نظامية` (`sysRealloc`): تقابل دالة `أعد_الحجز`.<br>
+                        `احجز_مرصوف_نظامية` (`sysAllocAligned`): تقابل دالة `احجز_مرصوف`.<br>
+                        `حرر_نظامية` (`sysFree`): تقابل دالة `حرر`.
                     </div>
 
                     <h4 class="foldable" id="Math">الوحدة: ريـاضيات (Math)</h4>
@@ -2592,7 +2783,7 @@ func prepareClosure {
 prepareClosure();
 Console.print("%d\n", pc(3.5)); // Prints 35
 </pre>
-                    <h4 id="Build-Exe">أسلوب التقاط البيانات المحيطة</h4>
+                    <h4>أسلوب التقاط البيانات المحيطة</h4>
                     <div>
                       يمكنك تحديد الأسلوب الذي تُلتقط فيه البيانات من محيط الدالة المغلفة، ويمكنك تحديد ذلك لكل متغير على حدة. على سبيل المثال إذا أردت قراءة قيمة من محيد الدالة لكنك لا تحتاج لتغييرها داخل المغلفة فقد يكفيك التقاط نسخة من ذلك المتغير، بينما إذا أردت تغيير قيمة المتغير داخل الدالة المغلفة فستحتاج لالتقاط سند إلى المتغير بدلاً من ذلك. للتحكم بأسلوب التقاط البيانات نتبع الصيغة التالية في تعريف المغلفة:
 <pre class="code" dir=rtl style="text-align:right;">
@@ -2668,6 +2859,77 @@ n after calling c: 6
                 </div>
 
                 <br>
+                <h3 id="mixins">خاصية الخلط (mixins)</h3>
+                <hr>
+                <div>
+                تتوفر خاصية الخلط عبر الماكرو `احشر_مكون` (`insertMixin`) التابعة للصنف `مـدير_شبم` (`AstMgr`) والتي
+                يمكن استدعاؤها من داخل متن صنف لإضافة مكون له، كما في المثال التالي:
+<pre class="code" dir=rtl style="text-align:right;">
+عرف مـكوني: {
+  عملية هذا.اطبع() {
+    طـرفية.اطبع(هذا.إلى_نص())؛
+  }
+}
+صنف صـنفي {
+  نـبم.مدير_شبم.احشر_مكون[مـكوني]؛
+  // الآن هذا الصنف يحتوي على الوظيفة `اطبع`.
+  ...
+}
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+def MyMixin: {
+  handler this.print() {
+    Console.print(this.toString());
+  }
+}
+class MyType {
+  Spp.astMgr.insertMixin[MyMixin];
+  // Now the class has the `print` method.
+  ...
+}
+</pre>
+                يمكن أيضًا إنشاء مكون من دمج مكونات عدة باستخدام المؤثر &، كما في المثال التالي:
+<pre class="code" dir=rtl style="text-align:right;">
+عرف مـكون1: {
+  عملية هذا.اطبع() {
+    طـرفية.اطبع(هذا.إلى_نص())؛
+  }
+}
+عرف مـكون2: {
+  عملية هذا.احفظ(اسم_الملف: نـص) {
+    عرف المحتوى: نـص = هذا.إلى_نص()؛
+    نـم.أنشئ_ملف(اسم_الملف، المحتوى.صوان، المحتوى.هات_الطول)؛
+  }
+}
+عرف مـكونات: مـكون1 & مـكون2؛
+صنف صـنفي {
+  نـبم.مدير_شبم.احشر_مكون[مـكونات]؛
+  // الآن هذا الصنف يحتوي على الوظيفتين `اطبع` و `احفظ`.
+  ...
+}
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+def Mixin1: {
+  handler this.print() {
+    Console.print(this.toString());
+  }
+}
+def Mixin2: {
+  handler this.save(filename: String) {
+    def content: String = this.toString();
+    Fs.createFile(filename, content.buf, content.getLength());
+  }
+}
+def Mixins: Mixin1 & Mixin2;
+class MyType {
+  Spp.astMgr.insertMixin[Mixins];
+  // Now the class has the `print` and the `save` methods.
+  ...
+}
+</pre>
+                </div>
+
+                <br>
                 <h3 id="Build">دليل مكتبة `بـناء` (Build)</h3>
                 <hr>
                 <div>
@@ -2699,7 +2961,7 @@ n after calling c: 6
                         </ul>
                         المثال التالي يوضح هذه الخطوات:
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  عرف تنفيذي: مؤشر[بـناء.تـنفيذي](الـبسملة.ابدأ~شبم، "البسملة")؛
+  عرف تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
   تنفيذي.أضف_اعتمادية(جـتك~شبم)؛ // أو: تنفيذي.أضف_اعتمادية(نـص("libgtk..."))؛
   تنفيذي.أضف_اعتماديات(مـصفوفة[نـص]({ نـص("libcurl.so")، ... }))؛
   تنفيذي.أضف_خيار("-Wl,-rpath,@executable_path")؛
@@ -2710,7 +2972,7 @@ n after calling c: 6
   }؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  def exe: ptr[Build.Exe](WidgetGuide.start~ast, "hello_world");
+  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.addDependency(Gtk~ast); // or exe.addDependency(String("libgtk...."));
   exe.addDependencies(Array[String]({ String("libcurl.so"), ... }));
   exe.addFlag("-Wl,-rpath,@executable_path");
@@ -2732,6 +2994,25 @@ n after calling c: 6
   };
 </pre>
                       بدون إضافة المبدل `@اعتماديات` فإن الدالة `أضف_اعتمادية` لا تفعل شيئا.
+                      <p>
+                        يمكن التحكم بنتيجة البناء عبر تغيير قيمة المتغير `معرف_النتيجة` (`targetTriple`) العضو في الصنف
+                        `تـنفيذي` (`Exe`) مما يسمح للمستخدم باستهداف نظام تشغيل مختلف عن النظام الحالي. ويمكن تحديد برنامج
+                        التجميع (linker) مختلف عن البرنامج المستخدم مبدئيا عبر تحديد اسمه في المتغير `اسم_المجمع` (`linkerFilename`)
+                        التابع للصنف `تـنفيذي` (`Exe`). عبر التحكم بهذين المتغيرين يمكن إنتاج شفرة تنفيذية لنظام غير النظام الحالي.
+                        على سبيل المثال، لإنشاء شفرة تنفيذية لنظام ويندوز من نظام لينكس يمكن فعل التالي:
+<pre class="samplecode" dir=rtl style="text-align:right;">
+  عرف تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
+  تنفيذي.معرف_النتيجة = "x86_64-pc-win32"؛
+  تنفيذي.اسم_المجمع = "x86_64-w64-mingw32-g++"؛
+  تنفيذي.أنتج()؛
+</pre>
+<pre class="samplecode" dir=ltr>
+  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  exe.targetTriple = "x86_64-pc-win32";
+  exe.linkerFilename = "x86_64-w64-mingw32-g++";
+  exe.generate();
+</pre>
+                      </p>
                     </div>
 
                     <h4 id="Build-Wasm">الصنف: ويـب_أسمبلي (Wasm)</h4>
@@ -2739,7 +3020,7 @@ n after calling c: 6
                       هذا الصنف مشابه لصنف `تـنفيذي` ويستخدم بنفس الطريقة لكنه يولد شفرة ويب أسيمبلي بدل شفرة تستهدف
                       نظام التشغيل ومعمارية الجهاز الحالي. مثال:
 <pre class="samplecode" dir=rtl style="text-align:right;">
-  عرف ويب_أسمبلي: مؤشر[بـناء.ويـب_أسمبلي](الـبسملة.ابدأ~شبم، "البسملة")؛
+  عرف ويب_أسمبلي: بـناء.ويـب_أسمبلي(الـبسملة.ابدأ~شبم، "البسملة")؛
   ويب_أسمبلي.أضف_اعتمادية(نـص("stdlib.wasm"))؛
   ويب_أسمبلي.أضف_خيارات({ نـص("--export=malloc"), نـص("--export=realloc") });
   إذا ويب_أسمبلي.أنتج() {
@@ -2749,7 +3030,7 @@ n after calling c: 6
   }؛
 </pre>
 <pre class="samplecode" dir=ltr>
-  def wasm: ptr[Build.Wasm](HelloWorld.start~ast, "hello_world");
+  def wasm: Build.Wasm(HelloWorld.start~ast, "hello_world");
   wasm.addDependency(String("stdlib.wasm"));
   wasm.addFlags({ String("--export=malloc"), String("--export=realloc") });
   if wasm.generate() {
@@ -3970,6 +4251,21 @@ handler this.findElements (
 </pre>
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifiers">هات_اسم_تعريف (getDefinitionName)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+  عملية هذا.هات_اسم_تعريف (
+    عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]
+  ): نـص؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getDefinitionName (
+      element: ref[Core.Basic.TiObject]
+  ): String;
+</pre>
+                        ترجع اسم العنصر المعطى، أي اسم التعريف الذي يملك هذا العنصر.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifiers">هات_المبدلات (getModifiers)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
@@ -4010,14 +4306,27 @@ handler this.findElements (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]
   ): سند[الـقلب.أسـاسيات.كـائن_بهوية]
+
+  عملية هذا.جد_مبدلا_لعنصر (
+    عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]،
+    ترجمات_الكلمة_المفتاحية: تـطبيق[نـص، نـص]
+  ): سند[الـقلب.أسـاسيات.كـائن_بهوية]
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
   handler this.findModifierForElement(
     element: ref[Core.Basic.TiObject],
     kwd: ptr[array[Char]]
   ): ref[Core.Basic.TiObject];
+
+  handler this.findModifierForElement(
+    element: ref[Core.Basic.TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: Map[String, String]
+  ): ref[Core.Basic.TiObject];
 </pre>
-                      إيجاد المبدل بالكلمة المعيارية المعطاة على العنصر المعطى.
+                      إيجاد المبدل بالكلمة المعيارية المعطاة على العنصر المعطى. النسخة الثانية من هذه الدالة تستلم أيضًا قائمة ترجمات
+                      لاستخدامها أثناء البحث عبر ترجمة كل كلمة قبل مطابقتها مع الكلمة المطلوبة.
                     </div>
 
                     <h5 id="Spp-astMgr-getModifierKeyword">هات_كلمة_المبدل_المفتاحية (getModifierKeyword)</h5>
@@ -4052,6 +4361,28 @@ handler this.getModifierStringParams(
                       تُرجع قائمة بكل المعطيات النصية الممررة للمبدل. مثلاً لو كان عندنا مبدل `@اعتماديات["مكتبة1"، "مكتبة2"]`
                       واستخدمنا هذه الدالة فإننا سنحصل منها على مصفوفة من عنصرين، الأول قيمته "مكتبة1" والثاني "مكتبة2".
                       تُرجع الدالة قيمة ثنائية تكون 1 عند نجاح العملية و0 عند فشلها.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">هات_أصناف_معطيات_دالة (getFuncArgTypes)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_أصناف_معطيات_دالة (عنصر: سند[كـائن_بهوية]): سند[كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getFuncArgTypes (element: ref[TiObject]): ref[TiObject]
+</pre>
+                      تجلب قائمة تعريفات المعطيات للدالة المعطاة.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">هات_صنف_معطى_دالة (getFuncArgType)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_صنف_معطى_دالة (عنصر: سند[كـائن_بهوية]، تسلسل: صـحيح): سند[كـائن_بهوية]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getFuncArgType (element: ref[TiObject], index: Int): ref[TiObject]
+</pre>
+                      تجلب تعريف معطى الدالة المعطاة ذي التسلسل المحدد.
                     </div>
 
                     <h5 id="Spp-astMgr-getSourceFullPathForElement">هات_المسار_الكامل_لشفرة_عنصر (getSourceFullPathForElement)</h5>
@@ -4213,6 +4544,24 @@ handler this.buildAst(
       );
   }
 </pre>
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">احشر_مكون (insertMixin)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.احشر_مكون (عنصر: سند[كـائن_بهوية])؛
+
+@عضو ماكرو احشر_مكون [هذا، مستهدف]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insertMixin(obj: ref[TiObject]);
+
+@member macro insertMixin [this, target];
+</pre>
+                      تحشر المكون (mixin) المُشار إليه إلى كائن. الدالة تحشر المكون في الموضع الحالي، لذا يجب استخدامها
+                      ضمن عملية `تمهيد` (`preprocess`). الماكرو مجرد مساعد لتسهيل استخدام الدالة وكل ما يقوم به هو
+                      استدعاء الدالة ضمن عملية تمهيد مع إعطائها مؤشر ش.ب.م للعنصر المعطى.
+                      راجع <a href="#mixins">خاصية الخلط (mixins)</a> لمزيد من المعلومات.
                     </div>
 
                     <h5 id="Spp-astMgr-getCurrentPreprocessOwner">هات_مالك_عبارة_التمهيد_الحالية (getCurrentPreprocessOwner)</h5>

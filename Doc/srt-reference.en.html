@@ -37,6 +37,7 @@
                         <ul class="unstyled-list">
                             <li><a href="#Array">Array Class</a></li>
                             <li><a href="#String">String Class</a></li>
+                            <li><a href="#StringBuilder">StringBuilder Class</a></li>
                             <li><a href="#Map">Map Class</a></li>
                             <li><a href="#SrdRef">SrdRef Class</a></li>
                             <li><a href="#WkRef">WkRef Class</a></li>
@@ -56,6 +57,7 @@
                             <li><a href="#Srl-other">Other Definitions</a></li>
                         </ul>
                         <a href="#closure">closure Library Reference</a><br>
+                        <a href="#mixins">Mixins</a><br>
                         <a href="#Build">Build Library Reference</a><br>
                           <ul class="unstyled-list">
                             <li><a href="#Build-Exe">Exe Class</a></li>
@@ -576,6 +578,117 @@ Parses the given HEX character.
                         </ul>
                     </div>
 
+                    <h4 class="foldable" id="StringBuilder">StringBuilder Class</h4>
+                    <div>
+                      The `StringBuilder` type is used to build strings while reducing the number of memory allocations resulting
+                      from multiple string concatenations. It is highly recommended to use this class instead of the plain 
+                      `String` class when constructing strings through high numbers of concatentations.
+<pre class="samplecode" dir=ltr style="text-align:left;">
+class StringBuilder [formatMixin: ast_ref = _emptyMixin] {
+  handler this~init();
+  handler this~init(initialSize: ArchInt, growSize: ArchInt);
+  handler this~init(str: String, growSize: ArchInt);
+  handler this.append (buf: CharsPtr);
+  handler this.append (buf: CharsPtr, bufLen: ArchInt);
+  handler this.append (c: Char);
+  handler this.append (i: Int[64]);
+  handler this.append (f: Float[64]);
+  handler this.format(fmt: ptr[array[Char]], args: ...any);
+  handler this.clear();
+  handler this.getLength();
+  handler this += CharsPtr this.append(value);
+  handler this += Char this.append(value);
+  handler this += Int[64] this.append(value);
+  handler this += Float[64] this.append(value);
+  handler this~cast[ref[String]];
+}
+</pre>
+                      The following example shows how to use this class:
+<pre class="samplecode" dir=ltr style="text-align:left;">
+func main {
+  def sb: StringBuilder(
+    1024, // preallocate 1024 bytes
+    512   // enlarge memory block by 512 whenever it's full
+  );
+  sb.append("Result of ");
+  sb.format("7 + 7 = %i\n", 7 + 7);
+  def s: String = sb;
+  Console.print(s); // Prints: Result of 7 + 7 = 14
+}
+</pre>
+
+                      <ul class="subsections">
+                          <li>
+                            <b>Initialization</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this~init();
+handler this~init(initialSize: ArchInt, growSize: ArchInt);
+handler this~init(str: String, growSize: ArchInt);
+</pre>
+                            The second form of the constructor preallocates the buffer with the size specified in the first arg, while
+                            the second argument specifies the size by which to enlarge the buffer everytime it's full.<br>
+                            The third form is similar to the second except that it starts by sharing the buffer with the given string
+                            until a modification is made, at which point it duplicates the buffer, if necessary, and expands it by
+                            the size given in the third argument.
+                          </li>
+                          <li>
+                            <b>apppend</b><br/>
+                            Appends a value to the string. This is simliar to the `String.append` method.
+                          </li>
+                          <li>
+                            <b>format</b><br/>
+                            Similar to the `String.format`, with the given differences:
+                            <ul>
+                              <li>
+                                It appends the generated string to the buffer instead of creating a new string.
+                              </li>
+                              <li>
+                                It understands the same set of argument types, but the set can also be extended by
+                                end users through the use of mixins, as shown later in this section.
+                              </li>
+                            </ul>
+                          </li>
+                          <li>
+                            <b>clear</b><br/>
+                            Empties the buffer. This only replaces the content of the buffer with an empty string;
+                            it doesn't free the buffer.
+                          </li>
+                          <li>
+                            <b>getLength</b><br/>
+                            Returns the length of the string in the buffer. This is not the size of the buffer itself;
+                            it's the size of the string contained in it, which is usually smaller than the buffer.
+                          </li>
+                        </ul>
+
+                      <h5>Extending the Types of `format`</h5>
+                      To expand the set of types understood by the `format` method the user can provide the
+                      `StringBuilder` class with a mixin containing the set of functions to be called by `format`
+                      in response to encountering the related symbol in the format string. In order for the functions
+                      within the mixin to be called by `format` they need to receive a single argument of a type matching
+                      the requested type, and be flaged with the `@format` modifier, giving that modifier the requested
+                      formatting symbol as a param.<br>
+                      The same data type can be used in multiple formatting as long as the formatting symbol is different.
+                      For example, the type `Int[64]` can be used in two functions, one having the symbol `%gd` to treat
+                      the given integer as a timestamp and print it as a gregorian date, while the other having the
+                      symbol `%hd` to also treat the given integer as a timestamp but print it as a hijri date.<br>
+                      The following example shows extending the StringBuilder with a formatting for convertign
+                      timestamps to date strings:
+<pre class="samplecode" dir=ltr style="text-align:left;">
+def StringBuilderMixin {
+  @format["gd"]
+  handler this.formatTimestamp(ts: Int[64]) {
+    this.append(Time.toString(ts));
+  }
+}
+func main {
+  def sb: StringBuilder[StringBuilderMixin](1024, 512);
+  def timestamp: Int[64] = ...;
+  sb.format("Today's date is %gd", timestamp);
+  ...
+}
+</pre>
+                    </div>
+
                     <h4 class="foldable" id="Map">Map Class</h4>
                     <div>
 A map template that allows specifying the types of the key and the value, and takes the responsibility for managing memory while taking
@@ -1082,6 +1195,27 @@ Sets all bytes in the specified memory buffer to the given value.
 This is the same as `memset` function from POSIX.
                             </li>
                         </ul>
+                        <h5 class="foldable">Custom Memory Management</h5>
+                        The definitions `alloc`, `realloc`, `allocAligned`, and `free` are in fact pointers to system
+                        functions. The user can override these pointers to provide custom allocators using the
+                        function `overrideAllocator`, and can then reset to the default allocator using the function
+                        `resetAllocator`.
+<pre class="code" dir=ltr style="text-align:left;">
+function overrideAllocator(
+    customAlloc: ptr[function (size: ArchInt) => ptr[Void]],
+    customRealloc: ptr[function (p: ptr[Void], newSize: ArchInt) => ptr[Void]],
+    customAllocAligned: ptr[function (alignment: ArchInt, size: ArchInt) => ptr[Void]],
+    customFree: ptr[function (pointer: ptr[Void])]
+);
+
+function resetAllocator();
+</pre>
+                        Custom allocators will need to directly reach the system allocation functions, which are
+                        listed here:<br>
+                        `sysAlloc`: Corresponds to `alloc`.<br>
+                        `sysRealloc`: Corresponds to `realloc`.<br>
+                        `sysAllocAligned`: Corresponds to `allocAligned`.<br>
+                        `sysFree`: Corresponds to `free`.
                     </div>
 
                     <h4 class="foldable" id="Math">Math Module</h4>
@@ -1913,7 +2047,7 @@ func prepareClosure {
 prepareClosure();
 Console.print("%d\n", pc(3.5)); // Prints 35
 </pre>
-                    <h4 id="Build-Exe">Data Capture Modes</h4>
+                    <h4>Data Capture Modes</h4>
                     <div>
 It is possible to specify the way data is captured from the closure's surrounding context, and it is possible to specify that to each
 variable independently. For example, if you want to read a variable from the surrounding context but you don't want to modify its value inside
@@ -1969,12 +2103,53 @@ n after calling c: 6
                       </ul>
 It is possible to check whether the closure's pointer is null or not by using `isNull` function.
 <pre class="code" dir=ltr style="text-align:left;">
-    def c: closure (i: Int): Int;
-    c.isNull() // returns true
-    c = closure (i: Int): Int { return 0 };
-    c.isNull() // returns false
+  def c: closure (i: Int): Int;
+  c.isNull() // returns true
+  c = closure (i: Int): Int { return 0 };
+  c.isNull() // returns false
 </pre>
                     </div>
+                </div>
+
+                <br>
+                <h3 id="mixins">Mixins</h3>
+                <hr>
+                <div>
+                  Mixins are available through the `insertMixin` macro of the `AstMgr` class, which can be called
+                  from the body of a class to insert a mixin into it, as shown in this example:
+<pre class="code" dir=ltr style="text-align:left;">
+def MyMixin: {
+  handler this.print() {
+    Console.print(this.toString());
+  }
+}
+class MyType {
+  Spp.astMgr.insertMixin[MyMixin];
+  // Now the class has the `print` method.
+  ...
+}
+</pre>
+                  Mulitple mixins can also be merged into a single mixin usign the & operator, as in the following
+                  example:
+<pre class="code" dir=ltr style="text-align:left;">
+def Mixin1: {
+  handler this.print() {
+    Console.print(this.toString());
+  }
+}
+def Mixin2: {
+  handler this.save(filename: String) {
+    def content: String = this.toString();
+    Fs.createFile(filename, content.buf, content.getLength());
+  }
+}
+def Mixins: Mixin1 & Mixin2;
+class MyType {
+  Spp.astMgr.insertMixin[Mixins];
+  // Now the class has the `print` and the `save` methods.
+  ...
+}
+</pre>
                 </div>
 
                 <br>
@@ -2012,7 +2187,7 @@ It is possible to check whether the closure's pointer is null or not by using `i
                         </ul>
                         The following example shows how to do these steps:
 <pre class="samplecode" dir=ltr>
-  def exe: ptr[Build.Exe](WidgetGuide.start~ast, "hello_world");
+  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.addDependency(Gtk~ast); // or exe.addDependency(String("libgtk...."));
   exe.addDependencies(Array[String]({ String("libcurl.so"), ... }));
   exe.addFlag("-Wl,-rpath,@executable_path");
@@ -2029,6 +2204,21 @@ It is possible to check whether the closure's pointer is null or not by using `i
   };
 </pre>
                       Without adding `@deps` modifier, the `addDependency` function does nothing.
+                      <p>
+                        You can control the result of the build by changing the value of the
+                        `targetTriple` member of the `Exe` class, which allows targetting an OS
+                        different from the current OS. You can also specify a different linker
+                        from the default one by setting the `linkerFilename` of the `Exe` class.
+                        Through these two members you can target an OS different from the current
+                        OS. For example, you can build for Windows from a Linux machine by doing
+                        the following:
+  <pre class="samplecode" dir=ltr>
+  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  exe.targetTriple = "x86_64-pc-win32";
+  exe.linkerFilename = "x86_64-w64-mingw32-g++";
+  exe.generate();
+  </pre>
+  </p>  
                     </div>
 
                     <h4 id="Build-Wasm">Wasm Class</h4>
@@ -2036,7 +2226,7 @@ It is possible to check whether the closure's pointer is null or not by using `i
                       This class is similar to `Exe` class and used in the same way but it generates web assemply code instead of a code
                       that targets operating system and curren device architecture.
 <pre class="samplecode" dir=ltr>
-  def wasm: ptr[Build.Wasm](HelloWorld.start~ast, "hello_world");
+  def wasm: Build.Wasm(HelloWorld.start~ast, "hello_world");
   wasm.addDependency(String("stdlib.wasm"));
   wasm.addFlags({ String("--export=malloc"), String("--export=realloc") });
   if wasm.generate() {
@@ -3024,6 +3214,16 @@ handler this.findElements (
 </pre>
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifiers">getDefinitionName</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+  handler this.getDefinitionName (
+      element: ref[Core.Basic.TiObject]
+  ): String;
+</pre>
+                      Returns the name of the given element, which is the name of the definition owning it.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifiers">getModifiers</h5>
                     <div>
 <pre class="code" dir=ltr style="text-align:left;">
@@ -3053,8 +3253,16 @@ handler this.findElements (
     element: ref[Core.Basic.TiObject],
     kwd: ptr[array[Char]]
   ): ref[Core.Basic.TiObject];
+
+
+  handler this.findModifierForElement(
+    element: ref[Core.Basic.TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: Map[String, String]
+  ): ref[Core.Basic.TiObject];
 </pre>
-                      Find the modifier by the given keyword on the given element.
+                      Find the modifier by the given keyword on the given element. The second form of this method translates
+                      modifiers against the given translations map before comparing them against the requested keyword.
                     </div>
 
                     <h5 id="Spp-astMgr-getModifierKeyword">getModifierKeyword</h5>
@@ -3078,6 +3286,23 @@ handler this.getModifierStringParams(
                       Returns a list of all string arguments passed to the modifier. For example, if we have `deps["lib1", "lib2"]` modifier and we use
                       this function, then we get from it a list for two elements, the first is "lib1", and the second is "lib2".
                       This functions returns a boolean with value 1 on success, and 0 on failure.
+                    </div>
+
+
+                    <h5 id="Spp-astMgr-getModifiers">getFuncArgTypes</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getFuncArgTypes (element: ref[TiObject]): ref[TiObject]
+</pre>
+                      Gets the list of argument definitions for the given function.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">getFuncArgType</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getFuncArgType (element: ref[TiObject], index: Int): ref[TiObject]
+</pre>
+                      Gets the definition of the given function's argument at the given index.
                     </div>
 
                     <h5 id="Spp-astMgr-getSourceFullPathForElement">getSourceFullPathForElement</h5>
@@ -3173,6 +3398,19 @@ handler this.buildAst(
       );
   }
 </pre>
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">insertMixin</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insertMixin(obj: ref[TiObject]);
+
+@member macro insertMixin [this, target];
+</pre>
+                      Inserts the given mixen into a class. The function inserts the mixin into the current location,
+                      so it must be used within a `preprocess` statement. The macro is just a helper that calls the
+                      function from a preprocess statement and gives it the AST ptr of the mixen.
+                      Visit <a href="#mixins">mixins</a> for more info.
                     </div>
 
                     <h5 id="Spp-astMgr-getCurrentPreprocessOwner">getCurrentPreprocessOwner</h5>

@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/OfflineBuildTarget.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::OfflineBuildTarget.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -160,13 +160,14 @@ void OfflineBuildTarget::buildCtorOrDtorArray(Array<Str> const *funcNames, Char 
 
   // Prepare array items.
   std::vector<llvm::Constant*> llvmArrayItems;
-  for (Int i = 0; i < funcNames->getLength(); i++) {
+  Int priority = 0;
+  for (Int i = funcNames->getLength() - 1; i >= 0; --i) {
     llvm::Function *llvmFunc = this->llvmModule->getFunction(funcNames->at(i).getBuf());
     if (!llvmFunc) {
       throw EXCEPTION(GenericException, S("Failed to find constructor function."));
     }
     std::vector<llvm::Constant*> llvmStructItems({
-      llvm::ConstantInt::get(*this->llvmContext, llvm::APInt(32, 0, true)),
+      llvm::ConstantInt::get(*this->llvmContext, llvm::APInt(32, priority++, true)),
       llvm::ConstantExpr::getBitCast(llvmFunc, this->llvmGlobalCtorDtorEntryTypes.llvmFuncPtrType),
       llvm::ConstantPointerNull::get(this->llvmGlobalCtorDtorEntryTypes.llvmIntPtrType)
     });

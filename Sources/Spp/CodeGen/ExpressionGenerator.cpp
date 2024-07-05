@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -1563,7 +1563,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     }
     // Generate a function pointer.
     if (!g->generateFunctionDecl(astFunction, session)) return false;
-    session->getFuncDeps()->add(astFunction);
+    session->getFuncDeps()->add(astFunction, false);
 
     auto tgFunction = session->getEda()->getCodeGenData<TiObject>(astFunction);
     auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
@@ -2398,7 +2398,7 @@ Bool ExpressionGenerator::_generateInnerFunction(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   if (!g->generateFunctionDecl(astFunction, session)) return false;
-  session->getFuncDeps()->add(astFunction);
+  session->getFuncDeps()->add(astFunction, false);
 
   auto tgFunction = session->getEda()->getCodeGenData<TiObject>(astFunction);
   auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
@@ -2630,7 +2630,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
   } else {
     // Build called function declaration.
     if (!g->generateFunctionDecl(callee, session)) return false;
-    session->getFuncDeps()->add(callee);
+    session->getFuncDeps()->add(callee, false);
     auto tgFunction = session->getEda()->getCodeGenData<TiObject>(callee);
 
     // Create function call.
