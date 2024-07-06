@@ -1,5 +1,10 @@
 # Alusus Changelog
 
+## Version 0.12.1 (2024-07-05)
+
+Fixed a bug in `StringBuilder`.
+
+
 ## Version 0.12.0 (2024-07-05)
 
 ### Updates to the Compiler

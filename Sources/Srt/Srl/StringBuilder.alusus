@@ -61,6 +61,7 @@ import "Spp/Ast";
             this.bufferSize = initialSize;
             this.bufferGrowSize = growSize;
             this.length = 0;
+            this.string.buf~cnt(0) = 0;
         }
 
         handler this.init(str: String, growSize: ArchInt) {
@@ -70,6 +71,7 @@ import "Spp/Ast";
             else {
                 this.bufferSize = growSize;
                 this.string.alloc(this.bufferSize);
+                this.string.buf~cnt(0) = 0;
             }
             this.bufferGrowSize = growSize;
         }
