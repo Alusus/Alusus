@@ -1,0 +1,82 @@
+import "Srl/Console";
+import "Srl/Map";
+import "Srl/String";
+import "Core/Basic";
+import "Core/Data";
+import "Spp";
+import "Spp/Ast";
+use Srl;
+use Core.Basic;
+use Core.Data;
+def AstTemplateMap: alias Map[String, ref[TiObject]];
+
+func printHello {
+    Console.print("Hello\n");
+}
+
+func printSomething[str: string]() {
+    Console.print(str);
+}
+
+def var1: Int(2);
+def var2: Int(3);
+
+func preprocessTest1 {
+    preprocess {
+        // Regular function call.
+        Spp.astMgr.insertAst(
+            (ast fn()),
+            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
+                MapContainerOf[this].setElement("callee", printHello~ast);
+            })
+        )
+        // Variables.
+        Spp.astMgr.insertAst(
+            (ast Console.print("%d\n", v1 + v2)),
+            AstTemplateMap()
+                .set(String("v1"), newSrdObj[Spp.Ast.CalleePointer].{
+                    MapContainerOf[this].setElement("callee", var1~ast);
+                })
+                .set(String("v2"), newSrdObj[Spp.Ast.CalleePointer].{
+                    MapContainerOf[this].setElement("callee", var2~ast);
+                })
+        )
+        // Call a function template.
+        def list: SrdRef[Ast.List] = newSrdObj[Ast.List];
+        def listContainer: DynContainerOf[list.obj];
+        listContainer.addElement(Ast.StringLiteral.create("Hello from a template\n"));
+        def instance: SrdRef[TiObject];
+        Spp.astMgr.matchTemplateInstance(printSomething~ast~cast[ref[Spp.Ast.Template]], list.obj, instance);
+        Spp.astMgr.insertAst(
+            (ast fn()),
+            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
+                MapContainerOf[this].setElement("callee", instance.obj);
+            })
+        )
+    }
+}
+
+preprocessTest1();
+
+class Tester {
+    def i: Int;
+    handler this.print() {
+        Console.print("Tester.i = %d\n", this.i);
+    }
+}
+
+func preprocessTest2 {
+    def t: Tester;
+    t.i = 5;
+    preprocess {
+        // Member function call.
+        Spp.astMgr.insertAst(
+            (ast t.fn()),
+            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
+                MapContainerOf[this].setElement("callee", Tester.print~ast);
+            })
+        );
+    }
+}
+
+preprocessTest2();
