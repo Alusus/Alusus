@@ -2,7 +2,7 @@
  * @file Spp/Ast/PointerType.cpp
  * Contains the implementation of class Spp::Ast::PointerType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -36,9 +36,7 @@ Type* PointerType::getContentType(Helper *helper) const
 }
 
 
-TypeMatchStatus PointerType::matchTargetType(
-  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
-) const
+TypeMatchStatus PointerType::matchTargetType(Type const *type, Helper *helper, TypeMatchOptions opts) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
 
@@ -52,7 +50,7 @@ TypeMatchStatus PointerType::matchTargetType(
     else if (targetContentType == 0 || helper->isVoid(targetContentType)) return TypeMatchStatus::REF_AGGREGATION;
     else if (thisContentType == 0) return TypeMatchStatus::EXPLICIT_CAST;
     else {
-      auto status = thisContentType->matchTargetType(targetContentType, helper, ec);
+      auto status = thisContentType->matchTargetType(targetContentType, helper);
       if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;
       else if (status == TypeMatchStatus::AGGREGATION || status == TypeMatchStatus::REF_AGGREGATION) {
         return TypeMatchStatus::REF_AGGREGATION;
@@ -61,7 +59,7 @@ TypeMatchStatus PointerType::matchTargetType(
   }
 
   auto integerType = ti_cast<IntegerType const>(type);
-  if (integerType != 0 && integerType->getBitCount(helper, ec) == ec->getPointerBitCount()) {
+  if (integerType != 0 && integerType->getBitCount(helper) == 0) {
     return TypeMatchStatus::EXPLICIT_CAST;
   }
 

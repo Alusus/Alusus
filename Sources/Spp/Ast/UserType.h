@@ -2,7 +2,7 @@
  * @file Spp/Ast/UserType.h
  * Contains the header of class Spp::Ast::UserType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -43,7 +43,7 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
   // Member Functions
 
   public: virtual TypeMatchStatus matchTargetType(
-    Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
+    Type const *type, Helper *helper, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const;
 
   public: virtual Bool isIdentical(Type const *type, Helper *helper) const
@@ -51,9 +51,9 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
     return this == type;
   }
 
-  public: virtual TypeInitMethod getInitializationMethod(Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeInitMethod getInitializationMethod(Helper *helper) const;
 
-  public: virtual TypeInitMethod getDestructionMethod(Helper *helper, ExecutionContext const *ec) const;
+  public: virtual TypeInitMethod getDestructionMethod(Helper *helper) const;
 
 
   //============================================================================

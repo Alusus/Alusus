@@ -2,7 +2,7 @@
  * @file Spp/Ast/FunctionType.h
  * Contains the header of class Spp::Ast::FunctionType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -85,7 +85,7 @@ class FunctionType : public Type, public MapContaining<TiObject>
   // Member Functions
 
   public: virtual TypeMatchStatus matchTargetType(
-    Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
+    Type const *type, Helper *helper, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const;
 
   public: virtual Bool isIdentical(Type const *type, Helper *helper) const;
@@ -129,13 +129,9 @@ class FunctionType : public Type, public MapContaining<TiObject>
 
   public: Type* traceRetType(Helper *helper) const;
 
-  public: TypeMatchStatus matchCall(
-    Containing<TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
-  );
+  public: TypeMatchStatus matchCall(Containing<TiObject> *types, Helper *helper);
 
-  public: TypeMatchStatus matchNextArg(
-    TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
-  );
+  public: TypeMatchStatus matchNextArg(TiObject *nextType, ArgMatchContext &matchContext, Helper *helper);
 
   public: void setMember(Bool m)
   {

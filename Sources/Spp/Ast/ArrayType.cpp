@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArrayType.cpp
  * Contains the implementation of class Spp::Ast::ArrayType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -53,7 +53,7 @@ Word ArrayType::getSize(Helper *helper) const
 
 
 TypeMatchStatus ArrayType::matchTargetType(
-  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+  Type const *type, Helper *helper, TypeMatchOptions opts
 ) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
@@ -61,12 +61,12 @@ TypeMatchStatus ArrayType::matchTargetType(
   auto arrayType = ti_cast<ArrayType const>(type);
   if (arrayType == 0) {
     auto thisContentType = this->getContentType(helper);
-    if (thisContentType->isEqual(type, helper, ec)) return TypeMatchStatus::AGGREGATION;
+    if (thisContentType->isEqual(type, helper)) return TypeMatchStatus::AGGREGATION;
     else return TypeMatchStatus::NONE;
   } else {
     auto thisContentType = this->getContentType(helper);
     auto targetContentType = arrayType->getContentType(helper);
-    if (thisContentType->isEqual(targetContentType, helper, ec)) {
+    if (thisContentType->isEqual(targetContentType, helper)) {
       auto thisSize = this->getSize(helper);
       auto targetSize = arrayType->getSize(helper);
       return thisSize == targetSize ? TypeMatchStatus::EXACT : (

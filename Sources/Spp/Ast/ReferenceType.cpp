@@ -2,7 +2,7 @@
  * @file Spp/Ast/ReferenceType.cpp
  * Contains the implementation of class Spp::Ast::ReferenceType.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -36,9 +36,7 @@ Type* ReferenceType::getContentType(Helper *helper) const
 }
 
 
-TypeMatchStatus ReferenceType::matchTargetType(
-  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
-) const
+TypeMatchStatus ReferenceType::matchTargetType(Type const *type, Helper *helper, TypeMatchOptions opts) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
 
@@ -53,7 +51,7 @@ TypeMatchStatus ReferenceType::matchTargetType(
     if (targetContentType == 0) {
       throw EXCEPTION(GenericException, S("Reference type is missing the content type."));
     }
-    auto status = thisContentType->matchTargetType(targetContentType, helper, ec, opts);
+    auto status = thisContentType->matchTargetType(targetContentType, helper, opts);
     if (status == TypeMatchStatus::AGGREGATION && status.derefs == 0) return TypeMatchStatus::REF_AGGREGATION;
     else if (status >= TypeMatchStatus::REF_AGGREGATION) return status;
   }
@@ -61,7 +59,7 @@ TypeMatchStatus ReferenceType::matchTargetType(
   if (opts & TypeMatchOptions::SKIP_DEREF) return TypeMatchStatus::NONE;
 
   auto matchStatus = this->isAutoDeref() ?
-    thisContentType->matchTargetType(type, helper, ec, opts) :
+    thisContentType->matchTargetType(type, helper, opts) :
     TypeMatchStatus::NONE;
   if (matchStatus != TypeMatchStatus::NONE) ++matchStatus.derefs;
   else if (referenceType != 0 && !this->isImplicit()) matchStatus = TypeMatchStatus::EXPLICIT_CAST;

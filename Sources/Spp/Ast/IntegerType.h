@@ -2,7 +2,7 @@
  * @file Spp/Ast/IntegerType.h
  * Contains the header of class Spp::Ast::IntegerType.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -89,10 +89,10 @@ class IntegerType : public DataType
     return this->withSign.get();
   }
 
-  public: Word getBitCount(Helper *helper, ExecutionContext const *ec) const;
+  public: Word getBitCount(Helper *helper) const;
 
   public: virtual TypeMatchStatus matchTargetType(
-    Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
+    Type const *type, Helper *helper, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const;
 
   public: virtual Bool isIdentical(Type const *type, Helper *helper) const;

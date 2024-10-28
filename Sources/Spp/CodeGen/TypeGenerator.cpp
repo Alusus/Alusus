@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -196,9 +196,9 @@ Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astTyp
 Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, Session *session)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
-  auto bitCount = astType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
+  auto bitCount = astType->getBitCount(typeGenerator->astHelper);
   // TODO: Support 128 bits?
-  if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
+  if (bitCount != 0 && bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
     typeGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
@@ -402,9 +402,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   if (session->getEda()->tryGetAutoCtor<TiObject>(astType) != 0) return true;
 
   // Validate that the type has custom initialization.
-  if ((astType->getInitializationMethod(
-    typeGenerator->astHelper, session->getExecutionContext()
-  ) & Ast::TypeInitMethod::AUTO) == 0) return true;
+  if ((astType->getInitializationMethod(typeGenerator->astHelper) & Ast::TypeInitMethod::AUTO) == 0) return true;
 
   // Generate pointer type for the user type.
   auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
@@ -490,9 +488,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
   if (session->getEda()->tryGetAutoDtor<TiObject>(astType) != 0) return true;
 
   // Validate that the type has custom initialization.
-  if ((astType->getDestructionMethod(
-    typeGenerator->astHelper, session->getExecutionContext()
-  ) & Ast::TypeInitMethod::AUTO) == 0) return true;
+  if ((astType->getDestructionMethod(typeGenerator->astHelper) & Ast::TypeInitMethod::AUTO) == 0) return true;
 
   // Generate pointer type for the user type.
   auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
@@ -576,9 +572,7 @@ Bool TypeGenerator::_generateFunctionType(
     if (!typeGenerator->getGeneratedType(argType, g, session, tgType, &astType)) {
       return false;
     }
-    if (astType->getInitializationMethod(
-      typeGenerator->astHelper, session->getExecutionContext()
-    ) != Ast::TypeInitMethod::NONE) {
+    if (astType->getInitializationMethod(typeGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       // This type has custom initialization, so we'll pass it by reference instead of by value.
       auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
       if (!typeGenerator->getGeneratedType(astPtrType, g, session, tgType, 0)) {
@@ -597,9 +591,7 @@ Bool TypeGenerator::_generateFunctionType(
       return false;
     }
     Ast::setAstType(astType->getRetType().get(), astRetType);
-    if (astRetType->getInitializationMethod(
-      typeGenerator->astHelper, session->getExecutionContext()
-    ) != Ast::TypeInitMethod::NONE) {
+    if (astRetType->getInitializationMethod(typeGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       // This type has custom initialization, so we'll pass it by reference instead of by value.
       auto astRetPtrType = typeGenerator->astHelper->getPointerTypeFor(astRetType);
       if (!typeGenerator->getGeneratedType(astRetPtrType, g, session, tgRetType, 0)) {
@@ -626,16 +618,12 @@ Bool TypeGenerator::_generateCast(
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   Ast::Function *caster;
-  auto matchType = typeGenerator->astHelper->matchTargetType(
-    srcType, targetType, session->getExecutionContext(), caster
-  );
+  auto matchType = typeGenerator->astHelper->matchTargetType(srcType, targetType, caster);
 
   // If this type is a pass-by-ref type then we should not dereference all the way to a value since we will be needing
   // a reference to the value and not the value itself.
   if (matchType.derefs == 1 && matchType == Ast::TypeMatchStatus::EXACT) {
-    if (targetType->getInitializationMethod(
-      typeGenerator->astHelper, session->getExecutionContext()
-    ) != Ast::TypeInitMethod::NONE) {
+    if (targetType->getInitializationMethod(typeGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       result.targetData = getSharedPtr(tgValue);
       result.astType = srcType;
       return true;
@@ -672,7 +660,7 @@ Bool TypeGenerator::_generateCast(
       srcType, tgRef.get(), astNode, &paramAstNodes, &paramAstTypes, &paramTgValues, session
     )) return false;
     // Register temp var for destruction.
-    g->registerDestructor(astNode, srcType, tgTempVar, session->getExecutionContext(), session->getDestructionStack());
+    g->registerDestructor(astNode, srcType, tgTempVar, session->getDestructionStack());
     Ast::Type *refAstType = typeGenerator->astHelper->getReferenceTypeFor(srcType, Ast::ReferenceMode::IMPLICIT);
     return typeGenerator->generateCast(
       g, session, refAstType, targetType, astNode, tgRef.get(), implicit, result
@@ -725,8 +713,7 @@ Bool TypeGenerator::_generateCast(
       auto targetPointerType = static_cast<Spp::Ast::PointerType*>(targetType);
       if (
         srcIntegerType->isNullLiteral() ||
-        srcIntegerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext())
-          == session->getExecutionContext()->getPointerBitCount()
+        srcIntegerType->getBitCount(typeGenerator->astHelper) == 0
       ) {
         TiObject *targetTgType;
         if (!typeGenerator->getGeneratedType(targetPointerType, g, session, targetTgType, 0)) return false;
@@ -768,8 +755,8 @@ Bool TypeGenerator::_generateCast(
     if (targetType->isDerivedFrom<Spp::Ast::IntegerType>()) {
       // Cast pointer to integer.
       auto targetIntegerType = static_cast<Spp::Ast::IntegerType*>(targetType);
-      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
-      if (session->getExecutionContext()->getPointerBitCount() == targetBitCount) {
+      Word targetBitCount = targetIntegerType->getBitCount(typeGenerator->astHelper);
+      if (targetBitCount == 0) {
         TiObject *srcTgType;
         if (!typeGenerator->getGeneratedType(srcType, g, session, srcTgType, 0)) return false;
         TiObject *targetTgType;
@@ -828,7 +815,7 @@ Bool TypeGenerator::_generateDefaultValue(
     }
 
     auto integerType = static_cast<Spp::Ast::IntegerType*>(astType);
-    auto bitCount = integerType->getBitCount(typeGenerator->astHelper, session->getExecutionContext());
+    auto bitCount = integerType->getBitCount(typeGenerator->astHelper);
     return session->getTg()->generateIntLiteral(session->getTgContext(), bitCount, integerType->isSigned(), 0, result);
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
     // Generate float 0

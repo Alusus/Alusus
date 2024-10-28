@@ -2,7 +2,7 @@
  * @file Spp/Ast/callee_lookup_defs.h
  * Contains definitions used by CalleeTracer.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -46,7 +46,6 @@ struct CalleeLookupRequest
   TiObject *thisType = 0;
   Containing<TiObject> *argTypes = 0;
   TiObject *templateParam = 0;
-  ExecutionContext const *ec;
 };
 
 s_enum(CalleeLookupResultStackEntryType,

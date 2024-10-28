@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/CommandGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -71,9 +71,7 @@ Bool CommandGenerator::_generateReturnStatement(
       return false;
     }
     // Generate the return statement.
-    if (retType->getInitializationMethod(
-      cmdGenerator->astHelper, session->getExecutionContext()
-    ) != Ast::TypeInitMethod::NONE) {
+    if (retType->getInitializationMethod(cmdGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       // Assign value to ret reference.
       TiObject *retTgType;
       if (!g->getGeneratedType(retType, session, retTgType, 0)) return false;

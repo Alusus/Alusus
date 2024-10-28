@@ -83,7 +83,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             if modifier~ptr != 0 {
                 def deps: Array[String];
                 if !Spp.astMgr.getModifierStringParams(modifier, deps) return false;
-                def i: Word;
+                def i: ArchInt;
                 for i = 0, i < deps.getLength(), ++i this.addDependency(deps(i));
             }
             return true;
@@ -110,7 +110,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         handler this.getDepsString (): String {
             def depsString: String("");
             def nonSystemDeps: Bool = 0;
-            def i: Word;
+            def i: ArchInt;
             for i = 0, i < this.deps.getLength(), ++i {
                 def fileNameStart: Int = this.deps(i).findLast('/');
                 if fileNameStart != -1 {
@@ -184,7 +184,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.getDepsString (): String {
             def depsString: String("");
-            def i: Word;
+            def i: ArchInt;
             for i = 0, i < this.deps.getLength(), ++i {
                 depsString += " ";
                 depsString += this.deps(i);

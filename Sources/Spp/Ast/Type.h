@@ -2,7 +2,7 @@
  * @file Spp/Ast/Type.h
  * Contains the header of class Spp::Ast::Type.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -56,33 +56,29 @@ class Type : public Core::Data::Node,
   // Member Functions
 
   public: virtual TypeMatchStatus matchTargetType(
-    Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts = TypeMatchOptions::NONE
+    Type const *type, Helper *helper, TypeMatchOptions opts = TypeMatchOptions::NONE
   ) const = 0;
 
-  public: virtual Bool isEqual(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  public: virtual Bool isEqual(Type const *type, Helper *helper) const
   {
-    return this->matchTargetType(type, helper, ec, TypeMatchOptions::SKIP_DEREF)
+    return this->matchTargetType(type, helper, TypeMatchOptions::SKIP_DEREF)
       == TypeMatchStatus(TypeMatchStatus::EXACT);
   }
 
   public: virtual Bool isIdentical(Type const *type, Helper *helper) const = 0;
 
-  public: virtual Bool isImplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
+  public: virtual Bool isCastableTo(Type const *type, Bool implicit, Helper *helper) const
   {
-    return this->matchTargetType(type, helper, ec) >= TypeMatchStatus::IMPLICIT_CAST;
+    if (implicit) return this->matchTargetType(type, helper) >= TypeMatchStatus::IMPLICIT_CAST;
+    else return this->matchTargetType(type, helper) >= TypeMatchStatus::EXPLICIT_CAST;
   }
 
-  public: virtual Bool isExplicitlyCastableTo(Type const *type, Helper *helper, ExecutionContext const *ec) const
-  {
-    return this->matchTargetType(type, helper, ec) >= TypeMatchStatus::EXPLICIT_CAST;
-  }
-
-  public: virtual TypeInitMethod getInitializationMethod(Helper *helper, ExecutionContext const *ec) const
+  public: virtual TypeInitMethod getInitializationMethod(Helper *helper) const
   {
     return TypeInitMethod::NONE;
   }
 
-  public: virtual TypeInitMethod getDestructionMethod(Helper *helper, ExecutionContext const *ec) const
+  public: virtual TypeInitMethod getDestructionMethod(Helper *helper) const
   {
     return TypeInitMethod::NONE;
   }

@@ -2,7 +2,7 @@
  * @file Spp/Ast/UserType.cpp
  * Contains the implementation of class Spp::Ast::UserType.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,9 +15,7 @@
 namespace Spp::Ast
 {
 
-TypeMatchStatus UserType::matchTargetType(
-  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
-) const
+TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, TypeMatchOptions opts) const
 {
   if (this == type) {
     return TypeMatchStatus::EXACT;
@@ -33,7 +31,7 @@ TypeMatchStatus UserType::matchTargetType(
             if (!isInjection(def)) break;
             auto memberType = helper->traceType(obj);
             auto memberMatchStatus = memberType != 0 ?
-              memberType->matchTargetType(type, helper, ec, opts | TypeMatchOptions::SKIP_DEREF) :
+              memberType->matchTargetType(type, helper, opts | TypeMatchOptions::SKIP_DEREF) :
               TypeMatchStatus::NONE;
             if (
               memberMatchStatus == TypeMatchStatus::EXACT || memberMatchStatus == TypeMatchStatus::AGGREGATION ||
@@ -69,7 +67,7 @@ Bool UserType::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::S
 }
 
 
-TypeInitMethod UserType::getInitializationMethod(Helper *helper, ExecutionContext const *ec) const
+TypeInitMethod UserType::getInitializationMethod(Helper *helper) const
 {
   TypeInitMethod method = TypeInitMethod::NONE;
   auto body = this->getBody().get();
@@ -93,7 +91,7 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper, ExecutionContex
               if (method == TypeInitMethod::BOTH) break;
             } else {
               auto type = helper->traceType(def->getTarget().get());
-              if (type != 0 && type->getInitializationMethod(helper, ec) != TypeInitMethod::NONE) {
+              if (type != 0 && type->getInitializationMethod(helper) != TypeInitMethod::NONE) {
                 method |= TypeInitMethod::AUTO;
                 if (method == TypeInitMethod::BOTH) break;
               }
@@ -111,7 +109,7 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper, ExecutionContex
 }
 
 
-TypeInitMethod UserType::getDestructionMethod(Helper *helper, ExecutionContext const *ec) const
+TypeInitMethod UserType::getDestructionMethod(Helper *helper) const
 {
   TypeInitMethod method = TypeInitMethod::NONE;
   auto body = this->getBody().get();
@@ -128,7 +126,7 @@ TypeInitMethod UserType::getDestructionMethod(Helper *helper, ExecutionContext c
             }
           } else if (helper->isInMemVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
             auto type = helper->traceType(def->getTarget().get());
-            if (type != 0 && type->getDestructionMethod(helper, ec) != TypeInitMethod::NONE) {
+            if (type != 0 && type->getDestructionMethod(helper) != TypeInitMethod::NONE) {
               method |= TypeInitMethod::AUTO;
               if (method == TypeInitMethod::BOTH) break;
             }
