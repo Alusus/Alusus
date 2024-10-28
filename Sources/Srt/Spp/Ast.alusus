@@ -2,7 +2,7 @@
  * @file Spp/Ast.alusus
  * Interoperability definitions for SPP's AST classes.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -61,5 +61,6 @@ import "Core/Data";
         defAstType[ArgPack, "alusus.org/Spp/Spp.Ast.ArgPack"];
         defAstType[AstLiteralCommand, "alusus.org/Spp/Spp.Ast.AstLiteralCommand"];
         defAstType[ThisTypeRef, "alusus.org/Spp/Spp.Ast.ThisTypeRef"];
+        defAstType[CalleePointer, "alusus.org/Spp/Spp.Ast.CalleePointer"];
     }
 }

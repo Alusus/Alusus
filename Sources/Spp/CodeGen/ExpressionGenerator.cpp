@@ -24,6 +24,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generate,
     &this->generateList,
     &this->generateIdentifier,
+    &this->generateCalleePointer,
     &this->generateLinkOperator,
     &this->generateParamPass,
     &this->generateRoundParamPass,
@@ -78,6 +79,7 @@ void ExpressionGenerator::initBindings()
   this->generate = &ExpressionGenerator::_generate;
   this->generateList = &ExpressionGenerator::_generateList;
   this->generateIdentifier = &ExpressionGenerator::_generateIdentifier;
+  this->generateCalleePointer = &ExpressionGenerator::_generateCalleePointer;
   this->generateLinkOperator = &ExpressionGenerator::_generateLinkOperator;
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateRoundParamPass = &ExpressionGenerator::_generateRoundParamPass;
@@ -140,6 +142,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
     return expGenerator->generateIdentifier(identifier, g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::CalleePointer>()) {
+    auto identifier = static_cast<Spp::Ast::CalleePointer*>(astNode);
+    return expGenerator->generateCalleePointer(identifier, g, session, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(astNode);
     return expGenerator->generateLinkOperator(linkOperator, g, session, result, terminal);
@@ -271,6 +276,18 @@ Bool ExpressionGenerator::_generateList(
 
 Bool ExpressionGenerator::_generateIdentifier(
   TiObject *self, Core::Data::Ast::Identifier *astNode, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  TerminalStatement terminal;
+  PlainList<TiObject> paramAstTypes;
+  GenResult thisResult;
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
+}
+
+
+Bool ExpressionGenerator::_generateCalleePointer(
+  TiObject *self, Spp::Ast::CalleePointer *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2823,6 +2840,14 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     calleeRequest.ref = operand;
     prevResult = GenResult();
     return true;
+  } else if (operand->isDerivedFrom<Spp::Ast::CalleePointer>()) {
+    ////
+    //// A direct pointer to a callee.
+    ////
+    calleeRequest.target = static_cast<Spp::Ast::CalleePointer*>(operand)->getCallee();
+    calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
+    prevResult = GenResult();
+    return true;
   } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     ////
     //// Call a member of a specific object/scope.
@@ -2852,6 +2877,14 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         calleeRequest.target = thisType;
         calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.ref = linkOperator->getSecond().get();
+        calleeRequest.thisType = thisRefType;
+        return true;
+      } else if (linkOperator->getSecond()->isDerivedFrom<Spp::Ast::CalleePointer>()) {
+        // Calling a member of an object using a direct pointer to the callee.
+        auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+        auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
+        calleeRequest.target = linkOperator->getSecond().s_cast_get<Spp::Ast::CalleePointer>()->getCallee();
+        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.thisType = thisRefType;
         return true;
       } else if (linkOperator->getSecond()->isDerivedFrom<Ast::Block>()) {

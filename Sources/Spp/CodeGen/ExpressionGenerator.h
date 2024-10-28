@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.h
  * Contains the header of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -125,6 +125,16 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   );
   private: static Bool _generateIdentifier(
     TiObject *self, Core::Data::Ast::Identifier *astNode, Generation *g, Session *session, GenResult &result
+  );
+
+  public: METHOD_BINDING_CACHE(generateCalleePointer,
+    Bool, (
+      Spp::Ast::CalleePointer* /* astNode */, Generation* /* g */,
+      Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateCalleePointer(
+    TiObject *self, Spp::Ast::CalleePointer *astNode, Generation *g, Session *session, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateLinkOperator,
