@@ -2,7 +2,7 @@
  * @file Core/Data.alusus
  * Interoperability definitions for the Core's data classes.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -70,6 +70,7 @@ import "Srl/String";
                     func create (v: ptr[array[Char]]): SrdRef[name] {
                         def r: SrdRef[name];
                         r.alloc()~init(v);
+                        r.wkThis.assign(r.refCounter, r.tiObject);
                         return r;
                     }
 
