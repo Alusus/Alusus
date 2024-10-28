@@ -1,5 +1,32 @@
 # Alusus Changelog
 
+## Version 0.12.2 (2024-xx-xx)
+
+### Updates to the Compiler
+
+* Enabled using pointers to refer to callees when generating code during preprocess operations
+  without the need to use qualifiers that refer to the callee by their source code name.
+* Changed casting between pointer and integer types only allowed when casting with `ArchInt` type
+  and not with other `Int` types, even if the bit count matches. This makes dealing with AST
+  indepedent from the execution environment.
+* Made casting between `ArchInt` and other integer types assume the bit count of `ArchInt` not
+  to be determined and accordingly prevents implicit casting if there is a possibility of data
+  loss regardless of current architecture. Previously it used to determine the bit count of
+  `ArchInt` based on current architecture and determines castability accodingly, which makes
+  the AST dependent on the architecture.
+
+### Updates to the Standard Libraries
+
+* Added the following methods to `Spp.astMgr`:
+  * `getClassVars`
+  * `getClassVarNames`
+  * `getClassFuncs`
+  * `getClassFuncNames`
+  * `insertCopyHandlers`
+  * `matchTemplateInstance`
+  * `isCastableTo`
+
+
 ## Version 0.12.1 (2024-07-05)
 
 Fixed a bug in `StringBuilder`.
@@ -16,9 +43,9 @@ Fixed a bug in `StringBuilder`.
 
 * Added support for mixins through the `Spp.astMgr.insertMixin` method.
 * Added the following methods to `Spp.astMgr`:
-  - `getDefinitionName`
-  - `getFuncArgTypes`
-  - `getFuncArgType`
+  * `getDefinitionName`
+  * `getFuncArgTypes`
+  * `getFuncArgType`
 * Enable updating the linker's filename as well as the target triple in `Build` module.
 * Enable overriding memory allocation functions in `Memory` module.
 * Added `StringBuilder` class to enable high performance string building.
@@ -34,7 +61,9 @@ Fixed a bug in `StringBuilder`.
 * Fix in `Possible` to prevent unintentional casting to `value` without going through the custom caster.
 * Fixed some issues in `String` class.
 
+
 ## Version 0.11.3 (2023-09-11)
+<details>
 
 ### Updates to the Compiler
 
@@ -51,24 +80,30 @@ Fixed a bug in `StringBuilder`.
 ### Standard Libraries Fixes
 
 * Fixes to assignment and casting handlers of `Nullable` class.
+</details>
 
 
 ## Version 0.11.2 (2023-08-22)
+<details>
 
 ### Compiler Fixes
 
 * Fixed the detection of terminal statements inside command packs (~use_in operator).
+</details>
 
 
 ## Version 0.11.1 (2023-08-15)
+<details>
 
 ### Compiler Fixes
 
 * Fixed an issue with nested compilation (compilation that is triggered during the preprocessing of another
   compilation).
+</details>
 
 
 ## Version 0.11.0 (2023-07-26)
+<details>
 
 ### Compiler Fixes
 
@@ -80,9 +115,11 @@ Fixed a bug in `StringBuilder`.
 * Added `Net.uriEncode`.
 * Added `Net.uriDecode`.
 * Changed the type of `Error.getCode()` from Int to String.
+</details>
 
 
 ## Version 0.10.0 (2023-07-08)
+<details>
 
 ### Updates to the Compiler
 
@@ -154,6 +191,7 @@ Fixed a bug in `StringBuilder`.
 * Build wasm-ld and include it with Alusus to avoid potential conflict between the version of LLVM used by
   Alusus and the version LLVM used by the wasm-ld provided by the OS.
 * Fixed an issue in `apm link` command when dealing with spaces in folder names.
+</details>
 
 
 ## Version 0.9.0 (2022-06-20)
