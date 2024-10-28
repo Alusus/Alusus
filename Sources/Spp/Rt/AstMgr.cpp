@@ -1,7 +1,7 @@
 /**
  * @file Spp/Rt/AstMgr.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -36,6 +36,8 @@ void AstMgr::initBindingCaches()
     &this->getCurrentPreprocessInsertionPosition,
     &this->getVariableDomain,
     &this->traceType,
+    &this->isCastableTo,
+    &this->matchTemplateInstance,
     &this->computeResultType,
     &this->cloneAst,
     &this->dumpData,
@@ -64,6 +66,8 @@ void AstMgr::initBindings()
   this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
   this->getVariableDomain = &AstMgr::_getVariableDomain;
   this->traceType = &AstMgr::_traceType;
+  this->isCastableTo = &AstMgr::_isCastableTo;
+  this->matchTemplateInstance = &AstMgr::_matchTemplateInstance;
   this->computeResultType = &AstMgr::_computeResultType;
   this->cloneAst = &AstMgr::_cloneAst;
   this->dumpData = &AstMgr::_dumpData;
@@ -94,6 +98,8 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   );
   globalItemRepo->addItem(S("Spp_AstMgr_getVariableDomain"), (void*)&AstMgr::_getVariableDomain);
   globalItemRepo->addItem(S("Spp_AstMgr_traceType"), (void*)&AstMgr::_traceType);
+  globalItemRepo->addItem(S("Spp_AstMgr_isCastableTo"), (void*)&AstMgr::_isCastableTo);
+  globalItemRepo->addItem(S("Spp_AstMgr_matchTemplateInstance"), (void*)&AstMgr::_matchTemplateInstance);
   globalItemRepo->addItem(S("Spp_AstMgr_computeResultType"), (void*)&AstMgr::_computeResultType);
   globalItemRepo->addItem(S("Spp_AstMgr_cloneAst"), (void*)&AstMgr::_cloneAst);
   globalItemRepo->addItem(S("Spp_AstMgr_dumpData"), (void*)&AstMgr::_dumpData);
@@ -313,6 +319,20 @@ Spp::Ast::Type* AstMgr::_traceType(TiObject *self, TiObject *astNode)
   return astMgr->astHelper->traceType(astNode);
 }
 
+
+Bool AstMgr::_isCastableTo(TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astHelper->isCastableTo(srcTypeRef, targetTypeRef, implicit);
+}
+
+
+Bool AstMgr::_matchTemplateInstance(
+  TiObject *self, Spp::Ast::Template *tmplt, TiObject *templateInputs, TioSharedPtr &result
+) {
+  PREPARE_SELF(astMgr, AstMgr);
+  return tmplt->matchInstance(templateInputs, astMgr->astHelper, result);
+}
 
 Bool AstMgr::_computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue)
 {

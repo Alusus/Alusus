@@ -54,6 +54,26 @@ import "Srl/refs_base";
             flags: Word
         ): Array[ref[TiObject]];
 
+        handler this.findElements(
+            comparison: ref[TiObject],
+            target: ref[TiObject],
+            flags: Word,
+            modifierKwd: CharsPtr,
+            kwdTranslations: ref[Map[String, String]]
+        ): Array[ref[TiObject]] {
+            def elements: Array[ref[TiObject]] = this.findElements(comparison, parent, flags);
+            def result: Array[ref[TiObject]];
+            def i: Int;
+            for i = 0, i < elements.getLength(), ++i {
+                if modifierKwd != 0
+                and this.findModifierForElement(elements(i), modifierKwd, kwdTranslations)~ptr == 0 {
+                    continue;
+                }
+                result.add(elements(i));
+            }
+            return result;
+        }
+
         handler this.getDefinitionName (element: ref[TiObject]): String {
             use Core.Data;
             def node: ref[Node](castRef[element, Node]);
@@ -78,7 +98,7 @@ import "Srl/refs_base";
         handler this.findModifierForElement (
             element: ref[TiObject],
             kwd: ptr[array[Char]],
-            kwdTranslations: Map[String, String]
+            kwdTranslations: ref[Map[String, String]]
         ): ref[TiObject] {
             def modifiers: ref[Containing](this.getModifiers(element));
             if modifiers~ptr == 0 return nullRef[TiObject];
@@ -101,6 +121,78 @@ import "Srl/refs_base";
         handler this.getModifierStringParams(
             modifier: ref[TiObject], result: ref[Array[String]]
         ) => Word[1];
+
+        handler this.getClassVars(parent: ref[TiObject]): Array[ref[TiObject]] {
+            return this.findElements(
+                (ast elementType == "var"),
+                parent,
+                SeekerFlags.SKIP_OWNERS | SeekerFlags.SKIP_USES | SeekerFlags.SKIP_CHILDREN
+            );
+        }
+
+        handler this.getClassVars(
+            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+        ): Array[ref[TiObject]] {
+            return this.findElements(
+                (ast elementType == "var"),
+                parent,
+                SeekerFlags.SKIP_OWNERS | SeekerFlags.SKIP_USES | SeekerFlags.SKIP_CHILDREN,
+                modifierKwd,
+                kwdTranslations
+            );
+        }
+
+        handler this.getClassVarNames(parent: ref[TiObject]): Array[String] {
+            return this.getClassVarNames(parent, 0, Map[String, String]());
+        }
+
+        handler this.getClassVarNames(
+            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+        ): Array[String] {
+            def vars: Array[ref[TiObject]] = this.getClassVars(parent, modifier, kwdTranslations);
+            def result: Array[String];
+            def i: Int;
+            for i = 0, i < vars.getLength(), ++i {
+                result.add(this.getDefinitionName(vars(i)));
+            }
+            return result;
+        }
+
+        handler this.getClassFuncs(parent: ref[TiObject]): Array[ref[TiObject]] {
+            return this.findElements(
+                (ast elementType == "function"),
+                parent,
+                SeekerFlags.SKIP_OWNERS | SeekerFlags.SKIP_USES | SeekerFlags.SKIP_CHILDREN
+            );
+        }
+
+        handler this.getClassFuncs(
+            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+        ): Array[ref[TiObject]] {
+            return this.findElements(
+                (ast elementType == "function"),
+                parent,
+                SeekerFlags.SKIP_OWNERS | SeekerFlags.SKIP_USES | SeekerFlags.SKIP_CHILDREN,
+                modifierKwd,
+                kwdTranslations
+            );
+        }
+
+        handler this.getClassFuncNames(parent: ref[TiObject]): Array[String] {
+            return this.getClassFuncNames(parent, 0, Map[String, String]());
+        }
+
+        handler this.getClassFuncNames(
+            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+        ): Array[String] {
+            def funcs: Array[ref[TiObject]] = this.getClassFuncs(parent, modifier, kwdTranslations);
+            def result: Array[String];
+            def i: Int;
+            for i = 0, i < funcs.getLength(), ++i {
+                result.add(this.getDefinitionName(funcs(i)));
+            }
+            return result;
+        }
 
         handler this.getFuncArgTypes (element: ref[TiObject]): ref[TiObject] {
             def fnType: ref[TiObject](MapContainerOf[element].getElement("type"));
@@ -159,6 +251,31 @@ import "Srl/refs_base";
             return result;
         }
 
+        handler this.insertCopyHandlers(obj: ref[TiObject]) {
+            def varNames: Array[String] = this.getVarNames(obj);
+            def assignments: SrdRef[Ast.MergeList] = newSrdObj[Ast.MergeList];
+            def assignContainer: DynContainerOf[assignments.obj];
+            for i = 0, i < varNames.getLength(), ++i {
+                def payloadAssignment: SrdRef[TiObject] = Spp.astMgr.buildAst(
+                    (ast this.varName~no_deref = value.varName),
+                    AstTemplateMap().set(String("varName"), Ast.Identifier(varNames(i)))
+                );
+                assignContainer.addElement(payloadAssignment.obj);
+            }
+            this.insertAst(
+                ast {
+                    handler this~init(ref[this_type]) { this = value }
+                    handler this = ref[this_type] {
+                        assignments
+                    }
+                },
+                AstTemplateMap().{
+                    set(String("assignments"), assignments.obj);
+                }
+            );
+        }
+        @member macro insertCopyHandlers [this] preprocess { this.insertCopyHandlers(this_type~ast) }
+
         handler this.insertMixin(obj: ref[TiObject]) {
             use Core.Data;
             use Core.Data.Ast;
@@ -202,6 +319,14 @@ import "Srl/refs_base";
 
         @expname[Spp_AstMgr_traceType]
         handler this.traceType(element: ref[TiObject]) => ref[Spp.Ast.Type];
+
+        @expname[Spp_AstMgr_matchTemplateInstance]
+        handler this.matchTemplateInstance(
+            template: ref[Spp.Ast.Template], templateInput: ref[TiObject], result: ref[SrdRef[TiObject]]
+        ) => Bool;
+
+        @expname[Spp_AstMgr_isCastableTo]
+        handler this.isCastableTo(srcTypeRef: ref[TiObject], targetTypeRef: ref[TiObject], implicit: Bool) => Bool;
 
         @expname[Spp_AstMgr_computeResultType]
         handler this.computeResultType(

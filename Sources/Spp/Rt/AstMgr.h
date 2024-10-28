@@ -2,7 +2,7 @@
  * @file Spp/Rt/AstMgr.h
  * Contains the header of class Spp::Rt::AstMgr.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -173,6 +173,14 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: METHOD_BINDING_CACHE(traceType, Spp::Ast::Type*, (TiObject*));
   private: static Spp::Ast::Type* _traceType(TiObject *self, TiObject *astNode);
+
+  public: METHOD_BINDING_CACHE(isCastableTo, Bool, (TiObject*, TiObject*, Bool));
+  private: static Bool _isCastableTo(TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit);
+
+  public: METHOD_BINDING_CACHE(matchTemplateInstance, Bool, (Spp::Ast::Template*, TiObject*, TioSharedPtr&));
+  private: static Bool _matchTemplateInstance(
+    TiObject *self, Spp::Ast::Template *tmplt, TiObject *templateInputs, TioSharedPtr &result
+  );
 
   public: METHOD_BINDING_CACHE(computeResultType,
     Bool, (TiObject* /* astNode */, TiObject*& /* result */, Bool& /* resultIsValue */)
