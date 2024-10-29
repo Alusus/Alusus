@@ -43,6 +43,37 @@ def Main: module
     def f: Float[32];
     def pi: ptr[Int[32]];
     def d: Float[64];
+    def w: Word[32];
+    def lw: Word[64];
+
+    i~cast[Int[64]];
+    i~cast[Int[0]];
+    i~cast[ptr];
+    l~cast[Int[32]];
+    l~cast[Int[0]];
+    l~cast[ptr];
+    ptrI~cast[Int[32]];
+    ptrI~cast[Int[64]];
+    ptrI~cast[ptr];
+    w~cast[Int[64]];
+    w~cast[Int[0]];
+    w~cast[ptr];
+    lw~cast[Int[64]];
+    lw~cast[Int[0]];
+    lw~cast[ptr];
+  
+    i == l;
+    i == ptrI;
+    i == w;
+    i == lw;
+    l == i;
+    l == ptrI;
+    l == w;
+    l == lw;
+    ptrI == i;
+    ptrI == l;
+    ptrI == w;
+    ptrI == lw;
 
     pi~cast[ptr[Int[16]]]~cnt = 2i16;
     f = 30.0;
@@ -51,10 +82,10 @@ def Main: module
     i~ptr~cast[ptr[Int[8]]]~cnt = 1i8;
 
     pi~cast[ptr[Int16]]~cnt = 2i16;
-    pi~cast[Int[64]] = 10;
+    pi~cast[Int[0]] = 10;
     pi = 10~cast[ptr[Int[32]]];
-    pi = 10i64~cast[ptr[Int[32]]];
-    pi = l~cast[ptr[Int[32]]];
+    pi = 10~cast[Int[0]]~cast[ptr[Int[32]]];
+    pi = l~cast[Int[0]]~cast[ptr[Int[32]]];
     pi = ptrI~cast[ptr[Int[32]]];
 
     d = 10.0;

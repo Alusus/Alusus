@@ -80,3 +80,30 @@ func preprocessTest2 {
 }
 
 preprocessTest2();
+
+func preprocessTest3 {
+    def fp1: ptr[function];
+    def fp2: ptr[function];
+    fp1 = preprocess {
+        // Getting pointer to function
+        Spp.astMgr.insertAst(
+            (ast fn~ptr),
+            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
+                MapContainerOf[this].setElement("callee", printHello~ast);
+            })
+        );
+    };
+    preprocess {
+        // Getting pointer to function
+        Spp.astMgr.insertAst(
+            (ast fp2 = fn~ptr),
+            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
+                MapContainerOf[this].setElement("callee", printHello~ast);
+            })
+        );
+    };
+    fp1();
+    fp2();
+}
+
+preprocessTest3();

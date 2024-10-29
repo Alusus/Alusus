@@ -133,7 +133,7 @@ def Main: module
     print("1i64 + 1f32 = %f\n", 1i64 + 1f32);
     print("1f32 + 1i64 = %f\n", 1f32 + 1i64);
 
-    print("1i32 + ptr = %f\n", 1i32 + 1i64~cast[ptr[Int[32]]]);
+    print("1i32 + ptr = %f\n", 1i32 + 1~cast[Int[0]]~cast[ptr[Int[32]]]);
   };
 
   def testShift: function ()=>Void

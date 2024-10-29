@@ -9,7 +9,7 @@ def Main: module
     h("hello", "world");
     Other.f(5);
     Other.f("hello");
-    Other.f(5i64~cast[ptr[Int[32]]]);
+    Other.f(5~cast[Int[0]]~cast[ptr[Int[32]]]);
     Other.invalid();
     Other.Nested.g();
     Other.Nested.f();
