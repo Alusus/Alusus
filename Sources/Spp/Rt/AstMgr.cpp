@@ -25,6 +25,7 @@ void AstMgr::initBindingCaches()
     &this->findModifier,
     &this->findModifierForElement,
     &this->getModifierKeyword,
+    &this->getModifierParams,
     &this->getModifierStringParams,
     &this->getSourceFullPathForElement,
     &this->insertAst,
@@ -55,6 +56,7 @@ void AstMgr::initBindings()
   this->findModifier = &AstMgr::_findModifier;
   this->findModifierForElement = &AstMgr::_findModifierForElement;
   this->getModifierKeyword = &AstMgr::_getModifierKeyword;
+  this->getModifierParams = &AstMgr::_getModifierParams;
   this->getModifierStringParams = &AstMgr::_getModifierStringParams;
   this->getSourceFullPathForElement = &AstMgr::_getSourceFullPathForElement;
   this->insertAst = &AstMgr::_insertAst;
@@ -85,6 +87,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_findModifier"), (void*)&AstMgr::_findModifier);
   globalItemRepo->addItem(S("Spp_AstMgr_findModifierForElement"), (void*)&AstMgr::_findModifierForElement);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierKeyword"), (void*)&AstMgr::_getModifierKeyword);
+  globalItemRepo->addItem(S("Spp_AstMgr_getModifierParams"), (void*)&AstMgr::_getModifierParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStringParams"), (void*)&AstMgr::_getModifierStringParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getSourceFullPathForElement"), (void*)&AstMgr::_getSourceFullPathForElement);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst"), (void*)&AstMgr::_insertAst);
@@ -183,6 +186,25 @@ String AstMgr::_getModifierKeyword(TiObject *self, TiObject *modifier)
   }
   if (identifier != 0) return identifier->getValue().getStr();
   else return String();
+}
+
+
+Bool AstMgr::_getModifierParams(TiObject *self, TiObject *modifier, Array<TiObject*> &result)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+
+  auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifier);
+  if (paramPass == 0) return true;
+
+  auto params = paramPass->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();
+  if (params == 0) {
+    result.add(paramPass->getParam().get());
+  } else {
+    for (Int i = 0; i < params->getElementCount(); ++i) {
+      result.add(params->getElement(i));
+    }
+  }
+  return true;
 }
 
 

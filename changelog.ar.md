@@ -23,6 +23,7 @@
   * `هات_أسماء_متغيرات_صنف` (`getClassVarNames`)
   * `هات_دالات_صنف` (`getClassFuncs`)
   * `هات_أسماء_دالات_صنف` (`getClassFuncNames`)
+  * `هات_معطيات_مبدل` (`getModifierParams`)
   * `احشر_عمليات_النسخ` (`insertCopyHandlers`)
   * `طابق_طبعة_قالب` (`matchTemplateInstance`)
   * `أهو_قابل_للتمثيل` (`isCastableTo`)

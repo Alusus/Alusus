@@ -137,6 +137,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getModifierKeyword, String, (TiObject* /* modifier */));
   private: static String _getModifierKeyword(TiObject *self, TiObject *modifier);
 
+  public: METHOD_BINDING_CACHE(getModifierParams, Bool, (TiObject* /* modifier */, Array<TiObject*>& /* result */));
+  private: static Bool _getModifierParams(TiObject *self, TiObject *modifier, Array<TiObject*> &result);
+
   public: METHOD_BINDING_CACHE(getModifierStringParams, Bool, (TiObject* /* modifier */, Array<String>& /* result */));
   private: static Bool _getModifierStringParams(TiObject *self, TiObject *modifier, Array<String> &result);
 

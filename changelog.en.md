@@ -22,6 +22,7 @@
   * `getClassVarNames`
   * `getClassFuncs`
   * `getClassFuncNames`
+  * `getModifierParams`
   * `insertCopyHandlers`
   * `matchTemplateInstance`
   * `isCastableTo`

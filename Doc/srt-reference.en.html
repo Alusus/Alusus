@@ -3292,6 +3292,18 @@ handler this.findElements(
                       Returns the keyword for the given modifier.
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifierParams">getModifierParams</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getModifierParams(
+    modifier: ref[Core.Basic.TiObject],
+    result: ref[Array[Core.Basic.TiObject]]
+) => Bool;
+</pre>
+                      Returns a list of all arguments passed to the modifier.
+                      This functions returns a boolean with value 1 on success, and 0 on failure.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifierStringParams">getModifierStringParams</h5>
                     <div>
 <pre class="code" dir=ltr style="text-align:left;">

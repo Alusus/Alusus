@@ -118,6 +118,11 @@ import "Srl/refs_base";
         @expname[Spp_AstMgr_getModifierKeyword]
         handler this.getModifierKeyword(modifier: ref[TiObject]): String;
 
+        @expname[Spp_AstMgr_getModifierParams]
+        handler this.getModifierParams(
+            modifier: ref[TiObject], result: ref[Array[ref[TiObject]]]
+        ) => Word[1];
+
         @expname[Spp_AstMgr_getModifierStringParams]
         handler this.getModifierStringParams(
             modifier: ref[TiObject], result: ref[Array[String]]

@@ -4370,6 +4370,24 @@ handler this.findElements(
                       تُرجع الكلمة المفتاحية للمبدل المعطى.
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifierParams">هات_معطيات_مبدل (getModifierParams)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_معطيات_مبدل (
+    مبدل: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    الناتج: سند[مـصفوفة[سند[الـقلب.أسـاسيات.كـائن_بهوية]]]
+): ثـنائي
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getModifierParams(
+    modifier: ref[Core.Basic.TiObject],
+    result: ref[Array[ref[Core.Basic.TiObject]]]
+) => Bool;
+</pre>
+                      تُرجع قائمة بكل المعطيات الممررة للمبدل.
+                      تُرجع الدالة قيمة ثنائية تكون 1 عند نجاح العملية و0 عند فشلها.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifierStringParams">هات_المعطيات_النصية_لمبدل (getModifierStringParams)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">

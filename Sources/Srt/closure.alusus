@@ -2,7 +2,7 @@
  * @file closure.alusus
  * Adds support for closures.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,7 +24,6 @@ module Closures {
     def captureModeTranslations: Map[String, String];
 
     def TioSrdRef: alias SrdRef[TiObject];
-
     def AstTemplateMap: alias Map[String, ref[TiObject]];
 
     class Closure [FnType:type] {
