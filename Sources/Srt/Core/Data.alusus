@@ -134,6 +134,8 @@ import "Srl/String";
             defAstType[LogOperator, "alusus.org/Core/Core.Data.Ast.LogOperator"];
             defAstType[LinkOperator, "alusus.org/Core/Core.Data.Ast.LinkOperator"];
             defAstType[ConditionalOperator, "alusus.org/Core/Core.Data.Ast.ConditionalOperator"];
+            defAstType[Passage, "alusus.org/Core/Core.Data.Ast.Passage"];
+            addExtraContainerInitializer[Passage, "target", ref[TiObject]];
         }
     }
 }

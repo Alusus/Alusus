@@ -1,6 +1,6 @@
 /**
- * @file Spp/Ast/CalleePointer.h
- * Contains the header of class Spp::Ast::CalleePointer.
+ * @file Core/Data/Ast/Passage.h
+ * Contains the header of class Core::Data::Ast::Passage.
  *
  * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
@@ -10,37 +10,37 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_CALLEEPOINTER_H
-#define SPP_AST_CALLEEPOINTER_H
+#ifndef CORE_DATA_AST_PASSAGE_H
+#define CORE_DATA_AST_PASSAGE_H
 
-namespace Spp::Ast
+namespace Core::Data::Ast
 {
 
-class CalleePointer : public Core::Data::Node,
-                      public Binding, public MapContaining<TiObject>,
-                      public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class Passage : public Node,
+                public Binding, public MapContaining<TiObject>,
+                public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(CalleePointer, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(Passage, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Node, Binding, MapContaining<TiObject>,
+    MetaHaving, Printable
   );
-  OBJECT_FACTORY(CalleePointer);
+  OBJECT_FACTORY(Passage);
 
 
   //============================================================================
   // Member Variables
 
-  private: TiObject *callee = 0;
+  private: TiObject *target = 0;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(CalleePointer);
+  IMPLEMENT_METAHAVING(Passage);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
@@ -48,22 +48,32 @@ class CalleePointer : public Core::Data::Node,
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (callee, TiObject, PLAIN_REF, setCallee(value), callee)
+    (target, TiObject, PLAIN_REF, set(value), target)
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(CalleePointer);
+  IMPLEMENT_AST_MAP_PRINTABLE(Passage);
 
 
   //============================================================================
   // Constructors & Destructor
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(CalleePointer);
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Passage);
 
-  IMPLEMENT_ATTR_CONSTRUCTOR(CalleePointer);
+  IMPLEMENT_ATTR_CONSTRUCTOR(Passage);
 
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(CalleePointer);
+  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Passage);
 
-  public: virtual ~CalleePointer()
+  public: Passage(TiObject *t)
+  {
+    this->set(t);
+  }
+
+  public: static SharedPtr<Passage> create(TiObject *t)
+  {
+    return newSrdObj<Passage>(t);
+  }
+
+  public: virtual ~Passage()
   {
   }
 
@@ -71,14 +81,14 @@ class CalleePointer : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setCallee(TiObject *c)
+  public: void set(TiObject *t)
   {
-    this->callee = c;
+    this->target = t;
   }
 
-  public: TiObject* getCallee() const
+  public: TiObject* get() const
   {
-    return this->callee;
+    return this->target;
   }
 
 }; // class

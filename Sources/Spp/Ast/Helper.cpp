@@ -213,6 +213,9 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
     } else {
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
+  } else if (ref->isDerivedFrom<Core::Data::Ast::Passage>()) {
+    auto passage = static_cast<Core::Data::Ast::Passage*>(ref);
+    return helper->_traceType(passage->get(), skipErrors);
   } else if (ref->isDerivedFrom<Spp::Ast::Variable>()) {
     auto var = static_cast<Spp::Ast::Variable*>(ref);
     if (var->getType() != 0) return var->getType();
@@ -253,8 +256,8 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
         }
 
         // Unbox if we have a box.
-        auto box = ti_cast<TioWeakBox>(obj);
-        if (box != 0) foundObj = box->get().get();
+        auto passage = ti_cast<Core::Data::Ast::Passage>(obj);
+        if (passage != 0) foundObj = passage->get();
         else foundObj = obj;
 
         // Do we have a type?

@@ -2980,6 +2980,12 @@ Create an object and return a `SrdRef` to it after initializing it.
                         <li>
                           <span class="inlinecode">ConditionalOperator</span><br>
                         </li>
+                        <li>
+                          <span class="inlinecode">Passage</span><br>
+                          This type is used to refer to an AST element using its pointer instead of referring
+                          to that element using an identifier (the name of the element in the source code).
+                          This makes generating code dynamically easier in some cases.
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -3784,12 +3790,6 @@ handler this.tryGetDeepReferenceContentType(
                         </li>
                         <li>
                           <span class="inlinecode">ThisTypeRef</span><br>
-                        </li>
-                        <li>
-                          <span class="inlinecode">CalleePointer</span><br>
-                          This type is used to refer to a callee using its pointer, i.e a pointer to its AST in memory,
-                          instead of referring to that callee using an identifier (the name of the element in the source
-                          code). This makes generating code dynamically easier in some cases.
                         </li>
                       </ul>
                     </div>

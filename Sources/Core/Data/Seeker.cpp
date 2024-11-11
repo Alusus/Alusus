@@ -2,7 +2,7 @@
  * @file Core/Data/Seeker.cpp
  * Contains the implementation of class Core::Data::Seeker.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -185,10 +185,8 @@ Bool Seeker::find(TiObject const *ref, TiObject *target, TypeInfo const *ti, TiO
   Bool ret = false;
   this->extForeach(ref, target, [ti, &ret, &retVal](TiInt action, TiObject *o)->Verb {
     if (action != Seeker::Action::TARGET_MATCH) return Seeker::Verb::MOVE;
-    if (o->isDerivedFrom<TioWeakBox>()) {
-      o = static_cast<TioWeakBox*>(o)->get().get();
-    } else if (o->isDerivedFrom<TioSharedBox>()) {
-      o = static_cast<TioSharedBox*>(o)->get().get();
+    if (o->isDerivedFrom<Ast::Passage>()) {
+      o = static_cast<Ast::Passage*>(o)->get();
     }
     if (o->isDerivedFrom(ti)) {
       retVal = o;

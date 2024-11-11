@@ -61,6 +61,5 @@ import "Core/Data";
         defAstType[ArgPack, "alusus.org/Spp/Spp.Ast.ArgPack"];
         defAstType[AstLiteralCommand, "alusus.org/Spp/Spp.Ast.AstLiteralCommand"];
         defAstType[ThisTypeRef, "alusus.org/Spp/Spp.Ast.ThisTypeRef"];
-        defAstType[CalleePointer, "alusus.org/Spp/Spp.Ast.CalleePointer"];
     }
 }

@@ -109,10 +109,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         if (action != Core::Data::Seeker::Action::TARGET_MATCH || obj == 0) return Core::Data::Seeker::Verb::MOVE;
 
         // Unbox if we have a box.
-        if (obj->isA<TioWeakBox>()) {
-          obj = static_cast<TioWeakBox*>(obj)->get().get();
-        } else if (obj->isA<TioSharedBox>()) {
-          obj = static_cast<TioSharedBox*>(obj)->get().get();
+        if (obj->isA<Core::Data::Ast::Passage>()) {
+          obj = static_cast<Core::Data::Ast::Passage*>(obj)->get();
         }
 
         if (

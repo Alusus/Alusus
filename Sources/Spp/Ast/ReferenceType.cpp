@@ -24,11 +24,11 @@ Type* ReferenceType::getContentType(Helper *helper) const
   if (contentTypeRef == 0) {
     contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
   }
-  auto typeBox = ti_cast<TioWeakBox>(
+  auto typePassage = ti_cast<Core::Data::Ast::Passage>(
     helper->getSeeker()->doGet(contentTypeRef.get(), this->getOwner())
   );
-  if (typeBox == 0) return 0;
-  auto type = typeBox->get().ti_cast_get<Spp::Ast::Type>();
+  if (typePassage == 0) return 0;
+  auto type = ti_cast<Spp::Ast::Type>(typePassage->get());
   if (type == 0) {
     throw EXCEPTION(GenericException, S("Invalid reference content type found."));
   }

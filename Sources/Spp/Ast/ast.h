@@ -176,7 +176,6 @@ Function* getDummyBuiltInOpFunction();
 #include "ArgPack.h"
 #include "ThisTypeRef.h"
 #include "AstLiteralCommand.h"
-#include "CalleePointer.h"
 
 // Helpers
 #include "Helper.h"

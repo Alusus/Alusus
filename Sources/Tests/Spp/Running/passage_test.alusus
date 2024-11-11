@@ -18,6 +18,10 @@ func printSomething[str: string]() {
     Console.print(str);
 }
 
+func callSomething[f: function]() {
+    f();
+}
+
 def var1: Int(2);
 def var2: Int(3);
 
@@ -26,20 +30,14 @@ func preprocessTest1 {
         // Regular function call.
         Spp.astMgr.insertAst(
             (ast fn()),
-            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
-                MapContainerOf[this].setElement("callee", printHello~ast);
-            })
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(printHello~ast))
         )
         // Variables.
         Spp.astMgr.insertAst(
             (ast Console.print("%d\n", v1 + v2)),
             AstTemplateMap()
-                .set(String("v1"), newSrdObj[Spp.Ast.CalleePointer].{
-                    MapContainerOf[this].setElement("callee", var1~ast);
-                })
-                .set(String("v2"), newSrdObj[Spp.Ast.CalleePointer].{
-                    MapContainerOf[this].setElement("callee", var2~ast);
-                })
+                .set(String("v1"), Core.Data.Ast.Passage(var1~ast))
+                .set(String("v2"), Core.Data.Ast.Passage(var2~ast))
         )
         // Call a function template.
         def list: SrdRef[Ast.List] = newSrdObj[Ast.List];
@@ -49,9 +47,16 @@ func preprocessTest1 {
         Spp.astMgr.matchTemplateInstance(printSomething~ast~cast[ref[Spp.Ast.Template]], list.obj, instance);
         Spp.astMgr.insertAst(
             (ast fn()),
-            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
-                MapContainerOf[this].setElement("callee", instance.obj);
-            })
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(instance.obj))
+        )
+        // Call a function template receiving a funciton param.
+        list = newSrdObj[Ast.List];
+        listContainer~no_deref = DynContainerOf[list.obj];
+        listContainer.addElement(Core.Data.Ast.Passage.create(printHello~ast));
+        Spp.astMgr.matchTemplateInstance(callSomething~ast~cast[ref[Spp.Ast.Template]], list.obj, instance);
+        Spp.astMgr.insertAst(
+            (ast fn()),
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(instance.obj))
         )
     }
 }
@@ -72,9 +77,7 @@ func preprocessTest2 {
         // Member function call.
         Spp.astMgr.insertAst(
             (ast t.fn()),
-            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
-                MapContainerOf[this].setElement("callee", Tester.print~ast);
-            })
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(Tester.print~ast))
         );
     }
 }
@@ -88,18 +91,14 @@ func preprocessTest3 {
         // Getting pointer to function
         Spp.astMgr.insertAst(
             (ast fn~ptr),
-            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
-                MapContainerOf[this].setElement("callee", printHello~ast);
-            })
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(printHello~ast))
         );
     };
     preprocess {
         // Getting pointer to function
         Spp.astMgr.insertAst(
             (ast fp2 = fn~ptr),
-            AstTemplateMap().set(String("fn"), newSrdObj[Spp.Ast.CalleePointer].{
-                MapContainerOf[this].setElement("callee", printHello~ast);
-            })
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(printHello~ast))
         );
     };
     fp1();

@@ -127,14 +127,14 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Core::Data::Ast::Identifier *astNode, Generation *g, Session *session, GenResult &result
   );
 
-  public: METHOD_BINDING_CACHE(generateCalleePointer,
+  public: METHOD_BINDING_CACHE(generatePassage,
     Bool, (
-      Spp::Ast::CalleePointer* /* astNode */, Generation* /* g */,
+      Core::Data::Ast::Passage* /* astNode */, Generation* /* g */,
       Session* /* session */, GenResult& /* result */
     )
   );
-  private: static Bool _generateCalleePointer(
-    TiObject *self, Spp::Ast::CalleePointer *astNode, Generation *g, Session *session, GenResult &result
+  private: static Bool _generatePassage(
+    TiObject *self, Core::Data::Ast::Passage *astNode, Generation *g, Session *session, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateLinkOperator,

@@ -2,7 +2,7 @@
  * @file Core/Basic.alusus
  * Interoperability definitions for the Core's basic definitions.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -145,6 +145,25 @@ import "Srl/String";
                 @shared func create (v: dataType): SrdRef[name] {
                     def r: SrdRef[name];
                     r.alloc()~init(v);
+                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    return r;
+                }
+            }
+        }
+        macro addExtraContainerInitializer [name, fieldName, dataType] {
+            @merge class name {
+                handler this~init(v: dataType) {
+                    getTypeInfo().objectFactory.initialize(this);
+                    MapContainerOf[this].setElement(fieldName, v);
+                }
+                handler this=dataType {
+                    MapContainerOf[this].setElement(fieldName, v);
+                }
+
+                @shared func create (v: dataType): SrdRef[name] {
+                    def r: SrdRef[name];
+                    r.alloc()~init(v);
+                    r.wkThis.assign(r.refCounter, r.tiObject);
                     return r;
                 }
             }
@@ -155,7 +174,7 @@ import "Srl/String";
         defTiBasicType[TiFloat, Float, "alusus.org/Core/Core.Basic.TiNumber<alusus.org/Srl/Srl.Float,alusus.org/Core/Core.Basic.TiObject>"];
         defTiBasicType[TiBool, Bool, "alusus.org/Core/Core.Basic.TiBoolBase<alusus.org/Core/Core.Basic.TiObject>"];
         defTiBasicType[TiStr, String, "alusus.org/Core/Core.Basic.TiStrBase<alusus.org/Core/Core.Basic.TiObject>"];
-        defTiBasicType[TiPtr, ptr, "alusus.org/Core/Core.Basic.TiPtrBase<alusus.org/Core/Core.Basic.TiObject>"];
+        defTiBasicType[TiPtr, ptr, "alusus.org/Core/Core.Basic.TiBox<void*,alusus.org/Core/Core.Basic.TiObject>"];
         addExtraInitializer[TiStr, ptr[array[Char]]];
 
         class Binding {

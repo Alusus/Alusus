@@ -24,7 +24,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generate,
     &this->generateList,
     &this->generateIdentifier,
-    &this->generateCalleePointer,
+    &this->generatePassage,
     &this->generateLinkOperator,
     &this->generateParamPass,
     &this->generateRoundParamPass,
@@ -79,7 +79,7 @@ void ExpressionGenerator::initBindings()
   this->generate = &ExpressionGenerator::_generate;
   this->generateList = &ExpressionGenerator::_generateList;
   this->generateIdentifier = &ExpressionGenerator::_generateIdentifier;
-  this->generateCalleePointer = &ExpressionGenerator::_generateCalleePointer;
+  this->generatePassage = &ExpressionGenerator::_generatePassage;
   this->generateLinkOperator = &ExpressionGenerator::_generateLinkOperator;
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateRoundParamPass = &ExpressionGenerator::_generateRoundParamPass;
@@ -142,9 +142,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
     return expGenerator->generateIdentifier(identifier, g, session, result);
-  } else if (astNode->isDerivedFrom<Spp::Ast::CalleePointer>()) {
-    auto identifier = static_cast<Spp::Ast::CalleePointer*>(astNode);
-    return expGenerator->generateCalleePointer(identifier, g, session, result);
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::Passage>()) {
+    auto identifier = static_cast<Core::Data::Ast::Passage*>(astNode);
+    return expGenerator->generatePassage(identifier, g, session, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(astNode);
     return expGenerator->generateLinkOperator(linkOperator, g, session, result, terminal);
@@ -286,8 +286,8 @@ Bool ExpressionGenerator::_generateIdentifier(
 }
 
 
-Bool ExpressionGenerator::_generateCalleePointer(
-  TiObject *self, Spp::Ast::CalleePointer *astNode, Generation *g, Session *session, GenResult &result
+Bool ExpressionGenerator::_generatePassage(
+  TiObject *self, Core::Data::Ast::Passage *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -1640,8 +1640,8 @@ Bool ExpressionGenerator::_generateAstRefOp(
   }
 
   // Unbox if we have a box.
-  auto box = ti_cast<TioWeakBox>(targetAstNode);
-  if (box != 0) targetAstNode = box->get().get();
+  auto passage = ti_cast<Core::Data::Ast::Passage>(targetAstNode);
+  if (passage != 0) targetAstNode = passage->get();
 
   // Generate pointer to void.
   auto tiObjType = expGenerator->astHelper->getTiObjectType();
@@ -2828,11 +2828,11 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     calleeRequest.ref = operand;
     prevResult = GenResult();
     return true;
-  } else if (operand->isDerivedFrom<Spp::Ast::CalleePointer>()) {
+  } else if (operand->isDerivedFrom<Core::Data::Ast::Passage>()) {
     ////
     //// A direct pointer to a callee.
     ////
-    calleeRequest.target = static_cast<Spp::Ast::CalleePointer*>(operand)->getCallee();
+    calleeRequest.target = static_cast<Core::Data::Ast::Passage*>(operand)->get();
     calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
     prevResult = GenResult();
     return true;
@@ -2866,11 +2866,11 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         calleeRequest.ref = linkOperator->getSecond().get();
         calleeRequest.thisType = thisRefType;
         return true;
-      } else if (linkOperator->getSecond()->isDerivedFrom<Spp::Ast::CalleePointer>()) {
+      } else if (linkOperator->getSecond()->isDerivedFrom<Core::Data::Ast::Passage>()) {
         // Calling a member of an object using a direct pointer to the callee.
         auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
         auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
-        calleeRequest.target = linkOperator->getSecond().s_cast_get<Spp::Ast::CalleePointer>()->getCallee();
+        calleeRequest.target = linkOperator->getSecond().s_cast_get<Core::Data::Ast::Passage>()->get();
         calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.thisType = thisRefType;
         return true;
