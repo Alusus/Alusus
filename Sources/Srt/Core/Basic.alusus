@@ -117,16 +117,17 @@ import "Srl/String";
                 }
                 handler this~init(v: dataType) {
                     getTypeInfo().objectFactory.initialize(this);
-                    this.value = v;
+                    this.value~no_deref = v;
                 }
                 handler this~terminate() {
                     getTypeInfo().objectFactory.terminate(this);
                 }
-                handler this=dataType this.value = value;
+                handler this=dataType this.value~no_deref = value;
 
                 @shared func create (v: dataType): SrdRef[name] {
                     def r: SrdRef[name];
                     r.alloc()~init(v);
+                    r.wkThis.assign(r.refCounter, r.tiObject);
                     return r;
                 }
 

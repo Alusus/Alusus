@@ -30,6 +30,14 @@
 
 * Fixed issue with `Definition` AST class not properly setting ownership its modifiers.
 
+# Standard Libraries Fixes
+
+* Fixed an issue with `create` function of basic AST types.
+* Fixed bugs in the following `Spp.astMgr` functions:
+  * `findElements`
+  * `getClassVarNames`
+  * `insertCopyHandlers`
+
 
 ## Version 0.12.1 (2024-07-05)
 

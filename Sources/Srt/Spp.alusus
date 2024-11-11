@@ -46,6 +46,7 @@ import "Srl/refs_base";
     class AstMgr {
         use Srl;
         use Core.Basic;
+        def AstTemplateMap: alias Map[String, ref[TiObject]];
 
         @expname[Spp_AstMgr_findElements]
         handler this.findElements(
@@ -61,7 +62,7 @@ import "Srl/refs_base";
             modifierKwd: CharsPtr,
             kwdTranslations: ref[Map[String, String]]
         ): Array[ref[TiObject]] {
-            def elements: Array[ref[TiObject]] = this.findElements(comparison, parent, flags);
+            def elements: Array[ref[TiObject]] = this.findElements(comparison, target, flags);
             def result: Array[ref[TiObject]];
             def i: Int;
             for i = 0, i < elements.getLength(), ++i {
@@ -149,7 +150,7 @@ import "Srl/refs_base";
         handler this.getClassVarNames(
             parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
         ): Array[String] {
-            def vars: Array[ref[TiObject]] = this.getClassVars(parent, modifier, kwdTranslations);
+            def vars: Array[ref[TiObject]] = this.getClassVars(parent, modifierKwd, kwdTranslations);
             def result: Array[String];
             def i: Int;
             for i = 0, i < vars.getLength(), ++i {
@@ -252,13 +253,14 @@ import "Srl/refs_base";
         }
 
         handler this.insertCopyHandlers(obj: ref[TiObject]) {
-            def varNames: Array[String] = this.getVarNames(obj);
-            def assignments: SrdRef[Ast.MergeList] = newSrdObj[Ast.MergeList];
+            def varNames: Array[String] = this.getClassVarNames(obj);
+            def assignments: SrdRef[Core.Data.Ast.MergeList] = newSrdObj[Core.Data.Ast.MergeList];
             def assignContainer: DynContainerOf[assignments.obj];
+            def i: Int;
             for i = 0, i < varNames.getLength(), ++i {
                 def payloadAssignment: SrdRef[TiObject] = Spp.astMgr.buildAst(
                     (ast this.varName~no_deref = value.varName),
-                    AstTemplateMap().set(String("varName"), Ast.Identifier(varNames(i)))
+                    AstTemplateMap().set(String("varName"), Core.Data.Ast.Identifier(varNames(i)))
                 );
                 assignContainer.addElement(payloadAssignment.obj);
             }
