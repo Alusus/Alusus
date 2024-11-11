@@ -26,6 +26,10 @@
   * `matchTemplateInstance`
   * `isCastableTo`
 
+### Compiler Fixes
+
+* Fixed issue with `Definition` AST class not properly setting ownership its modifiers.
+
 
 ## Version 0.12.1 (2024-07-05)
 
