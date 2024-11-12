@@ -151,14 +151,14 @@ import "Srl/String";
                 }
             }
         }
-        macro addExtraContainerInitializer [name, fieldName, dataType] {
+        macro addExtraBindingInitializer [name, fieldName, dataType] {
             @merge class name {
                 handler this~init(v: dataType) {
                     getTypeInfo().objectFactory.initialize(this);
-                    MapContainerOf[this].setElement(fieldName, v);
+                    BindingOf[this].setMember(fieldName, v);
                 }
                 handler this=dataType {
-                    MapContainerOf[this].setElement(fieldName, v);
+                    BindingOf[this].setMember(fieldName, v);
                 }
 
                 @shared func create (v: dataType): SrdRef[name] {

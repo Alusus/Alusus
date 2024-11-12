@@ -17,16 +17,14 @@ namespace Core::Data::Ast
 {
 
 class Passage : public Node,
-                public Binding, public MapContaining<TiObject>,
-                public MetaHaving, public Printable
+                public Binding, public MetaHaving, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Passage, Node, "Core.Data.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Node, Binding, MapContaining<TiObject>,
-    MetaHaving, Printable
+    Node, Binding, MetaHaving, Printable
   );
   OBJECT_FACTORY(Passage);
 
@@ -43,15 +41,10 @@ class Passage : public Node,
   IMPLEMENT_METAHAVING(Passage);
 
   IMPLEMENT_BINDING(Binding,
+    (target, TiObject, PLAIN_REF, set(value), target),
     (prodId, TiWord, VALUE, setProdId(value), &prodId),
     (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
   );
-
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (target, TiObject, PLAIN_REF, set(value), target)
-  );
-
-  IMPLEMENT_AST_MAP_PRINTABLE(Passage);
 
 
   //============================================================================
@@ -60,8 +53,6 @@ class Passage : public Node,
   IMPLEMENT_EMPTY_CONSTRUCTOR(Passage);
 
   IMPLEMENT_ATTR_CONSTRUCTOR(Passage);
-
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(Passage);
 
   public: Passage(TiObject *t)
   {
@@ -89,6 +80,20 @@ class Passage : public Node,
   public: TiObject* get() const
   {
     return this->target;
+  }
+
+
+  //============================================================================
+  // Printable Implementation
+
+  public: virtual void print(OutStream &stream, Int indents=0) const
+  {
+    stream << S("Passage");
+    Word id = this->getProdId();
+    stream << S(": ") << this->get();
+    if (id != UNKNOWN_ID) {
+      stream << S(" [") << IdGenerator::getSingleton()->getDesc(id) << S("]");
+    }
   }
 
 }; // class
