@@ -538,6 +538,8 @@ void BuildManager::_resetBuildData(TiObject *self, TiObject *obj, CodeGen::Extra
     eda->resetInitStatementsGenIndex(metahaving);
   }
 
+  if (obj->isDerivedFrom<Core::Data::Ast::Passage>()) return;
+
   auto container = ti_cast<Core::Basic::Containing<TiObject>>(obj);
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
