@@ -2,7 +2,7 @@
  * @file Spp/RootScopeHandlerExtension.cpp
  * Contains the implementation of class Spp::RootScopeHandlerExtension.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,7 +25,7 @@ RootScopeHandlerExtension::Overrides* RootScopeHandlerExtension::extend(
   handler->addDynamicInterface(extension);
 
   auto overrides = new Overrides();
-  extension->rootManagerBox = Box<Core::Main::RootManager*>::create(rootManager);
+  extension->rootManagerBox = TiBox<Core::Main::RootManager*>::create(rootManager);
   overrides->addNewElementRef = handler->addNewElement.set(&RootScopeHandlerExtension::_addNewElement).get();
 
   return overrides;

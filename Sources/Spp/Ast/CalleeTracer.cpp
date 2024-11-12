@@ -2,7 +2,7 @@
  * @file Spp/Ast/CalleeTracer.cpp
  * Contains the implementation of class Spp::Ast::CalleeTracer.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -109,10 +109,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         if (action != Core::Data::Seeker::Action::TARGET_MATCH || obj == 0) return Core::Data::Seeker::Verb::MOVE;
 
         // Unbox if we have a box.
-        if (obj->isA<TioWeakBox>()) {
-          obj = static_cast<TioWeakBox*>(obj)->get().get();
-        } else if (obj->isA<TioSharedBox>()) {
-          obj = static_cast<TioSharedBox*>(obj)->get().get();
+        if (obj->isA<Core::Data::Ast::Passage>()) {
+          obj = static_cast<Core::Data::Ast::Passage*>(obj)->get();
         }
 
         if (
@@ -352,7 +350,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
   if (defOp != 0 && SBSTR(defOp) == S("")) {
     PlainList<TiObject> argTypes;
     if (useThis) argTypes.add(request.thisType);
-    auto matchStatus = func->getType()->matchCall(&argTypes, helper, request.ec);
+    auto matchStatus = func->getType()->matchCall(&argTypes, helper);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
       result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
       return;
@@ -398,7 +396,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
     return;
   }
 
-  result.matchStatus = func->getType()->matchCall(useThis ? &extTypes : request.argTypes, helper, request.ec);
+  result.matchStatus = func->getType()->matchCall(useThis ? &extTypes : request.argTypes, helper);
   if (result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
     result.notice.reset();
     result.stack.clear();
@@ -450,7 +448,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     Function *customCaster;
     if (
       request.argTypes->getElementCount() == 0 &&
-      (type->getInitializationMethod(helper, request.ec) & TypeInitMethod::USER) == 0
+      (type->getInitializationMethod(helper) & TypeInitMethod::USER) == 0
     ) {
       // No user-defined constructor is defined and no params is provided, so we can skip the matching.
       result.matchStatus = TypeMatchStatus::EXACT;
@@ -458,9 +456,9 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
       result.stack.clear();
       result.pushObject(type);
     } else if (
-      (type->getInitializationMethod(helper, request.ec) & TypeInitMethod::USER) == 0 &&
+      (type->getInitializationMethod(helper) & TypeInitMethod::USER) == 0 &&
       request.argTypes->getElementCount() == 1 &&
-      helper->matchTargetType(request.argTypes->getElement(0), type, request.ec, customCaster) >= TypeMatchStatus::CUSTOM_CASTER
+      helper->matchTargetType(request.argTypes->getElement(0), type, customCaster) >= TypeMatchStatus::CUSTOM_CASTER
     ) {
       // A type with no custom init but can be initialized from the given arg.
       result.matchStatus = TypeMatchStatus::EXACT;
@@ -651,7 +649,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
   if (request.varTargetOp != 0 && SBSTR(request.varTargetOp) == S("")) {
     PlainList<TiObject> argTypes;
     if (useThis) argTypes.add(request.thisType);
-    auto matchStatus = funcType->matchCall(&argTypes, helper, request.ec);
+    auto matchStatus = funcType->matchCall(&argTypes, helper);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
       result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
       return;
@@ -695,7 +693,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
     return;
   }
 
-  result.matchStatus = funcType->matchCall(useThis ? &extTypes : request.argTypes, helper, request.ec);
+  result.matchStatus = funcType->matchCall(useThis ? &extTypes : request.argTypes, helper);
 
   if (result.matchStatus >= TypeMatchStatus::CUSTOM_CASTER) {
     result.notice.reset();
@@ -745,7 +743,7 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
       // We have an array.
       if (
         request.argTypes != 0 && request.argTypes->getElementCount() == 1 &&
-        helper->isImplicitlyCastableTo(request.argTypes->getElement(0), helper->getArchIntType(), request.ec)
+        helper->isCastableTo(request.argTypes->getElement(0), helper->getArchIntType(), true)
       ) {
         result.matchStatus = TypeMatchStatus::EXACT;
         result.stack.clear();
@@ -762,9 +760,9 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
     // Type must be castable to the target type for assignment operators.
     if (request.argTypes != 0 && request.argTypes->getElementCount() == 1) {
       // Type must also have no custom initialization.
-      if (type->getInitializationMethod(helper, request.ec) == Ast::TypeInitMethod::NONE) {
+      if (type->getInitializationMethod(helper) == Ast::TypeInitMethod::NONE) {
         Function *caster;
-        auto ms = helper->matchTargetType(request.argTypes->getElement(0), type, request.ec, caster);
+        auto ms = helper->matchTargetType(request.argTypes->getElement(0), type, caster);
         if (ms >= TypeMatchStatus::CUSTOM_CASTER) {
           result.matchStatus = ms;
           result.stack.clear();

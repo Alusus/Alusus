@@ -10,28 +10,46 @@
   tilde_operators_test.alusus (34,10)
 [0;31mERROR SPPG1008: Invalid symbol.[0m
   tilde_operators_test.alusus (35,5)
-[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
-  tilde_operators_test.alusus (53,17)
-[0;31mERROR SPPA1002: Invalid template argument.[0m
-  tilde_operators_test.alusus (53,17)
-[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+[0;31mERROR SPPG1005: Invalid cast.[0m
+  tilde_operators_test.alusus (51,5)
+[0;31mERROR SPPG1005: Invalid cast.[0m
   tilde_operators_test.alusus (54,5)
 [0;31mERROR SPPG1005: Invalid cast.[0m
-  tilde_operators_test.alusus (55,10)
+  tilde_operators_test.alusus (60,5)
 [0;31mERROR SPPG1005: Invalid cast.[0m
-  tilde_operators_test.alusus (64,10)
+  tilde_operators_test.alusus (63,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (67,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (68,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (72,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (75,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (76,5)
 [0;31mERROR SPPA1003: No valid match was found for the given type.[0m
-  tilde_operators_test.alusus (65,16)
+  tilde_operators_test.alusus (84,17)
+[0;31mERROR SPPA1002: Invalid template argument.[0m
+  tilde_operators_test.alusus (84,17)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  tilde_operators_test.alusus (85,5)
+[0;31mERROR SPPG1005: Invalid cast.[0m
+  tilde_operators_test.alusus (86,10)
+[0;31mERROR SPPG1005: Invalid cast.[0m
+  tilde_operators_test.alusus (95,10)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  tilde_operators_test.alusus (96,16)
 [0;31mERROR SPPG1008: Invalid symbol.[0m
-  tilde_operators_test.alusus (68,9)
+  tilde_operators_test.alusus (99,9)
 [0;31mERROR SPPG1009: Invalid operand for ~size operator.[0m
-  tilde_operators_test.alusus (76,31)
+  tilde_operators_test.alusus (107,31)
 [0;31mERROR SPPA1007: Unknown symbol.[0m
-  tilde_operators_test.alusus (77,34)
+  tilde_operators_test.alusus (108,34)
 [0;31mERROR SPPG1004: Invalid integer bit count.[0m
-  tilde_operators_test.alusus (83,34)
+  tilde_operators_test.alusus (114,34)
 [0;31mERROR SPPG1004: Invalid integer bit count.[0m
-  tilde_operators_test.alusus (85,39)
+  tilde_operators_test.alusus (116,39)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'
@@ -110,39 +128,95 @@ define void @"Main.testCast()=>(Void)"() {
   %f = alloca float
   %pi = alloca i32*
   %d = alloca double
-  %0 = load i32*, i32** %pi
-  %1 = bitcast i32* %0 to i16*
-  store i16 2, i16* %1
-  store float 3.000000e+01, float* %f
-  %2 = load float, float* %f
-  %3 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous2", i32 0, i32 0), float %2)
-  %4 = load float, float* %f
-  %5 = fpext float %4 to double
-  %6 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @"#anonymous3", i32 0, i32 0), double %5)
-  %7 = bitcast i32* %i to i8*
-  store i8 1, i8* %7
-  %8 = load i32*, i32** %pi
-  %9 = ptrtoint i32* %8 to i64
-  store i32* inttoptr (i64 10 to i32*), i32** %pi
-  %10 = load i64, i64* %l
-  %11 = inttoptr i64 %10 to i32*
-  store i32* %11, i32** %pi
-  %12 = load i64, i64* %ptrI
-  %13 = inttoptr i64 %12 to i32*
-  store i32* %13, i32** %pi
-  store double 1.000000e+01, double* %d
-  %14 = load double, double* %d
-  %15 = fptrunc double %14 to float
-  store float %15, float* %f
-  %16 = load float, float* %f
-  %17 = fptosi float %16 to i32
-  store i32 %17, i32* %i
+  %w = alloca i32
+  %lw = alloca i64
+  %0 = load i32, i32* %i
+  %1 = sext i32 %0 to i64
+  %2 = load i32, i32* %i
+  %3 = sext i32 %2 to i64
+  %4 = load i64, i64* %l
+  %5 = trunc i64 %4 to i32
+  %6 = load i64, i64* %l
+  %7 = load i64, i64* %ptrI
+  %8 = trunc i64 %7 to i32
+  %9 = load i64, i64* %ptrI
+  %10 = load i64, i64* %ptrI
+  %11 = inttoptr i64 %10 to i8*
+  %12 = load i32, i32* %w
+  %13 = zext i32 %12 to i64
+  %14 = load i32, i32* %w
+  %15 = zext i32 %14 to i64
+  %16 = load i64, i64* %lw
+  %17 = load i64, i64* %lw
   %18 = load i32, i32* %i
-  %19 = sitofp i32 %18 to float
-  store float %19, float* %f
-  %20 = load i32, i32* @"!Other.i"
-  %21 = sitofp i32 %20 to float
-  store float %21, float* %f
+  %19 = load i64, i64* %l
+  %20 = sext i32 %18 to i64
+  %21 = icmp eq i64 %20, %19
+  %22 = load i32, i32* %i
+  %23 = load i64, i64* %ptrI
+  %24 = sext i32 %22 to i64
+  %25 = icmp eq i64 %24, %23
+  %26 = load i32, i32* %i
+  %27 = load i32, i32* %w
+  %28 = load i32, i32* %i
+  %29 = load i64, i64* %lw
+  %30 = load i64, i64* %l
+  %31 = load i32, i32* %i
+  %32 = sext i32 %31 to i64
+  %33 = icmp eq i64 %30, %32
+  %34 = load i64, i64* %l
+  %35 = load i64, i64* %ptrI
+  %36 = icmp eq i64 %34, %35
+  %37 = load i64, i64* %l
+  %38 = load i32, i32* %w
+  %39 = zext i32 %38 to i64
+  %40 = icmp eq i64 %37, %39
+  %41 = load i64, i64* %l
+  %42 = load i64, i64* %lw
+  %43 = load i64, i64* %ptrI
+  %44 = load i32, i32* %i
+  %45 = sext i32 %44 to i64
+  %46 = icmp eq i64 %43, %45
+  %47 = load i64, i64* %ptrI
+  %48 = load i64, i64* %l
+  %49 = icmp eq i64 %47, %48
+  %50 = load i64, i64* %ptrI
+  %51 = load i32, i32* %w
+  %52 = load i64, i64* %ptrI
+  %53 = load i64, i64* %lw
+  %54 = load i32*, i32** %pi
+  %55 = bitcast i32* %54 to i16*
+  store i16 2, i16* %55
+  store float 3.000000e+01, float* %f
+  %56 = load float, float* %f
+  %57 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @"#anonymous2", i32 0, i32 0), float %56)
+  %58 = load float, float* %f
+  %59 = fpext float %58 to double
+  %60 = call i64 (i8*, ...) @printf(i8* getelementptr inbounds ([24 x i8], [24 x i8]* @"#anonymous3", i32 0, i32 0), double %59)
+  %61 = bitcast i32* %i to i8*
+  store i8 1, i8* %61
+  %62 = load i32*, i32** %pi
+  %63 = ptrtoint i32* %62 to i64
+  store i32* inttoptr (i64 10 to i32*), i32** %pi
+  %64 = load i64, i64* %l
+  %65 = inttoptr i64 %64 to i32*
+  store i32* %65, i32** %pi
+  %66 = load i64, i64* %ptrI
+  %67 = inttoptr i64 %66 to i32*
+  store i32* %67, i32** %pi
+  store double 1.000000e+01, double* %d
+  %68 = load double, double* %d
+  %69 = fptrunc double %68 to float
+  store float %69, float* %f
+  %70 = load float, float* %f
+  %71 = fptosi float %70 to i32
+  store i32 %71, i32* %i
+  %72 = load i32, i32* %i
+  %73 = sitofp i32 %72 to float
+  store float %73, float* %f
+  %74 = load i32, i32* @"!Other.i"
+  %75 = sitofp i32 %74 to float
+  store float %75, float* %f
   ret void
 }
 

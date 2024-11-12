@@ -2,7 +2,7 @@
  * @file Spp/Ast/PreGenTransformStatement.h
  * Contains the header of class Spp::Ast::PreGenTransformStatement.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -83,11 +83,11 @@ class PreGenTransformStatement : public Core::Data::Node,
 
   public: void setTransform(TiPtr const &t)
   {
-    this->transform = t;
+    this->transform.set(t.get());
   }
   public: void setTransform(TiPtr const *t)
   {
-    this->transform = t == 0 ? 0 : t->get();
+    this->transform.set(t == 0 ? 0 : t->get());
   }
 
   public: TiPtr const& getTransform() const

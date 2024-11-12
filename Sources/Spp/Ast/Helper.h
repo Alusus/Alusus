@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.h
  * Contains the header of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -137,11 +137,11 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   public: METHOD_BINDING_CACHE(lookupCustomCaster,
     TypeMatchStatus, (
-      Type* /* srcType */, Type* /* targetType */, ExecutionContext const* /* ec */, Function *& /* caster */
+      Type* /* srcType */, Type* /* targetType */, Function *& /* caster */
     )
   );
   private: static TypeMatchStatus _lookupCustomCaster(
-    TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
+    TiObject *self, Type *srcType, Type *targetType, Function *&caster
   );
 
   public: METHOD_BINDING_CACHE(_traceType, Type*, (TiObject*, Bool));
@@ -155,30 +155,22 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(isVoid, Bool, (TiObject const*));
   private: static Bool _isVoid(TiObject *self, TiObject const *ref);
 
-  public: METHOD_BINDING_CACHE(isImplicitlyCastableTo, Bool, (TiObject*, TiObject*, ExecutionContext const*));
-  private: static Bool _isImplicitlyCastableTo(
-    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
-  );
-
-  public: METHOD_BINDING_CACHE(isExplicitlyCastableTo, Bool, (TiObject*, TiObject*, ExecutionContext const*));
-  private: static Bool _isExplicitlyCastableTo(
-    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+  public: METHOD_BINDING_CACHE(isCastableTo, Bool, (TiObject*, TiObject*, Bool));
+  private: static Bool _isCastableTo(
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit
   );
 
   public: METHOD_BINDING_CACHE(matchTargetType,
     TypeMatchStatus, (
-      TiObject* /* srcTypeRef */, TiObject* /* targetTypeRef */, ExecutionContext const* /* ec */,
-      Function*& /* caster */
+      TiObject* /* srcTypeRef */, TiObject* /* targetTypeRef */, Function*& /* caster */
     )
   );
   private: static TypeMatchStatus _matchTargetType(
-    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec, Function *&caster
+    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Function *&caster
   );
 
-  public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*, ExecutionContext const*));
-  private: static Bool _isReferenceTypeFor(
-    TiObject *self, Type *refType, Type *contentType, ExecutionContext const *ec
-  );
+  public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*));
+  private: static Bool _isReferenceTypeFor(TiObject *self, Type *refType, Type *contentType);
 
   public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*, ReferenceMode const&));
   private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type, ReferenceMode const &mode);

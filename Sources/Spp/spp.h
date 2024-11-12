@@ -3,7 +3,7 @@
  * The main header file of the SPP. Contains include statements for the entire
  * Standard Programming Paradigm library.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,6 +19,8 @@
 
 namespace Spp
 {
+
+using namespace Core;
 
 /**
  * @defgroup spp Spp
@@ -57,7 +59,6 @@ namespace Spp
 
 // Alusus's SPP base header files
 
-#include "ExecutionContext.h"
 #include "GlobalCtorDtorInfo.h"
 #include "DependencyList.h"
 #include "DependencyInfo.h"

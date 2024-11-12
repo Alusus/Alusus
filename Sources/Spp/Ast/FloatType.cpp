@@ -2,7 +2,7 @@
  * @file Spp/Ast/FloatType.cpp
  * Contains the implementation of class Spp::Ast::FloatType.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,9 +34,7 @@ Word FloatType::getBitCount(Helper *helper) const
 }
 
 
-TypeMatchStatus FloatType::matchTargetType(
-  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
-) const
+TypeMatchStatus FloatType::matchTargetType(Type const *type, Helper *helper, TypeMatchOptions opts) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
   else {
@@ -49,7 +47,7 @@ TypeMatchStatus FloatType::matchTargetType(
       else return TypeMatchStatus::IMPLICIT_CAST;
     } else if (type->isDerivedFrom<IntegerType>()) {
       auto integerType = static_cast<IntegerType const*>(type);
-      auto targetBitCount = integerType->getBitCount(helper, ec);
+      auto targetBitCount = integerType->getBitCount(helper);
       if (targetBitCount == 1) return TypeMatchStatus::NONE;
       else return TypeMatchStatus::IMPLICIT_CAST;
     } else {

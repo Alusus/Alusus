@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.cpp
  * Contains the implementation of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,8 +28,7 @@ void Helper::initBindingCaches()
     &this->lookupCustomCaster,
     &this->_traceType,
     &this->isVoid,
-    &this->isImplicitlyCastableTo,
-    &this->isExplicitlyCastableTo,
+    &this->isCastableTo,
     &this->matchTargetType,
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
@@ -66,8 +65,7 @@ void Helper::initBindings()
   this->lookupCustomCaster = &Helper::_lookupCustomCaster;
   this->_traceType = &Helper::__traceType;
   this->isVoid = &Helper::_isVoid;
-  this->isImplicitlyCastableTo = &Helper::_isImplicitlyCastableTo;
-  this->isExplicitlyCastableTo = &Helper::_isExplicitlyCastableTo;
+  this->isCastableTo = &Helper::_isCastableTo;
   this->matchTargetType = &Helper::_matchTargetType;
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
@@ -143,7 +141,7 @@ Bool Helper::_isValueOnlyVariable(TiObject *self, TiObject *obj)
 
 
 TypeMatchStatus Helper::_lookupCustomCaster(
-  TiObject *self, Type *srcType, Type *targetType, ExecutionContext const *ec, Function *&caster
+  TiObject *self, Type *srcType, Type *targetType, Function *&caster
 ) {
   PREPARE_SELF(helper, Helper);
 
@@ -161,14 +159,14 @@ TypeMatchStatus Helper::_lookupCustomCaster(
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
             auto funcType = func->getType().get();
-            auto match = funcType->matchCall(&argTypes, helper, ec);
+            auto match = funcType->matchCall(&argTypes, helper);
             if (match == TypeMatchStatus::EXACT) {
               auto retType = funcType->traceRetType(helper);
-              if (retType->getInitializationMethod(helper, ec) != Ast::TypeInitMethod::NONE) {
+              if (retType->getInitializationMethod(helper) != Ast::TypeInitMethod::NONE) {
                 retType = helper->getReferenceTypeFor(retType, Ast::ReferenceMode::IMPLICIT);
               }
               Function *innerCaster;
-              auto rmatch = helper->matchTargetType(retType, targetType, ec, innerCaster);
+              auto rmatch = helper->matchTargetType(retType, targetType, innerCaster);
               if ((rmatch>=TypeMatchStatus::CUSTOM_CASTER || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
                 retMatch = rmatch;
                 caster = func;
@@ -215,6 +213,9 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
     } else {
       if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
+  } else if (ref->isDerivedFrom<Core::Data::Ast::Passage>()) {
+    auto passage = static_cast<Core::Data::Ast::Passage*>(ref);
+    return helper->_traceType(passage->get(), skipErrors);
   } else if (ref->isDerivedFrom<Spp::Ast::Variable>()) {
     auto var = static_cast<Spp::Ast::Variable*>(ref);
     if (var->getType() != 0) return var->getType();
@@ -255,8 +256,8 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
         }
 
         // Unbox if we have a box.
-        auto box = ti_cast<TioWeakBox>(obj);
-        if (box != 0) foundObj = box->get().get();
+        auto passage = ti_cast<Core::Data::Ast::Passage>(obj);
+        if (passage != 0) foundObj = passage->get();
         else foundObj = obj;
 
         // Do we have a type?
@@ -318,26 +319,21 @@ Bool Helper::_isVoid(TiObject *self, TiObject const *ref)
 }
 
 
-Bool Helper::_isImplicitlyCastableTo(
-  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
+Bool Helper::_isCastableTo(
+  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit
 ) {
   PREPARE_SELF(helper, Helper);
   Function *caster;
-  return helper->matchTargetType(srcTypeRef, targetTypeRef, ec, caster) >= TypeMatchStatus::CUSTOM_CASTER;
-}
-
-
-Bool Helper::_isExplicitlyCastableTo(
-  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec
-) {
-  PREPARE_SELF(helper, Helper);
-  Function *caster;
-  return helper->matchTargetType(srcTypeRef, targetTypeRef, ec, caster) >= TypeMatchStatus::EXPLICIT_CAST;
+  if (implicit) {
+    return helper->matchTargetType(srcTypeRef, targetTypeRef, caster) >= TypeMatchStatus::CUSTOM_CASTER;
+  } else {
+    return helper->matchTargetType(srcTypeRef, targetTypeRef, caster) >= TypeMatchStatus::EXPLICIT_CAST;
+  }
 }
 
 
 TypeMatchStatus Helper::_matchTargetType(
-  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, ExecutionContext const *ec, Function *&caster
+  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Function *&caster
 ) {
   PREPARE_SELF(helper, Helper);
 
@@ -365,7 +361,7 @@ TypeMatchStatus Helper::_matchTargetType(
     negativeDeref = true;
     targetType = static_cast<ReferenceType*>(targetType)->getContentType(helper);
   }
-  auto matchType = srcType->matchTargetType(targetType, helper, ec);
+  auto matchType = srcType->matchTargetType(targetType, helper);
   if (negativeDeref && (matchType == TypeMatchStatus::AGGREGATION || matchType >= TypeMatchStatus::REF_AGGREGATION)) {
     --matchType.derefs;
     if (matchType == TypeMatchStatus::AGGREGATION) matchType.value = TypeMatchStatus::REF_AGGREGATION;
@@ -375,14 +371,14 @@ TypeMatchStatus Helper::_matchTargetType(
   } else {
     if (!srcType->isDerivedFrom<ReferenceType>()) {
       auto srcReferenceType = helper->getReferenceTypeFor(srcType, Ast::ReferenceMode::TEMP_EXPLICIT);
-      auto customMatchType = helper->lookupCustomCaster(srcReferenceType, targetType, ec, caster);
+      auto customMatchType = helper->lookupCustomCaster(srcReferenceType, targetType, caster);
       if (customMatchType >= TypeMatchStatus::IMPLICIT_CAST) {
         return TypeMatchStatus(customMatchType, TypeMatchStatus::CUSTOM_CASTER, -1);
       }
     }
     Int deref = 0;
     while (srcType->isDerivedFrom<ReferenceType>() && static_cast<ReferenceType*>(srcType)->isAutoDeref()) {
-      auto customMatchType = helper->lookupCustomCaster(srcType, targetType, ec, caster);
+      auto customMatchType = helper->lookupCustomCaster(srcType, targetType, caster);
       if (customMatchType>=TypeMatchStatus::CUSTOM_CASTER) {
         return TypeMatchStatus(customMatchType, TypeMatchStatus::CUSTOM_CASTER, deref);
       }
@@ -395,13 +391,13 @@ TypeMatchStatus Helper::_matchTargetType(
 }
 
 
-Bool Helper::_isReferenceTypeFor(TiObject *self, Type *refType, Type *contentType, ExecutionContext const *ec)
+Bool Helper::_isReferenceTypeFor(TiObject *self, Type *refType, Type *contentType)
 {
   PREPARE_SELF(helper, Helper);
 
   auto referenceType = ti_cast<ReferenceType>(refType);
   if (referenceType == 0) return false;
-  return referenceType->getContentType(helper)->isEqual(contentType, helper, ec);
+  return referenceType->getContentType(helper)->isEqual(contentType, helper);
 }
 
 

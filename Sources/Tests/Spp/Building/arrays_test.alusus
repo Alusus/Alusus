@@ -67,7 +67,7 @@ def Main: module
     print("%d\n", ta.ai(3));
 
     // invalid access of array elements.
-    ai(2) = 1i64~cast[ptr[Int[32]]];
+    ai(2) = 1~cast[Int[0]]~cast[ptr[Int[32]]];
     aai(0) = 1;
     ai(1, 0) = 0;
     ai() = 0;

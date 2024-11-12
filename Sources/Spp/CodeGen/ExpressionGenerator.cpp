@@ -24,6 +24,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generate,
     &this->generateList,
     &this->generateIdentifier,
+    &this->generatePassage,
     &this->generateLinkOperator,
     &this->generateParamPass,
     &this->generateRoundParamPass,
@@ -78,6 +79,7 @@ void ExpressionGenerator::initBindings()
   this->generate = &ExpressionGenerator::_generate;
   this->generateList = &ExpressionGenerator::_generateList;
   this->generateIdentifier = &ExpressionGenerator::_generateIdentifier;
+  this->generatePassage = &ExpressionGenerator::_generatePassage;
   this->generateLinkOperator = &ExpressionGenerator::_generateLinkOperator;
   this->generateParamPass = &ExpressionGenerator::_generateParamPass;
   this->generateRoundParamPass = &ExpressionGenerator::_generateRoundParamPass;
@@ -140,6 +142,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
     return expGenerator->generateIdentifier(identifier, g, session, result);
+  } else if (astNode->isDerivedFrom<Core::Data::Ast::Passage>()) {
+    auto identifier = static_cast<Core::Data::Ast::Passage*>(astNode);
+    return expGenerator->generatePassage(identifier, g, session, result);
   } else if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(astNode);
     return expGenerator->generateLinkOperator(linkOperator, g, session, result, terminal);
@@ -281,6 +286,18 @@ Bool ExpressionGenerator::_generateIdentifier(
 }
 
 
+Bool ExpressionGenerator::_generatePassage(
+  TiObject *self, Core::Data::Ast::Passage *astNode, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  TerminalStatement terminal;
+  PlainList<TiObject> paramAstTypes;
+  GenResult thisResult;
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
+}
+
+
 Bool ExpressionGenerator::_generateLinkOperator(
   TiObject *self, Core::Data::Ast::LinkOperator *astNode, Generation *g, Session *session, GenResult &result,
   TerminalStatement &terminal
@@ -391,9 +408,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
         astType, tgTempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
       )) return false;
       // Register temp var for destruction.
-      g->registerDestructor(
-        astNode, astType, tgTempVar, session->getExecutionContext(), session->getDestructionStack()
-      );
+      g->registerDestructor(astNode, astType, tgTempVar, session->getDestructionStack());
       result.targetData = tgTempVarRef;
     } else {
       astType = expGenerator->astHelper->traceType(callee.astNode);
@@ -756,10 +771,11 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     // Two integers.
     auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
     auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
     auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
-    if (targetBitCount < 32) targetBitCount = 32;
+    if ((bitCount1 == 0 || bitCount2 == 0) && targetBitCount <= 32) targetBitCount = 0;
+    else if (targetBitCount < 32) targetBitCount = 32;
     if (!integerType1->isSigned() && !integerType2->isSigned()) {
       astOp2CastType = astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
     } else {
@@ -773,7 +789,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
     // Pointer and int.
     astTargetType = param1.astType;
     auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
     if (bitCount2 == 1) {
       // Adding a boolean to a pointer gives unexpected results since a boolean true may be treated as -1 rather than 1
       // so we need to cast it to 8 bit integer.
@@ -882,9 +898,10 @@ Bool ExpressionGenerator::_generateBinaryOp(
     } else {
       auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
       auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-      auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
-      auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+      auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
+      auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
       auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
+      if ((bitCount1 == 0 || bitCount2 == 0) && targetBitCount <= 32) targetBitCount = 0;
       if (!integerType1->isSigned() && !integerType2->isSigned()) {
         astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
       } else {
@@ -1003,16 +1020,25 @@ Bool ExpressionGenerator::_generateComparisonOp(
     // Two integers.
     auto integerType1 = static_cast<Ast::IntegerType*>(param1.astType);
     auto integerType2 = static_cast<Ast::IntegerType*>(param2.astType);
-    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper, session->getExecutionContext());
-    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+    auto bitCount1 = integerType1->getBitCount(expGenerator->astHelper);
+    auto bitCount2 = integerType2->getBitCount(expGenerator->astHelper);
     auto targetBitCount = bitCount1 >= bitCount2 ? bitCount1 : bitCount2;
+    if ((bitCount1 == 0 || bitCount2 == 0) && targetBitCount <= 32) targetBitCount = 0;
+    auto typeExpand1 = bitCount1 != 0 && (
+      (targetBitCount != 0 && targetBitCount > bitCount1) ||
+      (targetBitCount == 0 && bitCount1 < 32)
+    );
+    auto typeExpand2 = bitCount2 != 0 && (
+      (targetBitCount != 0 && targetBitCount > bitCount2) ||
+      (targetBitCount == 0 && bitCount2 < 32)
+    );
     if (!integerType1->isSigned() && !integerType2->isSigned()) {
       astTargetType = expGenerator->astHelper->getWordType(targetBitCount);
     } else if (integerType1->isSigned() && integerType2->isSigned()) {
       astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
-    } else if (!integerType1->isSigned() && bitCount1 < bitCount2) {
+    } else if (!integerType1->isSigned() && typeExpand1) {
       astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
-    } else if (integerType1->isSigned() && bitCount1 > bitCount2) {
+    } else if (!integerType2->isSigned() && typeExpand2) {
       astTargetType = expGenerator->astHelper->getIntType(targetBitCount);
     } else {
       // error
@@ -1144,9 +1170,7 @@ Bool ExpressionGenerator::_generateAssignOp(
   Ast::Type *astContentType = astRefType->getContentType(expGenerator->astHelper);
 
   // Raise an error if custom initialization is enabled on this type to avoid possible resource mismanagement.
-  if (astContentType->getInitializationMethod(
-    expGenerator->astHelper, session->getExecutionContext()
-  ) != Ast::TypeInitMethod::NONE) {
+  if (astContentType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
     expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::TypeMissingAssignOpNotice>(astNode->findSourceLocation())
     );
@@ -1162,9 +1186,7 @@ Bool ExpressionGenerator::_generateAssignOp(
       session, paramAstType, astContentType, astNode, paramTgValues->getElement(1), true, paramCastResult
     );
   } else {
-    retVal = expGenerator->astHelper->isImplicitlyCastableTo(
-      paramAstType, astContentType, session->getExecutionContext()
-    );
+    retVal = expGenerator->astHelper->isCastableTo(paramAstType, astContentType, true);
   }
   if (!retVal) {
     expGenerator->astHelper->getNoticeStore()->add(
@@ -1347,7 +1369,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
     astTargetType = static_cast<Ast::FloatType*>(param.astType);
   } else if (param.astType->isDerivedFrom<Ast::IntegerType>()) {
     auto integerType = static_cast<Ast::IntegerType*>(param.astType);
-    auto bitCount = integerType->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+    auto bitCount = integerType->getBitCount(expGenerator->astHelper);
     astTargetType = expGenerator->astHelper->getIntType(bitCount);
   } else {
     // Error.
@@ -1618,8 +1640,8 @@ Bool ExpressionGenerator::_generateAstRefOp(
   }
 
   // Unbox if we have a box.
-  auto box = ti_cast<TioWeakBox>(targetAstNode);
-  if (box != 0) targetAstNode = box->get().get();
+  auto passage = ti_cast<Core::Data::Ast::Passage>(targetAstNode);
+  if (passage != 0) targetAstNode = passage->get();
 
   // Generate pointer to void.
   auto tiObjType = expGenerator->astHelper->getTiObjectType();
@@ -1881,12 +1903,8 @@ Bool ExpressionGenerator::_generateCastOp(
       session, derefResult.astType, targetAstType, astNode, derefResult.targetData.get(), false, result
     );
   } else {
-    retVal = expGenerator->astHelper->isExplicitlyCastableTo(
-      derefResult.astType, targetAstType, session->getExecutionContext()
-    );
-    if (targetAstType->getInitializationMethod(
-      expGenerator->astHelper, session->getExecutionContext()
-    ) != Ast::TypeInitMethod::NONE) {
+    retVal = expGenerator->astHelper->isCastableTo(derefResult.astType, targetAstType, false);
+    if (targetAstType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       result.astType = expGenerator->astHelper->getReferenceTypeFor(targetAstType, Ast::ReferenceMode::IMPLICIT);
     } else {
       result.astType = targetAstType;
@@ -2110,9 +2128,7 @@ Bool ExpressionGenerator::_generateNextArgOp(
 
   // Get the target type.
   auto targetAstType = expGenerator->astHelper->traceType(astNode->getTargetType().get());
-  if (targetAstType->getInitializationMethod(
-    expGenerator->astHelper, session->getExecutionContext()
-  ) != Ast::TypeInitMethod::NONE) {
+  if (targetAstType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
     targetAstType = expGenerator->astHelper->getReferenceTypeFor(targetAstType, Ast::ReferenceMode::IMPLICIT);
   }
   if (targetAstType == 0) return false;
@@ -2231,7 +2247,7 @@ Bool ExpressionGenerator::_generateCharLiteral(
   TiObject *charTgType;
   if (!g->getGeneratedType(charAstType, session, charTgType, 0)) return false;
 
-  auto bitCount = charAstType->getBitCount(expGenerator->astHelper, session->getExecutionContext());
+  auto bitCount = charAstType->getBitCount(expGenerator->astHelper);
 
   if (session->getTgContext() != 0) {
     if (!session->getTg()->generateIntLiteral(session->getTgContext(), bitCount, false, value, result.targetData)) {
@@ -2635,9 +2651,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
     // Create function call.
     auto astRetType = callee->getType()->traceRetType(expGenerator->astHelper);
-    if (astRetType->getInitializationMethod(
-      expGenerator->astHelper, session->getExecutionContext()
-    ) != Ast::TypeInitMethod::NONE) {
+    if (astRetType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       if (session->getTgContext() != 0) {
         // Pass a reference to the return value.
         TioSharedPtr tgTempVar;
@@ -2659,9 +2673,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
         )) return false;
         result.targetData = tgResult;
         // Register temp var for destruction.
-        g->registerDestructor(
-          astNode, astRetType, tgTempVar, session->getExecutionContext(), session->getDestructionStack()
-        );
+        g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack());
       }
       result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
     } else {
@@ -2685,9 +2697,7 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   auto astRetType = astFuncType->traceRetType(expGenerator->astHelper);
-  if (astRetType->getInitializationMethod(
-    expGenerator->astHelper, session->getExecutionContext()
-  ) != Ast::TypeInitMethod::NONE) {
+  if (astRetType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
     if (session->getTgContext() != 0) {
       // Pass a reference to the return value.
       TioSharedPtr tgTempVar;
@@ -2709,9 +2719,7 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
       )) return false;
       result.targetData = tgResult;
       // Register temp var for destruction.
-      g->registerDestructor(
-        astNode, astRetType, tgTempVar, session->getExecutionContext(), session->getDestructionStack()
-      );
+      g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack());
     }
     result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
   } else {
@@ -2736,7 +2744,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
   Ast::FunctionType::ArgMatchContext context;
   for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {
     Ast::Type *srcType = static_cast<Ast::Type*>(paramAstTypes->getElement(i));
-    auto status = calleeType->matchNextArg(srcType, context, expGenerator->astHelper, session->getExecutionContext());
+    auto status = calleeType->matchNextArg(srcType, context, expGenerator->astHelper);
     ASSERT(status != Ast::TypeMatchStatus::NONE);
 
     // Cast the value if needed.
@@ -2755,9 +2763,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
       // For var args we need to send values, not references.
       GenResult result;
       auto contentType = expGenerator->astHelper->tryGetDeepReferenceContentType(srcType);
-      if (contentType->getInitializationMethod(
-        expGenerator->astHelper, session->getExecutionContext()
-      ) == Ast::TypeInitMethod::NONE) {
+      if (contentType->getInitializationMethod(expGenerator->astHelper) == Ast::TypeInitMethod::NONE) {
         if (!expGenerator->dereferenceIfNeeded(srcType, paramTgVals->getElement(i), true, false, session, result)) {
           throw EXCEPTION(GenericException, S("Unexpected error."));
         }
@@ -2788,7 +2794,6 @@ Bool ExpressionGenerator::_prepareCallee(
   lookupRequest.astNode = astNode;
   lookupRequest.op = op;
   lookupRequest.argTypes = argTypes;
-  lookupRequest.ec = session->getExecutionContext();
 
   // Lookup the callee.
   Ast::CalleeLookupResult lookupResult;
@@ -2823,6 +2828,14 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     calleeRequest.ref = operand;
     prevResult = GenResult();
     return true;
+  } else if (operand->isDerivedFrom<Core::Data::Ast::Passage>()) {
+    ////
+    //// A direct pointer to a callee.
+    ////
+    calleeRequest.target = static_cast<Core::Data::Ast::Passage*>(operand)->get();
+    calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
+    prevResult = GenResult();
+    return true;
   } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
     ////
     //// Call a member of a specific object/scope.
@@ -2843,7 +2856,6 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       return false;
     }
 
-
     if (prevResult.astType != 0) {
       if (linkOperator->getSecond()->isDerivedFrom<Core::Data::Ast::Identifier>()) {
         // Calling a member of an object.
@@ -2852,6 +2864,14 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         calleeRequest.target = thisType;
         calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.ref = linkOperator->getSecond().get();
+        calleeRequest.thisType = thisRefType;
+        return true;
+      } else if (linkOperator->getSecond()->isDerivedFrom<Core::Data::Ast::Passage>()) {
+        // Calling a member of an object using a direct pointer to the callee.
+        auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+        auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
+        calleeRequest.target = linkOperator->getSecond().s_cast_get<Core::Data::Ast::Passage>()->get();
+        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.thisType = thisRefType;
         return true;
       } else if (linkOperator->getSecond()->isDerivedFrom<Ast::Block>()) {
@@ -3181,7 +3201,7 @@ Bool ExpressionGenerator::castLogicalOperand(
       return false;
     }
     result = castResult.targetData;
-  } else if (!this->astHelper->isImplicitlyCastableTo(astType, boolType, session->getExecutionContext())) {
+  } else if (!this->astHelper->isCastableTo(astType, boolType, true)) {
     this->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );

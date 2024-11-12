@@ -2,7 +2,7 @@
  * @file Spp/Ast/FunctionType.cpp
  * Contains the implementation of class Spp::Ast::FunctionType.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,9 +18,7 @@ namespace Spp::Ast
 //==============================================================================
 // Member Functions
 
-TypeMatchStatus FunctionType::matchTargetType(
-  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
-) const
+TypeMatchStatus FunctionType::matchTargetType(Type const *type, Helper *helper, TypeMatchOptions opts) const
 {
   VALIDATE_NOT_NULL(type, helper);
   if (this == type) return TypeMatchStatus::EXACT;
@@ -32,7 +30,7 @@ TypeMatchStatus FunctionType::matchTargetType(
   auto thisRetType = this->traceRetType(helper);
   auto retType = functionType->traceRetType(helper);
   if (thisRetType == 0 || retType == 0) return TypeMatchStatus::NONE;
-  if (!thisRetType->isEqual(retType, helper, ec)) return TypeMatchStatus::NONE;
+  if (!thisRetType->isEqual(retType, helper)) return TypeMatchStatus::NONE;
 
   // Check args.
   Word thisArgCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
@@ -62,13 +60,13 @@ TypeMatchStatus FunctionType::matchTargetType(
         Type *thisArgType = thisArgPack->getArgType() == 0 ? 0 : helper->traceType(thisArgPack->getArgType().get());
         Type *argType = argPack->getArgType() == 0 ? 0 : helper->traceType(argPack->getArgType().get());
         if ((thisArgType == 0 && argType != 0) || (thisArgType != 0 && argType == 0)) return TypeMatchStatus::NONE;
-        else if (thisArgType != 0 && !thisArgType->isEqual(argType, helper, ec)) return TypeMatchStatus::NONE;
+        else if (thisArgType != 0 && !thisArgType->isEqual(argType, helper)) return TypeMatchStatus::NONE;
       } else {
         // Check regular args.
         Type *thisArgType = thisArg == 0 ? 0 : helper->traceType(thisArg);
         Type *argType = arg == 0 ? 0 : helper->traceType(arg);
         if (thisArgType == 0 || argType == 0) return TypeMatchStatus::NONE;
-        if (!thisArgType->isEqual(argType, helper, ec)) return TypeMatchStatus::NONE;
+        if (!thisArgType->isEqual(argType, helper)) return TypeMatchStatus::NONE;
       }
     }
     return result;
@@ -159,9 +157,7 @@ Type* FunctionType::traceRetType(Helper *helper) const
 }
 
 
-TypeMatchStatus FunctionType::matchCall(
-  Containing<TiObject> *types, Helper *helper, Spp::ExecutionContext const *ec
-) {
+TypeMatchStatus FunctionType::matchCall(Containing<TiObject> *types, Helper *helper) {
   if (helper == 0) {
     throw EXCEPTION(InvalidArgumentException, S("helper"), S("Cannot be null."));
   }
@@ -174,7 +170,7 @@ TypeMatchStatus FunctionType::matchCall(
     FunctionType::ArgMatchContext matchContext;
     if (types != 0) {
       for (Int i = 0; i < types->getElementCount(); ++i) {
-        TypeMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper, ec);
+        TypeMatchStatus status = this->matchNextArg(types->getElement(i), matchContext, helper);
         if (status <= TypeMatchStatus::EXPLICIT_CAST) return TypeMatchStatus::NONE;
         else if (status < result) result = status;
       }
@@ -208,9 +204,7 @@ TypeMatchStatus FunctionType::matchCall(
 }
 
 
-TypeMatchStatus FunctionType::matchNextArg(
-  TiObject *nextType, ArgMatchContext &matchContext, Helper *helper, Spp::ExecutionContext const *ec
-) {
+TypeMatchStatus FunctionType::matchNextArg(TiObject *nextType, ArgMatchContext &matchContext, Helper *helper) {
   if (nextType == 0) {
     throw EXCEPTION(InvalidArgumentException, S("nextType"), S("Cannot be null."));
   }
@@ -232,12 +226,12 @@ TypeMatchStatus FunctionType::matchNextArg(
     if (currentArg->isDerivedFrom<ArgPack>()) {
       auto currentArgPack = static_cast<ArgPack*>(currentArg);
       if (currentArgPack->getMax() == 0 || matchContext.subIndex + 1 < currentArgPack->getMax().get()) {
-        if (matchContext.type == 0 || matchContext.type->isEqual(providedType, helper, ec)) {
+        if (matchContext.type == 0 || matchContext.type->isEqual(providedType, helper)) {
           matchContext.subIndex++;
           return TypeMatchStatus::EXACT;
         } else {
           Function *caster;
-          auto status = helper->matchTargetType(providedType, matchContext.type, ec, caster);
+          auto status = helper->matchTargetType(providedType, matchContext.type, caster);
           if (status >= TypeMatchStatus::CUSTOM_CASTER) {
             matchContext.subIndex++;
             return status;
@@ -264,7 +258,7 @@ TypeMatchStatus FunctionType::matchNextArg(
         return TypeMatchStatus::EXACT;
       } else {
         Function *caster;
-        auto status = helper->matchTargetType(providedType, wantedType, ec, caster);
+        auto status = helper->matchTargetType(providedType, wantedType, caster);
         if (status >= TypeMatchStatus::CUSTOM_CASTER) {
           matchContext.type = wantedType;
           matchContext.index += steps;
@@ -280,7 +274,7 @@ TypeMatchStatus FunctionType::matchNextArg(
       Type *wantedType = helper->traceType(nextArg);
       if (wantedType == 0) return TypeMatchStatus::NONE;
       Function *caster;
-      auto status = helper->matchTargetType(providedType, wantedType, ec, caster);
+      auto status = helper->matchTargetType(providedType, wantedType, caster);
       if (status >= TypeMatchStatus::CUSTOM_CASTER) {
         matchContext.type = wantedType;
         matchContext.index += steps;

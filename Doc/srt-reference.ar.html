@@ -3953,6 +3953,12 @@ func addLocalization (
                         <li>
                           <span class="inlinecode">مـؤثر_شرط (ConditionalOperator)</span><br>
                         </li>
+                        <li>
+                          <span class="inlinecode">مـمر (Passage)</span><br>
+                          هذا الصنف يستخدم للإشارة إلى أي عنصر ش.ب.م باستخدام مؤشر إلى موقع ذلك العنصر
+                          في الذاكرة بدل الإشارة إلى العنصر باستخدام معرف (اسم العنصر في الشفة المصدرية).
+                          يسهل هذا الأمر إنشاء الشفرات ديناميكيًا في كثير من الحالات.
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -4182,11 +4188,19 @@ Spp.grammarMgr.addCustomGrammar(
                     <h5 id="Spp-astMgr-findElements">جد_عناصر (findElements)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
-  عملية هذا.جد_عناصر (
+عملية هذا.جد_عناصر (
     معيار_البحث: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     موقع_البحث: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     خيارات: طـبيعي
-  ): مـصفوفة[سند[الـقلب.أسـاسيات.كـائن_بهوية]]؛
+): مـصفوفة[سند[الـقلب.أسـاسيات.كـائن_بهوية]]؛
+
+عملية هذا.جد_عناصر (
+    معيار_البحث: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    موقع_البحث: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    خيارات: طـبيعي،
+    معرف_مبدل: مـؤشر_محارف،
+    ترجمات_معرفات: سند[تـطبيق[نـص، نـص]]
+): مـصفوفة[سند[الـقلب.أسـاسيات.كـائن_بهوية]]؛
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
 handler this.findElements (
@@ -4194,10 +4208,18 @@ handler this.findElements (
     target: ref[Core.Basic.TiObject],
     flags: Word
 ): Array[ref[Core.Basic.TiObject]];
+
+handler this.findElements(
+    comparison: ref[TiObject],
+    target: ref[TiObject],
+    flags: Word,
+    modifierKwd: CharsPtr,
+    kwdTranslations: ref[Map[String, String]]
+): Array[ref[TiObject]];
 </pre>
                       تبحث ضمن الشفرة المصدرية عن عناصر تطابق معيار البحث المعطى. المعطيان الأول والثاني سندان على شجرتي بنية مجردة،
                       الأولى لتركيب يمثل معيار البحث بينما الثانية هي الشجرة التي سيتم البحث فيها.<br>
-                      الخيار الثالث يمكن أن يكون واحدا من هذه القيم:
+                      المعطى الثالث يمكن أن يكون واحدا من هذه القيم:
                       <ul>
                         <li>
                           <b>خـيارات_الساعي._تخطى_المالكين_ (SeekerFlags.SKIP_OWNERS)</b><br/>
@@ -4216,6 +4238,10 @@ handler this.findElements (
                           في `عـام` فقط.
                         </li>
                       </ul>
+                      المعطى الرابع يستخدم لتصفية النتيجة والإبقاء فقط على العناصر التي تحتوي مبدلًا معينا، وهو المبدل الذي
+                      يحمل المعرف المذكور في هذا المعطى. أما المعطى الخامس فيوفر ترجمات لمعرفات المبدلات إلى لغات مختلفة
+                      كي يتسنى للمستخدم العثور على نتائجه بغض النظر عن اللغة المستخدمة لكتابة البرنامج.<br>
+                    <br>
                       المثال التالي يبحث عن كل الدالات ضمن صنف محدد:
 <pre class="samplecode" dir=rtl style="text-align:right;">
   العناصر = نـبم.مدير_شبم.جد_عناصر(
@@ -4310,7 +4336,7 @@ handler this.findElements (
   عملية هذا.جد_مبدلا_لعنصر (
     عنصر: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
     كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]،
-    ترجمات_الكلمة_المفتاحية: تـطبيق[نـص، نـص]
+    ترجمات_الكلمة_المفتاحية: سند[تـطبيق[نـص، نـص]]
   ): سند[الـقلب.أسـاسيات.كـائن_بهوية]
 </pre>
 <pre class="code" dir=ltr style="text-align:left;">
@@ -4322,7 +4348,7 @@ handler this.findElements (
   handler this.findModifierForElement(
     element: ref[Core.Basic.TiObject],
     kwd: ptr[array[Char]],
-    kwdTranslations: Map[String, String]
+    kwdTranslations: ref[Map[String, String]]
   ): ref[Core.Basic.TiObject];
 </pre>
                       إيجاد المبدل بالكلمة المعيارية المعطاة على العنصر المعطى. النسخة الثانية من هذه الدالة تستلم أيضًا قائمة ترجمات
@@ -4344,6 +4370,24 @@ handler this.findElements (
                       تُرجع الكلمة المفتاحية للمبدل المعطى.
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifierParams">هات_معطيات_مبدل (getModifierParams)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_معطيات_مبدل (
+    مبدل: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    الناتج: سند[مـصفوفة[سند[الـقلب.أسـاسيات.كـائن_بهوية]]]
+): ثـنائي
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getModifierParams(
+    modifier: ref[Core.Basic.TiObject],
+    result: ref[Array[ref[Core.Basic.TiObject]]]
+) => Bool;
+</pre>
+                      تُرجع قائمة بكل المعطيات الممررة للمبدل.
+                      تُرجع الدالة قيمة ثنائية تكون 1 عند نجاح العملية و0 عند فشلها.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifierStringParams">هات_المعطيات_النصية_لمبدل (getModifierStringParams)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
@@ -4361,6 +4405,102 @@ handler this.getModifierStringParams(
                       تُرجع قائمة بكل المعطيات النصية الممررة للمبدل. مثلاً لو كان عندنا مبدل `@اعتماديات["مكتبة1"، "مكتبة2"]`
                       واستخدمنا هذه الدالة فإننا سنحصل منها على مصفوفة من عنصرين، الأول قيمته "مكتبة1" والثاني "مكتبة2".
                       تُرجع الدالة قيمة ثنائية تكون 1 عند نجاح العملية و0 عند فشلها.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">هات_متغيرات_صنف (getClassVars)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_متغيرات_صنف (عنصر: سند[كـائن_بهوية]): مـصفوفة[سند[كـائن_بهوية]]؛
+
+عملية هذا.هات_متغيرات_صنف (
+    عنصر: سند[كـائن_بهوية]،
+    كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]،
+    ترجمات_الكلمة_المفتاحية: سند[تـطبيق[نـص، نـص]]
+): مـصفوفة[سند[كـائن_بهوية]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassVars (parent: ref[TiObject]): Array[ref[TiObject]];
+
+handler this.getClassVars (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[ref[TiObject]];
+</pre>
+                      تجلب قائمة المتغيرات التابعة لصنف محدد. النسخة الثانية من هذه الدالة تحضر المتغيرات
+                      التي تحمل المبدل المحدد فقط.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">هات_أسماء_متغيرات_صنف (getClassVarNames)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_أسماء_متغيرات_صنف (عنصر: سند[كـائن_بهوية]): مـصفوفة[نـص]؛
+
+عملية هذا.هات_أسماء_متغيرات_صنف (
+    عنصر: سند[كـائن_بهوية]،
+    كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]،
+    ترجمات_الكلمة_المفتاحية: سند[تـطبيق[نـص، نـص]]
+): مـصفوفة[نـص]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassVarNames (parent: ref[TiObject]): Array[String];
+
+handler this.getClassVarNames (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[String];
+</pre>
+                      تجلب قائمة أسماء المتغيرات التابعة لصنف محدد. النسخة الثانية من هذه الدالة تحضر أسماء المتغيرات
+                      التي تحمل المبدل المحدد فقط.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">هات_دالات_صنف (getClassFuncs)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_دالات_صنف (عنصر: سند[كـائن_بهوية]): مـصفوفة[سند[كـائن_بهوية]]؛
+
+عملية هذا.هات_دالات_صنف (
+    عنصر: سند[كـائن_بهوية]،
+    كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]،
+    ترجمات_الكلمة_المفتاحية: سند[تـطبيق[نـص، نـص]]
+): مـصفوفة[سند[كـائن_بهوية]]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassFuncs (parent: ref[TiObject]): Array[ref[TiObject]];
+
+handler this.getClassFuncs (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[ref[TiObject]];
+</pre>
+                      تجلب قائمة الدالات التابعة لصنف محدد. النسخة الثانية من هذه الدالة تحضر الدالات
+                      التي تحمل المبدل المحدد فقط.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">هات_أسماء_دالات_صنف (getClassFuncNames)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.هات_أسماء_دالات_صنف (عنصر: سند[كـائن_بهوية]): مـصفوفة[نـص]؛
+
+عملية هذا.هات_أسماء_دالات_صنف (
+    عنصر: سند[كـائن_بهوية]،
+    كلمة_مفتاحية: مؤشر[مصفوفة[مـحرف]]،
+    ترجمات_الكلمة_المفتاحية: سند[تـطبيق[نـص، نـص]]
+): مـصفوفة[نـص]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassFuncNames (parent: ref[TiObject]): Array[String];
+
+handler this.getClassFuncNames (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[String];
+</pre>
+                      تجلب قائمة أسماء الدالات التابعة لصنف محدد. النسخة الثانية من هذه الدالة تحضر أسماء الدالات
+                      التي تحمل المبدل المحدد فقط.
                     </div>
 
                     <h5 id="Spp-astMgr-getModifiers">هات_أصناف_معطيات_دالة (getFuncArgTypes)</h5>
@@ -4546,6 +4686,23 @@ handler this.buildAst(
 </pre>
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifiers">احشر_عمليات_النسخ (insertCopyHandlers)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.احشر_عمليات_النسخ (عنصر: سند[كـائن_بهوية])؛
+
+@عضو ماكرو احشر_عمليات_النسخ [هذا]؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insertCopyHandlers(obj: ref[TiObject]);
+
+@member macro insertCopyHandlers [this];
+</pre>
+                      تحشر عمليتي النسخ (`عملية هذا=سند[هذا_الصنف]`) والتهيئة الناسخة (`عملية~هيئ(سند[هذا_الصنف])`)
+                      ضمن الصنف الحالي وتتولى عملية نسخ كل المتغيرات العضو لهذا الصنف. يجب استخدام هذا الماكرو ضمن
+                      متن صنف لتوليد العمليتين لذلك الصنف.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifiers">احشر_مكون (insertMixin)</h5>
                     <div>
 <pre class="code" dir=rtl style="text-align:right;">
@@ -4622,6 +4779,46 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
 handler this.traceType(element: ref[Core.Basic.TiObject]) => ref[Spp.Ast.Type];
 </pre>
                       تتبع هذه الدالة الصنف المشار إليه بعنصر ش.ب.م المعطى وترجع ذلك الصنف.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">طابق_طبعة_قالب (matchTemplateInstance)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.طابق_طبعة_قالب (
+    القالب: سند[نـبم.شـبم.قـالب]،
+    مدخل_القالب: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    الناتج: سند[سـندنا[الـقلب.أسـاسيات.كـائن_بهوية]]
+) => ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.matchTemplateInstance(
+    template: ref[Spp.Ast.Template],
+    templateInput: ref[Core.Basic.TiObject],
+    result: ref[SrdRef[Core.Basic.TiObject]]
+) => Bool;
+</pre>
+                      ترجع طبعة القالب التي تطابق المدخل المعطى وإن لم توجد فتنشئها وترجعها.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">أهو_قابل_للتمثيل (isCastableTo)</h5>
+                    <div>
+<pre class="code" dir=rtl style="text-align:right;">
+عملية هذا.أهو_قابل_للتمثيل (
+    الصنف_الأصلي: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    الصنف_المطلوب: سند[الـقلب.أسـاسيات.كـائن_بهوية]،
+    تمثيل_تلقائي: ثـنائي
+) => ثـنائي؛
+</pre>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.isCastableTo(
+    srcTypeRef: ref[Core.Basic.TiObject],
+    targetTypeRef: ref[Core.Basic.TiObject],
+    implicit: Bool
+) => Bool;
+</pre>
+                      تستبين إمكانية الصنف المعطى (الأصلي) تمثيل الصنف المطلوب. معطيات الأصناف يمكن أن تكون الأصناف نفسها
+                      أو معرفات تشير إليها (اسم الصنف في الشفرة المصدرية). المعطى الثالث يحدد ما إن كان المطلوب استبيانه
+                      تمثيلا تلقائيا (implicit) أم لا (explicit).
                     </div>
 
                     <h5 id="Spp-astMgr-computeResultType">استنبط_صنف_الناتج (computeResultType)</h5>
@@ -5075,7 +5272,7 @@ handler this.tryGetDeepReferenceContentType(
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2023م \ 1444هـ.</strong></li>
+                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2024م \ 1446هـ</strong></li>
                         </ul>
                     </div>
                 </div>

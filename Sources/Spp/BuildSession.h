@@ -2,7 +2,7 @@
  * @file Spp/BuildSession.h
  * Contains the header of class Spp::BuildSession.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,7 +31,6 @@ class BuildSession : public TiObject
   private: SharedPtr<CodeGen::ExtraDataAccessor> extraDataAccessor;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
   private: SharedPtr<LlvmCodeGen::BuildTarget> buildTarget;
-  private: ExecutionContext execContext;
   private: Word buildType;
 
   private: TioSharedPtr voidNoArgsFuncTgType;
@@ -52,12 +51,10 @@ class BuildSession : public TiObject
     , extraDataAccessor(newSrdObj<CodeGen::ExtraDataAccessor>())
     , targetGenerator(tg)
     , buildTarget(bt)
-    , execContext(bt->getPointerBitCount())
     , buildType(bType)
     , codeGenSession(
       extraDataAccessor.get(),
       tg->getInterface<CodeGen::TargetGeneration>(),
-      &execContext,
       0,
       0,
       &destructionStack,
@@ -74,13 +71,11 @@ class BuildSession : public TiObject
     , extraDataAccessor(bs->getExtraDataAccessor())
     , targetGenerator(bs->getTargetGenerator())
     , buildTarget(bs->getBuildTarget())
-    , execContext(bs->getExecutionContext()->getPointerBitCount())
     , buildType(bs->getBuildType())
     , voidNoArgsFuncTgType(bs->voidNoArgsFuncTgType)
     , codeGenSession(
       extraDataAccessor.get(),
       targetGenerator->getInterface<CodeGen::TargetGeneration>(),
-      &execContext,
       0,
       0,
       &destructionStack,
@@ -97,13 +92,11 @@ class BuildSession : public TiObject
     , extraDataAccessor(bs->getExtraDataAccessor())
     , targetGenerator(bs->getTargetGenerator())
     , buildTarget(bs->getBuildTarget())
-    , execContext(bs->getExecutionContext()->getPointerBitCount())
     , buildType(bs->getBuildType())
     , voidNoArgsFuncTgType(bs->voidNoArgsFuncTgType)
     , codeGenSession(
       extraDataAccessor.get(),
       targetGenerator->getInterface<CodeGen::TargetGeneration>(),
-      &execContext,
       0,
       0,
       &destructionStack,
@@ -132,11 +125,6 @@ class BuildSession : public TiObject
   public: SharedPtr<LlvmCodeGen::TargetGenerator> const& getTargetGenerator() const
   {
     return this->targetGenerator;
-  }
-
-  public: ExecutionContext* getExecutionContext()
-  {
-    return &this->execContext;
   }
 
   public: SharedPtr<LlvmCodeGen::BuildTarget> const& getBuildTarget() const

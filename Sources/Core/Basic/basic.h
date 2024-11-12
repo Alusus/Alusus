@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -710,13 +710,12 @@ extern std::istream &inStream;
 #include "SharedMap.h"
 #include "PlainMapBase.h"
 #include "PlainMap.h"
-#include "Box.h"
 
 #include "TiNumber.h"
 #include "TiStr.h"
 #include "TiWStr.h"
 #include "TiBool.h"
-#include "TiPtr.h"
+#include "TiBox.h"
 #include "ti_functions.h"
 
 #include "Binding.h"
@@ -729,5 +728,13 @@ extern std::istream &inStream;
 #include "DynamicInterfacing.h"
 
 #include "constructor_helpers.h"
+
+//==============================================================================
+// Typedefs
+
+namespace Core::Basic
+{
+  typedef TiBox<void*> TiPtr;
+}
 
 #endif

@@ -1,0 +1,108 @@
+import "Srl/Console";
+import "Srl/Map";
+import "Srl/String";
+import "Core/Basic";
+import "Core/Data";
+import "Spp";
+import "Spp/Ast";
+use Srl;
+use Core.Basic;
+use Core.Data;
+def AstTemplateMap: alias Map[String, ref[TiObject]];
+
+func printHello {
+    Console.print("Hello\n");
+}
+
+func printSomething[str: string]() {
+    Console.print(str);
+}
+
+func callSomething[f: function]() {
+    f();
+}
+
+def var1: Int(2);
+def var2: Int(3);
+
+func preprocessTest1 {
+    preprocess {
+        // Regular function call.
+        Spp.astMgr.insertAst(
+            (ast fn()),
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(printHello~ast))
+        )
+        // Variables.
+        Spp.astMgr.insertAst(
+            (ast Console.print("%d\n", v1 + v2)),
+            AstTemplateMap()
+                .set(String("v1"), Core.Data.Ast.Passage(var1~ast))
+                .set(String("v2"), Core.Data.Ast.Passage(var2~ast))
+        )
+        // Call a function template.
+        def list: SrdRef[Ast.List] = newSrdObj[Ast.List];
+        def listContainer: DynContainerOf[list.obj];
+        listContainer.addElement(Ast.StringLiteral.create("Hello from a template\n"));
+        def instance: SrdRef[TiObject];
+        Spp.astMgr.matchTemplateInstance(printSomething~ast~cast[ref[Spp.Ast.Template]], list.obj, instance);
+        Spp.astMgr.insertAst(
+            (ast fn()),
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(instance.obj))
+        )
+        // Call a function template receiving a funciton param.
+        list = newSrdObj[Ast.List];
+        listContainer~no_deref = DynContainerOf[list.obj];
+        listContainer.addElement(Core.Data.Ast.Passage.create(printHello~ast));
+        Spp.astMgr.matchTemplateInstance(callSomething~ast~cast[ref[Spp.Ast.Template]], list.obj, instance);
+        Spp.astMgr.insertAst(
+            (ast fn()),
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(instance.obj))
+        )
+    }
+}
+
+preprocessTest1();
+
+class Tester {
+    def i: Int;
+    handler this.print() {
+        Console.print("Tester.i = %d\n", this.i);
+    }
+}
+
+func preprocessTest2 {
+    def t: Tester;
+    t.i = 5;
+    preprocess {
+        // Member function call.
+        Spp.astMgr.insertAst(
+            (ast t.fn()),
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(Tester.print~ast))
+        );
+    }
+}
+
+preprocessTest2();
+
+func preprocessTest3 {
+    def fp1: ptr[function];
+    def fp2: ptr[function];
+    fp1 = preprocess {
+        // Getting pointer to function
+        Spp.astMgr.insertAst(
+            (ast fn~ptr),
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(printHello~ast))
+        );
+    };
+    preprocess {
+        // Getting pointer to function
+        Spp.astMgr.insertAst(
+            (ast fp2 = fn~ptr),
+            AstTemplateMap().set(String("fn"), Core.Data.Ast.Passage(printHello~ast))
+        );
+    };
+    fp1();
+    fp2();
+}
+
+preprocessTest3();

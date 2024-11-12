@@ -2,7 +2,7 @@
  * @file Core/Data/Ast/Definition.h
  * Contains the header of class Core::Data::Ast::Definition.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -128,7 +128,7 @@ class Definition : public Node,
   public: void addModifier(TioSharedPtr const &modifier)
   {
     if (this->modifiers == 0) {
-      this->modifiers = List::create({}, { modifier });
+      this->setModifiers(List::create({}, { modifier }));
     } else {
       this->modifiers->add(modifier);
     }

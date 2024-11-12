@@ -1,8 +1,8 @@
 /**
- * @file Core/Basic/Box.h
- * Contains the header of class Core::Basic::Box.
+ * @file Core/Basic/TiBox.h
+ * Contains the header of class Core::Basic::TiBox.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,19 +10,19 @@
  */
 //==============================================================================
 
-#ifndef CORE_BASIC_BOX_H
-#define CORE_BASIC_BOX_H
+#ifndef CORE_BASIC_TIBOX_H
+#define CORE_BASIC_TIBOX_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
-template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
+template<class CTYPE, class PTYPE=TiObject> class TiBox : public PTYPE
 {
   //============================================================================
   // Type Info
 
-  typedef Box<CTYPE, PTYPE> _MyType;
-  TEMPLATE_TYPE_INFO(Box, PTYPE, "Core.Basic", "Core", "alusus.org", (CTYPE, PTYPE));
+  typedef TiBox<CTYPE, PTYPE> _MyType;
+  TEMPLATE_TYPE_INFO(TiBox, PTYPE, "Core.Basic", "Core", "alusus.org", (CTYPE, PTYPE));
   OBJECT_FACTORY(_MyType);
 
 
@@ -35,19 +35,19 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
   //============================================================================
   // Constructors & Destructor
 
-  public: Box() : obj(0) {}
+  public: TiBox() : obj(0) {}
 
-  public: Box(CTYPE const &o) : obj(o)
+  public: TiBox(CTYPE const &o) : obj(o)
   {
   }
 
-  public: virtual ~Box()
+  public: virtual ~TiBox()
   {
   }
 
-  public: static SharedPtr<Box<CTYPE, PTYPE>> create(CTYPE const &o)
+  public: static SharedPtr<TiBox<CTYPE, PTYPE>> create(CTYPE const &o)
   {
-    return newSrdObj<Box<CTYPE, PTYPE>>(o);
+    return newSrdObj<TiBox<CTYPE, PTYPE>>(o);
   }
 
 
@@ -66,13 +66,6 @@ template<class CTYPE, class PTYPE=TiObject> class Box : public PTYPE
 
 }; // class
 
-
-//==============================================================================
-// Default Types
-
-typedef Box<SharedPtr<TiObject>> TioSharedBox;
-typedef Box<WeakPtr<TiObject>> TioWeakBox;
-
-} } // namespace
+} // namespace
 
 #endif

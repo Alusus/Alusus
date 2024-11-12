@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/TargetGenerator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::TargetGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -1857,6 +1857,7 @@ Bool TargetGenerator::generateLessThanOrEqual(
 Bool TargetGenerator::generateIntLiteral(
   TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
 ) {
+  if (bitCount == 0) bitCount = this->buildTarget->getPointerBitCount();
   auto llvmResult = llvm::ConstantInt::get(
     *this->buildTarget->getLlvmContext(), llvm::APInt(bitCount, value, withSign)
   );

@@ -2980,6 +2980,12 @@ Create an object and return a `SrdRef` to it after initializing it.
                         <li>
                           <span class="inlinecode">ConditionalOperator</span><br>
                         </li>
+                        <li>
+                          <span class="inlinecode">Passage</span><br>
+                          This type is used to refer to an AST element using its pointer instead of referring
+                          to that element using an identifier (the name of the element in the source code).
+                          This makes generating code dynamically easier in some cases.
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -3172,6 +3178,14 @@ handler this.findElements (
     target: ref[Core.Basic.TiObject],
     flags: Word
 ): Array[ref[Core.Basic.TiObject]];
+
+handler this.findElements(
+    comparison: ref[TiObject],
+    target: ref[TiObject],
+    flags: Word,
+    modifierKwd: CharsPtr,
+    kwdTranslations: ref[Map[String, String]]
+): Array[ref[TiObject]];
 </pre>
                       Searches through the soruce code for elements that match the given search criteria. The first two arguments are references on two
                       ASTs. The first one to an expression that represents the search criteria while the second is the ast that we want to search in it.
@@ -3194,6 +3208,10 @@ handler this.findElements (
                           in `Main` only.
                         </li>
                       </ul>
+                      The fourth argument is the keyword of the modifier to filter by, if the user wants to filter the results also by modifiers. The fifth
+                      argument is a list of translations for modifier keywords to enable the user to filter by modifiers regardless of the localization
+                      of the source code.<br>
+                      <br>
                       The next example search in all functions inside a specific class:
 <pre class="samplecode" dir=ltr>
   elements = Spp.astMgr.findElements(
@@ -3254,11 +3272,10 @@ handler this.findElements (
     kwd: ptr[array[Char]]
   ): ref[Core.Basic.TiObject];
 
-
   handler this.findModifierForElement(
     element: ref[Core.Basic.TiObject],
     kwd: ptr[array[Char]],
-    kwdTranslations: Map[String, String]
+    kwdTranslations: ref[Map[String, String]]
   ): ref[Core.Basic.TiObject];
 </pre>
                       Find the modifier by the given keyword on the given element. The second form of this method translates
@@ -3275,6 +3292,18 @@ handler this.findElements (
                       Returns the keyword for the given modifier.
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifierParams">getModifierParams</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getModifierParams(
+    modifier: ref[Core.Basic.TiObject],
+    result: ref[Array[Core.Basic.TiObject]]
+) => Bool;
+</pre>
+                      Returns a list of all arguments passed to the modifier.
+                      This functions returns a boolean with value 1 on success, and 0 on failure.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifierStringParams">getModifierStringParams</h5>
                     <div>
 <pre class="code" dir=ltr style="text-align:left;">
@@ -3288,6 +3317,65 @@ handler this.getModifierStringParams(
                       This functions returns a boolean with value 1 on success, and 0 on failure.
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifiers">getClassVars</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassVars (parent: ref[TiObject]): Array[ref[TiObject]];
+
+handler this.getClassVars (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[ref[TiObject]];
+</pre>
+                      Gets the list of variables of a given type. The second version brings only the variables carrying a
+                      specific modifier.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">getClassVarNames</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassVarNames (parent: ref[TiObject]): Array[String];
+
+handler this.getClassVarNames (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[String];
+</pre>
+                      Gets the list of names of variables of a given type. The scond version brings only the names of
+                      variables carrying a given modifier.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">getClassFuncs</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassFuncs (parent: ref[TiObject]): Array[ref[TiObject]];
+
+handler this.getClassFuncs (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[ref[TiObject]];
+</pre>
+                      Get the list of functions of a given type. The second version brings only the functions carrying
+                      a given modifier.
+                    </div>
+
+                    <h5 id="Spp-astMgr-getModifiers">getClassFuncNames</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.getClassFuncNames (parent: ref[TiObject]): Array[String];
+
+handler this.getClassFuncNames (
+    parent: ref[TiObject],
+    kwd: ptr[array[Char]],
+    kwdTranslations: ref[Map[String, String]]
+): Array[String];
+</pre>
+                      Gets the list of names of functions of a given type. The second version gets only the names of
+                      functions having a specific modifier.
+                    </div>
 
                     <h5 id="Spp-astMgr-getModifiers">getFuncArgTypes</h5>
                     <div>
@@ -3400,6 +3488,18 @@ handler this.buildAst(
 </pre>
                     </div>
 
+                    <h5 id="Spp-astMgr-getModifiers">insertCopyHandlers</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.insertCopyHandlers(obj: ref[TiObject]);
+
+@member macro insertCopyHandlers [this];
+</pre>
+                    Generates the copy operation and the copy constructor for the current type. It takes care of
+                    copying all member variables of that type. This macro must be used inside the body of a user
+                    type to generate the operations for that typel.
+                    </div>
+
                     <h5 id="Spp-astMgr-getModifiers">insertMixin</h5>
                     <div>
 <pre class="code" dir=ltr style="text-align:left;">
@@ -3451,6 +3551,33 @@ handler this.getVariableDomain(element: ref[Core.Basic.TiObject]) => Int;
 handler this.traceType(element: ref[Core.Basic.TiObject]) => ref[Spp.Ast.Type];
 </pre>
                       Traces the type that the given SPP element points to, and returns that type.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">matchTemplateInstance</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.matchTemplateInstance(
+    template: ref[Spp.Ast.Template],
+    templateInput: ref[Core.Basic.TiObject],
+    result: ref[SrdRef[Core.Basic.TiObject]]
+) => Bool;
+</pre>
+                    Returns the template instance that matches the given input. If no existing instance
+                    matches the input, then creates a new instance.
+                    </div>
+
+                    <h5 id="Spp-astMgr-traceType">isCastableTo</h5>
+                    <div>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.isCastableTo(
+    srcTypeRef: ref[Core.Basic.TiObject],
+    targetTypeRef: ref[Core.Basic.TiObject],
+    implicit: Bool
+) => Bool;
+</pre>
+                    Checks wether the given type (srcTypeRef) can be casted as a certian other type (targetTypeRef).
+                    The type arguments can be the type itself, or a reference to it. The third argument specifies
+                    wether to check for implicit casting or explicit casting.
                     </div>
 
                     <h5 id="Spp-astMgr-computeResultType">computeResultType</h5>
@@ -3785,7 +3912,7 @@ handler this.tryGetDeepReferenceContentType(
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>جميع الحقوق محفوظة لشركة الأسس للبرمجيات 2023م \ 1444هـ.</strong></li>
+                            <li><strong>Copyright © 2024 Alusus Software Ltd.</strong></li>
                         </ul>
                     </div>
                 </div>

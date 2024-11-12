@@ -230,7 +230,7 @@ class TypeWithCaster {
 
 func testRefCasting {
     def rri64: ref[ref[Int[64]]];
-    rri64~cast[ptr];
+    rri64~cast[ArchInt]~cast[ptr];
     rri64~cast[ref[ptr]];
     rri64~no_deref~cast[ref[ptr]];
 

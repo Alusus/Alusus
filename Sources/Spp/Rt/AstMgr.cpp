@@ -1,7 +1,7 @@
 /**
  * @file Spp/Rt/AstMgr.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,6 +25,7 @@ void AstMgr::initBindingCaches()
     &this->findModifier,
     &this->findModifierForElement,
     &this->getModifierKeyword,
+    &this->getModifierParams,
     &this->getModifierStringParams,
     &this->getSourceFullPathForElement,
     &this->insertAst,
@@ -36,6 +37,8 @@ void AstMgr::initBindingCaches()
     &this->getCurrentPreprocessInsertionPosition,
     &this->getVariableDomain,
     &this->traceType,
+    &this->isCastableTo,
+    &this->matchTemplateInstance,
     &this->computeResultType,
     &this->cloneAst,
     &this->dumpData,
@@ -53,6 +56,7 @@ void AstMgr::initBindings()
   this->findModifier = &AstMgr::_findModifier;
   this->findModifierForElement = &AstMgr::_findModifierForElement;
   this->getModifierKeyword = &AstMgr::_getModifierKeyword;
+  this->getModifierParams = &AstMgr::_getModifierParams;
   this->getModifierStringParams = &AstMgr::_getModifierStringParams;
   this->getSourceFullPathForElement = &AstMgr::_getSourceFullPathForElement;
   this->insertAst = &AstMgr::_insertAst;
@@ -64,6 +68,8 @@ void AstMgr::initBindings()
   this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
   this->getVariableDomain = &AstMgr::_getVariableDomain;
   this->traceType = &AstMgr::_traceType;
+  this->isCastableTo = &AstMgr::_isCastableTo;
+  this->matchTemplateInstance = &AstMgr::_matchTemplateInstance;
   this->computeResultType = &AstMgr::_computeResultType;
   this->cloneAst = &AstMgr::_cloneAst;
   this->dumpData = &AstMgr::_dumpData;
@@ -81,6 +87,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_findModifier"), (void*)&AstMgr::_findModifier);
   globalItemRepo->addItem(S("Spp_AstMgr_findModifierForElement"), (void*)&AstMgr::_findModifierForElement);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierKeyword"), (void*)&AstMgr::_getModifierKeyword);
+  globalItemRepo->addItem(S("Spp_AstMgr_getModifierParams"), (void*)&AstMgr::_getModifierParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStringParams"), (void*)&AstMgr::_getModifierStringParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getSourceFullPathForElement"), (void*)&AstMgr::_getSourceFullPathForElement);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst"), (void*)&AstMgr::_insertAst);
@@ -94,6 +101,8 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   );
   globalItemRepo->addItem(S("Spp_AstMgr_getVariableDomain"), (void*)&AstMgr::_getVariableDomain);
   globalItemRepo->addItem(S("Spp_AstMgr_traceType"), (void*)&AstMgr::_traceType);
+  globalItemRepo->addItem(S("Spp_AstMgr_isCastableTo"), (void*)&AstMgr::_isCastableTo);
+  globalItemRepo->addItem(S("Spp_AstMgr_matchTemplateInstance"), (void*)&AstMgr::_matchTemplateInstance);
   globalItemRepo->addItem(S("Spp_AstMgr_computeResultType"), (void*)&AstMgr::_computeResultType);
   globalItemRepo->addItem(S("Spp_AstMgr_cloneAst"), (void*)&AstMgr::_cloneAst);
   globalItemRepo->addItem(S("Spp_AstMgr_dumpData"), (void*)&AstMgr::_dumpData);
@@ -177,6 +186,25 @@ String AstMgr::_getModifierKeyword(TiObject *self, TiObject *modifier)
   }
   if (identifier != 0) return identifier->getValue().getStr();
   else return String();
+}
+
+
+Bool AstMgr::_getModifierParams(TiObject *self, TiObject *modifier, Array<TiObject*> &result)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+
+  auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifier);
+  if (paramPass == 0) return true;
+
+  auto params = paramPass->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();
+  if (params == 0) {
+    result.add(paramPass->getParam().get());
+  } else {
+    for (Int i = 0; i < params->getElementCount(); ++i) {
+      result.add(params->getElement(i));
+    }
+  }
+  return true;
 }
 
 
@@ -313,6 +341,20 @@ Spp::Ast::Type* AstMgr::_traceType(TiObject *self, TiObject *astNode)
   return astMgr->astHelper->traceType(astNode);
 }
 
+
+Bool AstMgr::_isCastableTo(TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astHelper->isCastableTo(srcTypeRef, targetTypeRef, implicit);
+}
+
+
+Bool AstMgr::_matchTemplateInstance(
+  TiObject *self, Spp::Ast::Template *tmplt, TiObject *templateInputs, TioSharedPtr &result
+) {
+  PREPARE_SELF(astMgr, AstMgr);
+  return tmplt->matchInstance(templateInputs, astMgr->astHelper, result);
+}
 
 Bool AstMgr::_computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue)
 {

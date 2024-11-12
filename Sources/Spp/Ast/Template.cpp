@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.cpp
  * Contains the implementation of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -236,7 +236,7 @@ Bool Template::assignTemplateVars(
     if (varDef->getType() == TemplateVarType::INTEGER || varDef->getType() == TemplateVarType::STRING) {
       def->setTarget(Core::Data::Ast::clone(var));
     } else {
-      def->setTarget(newSrdObj<TioWeakBox>(getWeakPtr(var)));
+      def->setTarget(Core::Data::Ast::Passage::create(var));
     }
     instance->add(def);
   }
@@ -249,8 +249,8 @@ TiObject* Template::getTemplateVar(Core::Data::Ast::Scope const *instance, Char 
   for (Int i = 0; i < instance->getCount(); ++i) {
     auto def = ti_cast<Core::Data::Ast::Definition>(instance->getElement(i));
     if (def != 0 && def->getName() == name) {
-      auto box = def->getTarget().ti_cast_get<TioWeakBox>();
-      if (box != 0) return box->get().get();
+      auto passage = def->getTarget().ti_cast_get<Core::Data::Ast::Passage>();
+      if (passage != 0) return passage->get();
       else return def->getTarget().get();
     }
   }
@@ -260,6 +260,9 @@ TiObject* Template::getTemplateVar(Core::Data::Ast::Scope const *instance, Char 
 
 TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *helper)
 {
+  if (ref->isDerivedFrom<Core::Data::Ast::Passage>()) {
+    ref = static_cast<Core::Data::Ast::Passage*>(ref)->get();
+  }
   TiObject *result = 0;
   Node *refNode = ti_cast<Node>(ref);
   if (refNode == 0) {

@@ -68,8 +68,8 @@ def Main: module
     l = pi~cnt~cast[Int[8]];
     print("l = pi~cnt~cast[Int[8]] => l = %ld\n", l);
 
-    l = pi~cast[Int[64]];
-    pi2 = l~cast[ptr[Int[32]]];
+    l = pi~cast[Int[0]];
+    pi2 = l~cast[Int[0]]~cast[ptr[Int[32]]];
     pi2~cnt = 543;
     print("i~ptr -> l -> pi2 => pi2~cnt = 543 => i = %d\n", i);
 

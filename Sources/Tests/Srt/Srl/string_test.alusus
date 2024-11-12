@@ -7,8 +7,8 @@ def Main: module
   func testStatics {
     // Search
     Console.print("find '-': %s\n", String.find("123 - 456 - 789", '-'));
-    Console.print("find '-', 4: %d\n", String.find("123 - 456 - 789", '-', 4)~cast[Int[64]] != 0);
-    Console.print("find '-', 5: %d\n", String.find("123 - 456 - 789", '-', 5)~cast[Int[64]] != 0);
+    Console.print("find '-', 4: %d\n", String.find("123 - 456 - 789", '-', 4)~cast[ArchInt] != 0);
+    Console.print("find '-', 5: %d\n", String.find("123 - 456 - 789", '-', 5)~cast[ArchInt] != 0);
     Console.print("findLast '-': %s\n", String.findLast("123 - 456 - 789", '-'));
     Console.print("find \"124\": %s\n", String.find("123 - 124 - 125", "124"));
 

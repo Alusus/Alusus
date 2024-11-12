@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArrayType.cpp
  * Contains the implementation of class Spp::Ast::ArrayType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,11 +24,11 @@ Type* ArrayType::getContentType(Helper *helper) const
   if (contentTypeRef == 0) {
     contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
   }
-  auto typeBox = ti_cast<TioWeakBox>(
+  auto typePassage = ti_cast<Core::Data::Ast::Passage>(
     helper->getSeeker()->doGet(contentTypeRef.get(), this->getOwner())
   );
-  if (typeBox == 0) return 0;
-  auto type = typeBox->get().ti_cast_get<Spp::Ast::Type>();
+  if (typePassage == 0) return 0;
+  auto type = ti_cast<Spp::Ast::Type>(typePassage->get());
   if (type == 0) {
     throw EXCEPTION(GenericException, S("Invalid array content type found."));
   }
@@ -53,7 +53,7 @@ Word ArrayType::getSize(Helper *helper) const
 
 
 TypeMatchStatus ArrayType::matchTargetType(
-  Type const *type, Helper *helper, ExecutionContext const *ec, TypeMatchOptions opts
+  Type const *type, Helper *helper, TypeMatchOptions opts
 ) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
@@ -61,12 +61,12 @@ TypeMatchStatus ArrayType::matchTargetType(
   auto arrayType = ti_cast<ArrayType const>(type);
   if (arrayType == 0) {
     auto thisContentType = this->getContentType(helper);
-    if (thisContentType->isEqual(type, helper, ec)) return TypeMatchStatus::AGGREGATION;
+    if (thisContentType->isEqual(type, helper)) return TypeMatchStatus::AGGREGATION;
     else return TypeMatchStatus::NONE;
   } else {
     auto thisContentType = this->getContentType(helper);
     auto targetContentType = arrayType->getContentType(helper);
-    if (thisContentType->isEqual(targetContentType, helper, ec)) {
+    if (thisContentType->isEqual(targetContentType, helper)) {
       auto thisSize = this->getSize(helper);
       auto targetSize = arrayType->getSize(helper);
       return thisSize == targetSize ? TypeMatchStatus::EXACT : (

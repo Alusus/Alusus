@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Sarmad Khalid Abdullah
+# Copyright (C) 2024 Sarmad Khalid Abdullah
 #
 # This file is released under Alusus Public License, Version 1.0.
 # For details on usage and copying conditions read the full license in the
@@ -38,7 +38,6 @@ set(AlususSpp_SOURCE_FILES
   spp.h
   LibraryGateway.h
   LibraryGateway.cpp
-  ExecutionContext.h
   BuildManager.h
   BuildManager.cpp
   SeekerExtension.h

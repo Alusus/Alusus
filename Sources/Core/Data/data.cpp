@@ -2,7 +2,7 @@
  * @file Core/Data/data.cpp
  * Contains the global implementations of Data namespace's declarations.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -82,16 +82,6 @@ void dumpData(OutStream &stream, TiObject *ptr, int indents)
         printIndents(stream, indents + 1);
         dumpData(stream, container->getElement(i), indents+1);
       }
-    } else if (ptr->isA<TioSharedBox>()) {
-      TioSharedBox *sharedBox = static_cast<TioSharedBox*>(ptr);
-      stream << S("\n");
-      printIndents(stream, indents+1);
-      dumpData(stream, sharedBox->get().get(), indents+1);
-    } else if (ptr->isA<TioWeakBox>()) {
-      TioWeakBox *weakBox = static_cast<TioWeakBox*>(ptr);
-      stream << S("\n");
-      printIndents(stream, indents+1);
-      dumpData(stream, weakBox->get().get(), indents+1);
     } else if (ptr->isA<TiWord>()) {
       auto tiWord = static_cast<TiWord*>(ptr);
       stream << S(": ") << tiWord->get();

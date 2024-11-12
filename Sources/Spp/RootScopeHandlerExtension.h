@@ -2,7 +2,7 @@
  * @file Spp/RootScopeHandlerExtension.h
  * Contains the header of class Spp::RootScopeHandlerExtension.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -53,7 +53,7 @@ class RootScopeHandlerExtension : public ObjTiInterface
   //============================================================================
   // Member Properties
 
-  public: BINDING_CACHE(rootManagerBox, Box<Core::Main::RootManager*>);
+  public: BINDING_CACHE(rootManagerBox, TiBox<Core::Main::RootManager*>);
 
 
   //============================================================================
