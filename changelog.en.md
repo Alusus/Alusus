@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.12.2 (2024-xx-xx)
+## Version 0.13.0 (2024-11-12)
 
 ### Updates to the Compiler
 
@@ -41,11 +41,14 @@
 
 
 ## Version 0.12.1 (2024-07-05)
+<details>
 
 Fixed a bug in `StringBuilder`.
+</details>
 
 
 ## Version 0.12.0 (2024-07-05)
+<details>
 
 ### Updates to the Compiler
 
@@ -73,6 +76,7 @@ Fixed a bug in `StringBuilder`.
 
 * Fix in `Possible` to prevent unintentional casting to `value` without going through the custom caster.
 * Fixed some issues in `String` class.
+</details>
 
 
 ## Version 0.11.3 (2023-09-11)
