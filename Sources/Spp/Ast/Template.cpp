@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.cpp
  * Contains the implementation of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -299,7 +299,7 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
   } else if (varType == TemplateVarType::AST_REF) {
     if (helper->isAstReference(ref)) {
       helper->getSeeker()->find<TiObject>(ref, refNode->getOwner(), result, 0);
-    }
+    } else result = ref;
   }
   return result;
 }
