@@ -1,5 +1,11 @@
 # Alusus Changelog
 
+## Version 0.13.1 (2025-02-08)
+
+* Fixed an issue with using `Passage` with template arguments.
+* Fixed an issue causing the compiler to hang when an instance of `Passage` causes a closed cycle.
+
+
 ## Version 0.13.0 (2024-11-12)
 
 ### Updates to the Compiler

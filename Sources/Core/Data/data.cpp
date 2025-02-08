@@ -2,7 +2,7 @@
  * @file Core/Data/data.cpp
  * Contains the global implementations of Data namespace's declarations.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,6 +25,8 @@ void clearCaches(TiObject *obj)
   if (obj == 0) return;
   auto dh = ti_cast<CacheHaving>(obj);
   if (dh != 0) dh->clearCache();
+
+  if (obj->isDerivedFrom<Core::Data::Ast::Passage>()) return;
 
   auto binding = ti_cast<Binding>(obj);
   if (binding != 0) {
