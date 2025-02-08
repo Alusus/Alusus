@@ -36,7 +36,7 @@ jobs:
           bash -c "cd ./AlususBuild/Intermediate/x64-linux-release && ctest --output-on-failure"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: AlususBuild/Packages
