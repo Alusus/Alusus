@@ -37,7 +37,7 @@
 
 * Fixed issue with `Definition` AST class not properly setting ownership its modifiers.
 
-# Standard Libraries Fixes
+### Standard Libraries Fixes
 
 * Fixed an issue with `create` function of basic AST types.
 * Fixed bugs in the following `Spp.astMgr` functions:
