@@ -1,5 +1,12 @@
 # Alusus Changelog
 
+## Version 0.13.2 (2025-xx-xx)
+
+* Added `Fs.isDir` function.
+* Added `alignThis` macro to help with multiple inheritance.
+* Fixed typo in the Arabic localized name of `Time.getDetailedTime`.
+
+
 ## Version 0.13.1 (2025-02-08)
 
 * Fixed an issue with using `Passage` with template arguments.

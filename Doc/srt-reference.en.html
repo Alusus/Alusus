@@ -1686,6 +1686,14 @@ func exists (filename: ptr[array[Char]]): Bool;
 Check if a specific file or folder exists.
                             </li>
                             <li>
+                                <b>isDir</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+func isDir (path: ptr[array[Char]]): Bool;
+</pre>
+Check if the given path is for a directory. It returns true if the given path is a directory, and returns
+false if the path is missing or a file.
+                            </li>
+                            <li>
                                 <b>rename</b><br/>
 <pre class="code" dir=ltr style="text-align:left;">
 @expname[rename]
@@ -1940,6 +1948,16 @@ and the second is the type we want to represent to its reference.
 
                         <li><b>nullRef</b><br>
 A macro that returns a reference with a pointer value of 0. It takes one argument which is the type of the reference's target.
+                        </li>
+                        <br>
+
+                        <li><b>alignThis</b><br>
+A macro that can be used to unshift the value of `this` to make it point to the beginning of the object in case of multiple inheritance
+where an overriden function belongs to a second parent. In this case the parent would not be aligned with the beginning of the
+inheriting object so it needs to be unshifted to point to the beginning of the object before it can be used to access members of
+that object.<br>
+The macro receives one argument, which is the name of the member object referring to the parent in which the override function is
+defined.
                         </li>
                         <br>
 
