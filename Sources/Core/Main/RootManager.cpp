@@ -2,7 +2,7 @@
  * @file Core/Main/RootManager.cpp
  * Contains the implementation of class Core::Main::RootManager.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -185,14 +185,11 @@ Bool RootManager::tryImportFile(Char const *filename, Str &errorDetails)
 
   if (loadSource) {
     // Load a source file.
-    try {
-      LOG(LogLevel::PARSER_MAJOR, S("Importing source file: ") << filename);
+    LOG(LogLevel::PARSER_MAJOR, S("Importing source file: ") << filename);
 
-      this->_processFile(filename);
-      return true;
-    } catch (...) {
-      return false;
-    }
+    this->_processFile(filename);
+
+    return true;
   } else {
     // Load a library.
     LOG(LogLevel::PARSER_MAJOR, S("Importing library: ") << filename);

@@ -30,10 +30,10 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @"#anonymous10" = private constant [4 x i8] c"%d\0A\00"
 @"#anonymous11" = private constant [4 x i8] c"%d\0A\00"
 @"#anonymous12" = private constant [4 x i8] c"%d\0A\00"
-@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__, i32* null }]
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__2, i32* null }]
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @__entry__() {
+define void @__entry__2() {
 "#block0":
   ret void
 }
@@ -86,27 +86,27 @@ define void @"Main.start()=>(Void)"() {
 }
 
 define i32 @"Main.getNum1()=>(Int[32])"() {
-"#block4":
+"#block2":
   ret i32 5
 }
 
 define i32 @"Main.getNum2()=>(Int[32])"() {
-"#block5":
+"#block3":
   ret i32 7
 }
 
 define i32 @"Main.getNum3()=>(Int[32])"() {
-"#block6":
+"#block4":
   ret i32 13
 }
 
 define i32 ()* @"Main.getFunc1()=>(ptr[()=>(Int[32])])"() {
-"#block2":
+"#block5":
   ret i32 ()* @"Main.getNum4()=>(Int[32])"
 }
 
 define i32 @"Main.mulX2(Int[32])=>(Int[32])"(i32 %n) {
-"#block8":
+"#block7":
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32, i32* %n1
@@ -115,7 +115,7 @@ define i32 @"Main.mulX2(Int[32])=>(Int[32])"(i32 %n) {
 }
 
 define i32 @"Main.mulX3(Int[32])=>(Int[32])"(i32 %n) {
-"#block9":
+"#block8":
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32, i32* %n1
@@ -124,7 +124,7 @@ define i32 @"Main.mulX3(Int[32])=>(Int[32])"(i32 %n) {
 }
 
 define i32 @"Main.mulX4(Int[32])=>(Int[32])"(i32 %n) {
-"#block10":
+"#block9":
   %n1 = alloca i32
   store i32 %n, i32* %n1
   %0 = load i32, i32* %n1
@@ -133,12 +133,12 @@ define i32 @"Main.mulX4(Int[32])=>(Int[32])"(i32 %n) {
 }
 
 define i32 (i32)* @"Main.getFunc2()=>(ptr[(Int[32])=>(Int[32])])"() {
-"#block3":
+"#block10":
   ret i32 (i32)* @"Main.mulX5(Int[32])=>(Int[32])"
 }
 
 define i32 @"Main.getNum4()=>(Int[32])"() {
-"#block7":
+"#block6":
   ret i32 17
 }
 

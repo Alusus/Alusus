@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -404,6 +404,21 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   // Validate that the type has custom initialization.
   if ((astType->getInitializationMethod(typeGenerator->astHelper) & Ast::TypeInitMethod::AUTO) == 0) return true;
 
+  auto body = astType->getBody().get();
+
+  auto existingBuildId = session->getEda()->tryGetBuildId<TiInt>(body);
+  if (existingBuildId != 0 && existingBuildId->get() != session->getBuildId()) {
+    typeGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
+        Core::Data::Ast::findSourceLocation(astType)
+      )
+    );
+    return false;
+  }
+
+  SharedPtr<TiInt> buildId = newSrdObj<TiInt>(session->getBuildId());
+  session->getEda()->setBuildId(body, buildId);
+
   // Generate pointer type for the user type.
   auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
   TiObject *tgPtrType;
@@ -433,19 +448,24 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
     throw EXCEPTION(GenericException, S("Failed to prepare function body for type constructor."));
   }
 
+  // Assign the function to the type.
+  session->getEda()->setAutoCtor(astType, tgFunc);
+  session->getEda()->setAutoCtorType(astType, tgFuncType);
+
   // Prepare dependencies.
-  DestructionStack destructionStack;
-  Session childSession(session, tgContext.get(), tgContext.get(), &destructionStack);
+  Session childSession(
+    session, tgContext.get(), tgContext.get(), newSrdObj<DestructionStack>(), newSrdObj<DependencyInfo>()
+  );
   childSession.setTgSelf(args.get(0));
   childSession.setAstSelfType(astType);
 
-  auto body = astType->getBody().get();
   session->getEda()->setCodeGenData(body, tgContext);
 
   auto astThisType = typeGenerator->getAstHelper()->getReferenceTypeFor(astType, Ast::ReferenceMode::EXPLICIT);
   g->addThisDefinition(body, S("this"), astThisType, false, args.get(0), &childSession);
 
   // Main loop.
+  Bool result = true;
   for (Int i = 0; i < body->getElementCount(); ++i) {
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Data::Ast::Definition>(obj);
@@ -456,12 +476,18 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
         typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Initialize member variable.
-        if (!g->generateMemberVarInitialization(target, &childSession)) return false;
+        if (!g->generateMemberVarInitialization(target, &childSession)) {
+          result = false;
+          break;
+        }
       }
     } else {
       // Generate regular statement.
       TerminalStatement terminal;
-      if (!g->generateStatement(obj, &childSession, terminal)) return false;
+      if (!g->generateStatement(obj, &childSession, terminal)) {
+        result = false;
+        break;
+      }
     }
   }
 
@@ -470,13 +496,13 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type constructor."));
   }
 
+  if (!g->buildDependencies(&childSession)) result = false;
+
+  session->getEda()->removeBuildId(body);
+
   session->getEda()->removeCodeGenData(body);
 
-  // Assign the function to the type.
-  session->getEda()->setAutoCtor(astType, tgFunc);
-  session->getEda()->setAutoCtorType(astType, tgFuncType);
-
-  return true;
+  return result;
 }
 
 
@@ -489,6 +515,21 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
 
   // Validate that the type has custom initialization.
   if ((astType->getDestructionMethod(typeGenerator->astHelper) & Ast::TypeInitMethod::AUTO) == 0) return true;
+
+  auto body = astType->getBody().get();
+
+  auto existingBuildId = session->getEda()->tryGetBuildId<TiInt>(body);
+  if (existingBuildId != 0 && existingBuildId->get() != session->getBuildId()) {
+    typeGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
+        Core::Data::Ast::findSourceLocation(astType)
+      )
+    );
+    return false;
+  }
+
+  SharedPtr<TiInt> buildId = newSrdObj<TiInt>(session->getBuildId());
+  session->getEda()->setBuildId(body, buildId);
 
   // Generate pointer type for the user type.
   auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
@@ -519,14 +560,19 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
     throw EXCEPTION(GenericException, S("Failed to prepare function body for type destructor."));
   }
 
+  // Assign the function to the type.
+  session->getEda()->setAutoDtor(astType, tgFunc);
+  session->getEda()->setAutoDtorType(astType, tgFuncType);
+
   // Prepare dependencies.
-  DestructionStack destructionStack;
-  Session childSession(session, tgContext.get(), tgContext.get(), &destructionStack);
+  Session childSession(
+    session, tgContext.get(), tgContext.get(), newSrdObj<DestructionStack>(), newSrdObj<DependencyInfo>()
+  );
   childSession.setTgSelf(args.get(0));
   childSession.setAstSelfType(astType);
 
   // Main loop.
-  auto body = astType->getBody().get();
+  Bool result = true;
   for (Int i = 0; i < body->getCount(); ++i) {
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Data::Ast::Definition>(obj);
@@ -537,7 +583,10 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
         typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
       ) {
         // Destruct member variable.
-        if (!g->generateMemberVarDestruction(target, &childSession)) return false;
+        if (!g->generateMemberVarDestruction(target, &childSession)) {
+          result = false;
+          break;
+        }
       }
     }
   }
@@ -547,11 +596,11 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type destructor."));
   }
 
-  // Assign the function to the type.
-  session->getEda()->setAutoDtor(astType, tgFunc);
-  session->getEda()->setAutoDtorType(astType, tgFuncType);
+  if (!g->buildDependencies(&childSession)) result = false;
 
-  return true;
+  session->getEda()->removeBuildId(body);
+
+  return result;
 }
 
 
@@ -660,7 +709,7 @@ Bool TypeGenerator::_generateCast(
       srcType, tgRef.get(), astNode, &paramAstNodes, &paramAstTypes, &paramTgValues, session
     )) return false;
     // Register temp var for destruction.
-    g->registerDestructor(astNode, srcType, tgTempVar, session->getDestructionStack());
+    g->registerDestructor(astNode, srcType, tgTempVar, session->getDestructionStack().get());
     Ast::Type *refAstType = typeGenerator->astHelper->getReferenceTypeFor(srcType, Ast::ReferenceMode::IMPLICIT);
     return typeGenerator->generateCast(
       g, session, refAstType, targetType, astNode, tgRef.get(), implicit, result

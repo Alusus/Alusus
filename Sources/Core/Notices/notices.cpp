@@ -2,7 +2,7 @@
  * @file Core/Notices/notices.cpp
  * Contains the global implementations of Notices namespace's declarations.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -48,9 +48,6 @@ Bool getSourceLocationPathSkipping()
 
 void printNotice(Notice const *msg)
 {
-  // We will only print the error message if we have a source location for it.
-  if (msg->getSourceLocation() == 0) return;
-
   // Print severity.
   switch (msg->getSeverity()) {
     case 0:
@@ -72,7 +69,11 @@ void printNotice(Notice const *msg)
   // Print description.
   outStream << msg->getDescription() << S("\033[0m") << NEW_LINE << S("  ");
   // Print location.
-  outStream << getSourceLocationString(msg->getSourceLocation().get(), 2) << NEW_LINE;
+  if (msg->getSourceLocation() == 0) {
+    outStream << S("[UNKNOWN LOCATION]") << NEW_LINE;
+  } else {
+    outStream << getSourceLocationString(msg->getSourceLocation().get(), 2) << NEW_LINE;
+  }
 }
 
 

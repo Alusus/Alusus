@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExtraDataAccessor.h
  * Contains the header of class Spp::CodeGen::ExtraDataAccessor.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -49,6 +49,8 @@ class ExtraDataAccessor : public TiObject
   private: Str idAutoDtorType;
   private: Str idCodeGenFailed;
   private: Str idInitStatementGenIndex;
+  private: Str idBuildId;
+  private: Str idGlobalVarState;
 
 
   //============================================================================
@@ -73,6 +75,8 @@ class ExtraDataAccessor : public TiObject
     this->idAutoDtorType = this->idPrefix + S("autoDtorType");
     this->idCodeGenFailed = this->idPrefix + S("codeGenFailed");
     this->idInitStatementGenIndex = this->idPrefix + S("initStatementGenIndex");
+    this->idBuildId = this->idPrefix + S("buildId");
+    this->idGlobalVarState = this->idPrefix + S("globalVarState");
   }
 
   public: Str const& getIdPrefix() const
@@ -85,6 +89,8 @@ class ExtraDataAccessor : public TiObject
   DEFINE_EXTRA_ACCESSORS(AutoCtorType);
   DEFINE_EXTRA_ACCESSORS(AutoDtor);
   DEFINE_EXTRA_ACCESSORS(AutoDtorType);
+  DEFINE_EXTRA_ACCESSORS(BuildId);
+  DEFINE_EXTRA_ACCESSORS(GlobalVarState);
 
   // didCodeGenFail
 

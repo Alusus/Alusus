@@ -19,7 +19,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @"!getARef()=>(ref[A]).a" = global %A zeroinitializer
 @"#anonymous1" = private constant [15 x i8] c"this.a.i = %d\0A\00"
 @"!getBRef()=>(ref[B]).b" = global %B zeroinitializer
-@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__3, i32* null }]
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__1, i32* null }]
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"test()"() {
@@ -115,7 +115,7 @@ define void @"B.getMyVal(ref[B])=>(B)"(%B* %"#ret", %B* %this) {
 }
 
 define %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %this) {
-"#block6":
+"#block7":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
   %0 = load %B*, %B** %this1
@@ -123,7 +123,7 @@ define %B* @"B.getMyRef(ref[B])=>(ref[B])"(%B* %this) {
 }
 
 define %A @"getA()=>(A)"() {
-"#block7":
+"#block8":
   %a = alloca %A
   %0 = getelementptr %A, %A* %a, i32 0, i32 0
   store i32 11, i32* %0
@@ -132,13 +132,13 @@ define %A @"getA()=>(A)"() {
 }
 
 define %A* @"getARef()=>(ref[A])"() {
-"#block8":
+"#block9":
   store i32 12, i32* getelementptr inbounds (%A, %A* @"!getARef()=>(ref[A]).a", i32 0, i32 0)
   ret %A* @"!getARef()=>(ref[A]).a"
 }
 
 define void @"getB()=>(B)"(%B* %"#ret") {
-"#block9":
+"#block10":
   %b = alloca %B
   call void @"B.~init(ref[B])"(%B* %b)
   %0 = getelementptr %B, %B* %b, i32 0, i32 0
@@ -149,7 +149,7 @@ define void @"getB()=>(B)"(%B* %"#ret") {
 }
 
 define void @"B.printA(ref[B])"(%B* %this) {
-"#block10":
+"#block11":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
   %0 = load %B*, %B** %this1
@@ -161,13 +161,13 @@ define void @"B.printA(ref[B])"(%B* %this) {
 }
 
 define %B* @"getBRef()=>(ref[B])"() {
-"#block11":
+"#block12":
   store i32 14, i32* getelementptr inbounds (%B, %B* @"!getBRef()=>(ref[B]).b", i32 0, i32 0, i32 0)
   ret %B* @"!getBRef()=>(ref[B]).b"
 }
 
 define void @"C.setI(ref[C],Int[32])"(%C* %this, i32 %i) {
-"#block12":
+"#block14":
   %this1 = alloca %C*
   store %C* %this, %C** %this1
   %i2 = alloca i32
@@ -182,7 +182,7 @@ define void @"C.setI(ref[C],Int[32])"(%C* %this, i32 %i) {
 declare i32 @printf(i8*, ...)
 
 define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
-"#block13":
+"#block6":
   %this1 = alloca %B*
   store %B* %this, %B** %this1
   %that2 = alloca %B*
@@ -196,8 +196,8 @@ define void @"B.~init(ref[B],ref[B])"(%B* %this, %B* %that) {
   ret void
 }
 
-define void @__constructor__3() {
-"#block14":
+define void @__constructor__1() {
+"#block13":
   call void @"B.~init(ref[B])"(%B* @"!getBRef()=>(ref[B]).b")
   ret void
 }

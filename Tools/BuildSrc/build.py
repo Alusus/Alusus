@@ -27,6 +27,7 @@ def build_alusus(alusus_build_location: str,
                  alusus_lib_dirname: str,
                  alusus_include_dirname: str,
                  skip_installing_std_deps: bool,
+                 workersCount: int,
                  verbose_output: bool = False):
 
     os.makedirs(alusus_build_location, exist_ok=True)
@@ -103,7 +104,7 @@ def build_alusus(alusus_build_location: str,
     # Build Alusus.
     msg.info_msg("Building Alusus...")
     cmake_cmd = ["cmake", "--build", alusus_build_location,
-                 "--parallel", str(multiprocessing.cpu_count())]
+                 "--parallel", str(workersCount)]
     if alusus_clean_and_build:
         cmake_cmd += ["--clean-first"]
     ret = common.subprocess_run_hidden_except_on_error(
@@ -246,6 +247,8 @@ def parse_cmd_args(args):
                         help="Prints the supported build types list and exits")
     parser.add_argument("--print-supported-target-triplets", action="store_true",
                         help="Prints the supported target triplets list and exits")
+    parser.add_argument("--workers",
+                        type=int, default=multiprocessing.cpu_count(), help="Number of parallel build workers")
     parser.add_argument("--verbose", action="store_true",
                         help="Verbose output when calling sub commands")
     processed_args = parser.parse_args(args)
@@ -301,6 +304,7 @@ if __name__ == "__main__":
                        args.lib_dirname,
                        args.include_dirname,
                        args.skip_installing_std_deps,
+                       args.workers,
                        verbose_output=args.verbose)
     if not ret:
         exit(1)

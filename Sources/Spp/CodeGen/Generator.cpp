@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.cpp
  * Contains the implementation of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,6 +27,8 @@ void Generator::initBindings()
   generation->generateModuleInit = &Generator::_generateModuleInit;
   generation->generateFunction = &Generator::_generateFunction;
   generation->generateFunctionDecl = &Generator::_generateFunctionDecl;
+  generation->prepareNullaryProcedure = &Generator::_prepareNullaryProcedure;
+  generation->finalizeNullaryProcedure = &Generator::_finalizeNullaryProcedure;
   generation->generateUserTypeBody = &Generator::_generateUserTypeBody;
   generation->generateVarDef = &Generator::_generateVarDef;
   generation->generateTempVar = &Generator::_generateTempVar;
@@ -44,6 +46,7 @@ void Generator::initBindings()
   generation->getGeneratedType = &Generator::_getGeneratedType;
   generation->getTypeAllocationSize = &Generator::_getTypeAllocationSize;
   generation->addThisDefinition = &Generator::_addThisDefinition;
+  generation->buildDependencies = &Generator::_buildDependencies;
 }
 
 
@@ -132,15 +135,22 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     tgFunc = session->getEda()->getCodeGenData<TiObject>(astFunc);
   }
 
-  if (generator->astProcessor != 0) {
-    if (!generator->astProcessor->processFunctionBody(astFunc)) return false;
-  }
-
   auto astBlock = astFunc->getBody().get();
   if (astBlock != 0 && session->getEda()->tryGetCodeGenData<TiObject>(astBlock) == 0) {
     LOG(
       Spp::LogLevel::CODEGEN, S("Generating function body: ") << generator->astHelper->getFunctionName(astFunc)
     );
+
+    SharedPtr<TiInt> buildId = newSrdObj<TiInt>(session->getBuildId());
+    session->getEda()->setBuildId(astFunc, buildId);
+
+    if (generator->astProcessor != 0) {
+      if (!generator->astProcessor->processFunctionBody(astFunc)) {
+        session->getEda()->removeBuildId(astFunc);
+        return false;
+      }
+    }
+
     auto astFuncType = astFunc->getType().get();
     auto tgFuncType = session->getEda()->tryGetCodeGenData<TiObject>(astFuncType);
     ASSERT(tgFuncType != 0);
@@ -154,8 +164,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     TioSharedPtr tgContext;
     if (!session->getTg()->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return false;
 
-    DestructionStack destructionStack;
-    Session childSession(session, tgContext.get(), tgContext.get(), &destructionStack);
+    auto destructionStack = newSrdObj<DestructionStack>();
+    auto dependencyInfo = newSrdObj<DependencyInfo>();
+    Session childSession(session, tgContext.get(), tgContext.get(), destructionStack, dependencyInfo);
 
     // Store the generated ret value reference, if needed.
     if (astRetType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
@@ -179,6 +190,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       if (!session->getTg()->generateLocalVariable(
         tgContext.get(), argTgType, astArgs->getElementKey(i), 0, argTgVar
       )) {
+        session->getEda()->removeBuildId(astFunc);
         return false;
       }
       session->getEda()->setCodeGenData(argType, argTgVar);
@@ -199,16 +211,18 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       initAstNodes.add(argType);
       TioSharedPtr argTgVarRef;
       if (!session->getTg()->generateVarReference(tgContext.get(), argTgType, argTgVar.get(), argTgVarRef)) {
+        session->getEda()->removeBuildId(astFunc);
         return false;
       }
       if (!generation->generateVarInitialization(
         argAstType, argTgVarRef.get(), ti_cast<Core::Data::Node>(argType),
         &initAstNodes, &initAstTypes, &initTgVals, &childSession
       )) {
+        session->getEda()->removeBuildId(astFunc);
         return false;
       }
       generation->registerDestructor(
-        ti_cast<Core::Data::Node>(argType), argAstType, argTgVar, childSession.getDestructionStack()
+        ti_cast<Core::Data::Node>(argType), argAstType, argTgVar, childSession.getDestructionStack().get()
       );
     }
 
@@ -223,19 +237,26 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       generator->rootManager->getNoticeStore()->add(
         newSrdObj<Spp::Notices::MissingReturnStatementNotice>(astFunc->findSourceLocation())
       );
-      return false;
+      session->getEda()->removeBuildId(astFunc);
+      retVal = false;
     }
 
     // If there wasn't a return statement then we should destruct the variables.
     if (terminal != TerminalStatement::YES) {
       // Destruct function args first, then return.
-      if (!generation->generateVarGroupDestruction(&childSession, 0)) return false;
+      if (!generation->generateVarGroupDestruction(&childSession, 0)) retVal = false;
     }
 
     // Finalize the body.
     if (!session->getTg()->finishFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext.get())) {
-      return false;
+      session->getEda()->removeBuildId(astFunc);
+      retVal = false;
     }
+
+    // Build dependencies.
+    if (!generation->buildDependencies(&childSession)) retVal = false;
+
+    session->getEda()->removeBuildId(astFunc);
 
     return retVal;
   }
@@ -271,6 +292,36 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   // }
 
   return true;
+}
+
+
+void Generator::_prepareNullaryProcedure(
+  TiObject *self, Char const *funcName, Session *session, TioSharedPtr &tgFunc, TioSharedPtr &tgContext
+) {
+  auto tgFuncType = session->getTg()->getNullaryProcedureType();
+  if (tgFuncType == 0) {
+    throw EXCEPTION(GenericException, S("Failed to get nullary procedure type."));
+  };
+  if (!session->getTg()->generateFunctionDecl(funcName, tgFuncType, tgFunc)) {
+    throw EXCEPTION(GenericException, S("Failed to generate function declaration for nullary procedure."));
+  }
+  SharedList<TiObject> args;
+  if (!session->getTg()->prepareFunctionBody(tgFunc.get(), tgFuncType, &args, tgContext)) {
+    throw EXCEPTION(GenericException, S("Failed to prepare function body for root scope execution."));
+  }
+}
+
+
+void Generator::_finalizeNullaryProcedure(TiObject *self, Session *session, TiObject *tgFunc, TiObject *tgContext)
+{
+  auto tgFuncType = session->getTg()->getNullaryProcedureType();
+  if (tgFuncType == 0) {
+    throw EXCEPTION(GenericException, S("Failed to get nullary procedure type."));
+  };
+  SharedList<TiObject> args;
+  if (!session->getTg()->finishFunctionBody(tgFunc, tgFuncType, &args, tgContext)) {
+    throw EXCEPTION(GenericException, S("Failed to finalize function body for nullary procedure."));
+  }
 }
 
 
@@ -350,10 +401,13 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
     Ast::setAstType(astVar, astType);
 
     if (generator->getAstHelper()->getVariableDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
+      auto state = generator->getGlobalVarState(session, definition);
+      if ((state & (GlobalVarState::INITIALIZING | GlobalVarState::TERMINATING)) != 0) {
+        throw EXCEPTION(GenericException, S("Global var being initialized/terminated before being code generated."));
+      }
+
       // Generate a global or a static variable.
-      // We will prefix the name to make sure it doesn't conflict with names from imported C libs.
-      Str name = S("!");
-      name += generator->getAstHelper()->resolveNodePath(definition);
+      Str name = generator->getGlobalVarMangledName(definition);
       TioSharedPtr tgGlobalVar;
 
       // Generate the default value.
@@ -381,8 +435,9 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
             return false;
           }
           generator->globalItemRepo->addItem(name, size);
-        } else if (generator->globalItemRepo->isItemInitialized(itemIndex)) {
-          return true;
+          state = 0;
+        } else {
+          state = generator->globalItemRepo->getItemState(itemIndex);
         }
       }
 
@@ -391,11 +446,15 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       auto highPriority = generator->getAstHelper()->doesModifierExistOnDef(definition, "priority");
 
       if (astParams != 0 || astType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
-        session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+        if ((state & GlobalVarState::INITIALIZED) == 0) {
+          session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+        }
       }
 
       if (astType->getDestructionMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
-        session->getGlobalVarDestructionDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+        if ((state & GlobalVarState::TERMINATED) == 0) {
+          session->getGlobalVarDestructionDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+        }
       }
     } else {
       // Generate a local variable.
@@ -455,8 +514,21 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       session->getDestructionStack()->popScope();
 
       generation->registerDestructor(
-        ti_cast<Core::Data::Node>(astVar), astType, tgLocalVar, session->getDestructionStack()
+        ti_cast<Core::Data::Node>(astVar), astType, tgLocalVar, session->getDestructionStack().get()
       );
+    }
+  } else {
+    // Check against circular dependency of global var initialization.
+    if (generator->getAstHelper()->getVariableDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
+      auto state = generator->getGlobalVarState(session, definition);
+      if (state & (GlobalVarState::INITIALIZING | GlobalVarState::TERMINATING) != 0) {
+        generator->astHelper->getNoticeStore()->add(
+          newSrdObj<Spp::Notices::CircularGlobalVarInitNotice>(
+            Core::Data::Ast::findSourceLocation(definition)
+          )
+        );
+        return false;
+      }
     }
   }
 
@@ -521,7 +593,7 @@ Bool Generator::_generateTempVar(
       astType, tgVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
     )) return false;
 
-    generation->registerDestructor(astNode, astType, tgVar, session->getDestructionStack());
+    generation->registerDestructor(astNode, astType, tgVar, session->getDestructionStack().get());
   }
 
   return true;
@@ -1064,12 +1136,304 @@ Int Generator::_addThisDefinition(
 }
 
 
+Bool Generator::_buildDependencies(TiObject *self, Session *session)
+{
+  PREPARE_SELF(generator, Generator);
+  auto generation = ti_cast<Generation>(self);
+
+  Bool result = true;
+
+  // Build function dependencies.
+  while (session->getFuncDeps()->getCount() > 0) {
+    auto astFunc = static_cast<Ast::Function*>(session->getFuncDeps()->get(0));
+    session->getFuncDeps()->remove(0);
+    if (!generation->generateFunction(astFunc, session)) result = false;
+  }
+
+  // Build global var dependencies.
+  if (session->getGlobalVarInitializationDeps()->getCount() > 0) {
+    generator->funcNameIndex++;
+
+    // Build the constructor function.
+    StrStream ctorNameStream;
+    ctorNameStream << S("__constructor__") << generator->funcNameIndex;
+    GlobalCtorDtorInfo ctorInfo;
+    ctorInfo.name = ctorNameStream.str().c_str();
+    if (generator->buildGlobalCtorOrDtor(
+      session, session->getGlobalVarInitializationDeps(), ctorInfo.name, false,
+      [=,&ctorInfo](
+        Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
+        Session *childSession
+      )->Bool {
+        childSession->getDestructionStack()->pushScope();
+
+        SharedList<TiObject> initTgVals;
+        PlainList<TiObject> initAstTypes;
+        PlainList<TiObject> initAstNodes;
+        if (astParams != 0) {
+          if (!generator->getExpressionGenerator()->generateParams(
+            astParams, generation, childSession, &initAstNodes, &initAstTypes, &initTgVals
+          )) {
+            childSession->getDestructionStack()->popScope();
+            return false;
+          }
+        }
+        if (!generation->generateVarInitialization(
+          varAstType, varTgRef, varAstNode, &initAstNodes, &initAstTypes, &initTgVals, childSession
+        )) {
+          childSession->getDestructionStack()->popScope();
+          return false;
+        };
+
+        if (!generation->generateVarGroupDestruction(
+          childSession, childSession->getDestructionStack()->getScopeStartIndex(-1)
+        )) {
+          childSession->getDestructionStack()->popScope();
+          return false;
+        }
+        childSession->getDestructionStack()->popScope();
+
+        // Add the name of this var to the ctor info.
+        Str name = S("!");
+        name += generator->getAstHelper()->resolveNodePath(varAstNode->getOwner());
+        ctorInfo.initializedVarNames.add(name);
+
+        return true;
+      }
+    )) {
+      session->getGlobalCtors()->add(ctorInfo);
+    } else {
+      result = false;
+    }
+  }
+
+  if (session->getGlobalVarDestructionDeps()->getCount() > 0) {
+    generator->funcNameIndex++;
+
+    // Build the destructor function.
+    StrStream dtorNameStream;
+    dtorNameStream << S("__destructor__") << generator->funcNameIndex;
+    GlobalCtorDtorInfo dtorInfo;
+    dtorInfo.name = dtorNameStream.str().c_str();
+    if (generator->buildGlobalCtorOrDtor(
+      session, session->getGlobalVarDestructionDeps(), dtorInfo.name, true,
+      [=](
+        Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
+        Session *childSession
+      )->Bool {
+        return generation->generateVarDestruction(varAstType, varTgRef, varAstNode, childSession);
+      }
+    )) {
+      session->getGlobalDtors()->add(dtorInfo);
+    } else {
+      result = false;
+    }
+  }
+
+  // Assert that we don't have any remaining dependencies.
+  if (session->getFuncDeps()->getCount() > 0 ||
+    session->getGlobalVarInitializationDeps()->getCount() > 0 ||
+    session->getGlobalVarDestructionDeps()->getCount() > 0) {
+      throw EXCEPTION(GenericException, S("Unexpected remaining dependencies."));
+  }
+
+  return result;
+}
+
+
+Bool Generator::buildGlobalCtorOrDtor(
+  Session *session, DependencyList<Core::Data::Node> *deps, Char const *funcName, Bool dtor,
+  std::function<Bool(
+    Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, TiObject *astParams,
+    Session *session
+  )> varOpCallback
+) {
+  auto generation = ti_cast<Generation>(this);
+
+  Bool result = true;
+
+  // Mark all global vars as being initilzied/terminated.
+  for (Int i = 0; i < deps->getCount(); ++i) {
+    auto astVar = deps->get(i);
+    Int state = this->getGlobalVarState(session, astVar);
+    if (dtor) {
+      if ((state & GlobalVarState::TERMINATED) != 0) {
+        // Already destructed. This happens if a previous dependency was dependent on this global
+        // var and generated the termination code for it.
+        continue;
+      } else if ((state & GlobalVarState::TERMINATING) != 0) {
+        // Already being destructed. This happens in case of circular dependencies, which is an error.
+        this->astHelper->getNoticeStore()->add(
+          newSrdObj<Spp::Notices::CircularGlobalVarInitNotice>(
+            Core::Data::Ast::findSourceLocation(astVar)
+          )
+        );
+        result = false;
+        continue;
+      }
+      // Mark as being destructed.
+      this->setGlobalVarState(session, astVar, state | GlobalVarState::TERMINATING);
+    } else {
+      if ((state & GlobalVarState::INITIALIZED) != 0) {
+        // Already initialized. This happens if a previous dependency was dependent on this global
+        // var and generated the initialization code for it.
+        continue;
+      } else if ((state & GlobalVarState::INITIALIZING) != 0) {
+        // Already being initialized. This happens in case of circular dependencies, which is an error.
+        this->astHelper->getNoticeStore()->add(
+          newSrdObj<Spp::Notices::CircularGlobalVarInitNotice>(
+            Core::Data::Ast::findSourceLocation(astVar)
+          )
+        );
+        result = false;
+        continue;
+      }
+      // Mark as being destructed.
+      this->setGlobalVarState(session, astVar, state | GlobalVarState::INITIALIZING);
+    }
+  }
+
+  // Get the session where we want to run global constructors, if different from the given session.
+  // Refer to BuildSession::globalCtorSession for more info about this.
+  auto ctorSession = session->getGlobalCtorSession();
+  if (ctorSession == 0) ctorSession = session;
+
+  // Prepare the function.
+  TioSharedPtr tgContext;
+  TioSharedPtr tgFunc;
+  generation->prepareNullaryProcedure(funcName, ctorSession, tgFunc, tgContext);
+  SharedPtr<DestructionStack> destructionStack = newSrdObj<DestructionStack>();
+  SharedPtr<DependencyInfo> dependencyInfo = newSrdObj<CodeGen::DependencyInfo>();
+  Session childSession(ctorSession, tgContext.get(), tgContext.get(), destructionStack, dependencyInfo);
+
+  for (Int i = 0; i < deps->getCount(); ++i) {
+    auto astVar = deps->get(i);
+    TiObject *tgVar = childSession.getEda()->tryGetCodeGenData<TiObject>(astVar);
+
+    // Get initialization params, if any.
+    TiObject *astTypeRef = astVar;
+    TiObject *astParams = 0;
+    auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astVar);
+    if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+      astTypeRef = astParamPass->getOperand().get();
+      astParams = astParamPass->getParam().get();
+    }
+
+    // Get the type of the variable.
+    TiObject *tgType;
+    Ast::Type *astType;
+    if (!generation->getGeneratedType(astTypeRef, &childSession, tgType, &astType)) {
+      result = false;
+      continue;
+    }
+
+    if (tgVar == 0) {
+      // Generate the global var if it's not generated yet. This can happen if we use a different
+      // session for the global constructors than the current session. This is needed when generating
+      // JIT code but still needing to run the constructors using the preprocess session in order to
+      // avoid cases where a global var is scheduled for initialization by the jit session but gets
+      // referenced by the preprocess session before that.
+      TioSharedPtr tgGlobalVar;
+      auto mangledName = this->getGlobalVarMangledName(astVar);
+      if (!childSession.getTg()->generateGlobalVariable(tgType, mangledName, 0, tgGlobalVar)) {
+        childSession.getEda()->setCodeGenFailed(astVar, true);
+        return false;
+      }
+      childSession.getEda()->setCodeGenData(astVar, tgGlobalVar);
+      tgVar = tgGlobalVar.get();
+    }
+
+    // Init the var
+    TioSharedPtr tgVarRef;
+    if (!childSession.getTg()->generateVarReference(tgContext.get(), tgType, tgVar, tgVarRef)) {
+      result = false;
+      continue;
+    }
+    if (!varOpCallback(astType, tgVarRef.get(), astVar, astParams, &childSession)) {
+      result = false;
+      continue;
+    }
+  }
+
+  // Finalize function.
+  generation->finalizeNullaryProcedure(ctorSession, tgFunc.get(), tgContext.get());
+
+  // Build the dependencies.
+  if (!generation->buildDependencies(&childSession)) result = false;
+
+  // Mark all global vars as initilzied/terminated.
+  for (Int i = 0; i < deps->getCount(); ++i) {
+    auto astVar = deps->get(i);
+    Int state = this->getGlobalVarState(session, astVar);
+    if (dtor) {
+      this->setGlobalVarState(session, astVar, (state & ~GlobalVarState::TERMINATING) | GlobalVarState::TERMINATED);
+    } else {
+      this->setGlobalVarState(session, astVar, (state & ~GlobalVarState::INITIALIZING) | GlobalVarState::INITIALIZED);
+    }
+  }
+
+  deps->clear();
+
+  return result;
+}
+
+
 //==============================================================================
 // Helper Functions
 
 Str Generator::getTempVarName()
 {
   return Str("#temp") + (LongInt)(this->tempVarIndex++);
+}
+
+
+void Generator::setGlobalVarState(Session *session, Core::Data::Node* astVar, Int state)
+{
+  if (session->isOfflineExecution()) {
+    session->getEda()->setGlobalVarState<TiInt>(astVar, newSrdObj<TiInt>(state));
+  } else {
+    auto mangledName = this->getGlobalVarMangledName(astVar);
+    auto i = this->globalItemRepo->findItem(mangledName);
+    if (i == -1) {
+      throw EXCEPTION(GenericException, Str(S("Setting state of unregistered global variable: ")) + mangledName);
+    } else {
+      this->globalItemRepo->setItemState(i, state);
+    }
+  }
+}
+
+
+Int Generator::getGlobalVarState(Session *session, Core::Data::Node* astVar)
+{
+  if (session->isOfflineExecution()) {
+    auto state = session->getEda()->tryGetGlobalVarState<TiInt>(astVar);
+    if (state == 0) {
+      return 0;
+    } else {
+      return state->get();
+    }
+  } else {
+    auto mangledName = this->getGlobalVarMangledName(astVar);
+    auto i = this->globalItemRepo->findItem(mangledName);
+    if (i == -1) {
+      return 0;
+    } else {
+      return this->globalItemRepo->getItemState(i);
+    }
+  }
+}
+
+
+Str Generator::getGlobalVarMangledName(Core::Data::Node *astVar)
+{
+  if (!astVar->isA<Core::Data::Ast::Definition>()) astVar = astVar->getOwner();
+  // We will prefix the name to make sure it doesn't conflict with names from imported C libs.
+  auto name = getMangledName(astVar);
+  if (name == "") {
+    name = Str(S("!")) + this->astHelper->resolveNodePath(astVar);
+    setMangledName(astVar, name);
+  }
+  return name;
 }
 
 } // namespace

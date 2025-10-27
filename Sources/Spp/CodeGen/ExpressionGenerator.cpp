@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -408,7 +408,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
         astType, tgTempVarRef.get(), astNode, paramAstNodes, paramAstTypes, paramTgValues, session
       )) return false;
       // Register temp var for destruction.
-      g->registerDestructor(astNode, astType, tgTempVar, session->getDestructionStack());
+      g->registerDestructor(astNode, astType, tgTempVar, session->getDestructionStack().get());
       result.targetData = tgTempVarRef;
     } else {
       astType = expGenerator->astHelper->traceType(callee.astNode);
@@ -1585,7 +1585,14 @@ Bool ExpressionGenerator::_generatePointerOp(
     }
     // Generate a function pointer.
     if (!g->generateFunctionDecl(astFunction, session)) return false;
-    session->getFuncDeps()->add(astFunction, false);
+    if (!expGenerator->addFunctionDependencyIfNeeded(session, astFunction)) {
+      expGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
+          Core::Data::Ast::findSourceLocation(astNode)
+        )
+      );
+      return false;
+    }
 
     auto tgFunction = session->getEda()->getCodeGenData<TiObject>(astFunction);
     auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
@@ -2414,7 +2421,14 @@ Bool ExpressionGenerator::_generateInnerFunction(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   if (!g->generateFunctionDecl(astFunction, session)) return false;
-  session->getFuncDeps()->add(astFunction, false);
+  if (!expGenerator->addFunctionDependencyIfNeeded(session, astFunction)) {
+    expGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
+        Core::Data::Ast::findSourceLocation(astFunction)
+      )
+    );
+    return false;
+  }
 
   auto tgFunction = session->getEda()->getCodeGenData<TiObject>(astFunction);
   auto astFunctionPointerType = expGenerator->astHelper->getPointerTypeFor(astFunction->getType().get());
@@ -2646,7 +2660,14 @@ Bool ExpressionGenerator::_generateFunctionCall(
   } else {
     // Build called function declaration.
     if (!g->generateFunctionDecl(callee, session)) return false;
-    session->getFuncDeps()->add(callee, false);
+    if (!expGenerator->addFunctionDependencyIfNeeded(session, callee)) {
+      expGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
+          Core::Data::Ast::findSourceLocation(astNode)
+        )
+      );
+      return false;
+    }
     auto tgFunction = session->getEda()->getCodeGenData<TiObject>(callee);
 
     // Create function call.
@@ -2673,7 +2694,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
         )) return false;
         result.targetData = tgResult;
         // Register temp var for destruction.
-        g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack());
+        g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack().get());
       }
       result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
     } else {
@@ -2719,7 +2740,7 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
       )) return false;
       result.targetData = tgResult;
       // Register temp var for destruction.
-      g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack());
+      g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack().get());
     }
     result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
   } else {
@@ -3206,6 +3227,28 @@ Bool ExpressionGenerator::castLogicalOperand(
       newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
     );
     return false;
+  }
+
+  return true;
+}
+
+Bool ExpressionGenerator::addFunctionDependencyIfNeeded(Session *session, Spp::Ast::Function *func) {
+  auto body = func->getBody().get();
+
+  // If the function has no body (i.e. it's external or intrinsic), we don't need to add it as a dependency.
+  if (body == 0) return true;
+
+  auto eda = session->getEda();
+
+  // Check to make sure we are not in a circular dependency.
+  auto buildId = eda->tryGetBuildId<TiInt>(func);
+  if (buildId != 0 && buildId->get() != session->getBuildId()) {
+    return false;
+  }
+
+  // If the function's code generation has not started yet, then add it as a dependency.
+  if (eda->tryGetCodeGenData<TiObject>(body) == 0) {
+    session->getFuncDeps()->add(func, false);
   }
 
   return true;

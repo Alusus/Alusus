@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/TargetGenerator.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::TargetGenerator.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,6 +31,7 @@ void TargetGenerator::initBindings()
   targetGeneration->generateStructTypeDecl = &TargetGenerator::generateStructTypeDecl;
   targetGeneration->generateStructTypeBody = &TargetGenerator::generateStructTypeBody;
   targetGeneration->getTypeAllocationSize = &TargetGenerator::getTypeAllocationSize;
+  targetGeneration->getNullaryProcedureType = &TargetGenerator::getNullaryProcedureType;
 
   // Function Generation Functions
   targetGeneration->generateFunctionType = &TargetGenerator::generateFunctionType;
@@ -128,6 +129,7 @@ void TargetGenerator::setupBuild()
 {
   this->blockIndex = 0;
   this->anonymousVarIndex = 0;
+  this->nullaryProcedureType.reset();
   this->vaStartEndFnType = 0;
 
   this->buildTarget->setupBuild();
@@ -240,6 +242,22 @@ Word TargetGenerator::getTypeAllocationSize(TiObject *type)
 {
   PREPARE_ARG(type, tgType, Type);
   return this->buildTarget->getLlvmDataLayout()->getTypeAllocSize(tgType->getLlvmType());
+}
+
+
+TiObject* TargetGenerator::getNullaryProcedureType()
+{
+  if (this->nullaryProcedureType == 0) {
+    TioSharedPtr tgVoidType;
+    if (!this->generateVoidType(tgVoidType)) {
+      throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
+    }
+    SharedMap<TiObject> argTypes;
+    if (!this->generateFunctionType(&argTypes, tgVoidType.get(), false, this->nullaryProcedureType)) {
+      throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
+    }
+  }
+  return this->nullaryProcedureType.get();
 }
 
 

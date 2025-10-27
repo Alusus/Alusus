@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/GlobalItemRepo.cpp
  * Contains the implementation of class Spp::CodeGen::GlobalItemRepo.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -86,21 +86,21 @@ void* GlobalItemRepo::getItemPtr(Int i) const
 }
 
 
-void GlobalItemRepo::setItemInitialized(Int i)
+void GlobalItemRepo::setItemState(Int i, Int s)
 {
   if (i < 0 || i >= this->map.getLength()) {
     throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
   }
-  this->map.valAt(i).initialized = true;
+  this->map.valAt(i).state = s;
 }
 
 
-Bool GlobalItemRepo::isItemInitialized(Int i) const
+Int GlobalItemRepo::getItemState(Int i) const
 {
   if (i < 0 || i >= this->map.getLength()) {
     throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
   }
-  return this->map.valAt(i).initialized;
+  return this->map.valAt(i).state;
 }
 
 } // namespace

@@ -2,7 +2,7 @@
  * @file Spp/Ast/CalleeTracer.cpp
  * Contains the implementation of class Spp::Ast::CalleeTracer.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -70,7 +70,6 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       {
         if (action == Core::Data::Seeker::Action::ERROR) {
           if (result.isNew()) result.notice = getSharedPtr(ti_cast<Core::Notices::Notice>(obj));
-          ASSERT(result.notice != 0);
           return Core::Data::Seeker::Verb::MOVE;
         } else if (action == Core::Data::Seeker::Action::OWNER_SCOPE) {
           if (tracingAlias == 0 || result.isNameMatched()) return Core::Data::Seeker::Verb::SKIP_GROUP;

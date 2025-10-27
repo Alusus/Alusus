@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the
  * CodeGen namespace.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,6 +35,13 @@ struct GenResult
 };
 
 s_enum(TerminalStatement, UNKNOWN, NO, YES);
+
+s_enum(GlobalVarState,
+  INITIALIZING = 1,
+  INITIALIZED = 2,
+  TERMINATING = 4,
+  TERMINATED = 8
+);
 
 
 //==============================================================================
@@ -121,8 +128,18 @@ inline void removeExtra(OT *object, Char const *name)
   } \
   template <class OT> inline void reset##name(OT *object) { removeExtra(object, #name); }
 
+#define DEFINE_STR_ACCESSORS(name) \
+  template <class OT> inline void set##name(OT *object, Str f) { \
+    setExtra(object, #name, TiStr::create(f)); \
+  } \
+  template <class OT> inline Str get##name(OT *object) { \
+    auto s = tryGetExtra<TiStr>(object, #name); return s != 0 ? s->getStr() : Str(); \
+  } \
+  template <class OT> inline void reset##name(OT *object) { removeExtra(object, #name); }
+
 DEFINE_FLAG_ACCESSORS(AstProcessed);
 DEFINE_FLAG_ACCESSORS(Executed);
+DEFINE_STR_ACCESSORS(MangledName);
 
 } // namespace
 
@@ -149,6 +166,9 @@ class TargetGeneration;
 #include "ExtraDataAccessor.h"
 #include "DestructionNode.h"
 #include "DestructionStack.h"
+#include "DependencyList.h"
+#include "DependencyInfo.h"
+#include "GlobalCtorDtorInfo.h"
 #include "Session.h"
 
 // Data
