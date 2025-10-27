@@ -86,6 +86,6 @@ class TargetTriplet(ExtendedEnum):
         "ppc64le-linux", "ppc64le-linux-release", "linux", "ppc64le", abi="gnu", cmake_generator=None)
     S390X_LINUX = _CombinedTargetTriplet(
         "s390x-linux", "s390x-linux-release", "linux", "s390x", abi="gnu", cmake_generator=None)
-    X64_OSX = _CombinedTargetTriplet(
-        "x64-osx", "x64-osx-release", "darwin", "x86_64", cmake_generator=_get_unix_cmake_generator())
+    ARM64_OSX = _CombinedTargetTriplet(
+        "arm64-osx", "arm64-osx-release", "darwin", "arm64", cmake_generator=_get_unix_cmake_generator())
     # TODO: Add more targets here when we add support building for.
