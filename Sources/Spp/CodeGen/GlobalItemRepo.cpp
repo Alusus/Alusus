@@ -85,22 +85,4 @@ void* GlobalItemRepo::getItemPtr(Int i) const
   return this->map.valAt(i).ptr;
 }
 
-
-void GlobalItemRepo::setItemState(Int i, Int s)
-{
-  if (i < 0 || i >= this->map.getLength()) {
-    throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
-  }
-  this->map.valAt(i).state = s;
-}
-
-
-Int GlobalItemRepo::getItemState(Int i) const
-{
-  if (i < 0 || i >= this->map.getLength()) {
-    throw EXCEPTION(InvalidArgumentException, S("i"), S("Out of range."), i);
-  }
-  return this->map.valAt(i).state;
-}
-
 } // namespace

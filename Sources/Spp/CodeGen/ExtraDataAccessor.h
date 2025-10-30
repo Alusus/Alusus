@@ -41,7 +41,6 @@ class ExtraDataAccessor : public TiObject
   //============================================================================
   // Member Variables
 
-  private: Str idPrefix;
   private: Str idCodeGenData;
   private: Str idAutoCtor;
   private: Str idAutoCtorType;
@@ -56,32 +55,29 @@ class ExtraDataAccessor : public TiObject
   //============================================================================
   // Constructor & Destructor
 
-  public: ExtraDataAccessor(Char const *prefix = "")
+  public: ExtraDataAccessor(Char const *prefix = "", Char const *sharedPrefix = 0)
   {
-    this->setIdPrefix(prefix);
+    this->setIdPrefix(prefix, sharedPrefix);
   }
 
 
   //============================================================================
   // Member Functions
 
-  public: void setIdPrefix(Char const *prefix)
+  public: void setIdPrefix(Char const *prefix, Char const *sharedPrefix = 0)
   {
-    this->idPrefix = prefix;
-    this->idCodeGenData = this->idPrefix + S("codeGenData");
-    this->idAutoCtor = this->idPrefix + S("autoCtor");
-    this->idAutoCtorType = this->idPrefix + S("autoCtorType");
-    this->idAutoDtor = this->idPrefix + S("autoDtor");
-    this->idAutoDtorType = this->idPrefix + S("autoDtorType");
-    this->idCodeGenFailed = this->idPrefix + S("codeGenFailed");
-    this->idInitStatementGenIndex = this->idPrefix + S("initStatementGenIndex");
-    this->idBuildId = this->idPrefix + S("buildId");
-    this->idGlobalVarState = this->idPrefix + S("globalVarState");
-  }
+    Str idPrefix = prefix;
+    Str sharedIdPrefix = sharedPrefix != 0 ? Str(sharedPrefix) : idPrefix;
+    this->idCodeGenData = idPrefix + S("codeGenData");
+    this->idAutoCtor = idPrefix + S("autoCtor");
+    this->idAutoCtorType = idPrefix + S("autoCtorType");
+    this->idAutoDtor = idPrefix + S("autoDtor");
+    this->idAutoDtorType = idPrefix + S("autoDtorType");
+    this->idCodeGenFailed = idPrefix + S("codeGenFailed");
+    this->idInitStatementGenIndex = idPrefix + S("initStatementGenIndex");
 
-  public: Str const& getIdPrefix() const
-  {
-    return this->idPrefix;
+    this->idBuildId = sharedIdPrefix + S("buildId");
+    this->idGlobalVarState = sharedIdPrefix + S("globalVarState");
   }
 
   DEFINE_EXTRA_ACCESSORS(CodeGenData);

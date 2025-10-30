@@ -266,7 +266,15 @@ Bool AstProcessor::_processFunctionBody(TiObject *self, Spp::Ast::Function *func
   VALIDATE_NOT_NULL(func);
   auto body = func->getBody().get();
   if (body == 0) return true;
-  if (isAstProcessed(body)) return true;
+  auto state = getAstProcessingState(body);
+  if (state == AstProcessingState::PROCESSED) return true;
+  if (state == AstProcessingState::PROCESSING) {
+    astProcessor->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(func->findSourceLocation())
+    );
+    return false;
+  }
+  setAstProcessingState(body, AstProcessingState::PROCESSING);
   LOG(
     Spp::LogLevel::PREPROCESS, S("Preprocessing function body: ") << astProcessor->astHelper->getFunctionName(func)
   );
@@ -274,7 +282,7 @@ Bool AstProcessor::_processFunctionBody(TiObject *self, Spp::Ast::Function *func
   LOG(
     Spp::LogLevel::PREPROCESS, S("Preprocessing function body: ") << astProcessor->astHelper->getFunctionName(func) << " ... DONE"
   );
-  setAstProcessed(body, true);
+  setAstProcessingState(body, AstProcessingState::PROCESSED);
   return result;
 }
 
@@ -285,7 +293,15 @@ Bool AstProcessor::_processTypeBody(TiObject *self, Spp::Ast::UserType *type)
   VALIDATE_NOT_NULL(type);
   auto body = type->getBody().get();
   if (body == 0) return true;
-  if (isAstProcessed(body)) return true;
+  auto state = getAstProcessingState(body);
+  if (state == AstProcessingState::PROCESSED) return true;
+  if (state == AstProcessingState::PROCESSING) {
+    astProcessor->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(type->findSourceLocation())
+    );
+    return false;
+  }
+  setAstProcessingState(body, AstProcessingState::PROCESSING);
   LOG(
     Spp::LogLevel::PREPROCESS, S("Preprocessing type body: ") << astProcessor->astHelper->resolveNodePath(type)
   );
@@ -293,7 +309,7 @@ Bool AstProcessor::_processTypeBody(TiObject *self, Spp::Ast::UserType *type)
   LOG(
     Spp::LogLevel::PREPROCESS, S("Preprocessing type body: ") << astProcessor->astHelper->resolveNodePath(type) << " ... DONE"
   );
-  setAstProcessed(body, true);
+  setAstProcessingState(body, AstProcessingState::PROCESSED);
   return result;
 }
 

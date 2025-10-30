@@ -39,3 +39,10 @@ CircularGen1
 CircularGen2
 CircularGen3
 CircularGen4
+[0;31mERROR SPPG1040: Circular code generation encountered while generating user type.[0m
+  - preprocess_statement_test.alusus (253,1)
+    preprocess_statement_test.alusus (261,12)
+[0;31mERROR SPPG1041: Circular code generation encountered while generating function.[0m
+  preprocess_statement_test.alusus (272,9)
+[0;31mERROR SPPG1041: Circular code generation encountered while generating function.[0m
+  preprocess_statement_test.alusus (282,9)

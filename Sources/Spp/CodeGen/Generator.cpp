@@ -435,9 +435,6 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
             return false;
           }
           generator->globalItemRepo->addItem(name, size);
-          state = 0;
-        } else {
-          state = generator->globalItemRepo->getItemState(itemIndex);
         }
       }
 
@@ -1389,38 +1386,16 @@ Str Generator::getTempVarName()
 
 void Generator::setGlobalVarState(Session *session, Core::Data::Node* astVar, Int state)
 {
-  if (session->isOfflineExecution()) {
-    session->getEda()->setGlobalVarState<TiInt>(astVar, newSrdObj<TiInt>(state));
-  } else {
-    auto mangledName = this->getGlobalVarMangledName(astVar);
-    auto i = this->globalItemRepo->findItem(mangledName);
-    if (i == -1) {
-      throw EXCEPTION(GenericException, Str(S("Setting state of unregistered global variable: ")) + mangledName);
-    } else {
-      this->globalItemRepo->setItemState(i, state);
-    }
-  }
+  if (!astVar->isA<Core::Data::Ast::Definition>()) astVar = astVar->getOwner();
+  session->getEda()->setGlobalVarState<TiInt>(astVar, newSrdObj<TiInt>(state));
 }
 
 
 Int Generator::getGlobalVarState(Session *session, Core::Data::Node* astVar)
 {
-  if (session->isOfflineExecution()) {
-    auto state = session->getEda()->tryGetGlobalVarState<TiInt>(astVar);
-    if (state == 0) {
-      return 0;
-    } else {
-      return state->get();
-    }
-  } else {
-    auto mangledName = this->getGlobalVarMangledName(astVar);
-    auto i = this->globalItemRepo->findItem(mangledName);
-    if (i == -1) {
-      return 0;
-    } else {
-      return this->globalItemRepo->getItemState(i);
-    }
-  }
+  if (!astVar->isA<Core::Data::Ast::Definition>()) astVar = astVar->getOwner();
+  auto state = session->getEda()->tryGetGlobalVarState<TiInt>(astVar);
+  return state == 0 ? 0 : state->get();
 }
 
 

@@ -25,9 +25,8 @@ class GlobalItemRepo
   {
     Word size;
     void *ptr;
-    Int state;
-    Entry(): size(0), ptr(0), state(0) {}
-    Entry(Word s, void *p): size(s), ptr(p), state(0) {}
+    Entry(): size(0), ptr(0) {}
+    Entry(Word s, void *p): size(s), ptr(p) {}
   };
 
 
@@ -63,10 +62,6 @@ class GlobalItemRepo
   public: Word getItemSize(Int i) const;
 
   public: void* getItemPtr(Int i) const;
-
-  public: void setItemState(Int i, Int s);
-
-  public: Int getItemState(Int i) const;
 
   public: Int findItem(Char const *name) const
   {

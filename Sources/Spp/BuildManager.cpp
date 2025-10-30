@@ -94,7 +94,7 @@ void BuildManager::initNonOfflineBuildSessions()
     newSrdObj<Array<CodeGen::GlobalCtorDtorInfo>>(), newSrdObj<Array<CodeGen::GlobalCtorDtorInfo>>(),
     (BuildSession*)0
   );
-  this->preprocessBuildSession->getExtraDataAccessor()->setIdPrefix("preprc");
+  this->preprocessBuildSession->getExtraDataAccessor()->setIdPrefix("preprc", "jit");
 
   this->jitBuildSession = newSrdObj<BuildSession>(
     ++this->buildIdCounter, BuildManager::BuildType::JIT, false, jitTargetGenerator, jitBuildTarget,

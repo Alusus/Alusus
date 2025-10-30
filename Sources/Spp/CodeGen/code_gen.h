@@ -36,6 +36,12 @@ struct GenResult
 
 s_enum(TerminalStatement, UNKNOWN, NO, YES);
 
+s_enum(AstProcessingState,
+  NOT_STARTED = 0,
+  PROCESSING = 1,
+  PROCESSED = 2
+);
+
 s_enum(GlobalVarState,
   INITIALIZING = 1,
   INITIALIZED = 2,
@@ -137,9 +143,17 @@ inline void removeExtra(OT *object, Char const *name)
   } \
   template <class OT> inline void reset##name(OT *object) { removeExtra(object, #name); }
 
-DEFINE_FLAG_ACCESSORS(AstProcessed);
 DEFINE_FLAG_ACCESSORS(Executed);
 DEFINE_STR_ACCESSORS(MangledName);
+
+// Ast Processing State
+template <class OT> inline Int getAstProcessingState(OT *object) {
+  auto f = tryGetExtra<TiInt>(object, "AstProcessing");
+  return f ? f->get() : AstProcessingState::NOT_STARTED;
+}
+template <class OT> inline void setAstProcessingState(OT *object, Int s) {
+  setExtra(object, "AstProcessing", TiInt::create(s));
+}
 
 } // namespace
 

@@ -3241,6 +3241,10 @@ Bool ExpressionGenerator::addFunctionDependencyIfNeeded(Session *session, Spp::A
   auto eda = session->getEda();
 
   // Check to make sure we are not in a circular dependency.
+  auto state = getAstProcessingState(body);
+  if (state == AstProcessingState::PROCESSING) {
+    return false;
+  }
   auto buildId = eda->tryGetBuildId<TiInt>(func);
   if (buildId != 0 && buildId->get() != session->getBuildId()) {
     return false;
