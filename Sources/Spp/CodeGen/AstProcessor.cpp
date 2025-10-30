@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/AstProcessor.cpp
  * Contains the implementation of class Spp::CodeGen::AstProcessor.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -194,8 +194,6 @@ Bool AstProcessor::_processParamPass(
 }
 
 
-#define PREPROCESS_SESSION_KEY S("preprocessSession")
-
 Bool AstProcessor::_processPreprocessStatement(
   TiObject *self, Spp::Ast::PreprocessStatement *preprocess, TiObject *owner, TiInt indexInOwner
 ) {
@@ -210,36 +208,22 @@ Bool AstProcessor::_processPreprocessStatement(
   Bool result = true;
 
   // Build the preprocess statement.
-  // Was the statement already built? This can happen when the same preprocess statement is encountered again while
-  // finalizing the build of that preprocess statement. We'll store the build session on the element and re-use it
-  // if encountered again in order to avoid double building the statement.
-  SharedPtr<BuildSession> buildSession = preprocess->getExtra(PREPROCESS_SESSION_KEY).ti_cast<BuildSession>();
-  if (buildSession == 0) {
-    buildSession = astProcessor->executing->prepareBuild(
-      BuildManager::BuildType::PREPROCESS, 0, preprocess->getBody().get()
-    );
-    setExtra(preprocess, PREPROCESS_SESSION_KEY, buildSession);
+  auto buildSession = astProcessor->executing->prepareBuild(BuildManager::BuildType::PREPROCESS, 0);
+  astProcessor->executing->prepareExecutionEntry(buildSession.get());
 
-    auto block = preprocess->getBody().ti_cast_get<Ast::Block>();
-    if (block != 0) {
-      for (Int i = 0; i < block->getElementCount(); ++i) {
-        auto childData = block->getElement(i);
-        if (!astProcessor->executing->addElementToBuild(childData, buildSession.get())) result = false;
-      }
-    } else {
-        if (!astProcessor->executing->addElementToBuild(preprocess->getBody().get(), buildSession.get())) result = false;
+  auto block = preprocess->getBody().ti_cast_get<Ast::Block>();
+  if (block != 0) {
+    for (Int i = 0; i < block->getElementCount(); ++i) {
+      auto childData = block->getElement(i);
+      if (!astProcessor->executing->addElementToExecutionEntry(childData, buildSession.get())) result = false;
     }
-
-    astProcessor->executing->finalizeBuild(preprocess->getBody().get(), buildSession.get());
   } else {
-    // Statement has already been generated; We'll only force the building of the remaining deps.
-    auto tmpBuildSession = astProcessor->executing->prepareBuild(BuildManager::BuildType::PREPROCESS, 0, 0);
-    astProcessor->executing->finalizeBuild(0, tmpBuildSession.get());
+      if (!astProcessor->executing->addElementToExecutionEntry(preprocess->getBody().get(), buildSession.get())) {
+        result = false;
+      }
   }
 
-  // If the build session was removed from the element after finalizing the build it means one of the dependencies
-  // executed the statement, so we don't need to execute it again.
-  if (preprocess->getExtra(PREPROCESS_SESSION_KEY) == 0) return true;
+  astProcessor->executing->finalizeExecutionEntry(buildSession.get());
 
   TiObject *prevPreprocessOwner = astProcessor->currentPreprocessOwner;
   Int prevPreprocessInsertionPosition = astProcessor->currentPreprocessInsertionPosition;
@@ -268,8 +252,6 @@ Bool AstProcessor::_processPreprocessStatement(
     astProcessor->executing->execute(buildSession.get());
   }
 
-  preprocess->removeExtra(PREPROCESS_SESSION_KEY);
-
   astProcessor->currentPreprocessOwner = prevPreprocessOwner;
   astProcessor->currentPreprocessInsertionPosition = prevPreprocessInsertionPosition;
   astProcessor->currentPreprocessSourceLocation = prevPreprocessSourceLocation;
@@ -282,14 +264,25 @@ Bool AstProcessor::_processFunctionBody(TiObject *self, Spp::Ast::Function *func
 {
   PREPARE_SELF(astProcessor, AstProcessor);
   VALIDATE_NOT_NULL(func);
+  auto body = func->getBody().get();
+  if (body == 0) return true;
+  auto state = getAstProcessingState(body);
+  if (state == AstProcessingState::PROCESSED) return true;
+  if (state == AstProcessingState::PROCESSING) {
+    astProcessor->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(func->findSourceLocation())
+    );
+    return false;
+  }
+  setAstProcessingState(body, AstProcessingState::PROCESSING);
   LOG(
     Spp::LogLevel::PREPROCESS, S("Preprocessing function body: ") << astProcessor->astHelper->getFunctionName(func)
   );
-  auto body = func->getBody().get();
-  if (body == 0) return true;
-  if (isAstProcessed(body)) return true;
   Bool result = astProcessor->process(body);
-  setAstProcessed(body, true);
+  LOG(
+    Spp::LogLevel::PREPROCESS, S("Preprocessing function body: ") << astProcessor->astHelper->getFunctionName(func) << " ... DONE"
+  );
+  setAstProcessingState(body, AstProcessingState::PROCESSED);
   return result;
 }
 
@@ -300,9 +293,23 @@ Bool AstProcessor::_processTypeBody(TiObject *self, Spp::Ast::UserType *type)
   VALIDATE_NOT_NULL(type);
   auto body = type->getBody().get();
   if (body == 0) return true;
-  if (isAstProcessed(body)) return true;
+  auto state = getAstProcessingState(body);
+  if (state == AstProcessingState::PROCESSED) return true;
+  if (state == AstProcessingState::PROCESSING) {
+    astProcessor->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(type->findSourceLocation())
+    );
+    return false;
+  }
+  setAstProcessingState(body, AstProcessingState::PROCESSING);
+  LOG(
+    Spp::LogLevel::PREPROCESS, S("Preprocessing type body: ") << astProcessor->astHelper->resolveNodePath(type)
+  );
   Bool result = astProcessor->process(body);
-  setAstProcessed(body, true);
+  LOG(
+    Spp::LogLevel::PREPROCESS, S("Preprocessing type body: ") << astProcessor->astHelper->resolveNodePath(type) << " ... DONE"
+  );
+  setAstProcessingState(body, AstProcessingState::PROCESSED);
   return result;
 }
 

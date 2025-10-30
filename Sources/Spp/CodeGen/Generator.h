@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.h
  * Contains the header of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -47,6 +47,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: AstProcessor *astProcessor = 0;
   private: Int tempVarIndex = 0;
+  private: Int funcNameIndex = 0;
 
 
   //============================================================================
@@ -169,6 +170,14 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: static Bool _generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFunc, Session *session);
 
+  private: static void _prepareNullaryProcedure(
+    TiObject *self, Char const *funcName, Session *session, TioSharedPtr &tgFunc, TioSharedPtr &tgContext
+  );
+
+  private: static void _finalizeNullaryProcedure(
+    TiObject *self, Session *session, TiObject *tgFunc, TiObject *tgContext
+  );
+
   private: static Bool _generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astType, Session *session);
 
   private: static Bool _generateVarDef(
@@ -244,12 +253,28 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     TioSharedPtr const &tgThis, Session *session
   );
 
+  private: static Bool _buildDependencies(TiObject *self, Session *session);
+
+  private: Bool buildGlobalCtorOrDtor(
+    Session *session, DependencyList<Core::Data::Node> *deps, Char const *funcName, Bool dtor,
+    std::function<Bool(
+      Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, TiObject *astParams,
+      Session *session
+    )> varOpCallback
+  );
+
   /// @}
 
   /// @name Helper Functions
   /// @{
 
   private: Str getTempVarName();
+
+  private: void setGlobalVarState(Session *session, Core::Data::Node* astVar, Int state);
+
+  private: Int getGlobalVarState(Session *session, Core::Data::Node* astVar);
+
+  private: Str getGlobalVarMangledName(Core::Data::Node *astVar);
 
   /// @}
 

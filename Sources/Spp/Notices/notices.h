@@ -2,7 +2,7 @@
  * @file Spp/Notices/notices.h
  * Contains the definitions and include statements of all user notices.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -297,7 +297,13 @@ DEFINE_NOTICE(InvalidUseInTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPP
 DEFINE_NOTICE(CircularUserTypeCodeGenNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1040", 1,
   "Circular code generation encountered while generating user type."
 );
-DEFINE_NOTICE(UnexpectedTerminalStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1041", 1,
+DEFINE_NOTICE(CircularFunctionCodeGenNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1041", 1,
+  "Circular code generation encountered while generating function."
+);
+DEFINE_NOTICE(CircularGlobalVarInitNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1042", 1,
+  "Circular global var initialization encountered."
+);
+DEFINE_NOTICE(UnexpectedTerminalStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1043", 1,
   "Unexpected terminal statement encountered."
 );
 

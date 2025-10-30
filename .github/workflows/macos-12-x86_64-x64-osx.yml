@@ -1,4 +1,4 @@
-name: macOS 12 X64 - x64-osx
+name: macOS Arm64 - arm64-osx
 
 on: [push, pull_request]
 
@@ -7,7 +7,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-12
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@v3
@@ -16,15 +16,19 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "14.0"
+          xcode-version: "15.4"
+
+      - name: Allow pip to break system packages
+        run: |
+          mkdir -p ~/.config/pip
+          echo "[global]" > ~/.config/pip/pip.conf
+          echo "break-system-packages = true" >> ~/.config/pip/pip.conf
 
       - name: Install dependencies
         run: >
           brew install git ninja python3 ruby libxml2 pkg-config &&
           (yes | brew install p7zip) &&
-          gem install --no-document fpm &&
-
-          curl https://bootstrap.pypa.io/get-pip.py | python3
+          gem install --no-document fpm
 
       - name: Clone and bootstrap vcpkg
         run: >
@@ -35,11 +39,11 @@ jobs:
           cd -
 
       - name: Build Alusus
-        run: ALUSUS_VCPKG_REPO_PATH="$HOME/vcpkg" ./Tools/build.sh --build-type release --clean-and-build --target-triplet x64-osx --build-packages
+        run: ALUSUS_VCPKG_REPO_PATH="$HOME/vcpkg" ./Tools/build.sh --build-type release --clean-and-build --target-triplet arm64-osx --build-packages
 
       - name: Automated tests Alusus
         run: |
-          bash -c "cd ./AlususBuild/Intermediate/x64-osx-release && ctest --output-on-failure"
+          bash -c "cd ./AlususBuild/Intermediate/arm64-osx-release && ctest --output-on-failure"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

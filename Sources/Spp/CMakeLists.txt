@@ -32,6 +32,10 @@ endif()
 # Make sure the compiler finds the source files.
 include_directories("${AlususSpp_SOURCE_DIR}")
 
+# Strip leading and trailing whitespace from the variables.
+string(STRIP "${REQ_LLVM_LIBRARIES}" REQ_LLVM_LIBRARIES)
+string(STRIP "${REQ_SYSTEM_LIBRARIES}" REQ_SYSTEM_LIBRARIES)
+
 # Create the list of files to be added to the project.
 set(AlususSpp_SOURCE_SUBDIRS Ast Notices Handlers Grammar CodeGen LlvmCodeGen Rt)
 set(AlususSpp_SOURCE_FILES

@@ -2,7 +2,7 @@
  * @file Spp/BuildSession.h
  * Contains the header of class Spp::BuildSession.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,83 +27,83 @@ class BuildSession : public TiObject
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<DependencyInfo> depsInfo;
+  private: Int buildId;
+  private: Word buildType;
   private: SharedPtr<CodeGen::ExtraDataAccessor> extraDataAccessor;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
   private: SharedPtr<LlvmCodeGen::BuildTarget> buildTarget;
-  private: Word buildType;
 
-  private: TioSharedPtr voidNoArgsFuncTgType;
-  private: TioSharedPtr globalEntryTgFunc;
-  private: TioSharedPtr globalEntryTgContext;
-  private: Str globalEntryName;
+  private: SharedPtr<Array<CodeGen::GlobalCtorDtorInfo>> globalCtors;
+  private: SharedPtr<Array<CodeGen::GlobalCtorDtorInfo>> globalDtors;
+  private: TioSharedPtr executionEntryTgFunc;
+  private: TioSharedPtr executionEntryTgContext;
+  private: Str executionEntryName;
 
-  private: CodeGen::DestructionStack destructionStack;
   private: CodeGen::Session codeGenSession;
+
+  // This variable is used to enable generating global constructors in a different session.
+  // It's needed in case of running in JIT session. When running in JIT session we still
+  // want to run global constructors in the pre-process session to avoid cases where a
+  // preprocess statement tries to access a global variable scheduled for initialization
+  // in the JIT context, but hasn't yet been initialized, since preprocess statements
+  // share the same global variables as JIT statements.
+  // It's possible to avoid this complexity by dropping the JIT session in favour of
+  // the preprocess session, but the lazy JIT build target used by the preprocess
+  // session is significantly slower than the non-lazy JIT target (can be up to 35%
+  // slower).
+  private: BuildSession *globalCtorSession;
 
 
   //============================================================================
   // Constructor
 
   public: BuildSession(
-    SharedPtr<LlvmCodeGen::TargetGenerator> tg, SharedPtr<LlvmCodeGen::BuildTarget> bt, Bool offlineExec, Word bType
-  ) : depsInfo(newSrdObj<DependencyInfo>())
+    Int bId, Word bType, Bool offlineExec,
+    SharedPtr<LlvmCodeGen::TargetGenerator> tg, SharedPtr<LlvmCodeGen::BuildTarget> bt,
+    SharedPtr<Array<CodeGen::GlobalCtorDtorInfo>> gCtors,
+    SharedPtr<Array<CodeGen::GlobalCtorDtorInfo>> gDtors,
+    BuildSession *globalCtorSess
+  ) : buildId(bId)
+    , buildType(bType)
     , extraDataAccessor(newSrdObj<CodeGen::ExtraDataAccessor>())
     , targetGenerator(tg)
     , buildTarget(bt)
-    , buildType(bType)
+    , globalCtors(gCtors)
+    , globalDtors(gDtors)
+    , globalCtorSession(globalCtorSess)
     , codeGenSession(
+      bId,
       extraDataAccessor.get(),
       tg->getInterface<CodeGen::TargetGeneration>(),
+      offlineExec,
+      globalCtors.get(),
+      globalDtors.get(),
       0,
       0,
-      &destructionStack,
-      &depsInfo->globalVarInitializationDeps,
-      &depsInfo->globalVarDestructionDeps,
-      &depsInfo->funcDeps,
-      offlineExec
+      globalCtorSess == 0 ? 0 : globalCtorSess->getCodeGenSession()
     )
   {
   }
 
-  public: BuildSession(BuildSession *bs)
-    : depsInfo(bs->getDepsInfo())
+  public: BuildSession(Int bId, BuildSession *bs)
+    : buildId(bId)
+    , buildType(bs->getBuildType())
     , extraDataAccessor(bs->getExtraDataAccessor())
     , targetGenerator(bs->getTargetGenerator())
     , buildTarget(bs->getBuildTarget())
-    , buildType(bs->getBuildType())
-    , voidNoArgsFuncTgType(bs->voidNoArgsFuncTgType)
+    , globalCtors(bs->getGlobalCtors())
+    , globalDtors(bs->getGlobalDtors())
+    , globalCtorSession(bs->getGlobalCtorSession())
     , codeGenSession(
+      bId,
       extraDataAccessor.get(),
       targetGenerator->getInterface<CodeGen::TargetGeneration>(),
+      bs->getCodeGenSession()->isOfflineExecution(),
+      globalCtors.get(),
+      globalDtors.get(),
       0,
       0,
-      &destructionStack,
-      &depsInfo->globalVarInitializationDeps,
-      &depsInfo->globalVarDestructionDeps,
-      &depsInfo->funcDeps,
-      bs->getCodeGenSession()->isOfflineExecution()
-    )
-  {
-  }
-
-  public: BuildSession(BuildSession *bs, SharedPtr<DependencyInfo> const &di)
-    : depsInfo(di)
-    , extraDataAccessor(bs->getExtraDataAccessor())
-    , targetGenerator(bs->getTargetGenerator())
-    , buildTarget(bs->getBuildTarget())
-    , buildType(bs->getBuildType())
-    , voidNoArgsFuncTgType(bs->voidNoArgsFuncTgType)
-    , codeGenSession(
-      extraDataAccessor.get(),
-      targetGenerator->getInterface<CodeGen::TargetGeneration>(),
-      0,
-      0,
-      &destructionStack,
-      &depsInfo->globalVarInitializationDeps,
-      &depsInfo->globalVarDestructionDeps,
-      &depsInfo->funcDeps,
-      bs->getCodeGenSession()->isOfflineExecution()
+      bs->getGlobalCtorSession() == 0 ? 0 : bs->getGlobalCtorSession()->getCodeGenSession()
     )
   {
   }
@@ -112,9 +112,14 @@ class BuildSession : public TiObject
   //============================================================================
   // Member Variables
 
-  public: SharedPtr<DependencyInfo> const& getDepsInfo()
+  public: Int getBuildId() const
   {
-    return this->depsInfo;
+    return this->buildId;
+  }
+
+  public: Word getBuildType() const
+  {
+    return this->buildType;
   }
 
   public: SharedPtr<CodeGen::ExtraDataAccessor> const& getExtraDataAccessor()
@@ -132,61 +137,56 @@ class BuildSession : public TiObject
     return this->buildTarget;
   }
 
-  public: Word getBuildType() const
+  public: SharedPtr<Array<CodeGen::GlobalCtorDtorInfo>> const& getGlobalCtors()
   {
-    return this->buildType;
+    return this->globalCtors;
   }
 
-  public: void setVoidNoArgsFuncTgType(TioSharedPtr const &tgType)
+  public: SharedPtr<Array<CodeGen::GlobalCtorDtorInfo>> const& getGlobalDtors()
   {
-    this->voidNoArgsFuncTgType = tgType;
+    return this->globalDtors;
   }
 
-  public: TioSharedPtr const& getVoidNoArgsFuncTgType() const
+  public: void setExecutionEntryTgFunc(TioSharedPtr const &tgFunc)
   {
-    return this->voidNoArgsFuncTgType;
+    this->executionEntryTgFunc = tgFunc;
   }
 
-  public: void setGlobalEntryTgFunc(TioSharedPtr const &tgFunc)
+  public: TioSharedPtr const& getExecutionEntryTgFunc() const
   {
-    this->globalEntryTgFunc = tgFunc;
+    return this->executionEntryTgFunc;
   }
 
-  public: TioSharedPtr const& getGlobalEntryTgFunc() const
+  public: void setExecutionEntryTgContext(TioSharedPtr const &tgContext)
   {
-    return this->globalEntryTgFunc;
+    this->executionEntryTgContext = tgContext;
+    this->codeGenSession.setTgContext(this->executionEntryTgContext.get());
+    this->codeGenSession.setTgAllocContext(this->executionEntryTgContext.get());
   }
 
-  public: void setGlobalEntryTgContext(TioSharedPtr const &tgContext)
+  public: TioSharedPtr const& getExecutionEntryTgContext() const
   {
-    this->globalEntryTgContext = tgContext;
-    this->codeGenSession.setTgContext(this->globalEntryTgContext.get());
-    this->codeGenSession.setTgAllocContext(this->globalEntryTgContext.get());
+    return this->executionEntryTgContext;
   }
 
-  public: TioSharedPtr const& getGlobalEntryTgContext() const
+  public: void setExecutionEntryName(Char const *een)
   {
-    return this->globalEntryTgContext;
+    this->executionEntryName = een;
   }
 
-  public: void setGlobalEntryName(Char const *gen)
+  public: Str const& getExecutionEntryName() const
   {
-    this->globalEntryName = gen;
-  }
-
-  public: Str const& getGlobalEntryName() const
-  {
-    return this->globalEntryName;
-  }
-
-  public: CodeGen::DestructionStack* getDestructionStack()
-  {
-    return &this->destructionStack;
+    return this->executionEntryName;
   }
 
   public: CodeGen::Session* getCodeGenSession()
   {
     return &this->codeGenSession;
+  }
+
+  public: BuildSession* getGlobalCtorSession() const
+  {
+    return this->globalCtorSession;
   }
 
 }; // class

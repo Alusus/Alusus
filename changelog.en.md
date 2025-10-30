@@ -1,5 +1,14 @@
 # Alusus Changelog
 
+## Version 0.14.0 (2025-xx-xx)
+
+* Update the algorithm for building dependencies to avoid circular dead locks when those deadlocks
+  aren't caused by the user's code itself.
+* Added `Fs.isDir` function.
+* Added `alignThis` macro to help with multiple inheritance.
+* Fixed typo in the Arabic localized name of `Time.getDetailedTime`.
+
+
 ## Version 0.13.1 (2025-02-08)
 
 * Fixed an issue with using `Passage` with template arguments.

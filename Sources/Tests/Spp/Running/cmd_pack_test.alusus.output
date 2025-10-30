@@ -19,9 +19,9 @@ testTerminalReturn
   cmd_pack_test.alusus (90,1)
 [0;31mERROR SPPG1021: Unreachable code.[0m
   cmd_pack_test.alusus (102,5)
-[0;31mERROR SPPG1041: Unexpected terminal statement encountered.[0m
+[0;31mERROR SPPG1043: Unexpected terminal statement encountered.[0m
   cmd_pack_test.alusus (107,5)
-[0;31mERROR SPPG1041: Unexpected terminal statement encountered.[0m
+[0;31mERROR SPPG1043: Unexpected terminal statement encountered.[0m
   cmd_pack_test.alusus (108,5)
 [0;31mERROR SPPG1021: Unreachable code.[0m
   cmd_pack_test.alusus (109,20)

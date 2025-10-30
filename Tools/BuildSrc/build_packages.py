@@ -267,5 +267,5 @@ class BuildPackages(common.ExtendedEnum):
 
     X64_LINUX = _BuildPackagesWithPackageBuildingFunc(
         TargetTriplet.X64_LINUX, _create_packages_linux)
-    X64_OSX = _BuildPackagesWithPackageBuildingFunc(
-        TargetTriplet.X64_OSX, _create_packages_osx)
+    ARM64_OSX = _BuildPackagesWithPackageBuildingFunc(
+        TargetTriplet.ARM64_OSX, _create_packages_osx)

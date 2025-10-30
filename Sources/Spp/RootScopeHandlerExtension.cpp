@@ -2,7 +2,7 @@
  * @file Spp/RootScopeHandlerExtension.cpp
  * Contains the implementation of class Spp::RootScopeHandlerExtension.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -75,9 +75,8 @@ void RootScopeHandlerExtension::_addNewElement(
 
     auto executing = ti_cast<Executing>(rootManagerExt->buildManager.get());
 
-    SharedPtr<BuildSession> buildSession = executing->prepareBuild(
-      BuildManager::BuildType::JIT, 0, rootManager->getRootScope().get()
-    );
+    SharedPtr<BuildSession> buildSession = executing->prepareBuild(BuildManager::BuildType::JIT, 0);
+    executing->prepareExecutionEntry(buildSession.get());
 
     Bool execute = true;
 
@@ -87,7 +86,7 @@ void RootScopeHandlerExtension::_addNewElement(
       if (def != 0) {
         auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {
-          if (!executing->addElementToBuild(def.get(), buildSession.get())) execute = false;
+          if (!executing->addElementToExecutionEntry(def.get(), buildSession.get())) execute = false;
         }
       }
     }
@@ -97,10 +96,11 @@ void RootScopeHandlerExtension::_addNewElement(
       auto childData = root->getElement(i);
       if (CodeGen::isExecuted(childData)) continue;
       CodeGen::setExecuted(childData, true);
-      if (!executing->addElementToBuild(childData, buildSession.get())) execute = false;
+      if (!executing->addElementToExecutionEntry(childData, buildSession.get())) execute = false;
     }
 
-    executing->finalizeBuild(rootManager->getRootScope().get(), buildSession.get());
+    if (!executing->finalizeExecutionEntry(buildSession.get())) execute = false;
+  
     if (execute) {
       executing->execute(buildSession.get());
     }

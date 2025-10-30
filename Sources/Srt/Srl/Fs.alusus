@@ -2,7 +2,7 @@
  * @file Srl/Fs.alusus
  * Contains the Srl.Fs module.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -42,8 +42,7 @@ import "String";
 
     // DIRECTORY & FILE FUNCTIONS
 
-    def exists: function(filename: ptr[array[Char]]) => Bool
-    {
+    def exists: function(filename: ptr[array[Char]]) => Bool {
       def file: ptr[File];
       file = openFile(filename, "rb");
       if file == 0 {
@@ -53,6 +52,14 @@ import "String";
         return true;
       }
     };
+
+    def isDir: function(path: ptr[array[Char]]) => Bool {
+        def d: ptr[Dir];
+        d = openDir(path);
+        if d == 0 return false;
+        closeDir(d);
+        return true;
+    }
 
     def rename: @expname[rename] function (oldFilename: ptr[array[Char]], newFilename: ptr[array[Char]]) => Int[32];
 

@@ -2,7 +2,7 @@
  * @file Srl/srl.alusus
  * Contains basic defs of Basic Runtime Library.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,6 +30,9 @@ def null: 0;
 
 macro castRef [obj, T] obj~ptr~cast[ptr[T]]~cnt;
 macro nullRef [T] 0~cast[ptr[T]]~cnt;
+macro alignThis [member] {
+    this~ptr = (this~ptr~cast[ArchWord] - ptr[this_type](0)~cnt.member~ptr~cast[ArchWord])~cast[ptr[this_type]];
+}
 macro getThisSourceFullPath {
     preprocess {
         def dummy: 1;

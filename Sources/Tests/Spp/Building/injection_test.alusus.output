@@ -12,7 +12,7 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @"!o" = global %Outer zeroinitializer
 @"#anonymous1" = private constant [34 x i8] c"o.getA()=%d, o.getI()=%d, o()=%d\0A\00"
 @"#anonymous2" = private constant [75 x i8] c"getO().getA()=%d, getO().getI()=%d, getO().i=%d, getO().k=%d, getO()()=%d\0A\00"
-@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__3, i32* null }]
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__constructor__1, i32* null }]
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
 define void @"test()"() {
@@ -109,7 +109,7 @@ define %Outer* @"getO()=>(ref[Outer])"() {
   ret %Outer* @"!o"
 }
 
-define void @__constructor__3() {
+define void @__constructor__1() {
 "#block6":
   call void @Outer.__autoConstruct__(%Outer* @"!o")
   ret void

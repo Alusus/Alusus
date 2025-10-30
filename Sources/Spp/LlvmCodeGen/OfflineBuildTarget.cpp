@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/OfflineBuildTarget.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::OfflineBuildTarget.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -82,9 +82,8 @@ void OfflineBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
 
 Str OfflineBuildTarget::generateLlvmIr(Array<Str> const *ctorNames, Array<Str> const *dtorNames)
 {
-  if (this->llvmModule == 0) {
-    throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
-  }
+  // Make sure the global llvm module exists.
+  this->getGlobalLlvmModule();
 
   this->buildCtorOrDtorArray(ctorNames, "llvm.global_ctors");
   this->buildCtorOrDtorArray(dtorNames, "llvm.global_dtors");
@@ -101,9 +100,9 @@ void OfflineBuildTarget::generateObjectFile(
   Char const *filename, Array<Str> const *ctorNames, Array<Str> const *dtorNames
 ) {
   VALIDATE_NOT_NULL(filename);
-  if (this->llvmModule == 0) {
-    throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
-  }
+
+  // Make sure the global llvm module exists.
+  this->getGlobalLlvmModule();
 
   this->buildCtorOrDtorArray(ctorNames, "llvm.global_ctors");
   this->buildCtorOrDtorArray(dtorNames, "llvm.global_dtors");
@@ -131,9 +130,8 @@ void OfflineBuildTarget::generateObjectFile(
 
 void OfflineBuildTarget::buildCtorOrDtorArray(Array<Str> const *funcNames, Char const *globalVarName)
 {
-  if (this->llvmModule == 0) {
-    throw EXCEPTION(GenericException, S("LLVM module is not generated yet."));
-  }
+  // Make sure the global llvm module exists.
+  this->getGlobalLlvmModule();
 
   // Prepare needed types.
   if (this->llvmGlobalCtorDtorEntryTypes.llvmStructType == 0) {
@@ -161,7 +159,7 @@ void OfflineBuildTarget::buildCtorOrDtorArray(Array<Str> const *funcNames, Char 
   // Prepare array items.
   std::vector<llvm::Constant*> llvmArrayItems;
   Int priority = 0;
-  for (Int i = funcNames->getLength() - 1; i >= 0; --i) {
+  for (Int i = 0; i < funcNames->getLength(); ++i) {
     llvm::Function *llvmFunc = this->llvmModule->getFunction(funcNames->at(i).getBuf());
     if (!llvmFunc) {
       throw EXCEPTION(GenericException, S("Failed to find constructor function."));

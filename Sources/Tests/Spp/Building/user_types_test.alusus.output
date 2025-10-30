@@ -40,10 +40,10 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @"#anonymous5" = private constant [27 x i8] c"getPoint(1, 2, 3f).y = %d\0A\00"
 @"#anonymous6" = private constant [15 x i8] c"gpoint.x = %d\0A\00"
 @"#anonymous7" = private constant [15 x i8] c"gpoing.y = %d\0A\00"
-@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__, i32* null }]
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__2, i32* null }]
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @__entry__() {
+define void @__entry__2() {
 "#block0":
   ret void
 }

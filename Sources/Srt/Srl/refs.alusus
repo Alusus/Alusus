@@ -3,7 +3,9 @@ import "Core/Basic";
 import "Core/Data";
 import "Spp/Ast";
 
-// Pre-generate shared refs to avoid circular dependency.
+// Pre-generate shared refs to avoid circular dependency. These types depend on SrdRef in their
+// preprocess, while these casting features of SrdRef depend on those types. So we'll pre-generate
+// these SrdRef types without these extra casting features to break the circular dependency.
 if 1 {
     Srl.SrdRef[Core.Basic.TiObject]();
     Srl.SrdRef[Core.Data.Ast.MergeList]();

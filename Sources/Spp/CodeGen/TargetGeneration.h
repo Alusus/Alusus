@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TargetGeneration.h
  * Contains the header of class Spp::CodeGen::TargetGeneration.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,6 +44,7 @@ class TargetGeneration : public ObjTiInterface
       &this->generateStructTypeDecl,
       &this->generateStructTypeBody,
       &this->getTypeAllocationSize,
+      &this->getNullaryProcedureType,
       &this->generateFunctionType,
       &this->generateFunctionDecl,
       &this->prepareFunctionBody,
@@ -172,6 +173,8 @@ class TargetGeneration : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(getTypeAllocationSize, Word, (TiObject* /* type */));
+
+  public: METHOD_BINDING_CACHE(getNullaryProcedureType, TiObject*);
 
   /// @}
 

@@ -245,3 +245,47 @@ preprocess {
     def r: CircularGen4b;
     Console.print("CircularGen4\n");
 }
+
+// Test circular generation error cases
+
+// Circular user type gen
+
+class CircularGen5 {
+    def i: Int;
+    preprocess {
+        main0();
+    }
+}
+
+function main0() {
+    def a: CircularGen5;
+}
+
+def cg5: CircularGen5;
+cg5.i = 0;
+
+// Circular direct function gen
+
+function circularGen6() {
+    Console.print("Hello, World!\n");
+    preprocess {
+        circularGen6();
+    }
+}
+
+circularGen6();
+
+// Circular indirect function gen
+
+function circularGen7Caller {
+    preprocess {
+        circularGen7();
+    }
+}
+
+function circularGen7() {
+    Console.print("Hello, World!\n");
+    circularGen7Caller();
+}
+
+circularGen7();

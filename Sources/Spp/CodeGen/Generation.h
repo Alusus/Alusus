@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generation.h
  * Contains the header of class Spp::CodeGen::Generation.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -41,6 +41,8 @@ class Generation : public ObjTiInterface
       &this->generateModuleInit,
       &this->generateFunction,
       &this->generateFunctionDecl,
+      &this->prepareNullaryProcedure,
+      &this->finalizeNullaryProcedure,
       &this->generateUserTypeBody,
       &this->generateVarDef,
       &this->generateTempVar,
@@ -57,7 +59,8 @@ class Generation : public ObjTiInterface
       &this->generateFunctionCall,
       &this->getGeneratedType,
       &this->getTypeAllocationSize,
-      &this->addThisDefinition
+      &this->addThisDefinition,
+      &this->buildDependencies
     });
   }
 
@@ -95,6 +98,16 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateFunctionDecl,
     Bool, (Spp::Ast::Function* /* astFunc */, Session* /* session */)
+  );
+
+  public: METHOD_BINDING_CACHE(prepareNullaryProcedure,
+    void, (
+      Char const* /* funcName */, Session* /* session */, TioSharedPtr& /* tgFunc */, TioSharedPtr& /* tgContext */
+    )
+  );
+
+  public: METHOD_BINDING_CACHE(finalizeNullaryProcedure,
+    void, (Session* /* session */, TiObject* /* tgFunc */, TiObject* /* tgContext */)
   );
 
   public: METHOD_BINDING_CACHE(generateUserTypeBody,
@@ -193,6 +206,8 @@ class Generation : public ObjTiInterface
       TioSharedPtr const& /* tgThis */, Session* /* session */
     )
   );
+
+  public: METHOD_BINDING_CACHE(buildDependencies, Bool, (Session* /* session */));
 
   /// @}
 

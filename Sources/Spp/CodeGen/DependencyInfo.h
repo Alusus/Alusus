@@ -1,8 +1,8 @@
 /**
- * @file Spp/DependencyInfo.h
- * Contains the header of class Spp::DependencyInfo.
+ * @file Spp/CodeGen/DependencyInfo.h
+ * Contains the header of class Spp::CodeGen::DependencyInfo.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -10,10 +10,10 @@
  */
 //==============================================================================
 
-#ifndef SPP_DEPENDENCYINFO_H
-#define SPP_DEPENDENCYINFO_H
+#ifndef SPP_CODEGEN_DEPENDENCYINFO_H
+#define SPP_CODEGEN_DEPENDENCYINFO_H
 
-namespace Spp
+namespace Spp::CodeGen
 {
 
 struct DependencyInfo
@@ -21,8 +21,6 @@ struct DependencyInfo
   public: DependencyList<Core::Data::Node> globalVarInitializationDeps;
   public: DependencyList<Core::Data::Node> globalVarDestructionDeps;
   public: DependencyList<Ast::Function> funcDeps;
-  public: Array<GlobalCtorDtorInfo> globalCtors;
-  public: Array<GlobalCtorDtorInfo> globalDtors;
 };
 
 } // namespace

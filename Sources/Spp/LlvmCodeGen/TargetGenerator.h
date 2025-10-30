@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/TargetGenerator.h
  * Contains the header of class Spp::CodeGen::TargetGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,6 +40,7 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   private: Core::Main::RootManager *rootManager;
   private: BuildTarget *buildTarget = 0;
   private: Bool perFunctionModules = false;
+  private: TioSharedPtr nullaryProcedureType;
   private: llvm::FunctionType *vaStartEndFnType = 0;
 
   private: Int blockIndex = 0;
@@ -110,6 +111,8 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   );
 
   public: Word getTypeAllocationSize(TiObject *type);
+
+  public: TiObject* getNullaryProcedureType();
 
   private: llvm::FunctionType* getVaStartEndFnType();
 

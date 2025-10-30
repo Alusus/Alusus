@@ -3,7 +3,7 @@
  * The main header file of the SPP. Contains include statements for the entire
  * Standard Programming Paradigm library.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,7 +33,7 @@ using namespace Core;
 s_enum(LogLevel,
   PREPROCESS = 64,
   CODEGEN = 128,
-  LLVMCODEGEN_IR = 268,
+  LLVMCODEGEN_IR = 256,
   LLVMCODEGEN_DIAGNOSTIC = 512
 );
 
@@ -59,9 +59,6 @@ namespace Spp
 
 // Alusus's SPP base header files
 
-#include "GlobalCtorDtorInfo.h"
-#include "DependencyList.h"
-#include "DependencyInfo.h"
 #include "Executing.h"
 #include "ExpressionComputation.h"
 

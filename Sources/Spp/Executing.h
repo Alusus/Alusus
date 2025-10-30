@@ -2,7 +2,7 @@
  * @file Spp/Executing.h
  * Contains the header of class Spp::Executing.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -37,8 +37,9 @@ class Executing : public ObjTiInterface
   {
     Basic::initBindingCaches(this->owner, {
       &this->prepareBuild,
-      &this->addElementToBuild,
-      &this->finalizeBuild,
+      &this->prepareExecutionEntry,
+      &this->finalizeExecutionEntry,
+      &this->addElementToExecutionEntry,
       &this->execute
     });
   }
@@ -66,13 +67,15 @@ class Executing : public ObjTiInterface
   /// @{
 
   public: METHOD_BINDING_CACHE(prepareBuild,
-    SharedPtr<BuildSession>, (Int /* buildType */, Char const* /* targetTriple */, TiObject* /* globalFuncElement */)
+    SharedPtr<BuildSession>, (Int /* buildType */, Char const* /* targetTriple */)
   );
 
-  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession* /* buildSession */));
+  public: METHOD_BINDING_CACHE(prepareExecutionEntry, void, (BuildSession* /* buildSession */));
 
-  public: METHOD_BINDING_CACHE(finalizeBuild,
-    Bool, (TiObject* /* globalFuncElement */, BuildSession* /* buildSession */)
+  public: METHOD_BINDING_CACHE(finalizeExecutionEntry, Bool, (BuildSession* /* buildSession */));
+
+  public: METHOD_BINDING_CACHE(addElementToExecutionEntry,
+    Bool, (TiObject* /* element */, BuildSession* /* buildSession */)
   );
 
   public: METHOD_BINDING_CACHE(execute,

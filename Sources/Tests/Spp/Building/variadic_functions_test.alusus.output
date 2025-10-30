@@ -45,10 +45,10 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 @"#anonymous17" = private constant [6 x i8] c"hello\00"
 @"#anonymous18" = private constant [6 x i8] c"world\00"
 @"#anonymous19" = private constant [6 x i8] c"hello\00"
-@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__, i32* null }]
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, void ()* @__entry__2, i32* null }]
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @__entry__() {
+define void @__entry__2() {
 "#block0":
   ret void
 }
@@ -80,7 +80,7 @@ define void @"Main.f0(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
 }
 
 define void @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* %a, ...) {
-"#block4":
+"#block3":
   %__vaList = alloca %__VaList
   %0 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_start(i8* %0)
@@ -92,7 +92,7 @@ define void @"Main.f1(ptr[Word[8]],ArgPack[any,0,0])"(i8* %a, ...) {
 }
 
 define void @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* %a, ...) {
-"#block6":
+"#block4":
   %__vaList = alloca %__VaList
   %0 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_start(i8* %0)
@@ -104,7 +104,7 @@ define void @"Main.f2(ptr[Word[8]],ArgPack[any,1,0])"(i8* %a, ...) {
 }
 
 define void @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* %a, ...) {
-"#block7":
+"#block5":
   %__vaList = alloca %__VaList
   %0 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_start(i8* %0)
@@ -116,51 +116,51 @@ define void @"Main.f3(ptr[Word[8]],ArgPack[ptr[Word[8]],1,2])"(i8* %a, ...) {
 }
 
 define i32 @"Main.f5(Int[32],ArgPack[Int[32],0,0])=>(Int[32])"(i32 %count, ...) {
-"#block9":
+"#block6":
   %__vaList = alloca %__VaList
   %0 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_start(i8* %0)
   %count1 = alloca i32
   store i32 %count, i32* %count1
-  br label %"#block10"
+  br label %"#block7"
 
-"#block10":                                       ; preds = %"#block14", %"#block9"
+"#block7":                                        ; preds = %"#block11", %"#block6"
   %1 = load i32, i32* %count1
   %2 = sub nsw i32 %1, 1
   store i32 %2, i32* %count1
   %3 = icmp sgt i32 %2, 0
-  br i1 %3, label %"#block11", label %"#block12"
+  br i1 %3, label %"#block8", label %"#block9"
 
-"#block11":                                       ; preds = %"#block10"
+"#block8":                                        ; preds = %"#block7"
   %4 = va_arg %__VaList* %__vaList, i32
   %5 = icmp sgt i32 %4, 0
-  br i1 %5, label %"#block13", label %"#block14"
+  br i1 %5, label %"#block10", label %"#block11"
 
-"#block12":                                       ; preds = %"#block10"
+"#block9":                                        ; preds = %"#block7"
   %6 = load i32, i32* %count1
   %7 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_end(i8* %7)
   ret i32 %6
 
-"#block13":                                       ; preds = %"#block11"
+"#block10":                                       ; preds = %"#block8"
   %8 = load i32, i32* %count1
   %9 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_end(i8* %9)
   ret i32 %8
 
-"#block14":                                       ; preds = %"#block11"
-  br label %"#block10"
+"#block11":                                       ; preds = %"#block8"
+  br label %"#block7"
 }
 
 define void @"Main.Mt.~init(ref[Main.Mt])"(%Main_Mt* %this) {
-"#block16":
+"#block12":
   %this1 = alloca %Main_Mt*
   store %Main_Mt* %this, %Main_Mt** %this1
   ret void
 }
 
 define void @"Main.f6(Int[32],ArgPack[any,0,0])"(i32 %count, ...) {
-"#block15":
+"#block13":
   %__vaList = alloca %__VaList
   %0 = bitcast %__VaList* %__vaList to i8*
   call void @llvm.va_start(i8* %0)
@@ -181,44 +181,8 @@ declare void @llvm.va_start(i8*) #0
 ; Function Attrs: nounwind
 declare void @llvm.va_end(i8*) #0
 
-define void @"Main.f1(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
-"#block3":
-  %__vaList = alloca %__VaList
-  %0 = bitcast %__VaList* %__vaList to i8*
-  call void @llvm.va_start(i8* %0)
-  %a1 = alloca i8*
-  store i8* %a, i8** %a1
-  %1 = bitcast %__VaList* %__vaList to i8*
-  call void @llvm.va_end(i8* %1)
-  ret void
-}
-
-define void @"Main.f1(Int[32],ArgPack[any,0,0])"(i32 %a, ...) {
-"#block5":
-  %__vaList = alloca %__VaList
-  %0 = bitcast %__VaList* %__vaList to i8*
-  call void @llvm.va_start(i8* %0)
-  %a1 = alloca i32
-  store i32 %a, i32* %a1
-  %1 = bitcast %__VaList* %__vaList to i8*
-  call void @llvm.va_end(i8* %1)
-  ret void
-}
-
-define void @"Main.f4(ptr[Word[8]],ArgPack[Word[8],0,0])"(i8* %a, ...) {
-"#block8":
-  %__vaList = alloca %__VaList
-  %0 = bitcast %__VaList* %__vaList to i8*
-  call void @llvm.va_start(i8* %0)
-  %a1 = alloca i8*
-  store i8* %a, i8** %a1
-  %1 = bitcast %__VaList* %__vaList to i8*
-  call void @llvm.va_end(i8* %1)
-  ret void
-}
-
 define %Main_Mt* @"Main.Mt.=(ref[Main.Mt],ref[Main.Mt])=>(ref[Main.Mt])"(%Main_Mt* %this, %Main_Mt* %r) {
-"#block17":
+"#block14":
   %this1 = alloca %Main_Mt*
   store %Main_Mt* %this, %Main_Mt** %this1
   %r2 = alloca %Main_Mt*
@@ -231,6 +195,42 @@ define %Main_Mt* @"Main.Mt.=(ref[Main.Mt],ref[Main.Mt])=>(ref[Main.Mt])"(%Main_M
   store i32 %4, i32* %3
   %5 = load %Main_Mt*, %Main_Mt** %this1
   ret %Main_Mt* %5
+}
+
+define void @"Main.f1(ptr[Word[8]],ArgPack[Int[32],0,0])"(i8* %a, ...) {
+"#block15":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
+  ret void
+}
+
+define void @"Main.f1(Int[32],ArgPack[any,0,0])"(i32 %a, ...) {
+"#block16":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
+  %a1 = alloca i32
+  store i32 %a, i32* %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
+  ret void
+}
+
+define void @"Main.f4(ptr[Word[8]],ArgPack[Word[8],0,0])"(i8* %a, ...) {
+"#block17":
+  %__vaList = alloca %__VaList
+  %0 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_start(i8* %0)
+  %a1 = alloca i8*
+  store i8* %a, i8** %a1
+  %1 = bitcast %__VaList* %__vaList to i8*
+  call void @llvm.va_end(i8* %1)
+  ret void
 }
 
 attributes #0 = { nounwind }

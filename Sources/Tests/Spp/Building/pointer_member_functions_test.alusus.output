@@ -9,8 +9,8 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 %N2 = type { %N, i32 }
 
 @"!N.vtable" = global %N_vtable zeroinitializer
-@"!N2.vtable" = global %N_vtable zeroinitializer
 @"#anonymous0" = private constant [14 x i8] c"N.printIt %d\0A\00"
+@"!N2.vtable" = global %N_vtable zeroinitializer
 @"#anonymous1" = private constant [15 x i8] c"N2.printIt %d\0A\00"
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
@@ -64,7 +64,7 @@ define void @N.__autoConstruct__(%N* %this) {
 }
 
 define void @"N.printItImpl(ref[N])"(%N* %this) {
-"#block3":
+"#block2":
   %this1 = alloca %N*
   store %N* %this, %N** %this1
   %0 = load %N*, %N** %this1
@@ -74,8 +74,10 @@ define void @"N.printItImpl(ref[N])"(%N* %this) {
   ret void
 }
 
+declare i32 @printf(i8*, ...)
+
 define void @N2.__autoConstruct__(%N2* %this) {
-"#block2":
+"#block3":
   %0 = getelementptr %N2, %N2* %this, i32 0, i32 0
   call void @N.__autoConstruct__(%N* %0)
   %1 = getelementptr %N2, %N2* %this, i32 0, i32 0
@@ -106,8 +108,6 @@ define void @"N2.printItImpl()(ref[N2])"(%N2* %this) {
   %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15 x i8]* @"#anonymous1", i32 0, i32 0), i32 %7)
   ret void
 }
-
-declare i32 @printf(i8*, ...)
 ------------------------------------------------------------
 
 [0;31mERROR SPPG1020: Invalid access to global definition.[0m

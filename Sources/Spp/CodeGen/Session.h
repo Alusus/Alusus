@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Session.h
  * Contains the header of class Spp::CodeGen::Session.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,85 +27,112 @@ class Session : public TiObject
   //============================================================================
   // Member Variables
 
+  private: Int buildId;
   private: ExtraDataAccessor *eda;
   private: TargetGeneration *tg;
+  private: Bool offlineExecution;
+  private: Array<GlobalCtorDtorInfo> *globalCtors;
+  private: Array<GlobalCtorDtorInfo> *globalDtors;
   private: TiObject *tgContext;
   private: TiObject *tgAllocContext;
-  private: DestructionStack *destructionStack;
-  private: DependencyList<Core::Data::Node> *globalVarInitializationDeps;
-  private: DependencyList<Core::Data::Node> *globalVarDestructionDeps;
-  private: DependencyList<Ast::Function> *funcDeps;
-  private: Bool offlineExecution;
-  private: TioSharedPtr tgSelf;
+  private: SharedPtr<DestructionStack> destructionStack;
+  private: SharedPtr<DependencyInfo> depsInfo;
+  private: TioSharedPtr tgSelf; // TODO: Rename to tgSelfVar
   private: Ast::Type *astSelfType;
+
+  // This variable is used to enable generating global constructors in a different session.
+  // It's needed in case of running in JIT session. When running in JIT session we still
+  // want to run global constructors in the pre-process session to avoid cases where a
+  // preprocess statement tries to access a global variable scheduled for initialization
+  // in the JIT context, but hasn't yet been initialized, since preprocess statements
+  // share the same global variables as JIT statements.
+  // It's possible to avoid this complexity by dropping the JIT session in favour of
+  // the preprocess session, but the lazy JIT build target used by the preprocess
+  // session is significantly slower than the non-lazy JIT target (can be up to 35%
+  // slower).
+  private: Session *globalCtorSession;
 
 
   //============================================================================
   // Constructor & Destructor
 
   public: Session(
-    ExtraDataAccessor *eda, TargetGeneration *tg, TiObject *tgc, TiObject *tgac,
-    DestructionStack *ds, DependencyList<Core::Data::Node> *gvInitDeps, DependencyList<Core::Data::Node> *gvDestDeps,
-    DependencyList<Ast::Function> *fDeps, Bool offlineExec
-  ) : eda(eda)
+    Int bId, ExtraDataAccessor *eda, TargetGeneration *tg, Bool offlineExec,
+    Array<GlobalCtorDtorInfo> *globalCtors, Array<GlobalCtorDtorInfo> *globalDtors,
+    TiObject *tgc, TiObject *tgac, Session *globalCtorSess
+  ) : buildId(bId)
+    , eda(eda)
     , tg(tg)
+    , offlineExecution(offlineExec)
+    , globalCtors(globalCtors)
+    , globalDtors(globalDtors)
     , tgContext(tgc)
     , tgAllocContext(tgac)
-    , destructionStack(ds)
-    , globalVarInitializationDeps(gvInitDeps)
-    , globalVarDestructionDeps(gvDestDeps)
-    , funcDeps(fDeps)
-    , offlineExecution(offlineExec)
+    , destructionStack(newSrdObj<DestructionStack>())
+    , depsInfo(newSrdObj<DependencyInfo>())
     , tgSelf(0)
     , astSelfType(0)
+    , globalCtorSession(globalCtorSess)
   {}
 
   public: Session(Session *session, TiObject *tgc, TiObject *tgac)
-    : eda(session->getEda())
-    , tg(session->getTg())
-    , tgContext(tgc)
+    : tgContext(tgc)
     , tgAllocContext(tgac)
+    , buildId(session->getBuildId())
+    , eda(session->getEda())
+    , tg(session->getTg())
+    , offlineExecution(session->isOfflineExecution())
+    , globalCtors(session->getGlobalCtors())
+    , globalDtors(session->getGlobalDtors())
     , destructionStack(session->getDestructionStack())
-    , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
-    , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
-    , funcDeps(session->getFuncDeps())
-    , offlineExecution(session->isOfflineExecution())
+    , depsInfo(session->depsInfo)
     , tgSelf(session->getTgSelf())
     , astSelfType(session->getAstSelfType())
-  {}
-
-  public: Session(Session *session, TiObject *tgc, TiObject *tgac, DestructionStack *ds)
-    : eda(session->getEda())
-    , tg(session->getTg())
-    , tgContext(tgc)
-    , tgAllocContext(tgac)
-    , destructionStack(ds)
-    , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
-    , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
-    , funcDeps(session->getFuncDeps())
-    , offlineExecution(session->isOfflineExecution())
-    , tgSelf(session->getTgSelf())
-    , astSelfType(session->getAstSelfType())
+    , globalCtorSession(session->getGlobalCtorSession())
   {}
 
   public: Session(
-    Session *session, TiObject *tgc, TiObject *tgac, DestructionStack *ds, TioSharedPtr const &tgs, Ast::Type *astst
-  ) : eda(session->getEda())
-    , tg(session->getTg())
-    , tgContext(tgc)
+    Session *session, TiObject *tgc, TiObject *tgac, SharedPtr<DestructionStack> ds, SharedPtr<DependencyInfo> di
+  ) : tgContext(tgc)
     , tgAllocContext(tgac)
     , destructionStack(ds)
-    , globalVarInitializationDeps(session->getGlobalVarInitializationDeps())
-    , globalVarDestructionDeps(session->getGlobalVarDestructionDeps())
-    , funcDeps(session->getFuncDeps())
+    , depsInfo(di)
+    , buildId(session->getBuildId())
+    , eda(session->getEda())
+    , tg(session->getTg())
     , offlineExecution(session->isOfflineExecution())
+    , globalCtors(session->getGlobalCtors())
+    , globalDtors(session->getGlobalDtors())
+    , tgSelf(session->getTgSelf())
+    , astSelfType(session->getAstSelfType())
+    , globalCtorSession(session->getGlobalCtorSession())
+  {}
+
+  public: Session(
+    Session *session, TiObject *tgc, TiObject *tgac, SharedPtr<DestructionStack> ds, SharedPtr<DependencyInfo> di,
+    TioSharedPtr const &tgs, Ast::Type *astst
+  ) : tgContext(tgc)
+    , tgAllocContext(tgac)
+    , destructionStack(ds)
+    , depsInfo(di)
     , tgSelf(tgs)
     , astSelfType(astst)
+    , buildId(session->getBuildId())
+    , eda(session->getEda())
+    , tg(session->getTg())
+    , offlineExecution(session->isOfflineExecution())
+    , globalCtors(session->getGlobalCtors())
+    , globalDtors(session->getGlobalDtors())
+    , globalCtorSession(session->getGlobalCtorSession())
   {}
 
 
   //============================================================================
   // Member Functions
+
+  public: Int getBuildId() const {
+    return this->buildId;
+  }
 
   public: ExtraDataAccessor* getEda() {
     return this->eda;
@@ -115,8 +142,19 @@ class Session : public TiObject
     return this->tg;
   }
 
-  public: void setTgContext(TiObject *tgc)
-  {
+  public: Bool isOfflineExecution() {
+    return this->offlineExecution;
+  }
+
+  public: Array<GlobalCtorDtorInfo>* getGlobalCtors() {
+    return this->globalCtors;
+  }
+
+  public: Array<GlobalCtorDtorInfo>* getGlobalDtors() {
+    return this->globalDtors;
+  }
+
+  public: void setTgContext(TiObject *tgc) {
     this->tgContext = tgc;
   }
 
@@ -124,8 +162,7 @@ class Session : public TiObject
     return this->tgContext;
   }
 
-  public: void setTgAllocContext(TiObject *tgac)
-  {
+  public: void setTgAllocContext(TiObject *tgac) {
     this->tgAllocContext = tgac;
   }
 
@@ -133,24 +170,24 @@ class Session : public TiObject
     return this->tgAllocContext;
   }
 
-  public: DestructionStack* getDestructionStack() {
+  public: SharedPtr<DestructionStack> const& getDestructionStack() {
     return this->destructionStack;
   }
 
+  public: SharedPtr<DependencyInfo> const& getDependencyInfo() {
+    return this->depsInfo;
+  }
+
   public: DependencyList<Core::Data::Node>* getGlobalVarInitializationDeps() {
-    return this->globalVarInitializationDeps;
+    return &this->depsInfo->globalVarInitializationDeps;
   }
 
   public: DependencyList<Core::Data::Node>* getGlobalVarDestructionDeps() {
-    return this->globalVarDestructionDeps;
+    return &this->depsInfo->globalVarDestructionDeps;
   }
 
   public: DependencyList<Ast::Function>* getFuncDeps() {
-    return this->funcDeps;
-  }
-
-  public: Bool isOfflineExecution() {
-    return this->offlineExecution;
+    return &this->depsInfo->funcDeps;
   }
 
   public: void setTgSelf(TioSharedPtr const &tgs) {
@@ -167,6 +204,10 @@ class Session : public TiObject
 
   public: Ast::Type* getAstSelfType() {
     return this->astSelfType;
+  }
+
+  public: Session* getGlobalCtorSession() const {
+    return this->globalCtorSession;
   }
 
 }; // class
