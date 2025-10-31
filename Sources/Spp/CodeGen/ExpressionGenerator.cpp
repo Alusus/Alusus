@@ -2513,21 +2513,35 @@ Bool ExpressionGenerator::_generateVarReference(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  auto tgVar = session->getEda()->tryGetCodeGenData<TiObject>(varAstNode);
-  if (tgVar == 0 && session->getTgContext() != 0) {
-    // Generate the variable definition.
+  TiObject *tgVar = 0;
+  if (session->getTgContext() != 0) {
+    // We only need the var generated if we have a context.
     auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(varAstNode)->getOwner());
     if (varDef == 0) {
-      throw EXCEPTION(GenericException, S("Unexpected error while looking for variable definition."));
-    }
-    if (expGenerator->getAstHelper()->getVariableDomain(varDef) == Ast::DefinitionDomain::GLOBAL) {
+      // This is a temp variable, since it has no definition.
+      // It should already be generated at this point.
+      tgVar = session->getEda()->tryGetCodeGenData<TiObject>(varAstNode);
+      if (tgVar == 0) {
+        // A non-generated temp var is a bug, rather than a user error.
+        throw EXCEPTION(GenericException, S("Unexpected error while looking for variable definition."));
+      }
+    } else if (expGenerator->getAstHelper()->getVariableDomain(varDef) == Ast::DefinitionDomain::GLOBAL) {
+      // This is a global variable. Let's make sure it's generated, and generate it if not.
       if (!g->generateVarDef(varDef, session)) return false;
       tgVar = session->getEda()->getCodeGenData<TiObject>(varAstNode);
     } else {
-      expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
-        Core::Data::Ast::findSourceLocation(refAstNode)
-      ));
-      return false;
+      // This is a local variable.
+      // Local variables should be generated when the definition is encountered by the compiler rather
+      // than only when referenced like is the case with global variables. So, since this is a local
+      // variable, it should've already been generated. If it's not, then it's a user error since it
+      // means the user is acccessing the variable above their definition.
+      tgVar = session->getEda()->tryGetCodeGenData<TiObject>(varAstNode);
+      if (tgVar == 0) {
+        expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
+          Core::Data::Ast::findSourceLocation(refAstNode)
+        ));
+        return false;
+      }
     }
   }
 

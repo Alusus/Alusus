@@ -19,7 +19,7 @@ namespace Spp { namespace CodeGen
 struct GlobalCtorDtorInfo
 {
   public: Str name;
-  public: Array<Str> initializedVarNames;
+  public: Array<Str> varNames;
   GlobalCtorDtorInfo() {}
   GlobalCtorDtorInfo(Str const &n): name(n) {}
 };
