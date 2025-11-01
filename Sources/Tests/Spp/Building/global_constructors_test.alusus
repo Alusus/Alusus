@@ -19,3 +19,19 @@ def a: A;
 }
 
 Spp.buildMgr.dumpLlvmIrForElement(test~ast);
+
+// Test the order of global variable initializations.
+
+def global1: Int(3);
+def global2: Int(global1 + 1);
+
+func testGlobalVarInitOrder () {
+  global1~ptr;
+  depFunc();
+}
+
+func depFunc {
+  global2~ptr;
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(testGlobalVarInitOrder~ast);

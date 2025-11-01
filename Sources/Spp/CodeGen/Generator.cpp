@@ -515,9 +515,11 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       );
     }
   } else {
-    // Check against circular dependency of global var initialization.
+    // Check against circular dependency of global var initialization or if we need to initialize
+    // a global variable.
     if (generator->getAstHelper()->getVariableDomain(definition) == Ast::DefinitionDomain::GLOBAL) {
       auto state = generator->getGlobalVarState(session, definition);
+      // Are we in a circular initialization/termination?
       if (state & (GlobalVarState::INITIALIZING | GlobalVarState::TERMINATING) != 0) {
         generator->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::CircularGlobalVarInitNotice>(
@@ -525,6 +527,21 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
           )
         );
         return false;
+      }
+      // Do we need to initialize this variable?
+      if ((state & GlobalVarState::INITIALIZED) == 0) {
+        TiObject *astParams = 0;
+        auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astVar);
+        if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+          astParams = astParamPass->getParam().get();
+        }
+        auto astType = generator->astHelper->traceType(astVar);
+        if (astParams != 0 || astType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
+          // Determine whether the variable initialization is high priority.
+          // TODO: Switch to using an integer priority value instead of the boolean priority.
+          auto highPriority = generator->getAstHelper()->doesModifierExistOnDef(definition, "priority");
+          session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+        }
       }
     }
   }
@@ -1193,12 +1210,15 @@ Bool Generator::_buildDependencies(TiObject *self, Session *session)
         // Add the name of this var to the ctor info.
         Str name = S("!");
         name += generator->getAstHelper()->resolveNodePath(varAstNode->getOwner());
-        ctorInfo.initializedVarNames.add(name);
+        ctorInfo.varNames.add(name);
 
         return true;
       }
     )) {
-      session->getGlobalCtors()->add(ctorInfo);
+      // If no variables were initialized, we don't need to add the ctor.
+      if (ctorInfo.varNames.getLength() > 0) {
+        session->getGlobalCtors()->add(ctorInfo);
+      }
     } else {
       result = false;
     }
@@ -1214,14 +1234,24 @@ Bool Generator::_buildDependencies(TiObject *self, Session *session)
     dtorInfo.name = dtorNameStream.str().c_str();
     if (generator->buildGlobalCtorOrDtor(
       session, session->getGlobalVarDestructionDeps(), dtorInfo.name, true,
-      [=](
+      [=,&dtorInfo](
         Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
         Session *childSession
       )->Bool {
-        return generation->generateVarDestruction(varAstType, varTgRef, varAstNode, childSession);
+        if (!generation->generateVarDestruction(varAstType, varTgRef, varAstNode, childSession)) return false;
+
+        // Add the name of this var to the dtor info.
+        Str name = S("!");
+        name += generator->getAstHelper()->resolveNodePath(varAstNode->getOwner());
+        dtorInfo.varNames.add(name);
+
+        return true;
       }
     )) {
-      session->getGlobalDtors()->add(dtorInfo);
+      // If no variables were destructed, we don't need to add the dtor.
+      if (dtorInfo.varNames.getLength() > 0) {
+        session->getGlobalDtors()->add(dtorInfo);
+      }
     } else {
       result = false;
     }
@@ -1257,6 +1287,7 @@ Bool Generator::buildGlobalCtorOrDtor(
       if ((state & GlobalVarState::TERMINATED) != 0) {
         // Already destructed. This happens if a previous dependency was dependent on this global
         // var and generated the termination code for it.
+        deps->remove(i--);
         continue;
       } else if ((state & GlobalVarState::TERMINATING) != 0) {
         // Already being destructed. This happens in case of circular dependencies, which is an error.
@@ -1274,6 +1305,7 @@ Bool Generator::buildGlobalCtorOrDtor(
       if ((state & GlobalVarState::INITIALIZED) != 0) {
         // Already initialized. This happens if a previous dependency was dependent on this global
         // var and generated the initialization code for it.
+        deps->remove(i--);
         continue;
       } else if ((state & GlobalVarState::INITIALIZING) != 0) {
         // Already being initialized. This happens in case of circular dependencies, which is an error.
@@ -1289,6 +1321,9 @@ Bool Generator::buildGlobalCtorOrDtor(
       this->setGlobalVarState(session, astVar, state | GlobalVarState::INITIALIZING);
     }
   }
+
+  // If all the vars were already initialized/terminated then we don't need to create the ctor/dtor.
+  if (deps->getCount() == 0) return result;
 
   // Get the session where we want to run global constructors, if different from the given session.
   // Refer to BuildSession::globalCtorSession for more info about this.
