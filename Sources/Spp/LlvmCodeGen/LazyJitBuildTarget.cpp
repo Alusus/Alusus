@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/LazyJitBuildTarget.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::LazyJitBuildTarget.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,7 +21,7 @@ void LazyJitBuildTarget::setupBuild()
 
   this->llvmJitEngine.reset();
 
-  this->llvmJitEngine = llvm::cantFail(LazyJitEngineBuilder().create(this->globalItemRepo));
+  this->llvmJitEngine = llvm::cantFail(LazyJitEngineBuilder().setNumCompileThreads(1).create(this->globalItemRepo));
   this->llvmDataLayout = const_cast<llvm::DataLayout*>(&this->llvmJitEngine->getDataLayout());
 
   this->llvmModule.reset();
