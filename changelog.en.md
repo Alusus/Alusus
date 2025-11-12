@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.14.0 (2025-xx-xx)
+## Version 0.14.0 (2025-11-11)
 
 * Update the algorithm for building dependencies to avoid circular dead locks when those deadlocks
   aren't caused by the user's code itself.
