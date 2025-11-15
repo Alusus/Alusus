@@ -2,7 +2,7 @@
  * @file Spp.alusus
  * Contains definitions of SPP's astMgr and buildMgr.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -108,7 +108,12 @@ import "Srl/refs_base";
                 def modifier: ref[TiObject](modifiers.getElement(i));
                 if modifier~ptr == 0 continue;
                 def modKwd: String = this.getModifierKeyword(modifier);
-                def translatedKwd: String = kwdTranslations(modKwd);
+                def translationIndex: ArchInt = kwdTranslations.findPos(modKwd);
+                def translatedKwd: String;
+                if translationIndex == -1 translatedKwd = modKwd
+                else translatedKwd = kwdTranslations.valAt(translationIndex);
+                // If the translation is empty for whatever reason, we'll just ignore it
+                // and use the untranslated keyword.
                 if translatedKwd == "" translatedKwd = modKwd;
                 if translatedKwd == kwd return modifier;
             }

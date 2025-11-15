@@ -2,7 +2,7 @@
  * @file Srl/StringBuilder.alusus
  * Contains the class Srl.StringBuilder.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,13 +20,10 @@ import "Spp/Ast";
 @merge module Srl {
     def _emptyMixin: {}
 
+    @shared def stringBuilderModifierKwdTranslations: Map[String, String];
+
     class StringBuilder [formatMixin: ast_ref = _emptyMixin] {
         Spp.astMgr.insertMixin[formatMixin];
-
-        //============
-        // Shared Vars
-
-        @shared def modifierKeywordTranslations: Map[String, String];
 
         //============
         // Member Vars
@@ -178,7 +175,7 @@ import "Spp/Ast";
             def i: Int;
             for i = 0, i < elements.getLength(), ++i {
                 def modifier: ref[TiObject](Spp.astMgr.findModifierForElement(
-                    elements(i), "format", modifierKeywordTranslations
+                    elements(i), "format", stringBuilderModifierKwdTranslations
                 ));
                 if modifier~ptr != 0 {
                     def params: Array[String];
