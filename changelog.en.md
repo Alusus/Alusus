@@ -1,5 +1,11 @@
 # Alusus Changelog
 
+## Version 0.14.1 (2025-11-15)
+
+* Fixed a bug in `Spp.astMgr.findModifierForElement`.
+* Fixed a bug in translations for type `StringBuilder`.
+
+
 ## Version 0.14.0 (2025-11-11)
 
 * Update the algorithm for building dependencies to avoid circular dead locks when those deadlocks
