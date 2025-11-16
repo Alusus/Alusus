@@ -3,7 +3,7 @@
 ## Version 0.14.1 (2025-11-15)
 
 * Fixed a bug in `Spp.astMgr.findModifierForElement`.
-* Fixed a bug in translations for type `StringBuilder`.
+* Fixed a bug in type `StringBuilder`.
 
 
 ## Version 0.14.0 (2025-11-11)
