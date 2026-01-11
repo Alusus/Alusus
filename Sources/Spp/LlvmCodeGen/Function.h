@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/Function.h
  * Contains the header of class Spp::LlvmCodeGen::Function.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,6 +33,7 @@ class Function : public TiObject
   private: FunctionType *functionType;
   private: llvm::Function *llvmFunction;
   private: llvm::AllocaInst *llvmVaList = 0;
+  private: llvm::Value *llvmSretPtr = 0;
   private: std::unique_ptr<llvm::Module> llvmModule;
 
 
