@@ -126,20 +126,23 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 
 define void @"testValueTypeCustomCaster()"() {
 "#block0":
-  %0 = call %Cc @"giveCc()=>(Cc)"()
+  %0 = alloca %Cc
+  call void @"giveCc()=>(Cc)"(%Cc* sret %0)
+  %1 = load %Cc, %Cc* %0
   %"#temp6" = alloca %Cc
-  store %Cc %0, %Cc* %"#temp6"
+  store %Cc %1, %Cc* %"#temp6"
   %"#temp7" = alloca %Aa
   call void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#temp7", %Cc* %"#temp6")
   call void @"takeAa(ref[Aa])"(%Aa* %"#temp7")
   ret void
 }
 
-define %Cc @"giveCc()=>(Cc)"() {
+define void @"giveCc()=>(Cc)"(%Cc* sret %__sret) {
 "#block1":
   %"#temp8" = alloca %Cc
   %0 = load %Cc, %Cc* %"#temp8"
-  ret %Cc %0
+  store %Cc %0, %Cc* %__sret
+  ret void
 }
 
 define void @"Cc.~cast(ref[Cc])=>(Aa)"(%Aa* %"#ret", %Cc* %this) {
@@ -206,20 +209,22 @@ define void @"testMultiLevelCustomCaster()"() {
   %1 = bitcast %B* %0 to %A*
   call void @"takeA(ref[A])"(%A* %1)
   %"#temp10" = alloca %ContainerC
-  %2 = call %ContainerA @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(%ContainerC* %"#temp10")
+  %2 = alloca %ContainerA
+  call void @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(%ContainerA* sret %2, %ContainerC* %"#temp10")
+  %3 = load %ContainerA, %ContainerA* %2
   %"#temp11" = alloca %ContainerA
-  store %ContainerA %2, %ContainerA* %"#temp11"
-  %3 = call %A* @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(%ContainerA* %"#temp11")
-  call void @"takeA(ref[A])"(%A* %3)
+  store %ContainerA %3, %ContainerA* %"#temp11"
+  %4 = call %A* @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(%ContainerA* %"#temp11")
+  call void @"takeA(ref[A])"(%A* %4)
   %"#temp12" = alloca %ContainerBb
-  %4 = call %Bb* @"ContainerBb.~cast(ref[ContainerBb])=>(ref[Bb])"(%ContainerBb* %"#temp12")
-  %5 = bitcast %Bb* %4 to %Aa*
-  call void @"takeAa(ref[Aa])"(%Aa* %5)
+  %5 = call %Bb* @"ContainerBb.~cast(ref[ContainerBb])=>(ref[Bb])"(%ContainerBb* %"#temp12")
+  %6 = bitcast %Bb* %5 to %Aa*
+  call void @"takeAa(ref[Aa])"(%Aa* %6)
   %"#temp13" = alloca %ContainerCc
   %"#temp14" = alloca %ContainerAa
   call void @"ContainerCc.~cast(ref[ContainerCc])=>(ContainerAa)"(%ContainerAa* %"#temp14", %ContainerCc* %"#temp13")
-  %6 = call %Aa* @"ContainerAa.~cast(ref[ContainerAa])=>(ref[Aa])"(%ContainerAa* %"#temp14")
-  call void @"takeAa(ref[Aa])"(%Aa* %6)
+  %7 = call %Aa* @"ContainerAa.~cast(ref[ContainerAa])=>(ref[Aa])"(%ContainerAa* %"#temp14")
+  call void @"takeAa(ref[Aa])"(%Aa* %7)
   ret void
 }
 
@@ -240,13 +245,14 @@ define void @"takeA(ref[A])"(%A* %r) {
   ret void
 }
 
-define %ContainerA @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(%ContainerC* %this) {
+define void @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(%ContainerA* sret %__sret, %ContainerC* %this) {
 "#block3":
   %this1 = alloca %ContainerC*
   store %ContainerC* %this, %ContainerC** %this1
   %"#temp15" = alloca %ContainerA
   %0 = load %ContainerA, %ContainerA* %"#temp15"
-  ret %ContainerA %0
+  store %ContainerA %0, %ContainerA* %__sret
+  ret void
 }
 
 define %A* @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(%ContainerA* %this) {

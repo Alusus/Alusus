@@ -1,5 +1,11 @@
 # Alusus Changelog
 
+## Version 0.14.2 (2026-01-11)
+
+* Fixed issues with C ABI compatibility when passing and returning struct type data to/from
+  functions.
+
+
 ## Version 0.14.1 (2025-11-15)
 
 * Fixed a bug in `Spp.astMgr.findModifierForElement`.
