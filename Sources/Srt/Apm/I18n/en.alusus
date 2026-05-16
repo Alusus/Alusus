@@ -2,7 +2,7 @@
  * @file Apm/I18n/en.alusus
  * English strings for APM.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,6 +16,8 @@
     def fetchingInfo: "%sFetching %s info from: %s.\n";
     def fetchSuccessful: "%sFetching successful.\n";
     def fetchFailed: "%sFetch failed.\n";
+    def refetchExisting: "%sRefetching existing package %s.\n";
+    def packageInstallFailed: "%sFailed to find or install package \"%s\".";
     def tagNotFound: "%sCannot find requested release.\n";
     def pkgAlreadyInstalled: "%s%s is already installed.\n";
     def installingPkg: "%sInstalling %s v%s.\n";
@@ -24,21 +26,17 @@
     def downloadedPkg: "%sDownloaded temp.zip\n";
     def unzipToTmp: "%sUnzip `%s` to `%s`.\n";
     def archiveExtracted: "%stemp.zip extracted.\n";
-    def created: "%s`%s` created.\n";
-    def movePkg: "%sMove module to `%s`.\n";
     def copyPkg: "%sCopy module `%s` to `%s`.\n";
     def pkgMoved: "%sMoved to `%s`.\n";
     def pkgInstalled: "%s%s installed.\n";
-    def symLinkCreated: "%ssym link %s created.\n";
     def cannotMovePkg: "%sCannot move module to `%s`.\n";
-    def cannotCreatePkg: "%sCannot create `%s`.\n";
     def cannotExtract: "%sCannot extract `%s`.\n";
     def cannotGet: "%sCannot get %s.\n";
-    def cannotCreateSymLink: "%sCannot create sym link `%s`.\n";
     def fileExtracted: "%s%s extracted.\n";
     def linkCreated: "%sLink %s created.\n";
     def linkRemoved: "%sLink %s removed.\n";
-    def invalidPkgName: "%sInvalid package: %s\n";
+    def invalidPkgName: "%sInvalid package name \"%s\". Expected format: {user}/{package}@{version}\n";
+    def invalidPkgVersion: "%sInvalid version \"%s\" in package \"%s\". Expected: {major}[.{minor}[.{patch}]]\n";
     def invalidPath: "%sInvalid path: %s\n";
     def authorDirCreationFailed: "%sFailed to create directory: %s\n";
     def linkCreationFailed: "%sFailed to create link: %s\n";

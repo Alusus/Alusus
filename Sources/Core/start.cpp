@@ -2,7 +2,7 @@
  * @file Core/main.cpp
  * Contains the program's entry point.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -51,6 +51,7 @@ int main(int argCount, char * const args[])
   Bool help = false;
   Bool interactive = false;
   Char const *sourceFile = 0;
+  Array<Char const*> programOptions;
   Bool dump = false;
   if (argCount < 2) help = true;
   for (Int i = 1; i < argCount; ++i) {
@@ -62,6 +63,12 @@ int main(int argCount, char * const args[])
     else if (strcmp(args[i], S("-ت")) == 0) interactive = true;
     else if (strcmp(args[i], S("--dump")) == 0) dump = true;
     else if (strcmp(args[i], S("--إلقاء")) == 0) dump = true;
+    else if (strcmp(args[i], S("--opt")) == 0 || strcmp(args[i], S("--خيار")) == 0) {
+      if (i < argCount-1) {
+        ++i;
+        programOptions.add(args[i]);
+      }
+    }
 #ifdef USE_LOGS
     // Parse the log option.
     else if (strcmp(args[i], S("--log")) == 0 || strcmp(args[i], S("--تدوين")) == 0) {
@@ -118,6 +125,9 @@ int main(int argCount, char * const args[])
       outStream << S("\tالقاء شجرة AST عند الانتهاء:\n");
       outStream << S("\t\t--شجرة\n");
       outStream << S("\t\t--dump\n");
+      outStream << S("\tتحديد قيمة خيار اعتباطي يتحكم بتصرف المترجم أو المكتبات:\n");
+      outStream << S("\t\t--خيار\n");
+      outStream << S("\t\t--opt\n");
       #if defined(USE_LOGS)
         outStream << S("\tالتحكم بمستوى التدوين (قيمة من 6 بتات):\n");
         outStream << S("\t\t--تدوين\n");
@@ -138,6 +148,7 @@ int main(int argCount, char * const args[])
       outStream << S("\nOptions:\n");
       outStream << S("\t--interactive, -i  Run in interactive mode.\n");
       outStream << S("\t--dump  Tells the Core to dump the resulting AST tree.\n");
+      outStream << S("\t--opt  Specify a custom option value to be used by the compiler or libraries.\n");
       #if defined(USE_LOGS)
         outStream << S("\t--log  A 6 bit value to control the level of details of the log.\n");
       #endif
@@ -159,6 +170,9 @@ int main(int argCount, char * const args[])
       root.setInteractive(true);
       root.setProcessArgInfo(argCount, args);
       root.setLanguage(lang);
+      if (programOptions.getLength() > 0) {
+        root.setProcessOptionInfo(programOptions.getLength(), &programOptions.at(0));
+      }
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {
@@ -184,6 +198,9 @@ int main(int argCount, char * const args[])
       Main::RootManager root;
       root.setProcessArgInfo(argCount, args);
       root.setLanguage(lang);
+      if (programOptions.getLength() > 0) {
+        root.setProcessOptionInfo(programOptions.getLength(), &programOptions.at(0));
+      }
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
         [](SharedPtr<Notices::Notice> const &notice)->void
         {

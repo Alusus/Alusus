@@ -2,7 +2,7 @@
 /**
  * @file Apm/apm
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,6 +25,8 @@ import "Apm.alusus";
     def help_apm_link_tip: "%screate link to local package in `%s/.apm`\n";
     def help_apm_unlink: "   %sapm unlink <author>/<package>@<release>\t\t";
     def help_apm_unlink_tip: "%sremove link to local package from `%s/.apm`\n";
+    def help_apm_info: "   %sapm info <author>/<package>@<release>\t\t";
+    def help_apm_info_tip: "%sprint available versions of a package\n";
     def unknown_command: "%sUnknown command '%s'. Use 'apm help' for help.\n";
     def use_help_command: "%sUse 'apm help' for help.\n";
 
@@ -32,6 +34,7 @@ import "Apm.alusus";
     def cmd_local: "local";
     def cmd_link: "link";
     def cmd_unlink: "unlink";
+    def cmd_info: "info";
     def cmd_help: "help";
   };
 };

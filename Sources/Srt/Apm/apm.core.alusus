@@ -1,7 +1,7 @@
 /**
  * @file Apm/apm.core.alusus
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,236 +16,410 @@ import "Srl/Array.alusus";
 import "Srl/Regex.alusus";
 import "Srl/Net.alusus";
 import "Srl/Fs.alusus";
+import "ProcessExt.alusus";
 import "Zip.alusus";
 
 @merge module Apm
 {
   use Srl;
-  def fileName: array[Char, 250];
-  def moduleName: array[Char, 250];
-  def moduleAuthor: array[Char, 250];
-  def moduleReleaseTag: array[Char, 250];
 
-  func importFile(packageName: ptr[array[Char]], requestedFileCount: Int, requestedFiles: ...ptr[array[Char]]): bool {
-    def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
+  def APM_REFETCH_OPT_KEY_EN: "apm_refetch";
+  def APM_REFETCH_OPT_KEY_AR: "محا_أنعش";
+  def APM_CHECK_UPDATES_OPT_KEY_EN: "apm_check_updates";
+  def APM_CHECK_UPDATES_OPT_KEY_AR: "محا_حدث";
 
-    if (String.find(packageName,'@') != 0){
-      String.scan(packageName, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
-    } else {
-      String.scan(packageName, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
-    };
+  func importPackage(packageName: CharsPtr, requestedFile: CharsPtr): Bool {
+    return importPackage(packageName, { requestedFile });
+  }
 
+  func importPackage(packageName: CharsPtr): Bool {
+    return importPackage(packageName, 0);
+  }
+
+  func importPackage(packageName: CharsPtr, requestedFileCount: Int, requestedFiles: ...CharsPtr): Bool {
+    def pkg: String = packageName;
+    def slashPos: ArchInt = pkg.find('/');
+    def atPos: ArchInt = pkg.find('@');
+
+    if slashPos == -1 || atPos == -1 || slashPos == 0 || atPos <= slashPos + 1 {
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, packageName));
+    }
+
+    def author: String = pkg.slice(0, slashPos);
+    def name: String = pkg.slice(slashPos + 1, atPos - slashPos - 1);
+    def versionSpec: String = pkg.slice(atPos + 1, pkg.getLength() - atPos - 1);
+
+    if versionSpec.getLength() == 0 {
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, packageName));
+    }
+
+    def reqMaj: Int;
+    def reqMin: Int;
+    def reqPat: Int;
+    if parseVersion(versionSpec, reqMaj, reqMin, reqPat) == 0 {
+      System.fail(1, String.format(I18n.invalidPkgVersion, Console.Style.FG_RED, versionSpec.buf, packageName));
+    }
+
+    def fileName: String;
     if requestedFileCount == 0 {
-      String.assign(fileName~ptr, "%s.alusus", moduleName~ptr);
+      fileName = name + ".alusus";
     } else {
-      String.assign(fileName~ptr, requestedFiles~next_arg[ptr[array[Char]]]);
+      fileName = requestedFiles~next_arg[CharsPtr];
       --requestedFileCount;
-    };
+    }
 
-    def buffer: array[Char, 1024];
-    def filePos: Int;
-    // First try local cache.
-    String.assign(buffer~ptr, ".apm/%s/", packageName);
-    filePos = String.getLength(buffer~ptr);
-    String.copy(buffer(filePos)~ptr, fileName~ptr);
-    if !Fs.exists(buffer~ptr) {
-      // Not found locally, try the global cache.
-      String.assign(buffer~ptr, "%s/.apm/%s/", homeDir, packageName);
-      filePos = String.getLength(buffer~ptr);
-      String.copy(buffer(filePos)~ptr, fileName~ptr);
-      if !Fs.exists(buffer~ptr) {
-        installRelease(packageName, 1, 0);
+    def homeDir: String = System.getEnv("HOME");
+    def localApm: String = ".apm";
+    def globalApm: String = homeDir + "/.apm";
+
+    def checkUpdates: Bool = Process.getOption({ APM_CHECK_UPDATES_OPT_KEY_EN, APM_CHECK_UPDATES_OPT_KEY_AR }) == "1";
+    def refetch: Bool = Process.getOption({ APM_REFETCH_OPT_KEY_EN, APM_REFETCH_OPT_KEY_AR }) == "1";
+
+    def resolvedEntry: String;
+    def apmBase: String;
+    def localAuthorDir: String = localApm + "/" + author;
+    def globalAuthorDir: String = globalApm + "/" + author;
+
+    resolvedEntry = findBestLocalVersion(localAuthorDir, name, reqMaj, reqMin, reqPat);
+    if resolvedEntry.getLength() > 0 {
+      apmBase = localApm;
+    } else if !checkUpdates && !refetch {
+      resolvedEntry = findBestLocalVersion(globalAuthorDir, name, reqMaj, reqMin, reqPat);
+      if resolvedEntry.getLength() > 0 {
+        apmBase = globalApm;
       }
     }
-    Core.importFile(buffer~ptr);
 
-    // Import any extra files
+    if resolvedEntry.getLength() == 0 || checkUpdates || refetch {
+      installRelease(packageName, 1, 0);
+      resolvedEntry = findBestLocalVersion(globalAuthorDir, name, reqMaj, reqMin, reqPat);
+      if resolvedEntry.getLength() > 0 {
+        apmBase = globalApm;
+      }
+    }
+
+    if resolvedEntry.getLength() == 0 {
+      System.fail(1, String.format(I18n.packageInstallFailed, Console.Style.FG_RED, packageName));
+    }
+
+    def basePath: String = apmBase + "/" + author + "/" + resolvedEntry;
+    Core.importFile(basePath + "/" + fileName);
+
     while requestedFileCount-- > 0 {
-      String.copy(buffer(filePos)~ptr, requestedFiles~next_arg[ptr[array[Char]]]);
-      Core.importFile(buffer~ptr);
+      Core.importFile(basePath + "/" + requestedFiles~next_arg[CharsPtr]);
     }
 
     return 1;
-  };
-
-  func importFile(packageName: ptr[array[Char]], requestedFile: ptr[array[Char]]): bool {
-    return importFile(packageName, { requestedFile });
   }
 
-  func importFile(packageName: ptr[array[Char]]): bool
-  {
-    return importFile(packageName, 0);
-  };
+  // Scans authorDir for entries of the form "{name}@{version}" and returns the
+  // entry whose version is the highest one satisfying the requirements.
+  // Returns an empty String if nothing is found.
+  func findBestLocalVersion(
+    authorDir: String, name: String, reqMaj: Int, reqMin: Int, reqPat: Int
+  ): String {
+    def result: String;
+    def dir: ptr[Fs.Dir] = Fs.openDir(authorDir.buf);
+    if dir == 0 return result;
 
-  func installRelease(package: ptr[array[Char]], global: bool, logs: bool): Void
-  {
-    def result: ptr[array[Char]];
-    def size: Int;
-    def useLatestRelease: Bool;
+    def prefix: String = name + "@";
+    def bestMaj: Int = -1;
+    def bestMin: Int = -1;
+    def bestPat: Int = -1;
 
-    if (String.find(package,'@') != 0) {
-      String.scan(package, "%[^/]/%[^@]@%s", moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr);
-      useLatestRelease = 0;
-    } else {
-      String.scan(package, "%[^/]/%s", moduleAuthor~ptr, moduleName~ptr);
-      useLatestRelease = 1;
-    };
-
-    def requestUrl: array[Char, 500];
-    String.assign(
-      requestUrl~ptr, "https://api.github.com/repos/%s/%s/releases/latest", moduleAuthor~ptr, moduleName~ptr
-    );
-    if logs {
-      Console.print(I18n.fetchingInfo, Console.Style.FG_BLUE, moduleName~ptr, requestUrl~ptr);
-    };
-
-    if Net.get(requestUrl~ptr, result~ptr, size~ptr) {
-      callbackWithPackageInfo(result, size, global, useLatestRelease, logs);
-    } else {
-      if logs {
-        Console.print(I18n.fetchFailed, Console.Style.FG_RED);
-      };
-    };
-
-    Memory.free(result);
-  };
-
-  func callbackWithPackageInfo (pkgInfo: ptr[array[Char]], size: Int, global: bool, useLatestRelease: bool, logs: bool)
-  {
-    def matches: Array[String] =
-      Regex.match("https://github.com/([^/]*)/([^/].*)/releases/tag/([^\"]*)\",", pkgInfo, 1);
-    if matches.getLength() == 4 {
-      String.assign(moduleAuthor~ptr, "%s", matches(1).buf);
-      String.assign(moduleName~ptr, "%s", matches(2).buf);
-      if useLatestRelease {
-        String.assign(moduleReleaseTag~ptr, "%s", matches(3).buf);
-      };
-      if downloadModule(moduleAuthor~ptr, moduleName~ptr, moduleReleaseTag~ptr, global, useLatestRelease, logs) {
-        if logs Console.print(I18n.fetchSuccessful, Console.Style.FG_BLUE);
+    while 1 {
+      def entry: ptr[Fs.DirEnt] = Fs.readDir(dir);
+      if entry == 0 break;
+      def entryName: String = entry~cnt.dName~ptr;
+      if entryName.find(prefix) != 0 continue;
+      def verStr: String = entryName.slice(prefix.getLength(), entryName.getLength() - prefix.getLength());
+      def maj: Int;
+      def min: Int;
+      def pat: Int;
+      if parseVersion(verStr, maj, min, pat) == 0 continue;
+      if !versionMatches(maj, min, pat, reqMaj, reqMin, reqPat) continue;
+      if bestMaj == -1 || compareVersions(maj, min, pat, bestMaj, bestMin, bestPat) > 0 {
+        bestMaj = maj;
+        bestMin = min;
+        bestPat = pat;
+        result = entryName;
       }
-    } else if logs {
-      Console.print(I18n.tagNotFound, Console.Style.FG_RED);
-      Console.print(I18n.fetchFailed, Console.Style.FG_RED);
-    };
-  };
+    }
+    Fs.closeDir(dir);
+    return result;
+  }
+
+  func installRelease(package: CharsPtr, global: Bool, logs: Bool): Void {
+    def pkg: String(1, package);
+    def slashPos: ArchInt = pkg.find('/');
+    def atPos: ArchInt = pkg.find('@');
+
+    if slashPos == -1 || atPos == -1 || slashPos == 0 || atPos <= slashPos + 1 {
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, package));
+    }
+
+    def author: String = pkg.slice(0, slashPos);
+    def name: String = pkg.slice(slashPos + 1, atPos - slashPos - 1);
+    def versionSpec: String = pkg.slice(atPos + 1, pkg.getLength() - atPos - 1);
+
+    def reqMaj: Int;
+    def reqMin: Int;
+    def reqPat: Int;
+    def versionComponents: Int = parseVersion(versionSpec, reqMaj, reqMin, reqPat);
+    if versionComponents == 0 {
+      System.fail(1, String.format(I18n.invalidPkgVersion, Console.Style.FG_RED, versionSpec.buf, package));
+    }
+
+    if versionComponents == 3 {
+      // Full version specified – download directly; try without and with 'v' prefix.
+      if logs {
+        Console.print(I18n.installingPkg, Console.Style.FG_BLUE, name.buf, versionSpec.buf);
+      }
+      if !downloadModule(author, name, versionSpec, global, logs) {
+        def vTag: String = String(1, "v") + versionSpec;
+        downloadModule(author, name, vTag, global, logs);
+      }
+    } else {
+      // Partial version – fetch the full releases list and find the best match.
+      def packageVersions: Array[String] = fetchPackageVersions(author, name, logs);
+      if packageVersions.getLength() > 0 {
+        def releaseTag: String = findBestMatchingRelease(packageVersions, reqMaj, reqMin, reqPat);
+        if releaseTag.getLength() > 0 {
+          if downloadModule(author, name, releaseTag, global, logs) {
+            if logs Console.print(I18n.fetchSuccessful, Console.Style.FG_BLUE);
+          }
+        } else {
+          Console.print(I18n.tagNotFound, Console.Style.FG_RED);
+        }
+      } else {
+        Console.print(I18n.fetchFailed, Console.Style.FG_RED);
+      }
+    }
+  }
 
   func downloadModule(
-    moduleAuthor: ptr[array[Char]], moduleName: ptr[array[Char]], moduleReleaseTag: ptr[array[Char]], global: bool,
-    useLatestRelease: bool, logs: bool
+    moduleAuthor: CharsPtr, moduleName: CharsPtr, moduleReleaseTag: CharsPtr,
+    global: Bool, logs: Bool
   ): Bool {
-    def downloadLink: array[Char, 100];
-    def folderInTempDirectory: array[Char, 1600];
-    def modulePath: array[Char, 1600];
-    def authorPath: array[Char, 1600];
-    def symLinkPath: array[Char, 1600];
-    def dirOfAPMModulesDirectory: array[Char, 1600];
-    def execCreateDirCommand: array[Char, 1600];
-    def execCopyCommand: array[Char, 1600];
-    def execSymLinkCommand: array[Char, 1600];
-    def homeDir: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
+    def homeDir: String = System.getEnv("HOME")~cast[CharsPtr];
 
-    if (global){
-      String.assign(folderInTempDirectory~ptr, "/tmp/temp_zip/%s-%s", moduleName, moduleReleaseTag);
-      String.assign(modulePath~ptr, "%s/.apm/%s/%s@%s", homeDir, moduleAuthor, moduleName, moduleReleaseTag);
-      String.assign(authorPath~ptr, "%s/.apm/%s", homeDir, moduleAuthor);
-      String.assign(dirOfAPMModulesDirectory~ptr, "%s/.apm", homeDir);
+    // GitHub archives strip a leading 'v' from the tag when naming the inner folder.
+    def tagForFolder: String = moduleReleaseTag;
+    if tagForFolder.getLength() > 0 && tagForFolder(0) == 'v' {
+      tagForFolder = tagForFolder.slice(1, tagForFolder.getLength() - 1);
+    }
+
+    def folderInTemp: String = String.format("/tmp/temp_zip/%s-%s", moduleName, tagForFolder.buf);
+    def modulePath: String;
+    def authorPath: String;
+    def dirOfAPM: String;
+
+    if global {
+      modulePath = String.format("%s/.apm/%s/%s@%s", homeDir.buf, moduleAuthor, moduleName, tagForFolder.buf);
+      authorPath = String.format("%s/.apm/%s", homeDir.buf, moduleAuthor);
+      dirOfAPM = homeDir + "/.apm";
     } else {
-      String.assign(folderInTempDirectory~ptr, "/tmp/temp_zip/%s-%s", moduleName, moduleReleaseTag);
-      String.assign(modulePath~ptr, "./.apm/%s/%s@%s", moduleAuthor, moduleName, moduleReleaseTag);
-      String.assign(authorPath~ptr, "./.apm/%s", moduleAuthor);
-      String.assign(dirOfAPMModulesDirectory~ptr, ".apm");
-    };
-    String.assign(symLinkPath~ptr, "%s/%s", authorPath~ptr, moduleName);
+      modulePath = String.format("./.apm/%s/%s@%s", moduleAuthor, moduleName, tagForFolder.buf);
+      authorPath = String.format("./.apm/%s", moduleAuthor);
+      dirOfAPM = ".apm";
+    }
 
-    String.assign(execCreateDirCommand~ptr, "mkdir -p %s", authorPath~ptr);
-    String.assign(execCopyCommand~ptr, "cp -rf %s %s", folderInTempDirectory~ptr, modulePath~ptr);
-    String.assign(
-      execSymLinkCommand~ptr, "ln -s ./%s@%s %s", moduleName, moduleReleaseTag, symLinkPath~ptr
-    );
-    String.assign(
-      downloadLink~ptr, "https://github.com/%s/%s/archive/%s.zip", moduleAuthor, moduleName, moduleReleaseTag
+    def downloadLink: String = String.format(
+      "https://github.com/%s/%s/archive/%s.zip", moduleAuthor, moduleName, moduleReleaseTag
     );
 
+    def refetch: Bool = Process.getOption({ APM_REFETCH_OPT_KEY_EN, APM_REFETCH_OPT_KEY_AR }) == "1";
+    if refetch && Fs.exists(modulePath.buf) {
+      if logs Console.print(I18n.refetchExisting, Console.Style.FG_BLUE, modulePath.buf);
+      System.exec(String.format("rm -rf %s", modulePath.buf));
+    }
 
-    if (Fs.exists(modulePath~ptr)){
-      if logs {
-        Console.print(I18n.pkgAlreadyInstalled, Console.Style.FG_RED, modulePath~ptr);
-      };
-
+    if Fs.exists(modulePath.buf) {
+      if logs Console.print(I18n.pkgAlreadyInstalled, Console.Style.FG_RED, modulePath.buf);
       return 0;
-    };
+    }
 
     if logs {
       Console.print(I18n.installingPkg, Console.Style.FG_BLUE, moduleName, moduleReleaseTag);
-      Console.print(I18n.pkgRequest, Console.Style.FG_BLUE, downloadLink~ptr);
-      Console.print(I18n.downloadingPkg, Console.Style.FG_YELLOW, downloadLink~ptr, "/tmp/temp.zip");
-    };
+      Console.print(I18n.pkgRequest, Console.Style.FG_BLUE, downloadLink.buf);
+      Console.print(I18n.downloadingPkg, Console.Style.FG_YELLOW, downloadLink.buf, "/tmp/temp.zip");
+    }
 
-    if Net.get(downloadLink~ptr, "/tmp/temp.zip") {
+    if Net.get(downloadLink.buf, "/tmp/temp.zip") {
       if logs {
         Console.print(I18n.downloadedPkg, Console.Style.FG_BLUE);
         Console.print(I18n.unzipToTmp, Console.Style.FG_BLUE, "temp.zip", "/tmp/temp_zip/");
-      };
+      }
 
       if Zip.extractFromFile("/tmp/temp.zip", "/tmp/temp_zip", onFileExtracted~ptr, logs~ptr) == 0 {
         if logs {
           Console.print(I18n.archiveExtracted, Console.Style.FG_BLUE);
-        };
+          Console.print(I18n.copyPkg, Console.Style.FG_YELLOW, folderInTemp.buf, modulePath.buf);
+        }
 
-        if(Fs.exists(dirOfAPMModulesDirectory~ptr) || Fs.makeDir(dirOfAPMModulesDirectory~ptr)){
-          if logs {
-            Console.print(I18n.created, Console.Style.FG_BLUE, dirOfAPMModulesDirectory~ptr);
-            Console.print(I18n.movePkg, Console.Style.FG_BLUE, dirOfAPMModulesDirectory~ptr);
-            Console.print(
-              I18n.copyPkg, Console.Style.FG_YELLOW, folderInTempDirectory~ptr, modulePath~ptr
-            );
-          };
-
-          System.exec(execCreateDirCommand~ptr);
-          if(System.exec(execCopyCommand~ptr) == 0){
-            if logs Console.print(I18n.pkgMoved, Console.Style.FG_GREEN, dirOfAPMModulesDirectory~ptr);
-            if useLatestRelease {
-              if(System.exec(execSymLinkCommand~ptr) == 0){
-                if logs {
-                  Console.print(I18n.symLinkCreated, Console.Style.FG_GREEN, symLinkPath~ptr);
-                  Console.print(I18n.pkgInstalled, Console.Style.FG_GREEN, moduleName);
-                };
-                return 1;
-              } else {
-                if logs Console.print(I18n.cannotCreateSymLink, Console.Style.FG_RED, symLinkPath~ptr);
-              };
-            } else {
-              Console.print(I18n.pkgInstalled, Console.Style.FG_GREEN, moduleName);
-            }
-          } else {
-            if logs {
-              Console.print(I18n.cannotMovePkg, Console.Style.FG_RED, dirOfAPMModulesDirectory~ptr);
-            };
-          };
+        System.exec(String.format("mkdir -p %s", authorPath.buf));
+        if System.exec(String.format("cp -rf %s %s", folderInTemp.buf, modulePath.buf)) == 0 {
+          if logs Console.print(I18n.pkgMoved, Console.Style.FG_GREEN, dirOfAPM.buf);
+          if logs Console.print(I18n.pkgInstalled, Console.Style.FG_GREEN, moduleName);
+          return 1;
         } else {
-          if logs {
-            Console.print(I18n.cannotCreatePkg, Console.Style.FG_RED, dirOfAPMModulesDirectory~ptr);
-          };
-        };
+          if logs Console.print(I18n.cannotMovePkg, Console.Style.FG_RED, dirOfAPM.buf);
+        }
       } else {
-        if logs {
-          Console.print(I18n.cannotExtract, Console.Style.FG_RED, "temp.zip");
-        };
-      };
+        if logs Console.print(I18n.cannotExtract, Console.Style.FG_RED, "temp.zip");
+      }
     } else {
-      if logs {
-        Console.print(I18n.cannotGet, Console.Style.FG_RED, downloadLink~ptr);
-      };
-    };
+      if logs Console.print(I18n.cannotGet, Console.Style.FG_RED, downloadLink.buf);
+    }
 
     return 0;
-  };
+  }
 
-  func onFileExtracted(fname: ptr[array[Char]], logs: ptr): Int
-  {
-    if(logs~cast[ptr[bool]]~cnt == 1){
+  func onFileExtracted(fname: CharsPtr, logs: ptr): Int {
+    if logs~cast[ptr[Bool]]~cnt == 1 {
       Console.print(I18n.fileExtracted, Console.Style.FG_GREEN, fname);
     };
     return 0;
   };
-};
+
+  func fetchPackageVersions(package: CharsPtr, logs: Bool): Array[String] {
+    def pkg: String(1, package);
+    def slashPos: ArchInt = pkg.find('/');
+    def atPos: ArchInt = pkg.find('@');
+    if atPos == -1 {
+      atPos = pkg.getLength();
+    }
+
+    if slashPos == -1 || atPos == -1 || slashPos == 0 || atPos <= slashPos + 1 {
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, package));
+    }
+
+    def author: String = pkg.slice(0, slashPos);
+    def name: String = pkg.slice(slashPos + 1, atPos - slashPos - 1);
+    return fetchPackageVersions(author, name, logs);
+  }
+
+  func fetchPackageVersions(author: CharsPtr, name: CharsPtr, logs: Bool): Array[String] {
+    // Partial version – fetch the full releases list and find the best match.
+    def requestUrl: String = String.format(
+      "https://api.github.com/repos/%s/%s/releases", author, name
+    );
+    if logs {
+      Console.print(I18n.fetchingInfo, Console.Style.FG_BLUE, name, requestUrl.buf);
+    }
+    def result: CharsPtr;
+    def size: Int;
+    if Net.get(requestUrl.buf, result~ptr, size~ptr) {
+      def packageVersions: Array[String] = parseReleasesJson(result);
+      Memory.free(result);
+      return packageVersions;
+    } else {
+      Console.print(I18n.fetchFailed, Console.Style.FG_RED);
+      return Array[String]();
+    }
+  }
+
+  // Parses a GitHub releases JSON response to extract version tags.
+  func parseReleasesJson(json: CharsPtr): Array[String] {
+    def result: Array[String];
+    def jsonStr: String = String(1, json);
+    def pos: ArchInt = 0;
+    def needle: CharsPtr = "\"tag_name\":\"";
+    def needleLen: ArchInt = String.getLength(needle);
+
+    while 1 {
+      def found: ArchInt = jsonStr.find(pos, needle);
+      if found == -1 break;
+      def tagStart: ArchInt = found + needleLen;
+      def tagEnd: ArchInt = jsonStr.find(tagStart, '"');
+      if tagEnd == -1 break;
+      def tag: String = jsonStr.slice(tagStart, tagEnd - tagStart);
+      pos = tagEnd + 1;
+      result.add(tag);
+    }
+    return result;
+  }
+
+  // Find the tag with the highest version that satisfies the requirements.
+  // Returns the raw tag string (e.g. "v1.2.3") or an empty String if nothing matches.
+  func findBestMatchingRelease(
+    tags: Array[String], reqMaj: Int, reqMin: Int, reqPat: Int
+  ): String {
+    def result: String;
+    def bestMaj: Int = -1;
+    def bestMin: Int = -1;
+    def bestPat: Int = -1;
+
+    def i: Int;
+    for i = 0, i < tags.getLength(), ++i {
+      def tag: String = tags(i);
+      def maj: Int;
+      def min: Int;
+      def pat: Int;
+      if parseVersion(tag, maj, min, pat) == 0 continue;
+      if !versionMatches(maj, min, pat, reqMaj, reqMin, reqPat) continue;
+      if bestMaj == -1 || compareVersions(maj, min, pat, bestMaj, bestMin, bestPat) > 0 {
+        bestMaj = maj;
+        bestMin = min;
+        bestPat = pat;
+        result = tag;
+      }
+    }
+    return result;
+  }
+
+  // Parses a version string of the form [v]{major}[.{minor}[.{patch}]].
+  // Strips a leading 'v' if present. Fills out-parameters and returns the
+  // number of components found (1–3), or 0 on invalid input.
+  func parseVersion(
+    versionStr: String, major: ref[Int], minor: ref[Int], patch: ref[Int]
+  ): Int {
+    if versionStr.getLength() > 0 && versionStr(0) == 'v' {
+      versionStr = versionStr.slice(1, versionStr.getLength() - 1);
+    }
+    def parts: Array[String] = versionStr.split(".");
+    def count: Int = parts.getLength()~cast[Int];
+    if count < 1 || count > 3 return 0;
+    def i: Int;
+    for i = 0, i < count, ++i {
+      if parts(i).getLength() == 0 return 0;
+      def j: ArchInt;
+      for j = 0, j < parts(i).getLength(), ++j {
+        if parts(i)(j) < '0' || parts(i)(j) > '9' return 0;
+      }
+    }
+    major = String.parseInt(parts(0).buf)~cast[Int];
+    if count >= 2 { minor = String.parseInt(parts(1).buf)~cast[Int]; } else { minor = -1; }
+    if count >= 3 { patch = String.parseInt(parts(2).buf)~cast[Int]; } else { patch = -1; }
+    return count;
+  }
+
+  // Returns >0 if v1 > v2, 0 if equal, <0 if v1 < v2.
+  // Treats -1 (absent) components as 0 for comparison purposes.
+  func compareVersions(
+    maj1: Int, min1: Int, pat1: Int, maj2: Int, min2: Int, pat2: Int
+  ): Int {
+    if maj1 != maj2 return maj1 - maj2;
+    def m1: Int = 0;
+    def m2: Int = 0;
+    if min1 >= 0 { m1 = min1; }
+    if min2 >= 0 { m2 = min2; }
+    if m1 != m2 return m1 - m2;
+    def p1: Int = 0;
+    def p2: Int = 0;
+    if pat1 >= 0 { p1 = pat1; }
+    if pat2 >= 0 { p2 = pat2; }
+    return p1 - p2;
+  }
+
+  // Returns true if the resolved (maj, min, pat) satisfies the requirements.
+  // reqMin == -1 means any minor is accepted; reqPat == -1 means any patch.
+  func versionMatches(
+    maj: Int, min: Int, pat: Int, reqMaj: Int, reqMin: Int, reqPat: Int
+  ): Bool {
+    if maj != reqMaj return false;
+    if reqMin != -1 && min != -1 && min != reqMin return false;
+    if reqPat != -1 && pat != -1 && pat != reqPat return false;
+    return true;
+  }
+}

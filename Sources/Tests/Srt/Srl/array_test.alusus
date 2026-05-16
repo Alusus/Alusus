@@ -71,3 +71,35 @@ test3();
 
 def as: Array[String]({ String("Array[String]({...})\n") });
 Console.print(as(0));
+
+// Test Array.reserve and cover all paths in Array._prepareToModify.
+func test4 {
+    // Path 1: data == null (fresh array)
+    def c: Array[Int];
+    c.reserve(5);
+    Console.print("bufSize after reserve on empty array: %d\n", c.getBufSize());
+
+    // Path 2: refCount == 1, newMinSize > bufSize (realloc needed)
+    def d: Array[Int];
+    d.add(1);
+    d.add(2);
+    Console.print("bufSize before reserve: %d\n", d.getBufSize());
+    d.reserve(10);
+    Console.print("bufSize after reserve(10): %d\n", d.getBufSize());
+
+    // Path 2: refCount == 1, newMinSize <= bufSize (no-op)
+    d.reserve(3);
+    Console.print("bufSize after reserve(3) no-op: %d\n", d.getBufSize());
+
+    // Path 3: refCount > 1 (copy-on-write)
+    def e: Array[Int];
+    e.add(10);
+    e.add(20);
+    def f: Array[Int](e);
+    e.reserve(10);
+    Console.print("e bufSize after copy-on-write reserve: %d\n", e.getBufSize());
+    Console.print("e length after copy-on-write reserve: %d\n", e.getLength());
+    Console.print("f bufSize unaffected: %d\n", f.getBufSize());
+    Console.print("f length unaffected: %d\n", f.getLength());
+}
+test4();

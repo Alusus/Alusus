@@ -23,3 +23,11 @@ B~init
 B~init(b)
 B~init(b)
 Array[String]({...})
+bufSize after reserve on empty array: 5
+bufSize before reserve: 2
+bufSize after reserve(10): 10
+bufSize after reserve(3) no-op: 10
+e bufSize after copy-on-write reserve: 10
+e length after copy-on-write reserve: 2
+f bufSize unaffected: 2
+f length unaffected: 2

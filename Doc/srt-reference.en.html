@@ -181,6 +181,14 @@ handler this.getLength (): ArchInt;
 Returns the number of items in the array.
                             </li>
                             <li>
+                                <b>setLength</b><br/>
+<pre class="code" dir=ltr style="text-align:left;">
+handler this.setLength (newLength: ArchInt);
+</pre>
+Sets the number of items in the array. Extends the allocated memory if necessary.
+If the content is shared with another array, this function copies the content to a new buffer.
+                            </li>
+                            <li>
                                 <b>getBufSize</b><br/>
 <pre class="code" dir=ltr style="text-align:left;">
 handler this.getBufSize (): ArchInt;
@@ -2316,12 +2324,18 @@ Creates a zip compressed file containing the given files.
 <pre class="code" dir=ltr>
 $ apm help
 </pre> 
-Importing packages using Apm inside a program is done using `importFile` function:
+Importing packages using Apm inside a program is done using `importPackage` function:
 <pre class="code" dir=ltr>
 import "Apm.alusus";
-Apm.importFile("&lt;author&gt;/&lt;pkg name&gt;" [, "&lt;filename&gt;"]);
-Apm.importFile("&lt;author&gt;/&lt;pkg name&gt;", { "&lt;filename1&gt;", "&lt;filename2&gt;", ... });
+Apm.importPackage("&lt;author&gt;/&lt;pkg name&gt;@&lt;version&gt;" [, "&lt;filename&gt;"]);
+Apm.importPackage("&lt;author&gt;/&lt;pkg name&gt;@&lt;version&gt;", { "&lt;filename1&gt;", "&lt;filename2&gt;", ... });
 </pre>
+The version must be specified and can take one of the following forms:
+<ul>
+<li><b>&lt;major&gt;</b>: Matches the latest release with the given major version number.</li>
+<li><b>&lt;major&gt;.&lt;minor&gt;</b>: Matches the latest release with the given major and minor version numbers.</li>
+<li><b>&lt;major&gt;.&lt;minor&gt;.&lt;patch&gt;</b>: Exact version match.</li>
+</ul>
 The second form of the function allows the user to include multiple files from the package at once.
 Using the second form to include multiple files is faster than calling the first form multiple times, because each call to this function will
 cause reading information from GitHub.
@@ -2339,6 +2353,15 @@ It is possible to remove the link using `unlink` command, which has the followin
 $ cd &lt;example_project_folder&gt;
 $ apm unlink &lt;author&gt;/&lt;package_name&gt;@&lt;release&gt;
 </pre>
+<br>
+The following program options can be passed to Alusus at runtime to control package fetching behavior:
+<ul>
+<li><b>apm_check_updates</b>: Always fetch the list of available releases from GitHub to determine
+the most recent version matching the requested version spec, and download it if not already available locally. Without this
+option, APM uses the first locally cached version it finds without checking for newer releases.</li>
+<li><b>apm_refetch</b>: Always download the latest matching package from GitHub, ignoring any
+locally cached copies.</li>
+</ul>
                 </div>
 
                 <!-- ********************************************************************** -->
@@ -3930,7 +3953,7 @@ handler this.tryGetDeepReferenceContentType(
                 <div class="row">
                     <div class="col-sm-8 pull-left1">
                         <ul class="nav nav-pills.nav">
-                            <li><strong>Copyright © 2024 Alusus Software Ltd.</strong></li>
+                            <li><strong>Copyright © 2026 Alusus Software Ltd.</strong></li>
                         </ul>
                     </div>
                 </div>

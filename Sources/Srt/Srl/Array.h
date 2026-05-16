@@ -2,7 +2,7 @@
  * @file Srl/Array.h
  * Contains the header of class Srl::Array.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -102,8 +102,13 @@ template <class T> class Array
   }
 
   public: void reserve(ArchInt size) {
-    if (this->data == 0) this->data = ArrayData<T>::alloc(size);
-    else if (size > this->data->bufSize) this->data = ArrayData<T>::realloc(this->data, size);
+    if (size <= this->getBufSize()) return;
+    this->_prepareToModify(size);
+  }
+
+  public: ArchInt getBufSize() const {
+    if (this->data == 0) return 0;
+    else return this->data->bufSize;
   }
 
   public: ArchInt getLength() const {
@@ -111,9 +116,10 @@ template <class T> class Array
     else return this->data->length;
   }
 
-  public: ArchInt getBufSize() const {
-    if (this->data == 0) return 0;
-    else return this->data->bufSize;
+  public: void setLength(ArchInt newLength) {
+    if (this->getLength() == newLength) return;
+    this->_prepareToModify(newLength);
+    this->data->length = newLength;
   }
 
   public: void assign (Array<T> const &ary) {
@@ -124,17 +130,24 @@ template <class T> class Array
     }
   }
 
-  private: void _prepareToModify (Bool enlarge) {
+  private: void _prepareToModify (ArchInt newMinSize) {
     if (this->data == 0) {
-      this->data = ArrayData<T>::alloc(2);
+      ArchInt newSize = 2;
+      if (newSize < newMinSize) newSize = newMinSize;
+      this->data = ArrayData<T>::alloc(newSize);
     } else if (this->data->refCount == 1) {
-      if (enlarge && this->data->length >= this->data->bufSize) {
-        this->data = ArrayData<T>::realloc(this->data, this->data->bufSize + (this->data->bufSize >> 1));
+      if (newMinSize > this->data->bufSize) {
+        ArchInt newSize = this->data->bufSize + (this->data->bufSize >> 1);
+        if (newSize < newMinSize) newSize = newMinSize;
+        this->data = ArrayData<T>::realloc(this->data, newSize);
       }
     } else {
       ArrayData<T> *curData = this->data;
       --this->data->refCount;
-      this->data = ArrayData<T>::alloc(curData->length + (curData->length >> 1));
+      ArchInt newSize = curData->bufSize;
+      if (newMinSize > newSize) newSize = newSize + (newSize >> 1);
+      if (newSize < newMinSize) newSize = newMinSize;
+      this->data = ArrayData<T>::alloc(newSize);
       ArchInt i;
       for (i = 0; i < curData->length; ++i) new(this->data->buf + i) T(curData->buf[i]);
       this->data->length = curData->length;
@@ -142,16 +155,25 @@ template <class T> class Array
   }
 
   public: void add (T item) {
-    this->_prepareToModify(true);
+    this->_prepareToModify(this->getLength() + 1);
     new (this->data->buf + this->data->length) T(item);
     ++this->data->length;
+  }
+
+  public: void set (ArchInt index, T item) {
+    if (index < 0 || index >= this->getLength()) {
+      this->add(item);
+    } else {
+      this->_prepareToModify(this->getLength());
+      this->data->buf[index] = item;
+    }
   }
 
   public: void insert (ArchInt index, T item) {
     if (index < 0 || index >= this->getLength()) {
       this->add(item);
     } else {
-      this->_prepareToModify(true);
+      this->_prepareToModify(this->getLength() + 1);
       memmove(this->data->buf + index + 1, this->data->buf + index, sizeof(T) * (this->data->length - index));
       new(this->data->buf + index) T(item);
       ++this->data->length;
@@ -160,13 +182,19 @@ template <class T> class Array
 
   public: void remove (ArchInt index) {
     if (index >= 0 && index < this->getLength()) {
-      this->_prepareToModify(false);
+      this->_prepareToModify(this->getLength() - 1);
       this->data->buf[index].~T();
       if (index < this->getLength() - 1) {
         memmove(this->data->buf + index, this->data->buf + index + 1, sizeof(T) * (this->data->length - (index + 1)));
       };
       --this->data->length;
     }
+  }
+
+  public: Array<T> slice (ArchInt begin, ArchInt count) {
+    Array<T> result;
+    while (count-- > 0 && begin < this->getLength()) result.add(this->at(begin++));
+    return result;
   }
 
   public: void clear() {

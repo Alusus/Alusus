@@ -1,0 +1,37 @@
+/**
+ * @file ProcessExt.alusus
+ * Contains extensions to the Process module.
+ *
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "Srl/Array";
+import "Srl/String";
+
+@merge module Process {
+    use Srl;
+    function getOption(name: CharsPtr) => String {
+        return getOption({ name });
+    }
+    function getOption(count: Int, names: ...CharsPtr) => String {
+        def namesArray: Array[String];
+        while count-- > 0 namesArray.add(String(names~next_arg[CharsPtr]));
+        def i: Int;
+        for i = 0, i < optionCount, ++i {
+            def option: Array[String] = String(1, options~cnt(i)).split("=");
+            def j: Int;
+            for j = 0, j < namesArray.getLength(), ++j {
+                if (option(0) == namesArray(j)) {
+                    if option(1) == "" return String(1, "1")
+                    else return option(1);
+                }
+            }
+        }
+        return String();
+    }
+}

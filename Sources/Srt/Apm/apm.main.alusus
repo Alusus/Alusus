@@ -1,7 +1,7 @@
 /**
  * @file Apm/apm.main.alusus
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,6 +24,8 @@
       createLink(argv~cnt(3)~cast[ptr[array[Char]]], argv~cnt(4)~cast[ptr[array[Char]]]);
     } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_unlink) == 0) {
       removeLink(argv~cnt(3)~cast[ptr[array[Char]]]);
+    } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_info) == 0) {
+      printPackageInfo(argv~cnt(3)~cast[ptr[array[Char]]]);
     } else if(argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_help) == 0) {
       def homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
       def pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
@@ -38,14 +40,16 @@
       Console.print(I18n.help_apm_link_tip, Console.Style.FG_WHITE, pwdDirectory);
       Console.print(I18n.help_apm_unlink, Console.Style.FG_YELLOW);
       Console.print(I18n.help_apm_unlink_tip, Console.Style.FG_WHITE, pwdDirectory);
+      Console.print(I18n.help_apm_info, Console.Style.FG_YELLOW);
+      Console.print(I18n.help_apm_info_tip, Console.Style.FG_WHITE);
     } else if(argCount >= 3) {
       Console.print(I18n.unknown_command, Console.Style.FG_RED, argv~cnt(2));
     } else {
       Console.print(I18n.use_help_command, Console.Style.FG_WHITE);
-    };
+    }
 
     return 0;
-  };
+  }
 
   func createLink (packageName: ptr[array[Char]], path: ptr[array[Char]]) {
     removeLink(packageName);
@@ -55,13 +59,13 @@
     if packageInfo.getLength() != 2 {
       Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
       return;
-    };
+    }
 
     def absolutePath: array[Char, 256];
     if Fs.getAbsolutePath(path, absolutePath~ptr) == 0 {
       Console.print(I18n.invalidPath, Console.Style.FG_RED, path);
       return;
-    };
+    }
 
     // Create the author directory.
     def authorDir: String = ".apm/";
@@ -70,7 +74,7 @@
     if System.exec(createDirCmd) != 0 {
       Console.print(I18n.authorDirCreationFailed, Console.Style.FG_RED, authorDir);
       return;
-    };
+    }
 
     // Create the symlink.
     def linkName: array[Char, 256];
@@ -81,10 +85,10 @@
     if System.exec(cmd~ptr) != 0 {
       Console.print(I18n.linkCreationFailed, Console.Style.FG_RED, linkName~ptr);
       return;
-    };
+    }
 
     Console.print(I18n.linkCreated, Console.Style.FG_GREEN, linkName~ptr);
-  };
+  }
 
   func removeLink (packageName: ptr[array[Char]]) {
     def packageStr: String = packageName;
@@ -92,7 +96,7 @@
     if packageInfo.getLength() != 2 {
       Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
       return;
-    };
+    }
 
     // Create the symlink.
     def linkName: array[Char, 256];
@@ -103,8 +107,20 @@
     if System.exec(cmd~ptr) != 0 {
       Console.print(I18n.linkRemovalFailed, Console.Style.FG_RED, linkName~ptr);
       return;
-    };
+    }
 
     Console.print(I18n.linkRemoved, Console.Style.FG_GREEN, linkName~ptr);
-  };
-};
+  }
+
+  func printPackageInfo (packageName: ptr[array[Char]]) {
+    def packageVersions: Array[String] = fetchPackageVersions(packageName, true);
+    if packageVersions.getLength() > 0 {
+      def i: Int;
+      for i = 0, i < packageVersions.getLength(), ++i {
+        Console.print("- %s\n", packageVersions(i).buf);
+      }
+    } else {
+      System.fail(1, String.format(I18n.packageInstallFailed, Console.Style.FG_RED, packageName));
+    }
+  }
+}

@@ -2,7 +2,7 @@
  * @file Apm/I18n/ar.alusus
  * Arabic strings for APM.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,6 +16,8 @@
     def fetchingInfo: "%sيجلب معلومات %s من: %s.\ج";
     def fetchSuccessful: "%sنجح الجلب.\ج";
     def fetchFailed: "%sفشل الجلب.\ج";
+    def refetchExisting: "%sإعادة تحميل الحزمة الموجودة %s.\n";
+    def packageInstallFailed: "%sفشل العثور على أو تثبيت الحزمة \"%s\".";
     def tagNotFound: "%sلم يُعثر على الإصدار المطلوب.\ج";
     def pkgAlreadyInstalled: "%s%s مثبت مسبقًا.\ج";
     def installingPkg: "%sتثبيت %s الاصدار %s.\ج";
@@ -24,21 +26,17 @@
     def downloadedPkg: "%stemp.zip قد نزل.\ج";
     def unzipToTmp: "%sاستخراج %s الى %s.\ج";
     def archiveExtracted: "%stemp.zip قد استخرج.\ج";
-    def created: "%s`%s` قد تم انشاؤه.\ج";
-    def movePkg: "%sنقل الوحدة الى `%s`.\ج";
     def copyPkg: "%sنسخ الوحدة من `%s` الى `%s`.\ج";
     def pkgMoved: "%sنقلت الوحدة الى `%s`.\ج";
     def pkgInstalled: "%sالوحدة %s تم تثبيتها.\ج";
-    def symLinkCreated: "%sتم إنشاء الوصلة اللينة %s.\ج";
     def cannotMovePkg: "%sلا يمكن نقل الحزمة الى `%s`.\ج";
-    def cannotCreatePkg: "%sﻻ يمكن انشاء `%s`.\n";
     def cannotExtract: "%sلا يمكن استخراج `%s`.\n";
     def cannotGet: "%sلا يمكن جلب %s.\n";
-    def cannotCreateSymLink: "%sفشل إنشاء الوصلة اللينة %s.\ج";
     def fileExtracted: "%s%s تم استخراجه.\n";
     def linkCreated: "%sأنشئ الرابط %s.\ج";
     def linkRemoved: "%sأزيل الرابط %s.\ج";
-    def invalidPkgName: "%sمعرف الحزمة غير صالح: %s\ج";
+    def invalidPkgName: "%ssمعرف الحزمة غير صالح \"%s\". النسق المتوقع: {اسم_المستخدم}/{اسم_الحزمة}@{الإصدار}\n";
+    def invalidPkgVersion: "%sرقم إصدار غير صالح \"%s\" في الحزمة \"%s\". الصيغة المتوقعة: {رئيسي}[.{ثانوي}[.{ترقيعي}]]\n";
     def invalidPath: "%sمسار غير صالح: %s\ج";
     def authorDirCreationFailed: "%sفشل إنشاء المجلد: %s\ج";
     def linkCreationFailed: "%sفشل إنشاء الرابط: %s\ج";

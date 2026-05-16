@@ -2,7 +2,7 @@
  * @file Srl/Array.alusus
  * Contains the class Srl.Array.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,12 +28,12 @@ import "Memory";
         handler this~init(ary: ref[Array[T]]) {
             this._init();
             this.assign(ary);
-        };
+        }
 
         handler this~init(count: Int, items: ...T) {
             this._init();
             while count-- > 0 this.add(items~next_arg[T]);
-        };
+        }
 
         handler this~terminate() this._release();
 
@@ -42,83 +42,97 @@ import "Memory";
 
         handler this._init() {
             this.data~ptr = 0;
-        };
+        }
 
         handler this._release() {
             if this.data~ptr != 0 {
                 if --this.refCount == 0 ArrayData[T].release(this.data);
                 this._init();
-            };
-        };
+            }
+        }
 
         handler this.reserve(size: ArchInt) {
-            if this.data~ptr == 0 this.data~no_deref = ArrayData[T].alloc(size)
-            else if size > this.bufSize this.data~no_deref = ArrayData[T].realloc(this.data, size);
+            if size <= this.getBufSize() return;
+            this._prepareToModify(size);
+        }
+
+        handler this.getBufSize (): ArchInt {
+            if this.data~ptr == 0 return 0
+            else return this.bufSize;
         }
 
         handler this.getLength (): ArchInt {
             if this.data~ptr == 0 return 0
             else return this.length;
-        };
+        }
 
-        handler this.getBufSize (): ArchInt {
-            if this.data~ptr == 0 return 0
-            else return this.bufSize;
-        };
+        handler this.setLength (newLength: ArchInt) {
+            if this.getLength() == newLength return
+            this._prepareToModify(newLength);
+            this.length = newLength;
+        }
 
         handler this.assign (ary: ref[Array[T]]) {
             this._release();
             this.data~no_deref = ary.data;
             if this.data~ptr != 0 {
                 ++this.refCount;
-            };
-        };
+            }
+        }
 
-        handler this._prepareToModify (enlarge: Bool) {
+        handler this._prepareToModify (newMinSize: ArchInt) {
             if this.data~ptr == 0 {
-                this.data~no_deref = ArrayData[T].alloc(2);
+                def newSize: ArchInt = 2;
+                if newSize < newMinSize newSize = newMinSize;
+                this.data~no_deref = ArrayData[T].alloc(newSize);
             } else if this.refCount == 1 {
-                if enlarge && this.length >= this.bufSize {
-                    this.data~no_deref = ArrayData[T].realloc(this.data, this.bufSize + this.bufSize >> 1);
+                if newMinSize > this.bufSize {
+                    def newSize: ArchInt = this.bufSize + this.bufSize >> 1;
+                    if newSize < newMinSize newSize = newMinSize;
+                    this.data~no_deref = ArrayData[T].realloc(this.data, newSize);
                 }
             } else {
                 def curData: ref[ArrayData[T]](this.data);
                 --this.refCount;
-                this.data~no_deref = ArrayData[T].alloc(curData.length + curData.length >> 1);
+                def newSize: ArchInt = curData.bufSize;
+                if newMinSize > newSize newSize = newSize + newSize >> 1;
+                if newSize < newMinSize newSize = newMinSize;
+                this.data~no_deref = ArrayData[T].alloc(newSize);
                 def i: ArchInt;
                 for i = 0, i < curData.length, ++i this.buf(i)~no_deref~init(curData.buf(i));
                 this.length = curData.length;
-            };
-        };
+            }
+        }
 
         handler this.add (item: T) {
-            this._prepareToModify(true);
+            this._prepareToModify(this.getLength() + 1);
             this.buf(this.length)~no_deref~init(item);
             ++this.length;
-        };
+        }
 
         handler this.add (items: Array[T]) {
             def i: Int;
             for i = 0, i < items.getLength(), ++i this.add(items(i));
-        };
+        }
 
         handler this.add (count: Int, items: ...[T, 1]) {
             while count-- > 0 this.add(items~next_arg[T]);
-        };
+        }
 
         handler this.set (index: ArchInt, item: T) {
             if index < 0 || index >= this.getLength() {
                 this.add(item);
             } else {
+                this._prepareToModify(this.getLength());
                 this.buf(index)~no_deref = item;
-            };
+            }
         }
 
         handler this.insert (index: ArchInt, item: T) {
             if index < 0 || index >= this.getLength() {
                 this.add(item);
             } else {
-                this._prepareToModify(true);
+                this._prepareToModify(this.getLength() + 1);
                 Memory.move(
                     this.buf(index + 1)~no_deref~ptr,
                     this.buf(index)~no_deref~ptr,
@@ -126,32 +140,32 @@ import "Memory";
                 );
                 this.buf(index)~no_deref~init(item);
                 ++this.length;
-            };
-        };
+            }
+        }
 
         handler this.remove (index: ArchInt) {
             if index >= 0 && index < this.getLength() {
-                this._prepareToModify(false);
+                this._prepareToModify(this.getLength() - 1);
                 this.buf(index)~no_deref~terminate();
                 if index < this.getLength() - 1 {
                     Memory.move(
                         this.buf(index)~no_deref~ptr, this.buf(index + 1)~no_deref~ptr,
                         T~no_deref~size * (this.length - (index + 1))
                     );
-                };
+                }
                 --this.length;
-            };
-        };
+            }
+        }
 
         handler this.slice (begin: ArchInt, count: ArchInt): Array[T] {
             def result: Array[T];
             while count-- > 0 and begin < this.getLength() result.add(this(begin++));
             return result;
-        };
+        }
 
         handler this.clear() {
             this._release();
-        };
+        }
 
         handler this.findPos (val: ref[T]): ArchInt {
             def i: ArchInt;
@@ -168,8 +182,8 @@ import "Memory";
         handler this(i: ArchInt): ref[T] {
             @shared def dummy: T;
             if i >= 0 && i < this.getLength() return this.buf(i) else return dummy;
-        };
-    };
+        }
+    }
 
 
     //==========================================================================
@@ -196,7 +210,7 @@ import "Memory";
             data.length = 0;
             data.refCount = 1;
             return data;
-        };
+        }
 
         func realloc (data: ref[ArrayData[T]], newSize: ArchInt): ref[ArrayData[T]] {
             if newSize < 2 newSize = 2;
@@ -204,12 +218,12 @@ import "Memory";
             data~ptr = Memory.realloc(data~ptr, byteCount)~cast[ptr[ArrayData[T]]];
             data.bufSize = newSize;
             return data;
-        };
+        }
 
         func release (data: ref[ArrayData[T]]) {
             def i: ArchInt;
             for i = 0, i < data.length, ++i data.buf(i)~no_deref~terminate();
             Memory.free(data~ptr);
-        };
-    };
-};
+        }
+    }
+}

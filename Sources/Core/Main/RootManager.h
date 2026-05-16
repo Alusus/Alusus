@@ -2,7 +2,7 @@
  * @file Core/Main/RootManager.h
  * Contains the header of class Core::Main::RootManager.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -59,6 +59,8 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   private: Bool interactive;
   private: Int processArgCount;
   private: Char const *const *processArgs;
+  private: Int processOptionCount;
+  private: Char const *const *processOptions;
   private: Str language;
   private: Str coreBinPath;
 
@@ -184,6 +186,22 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   public: Char const* const* getProcessArgs() const
   {
     return this->processArgs;
+  }
+
+  public: void setProcessOptionInfo(Int count, Char const *const *options)
+  {
+    this->processOptionCount = count;
+    this->processOptions = options;
+  }
+
+  public: Int getProcessOptionCount() const
+  {
+    return this->processOptionCount;
+  }
+
+  public: Char const* const* getProcessOptions() const
+  {
+    return this->processOptions;
   }
 
   public: void setLanguage(Char const *lang)

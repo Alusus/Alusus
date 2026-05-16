@@ -1,7 +1,7 @@
 /**
  * @file Spp/LibraryGateway.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -292,6 +292,8 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
     module Process {
       def argCount: Int;
       def args: ptr[array[ptr[array[Word[8]]]]];
+      def optionCount: Int;
+      def options: ptr[array[ptr[array[Word[8]]]]];
       def language: ptr[array[Word[8]]];
       def coreBinPath: ptr[array[Word[8]]];
       def platform: ptr[array[Word[8]]];
@@ -301,6 +303,8 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
     {
       عرف عدد_المعطيات: لقب argCount؛
       عرف المعطيات: لقب args؛
+      عرف عدد_الخيارات: لقب optionCount؛
+      عرف الخيارات: لقب options؛
       عرف اللغة: لقب language؛
       عرف مسار_القلب_التنفيذي: لقب coreBinPath؛
       عرف النظام: لقب platform؛
@@ -326,6 +330,8 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
 {
   auto argCount = manager->getProcessArgCount();
   auto args = manager->getProcessArgs();
+  auto optionCount = manager->getProcessOptionCount();
+  auto options = manager->getProcessOptions();
   auto language = manager->getLanguage().getBuf();
   auto coreBinPath = manager->getCoreBinPath().getBuf();
 
@@ -340,6 +346,8 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
 
   this->globalItemRepo->addItem(S("!Process.argCount"), sizeof(argCount), &argCount);
   this->globalItemRepo->addItem(S("!Process.args"), sizeof(args), &args);
+  this->globalItemRepo->addItem(S("!Process.optionCount"), sizeof(optionCount), &optionCount);
+  this->globalItemRepo->addItem(S("!Process.options"), sizeof(options), &options);
   this->globalItemRepo->addItem(S("!Process.language"), sizeof(language), &language);
   this->globalItemRepo->addItem(S("!Process.coreBinPath"), sizeof(coreBinPath), &coreBinPath);
   this->globalItemRepo->addItem(S("!Process.platform"), sizeof(platform), &platform);

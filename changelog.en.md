@@ -1,33 +1,64 @@
 # Alusus Changelog
 
+## Version 0.15.0 (2026-0x-xx)
+
+### Updates to the Compiler
+
+* Switch the code generator to use LLVM 18 instead of LLVM 10.
+* Added a command line flag for specifying arbitrary options to be used by the
+  compiler or the libraries.
+
+### Updates to the Standard Libraries
+
+* Updates to APM:
+  - Renamed `Apm.importFile` to `Apm.importPackage`.
+  - Made the version required when specifying a package to import.
+  - Enabled specifying a version range, enabling APM to match the latest available
+    version matching that major or major-minor range.
+  - Added an option to trigger package updates.
+  - Added an option to force re-importing the packages.
+  - Added `apm info` cli command to show available versions for a specific package.
+* Added `Array.setLength` method.
+* Fixed some issues with the `Array` class.
+
+
 ## Version 0.14.2 (2026-01-11)
+<details>
 
 * Fixed issues with C ABI compatibility when passing and returning struct type data to/from
   functions.
+</details>
 
 
 ## Version 0.14.1 (2025-11-15)
+<details>
 
 * Fixed a bug in `Spp.astMgr.findModifierForElement`.
 * Fixed a bug in type `StringBuilder`.
+</details>
 
 
 ## Version 0.14.0 (2025-11-11)
+<details>
 
 * Update the algorithm for building dependencies to avoid circular dead locks when those deadlocks
   aren't caused by the user's code itself.
 * Added `Fs.isDir` function.
 * Added `alignThis` macro to help with multiple inheritance.
 * Fixed typo in the Arabic localized name of `Time.getDetailedTime`.
+</details>
 
 
 ## Version 0.13.1 (2025-02-08)
+<details>
 
 * Fixed an issue with using `Passage` with template arguments.
 * Fixed an issue causing the compiler to hang when an instance of `Passage` causes a closed cycle.
+</details>
 
 
 ## Version 0.13.0 (2024-11-12)
+<details>
 
 ### Updates to the Compiler
 
@@ -65,6 +96,7 @@
   * `findElements`
   * `getClassVarNames`
   * `insertCopyHandlers`
+</details>
 
 
 ## Version 0.12.1 (2024-07-05)
