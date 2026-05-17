@@ -20,6 +20,7 @@
   - Added `apm info` cli command to show available versions for a specific package.
 * Added `Array.setLength` method.
 * Fixed some issues with the `Array` class.
+* Fixed incorrect signature for `System.sleep`.
 
 
 ## Version 0.14.2 (2026-01-11)
