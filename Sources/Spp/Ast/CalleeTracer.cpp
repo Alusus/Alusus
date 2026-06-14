@@ -2,7 +2,7 @@
  * @file Spp/Ast/CalleeTracer.cpp
  * Contains the implementation of class Spp::Ast::CalleeTracer.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -183,12 +183,19 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             if ((isMember && request.thisType == 0) || (!isMember && request.thisType != 0)) continue;
             auto objType = helper->traceType(def->getTarget().get());
             if (objType == 0) continue;
+            if (helper->tryGetDeepReferenceContentType(objType) == request.injectionChainStartTarget) {
+              continue; // Prevent infinite loops in case of circular injections.
+            }
             auto refType = helper->getReferenceTypeFor(objType, Ast::ReferenceMode::IMPLICIT);
             objType = helper->tryGetDeepReferenceContentType(objType);
             Bool noBindDef = helper->isNoBindDef(def);
             CalleeLookupRequest innerRequest = request;
             innerRequest.target = objType;
             innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
+            if (innerRequest.injectionChainStartTarget == 0) {
+              // Capture the first injection's content type to prevent infinite loops in case of circular injections.
+              innerRequest.injectionChainStartTarget = dataType;
+            }
             if (!noBindDef) innerRequest.thisType = refType;
             CalleeLookupResult innerResult;
             tracer->lookupCallee(innerRequest, innerResult);

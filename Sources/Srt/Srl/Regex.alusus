@@ -2,7 +2,7 @@
  * @file Srl/Regex.alusus
  * Contains the Srl.Regex module.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -103,10 +103,14 @@ import "Spp";
                 if regexec(this.context~ptr, content, regmatch~size / Match~size, regmatch~ptr, 0) == 0 {
                     def str: String;
                     def i: Int;
-                    for i = 0, i < 100 && regmatch(i).rm_so != -1, ++i {
-                        def len: Int = regmatch(i).rm_eo - regmatch(i).rm_so;
-                        str.assign(content~cnt(regmatch(i).rm_so)~ptr~cast[ptr[array[Char]]], len);
-                        matches.add(str);
+                    for i = 0, i < 100 && i <= this.context.re_nsub~cast[Int[64]], ++i {
+                        if regmatch(i).rm_so != -1 {
+                            def len: Int = regmatch(i).rm_eo - regmatch(i).rm_so;
+                            str.assign(content~cnt(regmatch(i).rm_so)~ptr~cast[ptr[array[Char]]], len);
+                            matches.add(str);
+                        } else {
+                            matches.add(String());
+                        }
                     }
                 }
                 return matches;

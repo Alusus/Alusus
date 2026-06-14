@@ -1,5 +1,11 @@
 # Alusus Changelog
 
+## Version 0.15.1 (2026-06-14)
+
+* Fixed infinite loop issue in the compiler when facing circular injections (`@injection`).
+* Fixed an issue in `Regex.Matcher` when dealing with parenthesis for creating regex groups.
+
+
 ## Version 0.15.0 (2026-05-16)
 
 ### Updates to the Compiler
