@@ -1,5 +1,10 @@
 # Alusus Changelog
 
+## Version 0.15.2 (2026-07-10)
+
+* Fixed a bug in `Srl.Map.setAt`.
+
+
 ## Version 0.15.1 (2026-06-14)
 
 * Fixed infinite loop issue in the compiler when facing circular injections (`@injection`).

@@ -2,7 +2,7 @@
  * @file Srl/Map.alusus
  * Contains the Srl.Map type.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -117,7 +117,7 @@ import "System";
             if i < 0 || i >= this.keys.getLength() {
                 System.fail(1, "Argument `i` is out of range.");
             }
-            this.values(i) = value;
+            this.values.set(i, value);
             return this;
         }
 

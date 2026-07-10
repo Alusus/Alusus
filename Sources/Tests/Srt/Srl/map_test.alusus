@@ -51,6 +51,21 @@ func testWithIndex {
     }
 };
 
+func testRefValues {
+    def map: Map[Int, ref[Int]];
+    def i: Int = 5;
+    def j: Int = 6;
+
+    map.set(0, i);
+    map.set(1, i);
+    map.setAt(1, j);
+
+    Console.print("map[0] = %d\n", map(0)~cast[Int]);
+    Console.print("map[1] = %d\n", map(1)~cast[Int]);
+}
+
 testWithoutIndex();
 Console.print("\n");
 testWithIndex();
+Console.print("\n");
+testRefValues();

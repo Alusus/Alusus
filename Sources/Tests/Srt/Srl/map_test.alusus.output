@@ -16,3 +16,6 @@ key 0: name
 key 1: dob
 key 2: city
 key 3: planet
+
+map[0] = 5
+map[1] = 6
