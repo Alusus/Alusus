@@ -233,6 +233,8 @@ module Closures {
             // Automatic determination of capture mode.
             // If the content type is a user type that isn't SrdRef, then we'll use `exact` mode, otherwise we'll
             // capture by value.
+            // TODO: Should String, Array, and Map types also be treated like basic types and captured by value,
+            //       just like SrdRef?
             def contentType: ref[Spp.Ast.Type](Spp.astMgr.tryGetDeepReferenceContentType(varType));
             if isDerivedFrom[contentType, Spp.Ast.UserType] and !contentType.isOwnedBy(SrdRef~ast) {
                 useNoDeref = true;
