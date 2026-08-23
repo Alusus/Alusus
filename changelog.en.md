@@ -3,6 +3,7 @@
 ## Version 0.15.3 (2026-08-xx)
 
 * Fixed a bug in `Build` module causing buffer overflow.
+* Fixed a bug in `Array.setLength`.
 * Replaced HTML documentation with a markdown version.
 * Restructured the SRT documentation.
 

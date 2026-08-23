@@ -67,7 +67,7 @@ import "Memory";
         }
 
         handler this.setLength (newLength: ArchInt) {
-            if this.getLength() == newLength return
+            if this.getLength() == newLength return;
             this._prepareToModify(newLength);
             this.length = newLength;
         }
