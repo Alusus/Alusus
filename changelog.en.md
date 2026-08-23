@@ -4,6 +4,7 @@
 
 * Fixed a bug in `Build` module causing buffer overflow.
 * Fixed a bug in `Array.setLength`.
+* Fixed a bug in `AstMtr.getModifierStringParams`.
 * Replaced HTML documentation with a markdown version.
 * Restructured the SRT documentation.
 
