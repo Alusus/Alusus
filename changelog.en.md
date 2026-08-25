@@ -2,6 +2,11 @@
 
 ## Version 0.15.3 (2026-08-xx)
 
+* Add new helper macros to Srl:
+  - allocObj
+  - newObj
+  - freeObj
+  - freeObjPtr
 * Fixed a bug in `Build` module causing buffer overflow.
 * Fixed a bug in `Array.setLength`.
 * Fixed a bug in `AstMtr.getModifierStringParams`.

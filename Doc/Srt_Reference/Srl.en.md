@@ -1902,3 +1902,52 @@ This is the same as `clock` function for POSIX.
 
 #### getThisSourceDirectory
   A macro that returns a string containing the full path to the directory containing the current source code file. This macro does not take any arguments.
+
+#### castSrdRef
+  A macro that casts a `SrdRef` into a `SrdRef` of another type, in a similar fashion to `castRef` but for shared references. The first argument is the
+  `SrdRef` variable to cast, and the second is the target object type. The resulting `SrdRef` shares the same reference counter as the original, so
+  releasing either one behaves correctly regardless of which one is released first, and the original object is only released once the last of them is
+  released.
+
+  ```
+  def x: SrdRef[MyType] = SrdRef[MyType].construct();
+  def y: SrdRef[SubType] = castSrdRef[x, SubType];
+  ```
+
+#### allocObj
+  A macro that allocates memory for an object of the given type without initializing it, and returns a reference to that object. It takes one
+  argument, which is the object's type. This is useful when the object needs to be initialized with arguments, in which case `~init` should be called
+  explicitly afterwards.
+
+  ```
+  def o: ref[MyType](allocObj[MyType]);
+  o~init(someArg);
+  ```
+
+#### newObj
+  A macro that allocates memory for an object of the given type and initializes it without arguments, and returns a reference to that object. It takes
+  one argument, which is the object's type. Objects allocated with this macro should later be freed with `freeObj`.
+
+  ```
+  def o: ref[MyType](newObj[MyType]);
+  ```
+
+#### freeObj
+  A macro that terminates an object and frees the memory allocated for it. It has two forms:
+
+  ```
+  freeObj[o];
+  freeObj[o, T];
+  ```
+
+  The first form takes the reference to the object to free. The second form additionally takes a type argument and casts the object to that type,
+  using `castRef`, before terminating it; this is useful when `o` is a reference of a parent type to an object of a child type and you need to
+  cast it to the child type so that the correct `~terminate` is invoked.
+
+#### freeObjPtr
+  A macro similar to `freeObj`, but it takes a plain pointer rather than a reference. It receives two arguments: the pointer to the object, and the
+  object's type, which is used to cast the pointer before terminating the object and freeing its memory.
+
+  ```
+  freeObjPtr[p, MyType];
+  ```
