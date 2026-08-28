@@ -2,7 +2,7 @@
  * @file Srl/refs.alusus
  * Contains definitions of different reference types.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -286,14 +286,12 @@ import "Spp";
 
         handler this.construct() {
             this.release();
-            this.obj~ptr = Memory.alloc(T~size)~cast[ptr[T]];
-            this.obj~init();
+            this.obj~no_deref = newObj[T];
         };
 
         handler this.release() {
             if this.obj~ptr != 0 {
-                this.obj~terminate();
-                Memory.free(this.obj~ptr);
+                freeObj[this.obj];
                 this.obj~ptr = 0;
             }
         };
@@ -321,5 +319,28 @@ import "Spp";
         r.{
             __self.assign(this.refCounter, castRef[this.obj, T]);
         }
+    };
+
+    macro allocObj [T] ref[T]()~use_in(__self) no_injection {
+        __self~ptr = Memory.alloc(T~size)~cast[ptr[T]]
+    };
+
+    macro newObj [T] allocObj[T]~use_in(__self) no_injection {
+        __self~init();
+    };
+
+    macro freeObj [o] o~use_in(__self) no_injection {
+        __self~terminate();
+        Memory.free(__self~ptr);
+    };
+
+    macro freeObj [o, T] o~use_in(__self) no_injection {
+        castRef[__self, T]~terminate();
+        Memory.free(__self~ptr);
+    };
+
+    macro freeObjPtr [o, T] o~use_in(__self) no_injection {
+        __self~cast[ptr[T]]~terminate();
+        Memory.free(__self);
     };
 };

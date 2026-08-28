@@ -1,5 +1,19 @@
 # Alusus Changelog
 
+## Version 0.15.3 (2026-08-xx)
+
+* Add new helper macros to Srl:
+  - allocObj
+  - newObj
+  - freeObj
+  - freeObjPtr
+* Fixed a bug in `Build` module causing buffer overflow.
+* Fixed a bug in `Array.setLength`.
+* Fixed a bug in `AstMtr.getModifierStringParams`.
+* Replaced HTML documentation with a markdown version.
+* Restructured the SRT documentation.
+
+
 ## Version 0.15.2 (2026-07-10)
 
 * Fixed a bug in `Srl.Map.setAt`.

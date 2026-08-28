@@ -1,7 +1,7 @@
 /**
  * @file Spp/Rt/AstMgr.cpp
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -213,7 +213,7 @@ Bool AstMgr::_getModifierStringParams(TiObject *self, TiObject *modifier, Array<
   PREPARE_SELF(astMgr, AstMgr);
 
   auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifier);
-  if (paramPass == 0) return true;
+  if (paramPass == 0 || paramPass->getParam().get() == 0) return true;
 
   Core::Basic::PlainList<TiObject> strList;
   auto strs = paramPass->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();

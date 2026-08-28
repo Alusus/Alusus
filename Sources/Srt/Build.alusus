@@ -1,7 +1,7 @@
 /**
  * @file Build.alusus
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -30,9 +30,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     use Srl;
 
     function doesExecutableExist (filename: CharsPtr): Bool {
-        def command: array[Char, 50];
-        String.assign(command~ptr, "which %s", filename);
-        def file: ptr[Fs.File] = Fs.openProcess(command~ptr, "r");
+        def file: ptr[Fs.File] = Fs.openProcess(String.format("which %s", filename), "r");
         def output: array[Char, 100];
         def result: ptr = Fs.readLine(output~ptr, 100, file);
         Fs.closeProcess(file);
@@ -136,12 +134,11 @@ if Srl.String.compare(Process.language, "ar") == 0 {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
-            def cmd: array[Char, 600];
-            String.assign(
-                cmd~ptr, "%s -no-pie %s /tmp/output.o -o %s %s", this.getLinkerFilename(),
+            def cmd: String = String.format(
+                "%s -no-pie %s /tmp/output.o -o %s %s", this.getLinkerFilename(),
                 String.merge(this.flags, " ").buf, this.outputFilename.buf, this.getDepsString().buf
             );
-            if System.exec(cmd~ptr) != 0 {
+            if System.exec(cmd) != 0 {
                 Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
@@ -153,9 +150,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             def i: Int;
             for i = 0, i < this.deps.getLength(), ++i {
                 if this.deps(i).find('/') == -1 continue;
-                def cmd: array[Char, 600];
-                String.assign(cmd~ptr, "cp %s %s", this.deps(i).buf, this.outputPath.buf);
-                System.exec(cmd~ptr);
+                System.exec(String.format("cp %s %s", this.deps(i).buf, this.outputPath.buf));
             }
         }
 
@@ -199,12 +194,11 @@ if Srl.String.compare(Process.language, "ar") == 0 {
                 return false;
             }
             def linkerFilename: String = String(Process.coreBinPath) + "wasm-ld";
-            def cmd: array[Char, 600];
-            String.assign(
-                cmd~ptr, "%s --no-entry --allow-undefined --export-dynamic %s %s /tmp/output.o -o %s ",
+            def cmd: String = String.format(
+                "%s --no-entry --allow-undefined --export-dynamic %s %s /tmp/output.o -o %s ",
                 linkerFilename.buf, String.merge(this.flags, " ").buf, this.getDepsString().buf, this.outputFilename.buf
             );
-            if System.exec(cmd~ptr) != 0 {
+            if System.exec(cmd) != 0 {
                 Console.print(I18n.exeGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
