@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.15.3 (2026-08-xx)
+## Version 0.15.3 (2026-08-28)
 
 * Add new helper macros to Srl:
   - allocObj
