@@ -1292,12 +1292,12 @@ void StandardFactory::createExpressionProductionModule()
         })}
      })},
     {S("handler"), newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto currentList = state->getData().ti_cast_get<Containing<Ast::Node>>();
-      auto metadata = ti_cast<Ast::MetaHaving>(currentList);
+      auto node = state->getData().get();
+      auto currentList = ti_cast<Containing<Ast::Node>>(node);
       auto token = ti_cast<Ast::Token>(currentList->getElement(0));
       auto linkOp = Ast::LinkOperator::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
+        { "prodId", node->getProdId() },
+        { "sourceLocation", node->findSourceLocation() }
       });
       linkOp->setType(token->getText());
       linkOp->setSecond(getSharedPtr(currentList->getElement(1)));
@@ -1409,10 +1409,9 @@ void StandardFactory::createExpressionProductionModule()
       [](Parser *parser, ParserState *state)
       {
         auto data = state->getData();
-        auto metadata = data.ti_cast_get<Ast::MetaHaving>();
         auto linkOp = Ast::LinkOperator::create({
-          { "prodId", metadata->getProdId() },
-          { "sourceLocation", metadata->findSourceLocation() }
+          { "prodId", data->getProdId() },
+          { "sourceLocation", data->findSourceLocation() }
         });
         linkOp->setType(S("~"));
         linkOp->setSecond(data);
@@ -1848,11 +1847,11 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }}
     }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Ast::MetaHaving>();
-      auto currentList = state->getData().ti_cast_get<Containing<Ast::Node>>();
+      auto node = state->getData().get();
+      auto currentList = ti_cast<Containing<Ast::Node>>(node);
       auto bridge = Ast::Bridge::create({
-        {S("prodId"), metadata->getProdId()},
-        {S("sourceLocation"), metadata->findSourceLocation()}
+        {S("prodId"), node->getProdId()},
+        {S("sourceLocation"), node->findSourceLocation()}
       });
       bridge->setTarget(getSharedPtr(currentList->getElement(1)));
       state->setData(bridge);
@@ -1881,11 +1880,11 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     }}, newSrdObj<CustomParsingHandler>(
       [](Parser *parser, ParserState *state)
       {
-        auto currentList = state->getData().ti_cast_get<Containing<Ast::Node>>();
-        auto metadata = ti_cast<Ast::MetaHaving>(currentList);
+        auto node = state->getData().get();
+        auto currentList = ti_cast<Containing<Ast::Node>>(node);
         auto alias = Ast::Alias::create({
-          { "prodId", metadata->getProdId() },
-          { "sourceLocation", metadata->findSourceLocation() }
+          { "prodId", node->getProdId() },
+          { "sourceLocation", node->findSourceLocation() }
         });
         alias->setReference(getSharedPtr(currentList->getElement(1)));
         state->setData(alias);

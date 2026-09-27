@@ -31,6 +31,7 @@ class RootManagerExtension : public ObjTiInterface
   {
     TiFunctionBase *importFileRef;
     TiFunctionBase *prefixAlususTemplateClassFuncExpNamesRef;
+    TiFunctionBase *insertClassPaddingRef;
   };
 
 
@@ -48,6 +49,7 @@ class RootManagerExtension : public ObjTiInterface
     Basic::initBindingCaches(this->owner, {
       &this->importFile,
       &this->prefixAlususTemplateClassFuncExpNames,
+      &this->insertClassPadding,
       &this->buildManager,
       &this->astProcessor,
       &this->rtGrammarMgr,
@@ -112,6 +114,16 @@ class RootManagerExtension : public ObjTiInterface
   public: static void _prefixAlususTemplateClassFuncExpNames(
     TiObject *self, Core::Ast::Node *classAst, Core::Ast::Node *argAst
   );
+
+  /**
+   * @brief Insert a padding array at the current preprocess position of a class.
+   *
+   * Classes defined on Alusus side to mirror C++ classes don't always define every member that exists on the C++
+   * side. This function inserts a byte array member that fills the difference between the given size, which is the
+   * size of the members defined on Alusus side, and the size of the C++ class.
+   */
+  public: METHOD_BINDING_CACHE(insertClassPadding, void, (ArchInt /* definedSize */, Char const* /* classUniqueName */));
+  public: static void _insertClassPadding(TiObject *self, ArchInt definedSize, Char const *classUniqueName);
 
   /// @}
 

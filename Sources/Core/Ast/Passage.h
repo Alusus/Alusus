@@ -17,14 +17,14 @@ namespace Core::Ast
 {
 
 class Passage : public Node,
-                public Binding, public MetaHaving, public Printable
+                public Binding, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Passage, Node, "Core.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Node, Binding, MetaHaving, Printable
+    Node, Binding, Printable
   );
   OBJECT_FACTORY(Passage);
 
@@ -37,8 +37,6 @@ class Passage : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Passage);
 
   IMPLEMENT_BINDING(Binding,
     (target, Node, PLAIN_REF, set(value), target),

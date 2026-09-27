@@ -72,9 +72,8 @@ template <class TYPE> class ListExpParsingHandler : public GenericParsingHandler
     auto list = newSrdObj<TYPE>();
     list->add(i1);
     list->add(i2);
-    auto metadata = i1.ti_cast_get<Ast::MetaHaving>();
-    if (metadata != 0) {
-      list->setSourceLocation(metadata->findSourceLocation());
+    if (i1 != 0) {
+      list->setSourceLocation(i1->findSourceLocation());
     }
     return list;
   }

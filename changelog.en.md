@@ -8,6 +8,7 @@
   - Removed the `Core::Data` namespace.
   - Inherited all AST node classes from `Core::Ast::Node`.
   - Inherited all grammar node classes from `Core::Grammar::Node`.
+  - Embedded the `MetaHaving` interface into the `Node` class and removed the interface.
 * Apply O3 optimization on offline builds generated using the Build library.
 
 

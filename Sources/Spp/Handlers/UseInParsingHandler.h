@@ -42,12 +42,10 @@ class UseInParsingHandler : public Core::Processing::Handlers::GenericParsingHan
 
     auto expr = state->getData().ti_cast_get<Core::Ast::List>();
     ASSERT(expr != 0);
-    auto exprMetadata = ti_cast<Core::Ast::MetaHaving>(expr);
-    ASSERT(exprMetadata != 0);
 
     auto newObj = newSrdObj<Spp::Ast::UseInOp>();
-    newObj->setSourceLocation(exprMetadata->findSourceLocation());
-    newObj->setProdId(exprMetadata->getProdId());
+    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setProdId(expr->getProdId());
     newObj->setOperandName(S("this"));
     newObj->setSkipInjection(false);
 

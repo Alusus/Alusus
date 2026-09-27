@@ -28,30 +28,28 @@ Node* findOwner(Node *obj, TypeInfo const *typeInfo)
 }
 
 
-SharedPtr<SourceLocation> const& findSourceLocation(TiObject const *obj)
+SharedPtr<SourceLocation> const& findSourceLocation(Node const *node)
 {
-  auto metadata = ti_cast<MetaHaving const>(obj);
-  if (metadata != 0) return metadata->findSourceLocation();
+  if (node != 0) return node->findSourceLocation();
   else return SharedPtr<SourceLocation>::null;
 }
 
 
-void addSourceLocation(TiObject *obj, SourceLocation *sl)
+void addSourceLocation(Node *node, SourceLocation *sl)
 {
   if (sl == 0) return;
-  auto metadata = ti_cast<MetaHaving>(obj);
-  if (metadata == 0) return;
+  if (node == 0) return;
 
-  auto currentSl = metadata->findSourceLocation();
+  auto currentSl = node->findSourceLocation();
   if (currentSl == 0) {
-    metadata->setSourceLocation(sl);
+    node->setSourceLocation(sl);
   } else if (currentSl.get() == sl) {
     return;
   } else {
     auto newSl = newSrdObj<SourceLocationStack>();
     newSl->push(sl);
     newSl->push(currentSl.get());
-    metadata->setSourceLocation(newSl);
+    node->setSourceLocation(newSl);
   }
 }
 
@@ -60,7 +58,7 @@ Bool mergeDefinition(
   Definition *def, DynamicContaining<Node> *target, Int &index, Ast::Seeker *seeker, Notices::Store *noticeStore
 ) {
   VALIDATE_NOT_NULL(def, target, noticeStore);
-  Core::Ast::Identifier ref({{ S("value"), def->getName() }});
+  Identifier ref({{ S("value"), def->getName() }});
   Bool result = true;
   Bool found = false;
   auto targetObj = ti_cast<Node>(target->getTiObject());
@@ -348,9 +346,9 @@ void dumpAst(OutStream &stream, TiObject *ptr, int indents)
     printable->print(stream, indents);
   } else {
     stream << ptr->getMyTypeInfo()->getUniqueName();
-    auto metadata = ti_cast<Ast::MetaHaving>(ptr);
-    if (metadata) {
-      Word id = metadata->getProdId();
+    auto node = ti_cast<Ast::Node>(ptr);
+    if (node != 0) {
+      Word id = node->getProdId();
       if (id != UNKNOWN_ID) {
         stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
       }

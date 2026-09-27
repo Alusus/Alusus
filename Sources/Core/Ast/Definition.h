@@ -19,13 +19,13 @@ namespace Core::Ast
 // TODO: DOC
 
 class Definition : public Node,
-                   public Binding, public MapContaining<Node>, public MetaHaving, public Printable
+                   public Binding, public MapContaining<Node>, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Definition, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
   OBJECT_FACTORY(Definition);
 
 
@@ -40,8 +40,6 @@ class Definition : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Definition);
 
   IMPLEMENT_BINDING(Binding,
     (name, TiStr, VALUE, setName(value), &name),

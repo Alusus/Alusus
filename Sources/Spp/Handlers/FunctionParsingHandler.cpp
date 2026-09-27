@@ -25,11 +25,11 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   if (expr == 0) {
     // The function type has no args and no body.
     auto functionType = newSrdObj<Spp::Ast::FunctionType>();
-    auto metadata = state->getData().ti_cast_get<Core::Ast::MetaHaving>();
+    auto node = state->getData().get();
     functionType->setArgTypes(SharedPtr<Core::Ast::Map>::null);
     functionType->setRetType(SharedPtr<Core::Ast::Node>::null);
-    functionType->setSourceLocation(metadata->findSourceLocation());
-    functionType->setProdId(metadata->getProdId());
+    functionType->setSourceLocation(node->findSourceLocation());
+    functionType->setProdId(node->getProdId());
     if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
@@ -37,9 +37,6 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     state->setData(functionType);
     return;
   }
-
-  auto exprMetadata = ti_cast<Core::Ast::MetaHaving>(expr);
-  ASSERT(exprMetadata != 0);
 
   // Prepare function signature.
   Core::Ast::Identifier *defName = 0;
@@ -96,8 +93,8 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   auto functionType = newSrdObj<Spp::Ast::FunctionType>();
   functionType->setArgTypes(args);
   functionType->setRetType(retType);
-  functionType->setSourceLocation(exprMetadata->findSourceLocation());
-  functionType->setProdId(exprMetadata->getProdId());
+  functionType->setSourceLocation(expr->findSourceLocation());
+  functionType->setProdId(expr->getProdId());
   if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
@@ -109,8 +106,8 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     auto function = newSrdObj<Spp::Ast::Function>();
     function->setType(functionType);
     function->setBody(getSharedPtr(body));
-    function->setSourceLocation(exprMetadata->findSourceLocation());
-    function->setProdId(exprMetadata->getProdId());
+    function->setSourceLocation(expr->findSourceLocation());
+    function->setProdId(expr->getProdId());
 
     if (tmpltArgs != 0) {
       stateData = Ast::Template::create({}, {
@@ -122,7 +119,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     }
   } else if (tmpltArgs != 0) {
     state->addNotice(
-      newSrdObj<Spp::Notices::TemplateFunctionLacksBodyNotice>(exprMetadata->findSourceLocation())
+      newSrdObj<Spp::Notices::TemplateFunctionLacksBodyNotice>(expr->findSourceLocation())
     );
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
@@ -131,8 +128,8 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   if (defName != 0) {
     auto def = Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
-      { S("prodId"), exprMetadata->getProdId() },
-      { S("sourceLocation"), exprMetadata->findSourceLocation() }
+      { S("prodId"), expr->getProdId() },
+      { S("sourceLocation"), expr->findSourceLocation() }
     }, {
       { S("target"), stateData }
     });

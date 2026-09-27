@@ -27,9 +27,7 @@ namespace Spp::Handlers
 Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::Store *noticeStore);
 
 /// @ingroup spp_handlers
-Bool parseNumber(
-  Core::Ast::Node *ast, TiWord &result, Core::Ast::MetaHaving *parentMetadata, Core::Notices::Store *noticeStore
-);
+Bool parseNumber(Core::Ast::Node *ast, TiWord &result, Core::Notices::Store *noticeStore);
 
 /// @ingroup spp_handlers
 Bool parseTemplateArgs(

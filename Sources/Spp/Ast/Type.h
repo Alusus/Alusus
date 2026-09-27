@@ -19,7 +19,7 @@ namespace Spp::Ast
 using namespace Core;
 
 class Type : public Core::Ast::Node,
-             public Binding, public Core::Ast::MetaHaving, public Core::Ast::Printable
+             public Binding, public Core::Ast::Printable
 {
   //============================================================================
   // Type Info
@@ -27,7 +27,6 @@ class Type : public Core::Ast::Node,
   TYPE_INFO(Type, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org", (
     INHERITANCE_INTERFACES(
       Binding,
-      Core::Ast::MetaHaving,
       Core::Ast::Printable
     )
   ));
@@ -35,8 +34,6 @@ class Type : public Core::Ast::Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Type);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

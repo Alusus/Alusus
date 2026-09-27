@@ -100,10 +100,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     obj->setType(token->getText());
     obj->setSecond(list != 0 ? list->get(1) : SharedPtr<Ast::Node>::null);
 
-    auto metadata = currentData.ti_cast_get<Ast::MetaHaving>();
-    if (metadata != 0) {
-      obj->setSourceLocation(metadata->findSourceLocation());
-    }
+    obj->setSourceLocation(currentData->findSourceLocation());
     return obj;
   }
 

@@ -24,15 +24,13 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 
   auto expr = state->getData().ti_cast_get<Core::Ast::List>();
   ASSERT(expr != 0);
-  auto exprMetadata = ti_cast<Core::Ast::MetaHaving>(expr);
-  ASSERT(exprMetadata != 0);
 
   Core::Ast::LinkOperator *linkOp = 0;
   if (expr->getCount() == 2) {
     linkOp = ti_cast<Core::Ast::LinkOperator>(expr->getElement(1));
   }
   if (linkOp == 0) {
-    state->addNotice(newSrdObj<Notices::MissingDefLinkNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::MissingDefLinkNotice>(expr->findSourceLocation()));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
@@ -40,7 +38,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   // Get the name of the definition.
   auto nameToken = linkOp->getFirst().ti_cast_get<Core::Ast::Identifier>();
   if (nameToken == 0) {
-    state->addNotice(newSrdObj<Notices::MissingDefNameNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::MissingDefNameNotice>(expr->findSourceLocation()));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
@@ -51,23 +49,23 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   if (val == 0) {
     // TODO: We need to choose terms for the parts of a define command, e.g.
     // definition name, definition, etc.
-    state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(expr->findSourceLocation()));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
 
   if(val->isDerivedFrom<Core::Ast::AssignmentOperator>()) {
     auto def = Core::Ast::Definition::create({
-      { "prodId", exprMetadata->getProdId() },
-      { "sourceLocation", exprMetadata->findSourceLocation() },
+      { "prodId", expr->getProdId() },
+      { "sourceLocation", expr->findSourceLocation() },
       { "name", name }
     }, {
       { "target", static_cast<Core::Ast::AssignmentOperator*>(val.get())->getFirst() }
     });
 
     auto assignment = Core::Ast::AssignmentOperator::create({
-      { "prodId", exprMetadata->getProdId() },
-      { "sourceLocation", exprMetadata->findSourceLocation() },
+      { "prodId", expr->getProdId() },
+      { "sourceLocation", expr->findSourceLocation() },
       { "type", TiStr("=") }
     }, {
       { "first", nameToken },
@@ -81,8 +79,8 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     }));
   } else {
     auto def = Core::Ast::Definition::create({
-      { "prodId", exprMetadata->getProdId() },
-      { "sourceLocation", exprMetadata->findSourceLocation() },
+      { "prodId", expr->getProdId() },
+      { "sourceLocation", expr->findSourceLocation() },
       { "name", name }
     }, {
       { "target", val }

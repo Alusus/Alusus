@@ -109,9 +109,9 @@ template <class T> T* findOwner(Node *obj)
   return static_cast<T*>(findOwner(obj, T::getTypeInfo()));
 }
 
-SharedPtr<SourceLocation> const& findSourceLocation(TiObject const *obj);
+SharedPtr<SourceLocation> const& findSourceLocation(Node const *node);
 
-void addSourceLocation(TiObject *obj, SourceLocation *sl);
+void addSourceLocation(Node *node, SourceLocation *sl);
 
 Bool mergeDefinition(
   Definition *def, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore
@@ -164,7 +164,6 @@ Bool isEqual(SourceLocation const *sl1, SourceLocation const *sl2);
 
 #include "Node.h"
 #include "NodeStack.h"
-#include "MetaHaving.h"
 #include "Mergeable.h"
 #include "Printable.h"
 

@@ -20,7 +20,7 @@ namespace Core::Processing::Handlers
 
 void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
-  Ast::MetaHaving *item = state->getData().ti_cast_get<Ast::MetaHaving>();
+  Ast::Node *item = state->getData().get();
   Grammar::SymbolDefinition *prod = state->refTopProdLevel().getProd();
   if (item != 0 && item->getProdId() == UNKNOWN_ID) {
     // We need to set the production id now.
@@ -29,15 +29,10 @@ void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     // We need to create a container data object for this production root.
     SharedPtr<Ast::Node> data = this->createEnforcedProdNode(state);
     // Set the production id for this data item.
-    Ast::MetaHaving *dataMeta = data.ti_cast_get<Ast::MetaHaving>();
-    if (dataMeta == 0) {
-      throw EXCEPTION(GenericException,
-                      S("Production root objects must implement Ast::MetaHaving interface."));
-    }
-    dataMeta->setProdId(prod->getId());
+    data->setProdId(prod->getId());
     // Set the line and column, if any.
     if (item != 0) {
-      dataMeta->setSourceLocation(item->findSourceLocation());
+      data->setSourceLocation(item->findSourceLocation());
     }
     // Set the data to this production's state level.
     state->setData(data);
@@ -131,10 +126,7 @@ void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
 
   // Create the token item.
   SharedPtr<Ast::Node> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
-  auto metadata = tokenItem.ti_cast_get<Ast::MetaHaving>();
-  if (metadata) {
-    metadata->setSourceLocation(Ast::cloneSourceLocation(token->getSourceLocation().get()));
-  }
+  tokenItem->setSourceLocation(Ast::cloneSourceLocation(token->getSourceLocation().get()));
   state->setData(tokenItem);
 }
 
@@ -244,11 +236,7 @@ void GenericParsingHandler::addData(
         // a list whose first item is null.
         SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
         auto newContainer = list.ti_cast_get<DynamicContaining<Ast::Node>>();
-        Ast::MetaHaving *metadata = data.ti_cast_get<Ast::MetaHaving>();
-        Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
-        if (newMetadata != 0 && metadata != 0) {
-          newMetadata->setSourceLocation(metadata->findSourceLocation());
-        }
+        list->setSourceLocation(data->findSourceLocation());
         newContainer->addElement(currentData);
         newContainer->addElement(data.get());
         state->setData(list, levelIndex);
@@ -260,8 +248,7 @@ void GenericParsingHandler::addData(
       // a child data was set into this level, or this level was visited more than once causing
       // a list to be created.
       auto container = ti_cast<DynamicContaining<Ast::Node>>(currentData);
-      Ast::MetaHaving *metadata = ti_cast<Ast::MetaHaving>(currentData);
-      if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
+      if (container != 0 && (currentData == 0 || currentData->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         container->addElement(data.get());
@@ -269,10 +256,7 @@ void GenericParsingHandler::addData(
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
         SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
         auto newContainer = list.ti_cast_get<DynamicContaining<Ast::Node>>();
-        Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
-        if (newMetadata != 0 && metadata != 0) {
-          newMetadata->setSourceLocation(metadata->findSourceLocation());
-        }
+        list->setSourceLocation(currentData->findSourceLocation());
         newContainer->addElement(currentData);
         newContainer->addElement(data.get());
         state->setData(list, levelIndex);

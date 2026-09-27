@@ -19,13 +19,13 @@ namespace Core::Ast
 // TODO: DOC
 
 class Bracket : public Node,
-                public Binding, public MapContaining<Node>, public MetaHaving, public Printable
+                public Binding, public MapContaining<Node>, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bracket, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
   OBJECT_FACTORY(Bracket);
 
 
@@ -38,8 +38,6 @@ class Bracket : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Bracket);
 
   IMPLEMENT_BINDING(Binding,
     (type, BracketType, VALUE, setType(value), &type),

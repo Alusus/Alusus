@@ -19,13 +19,13 @@ namespace Core::Ast
 // TODO: DOC
 
 class OutfixOperator : public Node,
-                       public Binding, public MapContaining<Node>, public MetaHaving
+                       public Binding, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(OutfixOperator, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, MetaHaving);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
   OBJECT_FACTORY(OutfixOperator);
 
 
@@ -38,8 +38,6 @@ class OutfixOperator : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(OutfixOperator);
 
   IMPLEMENT_BINDING(Binding,
     (type, TiStr, VALUE, setType(value), &type),

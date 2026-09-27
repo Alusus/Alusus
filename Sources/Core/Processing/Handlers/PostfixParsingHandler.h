@@ -69,10 +69,7 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
     obj->setOperand(currentData);
     obj->setType(token->getText());
 
-    auto metadata = currentData.ti_cast_get<Ast::MetaHaving>();
-    if (metadata != 0) {
-      obj->setSourceLocation(metadata->findSourceLocation());
-    }
+    obj->setSourceLocation(currentData->findSourceLocation());
     return obj;
   }
 

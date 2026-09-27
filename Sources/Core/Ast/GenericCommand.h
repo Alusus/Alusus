@@ -17,13 +17,13 @@ namespace Core::Ast
 {
 
 class GenericCommand : public Node,
-                       public Binding, public MapContaining<Node>, public MetaHaving, public Printable
+                       public Binding, public MapContaining<Node>, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GenericCommand, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
   OBJECT_FACTORY(GenericCommand);
 
 
@@ -37,8 +37,6 @@ class GenericCommand : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(GenericCommand);
 
   IMPLEMENT_BINDING(Binding,
     (type, TiStr, VALUE, setType(value), &type),

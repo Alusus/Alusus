@@ -26,22 +26,10 @@ constexpr Char const* META_EXTRA_AST_TYPE = S("astType");
 
 // tryGetAstType
 
-template <class OT,
-          typename std::enable_if<std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
+template <class OT>
 inline Type* tryGetAstType(OT *object)
 {
   auto box = object->getExtra(META_EXTRA_AST_TYPE).template ti_cast_get<TiBox<Type*>>();
-  if (box == 0) return 0;
-  else return box->get();
-}
-
-template <class OT,
-          typename std::enable_if<!std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline Type* tryGetAstType(OT *object)
-{
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(object);
-  if (metadata == 0) return 0;
-  auto box = metadata->getExtra(META_EXTRA_AST_TYPE).template ti_cast_get<TiBox<Type*>>();
   if (box == 0) return 0;
   else return box->get();
 }
@@ -60,40 +48,16 @@ inline Type* getAstType(OT *object)
 
 // setAstType
 
-template <class OT,
-          typename std::enable_if<std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
+template <class OT>
 inline void setAstType(OT *object, SharedPtr<Type> const &type)
 {
   object->setExtra(META_EXTRA_AST_TYPE, TiBox<Type*>::create(type.get()));
 }
 
-template <class OT,
-          typename std::enable_if<!std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setAstType(OT *object, SharedPtr<Type> const &type)
-{
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(object);
-  if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
-  }
-  metadata->setExtra(META_EXTRA_AST_TYPE, TiBox<Type*>::create(type.get()));
-}
-
-template <class OT,
-          typename std::enable_if<std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
+template <class OT>
 inline void setAstType(OT *object, Type *type)
 {
   object->setExtra(META_EXTRA_AST_TYPE, TiBox<Type*>::create(type));
-}
-
-template <class OT,
-          typename std::enable_if<!std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setAstType(OT *object, Type *type)
-{
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(object);
-  if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
-  }
-  metadata->setExtra(META_EXTRA_AST_TYPE, TiBox<Type*>::create(type));
 }
 
 } // namespace

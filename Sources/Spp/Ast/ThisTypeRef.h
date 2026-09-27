@@ -17,22 +17,20 @@ namespace Spp::Ast
 {
 
 class ThisTypeRef : public Core::Ast::Node,
-                    public Binding, public Core::Ast::MetaHaving, public Core::Ast::Printable
+                    public Binding, public Core::Ast::Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ThisTypeRef, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, Core::Ast::MetaHaving, Core::Ast::Printable
+    Core::Ast::Node, Binding, Core::Ast::Printable
   );
   OBJECT_FACTORY(ThisTypeRef);
 
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(ThisTypeRef);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

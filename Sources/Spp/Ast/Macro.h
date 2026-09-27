@@ -18,7 +18,7 @@ namespace Spp::Ast
 
 class Macro : public Core::Ast::Node,
               public Binding, public MapContaining<Core::Ast::Node>,
-              public Core::Ast::MetaHaving, public Core::Ast::Printable
+              public Core::Ast::Printable
 {
   //============================================================================
   // Type Info
@@ -27,7 +27,6 @@ class Macro : public Core::Ast::Node,
     INHERITANCE_INTERFACES(
       Binding,
       MapContaining<Core::Ast::Node>,
-      Core::Ast::MetaHaving,
       Core::Ast::Printable
     )
   ));
@@ -44,8 +43,6 @@ class Macro : public Core::Ast::Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Macro);
 
   IMPLEMENT_BINDING(Binding,
     (member, TiBool, VALUE, setMember(value), &member),

@@ -17,15 +17,14 @@ namespace Core::Ast
 {
 
 class Bridge : public Node,
-               public Binding, public MapContaining<Node>, public MetaHaving,
-               public Printable
+               public Binding, public MapContaining<Node>, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bridge, Node, "Core.Ast", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(
-      Binding, MapContaining<Node>, MetaHaving, Printable
+      Binding, MapContaining<Node>, Printable
     )
   ));
   OBJECT_FACTORY(Bridge);
@@ -39,8 +38,6 @@ class Bridge : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Bridge);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

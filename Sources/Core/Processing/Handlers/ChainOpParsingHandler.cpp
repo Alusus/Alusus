@@ -34,10 +34,9 @@ void ChainOpParsingHandler::addData(SharedPtr<Ast::Node> const &data, Parser *pa
       }
       container->setElement(0, state->getData(levelIndex).get());
 
-      auto myMetadata = data.ti_cast_get<Ast::MetaHaving>();
-      auto srcMetadata = ti_cast<Ast::MetaHaving>(container->getElement(0));
-      if (myMetadata != 0 && srcMetadata != 0) {
-        myMetadata->setSourceLocation(srcMetadata->findSourceLocation());
+      auto srcNode = ti_cast<Ast::Node>(container->getElement(0));
+      if (data != 0 && srcNode != 0) {
+        data->setSourceLocation(srcNode->findSourceLocation());
       }
 
       state->setData(data, levelIndex);

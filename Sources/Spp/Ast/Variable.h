@@ -18,7 +18,7 @@ namespace Spp::Ast
 
 class Variable : public Core::Ast::Node,
                  public Binding, public MapContaining<Core::Ast::Node>,
-                 public Core::Ast::MetaHaving, public Core::Ast::Printable
+                 public Core::Ast::Printable
 {
   //============================================================================
   // Type Info
@@ -26,7 +26,7 @@ class Variable : public Core::Ast::Node,
   TYPE_INFO(Variable, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>,
-    Core::Ast::MetaHaving, Core::Ast::Printable
+    Core::Ast::Printable
   );
   OBJECT_FACTORY(Variable);
 
@@ -41,8 +41,6 @@ class Variable : public Core::Ast::Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Variable);
 
   IMPLEMENT_BINDING(Binding,
     (valueOnly, TiBool, VALUE, setValueOnly(value), &valueOnly),

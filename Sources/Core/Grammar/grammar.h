@@ -33,6 +33,7 @@ namespace Core::Grammar
 
 namespace Core::Ast
 {
+  class Node;
   class Scope;
 }
 

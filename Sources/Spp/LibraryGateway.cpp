@@ -358,6 +358,9 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
     S("RootManager_prefixAlususTemplateClassFuncExpNames"),
     (void*)&RootManagerExtension::_prefixAlususTemplateClassFuncExpNames
   );
+  this->globalItemRepo->addItem(
+    S("RootManager_insertClassPadding"), (void*)&RootManagerExtension::_insertClassPadding
+  );
   Rt::GrammarMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtGrammarMgr.get());
   Rt::AstMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtAstMgr.get());
   Rt::BuildMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtBuildMgr.get());

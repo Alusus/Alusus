@@ -20,8 +20,6 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
 
   auto data = state->getData().ti_cast_get<Core::Ast::List>();
   ASSERT(data != 0);
-  auto exprMetadata = ti_cast<Core::Ast::MetaHaving>(data);
-  ASSERT(exprMetadata != 0);
 
   // Is this a template?
   SharedPtr<Core::Ast::List> tmpltArgs;
@@ -37,13 +35,13 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   }
 
   if (data->getCount() < 2) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
   for (Int i = 1; i < data->getCount(); ++i) {
     if (data->get(i) == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(data->findSourceLocation()));
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
@@ -68,7 +66,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
 
   if (tmpltArgs != 0 && mode != Mode::FUNCTION) {
     state->addNotice(
-      newSrdObj<Spp::Notices::InvalidTemplateHandlerStatementNotice>(exprMetadata->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidTemplateHandlerStatementNotice>(data->findSourceLocation())
     );
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
@@ -108,7 +106,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     if (paramPass->getType() == Core::Ast::BracketType::ROUND) {
       success = this->createParensOpHandler(state, paramPass, body, retType, mode);
     } else {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
       success = false;
     }
   } else if (expr->isDerivedFrom<Core::Ast::LinkOperator>()) {
@@ -121,7 +119,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     if (mode == Mode::FUNCTION) {
       success = this->createInitOpHandler(state, static_cast<Spp::Ast::InitOp*>(expr), body);
     } else {
-      state->addNotice(newSrdObj<Spp::Notices::PtrBasedInitOpNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::PtrBasedInitOpNotice>(data->findSourceLocation()));
       success = false;
     }
   } else if (expr->isDerivedFrom<Spp::Ast::TerminateOp>()) {
@@ -129,7 +127,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   } else if (expr->isDerivedFrom<Spp::Ast::CastOp>()) {
     success = this->createCastHandler(state, static_cast<Spp::Ast::CastOp*>(expr), body, mode);
   } else {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(exprMetadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
     success = false;
   }
 

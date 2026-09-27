@@ -30,9 +30,9 @@ void ImportParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     // TODO: Log the loaded library in the parent statement list in order to unload it when
     //       the statement list is complete.
   } else if (result == 1) {
-    auto metadata = state->getData().ti_cast<Ast::MetaHaving>();
+    auto node = state->getData().get();
     state->addNotice(newSrdObj<Notices::ImportLoadFailedNotice>(
-      filenames, errorDetails, metadata->findSourceLocation()
+      filenames, errorDetails, node->findSourceLocation()
     ));
   }
   // Reset parsed data because we are done with the command.

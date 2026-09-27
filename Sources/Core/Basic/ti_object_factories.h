@@ -30,7 +30,6 @@ class TiObjectFactory
   public: typedef SharedPtr<TiObject>(*SharedCreateFunc)();
   public: typedef void(*InitPreallocatedFunc)(TiObject*);
   public: typedef void(*TerminationFunc)(TiObject*);
-  public: typedef ArchInt(*SizeFunc)();
 
 
   //============================================================================
@@ -40,7 +39,6 @@ class TiObjectFactory
   private: SharedCreateFunc sharedCreateFunc;
   private: InitPreallocatedFunc initPreallocatedFunc;
   private: TerminationFunc terminationFunc;
-  private: SizeFunc sizeFunc;
 
 
   //============================================================================
@@ -50,13 +48,11 @@ class TiObjectFactory
     PlainCreateFunc plainFunc,
     SharedCreateFunc sharedFunc,
     InitPreallocatedFunc preallocatedFunc,
-    TerminationFunc termFunc,
-    SizeFunc sizeFunc
+    TerminationFunc termFunc
   ) : plainCreateFunc(plainFunc),
       sharedCreateFunc(sharedFunc),
       initPreallocatedFunc(preallocatedFunc),
-      terminationFunc(termFunc),
-      sizeFunc(sizeFunc)
+      terminationFunc(termFunc)
   {
   }
 
@@ -84,12 +80,6 @@ class TiObjectFactory
   public: void terminate(TiObject *p)
   {
     if (this->terminationFunc != 0) this->terminationFunc(p);
-  }
-
-  public: ArchInt getSize()
-  {
-    if (this->sizeFunc != 0) return this->sizeFunc();
-    else return 0;
   }
 
 }; // class
@@ -159,10 +149,6 @@ template<class T> TiObjectFactory* getTiObjectFactory()
     [](TiObject *p)->void
     {
       ((T*)p)->~T();
-    },
-    []()->ArchInt
-    {
-      return sizeof(T);
     }
   );
 }

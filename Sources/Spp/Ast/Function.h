@@ -20,7 +20,7 @@ class FunctionType;
 
 class Function : public Core::Ast::Node,
                  public Binding, public MapContaining<Core::Ast::Node>,
-                 public Core::Ast::MetaHaving, public Core::Ast::Printable
+                 public Core::Ast::Printable
 {
   //============================================================================
   // Type Info
@@ -28,7 +28,7 @@ class Function : public Core::Ast::Node,
   TYPE_INFO(Function, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>,
-    Core::Ast::MetaHaving, Core::Ast::Printable
+    Core::Ast::Printable
   );
   OBJECT_FACTORY(Function);
 
@@ -44,8 +44,6 @@ class Function : public Core::Ast::Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Function);
 
   IMPLEMENT_BINDING(Binding,
     (name, TiStr, VALUE, setName(value), &name),

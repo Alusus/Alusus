@@ -386,41 +386,38 @@ void BuildManager::_resetBuild(TiObject *self, BuildSession *buildSession)
 }
 
 
-void BuildManager::_resetBuildData(TiObject *self, TiObject *obj, CodeGen::ExtraDataAccessor *eda)
+void BuildManager::_resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGen::ExtraDataAccessor *eda)
 {
-  if (obj == 0) return;
-  if (obj->isDerivedFrom<Core::Grammar::Module>()) return;
+  if (node == 0) return;
 
   PREPARE_SELF(buildMgr, BuildManager);
 
-  auto metahaving = ti_cast<Core::Ast::MetaHaving>(obj);
-  if (metahaving != 0) {
-    eda->removeCodeGenData(metahaving);
-    eda->removeAutoCtor(metahaving);
-    eda->removeAutoCtorType(metahaving);
-    eda->removeAutoDtor(metahaving);
-    eda->removeAutoDtorType(metahaving);
-    eda->resetCodeGenFailed(metahaving);
-    eda->resetInitStatementsGenIndex(metahaving);
-  }
+  eda->removeCodeGenData(node);
+  eda->removeAutoCtor(node);
+  eda->removeAutoCtorType(node);
+  eda->removeAutoDtor(node);
+  eda->removeAutoDtorType(node);
+  eda->resetCodeGenFailed(node);
+  eda->resetInitStatementsGenIndex(node);
 
-  if (obj->isDerivedFrom<Core::Ast::Passage>()) return;
+  if (node->isDerivedFrom<Core::Ast::Passage>()) return;
 
-  auto container = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(obj);
+  auto container = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(node);
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
       buildMgr->resetBuildData(container->getElement(i), eda);
     }
   }
 
-  auto binding = ti_cast<Core::Basic::Binding>(obj);
+  auto binding = ti_cast<Core::Basic::Binding>(node);
   if (binding != 0) {
     for (Int i = 0; i < binding->getMemberCount(); ++i) {
-      buildMgr->resetBuildData(binding->getMember(i), eda);
+      auto member = ti_cast<Core::Ast::Node>(binding->getMember(i));
+      if (member != 0) buildMgr->resetBuildData(member, eda);
     }
   }
 
-  auto tpl = ti_cast<Ast::Template>(obj);
+  auto tpl = ti_cast<Ast::Template>(node);
   if (tpl != 0) {
     for (Int i = 0; i < tpl->getInstanceCount(); ++i) {
       buildMgr->resetBuildData(tpl->getInstance(i).get(), eda);

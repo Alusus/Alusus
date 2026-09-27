@@ -26,8 +26,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
   auto body = currentList->getElement(bodyIndex);
 
   // We'll use the source location of the "module" keyword, rather than of the first statement.
-  auto metaHaving = ti_cast<Core::Ast::MetaHaving>(body);
-  metaHaving->setSourceLocation(Core::Ast::findSourceLocation(currentList->getElement(0)));
+  body->setSourceLocation(Core::Ast::findSourceLocation(currentList->getElement(0)));
 
   if (bodyIndex == 1) {
     state->setData(getSharedPtr(body));
@@ -36,11 +35,10 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     if (defName == 0) {
       throw EXCEPTION(GenericException, S("Invalid element type for module name."));
     }
-    auto metadata = ti_cast<Core::Ast::MetaHaving>(currentList);
     auto def = Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
-      { S("prodId"), metadata->getProdId() },
-      { S("sourceLocation"), metadata->findSourceLocation() }
+      { S("prodId"), currentList->getProdId() },
+      { S("sourceLocation"), currentList->findSourceLocation() }
     }, {
       { S("target"), getSharedPtr(body) }
     });

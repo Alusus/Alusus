@@ -21,7 +21,6 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
   GenericParsingHandler::onProdEnd(parser, state);
 
   auto currentList = state->getData().ti_cast_get<Core::Ast::List>();
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(currentList);
 
   Core::Ast::Identifier *defName = 0;
   SharedPtr<Core::Ast::List> tmpltArgs;
@@ -61,8 +60,8 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
   }
 
   auto userType = Ast::UserType::create({
-    { "prodId", metadata->getProdId()},
-    { "sourceLocation", metadata->findSourceLocation() }
+    { "prodId", currentList->getProdId()},
+    { "sourceLocation", currentList->findSourceLocation() }
   }, {
     { "body", body }
   });
@@ -80,8 +79,8 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
   if (defName != 0) {
     state->setData(Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
-      { S("prodId"), metadata->getProdId() },
-      { S("sourceLocation"), metadata->findSourceLocation() }
+      { S("prodId"), currentList->getProdId() },
+      { S("sourceLocation"), currentList->findSourceLocation() }
     }, {
       { S("target"), type }
     }));

@@ -19,13 +19,13 @@ namespace Core::Ast
 // TODO: DOC
 
 class InfixOperator : public Node,
-                      public Binding, public MapContaining<Node>, public MetaHaving, public Printable
+                      public Binding, public MapContaining<Node>, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
   OBJECT_FACTORY(InfixOperator);
 
 
@@ -39,8 +39,6 @@ class InfixOperator : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(InfixOperator);
 
   IMPLEMENT_BINDING(Binding,
     (type, TiStr, VALUE, setType(value), &type),

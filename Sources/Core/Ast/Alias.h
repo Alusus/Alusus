@@ -17,13 +17,13 @@ namespace Core::Ast
 {
 
 class Alias : public Node,
-              public Binding, public MapContaining<Node>, public MetaHaving, public Printable
+              public Binding, public MapContaining<Node>, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
   OBJECT_FACTORY(Alias);
 
 
@@ -35,8 +35,6 @@ class Alias : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Alias);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

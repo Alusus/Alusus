@@ -17,22 +17,20 @@ namespace Core::Ast
 {
 
 class Map : public SharedMapBase<Node, Node>,
-            public Binding, public MetaHaving, public Printable
+            public Binding, public Printable
 {
   //============================================================================
   // Type Info
 
   typedef SharedMapBase<Node, Node> _MyBase;
   TYPE_INFO(Map, _MyBase, "Core.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, MetaHaving, Printable)
+    INHERITANCE_INTERFACES(Binding, Printable)
   ));
   OBJECT_FACTORY(Map);
 
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Map);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

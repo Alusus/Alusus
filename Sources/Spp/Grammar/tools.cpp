@@ -21,9 +21,9 @@ using namespace Core::Processing;
 using Map = Core::Grammar::Map;
 
 Bool parseCommandSection(
-  TiObject *ast, CommandSection &section, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, CommandSection &section, Core::Notices::Store *noticeStore
 ) {
-  TiObject *sectionAst;
+  Core::Ast::Node *sectionAst;
   if (!parseMinMax(ast, sectionAst, section.min, section.max, noticeStore)) return false;
   auto scope = ti_cast<Core::Ast::Scope>(sectionAst);
   if (scope == 0) {
@@ -50,7 +50,7 @@ Bool parseCommandSection(
     if (id->getValue() == S("keywords") || id->getValue() == S("مفاتيح")) {
       if (!parseCommandKeywords(linkOp->getSecond().get(), section.keywords, noticeStore)) return false;
     } else if (id->getValue() == S("args") || id->getValue() == S("معطيات")) {
-      Array<TiObject*> argList;
+      Array<Core::Ast::Node*> argList;
       convertInfixOpIntoList(linkOp->getSecond().get(), S("+"), argList);
       for (Int j = 0; j < argList.getLength(); ++j) {
         CommandArg arg;
@@ -76,9 +76,9 @@ Bool parseCommandSection(
 
 
 Bool parseCommandKeywords(
-  TiObject *ast, SharedPtr<Map> &keywords, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, SharedPtr<Map> &keywords, Core::Notices::Store *noticeStore
 ) {
-  Array<TiObject*> keywordList;
+  Array<Core::Ast::Node*> keywordList;
   convertInfixOpIntoList(ast, S("|"), keywordList);
   if (keywordList.getLength() == 0) {
     noticeStore->add(
@@ -102,9 +102,9 @@ Bool parseCommandKeywords(
 
 
 Bool parseCommandArg(
-  TiObject *ast, CommandArg &arg, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, CommandArg &arg, Core::Notices::Store *noticeStore
 ) {
-  TiObject *argAst;
+  Core::Ast::Node *argAst;
   if (!parseMinMax(ast, argAst, arg.min, arg.max, noticeStore)) return false;
   Str qualifier;
   if (!parseQualifier(argAst, qualifier, noticeStore)) return false;
@@ -115,7 +115,7 @@ Bool parseCommandArg(
 
 
 Bool parseMinMax(
-  TiObject *ast, TiObject *&resultAst, SharedPtr<TiInt> &min, SharedPtr<TiInt> &max, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, Core::Ast::Node *&resultAst, SharedPtr<TiInt> &min, SharedPtr<TiInt> &max, Core::Notices::Store *noticeStore
 ) {
   auto mulOp = ti_cast<Core::Ast::MultiplicationOperator>(ast);
   if (mulOp == 0 || mulOp->getType() != S("*")) {
@@ -173,7 +173,7 @@ Bool parseMinMax(
 
 
 Bool parseQualifier(
-  TiObject *ast, Str &qualifier, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, Str &qualifier, Core::Notices::Store *noticeStore
 ) {
   if (ast->isDerivedFrom<Core::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Ast::Identifier*>(ast);
@@ -196,7 +196,7 @@ Bool parseQualifier(
 }
 
 
-void convertInfixOpIntoList(TiObject *ast, Char const *op, Array<TiObject*> &list)
+void convertInfixOpIntoList(Core::Ast::Node *ast, Char const *op, Array<Core::Ast::Node*> &list)
 {
   auto infixOp = ti_cast<Core::Ast::InfixOperator>(ast);
   if (infixOp == 0 || infixOp->getType() != op) {
@@ -209,7 +209,7 @@ void convertInfixOpIntoList(TiObject *ast, Char const *op, Array<TiObject*> &lis
 
 
 Bool overrideTree(
-  TiObject *target, Str baseRefQualifier, TiObject *qualifierAst, TiObject *valueAst, Core::Notices::Store *noticeStore
+  TiObject *target, Str baseRefQualifier, Core::Ast::Node *qualifierAst, Core::Ast::Node *valueAst, Core::Notices::Store *noticeStore
 ) {
   if (qualifierAst->isDerivedFrom<Core::Ast::Identifier>()) {
     if (valueAst == 0) {
@@ -263,7 +263,7 @@ Bool overrideTree(
 
 
 Bool cloneChain(
-  TiObject *target, TiObject *qualifier, Str &baseRefQualifier, Core::Notices::Store *noticeStore, TiObject *&result
+  TiObject *target, Core::Ast::Node *qualifier, Str &baseRefQualifier, Core::Notices::Store *noticeStore, TiObject *&result
 ) {
   if (qualifier->isDerivedFrom<Core::Ast::Identifier>()) {
     auto identifier = static_cast<Core::Ast::Identifier*>(qualifier);
@@ -303,7 +303,7 @@ Bool cloneChain(
 }
 
 
-Bool parseValueAst(TiObject *valueAst, Core::Notices::Store *noticeStore, TioSharedPtr &result)
+Bool parseValueAst(Core::Ast::Node *valueAst, Core::Notices::Store *noticeStore, TioSharedPtr &result)
 {
   if (
     valueAst->isDerivedFrom<Core::Ast::LinkOperator>() ||

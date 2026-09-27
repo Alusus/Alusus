@@ -55,20 +55,10 @@ s_enum(GlobalVarState,
 
 // tryGetExtra
 
-template <class DT, class OT,
-          typename std::enable_if<std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
+template <class DT, class OT>
 inline DT* tryGetExtra(OT *object, Char const *name)
 {
   return object->getExtra(name).template ti_cast_get<DT>();
-}
-
-template <class DT, class OT,
-          typename std::enable_if<!std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline DT* tryGetExtra(OT *object, Char const *name)
-{
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(object);
-  if (metadata == 0) return 0;
-  return metadata->getExtra(name).template ti_cast_get<DT>();
 }
 
 // getExtra
@@ -83,46 +73,6 @@ inline DT* getExtra(OT *object, Char const *name)
   return result;
 }
 
-// setExtra
-
-template <class DT, class OT,
-          typename std::enable_if<std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setExtra(OT *object, Char const *name, SharedPtr<DT> const &data)
-{
-  object->setExtra(name, data);
-}
-
-template <class DT, class OT,
-          typename std::enable_if<!std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void setExtra(OT *object, Char const *name, SharedPtr<DT> const &data)
-{
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(object);
-  if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
-  }
-  metadata->setExtra(name, data);
-}
-
-// removeExtra
-
-template <class OT,
-          typename std::enable_if<std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void removeExtra(OT *object, Char const *name)
-{
-  object->removeExtra(name);
-}
-
-template <class OT,
-          typename std::enable_if<!std::is_base_of<Core::Ast::MetaHaving, OT>::value, int>::type = 0>
-inline void removeExtra(OT *object, Char const *name)
-{
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(object);
-  if (metadata == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("object"), S("Object does not implement the MetaHaving interface."));
-  }
-  metadata->removeExtra(name);
-}
-
 // Ast Related Accessors
 
 #define DEFINE_FLAG_ACCESSORS(name) \
@@ -130,18 +80,18 @@ inline void removeExtra(OT *object, Char const *name)
     auto f = tryGetExtra<TiBool>(object, #name); return f && f->get(); \
   } \
   template <class OT> inline void set##name(OT *object, Bool f) { \
-    setExtra(object, #name, TiBool::create(f)); \
+    object->setExtra(#name, TiBool::create(f)); \
   } \
-  template <class OT> inline void reset##name(OT *object) { removeExtra(object, #name); }
+  template <class OT> inline void reset##name(OT *object) { object->removeExtra(#name); }
 
 #define DEFINE_STR_ACCESSORS(name) \
   template <class OT> inline void set##name(OT *object, Str f) { \
-    setExtra(object, #name, TiStr::create(f)); \
+    object->setExtra(#name, TiStr::create(f)); \
   } \
   template <class OT> inline Str get##name(OT *object) { \
     auto s = tryGetExtra<TiStr>(object, #name); return s != 0 ? s->getStr() : Str(); \
   } \
-  template <class OT> inline void reset##name(OT *object) { removeExtra(object, #name); }
+  template <class OT> inline void reset##name(OT *object) { object->removeExtra(#name); }
 
 DEFINE_FLAG_ACCESSORS(Executed);
 DEFINE_STR_ACCESSORS(MangledName);
@@ -152,7 +102,7 @@ template <class OT> inline Int getAstProcessingState(OT *object) {
   return f ? f->get() : AstProcessingState::NOT_STARTED;
 }
 template <class OT> inline void setAstProcessingState(OT *object, Int s) {
-  setExtra(object, "AstProcessing", TiInt::create(s));
+  object->setExtra("AstProcessing", TiInt::create(s));
 }
 
 } // namespace

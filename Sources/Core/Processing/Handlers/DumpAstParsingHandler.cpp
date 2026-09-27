@@ -24,8 +24,6 @@ void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 
   auto data = state->getData().ti_cast_get<Containing<Ast::Node>>()->getElement(1);
   ASSERT(data != 0);
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(data);
-  ASSERT(metadata != 0);
 
   try {
     Bool found = false;
@@ -43,10 +41,10 @@ void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
       }, 0
     );
     if (!found) {
-      state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(data->findSourceLocation()));
     }
   } catch (InvalidArgumentException) {
-    state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(metadata->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(data->findSourceLocation()));
   }
 
   state->setData(SharedPtr<Ast::Node>(0));

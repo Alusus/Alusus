@@ -42,18 +42,16 @@ class WhileParsingHandler : public Core::Processing::Handlers::GenericParsingHan
 
     auto expr = state->getData().ti_cast_get<Core::Ast::List>();
     ASSERT(expr != 0);
-    auto exprMetadata = ti_cast<Core::Ast::MetaHaving>(expr);
-    ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidWhileStatementNotice>(exprMetadata->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidWhileStatementNotice>(expr->findSourceLocation()));
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
 
     auto newObj = newSrdObj<Spp::Ast::WhileStatement>();
-    newObj->setSourceLocation(exprMetadata->findSourceLocation());
-    newObj->setProdId(exprMetadata->getProdId());
+    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setProdId(expr->getProdId());
     for (Int i = 0; i < expr->getCount() - 1; ++i) {
       newObj->setElement(i, expr->getElement(i + 1));
     }

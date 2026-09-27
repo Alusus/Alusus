@@ -97,19 +97,14 @@ Bool TypeGenerator::getGeneratedVoidType(
 
 Bool TypeGenerator::_getGeneratedType(Core::Ast::Node *ref, Generation *g, Session *session, Spp::Ast::Type *&type)
 {
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(ref);
-  if (metadata == 0) {
-    throw EXCEPTION(GenericException, S("Reference does not contain metadata."));
-  }
-
   Bool shouldPushSl = ref->isDerivedFrom<Spp::Ast::Type>() ? false : true;
 
   type = this->astHelper->traceType(ref);
   if (type == 0) return false;
 
   Core::Ast::SourceLocation *sourceLocation = 0;
-  if (shouldPushSl && metadata->findSourceLocation() != 0) {
-    sourceLocation = metadata->findSourceLocation().get();
+  if (shouldPushSl && ref->findSourceLocation() != 0) {
+    sourceLocation = ref->findSourceLocation().get();
     this->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   }
   Bool result = this->generateType(type, g, session);

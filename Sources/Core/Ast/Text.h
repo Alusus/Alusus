@@ -18,13 +18,13 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class Text : public Node, public Binding, public MetaHaving, public Printable
+class Text : public Node, public Binding, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Text, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, Printable);
   OBJECT_FACTORY(Text);
 
 
@@ -42,8 +42,6 @@ class Text : public Node, public Binding, public MetaHaving, public Printable
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Text);
 
   IMPLEMENT_BINDING(Binding,
     (value, TiStr, VALUE, setValue(value), &value),

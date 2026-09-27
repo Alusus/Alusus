@@ -20,7 +20,6 @@ namespace Spp::Ast
 
 class ArgPack : public Core::Ast::Node,
                 public Binding, public MapContaining<Core::Ast::Node>,
-                public Core::Ast::MetaHaving,
                 public Core::Ast::Printable
 {
   //============================================================================
@@ -29,7 +28,7 @@ class ArgPack : public Core::Ast::Node,
   TYPE_INFO(ArgPack, Core::Ast::Node, "Spp.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>,
-    Core::Ast::MetaHaving, Core::Ast::Printable
+    Core::Ast::Printable
   );
   OBJECT_FACTORY(ArgPack);
 
@@ -44,8 +43,6 @@ class ArgPack : public Core::Ast::Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(ArgPack);
 
   IMPLEMENT_BINDING(Binding,
     (min, TiWord, VALUE, setMin(value), &min),

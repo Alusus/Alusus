@@ -29,6 +29,17 @@ module Core {
         _prefixAlususTemplateClassFuncExpNames(rootManager, classAst, argAst);
     }
 
+    @expname[RootManager_insertClassPadding]
+    func _insertClassPadding (rootManager: ptr, definedSize: ArchInt, classUniqueName: ptr[array[Word[8]]]);
+
+    // Insert an array of bytes equal to the remaining required size to be padded at the end of a
+    // class defined on Alusus side to match the size of the corresponding C++ class. The padding
+    // is needed because on Alusus side we don't always define every single member that exists on
+    // the C++ side.
+    func insertClassPadding(definedSize: ArchInt, classUniqueName: ptr[array[Word[8]]]) {
+        _insertClassPadding(rootManager, definedSize, classUniqueName);
+    }
+
     @expname[addLocalization]
     func addLocalization (locale: ptr[array[Word[8]]], key: ptr[array[Word[8]]], value: ptr[array[Word[8]]]);
 }

@@ -60,10 +60,10 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
           }
           packType = bracketList->get(0);
           if (bracketList->getCount() > 1) {
-            if (!parseNumber(bracketList->getElement(1), packMin, bracketList.get(), noticeStore)) return false;
+            if (!parseNumber(bracketList->getElement(1), packMin, noticeStore)) return false;
           }
           if (bracketList->getCount() > 2) {
-            if (!parseNumber(bracketList->getElement(2), packMax, bracketList.get(), noticeStore)) return false;
+            if (!parseNumber(bracketList->getElement(2), packMax, noticeStore)) return false;
           }
         } else {
           packType = bracketOperand;
@@ -101,22 +101,15 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
 
 
 Bool parseNumber(
-  Core::Ast::Node *ast, TiWord &result, Core::Ast::MetaHaving *parentMetadata, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, TiWord &result, Core::Notices::Store *noticeStore
 ) {
-  auto metadata = ti_cast<Core::Ast::MetaHaving>(ast);
   if (ast->isA<Core::Ast::IntegerLiteral>()) {
     result = std::stol(static_cast<Core::Ast::IntegerLiteral*>(ast)->getValue().get());
     return true;
   } else {
-    if (metadata) {
-      noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(metadata->findSourceLocation())
-      );
-    } else {
-      noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(parentMetadata->findSourceLocation())
-      );
-    }
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(ast->findSourceLocation())
+    );
     return false;
   }
 }

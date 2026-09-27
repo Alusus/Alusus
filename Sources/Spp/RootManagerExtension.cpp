@@ -40,6 +40,9 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   overrides->prefixAlususTemplateClassFuncExpNamesRef = extension->prefixAlususTemplateClassFuncExpNames.set(
     &RootManagerExtension::_prefixAlususTemplateClassFuncExpNames
   ).get();
+  overrides->insertClassPaddingRef = extension->insertClassPadding.set(
+    &RootManagerExtension::_insertClassPadding
+  ).get();
 
   return overrides;
 }
@@ -50,6 +53,7 @@ void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overri
   auto extension = ti_cast<RootManagerExtension>(rootManager);
   extension->importFile.reset(overrides->importFileRef);
   extension->prefixAlususTemplateClassFuncExpNames.reset(overrides->prefixAlususTemplateClassFuncExpNamesRef);
+  extension->insertClassPadding.reset(overrides->insertClassPaddingRef);
   extension->buildManager.remove();
   extension->astProcessor.remove();
   extension->rtGrammarMgr.remove();
@@ -113,6 +117,52 @@ void RootManagerExtension::_prefixAlususTemplateClassFuncExpNames(
     Core::Ast::Seeker::Flags::SKIP_USES |
     SeekerExtension::Flags::SKIP_CHILDREN
   );
+}
+
+
+void RootManagerExtension::_insertClassPadding(TiObject *self, ArchInt definedSize, Char const *classUniqueName)
+{
+  PREPARE_SELF(rootManager, Core::Main::RootManager);
+  auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
+
+  auto typeInfo = reinterpret_cast<TypeInfo*>(GLOBAL_STORAGE->getObject(classUniqueName));
+  if (typeInfo == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("classUniqueName"), S("Class type info not found."), classUniqueName);
+  }
+  ArchInt paddingSize = typeInfo->getObjectSize() - definedSize;
+
+  // Build the AST of `def _data: array[Word[8], paddingSize]`.
+  auto wordType = newSrdObj<Core::Ast::ParamPass>();
+  wordType->setType(Core::Ast::BracketType::SQUARE);
+  auto wordIdentifier = newSrdObj<Core::Ast::Identifier>();
+  wordIdentifier->setValue(S("Word"));
+  wordType->setOperand(wordIdentifier);
+  auto wordSize = newSrdObj<Core::Ast::IntegerLiteral>();
+  wordSize->setValue(S("8"));
+  wordType->setParam(wordSize);
+
+  auto sizeLiteral = newSrdObj<Core::Ast::IntegerLiteral>();
+  sizeLiteral->setValue(std::to_string(paddingSize).c_str());
+  auto params = newSrdObj<Core::Ast::List>();
+  params->add(wordType);
+  params->add(sizeLiteral);
+
+  auto arrayType = newSrdObj<Core::Ast::ParamPass>();
+  arrayType->setType(Core::Ast::BracketType::SQUARE);
+  auto arrayIdentifier = newSrdObj<Core::Ast::Identifier>();
+  arrayIdentifier->setValue(S("array"));
+  arrayType->setOperand(arrayIdentifier);
+  arrayType->setParam(params);
+
+  auto def = newSrdObj<Core::Ast::Definition>();
+  def->setName(S("_data"));
+  def->setTarget(arrayType);
+
+  Array<Str> names;
+  Array<Core::Ast::Node*> values;
+  PlainArrayWrapperContainer<Core::Ast::Node> container(&values);
+  rootManagerExt->astProcessor->insertInterpolatedAst(def.get(), &names, &container);
+  rootManager->flushNotices();
 }
 
 } // namespace

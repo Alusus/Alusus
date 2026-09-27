@@ -18,9 +18,13 @@ import "Srl/String";
 @merge module Core {
     module Ast {
         use Basic;
+
         class Node {
             @injection def tiObject: TiObject;
             def owner: ref[Node];
+            preprocess {
+                Core.insertClassPadding(TiObject~size + ptr~size, "alusus.org/Core/Core.Ast.Node");
+            }
 
             handler this.isOwnedBy(obj: ref[TiObject]): Bool {
                 def o: ref[Node](this.owner);
@@ -31,45 +35,15 @@ import "Srl/String";
             defTypeInfoGetter["alusus.org/Core/Core.Ast.Node"];
         }
 
-        // Insert an array of bytes equal to the remaining required size to be padded at the end of a
-        // class defined on Alusus side to match the size of the corresponding C++ class. The padding
-        // is needed because on Alusus side we don't always define every single member that exists on
-        // the C++ side.
-        func insertClassPadding (defiendSize: ArchInt, classUniqueName: CharsPtr) {
-            use Srl;
-            // Abstract classes have no object factory, in which case we can't know the size of the C++ class,
-            // but we also don't need the padding since no object of this class is ever created.
-            def classFactory: ref[TiObjectFactory](
-                getFromGlobalStorage(classUniqueName)~cast[ptr[TypeInfo]]~cnt.objectFactory
-            );
-            if classFactory~ptr == 0 return;
-            def totalSize: ArchInt = classFactory.getSize();
-            def paddingSize: ArchInt = totalSize - defiendSize;
-            // Creates an integer literal through the object factory rather than through the IntegerLiteral class
-            // itself. This is necessary because this funciton is needed to preprocess the IntegerLiteral class
-            // itself.
-            def factory: ref[TiObjectFactory](
-                getFromGlobalStorage("alusus.org/Core/Core.Ast.IntegerLiteral")
-                    ~cast[ptr[TypeInfo]]~cnt.objectFactory
-            );
-            def literal: SrdRef[TiObject] = factory.createShared();
-            BindingOf[literal.obj].setMember("value", TiStr(String() + paddingSize));
-            Spp.astMgr.insertAst(
-                ast { def _data: array[Word[8], size] },
-                Map[String, ref[Core.Ast.Node]]().set(String("size"), castRef[literal.obj, Node])
-            );
-        }
-
         macro defTextAstType [name, uniqueName] {
             class name {
                 @injection def node: Node;
                 def binding: TiInterface;
-                def metaHaving: TiInterface;
                 def printable: TiInterface;
                 def value: TiStr;
 
                 preprocess {
-                    insertClassPadding(Node~size + 3*TiInterface~size + TiStr~size, uniqueName);
+                    Core.insertClassPadding(Node~size + 2*TiInterface~size + TiStr~size, uniqueName);
                 }
 
                 handler this~init() {
@@ -109,7 +83,7 @@ import "Srl/String";
                 @injection def node: Core.Ast.Node;
 
                 preprocess {
-                    Core.Ast.insertClassPadding(Core.Ast.Node~size, uniqueName);
+                    Core.insertClassPadding(Core.Ast.Node~size, uniqueName);
                 }
 
                 handler this~init() {

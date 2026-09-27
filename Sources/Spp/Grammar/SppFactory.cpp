@@ -159,17 +159,17 @@ void SppFactory::createGrammar()
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Core::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<Core::Ast::Node>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto continueStatement = Ast::ContinueStatement::create({
-      { S("prodId"), metadata->getProdId() },
-      { S("sourceLocation"), metadata->findSourceLocation() }
+      { S("prodId"), node->getProdId() },
+      { S("sourceLocation"), node->findSourceLocation() }
     });
     if (currentList != 0) {
       auto intLiteral = ti_cast<Core::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
         state->addNotice(
-          newSrdObj<Spp::Notices::InvalidContinueStatementNotice>(metadata->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidContinueStatementNotice>(node->findSourceLocation())
         );
         state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
@@ -189,16 +189,16 @@ void SppFactory::createGrammar()
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Core::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<Core::Ast::Node>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto breakStatement = Ast::BreakStatement::create({
-      { "prodId", metadata->getProdId() },
-      { "sourceLocation", metadata->findSourceLocation() }
+      { "prodId", node->getProdId() },
+      { "sourceLocation", node->findSourceLocation() }
     });
     if (currentList != 0) {
       auto intLiteral = ti_cast<Core::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidBreakStatementNotice>(node->findSourceLocation()));
         state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
@@ -217,11 +217,11 @@ void SppFactory::createGrammar()
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Core::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<Core::Ast::Node>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto returnStatement = Ast::ReturnStatement::create({
-      { "prodId", metadata->getProdId() },
-      { "sourceLocation", metadata->findSourceLocation() }
+      { "prodId", node->getProdId() },
+      { "sourceLocation", node->findSourceLocation() }
     });
     if (currentList != 0) {
       returnStatement->setOperand(getSharedPtr(currentList->getElement(1)));
@@ -500,14 +500,14 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Core::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<Core::Ast::Node>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     if (currentList->getElementCount() != 2) {
       throw EXCEPTION(GenericException, S("Unexpected error while parsing `preprocess` statement."));
     }
     auto preprocessStatement = Ast::PreprocessStatement::create({
-      { S("prodId"), metadata->getProdId() },
-      { S("sourceLocation"), metadata->findSourceLocation() }
+      { S("prodId"), node->getProdId() },
+      { S("sourceLocation"), node->findSourceLocation() }
     }, {
       { S("body"), currentList->getElement(1) }
     });
@@ -532,14 +532,14 @@ void SppFactory::createGrammar()
     }
   }, newSrdObj<CustomParsingHandler>(
     [](Core::Processing::Parser *parser, Core::Processing::ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Core::Ast::MetaHaving>();
-      auto currentList = state->getData().ti_cast_get<Containing<Core::Ast::Node>>();
+      auto node = state->getData().get();
+      auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
       if (currentList == 0 || currentList->getElementCount() != 2) {
         throw EXCEPTION(GenericException, S("Unexpected data type while parsing AST literal command."));
       }
       auto astLiteralCommand = Ast::AstLiteralCommand::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
+        { "prodId", node->getProdId() },
+        { "sourceLocation", node->findSourceLocation() }
       }, {
         { "body", currentList->getElement(1) }
       });
@@ -644,10 +644,10 @@ void SppFactory::createGrammar()
     {
     }
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Core::Ast::MetaHaving>();
+    auto node = state->getData().get();
     auto thisTypeRef = Ast::ThisTypeRef::create({
-      { "prodId", metadata->getProdId() },
-      { "sourceLocation", metadata->findSourceLocation() }
+      { "prodId", node->getProdId() },
+      { "sourceLocation", node->findSourceLocation() }
     });
     state->setData(thisTypeRef);
   }));
@@ -1020,12 +1020,12 @@ void SppFactory::cleanGrammar()
 
 
 Bool SppFactory::createCustomCommand(
-  Char const *qualifier, TiObject *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
+  Char const *qualifier, Core::Ast::Node *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
 ) {
   Core::Grammar::clearCaches(this->context.getRoot());
 
   // TODO: Allow creating commands in places other than root.Main (like tilde commands for example).
-  Array<TiObject*> sectionList;
+  Array<Core::Ast::Node*> sectionList;
   convertInfixOpIntoList(ast, S("+"), sectionList);
   std::vector<CommandSection> sections;
   for (Int i = 0; i < sectionList.getLength(); ++i) {
@@ -1060,7 +1060,7 @@ Bool SppFactory::createCustomCommand(
 
 
 Bool SppFactory::createCustomGrammar(
-  Char const *qualifier, Char const *baseQualifier, TiObject *overridesAst, Core::Notices::Store *noticeStore
+  Char const *qualifier, Char const *baseQualifier, Core::Ast::Node *overridesAst, Core::Notices::Store *noticeStore
 ) {
   Core::Grammar::clearCaches(this->context.getRoot());
 

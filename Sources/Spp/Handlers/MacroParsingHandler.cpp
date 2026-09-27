@@ -20,8 +20,6 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
 
   auto expr = state->getData().ti_cast_get<Core::Ast::List>();
   ASSERT(expr != 0);
-  auto exprMetadata = ti_cast<Core::Ast::MetaHaving>(expr);
-  ASSERT(exprMetadata != 0);
 
   if (expr->getElementCount() < 2) {
     throw EXCEPTION(GenericException, S("Invalid macro parsed data."));
@@ -67,8 +65,8 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
 
   // Create the macro.
   auto macro = Spp::Ast::Macro::create({
-    { S("prodId"), exprMetadata->getProdId() },
-    { S("sourceLocation"), exprMetadata->findSourceLocation() }
+    { S("prodId"), expr->getProdId() },
+    { S("sourceLocation"), expr->findSourceLocation() }
   }, {
     { S("argTypes"), args },
     { S("body"), body }
@@ -80,8 +78,8 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
   } else {
     auto def = Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
-      { S("prodId"), exprMetadata->getProdId() },
-      { S("sourceLocation"), exprMetadata->findSourceLocation() }
+      { S("prodId"), expr->getProdId() },
+      { S("sourceLocation"), expr->findSourceLocation() }
     }, {
       { S("target"), macro }
     });

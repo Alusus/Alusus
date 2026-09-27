@@ -19,13 +19,13 @@ namespace Core::Ast
 // TODO: DOC
 
 class ParamPass : public Node,
-                  public Binding, public MapContaining<Node>, public MetaHaving, public Printable
+                  public Binding, public MapContaining<Node>, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParamPass, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
   OBJECT_FACTORY(ParamPass);
 
 
@@ -39,8 +39,6 @@ class ParamPass : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(ParamPass);
 
   IMPLEMENT_BINDING(Binding,
     (type, BracketType, VALUE, setType(value), &type),

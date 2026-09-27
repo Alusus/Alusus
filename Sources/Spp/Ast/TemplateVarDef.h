@@ -33,13 +33,13 @@ ti_s_enum(TemplateVarType, TiInt, "Spp.Ast", "Spp", "alusus.org",
 //============================================================================
 // TemplateVarDef class
 
-class TemplateVarDef: public Core::Ast::Node, public Binding, public Core::Ast::MetaHaving
+class TemplateVarDef: public Core::Ast::Node, public Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(TemplateVarDef, Core::Ast::Node, "Spp.Ast.Template", "Spp", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, Core::Ast::MetaHaving)
+    INHERITANCE_INTERFACES(Binding)
   ));
   OBJECT_FACTORY(TemplateVarDef);
 
@@ -54,8 +54,6 @@ class TemplateVarDef: public Core::Ast::Node, public Binding, public Core::Ast::
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(TemplateVarDef);
 
   IMPLEMENT_BINDING(Binding,
     (prodId, TiWord, VALUE, setProdId(value), &prodId),

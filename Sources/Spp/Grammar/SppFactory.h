@@ -55,11 +55,11 @@ class SppFactory : public Core::Grammar::Factory
   public: void cleanGrammar();
 
   public: Bool createCustomCommand(
-    Char const *qualifier, TiObject *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
+    Char const *qualifier, Core::Ast::Node *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
   );
 
   public: Bool createCustomGrammar(
-    Char const *qualifier, Char const *baseQualifier, TiObject *overridesAst, Core::Notices::Store *noticeStore
+    Char const *qualifier, Char const *baseQualifier, Core::Ast::Node *overridesAst, Core::Notices::Store *noticeStore
   );
 
   private: void cleanCustomGrammarAndCommands();

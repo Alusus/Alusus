@@ -25,13 +25,13 @@ namespace Core::Ast
  * definition and the token text. This object is created by the
  * GenericParsingHandler to compose the parsed tree.
  */
-class Token : public Node, public Binding, public MetaHaving, public Printable
+class Token : public Node, public Binding, public Printable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Token, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MetaHaving, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, Printable);
   OBJECT_FACTORY(Token); \
 
 
@@ -58,8 +58,6 @@ class Token : public Node, public Binding, public MetaHaving, public Printable
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_METAHAVING(Token);
 
   IMPLEMENT_BINDING(Binding,
     (id, TiWord, VALUE, setId(value), &id),

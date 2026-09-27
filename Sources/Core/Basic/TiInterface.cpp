@@ -34,7 +34,7 @@ InterfaceTypeInfo const * TiInterface::getTypeInfo()
     Char const *uniqueName = S("alusus.org#Core#Core.Basic.TiInterface");
     typeInfo = reinterpret_cast<InterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (typeInfo == 0) {
-      typeInfo = new InterfaceTypeInfo(myType, typeNamespace, packageName, url, 0);
+      typeInfo = new InterfaceTypeInfo(myType, typeNamespace, packageName, url, 0, sizeof(TiInterface));
       GLOBAL_STORAGE->setObject(uniqueName, const_cast<InterfaceTypeInfo*>(typeInfo));
     }
   }
