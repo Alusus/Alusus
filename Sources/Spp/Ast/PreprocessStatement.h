@@ -17,16 +17,14 @@ namespace Spp::Ast
 {
 
 class PreprocessStatement : public Core::Ast::Node,
-                            public Binding, public MapContaining<Core::Ast::Node>,
-                            public Core::Ast::Printable
+                            public Binding, public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(PreprocessStatement, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>,
-    Core::Ast::Printable
+    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(PreprocessStatement);
 

@@ -326,7 +326,7 @@ Bool Template::merge(Core::Ast::Node *src, Core::Ast::Seeker *seeker, Core::Noti
 
 
 //==============================================================================
-// Printable Implementation
+// Printing Functions
 
 void Template::print(OutStream &stream, Int indents) const
 {

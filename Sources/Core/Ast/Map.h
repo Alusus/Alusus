@@ -17,14 +17,14 @@ namespace Core::Ast
 {
 
 class Map : public SharedMapBase<Node, Node>,
-            public Binding, public Printable
+            public Binding
 {
   //============================================================================
   // Type Info
 
   typedef SharedMapBase<Node, Node> _MyBase;
   TYPE_INFO(Map, _MyBase, "Core.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, Printable)
+    INHERITANCE_INTERFACES(Binding)
   ));
   OBJECT_FACTORY(Map);
 

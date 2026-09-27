@@ -39,11 +39,10 @@ import "Srl/String";
             class name {
                 @injection def node: Node;
                 def binding: TiInterface;
-                def printable: TiInterface;
                 def value: TiStr;
 
                 preprocess {
-                    Core.insertClassPadding(Node~size + 2*TiInterface~size + TiStr~size, uniqueName);
+                    Core.insertClassPadding(Node~size + TiInterface~size + TiStr~size, uniqueName);
                 }
 
                 handler this~init() {

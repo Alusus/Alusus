@@ -146,9 +146,8 @@ Bool _isEqual(TiObject *obj1, TiObject *obj2);
  * @brief Print the given object to the given stream.
  * @ingroup core_data_ast
  *
- * If the object implements the Printable interface, it will pass the call to
- * that interface, otherwise it will print the object type and the production
- * id if available.
+ * If the object is an AST node, it will pass the call to Node::print, otherwise
+ * it will print the object type and its value if it's a basic type.
  */
 void dumpAst(OutStream &stream, TiObject *ptr, int indents);
 
@@ -165,7 +164,6 @@ Bool isEqual(SourceLocation const *sl1, SourceLocation const *sl2);
 #include "Node.h"
 #include "NodeStack.h"
 #include "Mergeable.h"
-#include "Printable.h"
 
 #include "List.h"
 #include "MergeList.h"

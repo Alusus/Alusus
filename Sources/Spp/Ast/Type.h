@@ -19,15 +19,14 @@ namespace Spp::Ast
 using namespace Core;
 
 class Type : public Core::Ast::Node,
-             public Binding, public Core::Ast::Printable
+             public Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Type, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org", (
     INHERITANCE_INTERFACES(
-      Binding,
-      Core::Ast::Printable
+      Binding
     )
   ));
 

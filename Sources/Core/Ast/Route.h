@@ -28,13 +28,13 @@ namespace Core::Ast
  * compose the Parsing Representation Tree (PRT).
  */
 class Route : public Node,
-              public Binding, public MapContaining<Node>, public Printable
+              public Binding, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
   OBJECT_FACTORY(Route);
 
 

@@ -19,16 +19,14 @@ namespace Spp::Ast
 // TODO: DOC
 
 class ArgPack : public Core::Ast::Node,
-                public Binding, public MapContaining<Core::Ast::Node>,
-                public Core::Ast::Printable
+                public Binding, public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ArgPack, Core::Ast::Node, "Spp.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>,
-    Core::Ast::Printable
+    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(ArgPack);
 

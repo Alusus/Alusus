@@ -17,14 +17,14 @@ namespace Core::Ast
 {
 
 class Passage : public Node,
-                public Binding, public Printable
+                public Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Passage, Node, "Core.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Node, Binding, Printable
+    Node, Binding
   );
   OBJECT_FACTORY(Passage);
 
@@ -82,7 +82,7 @@ class Passage : public Node,
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const
   {

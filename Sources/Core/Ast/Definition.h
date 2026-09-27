@@ -19,13 +19,13 @@ namespace Core::Ast
 // TODO: DOC
 
 class Definition : public Node,
-                   public Binding, public MapContaining<Node>, public Printable
+                   public Binding, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Definition, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
   OBJECT_FACTORY(Definition);
 
 
@@ -139,7 +139,7 @@ class Definition : public Node,
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const;
 

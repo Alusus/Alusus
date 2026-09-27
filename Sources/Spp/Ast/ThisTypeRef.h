@@ -17,14 +17,14 @@ namespace Spp::Ast
 {
 
 class ThisTypeRef : public Core::Ast::Node,
-                    public Binding, public Core::Ast::Printable
+                    public Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ThisTypeRef, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, Core::Ast::Printable
+    Core::Ast::Node, Binding
   );
   OBJECT_FACTORY(ThisTypeRef);
 
@@ -51,7 +51,7 @@ class ThisTypeRef : public Core::Ast::Node,
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const
   {

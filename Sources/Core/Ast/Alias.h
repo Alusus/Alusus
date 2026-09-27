@@ -17,13 +17,13 @@ namespace Core::Ast
 {
 
 class Alias : public Node,
-              public Binding, public MapContaining<Node>, public Printable
+              public Binding, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
   OBJECT_FACTORY(Alias);
 
 
@@ -80,7 +80,7 @@ class Alias : public Node,
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const
   {

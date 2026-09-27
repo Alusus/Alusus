@@ -17,16 +17,14 @@ namespace Spp::Ast
 {
 
 class Template : public Core::Ast::Node,
-                 public Binding, public MapContaining<Core::Ast::Node>, public Core::Ast::Mergeable,
-                 public Core::Ast::Printable
+                 public Binding, public MapContaining<Core::Ast::Node>, public Core::Ast::Mergeable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Template, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>, Core::Ast::Mergeable,
-    Core::Ast::Printable
+    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>, Core::Ast::Mergeable
   );
   OBJECT_FACTORY(Template);
 
@@ -160,7 +158,7 @@ class Template : public Core::Ast::Node,
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const;
 

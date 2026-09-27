@@ -341,34 +341,12 @@ void dumpAst(OutStream &stream, TiObject *ptr, int indents)
     return;
   }
 
-  auto printable = ti_cast<Printable>(ptr);
-  if (printable) {
-    printable->print(stream, indents);
+  auto node = ti_cast<Ast::Node>(ptr);
+  if (node != 0) {
+    node->print(stream, indents);
   } else {
     stream << ptr->getMyTypeInfo()->getUniqueName();
-    auto node = ti_cast<Ast::Node>(ptr);
-    if (node != 0) {
-      Word id = node->getProdId();
-      if (id != UNKNOWN_ID) {
-        stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
-      }
-    }
-    MapContaining<Ast::Node> *mapContainer;
-    Containing<Ast::Node> *container;
-    if ((mapContainer = ptr->getInterface<MapContaining<Ast::Node>>()) != 0) {
-      for (Word i = 0; i < mapContainer->getElementCount(); ++i) {
-        stream << S("\n");
-        printIndents(stream, indents+1);
-        stream << mapContainer->getElementKey(i) << S(": ");
-       dumpAst(stream, mapContainer->getElement(i), indents+1);
-      }
-    } else if ((container = ptr->getInterface<Containing<Ast::Node>>()) != 0) {
-      for (Word i = 0; i < container->getElementCount(); ++i) {
-        stream << S("\n");
-        printIndents(stream, indents + 1);
-       dumpAst(stream, container->getElement(i), indents+1);
-      }
-    } else if (ptr->isA<TiWord>()) {
+    if (ptr->isA<TiWord>()) {
       auto tiWord = static_cast<TiWord*>(ptr);
       stream << S(": ") << tiWord->get();
     } else if (ptr->isA<TiInt>()) {

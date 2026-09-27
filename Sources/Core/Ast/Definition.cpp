@@ -16,7 +16,7 @@ namespace Core::Ast
 {
 
 //==============================================================================
-// Printable Implementation
+// Printing Functions
 
 void Definition::print(OutStream &stream, Int indents) const
 {
@@ -34,7 +34,7 @@ void Definition::print(OutStream &stream, Int indents) const
     printIndents(stream, indents+1);
     stream << S("modifiers:");
     for (Int i = 0; i < this->modifiers->getCount(); ++i) {
-      auto modifier = this->modifiers->get(i).ti_cast_get<Printable>();
+      auto modifier = this->modifiers->get(i).get();
       if (modifier != 0) {
         stream << S("\n");
         printIndents(stream, indents+2);

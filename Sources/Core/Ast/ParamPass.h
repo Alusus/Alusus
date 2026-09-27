@@ -19,13 +19,13 @@ namespace Core::Ast
 // TODO: DOC
 
 class ParamPass : public Node,
-                  public Binding, public MapContaining<Node>, public Printable
+                  public Binding, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParamPass, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
   OBJECT_FACTORY(ParamPass);
 
 

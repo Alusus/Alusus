@@ -103,10 +103,9 @@ class OutfixOperator : public Node,
 // Macros
 
 #define DEFINE_AST_OUTFIX_OPERATOR(X) \
-  class X : public OutfixOperator, public Printable \
+  class X : public OutfixOperator \
   { \
     TYPE_INFO(X, OutfixOperator, "Core.Ast", "Core", "alusus.org"); \
-    IMPLEMENT_INTERFACES(OutfixOperator, Printable); \
     OBJECT_FACTORY(X); \
     IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \

@@ -17,8 +17,7 @@ namespace Spp::Ast
 {
 
 class Macro : public Core::Ast::Node,
-              public Binding, public MapContaining<Core::Ast::Node>,
-              public Core::Ast::Printable
+              public Binding, public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
@@ -26,8 +25,7 @@ class Macro : public Core::Ast::Node,
   TYPE_INFO(Macro, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org", (
     INHERITANCE_INTERFACES(
       Binding,
-      MapContaining<Core::Ast::Node>,
-      Core::Ast::Printable
+      MapContaining<Core::Ast::Node>
     )
   ));
   OBJECT_FACTORY(Macro);

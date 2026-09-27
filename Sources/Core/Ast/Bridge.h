@@ -17,14 +17,14 @@ namespace Core::Ast
 {
 
 class Bridge : public Node,
-               public Binding, public MapContaining<Node>, public Printable
+               public Binding, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bridge, Node, "Core.Ast", "Core", "alusus.org", (
     INHERITANCE_INTERFACES(
-      Binding, MapContaining<Node>, Printable
+      Binding, MapContaining<Node>
     )
   ));
   OBJECT_FACTORY(Bridge);

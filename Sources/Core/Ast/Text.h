@@ -18,13 +18,13 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class Text : public Node, public Binding, public Printable
+class Text : public Node, public Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Text, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, Printable);
+  IMPLEMENT_INTERFACES(Node, Binding);
   OBJECT_FACTORY(Text);
 
 
@@ -82,7 +82,7 @@ class Text : public Node, public Binding, public Printable
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const
   {

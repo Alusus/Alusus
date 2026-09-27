@@ -17,14 +17,14 @@ namespace Core::Ast
 {
 
 class List : public SharedListBase<Node, Node>,
-             public Binding, public Printable
+             public Binding
 {
   //============================================================================
   // Type Info
 
   typedef SharedListBase<Node, Node> _MyBase;
   TYPE_INFO(List, _MyBase, "Core.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding, Printable)
+    INHERITANCE_INTERFACES(Binding)
   ));
   OBJECT_FACTORY(List);
 

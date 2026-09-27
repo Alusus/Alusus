@@ -167,6 +167,21 @@ class Node : public TiObject
     else return this->extras.get(index);
   }
 
+  /**
+   * @brief Print a textual representation of this node and its children.
+   *
+   * The default implementation prints the node's type name, its production id, and then all its children
+   * (with keys if the node is a map container). Derived classes can override this to customize the output.
+   */
+  public: virtual void print(OutStream &stream, Int indents=0) const;
+
+  public: Str toString(Int indents=0) const
+  {
+    StrStream stream;
+    this->print(stream, indents);
+    return stream.str().c_str();
+  }
+
 }; // class
 
 } // namespace
