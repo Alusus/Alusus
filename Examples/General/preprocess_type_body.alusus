@@ -1,0 +1,59 @@
+// This example demonstrates Spp.astMgr.preprocessTypeBody().
+//
+// A user type's body -- including any `preprocess` statements inside it -- is
+// normally preprocessed lazily, only once the type is actually generated (e.g.
+// because an object of it gets used). This means that if some other piece of
+// code needs to inspect a type's real members before that point, it may find
+// that they don't exist yet, especially if those members are themselves
+// generated dynamically (through Spp.astMgr.insertAst) rather than written
+// directly as `def` statements. preprocessTypeBody lets that code force the
+// type's body to be preprocessed right away.
+
+import "Srl/Console";
+import "Srl/System";
+import "Core/Ast";
+import "Spp";
+import "Spp/Ast";
+
+use Srl;
+use Core.Basic;
+use Core.Ast;
+
+// Config's member variables aren't written directly. Instead, they're generated
+// by the preprocess statement below, similar to what a library that builds a
+// type's fields from an external description (e.g. a database schema) would do.
+// Because this generation happens inside a `preprocess` statement, it only
+// actually runs once Config's body gets preprocessed.
+class Config {
+    preprocess {
+        if !Spp.astMgr.insertAst(ast { def width: Int; def height: Int; }) {
+            System.fail(1, "Failed to generate Config's fields.\n");
+        }
+    }
+}
+
+// Prints the names of every member variable of the type referred to by `typeRef`.
+macro dumpFields [typeRef] {
+    preprocess {
+        def userType: ref[Spp.Ast.UserType](
+            castRef[Spp.astMgr.traceType(typeRef~ast), Spp.Ast.UserType]
+        );
+
+        // Config's fields are only created once its body is preprocessed, which
+        // would normally happen later, when Config itself is generated -- and
+        // that may well be after this macro runs. Force it now so that
+        // getClassVarNames below sees the real fields instead of an empty list.
+        if !Spp.astMgr.preprocessTypeBody(userType) {
+            System.fail(1, "Failed to preprocess the type's body.\n");
+        }
+
+        def varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
+        Console.print("Found %d field(s):\n", varNames.getLength());
+        def i: Int;
+        for i = 0, i < varNames.getLength(), ++i {
+            Console.print("- %s\n", varNames(i).buf);
+        }
+    }
+}
+
+dumpFields[Config];

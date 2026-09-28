@@ -185,6 +185,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getCurrentPreprocessOwner, Core::Ast::Node*);
   private: static Core::Ast::Node* _getCurrentPreprocessOwner(TiObject *self);
 
+  public: METHOD_BINDING_CACHE(preprocessTypeBody, Bool, (Spp::Ast::UserType*));
+  private: static Bool _preprocessTypeBody(TiObject *self, Spp::Ast::UserType *type);
+
   public: METHOD_BINDING_CACHE(getCurrentPreprocessInsertionPosition, Int);
   private: static Int _getCurrentPreprocessInsertionPosition(TiObject *self);
 

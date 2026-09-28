@@ -34,6 +34,7 @@ void AstMgr::initBindingCaches()
     &this->buildAst_plain,
     &this->buildAst_shared,
     &this->getCurrentPreprocessOwner,
+    &this->preprocessTypeBody,
     &this->getCurrentPreprocessInsertionPosition,
     &this->getVariableDomain,
     &this->traceType,
@@ -65,6 +66,7 @@ void AstMgr::initBindings()
   this->buildAst_plain = &AstMgr::_buildAst_plain;
   this->buildAst_shared = &AstMgr::_buildAst_shared;
   this->getCurrentPreprocessOwner = &AstMgr::_getCurrentPreprocessOwner;
+  this->preprocessTypeBody = &AstMgr::_preprocessTypeBody;
   this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
   this->getVariableDomain = &AstMgr::_getVariableDomain;
   this->traceType = &AstMgr::_traceType;
@@ -96,6 +98,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_plain"), (void*)&AstMgr::_buildAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_shared"), (void*)&AstMgr::_buildAst_shared);
   globalItemRepo->addItem(S("Spp_AstMgr_getCurrentPreprocessOwner"), (void*)&AstMgr::_getCurrentPreprocessOwner);
+  globalItemRepo->addItem(S("Spp_AstMgr_preprocessTypeBody"), (void*)&AstMgr::_preprocessTypeBody);
   globalItemRepo->addItem(
     S("Spp_AstMgr_getCurrentPreprocessInsertionPosition"), (void*)&AstMgr::_getCurrentPreprocessInsertionPosition
   );
@@ -323,6 +326,13 @@ Core::Ast::Node* AstMgr::_getCurrentPreprocessOwner(TiObject *self)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astProcessor->getCurrentPreprocessOwner();
+}
+
+
+Bool AstMgr::_preprocessTypeBody(TiObject *self, Spp::Ast::UserType *type)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astProcessor->processTypeBody(type);
 }
 
 

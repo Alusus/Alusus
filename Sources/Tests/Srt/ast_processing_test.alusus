@@ -3,6 +3,7 @@ import "Srl/refs_base";
 import "Srl/System";
 import "Core/Ast";
 import "Spp";
+import "Spp/Ast";
 
 use Srl;
 use Core.Basic;
@@ -80,3 +81,49 @@ func test {
     Console.print("%s\n", query.buf);
 }
 test();
+
+class SpaceTime {
+    preprocess {
+        // Schedule the insertion of new members at the end of this class body.
+        def body: ref[Core.Ast.Node](MapContainerOf[this_type~ast, Core.Ast.Node].getElement("body"));
+        DynContainerOf[body, Core.Ast.Node].addElement(Spp.astMgr.buildAst(
+            (@no_preprocess ast 
+                preprocess {
+                    if !Spp.astMgr.insertAst(ast { def time: Int; }) {
+                        System.fail(1, "Failed to generate SpaceTime's fields.\n");
+                    }
+                }
+            ),
+            Map[String, ref[Core.Ast.Node]]()
+        ));
+        // Dynamically insert new members now.
+        if !Spp.astMgr.insertAst(ast { def width: Int; def height: Int; }) {
+            System.fail(1, "Failed to generate SpaceTime's fields.\n");
+        }
+    }
+    def depth: Int;
+}
+
+macro dumpFields [typeRef] {
+    preprocess {
+        def userType: ref[Spp.Ast.UserType](
+            castRef[Spp.astMgr.traceType(typeRef~ast), Spp.Ast.UserType]
+        );
+
+        // Force preprocessing of the user type before printing its members.
+        if !Spp.astMgr.preprocessTypeBody(userType) {
+            System.fail(1, "Failed to preprocess the type's body.\n");
+        }
+
+        def varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
+        Console.print("Found %d field(s):\n", varNames.getLength());
+        def i: Int;
+        for i = 0, i < varNames.getLength(), ++i {
+            Console.print("- %s\n", varNames(i).buf);
+        }
+    }
+}
+
+dumpFields[SpaceTime];
+
+dump_ast SpaceTime;

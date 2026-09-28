@@ -68,6 +68,7 @@
         عرف أدرج_شبم: لقب dumpAst؛
         عرف هات_صنف_السند_ل: لقب getReferenceTypeFor؛
         عرف حاول_جلب_صنف_المحتوى_العميق: لقب tryGetDeepReferenceContentType؛
+        عرف مهد_متن_صنف: لقب preprocessTypeBody؛
     }
 
     عرف مدير_البناء: لقب buildMgr؛

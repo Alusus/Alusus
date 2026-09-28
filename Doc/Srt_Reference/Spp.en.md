@@ -563,6 +563,42 @@ handler this.getCurrentPreprocessOwner(): ref[Core.Ast.Node];
 
 Returns a reference to the AST element that owns the currenly running preprocessing expression.
 
+#### preprocessTypeBody
+
+```
+handler this.preprocessTypeBody(type: ref[Spp.Ast.UserType]) => Bool;
+```
+
+Forces the preprocessing of the body of the given user type, including any `preprocess` statements inside it, right away.
+
+A type's body is normally preprocessed lazily, only once the type is actually generated (e.g. because an object of it gets
+used). This means that code that needs to inspect a type's real members before that point may find that they don't exist
+yet, especially if those members are generated dynamically (e.g. through `insertAst`) rather than written directly as `def`
+statements. This function lets that code force the preprocessing of the type's body to happen immediately instead of
+waiting for it to happen naturally.
+
+The function returns 1 on success, or 0 if an error was encountered while preprocessing the type's body.
+
+The next example forces the preprocessing of `Point`'s body so that `getClassVarNames` sees its dynamically generated
+member variables:
+
+```
+  class Point {
+      preprocess {
+          Spp.astMgr.insertAst(ast { def x: Int; def y: Int; });
+      }
+  }
+
+  preprocess {
+      def userType: ref[Spp.Ast.UserType](
+          castRef[Spp.astMgr.traceType(Point~ast), Spp.Ast.UserType]
+      );
+      Spp.astMgr.preprocessTypeBody(userType);
+      def varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
+      // varNames now contains "x" and "y".
+  }
+```
+
 #### getCurrentPreprocessInsertionPosition
 
 ```

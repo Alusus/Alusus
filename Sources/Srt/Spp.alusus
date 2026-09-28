@@ -326,6 +326,9 @@ import "Srl/refs_base";
         @expname[Spp_AstMgr_getCurrentPreprocessOwner]
         handler this.getCurrentPreprocessOwner(): ref[AstNode];
 
+        @expname[Spp_AstMgr_preprocessTypeBody]
+        handler this.preprocessTypeBody(type: ref[Spp.Ast.UserType]) => Word[1];
+
         @expname[Spp_AstMgr_getCurrentPreprocessInsertionPosition]
         handler this.getCurrentPreprocessInsertionPosition(): Int;
 

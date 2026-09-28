@@ -2,6 +2,8 @@
 
 ## Version 0.16.0 (2026-10-xx)
 
+### Updates to the Compiler
+
 * Refactored the Core to clean up data class hierarchies:
   - Moved `Core::Data::Ast` to `Core::Ast`.
   - Moved `Core::Data::Grammar` to `Core::Grammar`.
@@ -10,6 +12,10 @@
   - Inherited all grammar node classes from `Core::Grammar::Node`.
   - Embedded the `MetaHaving` interface into the `Node` class and removed the interface.
 * Apply O3 optimization on offline builds generated using the Build library.
+
+### Updates to the Standard Libraries
+
+* Added the method `Spp.AstMgr.preprocessTypeBody`.
 
 
 ## Version 0.15.3 (2026-08-28)
