@@ -18,14 +18,13 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class OutfixOperator : public Node,
-                       public Binding, public MapContaining<Node>
+class OutfixOperator : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(OutfixOperator, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(OutfixOperator);
 
 
@@ -39,10 +38,8 @@ class OutfixOperator : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (type, TiStr, VALUE, setType(value), &type),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (type, TiStr, VALUE, setType(value), &type)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
@@ -107,7 +104,7 @@ class OutfixOperator : public Node,
   { \
     TYPE_INFO(X, OutfixOperator, "Core.Ast", "Core", "alusus.org"); \
     OBJECT_FACTORY(X); \
-    IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
+    IMPLEMENT_AST_PRINTABLE(X, this->type.get()); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_MAP_CONSTRUCTOR(X); \

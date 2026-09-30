@@ -427,6 +427,87 @@ inline TiObject* tryGetMember(TiObject *obj, Char const *name)
     return parent::findMemberIndex(key); \
   }
 
+// Declares the Binding interface's methods without defining them, for use in a header where one or more of
+// the bound members' types aren't complete yet. Pair this with IMPLEMENT_BINDING_STANDALONE, called later
+// (typically in the .cpp file) once those types are complete.
+#define DECLARE_BINDING() \
+  public: using Binding::setMember; \
+  public: virtual Int setMember(Char const *key, TiObject *val); \
+  public: virtual void setMember(Int index, TiObject *val); \
+  public: virtual Word getMemberCount() const; \
+  public: using Binding::getMember; \
+  public: virtual TiObject* getMember(Char const *key) const; \
+  public: virtual TiObject* getMember(Int index) const; \
+  public: virtual TypeInfo const* getMemberNeededType(Char const *key) const; \
+  public: virtual TypeInfo const* getMemberNeededType(Int index) const; \
+  public: virtual HoldMode getMemberHoldMode(Char const *key) const; \
+  public: virtual HoldMode getMemberHoldMode(Int index) const; \
+  public: virtual const SbStr getMemberKey(Int index) const; \
+  public: virtual Int findMemberIndex(Char const *key) const;
+
+// The out-of-line counterpart of IMPLEMENT_BINDING, for use together with DECLARE_BINDING. Defines the
+// methods DECLARE_BINDING only declared, as free-standing (not in-class) definitions for className, so it
+// can be used in a .cpp file where the bound members' types are complete, even though they weren't yet at
+// the point className's class body (and its DECLARE_BINDING call) was parsed.
+#define IMPLEMENT_BINDING_STANDALONE(className, parent, ...) \
+  Int className::setMember(Char const *key, TiObject *val) \
+  { \
+    _IMPLEMENT_BINDING_KEYSET(parent, __VA_ARGS__); \
+    return parent::setMember(key, val); \
+  } \
+  void className::setMember(Int index, TiObject *val) \
+  { \
+    _IMPLEMENT_BINDING_INDEXSET(parent, __VA_ARGS__); \
+    parent::setMember(index, val); \
+  } \
+  Word className::getMemberCount() const \
+  { \
+    return SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, 5, 4, 3, 2, 1) + parent::getMemberCount(); \
+  } \
+  TiObject* className::getMember(Char const *key) const \
+  { \
+    _IMPLEMENT_BINDING_KEYGET(__VA_ARGS__); \
+    return parent::getMember(key); \
+  } \
+  TiObject* className::getMember(Int index) const \
+  { \
+    _IMPLEMENT_BINDING_INDEXGET(parent, __VA_ARGS__); \
+    return parent::getMember(index); \
+  } \
+  TypeInfo const* className::getMemberNeededType(Char const *key) const \
+  { \
+    _IMPLEMENT_BINDING_KEYGETTYPE(__VA_ARGS__); \
+    return parent::getMemberNeededType(key); \
+  } \
+  TypeInfo const* className::getMemberNeededType(Int index) const \
+  { \
+    _IMPLEMENT_BINDING_INDEXGETTYPE(parent, __VA_ARGS__); \
+    return parent::getMemberNeededType(index); \
+  } \
+  HoldMode className::getMemberHoldMode(Char const *key) const \
+  { \
+    _IMPLEMENT_BINDING_KEYGETHOLDMODE(__VA_ARGS__); \
+    return parent::getMemberHoldMode(key); \
+  } \
+  HoldMode className::getMemberHoldMode(Int index) const \
+  { \
+    _IMPLEMENT_BINDING_INDEXGETHOLDMODE(parent, __VA_ARGS__); \
+    return parent::getMemberHoldMode(index); \
+  } \
+  const SbStr className::getMemberKey(Int index) const \
+  { \
+    _IMPLEMENT_BINDING_GETKEY(parent, __VA_ARGS__); \
+    return parent::getMemberKey(index); \
+  } \
+  Int className::findMemberIndex(Char const *key) const \
+  { \
+    if (key == 0) { \
+      throw EXCEPTION(InvalidArgumentException, S("key"), S("key is null")); \
+    } \
+    _IMPLEMENT_BINDING_FINDINDEX(parent, __VA_ARGS__); \
+    return parent::findMemberIndex(key); \
+  }
+
 } // namespace
 
 #endif

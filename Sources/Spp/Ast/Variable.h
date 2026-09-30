@@ -17,14 +17,14 @@ namespace Spp::Ast
 {
 
 class Variable : public Core::Ast::Node,
-                 public Binding, public MapContaining<Core::Ast::Node>
+                 public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Variable, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(Variable);
 
@@ -40,10 +40,8 @@ class Variable : public Core::Ast::Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (valueOnly, TiBool, VALUE, setValueOnly(value), &valueOnly),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Ast::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Core::Ast::Node,
+    (valueOnly, TiBool, VALUE, setValueOnly(value), &valueOnly)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
@@ -51,7 +49,7 @@ class Variable : public Core::Ast::Node,
     (type, Type, PLAIN_REF, setType(value), type)
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(Variable, << (this->valueOnly ? S("valueOnly") : S("inMem")));
+  IMPLEMENT_AST_PRINTABLE(Variable, (this->valueOnly ? S("valueOnly") : S("inMem")));
 
 
   //============================================================================

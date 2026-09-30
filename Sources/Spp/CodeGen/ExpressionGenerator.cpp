@@ -3258,20 +3258,20 @@ Bool ExpressionGenerator::addFunctionDependencyIfNeeded(Session *session, Spp::A
   // If the function has no body (i.e. it's external or intrinsic), we don't need to add it as a dependency.
   if (body == 0) return true;
 
-  auto eda = session->getEda();
+  auto cda = session->getEda();
 
   // Check to make sure we are not in a circular dependency.
   auto state = getAstProcessingState(body);
   if (state == AstProcessingState::PROCESSING) {
     return false;
   }
-  auto buildId = eda->tryGetBuildId<TiInt>(func);
+  auto buildId = cda->tryGetBuildId<TiInt>(func);
   if (buildId != 0 && buildId->get() != session->getBuildId()) {
     return false;
   }
 
   // If the function's code generation has not started yet, then add it as a dependency.
-  if (eda->tryGetCodeGenData<TiObject>(body) == 0) {
+  if (cda->tryGetCodeGenData<TiObject>(body) == 0) {
     session->getFuncDeps()->add(func, false);
   }
 

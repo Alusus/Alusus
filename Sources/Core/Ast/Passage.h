@@ -16,16 +16,12 @@
 namespace Core::Ast
 {
 
-class Passage : public Node,
-                public Binding
+class Passage : public Node
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Passage, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(
-    Node, Binding
-  );
   OBJECT_FACTORY(Passage);
 
 
@@ -38,10 +34,8 @@ class Passage : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (target, Node, PLAIN_REF, set(value), target),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (target, Node, PLAIN_REF, set(value), target)
   );
 
 

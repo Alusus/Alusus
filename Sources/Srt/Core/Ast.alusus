@@ -21,9 +21,10 @@ import "Srl/String";
 
         class Node {
             @injection def tiObject: TiObject;
+            def binding: TiInterface;
             def owner: ref[Node];
             preprocess {
-                Core.insertClassPadding(TiObject~size + ptr~size, "alusus.org/Core/Core.Ast.Node");
+                Core.insertClassPadding(TiObject~size + TiInterface~size + ptr~size, "alusus.org/Core/Core.Ast.Node");
             }
 
             handler this.isOwnedBy(obj: ref[TiObject]): Bool {
@@ -38,11 +39,10 @@ import "Srl/String";
         macro defTextAstType [name, uniqueName] {
             class name {
                 @injection def node: Node;
-                def binding: TiInterface;
                 def value: TiStr;
 
                 preprocess {
-                    Core.insertClassPadding(Node~size + TiInterface~size + TiStr~size, uniqueName);
+                    Core.insertClassPadding(Node~size + TiStr~size, uniqueName);
                 }
 
                 handler this~init() {

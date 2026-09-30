@@ -204,11 +204,15 @@ Bool FunctionParsingHandler::onIncomingModifier(
   Core::Processing::Parser *parser, Core::Processing::ParserState *state,
   SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
 ) {
+  if (GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) {
+    return true;
+  }
+
   if (!prodProcessingComplete) return false;
 
   if (this->processExpnameModifier(state, modifierData)) return true;
   else if (this->processMemberModifier(state, modifierData)) return true;
-  else return this->processUnknownModifier(state, modifierData);
+  else return false;
 }
 
 
@@ -221,8 +225,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
   if (paramPass->getType() != Core::Ast::BracketType::SQUARE) return false;
   auto operand = paramPass->getOperand().ti_cast_get<Core::Ast::Identifier>();
   if (operand == 0) return false;
-  auto symbolDef = state->refTopProdLevel().getProd();
-  if (symbolDef->getTranslatedModifierKeyword(operand->getValue().get()) != S("expname")) return false;
+  if (operand->getValue() != S("expname")) return false;
   auto param = paramPass->getParam().ti_cast_get<Core::Ast::Text>();
   if (param == 0) return false;
 
@@ -272,10 +275,7 @@ Bool FunctionParsingHandler::processMemberModifier(
   // Look for member modifier.
   auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
   if (identifier == 0) return false;
-  auto symbolDef = state->refTopProdLevel().getProd();
-  auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
-
-  if (keyword != S("member")) return false;
+  if (identifier->getValue() != S("member")) return false;
 
   // Find the funciton type to update.
   Int levelOffset = -state->getTopProdTermLevelCount();
@@ -308,23 +308,6 @@ Bool FunctionParsingHandler::processMemberModifier(
   funcType->setMember(true);
 
   return true;
-}
-
-
-Bool FunctionParsingHandler::processUnknownModifier(
-  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
-) {
-  // Add an unknown modifier to the definition.
-  auto symbolDef = state->refTopProdLevel().getProd();
-  Int levelOffset = -state->getTopProdTermLevelCount();
-  auto definition = state->getData(levelOffset).ti_cast_get<Core::Ast::Definition>();
-  if (definition != 0) {
-    Core::Ast::translateModifier(symbolDef, modifierData.get());
-    definition->addModifier(modifierData);
-    return true;
-  } else {
-    return false;
-  }
 }
 
 } // namespace

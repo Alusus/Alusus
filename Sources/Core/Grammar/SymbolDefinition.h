@@ -43,7 +43,7 @@ class SymbolDefinition : public Node,
    * constructors.
    */
   public: s_enum(Element,
-    PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, FLAGS=32, ATTRIBUTES=64, MODIFIER_TRANS=128,
+    PARENT_REF=1, TERM=2, VAR_DEFS=4, VARS=8, HANDLER=16, FLAGS=32, ATTRIBUTES=64, MODIFIER_ACTIONS=128,
     ALL=static_cast<Word>(-1)
   );
 
@@ -83,7 +83,7 @@ class SymbolDefinition : public Node,
 
   private: SharedPtr<Node> attributes;
 
-  private: SharedPtr<Map> modifierTranslations;
+  private: SharedPtr<Map> modifierActions;
 
   private: SharedPtr<BuildHandler> handler;
 
@@ -108,7 +108,7 @@ class SymbolDefinition : public Node,
     (varDefs, Node, SHARED_REF, setVarDefs(value), varDefs.get()),
     (vars, Node, SHARED_REF, setVars(value), vars.get()),
     (attributes, Node, SHARED_REF, setAttributes(value), attributes.get()),
-    (modifierTranslations, Map, SHARED_REF, setModifierTranslations(value), modifierTranslations.get()),
+    (modifierActions, Map, SHARED_REF, setModifierActions(value), modifierActions.get()),
     (handler, BuildHandler, SHARED_REF, setBuildHandler(value), handler.get())
   );
 
@@ -318,32 +318,36 @@ class SymbolDefinition : public Node,
     return this->attributes;
   }
 
-  public: void setModifierTranslations(SharedPtr<Map> const &t)
+  public: void setModifierActions(SharedPtr<Map> const &t)
   {
-    UPDATE_OWNED_SHAREDPTR(this->modifierTranslations, t);
-    this->ownership |= SymbolDefinition::Element::MODIFIER_TRANS;
-    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::MODIFIER_TRANS);
+    UPDATE_OWNED_SHAREDPTR(this->modifierActions, t);
+    this->ownership |= SymbolDefinition::Element::MODIFIER_ACTIONS;
+    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::MODIFIER_ACTIONS);
   }
 
-  private: void setModifierTranslations(Map *t)
+  private: void setModifierActions(Map *t)
   {
-    this->setModifierTranslations(getSharedPtr(t));
+    this->setModifierActions(getSharedPtr(t));
   }
 
-  public: void resetModifierTranslations()
+  public: void resetModifierActions()
   {
-    RESET_OWNED_SHAREDPTR(this->modifierTranslations);
-    if (this->base != 0) this->modifierTranslations = this->base->getModifierTranslations();
-    this->ownership &= ~SymbolDefinition::Element::MODIFIER_TRANS;
-    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::MODIFIER_TRANS);
+    RESET_OWNED_SHAREDPTR(this->modifierActions);
+    if (this->base != 0) this->modifierActions = this->base->getModifierActions();
+    this->ownership &= ~SymbolDefinition::Element::MODIFIER_ACTIONS;
+    this->changeNotifier.emit(this, SymbolDefinition::ChangeOp::UPDATE, SymbolDefinition::Element::MODIFIER_ACTIONS);
   }
 
-  public: SharedPtr<Map> const& getModifierTranslations() const
+  public: SharedPtr<Map> const& getModifierActions() const
   {
-    return this->modifierTranslations;
+    return this->modifierActions;
   }
 
-  public: SbStr const getTranslatedModifierKeyword(Char const *keyword) const;
+  /**
+   * @brief Get the action requested for a modifier with the given keyword.
+   * Returns 0 if no action was registered for this keyword, meaning the modifier is unknown at this level.
+   */
+  public: ModifierAction* getModifierAction(Char const *keyword) const;
 
   /**
      * @brief Set the operation handler object.

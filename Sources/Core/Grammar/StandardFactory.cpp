@@ -45,6 +45,7 @@ void StandardFactory::createGrammar(
   this->constTokenHandler = newSrdObj<ConstTokenizingHandler>(this->constTokenId);
   this->identifierTokenHandler = newSrdObj<IdentifierTokenizingHandler>();
   this->parsingHandler = newSrdObj<GenericParsingHandler>();
+  this->statementParsingHandler = newSrdObj<StatementParsingHandler>();
   this->importHandler = newSrdObj<ImportParsingHandler>(root);
   this->dumpAstParsingHandler = newSrdObj<DumpAstParsingHandler>(root);
   this->leadingModifierHandler = newSrdObj<ModifierParsingHandler>(true);
@@ -1711,12 +1712,12 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
   // CmdVariation : prule as (cmdGrp * (1,1));
   this->createStatementVariation(S("root.Main.Statements.CmdVariation"), {
     { PARSE_REF(S("module.cmdGrp")), TiInt::create(1), TiInt::create(1) }
-  }, this->parsingHandler);
+  }, this->statementParsingHandler);
 
   // ExpVariation : prule as (module.expression * (1,1));
   this->createStatementVariation(S("root.Main.Statements.ExpVariation"), {
     { PARSE_REF(S("module.expression")), TiInt::create(1), TiInt::create(1) }
-  }, this->parsingHandler);
+  }, this->statementParsingHandler);
 
   this->addProdsToGroup(S("root.Main.Statements.Stmt"), {
     PARSE_REF(S("module.CmdVariation")),
@@ -1833,8 +1834,8 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }}
     }}, newSrdObj<DefParsingHandler>());
-    this->set(S("root.Main.Def.modifierTranslations"), Map::create({}, {
-      {S("دمج"), TiStr::create(S("merge"))}
+    this->set(S("root.Main.Def.modifierActions"), Map::create({}, {
+      {S("دمج"), newSrdObj<TranslateModifierAction>(S("merge"))}
     }));
 
     //// use = "use" + Expression

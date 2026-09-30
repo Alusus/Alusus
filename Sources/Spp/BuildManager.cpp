@@ -386,26 +386,26 @@ void BuildManager::_resetBuild(TiObject *self, BuildSession *buildSession)
 }
 
 
-void BuildManager::_resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGen::ExtraDataAccessor *eda)
+void BuildManager::_resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGen::CustomDataAccessor *cda)
 {
   if (node == 0) return;
 
   PREPARE_SELF(buildMgr, BuildManager);
 
-  eda->removeCodeGenData(node);
-  eda->removeAutoCtor(node);
-  eda->removeAutoCtorType(node);
-  eda->removeAutoDtor(node);
-  eda->removeAutoDtorType(node);
-  eda->resetCodeGenFailed(node);
-  eda->resetInitStatementsGenIndex(node);
+  cda->removeCodeGenData(node);
+  cda->removeAutoCtor(node);
+  cda->removeAutoCtorType(node);
+  cda->removeAutoDtor(node);
+  cda->removeAutoDtorType(node);
+  cda->resetCodeGenFailed(node);
+  cda->resetInitStatementsGenIndex(node);
 
   if (node->isDerivedFrom<Core::Ast::Passage>()) return;
 
   auto container = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(node);
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
-      buildMgr->resetBuildData(container->getElement(i), eda);
+      buildMgr->resetBuildData(container->getElement(i), cda);
     }
   }
 
@@ -413,14 +413,14 @@ void BuildManager::_resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGe
   if (binding != 0) {
     for (Int i = 0; i < binding->getMemberCount(); ++i) {
       auto member = ti_cast<Core::Ast::Node>(binding->getMember(i));
-      if (member != 0) buildMgr->resetBuildData(member, eda);
+      if (member != 0) buildMgr->resetBuildData(member, cda);
     }
   }
 
   auto tpl = ti_cast<Ast::Template>(node);
   if (tpl != 0) {
     for (Int i = 0; i < tpl->getInstanceCount(); ++i) {
-      buildMgr->resetBuildData(tpl->getInstance(i).get(), eda);
+      buildMgr->resetBuildData(tpl->getInstance(i).get(), cda);
     }
   }
 }

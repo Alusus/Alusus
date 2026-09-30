@@ -4,12 +4,12 @@ Module [Main.ModuleStatements.StmtList]
   body: Block [Main.BlockStatements.StmtList]
    Definition [Main.Def] x: Identifier: Int [Main.BlockSubject.Identifier]
    Definition [Main.Def] y
-    modifiers:
-     Identifier: shared [Modifier.Subject.Identifier]
+    metadata:
+     shared: IntegerLiteral: 1
     target: Identifier: Int [Main.BlockSubject.Identifier]
    Definition [Main.Def] t
-    modifiers:
-     Identifier: shared [Modifier.Subject.Identifier]
+    metadata:
+     shared: IntegerLiteral: 1
     target: Identifier: MyType [Main.BlockSubject.Identifier]
    Definition [Main.Def] printIt: Function  [Main.Function]
     type: FunctionType member: 0 [Main.Function]
@@ -17,7 +17,7 @@ Module [Main.ModuleStatements.StmtList]
      retType: NULL
     body: Block [Main.BlockStatements.StmtList]
      Definition [Main.Def] z
-      modifiers:
-       Identifier: shared [Modifier.Subject.Identifier]
+      metadata:
+       shared: IntegerLiteral: 1
       target: Identifier: Int [Main.BlockSubject.Identifier]
 ------------------------------------------------------

@@ -18,15 +18,14 @@ namespace Spp::Ast
 
 // TODO: DOC
 
-class ArgPack : public Core::Ast::Node,
-                public Binding, public MapContaining<Core::Ast::Node>
+class ArgPack : public Core::Ast::Node, public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ArgPack, Core::Ast::Node, "Spp.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(ArgPack);
 
@@ -42,18 +41,16 @@ class ArgPack : public Core::Ast::Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
+  IMPLEMENT_BINDING(Core::Ast::Node,
     (min, TiWord, VALUE, setMin(value), &min),
-    (max, TiWord, VALUE, setMax(value), &max),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Ast::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+    (max, TiWord, VALUE, setMax(value), &max)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
     (argType, Core::Ast::Node, SHARED_REF, setArgType(value), argType.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(ArgPack, << this->min.get() << S(" ") << this->max.get());
+  IMPLEMENT_AST_PRINTABLE(ArgPack, this->min.get() << S(" ") << this->max.get());
 
 
   //============================================================================

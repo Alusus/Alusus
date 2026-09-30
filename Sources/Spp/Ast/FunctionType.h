@@ -59,10 +59,7 @@ class FunctionType : public Type, public MapContaining<Core::Ast::Node>
     (retType, Core::Ast::Node, SHARED_REF, setRetType(value), retType.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(
-    FunctionType,
-    << S("member: ") << this->member.get()
-  );
+  IMPLEMENT_AST_PRINTABLE(FunctionType, S("member: ") << this->member.get());
 
 
   //============================================================================

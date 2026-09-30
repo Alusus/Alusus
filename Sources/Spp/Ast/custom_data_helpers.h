@@ -1,5 +1,5 @@
 /**
- * @file Spp/Ast/metadata_helpers.h
+ * @file Spp/Ast/custom_data_helpers.h
  *
  * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
@@ -9,8 +9,8 @@
  */
 //==============================================================================
 
-#ifndef SPP_AST_METADATAHELPERS_H
-#define SPP_AST_METADATAHELPERS_H
+#ifndef SPP_AST_CUSTOMDATAHELPERS_H
+#define SPP_AST_CUSTOMDATAHELPERS_H
 
 namespace Spp::Ast
 {
@@ -18,7 +18,7 @@ namespace Spp::Ast
 //==============================================================================
 // Global Constants
 
-constexpr Char const* META_EXTRA_AST_TYPE = S("astType");
+constexpr Char const* CUSTOM_DATA_AST_TYPE = S("astType");
 
 
 //==============================================================================
@@ -29,7 +29,7 @@ constexpr Char const* META_EXTRA_AST_TYPE = S("astType");
 template <class OT>
 inline Type* tryGetAstType(OT *object)
 {
-  auto box = object->getExtra(META_EXTRA_AST_TYPE).template ti_cast_get<TiBox<Type*>>();
+  auto box = object->getCustomData(CUSTOM_DATA_AST_TYPE).template ti_cast_get<TiBox<Type*>>();
   if (box == 0) return 0;
   else return box->get();
 }
@@ -51,13 +51,13 @@ inline Type* getAstType(OT *object)
 template <class OT>
 inline void setAstType(OT *object, SharedPtr<Type> const &type)
 {
-  object->setExtra(META_EXTRA_AST_TYPE, TiBox<Type*>::create(type.get()));
+  object->setCustomData(CUSTOM_DATA_AST_TYPE, TiBox<Type*>::create(type.get()));
 }
 
 template <class OT>
 inline void setAstType(OT *object, Type *type)
 {
-  object->setExtra(META_EXTRA_AST_TYPE, TiBox<Type*>::create(type));
+  object->setCustomData(CUSTOM_DATA_AST_TYPE, TiBox<Type*>::create(type));
 }
 
 } // namespace

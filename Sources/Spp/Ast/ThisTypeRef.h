@@ -16,26 +16,13 @@
 namespace Spp::Ast
 {
 
-class ThisTypeRef : public Core::Ast::Node,
-                    public Binding
+class ThisTypeRef : public Core::Ast::Node
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ThisTypeRef, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
-  IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding
-  );
   OBJECT_FACTORY(ThisTypeRef);
-
-
-  //============================================================================
-  // Implementations
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Ast::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
 
 
   //============================================================================
@@ -60,6 +47,8 @@ class ThisTypeRef : public Core::Ast::Node,
     if (id != UNKNOWN_ID) {
       stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
     }
+    Node::printModifiers(stream, indents);
+    Node::printMetadata(stream, indents);
   }
 
 }; // class

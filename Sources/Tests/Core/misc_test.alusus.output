@@ -67,26 +67,25 @@ Scope [Main.Statements.StmtList]
      first: Identifier: b [Main.Subject.Identifier]
      second: Identifier: c [Main.Subject.Identifier]
  GenericCommand do [Main.Do]
+  modifiers:
+   Identifier: test [Modifier.Subject.Identifier]
   args: List
    Token: LexerDefs.Identifier ("do")
    StringLiteral: mylib.so [Main.Subject.Literal]
-  modifiers: List
-   Identifier: test [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
    Token: LexerDefs.Identifier ("do")
    Identifier: s [Main.Subject.Identifier]
-  modifiers: NULL
  IntegerLiteral: 10 [Main.Subject.Literal]
  GenericCommand do [Main.Do]
+  modifiers:
+   Identifier: test [Modifier.Subject.Identifier]
   args: List
    Token: LexerDefs.Identifier ("do")
    Bracket () [Main.Subject.Sbj]
     operand: LinkOperator : [Main.Expression.LowerLinkExp]
      first: Identifier: s [Main.Subject.Identifier]
      second: IntegerLiteral: 10 [Main.Subject.Literal]
-  modifiers: List
-   Identifier: test [Modifier.Subject.Identifier]
  GenericCommand do [Main.Do]
   args: List
    Token: LexerDefs.Identifier ("do")
@@ -94,7 +93,6 @@ Scope [Main.Statements.StmtList]
     operand: LinkOperator : [Main.Expression.LowerLinkExp]
      first: Identifier: s [Main.Subject.Identifier]
      second: IntegerLiteral: 10 [Main.Subject.Literal]
-  modifiers: NULL
  GenericCommand do [Main.Do]
   args: List
    Token: LexerDefs.Identifier ("do")
@@ -148,9 +146,7 @@ Scope [Main.Statements.StmtList]
      args: List
       Token: LexerDefs.Identifier ("do")
       Identifier: s [Main.Subject.Identifier]
-     modifiers: NULL
     IntegerLiteral: 10 [Main.Subject.Literal]
-  modifiers: NULL
  AssignmentOperator = [Main.Expression.AssignmentExp]
   first: Identifier: a [Main.Subject.Identifier]
   second: LinkOperator ~ [Main.Subject.Identifier]

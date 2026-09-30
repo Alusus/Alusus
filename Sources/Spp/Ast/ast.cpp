@@ -16,33 +16,15 @@ namespace Spp::Ast
 
 Char const* findOperationModifier(Core::Ast::Definition const *def)
 {
-  auto modifiers = def->getModifiers().get();
-  if (modifiers != 0) {
-    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-      auto paramPass = ti_cast<Core::Ast::ParamPass>(modifiers->getElement(i));
-      if (paramPass != 0) {
-        auto identifier = paramPass->getOperand().ti_cast_get<Core::Ast::Identifier>();
-        if (identifier != 0 && identifier->getValue() == S("operation")) {
-          auto stringLiteral = paramPass->getParam().ti_cast_get<Core::Ast::StringLiteral>();
-          if (stringLiteral != 0) return stringLiteral->getValue().get();
-        }
-      }
-    }
-  }
+  auto stringLiteral = def->getMetadata(S("operation")).ti_cast_get<Core::Ast::StringLiteral>();
+  if (stringLiteral != 0) return stringLiteral->getValue().get();
   return 0;
 }
 
 
 Bool isInjection(Core::Ast::Definition *def)
 {
-  auto modifiers = def->getModifiers().get();
-  if (modifiers != 0) {
-    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-      auto identifier = ti_cast<Core::Ast::Identifier>(modifiers->getElement(i));
-      if (identifier != 0 && identifier->getValue() == S("injection")) return true;
-    }
-  }
-  return false;
+  return def->getMetadata(S("injection")) != 0;
 }
 
 

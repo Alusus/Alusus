@@ -16,14 +16,13 @@
 namespace Core::Ast
 {
 
-class GenericCommand : public Node,
-                       public Binding, public MapContaining<Node>
+class GenericCommand : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(GenericCommand, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(GenericCommand);
 
 
@@ -32,24 +31,20 @@ class GenericCommand : public Node,
 
   protected: TiStr type;
   protected: SharedPtr<List> args;
-  protected: SharedPtr<List> modifiers;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (type, TiStr, VALUE, setType(value), &type),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (type, TiStr, VALUE, setType(value), &type)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
-    (args, List, SHARED_REF, setArgs(value), args.get()),
-    (modifiers, List, SHARED_REF, setModifiers(value), modifiers.get())
+    (args, List, SHARED_REF, setArgs(value), args.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(GenericCommand, << this->type.get());
+  IMPLEMENT_AST_PRINTABLE(GenericCommand, this->type.get());
 
 
   //============================================================================
@@ -64,7 +59,6 @@ class GenericCommand : public Node,
   public: virtual ~GenericCommand()
   {
     DISOWN_SHAREDPTR(this->args);
-    DISOWN_SHAREDPTR(this->modifiers);
   }
 
 
@@ -106,29 +100,6 @@ class GenericCommand : public Node,
   public: SharedPtr<List> const& getArgs() const
   {
     return this->args;
-  }
-
-  public: void setModifiers(SharedPtr<List> const &m)
-  {
-    UPDATE_OWNED_SHAREDPTR(this->modifiers, m);
-  }
-  private: void setModifiers(List *m)
-  {
-    this->setModifiers(getSharedPtr(m));
-  }
-
-  public: void addModifier(SharedPtr<Node> const &modifier)
-  {
-    if (this->modifiers == 0) {
-      this->modifiers = List::create({}, { modifier });
-    } else {
-      this->modifiers->add(modifier);
-    }
-  }
-
-  public: SharedPtr<List> const& getModifiers() const
-  {
-    return this->modifiers;
   }
 
 }; // class

@@ -29,18 +29,10 @@ void Definition::print(OutStream &stream, Int indents) const
   if (this->isToMerge()) {
     stream << S(" <to merge>");
   }
-  if (this->modifiers != 0 && this->modifiers->getCount() > 0) {
-    stream << S("\n");
-    printIndents(stream, indents+1);
-    stream << S("modifiers:");
-    for (Int i = 0; i < this->modifiers->getCount(); ++i) {
-      auto modifier = this->modifiers->get(i).get();
-      if (modifier != 0) {
-        stream << S("\n");
-        printIndents(stream, indents+2);
-        modifier->print(stream, indents+2);
-      }
-    }
+  Node::printModifiers(stream, indents);
+  Node::printMetadata(stream, indents);
+  if ((this->modifiers != 0 && this->modifiers->getCount() > 0) ||
+      (this->metadata != 0 && this->metadata->getCount() > 0)) {
     stream << S("\n");
     printIndents(stream, indents+1);
     stream << S("target: ");

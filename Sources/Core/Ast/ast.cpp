@@ -77,16 +77,9 @@ Bool mergeDefinition(
         }
         auto targetDef = obj != 0 ? ti_cast<Definition>(obj->getOwner()) : 0;
         if (targetDef != 0) {
-          // Merge the definition modifiers.
-          if (def->getModifiers() != 0) {
-            if (targetDef->getModifiers() == 0) {
-              targetDef->setModifiers(def->getModifiers());
-            } else {
-              for (Int i = 0; i < def->getModifiers()->getCount(); ++i) {
-                targetDef->getModifiers()->add(def->getModifiers()->get(i));
-              }
-            }
-          }
+          // Merge the definition custom data and modifiers.
+          targetDef->addModifiers(def->getModifiers());
+          targetDef->addMetadata(def->getMetadata());
         }
         // Merge the target itself.
         result = targetObj->merge(def->getTarget().get(), seeker, noticeStore);
@@ -117,6 +110,15 @@ Bool addPossiblyMergeableElement(
     }
   } else if(src->isDerivedFrom<MergeList>()){
     auto mergeList = static_cast<MergeList*>(src);
+    // If there are modifiers or metadata on the MergeList itself, move them over to its first element,
+    // since the MergeList itself is discarded and won't be kept in the target.
+    if (mergeList->getElementCount() > 0) {
+      auto firstElement = mergeList->getElement(0);
+      if (firstElement != 0) {
+        firstElement->addModifiers(mergeList->getModifiers());
+        firstElement->addMetadata(mergeList->getMetadata());
+      }
+    }
     for (Int i = 0; i < mergeList->getElementCount(); ++i) {
       if (index == -1) target->addElement(mergeList->getElement(i));
       else target->insertElement(index++, mergeList->getElement(i));
@@ -158,18 +160,19 @@ Bool addPossiblyMergeableElements(
 }
 
 
-void translateModifier(Grammar::SymbolDefinition *symbolDef, Node *modifier)
+Identifier* getModifierKeywordIdentifier(Node *modifier)
 {
+  if (modifier == 0) return 0;
   if (modifier->isDerivedFrom<Identifier>()) {
-    auto identifier = static_cast<Identifier*>(modifier);
-    identifier->setValue(symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()));
+    return static_cast<Identifier*>(modifier);
   } else if (modifier->isDerivedFrom<LinkOperator>()) {
     auto link = static_cast<LinkOperator*>(modifier);
-    translateModifier(symbolDef, link->getFirst().get());
+    return getModifierKeywordIdentifier(link->getFirst().get());
   } else if (modifier->isDerivedFrom<ParamPass>()) {
     auto paramPass = static_cast<ParamPass*>(modifier);
-    translateModifier(symbolDef, paramPass->getOperand().get());
+    return getModifierKeywordIdentifier(paramPass->getOperand().get());
   }
+  return 0;
 }
 
 
@@ -345,7 +348,7 @@ void dumpAst(OutStream &stream, TiObject *ptr, int indents)
   if (node != 0) {
     node->print(stream, indents);
   } else {
-    stream << ptr->getMyTypeInfo()->getUniqueName();
+    stream << ptr->getMyTypeInfo()->getTypeName();
     if (ptr->isA<TiWord>()) {
       auto tiWord = static_cast<TiWord*>(ptr);
       stream << S(": ") << tiWord->get();
@@ -355,6 +358,9 @@ void dumpAst(OutStream &stream, TiObject *ptr, int indents)
     } else if (ptr->isA<TiFloat>()) {
       auto tiFloat = static_cast<TiFloat*>(ptr);
       stream << S(": ") << tiFloat->get();
+    } else if (ptr->isA<TiBool>()) {
+      auto tiBool = static_cast<TiBool*>(ptr);
+      stream << S(": ") << (tiBool->get() ? "true" : "false");
     } else if (ptr->isA<TiStr>()) {
       auto tiStr = static_cast<TiStr*>(ptr);
       stream << S("\n");

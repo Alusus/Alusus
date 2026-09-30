@@ -2,47 +2,61 @@ Core.Ast.List
  members:
  -prodId: TiWord 182
  -sourceLocation: Core.Ast.SourceLocationRecord
+ -modifiers: NULL
+ -metadata: NULL
  list elements:
  -Identifier a
  -Core.Ast.LinkOperator
    members:
-   -type: TiStr ":"
    -prodId: TiWord 183
    -sourceLocation: Core.Ast.SourceLocationRecord
+   -modifiers: NULL
+   -metadata: NULL
+   -type: TiStr ":"
    map elements:
    -first: Identifier b
    -second: Core.Ast.Bracket
      members:
-     -type: TiInt 0
      -prodId: TiWord 314
      -sourceLocation: Core.Ast.SourceLocationRecord
+     -modifiers: NULL
+     -metadata: NULL
+     -type: TiInt 0
      map elements:
      -operand: Core.Ast.List
        members:
        -prodId: TiWord 182
        -sourceLocation: Core.Ast.SourceLocationRecord
+       -modifiers: NULL
+       -metadata: NULL
        list elements:
        -IntegerLiteral 5
        -IntegerLiteral 6
  -Identifier c
  -Core.Ast.Definition
    members:
-   -name: TiStr "fn"
-   -toMerge: TiBool false
    -prodId: TiWord 248
    -sourceLocation: Core.Ast.SourceLocationRecord
+   -modifiers: NULL
+   -metadata: NULL
+   -name: TiStr "fn"
+   -toMerge: TiBool false
    map elements:
    -target: Spp.Ast.Function
      members:
-     -name: TiStr ""
-     -inlined: TiBool false
      -prodId: TiWord 248
      -sourceLocation: Core.Ast.SourceLocationRecord
+     -modifiers: NULL
+     -metadata: NULL
+     -name: TiStr ""
+     -inlined: TiBool false
      map elements:
      -type: Spp.Ast.FunctionType
        members:
        -prodId: TiWord 248
        -sourceLocation: Core.Ast.SourceLocationRecord
+       -modifiers: NULL
+       -metadata: NULL
        -member: TiBool false
        map elements:
        -argTypes: NULL
@@ -51,5 +65,6 @@ Core.Ast.List
        members:
        -prodId: TiWord 308
        -sourceLocation: NULL
+       -modifiers: NULL
+       -metadata: NULL
        list elements:
-   -modifiers: NULL

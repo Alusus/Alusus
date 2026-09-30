@@ -181,6 +181,6 @@ Function* getDummyBuiltInOpFunction();
 #include "Helper.h"
 #include "CalleeTracer.h"
 #include "NodePathResolver.h"
-#include "metadata_helpers.h"
+#include "custom_data_helpers.h"
 
 #endif

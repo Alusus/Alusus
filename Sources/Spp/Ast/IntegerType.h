@@ -24,10 +24,9 @@ class IntegerType : public DataType
   TYPE_INFO(IntegerType, DataType, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(IntegerType);
 
-  IMPLEMENT_AST_MAP_PRINTABLE(
+  IMPLEMENT_AST_PRINTABLE(
     IntegerType,
-    << (this->nullLiteral ? S("null_literal ") : S(""))
-    << (this->withSign ? S("signed") : S("unsigned"))
+    (this->nullLiteral ? S("null_literal ") : S("")) << (this->withSign ? S("signed") : S("unsigned"))
   );
 
 

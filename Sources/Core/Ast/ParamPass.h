@@ -18,14 +18,13 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class ParamPass : public Node,
-                  public Binding, public MapContaining<Node>
+class ParamPass : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(ParamPass, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(ParamPass);
 
 
@@ -40,10 +39,8 @@ class ParamPass : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (type, BracketType, VALUE, setType(value), &type),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (type, BracketType, VALUE, setType(value), &type)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
@@ -51,7 +48,7 @@ class ParamPass : public Node,
     (param, Node, SHARED_REF, setParam(value), param.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(ParamPass, << (this->type == BracketType::ROUND ? S("()") : S("[]")));
+  IMPLEMENT_AST_PRINTABLE(ParamPass, (this->type == BracketType::ROUND ? S("()") : S("[]")));
 
 
   //============================================================================

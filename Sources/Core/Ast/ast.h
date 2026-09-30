@@ -27,40 +27,17 @@ namespace Core::Ast
 //==============================================================================
 // Macros
 
-#define _PRINT_AST_TYPE_NAME1(type) stream << S(#type)
-#define _PRINT_AST_TYPE_NAME2(type, extra) stream << S(#type " ") extra
-#define _PRINT_AST_TYPE_NAME(...) \
-  SELECT_MACRO(__VA_ARGS__, _, _, _, _, _, _, _, _, _PRINT_AST_TYPE_NAME2, _PRINT_AST_TYPE_NAME1)(__VA_ARGS__)
-
-#define IMPLEMENT_AST_MAP_PRINTABLE(...) \
+#define IMPLEMENT_AST_PRINTABLE(type, extra) \
   public: virtual void print(OutStream &stream, Int indents=0) const \
   { \
-    _PRINT_AST_TYPE_NAME(__VA_ARGS__); \
+    stream << S(#type " ") << extra; \
     Word id = this->getProdId(); \
     if (id != UNKNOWN_ID) { \
       stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]"); \
     } \
-    for (Word i = 0; i < this->getElementCount(); ++i) { \
-      stream << S("\n"); \
-      printIndents(stream, indents+1); \
-      stream << this->getElementKey(i) << S(": "); \
-      Core::Ast::dumpAst(stream, this->getElement(i), indents+1); \
-    } \
-  }
-
-#define IMPLEMENT_AST_LIST_PRINTABLE(...) \
-  public: virtual void print(OutStream &stream, Int indents=0) const \
-  { \
-    _PRINT_AST_TYPE_NAME(__VA_ARGS__); \
-    Word id = this->getProdId(); \
-    if (id != UNKNOWN_ID) { \
-      stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]"); \
-    } \
-    for (Word i = 0; i < this->getElementCount(); ++i) { \
-      stream << S("\n"); \
-      printIndents(stream, indents+1); \
-      Core::Ast::dumpAst(stream, this->getElement(i), indents+1); \
-    } \
+    Node::printModifiers(stream, indents); \
+    Node::printMetadata(stream, indents); \
+    Node::printContaining(stream, indents); \
   }
 
 
@@ -79,6 +56,9 @@ namespace Core::Ast
 {
   class Node;
   class Definition;
+  class Identifier;
+  class List;
+  class Map;
   class Seeker;
   class SourceLocation;
   class SourceLocationStack;
@@ -129,7 +109,16 @@ Bool addPossiblyMergeableElements(
 Bool addPossiblyMergeableElements(
   Containing<Node> *src, DynamicContaining<Node> *target, Seeker *seeker, Notices::Store *noticeStore
 );
-void translateModifier(Grammar::SymbolDefinition *symbolDef, Node *modifier);
+
+/**
+ * @brief Get the identifier that carries a modifier's keyword.
+ * @ingroup core_data_ast
+ *
+ * A modifier can be a plain identifier (`shared`), a qualified identifier (`ns.shared`), or a param-passed
+ * identifier (`expname[...]`). This function drills into a LinkOperator or ParamPass wrapping to find the
+ * identifier that actually carries the modifier's keyword. Returns 0 if none was found.
+ */
+Identifier* getModifierKeywordIdentifier(Node *modifier);
 
 SharedPtr<Node> _clone(Node *obj, SourceLocation *sl);
 template <class T> SharedPtr<T> clone(T *obj, SourceLocation *sl = 0)

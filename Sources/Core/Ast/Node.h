@@ -24,12 +24,13 @@ namespace Core::Ast
  * all AST nodes: the production id, the source location, and any extra
  * named objects attached to the node.
  */
-class Node : public TiObject
+class Node : public TiObject, public Binding
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Node, TiObject, "Core.Ast", "Core", "alusus.org");
+  IMPLEMENT_INTERFACES(TiObject, Binding);
 
 
   //============================================================================
@@ -37,17 +38,28 @@ class Node : public TiObject
 
   private: Node *owner;
 
-  protected: Core::Basic::TiWord prodId = UNKNOWN_ID;
-  protected: Core::Basic::SharedPtr<Core::Ast::SourceLocation> sourceLocation;
-  private: Core::Basic::SharedMap<Core::Basic::TiObject> extras;
+  protected: TiWord prodId = UNKNOWN_ID;
+  protected: SharedPtr<SourceLocation> sourceLocation;
+  protected: SharedPtr<List> modifiers;
+  protected: SharedPtr<Map> metadata;
+  protected: SharedPtr<SharedMap<TiObject>> customData;
 
 
   //============================================================================
-  // Constructors
+  // Implementations
+
+  // The implementation is in the cpp file due to List and Map not being complete types yet.
+  DECLARE_BINDING();
+
+
+  //============================================================================
+  // Constructors / Destructor
 
   public: Node() : owner(0)
   {
   }
+
+  public: virtual ~Node();
 
 
   //============================================================================
@@ -149,23 +161,45 @@ class Node : public TiObject
     return sl;
   }
 
-  public: void setExtra(Char const *name, TioSharedPtr const &obj)
+  /**
+   * @brief Set the list of modifiers attached to this node.
+   */
+  public: void setModifiers(SharedPtr<List> const &m);
+  protected: void setModifiers(List *m);
+
+  /**
+   * @brief Add a modifier to this node's list of modifiers.
+   */
+  public: void addModifier(SharedPtr<Node> const &modifier);
+
+  public: void addModifiers(SharedPtr<List> const &m);
+
+  public: SharedPtr<List> const& getModifiers() const
   {
-    this->extras.set(name, obj);
+    return this->modifiers;
   }
 
-  public: void removeExtra(Char const *name)
+  public: void setMetadata(SharedPtr<Map> const &newMetadata);
+  protected: void setMetadata(Map *newMetadata);
+
+  public: void setMetadata(Char const *name, SharedPtr<Node> const &obj);
+
+  public: void addMetadata(SharedPtr<Map> const &newMetadata);
+
+  public: void removeMetadata(Char const *name);
+
+  public: SharedPtr<Node> const& getMetadata(Char const *name) const;
+
+  public: SharedPtr<Map> const& getMetadata() const
   {
-    auto index = this->extras.findIndex(name);
-    if (index != -1) this->extras.remove(index);
+    return this->metadata;
   }
 
-  public: TioSharedPtr const& getExtra(Char const *name) const
-  {
-    auto index = this->extras.findIndex(name);
-    if (index == -1) return TioSharedPtr::null;
-    else return this->extras.get(index);
-  }
+  public: void setCustomData(Char const *name, TioSharedPtr const &obj);
+
+  public: void removeCustomData(Char const *name);
+
+  public: TioSharedPtr const& getCustomData(Char const *name) const;
 
   /**
    * @brief Print a textual representation of this node and its children.
@@ -174,6 +208,11 @@ class Node : public TiObject
    * (with keys if the node is a map container). Derived classes can override this to customize the output.
    */
   public: virtual void print(OutStream &stream, Int indents=0) const;
+
+  public: void printModifiers(OutStream &stream, Int indents=0) const;
+  public: void printMetadata(OutStream &stream, Int indents=0) const;
+  public: void printBinding(OutStream &stream, Int indents=0) const;
+  public: void printContaining(OutStream &stream, Int indents=0) const;
 
   public: Str toString(Int indents=0) const
   {

@@ -16,28 +16,14 @@
 namespace Core::Ast
 {
 
-class List : public SharedListBase<Node, Node>,
-             public Binding
+class List : public SharedListBase<Node, Node>
 {
   //============================================================================
   // Type Info
 
   typedef SharedListBase<Node, Node> _MyBase;
-  TYPE_INFO(List, _MyBase, "Core.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding)
-  ));
+  TYPE_INFO(List, _MyBase, "Core.Ast", "Core", "alusus.org");
   OBJECT_FACTORY(List);
-
-
-  //============================================================================
-  // Implementations
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
-
-  IMPLEMENT_AST_LIST_PRINTABLE(List);
 
 
   //============================================================================

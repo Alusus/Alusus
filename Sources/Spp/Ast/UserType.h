@@ -26,8 +26,6 @@ class UserType : public DataType, public Core::Ast::Mergeable
   ));
   OBJECT_FACTORY(UserType);
 
-  IMPLEMENT_AST_MAP_PRINTABLE(UserType);
-
 
   //============================================================================
   // Constructor / Destructor

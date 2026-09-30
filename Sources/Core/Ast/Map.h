@@ -16,28 +16,14 @@
 namespace Core::Ast
 {
 
-class Map : public SharedMapBase<Node, Node>,
-            public Binding
+class Map : public SharedMapBase<Node, Node>
 {
   //============================================================================
   // Type Info
 
   typedef SharedMapBase<Node, Node> _MyBase;
-  TYPE_INFO(Map, _MyBase, "Core.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding)
-  ));
+  TYPE_INFO(Map, _MyBase, "Core.Ast", "Core", "alusus.org");
   OBJECT_FACTORY(Map);
-
-
-  //============================================================================
-  // Implementations
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
-
-  IMPLEMENT_AST_MAP_PRINTABLE(Map);
 
 
   //============================================================================

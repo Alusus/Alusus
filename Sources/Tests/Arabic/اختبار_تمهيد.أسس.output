@@ -9,6 +9,8 @@ Function اختبار_شبم_حرفي1() [Main.Function]
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]
   AstLiteralCommand [Main.AstLiteral]
+   props:
+    preprocessDisabled: TiBoolBase<alusus.org/Core/Core.Basic.TiObject>: false
    body: Definition [Main.Def] ن: Identifier: integer [Main.Keywords]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
@@ -18,6 +20,8 @@ Function اختبار_شبم_حرفي2() [Main.Function]
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]
   AstLiteralCommand [Main.AstLiteral]
+   props:
+    preprocessDisabled: TiBoolBase<alusus.org/Core/Core.Basic.TiObject>: true
    body: ParamPass [] [Main.Expression.ParamPassExp]
     operand: Identifier: عرف_صحيح [Main.BlockSubject.Identifier]
     param: Identifier: ن [Main.BlockSubject.Identifier]

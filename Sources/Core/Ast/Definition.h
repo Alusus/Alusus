@@ -18,14 +18,13 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class Definition : public Node,
-                   public Binding, public MapContaining<Node>
+class Definition : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Definition, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(Definition);
 
 
@@ -35,22 +34,18 @@ class Definition : public Node,
   private: TiStr name;
   private: SharedPtr<Node> target;
   private: TiBool toMerge;
-  private: SharedPtr<List> modifiers;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
+  IMPLEMENT_BINDING(Node,
     (name, TiStr, VALUE, setName(value), &name),
-    (toMerge, TiBool, VALUE, setToMerge(value), &toMerge),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+    (toMerge, TiBool, VALUE, setToMerge(value), &toMerge)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
-    (target, Node, SHARED_REF, setTarget(value), target.get()),
-    (modifiers, List, SHARED_REF, setModifiers(value), modifiers.get())
+    (target, Node, SHARED_REF, setTarget(value), target.get())
   );
 
 
@@ -112,29 +107,6 @@ class Definition : public Node,
   public: Bool isToMerge() const
   {
     return this->toMerge.get();
-  }
-
-  public: void setModifiers(SharedPtr<List> const &m)
-  {
-    UPDATE_OWNED_SHAREDPTR(this->modifiers, m);
-  }
-  private: void setModifiers(List *m)
-  {
-    this->setModifiers(getSharedPtr(m));
-  }
-
-  public: void addModifier(SharedPtr<Node> const &modifier)
-  {
-    if (this->modifiers == 0) {
-      this->setModifiers(List::create({}, { modifier }));
-    } else {
-      this->modifiers->add(modifier);
-    }
-  }
-
-  public: SharedPtr<List> const& getModifiers() const
-  {
-    return this->modifiers;
   }
 
 

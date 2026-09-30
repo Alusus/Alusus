@@ -69,7 +69,7 @@ c.test();
 class Wrong {
   def i: Int;
   @shared @injection def o: Outer;
-  @injection func test {}
+  @injection def test: func {}
 };
 def w: Wrong;
 print("w.i=%d\n", w.i);

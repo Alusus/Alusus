@@ -357,6 +357,8 @@ void Template::print(OutStream &stream, Int indents) const
       case TemplateVarType::AST_REF: stream << S("AstRef"); break;
     }
   }
+  Node::printModifiers(stream, indents);
+  Node::printMetadata(stream, indents);
   // dump body
   stream << S("\n");
   printIndents(stream, indents+1);

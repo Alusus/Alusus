@@ -27,14 +27,13 @@ namespace Core::Ast
  * taking that route. This object is created by the GenericParsingHandler to
  * compose the Parsing Representation Tree (PRT).
  */
-class Route : public Node,
-              public Binding, public MapContaining<Node>
+class Route : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Route, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(Route);
 
 
@@ -64,17 +63,15 @@ class Route : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (route, TiInt, VALUE, setRoute(value), &route),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (route, TiInt, VALUE, setRoute(value), &route)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
     (data, Node, SHARED_REF, setData(value), data.get())
   );
 
-  IMPLEMENT_AST_LIST_PRINTABLE(Route, << this->route.get());
+  IMPLEMENT_AST_PRINTABLE(Route, this->route.get());
 
 
   //============================================================================

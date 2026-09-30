@@ -28,7 +28,7 @@ SymbolDefinition::~SymbolDefinition()
   RESET_OWNED_SHAREDPTR(this->varDefs);
   RESET_OWNED_SHAREDPTR(this->vars);
   RESET_OWNED_SHAREDPTR(this->attributes);
-  RESET_OWNED_SHAREDPTR(this->modifierTranslations);
+  RESET_OWNED_SHAREDPTR(this->modifierActions);
 }
 
 
@@ -80,9 +80,9 @@ void SymbolDefinition::inheritFromParent()
     this->attributes = cloneInherited(this->base->getAttributes().get());
     OWN_SHAREDPTR(this->attributes);
   }
-  if ((this->ownership & SymbolDefinition::Element::MODIFIER_TRANS) == 0) {
-    this->modifierTranslations = cloneInherited(this->base->getModifierTranslations().get());
-    OWN_SHAREDPTR(this->modifierTranslations);
+  if ((this->ownership & SymbolDefinition::Element::MODIFIER_ACTIONS) == 0) {
+    this->modifierActions = cloneInherited(this->base->getModifierActions().get());
+    OWN_SHAREDPTR(this->modifierActions);
   }
 }
 
@@ -95,7 +95,7 @@ void SymbolDefinition::removeInheritted()
   if ((this->ownership & SymbolDefinition::Element::HANDLER) == 0) this->handler.reset();
   if ((this->ownership & SymbolDefinition::Element::FLAGS) == 0) this->flags.reset();
   if ((this->ownership & SymbolDefinition::Element::ATTRIBUTES) == 0) this->attributes.reset();
-  if ((this->ownership & SymbolDefinition::Element::MODIFIER_TRANS) == 0) this->modifierTranslations.reset();
+  if ((this->ownership & SymbolDefinition::Element::MODIFIER_ACTIONS) == 0) this->modifierActions.reset();
 }
 
 
@@ -127,24 +127,20 @@ void SymbolDefinition::onParentElementChanged(SymbolDefinition *obj, SymbolDefin
       this->attributes = cloneInherited(this->base->getAttributes().get());
       OWN_SHAREDPTR(this->attributes);
     }
-    if ((elmt & SymbolDefinition::Element::MODIFIER_TRANS) == 0) {
-      this->modifierTranslations = cloneInherited(this->base->getModifierTranslations().get());
-      OWN_SHAREDPTR(this->modifierTranslations);
+    if ((elmt & SymbolDefinition::Element::MODIFIER_ACTIONS) == 0) {
+      this->modifierActions = cloneInherited(this->base->getModifierActions().get());
+      OWN_SHAREDPTR(this->modifierActions);
     }
   }
 }
 
 
-SbStr const SymbolDefinition::getTranslatedModifierKeyword(Char const *keyword) const
+ModifierAction* SymbolDefinition::getModifierAction(Char const *keyword) const
 {
-  if (this->modifierTranslations == 0) return sbstr_cast(keyword);
-  auto index = this->modifierTranslations->findIndex(keyword);
-  if (index == -1) return sbstr_cast(keyword);
-  else {
-    auto str = this->modifierTranslations->get(index).ti_cast_get<TiStr>();
-    if (str == 0) return sbstr_cast(keyword);
-    else return sbstr_cast(str->get());
-  }
+  if (this->modifierActions == 0) return 0;
+  auto index = this->modifierActions->findIndex(keyword);
+  if (index == -1) return 0;
+  return this->modifierActions->get(index).ti_cast_get<ModifierAction>();
 }
 
 } // namespace

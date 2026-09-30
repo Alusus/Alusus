@@ -17,14 +17,14 @@ namespace Spp::Ast
 {
 
 class AstLiteralCommand : public Core::Ast::Node,
-                          public Binding, public MapContaining<Core::Ast::Node>
+                          public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(AstLiteralCommand, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(AstLiteralCommand);
 
@@ -39,15 +39,11 @@ class AstLiteralCommand : public Core::Ast::Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Ast::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get()),
+  IMPLEMENT_BINDING(Core::Ast::Node,
     (preprocessDisabled, TiBool, VALUE, setPreprocessDisabled(value), &preprocessDisabled)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>, (body, Core::Ast::Node, SHARED_REF, setBody(value), body.get()));
-
-  IMPLEMENT_AST_MAP_PRINTABLE(AstLiteralCommand);
 
 
   //============================================================================

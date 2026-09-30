@@ -23,17 +23,6 @@ void GenericCommandParsingHandler::onProdStart(Parser *parser, ParserState *stat
 }
 
 
-Bool GenericCommandParsingHandler::onIncomingModifier(
-  Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
-) {
-  Int levelOffset = -state->getTopProdTermLevelCount();
-  auto command = state->getData(levelOffset).ti_cast_get<Ast::GenericCommand>();
-  ASSERT(command != 0);
-  command->addModifier(modifierData);
-  return true;
-}
-
-
 void GenericCommandParsingHandler::addData(
   SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex
 ) {

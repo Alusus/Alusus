@@ -16,16 +16,13 @@
 namespace Core::Ast
 {
 
-class Bridge : public Node,
-               public Binding, public MapContaining<Node>
+class Bridge : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bridge, Node, "Core.Ast", "Core", "alusus.org", (
-    INHERITANCE_INTERFACES(
-      Binding, MapContaining<Node>
-    )
+    INHERITANCE_INTERFACES(MapContaining<Node>)
   ));
   OBJECT_FACTORY(Bridge);
 
@@ -39,16 +36,9 @@ class Bridge : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
-
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
     (target, Node, SHARED_REF, setTarget(value), target.get())
   );
-
-  IMPLEMENT_AST_MAP_PRINTABLE(Bridge);
 
 
   //============================================================================

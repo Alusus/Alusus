@@ -66,11 +66,16 @@ void SppFactory::createGrammar()
   });
 
   // Add translations for def modifiers.
-  this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
-  this->set(S("root.Main.Def.modifierTranslations.دون_ربط"), TiStr::create(S("no_bind")));
-  this->set(S("root.Main.Def.modifierTranslations.حقنة"), TiStr::create(S("injection")));
-  this->set(S("root.Main.Def.modifierTranslations.عملية"), TiStr::create(S("operation")));
-  this->set(S("root.Main.Def.modifierTranslations.أولوية"), TiStr::create(S("priority")));
+  this->set(S("root.Main.Def.modifierActions.shared"), newSrdObj<Grammar::StoreModifierAction>(S("shared")));
+  this->set(S("root.Main.Def.modifierActions.مشترك"), newSrdObj<Grammar::StoreModifierAction>(S("shared")));
+  this->set(S("root.Main.Def.modifierActions.no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind")));
+  this->set(S("root.Main.Def.modifierActions.دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind")));
+  this->set(S("root.Main.Def.modifierActions.injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection")));
+  this->set(S("root.Main.Def.modifierActions.حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection")));
+  this->set(S("root.Main.Def.modifierActions.operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation")));
+  this->set(S("root.Main.Def.modifierActions.عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation")));
+  this->set(S("root.Main.Def.modifierActions.priority"), newSrdObj<Grammar::StoreModifierAction>(S("priority")));
+  this->set(S("root.Main.Def.modifierActions.أولوية"), newSrdObj<Grammar::StoreModifierAction>(S("priority")));
 
   // Create leading commands.
 
@@ -259,6 +264,9 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::TypeHandlersParsingHandler>());
+  this->set(S("root.Main.TypeOp.modifierActions"), Map::create({}, {
+    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))}
+  }));
   this->createCommand(S("root.Main.TypeOpOptions"), {{
     Map::create({}, {
       { S("as_ptr"), 0 },
@@ -288,8 +296,8 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::ModuleParsingHandler>());
-  this->set(S("root.Main.Module.modifierTranslations"), Map::create({}, {
-    {S("دمج"), TiStr::create(S("merge"))}
+  this->set(S("root.Main.Module.modifierActions"), Map::create({}, {
+    {S("دمج"), newSrdObj<Grammar::TranslateModifierAction>(S("merge"))}
   }));
   this->set(S("root.Main.ModuleBody"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
@@ -331,8 +339,8 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::TypeParsingHandler>());
-  this->set(S("root.Main.Type.modifierTranslations"), Map::create({}, {
-    {S("دمج"), TiStr::create(S("merge"))}
+  this->set(S("root.Main.Type.modifierActions"), Map::create({}, {
+    {S("دمج"), newSrdObj<Grammar::TranslateModifierAction>(S("merge"))}
   }));
 
   // Function
@@ -365,10 +373,11 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::FunctionParsingHandler>());
-  this->set(S("root.Main.Function.modifierTranslations"), Map::create({}, {
-    {S("تصدير"), TiStr::create(S("expname"))},
-    {S("عضو"), TiStr::create(S("member"))},
-    {S("عملية"), TiStr::create(S("operation"))}
+  this->set(S("root.Main.Function.modifierActions"), Map::create({}, {
+    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
+    {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))},
+    {S("operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
+    {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))}
   }));
 
   // FuncSigExpression
@@ -467,8 +476,8 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::MacroParsingHandler>());
-  this->set(S("root.Main.Macro.modifierTranslations"), Map::create({}, {
-    {S("عضو"), TiStr::create(S("member"))}
+  this->set(S("root.Main.Macro.modifierActions"), Map::create({}, {
+    {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))}
   }));
 
   // Square Arguments Signature
@@ -552,10 +561,7 @@ void SppFactory::createGrammar()
       // Look for no_preprocess modifier.
       auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
       if (identifier == 0) return false;
-      auto symbolDef = state->refTopProdLevel().getProd();
-      auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
-
-      if (keyword != S("no_preprocess")) return false;
+      if (identifier->getValue() != S("no_preprocess")) return false;
 
       // Update the AST literal command.
       Int levelOffset = -state->getTopProdTermLevelCount();
@@ -568,8 +574,8 @@ void SppFactory::createGrammar()
       return true;
     }
   ));
-  this->set(S("root.Main.AstLiteral.modifierTranslations"), Map::create({}, {
-    {S("بلا_تمهيد"), TiStr::create(S("no_preprocess"))}
+  this->set(S("root.Main.AstLiteral.modifierActions"), Map::create({}, {
+    {S("بلا_تمهيد"), newSrdObj<Grammar::TranslateModifierAction>(S("no_preprocess"))}
   }));
 
   // BlockSet
@@ -920,11 +926,16 @@ void SppFactory::cleanGrammar()
   });
 
   // Remove translation for static modifier.
-  this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
-  this->remove(S("root.Main.Def.modifierTranslations.دون_ربط"));
-  this->remove(S("root.Main.Def.modifierTranslations.حقنة"));
-  this->remove(S("root.Main.Def.modifierTranslations.عملية"));
-  this->remove(S("root.Main.Def.modifierTranslations.أولوية"));
+  this->remove(S("root.Main.Def.modifierActions.shared"));
+  this->remove(S("root.Main.Def.modifierActions.مشترك"));
+  this->remove(S("root.Main.Def.modifierActions.no_bind"));
+  this->remove(S("root.Main.Def.modifierActions.دون_ربط"));
+  this->remove(S("root.Main.Def.modifierActions.injection"));
+  this->remove(S("root.Main.Def.modifierActions.حقنة"));
+  this->remove(S("root.Main.Def.modifierActions.operation"));
+  this->remove(S("root.Main.Def.modifierActions.عملية"));
+  this->remove(S("root.Main.Def.modifierActions.priority"));
+  this->remove(S("root.Main.Def.modifierActions.أولوية"));
 
   // Remove commands from tilde commands list.
   this->removeProdsFromGroup(S("root.Main.PostfixTildeCmdGrp"), {

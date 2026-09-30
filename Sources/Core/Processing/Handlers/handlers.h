@@ -54,6 +54,7 @@ namespace Core::Main
 #include "ModifierParsingHandler.h"
 #include "GenericCommandParsingHandler.h"
 #include "CustomParsingHandler.h"
+#include "StatementParsingHandler.h"
 
 #include "ImportParsingHandler.h"
 #include "DumpAstParsingHandler.h"

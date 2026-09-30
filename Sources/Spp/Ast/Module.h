@@ -28,8 +28,6 @@ class Module : public Core::Ast::Scope, public Core::Ast::Mergeable
   ));
   OBJECT_FACTORY(Module);
 
-  IMPLEMENT_AST_LIST_PRINTABLE(Module);
-
 
   //============================================================================
   // Constructor / Destructor

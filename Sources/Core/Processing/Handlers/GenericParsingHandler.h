@@ -67,6 +67,21 @@ class GenericParsingHandler : public ParsingHandler
   public: virtual void onProdEnd(Parser *parser, ParserState *state);
 
   /**
+   * @brief Process an incoming modifier based on the current production's modifier actions.
+   * Looks up the modifier's keyword in the current production's Grammar::SymbolDefinition::modifierActions.
+   * If no action is registered for that keyword, returns false, leaving the modifier for the caller (or an
+   * outer parsing handler) to deal with. If a Grammar::TranslateModifierAction is found, the modifier's
+   * keyword is translated in place and reprocessed. If a Grammar::KeepModifierAction or
+   * Grammar::StoreModifierAction is found, the modifier is accepted and stored on the target Node (as a
+   * modifier, or in its customData, respectively) and true is returned.
+   *
+   * @sa ParsingHandler::onIncomingModifier()
+   */
+  public: virtual Bool onIncomingModifier(
+    Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
+  );
+
+  /**
    * @brief Called when parsing exits a term level.
    * Passes the data of the top level to the first level above it that can
    * receive the data, i.e. that isn't set to pass the data up. If the top

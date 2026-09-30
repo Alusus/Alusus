@@ -31,6 +31,8 @@ class StandardFactory : public Factory
 
   private: SharedPtr<Processing::Handlers::GenericParsingHandler> parsingHandler;
 
+  private: SharedPtr<Processing::Handlers::StatementParsingHandler> statementParsingHandler;
+
   private: SharedPtr<Processing::Handlers::ImportParsingHandler> importHandler;
 
   private: SharedPtr<Processing::Handlers::DumpAstParsingHandler> dumpAstParsingHandler;

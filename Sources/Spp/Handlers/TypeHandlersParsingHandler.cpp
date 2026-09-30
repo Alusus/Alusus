@@ -702,19 +702,13 @@ SharedPtr<Core::Ast::Definition> TypeHandlersParsingHandler::createDefinition(
   SharedPtr<Core::Ast::SourceLocation> const &sourceLocation
 ) {
   if (op != 0) {
-    return Core::Ast::Definition::create({
+    auto def = Core::Ast::Definition::create({
       {S("name"), TiStr(name)}
     }, {
-      {S("target"), target},
-      {S("modifiers"), Core::Ast::List::create({}, {
-        Core::Ast::ParamPass::create({
-          {S("type"), Core::Ast::BracketType(Core::Ast::BracketType::SQUARE)}
-        }, {
-          {S("operand"), Core::Ast::Identifier::create({ {S("value"), TiStr(S("operation"))} })},
-          {S("param"), Core::Ast::StringLiteral::create({ {S("value"), TiStr(op)} })}
-        })
-      })}
+      {S("target"), target}
     });
+    def->setMetadata(S("operation"), Core::Ast::StringLiteral::create({ {S("value"), TiStr(op)} }));
+    return def;
   } else {
     return Core::Ast::Definition::create({
       {S("name"), TiStr(name)}
@@ -729,10 +723,13 @@ Bool TypeHandlersParsingHandler::onIncomingModifier(
   Core::Processing::Parser *parser, Core::Processing::ParserState *state,
   SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
 ) {
+  if (GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) {
+    return true;
+  }
+
   if (!prodProcessingComplete) return false;
 
-  if (this->processExpnameModifier(state, modifierData)) return true;
-  else return this->processUnknownModifier(state, modifierData);
+  return this->processExpnameModifier(state, modifierData);
 }
 
 
@@ -745,8 +742,7 @@ Bool TypeHandlersParsingHandler::processExpnameModifier(
   if (paramPass->getType() != Core::Ast::BracketType::SQUARE) return false;
   auto operand = paramPass->getOperand().ti_cast_get<Core::Ast::Identifier>();
   if (operand == 0) return false;
-  auto symbolDef = state->refTopProdLevel().getProd();
-  if (symbolDef->getTranslatedModifierKeyword(operand->getValue().get()) != S("expname")) return false;
+  if (operand->getValue() != S("expname")) return false;
   auto param = paramPass->getParam().ti_cast_get<Core::Ast::Text>();
   if (param == 0) return false;
 
@@ -773,36 +769,6 @@ Bool TypeHandlersParsingHandler::processExpnameModifier(
 
   function->setName(param->getValue());
   return true;
-}
-
-
-Bool TypeHandlersParsingHandler::processUnknownModifier(
-  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
-) {
-  // Add an unknown modifier to the definition.
-  auto symbolDef = state->refTopProdLevel().getProd();
-  Int levelOffset = -state->getTopProdTermLevelCount();
-  auto data = state->getData(levelOffset).get();
-  if (data == 0) return false;
-
-  Core::Ast::Definition *def = 0;
-  if (data->isDerivedFrom<Core::Ast::Definition>()) {
-    def = static_cast<Core::Ast::Definition*>(data);
-  } else if (data->isDerivedFrom<Core::Ast::MergeList>()) {
-    auto mergeList = static_cast<Core::Ast::MergeList*>(data);
-    for (Int i = 0; i < mergeList->getCount(); ++i) {
-      def = ti_cast<Core::Ast::Definition>(mergeList->getElement(i));
-      if (def != 0) break;
-    }
-  }
-
-  if (def != 0) {
-    Core::Ast::translateModifier(symbolDef, modifierData.get());
-    def->addModifier(modifierData);
-    return true;
-  } else {
-    return false;
-  }
 }
 
 } // namespace

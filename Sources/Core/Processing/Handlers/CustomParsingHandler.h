@@ -70,6 +70,11 @@ class CustomParsingHandler : public GenericParsingHandler
   public: virtual Bool onIncomingModifier(
     Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
   ) {
+    if (this->callingParentEnabled) {
+      if (GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) {
+        return true;
+      }
+    }
     if (this->incomingModifierHandler == nullptr) return false;
     return this->incomingModifierHandler(parser, state, modifierData, prodProcessingComplete);
   }

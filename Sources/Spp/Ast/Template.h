@@ -17,14 +17,14 @@ namespace Spp::Ast
 {
 
 class Template : public Core::Ast::Node,
-                 public Binding, public MapContaining<Core::Ast::Node>, public Core::Ast::Mergeable
+                 public MapContaining<Core::Ast::Node>, public Core::Ast::Mergeable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Template, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Ast::Node, Binding, MapContaining<Core::Ast::Node>, Core::Ast::Mergeable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>, Core::Ast::Mergeable
   );
   OBJECT_FACTORY(Template);
 
@@ -41,11 +41,6 @@ class Template : public Core::Ast::Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Ast::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
     (varDefs, Core::Ast::List, SHARED_REF, setVarDefs(value), varDefs.get()),

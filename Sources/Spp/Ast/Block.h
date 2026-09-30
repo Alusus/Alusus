@@ -32,12 +32,6 @@ class Block : public Core::Ast::Scope
 
 
   //============================================================================
-  // Implementations
-
-  IMPLEMENT_AST_LIST_PRINTABLE(Block);
-
-
-  //============================================================================
   // Constructor / Destructor
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(Block);

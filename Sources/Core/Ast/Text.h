@@ -18,13 +18,12 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class Text : public Node, public Binding
+class Text : public Node
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Text, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding);
   OBJECT_FACTORY(Text);
 
 
@@ -43,10 +42,8 @@ class Text : public Node, public Binding
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (value, TiStr, VALUE, setValue(value), &value),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (value, TiStr, VALUE, setValue(value), &value)
   );
 
 
@@ -92,6 +89,8 @@ class Text : public Node, public Binding
     if (id != UNKNOWN_ID) {
       stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
     }
+    Node::printModifiers(stream, indents);
+    Node::printMetadata(stream, indents);
   }
 
 }; // class
@@ -115,6 +114,8 @@ class Text : public Node, public Binding
       if (id != UNKNOWN_ID) { \
         stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]"); \
       } \
+      Node::printModifiers(stream, indents); \
+      Node::printMetadata(stream, indents); \
     } \
   }
 

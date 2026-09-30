@@ -85,8 +85,8 @@ class T {
     return this.i + (f+0.5);
   };
 
-  @expname[f2]
   @customMod["hello"]
+  @expname[f2]
   handler this.f1(d: Int) {
   }
 

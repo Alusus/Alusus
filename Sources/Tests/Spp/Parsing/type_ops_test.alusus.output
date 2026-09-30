@@ -61,10 +61,8 @@ UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] i: Identifier: Int [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] ~init
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ~init
+   metadata:
+    operation: StringLiteral: ~init
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -74,10 +72,8 @@ UserType [Main.Type]
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ~init
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ~init
+   metadata:
+    operation: StringLiteral: ~init
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -93,10 +89,8 @@ UserType [Main.Type]
    operand: NULL
   Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ~terminate
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ~terminate
+   metadata:
+    operation: StringLiteral: ~terminate
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -106,10 +100,8 @@ UserType [Main.Type]
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ~terminate
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ~terminate
+   metadata:
+    operation: StringLiteral: ~terminate
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -123,10 +115,8 @@ UserType [Main.Type]
    operand: NULL
   Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] =
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -146,10 +136,8 @@ UserType [Main.Type]
       ReturnStatement
        operand: Identifier: this
   Definition [Main.LeadingCmdGrp] =
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -169,10 +157,8 @@ UserType [Main.Type]
       ReturnStatement
        operand: Identifier: this
   Definition [Main.LeadingCmdGrp] +=
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: +=
+   metadata:
+    operation: StringLiteral: +=
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -192,10 +178,8 @@ UserType [Main.Type]
       ReturnStatement
        operand: Identifier: this
   Definition [Main.LeadingCmdGrp] /=
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: /=
+   metadata:
+    operation: StringLiteral: /=
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -215,10 +199,8 @@ UserType [Main.Type]
       ReturnStatement
        operand: Identifier: this
   Definition [Main.LeadingCmdGrp] =
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -242,10 +224,8 @@ UserType [Main.Type]
       ReturnStatement
        operand: Identifier: this
   Definition [Main.LeadingCmdGrp] =
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -269,10 +249,8 @@ UserType [Main.Type]
       ReturnStatement
        operand: Identifier: this
   Definition [Main.LeadingCmdGrp] >
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: >
+   metadata:
+    operation: StringLiteral: >
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -291,10 +269,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] -
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: -
+   metadata:
+    operation: StringLiteral: -
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -311,10 +287,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] *
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: *
+   metadata:
+    operation: StringLiteral: *
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -337,10 +311,8 @@ UserType [Main.Type]
       ReturnStatement [Main.Return]
        operand: Identifier: ret [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] <<
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: <<
+   metadata:
+    operation: StringLiteral: <<
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -357,10 +329,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] $
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: $
+   metadata:
+    operation: StringLiteral: $
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -377,10 +347,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] ~cast
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ~cast
+   metadata:
+    operation: StringLiteral: ~cast
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -398,10 +366,8 @@ UserType [Main.Type]
     first: Identifier: this [Main.Keywords]
     second: Identifier: i [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] ()
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -415,10 +381,8 @@ UserType [Main.Type]
         first: Identifier: this [Main.Keywords]
         second: Identifier: i [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] ()
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -434,10 +398,8 @@ UserType [Main.Type]
         second: Identifier: i [Main.BlockSubject.Identifier]
        second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] ()
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -459,10 +421,8 @@ UserType [Main.Type]
           first: Identifier: f [Main.BlockSubject.Identifier]
           second: FloatLiteral: 0.5 [Main.BlockSubject.Literal]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -478,10 +438,8 @@ UserType [Main.Type]
         second: Identifier: i [Main.BlockSubject.Identifier]
        second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -497,10 +455,8 @@ UserType [Main.Type]
         second: Identifier: i [Main.BlockSubject.Identifier]
        second: Identifier: v [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: +=
+   metadata:
+    operation: StringLiteral: +=
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -516,10 +472,8 @@ UserType [Main.Type]
         second: Identifier: i [Main.BlockSubject.Identifier]
        second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: /=
+   metadata:
+    operation: StringLiteral: /=
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -535,10 +489,8 @@ UserType [Main.Type]
         second: Identifier: i [Main.BlockSubject.Identifier]
        second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -560,10 +512,8 @@ UserType [Main.Type]
         first: Identifier: value [Main.Keywords]
         second: Identifier: i [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: =
+   metadata:
+    operation: StringLiteral: =
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -585,10 +535,8 @@ UserType [Main.Type]
         first: Identifier: v [Main.BlockSubject.Identifier]
         second: Identifier: i [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: >
+   metadata:
+    operation: StringLiteral: >
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -607,10 +555,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: -
+   metadata:
+    operation: StringLiteral: -
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -627,10 +573,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: *
+   metadata:
+    operation: StringLiteral: *
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -653,10 +597,8 @@ UserType [Main.Type]
       ReturnStatement [Main.Return]
        operand: Identifier: ret [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: <<
+   metadata:
+    operation: StringLiteral: <<
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -673,10 +615,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: $
+   metadata:
+    operation: StringLiteral: $
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -693,10 +633,8 @@ UserType [Main.Type]
          second: Identifier: i [Main.BlockSubject.Identifier]
         second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: 
+   metadata:
+    operation: StringLiteral: 
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -710,10 +648,8 @@ UserType [Main.Type]
         first: Identifier: this [Main.Keywords]
         second: Identifier: i [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -727,10 +663,8 @@ UserType [Main.Type]
         first: Identifier: this [Main.Keywords]
         second: Identifier: i [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -746,10 +680,8 @@ UserType [Main.Type]
         second: Identifier: i [Main.BlockSubject.Identifier]
        second: Identifier: value [Main.Keywords]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -772,12 +704,11 @@ UserType [Main.Type]
           second: FloatLiteral: 0.5 [Main.BlockSubject.Literal]
   Definition [Main.LeadingCmdGrp] f1
    modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
     ParamPass [] [Modifier.Expression.ParamPassExp]
      operand: Identifier: customMod [Modifier.Subject.Identifier]
      param: StringLiteral: hello [Main.BlockSubject.Literal]
+   metadata:
+    operation: StringLiteral: ()
    target: Function f2
      type: FunctionType member: 1
       argTypes: Map
@@ -788,10 +719,8 @@ UserType [Main.Type]
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -801,10 +730,8 @@ UserType [Main.Type]
       retType: NULL
      body: NULL
   Definition [Main.LeadingCmdGrp] ()
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -816,20 +743,16 @@ UserType [Main.Type]
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ()
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 0
       argTypes: Map
       retType: NULL
      body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ()
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 0
       argTypes: Map
@@ -838,10 +761,8 @@ UserType [Main.Type]
        param: Identifier: T [Main.BlockSubject.Identifier]
      body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] ()
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 0
       argTypes: Map
@@ -851,10 +772,8 @@ UserType [Main.Type]
        param: Identifier: T [Main.BlockSubject.Identifier]
      body: Block [Main.BlockStatements.StmtList]
   Definition [Main.LeadingCmdGrp] myprop
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Template
      -varDefs:
       T: Type

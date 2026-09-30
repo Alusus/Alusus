@@ -33,14 +33,12 @@ ti_s_enum(TemplateVarType, TiInt, "Spp.Ast", "Spp", "alusus.org",
 //============================================================================
 // TemplateVarDef class
 
-class TemplateVarDef: public Core::Ast::Node, public Binding
+class TemplateVarDef: public Core::Ast::Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TemplateVarDef, Core::Ast::Node, "Spp.Ast.Template", "Spp", "alusus.org", (
-    INHERITANCE_INTERFACES(Binding)
-  ));
+  TYPE_INFO(TemplateVarDef, Core::Ast::Node, "Spp.Ast.Template", "Spp", "alusus.org");
   OBJECT_FACTORY(TemplateVarDef);
 
 
@@ -55,9 +53,7 @@ class TemplateVarDef: public Core::Ast::Node, public Binding
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Ast::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get()),
+  IMPLEMENT_BINDING(Core::Ast::Node,
     (name, TiStr, VALUE, setName(value), &this->name),
     (type, TemplateVarType, VALUE, setType(value), &this->type),
     (defaultVal, Core::Ast::Node, SHARED_REF, setDefaultVal(value), this->defaultVal.get())

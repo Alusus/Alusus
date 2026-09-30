@@ -40,6 +40,48 @@ void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 }
 
 
+Bool GenericParsingHandler::onIncomingModifier(
+  Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
+) {
+  if (!prodProcessingComplete) return false;
+
+  auto identifier = Ast::getModifierKeywordIdentifier(modifierData.get());
+  if (identifier == 0) return false;
+
+  auto symbolDef = state->refTopProdLevel().getProd();
+  auto action = symbolDef->getModifierAction(identifier->getValue().get());
+  if (action == 0) return false;
+
+  if (action->isDerivedFrom<Grammar::TranslateModifierAction>()) {
+    auto translateAction = static_cast<Grammar::TranslateModifierAction*>(action);
+    identifier->setValue(translateAction->getKeyword().getBuf());
+    // Reprocess the modifier now that its keyword has been translated.
+    return GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete);
+  }
+
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto node = state->getData(levelOffset).get();
+  if (node == 0) return false;
+
+  if (action->isDerivedFrom<Grammar::KeepModifierAction>()) {
+    node->addModifier(modifierData);
+    return true;
+  } else if (action->isDerivedFrom<Grammar::StoreModifierAction>()) {
+    auto storeAction = static_cast<Grammar::StoreModifierAction*>(action);
+    SharedPtr<Ast::Node> params;
+    auto paramPass = modifierData.ti_cast_get<Ast::ParamPass>();
+    if (paramPass != 0) params = paramPass->getParam();
+    if (params == 0) {
+      params = Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
+    }
+    node->setMetadata(storeAction->getKey().getBuf(), params);
+    return true;
+  }
+
+  return false;
+}
+
+
 void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
 {
   // Skip if this term passes its data up.

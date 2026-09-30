@@ -18,14 +18,13 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class Bracket : public Node,
-                public Binding, public MapContaining<Node>
+class Bracket : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Bracket, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(Bracket);
 
 
@@ -39,17 +38,15 @@ class Bracket : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (type, BracketType, VALUE, setType(value), &type),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (type, BracketType, VALUE, setType(value), &type)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
     (operand, Node, SHARED_REF, setOperand(value), operand.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(Bracket, << (this->type == BracketType::ROUND ? S("()") : S("[]")));
+  IMPLEMENT_AST_PRINTABLE(Bracket, (this->type == BracketType::ROUND ? S("()") : S("[]")));
 
 
   //============================================================================

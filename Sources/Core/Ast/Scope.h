@@ -32,12 +32,6 @@ class Scope : public List
 
 
   //============================================================================
-  // Implementations
-
-  IMPLEMENT_AST_LIST_PRINTABLE(Scope);
-
-
-  //============================================================================
   // Constructor / Destructor
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(Scope);

@@ -94,6 +94,10 @@ Bool TypeParsingHandler::onIncomingModifier(
   Core::Processing::Parser *parser, Core::Processing::ParserState *state,
   SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
 ) {
+  if (GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) {
+    return true;
+  }
+
   if (!prodProcessingComplete) return false;
 
   // Prepare to modify.
@@ -103,22 +107,17 @@ Bool TypeParsingHandler::onIncomingModifier(
 
   if (definition == 0) return false;
 
-  auto symbolDef = state->refTopProdLevel().getProd();
-
-  // Look for merge modifier.
+  // Look for merge modifier. Its keyword may have already been translated by the call to the parent
+  // implementation above.
   auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
-  if (identifier != 0) {
-    if (symbolDef->getTranslatedModifierKeyword(identifier->getValue().get()) == S("merge")) {
-      // Set toMerge in the definition.
-      definition->setToMerge(true);
-      return true;
-    }
+  if (identifier != 0 && identifier->getValue() == S("merge")) {
+    // Set toMerge in the definition.
+    definition->setToMerge(true);
+    return true;
   }
 
-  // Add an unknown modifier.
-  Core::Ast::translateModifier(symbolDef, modifierData.get());
-  definition->addModifier(modifierData);
-  return true;
+  // The modifier is unknown to us, leave it for an outer parsing handler to deal with.
+  return false;
 }
 
 } // namespace

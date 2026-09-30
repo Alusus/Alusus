@@ -43,10 +43,6 @@ class GenericCommandParsingHandler : public GenericParsingHandler
 
   public: virtual void onProdStart(Parser *parser, ParserState *state, Ast::Token const *token);
 
-  public: virtual Bool onIncomingModifier(
-    Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
-  );
-
   protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex);
 
 }; // class

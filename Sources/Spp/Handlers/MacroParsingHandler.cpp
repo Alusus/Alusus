@@ -150,34 +150,32 @@ Bool MacroParsingHandler::onIncomingModifier(
   Core::Processing::Parser *parser, Core::Processing::ParserState *state,
   SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
 ) {
+  if (GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) {
+    return true;
+  }
+
   if (!prodProcessingComplete) return false;
 
-  auto symbolDef = state->refTopProdLevel().getProd();
   Int levelOffset = -state->getTopProdTermLevelCount();
   auto data = state->getData(levelOffset).get();
   auto definition = ti_cast<Core::Ast::Definition>(data);
 
-  // Is this a @member modifier?
+  // Is this a @member modifier? Its keyword may have already been translated by the call to the parent
+  // implementation above.
   auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
-  if (identifier != 0) {
-    auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
-    if (keyword == S("member")) {
-      Spp::Ast::Macro *macro;
-      if (definition != 0) macro = definition->getTarget().ti_cast_get<Spp::Ast::Macro>();
-      else macro = ti_cast<Spp::Ast::Macro>(data);
-      if (macro == 0) {
-        throw EXCEPTION(GenericException, S("Unexpected data type while parsing macro modifier."));
-      }
-      macro->setMember(true);
-      return true;
+  if (identifier != 0 && identifier->getValue() == S("member")) {
+    Spp::Ast::Macro *macro;
+    if (definition != 0) macro = definition->getTarget().ti_cast_get<Spp::Ast::Macro>();
+    else macro = ti_cast<Spp::Ast::Macro>(data);
+    if (macro == 0) {
+      throw EXCEPTION(GenericException, S("Unexpected data type while parsing macro modifier."));
     }
+    macro->setMember(true);
+    return true;
   }
 
-  // Add an unknown modifier.
-  if (definition == 0) return false;
-  Core::Ast::translateModifier(symbolDef, modifierData.get());
-  definition->addModifier(modifierData);
-  return true;
+  // The modifier is unknown to us, leave it for an outer parsing handler to deal with.
+  return false;
 }
 
 } // namespace

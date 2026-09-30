@@ -18,34 +18,12 @@ namespace Spp::Ast
 
 using namespace Core;
 
-class Type : public Core::Ast::Node,
-             public Binding
+class Type : public Core::Ast::Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Type, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org", (
-    INHERITANCE_INTERFACES(
-      Binding
-    )
-  ));
-
-
-  //============================================================================
-  // Implementations
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Ast::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
-
-
-  //============================================================================
-  // Constructor / Destructor
-
-  public: virtual ~Type()
-  {
-  }
+  TYPE_INFO(Type, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
 
 
   //============================================================================

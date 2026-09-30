@@ -26,12 +26,6 @@ class MergeList : public List
 
 
   //============================================================================
-  // Implementations
-
-  IMPLEMENT_AST_LIST_PRINTABLE(MergeList);
-
-
-  //============================================================================
   // Constructor / Destructor
 
   IMPLEMENT_EMPTY_CONSTRUCTOR(MergeList);

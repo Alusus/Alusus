@@ -18,14 +18,13 @@ namespace Core::Ast
 
 // TODO: DOC
 
-class InfixOperator : public Node,
-                      public Binding, public MapContaining<Node>
+class InfixOperator : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(InfixOperator, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(InfixOperator);
 
 
@@ -40,10 +39,8 @@ class InfixOperator : public Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_BINDING(Binding,
-    (type, TiStr, VALUE, setType(value), &type),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Node,
+    (type, TiStr, VALUE, setType(value), &type)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
@@ -51,7 +48,7 @@ class InfixOperator : public Node,
     (second, Node, SHARED_REF, setSecond(value), second.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(InfixOperator, << this->type.get());
+  IMPLEMENT_AST_PRINTABLE(InfixOperator, this->type.get());
 
 
   //============================================================================
@@ -126,7 +123,7 @@ class InfixOperator : public Node,
   { \
     TYPE_INFO(X, InfixOperator, "Core.Ast", "Core", "alusus.org"); \
     OBJECT_FACTORY(X); \
-    IMPLEMENT_AST_MAP_PRINTABLE(X, << this->type.get()); \
+    IMPLEMENT_AST_PRINTABLE(X, this->type.get()); \
     IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_CONSTRUCTOR(X); \
     IMPLEMENT_ATTR_MAP_CONSTRUCTOR(X); \

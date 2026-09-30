@@ -157,8 +157,8 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   public: METHOD_BINDING_CACHE(resetBuild, void, (BuildSession*));
   private: static void _resetBuild(TiObject *self, BuildSession *buildSession);
 
-  public: METHOD_BINDING_CACHE(resetBuildData, void, (Core::Ast::Node*, CodeGen::ExtraDataAccessor*));
-  private: static void _resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGen::ExtraDataAccessor *eda);
+  public: METHOD_BINDING_CACHE(resetBuildData, void, (Core::Ast::Node*, CodeGen::CustomDataAccessor*));
+  private: static void _resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGen::CustomDataAccessor *cda);
 
   public: METHOD_BINDING_CACHE(computeResultType,
     Bool, (Core::Ast::Node* /* astNode */, Core::Ast::Node*& /* result */, Bool& /* resultIsValue */)

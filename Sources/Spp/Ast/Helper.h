@@ -274,11 +274,11 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: Bool doesModifierExistOnDef(Core::Ast::Definition const *def, Char const *name);
   public: Bool isSharedDef(Core::Ast::Definition const *def)
   {
-    return this->doesModifierExistOnDef(def, S("shared"));
+    return def->getMetadata(S("shared")) != 0;
   }
   public: Bool isNoBindDef(Core::Ast::Definition const *def)
   {
-    return this->doesModifierExistOnDef(def, S("no_bind"));
+    return def->getMetadata(S("no_bind")) != 0;
   }
 
   public: METHOD_BINDING_CACHE(validateUseStatement, Bool, (Core::Ast::Bridge* /* bridge */));

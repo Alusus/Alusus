@@ -438,7 +438,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
 
       // Determine whether the variable initialization is high priority.
       // TODO: Switch to using an integer priority value instead of the boolean priority.
-      auto highPriority = generator->getAstHelper()->doesModifierExistOnDef(definition, "priority");
+      auto highPriority = definition->getMetadata(S("priority")) != 0;;
 
       if (astParams != 0 || astType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
         if ((state & GlobalVarState::INITIALIZED) == 0) {
@@ -535,7 +535,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
         if (astParams != 0 || astType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
           // Determine whether the variable initialization is high priority.
           // TODO: Switch to using an integer priority value instead of the boolean priority.
-          auto highPriority = generator->getAstHelper()->doesModifierExistOnDef(definition, "priority");
+          auto highPriority = definition->getMetadata(S("priority")) != 0;;
           session->getGlobalVarInitializationDeps()->add(static_cast<Core::Ast::Node*>(astVar), highPriority);
         }
       }
@@ -1110,7 +1110,7 @@ Int Generator::_addThisDefinition(
     if (
       tempDef != 0 &&
       tempDef->getName() == thisName &&
-      generator->getAstHelper()->doesModifierExistOnDef(tempDef, S("__autovar"))
+      tempDef->getMetadata(S("__autovar")) != 0
     ) {
       def = tempDef;
       break;
@@ -1118,18 +1118,14 @@ Int Generator::_addThisDefinition(
   }
   // We don't have the definition yet, so we'll create it.
   if (def == 0) {
-    auto modifierList = Core::Ast::List::create({}, {
-      Core::Ast::Identifier::create({ {S("value"), TiStr(S("__autovar"))} })
-    });
-    if (!skipInjection) {
-      modifierList->add(Core::Ast::Identifier::create({ {S("value"), TiStr(S("injection"))} }));
-    }
     auto newDef = Core::Ast::Definition::create({
       {S("sourceLocation"), body->getSourceLocation()},
       {S("name"), TiStr(thisName)}
-    }, {
-      {S("modifiers"), modifierList}      
     });
+    newDef->setMetadata(S("__autovar"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+    if (!skipInjection) {
+      newDef->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+    }
     body->insert(0, newDef);
     i = 0;
     def = newDef.get();

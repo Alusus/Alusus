@@ -43,6 +43,7 @@ namespace Core::Processing::Handlers
   class StringLiteralTokenizingHandler;
   class IdentifierTokenizingHandler;
   class GenericParsingHandler;
+  class StatementParsingHandler;
   class ImportParsingHandler;
   class DumpAstParsingHandler;
   class ModifierParsingHandler;
@@ -218,6 +219,7 @@ void clearCaches(TiObject *obj);
 
 // Other Grammar Definitions
 #include "BuildHandler.h"
+#include "ModifierAction.h"
 #include "SymbolDefinition.h"
 // TODO: #include "SymbolGroup.h"
 #include "ParsingDimension.h"

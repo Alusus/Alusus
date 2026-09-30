@@ -1,6 +1,6 @@
 /**
- * @file Spp/CodeGen/ExtraDataAccessor.h
- * Contains the header of class Spp::CodeGen::ExtraDataAccessor.
+ * @file Spp/CodeGen/CustomDataAccessor.h
+ * Contains the header of class Spp::CodeGen::CustomDataAccessor.
  *
  * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
@@ -10,32 +10,32 @@
  */
 //==============================================================================
 
-#ifndef SPP_CODEGEN_EXTRADATAACCESSOR_H
-#define SPP_CODEGEN_EXTRADATAACCESSOR_H
+#ifndef SPP_CODEGEN_CUSTOMDATAACCESSOR_H
+#define SPP_CODEGEN_CUSTOMDATAACCESSOR_H
 
-#define DEFINE_EXTRA_ACCESSORS(name) \
+#define DEFINE_CUSTOM_DATA_ACCESSORS(name) \
   public: template <class DT, class OT> inline DT* tryGet##name(OT *object) { \
-    return tryGetExtra<DT>(object, this->id##name); \
+    return tryGetCustomData<DT>(object, this->id##name); \
   } \
   public: template <class DT, class OT> inline DT* get##name(OT *object) { \
-    return getExtra<DT>(object, this->id##name); \
+    return getCustomData<DT>(object, this->id##name); \
   } \
   public: template <class DT, class OT> inline void set##name(OT *object, SharedPtr<DT> const &data) { \
-    object->setExtra(this->id##name, data); \
+    object->setCustomData(this->id##name, data); \
   } \
   public: template <class OT> inline void remove##name(OT *object) { \
-    object->removeExtra(this->id##name); \
+    object->removeCustomData(this->id##name); \
   }
 
 namespace Spp::CodeGen
 {
 
-class ExtraDataAccessor : public TiObject
+class CustomDataAccessor : public TiObject
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ExtraDataAccessor, TiObject, "Spp.CodeGen", "Spp", "alusus.org");
+  TYPE_INFO(CustomDataAccessor, TiObject, "Spp.CodeGen", "Spp", "alusus.org");
 
 
   //============================================================================
@@ -55,7 +55,7 @@ class ExtraDataAccessor : public TiObject
   //============================================================================
   // Constructor & Destructor
 
-  public: ExtraDataAccessor(Char const *prefix = "", Char const *sharedPrefix = 0)
+  public: CustomDataAccessor(Char const *prefix = "", Char const *sharedPrefix = 0)
   {
     this->setIdPrefix(prefix, sharedPrefix);
   }
@@ -80,13 +80,13 @@ class ExtraDataAccessor : public TiObject
     this->idGlobalVarState = sharedIdPrefix + S("globalVarState");
   }
 
-  DEFINE_EXTRA_ACCESSORS(CodeGenData);
-  DEFINE_EXTRA_ACCESSORS(AutoCtor);
-  DEFINE_EXTRA_ACCESSORS(AutoCtorType);
-  DEFINE_EXTRA_ACCESSORS(AutoDtor);
-  DEFINE_EXTRA_ACCESSORS(AutoDtorType);
-  DEFINE_EXTRA_ACCESSORS(BuildId);
-  DEFINE_EXTRA_ACCESSORS(GlobalVarState);
+  DEFINE_CUSTOM_DATA_ACCESSORS(CodeGenData);
+  DEFINE_CUSTOM_DATA_ACCESSORS(AutoCtor);
+  DEFINE_CUSTOM_DATA_ACCESSORS(AutoCtorType);
+  DEFINE_CUSTOM_DATA_ACCESSORS(AutoDtor);
+  DEFINE_CUSTOM_DATA_ACCESSORS(AutoDtorType);
+  DEFINE_CUSTOM_DATA_ACCESSORS(BuildId);
+  DEFINE_CUSTOM_DATA_ACCESSORS(GlobalVarState);
 
   // didCodeGenFail
 
@@ -94,7 +94,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT>
   inline Bool didCodeGenFail(OT *object)
   {
-    auto f = object->getExtra(this->idCodeGenFailed).template ti_cast_get<TiBool>();
+    auto f = object->getCustomData(this->idCodeGenFailed).template ti_cast_get<TiBool>();
     return f && f->get();
   }
 
@@ -104,7 +104,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT>
   inline void setCodeGenFailed(OT *object, Bool f)
   {
-    object->setExtra(this->idCodeGenFailed, TiBool::create(f));
+    object->setCustomData(this->idCodeGenFailed, TiBool::create(f));
   }
 
   // resetCodeGenFailed
@@ -113,7 +113,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT>
   inline void resetCodeGenFailed(OT *object)
   {
-    object->removeExtra(this->idCodeGenFailed);
+    object->removeCustomData(this->idCodeGenFailed);
   }
 
   // getInitStatementsGenIndex
@@ -122,7 +122,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT>
   inline Int getInitStatementsGenIndex(OT *object)
   {
-    auto i = object->getExtra(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
+    auto i = object->getCustomData(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
     return i == 0 ? 0 : i->get();
   }
 
@@ -131,9 +131,9 @@ class ExtraDataAccessor : public TiObject
   template <class OT>
   inline void setInitStatementsGenIndex(OT *object, Int i)
   {
-    auto index = object->getExtra(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
+    auto index = object->getCustomData(this->idInitStatementGenIndex).template ti_cast_get<TiInt>();
     if (index == 0) {
-      object->setExtra(this->idInitStatementGenIndex, TiInt::create(i));
+      object->setCustomData(this->idInitStatementGenIndex, TiInt::create(i));
     } else {
       index->set(i);
     }
@@ -144,7 +144,7 @@ class ExtraDataAccessor : public TiObject
   template <class OT>
   inline void resetInitStatementsGenIndex(OT *object)
   {
-    object->removeExtra(this->idInitStatementGenIndex);
+    object->removeCustomData(this->idInitStatementGenIndex);
   }
 
 }; // class

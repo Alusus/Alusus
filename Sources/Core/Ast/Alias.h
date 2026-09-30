@@ -16,14 +16,13 @@
 namespace Core::Ast
 {
 
-class Alias : public Node,
-              public Binding, public MapContaining<Node>
+class Alias : public Node, public MapContaining<Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(Alias, Node, "Core.Ast", "Core", "alusus.org");
-  IMPLEMENT_INTERFACES(Node, Binding, MapContaining<Node>);
+  IMPLEMENT_INTERFACES(Node, MapContaining<Node>);
   OBJECT_FACTORY(Alias);
 
 
@@ -35,11 +34,6 @@ class Alias : public Node,
 
   //============================================================================
   // Implementations
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
     (reference, Node, SHARED_REF, setReference(value), reference.get())
@@ -91,6 +85,8 @@ class Alias : public Node,
     if (id != UNKNOWN_ID) {
       stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
     }
+    Node::printModifiers(stream, indents);
+    Node::printMetadata(stream, indents);
   }
 
 }; // class

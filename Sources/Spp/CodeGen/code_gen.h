@@ -53,20 +53,20 @@ s_enum(GlobalVarState,
 //==============================================================================
 // Global Functions
 
-// tryGetExtra
+// tryGetCustomData
 
 template <class DT, class OT>
-inline DT* tryGetExtra(OT *object, Char const *name)
+inline DT* tryGetCustomData(OT *object, Char const *name)
 {
-  return object->getExtra(name).template ti_cast_get<DT>();
+  return object->getCustomData(name).template ti_cast_get<DT>();
 }
 
-// getExtra
+// getCustomData
 
 template <class DT, class OT>
-inline DT* getExtra(OT *object, Char const *name)
+inline DT* getCustomData(OT *object, Char const *name)
 {
-  auto result = tryGetExtra<DT, OT>(object, name);
+  auto result = tryGetCustomData<DT, OT>(object, name);
   if (result == 0) {
     throw EXCEPTION(GenericException, S("Object is missing the generated data."));
   }
@@ -77,32 +77,32 @@ inline DT* getExtra(OT *object, Char const *name)
 
 #define DEFINE_FLAG_ACCESSORS(name) \
   template <class OT> inline Bool is##name(OT *object) { \
-    auto f = tryGetExtra<TiBool>(object, #name); return f && f->get(); \
+    auto f = tryGetCustomData<TiBool>(object, #name); return f && f->get(); \
   } \
   template <class OT> inline void set##name(OT *object, Bool f) { \
-    object->setExtra(#name, TiBool::create(f)); \
+    object->setCustomData(#name, TiBool::create(f)); \
   } \
-  template <class OT> inline void reset##name(OT *object) { object->removeExtra(#name); }
+  template <class OT> inline void reset##name(OT *object) { object->removeCustomData(#name); }
 
 #define DEFINE_STR_ACCESSORS(name) \
   template <class OT> inline void set##name(OT *object, Str f) { \
-    object->setExtra(#name, TiStr::create(f)); \
+    object->setCustomData(#name, TiStr::create(f)); \
   } \
   template <class OT> inline Str get##name(OT *object) { \
-    auto s = tryGetExtra<TiStr>(object, #name); return s != 0 ? s->getStr() : Str(); \
+    auto s = tryGetCustomData<TiStr>(object, #name); return s != 0 ? s->getStr() : Str(); \
   } \
-  template <class OT> inline void reset##name(OT *object) { object->removeExtra(#name); }
+  template <class OT> inline void reset##name(OT *object) { object->removeCustomData(#name); }
 
 DEFINE_FLAG_ACCESSORS(Executed);
 DEFINE_STR_ACCESSORS(MangledName);
 
 // Ast Processing State
 template <class OT> inline Int getAstProcessingState(OT *object) {
-  auto f = tryGetExtra<TiInt>(object, "AstProcessing");
+  auto f = tryGetCustomData<TiInt>(object, "AstProcessing");
   return f ? f->get() : AstProcessingState::NOT_STARTED;
 }
 template <class OT> inline void setAstProcessingState(OT *object, Int s) {
-  object->setExtra("AstProcessing", TiInt::create(s));
+  object->setCustomData("AstProcessing", TiInt::create(s));
 }
 
 } // namespace
@@ -127,7 +127,7 @@ class TargetGeneration;
 }
 
 // Helpers
-#include "ExtraDataAccessor.h"
+#include "CustomDataAccessor.h"
 #include "DestructionNode.h"
 #include "DestructionStack.h"
 #include "DependencyList.h"
