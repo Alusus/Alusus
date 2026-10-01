@@ -234,8 +234,8 @@ Seeker::Verb Seeker::_set_identifier(
       retVal = seeker->set_identifierLevel(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
     }
-  } else if (data->isDerivedFrom<Node>()) {
-    auto node = static_cast<Node*>(data);
+  } else {
+    auto node = data;
     while (node != 0) {
       if (node != data) {
         Node *obj = node;
@@ -388,8 +388,8 @@ Seeker::Verb Seeker::_remove_identifier(
       retVal = seeker->remove_identifierLevel(identifier, data, cb, flags);
       if (!Seeker::isMove(retVal)) return retVal;
     }
-  } else if (data->isDerivedFrom<Node>()) {
-    auto node = static_cast<Node*>(data);
+  } else {
+    auto node = data;
     while (node != 0) {
       if (node != data) {
         retVal = cb(Action::OWNER_SCOPE, node, Seeker::NoticePtr::null);
@@ -531,8 +531,8 @@ Seeker::Verb Seeker::_foreach_identifier(
           return cb(Action::TARGET_MATCH, element, Seeker::NoticePtr::null);
         }
       }
-    } else if (data->isDerivedFrom<Node>()) {
-      auto node = static_cast<Node*>(data);
+    } else {
+      auto node = data;
       while (node->getOwner() != 0) node = node->getOwner();
       return cb(Action::TARGET_MATCH, node, Seeker::NoticePtr::null);
     }
@@ -550,8 +550,8 @@ Seeker::Verb Seeker::_foreach_identifier(
         retVal = seeker->foreach_identifierLevel(identifier, data, cb, flags);
         if (!Seeker::isMove(retVal)) return retVal;
       }
-    } else if (data->isDerivedFrom<Node>()) {
-      auto node = static_cast<Node*>(data);
+    } else {
+      auto node = data;
       while (node != 0) {
         if (node != data) {
           retVal = cb(Action::OWNER_SCOPE, node, Seeker::NoticePtr::null);

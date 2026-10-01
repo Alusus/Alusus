@@ -305,8 +305,8 @@ Core::Ast::Seeker::Verb SeekerExtension::_foreach_comparison(
       retVal = seekerExtension->foreach_comparisonLevel(comparison, data, cb, flags);
       if (!Core::Ast::Seeker::isMove(retVal)) return retVal;
     }
-  } else if (data->isDerivedFrom<Core::Ast::Node>()) {
-    auto node = static_cast<Core::Ast::Node*>(data);
+  } else {
+    auto node = data;
     while (node != 0) {
       if (node != data) {
         retVal = cb(Core::Ast::Seeker::Action::OWNER_SCOPE, node, Core::Ast::Seeker::NoticePtr::null);
