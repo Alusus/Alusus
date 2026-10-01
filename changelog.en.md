@@ -10,12 +10,33 @@
   - Removed the `Core::Data` namespace.
   - Inherited all AST node classes from `Core::Ast::Node`.
   - Inherited all grammar node classes from `Core::Grammar::Node`.
-  - Embedded the `MetaHaving` interface into the `Node` class and removed the interface.
+  - Embedded the `MetaHaving` and `Printable` interfaces into the `Node` class and removed the interfaces.
+  - Moved the modifiers array from `Definition` and `GenericCommand` into `Node`.
 * Apply O3 optimization on offline builds generated using the Build library.
+* Replaced the modifier translations in the grammar with modifier actions, which provides more standard
+  operations than just translations.
+* Added metadata to `Node` to hold various metadata for the Node, while the modifiers array is kept for
+  unprocessed modifiers.
+* Made the statement's parsing handler capture any unprocessed modifier and store it on the Node.
+* Enable defining functions for handling custom modifiers during preprocessing, allowing users to define
+  their own modifiers that preprocess the elements on which the modifiers are applied.
+* Modifiers that aren't built-in and don't have a matching function now cause an error during preprocessing.
 
 ### Updates to the Standard Libraries
 
 * Added the method `Spp.AstMgr.preprocessTypeBody`.
+* Treat Array, Map, and String like basic types in closures' auto capture mode, i.e. capture them by value.
+* Added `getMetadata`, `setMetadata`, and `removeMetadata` methods to `Core.Ast.Node`.
+* Added the `metadata == "..."` search criterion to the seeker (used through `Spp.astMgr.findElements`), to
+  find elements that have a given metadata name set regardless of its value.
+* Added `Core.Basic.Containing.findElementIndex` method, which finds the index of a given element within a
+  container.
+* Added `Spp.AstMgr.addPossiblyMergeableElement` method, which lets user code insert or merge an AST element
+  into a container the same way the compiler merges elements coming from `preprocess` blocks and macros.
+
+### Bug Fixes in the Standard Libraries
+
+* Fixed a bug in basic TI types on Alusus side that can cause double memory freeing in some cases.
 
 
 ## Version 0.15.3 (2026-08-28)

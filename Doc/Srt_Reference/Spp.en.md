@@ -266,7 +266,12 @@ condition that contains `and` and `or` operators. Some examples of search criter
   elementType == "var" // serach for variables
   modifier == "public" // search for elements with @public modifier
   elementType == "func" && modifier == "public" // search for functions with @public modifier
+  metadata == "myTag" // search for elements that have the "myTag" metadata set, regardless of its value
 ```
+
+Unlike `modifier`, which matches a specific modifier keyword, `metadata` only checks whether an element has
+metadata with the given name set on it (see `Core.Ast.Node`'s `getMetadata`/`setMetadata` in the
+[Core Module Reference](./Core.en.md)); the metadata's actual value isn't taken into account.
 
 #### getDefinitionName
 
@@ -448,6 +453,42 @@ handler this.getSourceDirectoryForElement(
 ```
 
 Returns the full folder path which contains the source code file that contains the given element.
+
+#### addPossiblyMergeableElement
+
+```
+handler this.addPossiblyMergeableElement(
+    node: ref[Core.Ast.Node],
+    target: ref[Core.Basic.DynamicContaining[Core.Ast.Node]],
+    index: ref[Int]
+) => Bool;
+```
+
+Adds `node` into `target` at the given `index`, merging it into an existing, compatible definition already
+in `target` instead of inserting it when that's possible (for example, `node` being a `def` marked with
+`@merge` that matches an existing definition's name), the same way the compiler itself merges elements
+coming from `preprocess` blocks and macros. If `node` is a `Core.Ast.MergeList`, its elements are added
+individually rather than the list itself. Pass -1 for `index` to always append at the end instead of
+inserting at a specific position.
+
+`index` is updated in place to point just past the inserted element(s), so it's ready to be passed again for
+inserting more elements right after this one. The function returns 1 on success, or 0 on failure.
+
+This is useful from a modifier's handler function, together with `Core.Ast.Node`'s `owner` and
+`Core.Basic.Containing`'s `findElementIndex` (see [Modifiers](../lang_reference.en.md#modifiers) and the
+[Core Module Reference](./Core.en.md)), to replace the modified element with new code or to insert new code
+right before or after it:
+
+```
+  function myModifier (element: ref[Core.Ast.Node], args: ref[Core.Ast.Node]) {
+      def owner: ref[Core.Basic.DynamicContaining[Core.Ast.Node]](
+          Core.Basic.getInterface[element.owner, Core.Basic.DynamicContaining[Core.Ast.Node]]
+      );
+      def index: Int = owner.findElementIndex(element);
+      // Insert new code right before `element`.
+      Spp.astMgr.addPossiblyMergeableElement(newNode, owner, index);
+  }
+```
 
 #### insertAst
 

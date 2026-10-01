@@ -68,13 +68,18 @@ void JitBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
 
 void JitBuildTarget::execute(Char const *entry)
 {
+  typedef void (*FuncType)();
+  auto funcPtr = (FuncType)this->getFunctionPointer(entry);
+  funcPtr();
+}
+
+
+void* JitBuildTarget::getFunctionPointer(Char const *entry)
+{
   if (this->llvmModule != 0) this->addLlvmModule(std::move(this->llvmModule));
 
-  typedef void (*FuncType)();
   auto llvmEntry = llvm::cantFail(this->llvmJitEngine->lookup(entry));
-  auto funcPtr = (FuncType)llvmEntry.getAddress();
-
-  funcPtr();
+  return (void*)llvmEntry.getAddress();
 }
 
 } // namespace

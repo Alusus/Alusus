@@ -1645,8 +1645,8 @@ void StandardFactory::createModifierProductionDefinitions()
   }, {
     {S("vars"), Map::create({}, {
       {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
-      {S("dup"), TiInt::create(1)},
-      {S("fltr2"), TiInt::create(2)}
+      {S("dup"), 0},
+      {S("fltr2"), List::create({}, { TiInt::create(0), TiInt::create(2) })}
      })}
   }));
   // Modifier.Subject
@@ -1665,6 +1665,26 @@ void StandardFactory::createModifierProductionDefinitions()
   this->set(S("root.Modifier.Phrase"), SymbolDefinition::create({}, {
     {S("term"), AlternateTerm::create({}, {
       {S("terms"), List::create({}, {
+        ConcatTerm::create({
+          {S("flags"), TiInt::create(ParsingFlags::PASS_ITEMS_UP)},
+        }, {
+          {S("terms"), List::create({}, {
+            TokenTerm::create({
+              {S("tokenId"), TiInt::create(this->constTokenId)},
+              {S("tokenText"), TiStr::create(S("("))}
+            }),
+            AlternateTerm::create({}, {
+              {S("terms"), List::create({}, {
+                ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.CmdGroup")) }}),
+                ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Expression")) }})
+              })}
+            }),
+            TokenTerm::create({
+              {S("tokenId"), TiInt::create(this->constTokenId)},
+              {S("tokenText"), TiStr::create(S(")"))}
+            })
+          })}
+        }),
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.CmdGroup")) }}),
         ReferenceTerm::create({{ S("reference"), PARSE_REF(S("module.Expression")) }})
       })}

@@ -23,6 +23,7 @@ void AstProcessor::initBindingCaches()
   Basic::initBindingCaches(this, {
     &this->process,
     &this->processParamPass,
+    &this->processModifiers,
     &this->processPreprocessStatement,
     &this->processFunctionBody,
     &this->processTypeBody,
@@ -45,6 +46,7 @@ void AstProcessor::initBindings()
 {
   this->process = &AstProcessor::_process;
   this->processParamPass = &AstProcessor::_processParamPass;
+  this->processModifiers = &AstProcessor::_processModifiers;
   this->processPreprocessStatement = &AstProcessor::_processPreprocessStatement;
   this->processFunctionBody = &AstProcessor::_processFunctionBody;
   this->processTypeBody = &AstProcessor::_processTypeBody;
@@ -90,6 +92,13 @@ Bool AstProcessor::_process(TiObject *self, Core::Ast::Node *owner)
 
   for (Int i = 0; i < container->getElementCount(); ++i) {
     auto child = container->getElement(i);
+    if (child == 0) continue;
+
+    if (!astProcessor->processModifiers(container, i)) result = false;
+
+    // Re-get the child, in case the preprocessor replaced it with something else.
+    if (i >= container->getElementCount()) break;
+    child = container->getElement(i);
     if (child == 0) continue;
 
     if (child->isDerivedFrom<Core::Ast::ParamPass>()) {
@@ -189,6 +198,98 @@ Bool AstProcessor::_processParamPass(
   } else{
     return astProcessor->process(paramPass);
   }
+}
+
+
+Bool AstProcessor::_processModifiers(TiObject *self, Containing<Core::Ast::Node> *container, Int indexInContainer)
+{
+  PREPARE_SELF(astProcessor, AstProcessor);
+
+  Core::Ast::Node *node = container->getElement(indexInContainer);
+  if (node == 0) return true;
+
+  SharedPtr<Core::Ast::List> modifiers = node->getModifiers();
+  if (modifiers == 0) return true;
+
+  Bool result = true;
+  for (Int i = 0; i < modifiers->getCount(); ++i) {
+    auto modifier = modifiers->get(i).get();
+
+    // Re-grab the node in case the previous iteration replaced it or removed it.
+    if (indexInContainer >= container->getElementCount()) break;
+    node = container->getElement(indexInContainer);
+    if (node == 0) break;
+
+    // Get the modifier's reference. Unlike Core::Ast::getModifierKeywordIdentifier (which only cares about
+    // the plain keyword, e.g. for grammar-level translation), this keeps a LinkOperator modifier's full
+    // dotted chain intact (e.g. `@mymodule.mymodifier[...]`), so the seeker below can resolve it as a full
+    // qualifier and reach a matching function anywhere in the code base, not just ones directly accessible
+    // from the modified node's own scope.
+    auto paramPass = ti_cast<Core::Ast::ParamPass>(modifier);
+    Core::Ast::Node *modifierRef = paramPass != 0 ? paramPass->getOperand().get() : modifier;
+    if (
+      modifierRef == 0 ||
+      !(modifierRef->isDerivedFrom<Core::Ast::Identifier>() || modifierRef->isDerivedFrom<Core::Ast::LinkOperator>())
+    ) {
+      astProcessor->astHelper->getNoticeStore()->add(
+        newSrdObj<Core::Notices::UnexpectedModifierNotice>(Core::Ast::findSourceLocation(modifier))
+      );
+      result = false;
+      continue;
+    }
+
+    // Extract the modifier's params, if any -- whatever appeared between its `[]` brackets.
+    Core::Ast::Node *modifierParams = paramPass != 0 ? paramPass->getParam().get() : 0;
+
+    // Look for a directly accessible function matching the modifier's keyword and taking two
+    // ref[Core.Ast.Node] params.
+    auto nodeRefType = astProcessor->astHelper->getReferenceTypeFor(
+      astProcessor->astHelper->getNodeType(), Ast::ReferenceMode::EXPLICIT
+    );
+    PlainList<Core::Ast::Node> argTypes;
+    argTypes.add(nodeRefType);
+    argTypes.add(nodeRefType);
+
+    Ast::CalleeLookupRequest lookupRequest;
+    lookupRequest.astNode = node;
+    lookupRequest.target = node->findOwner<Core::Ast::Scope>();
+    lookupRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
+    lookupRequest.ref = modifierRef;
+    lookupRequest.op = S("()");
+    lookupRequest.argTypes = &argTypes;
+    Ast::CalleeLookupResult lookupResult;
+    astProcessor->calleeTracer->lookupCallee(lookupRequest, lookupResult);
+
+    if (!lookupResult.isSuccessful() || lookupResult.stack.getLength() != 1) {
+      // No handler function was found for this modifier.
+      astProcessor->astHelper->getNoticeStore()->add(
+        newSrdObj<Core::Notices::UnexpectedModifierNotice>(Core::Ast::findSourceLocation(modifier))
+      );
+      result = false;
+      continue;
+    }
+    auto func = static_cast<Ast::Function*>(lookupResult.stack(lookupResult.stack.getLength() - 1).obj);
+
+    // Build the handler function and get a pointer to it.
+    auto buildSession = astProcessor->executing->prepareBuild(BuildManager::BuildType::PREPROCESS, 0);
+    if (!astProcessor->executing->addElementToBuild(func, buildSession.get())) {
+      result = false;
+      continue;
+    }
+    typedef void (*ModifierHandlerFunc)(Core::Ast::Node*, Core::Ast::Node*);
+    auto funcPtr = (ModifierHandlerFunc)astProcessor->executing->prepareToExecuteFunction(func, buildSession.get());
+    if (funcPtr == 0) {
+      result = false;
+      continue;
+    }
+
+    // Call the handler, then remove the now-handled modifier.
+    funcPtr(node, modifierParams);
+    modifiers->remove(i);
+    --i;
+  }
+
+  return result;
 }
 
 

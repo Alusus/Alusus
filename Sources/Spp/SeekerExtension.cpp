@@ -444,6 +444,14 @@ Bool SeekerExtension::_foreach_computeComparison(TiObject *self, Core::Ast::Node
         }
         if (identifier->getValue() == modifierKwd->getValue()) return true;
       }
+    } else if (prop->getValue() == S("metadata") || prop->getValue() == S("بيانات_وصفية")) {
+      // Check the metadata. We don't care about the actual value, only whether the
+      // metadata with this name is set.
+      auto def = ti_cast<Core::Ast::Definition>(target->getOwner());
+      if (def == 0) return false;
+      auto metadataName = compareOp->getSecond().ti_cast_get<Core::Ast::Text const>();
+      if (metadataName == 0) return false;
+      return def->getMetadata(metadataName->getValue()) != 0;
     }
   }
   return false;

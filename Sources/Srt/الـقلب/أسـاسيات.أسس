@@ -88,7 +88,8 @@
             عرف حدد_عنصرا: لقب setElement؛
             عرف هات_عدد_العناصر: لقب getElementCount؛
             عرف هات_عنصرا: لقب getElement؛
-            عرف هات_الصنف_المطلوب_للعنصر: لقب getElementNeededType؛
+            عرف هات_الصنف_المطلوب_لعنصر: لقب getElementNeededType؛
+            عرف جد_تسلسل_عنصر: لقب findElementIndex؛
         }
 
         عرف احـتواء_مرن: لقب DynamicContaining؛
@@ -103,9 +104,9 @@
         @دمج صنف احـتواء_تطبيقي {
             عرف حدد_عنصرا: لقب setElement؛
             عرف هات_عنصرا: لقب getElement؛
-            عرف هات_الصنف_المطلوب_للعنصر: لقب getElementNeededType؛
-            عرف هات_اسم_العنصر: لقب getElementKey؛
-            عرف جد_تسلسل_العنصر: لقب findElementIndex؛
+            عرف هات_الصنف_المطلوب_لعنصر: لقب getElementNeededType؛
+            عرف هات_اسم_عنصر: لقب getElementKey؛
+            عرف جد_تسلسل_عنصر: لقب findElementIndex؛
         }
 
         عرف احـتواء_تطبيقي_مرن: لقب DynamicMapContaining؛

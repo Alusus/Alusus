@@ -38,6 +38,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: Ast::CalleeTracer *calleeTracer;
   private: Executing *executing;
   private: ExpressionComputation *expressionComputation;
   private: SharedList<Core::Ast::Node> *astNodeRepo;
@@ -49,8 +50,10 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h, Executing *b, ExpressionComputation *ec, SharedList<Core::Ast::Node> *anr)
-    : astHelper(h), executing(b), expressionComputation(ec), astNodeRepo(anr)
+  public: AstProcessor(
+    Ast::Helper *h, Ast::CalleeTracer *ct, Executing *b, ExpressionComputation *ec,
+    SharedList<Core::Ast::Node> *anr
+  ) : astHelper(h), calleeTracer(ct), executing(b), expressionComputation(ec), astNodeRepo(anr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -62,6 +65,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->calleeTracer = parent->getCalleeTracer();
     this->executing = parent->getExecuting();
     this->expressionComputation = parent->getExpressionComputation();
     this->astNodeRepo = parent->getAstNodeRepo();
@@ -84,6 +88,11 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   public: Ast::Helper* getAstHelper() const
   {
     return this->astHelper;
+  }
+
+  public: Ast::CalleeTracer* getCalleeTracer() const
+  {
+    return this->calleeTracer;
   }
 
   public: Executing* getExecuting() const
@@ -139,6 +148,18 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   private: static Bool _processPreprocessStatement(
     TiObject *self, Spp::Ast::PreprocessStatement *preprocess, Core::Ast::Node *owner, TiInt indexInOwner
   );
+
+  /**
+   * @brief Process any unprocessed modifiers attached to the given node.
+   *
+   * For each modifier in `node`'s modifier list, looks for a directly accessible function named after the
+   * modifier's keyword and matching the signature `function (node: ref[Core.Ast.Node], modifierParams:
+   * ref[Core.Ast.Node])` (modifierParams is null if the modifier had no `[]` params). If one is found, it
+   * gets built and called with the node and the modifier's params, and the modifier is then removed from
+   * the list. Modifiers with no matching function raise a build error.
+   */
+  public: METHOD_BINDING_CACHE(processModifiers, Bool, (Containing<Core::Ast::Node>* /* container */, Int /* indexInContainer */));
+  private: static Bool _processModifiers(TiObject *self, Containing<Core::Ast::Node> *container, Int indexInContainer);
 
   public: METHOD_BINDING_CACHE(processFunctionBody, Bool, (Spp::Ast::Function* /* func */));
   private: static Bool _processFunctionBody(TiObject *self, Spp::Ast::Function *func);

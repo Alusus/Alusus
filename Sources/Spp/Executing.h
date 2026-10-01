@@ -39,8 +39,10 @@ class Executing : public ObjTiInterface
       &this->prepareBuild,
       &this->prepareExecutionEntry,
       &this->finalizeExecutionEntry,
+      &this->addElementToBuild,
       &this->addElementToExecutionEntry,
-      &this->execute
+      &this->execute,
+      &this->prepareToExecuteFunction
     });
   }
 
@@ -74,12 +76,29 @@ class Executing : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(finalizeExecutionEntry, Bool, (BuildSession* /* buildSession */));
 
+  public: METHOD_BINDING_CACHE(addElementToBuild,
+    Bool, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */)
+  );
+
   public: METHOD_BINDING_CACHE(addElementToExecutionEntry,
     Bool, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */)
   );
 
   public: METHOD_BINDING_CACHE(execute,
     Bool, (BuildSession* /* buildSession */)
+  );
+
+  /**
+   * @brief Run global constructors then return a pointer to the given function.
+   *
+   * Unlike execute(), which runs the build session's default execution entry (a nullary function), this
+   * runs the global constructors then resolves and returns the JIT address of the given function element
+   * (which must have already been generated via addElementToBuild()), without calling it. The caller casts
+   * the returned pointer to the function's actual C++ signature and calls it directly, e.g. to call it with
+   * arguments that don't fit the nullary execution-entry mechanism. Returns 0 on failure.
+   */
+  public: METHOD_BINDING_CACHE(prepareToExecuteFunction,
+    void*, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */)
   );
 
   /// @}

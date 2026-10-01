@@ -33,6 +33,15 @@ import "Srl/String";
                 return o~ptr == obj~ptr;
             }
 
+            @expname[CoreAstNode_getMetadata]
+            handler this.getMetadata(name: ptr[array[Char]]): ref[SrdRef[Node]];
+
+            @expname[CoreAstNode_setMetadata]
+            handler this.setMetadata(name: ptr[array[Char]], value: ref[SrdRef[Node]]);
+
+            @expname[CoreAstNode_removeMetadata]
+            handler this.removeMetadata(name: ptr[array[Char]]);
+
             defTypeInfoGetter["alusus.org/Core/Core.Ast.Node"];
         }
 

@@ -107,7 +107,7 @@ def Main: module
   };
 
   class MyType {
-    @shared function init ():MyType {
+    function init ():MyType {
       return MyType();
     }
   }

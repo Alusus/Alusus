@@ -111,6 +111,25 @@ DL_EXPORTED Int Binding_findMemberIndex(Binding *self, Char const *key)
 
 
 //==============================================================================
+// Core::Ast::Node Functions
+
+DL_EXPORTED SharedPtr<Core::Ast::Node> const& CoreAstNode_getMetadata(Core::Ast::Node *self, Char const *name)
+{
+  return self->getMetadata(name);
+}
+
+DL_EXPORTED void CoreAstNode_setMetadata(Core::Ast::Node *self, Char const *name, SharedPtr<Core::Ast::Node> const &value)
+{
+  self->setMetadata(name, value);
+}
+
+DL_EXPORTED void CoreAstNode_removeMetadata(Core::Ast::Node *self, Char const *name)
+{
+  self->removeMetadata(name);
+}
+
+
+//==============================================================================
 // Containing Functions
 //
 // The containing interfaces are templates, so we need a set of functions for each content type. The name of each
@@ -133,6 +152,10 @@ DL_EXPORTED Int Binding_findMemberIndex(Binding *self, Char const *key)
   DL_EXPORTED TypeInfo const* prefix##Containing_getElementNeededType(Containing<CTYPE> *self, Int index) \
   { \
     return self->getElementNeededType(index); \
+  } \
+  DL_EXPORTED Int prefix##Containing_findElementIndex(Containing<CTYPE> *self, CTYPE *val) \
+  { \
+    return self->findElementIndex(val); \
   } \
   \
   DL_EXPORTED Int prefix##DynamicContaining_addElement(DynamicContaining<CTYPE> *self, CTYPE *val) \

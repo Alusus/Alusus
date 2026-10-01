@@ -149,6 +149,13 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getSourceFullPathForElement, String, (Core::Ast::Node* /* element */));
   private: static String _getSourceFullPathForElement(TiObject *self, Core::Ast::Node *element);
 
+  public: METHOD_BINDING_CACHE(addPossiblyMergeableElement,
+    Bool, (Core::Ast::Node* /* src */, DynamicContaining<Core::Ast::Node>* /* target */, Int& /* index */)
+  );
+  private: static Bool _addPossiblyMergeableElement(
+    TiObject *self, Core::Ast::Node *src, DynamicContaining<Core::Ast::Node> *target, Int &index
+  );
+
   public: METHOD_BINDING_CACHE(insertAst, Bool, (Core::Ast::Node*));
   private: static Bool _insertAst(TiObject *self, Core::Ast::Node* ast);
 

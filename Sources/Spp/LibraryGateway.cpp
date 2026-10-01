@@ -69,6 +69,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 
   this->astProcessor = newSrdObj<CodeGen::AstProcessor>(
     this->astHelper.get(),
+    this->calleeTracer.get(),
     this->buildManager.ti_cast_get<Executing>(),
     this->buildManager.ti_cast_get<ExpressionComputation>(),
     this->astNodeRepo.get()

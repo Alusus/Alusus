@@ -373,6 +373,16 @@ Get the element with the given index.
 
 Get the info of the required type for the element with the given index.
 
+#### findElementIndex
+
+```
+  handler this.findElementIndex (val: ref[ContentType]): Int;
+```
+
+Get the index of the given element within this container, or -1 if it's not found. This performs a
+linear search comparing elements by identity, so it works on any `Containing` implementation without
+requiring a specialized override.
+
 ### DynamicContaining[ContentType: type] Interface
 
 Defined inside module `Core.Basic`.
@@ -527,6 +537,35 @@ This is the root of AST classes. This class allows an object to access its owner
 #### owner: ref[Node]
 
 A reference to the owner of this object.
+
+#### getMetadata
+
+```
+  handler this.getMetadata (name: ptr[array[Char]]): ref[SrdRef[Node]];
+```
+
+Returns the metadata with the given name that's attached to this node, or a null reference if no such
+metadata is set. Metadata is a way to attach arbitrary, queryable AST nodes to another node, for example from
+inside a custom modifier's handler function (see [Modifiers](../lang_reference.en.md#modifiers)). Elements
+carrying a specific metadata name can also be found using `Spp.astMgr.findElements` with the
+`metadata == "..."` search criterion (see [Spp Module Reference](./Spp.en.md)).
+
+#### setMetadata
+
+```
+  handler this.setMetadata (name: ptr[array[Char]], value: ref[SrdRef[Node]]);
+```
+
+Sets the metadata with the given name on this node to the given value, replacing any previous metadata with
+the same name.
+
+#### removeMetadata
+
+```
+  handler this.removeMetadata (name: ptr[array[Char]]);
+```
+
+Removes the metadata with the given name from this node, if any.
 
 #### getTypeInfo
 

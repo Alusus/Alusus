@@ -113,6 +113,27 @@ User can add additional custom modifiers and access them later using `Spp.astMgr
   @mymodifier["arg1", "arg2"] func myFunc { ... };
 ```
 
+Any modifier that isn't handled directly by the grammar (i.e. isn't one of the pre-defined modifiers) must
+be handled by a function defined somewhere in the code, otherwise the compiler raises an error; this catches
+typos in modifier names rather than silently ignoring them. The function is looked up the same way a normal
+function call would be, so its keyword can be a dotted/qualified name (e.g. `@MyModule.myModifier[...]`) to
+reach a handler defined anywhere in the code base, not only one directly accessible from the tagged element's
+own scope. The function must take two `ref[Core.Ast.Node]` arguments: the element the modifier is attached
+to, and the modifier's arguments (a null reference if the modifier takes none).
+
+```
+  function myModifier (element: ref[Core.Ast.Node], args: ref[Core.Ast.Node]) {
+      // ...
+  }
+
+  @myModifier["arg1", "arg2"] func myFunc { ... };
+```
+
+A common use for such a handler is to tag `element` with metadata that can be queried later using
+`Core.Ast.Node`'s `getMetadata`/`setMetadata`/`removeMetadata` methods, or found through
+`Spp.astMgr.findElements` using the `metadata == "..."` search criterion (see
+[Core Module Reference](./Srt_Reference/Core.en.md) and [Spp Module Reference](./Srt_Reference/Spp.en.md)).
+
 ## Variables
 
 Variables are defined like this:

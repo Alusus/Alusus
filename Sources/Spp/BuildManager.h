@@ -146,6 +146,9 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   public: METHOD_BINDING_CACHE(execute, Bool, (BuildSession* /* buildSession */));
   private: static Bool _execute(TiObject *self, BuildSession *buildSession);
 
+  public: METHOD_BINDING_CACHE(prepareToExecuteFunction, void*, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */));
+  private: static void* _prepareToExecuteFunction(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession);
+
   public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (Core::Ast::Node*));
   public: static void _dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element);
 
@@ -171,6 +174,10 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
 
   /// @name Helper Functions
   /// @{
+
+  /// Executes the pending global constructors for the given build session (and its ctor session, if
+  /// different). Returns false without executing anything if previous errors were encountered.
+  private: Bool executeGlobalConstructors(BuildSession *buildSession);
 
   private: static Array<Str> getGlobalCtorNames(BuildSession *buildSession);
 

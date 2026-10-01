@@ -28,6 +28,7 @@ void AstMgr::initBindingCaches()
     &this->getModifierParams,
     &this->getModifierStringParams,
     &this->getSourceFullPathForElement,
+    &this->addPossiblyMergeableElement,
     &this->insertAst,
     &this->insertAst_plain,
     &this->insertAst_shared,
@@ -60,6 +61,7 @@ void AstMgr::initBindings()
   this->getModifierParams = &AstMgr::_getModifierParams;
   this->getModifierStringParams = &AstMgr::_getModifierStringParams;
   this->getSourceFullPathForElement = &AstMgr::_getSourceFullPathForElement;
+  this->addPossiblyMergeableElement = &AstMgr::_addPossiblyMergeableElement;
   this->insertAst = &AstMgr::_insertAst;
   this->insertAst_plain = &AstMgr::_insertAst_plain;
   this->insertAst_shared = &AstMgr::_insertAst_shared;
@@ -92,6 +94,9 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierParams"), (void*)&AstMgr::_getModifierParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStringParams"), (void*)&AstMgr::_getModifierStringParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getSourceFullPathForElement"), (void*)&AstMgr::_getSourceFullPathForElement);
+  globalItemRepo->addItem(
+    S("Spp_AstMgr_addPossiblyMergeableElement"), (void*)&AstMgr::_addPossiblyMergeableElement
+  );
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst"), (void*)&AstMgr::_insertAst);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_plain"), (void*)&AstMgr::_insertAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_shared"), (void*)&AstMgr::_insertAst_shared);
@@ -249,6 +254,18 @@ String AstMgr::_getSourceFullPathForElement(TiObject *self, Core::Ast::Node *ele
     sourceLocation = stack->get(0).get();
     return static_cast<Core::Ast::SourceLocationRecord*>(sourceLocation)->filename;
   }
+}
+
+
+Bool AstMgr::_addPossiblyMergeableElement(
+  TiObject *self, Core::Ast::Node *src, DynamicContaining<Core::Ast::Node> *target, Int &index
+) {
+  PREPARE_SELF(astMgr, AstMgr);
+  Bool result = Core::Ast::addPossiblyMergeableElement(
+    src, target, index, astMgr->astHelper->getSeeker(), astMgr->astHelper->getNoticeStore()
+  );
+  astMgr->rootManager->flushNotices();
+  return result;
 }
 
 

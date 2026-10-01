@@ -32,14 +32,12 @@ Core
 Spp
 
 Modifiers of A.i:
-modC
-modB
-modA
+None
 
-Params for @modB modifier of A.i:
+Captured params for @modB modifier of A.i:
 abc
 def
 
-Params for @modC modifier of A.i:
+Captured params for @modC modifier of A.i:
 ijk
 lmn

@@ -35,6 +35,7 @@ void BuildManager::initBindingCaches()
     &this->addElementToBuild,
     &this->addElementToExecutionEntry,
     &this->execute,
+    &this->prepareToExecuteFunction,
     &this->dumpLlvmIrForElement,
     &this->buildObjectFileForElement,
     &this->resetBuild,
@@ -50,8 +51,10 @@ void BuildManager::initBindings()
   executing->prepareBuild = &BuildManager::_prepareBuild;
   executing->prepareExecutionEntry = &BuildManager::_prepareExecutionEntry;
   executing->finalizeExecutionEntry = &BuildManager::_finalizeExecutionEntry;
+  executing->addElementToBuild = &BuildManager::_addElementToBuild;
   executing->addElementToExecutionEntry = &BuildManager::_addElementToExecutionEntry;
   executing->execute = &BuildManager::_execute;
+  executing->prepareToExecuteFunction = &BuildManager::_prepareToExecuteFunction;
 
   auto expressionComputation = ti_cast<ExpressionComputation>(this);
   expressionComputation->computeResultType = &BuildManager::_computeResultType;
@@ -62,6 +65,7 @@ void BuildManager::initBindings()
   this->addElementToBuild = &BuildManager::_addElementToBuild;
   this->addElementToExecutionEntry = &BuildManager::_addElementToExecutionEntry;
   this->execute = &BuildManager::_execute;
+  this->prepareToExecuteFunction = &BuildManager::_prepareToExecuteFunction;
   this->dumpLlvmIrForElement = &BuildManager::_dumpLlvmIrForElement;
   this->buildObjectFileForElement = &BuildManager::_buildObjectFileForElement;
   this->resetBuild = &BuildManager::_resetBuild;
@@ -256,52 +260,82 @@ Bool BuildManager::_addElementToExecutionEntry(TiObject *self, Core::Ast::Node *
 }
 
 
-Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
+Bool BuildManager::executeGlobalConstructors(BuildSession *buildSession)
 {
-  PREPARE_SELF(buildMgr, BuildManager);
+  auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
+  auto thisMinSeverity = this->rootManager->getNoticeStore()->getMinEncounteredSeverity();
 
-  auto minSeverity = buildMgr->rootManager->getMinNoticeSeverityEncountered();
-  auto thisMinSeverity = buildMgr->rootManager->getNoticeStore()->getMinEncounteredSeverity();
+  if ((minSeverity != -1 && minSeverity <= 1) || (thisMinSeverity != -1 && thisMinSeverity <= 1)) return false;
 
   // Get the session in which global constructors were generated, if different from the given session.
   // Refer to BuildSession::globalCtorSession for more info about this.
   auto ctorBuildSession = buildSession->getGlobalCtorSession();
   if (ctorBuildSession == 0) ctorBuildSession = buildSession;
 
-  if ((minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
-    // Execute constructors.
-    if (ctorBuildSession->getBuildType() == BuildType::JIT) {
-      for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
-        ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
-          buildSession->getGlobalCtors()->at(index).name
-        );
-      }
-      buildSession->getGlobalCtors()->clear();
-    } else if (ctorBuildSession->getBuildType() == BuildType::PREPROCESS) {
-      for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
-        ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
-          buildSession->getGlobalCtors()->at(index).name
-        );
-      }
-      buildSession->getGlobalCtors()->clear();
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
-    }
-    // Execute the main function.
-    if (buildSession->getBuildType() == BuildType::JIT) {
-      buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
-        buildSession->getExecutionEntryName()
+  if (ctorBuildSession->getBuildType() == BuildType::JIT) {
+    for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
+      ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
+        buildSession->getGlobalCtors()->at(index).name
       );
-    } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
-      buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
-        buildSession->getExecutionEntryName()
-      );
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
     }
-    return true;
+    buildSession->getGlobalCtors()->clear();
+  } else if (ctorBuildSession->getBuildType() == BuildType::PREPROCESS) {
+    for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
+      ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
+        buildSession->getGlobalCtors()->at(index).name
+      );
+    }
+    buildSession->getGlobalCtors()->clear();
   } else {
-    return false;
+    throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
+  }
+
+  return true;
+}
+
+
+Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
+{
+  PREPARE_SELF(buildMgr, BuildManager);
+
+  if (!buildMgr->executeGlobalConstructors(buildSession)) return false;
+
+  // Execute the main function.
+  if (buildSession->getBuildType() == BuildType::JIT) {
+    buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
+      buildSession->getExecutionEntryName()
+    );
+  } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
+    buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
+      buildSession->getExecutionEntryName()
+    );
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
+  }
+  return true;
+}
+
+
+void* BuildManager::_prepareToExecuteFunction(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession)
+{
+  PREPARE_SELF(buildMgr, BuildManager);
+
+  if (!buildMgr->executeGlobalConstructors(buildSession)) return 0;
+
+  auto func = ti_cast<Ast::Function>(element);
+  if (func == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid element type."));
+  }
+  Str const &name = buildMgr->astHelper->getFunctionName(func);
+
+  if (buildSession->getBuildType() == BuildType::JIT) {
+    return buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->getFunctionPointer(name.getBuf());
+  } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
+    return buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->getFunctionPointer(
+      name.getBuf()
+    );
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
   }
 }
 
@@ -459,7 +493,6 @@ Bool BuildManager::_computeResultType(
 
 //==============================================================================
 // Helper Functions
-
 
 Array<Str> BuildManager::getGlobalCtorNames(BuildSession *buildSession)
 {

@@ -77,6 +77,9 @@ class LazyJitBuildTarget : public BuildTarget
 
   public: void execute(Char const *entry);
 
+  /// Resolves the JIT address of the given (already built) symbol without calling it.
+  public: void* getFunctionPointer(Char const *entry);
+
 }; // class
 
 } // namespace

@@ -134,6 +134,11 @@ import "Srl/refs_base";
             modifier: ref[AstNode], result: ref[Array[String]]
         ) => Word[1];
 
+        @expname[Spp_AstMgr_addPossiblyMergeableElement]
+        handler this.addPossiblyMergeableElement(
+            node: ref[AstNode], target: ref[DynamicContaining[AstNode]], index: ref[Int]
+        ) => Word[1];
+
         handler this.getClassVars(parent: ref[AstNode]): Array[ref[AstNode]] {
             return this.findElements(
                 (ast elementType == "var"),

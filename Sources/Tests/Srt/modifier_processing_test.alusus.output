@@ -1,0 +1,13 @@
+Renamed definition's name: renamed
+Replacement definition's name: replacement
+Replacement definition's value: 123
+first.tagX: x1
+first.tagY: y1
+first.tagZ: z1
+second.tagX: x2
+second.tagY: y2
+second.tagZ: z2
+------------------ Parsed Data Dump ------------------
+Module [Main.ModuleStatements.StmtList]
+ Definition [Main.Def] replacement: Identifier: Int [Main.BlockSubject.Identifier]
+------------------------------------------------------

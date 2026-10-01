@@ -59,6 +59,16 @@ template<class CTYPE> class Containing : public TiInterface
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
   }
 
+  /// Find the index of a given element within this container, or -1 if not found.
+  public: virtual Int findElementIndex(CTYPE *val) const
+  {
+    Word count = this->getElementCount();
+    for (Word i = 0; i < count; ++i) {
+      if (this->getElement(i) == val) return i;
+    }
+    return -1;
+  }
+
 }; // class
 
 } // namespace
