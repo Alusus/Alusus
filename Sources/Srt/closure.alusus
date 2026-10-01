@@ -11,7 +11,7 @@
 //==============================================================================
 
 import "Srl/Map";
-import "Srl/refs_base";
+import "Srl/refs";
 import "Core/Basic";
 import "Core/Ast";
 import "Spp";
@@ -187,11 +187,11 @@ module Closures {
         if linkOp~ptr != 0 {
             def recursiveRes: AstNodeSrdRef;
             extractPayloadVarDefs(MapContainerOf[linkOp, AstNode].getElement("first"), recursiveRes, payloadSpec);
-            fnTypeSpecResult = castSrdRef[newSrdObj[LinkOperator].{
+            fnTypeSpecResult = newSrdObj[LinkOperator].{
                 BindingOf[this].setMember("type", TiStr(":"));
                 MapContainerOf[this, AstNode].setElement("first", recursiveRes);
                 MapContainerOf[this, AstNode].setElement("second", MapContainerOf[linkOp, AstNode].getElement("second"));
-            }, AstNode];
+            };
             return;
         }
 
@@ -250,9 +250,9 @@ module Closures {
                 useNoDeref = false;
             }
         }
-        return castSrdRef[newSrdObj[Spp.Ast.Variable].{
+        return newSrdObj[Spp.Ast.Variable].{
             MapContainerOf[this, AstNode].setElement("type", varType);
-        }, AstNode];
+        };
     }
 
     func generateFuncType (
@@ -376,7 +376,7 @@ module Closures {
             listContainer.addElement(arg.obj);
         }
         listContainer.addElement(Spp.astMgr.cloneAst(ast this.data.refCounter).obj);
-        return castSrdRef[list, AstNode];
+        return list;
     }
 
     func findExternalVariables (
