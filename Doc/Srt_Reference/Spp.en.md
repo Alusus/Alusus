@@ -219,6 +219,16 @@ handler this.findElements(
 
 Searches through the soruce code for elements that match the given search criteria.
 
+This function (and the seeker underlying it) is built specifically for looking up **named** elements —
+definitions of variables, functions, types, modules, and similar — by walking namespaces the way identifier
+resolution does (`SKIP_OWNERS`/`SKIP_USES`/`SKIP_CHILDREN` below mirror the scoping rules the compiler itself
+uses to resolve a name). It isn't a general-purpose AST tree search: elements that aren't reachable as a
+named definition (e.g. an arbitrary sub-expression buried inside a statement) won't be found this way, and
+the `modifier`/`metadata` criteria below only ever match against the modifiers/metadata of the *Definition*
+that owns the matched element, not against arbitrary nodes. If you need to walk the full tree generically
+instead, write your own traversal using `Core.Basic.Containing`/`DynamicContaining` directly on the AST
+you want to search (see the [Core Module Reference](./Core.en.md)).
+
 The first two arguments are references on two ASTs. The first one to an expression that represents the search criteria while the second is the ast that we want to search in it.
 
 The third argument could be one of the following values:
