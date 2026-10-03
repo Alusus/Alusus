@@ -33,6 +33,8 @@
   container.
 * Added `Spp.AstMgr.addPossiblyMergeableElement` method, which lets user code insert or merge an AST element
   into a container the same way the compiler merges elements coming from `preprocess` blocks and macros.
+* Renamed `Srl.Time.getDetailedTime` to `Srl.Time.getDetailedLocalTime`.
+* Added `Srl.Time.getDetailedUTCTime`.
 
 ### Bug Fixes in the Standard Libraries
 

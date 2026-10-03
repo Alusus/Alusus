@@ -2740,28 +2740,51 @@ class DetailedTime {
 ```
 سجل لحمل معلومات الوقت والتاريخ.
 
-#### هات_وقت_مفصل (getDetailedTime)
+#### هات_وقتا_محليا_مفصلا (getDetailedLocalTime)
 
 ```
-1. @تصدير[localtime] دالة هات_وقت_مفصل (
+1. @تصدير[localtime] دالة هات_وقتا_محليا_مفصلا (
      خز: مؤشر[طـبيعي[64]]
    ): مؤشر[وقـت_مفصل]؛
-2. @تصدير[localtime_r] دالة هات_وقت_مفصل (
+2. @تصدير[localtime_r] دالة هات_وقتا_محليا_مفصلا (
      خز: مؤشر[طـبيعي[64]]، مؤشر[وقـت_مفصل]
    ): مؤشر[وقـت_مفصل]؛
 ```
 
 ```
-1. @expname[localtime] func getDetailedTime (
+1. @expname[localtime] func getDetailedLocalTime (
      ts: ptr[Word[64]]
    ): ptr[DetailedTime];
-2. @expname[localtime_r] func getDetailedTime (
+2. @expname[localtime_r] func getDetailedLocalTime (
      ts: ptr[Word[64]], ptr[DetailedTime]
    ): ptr[DetailedTime];
 ```
 
 1. مطابقة لدالة localtime من POSIX. 
 2. مطابقة لدالة localtime_r من POSIX.
+
+#### هات_وقتا_عالميا_مفصلا (getDetailedUTCTime)
+
+```
+1. @تصدير[localtime] دالة هات_وقتا_عالميا_مفصلا (
+     خز: مؤشر[طـبيعي[64]]
+   ): مؤشر[وقـت_مفصل]؛
+2. @تصدير[localtime_r] دالة هات_وقتا_عالميا_مفصلا (
+     خز: مؤشر[طـبيعي[64]]، مؤشر[وقـت_مفصل]
+   ): مؤشر[وقـت_مفصل]؛
+```
+
+```
+1. @expname[localtime] func getDetailedUTCTime (
+     ts: ptr[Word[64]]
+   ): ptr[DetailedTime];
+2. @expname[localtime_r] func getDetailedUTCTime (
+     ts: ptr[Word[64]], ptr[DetailedTime]
+   ): ptr[DetailedTime];
+```
+
+1. مطابقة لدالة gmtime من POSIX. 
+2. مطابقة لدالة gmtime_r من POSIX.
 
 #### هات_الختم_الزمني (getTimestamp)
 

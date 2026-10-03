@@ -12,15 +12,15 @@ def System: module
     ts = Srl.Time.getTimestamp(0) - ts;
     Srl.Console.print("%llu\n", ts);
 
-    // getDetailedTime
+    // getDetailedLocalTime
     def dt: Srl.Time.DetailedTime;
     def pdt: ptr[Srl.Time.DetailedTime];
     Srl.System.setEnv("TZ", "UTC", 1);
     ts = 1535881398;
-    Srl.Time.getDetailedTime(ts~ptr, dt~ptr);
+    Srl.Time.getDetailedLocalTime(ts~ptr, dt~ptr);
     Srl.Console.print("%d-%02d-%02d\n", dt.year + 1900, dt.month + 1, dt.day);
     ts = 0;
-    pdt = Srl.Time.getDetailedTime(ts~ptr);
+    pdt = Srl.Time.getDetailedLocalTime(ts~ptr);
     Srl.Console.print("%d-%02d-%02d\n", pdt~cnt.year + 1900, pdt~cnt.month + 1, pdt~cnt.day);
   };
 };

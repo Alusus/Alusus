@@ -1841,19 +1841,33 @@ class DetailedTime {
 
 A record that holds the date and time information.
 
-#### getDetailedTime
+#### getDetailedLocalTime
 
 ```
-1. @expname[localtime] func getDetailedTime (
+1. @expname[localtime] func getDetailedLocalTime (
      ts: ptr[Word[64]]
    ): ptr[DetailedTime];
-2. @expname[localtime_r] func getDetailedTime (
+2. @expname[localtime_r] func getDetailedLocalTime (
      ts: ptr[Word[64]], ptr[DetailedTime]
    ): ptr[DetailedTime];
 ```
 
 1. This is the same as `localtime` function for POSIX.
 2. This is the same as `localtime_r` function for POSIX.
+
+#### getDetailedUTCTime
+
+```
+1. @expname[gmtime] func getDetailedUTCTime (
+     ts: ptr[Word[64]]
+   ): ptr[DetailedTime];
+2. @expname[gmtime_r] func getDetailedUTCTime (
+     ts: ptr[Word[64]], ptr[DetailedTime]
+   ): ptr[DetailedTime];
+```
+
+1. This is the same as `gmtime` function for POSIX.
+2. This is the same as `gmtime_r` function for POSIX.
 
 #### getTimestamp
 

@@ -34,8 +34,8 @@
     عرف هات_الساعة: لقب getClock؛
     عرف هات_الختم_الزمني: لقب getTimestamp؛
     عرف الى_نص: لقب toString؛
-    عرف هات_وقت_محلي_مفصل: لقب getDetailedLocalTime؛
-    عرف هات_وقت_عالمي_مفصل: لقب getDetailedUTCTime؛
+    عرف هات_وقتا_محليا_مفصلا: لقب getDetailedLocalTime؛
+    عرف هات_وقتا_عالميا_مفصلا: لقب getDetailedUTCTime؛
   }؛
 }؛
 
