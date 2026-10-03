@@ -12,6 +12,6 @@
 
 عرف الـقلب: لقب Core؛
 @دمج عرف Core: وحدة {
-    عرف اشمل_ملف: لقب importFile؛
+    عرف اشمل_ملفا: لقب importFile؛
     عرف أضف_ترجمة: لقب addLocalization;
 }

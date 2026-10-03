@@ -57,7 +57,7 @@
         عرف احشر_شبم: لقب insertAst؛
         عرف أنشئ_شبم: لقب buildAst؛
         عرف احشر_عمليات_النسخ: لقب insertCopyHandlers؛
-        عرف احشر_مكون: لقب insertMixin؛
+        عرف احشر_مكونا: لقب insertMixin؛
         عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
         عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
         عرف هات_نطاق_المتغير: لقب getVariableDomain؛

@@ -35,6 +35,7 @@
   into a container the same way the compiler merges elements coming from `preprocess` blocks and macros.
 * Renamed `Srl.Time.getDetailedTime` to `Srl.Time.getDetailedLocalTime`.
 * Added `Srl.Time.getDetailedUTCTime`.
+* Fixed some Arabic localizations.
 
 ### Bug Fixes in the Standard Libraries
 

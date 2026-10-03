@@ -16,7 +16,7 @@
     @دمج صنف Unit {
         عرف أضف_اعتمادية: لقب addDependency؛
         عرف أضف_اعتماديات: لقب addDependencies؛
-        عرف أضف_خيار: لقب addFlag؛
+        عرف أضف_خيارا: لقب addFlag؛
         عرف أضف_خيارات: لقب addFlags؛
     }
 
@@ -32,7 +32,7 @@
         عرف أنتج: لقب generate؛
     }
 
-    عرف أنشئ_تنفيذي: لقب genExecutable؛
+    عرف أنشئ_تنفيذيا: لقب genExecutable؛
     عرف أنشئ_ويب_أسمبلي: لقب genWasm؛
 }
 
