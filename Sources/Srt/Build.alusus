@@ -11,6 +11,7 @@
 
 import "Core";
 import "Spp";
+import "Core/Ast";
 import "Srl/Console";
 import "Srl/String";
 import "Srl/System";
@@ -35,6 +36,13 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         def result: ptr = Fs.readLine(output~ptr, 100, file);
         Fs.closeProcess(file);
         return result != 0;
+    }
+
+    // Handler for the `deps` modifier. The modifier is removed once handled, so the dependencies are kept as
+    // metadata on the modified definition for Unit.addDependency to read later.
+    func deps (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+        if params~ptr == 0 return;
+        node.setMetadata("deps", castSrdRef[params.wkThis, Core.Ast.Node]);
     }
 
     class Unit {
@@ -71,16 +79,11 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         }
 
         handler this.addDependency (e: ref[Core.Ast.Node]) => Bool {
-            if !this.addDependenciesFromModifier(e, "deps") return false;
-            if !this.addDependenciesFromModifier(e, "اعتماديات") return false;
-            return true;
-        }
-
-        handler this.addDependenciesFromModifier (e: ref[Core.Ast.Node], modifierKwd: CharsPtr) => Bool {
-            def modifier: ref[Core.Ast.Node](Spp.astMgr.findModifierForElement(e, modifierKwd));
-            if modifier~ptr != 0 {
+            // The deps modifier handler stores the dependencies as metadata on the modified definition.
+            def metadata: ref[Core.Ast.Node](e.owner.getMetadata("deps"));
+            if metadata~ptr != 0 {
                 def deps: Array[String];
-                if !Spp.astMgr.getModifierStringParams(modifier, deps) return false;
+                if !Spp.astMgr.getStringsFromStringParams(metadata, deps) return false;
                 def i: ArchInt;
                 for i = 0, i < deps.getLength(), ++i this.addDependency(deps(i));
             }

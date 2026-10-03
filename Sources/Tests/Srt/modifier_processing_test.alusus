@@ -39,7 +39,7 @@ def toBeReplaced: Int;
 // on the right element rather than on a sibling's.
 macro defineTagger[name] {
     func name (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
-        node.setMetadata("{{name}}", Spp.astMgr.cloneAst(params, params));
+        node.setMetadata("{{name}}", castSrdRef[params.wkThis, Core.Ast.Node]);
     }
 }
 defineTagger[tagX];

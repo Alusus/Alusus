@@ -71,7 +71,10 @@ void RootScopeHandlerExtension::_addNewElement(
 
     // Process macros.
     auto astProcessor = rootManagerExt->astProcessor.get();
-    if (!astProcessor->process(root)) return;
+    if (!astProcessor->process(root)) {
+      rootManager->flushNotices();
+      return;
+    }
 
     auto executing = ti_cast<Executing>(rootManagerExt->buildManager.get());
 

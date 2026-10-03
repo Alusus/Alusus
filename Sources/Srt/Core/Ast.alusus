@@ -34,10 +34,10 @@ import "Srl/String";
             }
 
             @expname[CoreAstNode_getMetadata]
-            handler this.getMetadata(name: ptr[array[Char]]): ref[SrdRef[Node]];
+            handler this.getMetadata(name: ptr[array[Char]]): ref[Srl.SrdRef[Node]];
 
             @expname[CoreAstNode_setMetadata]
-            handler this.setMetadata(name: ptr[array[Char]], value: ref[SrdRef[Node]]);
+            handler this.setMetadata(name: ptr[array[Char]], value: ref[Srl.SrdRef[Node]]);
 
             @expname[CoreAstNode_removeMetadata]
             handler this.removeMetadata(name: ptr[array[Char]]);
@@ -69,8 +69,8 @@ import "Srl/String";
                     this.value~init();
                 }
 
-                func create (v: ptr[array[Char]]): SrdRef[name] {
-                    def r: SrdRef[name];
+                func create (v: ptr[array[Char]]): Srl.SrdRef[name] {
+                    def r: Srl.SrdRef[name];
                     r.alloc()~init(v);
                     r.wkThis.assign(r.refCounter, r.tiObject);
                     return r;

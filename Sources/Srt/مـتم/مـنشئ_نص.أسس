@@ -22,7 +22,5 @@
         عرف فرغ: لقب clear؛
         عرف هات_الطول: لقب getLength؛
     }
-    
-    عرف ترجمات_مفاتيح_مبدلات_منشئ_نص: لقب stringBuilderModifierKwdTranslations؛
-    ترجمات_مفاتيح_مبدلات_منشئ_نص.حدد(نـص("بنية")، نـص("format"))؛
+    عرف منسق_نص: لقب stringFormater؛
 }

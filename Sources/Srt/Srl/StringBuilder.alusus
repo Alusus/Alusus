@@ -20,8 +20,6 @@ import "Spp/Ast";
 @merge module Srl {
     def _emptyMixin: {}
 
-    @shared def stringBuilderModifierKwdTranslations: Map[String, String];
-
     class StringBuilder [formatMixin: ast_ref = _emptyMixin] {
         Spp.astMgr.insertMixin[formatMixin];
 
@@ -174,14 +172,12 @@ import "Spp/Ast";
             );
             def i: Int;
             for i = 0, i < elements.getLength(), ++i {
-                def modifier: ref[TiObject](Spp.astMgr.findModifierForElement(
-                    elements(i), "format", stringBuilderModifierKwdTranslations
-                ));
-                if modifier~ptr != 0 {
+                def metadata: ref[Core.Ast.Node](elements(i).owner.getMetadata("format"));
+                if metadata~ptr != 0 {
                     def params: Array[String];
-                    Spp.astMgr.getModifierStringParams(modifier, params);
+                    Spp.astMgr.getStringsFromStringParams(metadata, params);
                     if params.getLength() != 1 {
-                        Spp.buildMgr.raiseBuildNotice("SRT1002", 1, modifier);
+                        Spp.buildMgr.raiseBuildNotice("SRT1002", 1, elements(i));
                         continue;
                     }
                     def fmtKey: String = params(0);
@@ -191,7 +187,7 @@ import "Spp/Ast";
                         Spp.buildMgr.raiseBuildNotice("SRT1003", 1, elements(i));
                         continue;
                     }
-                    def argType: ref[TiObject](argTypes.getElement(1));
+                    def argType: ref[Core.Ast.Node](argTypes.getElement(1));
                     Spp.astMgr.insertAst(
                         ast {
                             if String.compare(pos~cast[CharsPtr], fmtKey, fmtKeyLen) == 0 {
@@ -235,5 +231,12 @@ import "Spp/Ast";
         handler this~cast[ref[String]] {
             return this.string;
         }
+    }
+
+    // Handler for the `format` modifier. The modifier is removed once handled, so the formatting symbol is
+    // kept as metadata on the modified definition for _insertFormattingCalls to read later.
+    func stringFormater (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+        if params~ptr == 0 return;
+        node.setMetadata("format", castSrdRef[params.wkThis, Core.Ast.Node]);
     }
 }

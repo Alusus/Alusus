@@ -368,6 +368,19 @@ Returns a list of all string arguments passed to the modifier. For example, if w
 this function, then we get from it a list for two elements, the first is "lib1", and the second is "lib2".
 This functions returns a boolean with value 1 on success, and 0 on failure.
 
+#### getStringsFromStringParams
+
+```
+handler this.getStringsFromStringParams(
+    params: ref[Core.Ast.Node],
+    result: ref[Array[String]]
+) => Bool;
+```
+
+Same as `getModifierStringParams`, but takes the params node itself (the contents between the modifier's
+square brackets, as received by a modifier handler function) instead of the modifier.
+This functions returns a boolean with value 1 on success, and 0 on failure.
+
 #### getClassVars
 
 ```

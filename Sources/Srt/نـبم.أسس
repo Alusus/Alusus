@@ -45,6 +45,7 @@
         عرف هات_كلمة_المبدل_المفتاحية: لقب getModifierKeyword؛
         عرف هات_معطيات_مبدل: لقب getModifierParams؛
         عرف هات_المعطيات_النصية_لمبدل: لقب getModifierStringParams؛
+        عرف هات_النصوص_من_معطيات_نصية: لقب getStringsFromStringParams؛
         عرف هات_متغيرات_صنف: لقب getClassVars؛
         عرف هات_أسماء_متغيرات_صنف: لقب getClassVarNames؛
         عرف هات_دالات_صنف: لقب getClassFuncs؛

@@ -82,7 +82,8 @@ function dumpElementMetadata(element: ref[Core.Ast.Node], name: ptr[array[Char]]
 
 macro defineMacro[macroName] {
     func macroName (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
-        node.setMetadata("{{macroName}}", Spp.astMgr.cloneAst(params, params));
+        if params~ptr == 0 return;
+        node.setMetadata("{{macroName}}", castSrdRef[params.wkThis, Core.Ast.Node]);
     }
 }
 
@@ -97,7 +98,7 @@ func private (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
     // generated in the preprocess session rather than at the compiler's own side. So, to avoid a segfault
     // at the end of the program we should always include code generated at the compiler side by using
     // the cloneAst method.
-    node.setMetadata("private", Spp.astMgr.cloneAst(ast { 1 }, node));
+    node.setMetadata("private", Spp.astMgr.cloneAst((ast 1), node));
 }
 
 class A {

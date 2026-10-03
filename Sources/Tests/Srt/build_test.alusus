@@ -23,3 +23,13 @@ if !exe.generate() {
   Srl.System.exec("/tmp/alusustest2");
 };
 
+
+@Build.deps["libm.so.6", "libc.so.6"]
+@expname[main3] function main3 {
+};
+
+def unit: Build.Unit(main3~ast, "/tmp/alusustest3");
+def i: Int;
+for i = 0, i < unit.deps.getLength(), ++i {
+  Srl.Console.print("dep: %s\n", unit.deps(i).buf);
+};

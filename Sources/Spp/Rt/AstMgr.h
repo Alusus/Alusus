@@ -146,6 +146,9 @@ class AstMgr : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getModifierStringParams, Bool, (Core::Ast::Node* /* modifier */, Array<String>& /* result */));
   private: static Bool _getModifierStringParams(TiObject *self, Core::Ast::Node *modifier, Array<String> &result);
 
+  public: METHOD_BINDING_CACHE(getStringsFromStringParams, Bool, (Core::Ast::Node* /* params */, Array<String>& /* result */));
+  private: static Bool _getStringsFromStringParams(TiObject *self, Core::Ast::Node *params, Array<String> &result);
+
   public: METHOD_BINDING_CACHE(getSourceFullPathForElement, String, (Core::Ast::Node* /* element */));
   private: static String _getSourceFullPathForElement(TiObject *self, Core::Ast::Node *element);
 

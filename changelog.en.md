@@ -22,6 +22,11 @@
   their own modifiers that preprocess the elements on which the modifiers are applied.
 * Modifiers that aren't built-in and don't have a matching function now cause an error during preprocessing.
 
+### Fixes to the Compiler
+
+* Errors raised while preprocessing the root scope's modifiers are now reported instead of silently
+  stopping the program.
+
 ### Updates to the Standard Libraries
 
 * Added the method `Spp.AstMgr.preprocessTypeBody`.
@@ -36,10 +41,13 @@
 * Renamed `Srl.Time.getDetailedTime` to `Srl.Time.getDetailedLocalTime`.
 * Added `Srl.Time.getDetailedUTCTime`.
 * Fixed some Arabic localizations.
+* Added `Spp.AstMgr.getStringFromStringParams`.
+* Renamed the `format` modifier used by `StringBuilder` to `stringFormater`.
 
 ### Bug Fixes in the Standard Libraries
 
 * Fixed a bug in basic TI types on Alusus side that can cause double memory freeing in some cases.
+* Fixed `Core.Ast.Node`'s metadata methods depending on the user having `use Srl`.
 
 
 ## Version 0.15.3 (2026-08-28)

@@ -21,7 +21,7 @@ class ObjTiInterface : public TiInterface
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(ObjTiInterface, TiInterface, "Core.Data", "Core", "alusus.org");
+  INTERFACE_INFO(ObjTiInterface, TiInterface, "Core.Basic", "Core", "alusus.org");
 
 
   //============================================================================

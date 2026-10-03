@@ -243,9 +243,17 @@ Bool AstProcessor::_processModifiers(TiObject *self, Containing<Core::Ast::Node>
 
     // Look for a directly accessible function matching the modifier's keyword and taking two
     // ref[Core.Ast.Node] params.
-    auto nodeRefType = astProcessor->astHelper->getReferenceTypeFor(
-      astProcessor->astHelper->getNodeType(), Ast::ReferenceMode::EXPLICIT
-    );
+    // Core.Ast.Node won't be available if the Core library hasn't been loaded, in which case no handler
+    // function could have been defined.
+    auto nodeType = astProcessor->astHelper->getNodeType();
+    if (nodeType == 0) {
+      astProcessor->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::MissingTypeNotice>(Core::Ast::findSourceLocation(modifier))
+      );
+      result = false;
+      continue;
+    }
+    auto nodeRefType = astProcessor->astHelper->getReferenceTypeFor(nodeType, Ast::ReferenceMode::EXPLICIT);
     PlainList<Core::Ast::Node> argTypes;
     argTypes.add(nodeRefType);
     argTypes.add(nodeRefType);

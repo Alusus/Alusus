@@ -27,6 +27,7 @@ void AstMgr::initBindingCaches()
     &this->getModifierKeyword,
     &this->getModifierParams,
     &this->getModifierStringParams,
+    &this->getStringsFromStringParams,
     &this->getSourceFullPathForElement,
     &this->addPossiblyMergeableElement,
     &this->insertAst,
@@ -60,6 +61,7 @@ void AstMgr::initBindings()
   this->getModifierKeyword = &AstMgr::_getModifierKeyword;
   this->getModifierParams = &AstMgr::_getModifierParams;
   this->getModifierStringParams = &AstMgr::_getModifierStringParams;
+  this->getStringsFromStringParams = &AstMgr::_getStringsFromStringParams;
   this->getSourceFullPathForElement = &AstMgr::_getSourceFullPathForElement;
   this->addPossiblyMergeableElement = &AstMgr::_addPossiblyMergeableElement;
   this->insertAst = &AstMgr::_insertAst;
@@ -93,6 +95,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierKeyword"), (void*)&AstMgr::_getModifierKeyword);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierParams"), (void*)&AstMgr::_getModifierParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStringParams"), (void*)&AstMgr::_getModifierStringParams);
+  globalItemRepo->addItem(S("Spp_AstMgr_getStringsFromStringParams"), (void*)&AstMgr::_getStringsFromStringParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getSourceFullPathForElement"), (void*)&AstMgr::_getSourceFullPathForElement);
   globalItemRepo->addItem(
     S("Spp_AstMgr_addPossiblyMergeableElement"), (void*)&AstMgr::_addPossiblyMergeableElement
@@ -221,12 +224,21 @@ Bool AstMgr::_getModifierStringParams(TiObject *self, Core::Ast::Node *modifier,
   PREPARE_SELF(astMgr, AstMgr);
 
   auto paramPass = ti_cast<Core::Ast::ParamPass>(modifier);
-  if (paramPass == 0 || paramPass->getParam().get() == 0) return true;
+  if (paramPass == 0) return true;
+  return astMgr->getStringsFromStringParams(paramPass->getParam().get(), result);
+}
+
+
+Bool AstMgr::_getStringsFromStringParams(TiObject *self, Core::Ast::Node *params, Array<String> &result)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+
+  if (params == 0) return true;
 
   Core::Basic::PlainList<Core::Ast::Node> strList;
-  auto strs = paramPass->getParam().ti_cast_get<Core::Basic::Containing<Core::Ast::Node>>();
+  auto strs = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(params);
   if (strs == 0) {
-    strList.add(paramPass->getParam().get());
+    strList.add(params);
     strs = &strList;
   }
   for (Int i = 0; i < strs->getElementCount(); ++i) {

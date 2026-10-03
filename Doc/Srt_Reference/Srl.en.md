@@ -556,8 +556,8 @@ To expand the set of types understood by the `format` method the user can provid
 `StringBuilder` class with a mixin containing the set of functions to be called by `format`
 in response to encountering the related symbol in the format string. In order for the functions
 within the mixin to be called by `format` they need to receive a single argument of a type matching
-the requested type, and be flaged with the `@format` modifier, giving that modifier the requested
-formatting symbol as a param.
+the requested type, and be flagged with the `@stringFormater` modifier, giving that modifier the 
+requested formatting symbol as a param.
 
 The same data type can be used in multiple formatting as long as the formatting symbol is different.
 For example, the type `Int[64]` can be used in two functions, one having the symbol `%gd` to treat
@@ -568,8 +568,8 @@ The following example shows extending the StringBuilder with a formatting for co
 timestamps to date strings:
 
 ```
-def StringBuilderMixin {
-  @format["gd"]
+def StringBuilderMixin: {
+  @stringFormater["gd"]
   handler this.formatTimestamp(ts: Int[64]) {
     this.append(Time.toString(ts));
   }

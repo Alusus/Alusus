@@ -79,6 +79,8 @@ import "Srl/refs_base";
         }
 
         handler this.getDefinitionName (element: ref[AstNode]): String {
+            use Core.Basic;
+            use Core.Ast;
             def d: ref[Definition](castRef[element.owner, Definition]);
             def binding: ref[Binding](getInterface[d, Binding]);
             return castRef[binding.getMember("name"), TiStr].value;
@@ -132,6 +134,11 @@ import "Srl/refs_base";
         @expname[Spp_AstMgr_getModifierStringParams]
         handler this.getModifierStringParams(
             modifier: ref[AstNode], result: ref[Array[String]]
+        ) => Word[1];
+
+        @expname[Spp_AstMgr_getStringsFromStringParams]
+        handler this.getStringsFromStringParams(
+            params: ref[AstNode], result: ref[Array[String]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_addPossiblyMergeableElement]
@@ -295,7 +302,7 @@ import "Srl/refs_base";
         @member macro insertCopyHandlers [this] preprocess { this.insertCopyHandlers(this_type~ast) }
 
         handler this.insertMixin(obj: ref[AstNode]) {
-            use Core.Data;
+            use Core.Basic;
             use Core.Ast;
             def bitwiseOp: ref[BitwiseOperator](dynCastRef[obj, BitwiseOperator]);
             if bitwiseOp~ptr != 0 {
