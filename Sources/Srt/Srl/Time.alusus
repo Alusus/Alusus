@@ -38,9 +38,15 @@ import "srl";
         func toString(timestamp: ptr[ArchInt]): ptr[array[Char]];
 
         @expname[localtime]
-        func getDetailedTime(timestamp: ptr[ArchInt]): ptr[DetailedTime];
+        func getDetailedLocalTime(timestamp: ptr[ArchInt]): ptr[DetailedTime];
 
         @expname[localtime_r]
-        func getDetailedTime(timestamp: ptr[ArchInt], detialedTime: ptr[DetailedTime]): ptr[DetailedTime];
+        func getDetailedLocalTime(timestamp: ptr[ArchInt], detialedTime: ptr[DetailedTime]): ptr[DetailedTime];
+        
+        @expname[gmtime]
+        func getDetailedUTCTime(timestamp: ptr[ArchInt]): ptr[DetailedTime];
+
+        @expname[gmtime_r]
+        func getDetailedUTCTime(timestamp: ptr[ArchInt], detialedTime: ptr[Time.DetailedTime]): ptr[DetailedTime];
     };
 };
