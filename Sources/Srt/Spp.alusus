@@ -276,6 +276,8 @@ import "Srl/refs_base";
         }
 
         handler this.insertCopyHandlers(obj: ref[AstNode]) {
+            use Core.Basic;
+            use Core.Ast;
             def varNames: Array[String] = this.getClassVarNames(obj);
             def assignments: SrdRef[MergeList] = newSrdObj[MergeList];
             def assignContainer: DynContainerOf[assignments.obj, AstNode];
