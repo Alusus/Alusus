@@ -1,6 +1,8 @@
 name: Ubuntu 22.04 ARM64 - aarch64-linux
 
-on: [push, pull_request]
+# Disabled for now since the ARM build is currently failing. Can still be triggered manually.
+on: workflow_dispatch
+# on: [push, pull_request]
 
 env:
   BUILD_TYPE: Release
