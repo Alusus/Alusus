@@ -55,10 +55,13 @@ void BuildMgr::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element)
 
 
 Bool BuildMgr::_buildObjectFileForElement(
-  TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple
+  TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple,
+  Bool optimize
 ) {
   PREPARE_SELF(buildMgr, BuildMgr);
-  return buildMgr->buildManager->buildObjectFileForElement(element, objectFilename, targetTriple);
+  return buildMgr->buildManager->buildObjectFileForElement(
+    element, objectFilename, targetTriple, optimize
+  );
 }
 
 

@@ -21,7 +21,9 @@ void JitBuildTarget::setupBuild()
 
   this->llvmJitEngine.reset();
 
-  this->llvmJitEngine = llvm::cantFail(JitEngineBuilder().create(this->globalItemRepo));
+  JitEngineBuilder engineBuilder;
+  engineBuilder.useOptimizeLayer = this->optimize;
+  this->llvmJitEngine = llvm::cantFail(engineBuilder.create(this->globalItemRepo));
   this->llvmDataLayout = const_cast<llvm::DataLayout*>(&this->llvmJitEngine->getDataLayout());
 
   this->llvmModule.reset();

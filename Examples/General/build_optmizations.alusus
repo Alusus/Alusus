@@ -1,0 +1,19 @@
+import "Srl/Console";
+import "Srl/String";
+import "Build";
+
+use Srl;
+
+@expname[main]
+function main () {
+    Console.print("compare \"123\" to \"1234\": %d\n", String.compare("123", "1234"));
+}
+
+main();
+def build: Build.Exe(main~ast, "optimized_exe");
+build.optimize = true;
+build.generate();
+
+build.outputFilename = "unoptimized_exe";
+build.optimize = false;
+build.generate();

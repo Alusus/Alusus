@@ -148,7 +148,7 @@ Expected<std::unique_ptr<IRCompileLayer::IRCompiler>> JitEngine::createCompileFu
 }
 
 
-JitEngine::JitEngine(JitEngineBuilderState &s, Error &err, Bool useOptimizeLayer)
+JitEngine::JitEngine(JitEngineBuilderState &s, Error &err)
     : es(s.es ? std::move(s.es) : []() {
         return std::make_unique<ExecutionSession>(
             cantFail(SelfExecutorProcessControl::Create()));
@@ -192,7 +192,7 @@ JitEngine::JitEngine(JitEngineBuilderState &s, Error &err, Bool useOptimizeLayer
     });
   }
 
-  if (useOptimizeLayer) {
+  if (s.useOptimizeLayer) {
     optimizeLayer = createOptimizeLayer(*compileLayer);
   }
 }
@@ -280,7 +280,7 @@ Error LazyJitEngine::addLazyIRModule(JITDylib &jd, ThreadSafeModule tsm) {
 }
 
 LazyJitEngine::LazyJitEngine(LazyJitEngineBuilderState &s, Error &err) 
-    : JitEngine(s, err, false) {
+    : JitEngine(s, err) {
     
     // If base JitEngine construction failed, bail out.
     if (err)

@@ -34,6 +34,7 @@ class JitBuildTarget : public BuildTarget
   private: std::unique_ptr<llvm::Module> llvmModule;
 
   private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
+  private: Bool optimize = false;
 
 
   //============================================================================
@@ -41,6 +42,11 @@ class JitBuildTarget : public BuildTarget
 
   public: JitBuildTarget(CodeGen::GlobalItemRepo *gir) : globalItemRepo(gir)
   {
+  }
+
+  public: void setOptimize(Bool o)
+  {
+    this->optimize = o;
   }
 
   public: virtual ~JitBuildTarget()

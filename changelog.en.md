@@ -12,7 +12,8 @@
   - Inherited all grammar node classes from `Core::Grammar::Node`.
   - Embedded the `MetaHaving` and `Printable` interfaces into the `Node` class and removed the interfaces.
   - Moved the modifiers array from `Definition` and `GenericCommand` into `Node`.
-* Apply O3 optimization on offline builds generated using the Build library.
+* Enabled turning optimization pass on or off in LLVM for both offline builds as well as JIT through command
+  line options.
 * Replaced the modifier translations in the grammar with modifier actions, which provides more standard
   operations than just translations.
 * Added metadata to `Node` to hold various metadata for the Node, while the modifiers array is kept for
@@ -43,6 +44,8 @@
 * Fixed some Arabic localizations.
 * Added `Spp.AstMgr.getStringFromStringParams`.
 * Renamed the `format` modifier used by `StringBuilder` to `stringFormater`.
+* Added an optional fourth argument, `optimize`, to `Spp.BuildMgr.buildObjectFileForElement`.
+* Added an `optimize` member to `Build.Exe` and `Build.Wasm` to request optimized code.
 
 ### Bug Fixes in the Standard Libraries
 

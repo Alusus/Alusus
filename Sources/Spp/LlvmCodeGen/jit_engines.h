@@ -42,7 +42,7 @@ class JitEngine
   // Constructor & Destructor
 
   /// Create an JitEngine instance with a single compile thread.
-  protected: JitEngine(JitEngineBuilderState &s, llvm::Error &err, Bool useOptimizeLayer = true);
+  protected: JitEngine(JitEngineBuilderState &s, llvm::Error &err);
 
   /// Destruct this instance. If a multi-threaded instance, waits for all
   /// compile threads to complete.
@@ -222,6 +222,7 @@ class JitEngineBuilderState
   public: ObjectLinkingLayerCreator createObjectLinkingLayer;
   public: CompileFunctionCreator createCompileFunction;
   public: unsigned numCompileThreads = 0;
+  public: Bool useOptimizeLayer = false;
 
   /// Called prior to JIT class construcion to fix up defaults.
   public: llvm::Error prepareForConstruction();

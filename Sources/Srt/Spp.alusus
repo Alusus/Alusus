@@ -393,8 +393,14 @@ import "Srl/refs_base";
 
         @expname[Spp_BuildMgr_buildObjectFileForElement]
         handler this.buildObjectFileForElement (
-            element: ref[Core.Ast.Node], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]]
+            element: ref[Core.Ast.Node], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]],
+            optimize: Word[1]
         ) => Word[1];
+        handler this.buildObjectFileForElement (
+            element: ref[Core.Ast.Node], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]]
+        ) => Word[1] {
+            return this.buildObjectFileForElement(element, filename, targetTriple, 0);
+        }
 
         @expname[Spp_BuildMgr_raiseBuildNotice]
         handler this.raiseBuildNotice (

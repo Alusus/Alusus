@@ -46,11 +46,12 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     }
 
     class Unit {
-        def element: ref[Core.Ast.Node];
+        def element: ref[Core.Ast.Node](nullRef[Core.Ast.Node]);
         def outputFilename: String;
         def outputPath: String;
         def deps: Array[String];
         def flags: Array[String];
+        def optimize: Bool(false);
 
         handler this~init() {}
 
@@ -133,7 +134,9 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.generate () => Bool {
             if this.outputPath != "./" System.exec(String.format("mkdir -p \"%s\"", this.outputPath.buf));
-            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", this.targetTriple) {
+            if !Spp.buildMgr.buildObjectFileForElement(
+                this.element, "/tmp/output.o", this.targetTriple, this.optimize
+            ) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
@@ -192,7 +195,9 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.generate () => Bool {
             if this.outputPath != "./" System.exec(String.format("mkdir -p \"%s\"", this.outputPath.buf));
-            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", "wasm32-unknown-unknown") {
+            if !Spp.buildMgr.buildObjectFileForElement(
+                this.element, "/tmp/output.o", "wasm32-unknown-unknown", this.optimize
+            ) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }

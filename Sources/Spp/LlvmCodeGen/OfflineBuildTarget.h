@@ -44,6 +44,7 @@ class OfflineBuildTarget : public BuildTarget
   private: std::unique_ptr<llvm::LLVMContext> llvmContext;
   private: std::unique_ptr<llvm::Module> llvmModule;
   private: LlvmGlobalCtorDtorEntryTypes llvmGlobalCtorDtorEntryTypes;
+  private: Bool optimize = false;
 
 
   //============================================================================
@@ -63,6 +64,11 @@ class OfflineBuildTarget : public BuildTarget
 
   //============================================================================
   // Member Functions
+
+  public: void setOptimize(Bool o)
+  {
+    this->optimize = o;
+  }
 
   public: void setTargetTriple(Char const *tt)
   {

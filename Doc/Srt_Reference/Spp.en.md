@@ -32,6 +32,12 @@ shown in the next example:
   handler this.buildObjectFileForElement (
     element: ref[Core.Ast.Node],
     filename: ptr[array[Char]],
+    targetTriple: ptr[array[Char]],
+    optimize: Bool
+  ): Bool;
+  handler this.buildObjectFileForElement (
+    element: ref[Core.Ast.Node],
+    filename: ptr[array[Char]],
     targetTriple: ptr[array[Char]]
   ): Bool;
 ```
@@ -42,6 +48,9 @@ The third argument is a value that determines the architecture used in the build
 architecture will be used. For example, to build an executable code with web assembly architecture we should pass "wasm32-unknown-unknown".
 
 For more information about this value, it is possible to refer to `LLVM` documentation. 
+
+The fourth argument is optional. Passing 1 makes the compiler optimize the generated code; by default no optimization is
+applied. This value can be overridden from the command line using `--opt optimize=0` or `--opt optimize=1`.
 
 This function returns 1 in case of success, 0 otherwise.
 

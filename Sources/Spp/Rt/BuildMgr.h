@@ -91,9 +91,10 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
   public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (Core::Ast::Node*));
   public: static void _dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element);
 
-  public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (Core::Ast::Node*, Char const*, Char const*));
+  public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (Core::Ast::Node*, Char const*, Char const*, Bool));
   public: static Bool _buildObjectFileForElement(
-    TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple
+    TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple,
+    Bool optimize
   );
 
   public: METHOD_BINDING_CACHE(raiseBuildNotice, void, (

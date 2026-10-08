@@ -74,11 +74,30 @@ void BuildManager::initBindings()
 }
 
 
+/// Returns the value of the `optimize=<0|1>` command line option if given, otherwise the given default.
+Bool BuildManager::getOptimizeOverride(Bool defaultValue) const
+{
+  auto options = this->rootManager->getProcessOptions();
+  Bool result = defaultValue;
+  for (Int i = 0; i < this->rootManager->getProcessOptionCount(); ++i) {
+    if (strcmp(options[i], S("optimize=0")) == 0 || strcmp(options[i], S("تحسين=0")) == 0) {
+      result = false;
+      break;
+    } else if (strcmp(options[i], S("optimize=1")) == 0 || strcmp(options[i], S("تحسين=1")) == 0) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+}
+
+
 void BuildManager::initNonOfflineBuildSessions()
 {
   // Prepare build targets and target generators.
 
   auto jitBuildTarget = newSrdObj<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
+  jitBuildTarget->setOptimize(this->getOptimizeOverride(false));
   auto jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->rootManager, jitBuildTarget.get(), false
   );
@@ -378,13 +397,17 @@ void BuildManager::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *elemen
 
 
 Bool BuildManager::_buildObjectFileForElement(
-  TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple
+  TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple,
+  Bool optimize
 ) {
   VALIDATE_NOT_NULL(element);
   PREPARE_SELF(buildMgr, BuildManager);
 
   SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(BuildManager::BuildType::OFFLINE, targetTriple);
   Bool result = true;
+  buildSession->getBuildTarget().s_cast<LlvmCodeGen::OfflineBuildTarget>()->setOptimize(
+    buildMgr->getOptimizeOverride(optimize)
+  );
   if (element->isDerivedFrom<Ast::Module>()) {
     buildMgr->prepareExecutionEntry(buildSession.get());
     if (!buildMgr->addElementToExecutionEntry(element, buildSession.get())) result = false;
