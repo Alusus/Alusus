@@ -81,6 +81,12 @@ class OfflineBuildTarget : public BuildTarget
     return this->targetTriple;
   }
 
+  public: virtual Bool isSysVX86_64Abi()
+  {
+    llvm::Triple tt(this->targetTriple);
+    return tt.getArch() == llvm::Triple::x86_64 && !tt.isOSWindows();
+  }
+
   public: virtual void setupBuild();
 
   public: virtual llvm::DataLayout* getLlvmDataLayout()

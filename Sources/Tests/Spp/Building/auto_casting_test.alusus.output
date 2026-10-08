@@ -202,21 +202,22 @@ define void @"testMultiLevelCustomCaster()"() {
   %0 = call ptr @"ContainerB.~cast(ref[ContainerB])=>(ref[B])"(ptr %"#temp9")
   call void @"takeA(ref[A])"(ptr %0)
   %"#temp10" = alloca %ContainerC, align 1
-  %1 = alloca %ContainerA, align 4
-  call void @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(ptr sret(%ContainerA) %1, ptr %"#temp10")
-  %2 = load %ContainerA, ptr %1, align 4
+  %1 = call i32 @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(ptr %"#temp10")
+  %2 = alloca %ContainerA, align 4
+  store i32 %1, ptr %2, align 4
+  %3 = load %ContainerA, ptr %2, align 4
   %"#temp11" = alloca %ContainerA, align 4
-  store %ContainerA %2, ptr %"#temp11", align 4
-  %3 = call ptr @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(ptr %"#temp11")
-  call void @"takeA(ref[A])"(ptr %3)
+  store %ContainerA %3, ptr %"#temp11", align 4
+  %4 = call ptr @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(ptr %"#temp11")
+  call void @"takeA(ref[A])"(ptr %4)
   %"#temp12" = alloca %ContainerBb, align 8
-  %4 = call ptr @"ContainerBb.~cast(ref[ContainerBb])=>(ref[Bb])"(ptr %"#temp12")
-  call void @"takeAa(ref[Aa])"(ptr %4)
+  %5 = call ptr @"ContainerBb.~cast(ref[ContainerBb])=>(ref[Bb])"(ptr %"#temp12")
+  call void @"takeAa(ref[Aa])"(ptr %5)
   %"#temp13" = alloca %ContainerCc, align 1
   %"#temp14" = alloca %ContainerAa, align 4
   call void @"ContainerCc.~cast(ref[ContainerCc])=>(ContainerAa)"(ptr %"#temp14", ptr %"#temp13")
-  %5 = call ptr @"ContainerAa.~cast(ref[ContainerAa])=>(ref[Aa])"(ptr %"#temp14")
-  call void @"takeAa(ref[Aa])"(ptr %5)
+  %6 = call ptr @"ContainerAa.~cast(ref[ContainerAa])=>(ref[Aa])"(ptr %"#temp14")
+  call void @"takeAa(ref[Aa])"(ptr %6)
   ret void
 }
 
@@ -237,14 +238,13 @@ define void @"takeA(ref[A])"(ptr %r) {
   ret void
 }
 
-define void @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(ptr sret(%ContainerA) %__sret, ptr %this) {
+define i32 @"ContainerC.~cast(ref[ContainerC])=>(ContainerA)"(ptr %this) {
 "#block3":
   %this1 = alloca ptr, align 8
   store ptr %this, ptr %this1, align 8
   %"#temp15" = alloca %ContainerA, align 4
-  %0 = load %ContainerA, ptr %"#temp15", align 4
-  store %ContainerA %0, ptr %__sret, align 4
-  ret void
+  %0 = load i32, ptr %"#temp15", align 4
+  ret i32 %0
 }
 
 define ptr @"ContainerA.~cast(ref[ContainerA])=>(ref[A])"(ptr %this) {

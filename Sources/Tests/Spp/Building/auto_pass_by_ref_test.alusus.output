@@ -9,15 +9,16 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @"convertPoint1(Point1)=>(Point1)"(ptr sret(%Point1) %__sret, ptr byval(%Point1) align 8 %p) {
+define i64 @"convertPoint1(Point1)=>(Point1)"(i64 %p) {
 "#block0":
-  %0 = load %Point1, ptr %p, align 4
+  %0 = alloca %Point1, align 4
+  store i64 %p, ptr %0, align 4
+  %1 = load %Point1, ptr %0, align 4
   %p1 = alloca %Point1, align 4
-  store %Point1 %0, ptr %p1, align 4
+  store %Point1 %1, ptr %p1, align 4
   %r = alloca %Point1, align 4
-  %1 = load %Point1, ptr %r, align 4
-  store %Point1 %1, ptr %__sret, align 4
-  ret void
+  %2 = load i64, ptr %r, align 4
+  ret i64 %2
 }
 ------------------------------------------------------------
 -------------------- Generated LLVM IR ---------------------
@@ -32,11 +33,13 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @"convertPoint2(Point1)=>(Point2)"(ptr %"#ret", ptr byval(%Point1) align 8 %p) {
+define void @"convertPoint2(Point1)=>(Point2)"(ptr %"#ret", i64 %p) {
 "#block0":
-  %0 = load %Point1, ptr %p, align 4
+  %0 = alloca %Point1, align 4
+  store i64 %p, ptr %0, align 4
+  %1 = load %Point1, ptr %0, align 4
   %p1 = alloca %Point1, align 4
-  store %Point1 %0, ptr %p1, align 4
+  store %Point1 %1, ptr %p1, align 4
   %r = alloca %Point2, align 4
   call void @"Point2.~init(ref[Point2])"(ptr %r)
   call void @"Point2.~init(ref[Point2],ref[Point2])"(ptr %"#ret", ptr %r)
@@ -65,20 +68,19 @@ source_filename = "AlususProgram"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
 
 %LlvmGlobalCtorDtor = type { i32, ptr, ptr }
-%Point1 = type { i32, i32 }
 %Point2 = type { i32, i32 }
+%Point1 = type { i32, i32 }
 
 @llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 @llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
 
-define void @"convertPoint3(Point2)=>(Point1)"(ptr sret(%Point1) %__sret, ptr %p) {
+define i64 @"convertPoint3(Point2)=>(Point1)"(ptr %p) {
 "#block0":
   %p1 = alloca %Point2, align 4
   call void @"Point2.~init(ref[Point2],ref[Point2])"(ptr %p1, ptr %p)
   %r = alloca %Point1, align 4
-  %0 = load %Point1, ptr %r, align 4
-  store %Point1 %0, ptr %__sret, align 4
-  ret void
+  %0 = load i64, ptr %r, align 4
+  ret i64 %0
 }
 
 define void @"Point2.~init(ref[Point2],ref[Point2])"(ptr %this, ptr %src) {

@@ -27,6 +27,8 @@
 
 * Errors raised while preprocessing the root scope's modifiers are now reported instead of silently
   stopping the program.
+* Fixed passing and returning structs of up to 16 bytes by value to make it compatible with C ABI,
+  which allows users to use any C library directly without the need to reinterpret small structures.
 
 ### Updates to the Standard Libraries
 

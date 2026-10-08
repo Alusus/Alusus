@@ -50,6 +50,13 @@ class BuildTarget : public TiObject
 
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module) = 0;
 
+  /// Whether the target follows the x86-64 System V calling convention. The JIT targets always build for the host.
+  public: virtual Bool isSysVX86_64Abi()
+  {
+    llvm::Triple tt(llvm::sys::getDefaultTargetTriple());
+    return tt.getArch() == llvm::Triple::x86_64 && !tt.isOSWindows();
+  }
+
   public: virtual llvm::Type* getVaListType();
 
 }; // class

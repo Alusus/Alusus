@@ -428,6 +428,43 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   /// @}
 
+  /// @name C ABI Helper Functions
+  /// @{
+
+  /// Decide how a struct is passed (as an argument if isArg, otherwise as a return value). On x86-64 System V this
+  /// follows the eightbyte classification rules. intRegs/sseRegs hold the number of registers still available.
+  private: AbiInfo classifyStruct(llvm::Type *llvmType, Bool isArg, Int &intRegs, Int &sseRegs);
+
+  /// Apply the sret and byval attributes dictated by the ABI info to a function declaration or a call site.
+  private: template <class T> void applyAbiAttributes(T *target, FunctionType *funcType);
+
+  /// Convert a struct value to the LLVM arguments needed to pass it according to its ABI info.
+  /// If the value is a load instruction with no other users, the load is erased and its pointer reused.
+  private: void lowerStructArg(
+    llvm::IRBuilder<> *builder, llvm::Value *structValue, AbiInfo const &abi, std::vector<llvm::Value*> &args
+  );
+
+  /// Create a struct value from the LLVM parameters it was passed in (the reverse of lowerStructArg).
+  private: llvm::Value* raiseStructArg(
+    llvm::IRBuilder<> *builder, llvm::Type *structType, AbiInfo const &abi, llvm::Value **params
+  );
+
+  /// Convert a struct value to the value returned by a COERCED return type.
+  private: llvm::Value* lowerStructRet(llvm::IRBuilder<> *builder, llvm::Value *structValue, AbiInfo const &abi);
+
+  /// Create a struct value from the value returned by a COERCED return type.
+  private: llvm::Value* raiseStructRet(
+    llvm::IRBuilder<> *builder, llvm::Type *structType, AbiInfo const &abi, llvm::Value *retValue
+  );
+
+  /// Create the call instruction for a function, applying the ABI to arguments and result.
+  private: llvm::Value* generateAbiCall(
+    llvm::IRBuilder<> *builder, FunctionType *funcType, llvm::Value *callee,
+    Containing<TiObject>* arguments
+  );
+
+  /// @}
+
 }; // class
 
 } // namespace

@@ -280,6 +280,279 @@ llvm::FunctionType* TargetGenerator::getVaStartEndFnType()
 
 
 //==============================================================================
+// C ABI Helper Functions
+
+namespace
+{
+  /// Per-eightbyte classification used by the x86-64 System V ABI.
+  struct EightbyteInfo
+  {
+    enum class Cls { NONE, INTEGER, SSE };
+    Cls cls = Cls::NONE;
+    Bool hasDouble = false;
+  };
+
+  /// Classify the scalar leaves of a type, merging them into the eightbytes they occupy.
+  /// Returns false if the type must be passed in memory (unaligned fields or unsupported types).
+  Bool classifyLeaves(llvm::DataLayout *dl, llvm::Type *type, uint64_t offset, EightbyteInfo *eightbytes)
+  {
+    if (offset % dl->getABITypeAlign(type).value() != 0) return false;
+
+    if (auto structType = llvm::dyn_cast<llvm::StructType>(type)) {
+      auto layout = dl->getStructLayout(structType);
+      for (unsigned i = 0; i < structType->getNumElements(); ++i) {
+        if (!classifyLeaves(dl, structType->getElementType(i), offset + layout->getElementOffset(i), eightbytes)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (auto arrayType = llvm::dyn_cast<llvm::ArrayType>(type)) {
+      auto elementSize = dl->getTypeAllocSize(arrayType->getElementType());
+      for (uint64_t i = 0; i < arrayType->getNumElements(); ++i) {
+        if (!classifyLeaves(dl, arrayType->getElementType(), offset + i * elementSize, eightbytes)) return false;
+      }
+      return true;
+    }
+
+    auto &eb = eightbytes[offset / 8];
+    if (type->isIntegerTy() || type->isPointerTy()) {
+      if (dl->getTypeStoreSize(type) > 8) return false;
+      eb.cls = EightbyteInfo::Cls::INTEGER;
+      return true;
+    }
+    if (type->isFloatTy()) {
+      if (eb.cls == EightbyteInfo::Cls::NONE) eb.cls = EightbyteInfo::Cls::SSE;
+      return true;
+    }
+    if (type->isDoubleTy()) {
+      if (eb.cls == EightbyteInfo::Cls::NONE) eb.cls = EightbyteInfo::Cls::SSE;
+      eb.hasDouble = true;
+      return true;
+    }
+    // Everything else (long double, vectors, ...) is not supported in registers.
+    return false;
+  }
+}
+
+
+AbiInfo TargetGenerator::classifyStruct(llvm::Type *llvmType, Bool isArg, Int &intRegs, Int &sseRegs)
+{
+  AbiInfo abi;
+  abi.kind = AbiInfo::Kind::INDIRECT;
+  if (!this->buildTarget->isSysVX86_64Abi()) return abi;
+
+  auto dl = this->buildTarget->getLlvmDataLayout();
+  auto size = dl->getTypeAllocSize(llvmType).getFixedValue();
+  if (size == 0 || size > 16) return abi;
+
+  EightbyteInfo eightbytes[2];
+  if (!classifyLeaves(dl, llvmType, 0, eightbytes)) return abi;
+
+  auto &llvmContext = *this->buildTarget->getLlvmContext();
+  Int neededInt = 0;
+  Int neededSse = 0;
+  std::vector<llvm::Type*> parts;
+  for (Int i = 0; i < (Int)((size + 7) / 8); ++i) {
+    auto bytes = std::min<uint64_t>(8, size - i * 8);
+    if (eightbytes[i].cls == EightbyteInfo::Cls::SSE) {
+      ++neededSse;
+      if (eightbytes[i].hasDouble) parts.push_back(llvm::Type::getDoubleTy(llvmContext));
+      else if (bytes > 4) parts.push_back(llvm::FixedVectorType::get(llvm::Type::getFloatTy(llvmContext), 2));
+      else parts.push_back(llvm::Type::getFloatTy(llvmContext));
+    } else {
+      ++neededInt;
+      parts.push_back(llvm::Type::getIntNTy(llvmContext, bytes * 8));
+    }
+  }
+
+  // An argument that doesn't fit in the remaining registers is passed in memory as a whole.
+  if (isArg) {
+    if (neededInt > intRegs || neededSse > sseRegs) return abi;
+    intRegs -= neededInt;
+    sseRegs -= neededSse;
+  }
+
+  abi.kind = AbiInfo::Kind::COERCED;
+  abi.parts = std::move(parts);
+  abi.paramCount = (Int)abi.parts.size();
+  return abi;
+}
+
+
+template <class T> void TargetGenerator::applyAbiAttributes(T *target, FunctionType *funcType)
+{
+  auto &llvmContext = *this->buildTarget->getLlvmContext();
+  auto dl = this->buildTarget->getLlvmDataLayout();
+
+  // The sret attribute goes on the hidden first parameter.
+  auto &retAbi = funcType->getRetAbi();
+  if (retAbi.kind == AbiInfo::Kind::INDIRECT) {
+    target->addParamAttr(0, llvm::Attribute::get(
+      llvmContext, llvm::Attribute::StructRet, funcType->getRetType()->getLlvmType()
+    ));
+  }
+
+  // The byval attribute makes the backend copy the struct to the stack.
+  auto argTypes = funcType->getArgs();
+  for (Int i = 0; i < argTypes->getElementCount(); ++i) {
+    auto &abi = funcType->getArgAbi(i);
+    if (abi.kind != AbiInfo::Kind::INDIRECT) continue;
+    auto llvmType = argTypes->getElement(i)->getLlvmType();
+    target->addParamAttr(abi.firstParam, llvm::Attribute::getWithByValType(llvmContext, llvmType));
+    target->addParamAttr(abi.firstParam, llvm::Attribute::getWithAlignment(
+      llvmContext, std::max(llvm::Align(8), dl->getABITypeAlign(llvmType))
+    ));
+  }
+}
+
+
+void TargetGenerator::lowerStructArg(
+  llvm::IRBuilder<> *builder, llvm::Value *structValue, AbiInfo const &abi, std::vector<llvm::Value*> &args
+) {
+  auto dl = this->buildTarget->getLlvmDataLayout();
+  auto structType = structValue->getType();
+  auto structAlign = dl->getABITypeAlign(structType);
+
+  // Get the struct into memory. If the value at hand is a load instruction that nothing else uses, we can reuse its
+  // pointer operand to avoid an unnecessary load/store pair.
+  llvm::Value *ptr;
+  auto loadInst = llvm::dyn_cast<llvm::LoadInst>(structValue);
+  if (loadInst != nullptr && loadInst->use_empty()) {
+    ptr = loadInst->getPointerOperand();
+    loadInst->eraseFromParent();
+  } else {
+    auto allocaInst = builder->CreateAlloca(structType, nullptr, "");
+    allocaInst->setAlignment(structAlign);
+    builder->CreateStore(structValue, allocaInst)->setAlignment(structAlign);
+    ptr = allocaInst;
+  }
+
+  if (abi.kind == AbiInfo::Kind::INDIRECT) {
+    args.push_back(ptr);
+    return;
+  }
+
+  // Load each eightbyte as its own argument.
+  auto int8Type = llvm::Type::getInt8Ty(*this->buildTarget->getLlvmContext());
+  for (Int i = 0; i < (Int)abi.parts.size(); ++i) {
+    auto partPtr = i == 0 ? ptr : builder->CreateConstInBoundsGEP1_64(int8Type, ptr, i * 8);
+    auto loadInst = builder->CreateLoad(abi.parts[i], partPtr);
+    loadInst->setAlignment(llvm::commonAlignment(structAlign, i * 8));
+    args.push_back(loadInst);
+  }
+}
+
+
+llvm::Value* TargetGenerator::raiseStructArg(
+  llvm::IRBuilder<> *builder, llvm::Type *structType, AbiInfo const &abi, llvm::Value **params
+) {
+  auto dl = this->buildTarget->getLlvmDataLayout();
+  auto structAlign = dl->getABITypeAlign(structType);
+
+  if (abi.kind == AbiInfo::Kind::INDIRECT) {
+    auto loadInst = builder->CreateLoad(structType, params[0]);
+    loadInst->setAlignment(structAlign);
+    return loadInst;
+  }
+
+  // Store the eightbytes into a temporary struct and load that.
+  auto int8Type = llvm::Type::getInt8Ty(*this->buildTarget->getLlvmContext());
+  auto allocaInst = builder->CreateAlloca(structType, nullptr, "");
+  allocaInst->setAlignment(structAlign);
+  for (Int i = 0; i < (Int)abi.parts.size(); ++i) {
+    auto partPtr = i == 0 ?
+      (llvm::Value*)allocaInst : builder->CreateConstInBoundsGEP1_64(int8Type, allocaInst, i * 8);
+    builder->CreateStore(params[i], partPtr)->setAlignment(llvm::commonAlignment(structAlign, i * 8));
+  }
+  auto loadInst = builder->CreateLoad(structType, allocaInst);
+  loadInst->setAlignment(structAlign);
+  return loadInst;
+}
+
+
+llvm::Value* TargetGenerator::lowerStructRet(llvm::IRBuilder<> *builder, llvm::Value *structValue, AbiInfo const &abi)
+{
+  std::vector<llvm::Value*> parts;
+  this->lowerStructArg(builder, structValue, abi, parts);
+  if (parts.size() == 1) return parts[0];
+  llvm::Value *result = llvm::PoisonValue::get(
+    llvm::StructType::get(*this->buildTarget->getLlvmContext(), abi.parts)
+  );
+  for (Int i = 0; i < (Int)parts.size(); ++i) result = builder->CreateInsertValue(result, parts[i], i);
+  return result;
+}
+
+
+llvm::Value* TargetGenerator::raiseStructRet(
+  llvm::IRBuilder<> *builder, llvm::Type *structType, AbiInfo const &abi, llvm::Value *retValue
+) {
+  std::vector<llvm::Value*> parts;
+  if (abi.parts.size() == 1) {
+    parts.push_back(retValue);
+  } else {
+    for (Int i = 0; i < (Int)abi.parts.size(); ++i) parts.push_back(builder->CreateExtractValue(retValue, i));
+  }
+  return this->raiseStructArg(builder, structType, abi, parts.data());
+}
+
+
+llvm::Value* TargetGenerator::generateAbiCall(
+  llvm::IRBuilder<> *builder, FunctionType *funcType, llvm::Value *callee, Containing<TiObject>* arguments
+) {
+  auto dl = this->buildTarget->getLlvmDataLayout();
+  auto retType = funcType->getRetType();
+  auto &retAbi = funcType->getRetAbi();
+  std::vector<llvm::Value*> args;
+
+  // If the result is returned in memory, allocate space and pass it as the first sret pointer argument.
+  llvm::Value *sretPtr = nullptr;
+  if (retAbi.kind == AbiInfo::Kind::INDIRECT) {
+    auto allocaInst = builder->CreateAlloca(retType->getLlvmType(), nullptr, "");
+    allocaInst->setAlignment(dl->getABITypeAlign(retType->getLlvmType()));
+    sretPtr = allocaInst;
+    args.push_back(sretPtr);
+  }
+
+  auto argCount = funcType->getArgs()->getElementCount();
+  for (Int i = 0; i < arguments->getElementCount(); ++i) {
+    auto llvmValBox = ti_cast<Value>(arguments->getElement(i));
+    if (llvmValBox == 0) {
+      throw EXCEPTION(InvalidArgumentException, S("arguments"), S("Some elements are null or of invalid type."));
+    }
+    auto llvmValue = llvmValBox->getLlvmValue();
+    // Variadic arguments beyond the declared ones are always passed as is.
+    if (i < argCount && llvmValue->getType()->isStructTy()) {
+      this->lowerStructArg(builder, llvmValue, funcType->getArgAbi(i), args);
+    } else if (llvmValue->getType()->isStructTy()) {
+      // Variadic struct arguments are passed by pointer.
+      std::vector<llvm::Value*> tmp;
+      AbiInfo abi;
+      abi.kind = AbiInfo::Kind::INDIRECT;
+      this->lowerStructArg(builder, llvmValue, abi, tmp);
+      args.push_back(tmp[0]);
+    } else {
+      args.push_back(llvmValue);
+    }
+  }
+
+  auto llvmCall = builder->CreateCall(funcType->getLlvmFunctionType(), callee, args);
+  this->applyAbiAttributes(llvmCall, funcType);
+
+  // Get the result as a normal value.
+  if (retAbi.kind == AbiInfo::Kind::INDIRECT) {
+    auto loadInst = builder->CreateLoad(retType->getLlvmType(), sretPtr);
+    loadInst->setAlignment(dl->getABITypeAlign(retType->getLlvmType()));
+    return loadInst;
+  } else if (retAbi.kind == AbiInfo::Kind::COERCED) {
+    return this->raiseStructRet(builder, retType->getLlvmType(), retAbi, llvmCall);
+  }
+  return llvmCall;
+}
+
+
+//==============================================================================
 // Function Generation Functions
 
 Bool TargetGenerator::generateFunctionType(
@@ -295,22 +568,35 @@ Bool TargetGenerator::generateFunctionType(
     );
   }
 
-  // Prepare args.
+  // Prepare args and apply the C ABI.
   auto args = SharedMap<Type>::create({});
   std::vector<llvm::Type*> llvmArgTypes;
   llvmArgTypes.reserve(argTypes->getElementCount() + 1); // +1 for possible sret parameter
 
-  // C ABI compatibility:
-  // If return type is a struct, convert it to an sret pointer parameter as first argument.
+  // Registers still available for passing arguments. The sret pointer takes the first integer register.
+  Int intRegs = 6;
+  Int sseRegs = 8;
+
+  // Return type.
   auto llvmRetType = retTypeWrapper->getLlvmType();
-  llvm::Type* llvmFuncRetType;
+  llvm::Type *llvmFuncRetType = llvmRetType;
+  AbiInfo retAbi;
   if (llvmRetType->isStructTy()) {
-    llvmArgTypes.push_back(llvmRetType->getPointerTo());
-    llvmFuncRetType = llvm::Type::getVoidTy(*this->buildTarget->getLlvmContext());
-  } else {
-    llvmFuncRetType = llvmRetType;
+    retAbi = this->classifyStruct(llvmRetType, false, intRegs, sseRegs);
+    if (retAbi.kind == AbiInfo::Kind::INDIRECT) {
+      // The result is returned through a hidden pointer passed as the first argument.
+      llvmArgTypes.push_back(llvmRetType->getPointerTo());
+      llvmFuncRetType = llvm::Type::getVoidTy(*this->buildTarget->getLlvmContext());
+      --intRegs;
+    } else if (retAbi.parts.size() == 1) {
+      llvmFuncRetType = retAbi.parts[0];
+    } else {
+      llvmFuncRetType = llvm::StructType::get(*this->buildTarget->getLlvmContext(), retAbi.parts);
+    }
   }
 
+  // Arguments.
+  std::vector<AbiInfo> argAbis;
   for (Int i = 0; i < argTypes->getElementCount(); ++i) {
     auto contentTypeWrapper = ti_cast<Type>(argTypes->getElement(i));
     if (contentTypeWrapper == 0) {
@@ -319,20 +605,36 @@ Bool TargetGenerator::generateFunctionType(
       );
     }
     args->add(argTypes->getElementKey(i), getSharedPtr(contentTypeWrapper));
-    // C ABI compatibility:
-    // Convert struct types to pointers so that passing structs happen
-    // by pointer using the byval attribute.
+
     auto llvmType = contentTypeWrapper->getLlvmType();
+    AbiInfo abi;
     if (llvmType->isStructTy()) {
+      abi = this->classifyStruct(llvmType, true, intRegs, sseRegs);
+    } else if (llvmType->isFloatingPointTy()) {
+      if (sseRegs > 0) --sseRegs;
+    } else if (intRegs > 0) {
+      --intRegs;
+    }
+    abi.firstParam = (Int)llvmArgTypes.size();
+    if (abi.kind == AbiInfo::Kind::INDIRECT) {
+      // Passed by pointer using the byval attribute.
       llvmArgTypes.push_back(llvmType->getPointerTo());
+      abi.paramCount = 1;
+    } else if (abi.kind == AbiInfo::Kind::COERCED) {
+      for (auto part : abi.parts) llvmArgTypes.push_back(part);
+      abi.paramCount = (Int)abi.parts.size();
     } else {
       llvmArgTypes.push_back(llvmType);
+      abi.paramCount = 1;
     }
+    argAbis.push_back(std::move(abi));
   }
 
   // Create the function.
   auto llvmFuncType = llvm::FunctionType::get(llvmFuncRetType, llvmArgTypes, variadic);
-  functionType = newSrdObj<FunctionType>(llvmFuncType, args, getSharedPtr(retTypeWrapper), variadic);
+  functionType = newSrdObj<FunctionType>(
+    llvmFuncType, args, getSharedPtr(retTypeWrapper), variadic, retAbi, argAbis
+  );
   return true;
 }
 
@@ -350,28 +652,8 @@ Bool TargetGenerator::generateFunctionDecl(Char const *name, TiObject *functionT
     llvmFunc = llvm::Function::Create(
       llvmFuncType, llvm::Function::ExternalLinkage, name, this->buildTarget->getGlobalLlvmModule()
     );
-    // C ABI compatibility:
-    // Add sret attribute for struct return type which is passed as first pointer parameter.
-    auto retType = funcTypeWrapper->getRetType();
-    Int paramOffset = 0;
-    if (retType->getLlvmType()->isStructTy()) {
-      llvmFunc->addParamAttr(0, llvm::Attribute::get(
-        *this->buildTarget->getLlvmContext(), llvm::Attribute::StructRet, retType->getLlvmType()));
-      paramOffset = 1;
-    }
-    // C ABI compatibility:
-    // Add byval and align attributes for struct parameters which will
-    // be passed by pointer.
-    auto argTypes = funcTypeWrapper->getArgs();
-    for (Int i = 0; i < argTypes->getElementCount(); ++i) {
-      auto argType = argTypes->getElement(i);
-      if (argType->getLlvmType()->isStructTy()) {
-        llvmFunc->addParamAttr(i + paramOffset, llvm::Attribute::getWithByValType(
-          *this->buildTarget->getLlvmContext(), argType->getLlvmType()));
-        llvmFunc->addParamAttr(i + paramOffset, llvm::Attribute::getWithAlignment(
-          *this->buildTarget->getLlvmContext(), llvm::Align(8)));
-      }
-    }
+    // C ABI compatibility.
+    this->applyAbiAttributes(llvmFunc, funcTypeWrapper);
   }
   function = newSrdObj<Function>(name, funcTypeWrapper, llvmFunc);
   return true;
@@ -396,28 +678,8 @@ Bool TargetGenerator::prepareFunctionBody(
     );
     funcWrapper->setLlvmFunction(llvmFunc);
     llvmModule = funcWrapper->llvmModule.get();
-    // C ABI compatibility:
-    // Add sret attribute for struct return type which is passed as first pointer parameter.
-    auto retType = funcWrapper->getFunctionType()->getRetType();
-    Int paramOffset = 0;
-    if (retType->getLlvmType()->isStructTy()) {
-      llvmFunc->addParamAttr(0, llvm::Attribute::get(
-        *this->buildTarget->getLlvmContext(), llvm::Attribute::StructRet, retType->getLlvmType()));
-      paramOffset = 1;
-    }
-    // C ABI compatibility:
-    // Add byval and align attributes for struct parameters which will
-    // be passed by pointer.
-    auto argTypes = funcWrapper->getFunctionType()->getArgs();
-    for (Int i = 0; i < argTypes->getElementCount(); ++i) {
-      auto argType = argTypes->getElement(i);
-      if (argType->getLlvmType()->isStructTy()) {
-        llvmFunc->addParamAttr(i + paramOffset, llvm::Attribute::getWithByValType(
-          *this->buildTarget->getLlvmContext(), argType->getLlvmType()));
-        llvmFunc->addParamAttr(i + paramOffset, llvm::Attribute::getWithAlignment(
-          *this->buildTarget->getLlvmContext(), llvm::Align(8)));
-      }
-    }
+    // C ABI compatibility.
+    this->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
   } else {
     llvmFunc = funcWrapper->getLlvmFunction();
     llvmModule = this->buildTarget->getGlobalLlvmModule();
@@ -437,27 +699,32 @@ Bool TargetGenerator::prepareFunctionBody(
   auto iter = llvmFunc->arg_begin();
 
   // C ABI compatibility:
-  // If return type is a struct, the first parameter is the sret pointer.
-  auto retType = funcTypeWrapper->getRetType();
-  if (retType->getLlvmType()->isStructTy()) {
+  // If the return value is passed in memory, the first parameter is the sret pointer.
+  if (funcTypeWrapper->getRetAbi().kind == AbiInfo::Kind::INDIRECT) {
     iter->setName("__sret");
     funcWrapper->llvmSretPtr = &*iter;
     ++iter;
   }
 
-  auto i = 0;
-  for (; i != argTypes->getElementCount(); ++iter, ++i) {
-    iter->setName(argTypes->getElementKey(i).getBuf());
-    // C ABI compatibility:
-    // Struct types are passed by pointer, bu Alusus code generator expects
-    // a value, so we'll load the value here.
+  for (Int i = 0; i != argTypes->getElementCount(); ++i) {
+    auto &abi = funcTypeWrapper->getArgAbi(i);
     auto argType = argTypes->getElement(i);
+    // Name the LLVM parameters that make up this argument.
+    std::vector<llvm::Value*> params;
+    for (Int j = 0; j < abi.paramCount; ++j, ++iter) {
+      std::string paramName = argTypes->getElementKey(i).getBuf();
+      if (abi.paramCount > 1) paramName += "." + std::to_string(j);
+      iter->setName(paramName);
+      params.push_back(&*iter);
+    }
+    // C ABI compatibility:
+    // Structs are passed by pointer or split into registers, but the Alusus code generator expects a value, so we'll
+    // rebuild the value here.
     if (argType->getLlvmType()->isStructTy()) {
-      auto loadInst = block->getIrBuilder()->CreateLoad(argType->getLlvmType(), &*iter);
-      loadInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(argType->getLlvmType()));
-      args->add(newSrdObj<Value>(loadInst, false));
+      auto structValue = this->raiseStructArg(block->getIrBuilder(), argType->getLlvmType(), abi, params.data());
+      args->add(newSrdObj<Value>(structValue, false));
     } else {
-      args->add(newSrdObj<Value>(iter, false));
+      args->add(newSrdObj<Value>(params[0], false));
     }
   }
 
@@ -1154,45 +1421,8 @@ Bool TargetGenerator::generateFunctionPointer(
       llvmMod
     );
 
-    // C ABI compatibility:
-    // Add sret attribute for struct return type which is passed as first pointer parameter.
-    auto retType = funcWrapper->getFunctionType()->getRetType();
-    Int paramOffset = 0;
-    if (retType->getLlvmType()->isStructTy()) {
-      llvmFunc->addParamAttr(
-        0,
-        llvm::Attribute::get(
-          *this->buildTarget->getLlvmContext(),
-          llvm::Attribute::StructRet,
-          retType->getLlvmType()
-        )
-      );
-      paramOffset = 1;
-    }
-
-    // C ABI compatibility:
-    // Add byval and align attributes for struct parameters which will
-    // be passed by pointer.
-    auto argTypes = funcWrapper->getFunctionType()->getArgs();
-    for (Int i = 0; i < argTypes->getElementCount(); ++i) {
-      auto argType = argTypes->getElement(i);
-      if (argType->getLlvmType()->isStructTy()) {
-        llvmFunc->addParamAttr(
-          i + paramOffset,
-          llvm::Attribute::getWithByValType(
-            *this->buildTarget->getLlvmContext(),
-            argType->getLlvmType()
-          )
-        );
-        llvmFunc->addParamAttr(
-          i + paramOffset,
-          llvm::Attribute::getWithAlignment(
-            *this->buildTarget->getLlvmContext(),
-            llvm::Align(8)
-          )
-        );
-      }
-    }
+    // C ABI compatibility.
+    this->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
   }
 
   // Generate the func pointer.
@@ -1213,53 +1443,7 @@ Bool TargetGenerator::generateFunctionCall(
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(function, funcWrapper, Function);
 
-  auto argTypes = funcWrapper->getFunctionType()->getArgs();
-  auto retType = funcWrapper->getFunctionType()->getRetType();
   llvm::IRBuilder<> *builder = block->getIrBuilder();
-
-  // Prepare function args.
-  std::vector<llvm::Value*> args;
-  Int paramOffset = 0;
-
-  // C ABI compatibility:
-  // If return type is a struct, allocate space and pass as first sret pointer argument.
-  llvm::Value *sretPtr = nullptr;
-  if (retType->getLlvmType()->isStructTy()) {
-    auto allocaInst = builder->CreateAlloca(retType->getLlvmType(), nullptr, "");
-    allocaInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(retType->getLlvmType()));
-    sretPtr = allocaInst;
-    args.push_back(sretPtr);
-    paramOffset = 1;
-  }
-
-  for (Int i = 0; i < arguments->getElementCount(); ++i) {
-    auto llvmValBox = ti_cast<Value>(arguments->getElement(i));
-    if (llvmValBox == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("arguments"), S("Some elements are null or of invalid type."));
-    }
-
-    auto llvmValue = llvmValBox->getLlvmValue();
-
-    // C ABI compatibility:
-    // Pass structs by pointer instead of value.
-    // If the value at hand is a load instruction, we can reuse its pointer operand
-    // to avoid an unnecessary load/store pair.
-    if (llvmValue->getType()->isStructTy()) {
-      if (llvm::LoadInst *loadInst = llvm::dyn_cast<llvm::LoadInst>(llvmValue)) {
-        llvmValue = loadInst->getPointerOperand();
-        // Remove the now-unused load instruction
-        loadInst->eraseFromParent();
-      } else {
-        auto allocaInst = builder->CreateAlloca(llvmValue->getType(), nullptr, "");
-        allocaInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(llvmValue->getType()));
-        auto storeInst = builder->CreateStore(llvmValue, allocaInst);
-        storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(llvmValue->getType()));
-        llvmValue = allocaInst;
-      }
-    }
-
-    args.push_back(llvmValue);
-  }
 
   // Make sure a declaration of this function exists in the current module.
   llvm::Module *llvmMod = this->perFunctionModules ?
@@ -1273,91 +1457,13 @@ Bool TargetGenerator::generateFunctionCall(
       funcWrapper->getName().getBuf(),
       llvmMod
     );
-    // C ABI compatibility:
-    // Add sret attribute for struct return type which is passed as first pointer parameter.
-    if (retType->getLlvmType()->isStructTy()) {
-      llvmFunc->addParamAttr(
-        0,
-        llvm::Attribute::get(
-          *this->buildTarget->getLlvmContext(),
-          llvm::Attribute::StructRet,
-          retType->getLlvmType()
-        )
-      );
-    }
-    // Add byval and align attributes for struct parameters which will
-    // be passed by pointer.
-    for (Int i = 0; i < argTypes->getElementCount(); ++i) {
-      auto argType = argTypes->getElement(i);
-      if (argType->getLlvmType()->isStructTy()) {
-        llvmFunc->addParamAttr(
-          i + paramOffset,
-          llvm::Attribute::getWithByValType(
-            *this->buildTarget->getLlvmContext(),
-            argType->getLlvmType()
-          )
-        );
-        llvmFunc->addParamAttr(
-          i + paramOffset,
-          llvm::Attribute::getWithAlignment(
-            *this->buildTarget->getLlvmContext(),
-            llvm::Align(8)
-          )
-        );
-      }
-    }
+    // C ABI compatibility.
+    this->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
   }
 
-  // Create the call (typed API).
-  auto llvmCall = builder->CreateCall(
-    funcWrapper->getFunctionType()->getLlvmFunctionType(),
-    llvmFunc,
-    args
-  );
-
-  // C ABI compatibility:
-  // Add sret attribute to call site for struct return.
-  if (retType->getLlvmType()->isStructTy()) {
-    llvmCall->addParamAttr(
-      0,
-      llvm::Attribute::get(
-        *this->buildTarget->getLlvmContext(),
-        llvm::Attribute::StructRet,
-        retType->getLlvmType()
-      )
-    );
-  }
-  // C ABI compatibility:
-  // Add byval and align attributes to call site for struct arguments.
-  for (Int i = 0; i < argTypes->getElementCount() && i < arguments->getElementCount(); ++i) {
-    auto argType = argTypes->getElement(i);
-    if (argType->getLlvmType()->isStructTy()) {
-      llvmCall->addParamAttr(
-        i + paramOffset,
-        llvm::Attribute::getWithByValType(
-          *this->buildTarget->getLlvmContext(),
-          argType->getLlvmType()
-        )
-      );
-      llvmCall->addParamAttr(
-        i + paramOffset,
-        llvm::Attribute::getWithAlignment(
-          *this->buildTarget->getLlvmContext(),
-          llvm::Align(8)
-        )
-      );
-    }
-  }
-
-  // C ABI compatibility:
-  // If return type is struct, load the result from sret pointer.
-  if (retType->getLlvmType()->isStructTy()) {
-    auto loadInst = builder->CreateLoad(retType->getLlvmType(), sretPtr);
-    loadInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(retType->getLlvmType()));
-    result = newSrdObj<Value>(loadInst, false);
-  } else {
-    result = newSrdObj<Value>(llvmCall, false);
-  }
+  // Create the call, applying the C ABI to the arguments and result.
+  auto llvmResult = this->generateAbiCall(builder, funcWrapper->getFunctionType(), llvmFunc, arguments);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1378,102 +1484,10 @@ Bool TargetGenerator::generateFunctionPtrCall(
   if (llvmFuncTypeBox == 0) {
     throw EXCEPTION(InvalidArgumentException, S("functionPtrType"), S("Argument is not a function pointer type."));
   }
-  auto argTypes = llvmFuncTypeBox->getArgs();
-  auto retType = llvmFuncTypeBox->getRetType();
 
-  // Create function call.
-  std::vector<llvm::Value*> args;
-  Int paramOffset = 0;
-
-  // C ABI compatibility:
-  // If return type is a struct, allocate space and pass as first sret pointer argument.
-  llvm::Value *sretPtr = nullptr;
-  if (retType->getLlvmType()->isStructTy()) {
-    auto allocaInst = builder->CreateAlloca(retType->getLlvmType(), nullptr, "");
-    allocaInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(retType->getLlvmType()));
-    sretPtr = allocaInst;
-    args.push_back(sretPtr);
-    paramOffset = 1;
-  }
-
-  for (Int i = 0; i < arguments->getElementCount(); ++i) {
-    auto llvmValBox = ti_cast<Value>(arguments->getElement(i));
-    if (llvmValBox == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("arguments"), S("Some elements are null or of invalid type."));
-    }
-
-    auto llvmValue = llvmValBox->getLlvmValue();
-
-    // C ABI compatibility:
-    // Pass structs by pointer instead of value.
-    // If the value at hand is a load instruction, we can reuse its pointer operand
-    // to avoid an unnecessary load/store pair.
-    if (llvmValue->getType()->isStructTy()) {
-      if (llvm::LoadInst *loadInst = llvm::dyn_cast<llvm::LoadInst>(llvmValue)) {
-        llvmValue = loadInst->getPointerOperand();
-        // Remove the now-unused load instruction
-        loadInst->eraseFromParent();
-      } else {
-        auto allocaInst = builder->CreateAlloca(llvmValue->getType(), nullptr, "");
-        allocaInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(llvmValue->getType()));
-        auto storeInst = builder->CreateStore(llvmValue, allocaInst);
-        storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(llvmValue->getType()));
-        llvmValue = allocaInst;
-      }
-    }
-
-    args.push_back(llvmValue);
-  }
-
-  auto llvmCall = builder->CreateCall(
-    llvmFuncTypeBox->getLlvmFunctionType(),
-    llvmFuncPtrBox->getLlvmValue(),
-    args
-  );
-
-  // C ABI compatibility:
-  // Add sret attribute to call site for struct return.
-  if (retType->getLlvmType()->isStructTy()) {
-    llvmCall->addParamAttr(
-      0,
-      llvm::Attribute::get(
-        *this->buildTarget->getLlvmContext(),
-        llvm::Attribute::StructRet,
-        retType->getLlvmType()
-      )
-    );
-  }
-  // C ABI compatibility:
-  // Add byval and align attributes to call site for struct arguments.
-  for (Int i = 0; i < argTypes->getElementCount() && i < arguments->getElementCount(); ++i) {
-    auto argType = argTypes->getElement(i);
-    if (argType->getLlvmType()->isStructTy()) {
-      llvmCall->addParamAttr(
-        i + paramOffset,
-        llvm::Attribute::getWithByValType(
-          *this->buildTarget->getLlvmContext(),
-          argType->getLlvmType()
-        )
-      );
-      llvmCall->addParamAttr(
-        i + paramOffset,
-        llvm::Attribute::getWithAlignment(
-          *this->buildTarget->getLlvmContext(),
-          llvm::Align(8)
-        )
-      );
-    }
-  }
-
-  // C ABI compatibility:
-  // If return type is struct, load the result from sret pointer.
-  if (retType->getLlvmType()->isStructTy()) {
-    auto loadInst = builder->CreateLoad(retType->getLlvmType(), sretPtr);
-    loadInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(retType->getLlvmType()));
-    result = newSrdObj<Value>(loadInst, false);
-  } else {
-    result = newSrdObj<Value>(llvmCall, false);
-  }
+  // Create the call, applying the C ABI to the arguments and result.
+  auto llvmResult = this->generateAbiCall(builder, llvmFuncTypeBox, llvmFuncPtrBox->getLlvmValue(), arguments);
+  result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
@@ -1520,9 +1534,12 @@ Bool TargetGenerator::generateReturn(
     llvm::Value *llvmRetVal = retValBox->getLlvmValue();
 
     // C ABI compatibility:
-    // If return type is a struct, store the result to sret pointer and return void.
+    // A struct is either stored to the sret pointer (with void returned), or returned in registers.
     if (llvmRetVal->getType()->isStructTy()) {
-      if (block->getFunction()->llvmSretPtr != nullptr) {
+      auto &retAbi = block->getFunction()->getFunctionType()->getRetAbi();
+      if (retAbi.kind == AbiInfo::Kind::COERCED) {
+        builder->CreateRet(this->lowerStructRet(builder, llvmRetVal, retAbi));
+      } else if (block->getFunction()->llvmSretPtr != nullptr) {
         auto storeInst = builder->CreateStore(llvmRetVal, block->getFunction()->llvmSretPtr);
         storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(llvmRetVal->getType()));
         builder->CreateRetVoid();
