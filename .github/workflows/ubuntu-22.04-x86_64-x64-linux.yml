@@ -16,8 +16,8 @@ jobs:
 
       - name: Install system dependencies
         run: >
+          sudo apt-get update &&
           sudo apt-get install -y git cmake ninja-build build-essential python3 python3-pip ruby rpm libarchive-tools p7zip-full &&
-
           sudo gem install --no-document fpm
 
       - name: Clone and bootstrap vcpkg

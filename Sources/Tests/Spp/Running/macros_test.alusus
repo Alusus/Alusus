@@ -94,6 +94,9 @@ class C1 {
     @member macro m4 [self, text] {
         print("m4 member %d, %s\n", self.i, text);
     }
+    @member macro m4 [self, text, otherText] {
+        print("m4 member %d, %s, %s\n", self.i, text, otherText);
+    }
     @member macro add [self, v] {
         self.{
             i += v;
@@ -119,6 +122,7 @@ func test {
     c.m4["additional-arg"];
     getC().m4["additional-arg"];
     c.add[2].m4["after-addition"];
+    c.add[2].m4["after-addition", "additional-arg"];
 }
 test();
 

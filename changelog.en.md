@@ -29,6 +29,7 @@
   stopping the program.
 * Fixed passing and returning structs of up to 16 bytes by value to make it compatible with C ABI,
   which allows users to use any C library directly without the need to reinterpret small structures.
+* Fixed a bug with member macros when passing multiple arguments to it.
 
 ### Updates to the Standard Libraries
 

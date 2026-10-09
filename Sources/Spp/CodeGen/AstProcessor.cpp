@@ -147,7 +147,8 @@ Bool AstProcessor::_processParamPass(
         argsList.add(param);
       }
     }
-
+    ContainerExtender<Core::Ast::Node, 1, 0> argsListWithThis(args);
+    
     Bool result = true;
 
     auto operand = paramPass->getOperand().get();
@@ -163,7 +164,10 @@ Bool AstProcessor::_processParamPass(
       if (!astProcessor->expressionComputation->computeResultType(thisArg, owner, member)) return false;
       if (owner->isDerivedFrom<Spp::Ast::Type>()) {
         owner = astProcessor->astHelper->tryGetDeepReferenceContentType(static_cast<Spp::Ast::Type*>(owner));
-        if (member) argsList.insert(0, thisArg);
+        if (member) {
+          argsListWithThis.setPreItem(0, thisArg);
+          args = &argsListWithThis;
+        }
       }
       operand = linkOp->getSecond().get();
       foreachFlags = Core::Ast::Seeker::Flags::SKIP_OWNERS;
