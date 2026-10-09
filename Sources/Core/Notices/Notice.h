@@ -2,7 +2,7 @@
  * @file Core/Notices/Notice.h
  * Contains the header of class Core::Notices::Notice.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,7 +38,7 @@ class Notice : public TiObject
   // Member Variables
 
   /// The source location at which the message was generated.
-  private: SharedPtr<Data::SourceLocation> sourceLocation;
+  private: SharedPtr<Ast::SourceLocation> sourceLocation;
 
 
   //============================================================================
@@ -48,7 +48,7 @@ class Notice : public TiObject
   {
   }
 
-  public: Notice(SharedPtr<Data::SourceLocation> const &sl) : sourceLocation(sl)
+  public: Notice(SharedPtr<Ast::SourceLocation> const &sl) : sourceLocation(sl)
   {
   }
 
@@ -111,13 +111,13 @@ class Notice : public TiObject
   }
 
   /// Set the source location at which the message was generated.
-  public: void setSourceLocation(SharedPtr<Data::SourceLocation> const &sl)
+  public: void setSourceLocation(SharedPtr<Ast::SourceLocation> const &sl)
   {
     this->sourceLocation = sl;
   }
 
   /// Get the source location at which the message was generated.
-  public: SharedPtr<Data::SourceLocation> const& getSourceLocation() const
+  public: SharedPtr<Ast::SourceLocation> const& getSourceLocation() const
   {
     return this->sourceLocation;
   }
@@ -125,7 +125,7 @@ class Notice : public TiObject
   public: virtual Bool isEqual(Notice *notice) const
   {
     return this->getCode() == notice->getCode() &&
-      Data::isEqual(this->getSourceLocation().get(), notice->getSourceLocation().get());
+      Ast::isEqual(this->getSourceLocation().get(), notice->getSourceLocation().get());
   }
 
 }; // class

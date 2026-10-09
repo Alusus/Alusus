@@ -2,7 +2,7 @@
  * @file Spp/Ast/UserType.h
  * Contains the header of class Spp::Ast::UserType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,17 +16,15 @@
 namespace Spp::Ast
 {
 
-class UserType : public DataType, public Core::Data::Ast::Mergeable
+class UserType : public DataType, public Core::Ast::Mergeable
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(UserType, DataType, "Spp.Ast", "Spp", "alusus.org", (
-    INHERITANCE_INTERFACES(Core::Data::Ast::Mergeable)
+    INHERITANCE_INTERFACES(Core::Ast::Mergeable)
   ));
   OBJECT_FACTORY(UserType);
-
-  IMPLEMENT_AST_MAP_PRINTABLE(UserType);
 
 
   //============================================================================
@@ -59,7 +57,7 @@ class UserType : public DataType, public Core::Data::Ast::Mergeable
   //============================================================================
   // Mergeable Implementation
 
-  public: virtual Bool merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore);
+  public: virtual Bool merge(Core::Ast::Node *src, Core::Ast::Seeker *seeker, Core::Notices::Store *noticeStore);
 
 }; // class
 

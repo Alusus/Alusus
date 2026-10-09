@@ -2,7 +2,7 @@
  * @file Core/Processing/TokenizingHandler.h
  * Contains the header of class Core::Processing::TokenizingHandler.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -26,12 +26,12 @@ class Parser;
  * events that can be used for custom operations on the generated tokens.
  * Assigning tokenizing handlers to token definitions is optional.
  */
-class TokenizingHandler : public Data::Grammar::BuildHandler
+class TokenizingHandler : public Grammar::BuildHandler
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TokenizingHandler, Data::Grammar::BuildHandler, "Core.Parser", "Core", "alusus.org");
+  TYPE_INFO(TokenizingHandler, Grammar::BuildHandler, "Core.Parser", "Core", "alusus.org");
 
 
   //============================================================================
@@ -58,8 +58,8 @@ class TokenizingHandler : public Data::Grammar::BuildHandler
    * @param tokenTextLength The length of the token text.
    * @param sourceLocation The source location at which the token is found.
    */
-  public: virtual void prepareToken(Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
-                                    Data::SourceLocationRecord const &sourceLocation)
+  public: virtual void prepareToken(Ast::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
+                                    Ast::SourceLocationRecord const &sourceLocation)
   {
   }
 

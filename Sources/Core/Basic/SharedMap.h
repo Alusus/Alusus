@@ -2,7 +2,7 @@
  * @file Core/Basic/SharedMap.h
  * Contains the header of class Core::Basic::SharedMap.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,7 +32,7 @@ template<class CTYPE> class SharedMap : public SharedMapBase<CTYPE, TiObject>
   {
   }
 
-  public: SharedMap(std::initializer_list<Argument> const &args, Bool useIndex = false) : _MyBase(useIndex)
+  public: SharedMap(std::initializer_list<Argument<CTYPE>> const &args, Bool useIndex = false) : _MyBase(useIndex)
   {
     this->add(args);
   }
@@ -43,7 +43,7 @@ template<class CTYPE> class SharedMap : public SharedMapBase<CTYPE, TiObject>
   }
 
   public: static SharedPtr<SharedMap<CTYPE>> create(
-    std::initializer_list<Argument> const &args, Bool useIndex = false
+    std::initializer_list<Argument<CTYPE>> const &args, Bool useIndex = false
   ) {
     return newSrdObj<SharedMap<CTYPE>>(args, useIndex);
   }

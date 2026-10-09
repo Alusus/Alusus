@@ -2,7 +2,7 @@
  * @file Core/Main/main.cpp
  * Contains the global implementations of Main namespace's declarations.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,8 +25,6 @@
 
 namespace Core::Main
 {
-
-using namespace Data;
 
 #ifdef WINDOWS
   #define _getWorkingDirectory _getcwd

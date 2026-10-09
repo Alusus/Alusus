@@ -1,7 +1,7 @@
 /**
  * @file Spp/Rt/BuildMgr.cpp
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -47,7 +47,7 @@ void BuildMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo
 //==============================================================================
 // Operations
 
-void BuildMgr::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
+void BuildMgr::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element)
 {
   PREPARE_SELF(buildMgr, BuildMgr);
   buildMgr->buildManager->dumpLlvmIrForElement(element);
@@ -55,19 +55,22 @@ void BuildMgr::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
 
 
 Bool BuildMgr::_buildObjectFileForElement(
-  TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
+  TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple,
+  Bool optimize
 ) {
   PREPARE_SELF(buildMgr, BuildMgr);
-  return buildMgr->buildManager->buildObjectFileForElement(element, objectFilename, targetTriple);
+  return buildMgr->buildManager->buildObjectFileForElement(
+    element, objectFilename, targetTriple, optimize
+  );
 }
 
 
 void BuildMgr::_raiseBuildNotice(
-  TiObject *self, Char const *code, Int severity, TiObject *astNode
+  TiObject *self, Char const *code, Int severity, Core::Ast::Node *astNode
 ) {
   PREPARE_SELF(buildMgr, BuildMgr);
   buildMgr->rootManager->getNoticeStore()->add(newSrdObj<Core::Notices::GenericNotice>(
-    code, severity, Core::Data::Ast::findSourceLocation(astNode)
+    code, severity, Core::Ast::findSourceLocation(astNode)
   ));
   buildMgr->rootManager->flushNotices();
 }

@@ -2,7 +2,7 @@
  * @file Core/Basic/type_info.h
  * Contains definitions of type info classes.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -70,6 +70,9 @@ class TypeInfo
   /// Pointer to the type info of the base type.
   private: TypeInfo const* baseTypeInfo;
 
+  /// The size, in bytes, of the objects of the C++ type this type info describes.
+  private: ArchInt objectSize;
+
 
   //============================================================================
   // Constructor
@@ -86,14 +89,16 @@ class TypeInfo
    * @param url A URL associated with the module. This is used to help
    *            identify the module. It can be an empty string.
    * @param baseTypeInfo Pointer to the type info of the base type.
+   * @param objectSize The size, in bytes, of the objects of this type (sizeof).
    */
   public: TypeInfo(Char const *typeName, Char const *typeNamespace, Char const *packageName,
-                   Char const *url, TypeInfo const *baseTypeInfo) :
+                   Char const *url, TypeInfo const *baseTypeInfo, ArchInt objectSize) :
     typeName(typeName),
     typeNamespace(typeNamespace),
     packageName(packageName),
     url(url),
-    baseTypeInfo(baseTypeInfo)
+    baseTypeInfo(baseTypeInfo),
+    objectSize(objectSize)
   {
     this->uniqueName = this->url + "/" + this->packageName + "/" + this->typeNamespace + "." + this->typeName;
   }
@@ -158,6 +163,12 @@ class TypeInfo
     return this->baseTypeInfo;
   }
 
+  /// Get the size, in bytes, of the objects of this type.
+  public: ArchInt getObjectSize() const
+  {
+    return this->objectSize;
+  }
+
 }; // class
 
 
@@ -173,8 +184,8 @@ template<class FT, class P> class ExtendedTypeInfo : public P
   // Constructor
 
   public: ExtendedTypeInfo(Char const *typeName, Char const *typeNamespace, Char const *packageName,
-                           Char const *url, TypeInfo const *baseTypeInfo, FT *factory) :
-    P(typeName, typeNamespace, packageName, url, baseTypeInfo), factory(factory)
+                           Char const *url, TypeInfo const *baseTypeInfo, ArchInt objectSize, FT *factory) :
+    P(typeName, typeNamespace, packageName, url, baseTypeInfo, objectSize), factory(factory)
   {
   }
 

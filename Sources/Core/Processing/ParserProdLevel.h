@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserProdLevel.h
  * Contains the header of class Core::Processing::ParserProdLevel.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,9 +29,9 @@ class ParserProdLevel
   //============================================================================
   // Member Variables
 
-  private: Data::Grammar::Module *module;
+  private: Grammar::Module *module;
 
-  private: Data::Grammar::SymbolDefinition *prod;
+  private: Grammar::SymbolDefinition *prod;
 
   private: TiInt *flags;
 
@@ -60,22 +60,22 @@ class ParserProdLevel
   //============================================================================
   // Member Functions
 
-  protected: void setModule(Data::Grammar::Module *m)
+  protected: void setModule(Grammar::Module *m)
   {
     this->module = m;
   }
 
-  public: Data::Grammar::Module* getModule() const
+  public: Grammar::Module* getModule() const
   {
     return this->module;
   }
 
-  protected: void setProd(Data::Grammar::SymbolDefinition *p)
+  protected: void setProd(Grammar::SymbolDefinition *p)
   {
     this->prod = p;
   }
 
-  public: Data::Grammar::SymbolDefinition* getProd() const
+  public: Grammar::SymbolDefinition* getProd() const
   {
     return this->prod;
   }

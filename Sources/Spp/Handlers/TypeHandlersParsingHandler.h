@@ -2,7 +2,7 @@
  * @file Spp/Handlers/TypeHandlersParsingHandler.h
  * Contains the header of class Spp::Handlers::TypeHandlersParsingHandler
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,26 +44,26 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
-  private: SharedPtr<Spp::Ast::Block> prepareBody(TioSharedPtr const &stmt);
+  private: SharedPtr<Spp::Ast::Block> prepareBody(SharedPtr<Core::Ast::Node> const &stmt);
 
   private: Bool createAssignmentHandler(
-    Processing::ParserState *state, Core::Data::Ast::AssignmentOperator *assignmentOp,
-    SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
+    Processing::ParserState *state, Core::Ast::AssignmentOperator *assignmentOp,
+    SharedPtr<Spp::Ast::Block> const &body, SharedPtr<Core::Ast::Node> const &retType, Mode mode
   );
 
   private: Bool createComparisonHandler(
-    Processing::ParserState *state, Core::Data::Ast::ComparisonOperator *comparisonOp,
-    SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
+    Processing::ParserState *state, Core::Ast::ComparisonOperator *comparisonOp,
+    SharedPtr<Spp::Ast::Block> const &body, SharedPtr<Core::Ast::Node> const &retType, Mode mode
   );
 
   private: Bool createInfixOpHandler(
-    Processing::ParserState *state, Core::Data::Ast::InfixOperator *infixOp,
-    SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
+    Processing::ParserState *state, Core::Ast::InfixOperator *infixOp,
+    SharedPtr<Spp::Ast::Block> const &body, SharedPtr<Core::Ast::Node> const &retType, Mode mode
   );
 
   private: Bool createReadHandler(
-    Processing::ParserState *state, Core::Data::Ast::LinkOperator *linkOp,
-    SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
+    Processing::ParserState *state, Core::Ast::LinkOperator *linkOp,
+    SharedPtr<Spp::Ast::Block> const &body, SharedPtr<Core::Ast::Node> const &retType, Mode mode
   );
 
   private: Bool createInitOpHandler(
@@ -82,62 +82,58 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   );
 
   private: Bool createParensOpHandler(
-    Processing::ParserState *state, Core::Data::Ast::ParamPass *parensOp,
-    SharedPtr<Spp::Ast::Block> const &body, TioSharedPtr const &retType, Mode mode
+    Processing::ParserState *state, Core::Ast::ParamPass *parensOp,
+    SharedPtr<Spp::Ast::Block> const &body, SharedPtr<Core::Ast::Node> const &retType, Mode mode
   );
 
-  private: TioSharedPtr createBinaryOpFunction(
-    Processing::ParserState *state, Char const *funcName, Char const *op, TioSharedPtr const &thisType,
-    Char const *inputName, TioSharedPtr const &inputType, TioSharedPtr const &retType, TioSharedPtr const &body,
-    SharedPtr<Core::Data::SourceLocation> const &sourceLocation, Mode mode
+  private: SharedPtr<Core::Ast::Node> createBinaryOpFunction(
+    Processing::ParserState *state, Char const *funcName, Char const *op, SharedPtr<Core::Ast::Node> const &thisType,
+    Char const *inputName, SharedPtr<Core::Ast::Node> const &inputType, SharedPtr<Core::Ast::Node> const &retType, SharedPtr<Core::Ast::Node> const &body,
+    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode
   );
 
-  private: TioSharedPtr createFunction(
+  private: SharedPtr<Core::Ast::Node> createFunction(
     Processing::ParserState *state, Char const *funcName, Char const *op, Bool member,
-    SharedPtr<Core::Data::Ast::Map> const argTypes, TioSharedPtr const &retType, TioSharedPtr const &body,
-    SharedPtr<Core::Data::SourceLocation> const &sourceLocation, Mode mode
+    SharedPtr<Core::Ast::Map> const argTypes, SharedPtr<Core::Ast::Node> const &retType, SharedPtr<Core::Ast::Node> const &body,
+    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode
   );
 
   private: Bool prepareInputArg(
-    Processing::ParserState *state, TioSharedPtr input, Char const *&inputName, TioSharedPtr &inputType,
+    Processing::ParserState *state, SharedPtr<Core::Ast::Node> input, Char const *&inputName, SharedPtr<Core::Ast::Node> &inputType,
     Char const *defaultname = S("value")
   );
 
   private: Bool getThisAndPropIdentifiers(
-    Processing::ParserState *state, TiObject *astNode, Bool allowThisType,
-    Core::Data::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Data::Ast::ParamPass> &thisType,
-    Core::Data::Ast::Identifier *&propIdentifier
+    Processing::ParserState *state, Core::Ast::Node *astNode, Bool allowThisType,
+    Core::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Ast::ParamPass> &thisType,
+    Core::Ast::Identifier *&propIdentifier
   );
 
   private: Bool getThisIdentifierAndType(
-    Processing::ParserState *state, TiObject *astNode, Bool allowThisType,
-    Core::Data::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Data::Ast::ParamPass> &thisType
+    Processing::ParserState *state, Core::Ast::Node *astNode, Bool allowThisType,
+    Core::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Ast::ParamPass> &thisType
   );
 
-  private: SharedPtr<Core::Data::Ast::ParamPass> prepareThisType(
-    SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  private: SharedPtr<Core::Ast::ParamPass> prepareThisType(
+    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation
   );
 
-  private: SharedPtr<Core::Data::Ast::ParamPass> prepareComparisonRetType(
-    SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  private: SharedPtr<Core::Ast::ParamPass> prepareComparisonRetType(
+    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation
   );
 
-  private: SharedPtr<Core::Data::Ast::Definition> createDefinition(
-    Char const *name, Char const *op, TioSharedPtr target,
-    SharedPtr<Core::Data::SourceLocation> const &sourceLocation
+  private: SharedPtr<Core::Ast::Definition> createDefinition(
+    Char const *name, Char const *op, SharedPtr<Core::Ast::Node> target,
+    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation
   );
 
   public: virtual Bool onIncomingModifier(
     Core::Processing::Parser *parser, Core::Processing::ParserState *state,
-    TioSharedPtr const &modifierData, Bool prodProcessingComplete
+    SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
   );
 
   private: Bool processExpnameModifier(
-    Core::Processing::ParserState *state, TioSharedPtr const &modifierData
-  );
-
-  private: Bool processUnknownModifier(
-    Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+    Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
   );
 
 }; // class

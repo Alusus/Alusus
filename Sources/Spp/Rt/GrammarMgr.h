@@ -2,7 +2,7 @@
  * @file Spp/Rt/GrammarMgr.h
  * Contains the header of class Spp::Rt::GrammarMgr.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -89,17 +89,17 @@ class GrammarMgr : public TiObject, public DynamicBinding, public DynamicInterfa
   /// @{
 
   public: METHOD_BINDING_CACHE(addCustomCommand,
-    void, (Char const* /* qualifier */, TiObject* /* ast */, ParsingHandlerFunc /* func */)
+    void, (Char const* /* qualifier */, Core::Ast::Node* /* ast */, ParsingHandlerFunc /* func */)
   );
   public: static void _addCustomCommand(
-    TiObject *self, Char const *qualifier, TiObject *ast, ParsingHandlerFunc func
+    TiObject *self, Char const *qualifier, Core::Ast::Node *ast, ParsingHandlerFunc func
   );
 
   public: METHOD_BINDING_CACHE(addCustomGrammar,
-    Bool, (Char const* /* qualifier */, Char const* /* baseQualifier */, TiObject* /* ast */)
+    Bool, (Char const* /* qualifier */, Char const* /* baseQualifier */, Core::Ast::Node* /* ast */)
   );
   public: static Bool _addCustomGrammar(
-    TiObject *self, Char const *qualifier, Char const *baseQualifier, TiObject *ast
+    TiObject *self, Char const *qualifier, Char const *baseQualifier, Core::Ast::Node *ast
   );
 
   /// @}

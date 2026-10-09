@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.cpp
  * Contains the implementation of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,7 +45,7 @@ void Helper::initBindingCaches()
     &this->getWordType,
     &this->getFloatType,
     &this->getVoidType,
-    &this->getTiObjectType,
+    &this->getNodeType,
     &this->resolveNodePath,
     &this->getFunctionName,
     &this->getNeededIntSize,
@@ -82,7 +82,7 @@ void Helper::initBindings()
   this->getWordType = &Helper::_getWordType;
   this->getFloatType = &Helper::_getFloatType;
   this->getVoidType = &Helper::_getVoidType;
-  this->getTiObjectType = &Helper::_getTiObjectType;
+  this->getNodeType = &Helper::_getNodeType;
   this->resolveNodePath = &Helper::_resolveNodePath;
   this->getFunctionName = &Helper::_getFunctionName;
   this->getNeededIntSize = &Helper::_getNeededIntSize;
@@ -95,44 +95,44 @@ void Helper::initBindings()
 //==============================================================================
 // Main Functions
 
-Bool Helper::_isAstReference(TiObject *self, TiObject *obj)
+Bool Helper::_isAstReference(TiObject *self, Core::Ast::Node *obj)
 {
   return
-    obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
-    obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
-    obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
+    obj->isDerivedFrom<Core::Ast::ParamPass>() ||
+    obj->isDerivedFrom<Core::Ast::LinkOperator>() ||
+    obj->isDerivedFrom<Core::Ast::Identifier>() ||
     obj->isDerivedFrom<Spp::Ast::ThisTypeRef>() ||
     obj->isDerivedFrom<Spp::Ast::TypeOp>();
 }
 
 
-Bool Helper::_isVariable(TiObject *self, TiObject *obj)
+Bool Helper::_isVariable(TiObject *self, Core::Ast::Node *obj)
 {
   // TODO: Remove this in favor of obj->isDerivedFrom<Variable> once the Variable class is fully utilized.
   return
     obj->isDerivedFrom<Spp::Ast::Variable>() ||
-    obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
-    obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
-    obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
+    obj->isDerivedFrom<Core::Ast::ParamPass>() ||
+    obj->isDerivedFrom<Core::Ast::LinkOperator>() ||
+    obj->isDerivedFrom<Core::Ast::Identifier>() ||
     obj->isDerivedFrom<Spp::Ast::ThisTypeRef>() ||
     obj->isDerivedFrom<Spp::Ast::TypeOp>();
 }
 
 
-Bool Helper::_isInMemVariable(TiObject *self, TiObject *obj)
+Bool Helper::_isInMemVariable(TiObject *self, Core::Ast::Node *obj)
 {
   return
     (obj->isDerivedFrom<Spp::Ast::Variable>() && !static_cast<Spp::Ast::Variable*>(obj)->isValueOnly()) ||
     // TODO: Remove the following once the Variable class is fully utilized.
-    obj->isDerivedFrom<Core::Data::Ast::ParamPass>() ||
-    obj->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
-    obj->isDerivedFrom<Core::Data::Ast::Identifier>() ||
+    obj->isDerivedFrom<Core::Ast::ParamPass>() ||
+    obj->isDerivedFrom<Core::Ast::LinkOperator>() ||
+    obj->isDerivedFrom<Core::Ast::Identifier>() ||
     obj->isDerivedFrom<Spp::Ast::ThisTypeRef>() ||
     obj->isDerivedFrom<Spp::Ast::TypeOp>();
 }
 
 
-Bool Helper::_isValueOnlyVariable(TiObject *self, TiObject *obj)
+Bool Helper::_isValueOnlyVariable(TiObject *self, Core::Ast::Node *obj)
 {
   return
     obj->isDerivedFrom<Spp::Ast::Variable>() &&
@@ -149,13 +149,13 @@ TypeMatchStatus Helper::_lookupCustomCaster(
   if (srcRefType != 0) {
     auto srcContentType = ti_cast<DataType>(srcRefType->getContentType(helper));
     if (srcContentType != 0 && srcContentType->getBody() != 0) {
-      PlainList<TiObject> argTypes({ srcRefType });
-      static Core::Data::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
+      PlainList<Core::Ast::Node> argTypes({ srcRefType });
+      static Core::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
       TypeMatchStatus retMatch;
       helper->getSeeker()->extForeach(&ref, srcContentType->getBody().get(),
-        [=, &retMatch, &caster, &argTypes] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
+        [=, &retMatch, &caster, &argTypes] (TiInt action, Core::Ast::Node *obj, Core::Ast::Seeker::NoticePtr const &notice)->Core::Ast::Seeker::Verb
         {
-          if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
+          if (action != Core::Ast::Seeker::Action::TARGET_MATCH) return Core::Ast::Seeker::Verb::MOVE;
           auto func = ti_cast<Function>(obj);
           if (func != 0) {
             auto funcType = func->getType().get();
@@ -170,13 +170,13 @@ TypeMatchStatus Helper::_lookupCustomCaster(
               if ((rmatch>=TypeMatchStatus::CUSTOM_CASTER || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
                 retMatch = rmatch;
                 caster = func;
-                if (rmatch == TypeMatchStatus::EXACT) return Core::Data::Seeker::Verb::STOP;
+                if (rmatch == TypeMatchStatus::EXACT) return Core::Ast::Seeker::Verb::STOP;
               }
             }
           }
-          return Core::Data::Seeker::Verb::MOVE;
+          return Core::Ast::Seeker::Verb::MOVE;
         },
-        Core::Data::Seeker::Flags::SKIP_OWNERS | Core::Data::Seeker::Flags::SKIP_USES
+        Core::Ast::Seeker::Flags::SKIP_OWNERS | Core::Ast::Seeker::Flags::SKIP_USES
       );
       return retMatch;
     }
@@ -185,17 +185,17 @@ TypeMatchStatus Helper::_lookupCustomCaster(
 }
 
 
-Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
+Type* Helper::__traceType(TiObject *self, Core::Ast::Node *ref, Bool skipErrors)
 {
   PREPARE_SELF(helper, Helper);
 
   SharedPtr<Core::Notices::Notice> notice;
-  TiObject *foundObj = 0;
+  Core::Ast::Node *foundObj = 0;
   Spp::Ast::Type *type = 0;
   if (ref->isDerivedFrom<Spp::Ast::TypeOp>()) {
     auto typeOp = static_cast<Spp::Ast::TypeOp*>(ref);
     if (typeOp->getType() != 0) return typeOp->getType();
-    auto operand = typeOp->getOperand().ti_cast_get<Core::Data::Node>();
+    auto operand = typeOp->getOperand().ti_cast_get<Core::Ast::Node>();
     auto typeRef = helper->getSeeker()->tryGet(operand, operand->getOwner());
     if (typeRef != 0) {
       type = helper->_traceType(typeRef, skipErrors);
@@ -206,15 +206,13 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
     type = static_cast<Spp::Ast::Type*>(ref);
   } else if (ref->isDerivedFrom<Spp::Ast::Template>()) {
     auto tpl = static_cast<Spp::Ast::Template*>(ref);
-    Core::Data::Ast::List list;
-    TioSharedPtr result;
-    if (tpl->matchInstance(&list, helper, result)) {
+    Core::Ast::List list;
+    SharedPtr<Core::Ast::Node> result;
+    if (tpl->matchInstance(&list, helper, result, notice)) {
       type = result.ti_cast_get<Spp::Ast::Type>();
-    } else {
-      if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) notice = result.s_cast<Core::Notices::Notice>();
     }
-  } else if (ref->isDerivedFrom<Core::Data::Ast::Passage>()) {
-    auto passage = static_cast<Core::Data::Ast::Passage*>(ref);
+  } else if (ref->isDerivedFrom<Core::Ast::Passage>()) {
+    auto passage = static_cast<Core::Ast::Passage*>(ref);
     return helper->_traceType(passage->get(), skipErrors);
   } else if (ref->isDerivedFrom<Spp::Ast::Variable>()) {
     auto var = static_cast<Spp::Ast::Variable*>(ref);
@@ -227,64 +225,62 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
   } else if (ref->isDerivedFrom<Spp::Ast::ArgPack>()) {
     // With arg packs we should already have the type set during the generation of the function signature.
     return getAstType(ref);
-  } else if (ref->isDerivedFrom<Core::Data::Ast::Bracket>()) {
-    auto bracket = static_cast<Core::Data::Ast::Bracket*>(ref);
-    if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+  } else if (ref->isDerivedFrom<Core::Ast::Bracket>()) {
+    auto bracket = static_cast<Core::Ast::Bracket*>(ref);
+    if (bracket->getType() == Core::Ast::BracketType::ROUND) {
       return helper->_traceType(bracket->getOperand().get(), skipErrors);
     }
   } else if (helper->isAstReference(ref)) {
     type = tryGetAstType(ref);
     if (type != 0) return type;
-    auto typeRef = static_cast<Core::Data::Node*>(ref);
+    auto typeRef = static_cast<Core::Ast::Node*>(ref);
     auto owner = typeRef->getOwner();
-    auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(ref);
-    if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
-      typeRef = paramPass->getOperand().ti_cast_get<Core::Data::Node>();
+    auto paramPass = ti_cast<Core::Ast::ParamPass>(ref);
+    if (paramPass != 0 && paramPass->getType() == Core::Ast::BracketType::ROUND) {
+      typeRef = paramPass->getOperand().ti_cast_get<Core::Ast::Node>();
       if (typeRef == 0) throw EXCEPTION(GenericException, S("Invalid type reference."));
       return helper->_traceType(typeRef, skipErrors);
     }
     helper->getSeeker()->extForeach(typeRef, owner,
-      [=, &foundObj, &type, &notice](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
+      [=, &foundObj, &type, &notice](
+        TiInt action, Core::Ast::Node *obj, Core::Ast::Seeker::NoticePtr const &seekNotice
+      )->Core::Ast::Seeker::Verb
       {
-        if (action == Core::Data::Seeker::Action::ERROR) {
-          notice = getSharedPtr(ti_cast<Core::Notices::Notice>(obj));
+        if (action == Core::Ast::Seeker::Action::ERROR) {
+          notice = seekNotice;
           ASSERT(notice != 0);
-          return Core::Data::Seeker::Verb::MOVE;
+          return Core::Ast::Seeker::Verb::MOVE;
         }
-        if (action != Core::Data::Seeker::Action::TARGET_MATCH) {
-          return Core::Data::Seeker::Verb::MOVE;
+        if (action != Core::Ast::Seeker::Action::TARGET_MATCH) {
+          return Core::Ast::Seeker::Verb::MOVE;
         }
 
         // Unbox if we have a box.
-        auto passage = ti_cast<Core::Data::Ast::Passage>(obj);
+        auto passage = ti_cast<Core::Ast::Passage>(obj);
         if (passage != 0) foundObj = passage->get();
         else foundObj = obj;
 
         // Do we have a type?
         type = ti_cast<Spp::Ast::Type>(foundObj);
         if (type != 0) {
-          return Core::Data::Seeker::Verb::STOP;
+          return Core::Ast::Seeker::Verb::STOP;
         }
 
         // If we have a template then try to get a default instance.
         auto tpl = ti_cast<Spp::Ast::Template>(foundObj);
         if (tpl != 0) {
-          Core::Data::Ast::List list;
-          list.setSourceLocation(Core::Data::Ast::findSourceLocation(ref));
-          TioSharedPtr result;
-          if (tpl->matchInstance(&list, helper, result)) {
+          Core::Ast::List list;
+          list.setSourceLocation(Core::Ast::findSourceLocation(ref));
+          SharedPtr<Core::Ast::Node> result;
+          if (tpl->matchInstance(&list, helper, result, notice)) {
             type = result.ti_cast_get<Spp::Ast::Type>();
             if (type != 0) {
-              return Core::Data::Seeker::Verb::STOP;
-            }
-          } else {
-            if (result != 0 && result->isDerivedFrom<Core::Notices::Notice>()) {
-              notice = result.s_cast<Core::Notices::Notice>();
+              return Core::Ast::Seeker::Verb::STOP;
             }
           }
         }
 
-        return Core::Data::Seeker::Verb::MOVE;
+        return Core::Ast::Seeker::Verb::MOVE;
       }, 0
     );
     if (type != 0) setAstType(ref, type);
@@ -295,11 +291,11 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
       helper->rootManager->getNoticeStore()->add(notice);
     } else if (foundObj == 0) {
       helper->rootManager->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
+        newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Ast::findSourceLocation(ref))
       );
     } else {
       helper->rootManager->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::IdentifierIsNotTypeNotice>(Core::Data::Ast::findSourceLocation(ref))
+        newSrdObj<Spp::Notices::IdentifierIsNotTypeNotice>(Core::Ast::findSourceLocation(ref))
       );
     }
   }
@@ -308,19 +304,19 @@ Type* Helper::__traceType(TiObject *self, TiObject *ref, Bool skipErrors)
 }
 
 
-Bool Helper::_isVoid(TiObject *self, TiObject const *ref)
+Bool Helper::_isVoid(TiObject *self, Core::Ast::Node const *ref)
 {
   PREPARE_SELF(helper, Helper);
 
   if (ref == 0) return true;
-  auto type = helper->traceType(const_cast<TiObject*>(ref));
+  auto type = helper->traceType(const_cast<Core::Ast::Node*>(ref));
   if (type == 0) return false;
   return type->isA<VoidType>();
 }
 
 
 Bool Helper::_isCastableTo(
-  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit
+  TiObject *self, Core::Ast::Node *srcTypeRef, Core::Ast::Node *targetTypeRef, Bool implicit
 ) {
   PREPARE_SELF(helper, Helper);
   Function *caster;
@@ -333,7 +329,7 @@ Bool Helper::_isCastableTo(
 
 
 TypeMatchStatus Helper::_matchTargetType(
-  TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Function *&caster
+  TiObject *self, Core::Ast::Node *srcTypeRef, Core::Ast::Node *targetTypeRef, Function *&caster
 ) {
   PREPARE_SELF(helper, Helper);
 
@@ -401,21 +397,21 @@ Bool Helper::_isReferenceTypeFor(TiObject *self, Type *refType, Type *contentTyp
 }
 
 
-ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, TiObject *type, ReferenceMode const &mode)
+ReferenceType* Helper::_getReferenceTypeFor(TiObject *self, Core::Ast::Node *type, ReferenceMode const &mode)
 {
   PREPARE_SELF(helper, Helper);
 
   auto tpl = helper->getReferenceTemplate(mode);
 
-  TioSharedPtr result;
-  if (tpl->matchInstance(type, helper, result)) {
+  SharedPtr<Core::Ast::Node> result;
+  SharedPtr<Core::Notices::Notice> notice;
+  if (tpl->matchInstance(type, helper, result, notice)) {
     auto refType = result.ti_cast_get<ReferenceType>();
     if (refType == 0) {
       throw EXCEPTION(GenericException, S("Template for reference type is invalid."));
     }
     return refType;
   } else {
-    auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
       helper->rootManager->getNoticeStore()->add(notice);
     }
@@ -434,21 +430,21 @@ ReferenceType* Helper::getReferenceTypeForPointerType(PointerType *type, Referen
 }
 
 
-PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
+PointerType* Helper::_getPointerTypeFor(TiObject *self, Core::Ast::Node *type)
 {
   PREPARE_SELF(helper, Helper);
 
   auto tpl = helper->getPointerTemplate();
 
-  TioSharedPtr result;
-  if (tpl->matchInstance(type, helper, result)) {
+  SharedPtr<Core::Ast::Node> result;
+  SharedPtr<Core::Notices::Notice> notice;
+  if (tpl->matchInstance(type, helper, result, notice)) {
     auto refType = result.ti_cast_get<PointerType>();
     if (refType == 0) {
       throw EXCEPTION(GenericException, S("Template for pointer type is invalid."));
     }
     return refType;
   } else {
-    auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
       helper->rootManager->getNoticeStore()->add(notice);
     }
@@ -457,21 +453,21 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, TiObject *type)
 }
 
 
-ArrayType* Helper::_getArrayTypeFor(TiObject *self, TiObject *type)
+ArrayType* Helper::_getArrayTypeFor(TiObject *self, Core::Ast::Node *type)
 {
   PREPARE_SELF(helper, Helper);
 
   auto tpl = helper->getArrayTemplate();
 
-  TioSharedPtr result;
-  if (tpl->matchInstance(type, helper, result)) {
+  SharedPtr<Core::Ast::Node> result;
+  SharedPtr<Core::Notices::Notice> notice;
+  if (tpl->matchInstance(type, helper, result, notice)) {
     auto refType = result.ti_cast_get<ArrayType>();
     if (refType == 0) {
       throw EXCEPTION(GenericException, S("Template for array type is invalid."));
     }
     return refType;
   } else {
-    auto notice = result.ti_cast<Core::Notices::Notice>();
     if (notice != 0) {
       helper->rootManager->getNoticeStore()->add(notice);
     }
@@ -517,7 +513,7 @@ Type* Helper::swichOuterPointerTypeWithReferenceType(Type *type, ReferenceMode c
 }
 
 
-Type* Helper::_getValueTypeFor(TiObject *self, TiObject *typeRef)
+Type* Helper::_getValueTypeFor(TiObject *self, Core::Ast::Node *typeRef)
 {
   PREPARE_SELF(helper, Helper);
 
@@ -536,7 +532,7 @@ IntegerType* Helper::_getNullType(TiObject *self)
   // Prepare the reference.
   if (helper->nullType == 0) {
     // Create a new reference.
-    auto typeRef = helper->rootManager->parseExpression(S("Null")).s_cast<Core::Data::Ast::Identifier>();
+    auto typeRef = helper->rootManager->parseExpression(S("Null")).s_cast<Core::Ast::Identifier>();
     typeRef->setOwner(helper->rootManager->getRootScope().get());
 
     helper->nullType = ti_cast<Ast::IntegerType>(
@@ -580,13 +576,13 @@ ArrayType* Helper::_getCharArrayType(TiObject *self, Word size)
     StrStream stream;
     stream << S("array[Word[8],") << size << S("]");
     helper->charArrayTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
-      .s_cast<Core::Data::Ast::ParamPass>();
+      .s_cast<Core::Ast::ParamPass>();
     helper->charArrayTypeRef->setOwner(helper->rootManager->getRootScope().get());
   } else {
     // Recycle the existing reference.
     auto intLiteral = helper->charArrayTypeRef
-      ->getParam().ti_cast_get<Core::Data::Ast::List>()
-      ->get(1).ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+      ->getParam().ti_cast_get<Core::Ast::List>()
+      ->get(1).ti_cast_get<Core::Ast::IntegerLiteral>();
     if (!intLiteral) {
       throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
@@ -622,11 +618,11 @@ IntegerType* Helper::_getIntType(TiObject *self, Word size)
     StrStream stream;
     stream << S("Int[") << size << S("]");
     helper->integerTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
-      .s_cast<Core::Data::Ast::ParamPass>();
+      .s_cast<Core::Ast::ParamPass>();
     helper->integerTypeRef->setOwner(helper->rootManager->getRootScope().get());
   } else {
     // Recycle the existing reference.
-    auto intLiteral = helper->integerTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    auto intLiteral = helper->integerTypeRef->getParam().ti_cast_get<Core::Ast::IntegerLiteral>();
     if (!intLiteral) {
       throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
@@ -662,11 +658,11 @@ IntegerType* Helper::_getWordType(TiObject *self, Word size)
     StrStream stream;
     stream << S("Word[") << size << S("]");
     helper->wordTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
-      .s_cast<Core::Data::Ast::ParamPass>();
+      .s_cast<Core::Ast::ParamPass>();
     helper->wordTypeRef->setOwner(helper->rootManager->getRootScope().get());
   } else {
     // Recycle the existing reference.
-    auto intLiteral = helper->wordTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    auto intLiteral = helper->wordTypeRef->getParam().ti_cast_get<Core::Ast::IntegerLiteral>();
     if (!intLiteral) {
       throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
@@ -692,11 +688,11 @@ FloatType* Helper::_getFloatType(TiObject *self, Word size)
     StrStream stream;
     stream << S("Float[") << size << S("]");
     helper->floatTypeRef = helper->rootManager->parseExpression(stream.str().c_str())
-      .s_cast<Core::Data::Ast::ParamPass>();
+      .s_cast<Core::Ast::ParamPass>();
     helper->floatTypeRef->setOwner(helper->rootManager->getRootScope().get());
   } else {
     // Recycle the existing reference.
-    auto intLiteral = helper->floatTypeRef->getParam().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+    auto intLiteral = helper->floatTypeRef->getParam().ti_cast_get<Core::Ast::IntegerLiteral>();
     if (!intLiteral) {
       throw EXCEPTION(GenericException, S("Unexpected internal error."));
     }
@@ -717,7 +713,7 @@ VoidType* Helper::_getVoidType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
   if (helper->voidType == 0) {
-    auto typeRef = helper->rootManager->parseExpression(S("Void")).s_cast<Core::Data::Ast::Identifier>();
+    auto typeRef = helper->rootManager->parseExpression(S("Void")).s_cast<Core::Ast::Identifier>();
     typeRef->setOwner(helper->rootManager->getRootScope().get());
 
     helper->voidType = ti_cast<VoidType>(helper->getSeeker()->doGet(
@@ -731,22 +727,22 @@ VoidType* Helper::_getVoidType(TiObject *self)
 }
 
 
-UserType* Helper::_getTiObjectType(TiObject *self)
+UserType* Helper::_getNodeType(TiObject *self)
 {
   PREPARE_SELF(helper, Helper);
-  if (helper->tiObjectType == 0) {
-    auto typeRef = helper->rootManager->parseExpression(S("Core.Basic.TiObject")).s_cast<Core::Data::Node>();
+  if (helper->nodeType == 0) {
+    auto typeRef = helper->rootManager->parseExpression(S("Core.Ast.Node"));
     typeRef->setOwner(helper->rootManager->getRootScope().get());
 
-    helper->tiObjectType = ti_cast<UserType>(helper->getSeeker()->tryGet(
+    helper->nodeType = ti_cast<UserType>(helper->getSeeker()->tryGet(
       typeRef.get(), helper->rootManager->getRootScope().get()
     ));
   }
-  return helper->tiObjectType;
+  return helper->nodeType;
 }
 
 
-Str Helper::_resolveNodePath(TiObject *self, Core::Data::Node const *node)
+Str Helper::_resolveNodePath(TiObject *self, Core::Ast::Node const *node)
 {
   PREPARE_SELF(helper, Helper);
   return helper->nodePathResolver->doResolve(node, helper);
@@ -757,7 +753,7 @@ Str const& Helper::_getFunctionName(TiObject *self, Function *astFunc)
 {
   static LongInt anonymousFuncIndex = 0;
   if (astFunc->getName().getStr() == S("")) {
-    if (ti_cast<Core::Data::Ast::Definition>(astFunc->getOwner()) == 0) {
+    if (ti_cast<Core::Ast::Definition>(astFunc->getOwner()) == 0) {
       // This is a anonymous function.
       astFunc->setName(Str("__anonymousfunc__") + (anonymousFuncIndex++));
     } else {
@@ -807,21 +803,17 @@ Word Helper::_getNeededWordSize(TiObject *self, LongWord value)
 }
 
 
-DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
+DefinitionDomain Helper::_getVariableDomain(TiObject *self, Core::Ast::Node const *obj)
 {
   // Find the definition.
-  auto def = ti_cast<Core::Data::Ast::Definition const>(obj);
+  auto def = ti_cast<Core::Ast::Definition const>(obj);
   if (def == 0) {
-    auto node = ti_cast<Core::Data::Node const>(obj);
-    if (node == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("obj"), S("Object is null or of invalid type."), obj);
-    }
-    def = ti_cast<Core::Data::Ast::Definition const>(node->getOwner());
+    def = ti_cast<Core::Ast::Definition const>(obj->getOwner());
     if (def == 0) {
       // This could be a function arg.
       if (
-        node->getOwner() != 0 && node->getOwner()->getOwner() != 0 &&
-        node->getOwner()->getOwner()->isDerivedFrom<FunctionType>()
+        obj->getOwner() != 0 && obj->getOwner()->getOwner() != 0 &&
+        obj->getOwner()->getOwner()->isDerivedFrom<FunctionType>()
       ) {
         return DefinitionDomain::FUNCTION;
       } else {
@@ -854,7 +846,7 @@ DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
       return DefinitionDomain::FUNCTION;
     } else if (owner->isDerivedFrom<Block>()) {
       if (
-        owner->getOwner()->isDerivedFrom<UseInOp>() || owner->getOwner()->isDerivedFrom<Core::Data::Ast::LinkOperator>()
+        owner->getOwner()->isDerivedFrom<UseInOp>() || owner->getOwner()->isDerivedFrom<Core::Ast::LinkOperator>()
       ) {
         return DefinitionDomain::FUNCTION;
       }
@@ -865,12 +857,12 @@ DefinitionDomain Helper::_getVariableDomain(TiObject *self, TiObject const *obj)
 }
 
 
-Bool Helper::doesModifierExistOnDef(Core::Data::Ast::Definition const *def, Char const *name)
+Bool Helper::doesModifierExistOnDef(Core::Ast::Definition const *def, Char const *name)
 {
   auto modifiers = def->getModifiers().get();
   if (modifiers != 0) {
     for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-      auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
+      auto identifier = ti_cast<Core::Ast::Identifier>(modifiers->getElement(i));
       if (identifier != 0 && identifier->getValue() == name) return true;
     }
   }
@@ -878,7 +870,7 @@ Bool Helper::doesModifierExistOnDef(Core::Data::Ast::Definition const *def, Char
 }
 
 
-Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *bridge)
+Bool Helper::_validateUseStatement(TiObject *self, Core::Ast::Bridge *bridge)
 {
   PREPARE_SELF(helper, Helper);
   VALIDATE_NOT_NULL(bridge);
@@ -887,14 +879,14 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *brid
   }
   Bool found = false;
   helper->getSeeker()->foreach(bridge->getTarget().get(), bridge->getOwner(),
-    [=, &found] (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
+    [=, &found] (TiInt action, Core::Ast::Node *obj, Core::Ast::Seeker::NoticePtr const &notice)->Core::Ast::Seeker::Verb
     {
-      if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
+      if (action != Core::Ast::Seeker::Action::TARGET_MATCH) return Core::Ast::Seeker::Verb::MOVE;
       if (ti_cast<Ast::Module>(obj) != 0) {
         found = true;
-        return Core::Data::Seeker::Verb::STOP;
+        return Core::Ast::Seeker::Verb::STOP;
       } else {
-        return Core::Data::Seeker::Verb::MOVE;
+        return Core::Ast::Seeker::Verb::MOVE;
       }
     }, 0
   );
@@ -917,7 +909,7 @@ Template* Helper::getReferenceTemplate(ReferenceMode const &mode)
   else if (mode == ReferenceMode::IMPLICIT && this->irefTemplate != 0) return this->irefTemplate;
   else if (mode == ReferenceMode::NO_DEREF && this->ndrefTemplate != 0) return this->ndrefTemplate;
 
-  Core::Data::Ast::Identifier identifier;
+  Core::Ast::Identifier identifier;
   identifier.setValue(
     mode == ReferenceMode::EXPLICIT ? S("ref") : (
       mode == ReferenceMode::TEMP_EXPLICIT ? S("temp_ref") : (mode == ReferenceMode::IMPLICIT ? S("iref") : S("ndref"))
@@ -941,7 +933,7 @@ Template* Helper::getPointerTemplate()
 {
   if (this->ptrTemplate != 0) return this->ptrTemplate;
 
-  Core::Data::Ast::Identifier identifier;
+  Core::Ast::Identifier identifier;
   identifier.setValue(S("ptr"));
   this->ptrTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
     &identifier, this->rootManager->getRootScope().get())
@@ -957,7 +949,7 @@ Template* Helper::getArrayTemplate()
 {
   if (this->arrayTemplate != 0) return this->arrayTemplate;
 
-  Core::Data::Ast::Identifier identifier;
+  Core::Ast::Identifier identifier;
   identifier.setValue(S("array"));
   this->arrayTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
     &identifier, this->rootManager->getRootScope().get())

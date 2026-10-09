@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/TextParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::TextParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,9 +38,9 @@ template <class TYPE> class TextParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual SharedPtr<TiObject> createTokenNode(ParserState *state, Int levelIndex,
-                                                         Word tokenId, Char const *tokenText)
-  {
+  protected: virtual SharedPtr<Core::Ast::Node> createTokenNode(
+    ParserState *state, Int levelIndex, Word tokenId, Char const *tokenText
+  ) {
     auto obj = newSrdObj<TYPE>();
     obj->setValue(tokenText);
     return obj;

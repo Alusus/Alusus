@@ -3,7 +3,7 @@
  * Contains the definitions and include statements for all types used for
  * processing.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -101,6 +101,17 @@ namespace Core::Processing
  *               will be replaced with the new column value.
  */
 void computeNextCharPosition(WChar ch, Int &line, Int &column);
+
+/**
+ * @brief Assigns the souce location to the token by re-using the existing object.
+ * @ingroup core_processing
+ * 
+ * If the token doesn't have a source location, this function creates it as a copy
+ * of the provided object. If it already has a source location it overrides its
+ * props from the provided source location. This is done for performance reasons
+ * and is used for the shared token in the lexer that is re-used.
+ */
+void assignTokenSourceLocationRecord(Ast::Token *token, Ast::SourceLocationRecord const &sourceLocation);
 
 
 //==============================================================================

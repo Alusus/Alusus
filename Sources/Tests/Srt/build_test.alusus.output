@@ -1,2 +1,4 @@
 Hello from the compiled file.
 Hello from the other compiled file.
+dep: libm.so.6
+dep: libc.so.6

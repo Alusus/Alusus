@@ -1,6 +1,7 @@
 name: macOS Arm64 - arm64-osx
 
-on: [push, pull_request]
+# Disabled for now since the macOS build is currently broken. Can still be triggered manually.
+on: workflow_dispatch
 
 env:
   BUILD_TYPE: Release

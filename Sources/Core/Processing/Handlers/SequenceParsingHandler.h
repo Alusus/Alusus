@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/SequenceParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::SequenceParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,10 +45,10 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (this->isEnabled(state, levelIndex) && this->isListTerm(state, levelIndex) && this->startIndex != -1) {
-      TiObject *currentData = state->getData(levelIndex).get();
+      Ast::Node *currentData = state->getData(levelIndex).get();
       if (currentData != 0) {
         // There is three possible situations at this point: Either the list was enforced, or
         // a child data was set into this level, or this level was visited more than once causing
@@ -62,24 +62,18 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
         } else {
           // At this point, posId must be 1 since the list is not enforced and the current data is
           // not null, meaning we've already set data at this level.
-          TioSharedPtr list = this->createListNode(state, levelIndex);
-          auto metadata = ti_cast<Data::Ast::MetaHaving>(currentData);
-          if (metadata != 0) {
-            list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
-          }
-          auto newContainer = list.ti_cast_get<Containing<TiObject>>();
+          SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
+          list.s_cast_get<TYPE>()->setSourceLocation(currentData->findSourceLocation());
+          auto newContainer = list.ti_cast_get<Containing<Ast::Node>>();
           newContainer->setElement(this->startIndex + 0, currentData);
           newContainer->setElement(this->startIndex + 1, data.get());
           state->setData(list, levelIndex);
         }
         return;
       } else if (this->isListItemEnforced(state, levelIndex) && state->refTermLevel(levelIndex).getPosId() > 1) {
-        TioSharedPtr list = this->createListNode(state, levelIndex);
-        auto metadata = data.ti_cast_get<Data::Ast::MetaHaving>();
-        if (metadata != 0) {
-          list.s_cast_get<TYPE>()->setSourceLocation(metadata->findSourceLocation());
-        }
-        auto newContainer = list.ti_cast_get<Containing<TiObject>>();
+        SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
+        list.s_cast_get<TYPE>()->setSourceLocation(data->findSourceLocation());
+        auto newContainer = list.ti_cast_get<Containing<Ast::Node>>();
         newContainer->setElement(this->startIndex + 0, currentData);
         newContainer->setElement(this->startIndex + 1, data.get());
         state->setData(list, levelIndex);
@@ -89,7 +83,7 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
     GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 
-  protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex)
+  protected: virtual SharedPtr<Ast::Node> createListNode(ParserState *state, Int levelIndex)
   {
     if (this->isEnabled(state, levelIndex)) {
       return newSrdObj<TYPE>();

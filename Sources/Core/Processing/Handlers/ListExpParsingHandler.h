@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/ListExpParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::ListExpParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,16 +38,16 @@ template <class TYPE> class ListExpParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (this->isListTerm(state, levelIndex) && state->isAProdRoot(levelIndex - 1)) {
-      TiObject *currentData = state->getData(levelIndex).get();
+      Ast::Node *currentData = state->getData(levelIndex).get();
       if (state->refTermLevel(levelIndex).getPosId() == 1) {
         ASSERT(currentData == 0);
         if (state->refTermLevel(levelIndex + 1).getPosId() == 1) {
           state->setData(data, levelIndex);
         } else {
-          state->setData(this->createListWithItems(TioSharedPtr::null, data), levelIndex);
+          state->setData(this->createListWithItems(SharedPtr<Ast::Node>::null, data), levelIndex);
         }
       } else {
         auto list = ti_cast<TYPE>(currentData);
@@ -62,19 +62,18 @@ template <class TYPE> class ListExpParsingHandler : public GenericParsingHandler
     GenericParsingHandler::addData(data, parser, state, levelIndex);
   }
 
-  protected: virtual SharedPtr<TiObject> createListNode(ParserState *state, Int levelIndex)
+  protected: virtual SharedPtr<Ast::Node> createListNode(ParserState *state, Int levelIndex)
   {
     return newSrdObj<TYPE>();
   }
 
-  protected: SharedPtr<TYPE> createListWithItems(TioSharedPtr const &i1, TioSharedPtr const &i2)
+  protected: SharedPtr<TYPE> createListWithItems(SharedPtr<Ast::Node> const &i1, SharedPtr<Ast::Node> const &i2)
   {
     auto list = newSrdObj<TYPE>();
     list->add(i1);
     list->add(i2);
-    auto metadata = i1.ti_cast_get<Data::Ast::MetaHaving>();
-    if (metadata != 0) {
-      list->setSourceLocation(metadata->findSourceLocation());
+    if (i1 != 0) {
+      list->setSourceLocation(i1->findSourceLocation());
     }
     return list;
   }

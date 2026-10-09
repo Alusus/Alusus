@@ -2,7 +2,7 @@
  * @file Spp/Handlers/TildeOpParsingHandler.h
  * Contains the header of class Spp::Handlers::TildeOpParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,29 +44,29 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
   // Member Functions
 
   public: virtual void onProdStart(
-    Core::Processing::Parser *parser, Core::Processing::ParserState *state, Core::Data::Token const *token
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state, Core::Ast::Token const *token
   ) {
     auto data = newSrdObj<TYPE>();
-    data->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()));
+    data->setSourceLocation(Core::Ast::cloneSourceLocation(token->getSourceLocation().get()));
     state->setData(data);
   }
 
   public: virtual void onNewToken(
-    Core::Processing::Parser *parser, Core::Processing::ParserState *state, Core::Data::Token const *token
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state, Core::Ast::Token const *token
   ) {
   }
 
   protected: virtual void addData(
-    SharedPtr<TiObject> const &data, Core::Processing::Parser *parser, Core::Processing::ParserState *state,
-    Int levelIndex
+    SharedPtr<Core::Ast::Node> const &data, Core::Processing::Parser *parser,
+    Core::Processing::ParserState *state, Int levelIndex
   ) {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
       auto currentData = state->getData(levelIndex).ti_cast_get<TYPE>();
       if (currentData != 0) {
-        TiObject *operand;
+        Core::Ast::Node *operand;
         // Remove the unneeded bracket.
-        if (data->isDerivedFrom<Core::Data::Ast::Bracket>()) {
-          operand = data.s_cast_get<Core::Data::Ast::Bracket>()->getOperand().get();
+        if (data->isDerivedFrom<Core::Ast::Bracket>()) {
+          operand = data.s_cast_get<Core::Ast::Bracket>()->getOperand().get();
         } else {
           operand = data.get();
         }
@@ -76,7 +76,7 @@ template<class TYPE> class TildeOpParsingHandler : public Core::Processing::Hand
             currentData->setElement(1, operand);
           } else {
             state->addNotice(newSrdObj<Core::Notices::SyntaxErrorNotice>(
-              Core::Data::Ast::findSourceLocation(operand)
+              Core::Ast::findSourceLocation(operand)
             ));
           }
         }

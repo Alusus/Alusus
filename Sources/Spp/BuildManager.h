@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.h
  * Contains the header of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -103,6 +103,9 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   private: void initBindings();
 
   private: void initNonOfflineBuildSessions();
+
+  private: Bool getOptimizeOverride(Bool defaultValue) const;
+
   private: SharedPtr<BuildSession> createOfflineBuildSession(Char const *targetTriple);
 
   public: Core::Main::RootManager* getRootManager() const
@@ -135,40 +138,50 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   public: METHOD_BINDING_CACHE(finalizeExecutionEntry, Bool, (BuildSession* /* buildSession */));
   private: static Bool _finalizeExecutionEntry(TiObject *self, BuildSession *buildSession);
 
-  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (TiObject* /* element */, BuildSession* /* buildSession */));
-  private: static Bool _addElementToBuild(TiObject *self, TiObject *element, BuildSession *buildSession);
+  public: METHOD_BINDING_CACHE(addElementToBuild, Bool, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */));
+  private: static Bool _addElementToBuild(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession);
 
   public: METHOD_BINDING_CACHE(addElementToExecutionEntry,
-    Bool, (TiObject* /* element */, BuildSession* /* buildSession */)
+    Bool, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */)
   );
-  private: static Bool _addElementToExecutionEntry(TiObject *self, TiObject *element, BuildSession *buildSession);
+  private: static Bool _addElementToExecutionEntry(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession);
 
   public: METHOD_BINDING_CACHE(execute, Bool, (BuildSession* /* buildSession */));
   private: static Bool _execute(TiObject *self, BuildSession *buildSession);
 
-  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (TiObject*));
-  public: static void _dumpLlvmIrForElement(TiObject *self, TiObject *element);
+  public: METHOD_BINDING_CACHE(prepareToExecuteFunction, void*, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */));
+  private: static void* _prepareToExecuteFunction(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession);
 
-  public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (TiObject*, Char const*, Char const*));
+  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (Core::Ast::Node*));
+  public: static void _dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element);
+
+  public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (Core::Ast::Node*, Char const*, Char const*, Bool));
   public: static Bool _buildObjectFileForElement(
-    TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
+    TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple,
+    Bool optimize
   );
 
   public: METHOD_BINDING_CACHE(resetBuild, void, (BuildSession*));
   private: static void _resetBuild(TiObject *self, BuildSession *buildSession);
 
-  public: METHOD_BINDING_CACHE(resetBuildData, void, (TiObject*, CodeGen::ExtraDataAccessor*));
-  private: static void _resetBuildData(TiObject *self, TiObject *obj, CodeGen::ExtraDataAccessor *eda);
+  public: METHOD_BINDING_CACHE(resetBuildData, void, (Core::Ast::Node*, CodeGen::CustomDataAccessor*));
+  private: static void _resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGen::CustomDataAccessor *cda);
 
   public: METHOD_BINDING_CACHE(computeResultType,
-    Bool, (TiObject* /* astNode */, TiObject*& /* result */, Bool& /* resultIsValue */)
+    Bool, (Core::Ast::Node* /* astNode */, Core::Ast::Node*& /* result */, Bool& /* resultIsValue */)
   );
-  private: static Bool _computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue);
+  private: static Bool _computeResultType(
+    TiObject *self, Core::Ast::Node *astNode, Core::Ast::Node *&result, Bool &resultIsValue
+  );
 
   /// @}
 
   /// @name Helper Functions
   /// @{
+
+  /// Executes the pending global constructors for the given build session (and its ctor session, if
+  /// different). Returns false without executing anything if previous errors were encountered.
+  private: Bool executeGlobalConstructors(BuildSession *buildSession);
 
   private: static Array<Str> getGlobalCtorNames(BuildSession *buildSession);
 

@@ -2,7 +2,7 @@
  * @file Core/Basic/containing_helpers.h
  * Contains MapContaining related helper definitions.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,7 +32,7 @@ namespace Core { namespace Basic
 
 // Get a single element
 #define _GET_ELEMENT(var) \
-  ti_cast<TiObject>(const_cast<_GET_ELEMENT_TYPE(var)*>(VARGETTER_FROM_TUPLE var))
+  ti_cast<ContentType>(const_cast<_GET_ELEMENT_TYPE(var)*>(VARGETTER_FROM_TUPLE var))
 
 // Get the type of a element
 #define _GET_ELEMENT_TYPE(var) \
@@ -341,12 +341,12 @@ namespace Core { namespace Basic
 // MapContaining Implementation Macro
 #define IMPLEMENT_MAP_CONTAINING(parent, ...) \
   public: using MapContaining::setElement; \
-  public: virtual Int setElement(Char const *key, TiObject *val) \
+  public: virtual Int setElement(Char const *key, ContentType *val) \
   { \
     _IMPLEMENT_MAP_CONTAINING_KEYSET(parent, __VA_ARGS__); \
     return parent::setElement(key, val); \
   } \
-  public: virtual void setElement(Int index, TiObject *val) \
+  public: virtual void setElement(Int index, ContentType *val) \
   { \
     _IMPLEMENT_MAP_CONTAINING_INDEXSET(parent, __VA_ARGS__); \
     parent::setElement(index, val); \
@@ -356,12 +356,12 @@ namespace Core { namespace Basic
     return SELECT_MACRO(__VA_ARGS__, _, _, _, _, 6, 5, 4, 3, 2, 1) + parent::getElementCount(); \
   } \
   public: using MapContaining::getElement; \
-  public: virtual TiObject* getElement(Char const *key) const \
+  public: virtual ContentType* getElement(Char const *key) const \
   { \
     _IMPLEMENT_MAP_CONTAINING_KEYGET(__VA_ARGS__); \
     return parent::getElement(key); \
   } \
-  public: virtual TiObject* getElement(Int index) const \
+  public: virtual ContentType* getElement(Int index) const \
   { \
     _IMPLEMENT_MAP_CONTAINING_INDEXGET(parent, __VA_ARGS__); \
     return parent::getElement(index); \

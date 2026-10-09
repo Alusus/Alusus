@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.cpp
  * Contains the implementation of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Spp::Ast
 //==============================================================================
 // Member Functions
 
-TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
+SharedPtr<Core::Ast::Node> const& Template::getDefaultInstance(Helper *helper)
 {
   if (this->body == 0) {
     throw EXCEPTION(GenericException, S("Template body is not set."));
@@ -31,26 +31,25 @@ TioSharedPtr const& Template::getDefaultInstance(Helper *helper)
     }
   }
   // No default instance was found, create a new one.
-  auto block = newSrdObj<Core::Data::Ast::Scope>();
-  block->add(Core::Data::Ast::clone(this->body.get()));
+  auto block = newSrdObj<Core::Ast::Scope>();
+  block->add(Core::Ast::clone(this->body.get()));
   this->instances.add(block);
   block->setOwner(this);
   return this->instances.get(this->instances.getCount() - 1)->get(0);
 }
 
 
-Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioSharedPtr &result)
-{
+Bool Template::matchInstance(
+  Core::Ast::Node *templateInputs, Helper *helper, SharedPtr<Core::Ast::Node> &result,
+  SharedPtr<Core::Notices::Notice> &notice
+) {
   if (this->body == 0) {
     throw EXCEPTION(GenericException, S("Template body is not set."));
   }
 
-  SharedPtr<Core::Notices::Notice> notice;
-
   // Prepare the template variables.
-  PlainList<TiObject> vars;
+  PlainList<Core::Ast::Node> vars;
   if (!this->prepareTemplateVars(templateInputs, helper, &vars, notice)) {
-    result = notice;
     return false;
   }
 
@@ -61,19 +60,15 @@ Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioShared
       result = this->instances.get(i)->get(0);
       return true;
     } else {
-      if (notice != 0) {
-        result = notice;
-        return false;
-      }
+      if (notice != 0) return false;
     }
   }
 
   // No instance was found, create a new one.
-  auto block = newSrdObj<Core::Data::Ast::Scope>();
-  block->setSourceLocation(Core::Data::Ast::findSourceLocation(templateInputs));
-  block->add(Core::Data::Ast::clone(this->body.get(), Core::Data::Ast::findSourceLocation(templateInputs).get()));
+  auto block = newSrdObj<Core::Ast::Scope>();
+  block->setSourceLocation(Core::Ast::findSourceLocation(templateInputs));
+  block->add(Core::Ast::clone(this->body.get(), Core::Ast::findSourceLocation(templateInputs).get()));
   if (!this->assignTemplateVars(&vars, block.get(), helper, notice)) {
-    result = notice;
     return false;
   }
   this->instances.add(block);
@@ -84,18 +79,19 @@ Bool Template::matchInstance(TiObject *templateInputs, Helper *helper, TioShared
 
 
 Bool Template::prepareTemplateVars(
-  TiObject *templateInputs, Helper *helper, PlainList<TiObject> *vars, SharedPtr<Core::Notices::Notice> &notice
+  Core::Ast::Node *templateInputs, Helper *helper, PlainList<Core::Ast::Node> *vars,
+  SharedPtr<Core::Notices::Notice> &notice
 ) {
-  auto list = ti_cast<Core::Data::Ast::List>(templateInputs);
+  auto list = ti_cast<Core::Ast::List>(templateInputs);
   if (list != 0 && list->getCount() > this->getVarDefCount()) {
     notice = newSrdObj<Spp::Notices::TemplateArgMismatchNotice>(
-      Core::Data::Ast::findSourceLocation(templateInputs)
+      Core::Ast::findSourceLocation(templateInputs)
     );
     return false;
   }
 
   for (Int i = 0; i < this->getVarDefCount(); ++i) {
-    TiObject *templateInput;
+    Core::Ast::Node *templateInput;
     auto varDef = this->varDefs->get(i).s_cast_get<TemplateVarDef>();
     if (varDef == 0) {
       throw EXCEPTION(GenericException, S("Invalid template variable definition."));
@@ -105,7 +101,7 @@ Bool Template::prepareTemplateVars(
     else if (varDef->getDefaultVal() != 0) templateInput = varDef->getDefaultVal().get();
     else {
       notice = newSrdObj<Spp::Notices::TemplateArgMismatchNotice>(
-        Core::Data::Ast::findSourceLocation(templateInputs)
+        Core::Ast::findSourceLocation(templateInputs)
       );
       return false;
     }
@@ -113,7 +109,7 @@ Bool Template::prepareTemplateVars(
     auto var = Template::traceObject(templateInput, varDef->getType(), helper);
     if (var == 0) {
       notice = newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(
-        Core::Data::Ast::findSourceLocation(templateInput)
+        Core::Ast::findSourceLocation(templateInput)
       );
       return false;
     }
@@ -124,7 +120,7 @@ Bool Template::prepareTemplateVars(
 
 
 Bool Template::matchTemplateVars(
-  Containing<TiObject> *templateInputs, Core::Data::Ast::Scope *instance, Helper *helper,
+  Containing<Core::Ast::Node> *templateInputs, Core::Ast::Scope *instance, Helper *helper,
   SharedPtr<Core::Notices::Notice> &notice
 ) {
   for (Int i = 0; i < this->getVarDefCount(); ++i) {
@@ -137,30 +133,30 @@ Bool Template::matchTemplateVars(
 
 
 Bool Template::matchTemplateVar(
-  TiObject *templateInput, Core::Data::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
+  Core::Ast::Node *templateInput, Core::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
   SharedPtr<Core::Notices::Notice> &notice
 ) {
   switch (varDef->getType().get()) {
     case TemplateVarType::INTEGER: {
-      auto var = static_cast<Core::Data::Ast::IntegerLiteral*>(
+      auto var = static_cast<Core::Ast::IntegerLiteral*>(
         Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
-      auto newVar = static_cast<Core::Data::Ast::IntegerLiteral*>(templateInput);
+      auto newVar = static_cast<Core::Ast::IntegerLiteral*>(templateInput);
       ASSERT(newVar != 0);
       return std::stol(newVar->getValue().get()) == std::stol(var->getValue().get());
     }
 
     case TemplateVarType::STRING: {
-      auto var = static_cast<Core::Data::Ast::StringLiteral*>(
+      auto var = static_cast<Core::Ast::StringLiteral*>(
         Template::getTemplateVar(instance, varDef->getName().get())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
-      auto newVar = static_cast<Core::Data::Ast::StringLiteral*>(templateInput);
+      auto newVar = static_cast<Core::Ast::StringLiteral*>(templateInput);
       ASSERT(newVar != 0);
       return newVar->getValue() == var->getValue();
     }
@@ -204,7 +200,7 @@ Bool Template::matchTemplateVar(
         throw EXCEPTION(GenericException, S("Missing or invalid variable in template instance."));
       }
       ASSERT(templateInput != 0);
-      return Core::Data::Ast::isEqual(var, templateInput);
+      return Core::Ast::isEqual(var, templateInput);
     }
 
     case TemplateVarType::AST_REF: {
@@ -224,19 +220,19 @@ Bool Template::matchTemplateVar(
 
 
 Bool Template::assignTemplateVars(
-  Containing<TiObject> *templateInputs, Core::Data::Ast::Scope *instance, Helper *helper,
+  Containing<Core::Ast::Node> *templateInputs, Core::Ast::Scope *instance, Helper *helper,
   SharedPtr<Core::Notices::Notice> &notice
 ) {
   for (Int i = 0; i < this->getVarDefCount(); ++i) {
     auto varDef = this->varDefs->get(i).s_cast_get<TemplateVarDef>();
     ASSERT(varDef != 0);
     auto var = templateInputs->getElement(i);
-    auto def = Core::Data::Ast::Definition::create();
+    auto def = Core::Ast::Definition::create();
     def->setName(varDef->getName().get());
     if (varDef->getType() == TemplateVarType::INTEGER || varDef->getType() == TemplateVarType::STRING) {
-      def->setTarget(Core::Data::Ast::clone(var));
+      def->setTarget(Core::Ast::clone(var));
     } else {
-      def->setTarget(Core::Data::Ast::Passage::create(var));
+      def->setTarget(Core::Ast::Passage::create(var));
     }
     instance->add(def);
   }
@@ -244,12 +240,12 @@ Bool Template::assignTemplateVars(
 }
 
 
-TiObject* Template::getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name)
+Core::Ast::Node* Template::getTemplateVar(Core::Ast::Scope const *instance, Char const *name)
 {
   for (Int i = 0; i < instance->getCount(); ++i) {
-    auto def = ti_cast<Core::Data::Ast::Definition>(instance->getElement(i));
+    auto def = ti_cast<Core::Ast::Definition>(instance->getElement(i));
     if (def != 0 && def->getName() == name) {
-      auto passage = def->getTarget().ti_cast_get<Core::Data::Ast::Passage>();
+      auto passage = def->getTarget().ti_cast_get<Core::Ast::Passage>();
       if (passage != 0) return passage->get();
       else return def->getTarget().get();
     }
@@ -258,31 +254,27 @@ TiObject* Template::getTemplateVar(Core::Data::Ast::Scope const *instance, Char 
 }
 
 
-TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *helper)
+Core::Ast::Node* Template::traceObject(Core::Ast::Node *ref, TemplateVarType varType, Helper *helper)
 {
-  if (ref->isDerivedFrom<Core::Data::Ast::Passage>()) {
-    ref = static_cast<Core::Data::Ast::Passage*>(ref)->get();
+  if (ref->isDerivedFrom<Core::Ast::Passage>()) {
+    ref = static_cast<Core::Ast::Passage*>(ref)->get();
   }
-  TiObject *result = 0;
-  Node *refNode = ti_cast<Node>(ref);
-  if (refNode == 0) {
-    throw EXCEPTION(GenericException, S("Invalid template variable."));
-  }
+  Node *result = 0;
   if (varType == TemplateVarType::INTEGER) {
-    if (ref->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) result = ref;
+    if (ref->isDerivedFrom<Core::Ast::IntegerLiteral>()) result = ref;
     else if (helper->isAstReference(ref)) {
-      helper->getSeeker()->find<Core::Data::Ast::IntegerLiteral>(ref, refNode->getOwner(), result, 0);
+      helper->getSeeker()->find<Core::Ast::IntegerLiteral>(ref, ref->getOwner(), result, 0);
     }
   } else if (varType == TemplateVarType::STRING) {
-    if (ref->isDerivedFrom<Core::Data::Ast::StringLiteral>()) result = ref;
+    if (ref->isDerivedFrom<Core::Ast::StringLiteral>()) result = ref;
     else if (helper->isAstReference(ref)) {
-      helper->getSeeker()->find<Core::Data::Ast::StringLiteral>(ref, refNode->getOwner(), result, 0);
+      helper->getSeeker()->find<Core::Ast::StringLiteral>(ref, ref->getOwner(), result, 0);
     }
   } else if (varType == TemplateVarType::FUNCTION) {
     // TODO: Replace with Helper::traceFunction that considers templates.
     if (ref->isDerivedFrom<Spp::Ast::Function>()) result = ref;
     else if (helper->isAstReference(ref)) {
-      helper->getSeeker()->find<Spp::Ast::Function>(ref, refNode->getOwner(), result, 0);
+      helper->getSeeker()->find<Spp::Ast::Function>(ref, ref->getOwner(), result, 0);
     }
   } else if (varType == TemplateVarType::TYPE) {
     if (ref->isDerivedFrom<Spp::Ast::Type>()) result = ref;
@@ -292,13 +284,13 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
   } else if (varType == TemplateVarType::MODULE) {
     if (ref->isDerivedFrom<Spp::Ast::Module>()) result = ref;
     else if (helper->isAstReference(ref)) {
-      helper->getSeeker()->find<Spp::Ast::Module>(ref, refNode->getOwner(), result, 0);
+      helper->getSeeker()->find<Spp::Ast::Module>(ref, ref->getOwner(), result, 0);
     }
   } else if (varType == TemplateVarType::AST) {
     result = ref;
   } else if (varType == TemplateVarType::AST_REF) {
     if (helper->isAstReference(ref)) {
-      helper->getSeeker()->find<TiObject>(ref, refNode->getOwner(), result, 0);
+      helper->getSeeker()->find<Core::Ast::Node>(ref, ref->getOwner(), result, 0);
     } else result = ref;
   }
   return result;
@@ -308,17 +300,17 @@ TiObject* Template::traceObject(TiObject *ref, TemplateVarType varType, Helper *
 //==============================================================================
 // Mergeable Implementation
 
-Bool Template::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
+Bool Template::merge(Core::Ast::Node *src, Core::Ast::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
-  auto mergeable = this->body.ti_cast_get<Core::Data::Ast::Mergeable>();
+  auto mergeable = this->body.ti_cast_get<Core::Ast::Mergeable>();
   if (mergeable != 0) {
     if (!mergeable->merge(src, seeker, noticeStore)) return false;
     // Merge into the body of already created instances.
     for (Int i = 0; i < this->instances.getCount(); ++i) {
       auto block = this->instances.get(i).get();
-      mergeable = block->get(0).ti_cast_get<Core::Data::Ast::Mergeable>();
+      mergeable = block->get(0).ti_cast_get<Core::Ast::Mergeable>();
       if (!mergeable->merge(
-        Core::Data::Ast::clone(src, Core::Data::Ast::findSourceLocation(block).get()).get(),
+        Core::Ast::clone(src, Core::Ast::findSourceLocation(block).get()).get(),
         seeker,
         noticeStore
       )) return false;
@@ -326,7 +318,7 @@ Bool Template::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::S
     return true;
   } else {
     noticeStore->add(
-      newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+      newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Ast::findSourceLocation(src))
     );
     return false;
   }
@@ -334,7 +326,7 @@ Bool Template::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::S
 
 
 //==============================================================================
-// Printable Implementation
+// Printing Functions
 
 void Template::print(OutStream &stream, Int indents) const
 {
@@ -365,12 +357,14 @@ void Template::print(OutStream &stream, Int indents) const
       case TemplateVarType::AST_REF: stream << S("AstRef"); break;
     }
   }
+  Node::printModifiers(stream, indents);
+  Node::printMetadata(stream, indents);
   // dump body
   stream << S("\n");
   printIndents(stream, indents+1);
   stream << S("-body:\n");
   printIndents(stream, indents+2);
-  Core::Data::dumpData(stream, this->body.get(), indents+2);
+  Core::Ast::dumpAst(stream, this->body.get(), indents+2);
   // dump instances
   stream << S("\n");
   printIndents(stream, indents+1);
@@ -378,7 +372,7 @@ void Template::print(OutStream &stream, Int indents) const
   for (Word i = 0; i < this->instances.getCount(); ++i) {
     stream << S("\n");
     printIndents(stream, indents+2);
-    Core::Data::dumpData(stream, this->instances.getElement(i), indents+2);
+    Core::Ast::dumpAst(stream, this->instances.getElement(i), indents+2);
   }
 }
 

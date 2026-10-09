@@ -1,0 +1,47 @@
+name: Ubuntu 22.04 ARM64 - aarch64-linux
+
+# Disabled for now since the ARM build is currently failing. Can still be triggered manually.
+on: workflow_dispatch
+# on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+  # vcpkg doesn't ship prebuilt tools for arm64 Linux, so make it use the system ones.
+  VCPKG_FORCE_SYSTEM_BINARIES: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04-arm
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+            fetch-depth: 0
+
+      - name: Install system dependencies
+        run: >
+          sudo apt-get install -y git cmake ninja-build build-essential python3 python3-pip ruby rpm libarchive-tools p7zip-full &&
+
+          sudo gem install --no-document fpm
+
+      - name: Clone and bootstrap vcpkg
+        run: >
+          git clone https://github.com/microsoft/vcpkg.git "$HOME/vcpkg" &&
+          cd "$HOME/vcpkg" &&
+          chmod +x bootstrap-vcpkg.sh &&
+          ./bootstrap-vcpkg.sh &&
+          cd -
+
+      - name: Build Alusus
+        run: ALUSUS_VCPKG_REPO_PATH="$HOME/vcpkg" ./Tools/build.sh --build-type release --clean-and-build --target-triplet aarch64-linux --build-packages
+
+      - name: Automated tests Alusus
+        run: |
+          bash -c "cd ./AlususBuild/Intermediate/aarch64-linux-release && ctest --output-on-failure"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: AlususBuild/Packages
+          retention-days: 5

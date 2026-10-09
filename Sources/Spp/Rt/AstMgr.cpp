@@ -27,13 +27,16 @@ void AstMgr::initBindingCaches()
     &this->getModifierKeyword,
     &this->getModifierParams,
     &this->getModifierStringParams,
+    &this->getStringsFromStringParams,
     &this->getSourceFullPathForElement,
+    &this->addPossiblyMergeableElement,
     &this->insertAst,
     &this->insertAst_plain,
     &this->insertAst_shared,
     &this->buildAst_plain,
     &this->buildAst_shared,
     &this->getCurrentPreprocessOwner,
+    &this->preprocessTypeBody,
     &this->getCurrentPreprocessInsertionPosition,
     &this->getVariableDomain,
     &this->traceType,
@@ -41,7 +44,7 @@ void AstMgr::initBindingCaches()
     &this->matchTemplateInstance,
     &this->computeResultType,
     &this->cloneAst,
-    &this->dumpData,
+    &this->dumpAst,
     &this->getReferenceTypeFor,
     &this->tryGetDeepReferenceContentType,
     &this->isInjection
@@ -58,13 +61,16 @@ void AstMgr::initBindings()
   this->getModifierKeyword = &AstMgr::_getModifierKeyword;
   this->getModifierParams = &AstMgr::_getModifierParams;
   this->getModifierStringParams = &AstMgr::_getModifierStringParams;
+  this->getStringsFromStringParams = &AstMgr::_getStringsFromStringParams;
   this->getSourceFullPathForElement = &AstMgr::_getSourceFullPathForElement;
+  this->addPossiblyMergeableElement = &AstMgr::_addPossiblyMergeableElement;
   this->insertAst = &AstMgr::_insertAst;
   this->insertAst_plain = &AstMgr::_insertAst_plain;
   this->insertAst_shared = &AstMgr::_insertAst_shared;
   this->buildAst_plain = &AstMgr::_buildAst_plain;
   this->buildAst_shared = &AstMgr::_buildAst_shared;
   this->getCurrentPreprocessOwner = &AstMgr::_getCurrentPreprocessOwner;
+  this->preprocessTypeBody = &AstMgr::_preprocessTypeBody;
   this->getCurrentPreprocessInsertionPosition = &AstMgr::_getCurrentPreprocessInsertionPosition;
   this->getVariableDomain = &AstMgr::_getVariableDomain;
   this->traceType = &AstMgr::_traceType;
@@ -72,7 +78,7 @@ void AstMgr::initBindings()
   this->matchTemplateInstance = &AstMgr::_matchTemplateInstance;
   this->computeResultType = &AstMgr::_computeResultType;
   this->cloneAst = &AstMgr::_cloneAst;
-  this->dumpData = &AstMgr::_dumpData;
+  this->dumpAst = &AstMgr::_dumpAst;
   this->getReferenceTypeFor = &AstMgr::_getReferenceTypeFor;
   this->tryGetDeepReferenceContentType = &AstMgr::_tryGetDeepReferenceContentType;
   this->isInjection = &AstMgr::_isInjection;
@@ -89,13 +95,18 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierKeyword"), (void*)&AstMgr::_getModifierKeyword);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierParams"), (void*)&AstMgr::_getModifierParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getModifierStringParams"), (void*)&AstMgr::_getModifierStringParams);
+  globalItemRepo->addItem(S("Spp_AstMgr_getStringsFromStringParams"), (void*)&AstMgr::_getStringsFromStringParams);
   globalItemRepo->addItem(S("Spp_AstMgr_getSourceFullPathForElement"), (void*)&AstMgr::_getSourceFullPathForElement);
+  globalItemRepo->addItem(
+    S("Spp_AstMgr_addPossiblyMergeableElement"), (void*)&AstMgr::_addPossiblyMergeableElement
+  );
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst"), (void*)&AstMgr::_insertAst);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_plain"), (void*)&AstMgr::_insertAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_insertAst_shared"), (void*)&AstMgr::_insertAst_shared);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_plain"), (void*)&AstMgr::_buildAst_plain);
   globalItemRepo->addItem(S("Spp_AstMgr_buildAst_shared"), (void*)&AstMgr::_buildAst_shared);
   globalItemRepo->addItem(S("Spp_AstMgr_getCurrentPreprocessOwner"), (void*)&AstMgr::_getCurrentPreprocessOwner);
+  globalItemRepo->addItem(S("Spp_AstMgr_preprocessTypeBody"), (void*)&AstMgr::_preprocessTypeBody);
   globalItemRepo->addItem(
     S("Spp_AstMgr_getCurrentPreprocessInsertionPosition"), (void*)&AstMgr::_getCurrentPreprocessInsertionPosition
   );
@@ -105,7 +116,7 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
   globalItemRepo->addItem(S("Spp_AstMgr_matchTemplateInstance"), (void*)&AstMgr::_matchTemplateInstance);
   globalItemRepo->addItem(S("Spp_AstMgr_computeResultType"), (void*)&AstMgr::_computeResultType);
   globalItemRepo->addItem(S("Spp_AstMgr_cloneAst"), (void*)&AstMgr::_cloneAst);
-  globalItemRepo->addItem(S("Spp_AstMgr_dumpData"), (void*)&AstMgr::_dumpData);
+  globalItemRepo->addItem(S("Spp_AstMgr_dumpAst"), (void*)&AstMgr::_dumpAst);
   globalItemRepo->addItem(S("Spp_AstMgr_getReferenceTypeFor"), (void*)&AstMgr::_getReferenceTypeFor);
   globalItemRepo->addItem(
     S("Spp_AstMgr_tryGetDeepReferenceContentType"), (void*)&AstMgr::_tryGetDeepReferenceContentType
@@ -117,24 +128,25 @@ void AstMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo, 
 //==============================================================================
 // Operations
 
-Array<TiObject*> AstMgr::_findElements(TiObject *self, TiObject *ref, TiObject *target, Word flags)
-{
+Array<Core::Ast::Node*> AstMgr::_findElements(
+  TiObject *self, Core::Ast::Node *ref, Core::Ast::Node *target, Word flags
+) {
   PREPARE_SELF(astMgr, AstMgr);
   if (target == 0) target = astMgr->rootManager->getRootScope().get();
-  Array<TiObject*> result;
-  if (ref->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    auto scope = static_cast<Core::Data::Ast::Scope*>(ref);
+  Array<Core::Ast::Node*> result;
+  if (ref->isDerivedFrom<Core::Ast::Scope>()) {
+    auto scope = static_cast<Core::Ast::Scope*>(ref);
     if (scope->getCount() != 1) {
       throw EXCEPTION(InvalidArgumentException, S("ref"), S("Should not be a block of statements."));
     }
     ref = scope->getElement(0);
   }
   astMgr->rootManager->getSeeker()->extForeach(ref, target,
-    [&result](TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
+    [&result](TiInt action, Core::Ast::Node *obj, Core::Ast::Seeker::NoticePtr const &notice)->Core::Ast::Seeker::Verb
     {
-      if (action != Core::Data::Seeker::Action::TARGET_MATCH) return Core::Data::Seeker::Verb::MOVE;
+      if (action != Core::Ast::Seeker::Action::TARGET_MATCH) return Core::Ast::Seeker::Verb::MOVE;
       if (obj != 0) result.add(obj);
-      return Core::Data::Seeker::Verb::MOVE;
+      return Core::Ast::Seeker::Verb::MOVE;
     },
     flags
   );
@@ -142,11 +154,10 @@ Array<TiObject*> AstMgr::_findElements(TiObject *self, TiObject *ref, TiObject *
 }
 
 
-Containing<TiObject>* AstMgr::_getModifiers(TiObject *self, TiObject *element)
+Containing<Core::Ast::Node>* AstMgr::_getModifiers(TiObject *self, Core::Ast::Node *element)
 {
   Array<TiObject*> result;
-  auto node = ti_cast<Core::Data::Node>(element);
-  auto def = Core::Data::findOwner<Core::Data::Ast::Definition>(node);
+  auto def = Core::Ast::findOwner<Core::Ast::Definition>(element);
   if (def == 0 || def->getModifiers() == 0 || def->getModifiers()->getCount() == 0) {
     return 0;
   }
@@ -154,7 +165,7 @@ Containing<TiObject>* AstMgr::_getModifiers(TiObject *self, TiObject *element)
 }
 
 
-TiObject* AstMgr::_findModifier(TiObject *self, Containing<TiObject> *modifiers, Char const *kwd)
+Core::Ast::Node* AstMgr::_findModifier(TiObject *self, Containing<Core::Ast::Node> *modifiers, Char const *kwd)
 {
   PREPARE_SELF(astMgr, AstMgr);
   for (Int i = 0; i < modifiers->getElementCount(); ++i) {
@@ -166,7 +177,7 @@ TiObject* AstMgr::_findModifier(TiObject *self, Containing<TiObject> *modifiers,
 }
 
 
-TiObject* AstMgr::_findModifierForElement(TiObject *self, TiObject *element, Char const *kwd)
+Core::Ast::Node* AstMgr::_findModifierForElement(TiObject *self, Core::Ast::Node *element, Char const *kwd)
 {
   PREPARE_SELF(astMgr, AstMgr);
   auto modifiers = astMgr->getModifiers(element);
@@ -175,28 +186,28 @@ TiObject* AstMgr::_findModifierForElement(TiObject *self, TiObject *element, Cha
 }
 
 
-String AstMgr::_getModifierKeyword(TiObject *self, TiObject *modifier)
+String AstMgr::_getModifierKeyword(TiObject *self, Core::Ast::Node *modifier)
 {
-  Core::Data::Ast::Identifier *identifier = 0;
-  if (modifier->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    identifier = static_cast<Core::Data::Ast::Identifier*>(modifier);
-  } else if (modifier->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
-    auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(modifier);
-    identifier = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  Core::Ast::Identifier *identifier = 0;
+  if (modifier->isDerivedFrom<Core::Ast::Identifier>()) {
+    identifier = static_cast<Core::Ast::Identifier*>(modifier);
+  } else if (modifier->isDerivedFrom<Core::Ast::ParamPass>()) {
+    auto paramPass = static_cast<Core::Ast::ParamPass*>(modifier);
+    identifier = paramPass->getOperand().ti_cast_get<Core::Ast::Identifier>();
   }
   if (identifier != 0) return identifier->getValue().getStr();
   else return String();
 }
 
 
-Bool AstMgr::_getModifierParams(TiObject *self, TiObject *modifier, Array<TiObject*> &result)
+Bool AstMgr::_getModifierParams(TiObject *self, Core::Ast::Node *modifier, Array<Core::Ast::Node*> &result)
 {
   PREPARE_SELF(astMgr, AstMgr);
 
-  auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifier);
+  auto paramPass = ti_cast<Core::Ast::ParamPass>(modifier);
   if (paramPass == 0) return true;
 
-  auto params = paramPass->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();
+  auto params = paramPass->getParam().ti_cast_get<Core::Basic::Containing<Core::Ast::Node>>();
   if (params == 0) {
     result.add(paramPass->getParam().get());
   } else {
@@ -208,24 +219,33 @@ Bool AstMgr::_getModifierParams(TiObject *self, TiObject *modifier, Array<TiObje
 }
 
 
-Bool AstMgr::_getModifierStringParams(TiObject *self, TiObject *modifier, Array<String> &result)
+Bool AstMgr::_getModifierStringParams(TiObject *self, Core::Ast::Node *modifier, Array<String> &result)
 {
   PREPARE_SELF(astMgr, AstMgr);
 
-  auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifier);
-  if (paramPass == 0 || paramPass->getParam().get() == 0) return true;
+  auto paramPass = ti_cast<Core::Ast::ParamPass>(modifier);
+  if (paramPass == 0) return true;
+  return astMgr->getStringsFromStringParams(paramPass->getParam().get(), result);
+}
 
-  Core::Basic::PlainList<TiObject> strList;
-  auto strs = paramPass->getParam().ti_cast_get<Core::Basic::Containing<TiObject>>();
+
+Bool AstMgr::_getStringsFromStringParams(TiObject *self, Core::Ast::Node *params, Array<String> &result)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+
+  if (params == 0) return true;
+
+  Core::Basic::PlainList<Core::Ast::Node> strList;
+  auto strs = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(params);
   if (strs == 0) {
-    strList.add(paramPass->getParam().get());
+    strList.add(params);
     strs = &strList;
   }
   for (Int i = 0; i < strs->getElementCount(); ++i) {
-    auto str = ti_cast<Core::Data::Ast::StringLiteral>(strs->getElement(i));
+    auto str = ti_cast<Core::Ast::StringLiteral>(strs->getElement(i));
     if (str == 0) {
       astMgr->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidModifierDataNotice>(
-        Core::Data::Ast::findSourceLocation(strs->getElement(i))
+        Core::Ast::findSourceLocation(strs->getElement(i))
       ));
       astMgr->rootManager->flushNotices();
       return false;
@@ -236,63 +256,79 @@ Bool AstMgr::_getModifierStringParams(TiObject *self, TiObject *modifier, Array<
 }
 
 
-String AstMgr::_getSourceFullPathForElement(TiObject *self, TiObject *element)
+String AstMgr::_getSourceFullPathForElement(TiObject *self, Core::Ast::Node *element)
 {
-  auto sourceLocation = Core::Data::Ast::findSourceLocation(element).get();
-  if (sourceLocation->isDerivedFrom<Core::Data::SourceLocationRecord>()) {
-    return static_cast<Core::Data::SourceLocationRecord*>(sourceLocation)->filename;
+  auto sourceLocation = Core::Ast::findSourceLocation(element).get();
+  if (sourceLocation->isDerivedFrom<Core::Ast::SourceLocationRecord>()) {
+    return static_cast<Core::Ast::SourceLocationRecord*>(sourceLocation)->filename;
   } else {
-    auto stack = static_cast<Core::Data::SourceLocationStack*>(sourceLocation);
+    auto stack = static_cast<Core::Ast::SourceLocationStack*>(sourceLocation);
     sourceLocation = stack->get(0).get();
-    return static_cast<Core::Data::SourceLocationRecord*>(sourceLocation)->filename;
+    return static_cast<Core::Ast::SourceLocationRecord*>(sourceLocation)->filename;
   }
 }
 
 
-Bool AstMgr::_insertAst(TiObject *self, TiObject* ast)
+Bool AstMgr::_addPossiblyMergeableElement(
+  TiObject *self, Core::Ast::Node *src, DynamicContaining<Core::Ast::Node> *target, Int &index
+) {
+  PREPARE_SELF(astMgr, AstMgr);
+  Bool result = Core::Ast::addPossiblyMergeableElement(
+    src, target, index, astMgr->astHelper->getSeeker(), astMgr->astHelper->getNoticeStore()
+  );
+  astMgr->rootManager->flushNotices();
+  return result;
+}
+
+
+Bool AstMgr::_insertAst(TiObject *self, Core::Ast::Node* ast)
 {
   PREPARE_SELF(astMgr, AstMgr);
   Array<Str> names;
-  Array<TiObject*> values;
-  PlainArrayWrapperContainer<TiObject> container(&values);
+  Array<Core::Ast::Node*> values;
+  PlainArrayWrapperContainer<Core::Ast::Node> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
   astMgr->rootManager->flushNotices();
   return result;
 }
 
 
-Bool AstMgr::_insertAst_plain(TiObject *self, TiObject* ast, Map<Str, TiObject*> *interpolations)
-{
+Bool AstMgr::_insertAst_plain(
+  TiObject *self, Core::Ast::Node *ast, Map<Str, Core::Ast::Node*> *interpolations
+) {
   PREPARE_SELF(astMgr, AstMgr);
   Array<Str> names = interpolations->getKeys();
-  Array<TiObject*> values = interpolations->getValues();
-  PlainArrayWrapperContainer<TiObject> container(&values);
+  Array<Core::Ast::Node*> values = interpolations->getValues();
+  PlainArrayWrapperContainer<Core::Ast::Node> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
   astMgr->rootManager->flushNotices();
   return result;
 }
 
 
-Bool AstMgr::_insertAst_shared(TiObject *self, TiObject* ast, Map<Str, SharedPtr<TiObject>> *interpolations)
-{
+Bool AstMgr::_insertAst_shared(
+  TiObject *self, Core::Ast::Node *ast, Map<Str, SharedPtr<Core::Ast::Node>> *interpolations
+) {
   PREPARE_SELF(astMgr, AstMgr);
   Array<Str> names = interpolations->getKeys();
-  Array<SharedPtr<TiObject>> values = interpolations->getValues();
-  SharedArrayWrapperContainer<TiObject> container(&values);
+  Array<SharedPtr<Core::Ast::Node>> values = interpolations->getValues();
+  SharedArrayWrapperContainer<Core::Ast::Node> container(&values);
   Bool result = astMgr->astProcessor->insertInterpolatedAst(ast, &names, &container);
   astMgr->rootManager->flushNotices();
   return result;
 }
 
 
-Bool AstMgr::_buildAst_plain(TiObject *self, TiObject *ast, Map<Str, TiObject*> *interpolations, TioSharedPtr &result)
-{
+Bool AstMgr::_buildAst_plain(
+  TiObject *self, Core::Ast::Node *ast, Map<Str, Core::Ast::Node*> *interpolations,
+  SharedPtr<Core::Ast::Node> &result
+) {
   PREPARE_SELF(astMgr, AstMgr);
   Array<Str> names = interpolations->getKeys();
-  Array<TiObject*> values = interpolations->getValues();
-  PlainArrayWrapperContainer<TiObject> container(&values);
+  Array<Core::Ast::Node*> values = interpolations->getValues();
+  PlainArrayWrapperContainer<Core::Ast::Node> container(&values);
   Bool ret = astMgr->astProcessor->interpolateAst(
-    ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
+    ast, &names, &container, Core::Ast::findSourceLocation(ast).get(), result
   );
   astMgr->rootManager->flushNotices();
   return ret;
@@ -300,24 +336,32 @@ Bool AstMgr::_buildAst_plain(TiObject *self, TiObject *ast, Map<Str, TiObject*> 
 
 
 Bool AstMgr::_buildAst_shared(
-  TiObject *self, TiObject *ast, Map<Str, SharedPtr<TiObject>> *interpolations, TioSharedPtr &result
+  TiObject *self, Core::Ast::Node *ast, Map<Str, SharedPtr<Core::Ast::Node>> *interpolations,
+  SharedPtr<Core::Ast::Node> &result
 ) {
   PREPARE_SELF(astMgr, AstMgr);
   Array<Str> names = interpolations->getKeys();
-  Array<SharedPtr<TiObject>> values = interpolations->getValues();
-  SharedArrayWrapperContainer<TiObject> container(&values);
+  Array<SharedPtr<Core::Ast::Node>> values = interpolations->getValues();
+  SharedArrayWrapperContainer<Core::Ast::Node> container(&values);
   Bool ret = astMgr->astProcessor->interpolateAst(
-    ast, &names, &container, Core::Data::Ast::findSourceLocation(ast).get(), result
+    ast, &names, &container, Core::Ast::findSourceLocation(ast).get(), result
   );
   astMgr->rootManager->flushNotices();
   return ret;
 }
 
 
-TiObject* AstMgr::_getCurrentPreprocessOwner(TiObject *self)
+Core::Ast::Node* AstMgr::_getCurrentPreprocessOwner(TiObject *self)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astProcessor->getCurrentPreprocessOwner();
+}
+
+
+Bool AstMgr::_preprocessTypeBody(TiObject *self, Spp::Ast::UserType *type)
+{
+  PREPARE_SELF(astMgr, AstMgr);
+  return astMgr->astProcessor->processTypeBody(type);
 }
 
 
@@ -328,56 +372,63 @@ Int AstMgr::_getCurrentPreprocessInsertionPosition(TiObject *self)
 }
 
 
-Int AstMgr::_getVariableDomain(TiObject *self, TiObject *ast)
+Int AstMgr::_getVariableDomain(TiObject *self, Core::Ast::Node *ast)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astHelper->getVariableDomain(ast);
 }
 
 
-Spp::Ast::Type* AstMgr::_traceType(TiObject *self, TiObject *astNode)
+Spp::Ast::Type* AstMgr::_traceType(TiObject *self, Core::Ast::Node *astNode)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astHelper->traceType(astNode);
 }
 
 
-Bool AstMgr::_isCastableTo(TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit)
-{
+Bool AstMgr::_isCastableTo(
+  TiObject *self, Core::Ast::Node *srcTypeRef, Core::Ast::Node *targetTypeRef, Bool implicit
+) {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astHelper->isCastableTo(srcTypeRef, targetTypeRef, implicit);
 }
 
 
 Bool AstMgr::_matchTemplateInstance(
-  TiObject *self, Spp::Ast::Template *tmplt, TiObject *templateInputs, TioSharedPtr &result
+  TiObject *self, Spp::Ast::Template *tmplt, Core::Ast::Node *templateInputs,
+  SharedPtr<Core::Ast::Node> &result
 ) {
   PREPARE_SELF(astMgr, AstMgr);
-  return tmplt->matchInstance(templateInputs, astMgr->astHelper, result);
+  SharedPtr<Core::Notices::Notice> notice;
+  if (tmplt->matchInstance(templateInputs, astMgr->astHelper, result, notice)) return true;
+  if (notice != 0) astMgr->rootManager->getNoticeStore()->add(notice);
+  return false;
 }
 
-Bool AstMgr::_computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue)
-{
+Bool AstMgr::_computeResultType(
+  TiObject *self, Core::Ast::Node *astNode, Core::Ast::Node *&result, Bool &resultIsValue
+) {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->expressionComputation->computeResultType(astNode, result, resultIsValue);
 }
 
 
-SharedPtr<TiObject> AstMgr::_cloneAst(TiObject *self, TiObject *astNodeToCopy, TiObject *astNodeForSourceLocation)
-{
+SharedPtr<Core::Ast::Node> AstMgr::_cloneAst(
+  TiObject *self, Core::Ast::Node *astNodeToCopy, Core::Ast::Node *astNodeForSourceLocation
+) {
   PREPARE_SELF(astMgr, AstMgr);
-  auto sourceLocation = Core::Data::Ast::findSourceLocation(astNodeForSourceLocation).get();
-  return Core::Data::Ast::clone(astNodeToCopy, sourceLocation);
+  auto sourceLocation = Core::Ast::findSourceLocation(astNodeForSourceLocation).get();
+  return Core::Ast::clone(astNodeToCopy, sourceLocation);
 }
 
 
-void AstMgr::_dumpData(TiObject *self, TiObject *obj)
+void AstMgr::_dumpAst(TiObject *self, Core::Ast::Node *obj)
 {
-  Core::Data::dumpData(outStream, obj, 0);
+  Core::Ast::dumpAst(outStream, obj, 0);
 }
 
 
-Spp::Ast::ReferenceType* AstMgr::_getReferenceTypeFor(TiObject *self, TiObject *type)
+Spp::Ast::ReferenceType* AstMgr::_getReferenceTypeFor(TiObject *self, Core::Ast::Node *type)
 {
   PREPARE_SELF(astMgr, AstMgr);
   return astMgr->astHelper->getReferenceTypeFor(type, Spp::Ast::ReferenceMode::EXPLICIT);
@@ -391,13 +442,11 @@ Spp::Ast::Type* AstMgr::_tryGetDeepReferenceContentType(TiObject *self, Spp::Ast
 }
 
 
-Bool AstMgr::_isInjection(TiObject *self, TiObject *obj)
+Bool AstMgr::_isInjection(TiObject *self, Core::Ast::Node *obj)
 {
-  auto def = ti_cast<Core::Data::Ast::Definition>(obj);
+  auto def = ti_cast<Core::Ast::Definition>(obj);
   if (def == 0) {
-    auto node = ti_cast<Core::Data::Node>(obj);
-    if (node == 0) return false;
-    def = ti_cast<Core::Data::Ast::Definition>(node->getOwner());
+    def = ti_cast<Core::Ast::Definition>(obj->getOwner());
     if (def == 0) return false;
   }
   return Ast::isInjection(def);

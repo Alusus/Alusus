@@ -2,7 +2,7 @@
  * @file Core/Processing/IdentifierTokenizingHandler.h
  * Contains the header of class Core::Processing::IdentifierTokenizingHandler.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -81,8 +81,8 @@ class IdentifierTokenizingHandler : public TokenizingHandler
   }
 
   public: virtual void prepareToken(
-    Data::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
-    Data::SourceLocationRecord const &sourceLocation
+    Ast::Token *token, Word id, WChar const *tokenText, Word tokenTextLength,
+    Ast::SourceLocationRecord const &sourceLocation
   );
 
 }; // class

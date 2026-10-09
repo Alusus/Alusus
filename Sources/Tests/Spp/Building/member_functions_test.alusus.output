@@ -39,23 +39,25 @@ define void @"test()"() {
   %2 = call ptr @"B.getMyRef(ref[B])=>(ref[B])"(ptr %b)
   %3 = getelementptr %B, ptr %2, i32 0, i32 0
   call void @"A.print(ref[A])"(ptr %3)
-  %4 = alloca %A, align 4
-  call void @"getA()=>(A)"(ptr sret(%A) %4)
-  %5 = load %A, ptr %4, align 4
+  %4 = call i32 @"getA()=>(A)"()
+  %5 = alloca %A, align 4
+  store i32 %4, ptr %5, align 4
+  %6 = load %A, ptr %5, align 4
   %"#temp1" = alloca %A, align 4
-  store %A %5, ptr %"#temp1", align 4
+  store %A %6, ptr %"#temp1", align 4
   call void @"A.print(ref[A])"(ptr %"#temp1")
-  %6 = call ptr @"getARef()=>(ref[A])"()
-  call void @"A.print(ref[A])"(ptr %6)
+  %7 = call ptr @"getARef()=>(ref[A])"()
+  call void @"A.print(ref[A])"(ptr %7)
   %"#temp2" = alloca %B, align 8
   call void @"getB()=>(B)"(ptr %"#temp2")
   call void @"B.printA(ref[B])"(ptr %"#temp2")
-  %7 = call ptr @"getBRef()=>(ref[B])"()
-  call void @"B.printA(ref[B])"(ptr %7)
-  %8 = alloca %A, align 4
-  call void @"getA()=>(A)"(ptr sret(%A) %8)
-  %9 = load %A, ptr %8, align 4
-  %10 = call ptr @"getARef()=>(ref[A])"()
+  %8 = call ptr @"getBRef()=>(ref[B])"()
+  call void @"B.printA(ref[B])"(ptr %8)
+  %9 = call i32 @"getA()=>(A)"()
+  %10 = alloca %A, align 4
+  store i32 %9, ptr %10, align 4
+  %11 = load %A, ptr %10, align 4
+  %12 = call ptr @"getARef()=>(ref[A])"()
   %c = alloca %C, align 4
   call void @"C.setI(ref[C],Int[32])"(ptr %c, i32 10)
   ret void
@@ -126,14 +128,13 @@ define ptr @"B.getMyRef(ref[B])=>(ref[B])"(ptr %this) {
   ret ptr %0
 }
 
-define void @"getA()=>(A)"(ptr sret(%A) %__sret) {
+define i32 @"getA()=>(A)"() {
 "#block8":
   %a = alloca %A, align 4
   %0 = getelementptr %A, ptr %a, i32 0, i32 0
   store i32 11, ptr %0, align 4
-  %1 = load %A, ptr %a, align 4
-  store %A %1, ptr %__sret, align 4
-  ret void
+  %1 = load i32, ptr %a, align 4
+  ret i32 %1
 }
 
 define ptr @"getARef()=>(ref[A])"() {

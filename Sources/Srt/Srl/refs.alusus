@@ -1,6 +1,6 @@
 import "Srl/refs_base";
 import "Core/Basic";
-import "Core/Data";
+import "Core/Ast";
 import "Spp/Ast";
 
 // Pre-generate shared refs to avoid circular dependency. These types depend on SrdRef in their
@@ -8,10 +8,10 @@ import "Spp/Ast";
 // these SrdRef types without these extra casting features to break the circular dependency.
 if 1 {
     Srl.SrdRef[Core.Basic.TiObject]();
-    Srl.SrdRef[Core.Data.Ast.MergeList]();
-    Srl.SrdRef[Core.Data.Ast.LinkOperator]();
-    Srl.SrdRef[Core.Data.Ast.List]();
-    Srl.SrdRef[Core.Data.Ast.Identifier]();
+    Srl.SrdRef[Core.Ast.MergeList]();
+    Srl.SrdRef[Core.Ast.LinkOperator]();
+    Srl.SrdRef[Core.Ast.List]();
+    Srl.SrdRef[Core.Ast.Identifier]();
     Srl.SrdRef[Spp.Ast.Variable]();
 }
 
@@ -25,10 +25,10 @@ if 1 {
     }
 
     func generateSmartRefAutoImplicitCasts(
-        originalTp: ref[Core.Basic.TiObject], tp: ref[Core.Basic.TiObject], className: ref[Core.Basic.TiObject]
+        originalTp: ref[Core.Ast.Node], tp: ref[Core.Ast.Node], className: ref[Core.Ast.Node]
     ) {
         if not Core.Basic.isDerivedFrom[tp, Spp.Ast.UserType] return;
-        def elements: Array[ref[Core.Basic.TiObject]] = Spp.astMgr.findElements(
+        def elements: Array[ref[Core.Ast.Node]] = Spp.astMgr.findElements(
             (ast elementType == "var"),
             tp,
             Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN
@@ -44,10 +44,10 @@ if 1 {
             (ast handler this~cast[ClassName[OutType]] {
                 return ClassName[OutType](this.refCounter, castRef[this.obj, OutType]);
             }),
-            Map[String, ref[Core.Basic.TiObject]]()
+            Map[String, ref[Core.Ast.Node]]()
                 .set(String("ClassName"), className)
                 .set(String("OutType"), Spp.Ast.Variable().{
-                    Core.Basic.MapContainerOf[this].setElement("type", varType);
+                    Core.Basic.MapContainerOf[this, Core.Ast.Node].setElement("type", varType);
                 })
         );
 
@@ -74,10 +74,10 @@ if 1 {
             }
         }
     }
-    _defineSrdRefCaster[CoreDataNodeSrdRef, Core.Data.Node, Core.Basic.TiObject];
-    _defineSrdRefCaster[CoreDataAstMergeListSrdRef, Core.Data.Ast.MergeList, Core.Data.Node, Core.Basic.TiObject];
-    _defineSrdRefCaster[CoreDataAstLinkOperatorSrdRef, Core.Data.Ast.LinkOperator, Core.Data.Node, Core.Basic.TiObject];
-    _defineSrdRefCaster[CoreDataAstListSrdRef, Core.Data.Ast.List, Core.Data.Node, Core.Basic.TiObject];
-    _defineSrdRefCaster[CoreDataAstIdentifierSrdRef, Core.Data.Ast.Identifier, Core.Data.Node, Core.Basic.TiObject];
-    _defineSrdRefCaster[SppAstVariableSrdRef, Spp.Ast.Variable, Core.Data.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstNodeSrdRef, Core.Ast.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstMergeListSrdRef, Core.Ast.MergeList, Core.Ast.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstLinkOperatorSrdRef, Core.Ast.LinkOperator, Core.Ast.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstListSrdRef, Core.Ast.List, Core.Ast.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstIdentifierSrdRef, Core.Ast.Identifier, Core.Ast.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[SppAstVariableSrdRef, Spp.Ast.Variable, Core.Ast.Node, Core.Basic.TiObject];
 }

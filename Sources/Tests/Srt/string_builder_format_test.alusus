@@ -1,0 +1,22 @@
+import "Srl/Console";
+import "Srl/String";
+import "Srl/StringBuilder";
+use Srl;
+
+// A mixin extending StringBuilder.format with a custom formatting symbol.
+def FormatMixin: {
+    @stringFormater["gd"]
+    handler this.formatTimestamp(ts: Int[64]) {
+        this.append("<date:");
+        this.append(ts);
+        this.append(">");
+    }
+}
+
+func main {
+    def sb: StringBuilder[FormatMixin](1024, 512);
+    sb.format("Today is %gd, count=%i, name=%s", 1234~cast[Int[64]], 7, "test");
+    Console.print("%s\n", sb~cast[ref[String]].buf);
+}
+
+main();

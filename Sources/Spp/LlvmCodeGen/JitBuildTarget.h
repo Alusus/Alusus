@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/JitBuildTarget.h
  * Contains the header of class Spp::LlvmCodeGen::JitBuildTarget.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,6 +34,7 @@ class JitBuildTarget : public BuildTarget
   private: std::unique_ptr<llvm::Module> llvmModule;
 
   private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
+  private: Bool optimize = false;
 
 
   //============================================================================
@@ -41,6 +42,11 @@ class JitBuildTarget : public BuildTarget
 
   public: JitBuildTarget(CodeGen::GlobalItemRepo *gir) : globalItemRepo(gir)
   {
+  }
+
+  public: void setOptimize(Bool o)
+  {
+    this->optimize = o;
   }
 
   public: virtual ~JitBuildTarget()
@@ -76,6 +82,9 @@ class JitBuildTarget : public BuildTarget
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module);
 
   public: void execute(Char const *entry);
+
+  /// Resolves the JIT address of the given (already built) symbol without calling it.
+  public: void* getFunctionPointer(Char const *entry);
 
 }; // class
 

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Session.h
  * Contains the header of class Spp::CodeGen::Session.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,7 +28,7 @@ class Session : public TiObject
   // Member Variables
 
   private: Int buildId;
-  private: ExtraDataAccessor *eda;
+  private: CustomDataAccessor *cda;
   private: TargetGeneration *tg;
   private: Bool offlineExecution;
   private: Array<GlobalCtorDtorInfo> *globalCtors;
@@ -57,11 +57,11 @@ class Session : public TiObject
   // Constructor & Destructor
 
   public: Session(
-    Int bId, ExtraDataAccessor *eda, TargetGeneration *tg, Bool offlineExec,
+    Int bId, CustomDataAccessor *cda, TargetGeneration *tg, Bool offlineExec,
     Array<GlobalCtorDtorInfo> *globalCtors, Array<GlobalCtorDtorInfo> *globalDtors,
     TiObject *tgc, TiObject *tgac, Session *globalCtorSess
   ) : buildId(bId)
-    , eda(eda)
+    , cda(cda)
     , tg(tg)
     , offlineExecution(offlineExec)
     , globalCtors(globalCtors)
@@ -79,7 +79,7 @@ class Session : public TiObject
     : tgContext(tgc)
     , tgAllocContext(tgac)
     , buildId(session->getBuildId())
-    , eda(session->getEda())
+    , cda(session->getEda())
     , tg(session->getTg())
     , offlineExecution(session->isOfflineExecution())
     , globalCtors(session->getGlobalCtors())
@@ -98,7 +98,7 @@ class Session : public TiObject
     , destructionStack(ds)
     , depsInfo(di)
     , buildId(session->getBuildId())
-    , eda(session->getEda())
+    , cda(session->getEda())
     , tg(session->getTg())
     , offlineExecution(session->isOfflineExecution())
     , globalCtors(session->getGlobalCtors())
@@ -118,7 +118,7 @@ class Session : public TiObject
     , tgSelf(tgs)
     , astSelfType(astst)
     , buildId(session->getBuildId())
-    , eda(session->getEda())
+    , cda(session->getEda())
     , tg(session->getTg())
     , offlineExecution(session->isOfflineExecution())
     , globalCtors(session->getGlobalCtors())
@@ -134,8 +134,8 @@ class Session : public TiObject
     return this->buildId;
   }
 
-  public: ExtraDataAccessor* getEda() {
-    return this->eda;
+  public: CustomDataAccessor* getEda() {
+    return this->cda;
   }
 
   public: TargetGeneration* getTg() {
@@ -178,11 +178,11 @@ class Session : public TiObject
     return this->depsInfo;
   }
 
-  public: DependencyList<Core::Data::Node>* getGlobalVarInitializationDeps() {
+  public: DependencyList<Core::Ast::Node>* getGlobalVarInitializationDeps() {
     return &this->depsInfo->globalVarInitializationDeps;
   }
 
-  public: DependencyList<Core::Data::Node>* getGlobalVarDestructionDeps() {
+  public: DependencyList<Core::Ast::Node>* getGlobalVarDestructionDeps() {
     return &this->depsInfo->globalVarDestructionDeps;
   }
 

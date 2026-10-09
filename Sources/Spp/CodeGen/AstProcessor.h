@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/AstProcessor.h
  * Contains the header of class Spp::CodeGen::AstProcessor.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,19 +38,22 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   // Member Variables
 
   private: Ast::Helper *astHelper;
+  private: Ast::CalleeTracer *calleeTracer;
   private: Executing *executing;
   private: ExpressionComputation *expressionComputation;
-  private: SharedList<TiObject> *astNodeRepo;
-  private: TiObject *currentPreprocessOwner;
+  private: SharedList<Core::Ast::Node> *astNodeRepo;
+  private: Core::Ast::Node *currentPreprocessOwner;
   private: Int currentPreprocessInsertionPosition;
-  private: SharedPtr<Core::Data::SourceLocation> currentPreprocessSourceLocation;
+  private: SharedPtr<Core::Ast::SourceLocation> currentPreprocessSourceLocation;
 
 
   //============================================================================
   // Constructors & Destructor
 
-  public: AstProcessor(Ast::Helper *h, Executing *b, ExpressionComputation *ec, SharedList<TiObject> *anr)
-    : astHelper(h), executing(b), expressionComputation(ec), astNodeRepo(anr)
+  public: AstProcessor(
+    Ast::Helper *h, Ast::CalleeTracer *ct, Executing *b, ExpressionComputation *ec,
+    SharedList<Core::Ast::Node> *anr
+  ) : astHelper(h), calleeTracer(ct), executing(b), expressionComputation(ec), astNodeRepo(anr)
   {
     this->initBindingCaches();
     this->initBindings();
@@ -62,6 +65,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     this->inheritBindings(parent);
     this->inheritInterfaces(parent);
     this->astHelper = parent->getAstHelper();
+    this->calleeTracer = parent->getCalleeTracer();
     this->executing = parent->getExecuting();
     this->expressionComputation = parent->getExpressionComputation();
     this->astNodeRepo = parent->getAstNodeRepo();
@@ -86,6 +90,11 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->astHelper;
   }
 
+  public: Ast::CalleeTracer* getCalleeTracer() const
+  {
+    return this->calleeTracer;
+  }
+
   public: Executing* getExecuting() const
   {
     return this->executing;
@@ -96,12 +105,12 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->expressionComputation;
   }
 
-  public: SharedList<TiObject>* getAstNodeRepo() const
+  public: SharedList<Core::Ast::Node>* getAstNodeRepo() const
   {
     return this->astNodeRepo;
   }
 
-  public: TiObject* getCurrentPreprocessOwner() const
+  public: Core::Ast::Node* getCurrentPreprocessOwner() const
   {
     return this->currentPreprocessOwner;
   }
@@ -111,7 +120,7 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
     return this->currentPreprocessInsertionPosition;
   }
 
-  public: SharedPtr<Core::Data::SourceLocation> getCurrentPreprocessSourceLocation() const
+  public: SharedPtr<Core::Ast::SourceLocation> getCurrentPreprocessSourceLocation() const
   {
     return this->currentPreprocessSourceLocation;
   }
@@ -121,24 +130,36 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
   /// @name Code Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(process, Bool, (TiObject* /* owner */));
-  private: static Bool _process(TiObject *self, TiObject *owner);
+  public: METHOD_BINDING_CACHE(process, Bool, (Core::Ast::Node* /* owner */));
+  private: static Bool _process(TiObject *self, Core::Ast::Node *owner);
 
   public: METHOD_BINDING_CACHE(processParamPass,
-    Bool, (Core::Data::Ast::ParamPass* /* paramPass */, TiInt /* indexInOwner */, Bool& /* replaced */)
+    Bool, (Core::Ast::ParamPass* /* paramPass */, TiInt /* indexInOwner */, Bool& /* replaced */)
   );
   private: static Bool _processParamPass(
-    TiObject *self, Core::Data::Ast::ParamPass *paramPass, TiInt indexInOwner, Bool &replaced
+    TiObject *self, Core::Ast::ParamPass *paramPass, TiInt indexInOwner, Bool &replaced
   );
 
   public: METHOD_BINDING_CACHE(processPreprocessStatement,
     Bool, (
-      Spp::Ast::PreprocessStatement* /* preprocessl */, TiObject* /* owner */, TiInt /* indexInOwner */
+      Spp::Ast::PreprocessStatement* /* preprocessl */, Core::Ast::Node* /* owner */, TiInt /* indexInOwner */
     )
   );
   private: static Bool _processPreprocessStatement(
-    TiObject *self, Spp::Ast::PreprocessStatement *preprocess, TiObject *owner, TiInt indexInOwner
+    TiObject *self, Spp::Ast::PreprocessStatement *preprocess, Core::Ast::Node *owner, TiInt indexInOwner
   );
+
+  /**
+   * @brief Process any unprocessed modifiers attached to the given node.
+   *
+   * For each modifier in `node`'s modifier list, looks for a directly accessible function named after the
+   * modifier's keyword and matching the signature `function (node: ref[Core.Ast.Node], modifierParams:
+   * ref[Core.Ast.Node])` (modifierParams is null if the modifier had no `[]` params). If one is found, it
+   * gets built and called with the node and the modifier's params, and the modifier is then removed from
+   * the list. Modifiers with no matching function raise a build error.
+   */
+  public: METHOD_BINDING_CACHE(processModifiers, Bool, (Containing<Core::Ast::Node>* /* container */, Int /* indexInContainer */));
+  private: static Bool _processModifiers(TiObject *self, Containing<Core::Ast::Node> *container, Int indexInContainer);
 
   public: METHOD_BINDING_CACHE(processFunctionBody, Bool, (Spp::Ast::Function* /* func */));
   private: static Bool _processFunctionBody(TiObject *self, Spp::Ast::Function *func);
@@ -148,132 +169,129 @@ class AstProcessor : public TiObject, public DynamicBinding, public DynamicInter
 
   public: METHOD_BINDING_CACHE(processMacro,
     Bool, (
-      Spp::Ast::Macro* /* macro */, Containing<TiObject>* /* args */,
-      TiObject* /* owner */, TiInt /* indexInOwner */, Core::Data::SourceLocation* /* sl */
+      Spp::Ast::Macro* /* macro */, Containing<Core::Ast::Node>* /* args */,
+      Core::Ast::Node* /* owner */, TiInt /* indexInOwner */, Core::Ast::SourceLocation* /* sl */
     )
   );
   private: static Bool _processMacro(
-    TiObject *self, Spp::Ast::Macro *macro, Containing<TiObject> *args,
-    TiObject *owner, TiInt indexInOwner, Core::Data::SourceLocation *sl
+    TiObject *self, Spp::Ast::Macro *macro, Containing<Core::Ast::Node> *args,
+    Core::Ast::Node *owner, TiInt indexInOwner, Core::Ast::SourceLocation *sl
   );
 
   public: METHOD_BINDING_CACHE(applyMacroArgs,
     Bool, (
-      Spp::Ast::Macro* /* macro */, Containing<TiObject>* /* args */, Core::Data::SourceLocation* /* sl */,
-      TioSharedPtr& /* result */
+      Spp::Ast::Macro* /* macro */, Containing<Core::Ast::Node>* /* args */, Core::Ast::SourceLocation* /* sl */,
+      SharedPtr<Core::Ast::Node>& /* result */
     )
   );
   private: static Bool _applyMacroArgs(
-    TiObject *self, Spp::Ast::Macro *macro, Containing<TiObject> *args, Core::Data::SourceLocation *sl,
-    TioSharedPtr &result
+    TiObject *self, Spp::Ast::Macro *macro, Containing<Core::Ast::Node> *args, Core::Ast::SourceLocation *sl,
+    SharedPtr<Core::Ast::Node> &result
   );
 
   public: METHOD_BINDING_CACHE(insertInterpolatedAst,
     Bool, (
-      TiObject* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */
+      Core::Ast::Node* /* obj */, Array<Str> const* /* argNames */, Containing<Core::Ast::Node>* /* args */
     )
   );
   private: static Bool _insertInterpolatedAst(
-    TiObject *self, TiObject *obj, Array<Str> const *argNames, Containing<TiObject> *args
+    TiObject *self, Core::Ast::Node *obj, Array<Str> const *argNames, Containing<Core::Ast::Node> *args
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst,
     Bool, (
-      TiObject* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
+      Core::Ast::Node* /* obj */, Array<Str> const* /* argNames */,
+      Containing<Core::Ast::Node>* /* args */, Core::Ast::SourceLocation* /* sl */,
+      SharedPtr<Core::Ast::Node>& /* result */
     )
   );
   private: static Bool _interpolateAst(
-    TiObject *self, TiObject *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, TioSharedPtr &result
+    TiObject *self, Core::Ast::Node *obj, Array<Str> const *argNames,
+    Containing<Core::Ast::Node> *args, Core::Ast::SourceLocation *sl,
+    SharedPtr<Core::Ast::Node> &result
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst_identifier,
     Bool, (
-      Core::Data::Ast::Identifier* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
+      Core::Ast::Identifier* /* obj */, Array<Str> const* /* argNames */,
+      Containing<Core::Ast::Node>* /* args */, Core::Ast::SourceLocation* /* sl */,
+      SharedPtr<Core::Ast::Node>& /* result */
     )
   );
   private: static Bool _interpolateAst_identifier(
-    TiObject *self, Core::Data::Ast::Identifier *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, TioSharedPtr &result
+    TiObject *self, Core::Ast::Identifier *obj, Array<Str> const *argNames,
+    Containing<Core::Ast::Node> *args, Core::Ast::SourceLocation *sl,
+    SharedPtr<Core::Ast::Node> &result
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst_stringLiteral,
     Bool, (
-      Core::Data::Ast::StringLiteral* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
+      Core::Ast::StringLiteral* /* obj */, Array<Str> const* /* argNames */,
+      Containing<Core::Ast::Node>* /* args */, Core::Ast::SourceLocation* /* sl */,
+      SharedPtr<Core::Ast::Node>& /* result */
     )
   );
   private: static Bool _interpolateAst_stringLiteral(
-    TiObject *self, Core::Data::Ast::StringLiteral *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, TioSharedPtr &result
-  );
-
-  public: METHOD_BINDING_CACHE(interpolateAst_tiStr,
-    Bool, (
-      TiStr* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
-    )
-  );
-  private: static Bool _interpolateAst_tiStr(
-    TiObject *self, TiStr *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, TioSharedPtr &result
+    TiObject *self, Core::Ast::StringLiteral *obj, Array<Str> const *argNames,
+    Containing<Core::Ast::Node> *args, Core::Ast::SourceLocation *sl,
+    SharedPtr<Core::Ast::Node> &result
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst_other,
     Bool, (
-      TiObject* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, TioSharedPtr& /* result */
+      Core::Ast::Node* /* obj */, Array<Str> const* /* argNames */,
+      Containing<Core::Ast::Node>* /* args */, Core::Ast::SourceLocation* /* sl */,
+      SharedPtr<Core::Ast::Node>& /* result */
     )
   );
   private: static Bool _interpolateAst_other(
-    TiObject *self, TiObject *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, TioSharedPtr &result
+    TiObject *self, Core::Ast::Node *obj, Array<Str> const *argNames,
+    Containing<Core::Ast::Node> *args, Core::Ast::SourceLocation *sl,
+    SharedPtr<Core::Ast::Node> &result
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst_binding,
     Bool, (
-      Binding* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, Binding* /* destObj */
+      Binding* /* obj */, Array<Str> const* /* argNames */, Containing<Core::Ast::Node>* /* args */,
+      Core::Ast::SourceLocation* /* sl */, Binding* /* destObj */
     )
   );
   private: static Bool _interpolateAst_binding(
-    TiObject *self, Binding *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, Binding *destObj
+    TiObject *self, Binding *obj, Array<Str> const *argNames, Containing<Core::Ast::Node> *args,
+    Core::Ast::SourceLocation *sl, Binding *destObj
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst_containing,
     Bool, (
-      Containing<TiObject>* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, Containing<TiObject>* /* destObj */
+      Containing<Core::Ast::Node>* /* obj */, Array<Str> const* /* argNames */, Containing<Core::Ast::Node>* /* args */,
+      Core::Ast::SourceLocation* /* sl */, Containing<Core::Ast::Node>* /* destObj */
     )
   );
   private: static Bool _interpolateAst_containing(
-    TiObject *self, Containing<TiObject> *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, Containing<TiObject> *destObj
+    TiObject *self, Containing<Core::Ast::Node> *obj, Array<Str> const *argNames, Containing<Core::Ast::Node> *args,
+    Core::Ast::SourceLocation *sl, Containing<Core::Ast::Node> *destObj
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst_dynContaining,
     Bool, (
-      DynamicContaining<TiObject>* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, DynamicContaining<TiObject>* /* destObj */
+      DynamicContaining<Core::Ast::Node>* /* obj */, Array<Str> const* /* argNames */, Containing<Core::Ast::Node>* /* args */,
+      Core::Ast::SourceLocation* /* sl */, DynamicContaining<Core::Ast::Node>* /* destObj */
     )
   );
   private: static Bool _interpolateAst_dynContaining(
-    TiObject *self, DynamicContaining<TiObject> *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, DynamicContaining<TiObject> *destObj
+    TiObject *self, DynamicContaining<Core::Ast::Node> *obj, Array<Str> const *argNames, Containing<Core::Ast::Node> *args,
+    Core::Ast::SourceLocation *sl, DynamicContaining<Core::Ast::Node> *destObj
   );
 
   public: METHOD_BINDING_CACHE(interpolateAst_dynMapContaining,
     Bool, (
-      DynamicMapContaining<TiObject>* /* obj */, Array<Str> const* /* argNames */, Containing<TiObject>* /* args */,
-      Core::Data::SourceLocation* /* sl */, DynamicMapContaining<TiObject>* /* destObj */
+      DynamicMapContaining<Core::Ast::Node>* /* obj */, Array<Str> const* /* argNames */, Containing<Core::Ast::Node>* /* args */,
+      Core::Ast::SourceLocation* /* sl */, DynamicMapContaining<Core::Ast::Node>* /* destObj */
     )
   );
   private: static Bool _interpolateAst_dynMapContaining(
-    TiObject *self, DynamicMapContaining<TiObject> *obj, Array<Str> const *argNames, Containing<TiObject> *args,
-    Core::Data::SourceLocation *sl, DynamicMapContaining<TiObject> *destObj
+    TiObject *self, DynamicMapContaining<Core::Ast::Node> *obj, Array<Str> const *argNames, Containing<Core::Ast::Node> *args,
+    Core::Ast::SourceLocation *sl, DynamicMapContaining<Core::Ast::Node> *destObj
   );
 
   /// @}

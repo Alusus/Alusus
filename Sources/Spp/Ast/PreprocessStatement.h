@@ -2,7 +2,7 @@
  * @file Spp/Ast/PreprocessStatement.h
  * Contains the header of class Spp::Ast::PreprocessStatement.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,17 +16,15 @@
 namespace Spp::Ast
 {
 
-class PreprocessStatement : public Core::Data::Node,
-                            public Binding, public MapContaining<TiObject>,
-                            public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class PreprocessStatement : public Core::Ast::Node,
+                            public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(PreprocessStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(PreprocessStatement, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(PreprocessStatement);
 
@@ -34,24 +32,15 @@ class PreprocessStatement : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr body;
+  private: SharedPtr<Core::Ast::Node> body;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(PreprocessStatement);
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
+    (body, Core::Ast::Node, SHARED_REF, setBody(value), body.get())
   );
-
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (body, TiObject, SHARED_REF, setBody(value), body.get())
-  );
-
-  IMPLEMENT_AST_MAP_PRINTABLE(PreprocessStatement);
 
 
   //============================================================================
@@ -72,16 +61,16 @@ class PreprocessStatement : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setBody(TioSharedPtr const &b)
+  public: void setBody(SharedPtr<Core::Ast::Node> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
-  private: void setBody(TiObject *b)
+  private: void setBody(Core::Ast::Node *b)
   {
     this->setBody(getSharedPtr(b));
   }
 
-  public: TioSharedPtr const& getBody() const
+  public: SharedPtr<Core::Ast::Node> const& getBody() const
   {
     return this->body;
   }

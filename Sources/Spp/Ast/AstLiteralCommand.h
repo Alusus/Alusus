@@ -2,7 +2,7 @@
  * @file Spp/Ast/AstLiteralCommand.h
  * Contains the header of class Spp::Ast::AstLiteralCommand.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,17 +16,15 @@
 namespace Spp::Ast
 {
 
-class AstLiteralCommand : public Core::Data::Node,
-                          public Binding, public MapContaining<TiObject>,
-                          public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class AstLiteralCommand : public Core::Ast::Node,
+                          public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(AstLiteralCommand, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(AstLiteralCommand, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(AstLiteralCommand);
 
@@ -34,24 +32,18 @@ class AstLiteralCommand : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr body;
+  private: SharedPtr<Core::Ast::Node> body;
   private: TiBool preprocessDisabled;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(AstLiteralCommand);
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get()),
+  IMPLEMENT_BINDING(Core::Ast::Node,
     (preprocessDisabled, TiBool, VALUE, setPreprocessDisabled(value), &preprocessDisabled)
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>, (body, TiObject, SHARED_REF, setBody(value), body.get()));
-
-  IMPLEMENT_AST_MAP_PRINTABLE(AstLiteralCommand);
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>, (body, Core::Ast::Node, SHARED_REF, setBody(value), body.get()));
 
 
   //============================================================================
@@ -72,16 +64,16 @@ class AstLiteralCommand : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setBody(TioSharedPtr const &o)
+  public: void setBody(SharedPtr<Core::Ast::Node> const &o)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, o);
   }
-  private: void setBody(TiObject *o)
+  private: void setBody(Core::Ast::Node *o)
   {
     this->setBody(getSharedPtr(o));
   }
 
-  public: TioSharedPtr const& getBody() const
+  public: SharedPtr<Core::Ast::Node> const& getBody() const
   {
     return this->body;
   }

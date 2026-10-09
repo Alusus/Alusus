@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Basic
  * namespace.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -287,6 +287,105 @@ namespace Core::Basic
       bool operator <(_##x v) const { return this->get() < v; } \
       bool operator <=(_##x v) const { return this->get() <= v; } \
       _##x get() const { return static_cast<_##x>(p::get()); } \
+  }
+
+/**
+ * @brief The node type of the object in which the ownership macros are used.
+ * @ingroup basic_macros
+ * AST and grammar trees have separate node classes (Ast::Node and
+ * Grammar::Node). The ownership macros use this to determine the node type
+ * from the owner object (this) itself.
+ */
+#define _OWNER_NODE_TYPE std::remove_pointer_t<decltype(this->getOwner())>
+
+/**
+ * @brief Set the owner of ptr to this if ptr is of the same node type as this.
+ * @ingroup basic_macros
+ */
+#define OWN_SHAREDPTR(ptr) \
+  { \
+    auto __ptr = (ptr).ti_cast_get<_OWNER_NODE_TYPE>(); \
+    if (__ptr != 0) { __ptr->setOwner(this); } \
+  }
+
+/**
+ * @brief A plain pointer version of OWN_SHAREDPTR.
+ * @ingroup basic_macros
+ * @sa OWN_SHAREDPTR()
+ */
+#define OWN_PLAINPTR(ptr) \
+  { \
+    auto __ptr = (ptr).ti_cast_get<_OWNER_NODE_TYPE>(); \
+    if (__ptr != 0) { __ptr->setOwner(this); } \
+  }
+
+/**
+ * @brief Reset the owner of ptr if ptr is of the same node type as this.
+ * @ingroup basic_macros
+ */
+#define DISOWN_SHAREDPTR(ptr) \
+  { \
+    auto __ptr = (ptr).ti_cast_get<_OWNER_NODE_TYPE>(); \
+    if (__ptr != 0 && __ptr->getOwner() == this) { __ptr->setOwner(0); } \
+  }
+
+/**
+ * @brief A plain pointer version of DIWOWN_SHAREDPTR.
+ * @ingroup basic_macros
+ * @sa DISOWN_SHAREDPTR()
+ */
+#define DISOWN_PLAINPTR(ptr) \
+  { \
+    auto __ptr = ti_cast<_OWNER_NODE_TYPE>(ptr); \
+    if (__ptr != 0 && __ptr->getOwner() == this) { __ptr->setOwner(0); } \
+  }
+
+/**
+ * @brief A macro to make it easy to set and update owned object pointers.
+ * @ingroup basic_macros
+ * This macro will first reset the owner of the current object before setting
+ * the new object and setting the owner of the new object.
+ */
+#define UPDATE_OWNED_SHAREDPTR(ptr, val) \
+  { \
+    DISOWN_SHAREDPTR(ptr); \
+    (ptr) = val; \
+    OWN_SHAREDPTR(ptr); \
+  }
+
+/**
+ * @brief A plain pointer version of UPDATED_OWNED_SHAREDPTR.
+ * @ingroup basic_macros
+ * @sa UPDATED_OWNED_SHARED_PTR()
+ */
+#define UPDATE_OWNED_PLAINPTR(ptr, val) \
+  { \
+    DISOWN_PLAINPTR(ptr); \
+    (ptr) = val; \
+    OWN_PLAINPTR(ptr); \
+  }
+
+/**
+ * @brief A macro to simplify resetting a pointer to an owned object.
+ * @ingroup basic_macros
+ * This macro will first reset the owner of the object before resetting the
+ * pointer.
+ */
+#define RESET_OWNED_SHAREDPTR(ptr) \
+  {\
+    DISOWN_SHAREDPTR(ptr); \
+    (ptr).reset(); \
+  }
+
+/**
+ * @brief A plain pointer version of RESET_OWNED_SHAREDPTR.
+ * @ingroup basic_macros
+ * @sa RESET_OWNED_SHAREDPTR()
+ */
+#define RESET_OWNED_PLAINPTR(ptr) \
+  {\
+    DISOWN_PLAINPTR(ptr); \
+    (ptr) = 0; \
   }
 
 /**
@@ -673,6 +772,7 @@ extern std::istream &inStream;
 #include "SubsetIndex.h"
 
 #include "GlobalStorage.h"
+#include "IdGenerator.h"
 
 #include "type_names.h"
 #include "type_info.h"

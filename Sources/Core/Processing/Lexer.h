@@ -2,7 +2,7 @@
  * @file Core/Processing/Lexer.h
  * Contains the header of class Core::Processing::Lexer.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -68,10 +68,10 @@ class Lexer : public TiObject
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Data::Grammar::Module> grammarRoot;
+  private: SharedPtr<Grammar::Module> grammarRoot;
 
   /// The context used to tracer through the grammar.
-  private: Data::Grammar::Context grammarContext;
+  private: Grammar::Context grammarContext;
 
   private: LexerState **states = 0;
   private: Word stateCount = 0;
@@ -128,7 +128,7 @@ class Lexer : public TiObject
    * a new value is written to this object and the caller must immediately
    * read this value before calling "process" again.
    */
-  private: Data::Token lastToken;
+  private: Ast::Token lastToken;
 
   /**
    * @brief The buffer of error characters.
@@ -155,7 +155,7 @@ class Lexer : public TiObject
    * receivers should not retain this pointer because its data won't be
    * retained beyond the firing of this signal.
    */
-  public: Signal<void, Data::Token const*> tokenGenerated;
+  public: Signal<void, Ast::Token const*> tokenGenerated;
 
 
   //============================================================================
@@ -181,7 +181,7 @@ class Lexer : public TiObject
   /// @name Initialization Related Functions
   /// @{
 
-  public: void initialize(SharedPtr<Data::Ast::Scope> rootScope);
+  public: void initialize(SharedPtr<Grammar::Module> const &grammarRoot);
 
   /// Release all data including parsing data and definitions data.
   public: void release()
@@ -198,16 +198,16 @@ class Lexer : public TiObject
   /// @{
 
   /// Add a single input character to the input buffer and process it.
-  public: void handleNewChar(Char inputChar, Data::SourceLocationRecord &sourceLocation);
+  public: void handleNewChar(Char inputChar, Ast::SourceLocationRecord &sourceLocation);
 
   /// Add a string of input characters to the input buffer and process them.
-  public: void handleNewString(Char const *inputStr, Data::SourceLocationRecord &sourceLocation);
+  public: void handleNewString(Char const *inputStr, Ast::SourceLocationRecord &sourceLocation);
 
   /// Process all the characters currently waiting in the input buffer.
   private: void processBuffer();
 
   /// Push a character into the input buffer.
-  private: Bool pushChar(WChar ch, Data::SourceLocationRecord const &sl);
+  private: Bool pushChar(WChar ch, Ast::SourceLocationRecord const &sl);
 
   /// Process the given input character by updating the states.
   private: Int process();
@@ -242,12 +242,12 @@ class Lexer : public TiObject
   private: LexerState* createState();
 
   /// Get the symbol definition at the specified index.
-  public: Data::Grammar::SymbolDefinition* getSymbolDefinition(Int index)
+  public: Grammar::SymbolDefinition* getSymbolDefinition(Int index)
   {
-    Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(
+    Grammar::SymbolDefinition *def = static_cast<Grammar::SymbolDefinition*>(
       this->grammarContext.getModule()->getElement(index)
     );
-    ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
+    ASSERT(def->isA<Grammar::SymbolDefinition>());
     return def;
   }
 
@@ -265,7 +265,7 @@ class Lexer : public TiObject
    * a new value is written to this object and the caller must immediately
    * read this value before calling "process" again.
    */
-  public: const Data::Token* getLastToken() const
+  public: const Ast::Token* getLastToken() const
   {
     return &this->lastToken;
   }

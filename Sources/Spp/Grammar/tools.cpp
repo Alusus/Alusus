@@ -2,7 +2,7 @@
  * @file Spp/Grammar/tools.cpp
  * Contains implementations of grammar utility functions.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,42 +15,42 @@
 namespace Spp::Grammar
 {
 
-using namespace Core::Data::Grammar;
+using namespace Core::Grammar;
 using namespace Core::Processing;
 
-using Map = Core::Data::Grammar::Map;
+using Map = Core::Grammar::Map;
 
 Bool parseCommandSection(
-  TiObject *ast, CommandSection &section, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, CommandSection &section, Core::Notices::Store *noticeStore
 ) {
-  TiObject *sectionAst;
+  Core::Ast::Node *sectionAst;
   if (!parseMinMax(ast, sectionAst, section.min, section.max, noticeStore)) return false;
-  auto scope = ti_cast<Core::Data::Ast::Scope>(sectionAst);
+  auto scope = ti_cast<Core::Ast::Scope>(sectionAst);
   if (scope == 0) {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(sectionAst))
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(sectionAst))
     );
     return false;
   }
   for (Int i = 0; i < scope->getCount(); ++i) {
-    auto linkOp = ti_cast<Core::Data::Ast::LinkOperator>(scope->getElement(i));
+    auto linkOp = ti_cast<Core::Ast::LinkOperator>(scope->getElement(i));
     if (linkOp == 0 || linkOp->getType() != S(":")) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(scope->getElement(i)))
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(scope->getElement(i)))
       );
       return false;
     }
-    auto id = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+    auto id = linkOp->getFirst().ti_cast_get<Core::Ast::Identifier>();
     if (id == 0) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(linkOp))
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(linkOp))
       );
       return false;
     }
     if (id->getValue() == S("keywords") || id->getValue() == S("مفاتيح")) {
       if (!parseCommandKeywords(linkOp->getSecond().get(), section.keywords, noticeStore)) return false;
     } else if (id->getValue() == S("args") || id->getValue() == S("معطيات")) {
-      Array<TiObject*> argList;
+      Array<Core::Ast::Node*> argList;
       convertInfixOpIntoList(linkOp->getSecond().get(), S("+"), argList);
       for (Int j = 0; j < argList.getLength(); ++j) {
         CommandArg arg;
@@ -59,14 +59,14 @@ Bool parseCommandSection(
       }
     } else {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(id))
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(id))
       );
       return false;
     }
   }
   if (section.keywords == 0) {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(scope))
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(scope))
     );
     return false;
   }
@@ -76,35 +76,35 @@ Bool parseCommandSection(
 
 
 Bool parseCommandKeywords(
-  TiObject *ast, SharedPtr<Map> &keywords, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, SharedPtr<Map> &keywords, Core::Notices::Store *noticeStore
 ) {
-  Array<TiObject*> keywordList;
+  Array<Core::Ast::Node*> keywordList;
   convertInfixOpIntoList(ast, S("|"), keywordList);
   if (keywordList.getLength() == 0) {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(ast))
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(ast))
     );
     return false;
   }
   keywords = Map::create();
   for (Int i = 0; i < keywordList.getLength(); ++i) {
-    auto strLiteral = ti_cast<Core::Data::Ast::StringLiteral>(keywordList.at(i));
+    auto strLiteral = ti_cast<Core::Ast::StringLiteral>(keywordList.at(i));
     if (strLiteral == 0) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(keywordList.at(i)))
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(keywordList.at(i)))
       );
       return false;
     }
-    keywords->add(strLiteral->getValue().get(), TioSharedPtr::null);
+    keywords->add(strLiteral->getValue().get(), SharedPtr<Core::Ast::Node>::null);
   }
   return true;
 }
 
 
 Bool parseCommandArg(
-  TiObject *ast, CommandArg &arg, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, CommandArg &arg, Core::Notices::Store *noticeStore
 ) {
-  TiObject *argAst;
+  Core::Ast::Node *argAst;
   if (!parseMinMax(ast, argAst, arg.min, arg.max, noticeStore)) return false;
   Str qualifier;
   if (!parseQualifier(argAst, qualifier, noticeStore)) return false;
@@ -115,41 +115,41 @@ Bool parseCommandArg(
 
 
 Bool parseMinMax(
-  TiObject *ast, TiObject *&resultAst, SharedPtr<TiInt> &min, SharedPtr<TiInt> &max, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, Core::Ast::Node *&resultAst, SharedPtr<TiInt> &min, SharedPtr<TiInt> &max, Core::Notices::Store *noticeStore
 ) {
-  auto mulOp = ti_cast<Core::Data::Ast::MultiplicationOperator>(ast);
+  auto mulOp = ti_cast<Core::Ast::MultiplicationOperator>(ast);
   if (mulOp == 0 || mulOp->getType() != S("*")) {
     resultAst = ast;
     return true;
   }
   resultAst = mulOp->getFirst().get();
-  auto intLiteral = mulOp->getSecond().ti_cast_get<Core::Data::Ast::IntegerLiteral>();
+  auto intLiteral = mulOp->getSecond().ti_cast_get<Core::Ast::IntegerLiteral>();
   if (intLiteral != 0) {
     auto num = std::stoi(intLiteral->getValue().get());
     min = newSrdObj<TiInt>(num);
     max = newSrdObj<TiInt>(num);
     return true;
   }
-  auto bracket = mulOp->getSecond().ti_cast_get<Core::Data::Ast::Bracket>();
-  if (bracket == 0 || bracket->getType() != Core::Data::Ast::BracketType::ROUND) {
+  auto bracket = mulOp->getSecond().ti_cast_get<Core::Ast::Bracket>();
+  if (bracket == 0 || bracket->getType() != Core::Ast::BracketType::ROUND) {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(mulOp->getSecond().get()))
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(mulOp->getSecond().get()))
     );
     return false;
   }
-  auto list = bracket->getOperand().ti_cast_get<Core::Data::Ast::List>();
+  auto list = bracket->getOperand().ti_cast_get<Core::Ast::List>();
   if (list == 0 || list->getCount() != 2) {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(bracket))
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(bracket))
     );
     return false;
   }
   auto first = list->get(0).get();
   if (first != 0) {
-    intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(first);
+    intLiteral = ti_cast<Core::Ast::IntegerLiteral>(first);
     if (intLiteral == 0) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(first))
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(first))
       );
       return false;
     }
@@ -158,10 +158,10 @@ Bool parseMinMax(
   }
   auto second = list->get(1).get();
   if (second != 0) {
-    intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(second);
+    intLiteral = ti_cast<Core::Ast::IntegerLiteral>(second);
     if (intLiteral == 0) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(second))
+        newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(second))
       );
       return false;
     }
@@ -173,22 +173,22 @@ Bool parseMinMax(
 
 
 Bool parseQualifier(
-  TiObject *ast, Str &qualifier, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, Str &qualifier, Core::Notices::Store *noticeStore
 ) {
-  if (ast->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    auto identifier = static_cast<Core::Data::Ast::Identifier*>(ast);
+  if (ast->isDerivedFrom<Core::Ast::Identifier>()) {
+    auto identifier = static_cast<Core::Ast::Identifier*>(ast);
     qualifier += identifier->getValue().get();
-  } else if (ast->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
-    auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(ast);
+  } else if (ast->isDerivedFrom<Core::Ast::StringLiteral>()) {
+    auto stringLiteral = static_cast<Core::Ast::StringLiteral*>(ast);
     qualifier += stringLiteral->getValue().get();
-  } else if (ast->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(ast);
+  } else if (ast->isDerivedFrom<Core::Ast::LinkOperator>()) {
+    auto linkOp = static_cast<Core::Ast::LinkOperator*>(ast);
     if (!parseQualifier(linkOp->getFirst().get(), qualifier, noticeStore)) return false;
     qualifier += S(".");
     if (!parseQualifier(linkOp->getSecond().get(), qualifier, noticeStore)) return false;
   } else {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Data::Ast::findSourceLocation(ast))
+      newSrdObj<Spp::Notices::InvalidCommandDefAstNotice>(Core::Ast::findSourceLocation(ast))
     );
     return false;
   }
@@ -196,9 +196,9 @@ Bool parseQualifier(
 }
 
 
-void convertInfixOpIntoList(TiObject *ast, Char const *op, Array<TiObject*> &list)
+void convertInfixOpIntoList(Core::Ast::Node *ast, Char const *op, Array<Core::Ast::Node*> &list)
 {
-  auto infixOp = ti_cast<Core::Data::Ast::InfixOperator>(ast);
+  auto infixOp = ti_cast<Core::Ast::InfixOperator>(ast);
   if (infixOp == 0 || infixOp->getType() != op) {
     list.add(ast);
   } else {
@@ -209,28 +209,28 @@ void convertInfixOpIntoList(TiObject *ast, Char const *op, Array<TiObject*> &lis
 
 
 Bool overrideTree(
-  TiObject *target, Str baseRefQualifier, TiObject *qualifierAst, TiObject *valueAst, Core::Notices::Store *noticeStore
+  TiObject *target, Str baseRefQualifier, Core::Ast::Node *qualifierAst, Core::Ast::Node *valueAst, Core::Notices::Store *noticeStore
 ) {
-  if (qualifierAst->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+  if (qualifierAst->isDerivedFrom<Core::Ast::Identifier>()) {
     if (valueAst == 0) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Data::Ast::findSourceLocation(qualifierAst))
+        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Ast::findSourceLocation(qualifierAst))
       );
       return false;
     }
-    auto identifier = static_cast<Core::Data::Ast::Identifier*>(qualifierAst);
+    auto identifier = static_cast<Core::Ast::Identifier*>(qualifierAst);
     TioSharedPtr value;
     if (!parseValueAst(valueAst, noticeStore, value)) return false;
     auto mapContaining = ti_cast<MapContaining<TiObject>>(target);
     if (mapContaining == 0) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Data::Ast::findSourceLocation(qualifierAst))
+        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Ast::findSourceLocation(qualifierAst))
       );
       return false;
     }
     mapContaining->setElement(identifier->getValue().get(), value.get());
-  } else if (qualifierAst->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(qualifierAst);
+  } else if (qualifierAst->isDerivedFrom<Core::Ast::LinkOperator>()) {
+    auto linkOp = static_cast<Core::Ast::LinkOperator*>(qualifierAst);
     if (linkOp->getType() == S(":")) {
       if (!overrideTree(
         target, baseRefQualifier, linkOp->getFirst().get(), linkOp->getSecond().get(), noticeStore
@@ -243,18 +243,18 @@ Bool overrideTree(
       if (!overrideTree(clone, baseRefQualifier, second, valueAst, noticeStore)) return false;
     } else {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Data::Ast::findSourceLocation(qualifierAst))
+        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Ast::findSourceLocation(qualifierAst))
       );
       return false;
     }
-  } else if (qualifierAst->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    auto scope = static_cast<Core::Data::Ast::Scope*>(qualifierAst);
+  } else if (qualifierAst->isDerivedFrom<Core::Ast::Scope>()) {
+    auto scope = static_cast<Core::Ast::Scope*>(qualifierAst);
     for (Int i = 0; i < scope->getCount(); ++i) {
       if (!overrideTree(target, baseRefQualifier, scope->getElement(i), 0, noticeStore)) return false;
     }
   } else {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Data::Ast::findSourceLocation(qualifierAst))
+      newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Ast::findSourceLocation(qualifierAst))
     );
     return false;
   }
@@ -263,14 +263,14 @@ Bool overrideTree(
 
 
 Bool cloneChain(
-  TiObject *target, TiObject *qualifier, Str &baseRefQualifier, Core::Notices::Store *noticeStore, TiObject *&result
+  TiObject *target, Core::Ast::Node *qualifier, Str &baseRefQualifier, Core::Notices::Store *noticeStore, TiObject *&result
 ) {
-  if (qualifier->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    auto identifier = static_cast<Core::Data::Ast::Identifier*>(qualifier);
+  if (qualifier->isDerivedFrom<Core::Ast::Identifier>()) {
+    auto identifier = static_cast<Core::Ast::Identifier*>(qualifier);
     auto mapContaining = ti_cast<MapContaining<TiObject>>(target);
     if (mapContaining == 0) {
       noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Data::Ast::findSourceLocation(qualifier))
+        newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Ast::findSourceLocation(qualifier))
       );
       return false;
     }
@@ -289,52 +289,52 @@ Bool cloneChain(
     mapContaining->setElement(identifier->getValue().get(), clone.get());
     result = clone.get();
     return true;
-  } else if (qualifier->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(qualifier);
+  } else if (qualifier->isDerivedFrom<Core::Ast::LinkOperator>()) {
+    auto linkOp = static_cast<Core::Ast::LinkOperator*>(qualifier);
     if (!cloneChain(target, linkOp->getFirst().get(), baseRefQualifier, noticeStore, target)) return false;
     if (!cloneChain(target, linkOp->getSecond().get(), baseRefQualifier, noticeStore, result)) return false;
     return true;
   } else {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Data::Ast::findSourceLocation(qualifier))
+      newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Ast::findSourceLocation(qualifier))
     );
     return false;
   }
 }
 
 
-Bool parseValueAst(TiObject *valueAst, Core::Notices::Store *noticeStore, TioSharedPtr &result)
+Bool parseValueAst(Core::Ast::Node *valueAst, Core::Notices::Store *noticeStore, TioSharedPtr &result)
 {
   if (
-    valueAst->isDerivedFrom<Core::Data::Ast::LinkOperator>() ||
-    valueAst->isDerivedFrom<Core::Data::Ast::Identifier>()
+    valueAst->isDerivedFrom<Core::Ast::LinkOperator>() ||
+    valueAst->isDerivedFrom<Core::Ast::Identifier>()
   ) {
     Str qualifier;
     if (!parseQualifier(valueAst, qualifier, noticeStore)) return false;
     result = PARSE_REF(qualifier);
     return true;
-  } else if (valueAst->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
-    result = TiInt::create(std::stol(static_cast<Core::Data::Ast::IntegerLiteral*>(valueAst)->getValue().get()));
+  } else if (valueAst->isDerivedFrom<Core::Ast::IntegerLiteral>()) {
+    result = TiInt::create(std::stol(static_cast<Core::Ast::IntegerLiteral*>(valueAst)->getValue().get()));
     return true;
-  } else if (valueAst->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
-    result = TiStr::create(static_cast<Core::Data::Ast::StringLiteral*>(valueAst)->getValue());
+  } else if (valueAst->isDerivedFrom<Core::Ast::IntegerLiteral>()) {
+    result = TiStr::create(static_cast<Core::Ast::StringLiteral*>(valueAst)->getValue());
     return true;
-  } else if (valueAst->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    auto scope = static_cast<Core::Data::Ast::Scope*>(valueAst);
+  } else if (valueAst->isDerivedFrom<Core::Ast::Scope>()) {
+    auto scope = static_cast<Core::Ast::Scope*>(valueAst);
     auto map = Map::create();
     for (Int i = 0; i < scope->getCount(); ++i) {
       auto element = scope->get(i).get();
-      auto linkOp = ti_cast<Core::Data::Ast::LinkOperator>(element);
+      auto linkOp = ti_cast<Core::Ast::LinkOperator>(element);
       if (linkOp == 0 || linkOp->getType() != S(":")) {
         noticeStore->add(
-          newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Data::Ast::findSourceLocation(element))
+          newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(Core::Ast::findSourceLocation(element))
         );
         return false;
       }
-      auto name = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+      auto name = linkOp->getFirst().ti_cast_get<Core::Ast::Identifier>();
       if (name == 0) {
         noticeStore->add(newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(
-          Core::Data::Ast::findSourceLocation(linkOp->getFirst().get())
+          Core::Ast::findSourceLocation(linkOp->getFirst().get())
         ));
         return false;
       }
@@ -346,7 +346,7 @@ Bool parseValueAst(TiObject *valueAst, Core::Notices::Store *noticeStore, TioSha
     return true;
   } else {
     noticeStore->add(newSrdObj<Spp::Notices::InvalidGrammarAstNotice>(
-      Core::Data::Ast::findSourceLocation(valueAst)
+      Core::Ast::findSourceLocation(valueAst)
     ));
     return false;
   }

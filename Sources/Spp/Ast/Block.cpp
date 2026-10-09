@@ -2,7 +2,7 @@
  * @file Spp/Ast/Scope.cpp
  * Contains the implementation of class Spp::Ast::Scope.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -42,13 +42,13 @@ void Block::onRemoved(Int index)
 
 Bool Block::isInjection(Int index) const
 {
-  auto def = ti_cast<Core::Data::Ast::Definition>(this->getElement(index));
+  auto def = ti_cast<Core::Ast::Definition>(this->getElement(index));
   if (def == 0) return false;
   return Spp::Ast::isInjection(def);
 }
 
 
-TiObject* Block::getInjection(Int index) const
+Core::Ast::Node* Block::getInjection(Int index) const
 {
   if (index < 0 || index >= this->injectionsIndex.getSize()) {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range."), index);

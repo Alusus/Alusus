@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/BuildTarget.h
  * Contains the header of class Spp::LlvmCodeGen::BuildTarget.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -49,6 +49,13 @@ class BuildTarget : public TiObject
   }
 
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module) = 0;
+
+  /// Whether the target follows the x86-64 System V calling convention. The JIT targets always build for the host.
+  public: virtual Bool isSysVX86_64Abi()
+  {
+    llvm::Triple tt(llvm::sys::getDefaultTargetTriple());
+    return tt.getArch() == llvm::Triple::x86_64 && !tt.isOSWindows();
+  }
 
   public: virtual llvm::Type* getVaListType();
 

@@ -31,10 +31,12 @@ Char const *sourceExtensions[] = {
 
 RootManager::RootManager() : libraryManager(this), processedFiles(true)
 {
-  this->rootScope = Data::Ast::Scope::create();
+  this->rootScope = Ast::Scope::create();
   this->rootScope->setProdId(ID_GENERATOR->getId("Root"));
-  this->exprRootScope = Data::Ast::Scope::create();
+  this->exprRootScope = Ast::Scope::create();
   this->exprRootScope->setProdId(ID_GENERATOR->getId("Root"));
+  this->grammarRoot = Grammar::Module::create({});
+  this->exprGrammarRoot = Grammar::Module::create({});
 
   this->rootScopeHandler.setSeeker(&this->seeker);
   this->rootScopeHandler.setRootScope(this->rootScope);
@@ -42,9 +44,9 @@ RootManager::RootManager() : libraryManager(this), processedFiles(true)
   this->noticeSignal.relay(this->inerNoticeSignal);
   this->noticeSignal.connect(this->noticeSlot);
 
-  Data::Grammar::StandardFactory factory;
-  factory.createGrammar(this->rootScope.get(), this, false);
-  factory.createGrammar(this->exprRootScope.get(), this, true);
+  Grammar::StandardFactory factory;
+  factory.createGrammar(this->grammarRoot.get(), this, false);
+  factory.createGrammar(this->exprGrammarRoot.get(), this, true);
 
   this->interactive = false;
   this->processArgCount = 0;
@@ -94,9 +96,9 @@ void RootManager::flushNotices()
 }
 
 
-SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
+SharedPtr<Ast::Node> RootManager::parseExpression(Char const *str)
 {
-  Processing::Engine engine(this->exprRootScope);
+  Processing::Engine engine(this->exprGrammarRoot, this->exprRootScope);
   auto result = engine.processString(str, str);
 
   if (result == 0) {
@@ -112,15 +114,15 @@ SharedPtr<TiObject> RootManager::parseExpression(Char const *str)
 }
 
 
-SharedPtr<TiObject> RootManager::processString(Char const *str, Char const *name)
+SharedPtr<Ast::Node> RootManager::processString(Char const *str, Char const *name)
 {
-  Processing::Engine engine(this->rootScope);
+  Processing::Engine engine(this->grammarRoot, this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
   return engine.processString(str, name);
 }
 
 
-SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowReprocess)
+SharedPtr<Ast::Node> RootManager::processFile(Char const *filename, Bool allowReprocess)
 {
   // Find the absolute path of the requested file.
   thread_local static std::array<Char,PATH_MAX> resultFilename;
@@ -132,11 +134,11 @@ SharedPtr<TiObject> RootManager::processFile(Char const *filename, Bool allowRep
 }
 
 
-SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowReprocess)
+SharedPtr<Ast::Node> RootManager::_processFile(Char const *fullPath, Bool allowReprocess)
 {
   // Do not reprocess if already processed.
   if (!allowReprocess) {
-    if (this->processedFiles.findIndex(fullPath) != -1) return TioSharedPtr::null;
+    if (this->processedFiles.findIndex(fullPath) != -1) return SharedPtr<Ast::Node>::null;
   }
   this->processedFiles.add(fullPath, TioSharedPtr::null);
 
@@ -149,7 +151,7 @@ SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowRe
   }
 
   // Process the file.
-  Processing::Engine engine(this->rootScope);
+  Processing::Engine engine(this->grammarRoot, this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
   auto result = engine.processFile(fullPath);
 
@@ -162,9 +164,9 @@ SharedPtr<TiObject> RootManager::_processFile(Char const *fullPath, Bool allowRe
 }
 
 
-SharedPtr<TiObject> RootManager::processStream(Processing::CharInStreaming *is, Char const *streamName)
+SharedPtr<Ast::Node> RootManager::processStream(Processing::CharInStreaming *is, Char const *streamName)
 {
-  Processing::Engine engine(this->rootScope);
+  Processing::Engine engine(this->grammarRoot, this->rootScope);
   this->noticeSignal.relay(engine.noticeSignal);
   return engine.processStream(is, streamName);
 }

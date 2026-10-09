@@ -2,7 +2,7 @@
  * @file Core/Basic/PlainMap.h
  * Contains the header of class Core::Basic::PlainMap.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -32,7 +32,7 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
   {
   }
 
-  public: PlainMap(std::initializer_list<Argument> const &args, Bool useIndex = false) : _MyBase(useIndex)
+  public: PlainMap(std::initializer_list<Argument<CTYPE>> const &args, Bool useIndex = false) : _MyBase(useIndex)
   {
     this->add(args);
   }
@@ -42,7 +42,7 @@ template<class CTYPE> class PlainMap : public PlainMapBase<CTYPE, TiObject>
     this->destruct();
   }
 
-  public: static SharedPtr<PlainMap<CTYPE>> create(std::initializer_list<Argument> const &args, Bool useIndex = false)
+  public: static SharedPtr<PlainMap<CTYPE>> create(std::initializer_list<Argument<CTYPE>> const &args, Bool useIndex = false)
   {
     return newSrdObj<PlainMap<CTYPE>>(useIndex, args);
   }

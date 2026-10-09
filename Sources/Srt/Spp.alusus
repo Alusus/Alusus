@@ -2,7 +2,7 @@
  * @file Spp.alusus
  * Contains definitions of SPP's astMgr and buildMgr.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -11,6 +11,7 @@
 //==============================================================================
 
 import "Core/Basic";
+import "Core/Ast";
 import "Srl/Map";
 import "Srl/String";
 import "Srl/refs_base";
@@ -29,16 +30,18 @@ import "Srl/refs_base";
         def GLOBAL: 2;
     };
 
+    def AstNode: alias Core.Ast.Node;
+
     class GrammarMgr {
         @expname[Spp_GrammarMgr_addCustomCommand]
         handler this.addCustomCommand (
-            qualifier: ptr[array[Char]], grammarAst: ref[Core.Basic.TiObject],
-            handler: ptr[func (Srl.SrdRef[Core.Basic.TiObject]): Srl.SrdRef[Core.Basic.TiObject]]
+            qualifier: ptr[array[Char]], grammarAst: ref[AstNode],
+            handler: ptr[func (Srl.SrdRef[AstNode]): Srl.SrdRef[AstNode]]
         );
 
         @expname[Spp_GrammarMgr_addCustomGrammar]
         handler this.addCustomGrammar (
-            qualifier: ptr[array[Char]], baseQualifier: ptr[array[Char]], grammarAst: ref[Core.Basic.TiObject]
+            qualifier: ptr[array[Char]], baseQualifier: ptr[array[Char]], grammarAst: ref[AstNode]
         );
     };
     def grammarMgr: ref[GrammarMgr];
@@ -46,24 +49,24 @@ import "Srl/refs_base";
     class AstMgr {
         use Srl;
         use Core.Basic;
-        def AstTemplateMap: alias Map[String, ref[TiObject]];
+        def AstTemplateMap: alias Map[String, ref[AstNode]];
 
         @expname[Spp_AstMgr_findElements]
         handler this.findElements(
-            comparison: ref[TiObject],
-            target: ref[TiObject],
+            comparison: ref[AstNode],
+            target: ref[AstNode],
             flags: Word
-        ): Array[ref[TiObject]];
+        ): Array[ref[AstNode]];
 
         handler this.findElements(
-            comparison: ref[TiObject],
-            target: ref[TiObject],
+            comparison: ref[AstNode],
+            target: ref[AstNode],
             flags: Word,
             modifierKwd: CharsPtr,
             kwdTranslations: ref[Map[String, String]]
-        ): Array[ref[TiObject]] {
-            def elements: Array[ref[TiObject]] = this.findElements(comparison, target, flags);
-            def result: Array[ref[TiObject]];
+        ): Array[ref[AstNode]] {
+            def elements: Array[ref[AstNode]] = this.findElements(comparison, target, flags);
+            def result: Array[ref[AstNode]];
             def i: Int;
             for i = 0, i < elements.getLength(), ++i {
                 if modifierKwd != 0
@@ -75,37 +78,37 @@ import "Srl/refs_base";
             return result;
         }
 
-        handler this.getDefinitionName (element: ref[TiObject]): String {
-            use Core.Data;
-            def node: ref[Node](castRef[element, Node]);
-            def d: ref[Ast.Definition](castRef[node.owner, Ast.Definition]);
+        handler this.getDefinitionName (element: ref[AstNode]): String {
+            use Core.Basic;
+            use Core.Ast;
+            def d: ref[Definition](castRef[element.owner, Definition]);
             def binding: ref[Binding](getInterface[d, Binding]);
             return castRef[binding.getMember("name"), TiStr].value;
         }
 
         @expname[Spp_AstMgr_getModifiers]
-        handler this.getModifiers(element: ref[TiObject]): ref[Containing];
+        handler this.getModifiers(element: ref[AstNode]): ref[Containing[AstNode]];
 
         @expname[Spp_AstMgr_findModifier]
         handler this.findModifier(
-            modifiers: ref[Containing], kwd: ptr[array[Char]]
-        ): ref[TiObject];
+            modifiers: ref[Containing[AstNode]], kwd: ptr[array[Char]]
+        ): ref[AstNode];
 
         @expname[Spp_AstMgr_findModifierForElement]
         handler this.findModifierForElement(
-            element: ref[TiObject], kwd: ptr[array[Char]]
-        ): ref[TiObject];
+            element: ref[AstNode], kwd: ptr[array[Char]]
+        ): ref[AstNode];
 
         handler this.findModifierForElement (
-            element: ref[TiObject],
+            element: ref[AstNode],
             kwd: ptr[array[Char]],
             kwdTranslations: ref[Map[String, String]]
-        ): ref[TiObject] {
-            def modifiers: ref[Containing](this.getModifiers(element));
-            if modifiers~ptr == 0 return nullRef[TiObject];
+        ): ref[AstNode] {
+            def modifiers: ref[Containing[AstNode]](this.getModifiers(element));
+            if modifiers~ptr == 0 return nullRef[AstNode];
             def i: Int;
             for i = 0, i < modifiers.getElementCount()~cast[Int], ++i {
-                def modifier: ref[TiObject](modifiers.getElement(i));
+                def modifier: ref[AstNode](modifiers.getElement(i));
                 if modifier~ptr == 0 continue;
                 def modKwd: String = this.getModifierKeyword(modifier);
                 def translationIndex: ArchInt = kwdTranslations.findPos(modKwd);
@@ -117,23 +120,33 @@ import "Srl/refs_base";
                 if translatedKwd == "" translatedKwd = modKwd;
                 if translatedKwd == kwd return modifier;
             }
-            return nullRef[TiObject];
+            return nullRef[AstNode];
         }
 
         @expname[Spp_AstMgr_getModifierKeyword]
-        handler this.getModifierKeyword(modifier: ref[TiObject]): String;
+        handler this.getModifierKeyword(modifier: ref[AstNode]): String;
 
         @expname[Spp_AstMgr_getModifierParams]
         handler this.getModifierParams(
-            modifier: ref[TiObject], result: ref[Array[ref[TiObject]]]
+            modifier: ref[AstNode], result: ref[Array[ref[AstNode]]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_getModifierStringParams]
         handler this.getModifierStringParams(
-            modifier: ref[TiObject], result: ref[Array[String]]
+            modifier: ref[AstNode], result: ref[Array[String]]
         ) => Word[1];
 
-        handler this.getClassVars(parent: ref[TiObject]): Array[ref[TiObject]] {
+        @expname[Spp_AstMgr_getStringsFromStringParams]
+        handler this.getStringsFromStringParams(
+            params: ref[AstNode], result: ref[Array[String]]
+        ) => Word[1];
+
+        @expname[Spp_AstMgr_addPossiblyMergeableElement]
+        handler this.addPossiblyMergeableElement(
+            node: ref[AstNode], target: ref[DynamicContaining[AstNode]], index: ref[Int]
+        ) => Word[1];
+
+        handler this.getClassVars(parent: ref[AstNode]): Array[ref[AstNode]] {
             return this.findElements(
                 (ast elementType == "var"),
                 parent,
@@ -142,8 +155,8 @@ import "Srl/refs_base";
         }
 
         handler this.getClassVars(
-            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
-        ): Array[ref[TiObject]] {
+            parent: ref[AstNode], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+        ): Array[ref[AstNode]] {
             return this.findElements(
                 (ast elementType == "var"),
                 parent,
@@ -153,14 +166,14 @@ import "Srl/refs_base";
             );
         }
 
-        handler this.getClassVarNames(parent: ref[TiObject]): Array[String] {
+        handler this.getClassVarNames(parent: ref[AstNode]): Array[String] {
             return this.getClassVarNames(parent, 0, Map[String, String]());
         }
 
         handler this.getClassVarNames(
-            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+            parent: ref[AstNode], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
         ): Array[String] {
-            def vars: Array[ref[TiObject]] = this.getClassVars(parent, modifierKwd, kwdTranslations);
+            def vars: Array[ref[AstNode]] = this.getClassVars(parent, modifierKwd, kwdTranslations);
             def result: Array[String];
             def i: Int;
             for i = 0, i < vars.getLength(), ++i {
@@ -169,7 +182,7 @@ import "Srl/refs_base";
             return result;
         }
 
-        handler this.getClassFuncs(parent: ref[TiObject]): Array[ref[TiObject]] {
+        handler this.getClassFuncs(parent: ref[AstNode]): Array[ref[AstNode]] {
             return this.findElements(
                 (ast elementType == "function"),
                 parent,
@@ -178,8 +191,8 @@ import "Srl/refs_base";
         }
 
         handler this.getClassFuncs(
-            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
-        ): Array[ref[TiObject]] {
+            parent: ref[AstNode], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+        ): Array[ref[AstNode]] {
             return this.findElements(
                 (ast elementType == "function"),
                 parent,
@@ -189,14 +202,14 @@ import "Srl/refs_base";
             );
         }
 
-        handler this.getClassFuncNames(parent: ref[TiObject]): Array[String] {
+        handler this.getClassFuncNames(parent: ref[AstNode]): Array[String] {
             return this.getClassFuncNames(parent, 0, Map[String, String]());
         }
 
         handler this.getClassFuncNames(
-            parent: ref[TiObject], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
+            parent: ref[AstNode], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
         ): Array[String] {
-            def funcs: Array[ref[TiObject]] = this.getClassFuncs(parent, modifier, kwdTranslations);
+            def funcs: Array[ref[AstNode]] = this.getClassFuncs(parent, modifier, kwdTranslations);
             def result: Array[String];
             def i: Int;
             for i = 0, i < funcs.getLength(), ++i {
@@ -205,72 +218,74 @@ import "Srl/refs_base";
             return result;
         }
 
-        handler this.getFuncArgTypes (element: ref[TiObject]): ref[TiObject] {
-            def fnType: ref[TiObject](MapContainerOf[element].getElement("type"));
-            return MapContainerOf[fnType].getElement("argTypes");
+        handler this.getFuncArgTypes (element: ref[AstNode]): ref[AstNode] {
+            def fnType: ref[AstNode](MapContainerOf[element, AstNode].getElement("type"));
+            return MapContainerOf[fnType, AstNode].getElement("argTypes");
         }
 
-        handler this.getFuncArgType (element: ref[TiObject], index: Int): ref[TiObject] {
-            ContainerOf[this.getFuncArgTypes(element)].{
-                if getElementCount()~cast[Int] <= index return nullRef[TiObject]
+        handler this.getFuncArgType (element: ref[AstNode], index: Int): ref[AstNode] {
+            ContainerOf[this.getFuncArgTypes(element), AstNode].{
+                if getElementCount()~cast[Int] <= index return nullRef[AstNode]
                 else return getElement(index);
             }
         }
 
         @expname[Spp_AstMgr_getSourceFullPathForElement]
-        handler this.getSourceFullPathForElement(element: ref[TiObject]) => String;
+        handler this.getSourceFullPathForElement(element: ref[AstNode]) => String;
 
-        handler this.getSourceDirectoryForElement(element: ref[TiObject]) => String {
+        handler this.getSourceDirectoryForElement(element: ref[AstNode]) => String {
             def fullPath: String = this.getSourceFullPathForElement(element);
             return fullPath.slice(0, fullPath.findLast('/') + 1);
         }
 
         @expname[Spp_AstMgr_insertAst]
-        handler this.insertAst(element: ref[TiObject]) => Word[1];
+        handler this.insertAst(element: ref[AstNode]) => Word[1];
 
         @expname[Spp_AstMgr_insertAst_plain]
         handler this.insertAst(
-            element: ref[TiObject],
-            interpolations: ref[Map[String, ref[TiObject]]]
+            element: ref[AstNode],
+            interpolations: ref[Map[String, ref[AstNode]]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_insertAst_shared]
         handler this.insertAst(
-            element: ref[TiObject],
-            interpolations: ref[Map[String, SrdRef[TiObject]]]
+            element: ref[AstNode],
+            interpolations: ref[Map[String, SrdRef[AstNode]]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_buildAst_plain]
         handler this.buildAst(
-            element: ref[TiObject],
-            interpolations: ref[Map[String, ref[TiObject]]],
-            result: ref[SrdRef[TiObject]]
+            element: ref[AstNode],
+            interpolations: ref[Map[String, ref[AstNode]]],
+            result: ref[SrdRef[AstNode]]
         ) => Word[1];
 
         @expname[Spp_AstMgr_buildAst_shared]
         handler this.buildAst(
-            element: ref[TiObject],
-            interpolations: ref[Map[String, SrdRef[TiObject]]],
-            result: ref[SrdRef[TiObject]]
+            element: ref[AstNode],
+            interpolations: ref[Map[String, SrdRef[AstNode]]],
+            result: ref[SrdRef[AstNode]]
         ) => Word[1];
 
         handler this.buildAst(
-            tree: ref[TiObject], args: ref[Map[String, ref[TiObject]]]
-        ): SrdRef[TiObject] {
-            def result: SrdRef[TiObject];
+            tree: ref[AstNode], args: ref[Map[String, ref[AstNode]]]
+        ): SrdRef[AstNode] {
+            def result: SrdRef[AstNode];
             this.buildAst(tree, args, result);
             return result;
         }
 
-        handler this.insertCopyHandlers(obj: ref[TiObject]) {
+        handler this.insertCopyHandlers(obj: ref[AstNode]) {
+            use Core.Basic;
+            use Core.Ast;
             def varNames: Array[String] = this.getClassVarNames(obj);
-            def assignments: SrdRef[Core.Data.Ast.MergeList] = newSrdObj[Core.Data.Ast.MergeList];
-            def assignContainer: DynContainerOf[assignments.obj];
+            def assignments: SrdRef[MergeList] = newSrdObj[MergeList];
+            def assignContainer: DynContainerOf[assignments.obj, AstNode];
             def i: Int;
             for i = 0, i < varNames.getLength(), ++i {
-                def payloadAssignment: SrdRef[TiObject] = Spp.astMgr.buildAst(
+                def payloadAssignment: SrdRef[AstNode] = Spp.astMgr.buildAst(
                     (ast this.varName~no_deref = value.varName),
-                    AstTemplateMap().set(String("varName"), Core.Data.Ast.Identifier(varNames(i)))
+                    AstTemplateMap().set(String("varName"), Identifier(varNames(i)))
                 );
                 assignContainer.addElement(payloadAssignment.obj);
             }
@@ -288,17 +303,19 @@ import "Srl/refs_base";
         }
         @member macro insertCopyHandlers [this] preprocess { this.insertCopyHandlers(this_type~ast) }
 
-        handler this.insertMixin(obj: ref[TiObject]) {
-            use Core.Data;
-            use Core.Data.Ast;
+        handler this.insertMixin(obj: ref[AstNode]) {
+            use Core.Basic;
+            use Core.Ast;
             def bitwiseOp: ref[BitwiseOperator](dynCastRef[obj, BitwiseOperator]);
             if bitwiseOp~ptr != 0 {
-                this.insertMixin(MapContainerOf[bitwiseOp].getElement("first"));
-                this.insertMixin(MapContainerOf[bitwiseOp].getElement("second"));
+                this.insertMixin(MapContainerOf[bitwiseOp, AstNode].getElement("first"));
+                this.insertMixin(MapContainerOf[bitwiseOp, AstNode].getElement("second"));
                 return;
             }
             if isDerivedFrom[obj, ParamPass] or isDerivedFrom[obj, LinkOperator] or isDerivedFrom[obj, Identifier] {
-                def elements: Array[ref[TiObject]] = this.findElements(obj, castRef[obj, Node].owner, 0);
+                def elements: Array[ref[AstNode]] = this.findElements(
+                    obj, castRef[obj, Node].owner, 0
+                );
                 if elements.getLength() == 0 {
                     buildMgr.raiseBuildNotice("SPPA1007", 1, obj);
                     return;
@@ -312,7 +329,7 @@ import "Srl/refs_base";
                 this.insertAst(obj);
                 return;
             }
-            def container: ContainerOf[scope];
+            def container: ContainerOf[scope, AstNode];
             def i: Word;
             for i = 0, i < container.getElementCount(), ++i {
                 this.insertAst(container.getElement(i));
@@ -321,66 +338,74 @@ import "Srl/refs_base";
         @member macro insertMixin [this, target] preprocess { this.insertMixin(target~ast) }
 
         @expname[Spp_AstMgr_getCurrentPreprocessOwner]
-        handler this.getCurrentPreprocessOwner(): ref[TiObject];
+        handler this.getCurrentPreprocessOwner(): ref[AstNode];
+
+        @expname[Spp_AstMgr_preprocessTypeBody]
+        handler this.preprocessTypeBody(type: ref[Spp.Ast.UserType]) => Word[1];
 
         @expname[Spp_AstMgr_getCurrentPreprocessInsertionPosition]
         handler this.getCurrentPreprocessInsertionPosition(): Int;
 
         @expname[Spp_AstMgr_getVariableDomain]
-        handler this.getVariableDomain(element: ref[TiObject]) => Int;
+        handler this.getVariableDomain(element: ref[AstNode]) => Int;
 
         @expname[Spp_AstMgr_traceType]
-        handler this.traceType(element: ref[TiObject]) => ref[Spp.Ast.Type];
+        handler this.traceType(element: ref[AstNode]) => ref[Spp.Ast.Type];
 
         @expname[Spp_AstMgr_matchTemplateInstance]
         handler this.matchTemplateInstance(
-            template: ref[Spp.Ast.Template], templateInput: ref[TiObject], result: ref[SrdRef[TiObject]]
+            template: ref[Spp.Ast.Template], templateInput: ref[AstNode], result: ref[SrdRef[AstNode]]
         ) => Bool;
 
         @expname[Spp_AstMgr_isCastableTo]
-        handler this.isCastableTo(srcTypeRef: ref[TiObject], targetTypeRef: ref[TiObject], implicit: Bool) => Bool;
+        handler this.isCastableTo(srcTypeRef: ref[AstNode], targetTypeRef: ref[AstNode], implicit: Bool) => Bool;
 
         @expname[Spp_AstMgr_computeResultType]
         handler this.computeResultType(
-            element: ref[TiObject], result: ref[ref[TiObject]], resultIsValue: ref[Bool]
+            element: ref[AstNode], result: ref[ref[AstNode]], resultIsValue: ref[Bool]
         ) => Bool;
 
         @expname[Spp_AstMgr_cloneAst]
         handler this.cloneAst(
-            element: ref[TiObject], sourceLocationNode: ref[TiObject]
-        ): SrdRef[TiObject];
-        handler this.cloneAst(element: ref[TiObject]): SrdRef[TiObject] {
-            return this.cloneAst(element, nullRef[TiObject]);
+            element: ref[AstNode], sourceLocationNode: ref[AstNode]
+        ): SrdRef[AstNode];
+        handler this.cloneAst(element: ref[AstNode]): SrdRef[AstNode] {
+            return this.cloneAst(element, nullRef[AstNode]);
         }
 
-        @expname[Spp_AstMgr_dumpData]
-        handler this.dumpData(obj: ref[TiObject]);
+        @expname[Spp_AstMgr_dumpAst]
+        handler this.dumpAst(obj: ref[AstNode]);
 
         @expname[Spp_AstMgr_getReferenceTypeFor]
-        handler this.getReferenceTypeFor(astType: ref[TiObject]): ref[Spp.Ast.ReferenceType];
+        handler this.getReferenceTypeFor(astType: ref[AstNode]): ref[Spp.Ast.ReferenceType];
 
         @expname[Spp_AstMgr_tryGetDeepReferenceContentType]
         handler this.tryGetDeepReferenceContentType(astType: ref[Spp.Ast.Type]): ref[Spp.Ast.Type];
 
         @expname[Spp_AstMgr_isInjection]
-        handler this.isInjection(obj: ref[TiObject]): Bool;
+        handler this.isInjection(obj: ref[AstNode]): Bool;
     };
     def astMgr: ref[AstMgr];
 
     class BuildMgr {
         @expname[Spp_BuildMgr_dumpLlvmIrForElement]
-        handler this.dumpLlvmIrForElement (element: ref[Core.Basic.TiObject]);
+        handler this.dumpLlvmIrForElement (element: ref[AstNode]);
 
         @expname[Spp_BuildMgr_buildObjectFileForElement]
         handler this.buildObjectFileForElement (
-            element: ref[Core.Basic.TiObject], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]]
+            element: ref[Core.Ast.Node], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]],
+            optimize: Word[1]
         ) => Word[1];
+        handler this.buildObjectFileForElement (
+            element: ref[Core.Ast.Node], filename: ptr[array[Word[8]]], targetTriple: ptr[array[Word[8]]]
+        ) => Word[1] {
+            return this.buildObjectFileForElement(element, filename, targetTriple, 0);
+        }
 
         @expname[Spp_BuildMgr_raiseBuildNotice]
         handler this.raiseBuildNotice (
-            code: ptr[array[Word[8]]], severity: Int, astNode: ref[Core.Basic.TiObject]
+            code: ptr[array[Word[8]]], severity: Int, astNode: ref[AstNode]
         );
     };
     def buildMgr: ref[BuildMgr];
 };
-

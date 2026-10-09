@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/ChainOpParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::ChainOpParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -37,7 +37,7 @@ class ChainOpParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex);
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex);
 
   protected: virtual Bool isListObjEnforced(ParserState *state, Int levelIndex)
   {

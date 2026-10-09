@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/CommandGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -51,11 +51,11 @@ Bool CommandGenerator::_generateReturnStatement(
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   // Get this function's return type.
-  Ast::Function *function = Core::Data::findOwner<Ast::Function>(astNode);
+  Ast::Function *function = Core::Ast::findOwner<Ast::Function>(astNode);
   if (function == 0) {
     throw EXCEPTION(GenericException, S("Return statement does not belong to a function."));
   }
-  auto retTypeRef = function->getType()->getRetType().ti_cast_get<Core::Data::Node>();
+  auto retTypeRef = function->getType()->getRetType().ti_cast_get<Core::Ast::Node>();
   Ast::Type *retType = function->getType()->traceRetType(cmdGenerator->astHelper);
 
   auto operand = astNode->getOperand().get();
@@ -66,7 +66,7 @@ Bool CommandGenerator::_generateReturnStatement(
     if (!g->generateExpression(operand, session, operandResult, terminal)) return false;
     if (terminal == TerminalStatement::YES) {
       cmdGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(operand))
+        newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(operand))
       );
       return false;
     }
@@ -77,11 +77,11 @@ Bool CommandGenerator::_generateReturnStatement(
       if (!g->getGeneratedType(retType, session, retTgType, 0)) return false;
 
       SharedList<TiObject> initTgVals;
-      PlainList<TiObject> initAstTypes;
-      PlainList<TiObject> initAstNodes;
+      PlainList<Core::Ast::Node> initAstTypes;
+      PlainList<Core::Ast::Node> initAstNodes;
       initTgVals.add(operandResult.targetData);
       initAstTypes.add(operandResult.astType);
-      initAstNodes.add(ti_cast<Core::Data::Node>(operand));
+      initAstNodes.add(operand);
       if (!g->generateVarInitialization(
         retType, session->getEda()->getCodeGenData<TiObject>(retTypeRef), astNode,
         &initAstNodes, &initAstTypes, &initTgVals, session
@@ -155,9 +155,9 @@ Bool CommandGenerator::_generateIfStatement(
   // Generate ifBody.
   TerminalStatement terminalBody = TerminalStatement::UNKNOWN;
   Session bodySession(session, ifTgContext->getBodyContext(), session->getTgAllocContext());
-  if (ifBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
+  if (ifBody->isDerivedFrom<Core::Ast::Scope>()) {
     session->getEda()->setCodeGenData(
-      static_cast<Core::Data::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext())
+      static_cast<Core::Ast::Scope*>(ifBody), getSharedPtr(ifTgContext->getBodyContext())
     );
   }
   if (!g->generateStatementBlock(ifBody, &bodySession, terminalBody)) return false;
@@ -166,9 +166,9 @@ Bool CommandGenerator::_generateIfStatement(
   TerminalStatement terminalElse = TerminalStatement::UNKNOWN;
   Session elseSession(session, ifTgContext->getElseContext(), session->getTgAllocContext());
   if (elseBody != 0) {
-    if (elseBody->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    if (elseBody->isDerivedFrom<Core::Ast::Scope>()) {
       session->getEda()->setCodeGenData(
-        static_cast<Core::Data::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext())
+        static_cast<Core::Ast::Scope*>(elseBody), getSharedPtr(ifTgContext->getElseContext())
       );
     }
     if (!g->generateStatementBlock(elseBody, &elseSession, terminalElse)) return false;
@@ -201,9 +201,9 @@ Bool CommandGenerator::_generateWhileStatement(
   // Generate body.
   auto body = astNode->getBody().get();
   Session bodySession(session, loopTgContext->getBodyContext(), session->getTgAllocContext());
-  if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
+  if (body->isDerivedFrom<Core::Ast::Scope>()) {
     session->getEda()->setCodeGenData(
-      static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
+      static_cast<Core::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
     );
   }
   TerminalStatement terminal;
@@ -247,7 +247,7 @@ Bool CommandGenerator::_generateForStatement(
   if (terminal == TerminalStatement::YES) {
     cmdGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(
-        Core::Data::Ast::findSourceLocation(astNode->getUpdater().get())
+        Core::Ast::findSourceLocation(astNode->getUpdater().get())
       )
     );
     return false;
@@ -261,9 +261,9 @@ Bool CommandGenerator::_generateForStatement(
   // Generate body.
   auto body = astNode->getBody().get();
   Session bodySession(session, loopTgContext->getBodyContext(), session->getTgAllocContext());
-  if (body->isDerivedFrom<Core::Data::Ast::Scope>()) {
+  if (body->isDerivedFrom<Core::Ast::Scope>()) {
     session->getEda()->setCodeGenData(
-      static_cast<Core::Data::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
+      static_cast<Core::Ast::Scope*>(body), getSharedPtr(loopTgContext->getBodyContext())
     );
   }
   if (!g->generateStatementBlock(body, &bodySession, terminal)) return false;
@@ -280,7 +280,7 @@ Bool CommandGenerator::_generateContinueStatement(
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   // Get the steps.
-  auto stepsNode = ti_cast<Core::Data::Ast::IntegerLiteral>(astNode->getSteps().get());
+  auto stepsNode = ti_cast<Core::Ast::IntegerLiteral>(astNode->getSteps().get());
   auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
   if (steps <= 0) {
     cmdGenerator->astHelper->getNoticeStore()->add(
@@ -291,7 +291,7 @@ Bool CommandGenerator::_generateContinueStatement(
 
   // Find the loop statement.
   Int scopeCount = 0;
-  Core::Data::Node *loopNode = astNode;
+  Core::Ast::Node *loopNode = astNode;
   while (steps > 0) {
     if (loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() || loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
       if (--steps == 0) break;
@@ -300,7 +300,7 @@ Bool CommandGenerator::_generateContinueStatement(
         newSrdObj<Spp::Notices::InvalidContinueStepsNotice>(astNode->findSourceLocation())
       );
       return false;
-    } else if (loopNode->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    } else if (loopNode->isDerivedFrom<Core::Ast::Scope>()) {
       ++scopeCount;
     } else {
       // if it's a non-scope body of a control statement we still want to treat it as if it's a scope.
@@ -328,7 +328,7 @@ Bool CommandGenerator::_generateBreakStatement(
   PREPARE_SELF(cmdGenerator, CommandGenerator);
 
   // Get the steps.
-  auto stepsNode = ti_cast<Core::Data::Ast::IntegerLiteral>(astNode->getSteps().get());
+  auto stepsNode = ti_cast<Core::Ast::IntegerLiteral>(astNode->getSteps().get());
   auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
   if (steps <= 0) {
     cmdGenerator->astHelper->getNoticeStore()->add(
@@ -339,7 +339,7 @@ Bool CommandGenerator::_generateBreakStatement(
 
   // Find the loop statement.
   Int scopeCount = 0;
-  Core::Data::Node *loopNode = astNode;
+  Core::Ast::Node *loopNode = astNode;
   while (steps > 0) {
     if (loopNode->isDerivedFrom<Spp::Ast::WhileStatement>() || loopNode->isDerivedFrom<Spp::Ast::ForStatement>()) {
       if (--steps == 0) break;
@@ -348,7 +348,7 @@ Bool CommandGenerator::_generateBreakStatement(
         newSrdObj<Spp::Notices::InvalidBreakStepsNotice>(astNode->findSourceLocation())
       );
       return false;
-    } else if (loopNode->isDerivedFrom<Core::Data::Ast::Scope>()) {
+    } else if (loopNode->isDerivedFrom<Core::Ast::Scope>()) {
       ++scopeCount;
     } else {
       // if it's a non-scope body of a control statement we still want to treat it as if it's a scope.
@@ -375,7 +375,7 @@ Bool CommandGenerator::_generateBreakStatement(
 //==============================================================================
 // Helper Functions
 
-Bool CommandGenerator::generateCondition(TiObject *astNode, Generation *g, Session *session, GenResult &result)
+Bool CommandGenerator::generateCondition(Core::Ast::Node *astNode, Generation *g, Session *session, GenResult &result)
 {
   Bool retVal = true;
   session->getDestructionStack()->pushScope();
@@ -384,13 +384,13 @@ Bool CommandGenerator::generateCondition(TiObject *astNode, Generation *g, Sessi
   if (!g->generateExpression(astNode, session, conditionResult, terminal)) retVal = false;
   if (terminal == TerminalStatement::YES) {
     this->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
   if (retVal && conditionResult.astType == 0) {
     this->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::InvalidConditionValueNotice>(Core::Ast::findSourceLocation(astNode))
     );
     retVal = false;
   }
@@ -407,14 +407,14 @@ Bool CommandGenerator::generateCondition(TiObject *astNode, Generation *g, Sessi
 
 
 Bool CommandGenerator::castCondition(
-  Generation *g, Session *session, TiObject *astNode, Spp::Ast::Type *astType,
+  Generation *g, Session *session, Core::Ast::Node *astNode, Spp::Ast::Type *astType,
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();
   GenResult castedValue;
-  if (!g->generateCast(session, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, castedValue)) {
+  if (!g->generateCast(session, astType, boolType, astNode, tgValue, true, castedValue)) {
     this->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidConditionValueNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::InvalidConditionValueNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }

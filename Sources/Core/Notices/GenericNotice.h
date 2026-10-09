@@ -2,7 +2,7 @@
  * @file Core/Notices/GenericNotice.h
  * Contains the header of class Core::Notices::GenericNotice.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,7 +34,7 @@ class GenericNotice : public Core::Notices::Notice
   {
   }
 
-  public: GenericNotice(Char const *c, Int s, SharedPtr<Data::SourceLocation> const &sl)
+  public: GenericNotice(Char const *c, Int s, SharedPtr<Ast::SourceLocation> const &sl)
     : code(c), severity(s), Notice(sl)
   {
   }
@@ -64,7 +64,7 @@ class GenericNotice : public Core::Notices::Notice
     if (genericNotice == 0) return false;
     return this->code == genericNotice->code &&
       this->severity == genericNotice->severity &&
-      Data::isEqual(this->getSourceLocation().get(), genericNotice->getSourceLocation().get());
+      Ast::isEqual(this->getSourceLocation().get(), genericNotice->getSourceLocation().get());
   }
 
 }; // class

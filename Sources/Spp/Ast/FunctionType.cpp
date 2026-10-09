@@ -2,7 +2,7 @@
  * @file Spp/Ast/FunctionType.cpp
  * Contains the implementation of class Spp::Ast::FunctionType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -157,7 +157,7 @@ Type* FunctionType::traceRetType(Helper *helper) const
 }
 
 
-TypeMatchStatus FunctionType::matchCall(Containing<TiObject> *types, Helper *helper) {
+TypeMatchStatus FunctionType::matchCall(Containing<Core::Ast::Node> *types, Helper *helper) {
   if (helper == 0) {
     throw EXCEPTION(InvalidArgumentException, S("helper"), S("Cannot be null."));
   }
@@ -204,7 +204,7 @@ TypeMatchStatus FunctionType::matchCall(Containing<TiObject> *types, Helper *hel
 }
 
 
-TypeMatchStatus FunctionType::matchNextArg(TiObject *nextType, ArgMatchContext &matchContext, Helper *helper) {
+TypeMatchStatus FunctionType::matchNextArg(Core::Ast::Node *nextType, ArgMatchContext &matchContext, Helper *helper) {
   if (nextType == 0) {
     throw EXCEPTION(InvalidArgumentException, S("nextType"), S("Cannot be null."));
   }

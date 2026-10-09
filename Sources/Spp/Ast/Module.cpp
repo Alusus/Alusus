@@ -2,7 +2,7 @@
  * @file Spp/Ast/Module.cpp
  * Contains the implementation of class Spp::Ast::Module.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,15 +15,15 @@
 namespace Spp::Ast
 {
 
-Bool Module::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
+Bool Module::merge(Core::Ast::Node *src, Core::Ast::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, noticeStore);
   if (src->isA<Block>() || src->isA<Module>()) {
-    auto scope = static_cast<Core::Data::Ast::Scope*>(src);
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this, seeker, noticeStore);
+    auto scope = static_cast<Core::Ast::Scope*>(src);
+    return Core::Ast::addPossiblyMergeableElements(scope, this, seeker, noticeStore);
   }
   noticeStore->add(
-    newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+    newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Ast::findSourceLocation(src))
   );
   return false;
 }

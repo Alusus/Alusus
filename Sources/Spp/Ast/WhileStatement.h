@@ -2,7 +2,7 @@
  * @file Spp/Ast/WhileStatement.h
  * Contains the header of class Spp::Ast::WhileStatement.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,17 +16,15 @@
 namespace Spp::Ast
 {
 
-class WhileStatement : public Core::Data::Node,
-                       public Binding, public MapContaining<TiObject>,
-                       public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class WhileStatement : public Core::Ast::Node,
+                       public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(WhileStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(WhileStatement, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(WhileStatement);
 
@@ -34,26 +32,17 @@ class WhileStatement : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr condition;
-  private: TioSharedPtr body;
+  private: SharedPtr<Core::Ast::Node> condition;
+  private: SharedPtr<Core::Ast::Node> body;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(WhileStatement);
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
+    (condition, Core::Ast::Node, SHARED_REF, setCondition(value), condition.get()),
+    (body, Core::Ast::Node, SHARED_REF, setBody(value), body.get())
   );
-
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (condition, TiObject, SHARED_REF, setCondition(value), condition.get()),
-    (body, TiObject, SHARED_REF, setBody(value), body.get())
-  );
-
-  IMPLEMENT_AST_MAP_PRINTABLE(WhileStatement);
 
 
   //============================================================================
@@ -75,30 +64,30 @@ class WhileStatement : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setCondition(TioSharedPtr const &cond)
+  public: void setCondition(SharedPtr<Core::Ast::Node> const &cond)
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
   }
-  private: void setCondition(TiObject *cond)
+  private: void setCondition(Core::Ast::Node *cond)
   {
     this->setCondition(getSharedPtr(cond));
   }
 
-  public: TioSharedPtr const& getCondition() const
+  public: SharedPtr<Core::Ast::Node> const& getCondition() const
   {
     return this->condition;
   }
 
-  public: void setBody(TioSharedPtr const &b)
+  public: void setBody(SharedPtr<Core::Ast::Node> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
-  private: void setBody(TiObject *b)
+  private: void setBody(Core::Ast::Node *b)
   {
     this->setBody(getSharedPtr(b));
   }
 
-  public: TioSharedPtr const& getBody() const
+  public: SharedPtr<Core::Ast::Node> const& getBody() const
   {
     return this->body;
   }

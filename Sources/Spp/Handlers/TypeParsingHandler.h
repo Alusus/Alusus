@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/TypeParsingHandler.h
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -39,7 +39,7 @@ class TypeParsingHandler : public Core::Processing::Handlers::GenericParsingHand
 
   public: virtual Bool onIncomingModifier(
     Core::Processing::Parser *parser, Core::Processing::ParserState *state,
-    TioSharedPtr const &modifierData, Bool prodProcessingComplete
+    SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
   );
 
 }; // class

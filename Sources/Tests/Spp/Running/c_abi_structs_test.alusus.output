@@ -1,0 +1,10 @@
+div: 3 2
+ldiv: -3 -2
+small: 13
+floats: 2.500000 4.500000
+mixed: 8 10.500000
+big: 2 2 3 4 7
+ptr small: 13
+ptr floats: 2.500000 4.500000
+ptr mixed: 8 10.500000
+ptr big: 2 7

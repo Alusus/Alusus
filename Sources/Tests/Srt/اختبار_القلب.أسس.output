@@ -1,48 +1,62 @@
-Core.Data.Ast.List
+Core.Ast.List
  الأعضاء:
  -prodId: طـبيعي_بهوية 182
- -sourceLocation: Core.Data.SourceLocationRecord
+ -sourceLocation: Core.Ast.SourceLocationRecord
+ -modifiers: عدم
+ -metadata: عدم
  عناصر:
  -مـعرف ا
- -Core.Data.Ast.LinkOperator
+ -Core.Ast.LinkOperator
    الأعضاء:
-   -type: نـص_بهوية ":"
    -prodId: طـبيعي_بهوية 183
-   -sourceLocation: Core.Data.SourceLocationRecord
+   -sourceLocation: Core.Ast.SourceLocationRecord
+   -modifiers: عدم
+   -metadata: عدم
+   -type: نـص_بهوية ":"
    عناصر مسماة:
    -first: مـعرف ب
-   -second: Core.Data.Ast.Bracket
+   -second: Core.Ast.Bracket
      الأعضاء:
-     -type: صـحيح_بهوية 0
      -prodId: طـبيعي_بهوية 314
-     -sourceLocation: Core.Data.SourceLocationRecord
+     -sourceLocation: Core.Ast.SourceLocationRecord
+     -modifiers: عدم
+     -metadata: عدم
+     -type: صـحيح_بهوية 0
      عناصر مسماة:
-     -operand: Core.Data.Ast.List
+     -operand: Core.Ast.List
        الأعضاء:
        -prodId: طـبيعي_بهوية 182
-       -sourceLocation: Core.Data.SourceLocationRecord
+       -sourceLocation: Core.Ast.SourceLocationRecord
+       -modifiers: عدم
+       -metadata: عدم
        عناصر:
        -صـحيح_حرفي 5
        -صـحيح_حرفي 6
  -مـعرف ت
- -Core.Data.Ast.Definition
+ -Core.Ast.Definition
    الأعضاء:
+   -prodId: طـبيعي_بهوية 248
+   -sourceLocation: Core.Ast.SourceLocationRecord
+   -modifiers: عدم
+   -metadata: عدم
    -name: نـص_بهوية "د"
    -toMerge: ثـنائي_بهوية خطأ
-   -prodId: طـبيعي_بهوية 248
-   -sourceLocation: Core.Data.SourceLocationRecord
    عناصر مسماة:
    -target: Spp.Ast.Function
      الأعضاء:
+     -prodId: طـبيعي_بهوية 248
+     -sourceLocation: Core.Ast.SourceLocationRecord
+     -modifiers: عدم
+     -metadata: عدم
      -name: نـص_بهوية ""
      -inlined: ثـنائي_بهوية خطأ
-     -prodId: طـبيعي_بهوية 248
-     -sourceLocation: Core.Data.SourceLocationRecord
      عناصر مسماة:
      -type: Spp.Ast.FunctionType
        الأعضاء:
        -prodId: طـبيعي_بهوية 248
-       -sourceLocation: Core.Data.SourceLocationRecord
+       -sourceLocation: Core.Ast.SourceLocationRecord
+       -modifiers: عدم
+       -metadata: عدم
        -member: ثـنائي_بهوية خطأ
        عناصر مسماة:
        -argTypes: عدم
@@ -51,5 +65,6 @@ Core.Data.Ast.List
        الأعضاء:
        -prodId: طـبيعي_بهوية 308
        -sourceLocation: عدم
+       -modifiers: عدم
+       -metadata: عدم
        عناصر:
-   -modifiers: عدم

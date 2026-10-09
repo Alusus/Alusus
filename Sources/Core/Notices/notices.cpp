@@ -2,7 +2,7 @@
  * @file Core/Notices/notices.cpp
  * Contains the global implementations of Notices namespace's declarations.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -77,16 +77,16 @@ void printNotice(Notice const *msg)
 }
 
 
-Str getSourceLocationString(Data::SourceLocation *sl, Int indentation) {
+Str getSourceLocationString(Ast::SourceLocation *sl, Int indentation) {
   StrStream stream;
-  if (sl->isDerivedFrom<Data::SourceLocationRecord>()) {
-    auto slRecord = static_cast<Data::SourceLocationRecord*>(sl);
+  if (sl->isDerivedFrom<Ast::SourceLocationRecord>()) {
+    auto slRecord = static_cast<Ast::SourceLocationRecord*>(sl);
     auto filename = getSourceLocationPathSkipping() ?
       strrchr(slRecord->filename.getBuf(), C('/')) + 1 :
       slRecord->filename.getBuf();
     stream << filename << " (" << slRecord->line << "," << slRecord->column << ")";
   } else {
-    auto stack = static_cast<Data::SourceLocationStack*>(sl);
+    auto stack = static_cast<Ast::SourceLocationStack*>(sl);
     stream << S("- ") << getSourceLocationString(stack->get(stack->getCount() - 1).get(), indentation + 2);
     for (Int i = stack->getCount() - 2; i >= 0; --i) {
       stream << NEW_LINE;

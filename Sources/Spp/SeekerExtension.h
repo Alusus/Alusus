@@ -2,7 +2,7 @@
  * @file Spp/SeekerExtension.h
  * Contains the header of class Spp::SeekerExtension.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -108,115 +108,116 @@ class SeekerExtension : public ObjTiInterface
   /// @name Setup Functions
   /// @{
 
-  public: static Overrides* extend(Core::Data::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper);
-  public: static void unextend(Core::Data::Seeker *seeker, Overrides *overrides);
+  public: static Overrides* extend(Core::Ast::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper);
+  public: static void unextend(Core::Ast::Seeker *seeker, Overrides *overrides);
 
   /// @}
 
   /// @name Seek Functions
   /// @{
 
-  private: static Core::Data::Seeker::Verb _foreach(
-    TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach(
+    TiFunctionBase *base, TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  private: static Core::Data::Seeker::Verb _extForeach(
-    TiFunctionBase *base, TiObject *self, TiObject const *ref, TiObject *target,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _extForeach(
+    TiFunctionBase *base, TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  private: static Core::Data::Seeker::Verb _foreach_identifierLevel(
-    TiFunctionBase *base, TiObject *self, Data::Ast::Identifier const *identifier, TiObject *data,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_identifierLevel(
+    TiFunctionBase *base, TiObject *self, Core::Ast::Identifier const *identifier, Core::Ast::Node *data,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_identifierOnFunc,
-    Core::Data::Seeker::Verb, (
-      Data::Ast::Identifier const*, Ast::Function*, Core::Data::Seeker::ForeachCallback const&, Word
+    Core::Ast::Seeker::Verb, (
+      Core::Ast::Identifier const*, Ast::Function*, Core::Ast::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreach_identifierOnFunc(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::Function *function,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_identifierOnFunc(
+    TiObject *self, Core::Ast::Identifier const *identifier, Ast::Function *function,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_identifierOnDataType,
-    Core::Data::Seeker::Verb, (
-      Data::Ast::Identifier const*, Ast::DataType*, Core::Data::Seeker::ForeachCallback const&, Word
+    Core::Ast::Seeker::Verb, (
+      Core::Ast::Identifier const*, Ast::DataType*, Core::Ast::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreach_identifierOnDataType(
-    TiObject *self, Data::Ast::Identifier const *identifier, Ast::DataType *type,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_identifierOnDataType(
+    TiObject *self, Core::Ast::Identifier const *identifier, Ast::DataType *type,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  private: static Core::Data::Seeker::Verb _foreach_linkOperatorRouting(
-    TiFunctionBase *base, TiObject *self, Data::Ast::LinkOperator const *link, TiObject *data,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_linkOperatorRouting(
+    TiFunctionBase *base, TiObject *self, Core::Ast::LinkOperator const *link, Core::Ast::Node *data,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_paramPass,
-    Core::Data::Seeker::Verb, (Data::Ast::ParamPass const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+    Core::Ast::Seeker::Verb, (Core::Ast::ParamPass const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreach_paramPass(
-    TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_paramPass(
+    TiObject *self, Core::Ast::ParamPass const *paramPass, Core::Ast::Node *data,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_paramPassRouting,
-    Core::Data::Seeker::Verb, (
-      Data::Ast::ParamPass const*, TiObject *, Core::Data::Seeker::ForeachCallback const&, Word
+    Core::Ast::Seeker::Verb, (
+      Core::Ast::ParamPass const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreach_paramPassRouting(
-    TiObject *self, Data::Ast::ParamPass const *paramPass, TiObject *data,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_paramPassRouting(
+    TiObject *self, Core::Ast::ParamPass const *paramPass, Core::Ast::Node *data,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_paramPassOnTemplate,
-    Core::Data::Seeker::Verb, (TiObject*, Spp::Ast::Template*, Core::Data::Seeker::ForeachCallback const&, Word)
+    Core::Ast::Seeker::Verb,
+    (Core::Ast::Node*, Spp::Ast::Template*, Core::Ast::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreach_paramPassOnTemplate(
-    TiObject *self, TiObject *param, Spp::Ast::Template *tmplt, Core::Data::Seeker::ForeachCallback const &cb,
-    Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_paramPassOnTemplate(
+    TiObject *self, Core::Ast::Node *param, Spp::Ast::Template *tmplt,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_thisTypeRef,
-    Core::Data::Seeker::Verb, (TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+    Core::Ast::Seeker::Verb, (Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreach_thisTypeRef(
-    TiObject *self, TiObject *data, Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_thisTypeRef(
+    TiObject *self, Core::Ast::Node *data, Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_comparison,
-    Core::Data::Seeker::Verb, (TiObject const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+    Core::Ast::Seeker::Verb, (Core::Ast::Node const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreach_comparison(
-    TiObject *self, TiObject const *comparison, TiObject *data,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_comparison(
+    TiObject *self, Core::Ast::Node const *comparison, Core::Ast::Node *data,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_comparisonLevel,
-    Core::Data::Seeker::Verb, (TiObject const*, TiObject*, Core::Data::Seeker::ForeachCallback const&, Word)
+    Core::Ast::Seeker::Verb, (Core::Ast::Node const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
   );
-  private: static Core::Data::Seeker::Verb _foreach_comparisonLevel(
-    TiObject *self, TiObject const *comparison, TiObject *data,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_comparisonLevel(
+    TiObject *self, Core::Ast::Node const *comparison, Core::Ast::Node *data,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
   public: METHOD_BINDING_CACHE(foreach_comparisonOnScope,
-    Core::Data::Seeker::Verb, (
-      TiObject const*, Core::Data::Ast::Scope*, Core::Data::Seeker::ForeachCallback const&, Word
+    Core::Ast::Seeker::Verb, (
+      Core::Ast::Node const*, Core::Ast::Scope*, Core::Ast::Seeker::ForeachCallback const&, Word
     )
   );
-  private: static Core::Data::Seeker::Verb _foreach_comparisonOnScope(
-    TiObject *self, TiObject const *comparison, Core::Data::Ast::Scope *scope,
-    Core::Data::Seeker::ForeachCallback const &cb, Word flags
+  private: static Core::Ast::Seeker::Verb _foreach_comparisonOnScope(
+    TiObject *self, Core::Ast::Node const *comparison, Core::Ast::Scope *scope,
+    Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
-  public: METHOD_BINDING_CACHE(foreach_computeComparison, Bool, (TiObject const*, TiObject*));
-  private: static Bool _foreach_computeComparison(TiObject *self, TiObject const *comparison, TiObject *target);
+  public: METHOD_BINDING_CACHE(foreach_computeComparison, Bool, (Core::Ast::Node const*, Core::Ast::Node*));
+  private: static Bool _foreach_computeComparison(TiObject *self, Core::Ast::Node const *comparison, Core::Ast::Node *target);
 
   /// @}
 

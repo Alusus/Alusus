@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/OfflineBuildTarget.h
  * Contains the header of class Spp::LlvmCodeGen::OfflineBuildTarget.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,6 +44,7 @@ class OfflineBuildTarget : public BuildTarget
   private: std::unique_ptr<llvm::LLVMContext> llvmContext;
   private: std::unique_ptr<llvm::Module> llvmModule;
   private: LlvmGlobalCtorDtorEntryTypes llvmGlobalCtorDtorEntryTypes;
+  private: Bool optimize = false;
 
 
   //============================================================================
@@ -64,6 +65,11 @@ class OfflineBuildTarget : public BuildTarget
   //============================================================================
   // Member Functions
 
+  public: void setOptimize(Bool o)
+  {
+    this->optimize = o;
+  }
+
   public: void setTargetTriple(Char const *tt)
   {
     if (tt == 0) this->targetTriple = llvm::sys::getDefaultTargetTriple();
@@ -73,6 +79,12 @@ class OfflineBuildTarget : public BuildTarget
   public: std::string const& getTargetTriple() const
   {
     return this->targetTriple;
+  }
+
+  public: virtual Bool isSysVX86_64Abi()
+  {
+    llvm::Triple tt(this->targetTriple);
+    return tt.getArch() == llvm::Triple::x86_64 && !tt.isOSWindows();
   }
 
   public: virtual void setupBuild();

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/ExpressionGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::ExpressionGenerator.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -132,30 +132,31 @@ void ExpressionGenerator::initBindings()
 // Top Level Generation Functions
 
 Bool ExpressionGenerator::_generate(
-  TiObject *self, TiObject *astNode, Generation *g, Session *session, GenResult &result, TerminalStatement &terminal
+  TiObject *self, Core::Ast::Node *astNode, Generation *g, Session *session,
+  GenResult &result, TerminalStatement &terminal
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
   terminal = TerminalStatement::NO;
-  if (astNode->isDerivedFrom<Core::Data::Ast::List>()) {
-    auto expList = static_cast<Core::Data::Ast::List*>(astNode);
+  if (astNode->isDerivedFrom<Core::Ast::List>()) {
+    auto expList = static_cast<Core::Ast::List*>(astNode);
     return expGenerator->generateList(expList, g, session, result, terminal);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-    auto identifier = static_cast<Core::Data::Ast::Identifier*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::Identifier>()) {
+    auto identifier = static_cast<Core::Ast::Identifier*>(astNode);
     return expGenerator->generateIdentifier(identifier, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::Passage>()) {
-    auto identifier = static_cast<Core::Data::Ast::Passage*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::Passage>()) {
+    auto identifier = static_cast<Core::Ast::Passage*>(astNode);
     return expGenerator->generatePassage(identifier, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-    auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::LinkOperator>()) {
+    auto linkOperator = static_cast<Core::Ast::LinkOperator*>(astNode);
     return expGenerator->generateLinkOperator(linkOperator, g, session, result, terminal);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::ParamPass>()) {
-    auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::ParamPass>()) {
+    auto paramPass = static_cast<Core::Ast::ParamPass*>(astNode);
     return expGenerator->generateParamPass(paramPass, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
-    auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::InfixOperator>()) {
+    auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
     return expGenerator->generateOperator(infixOp, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::OutfixOperator>()) {
-    auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::OutfixOperator>()) {
+    auto outfixOp = static_cast<Core::Ast::OutfixOperator*>(astNode);
     return expGenerator->generateOperator(outfixOp, g, session, result);
   } else if (astNode->isDerivedFrom<Spp::Ast::PointerOp>()) {
     auto pointerOp = static_cast<Spp::Ast::PointerOp*>(astNode);
@@ -193,31 +194,31 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::UseInOp>()) {
     auto useInOp = static_cast<Spp::Ast::UseInOp*>(astNode);
     return expGenerator->generateUseInOp(useInOp, g, session, result, terminal);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
-    auto stringLiteral = static_cast<Core::Data::Ast::StringLiteral*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::StringLiteral>()) {
+    auto stringLiteral = static_cast<Core::Ast::StringLiteral*>(astNode);
     return expGenerator->generateStringLiteral(stringLiteral, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::CharLiteral>()) {
-    auto charLiteral = static_cast<Core::Data::Ast::CharLiteral*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::CharLiteral>()) {
+    auto charLiteral = static_cast<Core::Ast::CharLiteral*>(astNode);
     return expGenerator->generateCharLiteral(charLiteral, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
-    auto integerLiteral = static_cast<Core::Data::Ast::IntegerLiteral*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::IntegerLiteral>()) {
+    auto integerLiteral = static_cast<Core::Ast::IntegerLiteral*>(astNode);
     return expGenerator->generateIntegerLiteral(integerLiteral, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
-    auto floatLiteral = static_cast<Core::Data::Ast::FloatLiteral*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::FloatLiteral>()) {
+    auto floatLiteral = static_cast<Core::Ast::FloatLiteral*>(astNode);
     return expGenerator->generateFloatLiteral(floatLiteral, g, session, result);
   } else if (astNode->isDerivedFrom<Spp::Ast::Function>()) {
     auto astFunc = static_cast<Spp::Ast::Function*>(astNode);
     return expGenerator->generateInnerFunction(astFunc, g, session, result);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::Definition>()) {
+    auto def = static_cast<Core::Ast::Definition*>(astNode);
     auto astFunc = def->getTarget().ti_cast_get<Spp::Ast::Function>();
     if (astFunc != 0) {
       return expGenerator->generateInnerFunction(astFunc, g, session, result);
     }
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::Bracket>()) {
-    auto bracket = static_cast<Core::Data::Ast::Bracket*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::Bracket>()) {
+    auto bracket = static_cast<Core::Ast::Bracket*>(astNode);
     auto operand = bracket->getOperand().get();
-    if (bracket->getType() == Core::Data::Ast::BracketType::ROUND && operand != 0) {
+    if (bracket->getType() == Core::Ast::BracketType::ROUND && operand != 0) {
       return expGenerator->generate(operand, g, session, result, terminal);
     } else {
       expGenerator->astHelper->getNoticeStore()->add(
@@ -239,14 +240,14 @@ Bool ExpressionGenerator::_generate(
     return true;
   }
   expGenerator->astHelper->getNoticeStore()->add(
-    newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Data::Ast::findSourceLocation(astNode))
+    newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Ast::findSourceLocation(astNode))
   );
   return false;
 }
 
 
 Bool ExpressionGenerator::_generateList(
-  TiObject *self, Core::Data::Ast::List *astNode, Generation *g, Session *session, GenResult &result,
+  TiObject *self, Core::Ast::List *astNode, Generation *g, Session *session, GenResult &result,
   TerminalStatement &terminal
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -263,7 +264,7 @@ Bool ExpressionGenerator::_generateList(
     }
     if (terminal == TerminalStatement::YES) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(innerNode))
+        newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Ast::findSourceLocation(innerNode))
       );
       return false;
     }
@@ -275,31 +276,31 @@ Bool ExpressionGenerator::_generateList(
 
 
 Bool ExpressionGenerator::_generateIdentifier(
-  TiObject *self, Core::Data::Ast::Identifier *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::Identifier *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   TerminalStatement terminal;
-  PlainList<TiObject> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstTypes;
   GenResult thisResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
 }
 
 
 Bool ExpressionGenerator::_generatePassage(
-  TiObject *self, Core::Data::Ast::Passage *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::Passage *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   TerminalStatement terminal;
-  PlainList<TiObject> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstTypes;
   GenResult thisResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
 }
 
 
 Bool ExpressionGenerator::_generateLinkOperator(
-  TiObject *self, Core::Data::Ast::LinkOperator *astNode, Generation *g, Session *session, GenResult &result,
+  TiObject *self, Core::Ast::LinkOperator *astNode, Generation *g, Session *session, GenResult &result,
   TerminalStatement &terminal
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -311,17 +312,17 @@ Bool ExpressionGenerator::_generateLinkOperator(
     return false;
   }
 
-  PlainList<TiObject> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstTypes;
   GenResult thisResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
 }
 
 
 Bool ExpressionGenerator::_generateParamPass(
-  TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::ParamPass *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
-  if (astNode->getType() == Core::Data::Ast::BracketType::ROUND) {
+  if (astNode->getType() == Core::Ast::BracketType::ROUND) {
     return expGenerator->generateRoundParamPass(astNode, g, session, result);
   } else {
     return expGenerator->generateSquareParamPass(astNode, g, session, result);
@@ -330,20 +331,20 @@ Bool ExpressionGenerator::_generateParamPass(
 
 
 Bool ExpressionGenerator::_generateRoundParamPass(
-  TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::ParamPass *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   // Prepare parameters list.
   SharedList<TiObject> paramTgValues;
-  PlainList<TiObject> paramAstTypes;
-  PlainList<TiObject> paramAstNodes;
+  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstNodes;
   auto param = astNode->getParam().get();
   if (!expGenerator->generateParams(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
     return false;
   }
 
-  auto operand = astNode->getOperand().ti_cast_get<Core::Data::Node>();
+  auto operand = astNode->getOperand().ti_cast_get<Core::Ast::Node>();
   if (operand == 0) throw EXCEPTION(GenericException, S("Invalid square param pass operand."));
 
   TerminalStatement terminal;
@@ -354,7 +355,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -367,8 +368,9 @@ Bool ExpressionGenerator::_generateRoundParamPass(
 
 
 Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
-  TiObject *self, Core::Data::Node *astNode, GenResult const &callee, GenResult const &thisArg,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes, PlainList<TiObject> *paramAstNodes,
+  TiObject *self, Core::Ast::Node *astNode, GenResult const &callee, GenResult const &thisArg,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  PlainList<Core::Ast::Node> *paramAstNodes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -463,7 +465,7 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
       );
     } else {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::NoCalleeMatchNotice>(Core::Data::Ast::findSourceLocation(astNode))
+        newSrdObj<Spp::Notices::NoCalleeMatchNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -472,14 +474,14 @@ Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
 
 
 Bool ExpressionGenerator::_generateSquareParamPass(
-  TiObject *self, Core::Data::Ast::ParamPass *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::ParamPass *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
-  auto operand = astNode->getOperand().ti_cast_get<Core::Data::Node>();
+  auto operand = astNode->getOperand().ti_cast_get<Core::Ast::Node>();
   if (operand == 0) throw EXCEPTION(GenericException, S("Invalid square param pass operand."));
 
   TerminalStatement terminal;
-  PlainList<TiObject> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstTypes;
   GenResult thisResult;
   GenResult operandResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
@@ -487,7 +489,7 @@ Bool ExpressionGenerator::_generateSquareParamPass(
 
 
 Bool ExpressionGenerator::_generateOperator(
-  TiObject *self, Core::Data::Node *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::Node *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -499,8 +501,8 @@ Bool ExpressionGenerator::_generateOperator(
   // Determine operator function name.
   Char const *funcName;
   OpType opType = OpType::INVALID;
-  if (astNode->isDerivedFrom<Core::Data::Ast::InfixOperator>()) {
-    auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+  if (astNode->isDerivedFrom<Core::Ast::InfixOperator>()) {
+    auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
     if (infixOp->getFirst() == 0 || infixOp->getSecond() == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IncompleteInfixOpNotice>(infixOp->findSourceLocation())
@@ -541,8 +543,8 @@ Bool ExpressionGenerator::_generateOperator(
     } else {
       throw EXCEPTION(GenericException, S("Unexpected infix operator."));
     }
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
-    auto outfixOp = static_cast<Core::Data::Ast::PrefixOperator*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::PrefixOperator>()) {
+    auto outfixOp = static_cast<Core::Ast::PrefixOperator*>(astNode);
     if (outfixOp->getOperand() == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
@@ -559,8 +561,8 @@ Bool ExpressionGenerator::_generateOperator(
     else {
       throw EXCEPTION(GenericException, S("Unexpected prefix operator."));
     }
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::PostfixOperator>()) {
-    auto outfixOp = static_cast<Core::Data::Ast::PostfixOperator*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::PostfixOperator>()) {
+    auto outfixOp = static_cast<Core::Ast::PostfixOperator*>(astNode);
     if (outfixOp->getOperand() == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
@@ -578,16 +580,16 @@ Bool ExpressionGenerator::_generateOperator(
 
   // Generate parameters list.
   SharedList<TiObject> paramTgValues;
-  PlainList<TiObject> paramAstTypes;
-  PlainList<TiObject> paramAstNodes;
-  auto containing = ti_cast<Containing<TiObject>>(astNode);
+  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstNodes;
+  auto containing = ti_cast<Containing<Core::Ast::Node>>(astNode);
   for (Int i = 1; i < containing->getElementCount(); ++i) {
     if (!expGenerator->generateParams(
       containing->getElement(i), g, session, &paramAstNodes, &paramAstTypes, &paramTgValues
     )) return false;
   }
 
-  auto operand = ti_cast<Core::Data::Node>(containing->getElement(0));
+  auto operand = containing->getElement(0);
   if (operand == 0) throw EXCEPTION(GenericException, S("Invalid operator operand."));
 
   TerminalStatement terminal;
@@ -598,7 +600,7 @@ Bool ExpressionGenerator::_generateOperator(
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -610,37 +612,37 @@ Bool ExpressionGenerator::_generateOperator(
     paramAstNodes.insertElement(0, containing->getElement(0));
 
     if (opType == OpType::ASSIGN) {
-      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
       return expGenerator->generateAssignOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::ARITHMETIC) {
-      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
       return expGenerator->generateArithmeticOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::BINARY) {
-      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
       return expGenerator->generateBinaryOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::COMPARISON) {
-      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
       return expGenerator->generateComparisonOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::ARITHMETIC_ASSIGN) {
-      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
       return expGenerator->generateArithmeticAssignOp(
         infixOp, &paramTgValues, &paramAstTypes, g, session, result
       );
     } else if (opType == OpType::BINARY_ASSIGN) {
-      auto infixOp = static_cast<Core::Data::Ast::InfixOperator*>(astNode);
+      auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
       return expGenerator->generateBinaryAssignOp(infixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::UNARY_VAL) {
-      auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+      auto outfixOp = static_cast<Core::Ast::OutfixOperator*>(astNode);
       return expGenerator->generateUnaryValOp(outfixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::INT_UNARY_VAL) {
-      auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+      auto outfixOp = static_cast<Core::Ast::OutfixOperator*>(astNode);
       return expGenerator->generateIntUnaryValOp(outfixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else if (opType == OpType::UNARY_VAR) {
-      auto outfixOp = static_cast<Core::Data::Ast::OutfixOperator*>(astNode);
+      auto outfixOp = static_cast<Core::Ast::OutfixOperator*>(astNode);
       return expGenerator->generateUnaryVarOp(outfixOp, &paramTgValues, &paramAstTypes, g, session, result);
     } else {
       expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::NoCalleeMatchNotice>(
-        Core::Data::Ast::findSourceLocation(astNode)
+        Core::Ast::findSourceLocation(astNode)
       ));
       return false;
     }
@@ -654,7 +656,7 @@ Bool ExpressionGenerator::_generateOperator(
 
 
 Bool ExpressionGenerator::_generateLogicalOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::InfixOperator *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -670,7 +672,7 @@ Bool ExpressionGenerator::_generateLogicalOp(
   if (!expGenerator->generate(astNode->getFirst().get(), g, session, firstResult, terminal)) return false;
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -689,7 +691,7 @@ Bool ExpressionGenerator::_generateLogicalOp(
   Bool res = expGenerator->generate(astNode->getSecond().get(), g, &childSession, secondResult, terminal);
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -732,8 +734,8 @@ Bool ExpressionGenerator::_generateLogicalOp(
 
 
 Bool ExpressionGenerator::_generateArithmeticOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -870,8 +872,8 @@ Bool ExpressionGenerator::_generateArithmeticOp(
 
 
 Bool ExpressionGenerator::_generateBinaryOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -981,8 +983,8 @@ Bool ExpressionGenerator::_generateBinaryOp(
 
 
 Bool ExpressionGenerator::_generateComparisonOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1144,8 +1146,8 @@ Bool ExpressionGenerator::_generateComparisonOp(
 
 
 Bool ExpressionGenerator::_generateAssignOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1219,8 +1221,8 @@ Bool ExpressionGenerator::_generateAssignOp(
 
 
 Bool ExpressionGenerator::_generateArithmeticAssignOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1238,7 +1240,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   SharedList<TiObject> assignParamTgValues;
   assignParamTgValues.add(paramTgValues->get(0));
   assignParamTgValues.add(arithmeticResult.targetData);
-  PlainList<TiObject> assignParamAstTypes;
+  PlainList<Core::Ast::Node> assignParamAstTypes;
   assignParamAstTypes.add(paramAstTypes->get(0));
   assignParamAstTypes.add(arithmeticResult.astType);
   return expGenerator->generateAssignOp(astNode, &assignParamTgValues, &assignParamAstTypes, g, session, result);
@@ -1246,8 +1248,8 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
 
 
 Bool ExpressionGenerator::_generateBinaryAssignOp(
-  TiObject *self, Core::Data::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::InfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1342,8 +1344,8 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
 
 
 Bool ExpressionGenerator::_generateUnaryValOp(
-  TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::OutfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1407,8 +1409,8 @@ Bool ExpressionGenerator::_generateUnaryValOp(
 
 
 Bool ExpressionGenerator::_generateIntUnaryValOp(
-  TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::OutfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1473,8 +1475,8 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
 
 
 Bool ExpressionGenerator::_generateUnaryVarOp(
-  TiObject *self, Core::Data::Ast::OutfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<TiObject> *paramAstTypes,
+  TiObject *self, Core::Ast::OutfixOperator *astNode,
+  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1510,7 +1512,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
     throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
   }
 
-  if (astNode->isDerivedFrom<Core::Data::Ast::PrefixOperator>()) {
+  if (astNode->isDerivedFrom<Core::Ast::PrefixOperator>()) {
     if (astNode->getType() == S("--")) {
       if (session->getTgContext() != 0) {
         if (!session->getTg()->generateEarlyDec(
@@ -1569,7 +1571,7 @@ Bool ExpressionGenerator::_generatePointerOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1579,7 +1581,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     auto astFunction = ti_cast<Ast::Function>(operandResult.astNode);
     if (astFunction == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+        newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Ast::findSourceLocation(operand))
       );
       return false;
     }
@@ -1588,7 +1590,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     if (!expGenerator->addFunctionDependencyIfNeeded(session, astFunction)) {
       expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
-          Core::Data::Ast::findSourceLocation(astNode)
+          Core::Ast::findSourceLocation(astNode)
         )
       );
       return false;
@@ -1638,27 +1640,27 @@ Bool ExpressionGenerator::_generateAstRefOp(
   if (operand == 0) {
     throw EXCEPTION(GenericException, S("AstRefOp operand is missing."));
   }
-  TiObject *targetAstNode;
+  Core::Ast::Node *targetAstNode;
   if (!expGenerator->astHelper->getSeeker()->tryGet(operand, astNode->getOwner(), targetAstNode)) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnknownSymbolNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::UnknownSymbolNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
 
   // Unbox if we have a box.
-  auto passage = ti_cast<Core::Data::Ast::Passage>(targetAstNode);
+  auto passage = ti_cast<Core::Ast::Passage>(targetAstNode);
   if (passage != 0) targetAstNode = passage->get();
 
   // Generate pointer to void.
-  auto tiObjType = expGenerator->astHelper->getTiObjectType();
-  if (tiObjType == 0) {
+  auto nodeType = expGenerator->astHelper->getNodeType();
+  if (nodeType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
     );
     return false;
   }
-  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(tiObjType, Ast::ReferenceMode::IMPLICIT);
+  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(nodeType, Ast::ReferenceMode::IMPLICIT);
   TiObject *tgTiObjRefType;
   if (!g->getGeneratedType(tiObjRefType, session, tgTiObjRefType, 0)) {
     return false;
@@ -1685,14 +1687,14 @@ Bool ExpressionGenerator::_generateAstLiteralCommand(
   }
 
   // Generate pointer to void.
-  auto tiObjType = expGenerator->astHelper->getTiObjectType();
-  if (tiObjType == 0) {
+  auto nodeType = expGenerator->astHelper->getNodeType();
+  if (nodeType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
     );
     return false;
   }
-  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(tiObjType, Ast::ReferenceMode::IMPLICIT);
+  auto tiObjRefType = expGenerator->astHelper->getReferenceTypeFor(nodeType, Ast::ReferenceMode::IMPLICIT);
   TiObject *tgTiObjRefType;
   if (!g->getGeneratedType(tiObjRefType, session, tgTiObjRefType, 0)) {
     return false;
@@ -1725,13 +1727,13 @@ Bool ExpressionGenerator::_generateContentOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (operandResult.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1768,13 +1770,13 @@ Bool ExpressionGenerator::_generateDerefOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (operandResult.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidDerefOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1787,7 +1789,7 @@ Bool ExpressionGenerator::_generateDerefOp(
   auto refType = ti_cast<Spp::Ast::ReferenceType>(target.astType);
   if (refType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidDerefOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
@@ -1815,7 +1817,7 @@ Bool ExpressionGenerator::_generateNoDerefOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1828,7 +1830,7 @@ Bool ExpressionGenerator::_generateNoDerefOp(
     auto refType = ti_cast<Spp::Ast::ReferenceType>(target.astType);
     if (refType == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidNoDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+        newSrdObj<Spp::Notices::InvalidNoDerefOperandNotice>(Core::Ast::findSourceLocation(operand))
       );
       return false;
     }
@@ -1860,7 +1862,7 @@ Bool ExpressionGenerator::_generateNoDerefOp(
     return true;
   } else {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidNoDerefOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidNoDerefOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
@@ -1882,13 +1884,13 @@ Bool ExpressionGenerator::_generateCastOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (operandResult.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1941,7 +1943,7 @@ Bool ExpressionGenerator::_generateSizeOp(
   if (!expGenerator->generate(operand, g, &childSession, operandResult, terminal)) return false;
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1951,16 +1953,17 @@ Bool ExpressionGenerator::_generateSizeOp(
       astType = static_cast<Spp::Ast::Type*>(operandResult.astNode);
     } else if (operandResult.astNode->isDerivedFrom<Spp::Ast::Template>()) {
       auto tpl = static_cast<Spp::Ast::Template*>(operandResult.astNode);
-      Core::Data::Ast::List list;
-      TioSharedPtr matchResult;
-      if (tpl->matchInstance(&list, expGenerator->getAstHelper(), matchResult)) {
+      Core::Ast::List list;
+      SharedPtr<Core::Ast::Node> matchResult;
+      SharedPtr<Core::Notices::Notice> matchNotice;
+      if (tpl->matchInstance(&list, expGenerator->getAstHelper(), matchResult, matchNotice)) {
         astType = matchResult.ti_cast_get<Spp::Ast::Type>();
       }
     }
   }
   if (astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidSizeOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidSizeOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
@@ -2003,13 +2006,13 @@ Bool ExpressionGenerator::_generateInitOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (operandResult.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidInitOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidInitOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -2022,7 +2025,7 @@ Bool ExpressionGenerator::_generateInitOp(
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidInitOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidInitOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
@@ -2030,8 +2033,8 @@ Bool ExpressionGenerator::_generateInitOp(
 
   // Prepare parameters list.
   SharedList<TiObject> paramTgValues;
-  PlainList<TiObject> paramAstTypes;
-  PlainList<TiObject> paramAstNodes;
+  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstNodes;
   auto param = astNode->getParam().get();
   if (!expGenerator->generateParams(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
     return false;
@@ -2062,13 +2065,13 @@ Bool ExpressionGenerator::_generateTerminateOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (operandResult.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidTerminateOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidTerminateOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -2081,7 +2084,7 @@ Bool ExpressionGenerator::_generateTerminateOp(
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidTerminateOperandNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidTerminateOperandNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
@@ -2110,13 +2113,13 @@ Bool ExpressionGenerator::_generateNextArgOp(
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (operandResult.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -2172,14 +2175,14 @@ Bool ExpressionGenerator::_generateUseInOp(
   if (!expGenerator->generate(operand, g, session, result, terminal)) return false;
   if (result.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(
-        Core::Data::Ast::findSourceLocation(astNode->getBody().get())
+        Core::Ast::findSourceLocation(astNode->getBody().get())
       )
     );
     return false;
@@ -2188,7 +2191,7 @@ Bool ExpressionGenerator::_generateUseInOp(
   auto refType = ti_cast<Ast::ReferenceType>(result.astType);
   if (refType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidUseInTargetNotice>(Core::Data::Ast::findSourceLocation(operand))
+      newSrdObj<Spp::Notices::InvalidUseInTargetNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
@@ -2215,7 +2218,7 @@ Bool ExpressionGenerator::_generateUseInOp(
 
 
 Bool ExpressionGenerator::_generateStringLiteral(
-  TiObject *self, Core::Data::Ast::StringLiteral *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::StringLiteral *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2244,7 +2247,7 @@ Bool ExpressionGenerator::_generateStringLiteral(
 
 
 Bool ExpressionGenerator::_generateCharLiteral(
-  TiObject *self, Core::Data::Ast::CharLiteral *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::CharLiteral *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2267,7 +2270,7 @@ Bool ExpressionGenerator::_generateCharLiteral(
 
 
 Bool ExpressionGenerator::_generateIntegerLiteral(
-  TiObject *self, Core::Data::Ast::IntegerLiteral *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::IntegerLiteral *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2373,7 +2376,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
 
 
 Bool ExpressionGenerator::_generateFloatLiteral(
-  TiObject *self, Core::Data::Ast::FloatLiteral *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::FloatLiteral *astNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2424,7 +2427,7 @@ Bool ExpressionGenerator::_generateInnerFunction(
   if (!expGenerator->addFunctionDependencyIfNeeded(session, astFunction)) {
     expGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
-        Core::Data::Ast::findSourceLocation(astFunction)
+        Core::Ast::findSourceLocation(astFunction)
       )
     );
     return false;
@@ -2450,7 +2453,8 @@ Bool ExpressionGenerator::_generateInnerFunction(
 // Inner Generation Functions
 
 Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
-  TiObject *self, TiObject *obj, Core::Data::Node *astNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::Node *obj, Core::Ast::Node *astNode, Generation *g, Session *session,
+  GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2460,7 +2464,7 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
     // Make sure the var is not an object member.
     if (expGenerator->getAstHelper()->getVariableDomain(obj) == Ast::DefinitionDomain::OBJECT) {
       expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
-        Core::Data::Ast::findSourceLocation(astNode)
+        Core::Ast::findSourceLocation(astNode)
       ));
       retVal = false;
     } else {
@@ -2469,7 +2473,7 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
   } else if (ti_cast<Ast::ArgPack>(obj) != 0) {
     retVal = expGenerator->generateVarReference(astNode, obj, g, session, result);
   } else if (
-    obj->isDerivedFrom<Core::Data::Ast::Scope>() || obj->isDerivedFrom<Ast::Type>() ||
+    obj->isDerivedFrom<Core::Ast::Scope>() || obj->isDerivedFrom<Ast::Type>() ||
     obj->isDerivedFrom<Ast::Template>() || obj->isDerivedFrom<Ast::Function>()
   ) {
     result.astNode = obj;
@@ -2477,7 +2481,7 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
     // If the found object is a type, then let's make sure it's preprocessed.
     auto dataType = ti_cast<Spp::Ast::DataType>(result.astNode);
     if (dataType != 0) {
-      auto sourceLocation = Core::Data::Ast::findSourceLocation(astNode).get();
+      auto sourceLocation = Core::Ast::findSourceLocation(astNode).get();
       if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
       TiObject *tgType;
       auto result = g->getGeneratedType(dataType, session, tgType, 0);
@@ -2486,21 +2490,21 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
       }
       if (!result) return false;
     }
-  } else if (obj->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+  } else if (obj->isDerivedFrom<Core::Ast::StringLiteral>()) {
     retVal = expGenerator->generateStringLiteral(
-      static_cast<Core::Data::Ast::StringLiteral*>(obj), g, session, result
+      static_cast<Core::Ast::StringLiteral*>(obj), g, session, result
     );
-  } else if (obj->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
+  } else if (obj->isDerivedFrom<Core::Ast::IntegerLiteral>()) {
     retVal = expGenerator->generateIntegerLiteral(
-      static_cast<Core::Data::Ast::IntegerLiteral*>(obj), g, session, result
+      static_cast<Core::Ast::IntegerLiteral*>(obj), g, session, result
     );
-  } else if (obj->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
+  } else if (obj->isDerivedFrom<Core::Ast::FloatLiteral>()) {
     retVal = expGenerator->generateFloatLiteral(
-      static_cast<Core::Data::Ast::FloatLiteral*>(obj), g, session, result
+      static_cast<Core::Ast::FloatLiteral*>(obj), g, session, result
     );
   } else {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Ast::findSourceLocation(astNode))
     );
   }
 
@@ -2509,14 +2513,14 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
 
 
 Bool ExpressionGenerator::_generateVarReference(
-  TiObject *self, TiObject *refAstNode, TiObject *varAstNode, Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::Node *refAstNode, Core::Ast::Node *varAstNode, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   TiObject *tgVar = 0;
   if (session->getTgContext() != 0) {
     // We only need the var generated if we have a context.
-    auto varDef = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(varAstNode)->getOwner());
+    auto varDef = ti_cast<Core::Ast::Definition>(static_cast<Core::Ast::Node*>(varAstNode)->getOwner());
     if (varDef == 0) {
       // This is a temp variable, since it has no definition.
       // It should already be generated at this point.
@@ -2538,7 +2542,7 @@ Bool ExpressionGenerator::_generateVarReference(
       tgVar = session->getEda()->tryGetCodeGenData<TiObject>(varAstNode);
       if (tgVar == 0) {
         expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::UninitializedVariableNotice>(
-          Core::Data::Ast::findSourceLocation(refAstNode)
+          Core::Ast::findSourceLocation(refAstNode)
         ));
         return false;
       }
@@ -2563,8 +2567,8 @@ Bool ExpressionGenerator::_generateVarReference(
 
 
 Bool ExpressionGenerator::_generateMemberVarReference(
-  TiObject *self, Core::Data::Node *astNode, TiObject *tgStructValue, Ast::Type * astStructType, TiObject *astMemberVar,
-  Generation *g, Session *session, GenResult &result
+  TiObject *self, Core::Ast::Node *astNode, TiObject *tgStructValue, Ast::Type * astStructType,
+  Core::Ast::Node *astMemberVar, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2574,7 +2578,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   // Make sure the var is an object member.
   if (expGenerator->getAstHelper()->getVariableDomain(astMemberVar) != Ast::DefinitionDomain::OBJECT) {
     expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
-      Core::Data::Ast::findSourceLocation(astNode)
+      Core::Ast::findSourceLocation(astNode)
     ));
     return false;
   }
@@ -2584,7 +2588,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
   if (tgMemberVar == 0) {
     // This situation will only happen if we have circular code generation.
     expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
-      Core::Data::Ast::findSourceLocation(astNode)
+      Core::Ast::findSourceLocation(astNode)
     ));
     return false;
   }
@@ -2607,7 +2611,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
 
 
 Bool ExpressionGenerator::_generateArrayReference(
-  TiObject *self, Core::Data::Node *astNode, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal,
+  TiObject *self, Core::Ast::Node *astNode, TiObject *tgValue, Ast::Type *astType, TiObject *tgIndexVal,
   Ast::Type *astIndexType, Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -2662,8 +2666,8 @@ Bool ExpressionGenerator::_generateArrayReference(
 
 
 Bool ExpressionGenerator::_generateFunctionCall(
-  TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
-  Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
+  TiObject *self, Core::Ast::Node *astNode, Spp::Ast::Function *callee,
+  Containing<Core::Ast::Node> *paramAstTypes, Containing<TiObject> *paramTgValues,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -2677,7 +2681,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
     if (!expGenerator->addFunctionDependencyIfNeeded(session, callee)) {
       expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
-          Core::Data::Ast::findSourceLocation(astNode)
+          Core::Ast::findSourceLocation(astNode)
         )
       );
       return false;
@@ -2725,7 +2729,7 @@ Bool ExpressionGenerator::_generateFunctionCall(
 
 
 Bool ExpressionGenerator::_generateFunctionPtrCall(
-  TiObject *self, Core::Data::Node *astNode, Spp::Ast::FunctionType *astFuncType,
+  TiObject *self, Core::Ast::Node *astNode, Spp::Ast::FunctionType *astFuncType,
   TiObject *tgFuncPtr, TiObject *tgFuncPtrType, Containing<TiObject> *paramTgValues,
   Generation *g, Session *session, GenResult &result
 ) {
@@ -2771,7 +2775,8 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
 
 Bool ExpressionGenerator::_prepareFunctionParams(
   TiObject *self, Spp::Ast::FunctionType *calleeType, Generation *g, Session *session,
-  DynamicContaining<TiObject> *paramAstNodes, DynamicContaining<TiObject> *paramAstTypes,
+  DynamicContaining<Core::Ast::Node> *paramAstNodes,
+  DynamicContaining<Core::Ast::Node> *paramAstTypes,
   SharedList<TiObject> *paramTgVals
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -2787,7 +2792,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
       GenResult castedVal;
       if (session->getTgContext() != 0) {
         if (!g->generateCast(
-          session, srcType, context.type, ti_cast<Core::Data::Node>(paramAstNodes->getElement(i)),
+          session, srcType, context.type, paramAstNodes->getElement(i),
           paramTgVals->getElement(i), false, castedVal
         )) {
           throw EXCEPTION(GenericException, S("Casting unexpectedly failed."));
@@ -2815,7 +2820,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
 
 
 Bool ExpressionGenerator::_prepareCallee(
-  TiObject *self, Core::Data::Node *astNode, Containing<TiObject> *argTypes, Char const *op,
+  TiObject *self, Core::Ast::Node *astNode, Containing<Core::Ast::Node> *argTypes, Char const *op,
   Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult,
   TerminalStatement &terminal
 ) {
@@ -2846,7 +2851,7 @@ Bool ExpressionGenerator::_prepareCallee(
 
 
 Bool ExpressionGenerator::_prepareCalleeLookupRequest(
-  TiObject *self, TiObject *operand, Generation *g, Session *session,
+  TiObject *self, Core::Ast::Node *operand, Generation *g, Session *session,
   GenResult &prevResult, Ast::CalleeLookupRequest &calleeRequest,
   TerminalStatement &terminal
 ) {
@@ -2854,29 +2859,29 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
 
   terminal = TerminalStatement::NO;
 
-  if (operand->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+  if (operand->isDerivedFrom<Core::Ast::Identifier>()) {
     ////
     //// A member of the current scope.
     ////
-    calleeRequest.target = static_cast<Core::Data::Ast::Identifier*>(operand)->findOwner<Core::Data::Ast::Scope>();
+    calleeRequest.target = static_cast<Core::Ast::Identifier*>(operand)->findOwner<Core::Ast::Scope>();
     calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
     calleeRequest.ref = operand;
     prevResult = GenResult();
     return true;
-  } else if (operand->isDerivedFrom<Core::Data::Ast::Passage>()) {
+  } else if (operand->isDerivedFrom<Core::Ast::Passage>()) {
     ////
     //// A direct pointer to a callee.
     ////
-    calleeRequest.target = static_cast<Core::Data::Ast::Passage*>(operand)->get();
+    calleeRequest.target = static_cast<Core::Ast::Passage*>(operand)->get();
     calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
     prevResult = GenResult();
     return true;
-  } else if (operand->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
+  } else if (operand->isDerivedFrom<Core::Ast::LinkOperator>()) {
     ////
     //// Call a member of a specific object/scope.
     ////
     // Generate the object reference.
-    auto linkOperator = static_cast<Core::Data::Ast::LinkOperator*>(operand);
+    auto linkOperator = static_cast<Core::Ast::LinkOperator*>(operand);
     auto first = linkOperator->getFirst().get();
     if (first == 0) {
       throw EXCEPTION(GenericException, S("First AST element missing from link operator."));
@@ -2885,14 +2890,14 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     if (terminal == TerminalStatement::YES) {
       expGenerator->astHelper->getNoticeStore()->add(
         newSrdObj<Spp::Notices::UnreachableCodeNotice>(
-          Core::Data::Ast::findSourceLocation(linkOperator->getSecond().get())
+          Core::Ast::findSourceLocation(linkOperator->getSecond().get())
         )
       );
       return false;
     }
 
     if (prevResult.astType != 0) {
-      if (linkOperator->getSecond()->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+      if (linkOperator->getSecond()->isDerivedFrom<Core::Ast::Identifier>()) {
         // Calling a member of an object.
         auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
         auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
@@ -2901,11 +2906,11 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         calleeRequest.ref = linkOperator->getSecond().get();
         calleeRequest.thisType = thisRefType;
         return true;
-      } else if (linkOperator->getSecond()->isDerivedFrom<Core::Data::Ast::Passage>()) {
+      } else if (linkOperator->getSecond()->isDerivedFrom<Core::Ast::Passage>()) {
         // Calling a member of an object using a direct pointer to the callee.
         auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
         auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
-        calleeRequest.target = linkOperator->getSecond().s_cast_get<Core::Data::Ast::Passage>()->get();
+        calleeRequest.target = linkOperator->getSecond().s_cast_get<Core::Ast::Passage>()->get();
         calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.thisType = thisRefType;
         return true;
@@ -2944,9 +2949,9 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       }
     } else if (
       prevResult.astNode != 0 &&
-      (prevResult.astNode->isDerivedFrom<Ast::Type>() || prevResult.astNode->isDerivedFrom<Core::Data::Ast::Scope>())
+      (prevResult.astNode->isDerivedFrom<Ast::Type>() || prevResult.astNode->isDerivedFrom<Core::Ast::Scope>())
     ) {
-      if (linkOperator->getSecond()->isDerivedFrom<Core::Data::Ast::Identifier>()) {
+      if (linkOperator->getSecond()->isDerivedFrom<Core::Ast::Identifier>()) {
         // Calling a global in another module or type.
         calleeRequest.target = prevResult.astNode;
         calleeRequest.mode = Ast::CalleeLookupMode::SCOPE_MEMBER;
@@ -2966,13 +2971,13 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     }
   } else {
     if (
-      operand->isDerivedFrom<Core::Data::Ast::ParamPass>() &&
-      static_cast<Core::Data::Ast::ParamPass*>(operand)->getType() == Core::Data::Ast::BracketType::SQUARE
+      operand->isDerivedFrom<Core::Ast::ParamPass>() &&
+      static_cast<Core::Ast::ParamPass*>(operand)->getType() == Core::Ast::BracketType::SQUARE
     ) {
       ////
       //// Call a template function.
       ////
-      auto paramPass = static_cast<Core::Data::Ast::ParamPass*>(operand);
+      auto paramPass = static_cast<Core::Ast::ParamPass*>(operand);
       if (!expGenerator->prepareCalleeLookupRequest(
         paramPass->getOperand().get(), g, session, prevResult, calleeRequest, terminal
       )) return false;
@@ -2985,7 +2990,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       if (!expGenerator->generate(operand, g, session, prevResult, terminal)) return false;
       if (terminal == TerminalStatement::YES) {
         expGenerator->astHelper->getNoticeStore()->add(
-          newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(operand))
+          newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(operand))
         );
         return false;
       }
@@ -3016,7 +3021,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
 
 
 Bool ExpressionGenerator::_generateCalleeReferenceChain(
-  TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Data::Node *astNode, GenResult const &prevResult,
+  TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Ast::Node *astNode, GenResult const &prevResult,
   Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -3034,9 +3039,9 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
     if (item.type == Ast::CalleeLookupResultStackEntryType::THIS_MARKER) {
       thisResult = calleeResult;
     } else if (item.type == Ast::CalleeLookupResultStackEntryType::FUNCTION_CALL) {
-      PlainList<TiObject> paramAstTypes;
+      PlainList<Core::Ast::Node> paramAstTypes;
       SharedList<TiObject> paramTgValues;
-      PlainList<TiObject> paramAstNodes;
+      PlainList<Core::Ast::Node> paramAstNodes;
       GenResult prevCalleeResult = calleeResult;
       if (!expGenerator->generateRoundParamPassOnCallee(
         astNode, prevCalleeResult, thisResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, calleeResult
@@ -3079,7 +3084,7 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
 
 
 Bool ExpressionGenerator::_referencifyThisIfNeeded(
-  TiObject *self, Core::Data::Node *astNode, GenResult const &thisArg,
+  TiObject *self, Core::Ast::Node *astNode, GenResult const &thisArg,
   Generation *g, Session *session, GenResult &thisResult
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -3091,8 +3096,8 @@ Bool ExpressionGenerator::_referencifyThisIfNeeded(
       // register the destructor here.
       TioSharedPtr tgTempVar;
       if (!g->generateTempVar(astNode, thisArg.astType, session, false, tgTempVar)) return false;
-      PlainList<TiObject> thisParamAstNodes({ astNode });
-      PlainList<TiObject> thisParamAstTypes({ thisArg.astType });
+      PlainList<Core::Ast::Node> thisParamAstNodes({ astNode });
+      PlainList<Core::Ast::Node> thisParamAstTypes({ thisArg.astType });
       SharedList<TiObject> thisParamTgValues({ thisArg.targetData });
       if (!session->getTg()->generateVarReference(
         session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(thisArg.astType),
@@ -3117,20 +3122,21 @@ Bool ExpressionGenerator::_referencifyThisIfNeeded(
 
 
 Bool ExpressionGenerator::_generateParams(
-  TiObject *self, TiObject *astNode, Generation *g, Session *session,
-  DynamicContaining<TiObject> *resultAstNodes, DynamicContaining<TiObject> *resultTypes,
+  TiObject *self, Core::Ast::Node *astNode, Generation *g, Session *session,
+  DynamicContaining<Core::Ast::Node> *resultAstNodes,
+  DynamicContaining<Core::Ast::Node> *resultTypes,
   SharedList<TiObject> *resultValues
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   if (astNode == 0) return true;
 
-  if (astNode->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    auto scope = static_cast<Core::Data::Ast::Scope*>(astNode);
+  if (astNode->isDerivedFrom<Core::Ast::Scope>()) {
+    auto scope = static_cast<Core::Ast::Scope*>(astNode);
     // Generate the sub elements.
     SharedList<TiObject> subTgValues;
-    PlainList<TiObject> subAstTypes;
-    PlainList<TiObject> subAstNodes;
+    PlainList<Core::Ast::Node> subAstTypes;
+    PlainList<Core::Ast::Node> subAstNodes;
     for (Int i = 0; i < scope->getCount(); ++i) {
       if (!expGenerator->generateParams(scope->getElement(i), g, session, &subAstNodes, &subAstTypes, &subTgValues)) {
         return false;
@@ -3156,8 +3162,8 @@ Bool ExpressionGenerator::_generateParams(
       resultValues->add(subTgValues.get(i));
     }
     return true;
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::List>()) {
-    auto list = static_cast<Core::Data::Ast::List*>(astNode);
+  } else if (astNode->isDerivedFrom<Core::Ast::List>()) {
+    auto list = static_cast<Core::Ast::List*>(astNode);
     for (Int i = 0; i < list->getElementCount(); ++i) {
       if (!expGenerator->generateParams(list->getElement(i), g, session, resultAstNodes, resultTypes, resultValues)) {
         return false;
@@ -3169,13 +3175,13 @@ Bool ExpressionGenerator::_generateParams(
     if (!expGenerator->generate(astNode, g, session, result, terminal)) return false;
     if (result.astType == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Data::Ast::findSourceLocation(astNode))
+        newSrdObj<Spp::Notices::InvalidReferenceNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
     if (terminal == TerminalStatement::YES) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Data::Ast::findSourceLocation(astNode))
+        newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -3217,28 +3223,28 @@ Bool ExpressionGenerator::dereferenceIfNeeded(
 
 
 Bool ExpressionGenerator::castLogicalOperand(
-  Generation *g, Session *session, TiObject *astNode, Spp::Ast::Type *astType,
+  Generation *g, Session *session, Core::Ast::Node *astNode, Spp::Ast::Type *astType,
   TiObject *tgValue, TioSharedPtr &result
 ) {
   auto boolType = this->astHelper->getBoolType();
   if (astType == 0) {
     this->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
   if (session->getTgContext() != 0) {
     GenResult castResult;
-    if (!g->generateCast(session, astType, boolType, ti_cast<Core::Data::Node>(astNode), tgValue, true, castResult)) {
+    if (!g->generateCast(session, astType, boolType, astNode, tgValue, true, castResult)) {
       this->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+        newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
     result = castResult.targetData;
   } else if (!this->astHelper->isCastableTo(astType, boolType, true)) {
     this->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::InvalidLogicalOperandNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -3252,20 +3258,20 @@ Bool ExpressionGenerator::addFunctionDependencyIfNeeded(Session *session, Spp::A
   // If the function has no body (i.e. it's external or intrinsic), we don't need to add it as a dependency.
   if (body == 0) return true;
 
-  auto eda = session->getEda();
+  auto cda = session->getEda();
 
   // Check to make sure we are not in a circular dependency.
   auto state = getAstProcessingState(body);
   if (state == AstProcessingState::PROCESSING) {
     return false;
   }
-  auto buildId = eda->tryGetBuildId<TiInt>(func);
+  auto buildId = cda->tryGetBuildId<TiInt>(func);
   if (buildId != 0 && buildId->get() != session->getBuildId()) {
     return false;
   }
 
   // If the function's code generation has not started yet, then add it as a dependency.
-  if (eda->tryGetCodeGenData<TiObject>(body) == 0) {
+  if (cda->tryGetCodeGenData<TiObject>(body) == 0) {
     session->getFuncDeps()->add(func, false);
   }
 

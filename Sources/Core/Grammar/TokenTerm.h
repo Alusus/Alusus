@@ -1,0 +1,104 @@
+/**
+ * @file Core/Grammar/TokenTerm.h
+ * Contains the header of class Core::Grammar::TokenTerm.
+ *
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+#ifndef CORE_GRAMMAR_TOKENTERM_H
+#define CORE_GRAMMAR_TOKENTERM_H
+
+namespace Core::Grammar
+{
+
+// TODO: DOC
+
+class TokenTerm : public Term
+{
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(TokenTerm, Term, "Core.Grammar", "Core", "alusus.org");
+  OBJECT_FACTORY(TokenTerm);
+
+
+  //============================================================================
+  // Member Variables
+
+  private: TioSharedPtr tokenId;
+
+  private: TioSharedPtr tokenText;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDING(Term,
+    (tokenId, TiObject, SHARED_REF, setTokenId(value), tokenId.get()),
+    (tokenText, TiObject, SHARED_REF, setTokenText(value), tokenText.get())
+  );
+
+
+  //============================================================================
+  // Constructor & Destructor
+
+  IMPLEMENT_EMPTY_CONSTRUCTOR(TokenTerm);
+
+  IMPLEMENT_ATTR_CONSTRUCTOR(TokenTerm);
+
+  public: virtual ~TokenTerm()
+  {
+    RESET_OWNED_SHAREDPTR(this->tokenId);
+    RESET_OWNED_SHAREDPTR(this->tokenText);
+  }
+
+
+  //============================================================================
+  // Member Functions
+
+  public: void setTokenId(SharedPtr<TiObject> const &id)
+  {
+    if (id != 0 && !id->isA<TiInt>() && !id->isDerivedFrom<Reference>()) {
+      throw EXCEPTION(InvalidArgumentException, S("s"), S("Must be of type TiInt or Reference."));
+    }
+    UPDATE_OWNED_SHAREDPTR(this->tokenId, id);
+  }
+
+  private: void setTokenId(TiObject *id)
+  {
+    this->setTokenId(getSharedPtr(id));
+  }
+
+  public: SharedPtr<TiObject> const& getTokenId() const
+  {
+    return this->tokenId;
+  }
+
+  public: void setTokenText(SharedPtr<TiObject> const &text)
+  {
+    if (text != 0 && !text->isA<TiStr>() && !text->isA<Map>() && !text->isDerivedFrom<Reference>()) {
+      throw EXCEPTION(InvalidArgumentException, S("text"), S("Must be of type TiStr or Reference."));
+    }
+    UPDATE_OWNED_SHAREDPTR(this->tokenText, text);
+  }
+
+  private: void setTokenText(TiObject *text)
+  {
+    this->setTokenText(getSharedPtr(text));
+  }
+
+  public: SharedPtr<TiObject> const& getTokenText() const
+  {
+    return this->tokenText;
+  }
+
+}; // class
+
+} // namespace
+
+#endif

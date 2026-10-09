@@ -3,7 +3,7 @@
  * The main header file of the SPP. Contains include statements for the entire
  * Standard Programming Paradigm library.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,7 +38,7 @@ s_enum(LogLevel,
 );
 
 /// Function pointer type for parsing handlers that takes state input data and translates it to something else.
-typedef TioSharedPtr (*ParsingHandlerFunc)(TioSharedPtr);
+typedef SharedPtr<Core::Ast::Node> (*ParsingHandlerFunc)(SharedPtr<Core::Ast::Node>);
 
 }
 

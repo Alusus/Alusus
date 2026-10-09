@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.h
  * Contains the header of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -93,14 +93,14 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
   /// @{
 
   public: Bool getGeneratedType(
-    TiObject *ref, Generation *g, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+    Core::Ast::Node *ref, Generation *g, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
   );
 
   public: Bool getGeneratedVoidType(
     Generation *g, Session *session, TiObject *&tgTypeResult, Ast::VoidType **astTypeResult
   );
 
-  private: Bool _getGeneratedType(TiObject *ref, Generation *g, Session *session, Spp::Ast::Type *&type);
+  private: Bool _getGeneratedType(Core::Ast::Node *ref, Generation *g, Session *session, Spp::Ast::Type *&type);
 
   public: Bool getGeneratedTypeAutoCtor(
     Spp::Ast::Type *astType, Generation *g, Session *session, TiObject *&tgAutoCtor
@@ -175,12 +175,12 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
 
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (
-      Generation*, Session*, Spp::Ast::Type*, Spp::Ast::Type*, Core::Data::Node *, TiObject*, Bool, GenResult&
+      Generation*, Session*, Spp::Ast::Type*, Spp::Ast::Type*, Core::Ast::Node *, TiObject*, Bool, GenResult&
     )
   );
   private: static Bool _generateCast(
     TiObject *self, Generation *g, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &result
+    Core::Ast::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &result
   );
 
   public: METHOD_BINDING_CACHE(generateDefaultValue,

@@ -2,7 +2,7 @@
  * @file Spp/Ast/ThisTypeRef.h
  * Contains the header of class Spp::Ast::ThisTypeRef.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,28 +16,13 @@
 namespace Spp::Ast
 {
 
-class ThisTypeRef : public Core::Data::Node,
-                    public Binding, public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class ThisTypeRef : public Core::Ast::Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ThisTypeRef, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
-  IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, Core::Data::Ast::MetaHaving, Core::Data::Printable
-  );
+  TYPE_INFO(ThisTypeRef, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(ThisTypeRef);
-
-
-  //============================================================================
-  // Implementations
-
-  IMPLEMENT_METAHAVING(ThisTypeRef);
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
 
 
   //============================================================================
@@ -53,7 +38,7 @@ class ThisTypeRef : public Core::Data::Node,
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const
   {
@@ -62,6 +47,8 @@ class ThisTypeRef : public Core::Data::Node,
     if (id != UNKNOWN_ID) {
       stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
     }
+    Node::printModifiers(stream, indents);
+    Node::printMetadata(stream, indents);
   }
 
 }; // class

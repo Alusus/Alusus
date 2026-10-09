@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/InfixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::InfixParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,10 +44,10 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
-      SharedPtr<TiObject> currentData = state->getData(levelIndex);
+      SharedPtr<Ast::Node> currentData = state->getData(levelIndex);
       if (currentData != 0) {
         // Either a child data was set into this level, or this level was visited more than once
         // causing an infix obj to be created.
@@ -84,12 +84,12 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     return leaf;
   }
 
-  private: SharedPtr<TYPE> createInfixObj(SharedPtr<TiObject> const &currentData,
-                                          SharedPtr<TiObject> const &data)
+  private: SharedPtr<TYPE> createInfixObj(SharedPtr<Ast::Node> const &currentData,
+                                          SharedPtr<Ast::Node> const &data)
   {
-    Data::Ast::List *list = data.ti_cast_get<Data::Ast::List>();
+    Ast::List *list = data.ti_cast_get<Ast::List>();
     // `list` may be null in cases of errors causing drop of levels.
-    auto token = ti_cast<Data::Ast::Token>(list != 0 ? list->getElement(0) : data.get());
+    auto token = ti_cast<Ast::Token>(list != 0 ? list->getElement(0) : data.get());
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, S("data[0]"), S("Invalid op token object received."),
                       list->get(0)->getMyTypeInfo()->getUniqueName());
@@ -98,16 +98,13 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     auto obj = newSrdObj<TYPE>();
     obj->setFirst(currentData);
     obj->setType(token->getText());
-    obj->setSecond(list != 0 ? list->get(1) : TioSharedPtr::null);
+    obj->setSecond(list != 0 ? list->get(1) : SharedPtr<Ast::Node>::null);
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
-    if (metadata != 0) {
-      obj->setSourceLocation(metadata->findSourceLocation());
-    }
+    obj->setSourceLocation(currentData->findSourceLocation());
     return obj;
   }
 
-  private: SharedPtr<TiObject> cloneInfixTree(SharedPtr<TiObject> const &obj)
+  private: SharedPtr<Ast::Node> cloneInfixTree(SharedPtr<Ast::Node> const &obj)
   {
     TYPE *infixObj = obj.ti_cast_get<TYPE>();
     if (infixObj == 0 || infixObj->getProdId() != UNKNOWN_ID) return obj;

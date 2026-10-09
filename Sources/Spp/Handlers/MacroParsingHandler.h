@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/MacroParsingHandler.h
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,16 +38,16 @@ class MacroParsingHandler : public Core::Processing::Handlers::GenericParsingHan
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
   private: Bool parseArgs(
-    Core::Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::Map> &result
+    Core::Processing::ParserState *state, Core::Ast::Bracket *bracket, SharedPtr<Core::Ast::Map> &result
   );
 
   private: Bool parseArg(
-    Core::Processing::ParserState *state, TiObject *arg, SharedPtr<Core::Data::Ast::Map> const &result
+    Core::Processing::ParserState *state, Core::Ast::Node *arg, SharedPtr<Core::Ast::Map> const &result
   );
 
   public: virtual Bool onIncomingModifier(
     Core::Processing::Parser *parser, Core::Processing::ParserState *state,
-    TioSharedPtr const &modifierData, Bool prodProcessingComplete
+    SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
   );
 
 }; // class

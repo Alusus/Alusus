@@ -1,7 +1,7 @@
 /**
  * @file Spp/SppFactory.cpp
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -14,18 +14,18 @@
 namespace Spp::Grammar
 {
 
-using namespace Core::Data::Grammar;
+using namespace Core::Grammar;
 using namespace Core::Processing;
 using namespace Core::Processing::Handlers;
 
-using Map = Core::Data::Grammar::Map;
+using Map = Core::Grammar::Map;
 
 //==============================================================================
 // Overloaded Abstract Functions
 
 void SppFactory::createGrammar()
 {
-  Core::Data::clearCaches(this->context.getRoot());
+  Core::Grammar::clearCaches(this->context.getRoot());
 
   // Add additional keywords.
   this->get<Core::Processing::Handlers::IdentifierTokenizingHandler>(
@@ -66,11 +66,16 @@ void SppFactory::createGrammar()
   });
 
   // Add translations for def modifiers.
-  this->set(S("root.Main.Def.modifierTranslations.مشترك"), TiStr::create(S("shared")));
-  this->set(S("root.Main.Def.modifierTranslations.دون_ربط"), TiStr::create(S("no_bind")));
-  this->set(S("root.Main.Def.modifierTranslations.حقنة"), TiStr::create(S("injection")));
-  this->set(S("root.Main.Def.modifierTranslations.عملية"), TiStr::create(S("operation")));
-  this->set(S("root.Main.Def.modifierTranslations.أولوية"), TiStr::create(S("priority")));
+  this->set(S("root.Main.Def.modifierActions.shared"), newSrdObj<Grammar::StoreModifierAction>(S("shared")));
+  this->set(S("root.Main.Def.modifierActions.مشترك"), newSrdObj<Grammar::StoreModifierAction>(S("shared")));
+  this->set(S("root.Main.Def.modifierActions.no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind")));
+  this->set(S("root.Main.Def.modifierActions.دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind")));
+  this->set(S("root.Main.Def.modifierActions.injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection")));
+  this->set(S("root.Main.Def.modifierActions.حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection")));
+  this->set(S("root.Main.Def.modifierActions.operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation")));
+  this->set(S("root.Main.Def.modifierActions.عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation")));
+  this->set(S("root.Main.Def.modifierActions.priority"), newSrdObj<Grammar::StoreModifierAction>(S("priority")));
+  this->set(S("root.Main.Def.modifierActions.أولوية"), newSrdObj<Grammar::StoreModifierAction>(S("priority")));
 
   // Create leading commands.
 
@@ -159,19 +164,19 @@ void SppFactory::createGrammar()
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto continueStatement = Ast::ContinueStatement::create({
-      { S("prodId"), metadata->getProdId() },
-      { S("sourceLocation"), metadata->findSourceLocation() }
+      { S("prodId"), node->getProdId() },
+      { S("sourceLocation"), node->findSourceLocation() }
     });
     if (currentList != 0) {
-      auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
+      auto intLiteral = ti_cast<Core::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
         state->addNotice(
-          newSrdObj<Spp::Notices::InvalidContinueStatementNotice>(metadata->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidContinueStatementNotice>(node->findSourceLocation())
         );
-        state->setData(SharedPtr<TiObject>(0));
+        state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
       continueStatement->setSteps(getSharedPtr(intLiteral));
@@ -189,17 +194,17 @@ void SppFactory::createGrammar()
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto breakStatement = Ast::BreakStatement::create({
-      { "prodId", metadata->getProdId() },
-      { "sourceLocation", metadata->findSourceLocation() }
+      { "prodId", node->getProdId() },
+      { "sourceLocation", node->findSourceLocation() }
     });
     if (currentList != 0) {
-      auto intLiteral = ti_cast<Core::Data::Ast::IntegerLiteral>(currentList->getElement(1));
+      auto intLiteral = ti_cast<Core::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidBreakStatementNotice>(metadata->findSourceLocation()));
-        state->setData(SharedPtr<TiObject>(0));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidBreakStatementNotice>(node->findSourceLocation()));
+        state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
       breakStatement->setSteps(getSharedPtr(intLiteral));
@@ -217,11 +222,11 @@ void SppFactory::createGrammar()
       TiInt::create(ParsingFlags::PASS_ITEMS_UP)
     }}
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto returnStatement = Ast::ReturnStatement::create({
-      { "prodId", metadata->getProdId() },
-      { "sourceLocation", metadata->findSourceLocation() }
+      { "prodId", node->getProdId() },
+      { "sourceLocation", node->findSourceLocation() }
     });
     if (currentList != 0) {
       returnStatement->setOperand(getSharedPtr(currentList->getElement(1)));
@@ -259,6 +264,9 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::TypeHandlersParsingHandler>());
+  this->set(S("root.Main.TypeOp.modifierActions"), Map::create({}, {
+    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))}
+  }));
   this->createCommand(S("root.Main.TypeOpOptions"), {{
     Map::create({}, {
       { S("as_ptr"), 0 },
@@ -288,8 +296,8 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::ModuleParsingHandler>());
-  this->set(S("root.Main.Module.modifierTranslations"), Map::create({}, {
-    {S("دمج"), TiStr::create(S("merge"))}
+  this->set(S("root.Main.Module.modifierActions"), Map::create({}, {
+    {S("دمج"), newSrdObj<Grammar::TranslateModifierAction>(S("merge"))}
   }));
   this->set(S("root.Main.ModuleBody"), SymbolDefinition::create({
     {S("baseRef"), PARSE_REF(S("root.Set"))},
@@ -331,8 +339,8 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::TypeParsingHandler>());
-  this->set(S("root.Main.Type.modifierTranslations"), Map::create({}, {
-    {S("دمج"), TiStr::create(S("merge"))}
+  this->set(S("root.Main.Type.modifierActions"), Map::create({}, {
+    {S("دمج"), newSrdObj<Grammar::TranslateModifierAction>(S("merge"))}
   }));
 
   // Function
@@ -365,10 +373,11 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::FunctionParsingHandler>());
-  this->set(S("root.Main.Function.modifierTranslations"), Map::create({}, {
-    {S("تصدير"), TiStr::create(S("expname"))},
-    {S("عضو"), TiStr::create(S("member"))},
-    {S("عملية"), TiStr::create(S("operation"))}
+  this->set(S("root.Main.Function.modifierActions"), Map::create({}, {
+    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
+    {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))},
+    {S("operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
+    {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))}
   }));
 
   // FuncSigExpression
@@ -467,8 +476,8 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<Handlers::MacroParsingHandler>());
-  this->set(S("root.Main.Macro.modifierTranslations"), Map::create({}, {
-    {S("عضو"), TiStr::create(S("member"))}
+  this->set(S("root.Main.Macro.modifierActions"), Map::create({}, {
+    {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))}
   }));
 
   // Square Arguments Signature
@@ -500,14 +509,14 @@ void SppFactory::createGrammar()
       }
     }
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-    auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+    auto node = state->getData().get();
+    auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     if (currentList->getElementCount() != 2) {
       throw EXCEPTION(GenericException, S("Unexpected error while parsing `preprocess` statement."));
     }
     auto preprocessStatement = Ast::PreprocessStatement::create({
-      { S("prodId"), metadata->getProdId() },
-      { S("sourceLocation"), metadata->findSourceLocation() }
+      { S("prodId"), node->getProdId() },
+      { S("sourceLocation"), node->findSourceLocation() }
     }, {
       { S("body"), currentList->getElement(1) }
     });
@@ -532,30 +541,27 @@ void SppFactory::createGrammar()
     }
   }, newSrdObj<CustomParsingHandler>(
     [](Core::Processing::Parser *parser, Core::Processing::ParserState *state) {
-      auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
-      auto currentList = state->getData().ti_cast_get<Containing<TiObject>>();
+      auto node = state->getData().get();
+      auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
       if (currentList == 0 || currentList->getElementCount() != 2) {
         throw EXCEPTION(GenericException, S("Unexpected data type while parsing AST literal command."));
       }
       auto astLiteralCommand = Ast::AstLiteralCommand::create({
-        { "prodId", metadata->getProdId() },
-        { "sourceLocation", metadata->findSourceLocation() }
+        { "prodId", node->getProdId() },
+        { "sourceLocation", node->findSourceLocation() }
       }, {
         { "body", currentList->getElement(1) }
       });
       state->setData(astLiteralCommand);
     },
     true,
-    [](Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete)->Bool {
+    [](Parser *parser, ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete)->Bool {
       if (!prodProcessingComplete) return false;
 
       // Look for no_preprocess modifier.
-      auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
+      auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
       if (identifier == 0) return false;
-      auto symbolDef = state->refTopProdLevel().getProd();
-      auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
-
-      if (keyword != S("no_preprocess")) return false;
+      if (identifier->getValue() != S("no_preprocess")) return false;
 
       // Update the AST literal command.
       Int levelOffset = -state->getTopProdTermLevelCount();
@@ -568,8 +574,8 @@ void SppFactory::createGrammar()
       return true;
     }
   ));
-  this->set(S("root.Main.AstLiteral.modifierTranslations"), Map::create({}, {
-    {S("بلا_تمهيد"), TiStr::create(S("no_preprocess"))}
+  this->set(S("root.Main.AstLiteral.modifierActions"), Map::create({}, {
+    {S("بلا_تمهيد"), newSrdObj<Grammar::TranslateModifierAction>(S("no_preprocess"))}
   }));
 
   // BlockSet
@@ -630,8 +636,8 @@ void SppFactory::createGrammar()
     {
     }
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto current = state->getData().ti_cast_get<Core::Data::Ast::Token>();
-    SharedPtr<Core::Data::Ast::Text> newObj = newSrdObj<Core::Data::Ast::Identifier>();
+    auto current = state->getData().ti_cast_get<Core::Ast::Token>();
+    SharedPtr<Core::Ast::Text> newObj = newSrdObj<Core::Ast::Identifier>();
     newObj->setValue(current->getText());
     newObj->setProdId(current->getProdId());
     newObj->setSourceLocation(current->findSourceLocation());
@@ -644,10 +650,10 @@ void SppFactory::createGrammar()
     {
     }
   }}, newSrdObj<CustomParsingHandler>([](Parser *parser, ParserState *state) {
-    auto metadata = state->getData().ti_cast_get<Data::Ast::MetaHaving>();
+    auto node = state->getData().get();
     auto thisTypeRef = Ast::ThisTypeRef::create({
-      { "prodId", metadata->getProdId() },
-      { "sourceLocation", metadata->findSourceLocation() }
+      { "prodId", node->getProdId() },
+      { "sourceLocation", node->findSourceLocation() }
     });
     state->setData(thisTypeRef);
   }));
@@ -877,7 +883,7 @@ void SppFactory::createGrammar()
 
 void SppFactory::cleanGrammar()
 {
-  Core::Data::clearCaches(this->rootManager->getRootScope().get());
+  Core::Grammar::clearCaches(this->rootManager->getRootScope().get());
 
   this->cleanCustomGrammarAndCommands();
 
@@ -920,10 +926,16 @@ void SppFactory::cleanGrammar()
   });
 
   // Remove translation for static modifier.
-  this->remove(S("root.Main.Def.modifierTranslations.مشترك"));
-  this->remove(S("root.Main.Def.modifierTranslations.دون_ربط"));
-  this->remove(S("root.Main.Def.modifierTranslations.حقنة"));
-  this->remove(S("root.Main.Def.modifierTranslations.عملية"));
+  this->remove(S("root.Main.Def.modifierActions.shared"));
+  this->remove(S("root.Main.Def.modifierActions.مشترك"));
+  this->remove(S("root.Main.Def.modifierActions.no_bind"));
+  this->remove(S("root.Main.Def.modifierActions.دون_ربط"));
+  this->remove(S("root.Main.Def.modifierActions.injection"));
+  this->remove(S("root.Main.Def.modifierActions.حقنة"));
+  this->remove(S("root.Main.Def.modifierActions.operation"));
+  this->remove(S("root.Main.Def.modifierActions.عملية"));
+  this->remove(S("root.Main.Def.modifierActions.priority"));
+  this->remove(S("root.Main.Def.modifierActions.أولوية"));
 
   // Remove commands from tilde commands list.
   this->removeProdsFromGroup(S("root.Main.PostfixTildeCmdGrp"), {
@@ -1019,12 +1031,12 @@ void SppFactory::cleanGrammar()
 
 
 Bool SppFactory::createCustomCommand(
-  Char const *qualifier, TiObject *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
+  Char const *qualifier, Core::Ast::Node *ast, ParsingHandlerFunc func, Core::Notices::Store *noticeStore
 ) {
-  Core::Data::clearCaches(this->context.getRoot());
+  Core::Grammar::clearCaches(this->context.getRoot());
 
   // TODO: Allow creating commands in places other than root.Main (like tilde commands for example).
-  Array<TiObject*> sectionList;
+  Array<Core::Ast::Node*> sectionList;
   convertInfixOpIntoList(ast, S("+"), sectionList);
   std::vector<CommandSection> sections;
   for (Int i = 0; i < sectionList.getLength(); ++i) {
@@ -1059,9 +1071,9 @@ Bool SppFactory::createCustomCommand(
 
 
 Bool SppFactory::createCustomGrammar(
-  Char const *qualifier, Char const *baseQualifier, TiObject *overridesAst, Core::Notices::Store *noticeStore
+  Char const *qualifier, Char const *baseQualifier, Core::Ast::Node *overridesAst, Core::Notices::Store *noticeStore
 ) {
-  Core::Data::clearCaches(this->context.getRoot());
+  Core::Grammar::clearCaches(this->context.getRoot());
 
   // Create the grammar root object.
   auto obj = this->get(Str(S("root.Main.")) + baseQualifier);

@@ -2,7 +2,7 @@
  * نـبم.أسس
  * يحتوي على تعريفات لمكتبة نمط البرمجة المعياري.
  *
- * جميع الحقوق محفوظة (C) 2024 سرمد خالد عبد الله
+ * جميع الحقوق محفوظة (C) 2026 سرمد خالد عبد الله
  *
  * نُشر هذا الملف بالرخصة التالية:
  * رخصة الأسس العامة، الإصدار 1.0، https://alusus.org/ar/license.html
@@ -45,6 +45,7 @@
         عرف هات_كلمة_المبدل_المفتاحية: لقب getModifierKeyword؛
         عرف هات_معطيات_مبدل: لقب getModifierParams؛
         عرف هات_المعطيات_النصية_لمبدل: لقب getModifierStringParams؛
+        عرف هات_النصوص_من_معطيات_نصية: لقب getStringsFromStringParams؛
         عرف هات_متغيرات_صنف: لقب getClassVars؛
         عرف هات_أسماء_متغيرات_صنف: لقب getClassVarNames؛
         عرف هات_دالات_صنف: لقب getClassFuncs؛
@@ -53,10 +54,11 @@
         عرف هات_صنف_معطى_دالة: لقب getFuncArgType؛
         عرف هات_المسار_الكامل_لشفرة_عنصر: لقب getSourceFullPathForElement؛
         عرف هات_مجلد_شفرة_عنصر: لقب getSourceDirectoryForElement؛
+        عرف أضف_عنصرا_قابلا_للدمج: لقب addPossiblyMergeableElement؛
         عرف احشر_شبم: لقب insertAst؛
         عرف أنشئ_شبم: لقب buildAst؛
         عرف احشر_عمليات_النسخ: لقب insertCopyHandlers؛
-        عرف احشر_مكون: لقب insertMixin؛
+        عرف احشر_مكونا: لقب insertMixin؛
         عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
         عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
         عرف هات_نطاق_المتغير: لقب getVariableDomain؛
@@ -65,9 +67,10 @@
         عرف أهو_قابل_للتمثيل: لقب isCastableTo؛
         عرف استنبط_صنف_الناتج: لقب computeResultType؛
         عرف كرر_شبم: لقب cloneAst؛
-        عرف أدرج_بيانات: لقب dumpData؛
+        عرف أدرج_شبم: لقب dumpAst؛
         عرف هات_صنف_السند_ل: لقب getReferenceTypeFor؛
         عرف حاول_جلب_صنف_المحتوى_العميق: لقب tryGetDeepReferenceContentType؛
+        عرف مهد_متن_صنف: لقب preprocessTypeBody؛
     }
 
     عرف مدير_البناء: لقب buildMgr؛
@@ -78,4 +81,3 @@
         عرف ارفع_إشعار_بناء: لقب raiseBuildNotice؛
     }
 }
-

@@ -2,7 +2,7 @@
  * @file Core/Basic/Containing.h
  * Contains the header of interface Basic::Containing.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -22,6 +22,13 @@ template<class CTYPE> class Containing : public TiInterface
   // Type Info
 
   TEMPLATE_INTERFACE_INFO(Containing, TiInterface, "Core.Basic", "Core", "alusus.org", (CTYPE));
+
+
+  //============================================================================
+  // Types
+
+  /// The type of the contained elements. Used by the containing helper macros.
+  public: typedef CTYPE ContentType;
 
 
   //============================================================================
@@ -50,6 +57,16 @@ template<class CTYPE> class Containing : public TiInterface
   public: virtual HoldMode getElementHoldMode(Int index) const
   {
     throw EXCEPTION(InvalidArgumentException, S("index"), S("Out of range"), index);
+  }
+
+  /// Find the index of a given element within this container, or -1 if not found.
+  public: virtual Int findElementIndex(CTYPE *val) const
+  {
+    Word count = this->getElementCount();
+    for (Word i = 0; i < count; ++i) {
+      if (this->getElement(i) == val) return i;
+    }
+    return -1;
   }
 
 }; // class

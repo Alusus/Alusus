@@ -2,7 +2,7 @@
  * @file Spp/RootScopeHandlerExtension.cpp
  * Contains the implementation of class Spp::RootScopeHandlerExtension.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -46,7 +46,7 @@ void RootScopeHandlerExtension::unextend(Core::Main::RootScopeHandler *handler, 
 // Main Functions
 
 void RootScopeHandlerExtension::_addNewElement(
-  TiFunctionBase *base, TiObject *self, TioSharedPtr const &data,
+  TiFunctionBase *base, TiObject *self, SharedPtr<Core::Ast::Node> const &data,
   Core::Processing::Parser *parser, Core::Processing::ParserState *state
 ) {
   PREPARE_SELF(rootScopeHandler, Core::Main::RootScopeHandler);
@@ -59,8 +59,8 @@ void RootScopeHandlerExtension::_addNewElement(
   for (Int i = start; i < root->getCount(); ++i) {
     if (
       root->get(i) != 0 &&
-      !root->get(i)->isDerivedFrom<Core::Data::Ast::Definition>() &&
-      !root->get(i)->isDerivedFrom<Core::Data::Ast::Bridge>()
+      !root->get(i)->isDerivedFrom<Core::Ast::Definition>() &&
+      !root->get(i)->isDerivedFrom<Core::Ast::Bridge>()
     ) execute = true;
   }
 
@@ -71,7 +71,10 @@ void RootScopeHandlerExtension::_addNewElement(
 
     // Process macros.
     auto astProcessor = rootManagerExt->astProcessor.get();
-    if (!astProcessor->process(root)) return;
+    if (!astProcessor->process(root)) {
+      rootManager->flushNotices();
+      return;
+    }
 
     auto executing = ti_cast<Executing>(rootManagerExt->buildManager.get());
 
@@ -82,7 +85,7 @@ void RootScopeHandlerExtension::_addNewElement(
 
     // First, let's run all the modules initializations.
     for (Int i = 0; i < start; ++i) {
-      auto def = ti_cast<Core::Data::Ast::Definition>(root->get(i));
+      auto def = ti_cast<Core::Ast::Definition>(root->get(i));
       if (def != 0) {
         auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {

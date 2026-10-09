@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/OutfixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::OutfixParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,10 +45,10 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
-      SharedPtr<TiObject> currentData = state->getData(levelIndex);
+      SharedPtr<Ast::Node> currentData = state->getData(levelIndex);
       if (currentData != 0) {
         if (state->refTermLevel(levelIndex).getPosId() == 2) {
           // Attach prefix
@@ -76,10 +76,10 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     else return GenericParsingHandler::isListObjEnforced(state, levelIndex);
   }
 
-  private: SharedPtr<PREFIXTYPE> createPrefixObj(TioSharedPtr const &currentData,
-                                                 TioSharedPtr const &data)
+  private: SharedPtr<PREFIXTYPE> createPrefixObj(SharedPtr<Ast::Node> const &currentData,
+                                                 SharedPtr<Ast::Node> const &data)
   {
-    auto token = currentData.ti_cast_get<Data::Ast::Token>();
+    auto token = currentData.ti_cast_get<Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, S("currentData"), S("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
@@ -89,17 +89,14 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     obj->setOperand(data);
     obj->setType(token->getText());
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
-    if (metadata != 0) {
-      obj->setSourceLocation(metadata->findSourceLocation());
-    }
+    obj->setSourceLocation(currentData->findSourceLocation());
     return obj;
   }
 
-  private: SharedPtr<POSTFIXTYPE> createPostfixObj(TioSharedPtr const &currentData,
-                                                   TioSharedPtr const &data)
+  private: SharedPtr<POSTFIXTYPE> createPostfixObj(SharedPtr<Ast::Node> const &currentData,
+                                                   SharedPtr<Ast::Node> const &data)
   {
-    auto token = data.ti_cast_get<Data::Ast::Token>();
+    auto token = data.ti_cast_get<Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
@@ -109,10 +106,7 @@ template <class PREFIXTYPE, class POSTFIXTYPE>
     obj->setOperand(currentData);
     obj->setType(token->getText());
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
-    if (metadata != 0) {
-      obj->setSourceLocation(metadata->findSourceLocation());
-    }
+    obj->setSourceLocation(currentData->findSourceLocation());
     return obj;
   }
 

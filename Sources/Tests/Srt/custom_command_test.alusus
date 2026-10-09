@@ -3,7 +3,7 @@ import "Srl/refs_base";
 
 preprocess {
     use Srl;
-    def TioSrdRef: alias SrdRef[Core.Basic.TiObject];
+    def TioSrdRef: alias SrdRef[Core.Ast.Node];
     Spp.grammarMgr.addCustomCommand(
         "TestCommand",
         (ast {
@@ -11,10 +11,10 @@ preprocess {
             args: "module".Expression*(1,1);
         }),
         func (data: TioSrdRef): TioSrdRef {
-            def container: Core.Basic.ContainerOf[data.obj];
+            def container: Core.Basic.ContainerOf[data.obj, Core.Ast.Node];
             return Spp.astMgr.buildAst(
                 (ast testCommand[arg]),
-                Map[String, ref[Core.Basic.TiObject]]().set(String("arg"), container.getElement(1))
+                Map[String, ref[Core.Ast.Node]]().set(String("arg"), container.getElement(1))
             );
         }
     );

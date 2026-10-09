@@ -36,17 +36,17 @@ s_enum(CalleeLookupMode, DIRECTLY_ACCESSIBLE, OBJECT_MEMBER, SCOPE_MEMBER);
 /// @ingroup spp_ast
 struct CalleeLookupRequest
 {
-  Core::Data::Node *astNode = 0;
-  TiObject *target = 0;
-  TiObject *injectionChainStartTarget = 0;
+  Core::Ast::Node *astNode = 0;
+  Core::Ast::Node *target = 0;
+  Core::Ast::Node *injectionChainStartTarget = 0;
   CalleeLookupMode mode = CalleeLookupMode::DIRECTLY_ACCESSIBLE;
   Bool skipInjections = false;
   Char const *varTargetOp = 0;
-  TiObject *ref = 0;
+  Core::Ast::Node *ref = 0;
   Str op;
-  TiObject *thisType = 0;
-  Containing<TiObject> *argTypes = 0;
-  TiObject *templateParam = 0;
+  Core::Ast::Node *thisType = 0;
+  Containing<Core::Ast::Node> *argTypes = 0;
+  Core::Ast::Node *templateParam = 0;
 };
 
 s_enum(CalleeLookupResultStackEntryType,
@@ -58,10 +58,10 @@ s_enum(CalleeLookupResultStackEntryType,
 struct CalleeLookupResultStackEntry
 {
   CalleeLookupResultStackEntryType type;
-  TiObject *obj;
+  Core::Ast::Node *obj;
 
   CalleeLookupResultStackEntry() : type(CalleeLookupResultStackEntryType::OBJECT), obj(0) {}
-  CalleeLookupResultStackEntry(CalleeLookupResultStackEntryType t, TiObject *o) : type(t), obj(o) {}
+  CalleeLookupResultStackEntry(CalleeLookupResultStackEntryType t, Core::Ast::Node *o) : type(t), obj(o) {}
 
   friend Bool operator==(CalleeLookupResultStackEntry const &entry1, CalleeLookupResultStackEntry const &entry2) {
     return entry1.type == entry2.type && entry1.obj == entry2.obj;
@@ -97,7 +97,7 @@ struct CalleeLookupResult
     return !this->isNew() && (this->notice == 0 || !this->notice->isA<Spp::Notices::UnknownSymbolNotice>());
   }
 
-  void pushObject(TiObject *obj) {
+  void pushObject(Core::Ast::Node *obj) {
     this->stack.insert(0, CalleeLookupResultStackEntry(CalleeLookupResultStackEntryType::OBJECT, obj));
   }
 

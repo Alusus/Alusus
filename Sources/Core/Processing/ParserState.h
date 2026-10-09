@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserState.h
  * Contains the header of class Core::Processing::ParserState.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -50,9 +50,9 @@ class ParserState
   private: std::vector<ParserModifierLevel> leadingModifierStack;
   private: std::vector<ParserModifierLevel> trailingModifierStack;
 
-  private: Data::DataStack dataStack;
+  private: Ast::NodeStack dataStack;
 
-  private: Data::Grammar::Context grammarContext;
+  private: Grammar::Context grammarContext;
 
   private: Notices::Store noticeStore;
 
@@ -125,7 +125,7 @@ class ParserState
    */
   private: Int tokensToLive;
 
-  private: Data::Grammar::List *errorSyncBlockPairs;
+  private: Grammar::List *errorSyncBlockPairs;
 
   private: std::vector<Int> errorSyncBlockStack;
 
@@ -135,9 +135,9 @@ class ParserState
 
   public: ParserState();
 
-  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Data::Grammar::Module *rootModule);
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, Grammar::Module *rootModule);
 
-  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, const Data::Grammar::Context *context);
+  public: ParserState(Word reservedTermLevelCount, Word reservedProdLevelCount, const Grammar::Context *context);
 
   public: ~ParserState()
   {
@@ -153,11 +153,11 @@ class ParserState
   /// @{
 
   protected: void initialize(
-    Word reservedTermLevelCount, Word reservedProdLevelCount, Data::Grammar::Module *rootModule
+    Word reservedTermLevelCount, Word reservedProdLevelCount, Grammar::Module *rootModule
   );
 
   protected: void initialize(
-    Word reservedTermLevelCount, Word reservedProdLevelCount, const Data::Grammar::Context *context
+    Word reservedTermLevelCount, Word reservedProdLevelCount, const Grammar::Context *context
   );
 
   /// Reset the object to an empty state.
@@ -283,7 +283,7 @@ class ParserState
   }
 
   /// Push a new level into the top of the level stack.
-  protected: void pushTermLevel(Data::Grammar::Term *term);
+  protected: void pushTermLevel(Grammar::Term *term);
 
   /// Pop a level from the top of the level stack.
   protected: void popTermLevel();
@@ -350,7 +350,7 @@ class ParserState
     return const_cast<ParserState*>(this)->refTopProdLevel();
   }
 
-  protected: void pushProdLevel(Data::Grammar::Module *module, Data::Grammar::SymbolDefinition *prod);
+  protected: void pushProdLevel(Grammar::Module *module, Grammar::SymbolDefinition *prod);
 
   protected: void popProdLevel();
 
@@ -370,7 +370,7 @@ class ParserState
    * @brief Get the stack of parsing data.
    * This is arbitrary data cretaed and used by parsing handlers.
    */
-  public: Data::DataStack* getDataStack()
+  public: Ast::NodeStack* getDataStack()
   {
     return &this->dataStack;
   }
@@ -379,7 +379,7 @@ class ParserState
    * @brief Set the parsing data associated with a term level.
    * This is an arbitrary data created and used by the parsing handler.
    */
-  public: void setData(SharedPtr<TiObject> const &data, Int levelOffset = -1)
+  public: void setData(SharedPtr<Ast::Node> const &data, Int levelOffset = -1)
   {
     this->dataStack.set(data, levelOffset);
   }
@@ -388,7 +388,7 @@ class ParserState
    * @brief Get the parsing data associated with a term level.
    * This is an arbitrary data created and used by the parsing handler.
    */
-  public: SharedPtr<TiObject> const& getData(Int levelOffset = -1) const
+  public: SharedPtr<Ast::Node> const& getData(Int levelOffset = -1) const
   {
     return this->dataStack.get(levelOffset);
   }
@@ -407,11 +407,11 @@ class ParserState
     return &this->trailingModifierStack;
   }
 
-  public: void pushLeadingModifierLevel(TioSharedPtr const &data)
+  public: void pushLeadingModifierLevel(SharedPtr<Ast::Node> const &data)
   {
     this->leadingModifierStack.push_back(ParserModifierLevel(data));
   }
-  public: void pushTrailingModifierLevel(TioSharedPtr const &data)
+  public: void pushTrailingModifierLevel(SharedPtr<Ast::Node> const &data)
   {
     this->trailingModifierStack.push_back(ParserModifierLevel(data));
   }
@@ -453,14 +453,14 @@ class ParserState
 
     public: Word getListTermChildCount(Int levelOffset = -1) const;
 
-  protected: Data::Grammar::Term* getListTermChild(Int index, Int levelOffset = -1);
+  protected: Grammar::Term* getListTermChild(Int index, Int levelOffset = -1);
 
   public: TiInt* getTokenTermId(Int levelOffset = -1) const;
 
   public: TiObject* getTokenTermText(Int levelOffset = -1) const;
 
   public: void getReferencedSymbol(
-    Data::Grammar::Module *&module, Data::Grammar::SymbolDefinition *&definition, Int levelOffset = -1
+    Grammar::Module *&module, Grammar::SymbolDefinition *&definition, Int levelOffset = -1
   );
 
   public: TiInt* getMultiplyTermMax(Int levelOffset = -1) const;
@@ -474,12 +474,12 @@ class ParserState
   /// @name Other Functions
   /// @{
 
-  protected: Data::Grammar::Context* getGrammarContext()
+  protected: Grammar::Context* getGrammarContext()
   {
     return &this->grammarContext;
   }
 
-  public: const Data::Grammar::Context* getGrammarContext() const
+  public: const Grammar::Context* getGrammarContext() const
   {
     return &this->grammarContext;
   }
@@ -490,7 +490,7 @@ class ParserState
     else this->popTermLevel();
   }
 
-  public: Data::Grammar::List* getErrorSyncBlockPairs() const
+  public: Grammar::List* getErrorSyncBlockPairs() const
   {
     return this->errorSyncBlockPairs;
   }

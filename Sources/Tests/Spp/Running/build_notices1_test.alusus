@@ -5,7 +5,7 @@ import "Core/Basic";
 import "Spp";
 use Srl;
 
-def AstTemplateMap: alias Map[String, ref[Core.Basic.TiObject]];
+def AstTemplateMap: alias Map[String, ref[Core.Ast.Node]];
 
 def i: Int(5);
 

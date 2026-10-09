@@ -2,7 +2,7 @@
  * @file Core/Basic/GlobalStorage.h
  * Contains the header of class Core::Basic::GlobalStorage.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_GLOBAL_STORAGE_H
 #define CORE_BASIC_GLOBAL_STORAGE_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 // TODO: DOC
@@ -49,7 +49,7 @@ class GlobalStorage
 
 }; // class
 
-} } // namespace
+} // namespace
 
 /**
  * @brief A shortcut to access the ID generator singleton.

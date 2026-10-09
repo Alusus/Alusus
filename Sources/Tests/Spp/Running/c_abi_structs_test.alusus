@@ -1,0 +1,54 @@
+import "Srl/Console.alusus";
+use Srl;
+
+// Structs returned from libc functions, which follow the C ABI: div_t (8 bytes) and ldiv_t (16 bytes) are returned in
+// registers.
+class DivT { def quot: Int[32]; def rem: Int[32]; };
+class LDivT { def quot: Int[64]; def rem: Int[64]; };
+def div: @expname[div] function (num: Int[32], den: Int[32])=>DivT;
+def ldiv: @expname[ldiv] function (num: Int[64], den: Int[64])=>LDivT;
+
+// Structs of different sizes and classes, passed between Alusus functions both directly and through pointers.
+class Small { def c: Word[32]; };
+class Floats { def x: Float[32]; def y: Float[32]; };
+class Mixed { def a: Int[64]; def b: Float[64]; };
+class Big { def id: Int[32]; def w: Int[32]; def h: Int[32]; def m: Int[32]; def f: Int[32]; };
+
+func echoSmall (pre: Int[32], s: Small, post: Int[32]) => Small { s.c += pre + post; return s; }
+func echoFloats (pre: Int[32], s: Floats, post: Int[32]) => Floats { s.x += pre; s.y += post; return s; }
+func echoMixed (pre: Int[32], s: Mixed, post: Int[32]) => Mixed { s.a += pre; s.b += post; return s; }
+func echoBig (pre: Int[32], s: Big, post: Int[32]) => Big { s.id += pre; s.f += post; return s; }
+
+func test {
+  def d: DivT = div(17, 5);
+  Console.print("div: %d %d\n", d.quot, d.rem);
+  def ld: LDivT = ldiv(-17, 5);
+  Console.print("ldiv: %ld %ld\n", ld.quot, ld.rem);
+
+  def s: Small; s.c = 10;
+  def sr: Small = echoSmall(1, s, 2);
+  Console.print("small: %d\n", sr.c);
+  def f: Floats; f.x = 1.5; f.y = 2.5;
+  def fr: Floats = echoFloats(1, f, 2);
+  Console.print("floats: %f %f\n", Float[64](fr.x), Float[64](fr.y));
+  def m: Mixed; m.a = 7; m.b = 8.5;
+  def mr: Mixed = echoMixed(1, m, 2);
+  Console.print("mixed: %ld %f\n", mr.a, mr.b);
+  def b: Big; b.id = 1; b.w = 2; b.h = 3; b.m = 4; b.f = 5;
+  def br: Big = echoBig(1, b, 2);
+  Console.print("big: %d %d %d %d %d\n", br.id, br.w, br.h, br.m, br.f);
+
+  def pSmall: ptr[function (Int[32], Small, Int[32])=>Small] = echoSmall~ptr;
+  def pFloats: ptr[function (Int[32], Floats, Int[32])=>Floats] = echoFloats~ptr;
+  def pMixed: ptr[function (Int[32], Mixed, Int[32])=>Mixed] = echoMixed~ptr;
+  def pBig: ptr[function (Int[32], Big, Int[32])=>Big] = echoBig~ptr;
+  sr = pSmall(1, s, 2);
+  fr = pFloats(1, f, 2);
+  mr = pMixed(1, m, 2);
+  br = pBig(1, b, 2);
+  Console.print("ptr small: %d\n", sr.c);
+  Console.print("ptr floats: %f %f\n", Float[64](fr.x), Float[64](fr.y));
+  Console.print("ptr mixed: %ld %f\n", mr.a, mr.b);
+  Console.print("ptr big: %d %d\n", br.id, br.f);
+}
+test();

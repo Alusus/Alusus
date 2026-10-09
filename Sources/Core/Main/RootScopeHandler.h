@@ -2,7 +2,7 @@
  * @file Core/Main/RootScopeHandler.h
  * Contains the header of class Core::Main::RootScopeHandler.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -37,9 +37,9 @@ class RootScopeHandler : public TiObject, public DynamicBinding, public DynamicI
   //============================================================================
   // Member Variables
 
-  private: Data::Seeker *seeker;
+  private: Ast::Seeker *seeker;
 
-  private: SharedPtr<Data::Ast::Scope> rootScope;
+  private: SharedPtr<Ast::Scope> rootScope;
 
 
   //============================================================================
@@ -65,22 +65,22 @@ class RootScopeHandler : public TiObject, public DynamicBinding, public DynamicI
   private: void initBindingCaches();
   private: void initBindings();
 
-  public: void setRootScope(SharedPtr<Data::Ast::Scope> const &s)
+  public: void setRootScope(SharedPtr<Ast::Scope> const &s)
   {
     this->rootScope = s;
   }
 
-  public: SharedPtr<Data::Ast::Scope> const& getRootScope() const
+  public: SharedPtr<Ast::Scope> const& getRootScope() const
   {
     return this->rootScope;
   }
 
-  public: void setSeeker(Data::Seeker *s)
+  public: void setSeeker(Ast::Seeker *s)
   {
     this->seeker = s;
   }
 
-  public: Data::Seeker* getSeeker() const
+  public: Ast::Seeker* getSeeker() const
   {
     return this->seeker;
   }
@@ -91,9 +91,9 @@ class RootScopeHandler : public TiObject, public DynamicBinding, public DynamicI
   /// @{
 
   public: METHOD_BINDING_CACHE(addNewElement,
-    void, (TioSharedPtr const& /* data */, Processing::Parser* /* parser */, Processing::ParserState* /* state */)
+    void, (SharedPtr<Ast::Node> const& /* data */, Processing::Parser* /* parser */, Processing::ParserState* /* state */)
   );
-  private: static void _addNewElement(TiObject *self, TioSharedPtr const &data,
+  private: static void _addNewElement(TiObject *self, SharedPtr<Ast::Node> const &data,
     Core::Processing::Parser *parser, Processing::ParserState *state
   );
 

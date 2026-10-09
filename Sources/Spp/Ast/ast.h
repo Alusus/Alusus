@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the Ast
  * namespace.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -116,9 +116,9 @@ class Function;
 //==============================================================================
 // Functions
 
-Char const* findOperationModifier(Core::Data::Ast::Definition const *def);
+Char const* findOperationModifier(Core::Ast::Definition const *def);
 
-Bool isInjection(Core::Data::Ast::Definition *def);
+Bool isInjection(Core::Ast::Definition *def);
 
 Function* getDummyBuiltInOpFunction();
 
@@ -181,6 +181,6 @@ Function* getDummyBuiltInOpFunction();
 #include "Helper.h"
 #include "CalleeTracer.h"
 #include "NodePathResolver.h"
-#include "metadata_helpers.h"
+#include "custom_data_helpers.h"
 
 #endif

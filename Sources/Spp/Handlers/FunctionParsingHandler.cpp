@@ -1,7 +1,7 @@
 /**
  * @file Spp/Handlers/FunctionParsingHandler.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,81 +15,77 @@ namespace Spp::Handlers
 {
 
 using namespace Core;
-using namespace Core::Data;
 
 void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::ParserState *state)
 {
   GenericParsingHandler::onProdEnd(parser, state);
 
-  auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
+  auto expr = state->getData().ti_cast_get<Core::Ast::List>();
 
   if (expr == 0) {
     // The function type has no args and no body.
     auto functionType = newSrdObj<Spp::Ast::FunctionType>();
-    auto metadata = state->getData().ti_cast_get<Core::Data::Ast::MetaHaving>();
-    functionType->setArgTypes(SharedPtr<Core::Data::Ast::Map>::null);
-    functionType->setRetType(TioSharedPtr::null);
-    functionType->setSourceLocation(metadata->findSourceLocation());
-    functionType->setProdId(metadata->getProdId());
+    auto node = state->getData().get();
+    functionType->setArgTypes(SharedPtr<Core::Ast::Map>::null);
+    functionType->setRetType(SharedPtr<Core::Ast::Node>::null);
+    functionType->setSourceLocation(node->findSourceLocation());
+    functionType->setProdId(node->getProdId());
     if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
-      state->setData(SharedPtr<TiObject>(0));
+      state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
     state->setData(functionType);
     return;
   }
 
-  auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
-  ASSERT(exprMetadata != 0);
-
   // Prepare function signature.
-  Core::Data::Ast::Identifier *defName = 0;
-  SharedPtr<Core::Data::Ast::Map> args;
-  TioSharedPtr retType;
-  SharedPtr<Core::Data::Ast::List> tmpltArgs;
-  Core::Data::Ast::Scope *body = 0;
+  Core::Ast::Identifier *defName = 0;
+  SharedPtr<Core::Ast::Map> args;
+  SharedPtr<Core::Ast::Node> retType;
+  SharedPtr<Core::Ast::List> tmpltArgs;
+  Core::Ast::Scope *body = 0;
 
   for (Int i = 1; i < expr->getElementCount(); ++i) {
     auto obj = expr->getElement(i);
-    if (obj->isDerivedFrom<Core::Data::Ast::Scope>()) {
-      body = static_cast<Core::Data::Ast::Scope*>(obj);
-    } else if (obj->isDerivedFrom<Core::Data::Ast::Identifier>()) {
-      defName = static_cast<Core::Data::Ast::Identifier*>(obj);
-    } else if (obj->isDerivedFrom<Core::Data::Ast::LinkOperator>()) {
-      auto linkOp = static_cast<Core::Data::Ast::LinkOperator*>(obj);
+    if (obj->isDerivedFrom<Core::Ast::Scope>()) {
+      body = static_cast<Core::Ast::Scope*>(obj);
+    } else if (obj->isDerivedFrom<Core::Ast::Identifier>()) {
+      defName = static_cast<Core::Ast::Identifier*>(obj);
+    } else if (obj->isDerivedFrom<Core::Ast::LinkOperator>()) {
+      auto linkOp = static_cast<Core::Ast::LinkOperator*>(obj);
       retType = linkOp->getSecond();
-      auto bracket = linkOp->getFirst().ti_cast_get<Core::Data::Ast::Bracket>();
+      auto bracket = linkOp->getFirst().ti_cast_get<Core::Ast::Bracket>();
       if (bracket == 0) {
         // Raise an error.
         state->addNotice(
-          newSrdObj<Spp::Notices::InvalidFunctionSignatureNotice>(Core::Data::Ast::findSourceLocation(obj))
+          newSrdObj<Spp::Notices::InvalidFunctionSignatureNotice>(Core::Ast::findSourceLocation(obj))
         );
-        state->setData(SharedPtr<TiObject>(0));
+        state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
       if (!this->parseArgs(state, bracket, args)) {
-        state->setData(SharedPtr<TiObject>(0));
+        state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
-    } else if (obj->isDerivedFrom<Core::Data::Ast::Bracket>()) {
-      auto bracket = static_cast<Core::Data::Ast::Bracket*>(obj);
-      if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+    } else if (obj->isDerivedFrom<Core::Ast::Bracket>()) {
+      auto bracket = static_cast<Core::Ast::Bracket*>(obj);
+      if (bracket->getType() == Core::Ast::BracketType::ROUND) {
         if (!this->parseArgs(state, bracket, args)) {
-          state->setData(SharedPtr<TiObject>(0));
+          state->setData(SharedPtr<Core::Ast::Node>(0));
           return;
         }
       } else {
         if (!parseTemplateArgs(state, bracket, tmpltArgs)) {
-          state->setData(SharedPtr<TiObject>(0));
+          state->setData(SharedPtr<Core::Ast::Node>(0));
           return;
         }
       }
     } else {
       // Raise an error.
       state->addNotice(
-        newSrdObj<Spp::Notices::InvalidFunctionElementNotice>(Core::Data::Ast::findSourceLocation(obj))
+        newSrdObj<Spp::Notices::InvalidFunctionElementNotice>(Core::Ast::findSourceLocation(obj))
       );
-      state->setData(SharedPtr<TiObject>(0));
+      state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
   }
@@ -97,21 +93,21 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   auto functionType = newSrdObj<Spp::Ast::FunctionType>();
   functionType->setArgTypes(args);
   functionType->setRetType(retType);
-  functionType->setSourceLocation(exprMetadata->findSourceLocation());
-  functionType->setProdId(exprMetadata->getProdId());
+  functionType->setSourceLocation(expr->findSourceLocation());
+  functionType->setProdId(expr->getProdId());
   if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
-    state->setData(SharedPtr<TiObject>(0));
+    state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
 
-  TioSharedPtr stateData = functionType;
+  SharedPtr<Core::Ast::Node> stateData = functionType;
 
   if (body != 0) {
     auto function = newSrdObj<Spp::Ast::Function>();
     function->setType(functionType);
     function->setBody(getSharedPtr(body));
-    function->setSourceLocation(exprMetadata->findSourceLocation());
-    function->setProdId(exprMetadata->getProdId());
+    function->setSourceLocation(expr->findSourceLocation());
+    function->setProdId(expr->getProdId());
 
     if (tmpltArgs != 0) {
       stateData = Ast::Template::create({}, {
@@ -123,17 +119,17 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     }
   } else if (tmpltArgs != 0) {
     state->addNotice(
-      newSrdObj<Spp::Notices::TemplateFunctionLacksBodyNotice>(exprMetadata->findSourceLocation())
+      newSrdObj<Spp::Notices::TemplateFunctionLacksBodyNotice>(expr->findSourceLocation())
     );
-    state->setData(SharedPtr<TiObject>(0));
+    state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
 
   if (defName != 0) {
-    auto def = Core::Data::Ast::Definition::create({
+    auto def = Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
-      { S("prodId"), exprMetadata->getProdId() },
-      { S("sourceLocation"), exprMetadata->findSourceLocation() }
+      { S("prodId"), expr->getProdId() },
+      { S("sourceLocation"), expr->findSourceLocation() }
     }, {
       { S("target"), stateData }
     });
@@ -145,14 +141,14 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
 
 
 Bool FunctionParsingHandler::parseArgs(
-  Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::Map> &result
+  Processing::ParserState *state, Core::Ast::Bracket *bracket, SharedPtr<Core::Ast::Map> &result
 ) {
   auto args = bracket->getOperand();
   if (args == 0) {
     return true;
-  } else if (args->isDerivedFrom<Core::Data::Ast::List>()) {
-    auto argsList = args.s_cast<Core::Data::Ast::List>();
-    result = newSrdObj<Core::Data::Ast::Map>();
+  } else if (args->isDerivedFrom<Core::Ast::List>()) {
+    auto argsList = args.s_cast<Core::Ast::List>();
+    result = newSrdObj<Core::Ast::Map>();
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
@@ -163,7 +159,7 @@ Bool FunctionParsingHandler::parseArgs(
     }
     return true;
   } else {
-    result = newSrdObj<Core::Data::Ast::Map>();
+    result = newSrdObj<Core::Ast::Map>();
     if (!this->parseArg(state, args, result)) return false;
     return true;
   }
@@ -171,13 +167,14 @@ Bool FunctionParsingHandler::parseArgs(
 
 
 Bool FunctionParsingHandler::parseArg(
-  Core::Processing::ParserState *state, TioSharedPtr astNode, SharedPtr<Core::Data::Ast::Map> const &result
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> astNode,
+  SharedPtr<Core::Ast::Map> const &result
 ) {
   Str name;
-  TioSharedPtr type;
-  auto link = astNode.ti_cast_get<Core::Data::Ast::LinkOperator>();
+  SharedPtr<Core::Ast::Node> type;
+  auto link = astNode.ti_cast_get<Core::Ast::LinkOperator>();
   if (link != 0 && link->getType() == S(":")) {
-    auto identifier = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+    auto identifier = link->getFirst().ti_cast_get<Core::Ast::Identifier>();
     if (identifier == 0) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
       return false;
@@ -205,38 +202,41 @@ Bool FunctionParsingHandler::parseArg(
 
 Bool FunctionParsingHandler::onIncomingModifier(
   Core::Processing::Parser *parser, Core::Processing::ParserState *state,
-  TioSharedPtr const &modifierData, Bool prodProcessingComplete
+  SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
 ) {
+  if (GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) {
+    return true;
+  }
+
   if (!prodProcessingComplete) return false;
 
   if (this->processExpnameModifier(state, modifierData)) return true;
   else if (this->processMemberModifier(state, modifierData)) return true;
-  else return this->processUnknownModifier(state, modifierData);
+  else return false;
 }
 
 
 Bool FunctionParsingHandler::processExpnameModifier(
-  Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
 ) {
   // Look for expname modifier.
-  auto paramPass = modifierData.ti_cast_get<Core::Data::Ast::ParamPass>();
+  auto paramPass = modifierData.ti_cast_get<Core::Ast::ParamPass>();
   if (paramPass == 0) return false;
-  if (paramPass->getType() != Core::Data::Ast::BracketType::SQUARE) return false;
-  auto operand = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+  if (paramPass->getType() != Core::Ast::BracketType::SQUARE) return false;
+  auto operand = paramPass->getOperand().ti_cast_get<Core::Ast::Identifier>();
   if (operand == 0) return false;
-  auto symbolDef = state->refTopProdLevel().getProd();
-  if (symbolDef->getTranslatedModifierKeyword(operand->getValue().get()) != S("expname")) return false;
-  auto param = paramPass->getParam().ti_cast_get<Core::Data::Ast::Text>();
+  if (operand->getValue() != S("expname")) return false;
+  auto param = paramPass->getParam().ti_cast_get<Core::Ast::Text>();
   if (param == 0) return false;
 
   Int levelOffset = -state->getTopProdTermLevelCount();
-  TioSharedPtr data = state->getData(levelOffset);
+  auto data = state->getData(levelOffset);
   if (data == 0) return false;
 
   // Grab the data from the definition, if any, otherwise use the data from the state level.
-  Core::Data::Ast::Definition *definition = 0;
-  if (data->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    definition = data.s_cast_get<Core::Data::Ast::Definition>();
+  Core::Ast::Definition *definition = 0;
+  if (data->isDerivedFrom<Core::Ast::Definition>()) {
+    definition = data.s_cast_get<Core::Ast::Definition>();
     data = definition->getTarget();
   }
   Spp::Ast::Function *function = data.ti_cast_get<Spp::Ast::Function>();
@@ -270,26 +270,23 @@ Bool FunctionParsingHandler::processExpnameModifier(
 
 
 Bool FunctionParsingHandler::processMemberModifier(
-  Core::Processing::ParserState *state, TioSharedPtr const &modifierData
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
 ) {
   // Look for member modifier.
-  auto identifier = modifierData.ti_cast_get<Core::Data::Ast::Identifier>();
+  auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
   if (identifier == 0) return false;
-  auto symbolDef = state->refTopProdLevel().getProd();
-  auto keyword = symbolDef->getTranslatedModifierKeyword(identifier->getValue().get());
-
-  if (keyword != S("member")) return false;
+  if (identifier->getValue() != S("member")) return false;
 
   // Find the funciton type to update.
   Int levelOffset = -state->getTopProdTermLevelCount();
 
-  TiObject *data = state->getData(levelOffset).get();
+  Core::Ast::Node *data = state->getData(levelOffset).get();
   if (data == 0) return false;
 
   // Grab the data from the definition, if any, otherwise use the data from the state level.
-  Core::Data::Ast::Definition *definition = 0;
-  if (data->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    definition = static_cast<Core::Data::Ast::Definition*>(data);
+  Core::Ast::Definition *definition = 0;
+  if (data->isDerivedFrom<Core::Ast::Definition>()) {
+    definition = static_cast<Core::Ast::Definition*>(data);
     data = definition->getTarget().get();
   }
 
@@ -311,23 +308,6 @@ Bool FunctionParsingHandler::processMemberModifier(
   funcType->setMember(true);
 
   return true;
-}
-
-
-Bool FunctionParsingHandler::processUnknownModifier(
-  Core::Processing::ParserState *state, TioSharedPtr const &modifierData
-) {
-  // Add an unknown modifier to the definition.
-  auto symbolDef = state->refTopProdLevel().getProd();
-  Int levelOffset = -state->getTopProdTermLevelCount();
-  auto definition = state->getData(levelOffset).ti_cast_get<Core::Data::Ast::Definition>();
-  if (definition != 0) {
-    Core::Data::Ast::translateModifier(symbolDef, modifierData.get());
-    definition->addModifier(modifierData);
-    return true;
-  } else {
-    return false;
-  }
 }
 
 } // namespace

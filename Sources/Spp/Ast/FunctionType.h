@@ -2,7 +2,7 @@
  * @file Spp/Ast/FunctionType.h
  * Contains the header of class Spp::Ast::FunctionType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,13 +16,13 @@
 namespace Spp::Ast
 {
 
-class FunctionType : public Type, public MapContaining<TiObject>
+class FunctionType : public Type, public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(FunctionType, Type, "Spp.Ast", "Spp", "alusus.org", (
-    INHERITANCE_INTERFACES(MapContaining<TiObject>)
+    INHERITANCE_INTERFACES(MapContaining<Core::Ast::Node>)
   ));
   OBJECT_FACTORY(FunctionType);
 
@@ -42,8 +42,8 @@ class FunctionType : public Type, public MapContaining<TiObject>
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Core::Data::Ast::Map> argTypes;
-  private: TioSharedPtr retType;
+  private: SharedPtr<Core::Ast::Map> argTypes;
+  private: SharedPtr<Core::Ast::Node> retType;
   private: TiBool member;
 
 
@@ -54,15 +54,12 @@ class FunctionType : public Type, public MapContaining<TiObject>
     (member, TiBool, VALUE, setMember(value), &member)
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (argTypes, Core::Data::Ast::Map, SHARED_REF, setArgTypes(value), argTypes.get()),
-    (retType, TiObject, SHARED_REF, setRetType(value), retType.get())
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
+    (argTypes, Core::Ast::Map, SHARED_REF, setArgTypes(value), argTypes.get()),
+    (retType, Core::Ast::Node, SHARED_REF, setRetType(value), retType.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(
-    FunctionType,
-    << S("member: ") << this->member.get()
-  );
+  IMPLEMENT_AST_PRINTABLE(FunctionType, S("member: ") << this->member.get());
 
 
   //============================================================================
@@ -90,16 +87,16 @@ class FunctionType : public Type, public MapContaining<TiObject>
 
   public: virtual Bool isIdentical(Type const *type, Helper *helper) const;
 
-  public: void setArgTypes(SharedPtr<Core::Data::Ast::Map> const &args)
+  public: void setArgTypes(SharedPtr<Core::Ast::Map> const &args)
   {
     UPDATE_OWNED_SHAREDPTR(this->argTypes, args);
   }
-  private: void setArgTypes(Core::Data::Ast::Map *args)
+  private: void setArgTypes(Core::Ast::Map *args)
   {
     this->setArgTypes(getSharedPtr(args));
   }
 
-  public: SharedPtr<Core::Data::Ast::Map> const& getArgTypes() const
+  public: SharedPtr<Core::Ast::Map> const& getArgTypes() const
   {
     return this->argTypes;
   }
@@ -113,25 +110,25 @@ class FunctionType : public Type, public MapContaining<TiObject>
 
   public: Bool isVariadic() const;
 
-  public: void setRetType(TioSharedPtr const &ret)
+  public: void setRetType(SharedPtr<Core::Ast::Node> const &ret)
   {
     UPDATE_OWNED_SHAREDPTR(this->retType, ret);
   }
-  private: void setRetType(TiObject *ret)
+  private: void setRetType(Core::Ast::Node *ret)
   {
     this->setRetType(getSharedPtr(ret));
   }
 
-  public: TioSharedPtr const& getRetType() const
+  public: SharedPtr<Core::Ast::Node> const& getRetType() const
   {
     return this->retType;
   }
 
   public: Type* traceRetType(Helper *helper) const;
 
-  public: TypeMatchStatus matchCall(Containing<TiObject> *types, Helper *helper);
+  public: TypeMatchStatus matchCall(Containing<Core::Ast::Node> *types, Helper *helper);
 
-  public: TypeMatchStatus matchNextArg(TiObject *nextType, ArgMatchContext &matchContext, Helper *helper);
+  public: TypeMatchStatus matchNextArg(Core::Ast::Node *nextType, ArgMatchContext &matchContext, Helper *helper);
 
   public: void setMember(Bool m)
   {

@@ -2,7 +2,7 @@
  * @file Srl/StringBuilder.alusus
  * Contains the class Srl.StringBuilder.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -19,8 +19,6 @@ import "Spp/Ast";
 
 @merge module Srl {
     def _emptyMixin: {}
-
-    @shared def stringBuilderModifierKwdTranslations: Map[String, String];
 
     class StringBuilder [formatMixin: ast_ref = _emptyMixin] {
         Spp.astMgr.insertMixin[formatMixin];
@@ -167,31 +165,29 @@ import "Spp/Ast";
 
         function _insertFormattingCalls() {
             use Core.Basic;
-            def elements: Array[ref[TiObject]] = Spp.astMgr.findElements(
+            def elements: Array[ref[Core.Ast.Node]] = Spp.astMgr.findElements(
                 (ast elementType == "function"),
                 this_type~ast,
                 Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN
             );
             def i: Int;
             for i = 0, i < elements.getLength(), ++i {
-                def modifier: ref[TiObject](Spp.astMgr.findModifierForElement(
-                    elements(i), "format", stringBuilderModifierKwdTranslations
-                ));
-                if modifier~ptr != 0 {
+                def metadata: ref[Core.Ast.Node](elements(i).owner.getMetadata("format"));
+                if metadata~ptr != 0 {
                     def params: Array[String];
-                    Spp.astMgr.getModifierStringParams(modifier, params);
+                    Spp.astMgr.getStringsFromStringParams(metadata, params);
                     if params.getLength() != 1 {
-                        Spp.buildMgr.raiseBuildNotice("SRT1002", 1, modifier);
+                        Spp.buildMgr.raiseBuildNotice("SRT1002", 1, elements(i));
                         continue;
                     }
                     def fmtKey: String = params(0);
                     def fnName: String = Spp.astMgr.getDefinitionName(elements(i));
-                    def argTypes: ContainerOf[Spp.astMgr.getFuncArgTypes(elements(i))];
+                    def argTypes: ContainerOf[Spp.astMgr.getFuncArgTypes(elements(i)), Core.Ast.Node];
                     if argTypes~ptr == 0 or argTypes.getElementCount() != 2u {
                         Spp.buildMgr.raiseBuildNotice("SRT1003", 1, elements(i));
                         continue;
                     }
-                    def argType: ref[TiObject](argTypes.getElement(1));
+                    def argType: ref[Core.Ast.Node](argTypes.getElement(1));
                     Spp.astMgr.insertAst(
                         ast {
                             if String.compare(pos~cast[CharsPtr], fmtKey, fmtKeyLen) == 0 {
@@ -200,12 +196,12 @@ import "Spp/Ast";
                                 continue;
                             }
                         },
-                        Map[String, ref[TiObject]]()
-                            .set(String("fnName"), Core.Data.Ast.Identifier(fnName))
-                            .set(String("fmtKey"), Core.Data.Ast.StringLiteral(fmtKey))
-                            .set(String("fmtKeyLen"), Core.Data.Ast.IntegerLiteral(String() + fmtKey.getLength()))
+                        Map[String, ref[Core.Ast.Node]]()
+                            .set(String("fnName"), Core.Ast.Identifier(fnName))
+                            .set(String("fmtKey"), Core.Ast.StringLiteral(fmtKey))
+                            .set(String("fmtKeyLen"), Core.Ast.IntegerLiteral(String() + fmtKey.getLength()))
                             .set(String("argType"), newSrdObj[Spp.Ast.TypeOp].{
-                                MapContainerOf[this].setElement("type", Spp.astMgr.traceType(argType));
+                                MapContainerOf[this, Core.Ast.Node].setElement("type", Spp.astMgr.traceType(argType));
                             }.obj)
                     );
                 }
@@ -235,5 +231,12 @@ import "Spp/Ast";
         handler this~cast[ref[String]] {
             return this.string;
         }
+    }
+
+    // Handler for the `format` modifier. The modifier is removed once handled, so the formatting symbol is
+    // kept as metadata on the modified definition for _insertFormattingCalls to read later.
+    func stringFormater (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+        if params~ptr == 0 return;
+        node.setMetadata("format", castSrdRef[params.wkThis, Core.Ast.Node]);
     }
 }

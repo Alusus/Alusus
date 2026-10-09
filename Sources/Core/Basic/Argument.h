@@ -2,7 +2,7 @@
  * @file Core/Basic/arguments.h
  * Contains definitions for arguments macros and classes.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,24 +17,29 @@ namespace Core::Basic
 {
 
 /**
- * @brief A structure to hold different arguments used in initializer lists.
+ * @brief The way the value of an Argument is held.
  * @ingroup basic_utils
  */
-struct Argument
-{
-  s_enum(Type, PTR, REF, SHARED);
+s_enum(ArgumentType, PTR, REF, SHARED);
 
-  Argument::Type type;
+/**
+ * @brief A structure to hold different arguments used in initializer lists.
+ * @ingroup basic_utils
+ * CTYPE is the type of the argument's value.
+ */
+template <class CTYPE> struct Argument
+{
+  ArgumentType type;
   Char const *id;
 
-  TiObject *ptr;
-  TiObject const *ref;
-  SharedPtr<TiObject> shared;
+  CTYPE *ptr;
+  CTYPE const *ref;
+  SharedPtr<CTYPE> shared;
 
-  Argument(Char const *i, TiObject *v) : id(i), ptr(v), ref(0), type(Argument::Type::PTR) {}
-  Argument(Char const *i, TiObject const &v) : id(i), ptr(0), ref(&v), type(Argument::Type::REF) {}
-  Argument(Char const *i, SharedPtr<TiObject> const &v)
-    : id(i), ptr(0), ref(0), shared(v), type(Argument::Type::SHARED) {}
+  Argument(Char const *i, CTYPE *v) : id(i), ptr(v), ref(0), type(ArgumentType::PTR) {}
+  Argument(Char const *i, CTYPE const &v) : id(i), ptr(0), ref(&v), type(ArgumentType::REF) {}
+  Argument(Char const *i, SharedPtr<CTYPE> const &v)
+    : id(i), ptr(0), ref(0), shared(v), type(ArgumentType::SHARED) {}
 };
 
 } // namespace

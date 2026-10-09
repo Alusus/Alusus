@@ -556,8 +556,8 @@ To expand the set of types understood by the `format` method the user can provid
 `StringBuilder` class with a mixin containing the set of functions to be called by `format`
 in response to encountering the related symbol in the format string. In order for the functions
 within the mixin to be called by `format` they need to receive a single argument of a type matching
-the requested type, and be flaged with the `@format` modifier, giving that modifier the requested
-formatting symbol as a param.
+the requested type, and be flagged with the `@stringFormater` modifier, giving that modifier the 
+requested formatting symbol as a param.
 
 The same data type can be used in multiple formatting as long as the formatting symbol is different.
 For example, the type `Int[64]` can be used in two functions, one having the symbol `%gd` to treat
@@ -568,8 +568,8 @@ The following example shows extending the StringBuilder with a formatting for co
 timestamps to date strings:
 
 ```
-def StringBuilderMixin {
-  @format["gd"]
+def StringBuilderMixin: {
+  @stringFormater["gd"]
   handler this.formatTimestamp(ts: Int[64]) {
     this.append(Time.toString(ts));
   }
@@ -1841,19 +1841,33 @@ class DetailedTime {
 
 A record that holds the date and time information.
 
-#### getDetailedTime
+#### getDetailedLocalTime
 
 ```
-1. @expname[localtime] func getDetailedTime (
+1. @expname[localtime] func getDetailedLocalTime (
      ts: ptr[Word[64]]
    ): ptr[DetailedTime];
-2. @expname[localtime_r] func getDetailedTime (
+2. @expname[localtime_r] func getDetailedLocalTime (
      ts: ptr[Word[64]], ptr[DetailedTime]
    ): ptr[DetailedTime];
 ```
 
 1. This is the same as `localtime` function for POSIX.
 2. This is the same as `localtime_r` function for POSIX.
+
+#### getDetailedUTCTime
+
+```
+1. @expname[gmtime] func getDetailedUTCTime (
+     ts: ptr[Word[64]]
+   ): ptr[DetailedTime];
+2. @expname[gmtime_r] func getDetailedUTCTime (
+     ts: ptr[Word[64]], ptr[DetailedTime]
+   ): ptr[DetailedTime];
+```
+
+1. This is the same as `gmtime` function for POSIX.
+2. This is the same as `gmtime_r` function for POSIX.
 
 #### getTimestamp
 

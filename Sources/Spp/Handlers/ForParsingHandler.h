@@ -2,7 +2,7 @@
  * @file Spp/Handlers/ForParsingHandler.h
  * Contains the header of class Spp::Handlers::ForParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,34 +40,32 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
   {
     GenericParsingHandler::onProdEnd(parser, state);
 
-    auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
+    auto expr = state->getData().ti_cast_get<Core::Ast::List>();
     ASSERT(expr != 0);
-    auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
-    ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(expr->findSourceLocation()));
+      state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
 
-    auto head = ti_cast<Core::Data::Ast::List>(expr->getElement(1));
+    auto head = ti_cast<Core::Ast::List>(expr->getElement(1));
     if (head == 0 || head->getCount() != 3) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(expr->findSourceLocation()));
+      state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
     for (Int i = 1; i < head->getCount(); ++i) {
       if (head->get(i) == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(exprMetadata->findSourceLocation()));
-        state->setData(SharedPtr<TiObject>(0));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(expr->findSourceLocation()));
+        state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
     }
 
     auto newObj = newSrdObj<Spp::Ast::ForStatement>();
-    newObj->setSourceLocation(exprMetadata->findSourceLocation());
-    newObj->setProdId(exprMetadata->getProdId());
+    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setProdId(expr->getProdId());
     newObj->setInitializer(head->get(0));
     newObj->setCondition(head->get(1));
     newObj->setUpdater(head->get(2));

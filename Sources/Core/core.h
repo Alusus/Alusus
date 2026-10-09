@@ -3,7 +3,7 @@
  * The main header file of the core. Contains include statements for the entire
  * core.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -48,7 +48,8 @@ namespace Core
 // Since basic datatypes should be available everywhere, we'll just open up the namespace.
 using namespace Core::Basic;
 
-#include "Data/data.h"
+#include "Grammar/grammar.h"
+#include "Ast/ast.h"
 #include "Notices/notices.h"
 #include "Processing/processing.h"
 #include "Main/main.h"

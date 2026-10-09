@@ -2,7 +2,7 @@
  * @file Core/Processing/LexerState.h
  * Contains the header of class Core::Processing::LexerState.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -33,9 +33,9 @@ class LexerState
   public: struct Level
   {
     public: Int posId;
-    public: Data::Grammar::Term *term;
+    public: Grammar::Term *term;
     Level() : posId(0), term(0) {}
-    Level(Int id, Data::Grammar::Term *t) : posId(id), term(t) {}
+    Level(Int id, Grammar::Term *t) : posId(id), term(t) {}
   };
 
 
@@ -105,7 +105,7 @@ class LexerState
     return this->tokenDefIndex;
   }
 
-  public: void pushTermLevel(Int posId, Data::Grammar::Term *term)
+  public: void pushTermLevel(Int posId, Grammar::Term *term)
   {
     if (this->levelCount >= LEXER_STATE_LEVEL_MAX_COUNT) {
       throw EXCEPTION(GenericException, S("LexerState levels stack overflow."));

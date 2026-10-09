@@ -2,7 +2,7 @@
  * @file Spp/Handlers/handlers.cpp
  * Contains the global implementations of Spp::Handlers namespace's declarations.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,21 +23,21 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
   if (funcType->getArgTypes() == 0) return true;
   for (Int i = 0; i < funcType->getArgTypes()->getCount(); ++i) {
     auto type = funcType->getArgTypes()->getElement(i);
-    if (type->isA<Core::Data::Ast::PrefixOperator>()) {
-      auto prefixOp = static_cast<Core::Data::Ast::PrefixOperator*>(type);
+    if (type->isA<Core::Ast::PrefixOperator>()) {
+      auto prefixOp = static_cast<Core::Ast::PrefixOperator*>(type);
       if (prefixOp->getType() != S("...")) {
         noticeStore->add(
           newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation())
         );
         return false;
       }
-      TioSharedPtr packType;
+      SharedPtr<Core::Ast::Node> packType;
       TiWord packMin = 0;
       TiWord packMax = 0;
       auto operand = prefixOp->getOperand();
-      if (operand->isA<Core::Data::Ast::Bracket>()) {
-        auto bracket = operand.s_cast<Core::Data::Ast::Bracket>();
-        if (bracket->getType() == Core::Data::Ast::BracketType::ROUND) {
+      if (operand->isA<Core::Ast::Bracket>()) {
+        auto bracket = operand.s_cast<Core::Ast::Bracket>();
+        if (bracket->getType() == Core::Ast::BracketType::ROUND) {
           noticeStore->add(
             newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation())
           );
@@ -50,8 +50,8 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
           );
           return false;
         }
-        if (bracketOperand->isA<Core::Data::Ast::List>()) {
-          auto bracketList = bracketOperand.s_cast<Core::Data::Ast::List>();
+        if (bracketOperand->isA<Core::Ast::List>()) {
+          auto bracketList = bracketOperand.s_cast<Core::Ast::List>();
           if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
             noticeStore->add(
               newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation())
@@ -60,10 +60,10 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
           }
           packType = bracketList->get(0);
           if (bracketList->getCount() > 1) {
-            if (!parseNumber(bracketList->getElement(1), packMin, bracketList.get(), noticeStore)) return false;
+            if (!parseNumber(bracketList->getElement(1), packMin, noticeStore)) return false;
           }
           if (bracketList->getCount() > 2) {
-            if (!parseNumber(bracketList->getElement(2), packMax, bracketList.get(), noticeStore)) return false;
+            if (!parseNumber(bracketList->getElement(2), packMax, noticeStore)) return false;
           }
         } else {
           packType = bracketOperand;
@@ -71,8 +71,8 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
       } else {
         packType = operand;
       }
-      if (packType->isA<Core::Data::Ast::Identifier>()) {
-        auto packIdentifier = packType.s_cast<Core::Data::Ast::Identifier>();
+      if (packType->isA<Core::Ast::Identifier>()) {
+        auto packIdentifier = packType.s_cast<Core::Ast::Identifier>();
         if (packIdentifier->getValue() == S("any")) {
           packType = 0;
         }
@@ -89,7 +89,7 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
         if (funcType->getArgTypes()->getElement(j)->isDerivedFrom<Ast::ArgPack>()) {
           // We cannot have a normal argument following an arg pack.
           noticeStore->add(
-            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Data::Ast::findSourceLocation(type))
+            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Ast::findSourceLocation(type))
           );
           return false;
         }
@@ -101,37 +101,30 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
 
 
 Bool parseNumber(
-  TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata, Core::Notices::Store *noticeStore
+  Core::Ast::Node *ast, TiWord &result, Core::Notices::Store *noticeStore
 ) {
-  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(ast);
-  if (ast->isA<Core::Data::Ast::IntegerLiteral>()) {
-    result = std::stol(static_cast<Core::Data::Ast::IntegerLiteral*>(ast)->getValue().get());
+  if (ast->isA<Core::Ast::IntegerLiteral>()) {
+    result = std::stol(static_cast<Core::Ast::IntegerLiteral*>(ast)->getValue().get());
     return true;
   } else {
-    if (metadata) {
-      noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(metadata->findSourceLocation())
-      );
-    } else {
-      noticeStore->add(
-        newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(parentMetadata->findSourceLocation())
-      );
-    }
+    noticeStore->add(
+      newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(ast->findSourceLocation())
+    );
     return false;
   }
 }
 
 
 Bool parseTemplateArgs(
-  Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::List> &result
+  Processing::ParserState *state, Core::Ast::Bracket *bracket, SharedPtr<Core::Ast::List> &result
 ) {
   auto args = bracket->getOperand().get();
   if (args == 0) {
     state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
     return false;
-  } else if (args->isDerivedFrom<Core::Data::Ast::List>()) {
-    auto argsList = static_cast<Core::Data::Ast::List*>(args);
-    result = newSrdObj<Core::Data::Ast::List>();
+  } else if (args->isDerivedFrom<Core::Ast::List>()) {
+    auto argsList = static_cast<Core::Ast::List*>(args);
+    result = newSrdObj<Core::Ast::List>();
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i).get();
       if (arg == 0) {
@@ -142,7 +135,7 @@ Bool parseTemplateArgs(
     }
     return true;
   } else {
-    result = newSrdObj<Core::Data::Ast::List>();
+    result = newSrdObj<Core::Ast::List>();
     if (!parseTemplateArg(state, args, result)) return false;
     return true;
   }
@@ -150,26 +143,26 @@ Bool parseTemplateArgs(
 
 
 Bool parseTemplateArg(
-  Core::Processing::ParserState *state, TiObject *astNode, SharedPtr<Core::Data::Ast::List> const &result
+  Core::Processing::ParserState *state, Core::Ast::Node *astNode, SharedPtr<Core::Ast::List> const &result
 ) {
   Str name;
   Ast::TemplateVarType type;
-  TioSharedPtr defaultVal;
-  auto link = ti_cast<Core::Data::Ast::LinkOperator>(astNode);
+  SharedPtr<Core::Ast::Node> defaultVal;
+  auto link = ti_cast<Core::Ast::LinkOperator>(astNode);
   if (link != 0 && link->getType() == S(":")) {
-    auto identifier = link->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+    auto identifier = link->getFirst().ti_cast_get<Core::Ast::Identifier>();
     if (identifier == 0) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
       return false;
     }
     name = identifier->getValue().get();
 
-    auto second = link->getSecond().ti_cast_get<Core::Data::Ast::AssignmentOperator>();
+    auto second = link->getSecond().ti_cast_get<Core::Ast::AssignmentOperator>();
     if (second != 0 && second->getType() == S("=")) {
-      identifier = second->getFirst().ti_cast_get<Core::Data::Ast::Identifier>();
+      identifier = second->getFirst().ti_cast_get<Core::Ast::Identifier>();
       defaultVal = second->getSecond();
     } else {
-      identifier = link->getSecond().ti_cast_get<Core::Data::Ast::Identifier>();
+      identifier = link->getSecond().ti_cast_get<Core::Ast::Identifier>();
     }
     if (identifier == 0) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
@@ -188,7 +181,7 @@ Bool parseTemplateArg(
     }
   } else {
     state->addNotice(
-      newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(Core::Data::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }

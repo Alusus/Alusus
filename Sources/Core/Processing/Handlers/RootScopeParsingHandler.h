@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/RootScopeParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::RootScopeParsingHandler.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -46,13 +46,13 @@ class RootScopeParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdStart(Parser *parser, ParserState *state, Data::Token const *token);
+  public: virtual void onProdStart(Parser *parser, ParserState *state, Ast::Token const *token);
 
   public: virtual void onProdEnd(Parser *parser, ParserState *state)
   {
   }
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex);
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex);
 
 }; // class
 

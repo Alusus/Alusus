@@ -1,8 +1,8 @@
 /**
  * @file Core/Basic/ObjTiInterface.h
- * Contains the header of interface Data::ObjTiInterface.
+ * Contains the header of interface Core::Basic::ObjTiInterface.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -13,7 +13,7 @@
 #ifndef CORE_BASIC_OBJTIINTERFACE_H
 #define CORE_BASIC_OBJTIINTERFACE_H
 
-namespace Core { namespace Basic
+namespace Core::Basic
 {
 
 class ObjTiInterface : public TiInterface
@@ -21,7 +21,7 @@ class ObjTiInterface : public TiInterface
   //============================================================================
   // Type Info
 
-  INTERFACE_INFO(ObjTiInterface, TiInterface, "Core.Data", "Core", "alusus.org");
+  INTERFACE_INFO(ObjTiInterface, TiInterface, "Core.Basic", "Core", "alusus.org");
 
 
   //============================================================================
@@ -31,6 +31,6 @@ class ObjTiInterface : public TiInterface
 
 }; // class
 
-} } // namespace
+} // namespace
 
 #endif

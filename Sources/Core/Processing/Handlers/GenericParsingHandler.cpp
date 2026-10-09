@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/GenericParsingHandler.cpp
  * Contains the implementation of class Core::Processing::Handlers::GenericParsingHandler.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -15,35 +15,70 @@
 namespace Core::Processing::Handlers
 {
 
-using namespace Data;
-
 //==============================================================================
 // Overloaded Abstract Functions
 
 void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
 {
-  Ast::MetaHaving *item = state->getData().ti_cast_get<Ast::MetaHaving>();
+  Ast::Node *item = state->getData().get();
   Grammar::SymbolDefinition *prod = state->refTopProdLevel().getProd();
   if (item != 0 && item->getProdId() == UNKNOWN_ID) {
     // We need to set the production id now.
     item->setProdId(prod->getId());
   } else if (this->isProdObjEnforced(state)) {
     // We need to create a container data object for this production root.
-    SharedPtr<TiObject> data = this->createEnforcedProdNode(state);
+    SharedPtr<Ast::Node> data = this->createEnforcedProdNode(state);
     // Set the production id for this data item.
-    Ast::MetaHaving *dataMeta = data.ti_cast_get<Ast::MetaHaving>();
-    if (dataMeta == 0) {
-      throw EXCEPTION(GenericException,
-                      S("Production root objects must implement Ast::MetaHaving interface."));
-    }
-    dataMeta->setProdId(prod->getId());
+    data->setProdId(prod->getId());
     // Set the line and column, if any.
     if (item != 0) {
-      dataMeta->setSourceLocation(item->findSourceLocation());
+      data->setSourceLocation(item->findSourceLocation());
     }
     // Set the data to this production's state level.
     state->setData(data);
   }
+}
+
+
+Bool GenericParsingHandler::onIncomingModifier(
+  Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
+) {
+  if (!prodProcessingComplete) return false;
+
+  auto identifier = Ast::getModifierKeywordIdentifier(modifierData.get());
+  if (identifier == 0) return false;
+
+  auto symbolDef = state->refTopProdLevel().getProd();
+  auto action = symbolDef->getModifierAction(identifier->getValue().get());
+  if (action == 0) return false;
+
+  if (action->isDerivedFrom<Grammar::TranslateModifierAction>()) {
+    auto translateAction = static_cast<Grammar::TranslateModifierAction*>(action);
+    identifier->setValue(translateAction->getKeyword().getBuf());
+    // Reprocess the modifier now that its keyword has been translated.
+    return GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete);
+  }
+
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto node = state->getData(levelOffset).get();
+  if (node == 0) return false;
+
+  if (action->isDerivedFrom<Grammar::KeepModifierAction>()) {
+    node->addModifier(modifierData);
+    return true;
+  } else if (action->isDerivedFrom<Grammar::StoreModifierAction>()) {
+    auto storeAction = static_cast<Grammar::StoreModifierAction*>(action);
+    SharedPtr<Ast::Node> params;
+    auto paramPass = modifierData.ti_cast_get<Ast::ParamPass>();
+    if (paramPass != 0) params = paramPass->getParam();
+    if (params == 0) {
+      params = Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
+    }
+    node->setMetadata(storeAction->getKey().getBuf(), params);
+    return true;
+  }
+
+  return false;
 }
 
 
@@ -56,7 +91,7 @@ void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
     if (this->isPassUpList(state, -1)) return;
   }
 
-  SharedPtr<TiObject> data = state->getData();
+  SharedPtr<Ast::Node> data = state->getData();
   Int levelIndex = -2;
   while (true) {
     if (this->isRouteTerm(state, levelIndex)) {
@@ -88,7 +123,7 @@ void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
 
 
 void GenericParsingHandler::onLevelExit(Parser *parser, ParserState *state,
-                                        SharedPtr<TiObject> const &data)
+                                        SharedPtr<Ast::Node> const &data)
 {
   if (state->refTopTermLevel().getTerm()->isA<Grammar::ReferenceTerm>()) {
     ASSERT(state->getData() == 0);
@@ -98,7 +133,7 @@ void GenericParsingHandler::onLevelExit(Parser *parser, ParserState *state,
 
 
 void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
-                                       const Token *token)
+                                       const Ast::Token *token)
 {
   TiObject *matchText = state->getTokenTermText();
   // Skip if the term should be omitted.
@@ -119,8 +154,8 @@ void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
   // If the token term defines a map as its match criteria then we'll use the value of the matched
   // entry as the value of our Ast::Token text, otherwise we'll just use the actual token text
   // captured by the lexer.
-  if (matchText != 0 && matchText->isA<Data::Grammar::Map>()) {
-    TiObject *mappedText = static_cast<Data::Grammar::Map*>(matchText)->getElement(token->getText());
+  if (matchText != 0 && matchText->isA<Grammar::Map>()) {
+    TiObject *mappedText = static_cast<Grammar::Map*>(matchText)->getElement(token->getText());
     if (mappedText != 0 && mappedText->isA<TiStr>()) {
       tokenText = static_cast<TiStr*>(mappedText)->get();
     } else {
@@ -132,17 +167,14 @@ void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
   // TODO: Implement control character parsing for character literals.
 
   // Create the token item.
-  SharedPtr<TiObject> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
-  auto metadata = tokenItem.ti_cast_get<Ast::MetaHaving>();
-  if (metadata) {
-    metadata->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()));
-  }
+  SharedPtr<Ast::Node> tokenItem = this->createTokenNode(state, -1, token->getId(), tokenText);
+  tokenItem->setSourceLocation(Ast::cloneSourceLocation(token->getSourceLocation().get()));
   state->setData(tokenItem);
 }
 
 
 void GenericParsingHandler::onConcatStep(Parser *parser, ParserState *state,
-                                         Int newPos, Data::Token const *token)
+                                         Int newPos, Ast::Token const *token)
 {
   // If this term pass data up we can skip.
   if (this->isPassUpList(state, -1)) {
@@ -164,7 +196,7 @@ void GenericParsingHandler::onConcatStep(Parser *parser, ParserState *state,
 
 
 void GenericParsingHandler::onAlternateRouteDecision(Parser *parser, ParserState *state,
-                                                     Int route, Data::Token const *token)
+                                                     Int route, Ast::Token const *token)
 {
   ASSERT(this->isRouteTerm(state, -1));
   if (!this->isRouteObjEnforced(state, -1)) return;
@@ -175,7 +207,7 @@ void GenericParsingHandler::onAlternateRouteDecision(Parser *parser, ParserState
 
 
 void GenericParsingHandler::onMultiplyRouteDecision(Parser *parser, ParserState *state,
-                                                    Int route, Data::Token const *token)
+                                                    Int route, Ast::Token const *token)
 {
   TiInt *min = state->getMultiplyTermMin();
   TiInt *max = state->getMultiplyTermMax();
@@ -205,7 +237,7 @@ void GenericParsingHandler::onMultiplyRouteDecision(Parser *parser, ParserState 
 
 void GenericParsingHandler::onTermCancelling(Parser *parser, ParserState *state)
 {
-  state->setData(SharedPtr<TiObject>(0));
+  state->setData(SharedPtr<Ast::Node>(0));
 }
 
 
@@ -219,11 +251,11 @@ void GenericParsingHandler::onProdCancelling(Parser *parser, ParserState *state)
 // Member Functions
 
 void GenericParsingHandler::addData(
-  SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex
+  SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex
 ) {
   if (this->isRouteTerm(state, levelIndex)) {
-    TiObject *currentData = state->getData(levelIndex).get();
-    auto container= ti_cast<Containing<TiObject>>(currentData);
+    Ast::Node *currentData = state->getData(levelIndex).get();
+    auto container= ti_cast<Containing<Ast::Node>>(currentData);
     if (currentData == 0) {
       state->setData(data, levelIndex);
     } else if (container != 0 && container->getElement(0) == 0) {
@@ -236,7 +268,7 @@ void GenericParsingHandler::addData(
     }
   } else if (this->isListTerm(state, levelIndex)) {
     // Add the given data to this list term.
-    TiObject *currentData = state->getData(levelIndex).get();
+    Ast::Node *currentData = state->getData(levelIndex).get();
     if (currentData == 0) {
       // Set the given data as the level's data.
       // If this term has FORCE_LIST flag the data should never be null in the first place.
@@ -244,13 +276,9 @@ void GenericParsingHandler::addData(
       if (this->isListItemEnforced(state, levelIndex) && state->refTermLevel(levelIndex).getPosId() > 1) {
         // We have an enforced-item list, and this is not the first item in the list, so we'll create
         // a list whose first item is null.
-        SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<DynamicContaining<TiObject>>();
-        Ast::MetaHaving *metadata = data.ti_cast_get<Ast::MetaHaving>();
-        Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
-        if (newMetadata != 0 && metadata != 0) {
-          newMetadata->setSourceLocation(metadata->findSourceLocation());
-        }
+        SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
+        auto newContainer = list.ti_cast_get<DynamicContaining<Ast::Node>>();
+        list->setSourceLocation(data->findSourceLocation());
         newContainer->addElement(currentData);
         newContainer->addElement(data.get());
         state->setData(list, levelIndex);
@@ -261,20 +289,16 @@ void GenericParsingHandler::addData(
       // There is three possible situations at this point: Either the list was enforced, or
       // a child data was set into this level, or this level was visited more than once causing
       // a list to be created.
-      auto container = ti_cast<DynamicContaining<TiObject>>(currentData);
-      Ast::MetaHaving *metadata = ti_cast<Ast::MetaHaving>(currentData);
-      if (container != 0 && (metadata == 0 || metadata->getProdId() == UNKNOWN_ID)) {
+      auto container = ti_cast<DynamicContaining<Ast::Node>>(currentData);
+      if (container != 0 && (currentData == 0 || currentData->getProdId() == UNKNOWN_ID)) {
         // This level already has a list that belongs to this production, so we can just add the new data
         // to this list.
         container->addElement(data.get());
       } else {
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
-        SharedPtr<TiObject> list = this->createListNode(state, levelIndex);
-        auto newContainer = list.ti_cast_get<DynamicContaining<TiObject>>();
-        Ast::MetaHaving *newMetadata = list.ti_cast_get<Ast::MetaHaving>();
-        if (newMetadata != 0 && metadata != 0) {
-          newMetadata->setSourceLocation(metadata->findSourceLocation());
-        }
+        SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
+        auto newContainer = list.ti_cast_get<DynamicContaining<Ast::Node>>();
+        list->setSourceLocation(currentData->findSourceLocation());
         newContainer->addElement(currentData);
         newContainer->addElement(data.get());
         state->setData(list, levelIndex);
@@ -322,13 +346,13 @@ Bool GenericParsingHandler::isProdObjEnforced(ParserState *state)
 }
 
 
-SharedPtr<TiObject> GenericParsingHandler::createListNode(ParserState *state, Int levelIndex)
+SharedPtr<Ast::Node> GenericParsingHandler::createListNode(ParserState *state, Int levelIndex)
 {
   return newSrdObj<Ast::List>();
 }
 
 
-SharedPtr<TiObject> GenericParsingHandler::createRouteNode(ParserState *state, Int levelIndex, Int route)
+SharedPtr<Ast::Node> GenericParsingHandler::createRouteNode(ParserState *state, Int levelIndex, Int route)
 {
   auto routeItem = newSrdObj<Ast::Route>();
   routeItem->setRoute(route);
@@ -336,9 +360,9 @@ SharedPtr<TiObject> GenericParsingHandler::createRouteNode(ParserState *state, I
 }
 
 
-SharedPtr<TiObject> GenericParsingHandler::createTokenNode(ParserState *state, Int levelIndex,
-                                                                     Word tokenId, Char const *tokenText)
-{
+SharedPtr<Ast::Node> GenericParsingHandler::createTokenNode(
+  ParserState *state, Int levelIndex, Word tokenId, Char const *tokenText
+) {
   auto token = newSrdObj<Ast::Token>();
   token->setId(tokenId);
   token->setText(tokenText);
@@ -346,10 +370,10 @@ SharedPtr<TiObject> GenericParsingHandler::createTokenNode(ParserState *state, I
 }
 
 
-SharedPtr<TiObject> GenericParsingHandler::createEnforcedProdNode(ParserState *state)
+SharedPtr<Ast::Node> GenericParsingHandler::createEnforcedProdNode(ParserState *state)
 {
   // We need to create a container data object for this production root.
-  SharedPtr<TiObject> data;
+  SharedPtr<Ast::Node> data;
   Grammar::Term *term = state->refTopTermLevel().getTerm();
   if (term->isA<Grammar::AlternateTerm>()) {
     data = this->createRouteNode(state, -1, -1);

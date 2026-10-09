@@ -2,7 +2,7 @@
  * @file Spp/Ast/Variable.h
  * Contains the header of class Spp::Ast::Variable.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,17 +16,15 @@
 namespace Spp::Ast
 {
 
-class Variable : public Core::Data::Node,
-                 public Binding, public MapContaining<TiObject>,
-                 public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class Variable : public Core::Ast::Node,
+                 public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Variable, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(Variable, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(Variable);
 
@@ -34,7 +32,7 @@ class Variable : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr typeRef;
+  private: SharedPtr<Core::Ast::Node> typeRef;
   private: TiBool valueOnly;
   private: Type *type = 0;
 
@@ -42,20 +40,16 @@ class Variable : public Core::Data::Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(Variable);
-
-  IMPLEMENT_BINDING(Binding,
-    (valueOnly, TiBool, VALUE, setValueOnly(value), &valueOnly),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_BINDING(Core::Ast::Node,
+    (valueOnly, TiBool, VALUE, setValueOnly(value), &valueOnly)
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (typeRef, TiObject, SHARED_REF, setTypeRef(value), typeRef.get()),
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
+    (typeRef, Core::Ast::Node, SHARED_REF, setTypeRef(value), typeRef.get()),
     (type, Type, PLAIN_REF, setType(value), type)
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(Variable, << (this->valueOnly ? S("valueOnly") : S("inMem")));
+  IMPLEMENT_AST_PRINTABLE(Variable, (this->valueOnly ? S("valueOnly") : S("inMem")));
 
 
   //============================================================================
@@ -76,16 +70,16 @@ class Variable : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setTypeRef(TioSharedPtr const &r)
+  public: void setTypeRef(SharedPtr<Core::Ast::Node> const &r)
   {
     UPDATE_OWNED_SHAREDPTR(this->typeRef, r);
   }
-  private: void setTypeRef(TiObject *r)
+  private: void setTypeRef(Core::Ast::Node *r)
   {
     this->setTypeRef(getSharedPtr(r));
   }
 
-  public: TioSharedPtr const& getTypeRef() const
+  public: SharedPtr<Core::Ast::Node> const& getTypeRef() const
   {
     return this->typeRef;
   }

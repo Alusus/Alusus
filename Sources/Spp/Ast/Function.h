@@ -2,7 +2,7 @@
  * @file Spp/Ast/Function.h
  * Contains the header of class Spp::Ast::Function.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,17 +18,15 @@ namespace Spp::Ast
 
 class FunctionType;
 
-class Function : public Core::Data::Node,
-                 public Binding, public MapContaining<TiObject>,
-                 public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class Function : public Core::Ast::Node,
+                 public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Function, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(Function, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(Function);
 
@@ -39,27 +37,23 @@ class Function : public Core::Data::Node,
   private: TiStr name;
   private: TiBool inlined;
   private: SharedPtr<FunctionType> type;
-  private: SharedPtr<Core::Data::Ast::Scope> body;
+  private: SharedPtr<Core::Ast::Scope> body;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(Function);
-
-  IMPLEMENT_BINDING(Binding,
+  IMPLEMENT_BINDING(Core::Ast::Node,
     (name, TiStr, VALUE, setName(value), &name),
-    (inlined, TiBool, VALUE, setInlined(value), &inlined),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+    (inlined, TiBool, VALUE, setInlined(value), &inlined)
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
     (type, FunctionType, SHARED_REF, setType(value), type.get()),
-    (body, Core::Data::Ast::Scope, SHARED_REF, setBody(value), body.get())
+    (body, Core::Ast::Scope, SHARED_REF, setBody(value), body.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(Function, << this->name.get());
+  IMPLEMENT_AST_PRINTABLE(Function, this->name.get());
 
 
   //============================================================================
@@ -123,16 +117,16 @@ class Function : public Core::Data::Node,
     return this->type;
   }
 
-  public: void setBody(SharedPtr<Core::Data::Ast::Scope> const &b)
+  public: void setBody(SharedPtr<Core::Ast::Scope> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
-  private: void setBody(Core::Data::Ast::Scope *b)
+  private: void setBody(Core::Ast::Scope *b)
   {
     this->setBody(getSharedPtr(b));
   }
 
-  public: SharedPtr<Core::Data::Ast::Scope> const& getBody() const
+  public: SharedPtr<Core::Ast::Scope> const& getBody() const
   {
     return this->body;
   }

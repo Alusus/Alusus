@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserModifierLevel.h
  * Contains the header of class Core::Processing::ParserModifierLevel.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,7 +27,7 @@ class ParserModifierLevel
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr data;
+  private: SharedPtr<Ast::Node> data;
 
   private: Int minProdIndex;
 
@@ -41,7 +41,7 @@ class ParserModifierLevel
   {
   }
 
-  public: ParserModifierLevel(TioSharedPtr const &d, Int min = -1, Int max = -1)
+  public: ParserModifierLevel(SharedPtr<Ast::Node> const &d, Int min = -1, Int max = -1)
     : data(d), minProdIndex(min), maxProdIndex(max)
   {
   }
@@ -61,12 +61,12 @@ class ParserModifierLevel
   //============================================================================
   // Member Functions
 
-  protected: void setData(TioSharedPtr const &d)
+  protected: void setData(SharedPtr<Ast::Node> const &d)
   {
     this->data = d;
   }
 
-  public: TioSharedPtr const& getData() const
+  public: SharedPtr<Ast::Node> const& getData() const
   {
     return this->data;
   }

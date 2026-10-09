@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/types.h
  * Contains definitions for type classes.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -294,6 +294,32 @@ class StructType : public Type
 
 
 //==============================================================================
+// AbiInfo
+
+/// Describes how a function argument or return value is passed at the LLVM level in order to follow the C ABI.
+struct AbiInfo
+{
+  enum class Kind
+  {
+    /// Passed as is (non-struct types).
+    DIRECT,
+    /// Passed in memory: by pointer with the byval attribute for arguments, or by sret pointer for return values.
+    INDIRECT,
+    /// A small struct passed in registers, split into the types listed in `parts`.
+    COERCED
+  };
+
+  Kind kind = Kind::DIRECT;
+  /// For COERCED: the type of each eightbyte of the struct.
+  std::vector<llvm::Type*> parts;
+  /// Index of the first LLVM parameter that belongs to this argument.
+  Int firstParam = 0;
+  /// Number of LLVM parameters this argument occupies.
+  Int paramCount = 1;
+};
+
+
+//==============================================================================
 // FunctionType
 
 class FunctionType : public Type
@@ -311,14 +337,17 @@ class FunctionType : public Type
   private: SharedPtr<SharedMap<Type>> args;
   private: SharedPtr<Type> retType;
   private: Bool variadic;
+  private: AbiInfo retAbi;
+  private: std::vector<AbiInfo> argAbis;
 
 
   //============================================================================
   // Constructor & Destructor
 
   public: FunctionType(
-    llvm::FunctionType *ft, SharedPtr<SharedMap<Type>> const &args, SharedPtr<Type> const &rt, Bool v
-  ) : llvmType(ft), args(args), retType(rt), variadic(v)
+    llvm::FunctionType *ft, SharedPtr<SharedMap<Type>> const &args, SharedPtr<Type> const &rt, Bool v,
+    AbiInfo const &retAbi, std::vector<AbiInfo> const &argAbis
+  ) : llvmType(ft), args(args), retType(rt), variadic(v), retAbi(retAbi), argAbis(argAbis)
   {
   }
 
@@ -349,6 +378,22 @@ class FunctionType : public Type
   public: Bool isVariadic() const
   {
     return this->variadic;
+  }
+
+  public: AbiInfo const& getRetAbi() const
+  {
+    return this->retAbi;
+  }
+
+  public: AbiInfo const& getArgAbi(Int index) const
+  {
+    return this->argAbis[index];
+  }
+
+  /// Number of leading LLVM parameters that are not Alusus arguments (the sret pointer).
+  public: Int getHiddenParamCount() const
+  {
+    return this->retAbi.kind == AbiInfo::Kind::INDIRECT ? 1 : 0;
   }
 
 }; // class

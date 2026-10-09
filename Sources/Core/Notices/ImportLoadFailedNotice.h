@@ -2,7 +2,7 @@
  * @file Core/Notices/ImportLoadFailedNotice.h
  * Contains the header of class Core::Notices::ImportLoadFailedNotice.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -37,7 +37,7 @@ class ImportLoadFailedNotice : public Notice
   // Constructor / Destructor
 
   public: ImportLoadFailedNotice(
-    Char const *fileName, Char const *errorDetails, SharedPtr<Data::SourceLocation> const &sl
+    Char const *fileName, Char const *errorDetails, SharedPtr<Ast::SourceLocation> const &sl
   ) : Notice(sl), fileName(fileName), errorDetails(errorDetails)
   {
   }
@@ -82,7 +82,7 @@ class ImportLoadFailedNotice : public Notice
     if (importFailedNotice == 0) return false;
     return this->fileName == importFailedNotice->fileName &&
       this->errorDetails == importFailedNotice->errorDetails &&
-      Data::isEqual(this->getSourceLocation().get(), importFailedNotice->getSourceLocation().get());
+      Ast::isEqual(this->getSourceLocation().get(), importFailedNotice->getSourceLocation().get());
   }
 
 }; // class

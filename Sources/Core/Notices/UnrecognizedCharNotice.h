@@ -2,7 +2,7 @@
  * @file Core/Notices/UnrecognizedCharNotice.h
  * Contains the header of class Core::Notices::UnrecognizedCharNotice.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -49,7 +49,7 @@ class UnrecognizedCharNotice : public Notice
   //============================================================================
   // Constructor / Destructor
 
-  public: UnrecognizedCharNotice(Char const *t, SharedPtr<Data::SourceLocation> const &sl)
+  public: UnrecognizedCharNotice(Char const *t, SharedPtr<Ast::SourceLocation> const &sl)
     : Notice(sl), text(t)
   {
   }
@@ -108,10 +108,10 @@ class UnrecognizedCharNotice : public Notice
    *           will only be considered if this character is the first in the
    *           buffer.
    */
-  public: void appendText(Char ch, Data::SourceLocationRecord const &sl)
+  public: void appendText(Char ch, Ast::SourceLocationRecord const &sl)
   {
     if (this->getSourceLocation() == 0) {
-      this->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(sl));
+      this->setSourceLocation(newSrdObj<Ast::SourceLocationRecord>(sl));
     }
     this->text.append(&ch, 1);
   }
@@ -130,11 +130,11 @@ class UnrecognizedCharNotice : public Notice
    *           will only be considered if this character is the first in the
    *           buffer.
    */
-  public: void appendText(Char const *str, Data::SourceLocationRecord const &sl)
+  public: void appendText(Char const *str, Ast::SourceLocationRecord const &sl)
   {
     if (str == 0 || str[0] == C('\0')) return;
     if (this->getSourceLocation() == 0) {
-      this->setSourceLocation(newSrdObj<Data::SourceLocationRecord>(sl));
+      this->setSourceLocation(newSrdObj<Ast::SourceLocationRecord>(sl));
     }
     this->text.append(str);
   }
@@ -176,7 +176,7 @@ class UnrecognizedCharNotice : public Notice
   public: void clear()
   {
     this->text.clear();
-    this->setSourceLocation(SharedPtr<Data::SourceLocation>::null);
+    this->setSourceLocation(SharedPtr<Ast::SourceLocation>::null);
   }
 
 }; // class

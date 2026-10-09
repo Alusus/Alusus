@@ -2,7 +2,7 @@
  * @file Spp/BuildManager.cpp
  * Contains the implementation of class Spp::BuildManager.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -35,6 +35,7 @@ void BuildManager::initBindingCaches()
     &this->addElementToBuild,
     &this->addElementToExecutionEntry,
     &this->execute,
+    &this->prepareToExecuteFunction,
     &this->dumpLlvmIrForElement,
     &this->buildObjectFileForElement,
     &this->resetBuild,
@@ -50,8 +51,10 @@ void BuildManager::initBindings()
   executing->prepareBuild = &BuildManager::_prepareBuild;
   executing->prepareExecutionEntry = &BuildManager::_prepareExecutionEntry;
   executing->finalizeExecutionEntry = &BuildManager::_finalizeExecutionEntry;
+  executing->addElementToBuild = &BuildManager::_addElementToBuild;
   executing->addElementToExecutionEntry = &BuildManager::_addElementToExecutionEntry;
   executing->execute = &BuildManager::_execute;
+  executing->prepareToExecuteFunction = &BuildManager::_prepareToExecuteFunction;
 
   auto expressionComputation = ti_cast<ExpressionComputation>(this);
   expressionComputation->computeResultType = &BuildManager::_computeResultType;
@@ -62,6 +65,7 @@ void BuildManager::initBindings()
   this->addElementToBuild = &BuildManager::_addElementToBuild;
   this->addElementToExecutionEntry = &BuildManager::_addElementToExecutionEntry;
   this->execute = &BuildManager::_execute;
+  this->prepareToExecuteFunction = &BuildManager::_prepareToExecuteFunction;
   this->dumpLlvmIrForElement = &BuildManager::_dumpLlvmIrForElement;
   this->buildObjectFileForElement = &BuildManager::_buildObjectFileForElement;
   this->resetBuild = &BuildManager::_resetBuild;
@@ -70,11 +74,30 @@ void BuildManager::initBindings()
 }
 
 
+/// Returns the value of the `optimize=<0|1>` command line option if given, otherwise the given default.
+Bool BuildManager::getOptimizeOverride(Bool defaultValue) const
+{
+  auto options = this->rootManager->getProcessOptions();
+  Bool result = defaultValue;
+  for (Int i = 0; i < this->rootManager->getProcessOptionCount(); ++i) {
+    if (strcmp(options[i], S("optimize=0")) == 0 || strcmp(options[i], S("تحسين=0")) == 0) {
+      result = false;
+      break;
+    } else if (strcmp(options[i], S("optimize=1")) == 0 || strcmp(options[i], S("تحسين=1")) == 0) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+}
+
+
 void BuildManager::initNonOfflineBuildSessions()
 {
   // Prepare build targets and target generators.
 
   auto jitBuildTarget = newSrdObj<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
+  jitBuildTarget->setOptimize(this->getOptimizeOverride(false));
   auto jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->rootManager, jitBuildTarget.get(), false
   );
@@ -214,7 +237,7 @@ Bool BuildManager::_finalizeExecutionEntry(TiObject *self, BuildSession *buildSe
 }
 
 
-Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element, BuildSession *buildSession)
+Bool BuildManager::_addElementToBuild(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession)
 {
   PREPARE_SELF(buildMgr, BuildManager);
 
@@ -236,7 +259,7 @@ Bool BuildManager::_addElementToBuild(TiObject *self, TiObject *element, BuildSe
 }
 
 
-Bool BuildManager::_addElementToExecutionEntry(TiObject *self, TiObject *element, BuildSession *buildSession)
+Bool BuildManager::_addElementToExecutionEntry(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession)
 {
   PREPARE_SELF(buildMgr, BuildManager);
   auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
@@ -256,57 +279,87 @@ Bool BuildManager::_addElementToExecutionEntry(TiObject *self, TiObject *element
 }
 
 
-Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
+Bool BuildManager::executeGlobalConstructors(BuildSession *buildSession)
 {
-  PREPARE_SELF(buildMgr, BuildManager);
+  auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
+  auto thisMinSeverity = this->rootManager->getNoticeStore()->getMinEncounteredSeverity();
 
-  auto minSeverity = buildMgr->rootManager->getMinNoticeSeverityEncountered();
-  auto thisMinSeverity = buildMgr->rootManager->getNoticeStore()->getMinEncounteredSeverity();
+  if ((minSeverity != -1 && minSeverity <= 1) || (thisMinSeverity != -1 && thisMinSeverity <= 1)) return false;
 
   // Get the session in which global constructors were generated, if different from the given session.
   // Refer to BuildSession::globalCtorSession for more info about this.
   auto ctorBuildSession = buildSession->getGlobalCtorSession();
   if (ctorBuildSession == 0) ctorBuildSession = buildSession;
 
-  if ((minSeverity == -1 || minSeverity > 1) && (thisMinSeverity == -1 || thisMinSeverity > 1)) {
-    // Execute constructors.
-    if (ctorBuildSession->getBuildType() == BuildType::JIT) {
-      for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
-        ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
-          buildSession->getGlobalCtors()->at(index).name
-        );
-      }
-      buildSession->getGlobalCtors()->clear();
-    } else if (ctorBuildSession->getBuildType() == BuildType::PREPROCESS) {
-      for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
-        ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
-          buildSession->getGlobalCtors()->at(index).name
-        );
-      }
-      buildSession->getGlobalCtors()->clear();
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
-    }
-    // Execute the main function.
-    if (buildSession->getBuildType() == BuildType::JIT) {
-      buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
-        buildSession->getExecutionEntryName()
+  if (ctorBuildSession->getBuildType() == BuildType::JIT) {
+    for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
+      ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
+        buildSession->getGlobalCtors()->at(index).name
       );
-    } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
-      buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
-        buildSession->getExecutionEntryName()
-      );
-    } else {
-      throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
     }
-    return true;
+    buildSession->getGlobalCtors()->clear();
+  } else if (ctorBuildSession->getBuildType() == BuildType::PREPROCESS) {
+    for (Int index = 0; index < buildSession->getGlobalCtors()->getLength(); ++index) {
+      ctorBuildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
+        buildSession->getGlobalCtors()->at(index).name
+      );
+    }
+    buildSession->getGlobalCtors()->clear();
   } else {
-    return false;
+    throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
+  }
+
+  return true;
+}
+
+
+Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
+{
+  PREPARE_SELF(buildMgr, BuildManager);
+
+  if (!buildMgr->executeGlobalConstructors(buildSession)) return false;
+
+  // Execute the main function.
+  if (buildSession->getBuildType() == BuildType::JIT) {
+    buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->execute(
+      buildSession->getExecutionEntryName()
+    );
+  } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
+    buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->execute(
+      buildSession->getExecutionEntryName()
+    );
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
+  }
+  return true;
+}
+
+
+void* BuildManager::_prepareToExecuteFunction(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession)
+{
+  PREPARE_SELF(buildMgr, BuildManager);
+
+  if (!buildMgr->executeGlobalConstructors(buildSession)) return 0;
+
+  auto func = ti_cast<Ast::Function>(element);
+  if (func == 0) {
+    throw EXCEPTION(InvalidArgumentException, S("element"), S("Invalid element type."));
+  }
+  Str const &name = buildMgr->astHelper->getFunctionName(func);
+
+  if (buildSession->getBuildType() == BuildType::JIT) {
+    return buildSession->getBuildTarget().s_cast<LlvmCodeGen::JitBuildTarget>()->getFunctionPointer(name.getBuf());
+  } else if (buildSession->getBuildType() == BuildType::PREPROCESS) {
+    return buildSession->getBuildTarget().s_cast<LlvmCodeGen::LazyJitBuildTarget>()->getFunctionPointer(
+      name.getBuf()
+    );
+  } else {
+    throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
   }
 }
 
 
-void BuildManager::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
+void BuildManager::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element)
 {
   VALIDATE_NOT_NULL(element);
   PREPARE_SELF(buildMgr, BuildManager);
@@ -344,13 +397,17 @@ void BuildManager::_dumpLlvmIrForElement(TiObject *self, TiObject *element)
 
 
 Bool BuildManager::_buildObjectFileForElement(
-  TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
+  TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple,
+  Bool optimize
 ) {
   VALIDATE_NOT_NULL(element);
   PREPARE_SELF(buildMgr, BuildManager);
 
   SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(BuildManager::BuildType::OFFLINE, targetTriple);
   Bool result = true;
+  buildSession->getBuildTarget().s_cast<LlvmCodeGen::OfflineBuildTarget>()->setOptimize(
+    buildMgr->getOptimizeOverride(optimize)
+  );
   if (element->isDerivedFrom<Ast::Module>()) {
     buildMgr->prepareExecutionEntry(buildSession.get());
     if (!buildMgr->addElementToExecutionEntry(element, buildSession.get())) result = false;
@@ -386,51 +443,49 @@ void BuildManager::_resetBuild(TiObject *self, BuildSession *buildSession)
 }
 
 
-void BuildManager::_resetBuildData(TiObject *self, TiObject *obj, CodeGen::ExtraDataAccessor *eda)
+void BuildManager::_resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGen::CustomDataAccessor *cda)
 {
-  if (obj == 0) return;
-  if (obj->isDerivedFrom<Core::Data::Grammar::Module>()) return;
+  if (node == 0) return;
 
   PREPARE_SELF(buildMgr, BuildManager);
 
-  auto metahaving = ti_cast<Core::Data::Ast::MetaHaving>(obj);
-  if (metahaving != 0) {
-    eda->removeCodeGenData(metahaving);
-    eda->removeAutoCtor(metahaving);
-    eda->removeAutoCtorType(metahaving);
-    eda->removeAutoDtor(metahaving);
-    eda->removeAutoDtorType(metahaving);
-    eda->resetCodeGenFailed(metahaving);
-    eda->resetInitStatementsGenIndex(metahaving);
-  }
+  cda->removeCodeGenData(node);
+  cda->removeAutoCtor(node);
+  cda->removeAutoCtorType(node);
+  cda->removeAutoDtor(node);
+  cda->removeAutoDtorType(node);
+  cda->resetCodeGenFailed(node);
+  cda->resetInitStatementsGenIndex(node);
 
-  if (obj->isDerivedFrom<Core::Data::Ast::Passage>()) return;
+  if (node->isDerivedFrom<Core::Ast::Passage>()) return;
 
-  auto container = ti_cast<Core::Basic::Containing<TiObject>>(obj);
+  auto container = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(node);
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
-      buildMgr->resetBuildData(container->getElement(i), eda);
+      buildMgr->resetBuildData(container->getElement(i), cda);
     }
   }
 
-  auto binding = ti_cast<Core::Basic::Binding>(obj);
+  auto binding = ti_cast<Core::Basic::Binding>(node);
   if (binding != 0) {
     for (Int i = 0; i < binding->getMemberCount(); ++i) {
-      buildMgr->resetBuildData(binding->getMember(i), eda);
+      auto member = ti_cast<Core::Ast::Node>(binding->getMember(i));
+      if (member != 0) buildMgr->resetBuildData(member, cda);
     }
   }
 
-  auto tpl = ti_cast<Ast::Template>(obj);
+  auto tpl = ti_cast<Ast::Template>(node);
   if (tpl != 0) {
     for (Int i = 0; i < tpl->getInstanceCount(); ++i) {
-      buildMgr->resetBuildData(tpl->getInstance(i).get(), eda);
+      buildMgr->resetBuildData(tpl->getInstance(i).get(), cda);
     }
   }
 }
 
 
-Bool BuildManager::_computeResultType(TiObject *self, TiObject *astNode, TiObject *&result, Bool &resultIsValue)
-{
+Bool BuildManager::_computeResultType(
+  TiObject *self, Core::Ast::Node *astNode, Core::Ast::Node *&result, Bool &resultIsValue
+) {
   PREPARE_SELF(buildMgr, BuildManager);
 
   BuildSession buildSession(buildMgr->preprocessBuildSession->getBuildId(), buildMgr->preprocessBuildSession.get());
@@ -461,7 +516,6 @@ Bool BuildManager::_computeResultType(TiObject *self, TiObject *astNode, TiObjec
 
 //==============================================================================
 // Helper Functions
-
 
 Array<Str> BuildManager::getGlobalCtorNames(BuildSession *buildSession)
 {

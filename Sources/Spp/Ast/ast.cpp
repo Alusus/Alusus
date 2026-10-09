@@ -1,7 +1,7 @@
 /**
  * @file Spp/Ast/ast.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -14,35 +14,17 @@
 namespace Spp::Ast
 {
 
-Char const* findOperationModifier(Core::Data::Ast::Definition const *def)
+Char const* findOperationModifier(Core::Ast::Definition const *def)
 {
-  auto modifiers = def->getModifiers().get();
-  if (modifiers != 0) {
-    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-      auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(modifiers->getElement(i));
-      if (paramPass != 0) {
-        auto identifier = paramPass->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
-        if (identifier != 0 && identifier->getValue() == S("operation")) {
-          auto stringLiteral = paramPass->getParam().ti_cast_get<Core::Data::Ast::StringLiteral>();
-          if (stringLiteral != 0) return stringLiteral->getValue().get();
-        }
-      }
-    }
-  }
+  auto stringLiteral = def->getMetadata(S("operation")).ti_cast_get<Core::Ast::StringLiteral>();
+  if (stringLiteral != 0) return stringLiteral->getValue().get();
   return 0;
 }
 
 
-Bool isInjection(Core::Data::Ast::Definition *def)
+Bool isInjection(Core::Ast::Definition *def)
 {
-  auto modifiers = def->getModifiers().get();
-  if (modifiers != 0) {
-    for (Int i = 0; i < modifiers->getElementCount(); ++i) {
-      auto identifier = ti_cast<Core::Data::Ast::Identifier>(modifiers->getElement(i));
-      if (identifier != 0 && identifier->getValue() == S("injection")) return true;
-    }
-  }
-  return false;
+  return def->getMetadata(S("injection")) != 0;
 }
 
 

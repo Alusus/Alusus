@@ -2,7 +2,7 @@
  * @file Spp/Ast/IfStatement.h
  * Contains the header of class Spp::Ast::IfStatement.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,17 +16,15 @@
 namespace Spp::Ast
 {
 
-class IfStatement : public Core::Data::Node,
-                    public Binding, public MapContaining<TiObject>,
-                    public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class IfStatement : public Core::Ast::Node,
+                    public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(IfStatement, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(IfStatement, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(IfStatement);
 
@@ -34,28 +32,19 @@ class IfStatement : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr condition;
-  private: TioSharedPtr ifBody;
-  private: TioSharedPtr elseBody;
+  private: SharedPtr<Core::Ast::Node> condition;
+  private: SharedPtr<Core::Ast::Node> ifBody;
+  private: SharedPtr<Core::Ast::Node> elseBody;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(IfStatement);
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
+    (condition, Core::Ast::Node, SHARED_REF, setCondition(value), condition.get()),
+    (ifBody, Core::Ast::Node, SHARED_REF, setIfBody(value), ifBody.get()),
+    (elseBody, Core::Ast::Node, SHARED_REF, setElseBody(value), elseBody.get())
   );
-
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (condition, TiObject, SHARED_REF, setCondition(value), condition.get()),
-    (ifBody, TiObject, SHARED_REF, setIfBody(value), ifBody.get()),
-    (elseBody, TiObject, SHARED_REF, setElseBody(value), elseBody.get())
-  );
-
-  IMPLEMENT_AST_MAP_PRINTABLE(IfStatement);
 
 
   //============================================================================
@@ -78,44 +67,44 @@ class IfStatement : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setCondition(TioSharedPtr const &cond)
+  public: void setCondition(SharedPtr<Core::Ast::Node> const &cond)
   {
     UPDATE_OWNED_SHAREDPTR(this->condition, cond);
   }
-  private: void setCondition(TiObject *cond)
+  private: void setCondition(Core::Ast::Node *cond)
   {
     this->setCondition(getSharedPtr(cond));
   }
 
-  public: TioSharedPtr const& getCondition() const
+  public: SharedPtr<Core::Ast::Node> const& getCondition() const
   {
     return this->condition;
   }
 
-  public: void setIfBody(TioSharedPtr const &body)
+  public: void setIfBody(SharedPtr<Core::Ast::Node> const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->ifBody, body);
   }
-  private: void setIfBody(TiObject *body)
+  private: void setIfBody(Core::Ast::Node *body)
   {
     this->setIfBody(getSharedPtr(body));
   }
 
-  public: TioSharedPtr const& getIfBody() const
+  public: SharedPtr<Core::Ast::Node> const& getIfBody() const
   {
     return this->ifBody;
   }
 
-  public: void setElseBody(TioSharedPtr const &body)
+  public: void setElseBody(SharedPtr<Core::Ast::Node> const &body)
   {
     UPDATE_OWNED_SHAREDPTR(this->elseBody, body);
   }
-  private: void setElseBody(TiObject *body)
+  private: void setElseBody(Core::Ast::Node *body)
   {
     this->setElseBody(getSharedPtr(body));
   }
 
-  public: TioSharedPtr const& getElseBody() const
+  public: SharedPtr<Core::Ast::Node> const& getElseBody() const
   {
     return this->elseBody;
   }

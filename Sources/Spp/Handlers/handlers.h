@@ -3,7 +3,7 @@
  * Contains the definitions and include statements of all types in the
  * Spp::Handlers namespace.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -27,18 +27,16 @@ namespace Spp::Handlers
 Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::Store *noticeStore);
 
 /// @ingroup spp_handlers
-Bool parseNumber(
-  TiObject *ast, TiWord &result, Core::Data::Ast::MetaHaving *parentMetadata, Core::Notices::Store *noticeStore
-);
+Bool parseNumber(Core::Ast::Node *ast, TiWord &result, Core::Notices::Store *noticeStore);
 
 /// @ingroup spp_handlers
 Bool parseTemplateArgs(
-  Processing::ParserState *state, Core::Data::Ast::Bracket *bracket, SharedPtr<Core::Data::Ast::List> &result
+  Processing::ParserState *state, Core::Ast::Bracket *bracket, SharedPtr<Core::Ast::List> &result
 );
 
 /// @ingroup spp_handlers
 Bool parseTemplateArg(
-  Core::Processing::ParserState *state, TiObject *astNode, SharedPtr<Core::Data::Ast::List> const &result
+  Core::Processing::ParserState *state, Core::Ast::Node *astNode, SharedPtr<Core::Ast::List> const &result
 );
 
 } // namespace

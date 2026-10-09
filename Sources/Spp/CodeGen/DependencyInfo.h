@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/DependencyInfo.h
  * Contains the header of class Spp::CodeGen::DependencyInfo.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,8 +18,8 @@ namespace Spp::CodeGen
 
 struct DependencyInfo
 {
-  public: DependencyList<Core::Data::Node> globalVarInitializationDeps;
-  public: DependencyList<Core::Data::Node> globalVarDestructionDeps;
+  public: DependencyList<Core::Ast::Node> globalVarInitializationDeps;
+  public: DependencyList<Core::Ast::Node> globalVarDestructionDeps;
   public: DependencyList<Ast::Function> funcDeps;
 };
 

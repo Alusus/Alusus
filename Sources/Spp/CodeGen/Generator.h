@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.h
  * Contains the header of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -110,7 +110,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
     return this->rootManager;
   }
 
-  public: Core::Data::Seeker* getSeeker() const
+  public: Core::Ast::Seeker* getSeeker() const
   {
     return this->rootManager->getSeeker();
   }
@@ -160,7 +160,7 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   /// @name Code Generation Functions
   /// @{
 
-  private: static Bool _generateModules(TiObject *self, Core::Data::Ast::Scope *root, Session *session);
+  private: static Bool _generateModules(TiObject *self, Core::Ast::Scope *root, Session *session);
 
   private: static Bool _generateModule(TiObject *self, Spp::Ast::Module *astModule, Session *session);
 
@@ -181,34 +181,34 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   private: static Bool _generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astType, Session *session);
 
   private: static Bool _generateVarDef(
-    TiObject *self, Core::Data::Ast::Definition *definition, Session *session
+    TiObject *self, Core::Ast::Definition *definition, Session *session
   );
 
   private: static Bool _generateTempVar(
-    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize,
+    TiObject *self, Core::Ast::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize,
     TioSharedPtr &tgVar
   );
 
   private: static Bool _generateVarInitialization(
-    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode,
-    PlainList<TiObject>* paramsAstNode, PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
-    Session *session
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Ast::Node *astNode,
+    PlainList<Core::Ast::Node>* paramsAstNode, PlainList<Core::Ast::Node> *paramAstTypes,
+    SharedList<TiObject> *paramTgValues, Session *session
   );
 
   private: static Bool _generateMemberVarInitialization(
-    TiObject *self, TiObject *astMemberNode, Session *session
+    TiObject *self, Core::Ast::Node *astMemberNode, Session *session
   );
 
   private: static Bool _generateVarDestruction(
-    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, Session *session
+    TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Ast::Node *astNode, Session *session
   );
 
   private: static Bool _generateMemberVarDestruction(
-    TiObject *self, TiObject *astMemberNode, Session *session
+    TiObject *self, Core::Ast::Node *astMemberNode, Session *session
   );
 
   private: static void _registerDestructor(
-    TiObject *self, Core::Data::Node *varAstNode, Ast::Type *astType, TioSharedPtr tgVar,
+    TiObject *self, Core::Ast::Node *varAstNode, Ast::Type *astType, TioSharedPtr tgVar,
     DestructionStack *destructionStack
   );
 
@@ -217,31 +217,31 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   );
 
   private: static Bool _generateStatementBlock(
-    TiObject *self, TiObject *astBlock, Session *session,
+    TiObject *self, Core::Ast::Node *astBlock, Session *session,
     TerminalStatement &terminal
   );
 
   private: static Bool _generateStatement(
-    TiObject *self, TiObject *astNode, Session *session, TerminalStatement &terminal
+    TiObject *self, Core::Ast::Node *astNode, Session *session, TerminalStatement &terminal
   );
 
   private: static Bool _generateExpression(
-    TiObject *self, TiObject *astNode, Session *session, GenResult &result, TerminalStatement &terminal
+    TiObject *self, Core::Ast::Node *astNode, Session *session, GenResult &result, TerminalStatement &terminal
   );
 
   private: static Bool _generateCast(
     TiObject *self, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
-    Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &castedResult
+    Core::Ast::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &castedResult
   );
 
   private: static Bool _generateFunctionCall(
-    TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
-    Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
+    TiObject *self, Core::Ast::Node *astNode, Spp::Ast::Function *callee,
+    Containing<Core::Ast::Node> *paramAstTypes, Containing<TiObject> *paramTgValues,
     Session *session, GenResult &result
   );
 
   private: static Bool _getGeneratedType(
-    TiObject *self, TiObject *ref, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+    TiObject *self, Core::Ast::Node *ref, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
   );
 
   private: static Bool _getTypeAllocationSize(
@@ -256,10 +256,10 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
   private: static Bool _buildDependencies(TiObject *self, Session *session);
 
   private: Bool buildGlobalCtorOrDtor(
-    Session *session, DependencyList<Core::Data::Node> *deps, Char const *funcName, Bool dtor,
+    Session *session, DependencyList<Core::Ast::Node> *deps, Char const *funcName, Bool dtor,
     std::function<Bool(
-      Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, TiObject *astParams,
-      Session *session
+      Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Ast::Node *astNode,
+      Core::Ast::Node *astParams, Session *session
     )> varOpCallback
   );
 
@@ -270,11 +270,11 @@ class Generator : public TiObject, public DynamicBinding, public DynamicInterfac
 
   private: Str getTempVarName();
 
-  private: void setGlobalVarState(Session *session, Core::Data::Node* astVar, Int state);
+  private: void setGlobalVarState(Session *session, Core::Ast::Node* astVar, Int state);
 
-  private: Int getGlobalVarState(Session *session, Core::Data::Node* astVar);
+  private: Int getGlobalVarState(Session *session, Core::Ast::Node* astVar);
 
-  private: Str getGlobalVarMangledName(Core::Data::Node *astVar);
+  private: Str getGlobalVarMangledName(Core::Ast::Node *astVar);
 
   /// @}
 

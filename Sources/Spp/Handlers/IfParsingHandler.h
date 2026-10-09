@@ -2,7 +2,7 @@
  * @file Spp/Handlers/IfParsingHandler.h
  * Contains the header of class Spp::Handlers::IfParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,20 +40,18 @@ class IfParsingHandler : public Core::Processing::Handlers::GenericParsingHandle
   {
     GenericParsingHandler::onProdEnd(parser, state);
 
-    auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
+    auto expr = state->getData().ti_cast_get<Core::Ast::List>();
     ASSERT(expr != 0);
-    auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
-    ASSERT(exprMetadata != 0);
 
     if (expr->getCount() != 3 && expr->getCount() != 5) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidIfStatementNotice>(exprMetadata->findSourceLocation()));
-      state->setData(SharedPtr<TiObject>(0));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidIfStatementNotice>(expr->findSourceLocation()));
+      state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
 
     auto newObj = newSrdObj<Spp::Ast::IfStatement>();
-    newObj->setSourceLocation(exprMetadata->findSourceLocation());
-    newObj->setProdId(exprMetadata->getProdId());
+    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setProdId(expr->getProdId());
     newObj->setCondition(expr->get(1));
     newObj->setIfBody(expr->get(2));
     if (expr->getCount() == 5) newObj->setElseBody(expr->get(4));

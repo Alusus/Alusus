@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/LazyJitBuildTarget.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::LazyJitBuildTarget.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -68,13 +68,18 @@ void LazyJitBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
 
 void LazyJitBuildTarget::execute(Char const *entry)
 {
+  typedef void (*FuncType)();
+  auto funcPtr = (FuncType)this->getFunctionPointer(entry);
+  funcPtr();
+}
+
+
+void* LazyJitBuildTarget::getFunctionPointer(Char const *entry)
+{
   if (this->llvmModule != 0) this->addLlvmModule(std::move(this->llvmModule));
 
-  typedef void (*FuncType)();
   auto llvmEntry = llvm::cantFail(this->llvmJitEngine->lookup(entry));
-  auto funcPtr = (FuncType)llvmEntry.getAddress();
-
-  funcPtr();
+  return (void*)llvmEntry.getAddress();
 }
 
 } // namespace

@@ -2,7 +2,7 @@
  * @file Core/Processing/InputBuffer.h
  * Contains the header of class Core::Processing::InputBuffer.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -41,7 +41,7 @@ class InputBuffer
   private: struct CharacterGroup
   {
     /// The location of the first character in the group.
-    Data::SourceLocationRecord sourceLocation;
+    Ast::SourceLocationRecord sourceLocation;
 
     /// The number of characters in the group.
     Int length;
@@ -92,7 +92,7 @@ class InputBuffer
   /// @{
 
   /// Push a new character to the end of the buffer.
-  public: Bool push(WChar ch, Data::SourceLocationRecord const &sl, Bool force=false);
+  public: Bool push(WChar ch, Ast::SourceLocationRecord const &sl, Bool force=false);
 
   /// Remove a group of characters from the beginning of the buffer.
   public: void remove(Int count);
@@ -121,9 +121,9 @@ class InputBuffer
   }
 
   /// Get the source location of the first character in the buffer.
-  public: Data::SourceLocationRecord const& getSourceLocation() const
+  public: Ast::SourceLocationRecord const& getSourceLocation() const
   {
-    static Data::SourceLocationRecord nullSL;
+    static Ast::SourceLocationRecord nullSL;
     if (this->charGroups.size() == 0) return nullSL;
     else return this->charGroups.at(0).sourceLocation;
   }

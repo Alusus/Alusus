@@ -1,4 +1,4 @@
-import "Core/Data";
+import "Core/Ast";
 import "Spp";
 import "Srl/Console";
 import "Srl/String";
@@ -35,21 +35,21 @@ def someNum: 12;
 
 func testAstInsertion {
     preprocess {
-        def m: Map[String, ref[Core.Basic.TiObject]];
+        def m: Map[String, ref[Core.Ast.Node]];
         m.set(String("name"), varName~ast);
         Spp.astMgr.insertAst(defstmt~ast, m);
-        Spp.astMgr.insertAst(printstmt~ast, Map[String, ref[Core.Basic.TiObject]]());
+        Spp.astMgr.insertAst(printstmt~ast, Map[String, ref[Core.Ast.Node]]());
 
         Spp.astMgr.insertAst(
             ast { def name: Float[64](sompreprocess) },
-            Map[String, ref[Core.Basic.TiObject]]()
-                .set(String("name"), Core.Basic.TiStr("y"))
-                .set(String("sompreprocess"), Core.Data.Ast.FloatLiteral("6"))
+            Map[String, ref[Core.Ast.Node]]()
+                .set(String("name"), Core.Ast.StringLiteral("y"))
+                .set(String("sompreprocess"), Core.Ast.FloatLiteral("6"))
         );
     }
     x = 7;
     Console.print("x = %d\n", x);
-    x = preprocess { Spp.astMgr.insertAst(someNum~ast, Map[String, ref[Core.Basic.TiObject]]()) };
+    x = preprocess { Spp.astMgr.insertAst(someNum~ast, Map[String, ref[Core.Ast.Node]]()) };
     Console.print("x = %d\n", x);
 
     Console.print("y = %f\n", y);

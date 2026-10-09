@@ -2,7 +2,7 @@
  * @file Spp/ExpressionComputation.h
  * Contains the header of class Spp::ExpressionComputation.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -63,7 +63,7 @@ class ExpressionComputation : public ObjTiInterface
   /// @{
 
   public: METHOD_BINDING_CACHE(computeResultType,
-    Bool, (TiObject* /* astNode */, TiObject*& /* result */, Bool& /* resultIsValue */)
+    Bool, (Core::Ast::Node* /* astNode */, Core::Ast::Node*& /* result */, Bool& /* resultIsValue */)
   );
 
   /// @}

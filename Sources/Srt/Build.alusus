@@ -11,6 +11,7 @@
 
 import "Core";
 import "Spp";
+import "Core/Ast";
 import "Srl/Console";
 import "Srl/String";
 import "Srl/System";
@@ -37,16 +38,24 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         return result != 0;
     }
 
+    // Handler for the `deps` modifier. The modifier is removed once handled, so the dependencies are kept as
+    // metadata on the modified definition for Unit.addDependency to read later.
+    func deps (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+        if params~ptr == 0 return;
+        node.setMetadata("deps", castSrdRef[params.wkThis, Core.Ast.Node]);
+    }
+
     class Unit {
-        def element: ref[TiObject];
+        def element: ref[Core.Ast.Node](nullRef[Core.Ast.Node]);
         def outputFilename: String;
         def outputPath: String;
         def deps: Array[String];
         def flags: Array[String];
+        def optimize: Bool(false);
 
         handler this~init() {}
 
-        handler this~init(e: ref[TiObject], fn: CharsPtr) {
+        handler this~init(e: ref[Core.Ast.Node], fn: CharsPtr) {
             this.element~no_deref = e;
             this.addDependency(e);
             this.outputFilename = fn;
@@ -70,17 +79,12 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             while count-- > 0 this.deps.add(args~next_arg[String]);
         }
 
-        handler this.addDependency (e: ref[TiObject]) => Bool {
-            if !this.addDependenciesFromModifier(e, "deps") return false;
-            if !this.addDependenciesFromModifier(e, "اعتماديات") return false;
-            return true;
-        }
-
-        handler this.addDependenciesFromModifier (e: ref[TiObject], modifierKwd: CharsPtr) => Bool {
-            def modifier: ref[TiObject](Spp.astMgr.findModifierForElement(e, modifierKwd));
-            if modifier~ptr != 0 {
+        handler this.addDependency (e: ref[Core.Ast.Node]) => Bool {
+            // The deps modifier handler stores the dependencies as metadata on the modified definition.
+            def metadata: ref[Core.Ast.Node](e.owner.getMetadata("deps"));
+            if metadata~ptr != 0 {
                 def deps: Array[String];
-                if !Spp.astMgr.getModifierStringParams(modifier, deps) return false;
+                if !Spp.astMgr.getStringsFromStringParams(metadata, deps) return false;
                 def i: ArchInt;
                 for i = 0, i < deps.getLength(), ++i this.addDependency(deps(i));
             }
@@ -101,7 +105,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         def targetTriple: CharsPtr(0);
         def linkerFilename: CharsPtr(0);
 
-        handler this~init(e: ref[TiObject], fn: CharsPtr) {
+        handler this~init(e: ref[Core.Ast.Node], fn: CharsPtr) {
             this.unit~init(e, fn);
         }
 
@@ -130,7 +134,9 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.generate () => Bool {
             if this.outputPath != "./" System.exec(String.format("mkdir -p \"%s\"", this.outputPath.buf));
-            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", this.targetTriple) {
+            if !Spp.buildMgr.buildObjectFileForElement(
+                this.element, "/tmp/output.o", this.targetTriple, this.optimize
+            ) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
@@ -173,7 +179,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     class Wasm {
         @injection def unit: Unit;
 
-        handler this~init(e: ref[TiObject], fn: CharsPtr) {
+        handler this~init(e: ref[Core.Ast.Node], fn: CharsPtr) {
             this.unit~init(e, fn);
         }
 
@@ -189,7 +195,9 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.generate () => Bool {
             if this.outputPath != "./" System.exec(String.format("mkdir -p \"%s\"", this.outputPath.buf));
-            if !Spp.buildMgr.buildObjectFileForElement(this.element, "/tmp/output.o", "wasm32-unknown-unknown") {
+            if !Spp.buildMgr.buildObjectFileForElement(
+                this.element, "/tmp/output.o", "wasm32-unknown-unknown", this.optimize
+            ) {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
@@ -206,13 +214,13 @@ if Srl.String.compare(Process.language, "ar") == 0 {
         }
     }
 
-    function genExecutable (element: ref[TiObject], outputFilename: CharsPtr) => Bool
+    function genExecutable (element: ref[Core.Ast.Node], outputFilename: CharsPtr) => Bool
     {
         def exe: Exe(element, outputFilename);
         return exe.generate();
     }
 
-    function genWasm (element: ref[TiObject], outputFilename: CharsPtr) => Bool
+    function genWasm (element: ref[Core.Ast.Node], outputFilename: CharsPtr) => Bool
     {
         def wasm: Wasm(element, outputFilename);
         return wasm.generate();

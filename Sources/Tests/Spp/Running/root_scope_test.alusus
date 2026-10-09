@@ -3,6 +3,9 @@ module Core {
     module Basic {
         class TiObject {}
     }
+    module Ast {
+        class Node {}
+    }
 }
 module Spp {
     class BuildMgr {

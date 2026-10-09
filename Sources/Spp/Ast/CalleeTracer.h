@@ -2,7 +2,7 @@
  * @file Spp/Ast/CalleeTracer.h
  * Contains the header of class Spp::Ast::CalleeTracer.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -78,7 +78,7 @@ class CalleeTracer : public TiObject, public DynamicBinding, public DynamicInter
     return this->helper;
   }
 
-  public: Core::Data::Seeker* getSeeker() const
+  public: Core::Ast::Seeker* getSeeker() const
   {
     return this->helper->getSeeker();
   }

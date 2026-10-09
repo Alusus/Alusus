@@ -2,7 +2,7 @@
  * @file Core/Basic/TiWStr.h
  * Contains the header of class Core::Basic::TiWStr.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,7 +25,7 @@ template <class P> class TiWStrBase : public P
   //============================================================================
   // Type Info
 
-  TEMPLATE_TYPE_INFO(TiWStrBase, P, "Core.Data", "Core", "alusus.org", (P));
+  TEMPLATE_TYPE_INFO(TiWStrBase, P, "Core.Basic", "Core", "alusus.org", (P));
   OBJECT_FACTORY(TiWStrBase<P>);
 
 

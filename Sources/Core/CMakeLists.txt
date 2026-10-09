@@ -23,7 +23,7 @@ add_library(AlususStorage SHARED ${AlususStorage_Source_Files})
 set_target_properties(AlususStorage PROPERTIES COMPILE_FLAGS "${FPIC} ${AlususCore_COMPILE_FLAGS}")
 
 # Add a target for Alusus core library.
-set(AlususCoreLib_Source_Subdirs Basic Data Data/Grammar Data/Ast Notices Processing Processing/Handlers Main)
+set(AlususCoreLib_Source_Subdirs Basic Grammar Ast Notices Processing Processing/Handlers Main)
 set(AlususCoreLib_Source_Files core.h)
 foreach (DIR ${AlususCoreLib_Source_Subdirs})
   file(GLOB headers ${DIR}/*.h)

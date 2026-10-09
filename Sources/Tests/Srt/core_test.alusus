@@ -1,5 +1,5 @@
 import "Srl/Console";
-import "Core/Data";
+import "Core/Ast";
 
 use Srl;
 
@@ -34,20 +34,20 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
             Console.print("TiBool false\n");
         }
         return;
-    } else if isDerivedFrom[obj, Core.Data.Ast.Identifier] {
-        Console.print("Identifier %s\n", castRef[obj, Core.Data.Ast.Identifier].value.value.buf);
+    } else if isDerivedFrom[obj, Core.Ast.Identifier] {
+        Console.print("Identifier %s\n", castRef[obj, Core.Ast.Identifier].value.value.buf);
         return;
-    } else if isDerivedFrom[obj, Core.Data.Ast.StringLiteral] {
-        Console.print("StringLiteral %s\n", castRef[obj, Core.Data.Ast.StringLiteral].value.value.buf);
+    } else if isDerivedFrom[obj, Core.Ast.StringLiteral] {
+        Console.print("StringLiteral %s\n", castRef[obj, Core.Ast.StringLiteral].value.value.buf);
         return;
-    } else if isDerivedFrom[obj, Core.Data.Ast.IntegerLiteral] {
-        Console.print("IntegerLiteral %s\n", castRef[obj, Core.Data.Ast.IntegerLiteral].value.value.buf);
+    } else if isDerivedFrom[obj, Core.Ast.IntegerLiteral] {
+        Console.print("IntegerLiteral %s\n", castRef[obj, Core.Ast.IntegerLiteral].value.value.buf);
         return;
-    } else if isDerivedFrom[obj, Core.Data.Ast.CharLiteral] {
-        Console.print("CharLiteral %s\n", castRef[obj, Core.Data.Ast.CharLiteral].value.value.buf);
+    } else if isDerivedFrom[obj, Core.Ast.CharLiteral] {
+        Console.print("CharLiteral %s\n", castRef[obj, Core.Ast.CharLiteral].value.value.buf);
         return;
-    } else if isDerivedFrom[obj, Core.Data.Ast.FloatLiteral] {
-        Console.print("FloatLiteral %s\n", castRef[obj, Core.Data.Ast.FloatLiteral].value.value.buf);
+    } else if isDerivedFrom[obj, Core.Ast.FloatLiteral] {
+        Console.print("FloatLiteral %s\n", castRef[obj, Core.Ast.FloatLiteral].value.value.buf);
         return;
     }
 
@@ -68,7 +68,7 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     }
 
     // Print map elements
-    def mapContaining: ref[Core.Basic.MapContaining](Core.Basic.getInterface[obj, Core.Basic.MapContaining]);
+    def mapContaining: ref[Core.Basic.MapContaining[Core.Ast.Node]](Core.Basic.getInterface[obj, Core.Basic.MapContaining[Core.Ast.Node]]);
     if mapContaining~ptr != 0 {
         printIndent(indent + 1);
         Console.print("map elements:\n");
@@ -80,7 +80,7 @@ func printAst (obj: ref[Core.Basic.TiObject], indent: Int) {
     }
 
     // Print map elements
-    def containing: ref[Core.Basic.Containing](Core.Basic.getInterface[obj, Core.Basic.Containing]);
+    def containing: ref[Core.Basic.Containing[Core.Ast.Node]](Core.Basic.getInterface[obj, Core.Basic.Containing[Core.Ast.Node]]);
     if mapContaining~ptr == 0 && containing~ptr != 0 {
         printIndent(indent + 1);
         Console.print("list elements:\n");

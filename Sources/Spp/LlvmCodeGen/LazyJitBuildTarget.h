@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/LazyJitBuildTarget.h
  * Contains the header of class Spp::LlvmCodeGen::LazyJitBuildTarget.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -76,6 +76,9 @@ class LazyJitBuildTarget : public BuildTarget
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module);
 
   public: void execute(Char const *entry);
+
+  /// Resolves the JIT address of the given (already built) symbol without calling it.
+  public: void* getFunctionPointer(Char const *entry);
 
 }; // class
 

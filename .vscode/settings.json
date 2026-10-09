@@ -91,5 +91,6 @@
   "cmake.configureOnOpen": false,
   "[alusus]": {
     "editor.tabSize": 4
-  }
+  },
+  "cmake.sourceDirectory": "/سرمد/مشاريع/لـغة_الأسس/الـأسس/Sources"
 }

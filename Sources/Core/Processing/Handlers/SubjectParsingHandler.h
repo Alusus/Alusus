@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/SubjectParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::SubjectParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -44,21 +44,21 @@ class SubjectParsingHandler : public GenericParsingHandler
   // Member Functions
 
   public: virtual void onAlternateRouteDecision(
-    Parser *parser, ParserState *state, Int route, Data::Token const *token)
+    Parser *parser, ParserState *state, Int route, Ast::Token const *token)
   {
     if (state->isAProdRoot(-1) && token->getId() == this->constTokenId) {
       if (token->getText() == S("(")) {
-        auto bracket = Data::Ast::Bracket::create({
-          { "sourceLocation", newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()) }
+        auto bracket = Ast::Bracket::create({
+          { "sourceLocation", Ast::cloneSourceLocation(token->getSourceLocation().get()) }
         });
-        bracket->setType(Data::Ast::BracketType::ROUND);
+        bracket->setType(Ast::BracketType::ROUND);
         state->setData(bracket);
         return;
       } else if (token->getText() == S("[")) {
-        auto bracket = Data::Ast::Bracket::create({
-          { "sourceLocation", newSrdObj<Data::SourceLocationRecord>(token->getSourceLocation()) }
+        auto bracket = Ast::Bracket::create({
+          { "sourceLocation", Ast::cloneSourceLocation(token->getSourceLocation().get()) }
         });
-        bracket->setType(Data::Ast::BracketType::SQUARE);
+        bracket->setType(Ast::BracketType::SQUARE);
         state->setData(bracket);
         return;
       }

@@ -2,7 +2,7 @@
  * @file Core/Notices/Store.cpp
  * Contains the implementation of class Core::Notices::Store.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ namespace Core::Notices
 
 void Store::add(SharedPtr<Notice> const &notice)
 {
-  notice->setSourceLocation(Core::Data::concatFlattenedSourceLocation(
+  notice->setSourceLocation(Core::Ast::concatFlattenedSourceLocation(
     notice->getSourceLocation().get(),
     this->prefixSourceLocationStack
   ));

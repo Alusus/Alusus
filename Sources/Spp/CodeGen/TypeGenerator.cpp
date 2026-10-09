@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/TypeGenerator.cpp
  * Contains the implementation of class Spp::CodeGen::TypeGenerator.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -69,7 +69,7 @@ void TypeGenerator::initBindings()
 // Main Operation Functions
 
 Bool TypeGenerator::getGeneratedType(
-  TiObject *ref, Generation *g, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+  Core::Ast::Node *ref, Generation *g, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
 ) {
   Spp::Ast::Type *astType;
   if (!this->_getGeneratedType(ref, g, session, astType)) return false;
@@ -95,21 +95,16 @@ Bool TypeGenerator::getGeneratedVoidType(
 }
 
 
-Bool TypeGenerator::_getGeneratedType(TiObject *ref, Generation *g, Session *session, Spp::Ast::Type *&type)
+Bool TypeGenerator::_getGeneratedType(Core::Ast::Node *ref, Generation *g, Session *session, Spp::Ast::Type *&type)
 {
-  auto metadata = ti_cast<Core::Data::Ast::MetaHaving>(ref);
-  if (metadata == 0) {
-    throw EXCEPTION(GenericException, S("Reference does not contain metadata."));
-  }
-
   Bool shouldPushSl = ref->isDerivedFrom<Spp::Ast::Type>() ? false : true;
 
   type = this->astHelper->traceType(ref);
   if (type == 0) return false;
 
-  Core::Data::SourceLocation *sourceLocation = 0;
-  if (shouldPushSl && metadata->findSourceLocation() != 0) {
-    sourceLocation = metadata->findSourceLocation().get();
+  Core::Ast::SourceLocation *sourceLocation = 0;
+  if (shouldPushSl && ref->findSourceLocation() != 0) {
+    sourceLocation = ref->findSourceLocation().get();
     this->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   }
   Bool result = this->generateType(type, g, session);
@@ -327,11 +322,11 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
 
   // Generate the structure.
   Bool result = true;
-  PlainList<TiObject> members;
+  PlainList<Core::Ast::Node> members;
   PlainMap<TiObject> tgMemberTypes;
   SharedList<TiObject> tgMembers;
   for (Int i = 0; i < body->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(body->getElement(i));
+    auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
       if (typeGenerator->astHelper->isInMemVariable(obj)) {
@@ -360,8 +355,8 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         }
       } else if (typeGenerator->astHelper->isValueOnlyVariable(obj)) {
         continue;
-      } else if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
-        if (!typeGenerator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) {
+      } else if (obj->isDerivedFrom<Core::Ast::Bridge>()) {
+        if (!typeGenerator->astHelper->validateUseStatement(static_cast<Core::Ast::Bridge*>(obj))) {
           result = false;
         }
         continue;
@@ -410,7 +405,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   if (existingBuildId != 0 && existingBuildId->get() != session->getBuildId()) {
     typeGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
-        Core::Data::Ast::findSourceLocation(astType)
+        Core::Ast::findSourceLocation(astType)
       )
     );
     return false;
@@ -468,7 +463,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
   Bool result = true;
   for (Int i = 0; i < body->getElementCount(); ++i) {
     auto obj = body->getElement(i);
-    auto def = ti_cast<Core::Data::Ast::Definition>(obj);
+    auto def = ti_cast<Core::Ast::Definition>(obj);
     if (def != 0) {
       auto target = def->getTarget().get();
       if (
@@ -522,7 +517,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
   if (existingBuildId != 0 && existingBuildId->get() != session->getBuildId()) {
     typeGenerator->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
-        Core::Data::Ast::findSourceLocation(astType)
+        Core::Ast::findSourceLocation(astType)
       )
     );
     return false;
@@ -575,7 +570,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
   Bool result = true;
   for (Int i = 0; i < body->getCount(); ++i) {
     auto obj = body->getElement(i);
-    auto def = ti_cast<Core::Data::Ast::Definition>(obj);
+    auto def = ti_cast<Core::Ast::Definition>(obj);
     if (def != 0) {
       auto target = def->getTarget().get();
       if (
@@ -663,7 +658,7 @@ Bool TypeGenerator::_generateFunctionType(
 
 Bool TypeGenerator::_generateCast(
   TiObject *self, Generation *g, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *targetType,
-  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &result
+  Core::Ast::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &result
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   Ast::Function *caster;
@@ -697,8 +692,8 @@ Bool TypeGenerator::_generateCast(
     // will store the value into a temp var and get a reference to that.
     TioSharedPtr tgTempVar;
     if (!g->generateTempVar(astNode, srcType, session, false, tgTempVar)) return false;
-    PlainList<TiObject> paramAstNodes({ astNode });
-    PlainList<TiObject> paramAstTypes({ srcType });
+    PlainList<Core::Ast::Node> paramAstNodes({ astNode });
+    PlainList<Core::Ast::Node> paramAstTypes({ srcType });
     SharedList<TiObject> paramTgValues({ getSharedPtr(tgValue) });
     TioSharedPtr tgRef;
     if (!session->getTg()->generateVarReference(
@@ -727,7 +722,7 @@ Bool TypeGenerator::_generateCast(
     // Call the caster.
     GenResult callResult;
     PlainList<TiObject> paramTgValues({ tgValue });
-    PlainList<TiObject> paramAstTypes({ srcType });
+    PlainList<Core::Ast::Node> paramAstTypes({ srcType });
     if (!g->generateFunctionCall(astNode, caster, &paramAstTypes, &paramTgValues, session, callResult)) return false;
     return typeGenerator->generateCast(
       g, session, callResult.astType, targetType, astNode, callResult.targetData.get(), implicit, result
@@ -953,7 +948,7 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
   SharedList<TiObject> memberVals;
   PlainMap<TiObject> memberTypes;
   for (Int i = 0; i < body->getElementCount(); ++i) {
-    auto def = ti_cast<Core::Data::Ast::Definition>(body->getElement(i));
+    auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
     if (def != 0) {
       auto obj = def->getTarget().get();
       if (typeGenerator->getAstHelper()->isInMemVariable(obj)) {

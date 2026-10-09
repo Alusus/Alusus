@@ -2,7 +2,7 @@
  * @file Core/Notices/Store.h
  * Contains the header of class Core::Notices::Store.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -25,7 +25,7 @@ class Store
 
   private: std::vector<SharedPtr<Notice>> notices;
 
-  private: Data::SourceLocationStack prefixSourceLocationStack;
+  private: Ast::SourceLocationStack prefixSourceLocationStack;
 
   /// A notice store from which this store branches.
   private: Store *trunkStore = 0;
@@ -148,12 +148,12 @@ class Store
     this->prefixSourceLocationStack.clear();
   }
 
-  public: Data::SourceLocationStack const& getPrefixSourceLocationStack() const
+  public: Ast::SourceLocationStack const& getPrefixSourceLocationStack() const
   {
     return this->prefixSourceLocationStack;
   }
 
-  public: void pushPrefixSourceLocation(Data::SourceLocation *sl)
+  public: void pushPrefixSourceLocation(Ast::SourceLocation *sl)
   {
     this->prefixSourceLocationStack.push(sl);
   }

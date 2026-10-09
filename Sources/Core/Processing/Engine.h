@@ -2,7 +2,7 @@
  * @file Core/Processing/Engine.h
  * Contains the header of class Core::Processing::Engine.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -48,9 +48,9 @@ class Engine : public TiObject
   {
   }
 
-  public: Engine(SharedPtr<Data::Ast::Scope> const &rootScope)
+  public: Engine(SharedPtr<Grammar::Module> const &grammarRoot, SharedPtr<Ast::Scope> const &rootScope)
   {
-    this->initialize(rootScope);
+    this->initialize(grammarRoot, rootScope);
   }
 
   public: virtual ~Engine()
@@ -61,16 +61,19 @@ class Engine : public TiObject
   //============================================================================
   // Member Functions
 
-  public: void initialize(SharedPtr<Data::Ast::Scope> const &rootScope);
+  public: void initialize(
+    SharedPtr<Grammar::Module> const &grammarRoot,
+    SharedPtr<Ast::Scope> const &rootScope
+  );
 
   /// Parse the given string and return any resulting parsing data.
-  public: SharedPtr<TiObject> processString(Char const *str, Char const *name);
+  public: SharedPtr<Ast::Node> processString(Char const *str, Char const *name);
 
   /// Parse the given file and return any resulting parsing data.
-  public: SharedPtr<TiObject> processFile(Char const *filename);
+  public: SharedPtr<Ast::Node> processFile(Char const *filename);
 
   /// Parse the given stream and return any resulting parsing data.
-  public: SharedPtr<TiObject> processStream(CharInStreaming *is, Char const *streamName);
+  public: SharedPtr<Ast::Node> processStream(CharInStreaming *is, Char const *streamName);
 
 }; // class
 

@@ -2,7 +2,7 @@
  * @file Core/Processing/Lexer.cpp
  * Contains the implementation of Processing::Lexer.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,7 +18,7 @@ namespace Core::Processing
 //==============================================================================
 // Member Functions
 
-void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
+void Lexer::initialize(SharedPtr<Grammar::Module> const &grammarRoot)
 {
   this->clear();
 
@@ -32,14 +32,14 @@ void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
   //}
 
   // Set the new repository.
-  this->grammarRoot = getSharedPtr(Data::Grammar::getGrammarRoot(rootScope.get()));
+  this->grammarRoot = grammarRoot;
   if (this->grammarRoot == 0) {
     throw EXCEPTION(InvalidArgumentException, S("rootScope"), S("Root scope does not contain a grammar."));
   }
 
   // Prepare the context.
   this->grammarContext.setRoot(this->grammarRoot.get());
-  Data::Grammar::LexerModule *lexerModule = this->grammarContext.getAssociatedLexerModule();
+  Grammar::LexerModule *lexerModule = this->grammarContext.getAssociatedLexerModule();
   if (lexerModule == 0) {
     throw EXCEPTION(GenericException, S("Couldn't find a lexer module in the given grammar repository."));
   }
@@ -61,7 +61,7 @@ void Lexer::initialize(SharedPtr<Data::Ast::Scope> rootScope)
  *                       This will be updated with the location immediately
  *                       following this character.
  */
-void Lexer::handleNewChar(Char inputChar, Data::SourceLocationRecord &sourceLocation)
+void Lexer::handleNewChar(Char inputChar, Ast::SourceLocationRecord &sourceLocation)
 {
   // Buffer the input sequence until it can be converted to wide characters.
   this->tempByteCharBuffer[this->tempByteCharCount] = inputChar;
@@ -91,7 +91,7 @@ void Lexer::handleNewChar(Char inputChar, Data::SourceLocationRecord &sourceLoca
  * @param sourceLocation The source location of the first character in the
  *                       string. This will be updated with the new location.
  */
-void Lexer::handleNewString(Char const *inputStr, Data::SourceLocationRecord &sourceLocation)
+void Lexer::handleNewString(Char const *inputStr, Ast::SourceLocationRecord &sourceLocation)
 {
   for (Int i = 0; i < static_cast<Int>(strlen(inputStr)); i++) {
     this->handleNewChar(inputStr[i], sourceLocation);
@@ -135,7 +135,7 @@ void Lexer::processBuffer()
  * @param sl The source location of the given character.
  * @return Returns true if the character was inserted, false otherwise.
  */
-Bool Lexer::pushChar(WChar ch, Data::SourceLocationRecord const &sl)
+Bool Lexer::pushChar(WChar ch, Ast::SourceLocationRecord const &sl)
 {
   // Is the input buffer full?
   if (this->inputBuffer.isFull()) {
@@ -252,19 +252,19 @@ Int Lexer::process()
         this->currentProcessingIndex >= this->inputBuffer.getCharCount()-1) {
       // Raise a warning.
       this->noticeSignal.emit(newSrdObj<Notices::BufferFullNotice>(
-        newSrdObj<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+        newSrdObj<Ast::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
       ));
       // Choose one of the closed states.
       Int i = this->selectBestToken();
-      Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i]->getTokenDefIndex());
+      Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i]->getTokenDefIndex());
       // Check if the chosen token is not an ignored token.
       TiInt *flags = this->grammarContext.getSymbolFlags(def);
-      if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::IGNORED_TOKEN)) {
+      if (!((flags == 0 ? 0 : flags->get()) & Grammar::SymbolFlags::IGNORED_TOKEN)) {
         // Has the token been clamped?
         if (this->currentTokenClamped) {
           // Raise a warning.
           this->noticeSignal.emit(newSrdObj<Notices::TokenClampedNotice>(
-            newSrdObj<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+            newSrdObj<Ast::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
           ));
           this->currentTokenClamped = false;
         }
@@ -273,8 +273,8 @@ Int Lexer::process()
         if (handler == 0) {
           this->lastToken.setId(def->getId());
           this->lastToken.setText(this->inputBuffer.getChars(), this->states[i]->getTokenLength());
-          this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
           this->lastToken.setAsKeyword(false);
+          assignTokenSourceLocationRecord(&this->lastToken, this->inputBuffer.getSourceLocation());
         } else {
           handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
                                 this->states[i]->getTokenLength(), this->inputBuffer.getSourceLocation());
@@ -318,7 +318,7 @@ Int Lexer::process()
       auto bestTokenDefIndex = this->states[bestToken]->getTokenDefIndex();
       auto def = this->getSymbolDefinition(bestTokenDefIndex);
       TiInt *flags = this->grammarContext.getSymbolFlags(def);
-      if (flags != 0 && flags->get() & Data::Grammar::SymbolFlags::PREFER_SHORTER) {
+      if (flags != 0 && flags->get() & Grammar::SymbolFlags::PREFER_SHORTER) {
         for (Int i = 0; i < static_cast<Int>(this->stateCount); i++) {
           if (i == bestToken) continue;
           if (this->states[i]->getTokenDefIndex() == bestTokenDefIndex) {
@@ -337,15 +337,15 @@ Int Lexer::process()
   } else if (closedStateCount > 0) {
     // Choose one of the closed states.
     Int i = this->selectBestToken();
-    Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i]->getTokenDefIndex());
+    Grammar::SymbolDefinition *def = this->getSymbolDefinition(this->states[i]->getTokenDefIndex());
     // Check if the chosen token is not an ignored token.
     TiInt *flags = this->grammarContext.getSymbolFlags(def);
-    if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::IGNORED_TOKEN)) {
+    if (!((flags == 0 ? 0 : flags->get()) & Grammar::SymbolFlags::IGNORED_TOKEN)) {
       // Has the token been clamped?
       if (this->currentTokenClamped) {
         // Raise a warning.
         this->noticeSignal.emit(newSrdObj<Notices::TokenClampedNotice>(
-          newSrdObj<Data::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
+          newSrdObj<Ast::SourceLocationRecord>(this->inputBuffer.getSourceLocation())
         ));
         this->currentTokenClamped = false;
       }
@@ -354,7 +354,7 @@ Int Lexer::process()
       if (handler == 0) {
         this->lastToken.setId(def->getId());
         this->lastToken.setText(this->inputBuffer.getChars(), this->states[i]->getTokenLength());
-        this->lastToken.setSourceLocation(this->inputBuffer.getSourceLocation());
+        assignTokenSourceLocationRecord(&this->lastToken, this->inputBuffer.getSourceLocation());
       } else {
         handler->prepareToken(&this->lastToken, def->getId(), this->inputBuffer.getChars(),
                               this->states[i]->getTokenLength(), this->inputBuffer.getSourceLocation());
@@ -376,7 +376,7 @@ Int Lexer::process()
     // No states are still alive, so move the first character in the input buffer to the error
     // buffer and try again.
     Str err;
-    Data::SourceLocationRecord sl;
+    Ast::SourceLocationRecord sl;
     if (this->inputBuffer.getChars()[0] != FILE_TERMINATOR) {
       err.assign(this->inputBuffer.getChars(), 1);
       sl = this->inputBuffer.getSourceLocation();
@@ -437,7 +437,7 @@ void Lexer::processStartChar(WChar inputChar)
 
   LOG(LogLevel::LEXER_MID, S("Starting a new token. New char: '") << inputChar << S("'"));
 
-  auto lexerModule = static_cast<Core::Data::Grammar::LexerModule*>(this->grammarContext.getModule());
+  auto lexerModule = static_cast<Core::Grammar::LexerModule*>(this->grammarContext.getModule());
   auto cache = lexerModule->getCharBasedDecisionCache();
 
   auto iter = cache->find(inputChar);
@@ -445,10 +445,10 @@ void Lexer::processStartChar(WChar inputChar)
     for (Word i = 0; i < lexerModule->getCount(); i++) {
       // Skip non tokens and non-root tokens.
       TiObject *obj = lexerModule->getElement(i);
-      if (obj == 0 || !obj->isA<Data::Grammar::SymbolDefinition>()) continue;
-      Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
+      if (obj == 0 || !obj->isA<Grammar::SymbolDefinition>()) continue;
+      Grammar::SymbolDefinition *def = static_cast<Grammar::SymbolDefinition*>(obj);
       TiInt *flags = this->grammarContext.getSymbolFlags(def);
-      if (!((flags == 0 ? 0 : flags->get()) & Data::Grammar::SymbolFlags::ROOT_TOKEN)) continue;
+      if (!((flags == 0 ? 0 : flags->get()) & Grammar::SymbolFlags::ROOT_TOKEN)) continue;
       // Validation.
       if (def->getTerm() == 0) {
         Str excMsg = S("Invalid token definition (");
@@ -493,8 +493,8 @@ void Lexer::processStartChar(WChar inputChar)
       auto i = iter->second[j];
       // Skip non tokens and non-root tokens.
       TiObject *obj = lexerModule->getElement(i);
-      ASSERT(obj != 0 && obj->isA<Data::Grammar::SymbolDefinition>());
-      Data::Grammar::SymbolDefinition *def = static_cast<Data::Grammar::SymbolDefinition*>(obj);
+      ASSERT(obj != 0 && obj->isA<Grammar::SymbolDefinition>());
+      Grammar::SymbolDefinition *def = static_cast<Grammar::SymbolDefinition*>(obj);
       // Set the first entry in the state index stack to the token definition index.
       auto state = this->createState();
       state->setTokenDefIndex(i);
@@ -607,17 +607,17 @@ Lexer::NextAction Lexer::processState(LexerState *state, WChar inputChar, Int mi
   Int currentLevel = state->getLevelCount() - 1;
   while (true) {
     auto currentTerm = state->refLevel(currentLevel).term;
-    if (currentTerm->isA<Data::Grammar::ConstTerm>()) {
+    if (currentTerm->isA<Grammar::ConstTerm>()) {
       result = this->processConstTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Data::Grammar::CharGroupTerm>()) {
+    } else if (currentTerm->isA<Grammar::CharGroupTerm>()) {
       result = this->processCharGroupTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Data::Grammar::MultiplyTerm>()) {
+    } else if (currentTerm->isA<Grammar::MultiplyTerm>()) {
       result = this->processMultiplyTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Data::Grammar::AlternateTerm>()) {
+    } else if (currentTerm->isA<Grammar::AlternateTerm>()) {
       result = this->processAlternateTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Data::Grammar::ConcatTerm>()) {
+    } else if (currentTerm->isA<Grammar::ConcatTerm>()) {
       result = this->processConcatTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Data::Grammar::ReferenceTerm>()) {
+    } else if (currentTerm->isA<Grammar::ReferenceTerm>()) {
       result = this->processReferenceTerm(state, inputChar, currentLevel);
     } else {
       Str excMsg = S("Invalid token type found. Token definition: ");
@@ -638,9 +638,9 @@ Lexer::NextAction Lexer::processState(LexerState *state, WChar inputChar, Int mi
 Lexer::NextAction Lexer::processConstTerm(LexerState *state, WChar inputChar, Int currentLevel)
 {
   auto currentTerm = state->refLevel(currentLevel).term;
-  ASSERT(currentTerm->isA<Data::Grammar::ConstTerm>());
+  ASSERT(currentTerm->isA<Grammar::ConstTerm>());
   Int charIndex;
-  Data::Grammar::ConstTerm *constTerm = static_cast<Data::Grammar::ConstTerm*>(currentTerm);
+  Grammar::ConstTerm *constTerm = static_cast<Grammar::ConstTerm*>(currentTerm);
   if (constTerm->getMatchString().getLength() == 0) {
     throw EXCEPTION(GenericException, S("Const term match string is not set yet."));
   }
@@ -668,10 +668,10 @@ Lexer::NextAction Lexer::processCharGroupTerm(LexerState *state, WChar inputChar
 {
   if (state->refLevel(currentLevel).posId == 0) {
     auto currentTerm = state->refLevel(currentLevel).term;
-    ASSERT(currentTerm->isA<Data::Grammar::CharGroupTerm>());
-    Data::Grammar::CharGroupTerm *charGroupTerm = static_cast<Data::Grammar::CharGroupTerm*>(currentTerm);
-    Data::Grammar::CharGroupDefinition *def;
-    Data::Grammar::Reference *ref = charGroupTerm->getCharGroupReference().get();
+    ASSERT(currentTerm->isA<Grammar::CharGroupTerm>());
+    Grammar::CharGroupTerm *charGroupTerm = static_cast<Grammar::CharGroupTerm*>(currentTerm);
+    Grammar::CharGroupDefinition *def;
+    Grammar::Reference *ref = charGroupTerm->getCharGroupReference().get();
     if (ref == 0) {
       Str excMsg = S("Reference is null for CharGroupTerm at token definition: ");
       excMsg += ID_GENERATOR->getDesc(
@@ -686,7 +686,7 @@ Lexer::NextAction Lexer::processCharGroupTerm(LexerState *state, WChar inputChar
       excMsg += S("). The definition formula is not set yet.");
       throw EXCEPTION(GenericException, excMsg);
     }
-    if (Data::Grammar::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
+    if (Grammar::matchCharGroup(inputChar, def->getCharGroupUnit().get())) {
       state->refLevel(currentLevel).posId = 1;
       return CONTINUE_NEW_CHAR;
     } else {
@@ -718,9 +718,9 @@ Lexer::NextAction Lexer::processMultiplyTerm(LexerState *state, WChar inputChar,
   // doesn't meet the minimum occurances requirement.
 
   auto currentTerm = state->refLevel(currentLevel).term;
-  ASSERT(currentTerm->isA<Data::Grammar::MultiplyTerm>());
-  Data::Grammar::MultiplyTerm *multiplyTerm = static_cast<Data::Grammar::MultiplyTerm*>(currentTerm);
-  if (multiplyTerm->getTerm().ti_cast_get<Data::Grammar::Term>() == 0) {
+  ASSERT(currentTerm->isA<Grammar::MultiplyTerm>());
+  Grammar::MultiplyTerm *multiplyTerm = static_cast<Grammar::MultiplyTerm*>(currentTerm);
+  if (multiplyTerm->getTerm().ti_cast_get<Grammar::Term>() == 0) {
     Str excMsg = S("Multiply term with null or invalid child is found at definition: ");
     excMsg += ID_GENERATOR->getDesc(
       this->getSymbolDefinition(state->getTokenDefIndex())->getId()
@@ -730,7 +730,7 @@ Lexer::NextAction Lexer::processMultiplyTerm(LexerState *state, WChar inputChar,
   // Get the index within the term.
   Int iterationIndex = state->refLevel(currentLevel).posId;
 
-  Data::Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Data::Grammar::Term>();
+  Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Grammar::Term>();
   ASSERT(term != 0);
 
   auto tryInner = multiplyTerm->getMax() == 0 ||
@@ -793,9 +793,9 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
 
   if (state->refLevel(currentLevel).posId == 0) {
     auto currentTerm = state->refLevel(currentLevel).term;
-    ASSERT(currentTerm->isA<Data::Grammar::AlternateTerm>());
-    Data::Grammar::AlternateTerm *alternateTerm = static_cast<Data::Grammar::AlternateTerm*>(currentTerm);
-    auto alternateList = alternateTerm->getTerms().s_cast_get<Data::Grammar::List>();
+    ASSERT(currentTerm->isA<Grammar::AlternateTerm>());
+    Grammar::AlternateTerm *alternateTerm = static_cast<Grammar::AlternateTerm*>(currentTerm);
+    auto alternateList = alternateTerm->getTerms().s_cast_get<Grammar::List>();
     if (alternateList->getCount() < 2) {
       Str excMsg = S("Alternative term doesn't have enough branches yet (less than two). Token def: ");
       excMsg += ID_GENERATOR->getDesc(
@@ -809,7 +809,7 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
     NextAction ret = UNKNOWN_ACTION;
     for (Int i = 0; i < alternateList->getCount(); ++i) {
       state->refLevel(currentLevel).posId = i + 1;
-      Data::Grammar::Term *term = ti_cast<Data::Grammar::Term>(alternateList->getElement(i));
+      Grammar::Term *term = ti_cast<Grammar::Term>(alternateList->getElement(i));
       if (term == 0) {
         Str excMsg = S("Null term found in an alternate branch. Token def: ");
         excMsg += ID_GENERATOR->getDesc(
@@ -856,9 +856,9 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
 Lexer::NextAction Lexer::processConcatTerm(LexerState *state, WChar inputChar, Int currentLevel)
 {
   auto currentTerm = state->refLevel(currentLevel).term;
-  ASSERT(currentTerm->isA<Data::Grammar::ConcatTerm>());
-  Data::Grammar::ConcatTerm *concatTerm = static_cast<Data::Grammar::ConcatTerm*>(currentTerm);
-  auto concatList = concatTerm->getTerms().s_cast_get<Data::Grammar::List>();
+  ASSERT(currentTerm->isA<Grammar::ConcatTerm>());
+  Grammar::ConcatTerm *concatTerm = static_cast<Grammar::ConcatTerm*>(currentTerm);
+  auto concatList = concatTerm->getTerms().s_cast_get<Grammar::List>();
   if (concatList->getCount() == 0) {
     Str excMsg = S("Concat term's child terms aren't set yet. Token def: ");
     excMsg += ID_GENERATOR->getDesc(
@@ -874,7 +874,7 @@ Lexer::NextAction Lexer::processConcatTerm(LexerState *state, WChar inputChar, I
     state->popTermLevel();
   } else {
     // update the term index on the stack
-    auto term = ti_cast<Data::Grammar::Term>(concatList->getElement(termIndex));
+    auto term = ti_cast<Grammar::Term>(concatList->getElement(termIndex));
     if (term == 0) {
       Str excMsg = S("Concat term's child term is null. Token def: ");
       excMsg += ID_GENERATOR->getDesc(
@@ -896,11 +896,11 @@ Lexer::NextAction Lexer::processReferenceTerm(LexerState *state, WChar inputChar
     state->refLevel(currentLevel).posId = 1;
 
     auto currentTerm = state->refLevel(currentLevel).term;
-    ASSERT(currentTerm->isA<Data::Grammar::ReferenceTerm>());
-    Data::Grammar::ReferenceTerm *referenceTerm = static_cast<Data::Grammar::ReferenceTerm*>(currentTerm);
+    ASSERT(currentTerm->isA<Grammar::ReferenceTerm>());
+    Grammar::ReferenceTerm *referenceTerm = static_cast<Grammar::ReferenceTerm*>(currentTerm);
 
     // We are entering the reference term now.
-    Data::Grammar::Reference *ref = referenceTerm->getReference().get();
+    Grammar::Reference *ref = referenceTerm->getReference().get();
     if (ref == 0) {
       Str excMsg = S("Reference is null for ReferenceTerm at token definition: ");
       excMsg += ID_GENERATOR->getDesc(
@@ -909,7 +909,7 @@ Lexer::NextAction Lexer::processReferenceTerm(LexerState *state, WChar inputChar
       throw EXCEPTION(GenericException, excMsg);
     }
     auto def = this->grammarContext.getReferencedSymbol(ref);
-    auto retModule = def->findOwner<Data::Grammar::Module>();
+    auto retModule = def->findOwner<Grammar::Module>();
     if (retModule != this->grammarContext.getModule()) {
       Str excMsg = S("Lexer doesn't yet support referencing terms in a different module. Token definition: ");
       excMsg += ID_GENERATOR->getDesc(
@@ -965,19 +965,19 @@ Int Lexer::selectBestToken()
         Bool isConstantI, isConstantIndex;
 
         // Check if tokenDefinitionI refers to a const term.
-        Data::Grammar::SymbolDefinition *def = this->getSymbolDefinition(tokenDefinitionI);
-        ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
-        Data::Grammar::Term *head = def->getTerm().get();
-        ASSERT(head->isDerivedFrom<Data::Grammar::Term>());
-        if (head->isA<Data::Grammar::ConstTerm>()) isConstantI = true;
+        Grammar::SymbolDefinition *def = this->getSymbolDefinition(tokenDefinitionI);
+        ASSERT(def->isA<Grammar::SymbolDefinition>());
+        Grammar::Term *head = def->getTerm().get();
+        ASSERT(head->isDerivedFrom<Grammar::Term>());
+        if (head->isA<Grammar::ConstTerm>()) isConstantI = true;
         else isConstantI = false;
 
         // Check if tokenDeinitionIndex refers to a const term.
         def = this->getSymbolDefinition(tokenDefinitionIndex);
-        ASSERT(def->isA<Data::Grammar::SymbolDefinition>());
+        ASSERT(def->isA<Grammar::SymbolDefinition>());
         head = def->getTerm().get();
-        ASSERT(head->isDerivedFrom<Data::Grammar::Term>());
-        if (head->isA<Data::Grammar::ConstTerm>()) isConstantIndex = true;
+        ASSERT(head->isDerivedFrom<Grammar::Term>());
+        if (head->isA<Grammar::ConstTerm>()) isConstantIndex = true;
         else isConstantIndex = false;
 
         // check if one token is constant and the other is not
@@ -1029,7 +1029,7 @@ void Lexer::clear()
 
   this->currentProcessingIndex = 0;
   this->currentTokenClamped = false;
-  this->lastToken.setId(UNKNOWN_ID);
+  this->lastToken.setId((Word)UNKNOWN_ID);
 }
 
 

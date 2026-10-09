@@ -2,7 +2,7 @@
  * @file Spp/Handlers/UseInParsingHandler.h
  * Contains the header of class Spp::Handlers::UseInParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -40,24 +40,22 @@ class UseInParsingHandler : public Core::Processing::Handlers::GenericParsingHan
   {
     GenericParsingHandler::onProdEnd(parser, state);
 
-    auto expr = state->getData().ti_cast_get<Core::Data::Ast::List>();
+    auto expr = state->getData().ti_cast_get<Core::Ast::List>();
     ASSERT(expr != 0);
-    auto exprMetadata = ti_cast<Core::Data::Ast::MetaHaving>(expr);
-    ASSERT(exprMetadata != 0);
 
     auto newObj = newSrdObj<Spp::Ast::UseInOp>();
-    newObj->setSourceLocation(exprMetadata->findSourceLocation());
-    newObj->setProdId(exprMetadata->getProdId());
+    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setProdId(expr->getProdId());
     newObj->setOperandName(S("this"));
     newObj->setSkipInjection(false);
 
     if (expr->getCount() >= 3) {
-      auto operandName = expr->get(1).ti_cast_get<Core::Data::Ast::Bracket>();
+      auto operandName = expr->get(1).ti_cast_get<Core::Ast::Bracket>();
       if (operandName == 0) {
         newObj->setOperandName(S("this"));
         newObj->setSkipInjection(true);
       } else {
-        auto identifier = operandName->getOperand().ti_cast_get<Core::Data::Ast::Identifier>();
+        auto identifier = operandName->getOperand().ti_cast_get<Core::Ast::Identifier>();
         if (identifier == 0) {
           throw EXCEPTION(GenericException, S("Unexpected use_in operand name."));
         }

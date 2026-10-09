@@ -2,7 +2,7 @@
  * @file Core/Basic/ContainerExtender.h
  * Contains the header of class Core::Basic::ContainerExtender.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -17,7 +17,7 @@ namespace Core::Basic
 {
 
 template<class CTYPE, int PRECOUNT=0, int POSTCOUNT=0>
-  class ContainerExtender : public TiObject, public Containing<TiObject>
+  class ContainerExtender : public TiObject, public Containing<CTYPE>
 {
   //============================================================================
   // Type Info
@@ -38,7 +38,7 @@ template<class CTYPE, int PRECOUNT=0, int POSTCOUNT=0>
   //============================================================================
   // Constructors & Destructor
 
-  public: ContainerExtender(Containing<TiObject> *c) : container(c)
+  public: ContainerExtender(Containing<CTYPE> *c) : container(c)
   {
     if (this->container == 0) {
       throw EXCEPTION(InvalidArgumentException, S("c"), S("Argument is null."));

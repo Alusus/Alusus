@@ -1,0 +1,92 @@
+import "Srl/Console";
+import "Core/Ast";
+import "Spp";
+use Srl;
+
+function getDefName(element: ref[Core.Ast.Node]): String {
+    def d: ref[Core.Ast.Definition](castRef[element.owner, Core.Ast.Definition]);
+    return castRef[Core.Basic.BindingOf[d].getMember("name"), Core.Basic.TiStr].value;
+}
+
+// --- A modifier that updates the definition it's attached to, in place -------
+// Rather than only tagging the element with metadata, a handler can mutate the Definition itself through
+// the Binding interface. Here we rename it.
+func rename (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+    def newName: ref[Core.Ast.StringLiteral](castRef[params, Core.Ast.StringLiteral]);
+    Core.Basic.BindingOf[node].setMember("name", newName.value);
+}
+
+@rename["renamed"]
+def toBeRenamed: Int;
+
+// --- A modifier that replaces the definition with a different one ------------
+// The handler removes the tagged element from its owner (found through Containing.findElementIndex) and
+// inserts a different element in its place (through addPossiblyMergeableElement).
+func replace (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+    def dynOwner: Core.Basic.DynContainerOf[node.owner, Core.Ast.Node];
+    def index: Int = dynOwner.findElementIndex(node);
+    dynOwner.removeElement(index);
+    def newDef: SrdRef[Core.Ast.Node] = Spp.astMgr.cloneAst((ast def replacement: Int), node);
+    Spp.astMgr.addPossiblyMergeableElement(newDef, dynOwner, index);
+}
+
+@replace
+def toBeReplaced: Int;
+
+// --- Multiple modifiers applied to the same element ---------------------------
+// Three independent handlers, each capturing its own params as metadata under its own name, applied
+// together to the same element, and also to a second, sibling element, to make sure each dispatch lands
+// on the right element rather than on a sibling's.
+macro defineTagger[name] {
+    func name (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+        node.setMetadata("{{name}}", castSrdRef[params.wkThis, Core.Ast.Node]);
+    }
+}
+defineTagger[tagX];
+defineTagger[tagY];
+
+module Tags {
+    defineTagger[tagZ];
+}
+def tagZ2: alias Tags.tagZ;
+
+function dumpTag(element: ref[Core.Ast.Node], name: ptr[array[Char]]) {
+    def value: ref[Core.Ast.Node](element.owner.getMetadata(name));
+    if value~ptr == 0 {
+        Console.print("None\n");
+    } else {
+        def str: ref[Core.Ast.StringLiteral](castRef[value, Core.Ast.StringLiteral]);
+        Console.print("%s\n", str.value.value.buf);
+    }
+}
+
+module MyModule {
+    @replace
+    def toBeReplaced: Int;
+}
+
+@tagX["x1"] @tagY["y1"] @Tags.tagZ["z1"]
+def first: Int;
+
+@tagX["x2"] @tagY["y2"] @tagZ2["z2"]
+def second: Int;
+
+func main {
+    Console.print("Renamed definition's name: %s\n", getDefName(renamed~ast).buf);
+
+    replacement = 123;
+    Console.print("Replacement definition's name: %s\n", getDefName(replacement~ast).buf);
+    Console.print("Replacement definition's value: %d\n", replacement);
+
+    Console.print("first.tagX: "); dumpTag(first~ast, "tagX");
+    Console.print("first.tagY: "); dumpTag(first~ast, "tagY");
+    Console.print("first.tagZ: "); dumpTag(first~ast, "tagZ");
+
+    Console.print("second.tagX: "); dumpTag(second~ast, "tagX");
+    Console.print("second.tagY: "); dumpTag(second~ast, "tagY");
+    Console.print("second.tagZ: "); dumpTag(second~ast, "tagZ");
+}
+
+main();
+
+dump_ast MyModule;

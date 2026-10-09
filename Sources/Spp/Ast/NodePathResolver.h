@@ -2,7 +2,7 @@
  * @file Spp/Ast/NodePathResolver.h
  * Contains the header of class Spp::Ast::NodePathResolver.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -66,14 +66,14 @@ class NodePathResolver : public TiObject, public DynamicBinding, public DynamicI
   /// @name Helper Functions
   /// @{
 
-  public: Str doResolve(Core::Data::Node const *node, Helper *helper)
+  public: Str doResolve(Core::Ast::Node const *node, Helper *helper)
   {
     StrStream path;
     this->doResolve(node, helper, path);
     return path.str().c_str();
   }
 
-  public: void doResolve(Core::Data::Node const *node, Helper *helper, StrStream &path)
+  public: void doResolve(Core::Ast::Node const *node, Helper *helper, StrStream &path)
   {
     this->resolve(node, helper, path);
   }
@@ -83,12 +83,12 @@ class NodePathResolver : public TiObject, public DynamicBinding, public DynamicI
   /// @name Path Resolving Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(resolve, void, (Core::Data::Node const*, Helper*, StrStream&));
-  private: static void _resolve(TiObject *self, Core::Data::Node const *node, Helper *helper, StrStream &path);
+  public: METHOD_BINDING_CACHE(resolve, void, (Core::Ast::Node const*, Helper*, StrStream&));
+  private: static void _resolve(TiObject *self, Core::Ast::Node const *node, Helper *helper, StrStream &path);
 
-  public: METHOD_BINDING_CACHE(resolveDefinition, void, (Core::Data::Ast::Definition const*, Helper*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolveDefinition, void, (Core::Ast::Definition const*, Helper*, StrStream&));
   private: static void _resolveDefinition(
-    TiObject *self, Core::Data::Ast::Definition const *def, Helper *helper, StrStream &path
+    TiObject *self, Core::Ast::Definition const *def, Helper *helper, StrStream &path
   );
 
   public: METHOD_BINDING_CACHE(resolveFunction, void, (Spp::Ast::Function const*, Helper*, StrStream&));
@@ -101,16 +101,16 @@ class NodePathResolver : public TiObject, public DynamicBinding, public DynamicI
     TiObject *self, Spp::Ast::FunctionType const *funcType, Helper *helper, StrStream &path
   );
 
-  public: METHOD_BINDING_CACHE(resolveFunctionArg, void, (TiObject*, Helper*, StrStream&));
-  private: static void _resolveFunctionArg(TiObject *self, TiObject *arg, Helper *helper, StrStream &path);
+  public: METHOD_BINDING_CACHE(resolveFunctionArg, void, (Core::Ast::Node*, Helper*, StrStream&));
+  private: static void _resolveFunctionArg(TiObject *self, Core::Ast::Node *arg, Helper *helper, StrStream &path);
 
-  public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Core::Data::Ast::Scope const*, Helper*, StrStream&));
+  public: METHOD_BINDING_CACHE(resolveTemplateInstance, void, (Core::Ast::Scope const*, Helper*, StrStream&));
   private: static void _resolveTemplateInstance(
-    TiObject *self, Core::Data::Ast::Scope const *block, Helper *helper, StrStream &path
+    TiObject *self, Core::Ast::Scope const *block, Helper *helper, StrStream &path
   );
 
-  public: METHOD_BINDING_CACHE(resolveOther, void, (Core::Data::Node const*, Helper*, StrStream&));
-  private: static void _resolveOther(TiObject *self, Core::Data::Node const *node, Helper *helper, StrStream &path);
+  public: METHOD_BINDING_CACHE(resolveOther, void, (Core::Ast::Node const*, Helper*, StrStream&));
+  private: static void _resolveOther(TiObject *self, Core::Ast::Node const *node, Helper *helper, StrStream &path);
 
   /// @}
 

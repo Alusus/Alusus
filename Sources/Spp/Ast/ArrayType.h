@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArrayType.h
  * Contains the header of class Spp::Ast::ArrayType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -23,8 +23,6 @@ class ArrayType : public DataType
 
   TYPE_INFO(ArrayType, DataType, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(ArrayType);
-
-  IMPLEMENT_AST_MAP_PRINTABLE(ArrayType);
 
 
   //============================================================================

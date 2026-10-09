@@ -64,6 +64,18 @@ the following:
   
 ```
 
+### Optimization
+
+By default the generated code is not optimized. Setting the `optimize` member of the `Exe` object (or the `Wasm`
+object) to `true` before calling `generate` makes the compiler optimize the generated code.
+The user of the compiler can override this value from the command line using `--opt optimize=0` or `--opt optimize=1`.
+
+```
+  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  exe.optimize = true;
+  exe.generate();
+```
+
 ## Wasm Class
 
 This class is similar to `Exe` class and used in the same way but it generates web assemply code instead of a code

@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/JitBuildTarget.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::JitBuildTarget.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -21,7 +21,9 @@ void JitBuildTarget::setupBuild()
 
   this->llvmJitEngine.reset();
 
-  this->llvmJitEngine = llvm::cantFail(JitEngineBuilder().create(this->globalItemRepo));
+  JitEngineBuilder engineBuilder;
+  engineBuilder.useOptimizeLayer = this->optimize;
+  this->llvmJitEngine = llvm::cantFail(engineBuilder.create(this->globalItemRepo));
   this->llvmDataLayout = const_cast<llvm::DataLayout*>(&this->llvmJitEngine->getDataLayout());
 
   this->llvmModule.reset();
@@ -68,13 +70,18 @@ void JitBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
 
 void JitBuildTarget::execute(Char const *entry)
 {
+  typedef void (*FuncType)();
+  auto funcPtr = (FuncType)this->getFunctionPointer(entry);
+  funcPtr();
+}
+
+
+void* JitBuildTarget::getFunctionPointer(Char const *entry)
+{
   if (this->llvmModule != 0) this->addLlvmModule(std::move(this->llvmModule));
 
-  typedef void (*FuncType)();
   auto llvmEntry = llvm::cantFail(this->llvmJitEngine->lookup(entry));
-  auto funcPtr = (FuncType)llvmEntry.getAddress();
-
-  funcPtr();
+  return (void*)llvmEntry.getAddress();
 }
 
 } // namespace

@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArgPack.h
  * Contains the header of class Spp::Ast::ArgPack.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,18 +18,14 @@ namespace Spp::Ast
 
 // TODO: DOC
 
-class ArgPack : public Core::Data::Node,
-                public Binding, public MapContaining<TiObject>,
-                public Core::Data::Ast::MetaHaving,
-                public Core::Data::Printable
+class ArgPack : public Core::Ast::Node, public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ArgPack, Core::Data::Node, "Spp.Ast", "Core", "alusus.org");
+  TYPE_INFO(ArgPack, Core::Ast::Node, "Spp.Ast", "Core", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>
   );
   OBJECT_FACTORY(ArgPack);
 
@@ -37,7 +33,7 @@ class ArgPack : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: TioSharedPtr argType;
+  private: SharedPtr<Core::Ast::Node> argType;
   private: TiWord min;
   private: TiWord max;
 
@@ -45,20 +41,16 @@ class ArgPack : public Core::Data::Node,
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(ArgPack);
-
-  IMPLEMENT_BINDING(Binding,
+  IMPLEMENT_BINDING(Core::Ast::Node,
     (min, TiWord, VALUE, setMin(value), &min),
-    (max, TiWord, VALUE, setMax(value), &max),
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
+    (max, TiWord, VALUE, setMax(value), &max)
   );
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (argType, TiObject, SHARED_REF, setArgType(value), argType.get())
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
+    (argType, Core::Ast::Node, SHARED_REF, setArgType(value), argType.get())
   );
 
-  IMPLEMENT_AST_MAP_PRINTABLE(ArgPack, << this->min.get() << S(" ") << this->max.get());
+  IMPLEMENT_AST_PRINTABLE(ArgPack, this->min.get() << S(" ") << this->max.get());
 
 
   //============================================================================
@@ -79,16 +71,16 @@ class ArgPack : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setArgType(TioSharedPtr const &t)
+  public: void setArgType(SharedPtr<Core::Ast::Node> const &t)
   {
     UPDATE_OWNED_SHAREDPTR(this->argType, t);
   }
-  private: void setArgType(TiObject *t)
+  private: void setArgType(Core::Ast::Node *t)
   {
     this->setArgType(getSharedPtr(t));
   }
 
-  public: TioSharedPtr const& getArgType() const
+  public: SharedPtr<Core::Ast::Node> const& getArgType() const
   {
     return this->argType;
   }

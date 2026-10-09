@@ -2,7 +2,7 @@
  * @file Spp/Ast/NodePathResolver.cpp
  * Contains the implementation of class Spp::Ast::NodePathResolver.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -47,12 +47,12 @@ void NodePathResolver::initBindings()
 //==============================================================================
 // Path Resolving Functions
 
-void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, Helper *helper, StrStream &path)
+void NodePathResolver::_resolve(TiObject *self, Core::Ast::Node const *node, Helper *helper, StrStream &path)
 {
   PREPARE_SELF(resolver, NodePathResolver);
   if (node == 0) return;
-  if (node->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    auto def = static_cast<Core::Data::Ast::Definition const*>(node);
+  if (node->isDerivedFrom<Core::Ast::Definition>()) {
+    auto def = static_cast<Core::Ast::Definition const*>(node);
     resolver->resolveDefinition(def, helper, path);
   } else if (node->isDerivedFrom<Spp::Ast::Function>()) {
     auto func = static_cast<Spp::Ast::Function const*>(node);
@@ -61,9 +61,9 @@ void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, He
     auto funcType = static_cast<Spp::Ast::FunctionType const*>(node);
     resolver->resolveFunctionType(funcType, helper, path);
   } else if (
-    node->isDerivedFrom<Core::Data::Ast::Scope>() && Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())
+    node->isDerivedFrom<Core::Ast::Scope>() && Basic::isDerivedFrom<Spp::Ast::Template>(node->getOwner())
   ) {
-    auto block = static_cast<Core::Data::Ast::Scope const*>(node);
+    auto block = static_cast<Core::Ast::Scope const*>(node);
     resolver->resolveTemplateInstance(block, helper, path);
   } else {
     resolver->resolveOther(node, helper, path);
@@ -72,7 +72,7 @@ void NodePathResolver::_resolve(TiObject *self, Core::Data::Node const *node, He
 
 
 void NodePathResolver::_resolveDefinition(
-  TiObject *self, Core::Data::Ast::Definition const *def, Helper *helper, StrStream &path
+  TiObject *self, Core::Ast::Definition const *def, Helper *helper, StrStream &path
 ) {
   PREPARE_SELF(resolver, NodePathResolver);
   resolver->resolve(def->getOwner(), helper, path);
@@ -111,7 +111,7 @@ void NodePathResolver::_resolveFunctionType(
 }
 
 
-void NodePathResolver::_resolveFunctionArg(TiObject *self, TiObject *arg, Helper *helper, StrStream &path)
+void NodePathResolver::_resolveFunctionArg(TiObject *self, Core::Ast::Node *arg, Helper *helper, StrStream &path)
 {
   PREPARE_SELF(resolver, NodePathResolver);
   if (arg->isDerivedFrom<Ast::ArgPack>()) {
@@ -132,7 +132,7 @@ void NodePathResolver::_resolveFunctionArg(TiObject *self, TiObject *arg, Helper
 
 
 void NodePathResolver::_resolveTemplateInstance(
-  TiObject *self, Core::Data::Ast::Scope const *block, Helper *helper, StrStream &path
+  TiObject *self, Core::Ast::Scope const *block, Helper *helper, StrStream &path
 ) {
   PREPARE_SELF(resolver, NodePathResolver);
   auto tmplt = static_cast<Spp::Ast::Template*>(block->getOwner());
@@ -147,34 +147,34 @@ void NodePathResolver::_resolveTemplateInstance(
     if (i > 0) path << C(',');
     auto obj = Ast::Template::getTemplateVar(block, varDef->getName().get());
     if (varDef->getType() == Ast::TemplateVarType::INTEGER) {
-      auto integer = ti_cast<Core::Data::Ast::IntegerLiteral>(obj);
+      auto integer = ti_cast<Core::Ast::IntegerLiteral>(obj);
       if (integer == 0) {
         throw EXCEPTION(GenericException, S("Invalid template argument."));
       }
       path << integer->getValue().get();
     } else if (varDef->getType() == Ast::TemplateVarType::STRING) {
-      auto str = ti_cast<Core::Data::Ast::StringLiteral>(obj);
+      auto str = ti_cast<Core::Ast::StringLiteral>(obj);
       if (str == 0) {
         throw EXCEPTION(GenericException, S("Invalid template argument."));
       }
       path << str->getValue().get();
     } else {
-      path << resolver->doResolve(ti_cast<Core::Data::Node>(obj), helper);
+      path << resolver->doResolve(obj, helper);
     }
   }
   path << C(']');
 }
 
 
-void NodePathResolver::_resolveOther(TiObject *self, Core::Data::Node const *node, Helper *helper, StrStream &path)
+void NodePathResolver::_resolveOther(TiObject *self, Core::Ast::Node const *node, Helper *helper, StrStream &path)
 {
   PREPARE_SELF(resolver, NodePathResolver);
   auto owner = node->getOwner();
   resolver->resolve(owner, helper, path);
-  auto ownerContainer = ti_cast<Core::Basic::Containing<TiObject>>(owner);
+  auto ownerContainer = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(owner);
   if (
     ownerContainer != 0 &&
-    !Basic::isDerivedFrom<Core::Data::Ast::Definition>(owner) &&
+    !Basic::isDerivedFrom<Core::Ast::Definition>(owner) &&
     !Basic::isDerivedFrom<Spp::Ast::Function>(owner) &&
     !Basic::isDerivedFrom<Spp::Ast::Type>(owner) &&
     !Basic::isDerivedFrom<Spp::Ast::Template>(owner->getOwner())

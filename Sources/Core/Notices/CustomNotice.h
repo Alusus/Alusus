@@ -2,7 +2,7 @@
  * @file Core/Notices/CustomNotice.h
  * Contains the header of class Core::Notices::CustomNotice.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,14 +38,14 @@ class CustomNotice : public Notice
   //============================================================================
   // Constructor / Destructor
 
-  public: CustomNotice(Char const *msg, SharedPtr<Data::SourceLocation> const &sl, Char const *p=0) :
+  public: CustomNotice(Char const *msg, SharedPtr<Ast::SourceLocation> const &sl, Char const *p=0) :
     Notice(sl), msg(msg), code(S("G1002")), severity(1)
   {
     if (p) this->param = p;
   }
 
   public: CustomNotice(
-    Char const *msg, Char const *code, Int severity, SharedPtr<Data::SourceLocation> const &sl, Char const *p=0
+    Char const *msg, Char const *code, Int severity, SharedPtr<Ast::SourceLocation> const &sl, Char const *p=0
   ) : Notice(sl), msg(msg), code(code), severity(severity)
   {
     if (p) this->param = p;
@@ -89,7 +89,7 @@ class CustomNotice : public Notice
       this->msg == customNotice->msg &&
       this->param == customNotice->param &&
       this->severity == customNotice->severity &&
-      Data::isEqual(this->getSourceLocation().get(), customNotice->getSourceLocation().get());
+      Ast::isEqual(this->getSourceLocation().get(), customNotice->getSourceLocation().get());
   }
 
 }; // class

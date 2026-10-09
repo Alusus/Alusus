@@ -2,7 +2,7 @@
  * @file Spp/Ast/Helper.h
  * Contains the header of class Spp::Ast::Helper.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,11 +45,11 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: IntegerType *archIntType = 0;
   private: IntegerType *word64Type = 0;
   private: VoidType *voidType = 0;
-  private: UserType *tiObjectType = 0;
-  private: SharedPtr<Core::Data::Ast::ParamPass> integerTypeRef;
-  private: SharedPtr<Core::Data::Ast::ParamPass> wordTypeRef;
-  private: SharedPtr<Core::Data::Ast::ParamPass> floatTypeRef;
-  private: SharedPtr<Core::Data::Ast::ParamPass> charArrayTypeRef;
+  private: UserType *nodeType = 0;
+  private: SharedPtr<Core::Ast::ParamPass> integerTypeRef;
+  private: SharedPtr<Core::Ast::ParamPass> wordTypeRef;
+  private: SharedPtr<Core::Ast::ParamPass> floatTypeRef;
+  private: SharedPtr<Core::Ast::ParamPass> charArrayTypeRef;
 
 
   //============================================================================
@@ -108,7 +108,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     return this->nodePathResolver;
   }
 
-  public: Core::Data::Seeker* getSeeker() const
+  public: Core::Ast::Seeker* getSeeker() const
   {
     return this->rootManager->getSeeker();
   }
@@ -123,17 +123,17 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   /// @name Main Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(isAstReference, Bool, (TiObject*));
-  private: static Bool _isAstReference(TiObject *self, TiObject *obj);
+  public: METHOD_BINDING_CACHE(isAstReference, Bool, (Core::Ast::Node*));
+  private: static Bool _isAstReference(TiObject *self, Core::Ast::Node *obj);
 
-  public: METHOD_BINDING_CACHE(isVariable, Bool, (TiObject*));
-  private: static Bool _isVariable(TiObject *self, TiObject *obj);
+  public: METHOD_BINDING_CACHE(isVariable, Bool, (Core::Ast::Node*));
+  private: static Bool _isVariable(TiObject *self, Core::Ast::Node *obj);
 
-  public: METHOD_BINDING_CACHE(isInMemVariable, Bool, (TiObject*));
-  private: static Bool _isInMemVariable(TiObject *self, TiObject *obj);
+  public: METHOD_BINDING_CACHE(isInMemVariable, Bool, (Core::Ast::Node*));
+  private: static Bool _isInMemVariable(TiObject *self, Core::Ast::Node *obj);
 
-  public: METHOD_BINDING_CACHE(isValueOnlyVariable, Bool, (TiObject*));
-  private: static Bool _isValueOnlyVariable(TiObject *self, TiObject *obj);
+  public: METHOD_BINDING_CACHE(isValueOnlyVariable, Bool, (Core::Ast::Node*));
+  private: static Bool _isValueOnlyVariable(TiObject *self, Core::Ast::Node *obj);
 
   public: METHOD_BINDING_CACHE(lookupCustomCaster,
     TypeMatchStatus, (
@@ -144,51 +144,53 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     TiObject *self, Type *srcType, Type *targetType, Function *&caster
   );
 
-  public: METHOD_BINDING_CACHE(_traceType, Type*, (TiObject*, Bool));
-  private: static Type* __traceType(TiObject *self, TiObject *ref, Bool skipErrors);
+  public: METHOD_BINDING_CACHE(_traceType, Type*, (Core::Ast::Node*, Bool));
+  private: static Type* __traceType(TiObject *self, Core::Ast::Node *ref, Bool skipErrors);
 
-  public: Type* traceType(TiObject *ref, Bool skipErrors = false)
+  public: Type* traceType(Core::Ast::Node *ref, Bool skipErrors = false)
   {
     return this->_traceType(ref, skipErrors);
   }
 
-  public: METHOD_BINDING_CACHE(isVoid, Bool, (TiObject const*));
-  private: static Bool _isVoid(TiObject *self, TiObject const *ref);
+  public: METHOD_BINDING_CACHE(isVoid, Bool, (Core::Ast::Node const*));
+  private: static Bool _isVoid(TiObject *self, Core::Ast::Node const *ref);
 
-  public: METHOD_BINDING_CACHE(isCastableTo, Bool, (TiObject*, TiObject*, Bool));
+  public: METHOD_BINDING_CACHE(isCastableTo, Bool, (Core::Ast::Node*, Core::Ast::Node*, Bool));
   private: static Bool _isCastableTo(
-    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Bool implicit
+    TiObject *self, Core::Ast::Node *srcTypeRef, Core::Ast::Node *targetTypeRef, Bool implicit
   );
 
   public: METHOD_BINDING_CACHE(matchTargetType,
     TypeMatchStatus, (
-      TiObject* /* srcTypeRef */, TiObject* /* targetTypeRef */, Function*& /* caster */
+      Core::Ast::Node* /* srcTypeRef */, Core::Ast::Node* /* targetTypeRef */, Function*& /* caster */
     )
   );
   private: static TypeMatchStatus _matchTargetType(
-    TiObject *self, TiObject *srcTypeRef, TiObject *targetTypeRef, Function *&caster
+    TiObject *self, Core::Ast::Node *srcTypeRef, Core::Ast::Node *targetTypeRef, Function *&caster
   );
 
   public: METHOD_BINDING_CACHE(isReferenceTypeFor, Bool, (Type*, Type*));
   private: static Bool _isReferenceTypeFor(TiObject *self, Type *refType, Type *contentType);
 
-  public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (TiObject*, ReferenceMode const&));
-  private: static ReferenceType* _getReferenceTypeFor(TiObject *self, TiObject *type, ReferenceMode const &mode);
+  public: METHOD_BINDING_CACHE(getReferenceTypeFor, ReferenceType*, (Core::Ast::Node*, ReferenceMode const&));
+  private: static ReferenceType* _getReferenceTypeFor(
+    TiObject *self, Core::Ast::Node *type, ReferenceMode const &mode
+  );
 
   public: ReferenceType* getReferenceTypeForPointerType(PointerType *type, ReferenceMode const &mode);
 
-  public: METHOD_BINDING_CACHE(getPointerTypeFor, PointerType*, (TiObject*));
-  private: static PointerType* _getPointerTypeFor(TiObject *self, TiObject *type);
+  public: METHOD_BINDING_CACHE(getPointerTypeFor, PointerType*, (Core::Ast::Node*));
+  private: static PointerType* _getPointerTypeFor(TiObject *self, Core::Ast::Node *type);
 
-  public: METHOD_BINDING_CACHE(getArrayTypeFor, ArrayType*, (TiObject*));
-  private: static ArrayType* _getArrayTypeFor(TiObject *self, TiObject *type);
+  public: METHOD_BINDING_CACHE(getArrayTypeFor, ArrayType*, (Core::Ast::Node*));
+  private: static ArrayType* _getArrayTypeFor(TiObject *self, Core::Ast::Node *type);
 
   public: Type* swichInnerReferenceTypeWithPointerType(ReferenceType *type);
 
   public: Type* swichOuterPointerTypeWithReferenceType(Type *type, ReferenceMode const &mode);
 
-  public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (TiObject*));
-  private: static Type* _getValueTypeFor(TiObject *self, TiObject *type);
+  public: METHOD_BINDING_CACHE(getValueTypeFor, Type*, (Core::Ast::Node*));
+  private: static Type* _getValueTypeFor(TiObject *self, Core::Ast::Node *type);
 
   public: METHOD_BINDING_CACHE(getNullType, IntegerType*);
   private: static IntegerType* _getNullType(TiObject *self);
@@ -220,10 +222,10 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getVoidType, VoidType*);
   private: static VoidType* _getVoidType(TiObject *self);
 
-  public: METHOD_BINDING_CACHE(getTiObjectType, UserType*);
-  private: static UserType* _getTiObjectType(TiObject *self);
+  public: METHOD_BINDING_CACHE(getNodeType, UserType*);
+  private: static UserType* _getNodeType(TiObject *self);
 
-  public: template<class T> Bool isTypeOrRefTypeOf(TiObject *type)
+  public: template<class T> Bool isTypeOrRefTypeOf(Core::Ast::Node *type)
   {
     if (!type->isDerivedFrom<Type>()) {
       return this->isTypeOrRefTypeOf<T>(this->traceType(type));
@@ -236,7 +238,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     else return this->isTypeOrRefTypeOf<T>(refType->getContentType(this));
   }
 
-  public: template<class T> T* tryGetPointerContentType(TiObject *type)
+  public: template<class T> T* tryGetPointerContentType(Core::Ast::Node *type)
   {
     if (!type->isDerivedFrom<Type>()) {
       return this->tryGetPointerContentType<T>(this->traceType(type));
@@ -254,8 +256,8 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     else return this->tryGetDeepReferenceContentType(refType->getContentType(this));
   }
 
-  public: METHOD_BINDING_CACHE(resolveNodePath, Str, (Core::Data::Node const*));
-  private: static Str _resolveNodePath(TiObject *self, Core::Data::Node const *node);
+  public: METHOD_BINDING_CACHE(resolveNodePath, Str, (Core::Ast::Node const*));
+  private: static Str _resolveNodePath(TiObject *self, Core::Ast::Node const *node);
 
   public: METHOD_BINDING_CACHE(getFunctionName, Str const&, (Function*));
   private: static Str const& _getFunctionName(TiObject *self, Function *astFunc);
@@ -266,21 +268,21 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getNeededWordSize, Word, (LongWord));
   private: static Word _getNeededWordSize(TiObject *self, LongWord value);
 
-  public: METHOD_BINDING_CACHE(getVariableDomain, DefinitionDomain, (TiObject const*));
-  private: static DefinitionDomain _getVariableDomain(TiObject *self, TiObject const *def);
+  public: METHOD_BINDING_CACHE(getVariableDomain, DefinitionDomain, (Core::Ast::Node const*));
+  private: static DefinitionDomain _getVariableDomain(TiObject *self, Core::Ast::Node const *def);
 
-  public: Bool doesModifierExistOnDef(Core::Data::Ast::Definition const *def, Char const *name);
-  public: Bool isSharedDef(Core::Data::Ast::Definition const *def)
+  public: Bool doesModifierExistOnDef(Core::Ast::Definition const *def, Char const *name);
+  public: Bool isSharedDef(Core::Ast::Definition const *def)
   {
-    return this->doesModifierExistOnDef(def, S("shared"));
+    return def->getMetadata(S("shared")) != 0;
   }
-  public: Bool isNoBindDef(Core::Data::Ast::Definition const *def)
+  public: Bool isNoBindDef(Core::Ast::Definition const *def)
   {
-    return this->doesModifierExistOnDef(def, S("no_bind"));
+    return def->getMetadata(S("no_bind")) != 0;
   }
 
-  public: METHOD_BINDING_CACHE(validateUseStatement, Bool, (Core::Data::Ast::Bridge* /* bridge */));
-  private: static Bool _validateUseStatement(TiObject *self, Core::Data::Ast::Bridge *bridge);
+  public: METHOD_BINDING_CACHE(validateUseStatement, Bool, (Core::Ast::Bridge* /* bridge */));
+  private: static Bool _validateUseStatement(TiObject *self, Core::Ast::Bridge *bridge);
 
   /// @}
 

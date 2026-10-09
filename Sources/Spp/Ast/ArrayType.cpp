@@ -2,7 +2,7 @@
  * @file Spp/Ast/ArrayType.cpp
  * Contains the implementation of class Spp::Ast::ArrayType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,11 +20,11 @@ namespace Spp::Ast
 
 Type* ArrayType::getContentType(Helper *helper) const
 {
-  static TioSharedPtr contentTypeRef;
+  static SharedPtr<Core::Ast::Node> contentTypeRef;
   if (contentTypeRef == 0) {
     contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
   }
-  auto typePassage = ti_cast<Core::Data::Ast::Passage>(
+  auto typePassage = ti_cast<Core::Ast::Passage>(
     helper->getSeeker()->doGet(contentTypeRef.get(), this->getOwner())
   );
   if (typePassage == 0) return 0;
@@ -38,11 +38,11 @@ Type* ArrayType::getContentType(Helper *helper) const
 
 Word ArrayType::getSize(Helper *helper) const
 {
-  static TioSharedPtr sizeRef;
+  static SharedPtr<Core::Ast::Node> sizeRef;
   if (sizeRef == 0) {
     sizeRef = helper->getRootManager()->parseExpression(S("size"));
   }
-  auto size = ti_cast<Core::Data::Ast::IntegerLiteral>(
+  auto size = ti_cast<Core::Ast::IntegerLiteral>(
     helper->getSeeker()->doGet(sizeRef.get(), this->getOwner())
   );
   if (size == 0) {

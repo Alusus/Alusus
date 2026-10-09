@@ -2,7 +2,7 @@
  * @file Spp/LlvmCodeGen/OfflineBuildTarget.cpp
  * Contains the implementation of class Spp::LlvmCodeGen::OfflineBuildTarget.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -108,6 +108,10 @@ void OfflineBuildTarget::generateObjectFile(
   this->buildCtorOrDtorArray(dtorNames, "llvm.global_dtors");
 
   this->llvmModule->setTargetTriple(this->targetTriple);
+
+  if (this->optimize) {
+    optimizeLlvmModule(*this->llvmModule, this->targetMachine.get());
+  }
 
   std::error_code ec;
   llvm::raw_fd_ostream dest(filename, ec, llvm::sys::fs::OF_None);

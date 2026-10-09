@@ -2,21 +2,23 @@ import "Srl/Console";
 import "Srl/Array";
 import "Srl/Map";
 import "Srl/String";
-import "Core/Data";
+import "Core/Ast";
 import "Spp";
 use Srl;
 
-function generateAddingElementNames (varName: String, elements: Array[ref[Core.Basic.TiObject]]) {
+function generateAddingElementNames (varName: String, elements: Array[ref[Core.Ast.Node]]) {
     def i: Int;
     for i = 0, i < elements.getLength(), ++i {
-        def node: ref[Core.Data.Node](castRef[elements(i), Core.Data.Node]);
-        def d: ref[Core.Data.Ast.Definition](castRef[node.owner, Core.Data.Ast.Definition]);
+        def node: ref[Core.Ast.Node](castRef[elements(i), Core.Ast.Node]);
+        def d: ref[Core.Ast.Definition](castRef[node.owner, Core.Ast.Definition]);
         def binding: ref[Core.Basic.Binding](Core.Basic.getInterface[d, Core.Basic.Binding]);
         Spp.astMgr.insertAst(
             ast { names.add(Srl.String("{{name}}")) },
-            Srl.Map[Srl.String, ref[Core.Basic.TiObject]]()
-                .set(Srl.String("names"), Core.Data.Ast.Identifier(varName))
-                .set(Srl.String("name"), binding.getMember("name"))
+            Srl.Map[Srl.String, ref[Core.Ast.Node]]()
+                .set(Srl.String("names"), Core.Ast.Identifier(varName))
+                .set(Srl.String("name"), Core.Ast.StringLiteral(
+                    castRef[binding.getMember("name"), Core.Basic.TiStr].value.buf
+                ))
         );
     }
 }
@@ -24,7 +26,7 @@ function generateAddingElementNames (varName: String, elements: Array[ref[Core.B
 macro implementGetElementNames [condition, parent] {
     def names: Array[String];
     preprocess {
-        def elements: Array[ref[Core.Basic.TiObject]];
+        def elements: Array[ref[Core.Ast.Node]];
         elements = Spp.astMgr.findElements(
             ast { condition },
             parent,
@@ -35,15 +37,19 @@ macro implementGetElementNames [condition, parent] {
     return names;
 }
 
-function dumpModifiers (element: ref[Core.Basic.TiObject]) {
-    def modifiers: ref[Core.Basic.Containing](Spp.astMgr.getModifiers(element));
-    def i: Int;
-    for i = 0, i < modifiers.getElementCount()~cast[Int], ++i {
-        Console.print("%s\n", Spp.astMgr.getModifierKeyword(modifiers.getElement(i)).buf);
+function dumpModifiers (element: ref[Core.Ast.Node]) {
+    def modifiers: ref[Core.Basic.Containing[Core.Ast.Node]](Spp.astMgr.getModifiers(element));
+    if modifiers~ptr == 0 {
+        Console.print("None\n");
+    } else {
+        def i: Int;
+        for i = 0, i < modifiers.getElementCount()~cast[Int], ++i {
+            Console.print("%s\n", Spp.astMgr.getModifierKeyword(modifiers.getElement(i)).buf);
+        }
     }
 }
 
-function dumpModifierParams(modifier: ref[Core.Basic.TiObject]) {
+function dumpModifierParams(modifier: ref[Core.Ast.Node]) {
     def params: Srl.Array[Srl.String];
     Spp.astMgr.getModifierStringParams(modifier, params);
     def i: Int;
@@ -52,15 +58,47 @@ function dumpModifierParams(modifier: ref[Core.Basic.TiObject]) {
     }
 }
 
-function dumpElementModifierParams(element: ref[Core.Basic.TiObject], modName: ptr[array[Char]]) {
-    def modifiers: ref[Core.Basic.Containing](Spp.astMgr.getModifiers(element));
-    def modifier: ref[Core.Basic.TiObject](Spp.astMgr.findModifier(modifiers, modName));
-    dumpModifierParams(modifier);
+function dumpElementMetadata(element: ref[Core.Ast.Node], name: ptr[array[Char]]) {
+    // Metadata is set on the Definition that owns the modifier-tagged element, not on the element itself.
+    def paramsNode: ref[Core.Ast.Node](element.owner.getMetadata(name));
+    if paramsNode~ptr == 0 {
+        Console.print("None\n");
+    } else {
+        // The handlers below store the modifier's raw params (not the modifier reference itself), so read
+        // them directly rather than going through getModifierStringParams, which expects a ParamPass.
+        def list: Core.Basic.ContainerOf[paramsNode, Core.Ast.Node];
+        if list~ptr != 0 {
+            def i: Int;
+            for i = 0, i < list.getElementCount()~cast[Int], ++i {
+                def str: ref[Core.Ast.StringLiteral](castRef[list.getElement(i), Core.Ast.StringLiteral]);
+                Console.print("%s\n", str.value.value.buf);
+            }
+        } else {
+            def str: ref[Core.Ast.StringLiteral](castRef[paramsNode, Core.Ast.StringLiteral]);
+            Console.print("%s\n", str.value.value.buf);
+        }
+    }
 }
 
-function dumpElementModifierParams2(element: ref[Core.Basic.TiObject], modName: ptr[array[Char]]) {
-    def modifier: ref[Core.Basic.TiObject](Spp.astMgr.findModifierForElement(element, modName));
-    dumpModifierParams(modifier);
+macro defineMacro[macroName] {
+    func macroName (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+        if params~ptr == 0 return;
+        node.setMetadata("{{macroName}}", castSrdRef[params.wkThis, Core.Ast.Node]);
+    }
+}
+
+defineMacro[modA];
+defineMacro[modB];
+defineMacro[modC];
+
+func private (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
+    // Modifier handlers run inside preprocessing build session, which means constructing objects directly
+    // during preprocessing then attaching them directly to the AST will make part of the AST dependent
+    // on the preprocessing session during destruction, since the SrdRef's terminate function will be
+    // generated in the preprocess session rather than at the compiler's own side. So, to avoid a segfault
+    // at the end of the program we should always include code generated at the compiler side by using
+    // the cloneAst method.
+    node.setMetadata("private", Spp.astMgr.cloneAst((ast 1), node));
 }
 
 class A {
@@ -78,7 +116,7 @@ class A {
     }
 
     @member func getPrivateElementNames (this: ref[this_type]):Array[String] {
-        implementGetElementNames[modifier == "private", this_type~ast];
+        implementGetElementNames[metadata == "private", this_type~ast];
     }
 }
 
@@ -116,8 +154,8 @@ printNames(getModuleNames());
 Console.print("\nModifiers of A.i:\n");
 dumpModifiers(A.i~ast);
 
-Console.print("\nParams for @modB modifier of A.i:\n");
-dumpElementModifierParams(A.i~ast, "modB");
+Console.print("\nCaptured params for @modB modifier of A.i:\n");
+dumpElementMetadata(A.i~ast, "modB");
 
-Console.print("\nParams for @modC modifier of A.i:\n");
-dumpElementModifierParams2(A.i~ast, "modC");
+Console.print("\nCaptured params for @modC modifier of A.i:\n");
+dumpElementMetadata(A.i~ast, "modC");

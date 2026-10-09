@@ -2,7 +2,7 @@
  * @file Spp/Ast/FloatType.cpp
  * Contains the implementation of class Spp::Ast::FloatType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,11 +20,11 @@ namespace Spp::Ast
 
 Word FloatType::getBitCount(Helper *helper) const
 {
-  static TioSharedPtr bitCountRef;
+  static SharedPtr<Core::Ast::Node> bitCountRef;
   if (bitCountRef == 0) {
     bitCountRef = helper->getRootManager()->parseExpression(S("bitCount"));
   }
-  auto bitCount = ti_cast<Core::Data::Ast::IntegerLiteral>(
+  auto bitCount = ti_cast<Core::Ast::IntegerLiteral>(
     helper->getSeeker()->doGet(bitCountRef.get(), this->getOwner())
   );
   if (bitCount == 0) {

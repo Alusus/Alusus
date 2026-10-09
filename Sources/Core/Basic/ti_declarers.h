@@ -2,7 +2,7 @@
  * @file Core/Basic/ti_declarers.h
  * Contains declaration macros for TI classes and interfaces.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -99,7 +99,7 @@
     typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
       typeInfo = new Core::Basic::ObjectTypeInfo(S(#myType), S(typeNamespace), S(packageName), S(url), \
-      baseType::getTypeInfo(), myType::_getFactory(0)); \
+      baseType::getTypeInfo(), sizeof(myType), myType::_getFactory(0)); \
       GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::ObjectTypeInfo*>(typeInfo)); \
     } \
   } \
@@ -162,7 +162,7 @@
     typeInfo = reinterpret_cast<Core::Basic::ObjectTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
     if (typeInfo == 0) { \
       typeInfo = new Core::Basic::ObjectTypeInfo(typeName, S(typeNamespace), S(packageName), S(url), \
-                                                 baseType::getTypeInfo(), myType::_getFactory(0)); \
+                                                 baseType::getTypeInfo(), sizeof(myType), myType::_getFactory(0)); \
       GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::ObjectTypeInfo*>(typeInfo)); \
     } \
   } \
@@ -208,7 +208,7 @@
         typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::InterfaceTypeInfo(S(#myType), S(typeNamespace), S(packageName), S(url), \
-            baseType::getTypeInfo()); \
+            baseType::getTypeInfo(), sizeof(myType)); \
           GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::InterfaceTypeInfo*>(typeInfo)); \
         } \
       } \
@@ -238,7 +238,7 @@
         typeInfo = reinterpret_cast<Core::Basic::InterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::InterfaceTypeInfo(typeName, S(typeNamespace), S(packageName), S(url), \
-            baseType::getTypeInfo()); \
+            baseType::getTypeInfo(), sizeof(myType<COMMA_EXPAND_ARGS templateArgs>)); \
           GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::InterfaceTypeInfo*>(typeInfo)); \
         } \
       } \
@@ -268,7 +268,7 @@
         typeInfo = reinterpret_cast<Core::Basic::ObjInterfaceTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName)); \
         if (typeInfo == 0) { \
           typeInfo = new Core::Basic::ObjInterfaceTypeInfo(S(#myType), S(typeNamespace), S(packageName), S(url), \
-            baseType::getTypeInfo(), myType::_getFactory(0)); \
+            baseType::getTypeInfo(), sizeof(myType), myType::_getFactory(0)); \
           GLOBAL_STORAGE->setObject(uniqueName, const_cast<Core::Basic::ObjInterfaceTypeInfo*>(typeInfo)); \
         } \
       } \

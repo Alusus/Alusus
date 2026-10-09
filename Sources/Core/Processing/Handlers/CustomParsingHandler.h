@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/CustomParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::CustomParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,7 +31,7 @@ class CustomParsingHandler : public GenericParsingHandler
 
   public: typedef std::function<void(Parser *parser, ParserState *state)> ProdEndHandler;
   public: typedef std::function<Bool(
-    Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete
+    Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
   )> IncomingModifierHandler;
 
   //============================================================================
@@ -68,8 +68,13 @@ class CustomParsingHandler : public GenericParsingHandler
   }
 
   public: virtual Bool onIncomingModifier(
-    Parser *parser, ParserState *state, TioSharedPtr const &modifierData, Bool prodProcessingComplete
+    Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete
   ) {
+    if (this->callingParentEnabled) {
+      if (GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) {
+        return true;
+      }
+    }
     if (this->incomingModifierHandler == nullptr) return false;
     return this->incomingModifierHandler(parser, state, modifierData, prodProcessingComplete);
   }

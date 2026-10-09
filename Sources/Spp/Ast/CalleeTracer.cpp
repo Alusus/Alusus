@@ -66,23 +66,23 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
     Int tracingAlias = 0;
     Bool searchingFunctionOwners = false;
     auto callback = [=, &request, &result, &target, &tracingAlias, &searchingFunctionOwners]
-      (TiInt action, TiObject *obj)->Core::Data::Seeker::Verb
+      (TiInt action, Core::Ast::Node *obj, Core::Ast::Seeker::NoticePtr const &notice)->Core::Ast::Seeker::Verb
       {
-        if (action == Core::Data::Seeker::Action::ERROR) {
-          if (result.isNew()) result.notice = getSharedPtr(ti_cast<Core::Notices::Notice>(obj));
-          return Core::Data::Seeker::Verb::MOVE;
-        } else if (action == Core::Data::Seeker::Action::OWNER_SCOPE) {
-          if (tracingAlias == 0 || result.isNameMatched()) return Core::Data::Seeker::Verb::SKIP_GROUP;
-          else return Core::Data::Seeker::Verb::MOVE;
-        } else if (action == Core::Data::Seeker::Action::USE_SCOPES_START) {
-          if (tracingAlias == 0 || result.isNameMatched()) return Core::Data::Seeker::Verb::SKIP;
-          else return Core::Data::Seeker::Verb::MOVE;
-        } else if (action == Core::Data::Seeker::Action::ALIAS_TRACE_START) {
+        if (action == Core::Ast::Seeker::Action::ERROR) {
+          if (result.isNew()) result.notice = notice;
+          return Core::Ast::Seeker::Verb::MOVE;
+        } else if (action == Core::Ast::Seeker::Action::OWNER_SCOPE) {
+          if (tracingAlias == 0 || result.isNameMatched()) return Core::Ast::Seeker::Verb::SKIP_GROUP;
+          else return Core::Ast::Seeker::Verb::MOVE;
+        } else if (action == Core::Ast::Seeker::Action::USE_SCOPES_START) {
+          if (tracingAlias == 0 || result.isNameMatched()) return Core::Ast::Seeker::Verb::SKIP;
+          else return Core::Ast::Seeker::Verb::MOVE;
+        } else if (action == Core::Ast::Seeker::Action::ALIAS_TRACE_START) {
           ++tracingAlias;
-          return Core::Data::Seeker::Verb::MOVE;
-        } else if (action == Core::Data::Seeker::Action::ALIAS_TRACE_END) {
+          return Core::Ast::Seeker::Verb::MOVE;
+        } else if (action == Core::Ast::Seeker::Action::ALIAS_TRACE_END) {
           --tracingAlias;
-          return Core::Data::Seeker::Verb::MOVE;
+          return Core::Ast::Seeker::Verb::MOVE;
         }
 
         if (tracer->helper->isVariable(obj)) {
@@ -91,9 +91,9 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
           // If we are going out of the current function then we should only be able to access global variables.
           if (domain == Ast::DefinitionDomain::FUNCTION && searchingFunctionOwners) {
             result.notice = newSrdObj<Spp::Notices::AccessingLocalVarInOtherFuncNotice>(
-              Core::Data::Ast::findSourceLocation(request.astNode)
+              Core::Ast::findSourceLocation(request.astNode)
             );
-            return Core::Data::Seeker::Verb::STOP;
+            return Core::Ast::Seeker::Verb::STOP;
           }
 
           // If we are not requesting directly accessible members and instead looking for object or scope members and
@@ -101,31 +101,30 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
           // avoid cases where an auto created local variable (for example: this) is unintentionally picked up while
           // looking through object members.
           if (domain == DefinitionDomain::FUNCTION && request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
-            return Core::Data::Seeker::Verb::MOVE;
+            return Core::Ast::Seeker::Verb::MOVE;
           }
         }
 
-        if (action != Core::Data::Seeker::Action::TARGET_MATCH || obj == 0) return Core::Data::Seeker::Verb::MOVE;
+        if (action != Core::Ast::Seeker::Action::TARGET_MATCH || obj == 0) return Core::Ast::Seeker::Verb::MOVE;
 
         // Unbox if we have a box.
-        if (obj->isA<Core::Data::Ast::Passage>()) {
-          obj = static_cast<Core::Data::Ast::Passage*>(obj)->get();
+        if (obj->isA<Core::Ast::Passage>()) {
+          obj = static_cast<Core::Ast::Passage*>(obj)->get();
         }
 
         if (
           result.stack.getLength() > 0 && result.stack(result.stack.getLength() - 1).obj == obj
         ) {
-          return Core::Data::Seeker::Verb::MOVE;
+          return Core::Ast::Seeker::Verb::MOVE;
         }
 
-        auto node = ti_cast<Core::Data::Node>(obj);
         if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
-          if (node == 0 || node->findOwner<Type>() != target) {
+          if (obj == 0 || obj->findOwner<Type>() != target) {
             // The found member was probably an alias to a non member.
             result.notice = newSrdObj<Spp::Notices::InvalidTypeMemberNotice>(
-              Core::Data::Ast::findSourceLocation(request.astNode)
+              Core::Ast::findSourceLocation(request.astNode)
             );
-            return Core::Data::Seeker::Verb::MOVE;
+            return Core::Ast::Seeker::Verb::MOVE;
           }
         }
 
@@ -140,10 +139,10 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
           result.matchStatus == TypeMatchStatus::EXACT
         ) {
           // There is no need to continue searching if we found multiple exact matches.
-          return Core::Data::Seeker::Verb::STOP;
+          return Core::Ast::Seeker::Verb::STOP;
         }
 
-        return Core::Data::Seeker::Verb::MOVE;
+        return Core::Ast::Seeker::Verb::MOVE;
       };
 
     while (target != 0) {
@@ -165,7 +164,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         }
         if (block != 0) {
           for (Int i = 0; i < block->getInjectionCount(); ++i) {
-            auto def = ti_cast<Core::Data::Ast::Definition>(block->getInjection(i));
+            auto def = ti_cast<Core::Ast::Definition>(block->getInjection(i));
             if (def == 0 || def->getTarget() == 0) continue;
             if (!helper->isVariable(def->getTarget().get())) continue;
             auto domain = helper->getVariableDomain(def);
@@ -213,14 +212,14 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
 
       // Try scope bridges if we haven't found any name match.
       if (!result.isNameMatched() && request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
-        Core::Data::Ast::Scope *scope = 0;
+        Core::Ast::Scope *scope = 0;
         // Special handling for Type targets, but it's only needed if we are at the top of the stack to avoid re-testing
         // the same scope again.
         auto dataType = target == request.target ? ti_cast<DataType>(target) : 0;
         if (dataType != 0) {
           scope = dataType->getBody().get();
         } else {
-          scope = ti_cast<Core::Data::Ast::Scope>(target);
+          scope = ti_cast<Core::Ast::Scope>(target);
         }
         if (scope != 0) {
           for (Int i = 0; i < scope->getBridgeCount(); ++i) {
@@ -230,13 +229,13 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             if (bridgeRef->getTarget() == request.ref) continue;
             auto bridgeTarget = tracer->getSeeker()->tryGet(
               bridgeRef->getTarget().get(), scope,
-              Core::Data::Seeker::Flags::SKIP_USES | Core::Data::Seeker::Flags::SKIP_USES_FOR_ALIASES
+              Core::Ast::Seeker::Flags::SKIP_USES | Core::Ast::Seeker::Flags::SKIP_USES_FOR_ALIASES
             );
             if (bridgeTarget == 0) continue;
 
             tracingAlias = 0;
             auto verb = tracer->getSeeker()->foreach(request.ref, bridgeTarget, callback, 0);
-            if (!Core::Data::Seeker::isMove(verb)) break;
+            if (!Core::Ast::Seeker::isMove(verb)) break;
           }
         }
       }
@@ -245,10 +244,10 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
 
       if (ti_cast<Ast::Function>(target) != 0) searchingFunctionOwners = true;
 
-      target = ti_cast<Core::Data::Node>(target)->getOwner();
+      target = target->getOwner();
       if (ti_cast<Ast::DataType>(target) != 0) {
         // Skip the type object itself.
-        target = static_cast<Core::Data::Node*>(target)->getOwner();
+        target = static_cast<Core::Ast::Node*>(target)->getOwner();
       }
     }
   } else {
@@ -268,7 +267,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       }
     }
 
-    if (result.notice != 0) result.notice->setSourceLocation(Core::Data::Ast::findSourceLocation(
+    if (result.notice != 0) result.notice->setSourceLocation(Core::Ast::findSourceLocation(
       request.ref != 0 ? request.ref : request.astNode
     ));
   }
@@ -302,17 +301,17 @@ void CalleeTracer::_lookupCallee_routing(TiObject *self, CalleeLookupRequest &re
     }
   } else if (request.target != 0 && request.target->isDerivedFrom<Template>()) {
     tracer->lookupCallee_template(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Data::Ast::Scope>()) {
+  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::Scope>()) {
     tracer->lookupCallee_scope(request, result);
   } else if (request.target != 0 && request.target->isDerivedFrom<ArgPack>()) {
     tracer->lookupCallee_argPack(request, result);
   } else if (request.target != 0 && helper->isVariable(request.target)) {
     tracer->lookupCallee_var(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Data::Ast::StringLiteral>()) {
+  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::StringLiteral>()) {
     tracer->lookupCallee_literal(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Data::Ast::IntegerLiteral>()) {
+  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::IntegerLiteral>()) {
     tracer->lookupCallee_literal(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Data::Ast::FloatLiteral>()) {
+  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::FloatLiteral>()) {
     tracer->lookupCallee_literal(request, result);
   } else {
     // Invalid
@@ -326,7 +325,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
   PREPARE_SELF(tracer, CalleeTracer);
   auto helper = tracer->helper;
 
-  ContainerExtender<TiObject, 1, 0> extTypes(request.argTypes);
+  ContainerExtender<Core::Ast::Node, 1, 0> extTypes(request.argTypes);
   extTypes.setPreItem(0, request.thisType);
 
   auto func = static_cast<Ast::Function*>(request.target);
@@ -340,7 +339,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
 
   if (!func->getType()->isMember() && request.thisType != 0) {
     result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
-      Core::Data::Ast::findSourceLocation(request.target)
+      Core::Ast::findSourceLocation(request.target)
     );
     return;
   }
@@ -349,12 +348,12 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
 
   // Only allow this check if the funciton has the proper modifier.
   Char const *defOp = 0;
-  auto def = func->findOwner<Core::Data::Ast::Definition>();
+  auto def = func->findOwner<Core::Ast::Definition>();
   if (def != 0) {
     defOp = findOperationModifier(def);
   }
   if (defOp != 0 && SBSTR(defOp) == S("")) {
-    PlainList<TiObject> argTypes;
+    PlainList<Core::Ast::Node> argTypes;
     if (useThis) argTypes.add(request.thisType);
     auto matchStatus = func->getType()->matchCall(&argTypes, helper);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
@@ -425,7 +424,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     return;
   } else if (request.op == S("()")) {
     // Look for a () operator on the Type itself.
-    static Core::Data::Ast::Identifier ref;
+    static Core::Ast::Identifier ref;
     CalleeLookupRequest innerRequest = request;
     innerRequest.ref = &ref;
     innerRequest.mode = CalleeLookupMode::SCOPE_MEMBER;
@@ -504,11 +503,12 @@ void CalleeTracer::_lookupCallee_template(TiObject *self, CalleeLookupRequest &r
   }
 
   auto tpl = static_cast<Ast::Template*>(request.target);
-  Core::Data::Ast::List list;
-  TiObject *tplParam = request.templateParam != 0 ? request.templateParam : &list;
-  TioSharedPtr instance;
-  if (!tpl->matchInstance(tplParam, tracer->helper, instance)) {
-    result.notice = instance.s_cast<Core::Notices::Notice>();
+  Core::Ast::List list;
+  Core::Ast::Node *tplParam = request.templateParam != 0 ? request.templateParam : &list;
+  SharedPtr<Core::Ast::Node> instance;
+  SharedPtr<Core::Notices::Notice> notice;
+  if (!tpl->matchInstance(tplParam, tracer->helper, instance, notice)) {
+    result.notice = notice;
   } else {
     CalleeLookupRequest innerRequest = request;
     innerRequest.templateParam = 0;
@@ -564,11 +564,11 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
     return;
   }
 
-  auto def = ti_cast<Core::Data::Ast::Definition>(static_cast<Core::Data::Node*>(request.target)->getOwner());
+  auto def = ti_cast<Core::Ast::Definition>(static_cast<Core::Ast::Node*>(request.target)->getOwner());
 
   auto objType = ti_cast<Type>(helper->traceType(request.target));
   if (objType == 0) {
-    result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(request.target));
+    result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Ast::findSourceLocation(request.target));
     return;
   }
   Bool targetIsRef = false;
@@ -580,21 +580,21 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
     targetIsRef = true;
   }
   if (objType == 0) {
-    result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Data::Ast::findSourceLocation(request.target));
+    result.notice = newSrdObj<Spp::Notices::InvalidTypeNotice>(Core::Ast::findSourceLocation(request.target));
     return;
   }
 
   if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
     if (helper->getVariableDomain(request.target) != Ast::DefinitionDomain::OBJECT) {
       result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
-        Core::Data::Ast::findSourceLocation(request.target)
+        Core::Ast::findSourceLocation(request.target)
       );
       return;
     }
   } else {
     if (helper->getVariableDomain(request.target) == Ast::DefinitionDomain::OBJECT) {
       result.notice = newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
-        Core::Data::Ast::findSourceLocation(request.target)
+        Core::Ast::findSourceLocation(request.target)
       );
       return;
     }
@@ -646,14 +646,14 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
 
   // TODO: Should we skip if mode is not OBJECT_MEMBER and the function is a member function?
 
-  ContainerExtender<TiObject, 1, 0> extTypes(request.argTypes);
+  ContainerExtender<Core::Ast::Node, 1, 0> extTypes(request.argTypes);
   extTypes.setPreItem(0, request.thisType);
 
   auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
   Bool useThis = funcType->isMember() && request.thisType != 0;
 
   if (request.varTargetOp != 0 && SBSTR(request.varTargetOp) == S("")) {
-    PlainList<TiObject> argTypes;
+    PlainList<Core::Ast::Node> argTypes;
     if (useThis) argTypes.add(request.thisType);
     auto matchStatus = funcType->matchCall(&argTypes, helper);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
@@ -719,7 +719,7 @@ void CalleeTracer::_lookupCallee_customOp(TiObject *self, CalleeLookupRequest &r
     return;
   }
 
-  Core::Data::Ast::Identifier ref({ {S("value"), TiStr(request.op)} });
+  Core::Ast::Identifier ref({ {S("value"), TiStr(request.op)} });
   CalleeLookupRequest innerRequest = request;
   innerRequest.ref = &ref;
   tracer->lookupCallee(innerRequest, result);
@@ -834,14 +834,14 @@ void CalleeTracer::selectBetterResult(CalleeLookupResult const &newResult, Calle
         if (diffPoint != -1) {
           // Multiple callee match.
           result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
-            Core::Data::Ast::findSourceLocation(result.stack(diffPoint).obj),
-            Core::Data::Ast::findSourceLocation(newResult.stack(diffPoint).obj)
+            Core::Ast::findSourceLocation(result.stack(diffPoint).obj),
+            Core::Ast::findSourceLocation(newResult.stack(diffPoint).obj)
           );
         } else if (newResult.stack.getLength() != result.stack.getLength()) {
           // Multiple callee match.
           result.notice = newSrdObj<Spp::Notices::MultipleCalleeMatchNotice>(
-            Core::Data::Ast::findSourceLocation(result.stack(result.stack.getLength() - 1).obj),
-            Core::Data::Ast::findSourceLocation(newResult.stack(newResult.stack.getLength() - 1).obj)
+            Core::Ast::findSourceLocation(result.stack(result.stack.getLength() - 1).obj),
+            Core::Ast::findSourceLocation(newResult.stack(newResult.stack.getLength() - 1).obj)
           );
         }
       }

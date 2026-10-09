@@ -2,7 +2,7 @@
  * @file Core.alusus
  * Contains other misc definitions of Core elements.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,6 +20,24 @@ module Core {
 
     func importFile(filename: ptr[array[Word[8]]]) {
         _importFile(rootManager, filename);
+    }
+
+    @expname[RootManager_prefixAlususTemplateClassFuncExpNames]
+    func _prefixAlususTemplateClassFuncExpNames (rootManager: ptr, classAst: ptr, argAst: ptr);
+
+    func prefixAlususTemplateClassFuncExpNames(classAst: ptr, argAst: ptr) {
+        _prefixAlususTemplateClassFuncExpNames(rootManager, classAst, argAst);
+    }
+
+    @expname[RootManager_insertClassPadding]
+    func _insertClassPadding (rootManager: ptr, definedSize: ArchInt, classUniqueName: ptr[array[Word[8]]]);
+
+    // Insert an array of bytes equal to the remaining required size to be padded at the end of a
+    // class defined on Alusus side to match the size of the corresponding C++ class. The padding
+    // is needed because on Alusus side we don't always define every single member that exists on
+    // the C++ side.
+    func insertClassPadding(definedSize: ArchInt, classUniqueName: ptr[array[Word[8]]]) {
+        _insertClassPadding(rootManager, definedSize, classUniqueName);
     }
 
     @expname[addLocalization]

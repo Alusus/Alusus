@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generator.cpp
  * Contains the implementation of class Spp::CodeGen::Generator.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -53,13 +53,13 @@ void Generator::initBindings()
 //==============================================================================
 // Code Generation Functions
 
-Bool Generator::_generateModules(TiObject *self, Core::Data::Ast::Scope *root, Session *session)
+Bool Generator::_generateModules(TiObject *self, Core::Ast::Scope *root, Session *session)
 {
   PREPARE_SELF(generation, Generation);
 
   Bool result = true;
   for (Int i = 0; i < root->getCount(); ++i) {
-    auto def = ti_cast<Data::Ast::Definition>(root->getElement(i));
+    auto def = ti_cast<Core::Ast::Definition>(root->getElement(i));
     if (def != 0) {
       auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
       if (module != 0) {
@@ -79,7 +79,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Ses
   Bool result = true;
   for (Int i = 0; i < astModule->getCount(); ++i) {
     auto obj = astModule->getElement(i);
-    auto def = ti_cast<Data::Ast::Definition>(obj);
+    auto def = ti_cast<Core::Ast::Definition>(obj);
     if (def != 0) {
       auto target = def->getTarget().get();
       if (target->isDerivedFrom<Spp::Ast::Module>()) {
@@ -95,8 +95,8 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Ses
           result = false;
         }
       }
-    } else if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
-      if (!generator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) result = false;
+    } else if (obj->isDerivedFrom<Core::Ast::Bridge>()) {
+      if (!generator->astHelper->validateUseStatement(static_cast<Core::Ast::Bridge*>(obj))) result = false;
     }
   }
   return result;
@@ -112,8 +112,8 @@ Bool Generator::_generateModuleInit(TiObject *self, Spp::Ast::Module *astModule,
   Int i;
   for (i = startIndex; i < astModule->getCount(); ++i) {
     auto obj = astModule->getElement(i);
-    if (obj->isDerivedFrom<Core::Data::Ast::Definition>()) {
-      auto definition = static_cast<Core::Data::Ast::Definition*>(obj);
+    if (obj->isDerivedFrom<Core::Ast::Definition>()) {
+      auto definition = static_cast<Core::Ast::Definition*>(obj);
       if (definition->getTarget().ti_cast_get<Spp::Ast::Module>() == 0) continue;
     }
     TerminalStatement terminal;
@@ -201,8 +201,8 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
         argSourceAstType = argAstType;
       }
       SharedList<TiObject> initTgVals;
-      PlainList<TiObject> initAstTypes;
-      PlainList<TiObject> initAstNodes;
+      PlainList<Core::Ast::Node> initAstTypes;
+      PlainList<Core::Ast::Node> initAstNodes;
       initTgVals.clear();
       initTgVals.add(tgVars.get(i));
       initAstTypes.clear();
@@ -215,15 +215,13 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
         return false;
       }
       if (!generation->generateVarInitialization(
-        argAstType, argTgVarRef.get(), ti_cast<Core::Data::Node>(argType),
+        argAstType, argTgVarRef.get(), argType,
         &initAstNodes, &initAstTypes, &initTgVals, &childSession
       )) {
         session->getEda()->removeBuildId(astFunc);
         return false;
       }
-      generation->registerDestructor(
-        ti_cast<Core::Data::Node>(argType), argAstType, argTgVar, childSession.getDestructionStack().get()
-      );
+      generation->registerDestructor(argType, argAstType, argTgVar, childSession.getDestructionStack().get());
     }
 
     // Generate the function's statements.
@@ -345,8 +343,8 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
   for (Int i = 0; i < body->getCount(); ++i) {
     auto obj = body->getElement(i);
     if (obj != 0) {
-      if (obj->isDerivedFrom<Core::Data::Ast::Bridge>()) {
-        if (!generator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(obj))) result = false;
+      if (obj->isDerivedFrom<Core::Ast::Bridge>()) {
+        if (!generator->astHelper->validateUseStatement(static_cast<Core::Ast::Bridge*>(obj))) result = false;
         continue;
       }
       // TODO: Generate member functions.
@@ -359,23 +357,23 @@ Bool Generator::_generateUserTypeBody(TiObject *self, Spp::Ast::UserType *astTyp
 }
 
 
-Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *definition, Session *session)
+Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definition, Session *session)
 {
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
 
-  TiObject *astVar = definition->getTarget().get();
-  TiObject *tgVar = session->getEda()->tryGetCodeGenData<TiObject>(astVar);
+  auto astVar = definition->getTarget().get();
+  auto tgVar = session->getEda()->tryGetCodeGenData<TiObject>(astVar);
 
   if (tgVar == 0) {
     // Have we previously tried to build this var?
     if (session->getEda()->didCodeGenFail(astVar)) return false;
 
     // Get initialization params, if any.
-    TiObject *astTypeRef = astVar;
-    TiObject *astParams = 0;
-    auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astVar);
-    if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+    Core::Ast::Node *astTypeRef = astVar;
+    Core::Ast::Node *astParams = 0;
+    auto astParamPass = ti_cast<Core::Ast::ParamPass>(astVar);
+    if (astParamPass != 0 && astParamPass->getType() == Core::Ast::BracketType::ROUND) {
       astTypeRef = astParamPass->getOperand().get();
       astParams = astParamPass->getParam().get();
     }
@@ -440,17 +438,17 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
       // Determine whether the variable initialization is high priority.
       // TODO: Switch to using an integer priority value instead of the boolean priority.
-      auto highPriority = generator->getAstHelper()->doesModifierExistOnDef(definition, "priority");
+      auto highPriority = definition->getMetadata(S("priority")) != 0;;
 
       if (astParams != 0 || astType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
         if ((state & GlobalVarState::INITIALIZED) == 0) {
-          session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+          session->getGlobalVarInitializationDeps()->add(static_cast<Core::Ast::Node*>(astVar), highPriority);
         }
       }
 
       if (astType->getDestructionMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
         if ((state & GlobalVarState::TERMINATED) == 0) {
-          session->getGlobalVarDestructionDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+          session->getGlobalVarDestructionDeps()->add(static_cast<Core::Ast::Node*>(astVar), highPriority);
         }
       }
     } else {
@@ -487,8 +485,8 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       session->getDestructionStack()->pushScope();
 
       SharedList<TiObject> initTgVals;
-      PlainList<TiObject> initAstTypes;
-      PlainList<TiObject> initAstNodes;
+      PlainList<Core::Ast::Node> initAstTypes;
+      PlainList<Core::Ast::Node> initAstNodes;
       if (astParams != 0) {
         if (!generator->expressionGenerator->generateParams(
           astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
@@ -510,9 +508,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       }
       session->getDestructionStack()->popScope();
 
-      generation->registerDestructor(
-        ti_cast<Core::Data::Node>(astVar), astType, tgLocalVar, session->getDestructionStack().get()
-      );
+      generation->registerDestructor(astVar, astType, tgLocalVar, session->getDestructionStack().get());
     }
   } else {
     // Check against circular dependency of global var initialization or if we need to initialize
@@ -523,24 +519,24 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
       if (state & (GlobalVarState::INITIALIZING | GlobalVarState::TERMINATING) != 0) {
         generator->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::CircularGlobalVarInitNotice>(
-            Core::Data::Ast::findSourceLocation(definition)
+            Core::Ast::findSourceLocation(definition)
           )
         );
         return false;
       }
       // Do we need to initialize this variable?
       if ((state & GlobalVarState::INITIALIZED) == 0) {
-        TiObject *astParams = 0;
-        auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astVar);
-        if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+        Core::Ast::Node *astParams = 0;
+        auto astParamPass = ti_cast<Core::Ast::ParamPass>(astVar);
+        if (astParamPass != 0 && astParamPass->getType() == Core::Ast::BracketType::ROUND) {
           astParams = astParamPass->getParam().get();
         }
         auto astType = generator->astHelper->traceType(astVar);
         if (astParams != 0 || astType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
           // Determine whether the variable initialization is high priority.
           // TODO: Switch to using an integer priority value instead of the boolean priority.
-          auto highPriority = generator->getAstHelper()->doesModifierExistOnDef(definition, "priority");
-          session->getGlobalVarInitializationDeps()->add(static_cast<Core::Data::Node*>(astVar), highPriority);
+          auto highPriority = definition->getMetadata(S("priority")) != 0;;
+          session->getGlobalVarInitializationDeps()->add(static_cast<Core::Ast::Node*>(astVar), highPriority);
         }
       }
     }
@@ -551,7 +547,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Data::Ast::Definition *def
 
 
 Bool Generator::_generateTempVar(
-  TiObject *self, Core::Data::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize,
+  TiObject *self, Core::Ast::Node *astNode, Spp::Ast::Type *astType, Session *session, Bool initialize,
   TioSharedPtr &tgVar
 ) {
   PREPARE_SELF(generator, Generator);
@@ -573,7 +569,7 @@ Bool Generator::_generateTempVar(
 
   // Ast::setAstType(astNode, astType);
 
-  Core::Data::Ast::Definition tempDef;
+  Core::Ast::Definition tempDef;
   tempDef.setOwner(astNode->getOwner());
 
   // At this point we should already have a TG context.
@@ -601,8 +597,8 @@ Bool Generator::_generateTempVar(
       return false;
     }
     SharedList<TiObject> initTgVals;
-    PlainList<TiObject> initAstTypes;
-    PlainList<TiObject> initAstNodes;
+    PlainList<Core::Ast::Node> initAstTypes;
+    PlainList<Core::Ast::Node> initAstNodes;
     if (!generation->generateVarInitialization(
       astType, tgVar.get(), astNode, &initAstNodes, &initAstTypes, &initTgVals, session
     )) return false;
@@ -615,9 +611,9 @@ Bool Generator::_generateTempVar(
 
 
 Bool Generator::_generateVarInitialization(
-  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode,
-  PlainList<TiObject> *paramAstNodes, PlainList<TiObject> *paramAstTypes, SharedList<TiObject> *paramTgValues,
-  Session *session
+  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Ast::Node *astNode,
+  PlainList<Core::Ast::Node> *paramAstNodes, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, Session *session
 ) {
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
@@ -639,7 +635,7 @@ Bool Generator::_generateVarInitialization(
     auto varPtrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, Ast::ReferenceMode::IMPLICIT);
 
     // Do we have constructors matching the given vars?
-    static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
+    static Core::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
     Ast::CalleeLookupRequest lookupRequest;
     lookupRequest.astNode = astNode;
     lookupRequest.target = varAstType;
@@ -668,11 +664,11 @@ Bool Generator::_generateVarInitialization(
       );
     } else if (
       paramAstTypes->getCount() != 0 ||
-      generator->getSeeker()->tryGet(&ref, varAstType, Core::Data::Seeker::Flags::SKIP_OWNERS) != 0
+      generator->getSeeker()->tryGet(&ref, varAstType, Core::Ast::Seeker::Flags::SKIP_OWNERS) != 0
     ) {
       // We have custom initialization but no constructors match the given params.
       generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
-        Core::Data::Ast::findSourceLocation(astNode)
+        Core::Ast::findSourceLocation(astNode)
       ));
       return false;
     }
@@ -684,11 +680,11 @@ Bool Generator::_generateVarInitialization(
       ASSERT(paramAstType);
       GenResult castedValue;
       if (!generation->generateCast(
-        session, paramAstType, varAstType, ti_cast<Core::Data::Node>(paramAstNodes->getElement(0)),
+        session, paramAstType, varAstType, paramAstNodes->getElement(0),
         paramTgValues->getElement(0), true, castedValue)
       ) {
         generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
-          Core::Data::Ast::findSourceLocation(paramAstNodes->getElement(0))
+          Core::Ast::findSourceLocation(paramAstNodes->getElement(0))
         ));
         return false;
       }
@@ -704,7 +700,7 @@ Bool Generator::_generateVarInitialization(
       }
     } else if (paramAstTypes->getCount() > 0) {
       generator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::TypeMissingMatchingInitOpNotice>(
-        Core::Data::Ast::findSourceLocation(astNode)
+        Core::Ast::findSourceLocation(astNode)
       ));
       return false;
     }
@@ -715,7 +711,7 @@ Bool Generator::_generateVarInitialization(
 
 
 Bool Generator::_generateMemberVarInitialization(
-  TiObject *self, TiObject *astMemberNode, Session *session
+  TiObject *self, Core::Ast::Node *astMemberNode, Session *session
 ) {
   if (session->getTgSelf() == 0 || session->getAstSelfType() == 0) {
     throw EXCEPTION(GenericException, S("Missing self while tring to initialize object member variables."));
@@ -725,9 +721,9 @@ Bool Generator::_generateMemberVarInitialization(
   PREPARE_SELF(generation, Generation);
 
   // Get initialization params, if any.
-  TiObject *astParams = 0;
-  auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astMemberNode);
-  if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+  Core::Ast::Node *astParams = 0;
+  auto astParamPass = ti_cast<Core::Ast::ParamPass>(astMemberNode);
+  if (astParamPass != 0 && astParamPass->getType() == Core::Ast::BracketType::ROUND) {
     astParams = astParamPass->getParam().get();
   }
 
@@ -736,13 +732,13 @@ Bool Generator::_generateMemberVarInitialization(
   if (tgMemberVar == 0) {
     // This situation will only happen if we have circular code generation.
     generator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(
-      Core::Data::Ast::findSourceLocation(astMemberNode)
+      Core::Ast::findSourceLocation(astMemberNode)
     ));
     return false;
   }
   auto astMemberType = Ast::getAstType(astMemberNode);
-  auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(astMemberNode);
-  if (!paramPass || paramPass->getType() != Core::Data::Ast::BracketType::ROUND) {
+  auto paramPass = ti_cast<Core::Ast::ParamPass>(astMemberNode);
+  if (!paramPass || paramPass->getType() != Core::Ast::BracketType::ROUND) {
     if (astMemberType->getInitializationMethod(generator->getAstHelper()) == Ast::TypeInitMethod::NONE) {
       return true;
     }
@@ -751,7 +747,7 @@ Bool Generator::_generateMemberVarInitialization(
   if (!generation->getGeneratedType(astMemberType, session, tgMemberType, 0)) return false;
 
   // Get the struct ptr TG type.
-  TiObject *astSelfPtrType = generator->astHelper->getPointerTypeFor(session->getAstSelfType());
+  Core::Ast::Node *astSelfPtrType = generator->astHelper->getPointerTypeFor(session->getAstSelfType());
   TiObject *tgStructType;
   if (!generation->getGeneratedType(astSelfPtrType, session, tgStructType, 0)) return false;
 
@@ -767,8 +763,8 @@ Bool Generator::_generateMemberVarInitialization(
 
   // Initialize the member variable.
   SharedList<TiObject> initTgVals;
-  PlainList<TiObject> initAstTypes;
-  PlainList<TiObject> initAstNodes;
+  PlainList<Core::Ast::Node> initAstTypes;
+  PlainList<Core::Ast::Node> initAstNodes;
   if (astParams != 0) {
     if (!generator->expressionGenerator->generateParams(
       astParams, generation, session, &initAstNodes, &initAstTypes, &initTgVals
@@ -778,7 +774,7 @@ Bool Generator::_generateMemberVarInitialization(
     }
   }
   if (!generation->generateVarInitialization(
-    astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode),
+    astMemberType, tgMemberVarRef.get(), astMemberNode,
     &initAstNodes, &initAstTypes, &initTgVals, session
   )) {
     session->getDestructionStack()->popScope();
@@ -796,7 +792,7 @@ Bool Generator::_generateMemberVarInitialization(
 
 
 Bool Generator::_generateVarDestruction(
-  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, Session *session
+  TiObject *self, Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Ast::Node *astNode, Session *session
 ) {
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
@@ -807,11 +803,11 @@ Bool Generator::_generateVarDestruction(
 
   // Prepare param list.
   PlainList<TiObject> paramTgValues;
-  PlainList<TiObject> paramAstTypes;
+  PlainList<Core::Ast::Node> paramAstTypes;
   auto ptrAstType = generator->getAstHelper()->getReferenceTypeFor(varAstType, Ast::ReferenceMode::IMPLICIT);
 
   // Find the destructor.
-  static Core::Data::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
+  static Core::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
   Ast::CalleeLookupRequest lookupRequest;
   lookupRequest.astNode = astNode;
   lookupRequest.target = varAstType;
@@ -848,7 +844,7 @@ Bool Generator::_generateVarDestruction(
 
 
 Bool Generator::_generateMemberVarDestruction(
-  TiObject *self, TiObject *astMemberNode, Session *session
+  TiObject *self, Core::Ast::Node *astMemberNode, Session *session
 ) {
   if (session->getTgSelf() == 0 || session->getAstSelfType() == 0) {
     throw EXCEPTION(GenericException, S("Missing self while tring to destruct object member variables."));
@@ -867,7 +863,7 @@ Bool Generator::_generateMemberVarDestruction(
   if (!generation->getGeneratedType(astMemberType, session, tgMemberType, 0)) return false;
 
   // Get the struct ptr TG type.
-  TiObject *astSelfPtrType = generator->astHelper->getPointerTypeFor(session->getAstSelfType());
+  Core::Ast::Node *astSelfPtrType = generator->astHelper->getPointerTypeFor(session->getAstSelfType());
   TiObject *tgStructType;
   if (!generation->getGeneratedType(astSelfPtrType, session, tgStructType, 0)) return false;
 
@@ -881,9 +877,9 @@ Bool Generator::_generateMemberVarDestruction(
 
   // Destruct the member variable.
   SharedList<TiObject> initTgVals;
-  PlainList<TiObject> initAstTypes;
+  PlainList<Core::Ast::Node> initAstTypes;
   if (!generation->generateVarDestruction(
-    astMemberType, tgMemberVarRef.get(), ti_cast<Core::Data::Node>(astMemberNode), session
+    astMemberType, tgMemberVarRef.get(), astMemberNode, session
   )) {
     return false;
   }
@@ -893,7 +889,7 @@ Bool Generator::_generateMemberVarDestruction(
 
 
 void Generator::_registerDestructor(
-  TiObject *self, Core::Data::Node *varAstNode, Ast::Type *astType, TioSharedPtr tgVar,
+  TiObject *self, Core::Ast::Node *varAstNode, Ast::Type *astType, TioSharedPtr tgVar,
   DestructionStack *destructionStack
 ) {
   PREPARE_SELF(generator, Generator);
@@ -936,20 +932,20 @@ Bool Generator::_generateVarGroupDestruction(
 
 
 Bool Generator::_generateStatementBlock(
-  TiObject *self, TiObject *astBlock, Session *session, TerminalStatement &terminal
+  TiObject *self, Core::Ast::Node *astBlock, Session *session, TerminalStatement &terminal
 ) {
   PREPARE_SELF(generation, Generation);
   Bool result = true;
   terminal = TerminalStatement::UNKNOWN;
   session->getDestructionStack()->pushScope();
-  if (astBlock->isDerivedFrom<Core::Data::Ast::Scope>()) {
-    for (Int i = 0; i < static_cast<Core::Data::Ast::Scope*>(astBlock)->getCount(); ++i) {
-      auto astNode = static_cast<Core::Data::Ast::Scope*>(astBlock)->getElement(i);
+  if (astBlock->isDerivedFrom<Core::Ast::Scope>()) {
+    for (Int i = 0; i < static_cast<Core::Ast::Scope*>(astBlock)->getCount(); ++i) {
+      auto astNode = static_cast<Core::Ast::Scope*>(astBlock)->getElement(i);
       if (terminal == TerminalStatement::YES) {
         // Unreachable code.
         PREPARE_SELF(generator, Generator);
         generator->rootManager->getNoticeStore()->add(
-          newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Data::Ast::findSourceLocation(astNode))
+          newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Ast::findSourceLocation(astNode))
         );
         return false;
       }
@@ -974,7 +970,7 @@ Bool Generator::_generateStatementBlock(
 
 
 Bool Generator::_generateStatement(
-  TiObject *self, TiObject *astNode, Session *session, TerminalStatement &terminal
+  TiObject *self, Core::Ast::Node *astNode, Session *session, TerminalStatement &terminal
 ) {
   PREPARE_SELF(generator, Generator);
   auto generation = ti_cast<Generation>(generator);
@@ -982,8 +978,8 @@ Bool Generator::_generateStatement(
   terminal = TerminalStatement::NO;
   Bool retVal = true;
 
-  if (astNode->isDerivedFrom<Core::Data::Ast::Definition>()) {
-    auto def = static_cast<Core::Data::Ast::Definition*>(astNode);
+  if (astNode->isDerivedFrom<Core::Ast::Definition>()) {
+    auto def = static_cast<Core::Ast::Definition*>(astNode);
     auto target = def->getTarget().get();
     if (target == 0) {
       generator->rootManager->getNoticeStore()->add(
@@ -1032,8 +1028,8 @@ Bool Generator::_generateStatement(
     terminal = TerminalStatement::YES;
     auto returnStatement = static_cast<Spp::Ast::ReturnStatement*>(astNode);
     retVal = generator->commandGenerator->generateReturnStatement(returnStatement, generation, session);
-  } else if (astNode->isDerivedFrom<Core::Data::Ast::Bridge>()) {
-    retVal = generator->astHelper->validateUseStatement(static_cast<Core::Data::Ast::Bridge*>(astNode));
+  } else if (astNode->isDerivedFrom<Core::Ast::Bridge>()) {
+    retVal = generator->astHelper->validateUseStatement(static_cast<Core::Ast::Bridge*>(astNode));
   } else {
     session->getDestructionStack()->pushScope();
 
@@ -1054,7 +1050,7 @@ Bool Generator::_generateStatement(
 
 
 Bool Generator::_generateExpression(
-  TiObject *self, TiObject *astNode, Session *session, GenResult &result, TerminalStatement &terminal
+  TiObject *self, Core::Ast::Node *astNode, Session *session, GenResult &result, TerminalStatement &terminal
 ) {
   PREPARE_SELF(generator, Generator);
   return generator->expressionGenerator->generate(astNode, ti_cast<Generation>(self), session, result, terminal);
@@ -1063,7 +1059,7 @@ Bool Generator::_generateExpression(
 
 Bool Generator::_generateCast(
   TiObject *self, Session *session, Spp::Ast::Type *srcType, Spp::Ast::Type *destType,
-  Core::Data::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &castedResult
+  Core::Ast::Node *astNode, TiObject *tgValue, Bool implicit, GenResult &castedResult
 ) {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->generateCast(
@@ -1073,8 +1069,8 @@ Bool Generator::_generateCast(
 
 
 Bool Generator::_generateFunctionCall(
-  TiObject *self, Core::Data::Node *astNode, Spp::Ast::Function *callee,
-  Containing<TiObject> *paramAstTypes, Containing<TiObject> *paramTgValues,
+  TiObject *self, Core::Ast::Node *astNode, Spp::Ast::Function *callee,
+  Containing<Core::Ast::Node> *paramAstTypes, Containing<TiObject> *paramTgValues,
   Session *session, GenResult &result
 ) {
   PREPARE_SELF(generator, Generator);
@@ -1085,7 +1081,7 @@ Bool Generator::_generateFunctionCall(
 
 
 Bool Generator::_getGeneratedType(
-  TiObject *self, TiObject *ref, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
+  TiObject *self, Core::Ast::Node *ref, Session *session, TiObject *&targetTypeResult, Ast::Type **astTypeResult
 ) {
   PREPARE_SELF(generator, Generator);
   return generator->typeGenerator->getGeneratedType(
@@ -1106,15 +1102,15 @@ Int Generator::_addThisDefinition(
   TioSharedPtr const &tgThis, Session *session
 ) {
   PREPARE_SELF(generator, Generator);
-  Core::Data::Ast::Definition *def = 0;
+  Core::Ast::Definition *def = 0;
   Int i;
   // Do we already have the definition?
   for (i = 0; i < body->getCount(); ++i) {
-    auto tempDef = body->get(i).ti_cast_get<Core::Data::Ast::Definition>();
+    auto tempDef = body->get(i).ti_cast_get<Core::Ast::Definition>();
     if (
       tempDef != 0 &&
       tempDef->getName() == thisName &&
-      generator->getAstHelper()->doesModifierExistOnDef(tempDef, S("__autovar"))
+      tempDef->getMetadata(S("__autovar")) != 0
     ) {
       def = tempDef;
       break;
@@ -1122,18 +1118,14 @@ Int Generator::_addThisDefinition(
   }
   // We don't have the definition yet, so we'll create it.
   if (def == 0) {
-    auto modifierList = Core::Data::Ast::List::create({}, {
-      Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("__autovar"))} })
-    });
-    if (!skipInjection) {
-      modifierList->add(Core::Data::Ast::Identifier::create({ {S("value"), TiStr(S("injection"))} }));
-    }
-    auto newDef = Core::Data::Ast::Definition::create({
+    auto newDef = Core::Ast::Definition::create({
       {S("sourceLocation"), body->getSourceLocation()},
       {S("name"), TiStr(thisName)}
-    }, {
-      {S("modifiers"), modifierList}      
     });
+    newDef->setMetadata(S("__autovar"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+    if (!skipInjection) {
+      newDef->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+    }
     body->insert(0, newDef);
     i = 0;
     def = newDef.get();
@@ -1176,14 +1168,14 @@ Bool Generator::_buildDependencies(TiObject *self, Session *session)
     if (generator->buildGlobalCtorOrDtor(
       session, session->getGlobalVarInitializationDeps(), ctorInfo.name, false,
       [=,&ctorInfo](
-        Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
-        Session *childSession
+        Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Ast::Node *varAstNode,
+        Core::Ast::Node *astParams, Session *childSession
       )->Bool {
         childSession->getDestructionStack()->pushScope();
 
         SharedList<TiObject> initTgVals;
-        PlainList<TiObject> initAstTypes;
-        PlainList<TiObject> initAstNodes;
+        PlainList<Core::Ast::Node> initAstTypes;
+        PlainList<Core::Ast::Node> initAstNodes;
         if (astParams != 0) {
           if (!generator->getExpressionGenerator()->generateParams(
             astParams, generation, childSession, &initAstNodes, &initAstTypes, &initTgVals
@@ -1235,7 +1227,7 @@ Bool Generator::_buildDependencies(TiObject *self, Session *session)
     if (generator->buildGlobalCtorOrDtor(
       session, session->getGlobalVarDestructionDeps(), dtorInfo.name, true,
       [=,&dtorInfo](
-        Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Data::Node *varAstNode, TiObject *astParams,
+        Spp::Ast::Type *varAstType, TiObject *varTgRef, Core::Ast::Node *varAstNode, Core::Ast::Node *astParams,
         Session *childSession
       )->Bool {
         if (!generation->generateVarDestruction(varAstType, varTgRef, varAstNode, childSession)) return false;
@@ -1269,10 +1261,10 @@ Bool Generator::_buildDependencies(TiObject *self, Session *session)
 
 
 Bool Generator::buildGlobalCtorOrDtor(
-  Session *session, DependencyList<Core::Data::Node> *deps, Char const *funcName, Bool dtor,
+  Session *session, DependencyList<Core::Ast::Node> *deps, Char const *funcName, Bool dtor,
   std::function<Bool(
-    Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Data::Node *astNode, TiObject *astParams,
-    Session *session
+    Spp::Ast::Type *varAstType, TiObject *tgVarRef, Core::Ast::Node *astNode,
+    Core::Ast::Node *astParams, Session *session
   )> varOpCallback
 ) {
   auto generation = ti_cast<Generation>(this);
@@ -1293,7 +1285,7 @@ Bool Generator::buildGlobalCtorOrDtor(
         // Already being destructed. This happens in case of circular dependencies, which is an error.
         this->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::CircularGlobalVarInitNotice>(
-            Core::Data::Ast::findSourceLocation(astVar)
+            Core::Ast::findSourceLocation(astVar)
           )
         );
         result = false;
@@ -1311,7 +1303,7 @@ Bool Generator::buildGlobalCtorOrDtor(
         // Already being initialized. This happens in case of circular dependencies, which is an error.
         this->astHelper->getNoticeStore()->add(
           newSrdObj<Spp::Notices::CircularGlobalVarInitNotice>(
-            Core::Data::Ast::findSourceLocation(astVar)
+            Core::Ast::findSourceLocation(astVar)
           )
         );
         result = false;
@@ -1343,10 +1335,10 @@ Bool Generator::buildGlobalCtorOrDtor(
     TiObject *tgVar = childSession.getEda()->tryGetCodeGenData<TiObject>(astVar);
 
     // Get initialization params, if any.
-    TiObject *astTypeRef = astVar;
-    TiObject *astParams = 0;
-    auto astParamPass = ti_cast<Core::Data::Ast::ParamPass>(astVar);
-    if (astParamPass != 0 && astParamPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+    Core::Ast::Node *astTypeRef = astVar;
+    Core::Ast::Node *astParams = 0;
+    auto astParamPass = ti_cast<Core::Ast::ParamPass>(astVar);
+    if (astParamPass != 0 && astParamPass->getType() == Core::Ast::BracketType::ROUND) {
       astTypeRef = astParamPass->getOperand().get();
       astParams = astParamPass->getParam().get();
     }
@@ -1419,24 +1411,24 @@ Str Generator::getTempVarName()
 }
 
 
-void Generator::setGlobalVarState(Session *session, Core::Data::Node* astVar, Int state)
+void Generator::setGlobalVarState(Session *session, Core::Ast::Node* astVar, Int state)
 {
-  if (!astVar->isA<Core::Data::Ast::Definition>()) astVar = astVar->getOwner();
+  if (!astVar->isA<Core::Ast::Definition>()) astVar = astVar->getOwner();
   session->getEda()->setGlobalVarState<TiInt>(astVar, newSrdObj<TiInt>(state));
 }
 
 
-Int Generator::getGlobalVarState(Session *session, Core::Data::Node* astVar)
+Int Generator::getGlobalVarState(Session *session, Core::Ast::Node* astVar)
 {
-  if (!astVar->isA<Core::Data::Ast::Definition>()) astVar = astVar->getOwner();
+  if (!astVar->isA<Core::Ast::Definition>()) astVar = astVar->getOwner();
   auto state = session->getEda()->tryGetGlobalVarState<TiInt>(astVar);
   return state == 0 ? 0 : state->get();
 }
 
 
-Str Generator::getGlobalVarMangledName(Core::Data::Node *astVar)
+Str Generator::getGlobalVarMangledName(Core::Ast::Node *astVar)
 {
-  if (!astVar->isA<Core::Data::Ast::Definition>()) astVar = astVar->getOwner();
+  if (!astVar->isA<Core::Ast::Definition>()) astVar = astVar->getOwner();
   // We will prefix the name to make sure it doesn't conflict with names from imported C libs.
   auto name = getMangledName(astVar);
   if (name == "") {

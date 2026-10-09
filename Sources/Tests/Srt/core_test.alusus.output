@@ -1,48 +1,62 @@
-Core.Data.Ast.List
+Core.Ast.List
  members:
  -prodId: TiWord 182
- -sourceLocation: Core.Data.SourceLocationRecord
+ -sourceLocation: Core.Ast.SourceLocationRecord
+ -modifiers: NULL
+ -metadata: NULL
  list elements:
  -Identifier a
- -Core.Data.Ast.LinkOperator
+ -Core.Ast.LinkOperator
    members:
-   -type: TiStr ":"
    -prodId: TiWord 183
-   -sourceLocation: Core.Data.SourceLocationRecord
+   -sourceLocation: Core.Ast.SourceLocationRecord
+   -modifiers: NULL
+   -metadata: NULL
+   -type: TiStr ":"
    map elements:
    -first: Identifier b
-   -second: Core.Data.Ast.Bracket
+   -second: Core.Ast.Bracket
      members:
-     -type: TiInt 0
      -prodId: TiWord 314
-     -sourceLocation: Core.Data.SourceLocationRecord
+     -sourceLocation: Core.Ast.SourceLocationRecord
+     -modifiers: NULL
+     -metadata: NULL
+     -type: TiInt 0
      map elements:
-     -operand: Core.Data.Ast.List
+     -operand: Core.Ast.List
        members:
        -prodId: TiWord 182
-       -sourceLocation: Core.Data.SourceLocationRecord
+       -sourceLocation: Core.Ast.SourceLocationRecord
+       -modifiers: NULL
+       -metadata: NULL
        list elements:
        -IntegerLiteral 5
        -IntegerLiteral 6
  -Identifier c
- -Core.Data.Ast.Definition
+ -Core.Ast.Definition
    members:
+   -prodId: TiWord 248
+   -sourceLocation: Core.Ast.SourceLocationRecord
+   -modifiers: NULL
+   -metadata: NULL
    -name: TiStr "fn"
    -toMerge: TiBool false
-   -prodId: TiWord 248
-   -sourceLocation: Core.Data.SourceLocationRecord
    map elements:
    -target: Spp.Ast.Function
      members:
+     -prodId: TiWord 248
+     -sourceLocation: Core.Ast.SourceLocationRecord
+     -modifiers: NULL
+     -metadata: NULL
      -name: TiStr ""
      -inlined: TiBool false
-     -prodId: TiWord 248
-     -sourceLocation: Core.Data.SourceLocationRecord
      map elements:
      -type: Spp.Ast.FunctionType
        members:
        -prodId: TiWord 248
-       -sourceLocation: Core.Data.SourceLocationRecord
+       -sourceLocation: Core.Ast.SourceLocationRecord
+       -modifiers: NULL
+       -metadata: NULL
        -member: TiBool false
        map elements:
        -argTypes: NULL
@@ -51,5 +65,6 @@ Core.Data.Ast.List
        members:
        -prodId: TiWord 308
        -sourceLocation: NULL
+       -modifiers: NULL
+       -metadata: NULL
        list elements:
-   -modifiers: NULL

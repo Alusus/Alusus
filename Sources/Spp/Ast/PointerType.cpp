@@ -2,7 +2,7 @@
  * @file Spp/Ast/PointerType.cpp
  * Contains the implementation of class Spp::Ast::PointerType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,11 +20,11 @@ namespace Spp { namespace Ast
 
 Type* PointerType::getContentType(Helper *helper) const
 {
-  static TioSharedPtr contentTypeRef;
+  static SharedPtr<Core::Ast::Node> contentTypeRef;
   if (contentTypeRef == 0) {
     contentTypeRef = helper->getRootManager()->parseExpression(S("type"));
   }
-  auto typePassage = ti_cast<Core::Data::Ast::Passage>(
+  auto typePassage = ti_cast<Core::Ast::Passage>(
     helper->getSeeker()->doGet(contentTypeRef.get(), this->getOwner())
   );
   if (typePassage == 0) return 0;

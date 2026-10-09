@@ -1,0 +1,124 @@
+/**
+ * @file Core/Ast/Text.h
+ * Contains the header of class Core::Ast::Text.
+ *
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+#ifndef CORE_AST_TEXT_H
+#define CORE_AST_TEXT_H
+
+namespace Core::Ast
+{
+
+// TODO: DOC
+
+class Text : public Node
+{
+  //============================================================================
+  // Type Info
+
+  TYPE_INFO(Text, Node, "Core.Ast", "Core", "alusus.org");
+  OBJECT_FACTORY(Text);
+
+
+  //============================================================================
+  // Member Variables
+
+  /**
+   * @brief The text of the token, if needed.
+   *
+   * If the token is not a constant string, this value will contain the token
+   * text, otherwise it will be empty.
+   */
+  private: TiStr value;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDING(Node,
+    (value, TiStr, VALUE, setValue(value), &value)
+  );
+
+
+  //============================================================================
+  // Constructor / Destructor
+
+  IMPLEMENT_EMPTY_CONSTRUCTOR(Text);
+
+  IMPLEMENT_ATTR_CONSTRUCTOR(Text);
+
+
+  //============================================================================
+  // Member Functions
+
+  public: void setValue(Char const *v)
+  {
+    this->value = v;
+  }
+  public: void setValue(Char const *v, Int s)
+  {
+    this->value.set(v, s);
+  }
+  public: void setValue(TiStr const *v)
+  {
+    if (v == 0) this->value = "";
+    else this->value = *v;
+  }
+
+  public: TiStr const& getValue() const
+  {
+    return this->value;
+  }
+
+
+  //============================================================================
+  // Printing Functions
+
+  public: virtual void print(OutStream &stream, Int indents=0) const
+  {
+    stream << S("Text");
+    Word id = this->getProdId();
+    stream << S(": ") << this->getValue();
+    if (id != UNKNOWN_ID) {
+      stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]");
+    }
+    Node::printModifiers(stream, indents);
+    Node::printMetadata(stream, indents);
+  }
+
+}; // class
+
+
+//==============================================================================
+// Macros
+
+#define DEFINE_AST_TEXT_ELEMENT(X) \
+  class X : public Text \
+  { \
+    TYPE_INFO(X, Text, "Core.Ast", "Core", "alusus.org"); \
+    OBJECT_FACTORY(X); \
+    IMPLEMENT_EMPTY_CONSTRUCTOR(X); \
+    IMPLEMENT_ATTR_CONSTRUCTOR(X); \
+    public: virtual void print(OutStream &stream, Int indents=0) const \
+    { \
+      stream << S(#X); \
+      stream << S(": ") << this->getValue(); \
+      Word id = this->getProdId(); \
+      if (id != UNKNOWN_ID) { \
+        stream << S(" [") << ID_GENERATOR->getDesc(id) << S("]"); \
+      } \
+      Node::printModifiers(stream, indents); \
+      Node::printMetadata(stream, indents); \
+    } \
+  }
+
+} // namespace
+
+#endif

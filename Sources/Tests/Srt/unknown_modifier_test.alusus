@@ -1,0 +1,9 @@
+import "Srl/Console";
+import "Core/Ast";
+import "Spp";
+
+// An unknown modifier must be reported as an error, and nothing after it should run.
+@noSuchModifier["x"]
+def a: Int;
+
+Srl.Console.print("Should not be printed.\n");

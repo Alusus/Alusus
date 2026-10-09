@@ -1,5 +1,60 @@
 # Alusus Changelog
 
+## Version 0.16.0 (2026-10-xx)
+
+### Updates to the Compiler
+
+* Refactored the Core to clean up data class hierarchies:
+  - Moved `Core::Data::Ast` to `Core::Ast`.
+  - Moved `Core::Data::Grammar` to `Core::Grammar`.
+  - Removed the `Core::Data` namespace.
+  - Inherited all AST node classes from `Core::Ast::Node`.
+  - Inherited all grammar node classes from `Core::Grammar::Node`.
+  - Embedded the `MetaHaving` and `Printable` interfaces into the `Node` class and removed the interfaces.
+  - Moved the modifiers array from `Definition` and `GenericCommand` into `Node`.
+* Enabled turning optimization pass on or off in LLVM for both offline builds as well as JIT through command
+  line options.
+* Replaced the modifier translations in the grammar with modifier actions, which provides more standard
+  operations than just translations.
+* Added metadata to `Node` to hold various metadata for the Node, while the modifiers array is kept for
+  unprocessed modifiers.
+* Made the statement's parsing handler capture any unprocessed modifier and store it on the Node.
+* Enable defining functions for handling custom modifiers during preprocessing, allowing users to define
+  their own modifiers that preprocess the elements on which the modifiers are applied.
+* Modifiers that aren't built-in and don't have a matching function now cause an error during preprocessing.
+
+### Fixes to the Compiler
+
+* Errors raised while preprocessing the root scope's modifiers are now reported instead of silently
+  stopping the program.
+* Fixed passing and returning structs of up to 16 bytes by value to make it compatible with C ABI,
+  which allows users to use any C library directly without the need to reinterpret small structures.
+
+### Updates to the Standard Libraries
+
+* Added the method `Spp.AstMgr.preprocessTypeBody`.
+* Treat Array, Map, and String like basic types in closures' auto capture mode, i.e. capture them by value.
+* Added `getMetadata`, `setMetadata`, and `removeMetadata` methods to `Core.Ast.Node`.
+* Added the `metadata == "..."` search criterion to the seeker (used through `Spp.astMgr.findElements`), to
+  find elements that have a given metadata name set regardless of its value.
+* Added `Core.Basic.Containing.findElementIndex` method, which finds the index of a given element within a
+  container.
+* Added `Spp.AstMgr.addPossiblyMergeableElement` method, which lets user code insert or merge an AST element
+  into a container the same way the compiler merges elements coming from `preprocess` blocks and macros.
+* Renamed `Srl.Time.getDetailedTime` to `Srl.Time.getDetailedLocalTime`.
+* Added `Srl.Time.getDetailedUTCTime`.
+* Fixed some Arabic localizations.
+* Added `Spp.AstMgr.getStringFromStringParams`.
+* Renamed the `format` modifier used by `StringBuilder` to `stringFormater`.
+* Added an optional fourth argument, `optimize`, to `Spp.BuildMgr.buildObjectFileForElement`.
+* Added an `optimize` member to `Build.Exe` and `Build.Wasm` to request optimized code.
+
+### Bug Fixes in the Standard Libraries
+
+* Fixed a bug in basic TI types on Alusus side that can cause double memory freeing in some cases.
+* Fixed `Core.Ast.Node`'s metadata methods depending on the user having `use Srl`.
+
+
 ## Version 0.15.3 (2026-08-28)
 
 * Add new helper macros to Srl:

@@ -39,8 +39,10 @@ macro getThisSourceFullPath {
         def dummy: 1;
         Spp.astMgr.insertAst(
             ast { "{{name}}" },
-            Srl.Map[Srl.String, ref[Core.Basic.TiObject]]()
-                .set(Srl.String("name"), Core.Basic.TiStr(Spp.astMgr.getSourceFullPathForElement(dummy~ast)))
+            Srl.Map[Srl.String, ref[Core.Ast.Node]]()
+                .set(Srl.String("name"), Core.Ast.StringLiteral(
+                    Spp.astMgr.getSourceFullPathForElement(dummy~ast).buf
+                ))
         );
     }
 }
@@ -50,8 +52,10 @@ macro getThisSourceDirectory {
         def dummy: 1;
         Spp.astMgr.insertAst(
             ast { "{{name}}" },
-            Srl.Map[Srl.String, ref[Core.Basic.TiObject]]()
-                .set(Srl.String("name"), Core.Basic.TiStr(Spp.astMgr.getSourceDirectoryForElement(dummy~ast)))
+            Srl.Map[Srl.String, ref[Core.Ast.Node]]()
+                .set(Srl.String("name"), Core.Ast.StringLiteral(
+                    Spp.astMgr.getSourceDirectoryForElement(dummy~ast).buf
+                ))
         );
     }
 }

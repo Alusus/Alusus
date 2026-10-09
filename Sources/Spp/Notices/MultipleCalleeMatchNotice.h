@@ -2,7 +2,7 @@
  * @file Spp/Notices/MultipleCalleeMatchNotice.h
  * Contains the header of class Spp::MultipleCalleeMatchNotice.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -31,24 +31,24 @@ class MultipleCalleeMatchNotice : public Core::Notices::Notice
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Data::SourceLocation> sourceLocation1;
-  private: SharedPtr<Data::SourceLocation> sourceLocation2;
+  private: SharedPtr<Core::Ast::SourceLocation> sourceLocation1;
+  private: SharedPtr<Core::Ast::SourceLocation> sourceLocation2;
 
 
   //============================================================================
   // Constructor / Destructor
 
   public: MultipleCalleeMatchNotice(
-    SharedPtr<Data::SourceLocation> const &sl1,
-    SharedPtr<Data::SourceLocation> const &sl2
+    SharedPtr<Core::Ast::SourceLocation> const &sl1,
+    SharedPtr<Core::Ast::SourceLocation> const &sl2
   ) : sourceLocation1(sl1), sourceLocation2(sl2)
   {
   }
 
   public: MultipleCalleeMatchNotice(
-    SharedPtr<Data::SourceLocation> const &sl,
-    SharedPtr<Data::SourceLocation> const &sl1,
-    SharedPtr<Data::SourceLocation> const &sl2
+    SharedPtr<Core::Ast::SourceLocation> const &sl,
+    SharedPtr<Core::Ast::SourceLocation> const &sl1,
+    SharedPtr<Core::Ast::SourceLocation> const &sl2
   ) : Notice(sl), sourceLocation1(sl1), sourceLocation2(sl2)
   {
   }

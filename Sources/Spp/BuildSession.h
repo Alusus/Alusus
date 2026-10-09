@@ -2,7 +2,7 @@
  * @file Spp/BuildSession.h
  * Contains the header of class Spp::BuildSession.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -29,7 +29,7 @@ class BuildSession : public TiObject
 
   private: Int buildId;
   private: Word buildType;
-  private: SharedPtr<CodeGen::ExtraDataAccessor> extraDataAccessor;
+  private: SharedPtr<CodeGen::CustomDataAccessor> customDataAccessor;
   private: SharedPtr<LlvmCodeGen::TargetGenerator> targetGenerator;
   private: SharedPtr<LlvmCodeGen::BuildTarget> buildTarget;
 
@@ -65,7 +65,7 @@ class BuildSession : public TiObject
     BuildSession *globalCtorSess
   ) : buildId(bId)
     , buildType(bType)
-    , extraDataAccessor(newSrdObj<CodeGen::ExtraDataAccessor>())
+    , customDataAccessor(newSrdObj<CodeGen::CustomDataAccessor>())
     , targetGenerator(tg)
     , buildTarget(bt)
     , globalCtors(gCtors)
@@ -73,7 +73,7 @@ class BuildSession : public TiObject
     , globalCtorSession(globalCtorSess)
     , codeGenSession(
       bId,
-      extraDataAccessor.get(),
+      customDataAccessor.get(),
       tg->getInterface<CodeGen::TargetGeneration>(),
       offlineExec,
       globalCtors.get(),
@@ -88,7 +88,7 @@ class BuildSession : public TiObject
   public: BuildSession(Int bId, BuildSession *bs)
     : buildId(bId)
     , buildType(bs->getBuildType())
-    , extraDataAccessor(bs->getExtraDataAccessor())
+    , customDataAccessor(bs->getExtraDataAccessor())
     , targetGenerator(bs->getTargetGenerator())
     , buildTarget(bs->getBuildTarget())
     , globalCtors(bs->getGlobalCtors())
@@ -96,7 +96,7 @@ class BuildSession : public TiObject
     , globalCtorSession(bs->getGlobalCtorSession())
     , codeGenSession(
       bId,
-      extraDataAccessor.get(),
+      customDataAccessor.get(),
       targetGenerator->getInterface<CodeGen::TargetGeneration>(),
       bs->getCodeGenSession()->isOfflineExecution(),
       globalCtors.get(),
@@ -122,9 +122,9 @@ class BuildSession : public TiObject
     return this->buildType;
   }
 
-  public: SharedPtr<CodeGen::ExtraDataAccessor> const& getExtraDataAccessor()
+  public: SharedPtr<CodeGen::CustomDataAccessor> const& getExtraDataAccessor()
   {
-    return this->extraDataAccessor;
+    return this->customDataAccessor;
   }
 
   public: SharedPtr<LlvmCodeGen::TargetGenerator> const& getTargetGenerator() const

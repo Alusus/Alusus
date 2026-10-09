@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/DestructionNode.h
  * Contains the header of class Spp::CodeGen::DestructionNode.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -20,7 +20,7 @@ class DestructionNode : public TiObject
 {
   TYPE_INFO(DestructionNode, TiObject, "Spp.CodeGen", "Spp", "alusus.org");
 
-  Core::Data::Node *astNode;
+  Core::Ast::Node *astNode;
   Ast::Type *astType;
   TioSharedPtr tgVar;
 };

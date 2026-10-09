@@ -2,7 +2,7 @@
  * @file Spp/Ast/Type.h
  * Contains the header of class Spp::Ast::Type.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -18,38 +18,12 @@ namespace Spp::Ast
 
 using namespace Core;
 
-class Type : public Core::Data::Node,
-             public Binding, public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class Type : public Core::Ast::Node
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Type, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org", (
-    INHERITANCE_INTERFACES(
-      Binding,
-      Core::Data::Ast::MetaHaving,
-      Core::Data::Printable
-    )
-  ));
-
-
-  //============================================================================
-  // Implementations
-
-  IMPLEMENT_METAHAVING(Type);
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
-
-
-  //============================================================================
-  // Constructor / Destructor
-
-  public: virtual ~Type()
-  {
-  }
+  TYPE_INFO(Type, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
 
 
   //============================================================================

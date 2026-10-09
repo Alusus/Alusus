@@ -2,7 +2,7 @@
  * @file Spp/Ast/Template.h
  * Contains the header of class Spp::Ast::Template.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,17 +16,15 @@
 namespace Spp::Ast
 {
 
-class Template : public Core::Data::Node,
-                 public Binding, public MapContaining<TiObject>, public Core::Data::Ast::Mergeable,
-                 public Core::Data::Ast::MetaHaving, public Core::Data::Printable
+class Template : public Core::Ast::Node,
+                 public MapContaining<Core::Ast::Node>, public Core::Ast::Mergeable
 {
   //============================================================================
   // Type Info
 
-  TYPE_INFO(Template, Core::Data::Node, "Spp.Ast", "Spp", "alusus.org");
+  TYPE_INFO(Template, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
-    Core::Data::Node, Binding, MapContaining<TiObject>, Core::Data::Ast::Mergeable,
-    Core::Data::Ast::MetaHaving, Core::Data::Printable
+    Core::Ast::Node, MapContaining<Core::Ast::Node>, Core::Ast::Mergeable
   );
   OBJECT_FACTORY(Template);
 
@@ -34,26 +32,19 @@ class Template : public Core::Data::Node,
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Core::Data::Ast::List> varDefs;
+  private: SharedPtr<Core::Ast::List> varDefs;
 
-  private: TioSharedPtr body;
+  private: SharedPtr<Core::Ast::Node> body;
 
-  private: SharedList<Core::Data::Ast::Scope> instances;
+  private: SharedList<Core::Ast::Scope> instances;
 
 
   //============================================================================
   // Implementations
 
-  IMPLEMENT_METAHAVING(Template);
-
-  IMPLEMENT_BINDING(Binding,
-    (prodId, TiWord, VALUE, setProdId(value), &prodId),
-    (sourceLocation, Core::Data::SourceLocation, SHARED_REF, setSourceLocation(value), sourceLocation.get())
-  );
-
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
-    (varDefs, Core::Data::Ast::List, SHARED_REF, setVarDefs(value), varDefs.get()),
-    (body, TiObject, SHARED_REF, setBody(value), body.get())
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
+    (varDefs, Core::Ast::List, SHARED_REF, setVarDefs(value), varDefs.get()),
+    (body, Core::Ast::Node, SHARED_REF, setBody(value), body.get())
   );
 
 
@@ -76,16 +67,16 @@ class Template : public Core::Data::Node,
   //============================================================================
   // Member Functions
 
-  public: void setVarDefs(SharedPtr<Core::Data::Ast::List> const &defs)
+  public: void setVarDefs(SharedPtr<Core::Ast::List> const &defs)
   {
     UPDATE_OWNED_SHAREDPTR(this->varDefs, defs);
   }
-  private: void setVarDefs(Core::Data::Ast::List *defs)
+  private: void setVarDefs(Core::Ast::List *defs)
   {
     this->setVarDefs(getSharedPtr(defs));
   }
 
-  public: SharedPtr<Core::Data::Ast::List> const& getVarDefs() const
+  public: SharedPtr<Core::Ast::List> const& getVarDefs() const
   {
     return this->varDefs;
   }
@@ -95,51 +86,61 @@ class Template : public Core::Data::Node,
     return this->varDefs == 0 ? 0 : this->varDefs->getCount();
   }
 
-  public: void setBody(TioSharedPtr const &b)
+  public: void setBody(SharedPtr<Core::Ast::Node> const &b)
   {
     UPDATE_OWNED_SHAREDPTR(this->body, b);
   }
-  private: void setBody(TiObject *b)
+  private: void setBody(Core::Ast::Node *b)
   {
     this->setBody(getSharedPtr(b));
   }
 
-  public: TioSharedPtr const& getBody() const
+  public: SharedPtr<Core::Ast::Node> const& getBody() const
   {
     return this->body;
   }
 
-  public: virtual TioSharedPtr const& getDefaultInstance(Helper *helper);
-  public: virtual Bool matchInstance(TiObject *templateInputs, Helper *helper, TioSharedPtr &result);
+  public: virtual SharedPtr<Core::Ast::Node> const& getDefaultInstance(Helper *helper);
+  /**
+   * @brief Find or create the instance matching the given inputs.
+   * On failure the notice will be set to the reason of the failure, if available.
+   */
+  public: virtual Bool matchInstance(
+    Core::Ast::Node *templateInputs, Helper *helper, SharedPtr<Core::Ast::Node> &result,
+    SharedPtr<Core::Notices::Notice> &notice
+  );
 
   private: Bool prepareTemplateVars(
-    TiObject *templateInputs, Helper *helper, PlainList<TiObject> *vars, SharedPtr<Core::Notices::Notice> &notice
+    Core::Ast::Node *templateInputs, Helper *helper, PlainList<Core::Ast::Node> *vars,
+    SharedPtr<Core::Notices::Notice> &notice
   );
 
   private: Bool matchTemplateVars(
-    Containing<TiObject> *templateInputs, Core::Data::Ast::Scope *instance, Helper *helper,
+    Containing<Core::Ast::Node> *templateInputs, Core::Ast::Scope *instance, Helper *helper,
     SharedPtr<Core::Notices::Notice> &notice
   );
   private: Bool matchTemplateVar(
-    TiObject *templateInput, Core::Data::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
+    Core::Ast::Node *templateInput, Core::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
     SharedPtr<Core::Notices::Notice> &notice
   );
 
   private: Bool assignTemplateVars(
-    Containing<TiObject> *templateInputs, Core::Data::Ast::Scope *instance, Helper *helper,
+    Containing<Core::Ast::Node> *templateInputs, Core::Ast::Scope *instance, Helper *helper,
     SharedPtr<Core::Notices::Notice> &notice
   );
 
-  public: static TiObject* getTemplateVar(Core::Data::Ast::Scope const *instance, Char const *name);
+  public: static Core::Ast::Node* getTemplateVar(Core::Ast::Scope const *instance, Char const *name);
 
-  private: static TiObject* traceObject(TiObject *ref, TemplateVarType varType, Helper *helper);
+  private: static Core::Ast::Node* traceObject(
+    Core::Ast::Node *ref, TemplateVarType varType, Helper *helper
+  );
 
   public: Word getInstanceCount() const
   {
     return this->instances.getCount();
   }
 
-  public: SharedPtr<Core::Data::Ast::Scope> const& getInstance(Int index)
+  public: SharedPtr<Core::Ast::Scope> const& getInstance(Int index)
   {
     return this->instances.get(index);
   }
@@ -148,11 +149,11 @@ class Template : public Core::Data::Node,
   //============================================================================
   // Mergeable Implementation
 
-  public: virtual Bool merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore);
+  public: virtual Bool merge(Core::Ast::Node *src, Core::Ast::Seeker *seeker, Core::Notices::Store *noticeStore);
 
 
   //============================================================================
-  // Printable Implementation
+  // Printing Functions
 
   public: virtual void print(OutStream &stream, Int indents=0) const;
 

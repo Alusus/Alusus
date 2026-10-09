@@ -39,8 +39,10 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   //============================================================================
   // Member Variables
 
-  private: SharedPtr<Data::Ast::Scope> rootScope;
-  private: SharedPtr<Data::Ast::Scope> exprRootScope;
+  private: SharedPtr<Ast::Scope> rootScope;
+  private: SharedPtr<Ast::Scope> exprRootScope;
+  private: SharedPtr<Grammar::Module> grammarRoot;
+  private: SharedPtr<Grammar::Module> exprGrammarRoot;
 
   private: RootScopeHandler rootScopeHandler;
   private: LibraryManager libraryManager;
@@ -50,7 +52,7 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   private: std::vector<Str> searchPaths;
   private: std::vector<Int> searchPathCounts;
 
-  private: Data::Seeker seeker;
+  private: Ast::Seeker seeker;
 
   private: Notices::Store noticeStore;
 
@@ -98,14 +100,24 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
   //============================================================================
   // Member Functions
 
-  public: SharedPtr<Data::Ast::Scope> const& getRootScope()
+  public: SharedPtr<Ast::Scope> const& getRootScope()
   {
     return this->rootScope;
   }
 
-  public: SharedPtr<Data::Ast::Scope> const& getExprRootScope()
+  public: SharedPtr<Ast::Scope> const& getExprRootScope()
   {
     return this->exprRootScope;
+  }
+
+  public: SharedPtr<Grammar::Module> const& getGrammarRoot()
+  {
+    return this->grammarRoot;
+  }
+
+  public: SharedPtr<Grammar::Module> const& getExprGrammarRoot()
+  {
+    return this->exprGrammarRoot;
   }
 
   public: RootScopeHandler* getRootScopeHandler()
@@ -118,7 +130,7 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
     return &this->libraryManager;
   }
 
-  public: Data::Seeker* getSeeker()
+  public: Ast::Seeker* getSeeker()
   {
     return &this->seeker;
   }
@@ -130,15 +142,15 @@ class RootManager : public TiObject, public DynamicBinding, public DynamicInterf
 
   public: void flushNotices();
 
-  public: virtual SharedPtr<TiObject> parseExpression(Char const *str);
+  public: virtual SharedPtr<Ast::Node> parseExpression(Char const *str);
 
-  public: virtual SharedPtr<TiObject> processString(Char const *str, Char const *name);
+  public: virtual SharedPtr<Ast::Node> processString(Char const *str, Char const *name);
 
-  public: virtual SharedPtr<TiObject> processFile(Char const *filename, Bool allowReprocess = false);
+  public: virtual SharedPtr<Ast::Node> processFile(Char const *filename, Bool allowReprocess = false);
 
-  private: virtual SharedPtr<TiObject> _processFile(Char const *fullPath, Bool allowReprocess = false);
+  private: virtual SharedPtr<Ast::Node> _processFile(Char const *fullPath, Bool allowReprocess = false);
 
-  public: virtual SharedPtr<TiObject> processStream(Processing::CharInStreaming *is, Char const *streamName);
+  public: virtual SharedPtr<Ast::Node> processStream(Processing::CharInStreaming *is, Char const *streamName);
 
   public: virtual Bool tryImportFile(Char const *filename, Str &errorDetails);
 

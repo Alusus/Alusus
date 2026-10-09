@@ -1,7 +1,7 @@
 /**
  * @file Spp/Rt/GrammarMgr.cpp
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -45,7 +45,7 @@ void GrammarMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRe
 // Operations
 
 void GrammarMgr::_addCustomCommand(
-  TiObject *self, Char const *qualifier, TiObject *ast, ParsingHandlerFunc func
+  TiObject *self, Char const *qualifier, Core::Ast::Node *ast, ParsingHandlerFunc func
 ) {
   PREPARE_SELF(grammarMgr, GrammarMgr);
   grammarMgr->grammarFactory->createCustomCommand(qualifier, ast, func, grammarMgr->rootManager->getNoticeStore());
@@ -54,7 +54,7 @@ void GrammarMgr::_addCustomCommand(
 
 
 Bool GrammarMgr::_addCustomGrammar(
-  TiObject *self, Char const *qualifier, Char const *baseQualifier, TiObject *ast
+  TiObject *self, Char const *qualifier, Char const *baseQualifier, Core::Ast::Node *ast
 ) {
   PREPARE_SELF(grammarMgr, GrammarMgr);
   auto result = grammarMgr->grammarFactory->createCustomGrammar(

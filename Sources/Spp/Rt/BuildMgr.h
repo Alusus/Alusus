@@ -2,7 +2,7 @@
  * @file Spp/Rt/BuildMgr.h
  * Contains the header of class Spp::Rt::BuildMgr.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -88,19 +88,20 @@ class BuildMgr : public TiObject, public DynamicBinding, public DynamicInterfaci
   /// @name Operations
   /// @{
 
-  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (TiObject*));
-  public: static void _dumpLlvmIrForElement(TiObject *self, TiObject *element);
+  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (Core::Ast::Node*));
+  public: static void _dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element);
 
-  public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (TiObject*, Char const*, Char const*));
+  public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (Core::Ast::Node*, Char const*, Char const*, Bool));
   public: static Bool _buildObjectFileForElement(
-    TiObject *self, TiObject *element, Char const *objectFilename, Char const *targetTriple
+    TiObject *self, Core::Ast::Node *element, Char const *objectFilename, Char const *targetTriple,
+    Bool optimize
   );
 
   public: METHOD_BINDING_CACHE(raiseBuildNotice, void, (
-    Char const* /* code */, Int /* severity */, TiObject* /* astNode */
+    Char const* /* code */, Int /* severity */, Core::Ast::Node* /* astNode */
   ));
   public: static void _raiseBuildNotice(
-    TiObject *self, Char const *code, Int severity, TiObject *astNode
+    TiObject *self, Char const *code, Int severity, Core::Ast::Node *astNode
   );
 
   /// @}

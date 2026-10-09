@@ -2,7 +2,7 @@
  * @file Core/Basic/TiObject.cpp
  * Contains the implementation of class Core::Basic::TiObject.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,7 +34,7 @@ ObjectTypeInfo const* TiObject::getTypeInfo()
     Char const *uniqueName = S("alusus.org#Core#Core.Basic.TiObject");
     type_info = reinterpret_cast<ObjectTypeInfo const*>(GLOBAL_STORAGE->getObject(uniqueName));
     if (type_info == 0) {
-      type_info = new ObjectTypeInfo(my_type, typeNamespace, packageName, url, 0, 0);
+      type_info = new ObjectTypeInfo(my_type, typeNamespace, packageName, url, 0, sizeof(TiObject), 0);
       GLOBAL_STORAGE->setObject(uniqueName, const_cast<ObjectTypeInfo*>(type_info));
     }
   }

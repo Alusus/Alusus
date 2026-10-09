@@ -210,14 +210,14 @@ int main(int argCount, char * const args[])
       root.noticeSignal.connect(noticeSlot);
 
       // Parse the provided filename.
-      TioSharedPtr ptr = root.processFile(sourceFile);
+      SharedPtr<Core::Ast::Node> ptr = root.processFile(sourceFile);
       if (ptr == 0) return EXIT_SUCCESS;
 
       // Print the parsed data.
       if (dump) {
         outStream << NEW_LINE << S("-- BUILD COMPLETE --") << NEW_LINE << NEW_LINE <<
                 S("Build Results:") << NEW_LINE << NEW_LINE;
-        Data::dumpData(outStream, ptr.get(), 0);
+        Ast::dumpAst(outStream, ptr.get(), 0);
         outStream << NEW_LINE;
       }
     } catch (FileException &e) {

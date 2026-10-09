@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/PostfixParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::PostfixParsingHandler
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -38,10 +38,10 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex) && this->isListTerm(state, levelIndex)) {
-      SharedPtr<TiObject> currentData = state->getData(levelIndex);
+      auto currentData = state->getData(levelIndex);
       if (currentData != 0) {
         state->setData(this->createPostfixObj(currentData, data), levelIndex);
         return;
@@ -56,10 +56,10 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
     else return GenericParsingHandler::isListObjEnforced(state, levelIndex);
   }
 
-  private: SharedPtr<TYPE> createPostfixObj(TioSharedPtr const &currentData,
-                                            TioSharedPtr const &data)
-  {
-    auto token = data.ti_cast_get<Data::Ast::Token>();
+  private: SharedPtr<TYPE> createPostfixObj(
+    SharedPtr<Core::Ast::Node> const &currentData, SharedPtr<Core::Ast::Node> const &data
+  ) {
+    auto token = data.ti_cast_get<Ast::Token>();
     if (token == 0) {
       throw EXCEPTION(InvalidArgumentException, S("data"), S("Invalid op token object received."),
                       currentData->getMyTypeInfo()->getUniqueName());
@@ -69,10 +69,7 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
     obj->setOperand(currentData);
     obj->setType(token->getText());
 
-    auto metadata = currentData.ti_cast_get<Data::Ast::MetaHaving>();
-    if (metadata != 0) {
-      obj->setSourceLocation(metadata->findSourceLocation());
-    }
+    obj->setSourceLocation(currentData->findSourceLocation());
     return obj;
   }
 

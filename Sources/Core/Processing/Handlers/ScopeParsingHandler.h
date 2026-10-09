@@ -2,7 +2,7 @@
  * @file Core/Processing/Handlers/ScopeParsingHandler.h
  * Contains the header of class Core::Processing::Handlers::ScopeParsingHandler.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -28,17 +28,17 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Variables
 
-  private: Data::Seeker *seeker;
+  private: Ast::Seeker *seeker;
 
 
   //============================================================================
   // Constructor
 
-  public: ScopeParsingHandler(Data::Seeker *seeker) : seeker(seeker)
+  public: ScopeParsingHandler(Ast::Seeker *seeker) : seeker(seeker)
   {
   }
 
-  public: static SharedPtr<ScopeParsingHandler<TYPE>> create(Data::Seeker *seeker)
+  public: static SharedPtr<ScopeParsingHandler<TYPE>> create(Ast::Seeker *seeker)
   {
     return newSrdObj<ScopeParsingHandler<TYPE>>(seeker);
   }
@@ -47,23 +47,23 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
   //============================================================================
   // Member Functions
 
-  public: virtual void onProdStart(Parser *parser, ParserState *state, Data::Token const *token)
+  public: virtual void onProdStart(Parser *parser, ParserState *state, Ast::Token const *token)
   {
     state->setData(newSrdObj<TYPE>());
   }
 
-  public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<TiObject> const &data)
+  public: virtual void onLevelExit(Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &data)
   {
     // TODO: Merge StatementLists into the scope.
     GenericParsingHandler::onLevelExit(parser, state, data);
   }
 
-  protected: virtual void addData(SharedPtr<TiObject> const &data, Parser *parser, ParserState *state, Int levelIndex)
+  protected: virtual void addData(SharedPtr<Ast::Node> const &data, Parser *parser, ParserState *state, Int levelIndex)
   {
     if (state->isAProdRoot(levelIndex)) {
-      auto listContainer = state->getData(levelIndex).ti_cast_get<DynamicContaining<TiObject>>();
+      auto listContainer = state->getData(levelIndex).ti_cast_get<DynamicContaining<Ast::Node>>();
       ASSERT(listContainer);
-      Core::Data::Ast::addPossiblyMergeableElement(data.get(), listContainer, this->seeker, state->getNoticeStore());
+      Core::Ast::addPossiblyMergeableElement(data.get(), listContainer, this->seeker, state->getNoticeStore());
     } else {
       GenericParsingHandler::addData(data, parser, state, levelIndex);
     }

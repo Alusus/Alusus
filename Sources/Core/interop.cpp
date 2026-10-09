@@ -2,7 +2,7 @@
  * @file Core/interop.cpp
  * Contains functions for Alusus-Cpp interoperability.
  *
- * @copyright Copyright (C) 2022 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -111,107 +111,118 @@ DL_EXPORTED Int Binding_findMemberIndex(Binding *self, Char const *key)
 
 
 //==============================================================================
-// Containing<TiObject> Functions
+// Core::Ast::Node Functions
 
-DL_EXPORTED void Containing_setElement(Containing<TiObject> *self, Int index, TiObject *val)
+DL_EXPORTED SharedPtr<Core::Ast::Node> const& CoreAstNode_getMetadata(Core::Ast::Node *self, Char const *name)
 {
-  self->setElement(index, val);
+  return self->getMetadata(name);
 }
 
-DL_EXPORTED Word Containing_getElementCount(Containing<TiObject> *self)
+DL_EXPORTED void CoreAstNode_setMetadata(Core::Ast::Node *self, Char const *name, SharedPtr<Core::Ast::Node> const &value)
 {
-  return self->getElementCount();
+  self->setMetadata(name, value);
 }
 
-DL_EXPORTED TiObject* Containing_getElement(Containing<TiObject> *self, Int index)
+DL_EXPORTED void CoreAstNode_removeMetadata(Core::Ast::Node *self, Char const *name)
 {
-  return self->getElement(index);
-}
-
-DL_EXPORTED TypeInfo const* Containing_getElementNeededType(Containing<TiObject> *self, Int index)
-{
-  return self->getElementNeededType(index);
+  self->removeMetadata(name);
 }
 
 
 //==============================================================================
-// DynamicContaining<TiObject> Functions
+// Containing Functions
+//
+// The containing interfaces are templates, so we need a set of functions for each content type. The name of each
+// function is prefixed with the name of the content type, which is the same prefix used by the Alusus side for the
+// exported names of these template classes.
 
-DL_EXPORTED Int DynamicContaining_addElement(DynamicContaining<TiObject> *self, TiObject *val)
-{
-  return self->addElement(val);
-}
+#define DEFINE_CONTAINING_FUNCTIONS(prefix, CTYPE) \
+  DL_EXPORTED void prefix##Containing_setElement(Containing<CTYPE> *self, Int index, CTYPE *val) \
+  { \
+    self->setElement(index, val); \
+  } \
+  DL_EXPORTED Word prefix##Containing_getElementCount(Containing<CTYPE> *self) \
+  { \
+    return self->getElementCount(); \
+  } \
+  DL_EXPORTED CTYPE* prefix##Containing_getElement(Containing<CTYPE> *self, Int index) \
+  { \
+    return self->getElement(index); \
+  } \
+  DL_EXPORTED TypeInfo const* prefix##Containing_getElementNeededType(Containing<CTYPE> *self, Int index) \
+  { \
+    return self->getElementNeededType(index); \
+  } \
+  DL_EXPORTED Int prefix##Containing_findElementIndex(Containing<CTYPE> *self, CTYPE *val) \
+  { \
+    return self->findElementIndex(val); \
+  } \
+  \
+  DL_EXPORTED Int prefix##DynamicContaining_addElement(DynamicContaining<CTYPE> *self, CTYPE *val) \
+  { \
+    return self->addElement(val); \
+  } \
+  DL_EXPORTED void prefix##DynamicContaining_insertElement( \
+    DynamicContaining<CTYPE> *self, Int index, CTYPE *val \
+  ) { \
+    self->insertElement(index, val); \
+  } \
+  DL_EXPORTED void prefix##DynamicContaining_removeElement(DynamicContaining<CTYPE> *self, Int index) \
+  { \
+    self->removeElement(index); \
+  } \
+  DL_EXPORTED TypeInfo const* prefix##DynamicContaining_getElementsNeededType(DynamicContaining<CTYPE> *self) \
+  { \
+    return self->getElementsNeededType(); \
+  } \
+  \
+  DL_EXPORTED Int prefix##MapContaining_setElement(MapContaining<CTYPE> *self, Char const *key, CTYPE *val) \
+  { \
+    return self->setElement(key, val); \
+  } \
+  DL_EXPORTED CTYPE* prefix##MapContaining_getElement(MapContaining<CTYPE> *self, Char const *key) \
+  { \
+    return self->getElement(key); \
+  } \
+  DL_EXPORTED TypeInfo const* prefix##MapContaining_getElementNeededType( \
+    MapContaining<CTYPE> *self, Char const *key \
+  ) { \
+    return self->getElementNeededType(key); \
+  } \
+  DL_EXPORTED Srl::String prefix##MapContaining_getElementKey(MapContaining<CTYPE> *self, Int index) \
+  { \
+    return Srl::String(true, self->getElementKey(index).getBuf()); \
+  } \
+  DL_EXPORTED Int prefix##MapContaining_findElementIndex(MapContaining<CTYPE> *self, Char const *key) \
+  { \
+    return self->findElementIndex(key); \
+  } \
+  \
+  DL_EXPORTED Int prefix##DynamicMapContaining_addElement( \
+    DynamicMapContaining<CTYPE> *self, Char const *key, CTYPE *val \
+  ) { \
+    return self->addElement(key, val); \
+  } \
+  DL_EXPORTED void prefix##DynamicMapContaining_insertElement( \
+    DynamicMapContaining<CTYPE> *self, Int index, Char const *key, CTYPE *val \
+  ) { \
+    self->insertElement(index, key, val); \
+  } \
+  DL_EXPORTED void prefix##DynamicMapContaining_removeElementByIndex( \
+    DynamicMapContaining<CTYPE> *self, Int index \
+  ) { \
+    self->removeElement(index); \
+  } \
+  DL_EXPORTED void prefix##DynamicMapContaining_removeElementByKey( \
+    DynamicMapContaining<CTYPE> *self, Char const *key \
+  ) { \
+    self->removeElement(key); \
+  } \
+  DL_EXPORTED TypeInfo const* prefix##DynamicMapContaining_getElementsNeededType( \
+    DynamicMapContaining<CTYPE> *self \
+  ) { \
+    return self->getElementsNeededType(); \
+  }
 
-DL_EXPORTED void DynamicContaining_insertElement(DynamicContaining<TiObject> *self, Int index, TiObject *val)
-{
-  self->insertElement(index, val);
-}
-
-DL_EXPORTED void DynamicContaining_removeElement(DynamicContaining<TiObject> *self, Int index)
-{
-  self->removeElement(index);
-}
-
-DL_EXPORTED TypeInfo const* DynamicContaining_getElementsNeededType(DynamicContaining<TiObject> *self)
-{
-  return self->getElementsNeededType();
-}
-
-
-//==============================================================================
-// MapContaining<TiObject> Functions
-
-DL_EXPORTED Int MapContaining_setElement(MapContaining<TiObject> *self, Char const *key, TiObject *val)
-{
-  return self->setElement(key, val);
-}
-
-DL_EXPORTED TiObject* MapContaining_getElement(MapContaining<TiObject> *self, Char const *key)
-{
-  return self->getElement(key);
-}
-
-DL_EXPORTED TypeInfo const* MapContaining_getElementNeededType(MapContaining<TiObject> *self, Char const *key)
-{
-  return self->getElementNeededType(key);
-}
-
-DL_EXPORTED Srl::String MapContaining_getElementKey(MapContaining<TiObject> *self, Int index)
-{
-  return Srl::String(true, self->getElementKey(index).getBuf());
-}
-
-DL_EXPORTED Int MapContaining_findElementIndex(MapContaining<TiObject> *self, Char const *key)
-{
-  return self->findElementIndex(key);
-}
-
-
-//==============================================================================
-// DynamicMapContaining<TiObject> Functions
-
-DL_EXPORTED Int DynamicMapContaining_addElement(DynamicMapContaining<TiObject> *self, Char const *key, TiObject *val)
-{
-  return self->addElement(key, val);
-}
-
-DL_EXPORTED void DynamicMapContaining_insertElement(
-  DynamicMapContaining<TiObject> *self, Int index, Char const *key, TiObject *val
-) {
-  self->insertElement(index, key, val);
-}
-
-DL_EXPORTED void DynamicMapContaining_removeElementByIndex(DynamicMapContaining<TiObject> *self, Int index)
-{
-  self->removeElement(index);
-}
-
-DL_EXPORTED void DynamicMapContaining_removeElementByKey(DynamicMapContaining<TiObject> *self, Char const *key)
-{
-  self->removeElement(key);
-}
-
-DL_EXPORTED TypeInfo const* DynamicMapContaining_getElementsNeededType(DynamicMapContaining<TiObject> *self)
-{
-  return self->getElementsNeededType();
-}
+DEFINE_CONTAINING_FUNCTIONS(CoreBasicTiObject_, TiObject)
+DEFINE_CONTAINING_FUNCTIONS(CoreAstNode_, Core::Ast::Node)

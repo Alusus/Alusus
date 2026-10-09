@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/Generation.h
  * Contains the header of class Spp::CodeGen::Generation.
  *
- * @copyright Copyright (C) 2025 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -86,7 +86,7 @@ class Generation : public ObjTiInterface
   /// @name Generation Functions
   /// @{
 
-  public: METHOD_BINDING_CACHE(generateModules, Bool, (Core::Data::Ast::Scope* /* root */, Session* /* session */));
+  public: METHOD_BINDING_CACHE(generateModules, Bool, (Core::Ast::Scope* /* root */, Session* /* session */));
 
   public: METHOD_BINDING_CACHE(generateModule, Bool, (Spp::Ast::Module* /* astModule */, Session* /* session */));
 
@@ -115,40 +115,40 @@ class Generation : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(generateVarDef,
-    Bool, (Core::Data::Ast::Definition* /* def */, Session* /* session */)
+    Bool, (Core::Ast::Definition* /* def */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(generateTempVar,
     Bool, (
-      Core::Data::Node* /* astNode */, Spp::Ast::Type* /* astType */, Session* /* session */, Bool /* initialize */,
+      Core::Ast::Node* /* astNode */, Spp::Ast::Type* /* astType */, Session* /* session */, Bool /* initialize */,
       TioSharedPtr& /* tgVar */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateVarInitialization, Bool, (
-    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
-    PlainList<TiObject>* /* paramAstNodes */, PlainList<TiObject>* /* paramAstTypes */,
+    Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Ast::Node* /* astNode */,
+    PlainList<Core::Ast::Node>* /* paramAstNodes */, PlainList<Core::Ast::Node>* /* paramAstTypes */,
     SharedList<TiObject>* /* paramTgValues */, Session* /* session */
   ));
 
   public: METHOD_BINDING_CACHE(generateMemberVarInitialization,
-    Bool, (TiObject* /* astMemberNode */, Session* /* session */)
+    Bool, (Core::Ast::Node* /* astMemberNode */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(generateVarDestruction,
     Bool, (
-      Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Data::Node* /* astNode */,
+      Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Ast::Node* /* astNode */,
       Session* /* session */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateMemberVarDestruction,
-    Bool, (TiObject* /* astMemberNode */, Session* /* session */)
+    Bool, (Core::Ast::Node* /* astMemberNode */, Session* /* session */)
   );
 
   public: METHOD_BINDING_CACHE(registerDestructor,
     void, (
-      Core::Data::Node* /* varAstNode */, Ast::Type* /* astType */, TioSharedPtr /* tgVar */,
+      Core::Ast::Node* /* varAstNode */, Ast::Type* /* astType */, TioSharedPtr /* tgVar */,
       DestructionStack* /* destructionStack */
     )
   );
@@ -159,39 +159,39 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateStatementBlock,
     Bool, (
-      TiObject* /* astBlock */, Session* /* session */,
+      Core::Ast::Node* /* astBlock */, Session* /* session */,
       TerminalStatement& /* terminal */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateStatement,
     Bool, (
-      TiObject* /* astNode */, Session* /* session */, TerminalStatement& /* terminal */
+      Core::Ast::Node* /* astNode */, Session* /* session */, TerminalStatement& /* terminal */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateExpression,
-    Bool, (TiObject* /* astNode */, Session* /* session */, GenResult& /* result */, TerminalStatement& /* terminal */)
+    Bool, (Core::Ast::Node* /* astNode */, Session* /* session */, GenResult& /* result */, TerminalStatement& /* terminal */)
   );
 
   public: METHOD_BINDING_CACHE(generateCast,
     Bool, (
       Session* /* session */, Spp::Ast::Type* /* srcType */, Spp::Ast::Type* /* destType */,
-      Core::Data::Node* /* astNode */, TiObject* /* tgValue */, Bool /* implicit */, GenResult& /* castedResult */
+      Core::Ast::Node* /* astNode */, TiObject* /* tgValue */, Bool /* implicit */, GenResult& /* castedResult */
     )
   );
 
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
-      Core::Data::Node* /* astNode */, Spp::Ast::Function* /* callee */,
-      Containing<TiObject>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
+      Core::Ast::Node* /* astNode */, Spp::Ast::Function* /* callee */,
+      Containing<Core::Ast::Node>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
       Session* /* session */, GenResult& /* result */
     )
   );
 
   public: METHOD_BINDING_CACHE(getGeneratedType,
     Bool, (
-      TiObject* /* ref */, Session* /* session */,
+      Core::Ast::Node* /* ref */, Session* /* session */,
       TiObject*& /* targetTypeResult */, Ast::Type** /* astTypeResult */
     )
   );

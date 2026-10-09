@@ -2,7 +2,7 @@
  * @file Core/Processing/ParserTermLevel.h
  * Contains the header of class Core::Processing::ParserTermLevel.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -43,7 +43,7 @@ class ParserTermLevel
   private: Word posId;
 
   /// Pointer to the current level's term object.
-  private: Data::Grammar::Term *term;
+  private: Grammar::Term *term;
 
   private: TiObject *param1;
 
@@ -98,13 +98,13 @@ class ParserTermLevel
   }
 
   /// Set the term object of this level.
-  protected: void setTerm(Data::Grammar::Term *t)
+  protected: void setTerm(Grammar::Term *t)
   {
     this->term = t;
   }
 
   /// Get the term object of this level.
-  public: Data::Grammar::Term* getTerm() const
+  public: Grammar::Term* getTerm() const
   {
     return this->term;
   }

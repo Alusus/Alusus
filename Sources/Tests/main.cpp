@@ -27,7 +27,7 @@
 #include <string>
 
 using Core::Notices::Notice;
-using Core::Data::Ast::List;
+using Core::Ast::List;
 using Core::Main::RootManager;
 
 namespace Tests

@@ -17,10 +17,8 @@ UserType [Main.Type]
    operand: Identifier: defInt [Main.BlockSubject.Identifier]
    param: Identifier: x [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] getDouble
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -116,10 +114,8 @@ UserType [Main.Type]
  body: Block [Main.BlockStatements.StmtList]
   Definition [Main.Def] x: Identifier: Int [Main.BlockSubject.Identifier]
   Definition [Main.LeadingCmdGrp] getDouble
-   modifiers:
-    ParamPass []
-     operand: Identifier: operation
-     param: StringLiteral: ()
+   metadata:
+    operation: StringLiteral: ()
    target: Function 
      type: FunctionType member: 1
       argTypes: Map
@@ -192,6 +188,8 @@ Function testAstLiteral1() [Main.Function]
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]
   AstLiteralCommand [Main.AstLiteral]
+   props:
+    preprocessDisabled: TiBoolBase<alusus.org/Core/Core.Basic.TiObject>: false
    body: Definition [Main.Def] n: Identifier: Int [Main.BlockSubject.Identifier]
 ------------------------------------------------------
 ------------------ Parsed Data Dump ------------------
@@ -201,6 +199,8 @@ Function testAstLiteral2() [Main.Function]
   retType: NULL
  body: Block [Main.BlockStatements.StmtList]
   AstLiteralCommand [Main.AstLiteral]
+   props:
+    preprocessDisabled: TiBoolBase<alusus.org/Core/Core.Basic.TiObject>: true
    body: ParamPass [] [Main.Expression.ParamPassExp]
     operand: Identifier: defInt [Main.BlockSubject.Identifier]
     param: Identifier: n [Main.BlockSubject.Identifier]

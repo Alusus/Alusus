@@ -2,7 +2,7 @@
  * @file Core/Basic/SharedMapBase.h
  * Contains the header of class Core::Basic::SharedMapBase.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -273,9 +273,9 @@ template<class CTYPE, class PTYPE> class SharedMapBase : public PTYPE, public Dy
   /// @name Data Access Functions
   /// @{
 
-  public: void add(std::initializer_list<Argument> const &args)
+  public: void add(std::initializer_list<Argument<CTYPE>> const &args)
   {
-    for (auto arg : args) this->add(arg.id, arg.shared.ti_cast<CTYPE>());
+    for (auto arg : args) this->add(arg.id, arg.shared);
   }
 
   public: Int add(Char const *key, SharedPtr<CTYPE> const &val)

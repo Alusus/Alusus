@@ -2,7 +2,7 @@
  * @file Spp/Notices/MultipleCalleeMatchNotice.cpp
  * Contains the implementation of class Spp::Notices::MultipleCalleeMatchNotice.
  *
- * @copyright Copyright (C) 2023 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -34,9 +34,9 @@ Bool MultipleCalleeMatchNotice::isEqual(Notice *notice) const
 {
   auto mcmNotice = ti_cast<MultipleCalleeMatchNotice>(notice);
   if (mcmNotice == 0) return false;
-  return Data::isEqual(this->getSourceLocation().get(), mcmNotice->getSourceLocation().get()) &&
-    Data::isEqual(this->sourceLocation1.get(), mcmNotice->sourceLocation1.get()) &&
-    Data::isEqual(this->sourceLocation2.get(), mcmNotice->sourceLocation2.get());
+  return Core::Ast::isEqual(this->getSourceLocation().get(), mcmNotice->getSourceLocation().get()) &&
+    Core::Ast::isEqual(this->sourceLocation1.get(), mcmNotice->sourceLocation1.get()) &&
+    Core::Ast::isEqual(this->sourceLocation2.get(), mcmNotice->sourceLocation2.get());
 }
 
 } // namespace

@@ -1,0 +1,132 @@
+/**
+ * @file Core/Ast.alusus
+ * Interoperability definitions for the Core's AST classes.
+ *
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "Basic";
+import "Spp";
+import "Srl/Map";
+import "Srl/String";
+
+@merge module Core {
+    module Ast {
+        use Basic;
+
+        class Node {
+            @injection def tiObject: TiObject;
+            def binding: TiInterface;
+            def owner: ref[Node];
+            preprocess {
+                Core.insertClassPadding(TiObject~size + TiInterface~size + ptr~size, "alusus.org/Core/Core.Ast.Node");
+            }
+
+            handler this.isOwnedBy(obj: ref[TiObject]): Bool {
+                def o: ref[Node](this.owner);
+                while o~ptr != 0 && o~ptr != obj~ptr { o~no_deref = o.owner };
+                return o~ptr == obj~ptr;
+            }
+
+            @expname[CoreAstNode_getMetadata]
+            handler this.getMetadata(name: ptr[array[Char]]): ref[Srl.SrdRef[Node]];
+
+            @expname[CoreAstNode_setMetadata]
+            handler this.setMetadata(name: ptr[array[Char]], value: ref[Srl.SrdRef[Node]]);
+
+            @expname[CoreAstNode_removeMetadata]
+            handler this.removeMetadata(name: ptr[array[Char]]);
+
+            defTypeInfoGetter["alusus.org/Core/Core.Ast.Node"];
+        }
+
+        macro defTextAstType [name, uniqueName] {
+            class name {
+                @injection def node: Node;
+                def value: TiStr;
+
+                preprocess {
+                    Core.insertClassPadding(Node~size + TiStr~size, uniqueName);
+                }
+
+                handler this~init() {
+                    getTypeInfo().objectFactory.initialize(this);
+                }
+                handler this~init(v: ptr[array[Char]]) {
+                    getTypeInfo().objectFactory.initialize(this);
+                    this.value = v;
+                }
+                handler this~terminate() {
+                    getTypeInfo().objectFactory.terminate(this);
+                    // We need to re-initialize value to avoid segfault caused by double termination of value when
+                    // Alusus auto-destructor tries to destroy value which was already destroyed by the object
+                    // factory.
+                    this.value~init();
+                }
+
+                func create (v: ptr[array[Char]]): Srl.SrdRef[name] {
+                    def r: Srl.SrdRef[name];
+                    r.alloc()~init(v);
+                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    return r;
+                }
+
+                defTypeInfoGetter[uniqueName];
+            }
+        }
+
+        defTextAstType[Identifier, "alusus.org/Core/Core.Ast.Identifier"];
+        defTextAstType[IntegerLiteral, "alusus.org/Core/Core.Ast.IntegerLiteral"];
+        defTextAstType[FloatLiteral, "alusus.org/Core/Core.Ast.FloatLiteral"];
+        defTextAstType[CharLiteral, "alusus.org/Core/Core.Ast.CharLiteral"];
+        defTextAstType[StringLiteral, "alusus.org/Core/Core.Ast.StringLiteral"];
+
+        macro defAstType[name, uniqueName] {
+            class name {
+                @injection def node: Core.Ast.Node;
+
+                preprocess {
+                    Core.insertClassPadding(Core.Ast.Node~size, uniqueName);
+                }
+
+                handler this~init() {
+                    getTypeInfo().objectFactory.initialize(this);
+                }
+                handler this~terminate() {
+                    getTypeInfo().objectFactory.terminate(this);
+                }
+
+                Core.Basic.defTypeInfoGetter[uniqueName];
+            }
+        }
+
+        defAstType[Alias, "alusus.org/Core/Core.Ast.Alias"];
+        defAstType[Bracket, "alusus.org/Core/Core.Ast.Bracket"];
+        defAstType[Bridge, "alusus.org/Core/Core.Ast.Bridge"];
+        defAstType[Definition, "alusus.org/Core/Core.Ast.Definition"];
+        defAstType[GenericCommand, "alusus.org/Core/Core.Ast.GenericCommand"];
+        defAstType[List, "alusus.org/Core/Core.Ast.List"];
+        defAstType[Map, "alusus.org/Core/Core.Ast.Map"];
+        defAstType[MergeList, "alusus.org/Core/Core.Ast.MergeList"];
+        defAstType[ParamPass, "alusus.org/Core/Core.Ast.ParamPass"];
+        defAstType[Scope, "alusus.org/Core/Core.Ast.Scope"];
+        defAstType[Token, "alusus.org/Core/Core.Ast.Token"];
+        defAstType[PrefixOperator, "alusus.org/Core/Core.Ast.PrefixOperator"];
+        defAstType[PostfixOperator, "alusus.org/Core/Core.Ast.PostfixOperator"];
+        defAstType[AssignmentOperator, "alusus.org/Core/Core.Ast.AssignmentOperator"];
+        defAstType[ComparisonOperator, "alusus.org/Core/Core.Ast.ComparisonOperator"];
+        defAstType[AdditionOperator, "alusus.org/Core/Core.Ast.AdditionOperator"];
+        defAstType[MultiplicationOperator, "alusus.org/Core/Core.Ast.MultiplicationOperator"];
+        defAstType[BitwiseOperator, "alusus.org/Core/Core.Ast.BitwiseOperator"];
+        defAstType[LogOperator, "alusus.org/Core/Core.Ast.LogOperator"];
+        defAstType[LinkOperator, "alusus.org/Core/Core.Ast.LinkOperator"];
+        defAstType[ConditionalOperator, "alusus.org/Core/Core.Ast.ConditionalOperator"];
+        defAstType[Passage, "alusus.org/Core/Core.Ast.Passage"];
+        addExtraBindingInitializer[Passage, "target", ref[TiObject]];
+    }
+}

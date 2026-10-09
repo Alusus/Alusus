@@ -2,7 +2,7 @@
  * @file Spp/Ast/DataType.h
  * Contains the header of class Spp::Ast::DataType.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -16,14 +16,14 @@
 namespace Spp::Ast
 {
 
-class DataType : public Type, public MapContaining<TiObject>
+class DataType : public Type, public MapContaining<Core::Ast::Node>
 {
   //============================================================================
   // Type Info
 
   TYPE_INFO(DataType, Type, "Spp.Ast", "Spp", "alusus.org", (
     INHERITANCE_INTERFACES(
-      MapContaining<TiObject>
+      MapContaining<Core::Ast::Node>
     )
   ));
 
@@ -37,7 +37,7 @@ class DataType : public Type, public MapContaining<TiObject>
   //============================================================================
   // Implementations
 
-  IMPLEMENT_MAP_CONTAINING(MapContaining<TiObject>,
+  IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
     (body, Spp::Ast::Block, SHARED_REF, setBody(value), body.get())
   );
 

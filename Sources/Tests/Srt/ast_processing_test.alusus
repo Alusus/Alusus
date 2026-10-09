@@ -1,29 +1,29 @@
 import "Srl/Console";
 import "Srl/refs_base";
 import "Srl/System";
-import "Core/Data";
+import "Core/Ast";
 import "Spp";
+import "Spp/Ast";
 
 use Srl;
 use Core.Basic;
-use Core.Data;
-use Core.Data.Ast;
-def TioSrdRef: alias SrdRef[Core.Basic.TiObject];
+use Core.Ast;
+def AstSrdRef: alias SrdRef[Core.Ast.Node];
 
-func generateWhere (obj: ref[TiObject]): TioSrdRef {
-    def result: TioSrdRef;
+func generateWhere (obj: ref[Core.Ast.Node]): AstSrdRef {
+    def result: AstSrdRef;
     if obj~ptr == 0 {
         System.fail(1, "generateWhere: obj is null.\n");
     }
 
     if isDerivedFrom[obj, ComparisonOperator] {
         def binding: ref[Binding](getInterface[obj, Binding]);
-        def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+        def mapContaining: ref[MapContaining[Core.Ast.Node]](getInterface[obj, MapContaining[Core.Ast.Node]]);
         if !Spp.astMgr.buildAst(
             ast { String("{{name}}") + String(" {{op}} '") + val  + String("'") },
-            Map[String, ref[TiObject]]()
+            Map[String, ref[Core.Ast.Node]]()
                 .set(String("name"), mapContaining.getElement("first"))
-                .set(String("op"), binding.getMember("type"))
+                .set(String("op"), StringLiteral(castRef[binding.getMember("type"), TiStr].value.buf))
                 .set(String("val"), mapContaining.getElement("second")),
             result
         ) {
@@ -31,22 +31,22 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
         }
     } else if isDerivedFrom[obj, LogOperator] {
         def binding: ref[Binding](getInterface[obj, Binding]);
-        def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+        def mapContaining: ref[MapContaining[Core.Ast.Node]](getInterface[obj, MapContaining[Core.Ast.Node]]);
         if !Spp.astMgr.buildAst(
             ast { (cond1) + String(" {{op}} ") + (cond2) },
-            Map[String, ref[TiObject]]()
+            Map[String, ref[Core.Ast.Node]]()
                 .set(String("cond1"), generateWhere(mapContaining.getElement("first")).obj)
-                .set(String("op"), binding.getMember("type"))
+                .set(String("op"), StringLiteral(castRef[binding.getMember("type"), TiStr].value.buf))
                 .set(String("cond2"), generateWhere(mapContaining.getElement("second")).obj),
             result
         ) {
             System.fail(1, "generateWhere/LogOperator: error\n");
         }
     } else if isDerivedFrom[obj, Bracket] {
-        def mapContaining: ref[MapContaining](getInterface[obj, MapContaining]);
+        def mapContaining: ref[MapContaining[Core.Ast.Node]](getInterface[obj, MapContaining[Core.Ast.Node]]);
         if !Spp.astMgr.buildAst(
             ast { String("(") + (cond) + String(")") },
-            Map[String, ref[TiObject]]()
+            Map[String, ref[Core.Ast.Node]]()
                 .set(String("cond"), generateWhere(mapContaining.getElement("operand")).obj),
             result
         ) {
@@ -55,7 +55,7 @@ func generateWhere (obj: ref[TiObject]): TioSrdRef {
     } else {
         if !Spp.astMgr.buildAst(
             obj,
-            Map[String, ref[TiObject]](),
+            Map[String, ref[Core.Ast.Node]](),
             result
         ) {
             System.fail(1, "Failed to build condition.\n");
@@ -81,3 +81,49 @@ func test {
     Console.print("%s\n", query.buf);
 }
 test();
+
+class SpaceTime {
+    preprocess {
+        // Schedule the insertion of new members at the end of this class body.
+        def body: ref[Core.Ast.Node](MapContainerOf[this_type~ast, Core.Ast.Node].getElement("body"));
+        DynContainerOf[body, Core.Ast.Node].addElement(Spp.astMgr.buildAst(
+            (@no_preprocess ast 
+                preprocess {
+                    if !Spp.astMgr.insertAst(ast { def time: Int; }) {
+                        System.fail(1, "Failed to generate SpaceTime's fields.\n");
+                    }
+                }
+            ),
+            Map[String, ref[Core.Ast.Node]]()
+        ));
+        // Dynamically insert new members now.
+        if !Spp.astMgr.insertAst(ast { def width: Int; def height: Int; }) {
+            System.fail(1, "Failed to generate SpaceTime's fields.\n");
+        }
+    }
+    def depth: Int;
+}
+
+macro dumpFields [typeRef] {
+    preprocess {
+        def userType: ref[Spp.Ast.UserType](
+            castRef[Spp.astMgr.traceType(typeRef~ast), Spp.Ast.UserType]
+        );
+
+        // Force preprocessing of the user type before printing its members.
+        if !Spp.astMgr.preprocessTypeBody(userType) {
+            System.fail(1, "Failed to preprocess the type's body.\n");
+        }
+
+        def varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
+        Console.print("Found %d field(s):\n", varNames.getLength());
+        def i: Int;
+        for i = 0, i < varNames.getLength(), ++i {
+            Console.print("- %s\n", varNames(i).buf);
+        }
+    }
+}
+
+dumpFields[SpaceTime];
+
+dump_ast SpaceTime;

@@ -15,7 +15,6 @@ namespace Spp
 {
 
 using namespace Core;
-using namespace Core::Data;
 using namespace Core::Processing;
 using namespace Core::Processing::Handlers;
 
@@ -34,7 +33,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->calleeTracer = newSrdObj<Ast::CalleeTracer>(this->astHelper.get());
 
   // Create global repos.
-  this->astNodeRepo = newSrdObj<SharedList<TiObject>>();
+  this->astNodeRepo = newSrdObj<SharedList<Core::Ast::Node>>();
   this->globalItemRepo = newSrdObj<CodeGen::GlobalItemRepo>();
 
   // Create the generator.
@@ -70,6 +69,7 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 
   this->astProcessor = newSrdObj<CodeGen::AstProcessor>(
     this->astHelper.get(),
+    this->calleeTracer.get(),
     this->buildManager.ti_cast_get<Executing>(),
     this->buildManager.ti_cast_get<ExpressionComputation>(),
     this->astNodeRepo.get()
@@ -139,7 +139,7 @@ void LibraryGateway::uninitialize(Main::RootManager *manager)
 
 void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 {
-  Core::Data::Ast::Identifier identifier;
+  Core::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
   SharedPtr<Ast::Template> tmplt;
 
@@ -158,9 +158,9 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   );
 
   // Int
-  auto defaultIntBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
+  auto defaultIntBitCount = Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultIntBitCount)
   }));
   tmplt->setBody(Ast::IntegerType::create({ { S("withSign"), TiBool(true) } }));
@@ -168,9 +168,9 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Word
-  auto defaultWordBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
+  auto defaultWordBitCount = Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultWordBitCount)
   }));
   tmplt->setBody(Ast::IntegerType::create({ { S("withSign"), TiBool(false) } }));
@@ -178,9 +178,9 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // Float
-  auto defaultFloatBitCount = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
+  auto defaultFloatBitCount = Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("32")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("bitCount"), Ast::TemplateVarType::INTEGER, defaultFloatBitCount)
   }));
   tmplt->setBody(Ast::FloatType::create());
@@ -189,8 +189,8 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 
   // ptr
   tmplt = Ast::Template::create();
-  auto defaultPtrType = Core::Data::Ast::Identifier::create({{ S("value"), TiStr(S("Void")) }});
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  auto defaultPtrType = Core::Ast::Identifier::create({{ S("value"), TiStr(S("Void")) }});
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE, defaultPtrType)
   }));
   tmplt->setBody(Ast::PointerType::create());
@@ -199,7 +199,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 
   // ref
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
   tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::EXPLICIT) } }));
@@ -208,7 +208,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 
   // temp_ref
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
   tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::TEMP_EXPLICIT) } }));
@@ -217,7 +217,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 
   // iref
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
   tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::IMPLICIT) } }));
@@ -226,7 +226,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 
   // ndref
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE)
   }));
   tmplt->setBody(Ast::ReferenceType::create({ { S("mode"), Ast::ReferenceMode(Ast::ReferenceMode::NO_DEREF) } }));
@@ -234,9 +234,9 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
   // array
-  auto defaultArraySize = Core::Data::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
+  auto defaultArraySize = Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
   tmplt = Ast::Template::create();
-  tmplt->setVarDefs(Core::Data::Ast::List::create({}, {
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
     newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE),
     newSrdObj<Ast::TemplateVarDef>(S("size"), Ast::TemplateVarType::INTEGER, defaultArraySize)
   }));
@@ -248,7 +248,7 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
 
 void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
 {
-  Core::Data::Ast::Identifier identifier;
+  Core::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
 
   identifier.setValue(S("Void"));
@@ -315,7 +315,7 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
 
 void LibraryGateway::removeGlobalDefs(Core::Main::RootManager *manager)
 {
-  Core::Data::Ast::Identifier identifier;
+  Core::Ast::Identifier identifier;
   auto root = manager->getRootScope().get();
 
   identifier.setValue(S("Process"));
@@ -354,6 +354,13 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   this->globalItemRepo->addItem(S("!Core.rootManager"), sizeof(void*), &manager);
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile
+  );
+  this->globalItemRepo->addItem(
+    S("RootManager_prefixAlususTemplateClassFuncExpNames"),
+    (void*)&RootManagerExtension::_prefixAlususTemplateClassFuncExpNames
+  );
+  this->globalItemRepo->addItem(
+    S("RootManager_insertClassPadding"), (void*)&RootManagerExtension::_insertClassPadding
   );
   Rt::GrammarMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtGrammarMgr.get());
   Rt::AstMgr::initializeRuntimePointers(this->globalItemRepo.get(), this->rtAstMgr.get());

@@ -2,7 +2,7 @@
  * @file Spp/CodeGen/CommandGenerator.h
  * Contains the header of class Spp::CodeGen::CommandGenerator.
  *
- * @copyright Copyright (C) 2021 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -141,10 +141,10 @@ class CommandGenerator : public TiObject, public DynamicBinding, public DynamicI
   /// @name Helper Functions
   /// @{
 
-  private: Bool generateCondition(TiObject *astNode, Generation *g, Session *session, GenResult &result);
+  private: Bool generateCondition(Core::Ast::Node *astNode, Generation *g, Session *session, GenResult &result);
 
   private: Bool castCondition(
-    Generation *g, Session *session, TiObject *astNode, Spp::Ast::Type *astType,
+    Generation *g, Session *session, Core::Ast::Node *astNode, Spp::Ast::Type *astType,
     TiObject *tgValue, TioSharedPtr &result
   );
 

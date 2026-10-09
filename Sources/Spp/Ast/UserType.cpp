@@ -2,7 +2,7 @@
  * @file Spp/Ast/UserType.cpp
  * Contains the implementation of class Spp::Ast::UserType.
  *
- * @copyright Copyright (C) 2024 Sarmad Khalid Abdullah
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
  *
  * @license This file is released under Alusus Public License, Version 1.0.
  * For details on usage and copying conditions read the full license in the
@@ -24,7 +24,7 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Type
     auto body = this->getBody().get();
     if (body != 0) {
       for (Int i = 0; i < body->getElementCount(); ++i) {
-        auto def = ti_cast<Core::Data::Ast::Definition>(body->getElement(i));
+        auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
         if (def != 0 && !helper->isSharedDef(def)) {
           auto obj = def->getTarget().get();
           if (obj != 0 && helper->isInMemVariable(obj)) {
@@ -49,18 +49,18 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Type
 }
 
 
-Bool UserType::merge(TiObject *src, Core::Data::Seeker *seeker, Core::Notices::Store *noticeStore)
+Bool UserType::merge(Core::Ast::Node *src, Core::Ast::Seeker *seeker, Core::Notices::Store *noticeStore)
 {
   VALIDATE_NOT_NULL(src, noticeStore);
   if (src->isA<Block>()) {
-    auto scope = static_cast<Core::Data::Ast::Scope*>(src);
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
+    auto scope = static_cast<Core::Ast::Scope*>(src);
+    return Core::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
   } else if (src->isDerivedFrom<UserType>()) {
     auto scope = static_cast<UserType*>(src)->getBody().get();
-    return Core::Data::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
+    return Core::Ast::addPossiblyMergeableElements(scope, this->getBody().get(), seeker, noticeStore);
   } else {
     noticeStore->add(
-      newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Data::Ast::findSourceLocation(src))
+      newSrdObj<Core::Notices::IncompatibleDefMergeNotice>(Core::Ast::findSourceLocation(src))
     );
   }
   return false;
@@ -74,7 +74,7 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper) const
   if (body != 0) {
     for (Int i = 0; i < body->getCount(); ++i) {
       auto statement = body->getElement(i);
-      auto def = ti_cast<Core::Data::Ast::Definition>(statement);
+      auto def = ti_cast<Core::Ast::Definition>(statement);
       if (def != 0) {
         if (def->getTarget() != 0) {
           if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
@@ -83,8 +83,8 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper) const
               if (method == TypeInitMethod::BOTH) break;
             }
           } else if (helper->isInMemVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
-            auto paramPass = ti_cast<Core::Data::Ast::ParamPass>(def->getTarget().get());
-            if (paramPass != 0 && paramPass->getType() == Core::Data::Ast::BracketType::ROUND) {
+            auto paramPass = ti_cast<Core::Ast::ParamPass>(def->getTarget().get());
+            if (paramPass != 0 && paramPass->getType() == Core::Ast::BracketType::ROUND) {
               // If there are args passed to the definition then it's an AUTO init method even if the object type
               // is a primary data type.
               method |= TypeInitMethod::AUTO;
@@ -116,7 +116,7 @@ TypeInitMethod UserType::getDestructionMethod(Helper *helper) const
   if (body != 0) {
     for (Int i = 0; i < body->getCount(); ++i) {
       auto statement = body->getElement(i);
-      auto def = ti_cast<Core::Data::Ast::Definition>(statement);
+      auto def = ti_cast<Core::Ast::Definition>(statement);
       if (def != 0) {
         if (def->getTarget() != 0) {
           if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
