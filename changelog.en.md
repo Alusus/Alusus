@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.16.0 (2026-10-xx)
+## Version 0.16.0 (2026-10-09)
 
 ### Updates to the Compiler
 
@@ -56,6 +56,7 @@
 
 
 ## Version 0.15.3 (2026-08-28)
+<details>
 
 * Add new helper macros to Srl:
   - allocObj
@@ -67,20 +68,26 @@
 * Fixed a bug in `AstMtr.getModifierStringParams`.
 * Replaced HTML documentation with a markdown version.
 * Restructured the SRT documentation.
+</details>
 
 
 ## Version 0.15.2 (2026-07-10)
+<details>
 
 * Fixed a bug in `Srl.Map.setAt`.
+</details>
 
 
 ## Version 0.15.1 (2026-06-14)
+<details>
 
 * Fixed infinite loop issue in the compiler when facing circular injections (`@injection`).
 * Fixed an issue in `Regex.Matcher` when dealing with parenthesis for creating regex groups.
+</details>
 
 
 ## Version 0.15.0 (2026-05-16)
+<details>
 
 ### Updates to the Compiler
 
@@ -101,6 +108,7 @@
 * Added `Array.setLength` method.
 * Fixed some issues with the `Array` class.
 * Fixed incorrect signature for `System.sleep`.
+</details>
 
 
 ## Version 0.14.2 (2026-01-11)
