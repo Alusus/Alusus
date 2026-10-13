@@ -2252,17 +2252,30 @@ func getString (str: ptr[array[Char]], size: Word);
 
 تحتوي وحدة `نـظام` على التعريفات التالية:
 
-#### نم (sleep)
+#### نم_ميكرو (usleep)
 
 ```
-@تصدير[usleep] دالة نم (ط: طـبيعي): صـحيح؛
+@تصدير[usleep] دالة نم_ميكرو (ط: طـبيعي): صـحيح؛
 ```
 
 ```
-@expname[usleep] func sleep (w: Word): Int;
+@expname[usleep] func usleep (w: Word): Int;
 ```
 
 مطابقة لدالة usleep من POSIX.
+
+#### نم (sleep)
+
+```
+@تصدير[sleep] دالة نم (ط: طـبيعي): طـبيعي؛
+```
+
+```
+@expname[sleep] func sleep (w: Word): Word;
+```
+
+مطابقة لدالة sleep من POSIX.
+
 
 #### اضبط_متغيرا_محيطيا (setEnv)
 

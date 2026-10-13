@@ -1522,13 +1522,21 @@ Each one of these functions returns a pointer to an array of chars which could b
 
 `System` module contains the following definitions:
 
-#### sleep
+#### usleep
 
 ```
-@expname[usleep] func sleep (w: Word): Int;
+@expname[usleep] func usleep (w: Word): Int;
 ```
 
 This is the same as `usleep` function from POSIX.
+
+#### sleep 
+
+```
+@expname[sleep] func sleep (w: Word): Word;
+```
+
+This is the same as `sleep` function from POSIX.
 
 #### setEnv
 
