@@ -2276,6 +2276,27 @@ func getString (str: ptr[array[Char]], size: Word);
 
 مطابقة لدالة sleep من POSIX.
 
+#### نم_نانو (nanosleep)
+
+```
+صنف مواصفة_الوقت {
+عرف ثوان : صـحيح_متكيف؛
+عرف نانوثوان : صـحيح_متكيف؛
+}
+
+@تصدير[nanosleep] دالة نم_نانو (مطلوب: مؤشر[مواصفة_الوقت]، باقي: مؤشر[مواصفة_الوقت]): صـحيح؛
+```
+
+```
+class TimeSpec {
+    def tvSec : ArchInt;
+    def tvNsec: ArchInt; 
+}
+
+@expname[nanosleep] func nanosleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
+```
+
+مطابقة لدالة nanosleep من POSIX.
 
 #### اضبط_متغيرا_محيطيا (setEnv)
 

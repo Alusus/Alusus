@@ -1538,6 +1538,19 @@ This is the same as `usleep` function from POSIX.
 
 This is the same as `sleep` function from POSIX.
 
+#### nanosleep
+
+```
+class TimeSpec {
+    def tvSec : ArchInt;
+    def tvNsec: ArchInt; 
+}
+
+@expname[nanosleep] func nanosleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
+```
+
+This is the same as `nanosleep` function from POSIX.
+
 #### setEnv
 
 ```
