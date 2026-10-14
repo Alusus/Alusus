@@ -790,7 +790,7 @@ void StandardFactory::createTokenDataModule()
    {S("=>"), 0},
    {S(".."), 0},
    {S("..>"), 0},
-   {S("<.>"), 0}
+   {S("<.."), 0}
   }, true));
   // lowerLinkOpList : keywords = (":", ":>", "<:");
   this->set(S("root.TokenData.lowerLinkOpList"), Map::create({}, {

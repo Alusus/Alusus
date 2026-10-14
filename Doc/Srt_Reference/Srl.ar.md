@@ -2252,17 +2252,51 @@ func getString (str: ptr[array[Char]], size: Word);
 
 تحتوي وحدة `نـظام` على التعريفات التالية:
 
-#### نم (sleep)
+#### نم_ميكرو (usleep)
 
 ```
-@تصدير[usleep] دالة نم (ط: طـبيعي): صـحيح؛
+@تصدير[usleep] دالة نم_ميكرو (ط: طـبيعي): صـحيح؛
 ```
 
 ```
-@expname[usleep] func sleep (w: Word): Int;
+@expname[usleep] func usleep (w: Word): Int;
 ```
 
 مطابقة لدالة usleep من POSIX.
+
+#### نم (sleep)
+
+```
+@تصدير[sleep] دالة نم (ط: طـبيعي): طـبيعي؛
+```
+
+```
+@expname[sleep] func sleep (w: Word): Word;
+```
+
+مطابقة لدالة sleep من POSIX.
+
+#### نم_نانو (nanosleep)
+
+```
+صنف مواصفة_الوقت {
+عرف ثوان : صـحيح_متكيف؛
+عرف نانوثوان : صـحيح_متكيف؛
+}
+
+@تصدير[nanosleep] دالة نم_نانو (مطلوب: مؤشر[مواصفة_الوقت]، باقي: مؤشر[مواصفة_الوقت]): صـحيح؛
+```
+
+```
+class TimeSpec {
+    def tvSec : ArchInt;
+    def tvNsec: ArchInt; 
+}
+
+@expname[nanosleep] func nanosleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
+```
+
+مطابقة لدالة nanosleep من POSIX.
 
 #### اضبط_متغيرا_محيطيا (setEnv)
 
@@ -2717,8 +2751,8 @@ class Matcher {
   عرف سنة: صـحيح؛
   عرف يوم_اسبوعي: صـحيح؛
   عرف يوم_سنوي: صـحيح؛
-  عرف إزاحة_زمنية: صـحيح؛
-  عرف منطقة_زمنية: صـحيح؛
+  عرف إزاحة_زمنية: صـحيح[64]؛
+  عرف منطقة_زمنية: مؤشر[مصفوفة[مـحرف]]؛
 }؛
 ```
 

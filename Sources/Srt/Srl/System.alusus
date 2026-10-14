@@ -14,11 +14,23 @@ import "Console";
 
 @merge module Srl {
     module System {
+
+        class TimeSpec {
+            def tvSec : ArchInt;
+            def tvNsec: ArchInt; 
+        }
+
         @expname[system]
         func exec(filename: ptr[array[Word[8]]]): Int;
 
         @expname[usleep]
-        func sleep(d: Word): Int;
+        func usleep(d: Word): Int;
+
+        @expname[nanosleep] 
+        func nanosleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
+
+        @expname[sleep]
+        func sleep(d : Word): Word;
 
         @expname[setenv]
         func setEnv(name: ptr[array[Word[8]]], value: ptr[array[Word[8]]], overwrite: Int): Int;
