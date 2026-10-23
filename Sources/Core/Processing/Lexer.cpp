@@ -63,23 +63,30 @@ void Lexer::initialize(SharedPtr<Grammar::Module> const &grammarRoot)
  */
 void Lexer::handleNewChar(Char inputChar, Ast::SourceLocationRecord &sourceLocation)
 {
-  // Buffer the input sequence until it can be converted to wide characters.
-  this->tempByteCharBuffer[this->tempByteCharCount] = inputChar;
-  ++this->tempByteCharCount;
-  WChar wideCharBuffer[1];
-  // Try converting to wide characters.
-  Int processedIn, processedOut;
-  convertStr(this->tempByteCharBuffer, this->tempByteCharCount, wideCharBuffer, 1, processedIn, processedOut);
-  if (processedOut != 0) {
-    // Conversion was successful. Send converted character to the buffer.
-    this->pushChar(wideCharBuffer[0], sourceLocation);
-    this->processBuffer();
-    computeNextCharPosition(wideCharBuffer[0], sourceLocation.line, sourceLocation.column);
+  WChar wideChar;
+  if (this->tempByteCharCount == 0 && static_cast<unsigned char>(inputChar) < 0x80) {
+    // ASCII characters map directly to wide characters in UTF-8, so we can skip the relatively expensive conversion.
+    wideChar = inputChar;
+  } else {
+    // Buffer the input sequence until it can be converted to wide characters.
+    this->tempByteCharBuffer[this->tempByteCharCount] = inputChar;
+    ++this->tempByteCharCount;
+    // Try converting to wide characters.
+    Int processedIn, processedOut;
+    convertStr(this->tempByteCharBuffer, this->tempByteCharCount, &wideChar, 1, processedIn, processedOut);
+    if (processedOut == 0) {
+      if (this->tempByteCharCount == 4) {
+        throw EXCEPTION(GenericException,
+                        S("Invalid input character sequence. Sequence could not be converted to wide characters."));
+      }
+      return;
+    }
     this->tempByteCharCount = 0;
-  } else if (this->tempByteCharCount == 4) {
-    throw EXCEPTION(GenericException,
-                    S("Invalid input character sequence. Sequence could not be converted to wide characters."));
   }
+  // Send the converted character to the buffer.
+  this->pushChar(wideChar, sourceLocation);
+  this->processBuffer();
+  computeNextCharPosition(wideChar, sourceLocation.line, sourceLocation.column);
 }
 
 
@@ -607,26 +614,34 @@ Lexer::NextAction Lexer::processState(LexerState *state, WChar inputChar, Int mi
   Int currentLevel = state->getLevelCount() - 1;
   while (true) {
     auto currentTerm = state->refLevel(currentLevel).term;
-    if (currentTerm->isA<Grammar::ConstTerm>()) {
-      result = this->processConstTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Grammar::CharGroupTerm>()) {
-      result = this->processCharGroupTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Grammar::MultiplyTerm>()) {
-      result = this->processMultiplyTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Grammar::AlternateTerm>()) {
-      result = this->processAlternateTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Grammar::ConcatTerm>()) {
-      result = this->processConcatTerm(state, inputChar, currentLevel);
-    } else if (currentTerm->isA<Grammar::ReferenceTerm>()) {
-      result = this->processReferenceTerm(state, inputChar, currentLevel);
-    } else {
-      Str excMsg = S("Invalid token type found. Token definition: ");
-      excMsg += ID_GENERATOR->getDesc(
-        this->getSymbolDefinition(state->getTokenDefIndex())->getId()
-      );
-      excMsg += S(". Object type: ");
-      excMsg += currentTerm->getMyTypeInfo()->getTypeName();
-      throw EXCEPTION(GenericException, excMsg);
+    switch (currentTerm->getTermType().val) {
+      case Grammar::TermType::CONST:
+        result = this->processConstTerm(state, inputChar, currentLevel);
+        break;
+      case Grammar::TermType::CHAR_GROUP:
+        result = this->processCharGroupTerm(state, inputChar, currentLevel);
+        break;
+      case Grammar::TermType::MULTIPLY:
+        result = this->processMultiplyTerm(state, inputChar, currentLevel);
+        break;
+      case Grammar::TermType::ALTERNATE:
+        result = this->processAlternateTerm(state, inputChar, currentLevel);
+        break;
+      case Grammar::TermType::CONCAT:
+        result = this->processConcatTerm(state, inputChar, currentLevel);
+        break;
+      case Grammar::TermType::REFERENCE:
+        result = this->processReferenceTerm(state, inputChar, currentLevel);
+        break;
+      default: {
+        Str excMsg = S("Invalid token type found. Token definition: ");
+        excMsg += ID_GENERATOR->getDesc(
+          this->getSymbolDefinition(state->getTokenDefIndex())->getId()
+        );
+        excMsg += S(". Object type: ");
+        excMsg += currentTerm->getMyTypeInfo()->getTypeName();
+        throw EXCEPTION(GenericException, excMsg);
+      }
     }
     currentLevel = state->getLevelCount() - 1;
     if (result != CONTINUE_SAME_CHAR || currentLevel <= minLevel) break;
@@ -733,8 +748,11 @@ Lexer::NextAction Lexer::processMultiplyTerm(LexerState *state, WChar inputChar,
   Grammar::Term *term = multiplyTerm->getTerm().s_cast_get<Grammar::Term>();
   ASSERT(term != 0);
 
-  auto tryInner = multiplyTerm->getMax() == 0 ||
-    this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex;
+  // There is no point in trying the inner route if it can't accept this char. In that case the inner route would only
+  // stop or match an empty string, and in both cases we end up taking the outer route.
+  auto tryInner = (
+    multiplyTerm->getMax() == 0 || this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > iterationIndex
+  ) && this->canMultiplyTermInnerAcceptChar(multiplyTerm, inputChar);
   auto tryOuter = multiplyTerm->getMin() == 0 ||
     this->grammarContext.getMultiplyTermMin(multiplyTerm)->get() <= iterationIndex;
 
@@ -805,9 +823,12 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
     }
 
     // Just entering the term for the first time.
-    // Loop through all the alternatives of the term.
+    // Loop through the alternatives of the term that may accept this char. The other alternatives would just stop
+    // without affecting any state, so we can skip them.
+    std::vector<Int> const &branches = this->getAlternateTermBranchesForChar(alternateTerm, inputChar);
     NextAction ret = UNKNOWN_ACTION;
-    for (Int i = 0; i < alternateList->getCount(); ++i) {
+    for (Int j = 0; j < static_cast<Int>(branches.size()); ++j) {
+      Int i = branches[j];
       state->refLevel(currentLevel).posId = i + 1;
       Grammar::Term *term = ti_cast<Grammar::Term>(alternateList->getElement(i));
       if (term == 0) {
@@ -822,7 +843,7 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
       state->pushTermLevel(0, term);
       switch (this->processState(state, inputChar, currentLevel)) {
         case CONTINUE_NEW_CHAR:
-          if (ret == CONTINUE_SAME_CHAR || i < alternateList->getCount() - 1) {
+          if (ret == CONTINUE_SAME_CHAR || j < static_cast<Int>(branches.size()) - 1) {
             // We need to use the current state for other routes, so we'll need to duplicate the state.
             auto innerState = this->createState();
             innerState->copyFrom(state);
@@ -842,6 +863,8 @@ Lexer::NextAction Lexer::processAlternateTerm(LexerState *state, WChar inputChar
           break;
       }
     }
+    // No branch can accept this char.
+    if (ret == UNKNOWN_ACTION) ret = STOP;
     // remove the added index
     if (ret == CONTINUE_SAME_CHAR) state->resizeLevels(currentLevel);
     return ret;
@@ -969,16 +992,14 @@ Int Lexer::selectBestToken()
         ASSERT(def->isA<Grammar::SymbolDefinition>());
         Grammar::Term *head = def->getTerm().get();
         ASSERT(head->isDerivedFrom<Grammar::Term>());
-        if (head->isA<Grammar::ConstTerm>()) isConstantI = true;
-        else isConstantI = false;
+        isConstantI = head->getTermType() == Grammar::TermType::CONST;
 
         // Check if tokenDeinitionIndex refers to a const term.
         def = this->getSymbolDefinition(tokenDefinitionIndex);
         ASSERT(def->isA<Grammar::SymbolDefinition>());
         head = def->getTerm().get();
         ASSERT(head->isDerivedFrom<Grammar::Term>());
-        if (head->isA<Grammar::ConstTerm>()) isConstantIndex = true;
-        else isConstantIndex = false;
+        isConstantIndex = head->getTermType() == Grammar::TermType::CONST;
 
         // check if one token is constant and the other is not
         if (isConstantI && !isConstantIndex) {
@@ -1049,6 +1070,146 @@ LexerState* Lexer::createState()
     }
     return new LexerState();
   }
+}
+
+
+/**
+ * Check whether any path through the given term can consume the given char as
+ * its first char, and whether the term can match an empty string. The answers
+ * are conservative: whenever in doubt, the function reports that the term can
+ * accept the char and that it can be empty, which only means the term will be
+ * tried as if there was no check at all.
+ * A term can only be reached again before consuming any char if the grammar is
+ * left recursive, which would make this function recurse endlessly, so we
+ * raise an error if the recursion goes deeper than the lexer's own level limit.
+ *
+ * @param term The term to check.
+ * @param ch The char to check against.
+ * @param canBeEmpty Receives whether the term can match an empty string.
+ * @return Returns true if the term may consume the given char.
+ */
+Bool Lexer::canTermStartWithChar(Grammar::Term *term, WChar ch, Bool &canBeEmpty)
+{
+  finally([=] { --this->startCharCheckDepth; });
+  if (++this->startCharCheckDepth > LEXER_STATE_LEVEL_MAX_COUNT) {
+    throw EXCEPTION(GenericException, S("Lexer grammar is left recursive."));
+  }
+
+  switch (term->getTermType().val) {
+    case Grammar::TermType::CONST: {
+      auto &matchString = static_cast<Grammar::ConstTerm*>(term)->getMatchString();
+      canBeEmpty = matchString.getLength() == 0;
+      return !canBeEmpty && matchString(0) == ch;
+    }
+
+    case Grammar::TermType::CHAR_GROUP: {
+      auto ref = static_cast<Grammar::CharGroupTerm*>(term)->getCharGroupReference().get();
+      canBeEmpty = false;
+      if (ref == 0) return true;
+      auto def = this->grammarContext.getReferencedCharGroup(ref);
+      if (def->getCharGroupUnit() == 0) return true;
+      return Grammar::matchCharGroup(ch, def->getCharGroupUnit().get());
+    }
+
+    case Grammar::TermType::MULTIPLY: {
+      auto multiplyTerm = static_cast<Grammar::MultiplyTerm*>(term);
+      auto innerTerm = multiplyTerm->getTerm().ti_cast_get<Grammar::Term>();
+      if (innerTerm == 0) {
+        canBeEmpty = true;
+        return true;
+      }
+      Bool innerCanBeEmpty;
+      Bool innerCanStart = this->canTermStartWithChar(innerTerm, ch, innerCanBeEmpty);
+      Bool canRepeat = multiplyTerm->getMax() == 0 || this->grammarContext.getMultiplyTermMax(multiplyTerm)->get() > 0;
+      canBeEmpty = innerCanBeEmpty ||
+        multiplyTerm->getMin() == 0 || this->grammarContext.getMultiplyTermMin(multiplyTerm)->get() == 0;
+      return canRepeat && innerCanStart;
+    }
+
+    case Grammar::TermType::ALTERNATE: {
+      auto list = static_cast<Grammar::AlternateTerm*>(term)->getTerms().s_cast_get<Grammar::List>();
+      Bool canStart = false;
+      canBeEmpty = false;
+      for (Int i = 0; i < list->getCount(); ++i) {
+        auto branch = ti_cast<Grammar::Term>(list->getElement(i));
+        if (branch == 0) {
+          canBeEmpty = true;
+          return true;
+        }
+        Bool branchCanBeEmpty;
+        if (this->canTermStartWithChar(branch, ch, branchCanBeEmpty)) canStart = true;
+        if (branchCanBeEmpty) canBeEmpty = true;
+      }
+      return canStart;
+    }
+
+    case Grammar::TermType::CONCAT: {
+      // The char can be consumed by the first term, or by any following term if all terms before it can be empty.
+      auto list = static_cast<Grammar::ConcatTerm*>(term)->getTerms().s_cast_get<Grammar::List>();
+      Bool canStart = false;
+      canBeEmpty = true;
+      for (Int i = 0; i < list->getCount(); ++i) {
+        auto child = ti_cast<Grammar::Term>(list->getElement(i));
+        if (child == 0) return true;
+        Bool childCanBeEmpty;
+        if (this->canTermStartWithChar(child, ch, childCanBeEmpty)) canStart = true;
+        if (!childCanBeEmpty) {
+          canBeEmpty = false;
+          break;
+        }
+      }
+      return canStart;
+    }
+
+    case Grammar::TermType::REFERENCE: {
+      auto ref = static_cast<Grammar::ReferenceTerm*>(term)->getReference().get();
+      Grammar::SymbolDefinition *def = ref == 0 ? 0 : this->grammarContext.getReferencedSymbol(ref);
+      if (def == 0 || def->getTerm() == 0) {
+        canBeEmpty = true;
+        return true;
+      }
+      return this->canTermStartWithChar(def->getTerm().get(), ch, canBeEmpty);
+    }
+
+    default:
+      canBeEmpty = true;
+      return true;
+  }
+}
+
+
+std::vector<Int> const& Lexer::getAlternateTermBranchesForChar(Grammar::AlternateTerm *term, WChar ch)
+{
+  auto cache = term->getCharBasedDecisionCache();
+  auto iter = cache->find(ch);
+  if (iter != cache->end()) return iter->second;
+
+  // A branch needs to be tried if it may consume the char, or if it can be empty since an empty match affects the
+  // outcome of the alternate term.
+  std::vector<Int> branches;
+  auto list = term->getTerms().s_cast_get<Grammar::List>();
+  for (Int i = 0; i < list->getCount(); ++i) {
+    auto branch = ti_cast<Grammar::Term>(list->getElement(i));
+    Bool canBeEmpty = true;
+    if (branch == 0 || this->canTermStartWithChar(branch, ch, canBeEmpty) || canBeEmpty) {
+      branches.push_back(i);
+    }
+  }
+  return cache->operator[](ch) = std::move(branches);
+}
+
+
+Bool Lexer::canMultiplyTermInnerAcceptChar(Grammar::MultiplyTerm *term, WChar ch)
+{
+  auto cache = term->getCharBasedDecisionCache();
+  auto iter = cache->find(ch);
+  if (iter != cache->end()) return iter->second;
+
+  auto innerTerm = term->getTerm().ti_cast_get<Grammar::Term>();
+  Bool canBeEmpty;
+  Bool result = innerTerm == 0 || this->canTermStartWithChar(innerTerm, ch, canBeEmpty);
+  cache->operator[](ch) = result;
+  return result;
 }
 
 } // namespace

@@ -39,7 +39,7 @@ template <class TYPE> class TextParsingHandler : public GenericParsingHandler
   // Member Functions
 
   protected: virtual SharedPtr<Core::Ast::Node> createTokenNode(
-    ParserState *state, Int levelIndex, Word tokenId, Char const *tokenText
+    ParserState *state, Int levelIndex, Word tokenId, TiStr const *tokenText
   ) {
     auto obj = newSrdObj<TYPE>();
     obj->setValue(tokenText);

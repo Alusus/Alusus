@@ -124,7 +124,8 @@ class Token : public Node
   }
   public: void setText(TiStr const *t)
   {
-    this->text = t == 0 ? "" : t->get();
+    if (t == 0) this->text = "";
+    else this->text = *t;
   }
 
   /**

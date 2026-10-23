@@ -125,7 +125,7 @@ void GenericParsingHandler::onTermEnd(Parser *parser, ParserState *state)
 void GenericParsingHandler::onLevelExit(Parser *parser, ParserState *state,
                                         SharedPtr<Ast::Node> const &data)
 {
-  if (state->refTopTermLevel().getTerm()->isA<Grammar::ReferenceTerm>()) {
+  if (state->refTopTermLevel().getTermType() == Grammar::TermType::REFERENCE) {
     ASSERT(state->getData() == 0);
     state->setData(data);
   }
@@ -150,19 +150,15 @@ void GenericParsingHandler::onNewToken(Parser *parser, ParserState *state,
   ASSERT(state->getData() == 0);
   // Create a new item.
 
-  Char const *tokenText = S("");
   // If the token term defines a map as its match criteria then we'll use the value of the matched
   // entry as the value of our Ast::Token text, otherwise we'll just use the actual token text
-  // captured by the lexer.
+  // captured by the lexer. The text is passed as a TiStr so that it gets shared rather than copied.
+  TiStr const *tokenText = &token->getText();
   if (matchText != 0 && matchText->isA<Grammar::Map>()) {
     TiObject *mappedText = static_cast<Grammar::Map*>(matchText)->getElement(token->getText());
     if (mappedText != 0 && mappedText->isA<TiStr>()) {
-      tokenText = static_cast<TiStr*>(mappedText)->get();
-    } else {
-      tokenText = token->getText();
+      tokenText = static_cast<TiStr*>(mappedText);
     }
-  } else {
-    tokenText = token->getText();
   }
   // TODO: Implement control character parsing for character literals.
 
@@ -361,7 +357,7 @@ SharedPtr<Ast::Node> GenericParsingHandler::createRouteNode(ParserState *state, 
 
 
 SharedPtr<Ast::Node> GenericParsingHandler::createTokenNode(
-  ParserState *state, Int levelIndex, Word tokenId, Char const *tokenText
+  ParserState *state, Int levelIndex, Word tokenId, TiStr const *tokenText
 ) {
   auto token = newSrdObj<Ast::Token>();
   token->setId(tokenId);
@@ -374,11 +370,11 @@ SharedPtr<Ast::Node> GenericParsingHandler::createEnforcedProdNode(ParserState *
 {
   // We need to create a container data object for this production root.
   SharedPtr<Ast::Node> data;
-  Grammar::Term *term = state->refTopTermLevel().getTerm();
-  if (term->isA<Grammar::AlternateTerm>()) {
+  Grammar::TermType termType = state->refTopTermLevel().getTermType();
+  if (termType == Grammar::TermType::ALTERNATE) {
     data = this->createRouteNode(state, -1, -1);
     data.s_cast_get<Ast::Route>()->setData(state->getData());
-  } else if (term->isA<Grammar::MultiplyTerm>()) {
+  } else if (termType == Grammar::TermType::MULTIPLY) {
     TiInt *min = state->getMultiplyTermMin();
     TiInt *max = state->getMultiplyTermMax();
     if ((min == 0 || min->get() == 0) && max != 0 && max->get() == 1) {
@@ -392,12 +388,12 @@ SharedPtr<Ast::Node> GenericParsingHandler::createEnforcedProdNode(ParserState *
         data.s_cast_get<Ast::List>()->add(state->getData());
       }
     }
-  } else if (term->isA<Grammar::ConcatTerm>()) {
+  } else if (termType == Grammar::TermType::CONCAT) {
     data = this->createListNode(state, -1);
     if (state->getData() != 0 || this->isListItemEnforced(state, -1)) {
       data.s_cast_get<Ast::List>()->add(state->getData());
     }
-  } else if (term->isA<Grammar::ReferenceTerm>()) {
+  } else if (termType == Grammar::TermType::REFERENCE) {
     throw EXCEPTION(GenericException,
                     S("Enforcing a production object on an alias production (a production that is merely a "
                       "reference to another production) is not allowed."));
@@ -412,17 +408,20 @@ SharedPtr<Ast::Node> GenericParsingHandler::createEnforcedProdNode(ParserState *
 Bool GenericParsingHandler::isRouteTerm(ParserState *state, Int levelIndex)
 {
   ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->isA<Grammar::AlternateTerm>() ||
-         (termLevel.getTerm()->isA<Grammar::MultiplyTerm>() &&
-          (state->getMultiplyTermMin(levelIndex) == 0 || state->getMultiplyTermMin(levelIndex)->get() == 0) &&
-          (state->getMultiplyTermMax(levelIndex) != 0 && state->getMultiplyTermMax(levelIndex)->get() == 1));
+  if (termLevel.getTermType() == Grammar::TermType::ALTERNATE) return true;
+  if (termLevel.getTermType() != Grammar::TermType::MULTIPLY) return false;
+  // An optional multiply term (min 0, max 1) is treated as a route. The level's cached params hold the multiply
+  // term's max and min, respectively.
+  TiInt *max = static_cast<TiInt*>(termLevel.getParam1());
+  TiInt *min = static_cast<TiInt*>(termLevel.getParam2());
+  return (min == 0 || min->get() == 0) && (max != 0 && max->get() == 1);
 }
 
 
 Bool GenericParsingHandler::isListTerm(ParserState *state, Int levelIndex)
 {
-  ParserTermLevel &termLevel = state->refTermLevel(levelIndex);
-  return termLevel.getTerm()->isA<Grammar::MultiplyTerm>() || termLevel.getTerm()->isA<Grammar::ConcatTerm>();
+  Grammar::TermType termType = state->refTermLevel(levelIndex).getTermType();
+  return termType == Grammar::TermType::MULTIPLY || termType == Grammar::TermType::CONCAT;
 }
 
 } // namespace

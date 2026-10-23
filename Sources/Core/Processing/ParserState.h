@@ -232,7 +232,19 @@ class ParserState
   }
 
   /// Reference an entry in the hierarchy level stack.
-  public: ParserTermLevel& refTermLevel(Int i);
+  public: ParserTermLevel& refTermLevel(Int i)
+  {
+    // Fast path for the common case of a valid index into a state that isn't branched from another state. Other
+    // cases, including invalid indexes, are handled by _refTermLevel.
+    if (this->tempTrunkTermStackIndex < 0) {
+      Int count = this->termStack.size();
+      Int index = i < 0 ? i + count : i;
+      if (index >= 0 && index < count) return this->termStack[index];
+    }
+    return this->_refTermLevel(i);
+  }
+
+  private: ParserTermLevel& _refTermLevel(Int i);
 
   /// A const wrappar to refTermLevel().
   public: const ParserTermLevel& refTermLevel(Int i) const
@@ -312,13 +324,9 @@ class ParserState
   public: Bool isAProdRoot(Int termIndex) const
   {
     if (termIndex < 0) termIndex += this->getTermLevelCount();
-    Int prodIndex = this->findProdLevel(termIndex);
-    return prodIndex==-1 ? false : this->refProdLevel(prodIndex).getTermStackIndex() == termIndex;
+    if (termIndex < 0 || termIndex >= this->getTermLevelCount()) return false;
+    return this->refTermLevel(termIndex).isProdRoot();
   }
-
-  public: Int findProdLevel(Int termIndex) const;
-
-  private: Int _findProdLevel(Int termIndex, Int start, Int end) const;
 
   /// @}
 
@@ -330,7 +338,19 @@ class ParserState
     return this->tempTrunkProdStackIndex + 1 + this->prodStack.size();
   }
 
-  public: ParserProdLevel& refProdLevel(Int i);
+  public: ParserProdLevel& refProdLevel(Int i)
+  {
+    // Fast path for the common case of a valid index into a state that isn't branched from another state. Other
+    // cases, including invalid indexes, are handled by _refProdLevel.
+    if (this->tempTrunkProdStackIndex < 0) {
+      Int count = this->prodStack.size();
+      Int index = i < 0 ? i + count : i;
+      if (index >= 0 && index < count) return this->prodStack[index];
+    }
+    return this->_refProdLevel(i);
+  }
+
+  private: ParserProdLevel& _refProdLevel(Int i);
 
   public: const ParserProdLevel& refProdLevel(Int i) const
   {

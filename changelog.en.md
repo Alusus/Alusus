@@ -1,5 +1,10 @@
 # Alusus Changelog
 
+## Version 0.16.1 (2026-xx-xx)
+
+* Optimized parser and lexer performance.
+
+
 ## Version 0.16.0 (2026-10-09)
 
 ### Updates to the Compiler
