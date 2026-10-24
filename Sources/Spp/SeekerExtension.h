@@ -27,24 +27,6 @@ class SeekerExtension : public ObjTiInterface
   //============================================================================
   // Types
 
-  public: struct Overrides
-  {
-    TiFunctionBase *foreachRef;
-    TiFunctionBase *extForeachRef;
-    TiFunctionBase *foreach_identifierLevelRef;
-    TiFunctionBase *foreach_identifierOnFuncRef;
-    TiFunctionBase *foreach_identifierOnDataTypeRef;
-    TiFunctionBase *foreach_linkOperatorRoutingRef;
-    TiFunctionBase *foreach_paramPassRef;
-    TiFunctionBase *foreach_paramPassRoutingRef;
-    TiFunctionBase *foreach_paramPassOnTemplateRef;
-    TiFunctionBase *foreach_thisTypeRefRef;
-    TiFunctionBase *foreach_comparisonRef;
-    TiFunctionBase *foreach_comparisonLevelRef;
-    TiFunctionBase *foreach_comparisonOnScopeRef;
-    TiFunctionBase *foreach_computeComparisonRef;
-  };
-
   public: ti_s_enum(Action, TiInt, "Spp", "Spp", "alusus.org",
     CHILD_SCOPE = 100
   );
@@ -66,18 +48,22 @@ class SeekerExtension : public ObjTiInterface
   public: SeekerExtension(TiObject *o) : owner(o)
   {
     Basic::initBindingCaches(this->owner, {
-      &this->astHelper,
-      &this->foreach_identifierOnFunc,
-      &this->foreach_identifierOnDataType,
-      &this->foreach_paramPass,
-      &this->foreach_paramPassRouting,
-      &this->foreach_paramPassOnTemplate,
-      &this->foreach_thisTypeRef,
-      &this->foreach_comparison,
-      &this->foreach_comparisonLevel,
-      &this->foreach_comparisonOnScope,
-      &this->foreach_computeComparison
+      &this->astHelper
     });
+    this->foreach.init(this->owner, &SeekerExtension::_foreach);
+    this->extForeach.init(this->owner, &SeekerExtension::_extForeach);
+    this->foreach_identifierLevel.init(this->owner, &SeekerExtension::_foreach_identifierLevel);
+    this->foreach_linkOperatorRouting.init(this->owner, &SeekerExtension::_foreach_linkOperatorRouting);
+    this->foreach_identifierOnFunc.init(this->owner, &SeekerExtension::_foreach_identifierOnFunc);
+    this->foreach_identifierOnDataType.init(this->owner, &SeekerExtension::_foreach_identifierOnDataType);
+    this->foreach_paramPass.init(this->owner, &SeekerExtension::_foreach_paramPass);
+    this->foreach_paramPassRouting.init(this->owner, &SeekerExtension::_foreach_paramPassRouting);
+    this->foreach_paramPassOnTemplate.init(this->owner, &SeekerExtension::_foreach_paramPassOnTemplate);
+    this->foreach_thisTypeRef.init(this->owner, &SeekerExtension::_foreach_thisTypeRef);
+    this->foreach_comparison.init(this->owner, &SeekerExtension::_foreach_comparison);
+    this->foreach_comparisonLevel.init(this->owner, &SeekerExtension::_foreach_comparisonLevel);
+    this->foreach_comparisonOnScope.init(this->owner, &SeekerExtension::_foreach_comparisonOnScope);
+    this->foreach_computeComparison.init(this->owner, &SeekerExtension::_foreach_computeComparison);
   }
 
 
@@ -108,26 +94,41 @@ class SeekerExtension : public ObjTiInterface
   /// @name Setup Functions
   /// @{
 
-  public: static Overrides* extend(Core::Ast::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper);
-  public: static void unextend(Core::Ast::Seeker *seeker, Overrides *overrides);
+  public: static void extend(Core::Ast::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper);
+  public: static void unextend(Core::Ast::Seeker *seeker);
 
   /// @}
 
   /// @name Seek Functions
   /// @{
 
+  // The following caches override bindings of the Seeker. The overrides get removed automatically when this
+  // extension is destroyed.
+
+  public: METHOD_BINDING_CACHE(foreach,
+    Core::Ast::Seeker::Verb,
+    (Core::Ast::Node const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
+  );
   private: static Core::Ast::Seeker::Verb _foreach(
-    TiFunctionBase *base, TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
+    TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
     Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
+  public: METHOD_BINDING_CACHE(extForeach,
+    Core::Ast::Seeker::Verb,
+    (Core::Ast::Node const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
+  );
   private: static Core::Ast::Seeker::Verb _extForeach(
-    TiFunctionBase *base, TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
+    TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
     Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
+  public: METHOD_BINDING_CACHE(foreach_identifierLevel,
+    Core::Ast::Seeker::Verb,
+    (Core::Ast::Identifier const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
+  );
   private: static Core::Ast::Seeker::Verb _foreach_identifierLevel(
-    TiFunctionBase *base, TiObject *self, Core::Ast::Identifier const *identifier, Core::Ast::Node *data,
+    TiObject *self, Core::Ast::Identifier const *identifier, Core::Ast::Node *data,
     Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
@@ -151,8 +152,12 @@ class SeekerExtension : public ObjTiInterface
     Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 
+  public: METHOD_BINDING_CACHE(foreach_linkOperatorRouting,
+    Core::Ast::Seeker::Verb,
+    (Core::Ast::LinkOperator const*, Core::Ast::Node*, Core::Ast::Seeker::ForeachCallback const&, Word)
+  );
   private: static Core::Ast::Seeker::Verb _foreach_linkOperatorRouting(
-    TiFunctionBase *base, TiObject *self, Core::Ast::LinkOperator const *link, Core::Ast::Node *data,
+    TiObject *self, Core::Ast::LinkOperator const *link, Core::Ast::Node *data,
     Core::Ast::Seeker::ForeachCallback const &cb, Word flags
   );
 

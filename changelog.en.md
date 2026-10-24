@@ -3,6 +3,11 @@
 ## Version 0.16.1 (2026-xx-xx)
 
 * Optimized parser and lexer performance.
+* Refactored the Core's dynamic function and method bindings:
+  - Method bindings now call plain function pointers instead of `std::function`, which improves performance
+    and keeps call stacks clean while debugging.
+  - Overrides set through a binding cache are now removed automatically when the cache is destroyed, and can
+    call the function they override through `callSuper`.
 
 
 ## Version 0.16.0 (2026-10-09)

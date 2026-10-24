@@ -120,27 +120,6 @@ class DynamicBinding : public Binding
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiObject*, ARGS...)>> setMethod(Char const *name, RT (*fn)(TiObject*, ARGS...))
-  {
-    return this->setFunction(name, fn);
-  }
-
-  public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, ARGS...)>>
-      setFunction(Char const *name, RT (*fn)(TiFunctionBase*, ARGS...))
-  {
-    VALIDATE_NOT_NULL(name, fn);
-    return this->getBindingMap()->setFunction(name, fn);
-  }
-
-  public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, TiObject*, ARGS...)>>
-      setMethod(Char const *name, RT (*fn)(TiFunctionBase*, TiObject*, ARGS...))
-  {
-    return this->setFunction(name, fn);
-  }
-
-  public: template <class RT, class ...ARGS>
     SharedPtr<TiFunctionOverride<RT(ARGS...)>>
       setFunction(Char const *name, std::function<RT(ARGS...)> fn)
   {
@@ -149,59 +128,32 @@ class DynamicBinding : public Binding
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiObject*, ARGS...)>>
-      setMethod(Char const *name, std::function<RT(TiObject*, ARGS...)> fn)
-  {
-    return this->setFunction(name, fn);
-  }
-
-  public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, ARGS...)>>
-      setFunction(Char const *name, std::function<RT(TiFunctionBase*, ARGS...)> fn)
+    SharedPtr<TiMethodOverride<RT(ARGS...)>> setMethod(Char const *name, RT (*fn)(TiObject*, ARGS...))
   {
     VALIDATE_NOT_NULL(name, fn);
-    return this->getBindingMap()->setFunction(name, fn);
-  }
-
-  public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, TiObject*, ARGS...)>>
-      setMethod(Char const *name, std::function<RT(TiFunctionBase*, TiObject*, ARGS...)> fn)
-  {
-    return this->setFunction(name, fn);
+    return this->getBindingMap()->setMethod(name, fn);
   }
 
   public: template <class RT, class ...ARGS>
     SharedPtr<TiFunctionOverride<RT(ARGS...)>>
-      updateFunction(Char const *name, TiFunctionBase *currentTifn, RT (*fn)(ARGS...))
+      updateFunction(Char const *name, TiCallee *currentTifn, RT (*fn)(ARGS...))
   {
     VALIDATE_NOT_NULL(name, fn);
     return this->getBindingMap()->updateFunction(name, currentTifn, fn);
   }
 
   public: template <class RT, class ...ARGS>
-    SharedPtr<TiFunctionOverride<RT(TiObject*, ARGS...)>>
-      updateMethod(Char const *name, TiFunctionBase *currentTifn, RT (*fn)(TiObject*, ARGS...))
+    SharedPtr<TiMethodOverride<RT(ARGS...)>>
+      updateMethod(Char const *name, TiCallee *currentTifn, RT (*fn)(TiObject*, ARGS...))
   {
-    return this->updateMethod(name, currentTifn, fn);
+    VALIDATE_NOT_NULL(name, fn);
+    return this->getBindingMap()->updateMethod(name, currentTifn, fn);
   }
 
-  public: void updateFunctionChain(Char const *name, TiFunctionBase *currentTifn,
-                                   SharedPtr<TiFunctionBase> const &newTifn)
-  {
-    VALIDATE_NOT_NULL(name, newTifn);
-    this->getBindingMap()->updateFunctionChain(name, currentTifn, newTifn);
-  }
-
-  public: void resetFunction(Char const *name, TiFunctionBase *currentTifn)
+  public: void resetCallee(Char const *name, TiCallee *currentTifn)
   {
     VALIDATE_NOT_NULL(name, currentTifn);
-    this->getBindingMap()->resetFunction(name, currentTifn);
-  }
-
-  public: void resetFunctionChain(Char const *name, TiFunctionBase *currentTifn)
-  {
-    VALIDATE_NOT_NULL(name, currentTifn);
-    this->getBindingMap()->resetFunctionChain(name, currentTifn);
+    this->getBindingMap()->resetCallee(name, currentTifn);
   }
 
   /// @}

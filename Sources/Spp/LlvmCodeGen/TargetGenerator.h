@@ -91,28 +91,28 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Type Generation Functions
   /// @{
 
-  public: Bool generateVoidType(TioSharedPtr &type);
+  private: static Bool _generateVoidType(TiObject *self, TioSharedPtr &type);
 
-  public: Bool generateIntType(Word bitCount, Bool withSign, TioSharedPtr &type);
+  private: static Bool _generateIntType(TiObject *self, Word bitCount, Bool withSign, TioSharedPtr &type);
 
-  public: Bool generateFloatType(Word bitCount, TioSharedPtr &type);
+  private: static Bool _generateFloatType(TiObject *self, Word bitCount, TioSharedPtr &type);
 
-  public: Bool generatePointerType(TiObject *contentType, TioSharedPtr &type);
+  private: static Bool _generatePointerType(TiObject *self, TiObject *contentType, TioSharedPtr &type);
 
-  public: Bool generateArrayType(TiObject *contentType, Word size, TioSharedPtr &type);
+  private: static Bool _generateArrayType(TiObject *self, TiObject *contentType, Word size, TioSharedPtr &type);
 
-  public: Bool generateStructTypeDecl(
-    Char const *name, TioSharedPtr &type
+  private: static Bool _generateStructTypeDecl(
+    TiObject *self, Char const *name, TioSharedPtr &type
   );
 
-  public: Bool generateStructTypeBody(
-    TiObject *type, MapContaining<TiObject> *membersTypes,
+  private: static Bool _generateStructTypeBody(
+    TiObject *self, TiObject *type, MapContaining<TiObject> *membersTypes,
     SharedList<TiObject> *members
   );
 
-  public: Word getTypeAllocationSize(TiObject *type);
+  private: static Word _getTypeAllocationSize(TiObject *self, TiObject *type);
 
-  public: TiObject* getNullaryProcedureType();
+  private: static TiObject* _getNullaryProcedureType(TiObject *self);
 
   private: llvm::FunctionType* getVaStartEndFnType();
 
@@ -121,35 +121,35 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Function Generation Functions
   /// @{
 
-  public: Bool generateFunctionType(
-    MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic, TioSharedPtr &functionType
+  private: static Bool _generateFunctionType(
+    TiObject *self, MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic, TioSharedPtr &functionType
   );
 
-  public: Bool generateFunctionDecl(
-    Char const *name, TiObject *functionType, TioSharedPtr &function
+  private: static Bool _generateFunctionDecl(
+    TiObject *self, Char const *name, TiObject *functionType, TioSharedPtr &function
   );
 
-  public: Bool prepareFunctionBody(
-    TiObject *function, TiObject *functionType, SharedList<TiObject> *args, TioSharedPtr &context
+  private: static Bool _prepareFunctionBody(
+    TiObject *self, TiObject *function, TiObject *functionType, SharedList<TiObject> *args, TioSharedPtr &context
   );
 
-  public: Bool finishFunctionBody(
-    TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
+  private: static Bool _finishFunctionBody(
+    TiObject *self, TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
   );
 
-  public: Bool deleteFunction(TiObject *function);
+  private: static Bool _deleteFunction(TiObject *self, TiObject *function);
 
   /// @}
 
   /// @name Variable Definition Generation Functions
   /// @{
 
-  public: Bool generateGlobalVariable(
-    TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
+  private: static Bool _generateGlobalVariable(
+    TiObject *self, TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
   );
 
-  public: Bool generateLocalVariable(
-    TiObject *context, TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
+  private: static Bool _generateLocalVariable(
+    TiObject *self, TiObject *context, TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
   );
 
   /// @}
@@ -157,49 +157,61 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Statements Generation Functions
   /// @{
 
-  public: Bool prepareIfStatement(TiObject *context, Bool withElse, SharedPtr<CodeGen::IfTgContext> &ifTgContext);
-  public: Bool finishIfStatement(TiObject *context, CodeGen::IfTgContext *ifTgContext, TiObject *conditionVal);
+  private: static Bool _prepareIfStatement(
+    TiObject *self, TiObject *context, Bool withElse, SharedPtr<CodeGen::IfTgContext> &ifTgContext
+  );
+  private: static Bool _finishIfStatement(
+    TiObject *self, TiObject *context, CodeGen::IfTgContext *ifTgContext, TiObject *conditionVal
+  );
 
-  public: Bool prepareWhileStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext);
-  public: Bool finishWhileStatement(TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal);
+  private: static Bool _prepareWhileStatement(
+    TiObject *self, TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext
+  );
+  private: static Bool _finishWhileStatement(
+    TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
+  );
 
-  public: Bool prepareForStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext);
-  public: Bool finishForStatement(TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal);
+  private: static Bool _prepareForStatement(
+    TiObject *self, TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext
+  );
+  private: static Bool _finishForStatement(
+    TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
+  );
 
-  public: Bool generateContinue(TiObject *context, CodeGen::LoopTgContext *loopTgContext);
-  public: Bool generateBreak(TiObject *context, CodeGen::LoopTgContext *loopTgContext);
+  private: static Bool _generateContinue(TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext);
+  private: static Bool _generateBreak(TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext);
 
   /// @}
 
   /// @name Casting Generation Functions
   /// @{
 
-  public: Bool generateCastIntToInt(
-    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  private: static Bool _generateCastIntToInt(
+    TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
   );
 
-  public: Bool generateCastIntToFloat(
-    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  private: static Bool _generateCastIntToFloat(
+    TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
   );
 
-  public: Bool generateCastFloatToInt(
-    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  private: static Bool _generateCastFloatToInt(
+    TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
   );
 
-  public: Bool generateCastFloatToFloat(
-    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  private: static Bool _generateCastFloatToFloat(
+    TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
   );
 
-  public: Bool generateCastIntToPointer(
-    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  private: static Bool _generateCastIntToPointer(
+    TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
   );
 
-  public: Bool generateCastPointerToInt(
-    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  private: static Bool _generateCastPointerToInt(
+    TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
   );
 
-  public: Bool generateCastPointerToPointer(
-    TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+  private: static Bool _generateCastPointerToPointer(
+    TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
   );
 
   /// @}
@@ -207,44 +219,44 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Operation Generation Functions
   /// @{
 
-  public: Bool generateVarReference(
-    TiObject *context, TiObject *varType, TiObject *varDefinition, TioSharedPtr &result
+  private: static Bool _generateVarReference(
+    TiObject *self, TiObject *context, TiObject *varType, TiObject *varDefinition, TioSharedPtr &result
   );
 
-  public: Bool generateMemberVarReference(
-    TiObject *context, TiObject *structType, TiObject *memberType,
+  private: static Bool _generateMemberVarReference(
+    TiObject *self, TiObject *context, TiObject *structType, TiObject *memberType,
     TiObject *memberVarDef, TiObject *structRef, TioSharedPtr &result
   );
 
-  public: Bool generateArrayElementReference(
-    TiObject *context, TiObject *arrayType, TiObject *elementType, TiObject *index, TiObject *arrayRef,
+  private: static Bool _generateArrayElementReference(
+    TiObject *self, TiObject *context, TiObject *arrayType, TiObject *elementType, TiObject *index, TiObject *arrayRef,
     TioSharedPtr &result
   );
 
-  public: Bool generateDereference(
-    TiObject *context, TiObject *contentType, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateDereference(
+    TiObject *self, TiObject *context, TiObject *contentType, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateAssign(
-    TiObject *context, TiObject *contentType, TiObject *srcVal, TiObject *destRef, TioSharedPtr &result
+  private: static Bool _generateAssign(
+    TiObject *self, TiObject *context, TiObject *contentType, TiObject *srcVal, TiObject *destRef, TioSharedPtr &result
   );
 
-  public: Bool generateFunctionPointer(
-    TiObject *context, TiObject *function, TiObject *functionPtrType, TioSharedPtr &result
+  private: static Bool _generateFunctionPointer(
+    TiObject *self, TiObject *context, TiObject *function, TiObject *functionPtrType, TioSharedPtr &result
   );
 
-  public: Bool generateFunctionCall(
-    TiObject *context, TiObject *function,
+  private: static Bool _generateFunctionCall(
+    TiObject *self, TiObject *context, TiObject *function,
     Containing<TiObject>* arguments, TioSharedPtr &result
   );
 
-  public: Bool generateFunctionPtrCall(
-    TiObject *context, TiObject *functionPtr, TiObject *functionPtrType,
+  private: static Bool _generateFunctionPtrCall(
+    TiObject *self, TiObject *context, TiObject *functionPtr, TiObject *functionPtrType,
     Containing<TiObject>* arguments, TioSharedPtr &result
   );
 
-  public: Bool generateReturn(
-    TiObject *context, TiObject *retType, TiObject *retVal
+  private: static Bool _generateReturn(
+    TiObject *self, TiObject *context, TiObject *retType, TiObject *retVal
   );
 
   /// @}
@@ -252,14 +264,14 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Logical Ops Generation Functions
   /// @{
 
-  public: Bool prepareLogicalOp(TiObject *context, TioSharedPtr &secondContext);
+  private: static Bool _prepareLogicalOp(TiObject *self, TiObject *context, TioSharedPtr &secondContext);
 
-  public: Bool finishLogicalOr(
-    TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+  private: static Bool _finishLogicalOr(
+    TiObject *self, TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
   );
 
-  public: Bool finishLogicalAnd(
-    TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+  private: static Bool _finishLogicalAnd(
+    TiObject *self, TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
   );
 
   /// @}
@@ -267,92 +279,92 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Math Ops Generation Functions
   /// @{
 
-  public: Bool generateAdd(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateAdd(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateSub(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateSub(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateMul(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateMul(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateDiv(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateDiv(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateRem(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateRem(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateShr(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateShr(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateShl(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateShl(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateAnd(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateAnd(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateOr(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateOr(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateXor(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateXor(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateNot(
-    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateNot(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateNeg(
-    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateNeg(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateEarlyInc(
-    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+  private: static Bool _generateEarlyInc(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
   );
 
-  public: Bool generateEarlyDec(
-    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+  private: static Bool _generateEarlyDec(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
   );
 
-  public: Bool generateLateInc(
-    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+  private: static Bool _generateLateInc(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
   );
 
-  public: Bool generateLateDec(
-    TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+  private: static Bool _generateLateDec(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
   );
 
-  public: Bool generateShrAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateShrAssign(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateShlAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateShlAssign(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateAndAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateAndAssign(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateOrAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateOrAssign(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateXorAssign(
-    TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateXorAssign(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
   );
 
-  public: Bool generateNextArg(
-    TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+  private: static Bool _generateNextArg(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
   );
 
   /// @}
@@ -360,28 +372,28 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Comparison Ops Generation Functions
   /// @{
 
-  public: Bool generateEqual(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateEqual(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateNotEqual(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateNotEqual(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateGreaterThan(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateGreaterThan(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateGreaterThanOrEqual(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateGreaterThanOrEqual(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateLessThan(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateLessThan(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
-  public: Bool generateLessThanOrEqual(
-    TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+  private: static Bool _generateLessThanOrEqual(
+    TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
   );
 
   /// @}
@@ -389,33 +401,36 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   /// @name Literal Generation Functions
   /// @{
 
-  public: Bool generateIntLiteral(
-    TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
+  private: static Bool _generateIntLiteral(
+    TiObject *self, TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
   );
 
-  public: Bool generateFloatLiteral(
-    TiObject *context, Word bitCount, Double value, TioSharedPtr &destVal
+  private: static Bool _generateFloatLiteral(
+    TiObject *self, TiObject *context, Word bitCount, Double value, TioSharedPtr &destVal
   );
 
-  public: Bool generateStringLiteral(
-    TiObject *context, Char const* value, TiObject *charType, TiObject *strType, TioSharedPtr &destVal
+  private: static Bool _generateStringLiteral(
+    TiObject *self, TiObject *context, Char const* value, TiObject *charType, TiObject *strType, TioSharedPtr &destVal
   );
 
-  public: Bool generateNullPtrLiteral(
-    TiObject *context, TiObject *type, TioSharedPtr &destVal
+  private: static Bool _generateNullPtrLiteral(
+    TiObject *self, TiObject *context, TiObject *type, TioSharedPtr &destVal
   );
 
-  public: Bool generateStructLiteral(
-    TiObject *context, TiObject *type, MapContaining<TiObject> *membersTypes, Containing<TiObject> *membersVals,
+  private: static Bool _generateStructLiteral(
+    TiObject *self, TiObject *context, TiObject *type, MapContaining<TiObject> *membersTypes,
+    Containing<TiObject> *membersVals,
     TioSharedPtr &destVal
   );
 
-  public: Bool generateArrayLiteral(
-    TiObject *context, TiObject *type, Containing<TiObject> *membersVals,
+  private: static Bool _generateArrayLiteral(
+    TiObject *self, TiObject *context, TiObject *type, Containing<TiObject> *membersVals,
     TioSharedPtr &destVal
   );
 
-  public: Bool generatePointerLiteral(TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal);
+  private: static Bool _generatePointerLiteral(
+    TiObject *self, TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal
+  );
 
   /// @}
 

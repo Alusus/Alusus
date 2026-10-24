@@ -59,19 +59,15 @@ class BindingMap : public SharedMap<TiObject>
 
   private: void onBaseDetached();
 
+  /// Set the given override on top of the callee currently at the given key, making that callee its super.
+  private: void addOverride(Char const *name, SharedPtr<TiCallee> const &tifn);
+
   public: template <class RT, class ...ARGS>
     SharedPtr<TiFunctionOverride<RT(ARGS...)>> setFunction(Char const *name, std::function<RT(ARGS...)> fn)
   {
     VALIDATE_NOT_NULL(name);
-    SharedPtr<TiFunctionOverride<RT(ARGS...)>> tifn;
-    auto index = this->findIndex(name);
-    if (index == -1) {
-      tifn = TiFunctionOverride<RT(ARGS...)>::create(fn);
-    } else {
-      auto super = this->get(index).ti_cast<TiFunctionBase>();
-      tifn = TiFunctionOverride<RT(ARGS...)>::create(fn, super);
-    }
-    this->set(name, tifn);
+    auto tifn = TiFunctionOverride<RT(ARGS...)>::create(fn);
+    this->addOverride(name, tifn);
     return tifn;
   }
 
@@ -83,49 +79,56 @@ class BindingMap : public SharedMap<TiObject>
   }
 
   public: template <class RT, class ...ARGS>
+    SharedPtr<TiMethodOverride<RT(ARGS...)>> setMethod(Char const *name, RT(*fn)(TiObject*, ARGS...))
+  {
+    VALIDATE_NOT_NULL(name, fn);
+    auto tifn = TiMethodOverride<RT(ARGS...)>::create(fn);
+    this->addOverride(name, tifn);
+    return tifn;
+  }
+
+  public: template <class RT, class ...ARGS>
     SharedPtr<TiFunctionOverride<RT(ARGS...)>> updateFunction(Char const *name,
-                                                              TiFunctionBase *currentTifn,
+                                                              TiCallee *currentTifn,
                                                               std::function<RT(ARGS...)> fn)
   {
     VALIDATE_NOT_NULL(name);
-    auto index = this->findIndex(name);
-    if (index == -1) {
-      throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
-    }
     auto newTifn = TiFunctionOverride<RT(ARGS...)>::create(fn,
-      currentTifn == 0 ? SharedPtr<TiFunctionBase>() : getSharedPtr(currentTifn->getSuper(), true));
-    auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
-    if (tifn == 0) {
-      throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
-    }
-    if (tifn == currentTifn) {
-      this->set(index, newTifn);
-    } else {
-      while (tifn != 0 && tifn->getSuper() != currentTifn) tifn = tifn->getSuper();
-      if (tifn == 0) {
-        throw EXCEPTION(InvalidArgumentException, S("name"),
-                        S("Provided funciton override is not found at the given key."), name);
-      }
-      tifn->setSuper(newTifn);
-    }
+      currentTifn == 0 ? SharedPtr<TiCallee>() : getSharedPtr(currentTifn->getSuper(), true));
+    this->updateCalleeChain(name, currentTifn, newTifn);
     return newTifn;
   }
 
   public: template <class RT, class ...ARGS>
     SharedPtr<TiFunctionOverride<RT(ARGS...)>> updateFunction(Char const *name,
-                                                              TiFunctionBase *currentTifn,
+                                                              TiCallee *currentTifn,
                                                               RT(*fn)(ARGS...))
   {
     VALIDATE_NOT_NULL(name, fn);
     return this->updateFunction(name, currentTifn, std::function<RT(ARGS...)>(fn));
   }
 
-  public: void updateFunctionChain(Char const *name, TiFunctionBase *currentTifn,
-                                   SharedPtr<TiFunctionBase> const &newTifn);
+  public: template <class RT, class ...ARGS>
+    SharedPtr<TiMethodOverride<RT(ARGS...)>> updateMethod(Char const *name,
+                                                          TiCallee *currentTifn,
+                                                          RT(*fn)(TiObject*, ARGS...))
+  {
+    VALIDATE_NOT_NULL(name, fn);
+    auto newTifn = TiMethodOverride<RT(ARGS...)>::create(fn,
+      currentTifn == 0 ? SharedPtr<TiCallee>() : getSharedPtr(currentTifn->getSuper(), true));
+    this->updateCalleeChain(name, currentTifn, newTifn);
+    return newTifn;
+  }
 
-  public: void resetFunction(Char const *name, TiFunctionBase *currentTifn);
+  public: void updateCalleeChain(Char const *name, TiCallee *currentTifn,
+                                 SharedPtr<TiCallee> const &newTifn);
 
-  public: void resetFunctionChain(Char const *name, TiFunctionBase *currentTifn);
+  public: void resetCallee(Char const *name, TiCallee *currentTifn);
+
+  public: void resetCalleeChain(Char const *name, TiCallee *currentTifn);
+
+  /// Check whether the given callee is part of the callee chain at the given key.
+  public: Bool hasCallee(Char const *name, TiCallee *tifn) const;
 
 }; // class
 

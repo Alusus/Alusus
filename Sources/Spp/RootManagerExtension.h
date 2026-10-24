@@ -25,17 +25,6 @@ class RootManagerExtension : public ObjTiInterface
 
 
   //============================================================================
-  // Types
-
-  public: struct Overrides
-  {
-    TiFunctionBase *importFileRef;
-    TiFunctionBase *prefixAlususTemplateClassFuncExpNamesRef;
-    TiFunctionBase *insertClassPaddingRef;
-  };
-
-
-  //============================================================================
   // Member Variables
 
   private: TiObject *owner;
@@ -47,15 +36,17 @@ class RootManagerExtension : public ObjTiInterface
   public: RootManagerExtension(TiObject *o) : owner(o)
   {
     Basic::initBindingCaches(this->owner, {
-      &this->importFile,
-      &this->prefixAlususTemplateClassFuncExpNames,
-      &this->insertClassPadding,
       &this->buildManager,
       &this->astProcessor,
       &this->rtGrammarMgr,
       &this->rtAstMgr,
       &this->rtBuildMgr
     });
+    this->importFile.init(this->owner, &RootManagerExtension::_importFile);
+    this->prefixAlususTemplateClassFuncExpNames.init(
+      this->owner, &RootManagerExtension::_prefixAlususTemplateClassFuncExpNames
+    );
+    this->insertClassPadding.init(this->owner, &RootManagerExtension::_insertClassPadding);
   }
 
 
@@ -90,7 +81,7 @@ class RootManagerExtension : public ObjTiInterface
   /// @name Setup Functions
   /// @{
 
-  public: static Overrides* extend(
+  public: static void extend(
     Core::Main::RootManager *rootManager,
     SharedPtr<BuildManager> const &buildManager,
     SharedPtr<CodeGen::AstProcessor> const &astProcessor,
@@ -98,7 +89,7 @@ class RootManagerExtension : public ObjTiInterface
     SharedPtr<Rt::AstMgr> const &astM,
     SharedPtr<Rt::BuildMgr> const &buildM
   );
-  public: static void unextend(Core::Main::RootManager *rootManager, Overrides *overrides);
+  public: static void unextend(Core::Main::RootManager *rootManager);
 
   /// @}
 
