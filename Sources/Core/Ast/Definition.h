@@ -67,13 +67,10 @@ class Definition : public Node, public MapContaining<Node>
   //============================================================================
   // Member Functions
 
-  public: void setName(Char const *n)
-  {
-    this->name = n;
-  }
+  public: void setName(Char const *n);
   public: void setName(TiStr const *n)
   {
-    this->name = n == 0 ? "" : n->get();
+    this->setName(n == 0 ? "" : n->get());
   }
 
   public: TiStr const& getName() const

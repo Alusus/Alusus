@@ -139,7 +139,7 @@ Bool Template::matchTemplateVar(
   switch (varDef->getType().get()) {
     case TemplateVarType::INTEGER: {
       auto var = static_cast<Core::Ast::IntegerLiteral*>(
-        Template::getTemplateVar(instance, varDef->getName().get())
+        Template::getTemplateVar(instance, varDef->getName().getStr())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
@@ -151,7 +151,7 @@ Bool Template::matchTemplateVar(
 
     case TemplateVarType::STRING: {
       auto var = static_cast<Core::Ast::StringLiteral*>(
-        Template::getTemplateVar(instance, varDef->getName().get())
+        Template::getTemplateVar(instance, varDef->getName().getStr())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
@@ -162,7 +162,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::MODULE: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
@@ -172,7 +172,7 @@ Bool Template::matchTemplateVar(
 
     case TemplateVarType::TYPE: {
       auto var = static_cast<Spp::Ast::Type*>(
-        Template::getTemplateVar(instance, varDef->getName().get())
+        Template::getTemplateVar(instance, varDef->getName().getStr())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing or invalid variable in template instance."));
@@ -186,7 +186,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::FUNCTION: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
@@ -195,7 +195,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::AST: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing or invalid variable in template instance."));
       }
@@ -204,7 +204,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::AST_REF: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
@@ -240,17 +240,16 @@ Bool Template::assignTemplateVars(
 }
 
 
-Core::Ast::Node* Template::getTemplateVar(Core::Ast::Scope const *instance, Char const *name)
+Core::Ast::Node* Template::getTemplateVar(Core::Ast::Scope const *instance, Str const &name)
 {
-  for (Int i = 0; i < instance->getCount(); ++i) {
-    auto def = ti_cast<Core::Ast::Definition>(instance->getElement(i));
-    if (def != 0 && def->getName() == name) {
-      auto passage = def->getTarget().ti_cast_get<Core::Ast::Passage>();
-      if (passage != 0) return passage->get();
-      else return def->getTarget().get();
-    }
+  auto defs = instance->findDefinitions(name);
+  if (defs == 0 || defs->size() == 0) {
+    throw EXCEPTION(GenericException, S("Template var not found."));
   }
-  throw EXCEPTION(GenericException, S("Template var not found."));
+  auto def = defs->front();
+  auto passage = def->getTarget().ti_cast_get<Core::Ast::Passage>();
+  if (passage != 0) return passage->get();
+  else return def->getTarget().get();
 }
 
 

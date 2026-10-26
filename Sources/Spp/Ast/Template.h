@@ -129,7 +129,7 @@ class Template : public Core::Ast::Node,
     SharedPtr<Core::Notices::Notice> &notice
   );
 
-  public: static Core::Ast::Node* getTemplateVar(Core::Ast::Scope const *instance, Char const *name);
+  public: static Core::Ast::Node* getTemplateVar(Core::Ast::Scope const *instance, Str const &name);
 
   private: static Core::Ast::Node* traceObject(
     Core::Ast::Node *ref, TemplateVarType varType, Helper *helper

@@ -8,6 +8,10 @@
     and keeps call stacks clean while debugging.
   - Overrides set through a binding cache are now removed automatically when the cache is destroyed, and can
     call the function they override through `callSuper`.
+* Sped up looking up definitions by name by indexing the definitions of each scope, which makes lookups in
+  scopes with many definitions faster.
+* Fixed a bug where replacing an element at the end of a scope with a `use` statement or an injection, for
+  example during preprocessing, caused the new element to be ignored.
 
 
 ## Version 0.16.0 (2026-10-09)
