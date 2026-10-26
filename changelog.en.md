@@ -3,13 +3,21 @@
 ## Version 0.16.1 (2026-xx-xx)
 
 * Optimized parser and lexer performance.
+  - Sped up parser route decision caching.
+  - Sped up looking up definitions by name by indexing the definitions of each scope, which makes lookups in
+    scopes with many definitions faster.
+  - Sped up finding existing template instances by indexing the instances of each template, which makes
+    templates with many instances, like `ref` and `ptr`, faster.
+  - Sped up JIT compilation:
+    - Code that isn't optimized, including all preprocessing code, is now compiled with LLVM's fastest code
+      generation level.
+    - Preprocessing code now reuses a single LLVM target machine instead of creating one for each function.
+  - Misc other optimizations.
 * Refactored the Core's dynamic function and method bindings:
   - Method bindings now call plain function pointers instead of `std::function`, which improves performance
     and keeps call stacks clean while debugging.
   - Overrides set through a binding cache are now removed automatically when the cache is destroyed, and can
     call the function they override through `callSuper`.
-* Sped up looking up definitions by name by indexing the definitions of each scope, which makes lookups in
-  scopes with many definitions faster.
 * Fixed a bug where replacing an element at the end of a scope with a `use` statement or an injection, for
   example during preprocessing, caused the new element to be ignored.
 

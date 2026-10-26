@@ -38,6 +38,9 @@ class Template : public Core::Ast::Node,
 
   private: SharedList<Core::Ast::Scope> instances;
 
+  /// Indices of instances grouped by the hash of their template vars, to avoid scanning all instances on lookup.
+  private: std::unordered_map<std::size_t, std::vector<Int>> instancesIndex;
+
 
   //============================================================================
   // Implementations
@@ -123,6 +126,13 @@ class Template : public Core::Ast::Node,
     Core::Ast::Node *templateInput, Core::Ast::Scope *instance, TemplateVarDef *varDef, Helper *helper,
     SharedPtr<Core::Notices::Notice> &notice
   );
+
+  /**
+   * @brief Hash the given template vars for the instances index.
+   * Vars that are matched by value or by identity are hashed accordingly, while vars that need deep comparison
+   * (function types and AST vars) contribute a constant, leaving them to matchTemplateVars.
+   */
+  private: std::size_t hashTemplateVars(Containing<Core::Ast::Node> *templateInputs);
 
   private: Bool assignTemplateVars(
     Containing<Core::Ast::Node> *templateInputs, Core::Ast::Scope *instance, Helper *helper,

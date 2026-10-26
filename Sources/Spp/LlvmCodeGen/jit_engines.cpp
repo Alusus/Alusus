@@ -21,6 +21,9 @@ Error JitEngineBuilderState::prepareForConstruction() {
       jtmb = std::move(*JTMBOrErr);
     else
       return JTMBOrErr.takeError();
+    // Unoptimized code is usually run once, so fast instruction selection and register allocation save more time
+    // than the generated code loses.
+    if (!useOptimizeLayer) jtmb->setCodeGenOptLevel(CodeGenOptLevel::None);
   }
 
   if (!createObjectLinkingLayer && !jtmb->getCodeModel().has_value() &&
@@ -136,8 +139,9 @@ Expected<std::unique_ptr<IRCompileLayer::IRCompiler>> JitEngine::createCompileFu
     return s.createCompileFunction(std::move(jtmb));
 
   // Otherwise default to creating a SimpleCompiler, or ConcurrentIRCompiler,
-  // depending on the number of threads requested.
-  if (s.numCompileThreads > 0)
+  // depending on the number of threads requested. A single compile thread never compiles two modules at once, so
+  // it can share one TargetMachine instead of creating one per module like ConcurrentIRCompiler does.
+  if (s.numCompileThreads > 1)
     return std::make_unique<ConcurrentIRCompiler>(std::move(jtmb));
 
   auto TM = jtmb.createTargetMachine();

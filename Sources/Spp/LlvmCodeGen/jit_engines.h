@@ -303,7 +303,7 @@ class JitEngineBuilderSetters
   ///
   /// If this method is not called, a default creation function wil be used
   /// that will construct a basic IR compile function that is compatible with
-  /// the selected number of threads (SimpleCompiler for '0' compile threads,
+  /// the selected number of threads (SimpleCompiler for '0' or '1' compile threads,
   /// ConcurrentIRCompiler otherwise).
   public: SETTER_IMPL& setCompileFunctionCreator(
       JitEngineBuilderState::CompileFunctionCreator createCompileFunction) {
