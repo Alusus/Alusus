@@ -145,7 +145,7 @@ void NodePathResolver::_resolveTemplateInstance(
       throw EXCEPTION(GenericException, S("Invalid template variable definition."));
     }
     if (i > 0) path << C(',');
-    auto obj = Ast::Template::getTemplateVar(block, varDef->getName().get());
+    auto obj = Ast::Template::getTemplateVar(block, varDef->getName().getStr());
     if (varDef->getType() == Ast::TemplateVarType::INTEGER) {
       auto integer = ti_cast<Core::Ast::IntegerLiteral>(obj);
       if (integer == 0) {

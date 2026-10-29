@@ -183,7 +183,7 @@ class GenericParsingHandler : public ParsingHandler
   protected: virtual SharedPtr<Ast::Node> createListNode(ParserState *state, Int levelIndex);
   protected: virtual SharedPtr<Ast::Node> createRouteNode(ParserState *state, Int levelIndex, Int route);
   protected: virtual SharedPtr<Ast::Node> createTokenNode(ParserState *state, Int levelIndex,
-                                                         Word tokenId, Char const *tokenText);
+                                                         Word tokenId, TiStr const *tokenText);
   protected: virtual SharedPtr<Ast::Node> createEnforcedProdNode(ParserState *state);
 
   protected: Bool isRouteTerm(ParserState *state, Int levelIndex);

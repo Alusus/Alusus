@@ -62,6 +62,11 @@ class ConstTerm : public Term
   //============================================================================
   // Member Functions
 
+  public: virtual TermType getTermType() const
+  {
+    return TermType::CONST;
+  }
+
   /**
    * @brief Set the match string.
    *

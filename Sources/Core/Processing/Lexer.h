@@ -141,6 +141,9 @@ class Lexer : public TiObject
    */
   private: Notices::UnrecognizedCharNotice errorBuffer;
 
+  /// The recursion depth of canTermStartWithChar, used to detect left recursive grammars.
+  private: Word startCharCheckDepth = 0;
+
 
   //============================================================================
   // Signals
@@ -240,6 +243,15 @@ class Lexer : public TiObject
   /// @{
 
   private: LexerState* createState();
+
+  /// Check whether a term may accept the given char as its first char, and whether it may match an empty string.
+  private: Bool canTermStartWithChar(Grammar::Term *term, WChar ch, Bool &canBeEmpty);
+
+  /// Get the indexes of the branches of an alternate term that need to be tried for the given char.
+  private: std::vector<Int> const& getAlternateTermBranchesForChar(Grammar::AlternateTerm *term, WChar ch);
+
+  /// Check whether the inner term of a multiply term may accept the given char.
+  private: Bool canMultiplyTermInnerAcceptChar(Grammar::MultiplyTerm *term, WChar ch);
 
   /// Get the symbol definition at the specified index.
   public: Grammar::SymbolDefinition* getSymbolDefinition(Int index)

@@ -60,7 +60,11 @@ class SubsetIndex
   public: void onUpdated(Int index, Bool withinSubset)
   {
     Int pos = this->findPos(index);
-    if (pos == -1) return;
+    if (pos == -1) {
+      // The index is past all indexed entries, so it can only be appended.
+      if (withinSubset) this->indices.add(index);
+      return;
+    }
     if (withinSubset && this->indices(pos) != index) this->indices.insert(pos, index);
     else if (!withinSubset && this->indices(pos) == index) this->indices.remove(pos);
   }

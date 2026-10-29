@@ -178,16 +178,6 @@ class Binding : public TiInterface
     return ti_cast<T>(this->getMember(name));
   }
 
-  public: template <class RT, class ...ARGS> RT call(Char const *name, ARGS... args)
-  {
-    return Core::Basic::call<RT, TiObject*, ARGS...>(this, name, this->getTiObject(), args...);
-  }
-
-  public: template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS... args)
-  {
-    return Core::Basic::call<RT, TiObject*, ARGS...>(callee, this->getTiObject(), args...);
-  }
-
 }; // class
 
 } // namespace

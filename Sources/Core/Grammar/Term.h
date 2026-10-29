@@ -56,9 +56,9 @@ class Term : public Node, public Binding
   //============================================================================
   // Constructor / Destructor
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(Term);
-
-  IMPLEMENT_ATTR_CONSTRUCTOR(Term);
+  protected: Term()
+  {
+  }
 
   public: virtual ~Term()
   {
@@ -68,6 +68,9 @@ class Term : public Node, public Binding
 
   //============================================================================
   // Member Functions
+
+  /// Get the type of this term.
+  public: virtual TermType getTermType() const = 0;
 
   public: void setFlags(TioSharedPtr const &f)
   {

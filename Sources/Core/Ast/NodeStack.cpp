@@ -20,8 +20,8 @@ namespace Core::Ast
 
 void NodeStack::pop()
 {
-  if (this->stack.getCount() > 0) {
-    this->stack.remove(this->stack.getCount()-1);
+  if (this->stack.size() > 0) {
+    this->stack.pop_back();
   } else {
     if (this->trunkIndex >= 0) {
       this->trunkIndex--;
@@ -54,10 +54,10 @@ void NodeStack::set(SharedPtr<Node> const &obj, Int index)
     if (index <= this->trunkIndex) {
       this->trunkStack->set(obj, index);
     } else {
-      this->stack.set(index-(this->trunkIndex+1), obj);
+      this->stack[index-(this->trunkIndex+1)] = obj;
     }
   } else {
-    this->stack.set(index, obj);
+    this->stack[index] = obj;
   }
 }
 
@@ -83,13 +83,11 @@ SharedPtr<Node> const& NodeStack::get(Int index) const
     if (index <= this->trunkIndex) {
       return this->trunkStack->get(index);
     } else {
-      return this->stack.get(index-(this->trunkIndex+1));
+      return this->stack[index-(this->trunkIndex+1)];
     }
   } else {
-    return this->stack.get(index);
+    return this->stack[index];
   }
-  // Dummy return statement to avoid compilation error. This won't be reached.
-  return this->stack.get(index);
 }
 
 
@@ -127,10 +125,10 @@ Bool NodeStack::isShared(Int index) const
       // This level is shared with the trunk state.
       return true;
     } else {
-      return this->stack.get(index-(this->trunkIndex+1)).getRefCounter()->count != 1;
+      return this->stack[index-(this->trunkIndex+1)].getRefCounter()->count != 1;
     }
   } else {
-    return this->stack.get(index).getRefCounter()->count != 1;
+    return this->stack[index].getRefCounter()->count != 1;
   }
   // Dummy return statement to avoid compilation error. This won't be reached.
   return false;
@@ -156,7 +154,7 @@ void NodeStack::setBranchingInfo(NodeStack *ds, Int ti)
 void NodeStack::ownTop()
 {
   ASSERT(this->getCount() > 0);
-  if (this->stack.getCount() > 0) return;
+  if (this->stack.size() > 0) return;
   ASSERT(this->trunkStack != 0);
   ASSERT(this->trunkIndex > -1);
   if (static_cast<Int>(this->trunkStack->getCount()) <= this->trunkIndex) {
@@ -164,7 +162,7 @@ void NodeStack::ownTop()
   }
   auto srcData = this->trunkStack->get(this->trunkIndex);
   this->trunkIndex--;
-  this->stack.add(srcData);
+  this->stack.push_back(srcData);
 }
 
 
@@ -193,10 +191,10 @@ void NodeStack::removeElement(Int index)
       // This level is shared with the trunk state.
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Index refers to a level from a trunk state."));
     } else {
-      this->stack.remove(index-(this->trunkIndex+1));
+      this->stack.erase(this->stack.begin() + (index-(this->trunkIndex+1)));
     }
   } else {
-    this->stack.remove(index);
+    this->stack.erase(this->stack.begin() + index);
   }
 }
 
@@ -223,10 +221,10 @@ void NodeStack::insertElement(Int index, Node *val)
       // This level is shared with the trunk state.
       throw EXCEPTION(InvalidArgumentException, S("index"), S("Index is within the range of the trunk state."));
     } else {
-      this->stack.insertElement(index-(this->trunkIndex+1), val);
+      this->stack.insert(this->stack.begin() + (index-(this->trunkIndex+1)), getSharedPtr(val));
     }
   } else {
-    this->stack.insertElement(index, val);
+    this->stack.insert(this->stack.begin() + index, getSharedPtr(val));
   }
 }
 

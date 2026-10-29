@@ -19,60 +19,6 @@ namespace Core::Basic
 //==============================================================================
 // Functions
 
-template <class RT, class ...ARGS> RT call(TiObject *callee, ARGS... args)
-{
-  VALIDATE_NOT_NULL(callee);
-  auto tifn = ti_cast<TiFunction<RT(TiFunctionBase*, ARGS...)>>(callee);
-  if (tifn != 0) {
-    return tifn->fn(tifn->getSuper(), args...);
-  } else {
-    auto tifn2 = ti_cast<TiFunction<RT(ARGS...)>>(callee);
-    if (tifn2 == 0) {
-      throw EXCEPTION(GenericException, S("Function signature does not match the call."));
-    }
-    return tifn2->fn(args...);
-  }
-}
-
-
-template <class RT, class ...ARGS> RT call(Binding *self, Char const *name, ARGS... args)
-{
-  VALIDATE_NOT_NULL(self, name);
-  auto index = self->findMemberIndex(name);
-  if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
-  }
-  auto obj = self->getMember(index);
-  if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
-  }
-  auto tifnBase = ti_cast<TiFunctionBase>(obj);
-  if (tifnBase == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not a function."), name);
-  }
-  return call<RT, ARGS...>(tifnBase, args...);
-}
-
-
-template <class RT, class ...ARGS> RT call(BindingMap *bindingMap, Char const *name, ARGS... args)
-{
-  VALIDATE_NOT_NULL(bindingMap, name);
-  auto index = bindingMap->findIndex(name);
-  if (index == -1) {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
-  }
-  auto obj = bindingMap->get(index).get();
-  if (obj == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member not found."), name);
-  }
-  auto tifnBase = ti_cast<TiFunctionBase>(obj);
-  if (tifnBase == 0) {
-    throw EXCEPTION(InvalidArgumentException, S("name"), S("Member is not a function."), name);
-  }
-  return call<RT, ARGS...>(tifnBase, args...);
-}
-
-
 inline TiObject* tryGetMember(TiObject *obj, Char const *name)
 {
   auto bindings = ti_cast<Binding>(obj);

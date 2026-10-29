@@ -20,65 +20,21 @@ using namespace std::placeholders;
 //==============================================================================
 // Initialization Functions
 
-SeekerExtension::Overrides* SeekerExtension::extend(Core::Ast::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper)
+void SeekerExtension::extend(Core::Ast::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper)
 {
   auto extension = newSrdObj<SeekerExtension>(seeker);
   seeker->addDynamicInterface(extension);
 
-  auto overrides = new Overrides();
   extension->astHelper = astHelper;
-  overrides->foreachRef = seeker->foreach.set(&SeekerExtension::_foreach).get();
-  overrides->extForeachRef = seeker->extForeach.set(&SeekerExtension::_extForeach).get();
-  overrides->foreach_identifierLevelRef =
-    seeker->foreach_identifierLevel.set(&SeekerExtension::_foreach_identifierLevel).get();
-  overrides->foreach_identifierOnFuncRef =
-    extension->foreach_identifierOnFunc.set(&SeekerExtension::_foreach_identifierOnFunc).get();
-  overrides->foreach_identifierOnDataTypeRef =
-    extension->foreach_identifierOnDataType.set(&SeekerExtension::_foreach_identifierOnDataType).get();
-  overrides->foreach_linkOperatorRoutingRef =
-    seeker->foreach_linkOperatorRouting.set(&SeekerExtension::_foreach_linkOperatorRouting).get();
-  overrides->foreach_paramPassRef =
-    extension->foreach_paramPass.set(&SeekerExtension::_foreach_paramPass).get();
-  overrides->foreach_paramPassRoutingRef =
-    extension->foreach_paramPassRouting.set(&SeekerExtension::_foreach_paramPassRouting).get();
-  overrides->foreach_paramPassOnTemplateRef =
-    extension->foreach_paramPassOnTemplate.set(&SeekerExtension::_foreach_paramPassOnTemplate).get();
-  overrides->foreach_thisTypeRefRef =
-    extension->foreach_thisTypeRef.set(&SeekerExtension::_foreach_thisTypeRef).get();
-  overrides->foreach_comparisonRef =
-    extension->foreach_comparison.set(&SeekerExtension::_foreach_comparison).get();
-  overrides->foreach_comparisonLevelRef =
-    extension->foreach_comparisonLevel.set(&SeekerExtension::_foreach_comparisonLevel).get();
-  overrides->foreach_comparisonOnScopeRef =
-    extension->foreach_comparisonOnScope.set(&SeekerExtension::_foreach_comparisonOnScope).get();
-  overrides->foreach_computeComparisonRef =
-    extension->foreach_computeComparison.set(&SeekerExtension::_foreach_computeComparison).get();
-
-  return overrides;
 }
 
 
-void SeekerExtension::unextend(Core::Ast::Seeker *seeker, Overrides *overrides)
+void SeekerExtension::unextend(Core::Ast::Seeker *seeker)
 {
   auto extension = ti_cast<SeekerExtension>(seeker);
-  seeker->foreach.reset(overrides->foreachRef);
-  seeker->extForeach.reset(overrides->extForeachRef);
-  seeker->foreach_identifierLevel.reset(overrides->foreach_identifierLevelRef);
-  seeker->foreach_linkOperatorRouting.reset(overrides->foreach_linkOperatorRoutingRef);
   extension->astHelper = SharedPtr<Ast::Helper>::null;
-  extension->foreach_identifierOnFunc.reset(overrides->foreach_identifierOnFuncRef);
-  extension->foreach_identifierOnDataType.reset(overrides->foreach_identifierOnDataTypeRef);
-  extension->foreach_paramPass.reset(overrides->foreach_paramPassRef);
-  extension->foreach_paramPassRouting.reset(overrides->foreach_paramPassRoutingRef);
-  extension->foreach_paramPassOnTemplate.reset(overrides->foreach_paramPassOnTemplateRef);
-  extension->foreach_thisTypeRef.reset(overrides->foreach_thisTypeRefRef);
-  extension->foreach_comparison.reset(overrides->foreach_comparisonRef);
-  extension->foreach_comparisonLevel.reset(overrides->foreach_comparisonLevelRef);
-  extension->foreach_comparisonOnScope.reset(overrides->foreach_comparisonOnScopeRef);
-  extension->foreach_computeComparison.reset(overrides->foreach_computeComparisonRef);
-
+  // Removing the extension destroys its binding caches, which in turn remove the overrides they have set.
   seeker->removeDynamicInterface<SeekerExtension>();
-  delete overrides;
 }
 
 
@@ -86,27 +42,24 @@ void SeekerExtension::unextend(Core::Ast::Seeker *seeker, Overrides *overrides)
 // Seek Functions
 
 Core::Ast::Seeker::Verb SeekerExtension::_foreach(
-  TiFunctionBase *base, TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
+  TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
   Core::Ast::Seeker::ForeachCallback const &cb, Word flags
 ) {
+  PREPARE_SELF(seekerExtension, SeekerExtension);
   if (ref->isA<Core::Ast::ParamPass>()) {
-    PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreach_paramPass(static_cast<Core::Ast::ParamPass const*>(ref), target, cb, flags);
   } else if (ref->isA<Spp::Ast::ThisTypeRef>()) {
-    PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreach_thisTypeRef(target, cb, flags);
   } else if (ref->isA<Core::Ast::ComparisonOperator>() || ref->isA<Core::Ast::LogOperator>()) {
-    PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreach_comparison(ref, target, cb, flags);
   } else {
-    PREPARE_SELF(seeker, Core::Ast::Seeker);
-    return seeker->foreach.useCallee(base)(ref, target, cb, flags);
+    return seekerExtension->foreach.callSuper(ref, target, cb, flags);
   }
 }
 
 
 Core::Ast::Seeker::Verb SeekerExtension::_extForeach(
-  TiFunctionBase *base, TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
+  TiObject *self, Core::Ast::Node const *ref, Core::Ast::Node *target,
   Core::Ast::Seeker::ForeachCallback const &cb, Word flags
 ) {
   PREPARE_SELF(seeker, Core::Ast::Seeker);
@@ -153,18 +106,16 @@ Core::Ast::Seeker::Verb SeekerExtension::_extForeach(
 
 
 Core::Ast::Seeker::Verb SeekerExtension::_foreach_identifierLevel(
-  TiFunctionBase *base, TiObject *self, Core::Ast::Identifier const *identifier, Core::Ast::Node *data,
+  TiObject *self, Core::Ast::Identifier const *identifier, Core::Ast::Node *data,
   Core::Ast::Seeker::ForeachCallback const &cb, Word flags
 ) {
+  PREPARE_SELF(seekerExtension, SeekerExtension);
   if (data->isDerivedFrom<Ast::Function>()) {
-    PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreach_identifierOnFunc(identifier, static_cast<Ast::Function*>(data), cb, flags);
   } else if (data->isDerivedFrom<Ast::DataType>()) {
-    PREPARE_SELF(seekerExtension, SeekerExtension);
     return seekerExtension->foreach_identifierOnDataType(identifier, static_cast<Ast::DataType*>(data), cb, flags);
   } else {
-    PREPARE_SELF(seeker, Core::Ast::Seeker);
-    return seeker->foreach_identifierLevel.useCallee(base)(identifier, data, cb, flags);
+    return seekerExtension->foreach_identifierLevel.callSuper(identifier, data, cb, flags);
   }
 }
 
@@ -198,10 +149,10 @@ Core::Ast::Seeker::Verb SeekerExtension::_foreach_identifierOnDataType(
 
 
 Core::Ast::Seeker::Verb SeekerExtension::_foreach_linkOperatorRouting(
-  TiFunctionBase *base, TiObject *self, Core::Ast::LinkOperator const *link, Core::Ast::Node *data,
+  TiObject *self, Core::Ast::LinkOperator const *link, Core::Ast::Node *data,
   Core::Ast::Seeker::ForeachCallback const &cb, Word flags
 ) {
-  PREPARE_SELF(seeker, Core::Ast::Seeker);
+  PREPARE_SELF(seekerExtension, SeekerExtension);
   if (link->getType() == S(".")) {
     auto second = link->getSecond().get();
     if (second->isA<Core::Ast::Identifier>()) {
@@ -214,7 +165,7 @@ Core::Ast::Seeker::Verb SeekerExtension::_foreach_linkOperatorRouting(
       }
     }
   }
-  return seeker->foreach_linkOperatorRouting.useCallee(base)(link, data, cb, flags);
+  return seekerExtension->foreach_linkOperatorRouting.callSuper(link, data, cb, flags);
 }
 
 

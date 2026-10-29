@@ -45,27 +45,41 @@ class ParserTermLevel
   /// Pointer to the current level's term object.
   private: Grammar::Term *term;
 
+  /// The type of the term, cached to avoid a virtual call every time the level is visited.
+  private: Grammar::TermType termType;
+
   private: TiObject *param1;
 
   private: TiObject *param2;
 
   private: TiObject *flags;
 
+  /// The number of children of a list term, cached when the level is pushed.
+  private: Word childCount;
+
+  /// Whether this level is the root level of a production.
+  private: Bool prodRoot;
+
 
   //============================================================================
   // Constructors / Destructor
 
   /// Initialize all members to 0.
-  public: ParserTermLevel() : posId(0), term(0), param1(0), param2(0), flags(0)
+  public: ParserTermLevel() :
+    posId(0), term(0), termType(Grammar::TermType::NONE), param1(0), param2(0), flags(0), childCount(0),
+    prodRoot(false)
   {
   }
 
   /// Copy the state level and increment data users count.
   public: ParserTermLevel(const ParserTermLevel &level) : posId(level.getPosId()),
     term(level.getTerm()),
+    termType(level.getTermType()),
     param1(level.getParam1()),
     param2(level.getParam2()),
-    flags(level.getFlags())
+    flags(level.getFlags()),
+    childCount(level.getChildCount()),
+    prodRoot(level.isProdRoot())
   {
   }
 
@@ -109,6 +123,18 @@ class ParserTermLevel
     return this->term;
   }
 
+  /// Set the type of this level's term.
+  protected: void setTermType(Grammar::TermType t)
+  {
+    this->termType = t;
+  }
+
+  /// Get the type of this level's term.
+  public: Grammar::TermType getTermType() const
+  {
+    return this->termType;
+  }
+
   /**
    * @brief Get a first parameter for the level's term.
    * This is used for optimization purposes, to avoid tracing the term's
@@ -148,13 +174,34 @@ class ParserTermLevel
     return this->flags;
   }
 
+  protected: void setChildCount(Word c)
+  {
+    this->childCount = c;
+  }
+  public: Word getChildCount() const
+  {
+    return this->childCount;
+  }
+
+  protected: void setProdRoot(Bool r)
+  {
+    this->prodRoot = r;
+  }
+  public: Bool isProdRoot() const
+  {
+    return this->prodRoot;
+  }
+
   public: void copyFrom(ParserTermLevel *src)
   {
     this->setTerm(src->getTerm());
+    this->setTermType(src->getTermType());
     this->setPosId(src->getPosId());
     this->param1 = src->getParam1();
     this->param2 = src->getParam2();
     this->flags = src->getFlags();
+    this->childCount = src->getChildCount();
+    this->prodRoot = src->isProdRoot();
   }
 
 }; // class

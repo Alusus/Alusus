@@ -64,9 +64,9 @@ class ListTerm : public Term, public MapContaining<TiObject>
   //============================================================================
   // Constructor / Destructor
 
-  IMPLEMENT_EMPTY_CONSTRUCTOR(ListTerm);
-
-  IMPLEMENT_ATTR_MAP_CONSTRUCTOR(ListTerm);
+  protected: ListTerm()
+  {
+  }
 
   public: virtual ~ListTerm()
   {
@@ -108,6 +108,9 @@ class ListTerm : public Term, public MapContaining<TiObject>
 
   public: void setFilter(const SharedPtr<Node> &f)
   {
+    if (f != 0 && !f->isA<List>() && !f->isA<TiInt>() && !f->isDerivedFrom<Reference>()) {
+      throw EXCEPTION(InvalidArgumentException, S("f"), S("Must be of type List, TiInt, or Reference."));
+    }
     UPDATE_OWNED_SHAREDPTR(this->filter, f);
   }
   private: void setFilter(Node *f)

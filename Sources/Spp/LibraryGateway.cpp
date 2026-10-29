@@ -92,9 +92,9 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   this->rtBuildMgr = newSrdObj<Rt::BuildMgr>(manager, this->buildManager.get());
 
   // Extend Core singletons.
-  this->seekerExtensionOverrides = SeekerExtension::extend(manager->getSeeker(), this->astHelper);
-  this->rootScopeHandlerExtensionOverrides = RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
-  this->rootManagerExtensionOverrides = RootManagerExtension::extend(
+  SeekerExtension::extend(manager->getSeeker(), this->astHelper);
+  RootScopeHandlerExtension::extend(manager->getRootScopeHandler(), manager);
+  RootManagerExtension::extend(
     manager, this->buildManager, this->astProcessor, this->rtGrammarMgr, this->rtAstMgr, this->rtBuildMgr
   );
 
@@ -107,12 +107,9 @@ void LibraryGateway::initialize(Main::RootManager *manager)
 void LibraryGateway::uninitialize(Main::RootManager *manager)
 {
   // Unextend Seeker.
-  SeekerExtension::unextend(manager->getSeeker(), this->seekerExtensionOverrides);
-  this->seekerExtensionOverrides = 0;
-  RootScopeHandlerExtension::unextend(manager->getRootScopeHandler(), this->rootScopeHandlerExtensionOverrides);
-  this->rootScopeHandlerExtensionOverrides = 0;
-  RootManagerExtension::unextend(manager, this->rootManagerExtensionOverrides);
-  this->rootManagerExtensionOverrides = 0;
+  SeekerExtension::unextend(manager->getSeeker());
+  RootScopeHandlerExtension::unextend(manager->getRootScopeHandler());
+  RootManagerExtension::unextend(manager);
 
   // Reset run-time objects.
   this->rtGrammarMgr.reset();

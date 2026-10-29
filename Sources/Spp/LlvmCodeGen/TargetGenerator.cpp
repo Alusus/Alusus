@@ -23,102 +23,102 @@ void TargetGenerator::initBindings()
   auto targetGeneration = ti_cast<CodeGen::TargetGeneration>(this);
 
   // Type Generation Functions
-  targetGeneration->generateVoidType = &TargetGenerator::generateVoidType;
-  targetGeneration->generateIntType = &TargetGenerator::generateIntType;
-  targetGeneration->generateFloatType = &TargetGenerator::generateFloatType;
-  targetGeneration->generatePointerType = &TargetGenerator::generatePointerType;
-  targetGeneration->generateArrayType = &TargetGenerator::generateArrayType;
-  targetGeneration->generateStructTypeDecl = &TargetGenerator::generateStructTypeDecl;
-  targetGeneration->generateStructTypeBody = &TargetGenerator::generateStructTypeBody;
-  targetGeneration->getTypeAllocationSize = &TargetGenerator::getTypeAllocationSize;
-  targetGeneration->getNullaryProcedureType = &TargetGenerator::getNullaryProcedureType;
+  targetGeneration->generateVoidType = &TargetGenerator::_generateVoidType;
+  targetGeneration->generateIntType = &TargetGenerator::_generateIntType;
+  targetGeneration->generateFloatType = &TargetGenerator::_generateFloatType;
+  targetGeneration->generatePointerType = &TargetGenerator::_generatePointerType;
+  targetGeneration->generateArrayType = &TargetGenerator::_generateArrayType;
+  targetGeneration->generateStructTypeDecl = &TargetGenerator::_generateStructTypeDecl;
+  targetGeneration->generateStructTypeBody = &TargetGenerator::_generateStructTypeBody;
+  targetGeneration->getTypeAllocationSize = &TargetGenerator::_getTypeAllocationSize;
+  targetGeneration->getNullaryProcedureType = &TargetGenerator::_getNullaryProcedureType;
 
   // Function Generation Functions
-  targetGeneration->generateFunctionType = &TargetGenerator::generateFunctionType;
-  targetGeneration->generateFunctionDecl = &TargetGenerator::generateFunctionDecl;
-  targetGeneration->prepareFunctionBody = &TargetGenerator::prepareFunctionBody;
-  targetGeneration->finishFunctionBody = &TargetGenerator::finishFunctionBody;
-  targetGeneration->deleteFunction = &TargetGenerator::deleteFunction;
+  targetGeneration->generateFunctionType = &TargetGenerator::_generateFunctionType;
+  targetGeneration->generateFunctionDecl = &TargetGenerator::_generateFunctionDecl;
+  targetGeneration->prepareFunctionBody = &TargetGenerator::_prepareFunctionBody;
+  targetGeneration->finishFunctionBody = &TargetGenerator::_finishFunctionBody;
+  targetGeneration->deleteFunction = &TargetGenerator::_deleteFunction;
 
   // Variable Definition Generation Functions
-  targetGeneration->generateGlobalVariable = &TargetGenerator::generateGlobalVariable;
-  targetGeneration->generateLocalVariable = &TargetGenerator::generateLocalVariable;
+  targetGeneration->generateGlobalVariable = &TargetGenerator::_generateGlobalVariable;
+  targetGeneration->generateLocalVariable = &TargetGenerator::_generateLocalVariable;
 
   // Statements Generation Functions
-  targetGeneration->prepareIfStatement = &TargetGenerator::prepareIfStatement;
-  targetGeneration->finishIfStatement = &TargetGenerator::finishIfStatement;
-  targetGeneration->prepareWhileStatement = &TargetGenerator::prepareWhileStatement;
-  targetGeneration->finishWhileStatement = &TargetGenerator::finishWhileStatement;
-  targetGeneration->prepareForStatement = &TargetGenerator::prepareForStatement;
-  targetGeneration->finishForStatement = &TargetGenerator::finishForStatement;
-  targetGeneration->generateContinue = &TargetGenerator::generateContinue;
-  targetGeneration->generateBreak = &TargetGenerator::generateBreak;
+  targetGeneration->prepareIfStatement = &TargetGenerator::_prepareIfStatement;
+  targetGeneration->finishIfStatement = &TargetGenerator::_finishIfStatement;
+  targetGeneration->prepareWhileStatement = &TargetGenerator::_prepareWhileStatement;
+  targetGeneration->finishWhileStatement = &TargetGenerator::_finishWhileStatement;
+  targetGeneration->prepareForStatement = &TargetGenerator::_prepareForStatement;
+  targetGeneration->finishForStatement = &TargetGenerator::_finishForStatement;
+  targetGeneration->generateContinue = &TargetGenerator::_generateContinue;
+  targetGeneration->generateBreak = &TargetGenerator::_generateBreak;
 
   // Casting Generation Functions
-  targetGeneration->generateCastIntToInt = &TargetGenerator::generateCastIntToInt;
-  targetGeneration->generateCastIntToFloat = &TargetGenerator::generateCastIntToFloat;
-  targetGeneration->generateCastFloatToInt = &TargetGenerator::generateCastFloatToInt;
-  targetGeneration->generateCastFloatToFloat = &TargetGenerator::generateCastFloatToFloat;
-  targetGeneration->generateCastIntToPointer = &TargetGenerator::generateCastIntToPointer;
-  targetGeneration->generateCastPointerToInt = &TargetGenerator::generateCastPointerToInt;
-  targetGeneration->generateCastPointerToPointer = &TargetGenerator::generateCastPointerToPointer;
+  targetGeneration->generateCastIntToInt = &TargetGenerator::_generateCastIntToInt;
+  targetGeneration->generateCastIntToFloat = &TargetGenerator::_generateCastIntToFloat;
+  targetGeneration->generateCastFloatToInt = &TargetGenerator::_generateCastFloatToInt;
+  targetGeneration->generateCastFloatToFloat = &TargetGenerator::_generateCastFloatToFloat;
+  targetGeneration->generateCastIntToPointer = &TargetGenerator::_generateCastIntToPointer;
+  targetGeneration->generateCastPointerToInt = &TargetGenerator::_generateCastPointerToInt;
+  targetGeneration->generateCastPointerToPointer = &TargetGenerator::_generateCastPointerToPointer;
 
   // Operation Generation Functions
-  targetGeneration->generateVarReference = &TargetGenerator::generateVarReference;
-  targetGeneration->generateMemberVarReference = &TargetGenerator::generateMemberVarReference;
-  targetGeneration->generateArrayElementReference = &TargetGenerator::generateArrayElementReference;
-  targetGeneration->generateDereference = &TargetGenerator::generateDereference;
-  targetGeneration->generateAssign = &TargetGenerator::generateAssign;
-  targetGeneration->generateFunctionPointer = &TargetGenerator::generateFunctionPointer;
-  targetGeneration->generateFunctionCall = &TargetGenerator::generateFunctionCall;
-  targetGeneration->generateFunctionPtrCall = &TargetGenerator::generateFunctionPtrCall;
-  targetGeneration->generateReturn = &TargetGenerator::generateReturn;
+  targetGeneration->generateVarReference = &TargetGenerator::_generateVarReference;
+  targetGeneration->generateMemberVarReference = &TargetGenerator::_generateMemberVarReference;
+  targetGeneration->generateArrayElementReference = &TargetGenerator::_generateArrayElementReference;
+  targetGeneration->generateDereference = &TargetGenerator::_generateDereference;
+  targetGeneration->generateAssign = &TargetGenerator::_generateAssign;
+  targetGeneration->generateFunctionPointer = &TargetGenerator::_generateFunctionPointer;
+  targetGeneration->generateFunctionCall = &TargetGenerator::_generateFunctionCall;
+  targetGeneration->generateFunctionPtrCall = &TargetGenerator::_generateFunctionPtrCall;
+  targetGeneration->generateReturn = &TargetGenerator::_generateReturn;
 
   // Logical Ops Generation Functions
-  targetGeneration->prepareLogicalOp = &TargetGenerator::prepareLogicalOp;
-  targetGeneration->finishLogicalOr = &TargetGenerator::finishLogicalOr;
-  targetGeneration->finishLogicalAnd = &TargetGenerator::finishLogicalAnd;
+  targetGeneration->prepareLogicalOp = &TargetGenerator::_prepareLogicalOp;
+  targetGeneration->finishLogicalOr = &TargetGenerator::_finishLogicalOr;
+  targetGeneration->finishLogicalAnd = &TargetGenerator::_finishLogicalAnd;
 
   // Math Ops Generation Functions
-  targetGeneration->generateAdd = &TargetGenerator::generateAdd;
-  targetGeneration->generateSub = &TargetGenerator::generateSub;
-  targetGeneration->generateMul = &TargetGenerator::generateMul;
-  targetGeneration->generateDiv = &TargetGenerator::generateDiv;
-  targetGeneration->generateRem = &TargetGenerator::generateRem;
-  targetGeneration->generateShr = &TargetGenerator::generateShr;
-  targetGeneration->generateShl = &TargetGenerator::generateShl;
-  targetGeneration->generateAnd = &TargetGenerator::generateAnd;
-  targetGeneration->generateOr = &TargetGenerator::generateOr;
-  targetGeneration->generateXor = &TargetGenerator::generateXor;
-  targetGeneration->generateNot = &TargetGenerator::generateNot;
-  targetGeneration->generateNeg = &TargetGenerator::generateNeg;
-  targetGeneration->generateEarlyInc = &TargetGenerator::generateEarlyInc;
-  targetGeneration->generateEarlyDec = &TargetGenerator::generateEarlyDec;
-  targetGeneration->generateLateInc = &TargetGenerator::generateLateInc;
-  targetGeneration->generateLateDec = &TargetGenerator::generateLateDec;
-  targetGeneration->generateShrAssign = &TargetGenerator::generateShrAssign;
-  targetGeneration->generateShlAssign = &TargetGenerator::generateShlAssign;
-  targetGeneration->generateAndAssign = &TargetGenerator::generateAndAssign;
-  targetGeneration->generateOrAssign = &TargetGenerator::generateOrAssign;
-  targetGeneration->generateXorAssign = &TargetGenerator::generateXorAssign;
-  targetGeneration->generateNextArg = &TargetGenerator::generateNextArg;
+  targetGeneration->generateAdd = &TargetGenerator::_generateAdd;
+  targetGeneration->generateSub = &TargetGenerator::_generateSub;
+  targetGeneration->generateMul = &TargetGenerator::_generateMul;
+  targetGeneration->generateDiv = &TargetGenerator::_generateDiv;
+  targetGeneration->generateRem = &TargetGenerator::_generateRem;
+  targetGeneration->generateShr = &TargetGenerator::_generateShr;
+  targetGeneration->generateShl = &TargetGenerator::_generateShl;
+  targetGeneration->generateAnd = &TargetGenerator::_generateAnd;
+  targetGeneration->generateOr = &TargetGenerator::_generateOr;
+  targetGeneration->generateXor = &TargetGenerator::_generateXor;
+  targetGeneration->generateNot = &TargetGenerator::_generateNot;
+  targetGeneration->generateNeg = &TargetGenerator::_generateNeg;
+  targetGeneration->generateEarlyInc = &TargetGenerator::_generateEarlyInc;
+  targetGeneration->generateEarlyDec = &TargetGenerator::_generateEarlyDec;
+  targetGeneration->generateLateInc = &TargetGenerator::_generateLateInc;
+  targetGeneration->generateLateDec = &TargetGenerator::_generateLateDec;
+  targetGeneration->generateShrAssign = &TargetGenerator::_generateShrAssign;
+  targetGeneration->generateShlAssign = &TargetGenerator::_generateShlAssign;
+  targetGeneration->generateAndAssign = &TargetGenerator::_generateAndAssign;
+  targetGeneration->generateOrAssign = &TargetGenerator::_generateOrAssign;
+  targetGeneration->generateXorAssign = &TargetGenerator::_generateXorAssign;
+  targetGeneration->generateNextArg = &TargetGenerator::_generateNextArg;
 
   // Comparison Ops Generation Functions
-  targetGeneration->generateEqual = &TargetGenerator::generateEqual;
-  targetGeneration->generateNotEqual = &TargetGenerator::generateNotEqual;
-  targetGeneration->generateGreaterThan = &TargetGenerator::generateGreaterThan;
-  targetGeneration->generateGreaterThanOrEqual = &TargetGenerator::generateGreaterThanOrEqual;
-  targetGeneration->generateLessThan = &TargetGenerator::generateLessThan;
-  targetGeneration->generateLessThanOrEqual = &TargetGenerator::generateLessThanOrEqual;
+  targetGeneration->generateEqual = &TargetGenerator::_generateEqual;
+  targetGeneration->generateNotEqual = &TargetGenerator::_generateNotEqual;
+  targetGeneration->generateGreaterThan = &TargetGenerator::_generateGreaterThan;
+  targetGeneration->generateGreaterThanOrEqual = &TargetGenerator::_generateGreaterThanOrEqual;
+  targetGeneration->generateLessThan = &TargetGenerator::_generateLessThan;
+  targetGeneration->generateLessThanOrEqual = &TargetGenerator::_generateLessThanOrEqual;
 
   // Literal Generation Functions
-  targetGeneration->generateIntLiteral = &TargetGenerator::generateIntLiteral;
-  targetGeneration->generateFloatLiteral = &TargetGenerator::generateFloatLiteral;
-  targetGeneration->generateStringLiteral = &TargetGenerator::generateStringLiteral;
-  targetGeneration->generateNullPtrLiteral = &TargetGenerator::generateNullPtrLiteral;
-  targetGeneration->generateStructLiteral = &TargetGenerator::generateStructLiteral;
-  targetGeneration->generateArrayLiteral = &TargetGenerator::generateArrayLiteral;
-  targetGeneration->generatePointerLiteral = &TargetGenerator::generatePointerLiteral;
+  targetGeneration->generateIntLiteral = &TargetGenerator::_generateIntLiteral;
+  targetGeneration->generateFloatLiteral = &TargetGenerator::_generateFloatLiteral;
+  targetGeneration->generateStringLiteral = &TargetGenerator::_generateStringLiteral;
+  targetGeneration->generateNullPtrLiteral = &TargetGenerator::_generateNullPtrLiteral;
+  targetGeneration->generateStructLiteral = &TargetGenerator::_generateStructLiteral;
+  targetGeneration->generateArrayLiteral = &TargetGenerator::_generateArrayLiteral;
+  targetGeneration->generatePointerLiteral = &TargetGenerator::_generatePointerLiteral;
 }
 
 
@@ -139,44 +139,47 @@ void TargetGenerator::setupBuild()
 //==============================================================================
 // Type Generation Functions
 
-Bool TargetGenerator::generateVoidType(TioSharedPtr &type)
+Bool TargetGenerator::_generateVoidType(TiObject *self, TioSharedPtr &type)
 {
-  auto llvmType = llvm::Type::getVoidTy(*this->buildTarget->getLlvmContext());
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  auto llvmType = llvm::Type::getVoidTy(*targetGenerator->buildTarget->getLlvmContext());
   type = newSrdObj<VoidType>(llvmType);
   return true;
 }
 
 
-Bool TargetGenerator::generateIntType(Word bitCount, Bool withSign, TioSharedPtr &type)
+Bool TargetGenerator::_generateIntType(TiObject *self, Word bitCount, Bool withSign, TioSharedPtr &type)
 {
-  if (bitCount == 0) bitCount = this->buildTarget->getPointerBitCount();
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (bitCount == 0) bitCount = targetGenerator->buildTarget->getPointerBitCount();
   // TODO: Support 128 bits?
   if (bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    this->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
+    targetGenerator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
     return false;
   }
-  auto llvmType = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), bitCount);
+  auto llvmType = llvm::Type::getIntNTy(*targetGenerator->buildTarget->getLlvmContext(), bitCount);
   type = newSrdObj<IntegerType>(llvmType, bitCount, withSign);
   return true;
 }
 
 
-Bool TargetGenerator::generateFloatType(Word bitCount, TioSharedPtr &type)
+Bool TargetGenerator::_generateFloatType(TiObject *self, Word bitCount, TioSharedPtr &type)
 {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   llvm::Type *llvmType;
   switch (bitCount) {
     case 32:
-      llvmType = llvm::Type::getFloatTy(*this->buildTarget->getLlvmContext());
+      llvmType = llvm::Type::getFloatTy(*targetGenerator->buildTarget->getLlvmContext());
       break;
     case 64:
-      llvmType = llvm::Type::getDoubleTy(*this->buildTarget->getLlvmContext());
+      llvmType = llvm::Type::getDoubleTy(*targetGenerator->buildTarget->getLlvmContext());
       break;
     // TODO: Support 128 bits?
     // case 128:
-    //   llvmType = llvm::Type::getFP128Ty(*this->buildTarget->getLlvmContext());
+    //   llvmType = llvm::Type::getFP128Ty(*targetGenerator->buildTarget->getLlvmContext());
     //   break;
     default:
-      this->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
+      targetGenerator->rootManager->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
       return false;
   }
   type = newSrdObj<FloatType>(llvmType, bitCount);
@@ -184,7 +187,7 @@ Bool TargetGenerator::generateFloatType(Word bitCount, TioSharedPtr &type)
 }
 
 
-Bool TargetGenerator::generatePointerType(TiObject *contentType, TioSharedPtr &type)
+Bool TargetGenerator::_generatePointerType(TiObject *self, TiObject *contentType, TioSharedPtr &type)
 {
   PREPARE_ARG(contentType, contentTypeWrapper, Type);
   auto llvmType = contentTypeWrapper->getLlvmType()->getPointerTo();
@@ -193,7 +196,7 @@ Bool TargetGenerator::generatePointerType(TiObject *contentType, TioSharedPtr &t
 }
 
 
-Bool TargetGenerator::generateArrayType(TiObject *contentType, Word size, TioSharedPtr &type)
+Bool TargetGenerator::_generateArrayType(TiObject *self, TiObject *contentType, Word size, TioSharedPtr &type)
 {
   PREPARE_ARG(contentType, contentTypeWrapper, Type);
   auto llvmType = llvm::ArrayType::get(contentTypeWrapper->getLlvmType(), size);
@@ -202,17 +205,18 @@ Bool TargetGenerator::generateArrayType(TiObject *contentType, Word size, TioSha
 }
 
 
-Bool TargetGenerator::generateStructTypeDecl(
-  Char const *name, TioSharedPtr &type
+Bool TargetGenerator::_generateStructTypeDecl(
+  TiObject *self, Char const *name, TioSharedPtr &type
 ) {
-  auto llvmType = llvm::StructType::create(*this->buildTarget->getLlvmContext(), name);
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  auto llvmType = llvm::StructType::create(*targetGenerator->buildTarget->getLlvmContext(), name);
   type = newSrdObj<StructType>(llvmType, name);
   return true;
 }
 
 
-Bool TargetGenerator::generateStructTypeBody(
-  TiObject *type, MapContaining<TiObject> *membersTypes,
+Bool TargetGenerator::_generateStructTypeBody(
+  TiObject *self, TiObject *type, MapContaining<TiObject> *membersTypes,
   SharedList<TiObject> *members
 ) {
   VALIDATE_NOT_NULL(membersTypes, members);
@@ -238,26 +242,28 @@ Bool TargetGenerator::generateStructTypeBody(
 }
 
 
-Word TargetGenerator::getTypeAllocationSize(TiObject *type)
+Word TargetGenerator::_getTypeAllocationSize(TiObject *self, TiObject *type)
 {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(type, tgType, Type);
-  return this->buildTarget->getLlvmDataLayout()->getTypeAllocSize(tgType->getLlvmType());
+  return targetGenerator->buildTarget->getLlvmDataLayout()->getTypeAllocSize(tgType->getLlvmType());
 }
 
 
-TiObject* TargetGenerator::getNullaryProcedureType()
+TiObject* TargetGenerator::_getNullaryProcedureType(TiObject *self)
 {
-  if (this->nullaryProcedureType == 0) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (targetGenerator->nullaryProcedureType == 0) {
     TioSharedPtr tgVoidType;
-    if (!this->generateVoidType(tgVoidType)) {
+    if (!_generateVoidType(self, tgVoidType)) {
       throw EXCEPTION(GenericException, S("Failed to generate LLVM void type."));
     }
     SharedMap<TiObject> argTypes;
-    if (!this->generateFunctionType(&argTypes, tgVoidType.get(), false, this->nullaryProcedureType)) {
+    if (!_generateFunctionType(self, &argTypes, tgVoidType.get(), false, targetGenerator->nullaryProcedureType)) {
       throw EXCEPTION(GenericException, S("Failed to generate function type for root scope execution."));
     }
   }
-  return this->nullaryProcedureType.get();
+  return targetGenerator->nullaryProcedureType.get();
 }
 
 
@@ -555,9 +561,10 @@ llvm::Value* TargetGenerator::generateAbiCall(
 //==============================================================================
 // Function Generation Functions
 
-Bool TargetGenerator::generateFunctionType(
-  MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic, TioSharedPtr &functionType
+Bool TargetGenerator::_generateFunctionType(
+  TiObject *self, MapContaining<TiObject>* argTypes, TiObject *retType, Bool variadic, TioSharedPtr &functionType
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   VALIDATE_NOT_NULL(argTypes, retType);
 
   // Prepare ret type.
@@ -582,16 +589,16 @@ Bool TargetGenerator::generateFunctionType(
   llvm::Type *llvmFuncRetType = llvmRetType;
   AbiInfo retAbi;
   if (llvmRetType->isStructTy()) {
-    retAbi = this->classifyStruct(llvmRetType, false, intRegs, sseRegs);
+    retAbi = targetGenerator->classifyStruct(llvmRetType, false, intRegs, sseRegs);
     if (retAbi.kind == AbiInfo::Kind::INDIRECT) {
       // The result is returned through a hidden pointer passed as the first argument.
       llvmArgTypes.push_back(llvmRetType->getPointerTo());
-      llvmFuncRetType = llvm::Type::getVoidTy(*this->buildTarget->getLlvmContext());
+      llvmFuncRetType = llvm::Type::getVoidTy(*targetGenerator->buildTarget->getLlvmContext());
       --intRegs;
     } else if (retAbi.parts.size() == 1) {
       llvmFuncRetType = retAbi.parts[0];
     } else {
-      llvmFuncRetType = llvm::StructType::get(*this->buildTarget->getLlvmContext(), retAbi.parts);
+      llvmFuncRetType = llvm::StructType::get(*targetGenerator->buildTarget->getLlvmContext(), retAbi.parts);
     }
   }
 
@@ -609,7 +616,7 @@ Bool TargetGenerator::generateFunctionType(
     auto llvmType = contentTypeWrapper->getLlvmType();
     AbiInfo abi;
     if (llvmType->isStructTy()) {
-      abi = this->classifyStruct(llvmType, true, intRegs, sseRegs);
+      abi = targetGenerator->classifyStruct(llvmType, true, intRegs, sseRegs);
     } else if (llvmType->isFloatingPointTy()) {
       if (sseRegs > 0) --sseRegs;
     } else if (intRegs > 0) {
@@ -639,8 +646,10 @@ Bool TargetGenerator::generateFunctionType(
 }
 
 
-Bool TargetGenerator::generateFunctionDecl(Char const *name, TiObject *functionType, TioSharedPtr &function)
-{
+Bool TargetGenerator::_generateFunctionDecl(
+  TiObject *self, Char const *name, TiObject *functionType, TioSharedPtr &function
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   VALIDATE_NOT_NULL(name, functionType);
 
   PREPARE_ARG(functionType, funcTypeWrapper, FunctionType);
@@ -648,29 +657,30 @@ Bool TargetGenerator::generateFunctionDecl(Char const *name, TiObject *functionT
 
   // Create the function.
   llvm::Function *llvmFunc = 0;
-  if (!this->perFunctionModules) {
+  if (!targetGenerator->perFunctionModules) {
     llvmFunc = llvm::Function::Create(
-      llvmFuncType, llvm::Function::ExternalLinkage, name, this->buildTarget->getGlobalLlvmModule()
+      llvmFuncType, llvm::Function::ExternalLinkage, name, targetGenerator->buildTarget->getGlobalLlvmModule()
     );
     // C ABI compatibility.
-    this->applyAbiAttributes(llvmFunc, funcTypeWrapper);
+    targetGenerator->applyAbiAttributes(llvmFunc, funcTypeWrapper);
   }
   function = newSrdObj<Function>(name, funcTypeWrapper, llvmFunc);
   return true;
 }
 
 
-Bool TargetGenerator::prepareFunctionBody(
-  TiObject *function, TiObject *functionType, SharedList<TiObject> *args, TioSharedPtr &context
+Bool TargetGenerator::_prepareFunctionBody(
+  TiObject *self, TiObject *function, TiObject *functionType, SharedList<TiObject> *args, TioSharedPtr &context
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   VALIDATE_NOT_NULL(function, args);
   PREPARE_ARG(function, funcWrapper, Function);
 
   llvm::Module *llvmModule;
   llvm::Function *llvmFunc;
-  if (this->perFunctionModules) {
-    funcWrapper->llvmModule = std::make_unique<llvm::Module>("function_module", *this->buildTarget->getLlvmContext());
-    funcWrapper->llvmModule->setDataLayout(*this->buildTarget->getLlvmDataLayout());
+  if (targetGenerator->perFunctionModules) {
+    funcWrapper->llvmModule = std::make_unique<llvm::Module>("function_module", *targetGenerator->buildTarget->getLlvmContext());
+    funcWrapper->llvmModule->setDataLayout(*targetGenerator->buildTarget->getLlvmDataLayout());
 
     llvmFunc = llvm::Function::Create(
       funcWrapper->getFunctionType()->getLlvmFunctionType(), llvm::Function::ExternalLinkage,
@@ -679,16 +689,16 @@ Bool TargetGenerator::prepareFunctionBody(
     funcWrapper->setLlvmFunction(llvmFunc);
     llvmModule = funcWrapper->llvmModule.get();
     // C ABI compatibility.
-    this->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
+    targetGenerator->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
   } else {
     llvmFunc = funcWrapper->getLlvmFunction();
-    llvmModule = this->buildTarget->getGlobalLlvmModule();
+    llvmModule = targetGenerator->buildTarget->getGlobalLlvmModule();
   }
 
   // Create the block
   auto block = newSrdObj<Block>();
   block->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), llvmFunc
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), llvmFunc
   ));
   block->setIrBuilder(new llvm::IRBuilder<>(block->getLlvmBlock()));
   block->setFunction(funcWrapper);
@@ -721,7 +731,7 @@ Bool TargetGenerator::prepareFunctionBody(
     // Structs are passed by pointer or split into registers, but the Alusus code generator expects a value, so we'll
     // rebuild the value here.
     if (argType->getLlvmType()->isStructTy()) {
-      auto structValue = this->raiseStructArg(block->getIrBuilder(), argType->getLlvmType(), abi, params.data());
+      auto structValue = targetGenerator->raiseStructArg(block->getIrBuilder(), argType->getLlvmType(), abi, params.data());
       args->add(newSrdObj<Value>(structValue, false));
     } else {
       args->add(newSrdObj<Value>(params[0], false));
@@ -731,8 +741,8 @@ Bool TargetGenerator::prepareFunctionBody(
   // Is this a variadic funciton?
   if (funcWrapper->getFunctionType()->isVariadic()) {
     // Declare va_list var.
-    auto vaListAlloca = block->getIrBuilder()->CreateAlloca(this->buildTarget->getVaListType(), 0, "__vaList");
-    vaListAlloca->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(this->buildTarget->getVaListType()));
+    auto vaListAlloca = block->getIrBuilder()->CreateAlloca(targetGenerator->buildTarget->getVaListType(), 0, "__vaList");
+    vaListAlloca->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(targetGenerator->buildTarget->getVaListType()));
     funcWrapper->llvmVaList = vaListAlloca;
     
     // Add declaration for llvm.va_start function.
@@ -740,11 +750,11 @@ Bool TargetGenerator::prepareFunctionBody(
     if (llvmVaStartFunc == 0) {
       // This function is in a different module, so we'll have to define it.
       llvmVaStartFunc = llvm::Function::Create(
-        this->getVaStartEndFnType(), llvm::Function::ExternalLinkage, "llvm.va_start", llvmModule
+        targetGenerator->getVaStartEndFnType(), llvm::Function::ExternalLinkage, "llvm.va_start", llvmModule
       );
     }
     // Call llvm.va_start.
-    auto int8Type = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), 8);
+    auto int8Type = llvm::Type::getIntNTy(*targetGenerator->buildTarget->getLlvmContext(), 8);
     auto int8PtrType = int8Type->getPointerTo();
     std::vector<llvm::Value*> vaArgs;
     vaArgs.push_back(block->getIrBuilder()->CreateBitCast(funcWrapper->llvmVaList, int8PtrType));
@@ -760,30 +770,31 @@ Bool TargetGenerator::prepareFunctionBody(
 }
 
 
-Bool TargetGenerator::finishFunctionBody(
-  TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
+Bool TargetGenerator::_finishFunctionBody(
+  TiObject *self, TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(functionType, functionTypeWrapper, FunctionType);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(function, funcWrapper, Function);
 
   auto voidRetType = functionTypeWrapper->getRetType().ti_cast_get<VoidType>();
   if (!block->isTerminated() && voidRetType != 0) {
-    if (!this->generateReturn(context, 0, 0)) return false;
+    if (!_generateReturn(self, context, 0, 0)) return false;
   }
 
-  if (this->perFunctionModules) {
+  if (targetGenerator->perFunctionModules) {
     LOG(
       Spp::LogLevel::LLVMCODEGEN_IR, S("Adding function module to build target: ") << funcWrapper->getName()
     );
-    this->buildTarget->addLlvmModule(std::move(funcWrapper->llvmModule));
+    targetGenerator->buildTarget->addLlvmModule(std::move(funcWrapper->llvmModule));
   }
 
   return true;
 }
 
 
-Bool TargetGenerator::deleteFunction(TiObject *function)
+Bool TargetGenerator::_deleteFunction(TiObject *self, TiObject *function)
 {
   PREPARE_ARG(function, funcWrapper, Function);
   funcWrapper->getLlvmFunction()->eraseFromParent();
@@ -794,9 +805,10 @@ Bool TargetGenerator::deleteFunction(TiObject *function)
 //==============================================================================
 // Variable Definition Generation Functions
 
-Bool TargetGenerator::generateGlobalVariable(
-  TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
+Bool TargetGenerator::_generateGlobalVariable(
+  TiObject *self, TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(type, typeWrapper, Type);
   auto valWrapper = ti_cast<Value>(defaultValue);
 
@@ -804,7 +816,7 @@ Bool TargetGenerator::generateGlobalVariable(
   var->setName(name);
   var->setType(typeWrapper);
   var->setLlvmGlobalVariable(new llvm::GlobalVariable(
-    *(this->buildTarget->getGlobalLlvmModule()), typeWrapper->getLlvmType(), false,
+    *(targetGenerator->buildTarget->getGlobalLlvmModule()), typeWrapper->getLlvmType(), false,
     llvm::GlobalVariable::ExternalLinkage, valWrapper != 0 ? valWrapper->getLlvmConstant() : 0, name
   ));
   #if __APPLE__
@@ -817,16 +829,17 @@ Bool TargetGenerator::generateGlobalVariable(
 }
 
 
-Bool TargetGenerator::generateLocalVariable(
-  TiObject *context, TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
+Bool TargetGenerator::_generateLocalVariable(
+  TiObject *self, TiObject *context, TiObject *type, Char const* name, TiObject *defaultValue, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(type, typeWrapper, Type);
   auto valWrapper = ti_cast<Value>(defaultValue);
 
   SharedPtr<Variable> var = newSrdObj<Variable>();
   auto allocaInst = block->getIrBuilder()->CreateAlloca(typeWrapper->getLlvmType(), 0, name);
-  allocaInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(typeWrapper->getLlvmType()));
+  allocaInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(typeWrapper->getLlvmType()));
   var->setLlvmAllocaInst(allocaInst);
   #if __APPLE__
     // TODO: This alignment should depend on build target rather than current OS.
@@ -834,7 +847,7 @@ Bool TargetGenerator::generateLocalVariable(
   #endif
   if (valWrapper != 0) {
     auto storeInst = block->getIrBuilder()->CreateStore(valWrapper->getLlvmValue(), var->getLlvmAllocaInst());
-    storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(typeWrapper->getLlvmType()));
+    storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(typeWrapper->getLlvmType()));
   }
 
   result = var;
@@ -845,8 +858,10 @@ Bool TargetGenerator::generateLocalVariable(
 //==============================================================================
 // Statements Generation Functions
 
-Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, SharedPtr<CodeGen::IfTgContext> &ifTgContext)
-{
+Bool TargetGenerator::_prepareIfStatement(
+  TiObject *self, TiObject *context, Bool withElse, SharedPtr<CodeGen::IfTgContext> &ifTgContext
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
 
   SharedPtr<IfContext> ifContext = newSrdObj<IfContext>();
@@ -858,7 +873,7 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
   auto bodyBlock = newSrdObj<Block>();
   bodyBlock->setLlvmBlock(
     llvm::BasicBlock::Create(
-      *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
     )
   );
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
@@ -869,7 +884,7 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
   if (withElse) {
     auto elseBlock = newSrdObj<Block>();
     elseBlock->setLlvmBlock(llvm::BasicBlock::Create(
-      *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
     ));
     elseBlock->setIrBuilder(new llvm::IRBuilder<>(elseBlock->getLlvmBlock()));
     elseBlock->setFunction(block->getFunction());
@@ -881,8 +896,10 @@ Bool TargetGenerator::prepareIfStatement(TiObject *context, Bool withElse, Share
 }
 
 
-Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext *ifTgContext, TiObject *conditionVal)
- {
+Bool TargetGenerator::_finishIfStatement(
+  TiObject *self, TiObject *context, CodeGen::IfTgContext *ifTgContext, TiObject *conditionVal
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(ifTgContext, ifContext, IfContext);
   PREPARE_ARG(conditionVal, valWrapper, Value);
@@ -895,7 +912,7 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
     !ifContext->getElseBlock()->isTerminated()
   ) {
     mergeLlvmBlock = llvm::BasicBlock::Create(
-      *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
     );
     if (!ifContext->getBodyBlock()->isTerminated()) {
       ifContext->getBodyBlock()->getIrBuilder()->CreateBr(mergeLlvmBlock);
@@ -924,8 +941,10 @@ Bool TargetGenerator::finishIfStatement(TiObject *context, CodeGen::IfTgContext 
 }
 
 
-Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
-{
+Bool TargetGenerator::_prepareWhileStatement(
+  TiObject *self, TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
 
   SharedPtr<LoopContext> loopContext = newSrdObj<LoopContext>();
@@ -933,7 +952,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   // Prepare condition context.
   auto condBlock = newSrdObj<Block>();
   condBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
   condBlock->setFunction(block->getFunction());
@@ -942,7 +961,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   // Prepare body context.
   auto bodyBlock = newSrdObj<Block>();
   bodyBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setFunction(block->getFunction());
@@ -951,7 +970,7 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
   // Prepare exit block.
   auto exitBlock = newSrdObj<Block>();
   exitBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   exitBlock->setFunction(block->getFunction());
   loopContext->setExitBlock(exitBlock);
@@ -961,8 +980,8 @@ Bool TargetGenerator::prepareWhileStatement(TiObject *context, SharedPtr<CodeGen
 }
 
 
-Bool TargetGenerator::finishWhileStatement(
-  TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
+Bool TargetGenerator::_finishWhileStatement(
+  TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(loopTgContext, loopContext, LoopContext);
@@ -990,8 +1009,10 @@ Bool TargetGenerator::finishWhileStatement(
 }
 
 
-Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext)
-{
+Bool TargetGenerator::_prepareForStatement(
+  TiObject *self, TiObject *context, SharedPtr<CodeGen::LoopTgContext> &loopTgContext
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
 
   SharedPtr<LoopContext> loopContext = newSrdObj<LoopContext>();
@@ -999,7 +1020,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare condition context.
   auto condBlock = newSrdObj<Block>();
   condBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
   condBlock->setFunction(block->getFunction());
@@ -1008,7 +1029,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare increment context.
   auto updaterBlock = newSrdObj<Block>();
   updaterBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   updaterBlock->setIrBuilder(new llvm::IRBuilder<>(updaterBlock->getLlvmBlock()));
   updaterBlock->setFunction(block->getFunction());
@@ -1017,7 +1038,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare body context.
   auto bodyBlock = newSrdObj<Block>();
   bodyBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
   bodyBlock->setFunction(block->getFunction());
@@ -1026,7 +1047,7 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
   // Prepare exit block.
   auto exitBlock = newSrdObj<Block>();
   exitBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   exitBlock->setFunction(block->getFunction());
   loopContext->setExitBlock(exitBlock);
@@ -1036,8 +1057,8 @@ Bool TargetGenerator::prepareForStatement(TiObject *context, SharedPtr<CodeGen::
 }
 
 
-Bool TargetGenerator::finishForStatement(
-  TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
+Bool TargetGenerator::_finishForStatement(
+  TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext, TiObject *conditionVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(loopTgContext, loopContext, LoopContext);
@@ -1068,7 +1089,7 @@ Bool TargetGenerator::finishForStatement(
 }
 
 
-Bool TargetGenerator::generateContinue(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+Bool TargetGenerator::_generateContinue(TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext)
 {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(loopTgContext, loopContext, LoopContext);
@@ -1083,7 +1104,7 @@ Bool TargetGenerator::generateContinue(TiObject *context, CodeGen::LoopTgContext
 }
 
 
-Bool TargetGenerator::generateBreak(TiObject *context, CodeGen::LoopTgContext *loopTgContext)
+Bool TargetGenerator::_generateBreak(TiObject *self, TiObject *context, CodeGen::LoopTgContext *loopTgContext)
 {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(loopTgContext, loopContext, LoopContext);
@@ -1097,8 +1118,8 @@ Bool TargetGenerator::generateBreak(TiObject *context, CodeGen::LoopTgContext *l
 //==============================================================================
 // Casting Generation Functions
 
-Bool TargetGenerator::generateCastIntToInt(
-  TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+Bool TargetGenerator::_generateCastIntToInt(
+  TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
@@ -1112,8 +1133,8 @@ Bool TargetGenerator::generateCastIntToInt(
 }
 
 
-Bool TargetGenerator::generateCastIntToFloat(
-  TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+Bool TargetGenerator::_generateCastIntToFloat(
+  TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
@@ -1130,8 +1151,8 @@ Bool TargetGenerator::generateCastIntToFloat(
 }
 
 
-Bool TargetGenerator::generateCastFloatToInt(
-  TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+Bool TargetGenerator::_generateCastFloatToInt(
+  TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
@@ -1147,8 +1168,8 @@ Bool TargetGenerator::generateCastFloatToInt(
 }
 
 
-Bool TargetGenerator::generateCastFloatToFloat(
-  TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+Bool TargetGenerator::_generateCastFloatToFloat(
+  TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
@@ -1166,8 +1187,8 @@ Bool TargetGenerator::generateCastFloatToFloat(
 }
 
 
-Bool TargetGenerator::generateCastIntToPointer(
-  TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+Bool TargetGenerator::_generateCastIntToPointer(
+  TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
@@ -1178,8 +1199,8 @@ Bool TargetGenerator::generateCastIntToPointer(
 }
 
 
-Bool TargetGenerator::generateCastPointerToInt(
-  TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+Bool TargetGenerator::_generateCastPointerToInt(
+  TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
@@ -1190,8 +1211,8 @@ Bool TargetGenerator::generateCastPointerToInt(
 }
 
 
-Bool TargetGenerator::generateCastPointerToPointer(
-  TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
+Bool TargetGenerator::_generateCastPointerToPointer(
+  TiObject *self, TiObject *context, TiObject *srcType, TiObject *destType, TiObject *srcVal, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
@@ -1205,9 +1226,10 @@ Bool TargetGenerator::generateCastPointerToPointer(
 //==============================================================================
 // Operation Generation Functions
 
-Bool TargetGenerator::generateVarReference(
-  TiObject *context, TiObject *varType, TiObject *varDefinition, TioSharedPtr &result
+Bool TargetGenerator::_generateVarReference(
+  TiObject *self, TiObject *context, TiObject *varType, TiObject *varDefinition, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   auto var = ti_cast<Variable>(varDefinition);
   auto value = ti_cast<Value>(varDefinition);
@@ -1219,8 +1241,8 @@ Bool TargetGenerator::generateVarReference(
     if (var->getLlvmAllocaInst() != 0) {
       result = newSrdObj<Value>(var->getLlvmAllocaInst(), false);
     } else if (var->getLlvmGlobalVariable() != 0) {
-      llvm::Module *llvmMod = this->perFunctionModules ?
-        block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
+      llvm::Module *llvmMod = targetGenerator->perFunctionModules ?
+        block->getFunction()->llvmModule.get() : targetGenerator->buildTarget->getGlobalLlvmModule();
       // Make sure the target var is declared in the current module.
       llvm::GlobalVariable *llvmVar = llvmMod->getGlobalVariable(var->getName().getBuf());
       if (llvmVar == 0) {
@@ -1242,17 +1264,18 @@ Bool TargetGenerator::generateVarReference(
 }
 
 
-Bool TargetGenerator::generateMemberVarReference(
-  TiObject *context, TiObject *structType, TiObject *memberType,
+Bool TargetGenerator::_generateMemberVarReference(
+  TiObject *self, TiObject *context, TiObject *structType, TiObject *memberType,
   TiObject *memberVarDef, TiObject *structRef, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(structRef, tgStructRef, Value);
   PREPARE_ARG(memberVarDef, tgMemberVarDef, Variable);
   PREPARE_ARG(structType, tgStructType, Type);
 
   llvm::IRBuilder<> *builder = block->getIrBuilder();
-  auto &ctx = *this->buildTarget->getLlvmContext();
+  auto &ctx = *targetGenerator->buildTarget->getLlvmContext();
 
   llvm::Value *basePtr = nullptr;
   llvm::Type *structLlvmTy = nullptr;
@@ -1265,10 +1288,10 @@ Bool TargetGenerator::generateMemberVarReference(
   } else {
     structLlvmTy = tgStructType->getLlvmType(); // struct type
     auto allocaInst = builder->CreateAlloca(structLlvmTy, nullptr, "");
-    allocaInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(structLlvmTy));
+    allocaInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(structLlvmTy));
     basePtr = allocaInst;
     auto storeInst = builder->CreateStore(tgStructRef->getLlvmValue(), basePtr);
-    storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(structLlvmTy));
+    storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(structLlvmTy));
   }
 
   auto zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ctx), 0);
@@ -1289,10 +1312,11 @@ Bool TargetGenerator::generateMemberVarReference(
 }
 
 
-Bool TargetGenerator::generateArrayElementReference(
-  TiObject *context, TiObject *arrayType, TiObject *elementType,
+Bool TargetGenerator::_generateArrayElementReference(
+  TiObject *self, TiObject *context, TiObject *arrayType, TiObject *elementType,
   TiObject *index, TiObject *arrayRef, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(arrayRef, tgArrayRef, Value);
   PREPARE_ARG(arrayType, tgArrayType, Type);
@@ -1300,7 +1324,7 @@ Bool TargetGenerator::generateArrayElementReference(
   PREPARE_ARG(index, tgIndex, Value);
 
   llvm::IRBuilder<> *builder = block->getIrBuilder();
-  auto &ctx = *this->buildTarget->getLlvmContext();
+  auto &ctx = *targetGenerator->buildTarget->getLlvmContext();
 
   llvm::Value *basePtr = nullptr;
   llvm::Type *pointeeTy = nullptr;
@@ -1309,10 +1333,10 @@ Bool TargetGenerator::generateArrayElementReference(
   if (auto arrTy = ti_cast<ArrayType>(tgArrayType)) {
     pointeeTy = arrTy->getLlvmType(); // [N x T]
     auto allocaInst = builder->CreateAlloca(pointeeTy);
-    allocaInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(pointeeTy));
+    allocaInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(pointeeTy));
     basePtr = allocaInst;
     auto storeInst = builder->CreateStore(tgArrayRef->getLlvmValue(), basePtr);
-    storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(pointeeTy));
+    storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(pointeeTy));
 
     auto zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ctx), 0);
 
@@ -1364,9 +1388,10 @@ Bool TargetGenerator::generateArrayElementReference(
 }
 
 
-Bool TargetGenerator::generateDereference(
-  TiObject *context, TiObject *contentType, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateDereference(
+  TiObject *self, TiObject *context, TiObject *contentType, TiObject *srcVal, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   PREPARE_ARG(contentType, cgContentType, Type);
@@ -1375,16 +1400,17 @@ Bool TargetGenerator::generateDereference(
     cgContentType->getLlvmType(),
     cgSrcVal->getLlvmValue()
   );
-  llvmResult->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(cgContentType->getLlvmType()));
+  llvmResult->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(cgContentType->getLlvmType()));
 
   result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateAssign(
-  TiObject *context, TiObject *contentType, TiObject *srcVal, TiObject *destRef, TioSharedPtr &result
+Bool TargetGenerator::_generateAssign(
+  TiObject *self, TiObject *context, TiObject *contentType, TiObject *srcVal, TiObject *destRef, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, cgSrcVal, Value);
   PREPARE_ARG(destRef, cgDestRef, Value);
@@ -1394,22 +1420,23 @@ Bool TargetGenerator::generateAssign(
     cgSrcVal->getLlvmValue(),
     cgDestRef->getLlvmValue()
   );
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(cgContentType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(cgContentType->getLlvmType()));
 
   result = getSharedPtr(destRef);
   return true;
 }
 
 
-Bool TargetGenerator::generateFunctionPointer(
-  TiObject *context, TiObject *function, TiObject *functionPtrType, TioSharedPtr &result
+Bool TargetGenerator::_generateFunctionPointer(
+  TiObject *self, TiObject *context, TiObject *function, TiObject *functionPtrType, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(functionPtrType, functionPtrTypeWrapper, PointerType);
   PREPARE_ARG(function, funcWrapper, Function);
   PREPARE_ARG(context, block, Block);
 
-  llvm::Module *llvmMod = this->perFunctionModules ?
-    block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
+  llvm::Module *llvmMod = targetGenerator->perFunctionModules ?
+    block->getFunction()->llvmModule.get() : targetGenerator->buildTarget->getGlobalLlvmModule();
 
   llvm::Function *llvmFunc = llvmMod->getFunction(funcWrapper->getName().getBuf());
   if (llvmFunc == nullptr) {
@@ -1422,7 +1449,7 @@ Bool TargetGenerator::generateFunctionPointer(
     );
 
     // C ABI compatibility.
-    this->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
+    targetGenerator->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
   }
 
   // Generate the func pointer.
@@ -1436,18 +1463,19 @@ Bool TargetGenerator::generateFunctionPointer(
 }
 
 
-Bool TargetGenerator::generateFunctionCall(
-  TiObject *context, TiObject *function,
+Bool TargetGenerator::_generateFunctionCall(
+  TiObject *self, TiObject *context, TiObject *function,
   Containing<TiObject>* arguments, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(function, funcWrapper, Function);
 
   llvm::IRBuilder<> *builder = block->getIrBuilder();
 
   // Make sure a declaration of this function exists in the current module.
-  llvm::Module *llvmMod = this->perFunctionModules ?
-    block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
+  llvm::Module *llvmMod = targetGenerator->perFunctionModules ?
+    block->getFunction()->llvmModule.get() : targetGenerator->buildTarget->getGlobalLlvmModule();
   llvm::Function *llvmFunc = llvmMod->getFunction(funcWrapper->getName().getBuf());
   if (llvmFunc == nullptr) {
     // This function is in a different module, so we'll have to define it.
@@ -1458,20 +1486,21 @@ Bool TargetGenerator::generateFunctionCall(
       llvmMod
     );
     // C ABI compatibility.
-    this->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
+    targetGenerator->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
   }
 
   // Create the call, applying the C ABI to the arguments and result.
-  auto llvmResult = this->generateAbiCall(builder, funcWrapper->getFunctionType(), llvmFunc, arguments);
+  auto llvmResult = targetGenerator->generateAbiCall(builder, funcWrapper->getFunctionType(), llvmFunc, arguments);
   result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateFunctionPtrCall(
-  TiObject *context, TiObject *functionPtr, TiObject *functionPtrType,
+Bool TargetGenerator::_generateFunctionPtrCall(
+  TiObject *self, TiObject *context, TiObject *functionPtr, TiObject *functionPtrType,
   Containing<TiObject>* arguments, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(functionPtr, llvmFuncPtrBox, Value);
   PREPARE_ARG(functionPtrType, llvmFuncPtrTypeBox, PointerType);
@@ -1486,43 +1515,44 @@ Bool TargetGenerator::generateFunctionPtrCall(
   }
 
   // Create the call, applying the C ABI to the arguments and result.
-  auto llvmResult = this->generateAbiCall(builder, llvmFuncTypeBox, llvmFuncPtrBox->getLlvmValue(), arguments);
+  auto llvmResult = targetGenerator->generateAbiCall(builder, llvmFuncTypeBox, llvmFuncPtrBox->getLlvmValue(), arguments);
   result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateReturn(
-  TiObject *context, TiObject *retType, TiObject *retVal
+Bool TargetGenerator::_generateReturn(
+  TiObject *self, TiObject *context, TiObject *retType, TiObject *retVal
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
 
   llvm::IRBuilder<> *builder = block->getIrBuilder();
 
   // Handle variadic cleanup (llvm.va_end)
   if (block->getFunction()->getFunctionType()->isVariadic()) {
-    llvm::Module *llvmModule = this->perFunctionModules ?
-      block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
+    llvm::Module *llvmModule = targetGenerator->perFunctionModules ?
+      block->getFunction()->llvmModule.get() : targetGenerator->buildTarget->getGlobalLlvmModule();
 
     llvm::Function *llvmVaEndFunc = llvmModule->getFunction("llvm.va_end");
     if (llvmVaEndFunc == nullptr) {
       // This function is in a different module, so we'll have to declare it.
       llvmVaEndFunc = llvm::Function::Create(
-        this->getVaStartEndFnType(),
+        targetGenerator->getVaStartEndFnType(),
         llvm::Function::ExternalLinkage,
         "llvm.va_end",
         llvmModule
       );
     }
 
-    auto int8Type = llvm::Type::getInt8Ty(*this->buildTarget->getLlvmContext());
+    auto int8Type = llvm::Type::getInt8Ty(*targetGenerator->buildTarget->getLlvmContext());
     auto int8PtrType = int8Type->getPointerTo();
 
     llvm::Value *vaListPtr =
       builder->CreateBitCast(block->getFunction()->llvmVaList, int8PtrType);
 
     builder->CreateCall(
-      this->getVaStartEndFnType(),
+      targetGenerator->getVaStartEndFnType(),
       llvmVaEndFunc,
       { vaListPtr }
     );
@@ -1538,10 +1568,10 @@ Bool TargetGenerator::generateReturn(
     if (llvmRetVal->getType()->isStructTy()) {
       auto &retAbi = block->getFunction()->getFunctionType()->getRetAbi();
       if (retAbi.kind == AbiInfo::Kind::COERCED) {
-        builder->CreateRet(this->lowerStructRet(builder, llvmRetVal, retAbi));
+        builder->CreateRet(targetGenerator->lowerStructRet(builder, llvmRetVal, retAbi));
       } else if (block->getFunction()->llvmSretPtr != nullptr) {
         auto storeInst = builder->CreateStore(llvmRetVal, block->getFunction()->llvmSretPtr);
-        storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(llvmRetVal->getType()));
+        storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(llvmRetVal->getType()));
         builder->CreateRetVoid();
       } else {
         throw EXCEPTION(GenericException,
@@ -1562,13 +1592,14 @@ Bool TargetGenerator::generateReturn(
 //==============================================================================
 // Logical Ops Generation Functions
 
-Bool TargetGenerator::prepareLogicalOp(TiObject *context, TioSharedPtr &secondContext)
+Bool TargetGenerator::_prepareLogicalOp(TiObject *self, TiObject *context, TioSharedPtr &secondContext)
 {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
 
   auto block2 = newSrdObj<Block>();
   block2->setLlvmBlock(llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   ));
   block2->setIrBuilder(new llvm::IRBuilder<>(block2->getLlvmBlock()));
   block2->setFunction(block->getFunction());
@@ -1578,9 +1609,10 @@ Bool TargetGenerator::prepareLogicalOp(TiObject *context, TioSharedPtr &secondCo
 }
 
 
-Bool TargetGenerator::finishLogicalOr(
-  TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+Bool TargetGenerator::_finishLogicalOr(
+  TiObject *self, TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(secondContext, block2, Block);
   PREPARE_ARG(val1, val1Wrapper, Value);
@@ -1588,7 +1620,7 @@ Bool TargetGenerator::finishLogicalOr(
 
   // Create the merge block and jump to it.
   auto mergeLlvmBlock = llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   );
   block2->getIrBuilder()->CreateBr(mergeLlvmBlock);
 
@@ -1601,7 +1633,7 @@ Bool TargetGenerator::finishLogicalOr(
   block->setLlvmBlock(mergeLlvmBlock);
 
   // Generate phi value.
-  auto boolType = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), 1);
+  auto boolType = llvm::Type::getIntNTy(*targetGenerator->buildTarget->getLlvmContext(), 1);
   llvm::PHINode *phi = block->getIrBuilder()->CreatePHI(boolType, 0);
   phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
   phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
@@ -1611,9 +1643,10 @@ Bool TargetGenerator::finishLogicalOr(
 }
 
 
-Bool TargetGenerator::finishLogicalAnd(
-  TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
+Bool TargetGenerator::_finishLogicalAnd(
+  TiObject *self, TiObject *context, TiObject *secondContext, TiObject *val1, TiObject *val2, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(secondContext, block2, Block);
   PREPARE_ARG(val1, val1Wrapper, Value);
@@ -1621,7 +1654,7 @@ Bool TargetGenerator::finishLogicalAnd(
 
   // Create the merge block and jump to it.
   auto mergeLlvmBlock = llvm::BasicBlock::Create(
-    *this->buildTarget->getLlvmContext(), this->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
   );
   block2->getIrBuilder()->CreateBr(mergeLlvmBlock);
 
@@ -1634,7 +1667,7 @@ Bool TargetGenerator::finishLogicalAnd(
   block->setLlvmBlock(mergeLlvmBlock);
 
   // Generate phi value.
-  auto boolType = llvm::Type::getIntNTy(*this->buildTarget->getLlvmContext(), 1);
+  auto boolType = llvm::Type::getIntNTy(*targetGenerator->buildTarget->getLlvmContext(), 1);
   llvm::PHINode *phi = block->getIrBuilder()->CreatePHI(boolType, 0);
   phi->addIncoming(val1Wrapper->getLlvmValue(), block1);
   phi->addIncoming(val2Wrapper->getLlvmValue(), block2->getLlvmBlock());
@@ -1647,8 +1680,8 @@ Bool TargetGenerator::finishLogicalAnd(
 //==============================================================================
 // Math Ops Generation Functions
 
-Bool TargetGenerator::generateAdd(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateAdd(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1687,8 +1720,8 @@ Bool TargetGenerator::generateAdd(
 }
 
 
-Bool TargetGenerator::generateSub(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateSub(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1728,8 +1761,8 @@ Bool TargetGenerator::generateSub(
 }
 
 
-Bool TargetGenerator::generateMul(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateMul(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1757,8 +1790,8 @@ Bool TargetGenerator::generateMul(
 }
 
 
-Bool TargetGenerator::generateDiv(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateDiv(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1786,8 +1819,8 @@ Bool TargetGenerator::generateDiv(
 }
 
 
-Bool TargetGenerator::generateRem(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateRem(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1815,8 +1848,8 @@ Bool TargetGenerator::generateRem(
 }
 
 
-Bool TargetGenerator::generateShr(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateShr(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1837,8 +1870,8 @@ Bool TargetGenerator::generateShr(
 }
 
 
-Bool TargetGenerator::generateShl(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateShl(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1855,8 +1888,8 @@ Bool TargetGenerator::generateShl(
 }
 
 
-Bool TargetGenerator::generateAnd(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateAnd(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1873,8 +1906,8 @@ Bool TargetGenerator::generateAnd(
 }
 
 
-Bool TargetGenerator::generateOr(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateOr(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1891,8 +1924,8 @@ Bool TargetGenerator::generateOr(
 }
 
 
-Bool TargetGenerator::generateXor(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateXor(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcVal1Box, Value);
@@ -1909,8 +1942,8 @@ Bool TargetGenerator::generateXor(
 }
 
 
-Bool TargetGenerator::generateNot(
-  TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateNot(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, srcValBox, Value);
@@ -1925,8 +1958,8 @@ Bool TargetGenerator::generateNot(
 }
 
 
-Bool TargetGenerator::generateNeg(
-  TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateNeg(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, srcValBox, Value);
@@ -1948,157 +1981,162 @@ Bool TargetGenerator::generateNeg(
 }
 
 
-Bool TargetGenerator::generateEarlyInc(
-  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+Bool TargetGenerator::_generateEarlyInc(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(type, tgType, Type);
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
     auto integerType = static_cast<IntegerType*>(tgType);
     auto size = integerType->getSize();
     llvmResult = integerType->isSigned()
-      ? builder->CreateNSWAdd(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
-      : builder->CreateAdd(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
+      ? builder->CreateNSWAdd(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
+      : builder->CreateAdd(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     llvmResult = builder->CreateFAdd(
       llvmVal,
       size == 32
-        ? llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
-        : llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
+        ? llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
+        : llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
     );
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateEarlyDec(
-  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+Bool TargetGenerator::_generateEarlyDec(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(type, tgType, Type);
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
     auto integerType = static_cast<IntegerType*>(tgType);
     auto size = integerType->getSize();
     llvmResult = integerType->isSigned()
-      ? builder->CreateNSWSub(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
-      : builder->CreateSub(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
+      ? builder->CreateNSWSub(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
+      : builder->CreateSub(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     llvmResult = builder->CreateFSub(
       llvmVal,
       size == 32
-        ? llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
-        : llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
+        ? llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
+        : llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
     );
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = newSrdObj<Value>(llvmResult, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateLateInc(
-  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+Bool TargetGenerator::_generateLateInc(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(type, tgType, Type);
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
     auto integerType = static_cast<IntegerType*>(tgType);
     auto size = integerType->getSize();
     llvmResult = integerType->isSigned()
-      ? builder->CreateNSWAdd(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
-      : builder->CreateAdd(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
+      ? builder->CreateNSWAdd(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
+      : builder->CreateAdd(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     llvmResult = builder->CreateFAdd(
       llvmVal,
       size == 32
-        ? llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
-        : llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
+        ? llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
+        : llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
     );
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = newSrdObj<Value>(llvmVal, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateLateDec(
-  TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
+Bool TargetGenerator::_generateLateDec(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(type, tgType, Type);
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   llvm::Value *llvmResult;
   if (tgType->isDerivedFrom<IntegerType>()) {
     auto integerType = static_cast<IntegerType*>(tgType);
     auto size = integerType->getSize();
     llvmResult = integerType->isSigned()
-      ? builder->CreateNSWSub(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
-      : builder->CreateSub(llvmVal, llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
+      ? builder->CreateNSWSub(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)))
+      : builder->CreateSub(llvmVal, llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(size, 1, true)));
   } else if (tgType->isDerivedFrom<FloatType>()) {
     auto size = static_cast<FloatType*>(tgType)->getSize();
     llvmResult = builder->CreateFSub(
       llvmVal,
       size == 32
-        ? llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
-        : llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
+        ? llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Float)1))
+        : llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Double)1))
     );
   } else {
     throw EXCEPTION(GenericException, S("Invalid operation."));
   }
 
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = newSrdObj<Value>(llvmVal, false);
   return true;
 }
 
 
-Bool TargetGenerator::generateShrAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateShrAssign(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(srcVal, srcValBox, Value);
@@ -2106,22 +2144,23 @@ Bool TargetGenerator::generateShrAssign(
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   llvm::Value *llvmResult = tgType->isSigned()
     ? builder->CreateAShr(llvmVal, srcValBox->getLlvmValue())
     : builder->CreateLShr(llvmVal, srcValBox->getLlvmValue());
 
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = getSharedPtr(destVar);
   return true;
 }
 
 
-Bool TargetGenerator::generateShlAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateShlAssign(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(srcVal, srcValBox, Value);
@@ -2129,19 +2168,20 @@ Bool TargetGenerator::generateShlAssign(
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   auto llvmResult = builder->CreateShl(llvmVal, srcValBox->getLlvmValue());
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = getSharedPtr(destVar);
   return true;
 }
 
 
-Bool TargetGenerator::generateAndAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateAndAssign(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(srcVal, srcValBox, Value);
@@ -2149,19 +2189,20 @@ Bool TargetGenerator::generateAndAssign(
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   auto llvmResult = builder->CreateAnd(llvmVal, srcValBox->getLlvmValue());
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = getSharedPtr(destVar);
   return true;
 }
 
 
-Bool TargetGenerator::generateOrAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateOrAssign(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(srcVal, srcValBox, Value);
@@ -2169,19 +2210,20 @@ Bool TargetGenerator::generateOrAssign(
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   auto llvmResult = builder->CreateOr(llvmVal, srcValBox->getLlvmValue());
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = getSharedPtr(destVar);
   return true;
 }
 
 
-Bool TargetGenerator::generateXorAssign(
-  TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateXorAssign(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *destVar, TiObject *srcVal, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(destVar, destVarBox, Value);
   PREPARE_ARG(srcVal, srcValBox, Value);
@@ -2189,19 +2231,20 @@ Bool TargetGenerator::generateXorAssign(
 
   auto builder = block->getIrBuilder();
   auto llvmVal = builder->CreateLoad(tgType->getLlvmType(), destVarBox->getLlvmValue());
-  llvmVal->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  llvmVal->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
 
   auto llvmResult = builder->CreateXor(llvmVal, srcValBox->getLlvmValue());
   auto storeInst = builder->CreateStore(llvmResult, destVarBox->getLlvmValue());
-  storeInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+  storeInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
   result = getSharedPtr(destVar);
   return true;
 }
 
 
-Bool TargetGenerator::generateNextArg(
-  TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
+Bool TargetGenerator::_generateNextArg(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal, TioSharedPtr &result
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal, srcValBox, Value);
   PREPARE_ARG(type, tgType, Type);
@@ -2213,7 +2256,7 @@ Bool TargetGenerator::generateNextArg(
     auto llvmPtrType = tgType->getLlvmType()->getPointerTo();
     auto llvmPtr = builder->CreateVAArg(srcValBox->getLlvmValue(), llvmPtrType);
     auto loadInst = builder->CreateLoad(tgType->getLlvmType(), llvmPtr);
-    loadInst->setAlignment(this->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
+    loadInst->setAlignment(targetGenerator->buildTarget->getLlvmDataLayout()->getABITypeAlign(tgType->getLlvmType()));
     llvmResult = loadInst;
   }
   else {
@@ -2228,8 +2271,8 @@ Bool TargetGenerator::generateNextArg(
 //==============================================================================
 // Comparison Ops Generation Functions
 
-Bool TargetGenerator::generateEqual(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateEqual(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
@@ -2249,8 +2292,8 @@ Bool TargetGenerator::generateEqual(
 }
 
 
-Bool TargetGenerator::generateNotEqual(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateNotEqual(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
@@ -2270,8 +2313,8 @@ Bool TargetGenerator::generateNotEqual(
 }
 
 
-Bool TargetGenerator::generateGreaterThan(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateGreaterThan(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
@@ -2296,8 +2339,8 @@ Bool TargetGenerator::generateGreaterThan(
 }
 
 
-Bool TargetGenerator::generateGreaterThanOrEqual(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateGreaterThanOrEqual(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
@@ -2322,8 +2365,8 @@ Bool TargetGenerator::generateGreaterThanOrEqual(
 }
 
 
-Bool TargetGenerator::generateLessThan(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateLessThan(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
@@ -2348,8 +2391,8 @@ Bool TargetGenerator::generateLessThan(
 }
 
 
-Bool TargetGenerator::generateLessThanOrEqual(
-  TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
+Bool TargetGenerator::_generateLessThanOrEqual(
+  TiObject *self, TiObject *context, TiObject *type, TiObject *srcVal1, TiObject *srcVal2, TioSharedPtr &result
 ) {
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(srcVal1, srcValBox1, Value);
@@ -2377,35 +2420,38 @@ Bool TargetGenerator::generateLessThanOrEqual(
 //==============================================================================
 // Literal Generation Functions
 
-Bool TargetGenerator::generateIntLiteral(
-  TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
+Bool TargetGenerator::_generateIntLiteral(
+  TiObject *self, TiObject *context, Word bitCount, Bool withSign, LongInt value, TioSharedPtr &destVal
 ) {
-  if (bitCount == 0) bitCount = this->buildTarget->getPointerBitCount();
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (bitCount == 0) bitCount = targetGenerator->buildTarget->getPointerBitCount();
   auto llvmResult = llvm::ConstantInt::get(
-    *this->buildTarget->getLlvmContext(), llvm::APInt(bitCount, value, withSign)
+    *targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(bitCount, value, withSign)
   );
   destVal = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
 
-Bool TargetGenerator::generateFloatLiteral(
-  TiObject *context, Word bitCount, Double value, TioSharedPtr &destVal
+Bool TargetGenerator::_generateFloatLiteral(
+  TiObject *self, TiObject *context, Word bitCount, Double value, TioSharedPtr &destVal
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   llvm::Value *llvmResult;
   if (bitCount == 32) {
-    llvmResult = llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat((Float)value));
+    llvmResult = llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat((Float)value));
   } else {
-    llvmResult = llvm::ConstantFP::get(*this->buildTarget->getLlvmContext(), llvm::APFloat(value));
+    llvmResult = llvm::ConstantFP::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APFloat(value));
   }
   destVal = newSrdObj<Value>(llvmResult, true);
   return true;
 }
 
 
-Bool TargetGenerator::generateStringLiteral(
-  TiObject *context, Char const* value, TiObject *charType, TiObject *strType, TioSharedPtr &destVal
+Bool TargetGenerator::_generateStringLiteral(
+  TiObject *self, TiObject *context, Char const* value, TiObject *charType, TiObject *strType, TioSharedPtr &destVal
 ) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(charType, cgCharType, Type);
   PREPARE_ARG(strType, cgStrType, Type);
   PREPARE_ARG(context, block, Block);
@@ -2422,11 +2468,11 @@ Bool TargetGenerator::generateStringLiteral(
 
   // Create an anonymous global variable.
   auto llvmStrConst = llvm::ConstantArray::get(static_cast<llvm::ArrayType*>(cgStrType->getLlvmType()), llvmCharArray);
-  llvm::Module *llvmMod = this->perFunctionModules ?
-    block->getFunction()->llvmModule.get() : this->buildTarget->getGlobalLlvmModule();
+  llvm::Module *llvmMod = targetGenerator->perFunctionModules ?
+    block->getFunction()->llvmModule.get() : targetGenerator->buildTarget->getGlobalLlvmModule();
   auto llvmVar = new llvm::GlobalVariable(
     *llvmMod, cgStrType->getLlvmType(), true,
-    llvm::GlobalValue::PrivateLinkage, llvmStrConst, this->getAnonymouseVarName().c_str()
+    llvm::GlobalValue::PrivateLinkage, llvmStrConst, targetGenerator->getAnonymouseVarName().c_str()
   );
   // TODO: Do we need this setAlignment call? It's marked as deprecated in LLVM 10.0.0.
   // llvmVar->setAlignment(1);
@@ -2436,8 +2482,8 @@ Bool TargetGenerator::generateStringLiteral(
 }
 
 
-Bool TargetGenerator::generateNullPtrLiteral(
-  TiObject *context, TiObject *type, TioSharedPtr &destVal
+Bool TargetGenerator::_generateNullPtrLiteral(
+  TiObject *self, TiObject *context, TiObject *type, TioSharedPtr &destVal
 ) {
   PREPARE_ARG(type, tgType, PointerType);
   auto llvmResult = llvm::ConstantPointerNull::get(static_cast<llvm::PointerType*>(tgType->getLlvmType()));
@@ -2446,8 +2492,9 @@ Bool TargetGenerator::generateNullPtrLiteral(
 }
 
 
-Bool TargetGenerator::generateStructLiteral(
-  TiObject *context, TiObject *type, MapContaining<TiObject> *membersTypes, Containing<TiObject> *membersVals,
+Bool TargetGenerator::_generateStructLiteral(
+  TiObject *self, TiObject *context, TiObject *type, MapContaining<TiObject> *membersTypes,
+  Containing<TiObject> *membersVals,
   TioSharedPtr &destVal
 ) {
   PREPARE_ARG(type, tgType, StructType);
@@ -2466,8 +2513,8 @@ Bool TargetGenerator::generateStructLiteral(
 }
 
 
-Bool TargetGenerator::generateArrayLiteral(
-  TiObject *context, TiObject *type, Containing<TiObject> *membersVals,
+Bool TargetGenerator::_generateArrayLiteral(
+  TiObject *self, TiObject *context, TiObject *type, Containing<TiObject> *membersVals,
   TioSharedPtr &destVal
 ) {
   PREPARE_ARG(type, tgType, ArrayType);
@@ -2486,10 +2533,12 @@ Bool TargetGenerator::generateArrayLiteral(
 }
 
 
-Bool TargetGenerator::generatePointerLiteral(TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal)
-{
+Bool TargetGenerator::_generatePointerLiteral(
+  TiObject *self, TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(type, tgType, PointerType);
-  auto llvmInt = llvm::ConstantInt::get(*this->buildTarget->getLlvmContext(), llvm::APInt(64, (uint64_t)value, false));
+  auto llvmInt = llvm::ConstantInt::get(*targetGenerator->buildTarget->getLlvmContext(), llvm::APInt(64, (uint64_t)value, false));
   auto llvmPtr = llvm::ConstantExpr::getIntToPtr(llvmInt, tgType->getLlvmType());
   destVal = newSrdObj<Value>(llvmPtr, true);
   return true;

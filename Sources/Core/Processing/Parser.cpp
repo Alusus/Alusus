@@ -176,7 +176,7 @@ SharedPtr<Ast::Node> Parser::endParsing(Ast::SourceLocationRecord &endSourceLoca
       // Note that here we'll move to the position immediately after the error sync position
       // because we dont want to wait for the sync token.
       while (this->state->getTermLevelCount() > 1) {
-        if (this->state->refTopTermLevel().getTerm()->isA<Grammar::ConcatTerm>()) {
+        if (this->state->refTopTermLevel().getTermType() == Grammar::TermType::CONCAT) {
           Grammar::ConcatTerm *concatTerm =
               static_cast<Grammar::ConcatTerm*>(this->state->refTopTermLevel().getTerm());
           Int errorSyncPosId = concatTerm->getErrorSyncPosId();
@@ -350,9 +350,17 @@ void Parser::processState(const Ast::Token * token, ParserState *state)
 
   Bool error = false;
 
+  // Decision chains don't extend across tokens.
+  this->resetDecisionChains();
+
+  // The lowest level reached during this pass. Levels below it can't have had THIS_PROCESSING_PASS set, so we don't
+  // need to visit them when resetting that flag at the end.
+  Int minTermLevelCount = state->getTermLevelCount();
+
   // Process the given token.
   while (state->getProcessingStatus() == ParserProcessingStatus::IN_PROGRESS) {
     ASSERT(state->getTermLevelCount() > 0);
+    if (state->getTermLevelCount() < minTermLevelCount) minTermLevelCount = state->getTermLevelCount();
     // Did we fold out to completion?
     if (state->getTermLevelCount() == 1) {
       state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
@@ -375,25 +383,31 @@ void Parser::processState(const Ast::Token * token, ParserState *state)
         this->enterParsingDimension(token, parseDimIndex, state);
         state->setProcessingStatus(ParserProcessingStatus::COMPLETE);
       } else {
-        Grammar::Term *term = state->refTopTermLevel().getTerm();
-        if (term->isA<Grammar::TokenTerm>()) {
-          this->processTokenTerm(token, state);
-        } else if (term->isA<Grammar::MultiplyTerm>()) {
-          this->processMultiplyTerm(token, state);
-        } else if (term->isA<Grammar::AlternateTerm>()) {
-          this->processAlternateTerm(token, state);
-        } else if (term->isA<Grammar::ConcatTerm>()) {
-          this->processConcatTerm(token, state);
-        } else if (term->isA<Grammar::ReferenceTerm>()) {
-          this->processReferenceTerm(token, state);
-        } else {
-          // Invalid state type.
-          StrStream stream;
-          stream << S("Invalid term type while processing ")
-                 << ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
-                 << S(". Found Term Type: ")
-                 << term->getTypeInfo()->getTypeName();
-          throw EXCEPTION(GenericException, stream.str().c_str());
+        switch (state->refTopTermLevel().getTermType().val) {
+          case Grammar::TermType::TOKEN:
+            this->processTokenTerm(token, state);
+            break;
+          case Grammar::TermType::MULTIPLY:
+            this->processMultiplyTerm(token, state);
+            break;
+          case Grammar::TermType::ALTERNATE:
+            this->processAlternateTerm(token, state);
+            break;
+          case Grammar::TermType::CONCAT:
+            this->processConcatTerm(token, state);
+            break;
+          case Grammar::TermType::REFERENCE:
+            this->processReferenceTerm(token, state);
+            break;
+          default: {
+            // Invalid state type.
+            StrStream stream;
+            stream << S("Invalid term type while processing ")
+                   << ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
+                   << S(". Found Term Type: ")
+                   << state->refTopTermLevel().getTerm()->getTypeInfo()->getTypeName();
+            throw EXCEPTION(GenericException, stream.str().c_str());
+          }
         }
       }
     }
@@ -405,6 +419,10 @@ void Parser::processState(const Ast::Token * token, ParserState *state)
     ) {
       error = true;
 
+      // Error synching moves the state to positions not determined by the token, so whatever comes after this point
+      // can't be part of a decision chain.
+      this->resetDecisionChains();
+
       if (!this->getTopParsingHandler(this->state.get())->onErrorToken(this, state, token)) {
         state->addNotice(newSrdObj<Notices::SyntaxErrorNotice>(
           Ast::cloneSourceLocation(token->getSourceLocation().get())
@@ -415,7 +433,7 @@ void Parser::processState(const Ast::Token * token, ParserState *state)
         LOG(LogLevel::PARSER_MINOR, S("Error Synching: Checking prod (") <<
             ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId()) <<
             S(") at level ") << (state->getTopProdTermLevelCount() - 1));
-        if (state->refTopTermLevel().getTerm()->isA<Grammar::ConcatTerm>()) {
+        if (state->refTopTermLevel().getTermType() == Grammar::TermType::CONCAT) {
           Int errorSyncPosId =
               static_cast<Grammar::ConcatTerm*>
               (state->refTopTermLevel().getTerm())->getErrorSyncPosId();
@@ -448,7 +466,7 @@ void Parser::processState(const Ast::Token * token, ParserState *state)
   }
 
   // Reset any THIS_PROCESSING_PASS flag found in term level indexes.
-  for (Int i = 0; i < state->getTermLevelCount(); i++) {
+  for (Int i = minTermLevelCount - 1; i < state->getTermLevelCount(); i++) {
     ParserTermLevel &termLevel = state->refTermLevel(i);
     if (termLevel.getPosId() & THIS_PROCESSING_PASS) {
       state->setTermPosId(termLevel.getPosId()&(~THIS_PROCESSING_PASS), i);
@@ -467,13 +485,13 @@ void Parser::processState(const Ast::Token * token, ParserState *state)
       while (state->getTermLevelCount() > 1) {
         // Determine if this level is complete.
         bool levelComplete = false;
-        Grammar::Term *term = state->refTopTermLevel().getTerm();
-        if (term->isA<Grammar::ConcatTerm>()) {
+        Grammar::TermType termType = state->refTopTermLevel().getTermType();
+        if (termType == Grammar::TermType::CONCAT) {
           if (static_cast<Int>(state->refTopTermLevel().getPosId()) >=
               state->getListTermChildCount()) {
             levelComplete = true;
           }
-        } else if (term->isA<Grammar::MultiplyTerm>()) {
+        } else if (termType == Grammar::TermType::MULTIPLY) {
           TiInt *maxOccurances = state->getMultiplyTermMax();
           if (maxOccurances != 0 &&
               static_cast<Int>(state->refTopTermLevel().getPosId()) >= maxOccurances->get()) {
@@ -810,20 +828,12 @@ Int Parser::determineMultiplyRoute(Ast::Token const *token, ParserState *state)
     // We can go either in or out, so we'll test.
 
     // Check if we have previously cached the decision.
-    if (token->isKeyword()) {
-      // For keywords we need to check against the text of the token rather than just the category to which the token
-      // belongs.
-      auto i = multiplyTerm->getInnerTextBasedDecisionCache()->find(token->getText().getStr());
-      if (i != multiplyTerm->getInnerTextBasedDecisionCache()->end()) {
-        return i->second;
-      }
-    } else {
-      // For non-keyword tokens we can just check against the category since the text doesn't influence the parsing
-      // decision.
-      auto i = multiplyTerm->getInnerIdBasedDecisionCache()->find(token->getId());
-      if (i != multiplyTerm->getInnerIdBasedDecisionCache()->end()) {
-        return i->second;
-      }
+    Int route;
+    if (this->findCachedDecision(
+      token, state, multiplyTerm->getInnerTextBasedDecisionCache(), multiplyTerm->getInnerIdBasedDecisionCache(),
+      route
+    )) {
+      return route;
     }
 
     // Initialize the temp state.
@@ -837,49 +847,25 @@ Int Parser::determineMultiplyRoute(Ast::Token const *token, ParserState *state)
     this->tempState.pushTermLevel(multiplyTerm->getTerm().get());
     // Test the temp state.
     this->testState(token, &this->tempState);
-    // Store results.
     if (this->tempState.getProcessingStatus() == ParserProcessingStatus::COMPLETE) {
-      if (token->isKeyword()) {
-        multiplyTerm->getInnerTextBasedDecisionCache()->operator[](token->getText().getStr()) = 1;
-      } else {
-        multiplyTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = 1;
-      }
-      return 1;
+      route = 1;
+    } else if (errorSync) {
+      // Test outer route.
+      this->tempState.reset();
+      this->tempState.setBranchingInfo(state, -1);
+      this->tempState.setParsingDimensionInfo(
+        state->getParsingDimensionIndex(), state->getParsingDimensionStartProdIndex()
+      );
+      this->tempState.popLevel();
+      // Test the temp state.
+      this->testState(token, &this->tempState);
+      route = this->tempState.getProcessingStatus() == ParserProcessingStatus::COMPLETE ? 0 : -1;
     } else {
-      if (errorSync) {
-        // Test outer route.
-        this->tempState.reset();
-        this->tempState.setBranchingInfo(state, -1);
-        this->tempState.setParsingDimensionInfo(
-          state->getParsingDimensionIndex(), state->getParsingDimensionStartProdIndex()
-        );
-        this->tempState.popLevel();
-        // Test the temp state.
-        this->testState(token, &this->tempState);
-        if (this->tempState.getProcessingStatus() == ParserProcessingStatus::COMPLETE) {
-          if (token->isKeyword()) {
-            multiplyTerm->getInnerTextBasedDecisionCache()->operator[](token->getText().getStr()) = 0;
-          } else {
-            multiplyTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = 0;
-          }
-          return 0;
-        } else {
-          if (token->isKeyword()) {
-            multiplyTerm->getInnerTextBasedDecisionCache()->operator[](token->getText().getStr()) =-1;
-          } else {
-            multiplyTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = -1;
-          }
-          return -1;
-        }
-      } else {
-        if (token->isKeyword()) {
-          multiplyTerm->getInnerTextBasedDecisionCache()->operator[](token->getText().getStr()) = 0;
-        } else {
-          multiplyTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = 0;
-        }
-        return 0;
-      }
+      route = 0;
     }
+    // Store results.
+    this->recordDecision(route);
+    return route;
   }
 }
 
@@ -902,22 +888,15 @@ Int Parser::determineAlternateRoute(Ast::Token const *token, ParserState *state)
   auto alternateTerm = static_cast<Grammar::AlternateTerm*>(state->refTopTermLevel().getTerm());
 
   // Check if we have previously cached the decision.
-  if (token->isKeyword()) {
-    // For keywords we need to check against the text of the token rather than just the category to which the token
-    // beongs.
-    auto i = alternateTerm->getInnerTextBasedDecisionCache()->find(token->getText().getStr());
-    if (i != alternateTerm->getInnerTextBasedDecisionCache()->end()) {
-      return i->second;
-    }
-  } else {
-    // For non-keyword tokens we can just check against the category since the text doesn't influence the parsing
-    // decision.
-    auto i = alternateTerm->getInnerIdBasedDecisionCache()->find(token->getId());
-    if (i != alternateTerm->getInnerIdBasedDecisionCache()->end()) {
-      return i->second;
-    }
+  Int route;
+  if (this->findCachedDecision(
+    token, state, alternateTerm->getInnerTextBasedDecisionCache(), alternateTerm->getInnerIdBasedDecisionCache(),
+    route
+  )) {
+    return route;
   }
 
+  route = -1;
   Word termCount = state->getListTermChildCount();
   for (Int i = 0; static_cast<Word>(i) < termCount; i++) {
     // Initialize the temp state branching from the current one.
@@ -934,22 +913,75 @@ Int Parser::determineAlternateRoute(Ast::Token const *token, ParserState *state)
     this->tempState.pushTermLevel(state->getListTermChild(i));
     // Test the temp state.
     this->testState(token, &this->tempState);
-    // Store results.
     if (this->tempState.getProcessingStatus()==ParserProcessingStatus::COMPLETE) {
-      if (token->isKeyword()) {
-        alternateTerm->getInnerTextBasedDecisionCache()->operator[](token->getText().getStr()) = i;
-      } else {
-        alternateTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = i;
-      }
-      return i;
+      route = i;
+      break;
     }
   }
-  if (token->isKeyword()) {
-    alternateTerm->getInnerTextBasedDecisionCache()->operator[](token->getText().getStr()) = -1;
-  } else {
-    alternateTerm->getInnerIdBasedDecisionCache()->operator[](token->getId()) = -1;
+  // Store results.
+  this->recordDecision(route);
+  return route;
+}
+
+
+/**
+ * Look up the cached decision of the top term of the given state. One of four
+ * things will happen:<br>
+ * -If a decision chain is being played back, the next decision in that chain
+ *  is used, and once the chain runs out we fall through to the next cases.<br>
+ * -If a decision chain is being recorded, no decision is returned and the
+ *  caller will compute the decision and add it to that recording, ignoring
+ *  any chain cached on this term.<br>
+ * -If this term has a cached decision chain, playback of that chain starts.<br>
+ * -Otherwise, a new recording starts on this term.
+ *
+ * A recording ends when the token is consumed, or when the levels stack drops
+ * back to the level of the term that started it, since after that point the
+ * decisions depend on the levels above that term rather than on the token.
+ *
+ * @return true if a cached decision is found, false if the caller needs to
+ *         compute the decision and call recordDecision.
+ */
+Bool Parser::findCachedDecision(
+  Ast::Token const *token, ParserState *state, Grammar::TextBasedDecisionCache *textCache,
+  Grammar::IdBasedDecisionCache *idCache, Int &route
+) {
+  // If the grammar caches have been cleared then the chains we are pointing to are no longer valid.
+  if (this->decisionChainCacheClearCount != Grammar::getCacheClearCount()) {
+    this->resetDecisionChains();
   }
-  return -1;
+
+  if (this->decisionPlayback != 0) {
+    if (this->decisionPlaybackPos < this->decisionPlayback->size()) {
+      route = (*this->decisionPlayback)[this->decisionPlaybackPos++];
+      return true;
+    }
+    this->decisionPlayback = 0;
+  }
+
+  if (this->decisionRecording != 0) return false;
+
+  Grammar::DecisionChain *chain;
+  if (token->isKeyword()) {
+    // For keywords we need to check against the text of the token rather than just the category to which the token
+    // belongs.
+    chain = &(*textCache)[token->getText().getStr()];
+  } else {
+    // For non-keyword tokens we can just check against the category since the text doesn't influence the parsing
+    // decision.
+    chain = &(*idCache)[token->getId()];
+  }
+  this->decisionChainCacheClearCount = Grammar::getCacheClearCount();
+  if (chain->size() > 0) {
+    this->decisionPlayback = chain;
+    this->decisionPlaybackPos = 1;
+    route = chain->front();
+    return true;
+  } else {
+    this->decisionRecording = chain;
+    this->decisionRecordingBaseDepth = state->getTermLevelCount();
+    return false;
+  }
 }
 
 
@@ -1036,25 +1068,31 @@ void Parser::testStateLevel(Ast::Token const *token, ParserState *state)
   }
 
   // check the term type
-  Grammar::Term *term = state->refTopTermLevel().getTerm();
-  if (term->isA<Grammar::TokenTerm>()) {
-    this->testTokenTerm(token, state);
-  } else if (term->isA<Grammar::MultiplyTerm>()) {
-    this->testMultiplyTerm(token, state);
-  } else if (term->isA<Grammar::AlternateTerm>()) {
-    this->testAlternateTerm(token, state);
-  } else if (term->isA<Grammar::ConcatTerm>()) {
-    this->testConcatTerm(token, state);
-  } else if (term->isA<Grammar::ReferenceTerm>()) {
-    this->testReferenceTerm(token, state);
-  } else {
-    // Invalid state type.
-    StrStream stream;
-    stream << S("Invalid term type while testing ")
-           << ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
-           << S(". Found Term Type: ")
-           << term->getTypeInfo()->getTypeName();
-    throw EXCEPTION(GenericException, stream.str().c_str());
+  switch (state->refTopTermLevel().getTermType().val) {
+    case Grammar::TermType::TOKEN:
+      this->testTokenTerm(token, state);
+      break;
+    case Grammar::TermType::MULTIPLY:
+      this->testMultiplyTerm(token, state);
+      break;
+    case Grammar::TermType::ALTERNATE:
+      this->testAlternateTerm(token, state);
+      break;
+    case Grammar::TermType::CONCAT:
+      this->testConcatTerm(token, state);
+      break;
+    case Grammar::TermType::REFERENCE:
+      this->testReferenceTerm(token, state);
+      break;
+    default: {
+      // Invalid state type.
+      StrStream stream;
+      stream << S("Invalid term type while testing ")
+             << ID_GENERATOR->getDesc(state->refTopProdLevel().getProd()->getId())
+             << S(". Found Term Type: ")
+             << state->refTopTermLevel().getTerm()->getTypeInfo()->getTypeName();
+      throw EXCEPTION(GenericException, stream.str().c_str());
+    }
   }
 }
 
@@ -1485,6 +1523,10 @@ void Parser::popStateLevel(ParserState *state, Bool success)
   SharedPtr<Ast::Node> data = state->getData();
   // Now we can remove that state level.
   state->popLevel();
+  // Did we drop back to the level that started the decision chain recording?
+  if (this->decisionRecording != 0 && state->getTermLevelCount() <= this->decisionRecordingBaseDepth) {
+    this->decisionRecording = 0;
+  }
   // Did we just pop the program root production?
   if (state->getTermLevelCount() == 1) {
     // We just popped the program root, so we'll assign the data to the pre-root level so it can later on be

@@ -76,6 +76,28 @@ class Parser : public TiObject
 
   private: Bool preCloseCompleteLevels;
 
+  /**
+   * @brief The decision chain currently being played back, if any.
+   *
+   * When a term with a cached decision chain is reached, the remaining
+   * decisions in the chain are used by the subsequent terms instead of looking
+   * up their own caches, until the chain runs out.
+   */
+  private: Grammar::DecisionChain const *decisionPlayback;
+  private: Word decisionPlaybackPos;
+
+  /**
+   * @brief The decision chain currently being recorded, if any.
+   *
+   * Recording continues until the token is consumed or until the levels stack
+   * drops back to the level of the term that started the recording.
+   */
+  private: Grammar::DecisionChain *decisionRecording;
+  private: Int decisionRecordingBaseDepth;
+
+  /// The value of Grammar::getCacheClearCount() when playback or recording started.
+  private: Word decisionChainCacheClearCount;
+
 
   //============================================================================
   // Signals & Slots
@@ -98,7 +120,10 @@ class Parser : public TiObject
   //============================================================================
   // Constructor / Destructor
 
-  public: Parser() : EOF_TOKEN(ID_GENERATOR->getId("EOF_TOKEN")), preCloseCompleteLevels(false)
+  public: Parser() :
+    EOF_TOKEN(ID_GENERATOR->getId("EOF_TOKEN")), preCloseCompleteLevels(false),
+    decisionPlayback(0), decisionPlaybackPos(0), decisionRecording(0), decisionRecordingBaseDepth(0),
+    decisionChainCacheClearCount(0)
   {
   }
 
@@ -196,6 +221,25 @@ class Parser : public TiObject
 
   /// Compute the list of possible routes to take at an alternative term.
   private: Int determineAlternateRoute(Ast::Token const *token, ParserState *state);
+
+  /// Get the cached decision for the top term, either from the active playback or from the term's own cache.
+  private: Bool findCachedDecision(
+    Ast::Token const *token, ParserState *state, Grammar::TextBasedDecisionCache *textCache,
+    Grammar::IdBasedDecisionCache *idCache, Int &route
+  );
+
+  /// Add the given decision to the active recording, if any.
+  private: void recordDecision(Int route)
+  {
+    if (this->decisionRecording != 0) this->decisionRecording->push_back(route);
+  }
+
+  /// Stop any active decision chain playback or recording.
+  private: void resetDecisionChains()
+  {
+    this->decisionPlayback = 0;
+    this->decisionRecording = 0;
+  }
 
   private: Int matchParsingDimensionEntry(Ast::Token const *token);
 

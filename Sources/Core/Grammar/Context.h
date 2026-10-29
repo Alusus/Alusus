@@ -92,6 +92,23 @@ class Context : public TiObject, public MapContaining<TiObject>
 
   public: TiObject* traceValue(TiObject *val);
 
+  /**
+   * @brief Trace the given value, reporting whether its type needs to be checked.
+   * needsCheck is set to true only if a reference had to be resolved now, in
+   * which case the caller needs to check the type of the result. Values that
+   * aren't references are checked by the setters of the objects holding them,
+   * and cached values were already checked when they were first resolved.
+   */
+  private: TiObject* traceValue(TiObject *val, Bool &needsCheck)
+  {
+    needsCheck = false;
+    if (val == 0 || !val->isA<Reference>()) return val;
+    auto ref = static_cast<Reference*>(val);
+    if (ref->isValueCacheEnabled() && ref->isValueCached()) return ref->getCachedValue();
+    needsCheck = true;
+    return this->traceValue(val);
+  }
+
   /// @}
 
   /// @name Term Helper Functions

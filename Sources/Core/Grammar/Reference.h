@@ -35,6 +35,8 @@ class Reference : public Node, public Binding, public CacheHaving
   private: TiBool valueCacheEnabled = false;
   private: mutable Int cachedIndex = -1;
   private: mutable TiObject *cachedValue = 0;
+  // Tracked separately from cachedValue since null is a valid value to cache.
+  private: mutable Bool valueCached = false;
 
 
   //============================================================================
@@ -129,6 +131,19 @@ class Reference : public Node, public Binding, public CacheHaving
   public: void setCachedValue(TiObject *val) const
   {
     this->cachedValue = val;
+    this->valueCached = true;
+  }
+
+  public: void resetCachedValue() const
+  {
+    this->cachedValue = 0;
+    this->valueCached = false;
+  }
+
+  /// Whether a value, possibly null, is cached.
+  public: Bool isValueCached() const
+  {
+    return this->valueCached;
   }
 
   public: TiObject* getCachedValue() const
@@ -150,7 +165,7 @@ class Reference : public Node, public Binding, public CacheHaving
   public: virtual void clearCache()
   {
     this->cachedIndex = -1;
-    this->cachedValue = 0;
+    this->resetCachedValue();
   }
 
 }; // class
