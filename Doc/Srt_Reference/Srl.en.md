@@ -1522,23 +1522,7 @@ Each one of these functions returns a pointer to an array of chars which could b
 
 `System` module contains the following definitions:
 
-#### usleep
-
-```
-@expname[usleep] func usleep (w: Word): Int;
-```
-
-This is the same as `usleep` function from POSIX.
-
-#### sleep 
-
-```
-@expname[sleep] func sleep (w: Word): Word;
-```
-
-This is the same as `sleep` function from POSIX.
-
-#### nanosleep
+#### sleep
 
 ```
 class TimeSpec {
@@ -1546,12 +1530,14 @@ class TimeSpec {
     def tvNsec: ArchInt; 
 }
 
-@expname[nanosleep] func nanosleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
+@expname[usleep] func sleep(d: Word): Int;
+@expname[nanosleep] func sleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
 ```
 
-This is the same as `nanosleep` function from POSIX.
+First form work as `usleep` function from POSIX.
+Seconed form work as `nanosleep` function from POSIX.
 
-#### setEnv
+#### settEnv
 
 ```
 @expname[setenv]

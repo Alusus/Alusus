@@ -2252,31 +2252,7 @@ func getString (str: ptr[array[Char]], size: Word);
 
 تحتوي وحدة `نـظام` على التعريفات التالية:
 
-#### نم_ميكرو (usleep)
-
-```
-@تصدير[usleep] دالة نم_ميكرو (ط: طـبيعي): صـحيح؛
-```
-
-```
-@expname[usleep] func usleep (w: Word): Int;
-```
-
-مطابقة لدالة usleep من POSIX.
-
 #### نم (sleep)
-
-```
-@تصدير[sleep] دالة نم (ط: طـبيعي): طـبيعي؛
-```
-
-```
-@expname[sleep] func sleep (w: Word): Word;
-```
-
-مطابقة لدالة sleep من POSIX.
-
-#### نم_نانو (nanosleep)
 
 ```
 صنف مواصفة_الوقت {
@@ -2284,7 +2260,8 @@ func getString (str: ptr[array[Char]], size: Word);
 عرف نانوثوان : صـحيح_متكيف؛
 }
 
-@تصدير[nanosleep] دالة نم_نانو (مطلوب: مؤشر[مواصفة_الوقت]، باقي: مؤشر[مواصفة_الوقت]): صـحيح؛
+@تصدير[usleep] دالة نم_ميكرو (ط: طـبيعي): صـحيح؛
+@تصدير[nanosleep] دالة نم_نانو (مطلوب: مؤشر[مواصفة_الوقت]، باقي: مؤشر[مواصفة_الوقت]): صـحيح[32]؛
 ```
 
 ```
@@ -2293,10 +2270,12 @@ class TimeSpec {
     def tvNsec: ArchInt; 
 }
 
-@expname[nanosleep] func nanosleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
+@expname[usleep] func sleep (w: Word): Int;
+@expname[nanosleep] func sleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
 ```
 
-مطابقة لدالة nanosleep من POSIX.
+الصيغة الأولى مطابقة لدالة usleep من POSIX.
+الصيغة الثانية مطابقة لدالة nanosleep من POSIX.
 
 #### اضبط_متغيرا_محيطيا (setEnv)
 
