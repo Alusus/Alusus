@@ -1525,12 +1525,19 @@ Each one of these functions returns a pointer to an array of chars which could b
 #### sleep
 
 ```
-@expname[usleep] func sleep (w: Word): Int;
+class TimeSpec {
+    def tvSec : ArchInt;
+    def tvNsec: ArchInt; 
+}
+
+@expname[usleep] func sleep(d: Word): Int;
+@expname[nanosleep] func sleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
 ```
 
-This is the same as `usleep` function from POSIX.
+First form work as `usleep` function from POSIX.
+Seconed form work as `nanosleep` function from POSIX.
 
-#### setEnv
+#### settEnv
 
 ```
 @expname[setenv]
