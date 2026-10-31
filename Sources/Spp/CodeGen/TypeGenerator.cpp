@@ -757,7 +757,7 @@ Bool TypeGenerator::_generateCast(
     TioSharedPtr tgTempVar;
     if (!g->generateTempVar(astNode, srcType, session, false, tgTempVar)) return false;
     PlainList<Core::Ast::Node> paramAstNodes({ astNode });
-    PlainList<Core::Ast::Node> paramAstTypes({ srcType });
+    PlainList<Spp::Ast::Type> paramAstTypes({ srcType });
     SharedList<TiObject> paramTgValues({ getSharedPtr(tgValue) });
     TioSharedPtr tgRef;
     if (!session->getTg()->generateVarReference(
@@ -786,7 +786,7 @@ Bool TypeGenerator::_generateCast(
     // Call the caster.
     GenResult callResult;
     PlainList<TiObject> paramTgValues({ tgValue });
-    PlainList<Core::Ast::Node> paramAstTypes({ srcType });
+    PlainList<Spp::Ast::Type> paramAstTypes({ srcType });
     if (!g->generateFunctionCall(astNode, caster, &paramAstTypes, &paramTgValues, session, callResult)) return false;
     return typeGenerator->generateCast(
       g, session, callResult.astType, targetType, astNode, callResult.targetData.get(), implicit, result

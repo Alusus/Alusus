@@ -7,10 +7,10 @@ func test {
     Console.print("size = %d\n", 34500~size);
     Console.print("size = %d\n", 34500u~size);
 
-    def i: Int[8] = 5;
-    def w: Word[8] = 5u;
-    def li: Int[16] = 31000;
-    def lw: Word[16] = 31000u;
+    var i: Int[8] = 5;
+    var w: Word[8] = 5u;
+    var li: Int[16] = 31000;
+    var lw: Word[16] = 31000u;
 
     Console.print("w > 4: %d\n", w > 4);
     Console.print("w > 200: %d\n", w > 200);

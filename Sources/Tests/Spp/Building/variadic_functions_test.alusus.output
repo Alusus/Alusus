@@ -155,8 +155,8 @@ define void @"Main.f6(Int[32],ArgPack[any,0,0])"(i32 %count, ...) {
   %count1 = alloca i32, align 4
   store i32 %count, ptr %count1, align 4
   %mt = alloca %Main_Mt, align 4
-  call void @"Main.Mt.~init(ref[Main.Mt])"(ptr %mt)
   %0 = va_arg ptr %__vaList, ptr
+  call void @"Main.Mt.~init(ref[Main.Mt])"(ptr %mt)
   %1 = call ptr @"Main.Mt.=(ref[Main.Mt],ref[Main.Mt])=>(ref[Main.Mt])"(ptr %mt, ptr %0)
   call void @llvm.va_end(ptr %__vaList)
   ret void

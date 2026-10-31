@@ -74,7 +74,7 @@ import "System";
         };
 
         handler this(key: T1): ref[T2] {
-            def i: ArchInt = this.findPos(key);
+            var i: ArchInt = this.findPos(key);
             if i == -1 {
                 i = this.keys.getLength();
                 this.keys.add(key);
@@ -102,7 +102,7 @@ import "System";
         }
 
         handler this.set(key: T1, value: T2): ref[Map[T1, T2]] {
-            def pos: ArchInt = this.findPos(key);
+            var pos: ArchInt = this.findPos(key);
             if pos == -1 {
                 this.keys.add(key);
                 this.values.add(value);
@@ -128,7 +128,7 @@ import "System";
         }
 
         handler this.remove(key: T1): Bool {
-            def pos: ArchInt = this.findPos(key);
+            var pos: ArchInt = this.findPos(key);
             if pos == -1 return false;
             this.removeAt(pos);
             return true;

@@ -2,5 +2,5 @@ import "Srl/Time.alusus";
 import "Srl/Console.alusus";
 use Srl;
 
-def time: Word[64] = Time.getTimestamp(0);
+var time: Word[64] = Time.getTimestamp(0);
 Console.print("Success\n");

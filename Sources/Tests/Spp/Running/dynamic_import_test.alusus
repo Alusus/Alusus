@@ -1,5 +1,5 @@
 import "Core";
-def filename: ptr[array[Word[8]]] = "hello_world_test.alusus";
+var filename: ptr[array[Word[8]]] = "hello_world_test.alusus";
 Core.importFile(filename);
 
 preprocess {

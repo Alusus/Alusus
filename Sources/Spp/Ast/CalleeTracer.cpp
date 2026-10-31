@@ -325,7 +325,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
   PREPARE_SELF(tracer, CalleeTracer);
   auto helper = tracer->helper;
 
-  ContainerExtender<Core::Ast::Node, 1, 0> extTypes(request.argTypes);
+  ContainerExtender<Spp::Ast::Type, 1, 0> extTypes(request.argTypes);
   extTypes.setPreItem(0, request.thisType);
 
   auto func = static_cast<Ast::Function*>(request.target);
@@ -353,7 +353,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
     defOp = findOperationModifier(def);
   }
   if (defOp != 0 && SBSTR(defOp) == S("")) {
-    PlainList<Core::Ast::Node> argTypes;
+    PlainList<Spp::Ast::Type> argTypes;
     if (useThis) argTypes.add(request.thisType);
     auto matchStatus = func->getType()->matchCall(&argTypes, helper);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {
@@ -646,14 +646,14 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
 
   // TODO: Should we skip if mode is not OBJECT_MEMBER and the function is a member function?
 
-  ContainerExtender<Core::Ast::Node, 1, 0> extTypes(request.argTypes);
+  ContainerExtender<Spp::Ast::Type, 1, 0> extTypes(request.argTypes);
   extTypes.setPreItem(0, request.thisType);
 
   auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
   Bool useThis = funcType->isMember() && request.thisType != 0;
 
   if (request.varTargetOp != 0 && SBSTR(request.varTargetOp) == S("")) {
-    PlainList<Core::Ast::Node> argTypes;
+    PlainList<Spp::Ast::Type> argTypes;
     if (useThis) argTypes.add(request.thisType);
     auto matchStatus = funcType->matchCall(&argTypes, helper);
     if (matchStatus < TypeMatchStatus::CUSTOM_CASTER) {

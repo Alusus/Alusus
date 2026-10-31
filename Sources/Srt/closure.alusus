@@ -21,7 +21,7 @@ module Closures {
     use Srl;
     use Core.Basic;
     use Core.Ast;
-    def captureModeTranslations: Map[String, String];
+    var captureModeTranslations: Map[String, String];
 
     def AstNode: alias Core.Ast.Node;
     def AstNodeSrdRef: alias SrdRef[AstNode];
@@ -31,7 +31,7 @@ module Closures {
         preprocess {
             fillClosureBody(FnType~ast);
         }
-        def data: SrdRef[void];
+        var data: SrdRef[void];
 
         handler this~init() {}
         handler this~init(value: ref[this_type]) {
@@ -51,10 +51,10 @@ module Closures {
     }
 
     func fillClosureBody (rawFnType: ref[AstNode]) {
-        def fnType: AstNodeSrdRef = generateFuncType(rawFnType, nullRef[AstNode], (ast ref[Srl.RefCounter]), true);
-        def argList: AstNodeSrdRef = generateFuncArgListFromType(fnType.obj);
+        var fnType: AstNodeSrdRef = generateFuncType(rawFnType, nullRef[AstNode], (ast ref[Srl.RefCounter]), true);
+        var argList: AstNodeSrdRef = generateFuncArgListFromType(fnType.obj);
 
-        def call: AstNodeSrdRef;
+        var call: AstNodeSrdRef;
         if argList.obj~ptr != 0 {
             call = Spp.astMgr.buildAst(
                 (ast this.fp(args)),
@@ -63,7 +63,7 @@ module Closures {
         } else {
             call = Spp.astMgr.buildAst((ast this.fp()), AstTemplateMap());
         }
-        def statement: AstNodeSrdRef;
+        var statement: AstNodeSrdRef;
         if isVoidRetType(fnType.obj) {
             statement = call;
         } else {
@@ -72,7 +72,7 @@ module Closures {
                 AstTemplateMap().set(String("call"), call.obj)
             );
         }
-        def fn: AstNodeSrdRef = Spp.astMgr.buildAst(
+        var fn: AstNodeSrdRef = Spp.astMgr.buildAst(
             (ast func { statement }),
             AstTemplateMap().set(String("statement"), statement.obj),
         );
@@ -88,7 +88,7 @@ module Closures {
                 .set(String("fn"), fn.obj)
         );
         Spp.astMgr.insertAst(
-            (ast def fp: ptr[fnType] = 0),
+            (ast var fp: ptr[fnType] = 0),
             AstTemplateMap().set(String("fnType"), fnType.obj)
         );
     }
@@ -97,9 +97,9 @@ module Closures {
         rawFnTypeSpec: ref[AstNode], statements: ref[AstNode], owner: ref[AstNode]
     ): AstNodeSrdRef {
         // Generate the function.
-        def fn: AstNodeSrdRef = Spp.astMgr.buildAst(
+        var fn: AstNodeSrdRef = Spp.astMgr.buildAst(
             (ast function {
-                @injection def __data: ref[Data];
+                @injection var __data: ref[Data];
                 __data~ptr = __payload.managedObj~cast[ptr[Data]];
 
                 statements
@@ -107,33 +107,33 @@ module Closures {
             AstTemplateMap().set(String("statements"), statements)
         );
         // Extract payload mode defs.
-        def payloadModeDefs: Core.Ast.Map;
-        def fnTypeSpec: AstNodeSrdRef;
+        var payloadModeDefs: Core.Ast.Map;
+        var fnTypeSpec: AstNodeSrdRef;
         extractPayloadVarDefs(rawFnTypeSpec, fnTypeSpec, payloadModeDefs);
-        def payloadModeDefsMap: ref[Core.Basic.MapContaining[AstNode]](MapContainerOf[payloadModeDefs, AstNode]);
+        var payloadModeDefsMap: ref[Core.Basic.MapContaining[AstNode]](MapContainerOf[payloadModeDefs, AstNode]);
         // Assign the function type.
-        def closureArgFnType: AstNodeSrdRef = generateFuncType(fnTypeSpec, nullRef[AstNode], nullRef[AstNode], false);
-        def fnType: AstNodeSrdRef = generateFuncType(fnTypeSpec, nullRef[AstNode], (ast ref[Srl.RefCounter]), false);
+        var closureArgFnType: AstNodeSrdRef = generateFuncType(fnTypeSpec, nullRef[AstNode], nullRef[AstNode], false);
+        var fnType: AstNodeSrdRef = generateFuncType(fnTypeSpec, nullRef[AstNode], (ast ref[Srl.RefCounter]), false);
         MapContainerOf[fn.obj, AstNode].setElement("type", fnType.obj);
         // Find external variables of that function.
-        def varDefs: AstTemplateMap;
+        var varDefs: AstTemplateMap;
         findExternalVariables(getInterface[fn.obj, Containing[AstNode]].getElement(1), owner, varDefs);
         // Generate member var definitions and assignments.
-        def payloadDefs: SrdRef[MergeList] = newSrdObj[MergeList];
-        def defsContainer: DynContainerOf[payloadDefs.obj, AstNode];
-        def payloadAssignments: SrdRef[MergeList] = newSrdObj[MergeList];
-        def assignContainer: DynContainerOf[payloadAssignments.obj, AstNode];
-        def i: Int;
+        var payloadDefs: SrdRef[MergeList] = newSrdObj[MergeList];
+        var defsContainer:: DynContainerOf[payloadDefs.obj, AstNode];
+        var payloadAssignments: SrdRef[MergeList] = newSrdObj[MergeList];
+        var assignContainer:: DynContainerOf[payloadAssignments.obj, AstNode];
+        var i: Int;
         for i = 0, i < varDefs.getLength(), ++i {
-            def useNoDeref: Bool;
-            def payloadDef: AstNodeSrdRef = Spp.astMgr.buildAst(
-                (ast def varName: varType),
+            var useNoDeref: Bool;
+            var payloadDef: AstNodeSrdRef = Spp.astMgr.buildAst(
+                (ast var varName: varType),
                 AstTemplateMap()
                     .set(String("varName"), StringLiteral(varDefs.keys(i).buf))
                     .set(String("varType"), createPayloadVarType(
                         varDefs.values(i),
                         ref[AstNode]().{
-                            def index: Int = payloadModeDefsMap.findElementIndex(varDefs.keys(i));
+                            var index: Int = payloadModeDefsMap.findElementIndex(varDefs.keys(i));
                             if index == -1 this~ptr = 0
                             else this~ptr = payloadModeDefsMap.getElement(index)~ptr;
                         },
@@ -141,7 +141,7 @@ module Closures {
                     ).obj)
             );
             defsContainer.addElement(payloadDef.obj);
-            def payloadAssignment: AstNodeSrdRef;
+            var payloadAssignment: AstNodeSrdRef;
             if useNoDeref {
                 payloadAssignment = Spp.astMgr.buildAst(
                     (ast __d.varName~no_deref = varName),
@@ -162,7 +162,7 @@ module Closures {
                     class Data {
                         payloadDefs
                     }
-                    def __d: Srl.SrdRef[Data];
+                    var __d: Srl.SrdRef[Data];
                     __d.construct();
 
                     payloadAssignments;
@@ -183,9 +183,9 @@ module Closures {
     func extractPayloadVarDefs (
         fnTypeSpec: ref[AstNode], fnTypeSpecResult: ref[AstNodeSrdRef], payloadSpec: ref[Core.Ast.Map]
     ) {
-        def linkOp: ref[LinkOperator](dynCastRef[fnTypeSpec, LinkOperator]);
+        var linkOp: ref[LinkOperator](dynCastRef[fnTypeSpec, LinkOperator]);
         if linkOp~ptr != 0 {
-            def recursiveRes: AstNodeSrdRef;
+            var recursiveRes: AstNodeSrdRef;
             extractPayloadVarDefs(MapContainerOf[linkOp, AstNode].getElement("first"), recursiveRes, payloadSpec);
             fnTypeSpecResult = newSrdObj[LinkOperator].{
                 BindingOf[this].setMember("type", TiStr(":"));
@@ -195,9 +195,9 @@ module Closures {
             return;
         }
 
-        def bitwiseOp: ref[BitwiseOperator](dynCastRef[fnTypeSpec, BitwiseOperator]);
+        var bitwiseOp: ref[BitwiseOperator](dynCastRef[fnTypeSpec, BitwiseOperator]);
         if bitwiseOp~ptr != 0 {
-            def rawPayloadDefs: ref[AstNode](MapContainerOf[bitwiseOp, AstNode].getElement("first"));
+            var rawPayloadDefs: ref[AstNode](MapContainerOf[bitwiseOp, AstNode].getElement("first"));
             addFuncArgs(rawPayloadDefs, 0, DynMapContainerOf[payloadSpec, AstNode], false);
             fnTypeSpecResult = castSrdRef[
                 MapContainerOf[bitwiseOp, AstNode].getElement("second").wkThis, AstNode
@@ -211,10 +211,10 @@ module Closures {
     func createPayloadVarType (
         varTypeRef: ref[AstNode], captureMode: ref[AstNode], useNoDeref: ref[Bool]
     ): AstNodeSrdRef {
-        def varType: ref[Spp.Ast.Type](Spp.astMgr.traceType(varTypeRef));
-        def identifier: ref[Identifier](dynCastRef[captureMode, Identifier]);
+        var varType: ref[Spp.Ast.Type](Spp.astMgr.traceType(varTypeRef));
+        var identifier: ref[Identifier](dynCastRef[captureMode, Identifier]);
         if identifier~ptr != 0 {
-            def captureMode: String = captureModeTranslations(identifier.value.value);
+            var captureMode: String = captureModeTranslations(identifier.value.value);
             if captureMode == "" captureMode = identifier.value.value;
             if captureMode == "by_ref" {
                 // Capture by reference.
@@ -238,7 +238,7 @@ module Closures {
             // types: SrdRef, String, Array, Map.
             // We'll use exact mode otherwise, i.e. if the content type is a user type that isn't one of the
             // types mentioned above.
-            def contentType: ref[Spp.Ast.Type](Spp.astMgr.tryGetDeepReferenceContentType(varType));
+            var contentType: ref[Spp.Ast.Type](Spp.astMgr.tryGetDeepReferenceContentType(varType));
             if isDerivedFrom[contentType, Spp.Ast.UserType]
             and !contentType.isOwnedBy(SrdRef~ast) 
             and !contentType.isOwnedBy(Array~ast)
@@ -258,8 +258,8 @@ module Closures {
     func generateFuncType (
         t: ref[AstNode], thisType: ref[AstNode], payloadType: ref[AstNode], useBox: Bool
     ): AstNodeSrdRef {
-        def args: ref[AstNode];
-        def retVal: ref[AstNode];
+        var args: ref[AstNode];
+        var retVal: ref[AstNode];
         if isDerivedFrom[t, Spp.Ast.FunctionType] or isDerivedFrom[t, LinkOperator] {
             ContainerOf[t, AstNode].{
                 args~no_deref = this.getElement(0);
@@ -269,15 +269,15 @@ module Closures {
             args~no_deref = t;
             retVal~ptr = 0;
         }
-        def inputs: SrdRef[Core.Ast.Map] = newSrdObj[Core.Ast.Map];
+        var inputs: SrdRef[Core.Ast.Map] = newSrdObj[Core.Ast.Map];
         DynMapContainerOf[inputs.obj, AstNode].{
             if thisType~ptr != 0 this.addElement("this", thisType);
             addFuncArgs(args, 0, this, useBox);
             if payloadType~ptr != 0 this.addElement("__payload", payloadType);
         };
-        def retTypeVariable: SrdRef[Spp.Ast.Variable];
+        var retTypeVariable: SrdRef[Spp.Ast.Variable];
         if useBox and retVal~ptr != 0 {
-            def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(retVal));
+            var targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(retVal));
             if targetType~ptr == 0 retVal~ptr = 0
             else {
                 retTypeVariable = newSrdObj[Spp.Ast.Variable].{
@@ -286,7 +286,7 @@ module Closures {
                 retVal~no_deref = retTypeVariable.obj;
             }
         }
-        def fnType: AstNodeSrdRef = AstNodeSrdRef().{
+        var fnType: AstNodeSrdRef = AstNodeSrdRef().{
             if thisType~ptr != 0 this = Spp.astMgr.cloneAst(ast @member func)
             else this = Spp.astMgr.cloneAst(ast func);
         };
@@ -299,16 +299,16 @@ module Closures {
 
     func addFuncArgs (input: ref[AstNode], index: Int, map: ref[DynamicMapContaining[AstNode]], useBox: Bool) {
         if input~ptr == 0 return;
-        def inputContaining: ContainerOf[input, AstNode];
+        var inputContaining:: ContainerOf[input, AstNode];
         if isDerivedFrom[input, Bracket] {
             addFuncArgs(inputContaining.getElement(0), index, map, useBox);
         } else if isDerivedFrom[input, Core.Ast.Map] {
             getInterface[input, MapContaining[AstNode]].{
-                def i: Word;
+                var i: Word;
                 for i = 0, i < inputContaining.getElementCount(), ++i {
-                    def inputObj: ref[AstNode](this.getElement(i));
+                    var inputObj: ref[AstNode](this.getElement(i));
                     if useBox {
-                        def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(inputObj));
+                        var targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(inputObj));
                         if targetType~ptr == 0 continue;
                         map.addElement(this.getElementKey(i), newSrdObj[Spp.Ast.Variable].{
                             MapContainerOf[this, AstNode].setElement("type", targetType);
@@ -319,7 +319,7 @@ module Closures {
                 }
             };
         } else if isDerivedFrom[input, Core.Ast.List] {
-            def i: Word;
+            var i: Word;
             for i = 0, i < inputContaining.getElementCount(), ++i {
                 addFuncArgs(inputContaining.getElement(i), i, map, useBox);
             }
@@ -331,7 +331,7 @@ module Closures {
                     return;
                 }
                 if useBox {
-                    def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(inputContaining.getElement(1)));
+                    var targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(inputContaining.getElement(1)));
                     if targetType~ptr != 0 {
                         map.addElement(this.value.value, newSrdObj[Spp.Ast.Variable].{
                             MapContainerOf[this, AstNode].setElement("type", targetType);
@@ -343,7 +343,7 @@ module Closures {
             };
         } else {
             if useBox {
-                def targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(input));
+                var targetType: ref[Spp.Ast.Type](Spp.astMgr.traceType(input));
                 if targetType~ptr != 0 {
                     map.addElement(String("__") + index, newSrdObj[Spp.Ast.Variable].{
                         MapContainerOf[this, AstNode].setElement("type", targetType);
@@ -356,22 +356,22 @@ module Closures {
     }
 
     func isStringPropEqual(item: ref[AstNode], name: CharsPtr, value: CharsPtr): Bool {
-        def bindings: BindingOf[item];
+        var bindings:: BindingOf[item];
         if bindings~ptr == 0 return false;
-        def prop: ref[TiObject](bindings.getMember(name));
+        var prop: ref[TiObject](bindings.getMember(name));
         if prop~ptr == 0 or not isDerivedFrom[prop, TiStr] return false;
         return castRef[prop, TiStr].value == value;
     }
 
     func generateFuncArgListFromType (fnType: ref[AstNode]): AstNodeSrdRef {
-        def args: ref[AstNode](ContainerOf[fnType, AstNode].getElement(0));
+        var args: ref[AstNode](ContainerOf[fnType, AstNode].getElement(0));
         if args~ptr == 0 return AstNodeSrdRef();
-        def argsMap: MapContainerOf[args, AstNode];
-        def list: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
-        def listContainer: DynContainerOf[list.obj, AstNode];
-        def i: Word;
+        var argsMap:: MapContainerOf[args, AstNode];
+        var list: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
+        var listContainer:: DynContainerOf[list.obj, AstNode];
+        var i: Word;
         for i = 0, i < argsMap.getElementCount() - 1, ++i {
-            def arg: SrdRef[Identifier] = newSrdObj[Identifier];
+            var arg: SrdRef[Identifier] = newSrdObj[Identifier];
             arg.value.value = String(argsMap.getElementKey(i).buf);
             listContainer.addElement(arg.obj);
         }
@@ -386,7 +386,7 @@ module Closures {
 
         if isDerivedFrom[obj, Identifier] {
             if result.findPos(castRef[obj, Identifier].value.value) == -1 {
-                def d: ref[AstNode](findDefinition(obj, castRef[obj, Identifier].owner));
+                var d: ref[AstNode](findDefinition(obj, castRef[obj, Identifier].owner));
                 if d~ptr == 0 {
                     // The variable was not found in the function itself, so it's an external var.
                     d~no_deref = findDefinition(obj, injectionPos);
@@ -402,7 +402,7 @@ module Closures {
         } else if isDerivedFrom[obj, LinkOperator] {
             ContainerOf[obj, AstNode].{
                 findExternalVariables(this.getElement(0), injectionPos, result);
-                def second: ref[AstNode](this.getElement(1));
+                var second: ref[AstNode](this.getElement(1));
                 if !isDerivedFrom[second, Identifier] {
                     findExternalVariables(second, injectionPos, result);
                 }
@@ -414,7 +414,7 @@ module Closures {
 
         ContainerOf[obj, AstNode].{
             if this~ptr != 0 {
-                def i: Int;
+                var i: Int;
                 for i = 0, i < this.getElementCount()~cast[Int], ++i {
                     findExternalVariables(this.getElement(i), injectionPos, result);
                 }
@@ -423,16 +423,16 @@ module Closures {
     }
 
     func findDefinition (obj: ref[AstNode], parent: ref[AstNode]): ref[AstNode] {
-        def elements: Array[ref[AstNode]];
+        var elements: Array[ref[AstNode]];
         elements = Spp.astMgr.findElements(obj, parent, Spp.SeekerFlags.SKIP_CHILDREN);
         if elements.getLength() > 0 return elements(0)
         else return nullRef[AstNode];
     }
 
     func isVoidRetType (fnType: ref[AstNode]): Bool {
-        def retType: ref[AstNode](MapContainerOf[fnType, AstNode].getElement("retType"));
+        var retType: ref[AstNode](MapContainerOf[fnType, AstNode].getElement("retType"));
         if retType~ptr == 0 return true;
-        def identifier: ref[Identifier](dynCastRef[retType, Identifier]);
+        var identifier: ref[Identifier](dynCastRef[retType, Identifier]);
         if identifier~ptr == 0 return false;
         return identifier.value.value.toLowerCase() == "void";
     }
@@ -471,10 +471,10 @@ preprocess {
             args: "module".ClosureSigExp*(1,1) + "module".BlockSet*(0,1);
         }),
         func (data: AstNodeSrdRef): AstNodeSrdRef {
-            def container: ContainerOf[data.obj, AstNode];
+            var container:: ContainerOf[data.obj, AstNode];
             if container.getElementCount() == 2u {
                 // Generate closure type reference.
-                def closureArgFnType: AstNodeSrdRef = generateFuncType(
+                var closureArgFnType: AstNodeSrdRef = generateFuncType(
                     container.getElement(1), nullRef[AstNode], nullRef[AstNode], false
                 );
                 return Spp.astMgr.buildAst(
@@ -483,12 +483,12 @@ preprocess {
                 );
             } else {
                 // Generate closure instance.
-                def transformStatement: SrdRef[Spp.Ast.PreGenTransformStatement];
+                var transformStatement: SrdRef[Spp.Ast.PreGenTransformStatement];
                 transformStatement.{
                     construct();
                     MapContainerOf[obj, AstNode].setElement("body", data);
                     BindingOf[obj].setMember("transform", TiPtr(function (data: ref[AstNode]): AstNodeSrdRef {
-                        def container: ContainerOf[data, AstNode];
+                        var container:: ContainerOf[data, AstNode];
                         return Closures.generateClosureInstance(
                             container.getElement(1), container.getElement(2), castRef[data, AstNode].owner
                         );

@@ -43,6 +43,10 @@ SPPA1014:Trying to merge a type with a non-existing target.
 SPPA1015:Trying to access a local variable from a different function.
 SPPA1016:Error in custom command definition AST.
 SPPA1017:Error in custom grammar definition AST.
+SPPA1018:Could not deduce the variable type from its initial value.
+SPPA1019:Variable type can't be deduced from multiple initialization arguments.
+SPPA1020:Circular variable type deduction encountered.
+SPPA1021:Constructor args can't be passed to a variable that is also assigned an initial value.
 
 SPPH1001:Invalid argument for build command.
 SPPH1002:Missing signature in function definition.
@@ -69,6 +73,8 @@ SPPH1022:Invalid use of square brackets.
 SPPH1023:Invalid type property identifier.
 SPPH1024:Template function lacks a body.
 SPPH1025:Template handler statement must not be a pointer.
+SPPH1026:Invalid var command. A variable needs a name followed by a type, an initial value, or both.
+SPPH1027:The :: operator can't be used when the variable type is given. Use `var name: type(args)` instead.
 
 SPPG1001:Unsupported operation.
 SPPG1002:Invalid operation.

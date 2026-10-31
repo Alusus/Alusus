@@ -10,14 +10,14 @@ import "Srl/System";
 use Srl;
 
 func getAverageHeight(csv: String, count: ref[Int], avg: ref[Float[64]]) {
-  def lines: Array[String] = csv.split("\n");
+  var lines: Array[String] = csv.split("\n");
   if lines.getLength() < 2 {
       Console.print("Invalid data received:\n%s\n", csv.buf);
       System.exit(1);
   }
   count = 0;
-  def total: Float[64] = 0;
-  def i: Int;
+  var total: Float[64] = 0;
+  var i: Int;
   // We will skip the header and start from the second line.
   for i = 1, i < lines.getLength(), ++i {
     if lines(i).trim() == "" continue;
@@ -27,13 +27,13 @@ func getAverageHeight(csv: String, count: ref[Int], avg: ref[Float[64]]) {
   average = total / count;
 }
 
-def data: CharsPtr;
-def size: Int;
-def count: Int;
-def average: Float[64];
+var data: CharsPtr;
+var size: Int;
+var count: Int;
+var average: Float[64];
 if Net.get("https://people.sc.fsu.edu/~jburkardt/data/csv/hw_25000.csv", data~ptr, size~ptr) {
   Console.print("CSV fetched from web\n");
-  def str: String = data;
+  var str: String = data;
   Memory.free(data);
   getAverageHeight(str, count, average);
   Console.print("Number of persons: %d, Average height: %f\n", count, average);

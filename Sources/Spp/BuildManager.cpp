@@ -462,7 +462,11 @@ void BuildManager::_resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGe
   auto container = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(node);
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
-      buildMgr->resetBuildData(container->getElement(i), cda);
+      // Only owned elements are part of this tree. Others, like the cached type of a var, can be anywhere in the
+      // tree, including this node's ancestors.
+      if (container->getElementHoldMode(i) == HoldMode::SHARED_REF) {
+        buildMgr->resetBuildData(container->getElement(i), cda);
+      }
     }
   }
 

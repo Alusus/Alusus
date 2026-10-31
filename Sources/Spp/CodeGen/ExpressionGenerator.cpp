@@ -36,6 +36,8 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateBinaryOp,
     &this->generateComparisonOp,
     &this->generateAssignOp,
+    &this->generateAssign,
+    &this->generateVarAssignment,
     &this->generateArithmeticAssignOp,
     &this->generateBinaryAssignOp,
     &this->generateUnaryValOp,
@@ -91,6 +93,8 @@ void ExpressionGenerator::initBindings()
   this->generateBinaryOp = &ExpressionGenerator::_generateBinaryOp;
   this->generateComparisonOp = &ExpressionGenerator::_generateComparisonOp;
   this->generateAssignOp = &ExpressionGenerator::_generateAssignOp;
+  this->generateAssign = &ExpressionGenerator::_generateAssign;
+  this->generateVarAssignment = &ExpressionGenerator::_generateVarAssignment;
   this->generateArithmeticAssignOp = &ExpressionGenerator::_generateArithmeticAssignOp;
   this->generateBinaryAssignOp = &ExpressionGenerator::_generateBinaryAssignOp;
   this->generateUnaryValOp = &ExpressionGenerator::_generateUnaryValOp;
@@ -282,7 +286,7 @@ Bool ExpressionGenerator::_generateIdentifier(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   TerminalStatement terminal;
-  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Spp::Ast::Type> paramAstTypes;
   GenResult thisResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
 }
@@ -294,7 +298,7 @@ Bool ExpressionGenerator::_generatePassage(
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   TerminalStatement terminal;
-  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Spp::Ast::Type> paramAstTypes;
   GenResult thisResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
 }
@@ -313,7 +317,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
     return false;
   }
 
-  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Spp::Ast::Type> paramAstTypes;
   GenResult thisResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
 }
@@ -338,7 +342,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
 
   // Prepare parameters list.
   SharedList<TiObject> paramTgValues;
-  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Spp::Ast::Type> paramAstTypes;
   PlainList<Core::Ast::Node> paramAstNodes;
   auto param = astNode->getParam().get();
   if (!expGenerator->generateParams(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
@@ -370,7 +374,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
 
 Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
   TiObject *self, Core::Ast::Node *astNode, GenResult const &callee, GenResult const &thisArg,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   PlainList<Core::Ast::Node> *paramAstNodes,
   Generation *g, Session *session, GenResult &result
 ) {
@@ -485,7 +489,7 @@ Bool ExpressionGenerator::_generateSquareParamPass(
   if (operand == 0) throw EXCEPTION(GenericException, S("Invalid square param pass operand."));
 
   TerminalStatement terminal;
-  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Spp::Ast::Type> paramAstTypes;
   GenResult thisResult;
   GenResult operandResult;
   return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
@@ -584,7 +588,7 @@ Bool ExpressionGenerator::_generateOperator(
 
   // Generate parameters list.
   SharedList<TiObject> paramTgValues;
-  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Spp::Ast::Type> paramAstTypes;
   PlainList<Core::Ast::Node> paramAstNodes;
   auto containing = ti_cast<Containing<Core::Ast::Node>>(astNode);
   for (Int i = 1; i < containing->getElementCount(); ++i) {
@@ -739,7 +743,7 @@ Bool ExpressionGenerator::_generateLogicalOp(
 
 Bool ExpressionGenerator::_generateArithmeticOp(
   TiObject *self, Core::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -877,7 +881,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
 
 Bool ExpressionGenerator::_generateBinaryOp(
   TiObject *self, Core::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -988,7 +992,7 @@ Bool ExpressionGenerator::_generateBinaryOp(
 
 Bool ExpressionGenerator::_generateComparisonOp(
   TiObject *self, Core::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1151,7 +1155,7 @@ Bool ExpressionGenerator::_generateComparisonOp(
 
 Bool ExpressionGenerator::_generateAssignOp(
   TiObject *self, Core::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1161,15 +1165,32 @@ Bool ExpressionGenerator::_generateAssignOp(
       S("paramAstTypes"), S("Must contain exactly two elements."), paramAstTypes->getCount()
     );
   }
+  if (
+    astNode->getType() != S("=") &&
+    (astNode->getType().getStr().getLength() <= 1 || astNode->getType().get()[1] != C('='))
+  ) {
+    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
+  }
+
+  return expGenerator->generateAssign(
+    astNode, static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0),
+    static_cast<Ast::Type*>(paramAstTypes->get(1)), paramTgValues->getElement(1), g, session, result
+  );
+}
+
+
+Bool ExpressionGenerator::_generateAssign(
+  TiObject *self, Core::Ast::Node *astNode, Ast::Type *astTargetType, TiObject *tgTarget,
+  Ast::Type *astValueType, TiObject *tgValue, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   GenResult target;
-  if (!expGenerator->dereferenceIfNeeded(
-    static_cast<Ast::Type*>(paramAstTypes->get(0)), paramTgValues->getElement(0), false, false, session, target
-  )) return false;
+  if (!expGenerator->dereferenceIfNeeded(astTargetType, tgTarget, false, false, session, target)) return false;
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1178,55 +1199,98 @@ Bool ExpressionGenerator::_generateAssignOp(
   // Raise an error if custom initialization is enabled on this type to avoid possible resource mismanagement.
   if (astContentType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::TypeMissingAssignOpNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::TypeMissingAssignOpNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
 
-  // Cast the param to the destination type.
-  auto paramAstType = static_cast<Ast::Type*>(paramAstTypes->get(1));
-  GenResult paramCastResult;
+  // Cast the value to the destination type.
+  GenResult valueCastResult;
   Bool retVal;
   if (!session->isAstComputationOnly()) {
-    retVal = g->generateCast(
-      session, paramAstType, astContentType, astNode, paramTgValues->getElement(1), true, paramCastResult
-    );
+    retVal = g->generateCast(session, astValueType, astContentType, astNode, tgValue, true, valueCastResult);
   } else {
-    retVal = expGenerator->astHelper->isCastableTo(paramAstType, astContentType, true);
+    retVal = expGenerator->astHelper->isCastableTo(astValueType, astContentType, true);
   }
   if (!retVal) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
 
-  if (
-    astNode->getType() == S("=") ||
-    (astNode->getType().getStr().getLength() > 1 && astNode->getType().get()[1] == C('='))
-  ) {
-    if (!session->isAstComputationOnly()) {
-      TiObject *tgContentType;
-      if (!g->getGeneratedType(paramCastResult.astType, session, tgContentType, 0)) {
-        throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
-      }
-
-      if (!session->getTg()->generateAssign(
-        session->getTgContext(), tgContentType, paramCastResult.targetData.get(), target.targetData.get(),
-        result.targetData
-      )) return false;
+  if (!session->isAstComputationOnly()) {
+    TiObject *tgContentType;
+    if (!g->getGeneratedType(valueCastResult.astType, session, tgContentType, 0)) {
+      throw EXCEPTION(GenericException, S("Unexpected error while generating arithmetic op result target type."));
     }
-    result.astType = astRefType;
-    return true;
+
+    if (!session->getTg()->generateAssign(
+      session->getTgContext(), tgContentType, valueCastResult.targetData.get(), target.targetData.get(),
+      result.targetData
+    )) return false;
+  }
+  result.astType = astRefType;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateVarAssignment(
+  TiObject *self, Core::Ast::Node *varAstNode, Ast::Type *varAstType, TiObject *varTgValue,
+  Core::Ast::Node *paramAstNode, Ast::Type *paramAstType, TiObject *paramTgValue,
+  Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  SharedList<TiObject> paramTgValues({ getSharedPtr(paramTgValue) });
+  PlainList<Spp::Ast::Type> paramAstTypes({ paramAstType });
+  PlainList<Core::Ast::Node> paramAstNodes({ paramAstNode });
+
+  // Lookup the assignment operator on the var's type, the same way it's looked up when assigning to the var by name.
+  GenResult varRef;
+  varRef.astType = expGenerator->astHelper->getReferenceTypeFor(varAstType, Ast::ReferenceMode::IMPLICIT);
+  varRef.targetData = getSharedPtr(varTgValue);
+  auto astContentType = expGenerator->astHelper->tryGetDeepReferenceContentType(varAstType);
+  Ast::CalleeLookupRequest lookupRequest;
+  lookupRequest.astNode = varAstNode;
+  lookupRequest.target = astContentType;
+  lookupRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+  lookupRequest.op = S("=");
+  lookupRequest.argTypes = &paramAstTypes;
+  if (astContentType->isDerivedFrom<Ast::UserType>()) {
+    lookupRequest.thisType = expGenerator->astHelper->getReferenceTypeFor(
+      astContentType, Ast::ReferenceMode::IMPLICIT
+    );
+  }
+  Ast::CalleeLookupResult lookupResult;
+  expGenerator->calleeTracer->lookupCallee(lookupRequest, lookupResult);
+  if (lookupResult.isFailure()) {
+    expGenerator->astHelper->getNoticeStore()->add(lookupResult.notice);
+    return false;
+  }
+  GenResult callee;
+  GenResult thisArg;
+  if (!expGenerator->generateCalleeReferenceChain(
+    lookupResult, varAstNode, varRef, g, session, callee, thisArg
+  )) return false;
+
+  // Generate the assignment.
+  if (callee.astNode == Ast::getDummyBuiltInOpFunction()) {
+    return expGenerator->generateAssign(
+      varAstNode, static_cast<Ast::Type*>(thisArg.astType), thisArg.targetData.get(),
+      static_cast<Ast::Type*>(paramAstTypes.get(0)), paramTgValues.getElement(0), g, session, result
+    );
   } else {
-    throw EXCEPTION(InvalidArgumentException, S("astNode"), S("Does not represent an arithmetic operator."));
+    return expGenerator->generateRoundParamPassOnCallee(
+      varAstNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+    );
   }
 }
 
 
 Bool ExpressionGenerator::_generateArithmeticAssignOp(
   TiObject *self, Core::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1244,7 +1308,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
   SharedList<TiObject> assignParamTgValues;
   assignParamTgValues.add(paramTgValues->get(0));
   assignParamTgValues.add(arithmeticResult.targetData);
-  PlainList<Core::Ast::Node> assignParamAstTypes;
+  PlainList<Spp::Ast::Type> assignParamAstTypes;
   assignParamAstTypes.add(paramAstTypes->get(0));
   assignParamAstTypes.add(arithmeticResult.astType);
   return expGenerator->generateAssignOp(astNode, &assignParamTgValues, &assignParamAstTypes, g, session, result);
@@ -1253,7 +1317,7 @@ Bool ExpressionGenerator::_generateArithmeticAssignOp(
 
 Bool ExpressionGenerator::_generateBinaryAssignOp(
   TiObject *self, Core::Ast::InfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1349,7 +1413,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
 
 Bool ExpressionGenerator::_generateUnaryValOp(
   TiObject *self, Core::Ast::OutfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1414,7 +1478,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
 
 Bool ExpressionGenerator::_generateIntUnaryValOp(
   TiObject *self, Core::Ast::OutfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -1480,7 +1544,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
 
 Bool ExpressionGenerator::_generateUnaryVarOp(
   TiObject *self, Core::Ast::OutfixOperator *astNode,
-  SharedList<TiObject> *paramTgValues, PlainList<Core::Ast::Node> *paramAstTypes,
+  SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -2038,7 +2102,7 @@ Bool ExpressionGenerator::_generateInitOp(
 
   // Prepare parameters list.
   SharedList<TiObject> paramTgValues;
-  PlainList<Core::Ast::Node> paramAstTypes;
+  PlainList<Spp::Ast::Type> paramAstTypes;
   PlainList<Core::Ast::Node> paramAstNodes;
   auto param = astNode->getParam().get();
   if (!expGenerator->generateParams(param, g, session, &paramAstNodes, &paramAstTypes, &paramTgValues)) {
@@ -2279,79 +2343,11 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  auto src = astNode->getValue().get();
-
-  // TODO: Consider non-English letters prefixes and postfixes in the literal.
-  // TODO: Implement unsigned integers.
-
-  // Parse the given value.
-  Int base = 10;
-  if (compareStr(src, S("0b"), 2) == 0 || compareStr(src, S("0B"), 2) == 0) {
-    base = 2;
-    src += 2;
-  } else if (compareStr(src, S("0ن"), 3) == 0) {
-    base = 2;
-    src += 3;
-  } else if (compareStr(src, S("0o"), 2) == 0 || compareStr(src, S("0O"), 2) == 0) {
-    base = 8;
-    src += 2;
-  } else if (compareStr(src, S("0م"), 3) == 0) {
-    base = 8;
-    src += 3;
-  } else if (
-    compareStr(src, S("0h"), 2) == 0 || compareStr(src, S("0H"), 2) == 0 ||
-    compareStr(src, S("0x"), 2) == 0 || compareStr(src, S("0X"), 2) == 0
-  ) {
-    base = 16;
-    src += 2;
-  }
-  LongWord value = 0;
-  while (
-    (*src >= C('0') && *src <= C('9')) ||
-    (*src >= C('a') && *src <= C('f')) ||
-    (*src >= C('A') && *src <= C('F'))
-  ) {
-    Int digit = 0;
-    if (*src >= C('0') && *src <= C('9')) digit = *src - C('0');
-    else if (*src >= C('a') && *src <= C('f')) digit = *src - C('a') + 10;
-    else if (*src >= C('A') && *src <= C('F')) digit = *src - C('A') + 10;
-    ASSERT(digit < base);
-    value *= base;
-    value += digit;
-    ++src;
-  }
-
-  // Is it a signed number?
-  Bool signedNum = true;
-  if (*src == C('u') || *src == C('U')) {
-    signedNum = false;
-    ++src;
-  } else if (compareStr(src, S("ط"), 2) == 0) {
-    signedNum = false;
-    src += 2;
-  }
-
-  // Determine integer size.
-  Bool typeRequested = false;
-  Int size = 0;
-  if (*src == C('i') || *src == C('I')) {
-    typeRequested = true;
-    ++src;
-    if (getStrLen(src) > 0) size = std::stoi(src);
-  } else if (compareStr(src, S("ص"), 2) == 0) {
-    typeRequested = true;
-    src += 2;
-    if (getStrLen(src) > 0) size = std::stoi(src);
-  }
-  if (size == 0) {
-    if (value == 0 || value == 1) {
-      // Give special treatment to 0 and 1 and consider it unsigned.
-      signedNum = false;
-    }
-    size = signedNum ?
-      expGenerator->astHelper->getNeededIntSize((LongInt)value) :
-      expGenerator->astHelper->getNeededWordSize(value);
-  }
+  LongWord value;
+  Int size;
+  Bool signedNum;
+  Bool typeRequested;
+  expGenerator->astHelper->parseIntLiteral(astNode->getValue().get(), value, size, signedNum, typeRequested);
 
   // Get the requested type.
   Ast::Type *astType;
@@ -2684,7 +2680,7 @@ Bool ExpressionGenerator::_generateArrayReference(
 
 Bool ExpressionGenerator::_generateFunctionCall(
   TiObject *self, Core::Ast::Node *astNode, Spp::Ast::Function *callee,
-  Containing<Core::Ast::Node> *paramAstTypes, Containing<TiObject> *paramTgValues,
+  Containing<Spp::Ast::Type> *paramAstTypes, Containing<TiObject> *paramTgValues,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -2794,14 +2790,14 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
 Bool ExpressionGenerator::_prepareFunctionParams(
   TiObject *self, Spp::Ast::FunctionType *calleeType, Generation *g, Session *session,
   DynamicContaining<Core::Ast::Node> *paramAstNodes,
-  DynamicContaining<Core::Ast::Node> *paramAstTypes,
+  DynamicContaining<Spp::Ast::Type> *paramAstTypes,
   SharedList<TiObject> *paramTgVals
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
   Ast::FunctionType::ArgMatchContext context;
   for (Int i = 0; i < paramTgVals->getElementCount(); ++i) {
-    Ast::Type *srcType = static_cast<Ast::Type*>(paramAstTypes->getElement(i));
+    Ast::Type *srcType = paramAstTypes->getElement(i);
     auto status = calleeType->matchNextArg(srcType, context, expGenerator->astHelper);
     ASSERT(status != Ast::TypeMatchStatus::NONE);
 
@@ -2838,7 +2834,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
 
 
 Bool ExpressionGenerator::_prepareCallee(
-  TiObject *self, Core::Ast::Node *astNode, Containing<Core::Ast::Node> *argTypes, Char const *op,
+  TiObject *self, Core::Ast::Node *astNode, Containing<Spp::Ast::Type> *argTypes, Char const *op,
   Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult,
   TerminalStatement &terminal
 ) {
@@ -3057,7 +3053,7 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
     if (item.type == Ast::CalleeLookupResultStackEntryType::THIS_MARKER) {
       thisResult = calleeResult;
     } else if (item.type == Ast::CalleeLookupResultStackEntryType::FUNCTION_CALL) {
-      PlainList<Core::Ast::Node> paramAstTypes;
+      PlainList<Spp::Ast::Type> paramAstTypes;
       SharedList<TiObject> paramTgValues;
       PlainList<Core::Ast::Node> paramAstNodes;
       GenResult prevCalleeResult = calleeResult;
@@ -3115,7 +3111,7 @@ Bool ExpressionGenerator::_referencifyThisIfNeeded(
       TioSharedPtr tgTempVar;
       if (!g->generateTempVar(astNode, thisArg.astType, session, false, tgTempVar)) return false;
       PlainList<Core::Ast::Node> thisParamAstNodes({ astNode });
-      PlainList<Core::Ast::Node> thisParamAstTypes({ thisArg.astType });
+      PlainList<Spp::Ast::Type> thisParamAstTypes({ thisArg.astType });
       SharedList<TiObject> thisParamTgValues({ thisArg.targetData });
       if (!session->getTg()->generateVarReference(
         session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(thisArg.astType),
@@ -3142,7 +3138,7 @@ Bool ExpressionGenerator::_referencifyThisIfNeeded(
 Bool ExpressionGenerator::_generateParams(
   TiObject *self, Core::Ast::Node *astNode, Generation *g, Session *session,
   DynamicContaining<Core::Ast::Node> *resultAstNodes,
-  DynamicContaining<Core::Ast::Node> *resultTypes,
+  DynamicContaining<Spp::Ast::Type> *resultTypes,
   SharedList<TiObject> *resultValues
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -3153,7 +3149,7 @@ Bool ExpressionGenerator::_generateParams(
     auto scope = static_cast<Core::Ast::Scope*>(astNode);
     // Generate the sub elements.
     SharedList<TiObject> subTgValues;
-    PlainList<Core::Ast::Node> subAstTypes;
+    PlainList<Spp::Ast::Type> subAstTypes;
     PlainList<Core::Ast::Node> subAstNodes;
     for (Int i = 0; i < scope->getCount(); ++i) {
       if (!expGenerator->generateParams(scope->getElement(i), g, session, &subAstNodes, &subAstTypes, &subTgValues)) {

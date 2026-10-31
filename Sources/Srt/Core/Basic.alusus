@@ -35,7 +35,7 @@ import "Srl/String";
             func getTypeInfo (): ref[Core.Basic.TypeInfo] {
                 @shared def typeInfo: ref[Core.Basic.TypeInfo];
                 if typeInfo~ptr == 0 {
-                    def fullTypeName: String = String(typeName) + "<" + tplArg.getTypeInfo().uniqueName + ">";
+                    var fullTypeName: String = String(typeName) + "<" + tplArg.getTypeInfo().uniqueName + ">";
                     typeInfo~ptr = Core.Basic.getFromGlobalStorage(fullTypeName)~cast[ptr[Core.Basic.TypeInfo]];
                 }
                 return typeInfo;

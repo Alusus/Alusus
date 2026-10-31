@@ -79,6 +79,18 @@ DEFINE_NOTICE(InvalidCommandDefAstNotice, "Core.Notices", "Core", "alusus.org", 
 DEFINE_NOTICE(InvalidGrammarAstNotice, "Core.Notices", "Core", "alusus.org", "SPPA1017", 1,
   "Error in custom grammar definition AST."
 );
+DEFINE_NOTICE(VarTypeDeductionFailedNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1018", 1,
+  "Could not deduce the variable type from its initial value."
+);
+DEFINE_NOTICE(MultiArgVarTypeDeductionNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1019", 1,
+  "Variable type can't be deduced from multiple initialization arguments."
+);
+DEFINE_NOTICE(CircularVarTypeDeductionNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1020", 1,
+  "Circular variable type deduction encountered."
+);
+DEFINE_NOTICE(VarCtorArgsWithValueNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1021", 1,
+  "Constructor args can't be passed to a variable that is also assigned an initial value."
+);
 
 } /// namespace
 
@@ -165,6 +177,12 @@ DEFINE_NOTICE(TemplateFunctionLacksBodyNotice, "Spp.Notices", "Spp", "alusus.org
 );
 DEFINE_NOTICE(InvalidTemplateHandlerStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1025", 1,
   "Template handler statement must not be a pointer."
+);
+DEFINE_NOTICE(InvalidVarCommandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1026", 1,
+  "Invalid var command. A variable needs a name followed by a type, an initial value, or both."
+);
+DEFINE_NOTICE(VarInitArgsWithExplicitTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1027", 1,
+  "The :: operator can't be used when the variable type is given. Use `var name: type(args)` instead."
 );
 
 } // namespace

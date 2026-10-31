@@ -77,7 +77,7 @@ Bool CommandGenerator::_generateReturnStatement(
       if (!g->getGeneratedType(retType, session, retTgType, 0)) return false;
 
       SharedList<TiObject> initTgVals;
-      PlainList<Core::Ast::Node> initAstTypes;
+      PlainList<Spp::Ast::Type> initAstTypes;
       PlainList<Core::Ast::Node> initAstNodes;
       initTgVals.add(operandResult.targetData);
       initAstTypes.add(operandResult.astType);

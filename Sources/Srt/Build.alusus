@@ -31,9 +31,9 @@ if Srl.String.compare(Process.language, "ar") == 0 {
     use Srl;
 
     function doesExecutableExist (filename: CharsPtr): Bool {
-        def file: ptr[Fs.File] = Fs.openProcess(String.format("which %s", filename), "r");
+        var file: ptr[Fs.File] = Fs.openProcess(String.format("which %s", filename), "r");
         def output: array[Char, 100];
-        def result: ptr = Fs.readLine(output~ptr, 100, file);
+        var result: ptr = Fs.readLine(output~ptr, 100, file);
         Fs.closeProcess(file);
         return result != 0;
     }
@@ -59,7 +59,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
             this.element~no_deref = e;
             this.addDependency(e);
             this.outputFilename = fn;
-            def nameStart: ptr[Char] = String.findLast(fn, '/');
+            var nameStart: ptr[Char] = String.findLast(fn, '/');
             if nameStart == 0 {
                 this.outputPath = "./";
             } else {
@@ -111,10 +111,10 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.getDepsString (): String {
             def depsString: String("");
-            def nonSystemDeps: Bool = 0;
+            var nonSystemDeps: Bool = 0;
             def i: ArchInt;
             for i = 0, i < this.deps.getLength(), ++i {
-                def fileNameStart: Int = this.deps(i).findLast('/');
+                var fileNameStart: Int = this.deps(i).findLast('/');
                 if fileNameStart != -1 {
                     depsString += " -L";
                     depsString += this.deps(i).slice(0, fileNameStart + 1);
@@ -140,7 +140,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
-            def cmd: String = String.format(
+            var cmd: String = String.format(
                 "%s -no-pie %s /tmp/output.o -o %s %s", this.getLinkerFilename(),
                 String.merge(this.flags, " ").buf, this.outputFilename.buf, this.getDepsString().buf
             );
@@ -162,7 +162,7 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this.getLinkerFilename (): CharsPtr {
             if this.linkerFilename != 0 return this.linkerFilename;
-            def envCmd: CharsPtr = envCmd = System.getEnv("ALUSUS_GCC");
+            var envCmd: CharsPtr = envCmd = System.getEnv("ALUSUS_GCC");
             if envCmd != 0 and doesExecutableExist(envCmd) return envCmd
             else if doesExecutableExist("gcc") return "gcc"
             else {
@@ -201,8 +201,8 @@ if Srl.String.compare(Process.language, "ar") == 0 {
                 Console.print(I18n.objectGenerationError, Console.Style.FG_RED, this.outputFilename.buf);
                 return false;
             }
-            def linkerFilename: String = String(Process.coreBinPath) + "wasm-ld";
-            def cmd: String = String.format(
+            var linkerFilename: String = String(Process.coreBinPath) + "wasm-ld";
+            var cmd: String = String.format(
                 "%s --no-entry --allow-undefined --export-dynamic %s %s /tmp/output.o -o %s ",
                 linkerFilename.buf, String.merge(this.flags, " ").buf, this.getDepsString().buf, this.outputFilename.buf
             );

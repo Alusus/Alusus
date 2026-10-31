@@ -54,7 +54,7 @@ class Parent {
 
 class Child {
     @injection def parent: Parent;
-    def j: Int = 0;
+    var j: Int = 0;
 
     handler this.test() {
         result = 5;

@@ -67,8 +67,8 @@ func varArgFunc(count: Int, args: ...Int) {
 }
 
 class E {
-    def i: Int = A().i;
-    def j: C({ A().i, A().i, 5 });
+    var i: Int = A().i;
+    var j: C({ A().i, A().i, 5 });
     varArgFunc({ A().i, A().i, A().i });
 }
 

@@ -56,15 +56,15 @@ Function  [Main.Function]
    first: Identifier: pf [Main.BlockSubject.Identifier]
    second: PointerOp [Main.PointerTilde]
     operand: Identifier: pointedFunction [Main.BlockSubject.Identifier]
-  Definition [Main.Def] pf2: ParamPass [] [Main.Expression.ParamPassExp]
-   operand: Identifier: ptr [Main.BlockSubject.Identifier]
-   param: FunctionType member: 0 [Main.Function]
-    argTypes: NULL
-    retType: NULL
-  AssignmentOperator = [Main.Def]
-   first: Identifier: pf2 [Main.BlockSubject.Identifier]
-   second: PointerOp [Main.PointerTilde]
+  Definition [Main.Var] pf2: Variable inMem [Main.Var]
+   typeRef: ParamPass [] [Main.Expression.ParamPassExp]
+    operand: Identifier: ptr [Main.BlockSubject.Identifier]
+    param: FunctionType member: 0 [Main.Function]
+     argTypes: NULL
+     retType: NULL
+   initArgs: PointerOp [Main.PointerTilde]
     operand: Identifier: pointedFunction [Main.BlockSubject.Identifier]
+   type: NULL
   ParamPass () [Main.Expression.ParamPassExp]
    operand: Identifier: print [Main.BlockSubject.Identifier]
    param: List [Main.Expression.ListExp]
@@ -145,15 +145,16 @@ Function test() [Main.Function]
    first: Identifier: pf [Main.BlockSubject.Identifier]
    second: PointerOp [Main.PointerTilde]
     operand: Identifier: pointedFunction [Main.BlockSubject.Identifier]
-  Definition [Main.Def] pf2: ParamPass [] [Main.Expression.ParamPassExp]
-   operand: Identifier: ptr [Main.BlockSubject.Identifier]
-   param: FunctionType member: 0 [Main.Function]
-    argTypes: NULL
-    retType: NULL
-  AssignmentOperator = [Main.Def]
-   first: Identifier: pf2 [Main.BlockSubject.Identifier]
-   second: PointerOp [Main.PointerTilde]
+  Definition [Main.Var] pf2: Variable inMem [Main.Var]
+   typeRef: ParamPass [] [Main.Expression.ParamPassExp]
+    operand: Identifier: ptr [Main.BlockSubject.Identifier]
+    param: FunctionType member: 0 [Main.Function]
+     argTypes: NULL
+     retType: NULL
+   initArgs: PointerOp [Main.PointerTilde]
     operand: Identifier: pointedFunction [Main.BlockSubject.Identifier]
+   type: PointerType
+    body: NULL
   ParamPass () [Main.Expression.ParamPassExp]
    operand: Identifier: print [Main.BlockSubject.Identifier]
    param: List [Main.Expression.ListExp]

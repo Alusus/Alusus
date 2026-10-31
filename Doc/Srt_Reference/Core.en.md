@@ -53,7 +53,7 @@ its factory and create new objects from the same type.
 #### createPlain
 
 ```
-  def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
+  var createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
 ```
 
 Create an object and return a regular reference to it after initializing it.
@@ -69,7 +69,7 @@ Create an object and return a `SrdRef` to it after initializing it.
 #### initialize
 
 ```
-  def initialize: ptr[@shared @no_bind function (ref[TiObject])];
+  var initialize: ptr[@shared @no_bind function (ref[TiObject])];
 ```
 
 Intialize an object that already allocated in memory.
@@ -77,7 +77,7 @@ Intialize an object that already allocated in memory.
 #### terminate
 
 ```
-  def terminate: ptr[@shared @no_bind function (ref[TiObject])];
+  var terminate: ptr[@shared @no_bind function (ref[TiObject])];
 ```
 
 Terminate an object without releasing its memory.
@@ -245,13 +245,13 @@ This function returns a reference to the type's info, which means to the info of
 The following example shows how to define and use these classes:
 
 ```
-  def i: TiInt(45);
+  var i: TiInt(45);
   printInt(i.value);
   i = 7;
   
-  def o: ref[TiObject](i);
+  var o: ref[TiObject](i);
   if isDerivedFrom[o, TiInt] {
-    def x: ref[TiInt](castRef[o, TiInt]);
+    var x: ref[TiInt](castRef[o, TiInt]);
     printInt(x.value);
   }
 ```

@@ -2,4 +2,4 @@ function getFilenameFromPath (path: ptr[array[Char]]): Srl.String {
     return Srl.String((Srl.String.findLast(path, '/') + 1)~cast[CharsPtr]);
 }
 
-def sourceFileUtilsFilename: Srl.String = getFilenameFromPath(getThisSourceFullPath[]);
+var sourceFileUtilsFilename: Srl.String = getFilenameFromPath(getThisSourceFullPath[]);

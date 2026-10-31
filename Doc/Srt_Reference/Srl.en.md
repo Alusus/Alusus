@@ -10,22 +10,22 @@ The following example shows usage of this dynamic array.
 
 ```
 func main {
-  def a: Array[Int] = getArray();
+  var a: Array[Int] = getArray();
   a.add(1); // Here the allocated memory block is expanded.
-  def a2: Array[Int] = a; // No new memory block is allocated here.
+  var a2: Array[Int] = a; // No new memory block is allocated here.
   a.add(2); // Now a new copy of the buffer is created so a2 is not affected.
   printArray(a); // No new memory block is created or copied here.
   // Now the memory blocks of a and a2 are freed.
 }
 
 func getArray(): Array[Int] {
-  def a: Array[Int];
+  var a: Array[Int];
   a.add(0);
   return a; // No new memory block is allocated here and memory copy happens.
 }
 
 func printArray (a: Array[Int]) {
-  def i: Int;
+  var i: Int;
   for i = 0, i < a.getLength(), ++i Console.print("%d\n", a(i));
 }
 ```
@@ -45,8 +45,8 @@ the change occurs to ensure that the other array is not affected.
 The second form initializes the array from the given items, as shown in the example below:
 
 ```
-def a1: Array[Int]({ 5, 2, 1 }); // Array will contain 3 elements: 5, 2, and 1.
-def a2: Array[Int](3, 5, 2, 1); // Array will contain 3 elements: 5, 2, and 1.
+var a1: Array[Int]({ 5, 2, 1 }); // Array will contain 3 elements: 5, 2, and 1.
+var a2: Array[Int](3, 5, 2, 1); // Array will contain 3 elements: 5, 2, and 1.
 ```
 
 #### getLength
@@ -149,16 +149,16 @@ shows this class in use.
 
 ```
 func main {
-  def str: String = getString();
+  var str: String = getString();
   str += " world"; // Memory block is expanded here.
-  def str2: String = str; // No new memory is allocated here.
+  var str2: String = str; // No new memory is allocated here.
   str += "."; // Copy of the string buffer is created so str2 is not affected.
   printStr(str); // No new memory allocation or copy happens here.
   // Now memory blocks of str and str2 are freed.
 }
 
 func getString (): String {
-  def s: String = "Hello";
+  var s: String = "Hello";
   return s; // No new memory allocation or copy happens here.
 }
 
@@ -172,7 +172,7 @@ func printStr (s: String) {
 #### buf
 
 ```
-def buf: ptr[array[Char]];
+var buf: ptr[array[Char]];
 ```
 
 A pointer to this string content.
@@ -508,13 +508,13 @@ The following example shows how to use this class:
 
 ```
 func main {
-  def sb: StringBuilder(
+  var sb: StringBuilder(
     1024, // preallocate 1024 bytes
     512   // enlarge memory block by 512 whenever it's full
   );
   sb.append("Result of ");
   sb.format("7 + 7 = %i\n", 7 + 7);
-  def s: String = sb;
+  var s: String = sb;
   Console.print(s); // Prints: Result of 7 + 7 = 14
 }
 ```
@@ -575,8 +575,8 @@ def StringBuilderMixin: {
   }
 }
 func main {
-  def sb: StringBuilder[StringBuilderMixin](1024, 512);
-  def timestamp: Int[64] = ...;
+  var sb: StringBuilder[StringBuilderMixin](1024, 512);
+  var timestamp: Int[64] = ...;
   sb.format("Today's date is %gd", timestamp);
   ...
 }
@@ -589,9 +589,9 @@ performance into consideration and avoiding unnecessary memory allocation and co
 
 ```
 func main {
-  def m1: Map[Int, Int] = getMap();
+  var m1: Map[Int, Int] = getMap();
   m1.set(7, 50); // Memory buffer is expanded here.
-  def m2: Map[Int, Int] = m1; // Buffer is not cloned here.
+  var m2: Map[Int, Int] = m1; // Buffer is not cloned here.
   m2.set(12, 7); // Buffer is cloned here so that m1 is not affected.
   printMap(m2); // No buffer cloning happens here.
   printInt(m2(7)); // Prints 50.
@@ -600,13 +600,13 @@ func main {
 }
 
 func getMap (): Map[Int, Int] {
-  def m: Map[Int, Int];
+  var m: Map[Int, Int];
   m.add(0, 10);
   return m; // No buffer cloning happens here.
 }
 
 func printMap (m: Map[Int, Int]) {
-  def i: Int;
+  var i: Int;
   for i = 0, i < m.getLength(), ++i {
     Console.print("%d = %d\n", m.keyAt(i), m.valAt(i));
   }
@@ -634,7 +634,7 @@ if the given Map does not have one.
 #### keys
 
 ```
-  def keys: Array[KeyType];
+  var keys: Array[KeyType];
 ```
 
 The array of the keys in the map.
@@ -642,7 +642,7 @@ The array of the keys in the map.
 #### values
 
 ```
-  def values: Array[ValueType];
+  var values: Array[ValueType];
 ```
 
 The array of the values in the map.
@@ -741,8 +741,8 @@ reaches zero, the object is terminated and its memory is released.
 
 ```
 func main {
-  def x: SrdRef[MyType] = SrdRef[MyType].construct();
-  def y: SrdRef[MyType] = x; // Both refs point to same object. Counter is now 2.
+  var x: SrdRef[MyType] = SrdRef[MyType].construct();
+  var y: SrdRef[MyType] = x; // Both refs point to same object. Counter is now 2.
   x.release(); // Counter is now 1 and the object is not freed yet.
   y.release(); // Now the object is destructed and its memory is released.
 }
@@ -811,9 +811,9 @@ that releasing the object when terminating the reference will leads to releasing
 The next example explains the difference:
 
 ```
-  def x: SrdRef[MyType];
+  var x: SrdRef[MyType];
   x.construct();
-  def y: SrdRef[SubType];
+  var y: SrdRef[SubType];
   y.assign(x.refCounter, x.subObj);
   
   x.release(); // Nothing will be released as y still holds the object.
@@ -871,11 +871,11 @@ that releasing the object when terminating the reference will leads to releasing
 The next example explains the difference:
 
 ```
-  def x: SrdRef[MyType];
+  var x: SrdRef[MyType];
   x.construct();
-  def y: WkRef[SubType];
+  var y: WkRef[SubType];
   y.assign(x.refCounter, x.subObj);
-  def z: SrdRef[SubType];
+  var z: SrdRef[SubType];
   z = y;
   
   x.release(); // Nothing is released here.
@@ -896,10 +896,10 @@ The simplest type of smart references. This reference is not shared and does not
 release the object that it owns directly. For example:
 
 ```
-  def x: UnqRef[MyType];
+  var x: UnqRef[MyType];
   x.construct();
   
-  def y: UnqRef[MyType];
+  var y: UnqRef[MyType];
   y = x; // Error.
   
   x.release(); // Object will be released here.
@@ -971,14 +971,14 @@ It contains the following items:
 The information held by this object. `DataType` class refer to template argument.
 
 ```
-  @injection def value: DataType;
+  @injection var value: DataType;
 ```
 
 #### error
 A reference to the error if exists. If this error is set then operation was failed and the information in `value` is not valid.
 
 ```
-  def error: SrdRef[Error];
+  var error: SrdRef[Error];
 ```
 
 #### casting operations
@@ -1013,14 +1013,14 @@ Template class to hold information of unspecified type (user specifies it) in ad
 The information held by this object. `DataType` class refer to template argument.
 
 ```
-  @injection def value: DataType;
+  @injection var value: DataType;
 ```
 
 #### isNull
 Boolean value to specify whether the value is `null` or not.
 
 ```
-  def isNull: Bool;
+  var isNull: Bool;
 ```
 
 #### casting operations
@@ -1574,8 +1574,8 @@ This is the same as `exit` function from POSIX.
 
 ```
 class DirEnt {
-  def dType: Int[8];
-  def dName: array[Char, FILENAME_LENGTH];
+  var dType: Int[8];
+  var dName: array[Char, FILENAME_LENGTH];
 };
 ```
 
@@ -1585,8 +1585,8 @@ Information record about an item from folder items.
 
 ```
 class FileNames {
-  def count: Int;
-  def names: array[array[Char, FILENAME_LENGTH]];
+  var count: Int;
+  var names: array[array[Char, FILENAME_LENGTH]];
 }
 ```
 
@@ -1825,17 +1825,17 @@ In case of no match, the result is an empty array.
 
 ```
 class DetailedTime {
-  def second: Int;
-  def minute: Int;
-  def hour: Int;
-  def day: Int;
-  def month: Int;
-  def year: Int;
-  def weekDay: Int;
-  def yearDay: Int;
-  def daylightSaving: Int;
-  def timezoneOffset: Int[64];
-  def timezone: ptr[array[Char]];
+  var second: Int;
+  var minute: Int;
+  var hour: Int;
+  var day: Int;
+  var month: Int;
+  var year: Int;
+  var weekDay: Int;
+  var yearDay: Int;
+  var daylightSaving: Int;
+  var timezoneOffset: Int[64];
+  var timezone: ptr[array[Char]];
 };
 ```
 
@@ -1924,8 +1924,8 @@ This is the same as `clock` function for POSIX.
   released.
 
   ```
-  def x: SrdRef[MyType] = SrdRef[MyType].construct();
-  def y: SrdRef[SubType] = castSrdRef[x, SubType];
+  var x: SrdRef[MyType] = SrdRef[MyType].construct();
+  var y: SrdRef[SubType] = castSrdRef[x, SubType];
   ```
 
 #### allocObj
@@ -1934,7 +1934,7 @@ This is the same as `clock` function for POSIX.
   explicitly afterwards.
 
   ```
-  def o: ref[MyType](allocObj[MyType]);
+  var o: ref[MyType](allocObj[MyType]);
   o~init(someArg);
   ```
 
@@ -1943,7 +1943,7 @@ This is the same as `clock` function for POSIX.
   one argument, which is the object's type. Objects allocated with this macro should later be freed with `freeObj`.
 
   ```
-  def o: ref[MyType](newObj[MyType]);
+  var o: ref[MyType](newObj[MyType]);
   ```
 
 #### freeObj

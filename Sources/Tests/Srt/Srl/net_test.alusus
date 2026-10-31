@@ -17,7 +17,7 @@ module Main
 
   function testUriEncode
   {
-    def encoded: Srl.String = Srl.Net.uriEncode("https://example.com");
+    var encoded: Srl.String = Srl.Net.uriEncode("https://example.com");
     Srl.Console.print("Encoded: %s\n", encoded.buf);
     Srl.Console.print("Decoded: %s\n", Srl.Net.uriDecode(encoded).buf);
   }

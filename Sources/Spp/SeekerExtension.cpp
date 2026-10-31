@@ -372,6 +372,7 @@ Bool SeekerExtension::_foreach_computeComparison(TiObject *self, Core::Ast::Node
         return target->isDerivedFrom<Ast::Module>();
       } else if (type->getValue() == S("var") || type->getValue() == S("متغير")) {
         return
+          (target->isDerivedFrom<Spp::Ast::Variable>() && !static_cast<Spp::Ast::Variable*>(target)->isValueOnly()) ||
           target->isDerivedFrom<Core::Ast::ParamPass>() ||
           target->isDerivedFrom<Core::Ast::LinkOperator>() ||
           target->isDerivedFrom<Core::Ast::Identifier>() ||

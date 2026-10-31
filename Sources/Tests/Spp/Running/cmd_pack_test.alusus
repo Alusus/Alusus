@@ -21,7 +21,7 @@ Console.print("%d\n", a2.{ i = 11 }());
 Console.print("%d\n", A().{ i = 12 }.i);
 Console.print("%d\n", A().{ i = 13 }());
 
-def c: Char = '2';
+var c: Char = '2';
 Console.print("%s\n", ptr[Char]().{ if c == '1' this="one" else if c == '2' this="two" else this="other" });
 
 def i: Int(5);
@@ -58,7 +58,7 @@ class Parent {
 }
 
 class Child {
-    def i2: Int = 0;
+    var i2: Int = 0;
     def parent: ref[Parent];
 }
 

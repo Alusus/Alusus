@@ -1,0 +1,107 @@
+import "Srl/Console.alusus";
+use Srl.Console;
+
+module Main {
+  class Logged {
+    def v: Int;
+    handler this~init() { this.v = 0; print("Logged~init()\n"); }
+    handler this~init(n: Int) { this.v = n; print("Logged~init(%d)\n", n); }
+    handler this = Int { this.v = value; print("Logged = %d\n", value); }
+  };
+
+  func getNum (): Int[64] { return 42 }
+
+  var globalDeduced = 5;
+  var globalAssigned: Logged = 7;
+  var globalCtor: Logged(8);
+  var globalDeducedCtor :: getNum();
+  @priority var priorityVar = 3;
+  def defGlobalValue: var 6;
+  def defGlobalType: var Logged;
+
+  class Holder {
+    var a: Int = 3;
+    var b = a + 1;
+    var c = this.b * 2;
+    var d: Logged(11);
+    var e: Logged = 12;
+    @shared var count = 10;
+    var id = ++count;
+  };
+
+  class DefHolder {
+    def a: var 4;
+    def b: var a * 2;
+    def c: var Logged;
+  };
+
+  func twice [T: type] (v: T): T {
+    var r = v + v;
+    return r;
+  }
+
+  func start {
+    print("Locals:\n");
+    var x = 5;
+    var y :: x + 1;
+    var z: Logged = 9;
+    var w: Logged(10);
+    var n = getNum();
+    print("x = %d, y = %d, z = %d, w = %d, n = %d\n", x, y, z.v, w.v, n);
+
+    print("Deduced sizes:\n");
+    var one = 1;
+    var unsignedOne = 1u;
+    var negative = -1;
+    var big = 5000000000;
+    var small = 5i8;
+    print(
+      "one = %d, unsignedOne = %d, negative = %d, big = %d, small = %d, n = %d\n",
+      one~size, unsignedOne~size, negative~size, big~size, small~size, n~size
+    );
+
+    print("References (copied by = and bound by ::)\n");
+    def r: ref[Int];
+    r~ptr = x~ptr;
+    var copy = r;
+    copy = 20;
+    print("x = %d, copy = %d\n", x, copy);
+    var bound :: r;
+    bound = 30;
+    print("x = %d, bound = %d\n", x, bound);
+    var copiedVar :: x;
+    copiedVar = 40;
+    print("x = %d, copiedVar = %d\n", x, copiedVar);
+
+    print("Globals:\n");
+    print(
+      "globalDeduced = %d, globalAssigned = %d, globalCtor = %d, globalDeducedCtor = %d, priorityVar = %d\n",
+      globalDeduced, globalAssigned.v, globalCtor.v, globalDeducedCtor, priorityVar
+    );
+
+    print("Members:\n");
+    var h1: Holder;
+    var h2: Holder;
+    print("a = %d, b = %d, c = %d, d = %d, e = %d\n", h1.a, h1.b, h1.c, h1.d.v, h1.e.v);
+    print("h1.id = %d, h2.id = %d, count = %d\n", h1.id, h2.id, Holder.count);
+
+    print("Def form:\n");
+    def defValue: var x + 2;
+    def defBound: var r;
+    defBound = 50;
+    def defType: var Int[16];
+    defType = 3;
+    def defObj: var Logged;
+    var dh: DefHolder;
+    print(
+      "defGlobalValue = %d, defGlobalType = %d, defValue = %d, x = %d, defBound = %d, defType = %d (%d), defObj = %d\n",
+      defGlobalValue, defGlobalType.v, defValue, x, defBound, defType, defType~size, defObj.v
+    );
+    print("dh.a = %d, dh.b = %d, dh.c = %d\n", dh.a, dh.b, dh.c.v);
+
+    print("Templates:\n");
+    print("twice[Int](21) = %d, twice[Int[64]](50) = %d\n", twice[Int](21), twice[Int[64]](50));
+  }
+};
+
+Main.start();

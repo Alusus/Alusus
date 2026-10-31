@@ -59,11 +59,11 @@ func addLocalization (
 #### أنشئ_محتكرا (createPlain)
 
 ```
-  عرف أنشئ_محتكرا: مؤشر[@مشترك @دون_ربط دالة (): سند[كـائن_بهوية]]؛
+  متغير أنشئ_محتكرا: مؤشر[@مشترك @دون_ربط دالة (): سند[كـائن_بهوية]]؛
 ```
 
 ```
-  def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
+  var createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
 ```
 
 تنشئ كائنًا وترجع سندا اعتياديًا له بعد تهيئته.
@@ -71,7 +71,7 @@ func addLocalization (
 #### أنشئ_مشتركا (createShared)
 
 ```
-  عرف أنشئ_مشتركا: مؤشر[@مشترك @دون_ربط دالة (): سـندنا[كـائن_بهوية]]؛
+  متغير أنشئ_مشتركا: مؤشر[@مشترك @دون_ربط دالة (): سـندنا[كـائن_بهوية]]؛
 ```
 
 ```
@@ -83,11 +83,11 @@ func addLocalization (
 #### هيئ (initialize)
 
 ```
-  عرف هيئ: مؤشر[@مشترك @دون_ربط دالة (سند[كـائن_بهوية])]؛
+  متغير هيئ: مؤشر[@مشترك @دون_ربط دالة (سند[كـائن_بهوية])]؛
 ```
 
 ```
-  def initialize: ptr[@shared @no_bind function (ref[TiObject])];
+  var initialize: ptr[@shared @no_bind function (ref[TiObject])];
 ```
 
 تهيئ كائنًا محجوز في الذاكرة مسبقًا.
@@ -95,11 +95,11 @@ func addLocalization (
 #### أتلف (terminate)
 
 ```
-  عرف أتلف: مؤشر[@مشترك @دون_ربط دالة (سند[كـائن_بهوية])]؛
+  متغير أتلف: مؤشر[@مشترك @دون_ربط دالة (سند[كـائن_بهوية])]؛
 ```
 
 ```
-  def terminate: ptr[@shared @no_bind function (ref[TiObject])];
+  var terminate: ptr[@shared @no_bind function (ref[TiObject])];
 ```
 
 تتلف كائنًا دون تحرير ذاكرته.
@@ -298,25 +298,25 @@ func addLocalization (
 المثال التالي يوضح طريقة تعريف واستخدام هذه الأصناف:
 
 ```
-  عرف ص: صـحيح_بهوية(45)؛
+  متغير ص: صـحيح_بهوية(45)؛
   اطبع_صحيح(ص.القيمة)؛
   ص = 7؛
 
-  عرف ك: سند[كـائن_بهوية](ص)؛
+  متغير ك: سند[كـائن_بهوية](ص)؛
   إذا أمشتق_من[ك، صـحيح_بهوية] {
-    عرف س: سند[صـحيح_بهوية](مثل_سندا[ك، صـحيح_بهوية])؛
+    متغير س: سند[صـحيح_بهوية](مثل_سندا[ك، صـحيح_بهوية])؛
     اطبع_صحيح(س.القيمة)؛
   }
 ```
 
 ```
-  def i: TiInt(45);
+  var i: TiInt(45);
   printInt(i.value);
   i = 7;
   
-  def o: ref[TiObject](i);
+  var o: ref[TiObject](i);
   if isDerivedFrom[o, TiInt] {
-    def x: ref[TiInt](castRef[o, TiInt]);
+    var x: ref[TiInt](castRef[o, TiInt]);
     printInt(x.value);
   }
 ```

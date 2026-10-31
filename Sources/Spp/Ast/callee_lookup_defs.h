@@ -44,8 +44,8 @@ struct CalleeLookupRequest
   Char const *varTargetOp = 0;
   Core::Ast::Node *ref = 0;
   Str op;
-  Core::Ast::Node *thisType = 0;
-  Containing<Core::Ast::Node> *argTypes = 0;
+  Spp::Ast::Type *thisType = 0;
+  Containing<Spp::Ast::Type> *argTypes = 0;
   Core::Ast::Node *templateParam = 0;
 };
 

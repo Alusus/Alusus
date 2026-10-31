@@ -30,14 +30,14 @@ function fnWithErrors
   return i;
 };
 
-def i: Int = factorial(5);
+var i: Int = factorial(5);
 print("%d\n", i);
 
 for i = 0, i < 5, ++i {
   print("%d\n", factorial(i));
 };
 
-def pf: ptr[function (Int):Int] = factorial~ptr;
+var pf: ptr[function (Int):Int] = factorial~ptr;
 print("factorial of 6 using function pointer: %d\n", pf(6));
 
 Spp.buildMgr.dumpLlvmIrForElement(fnWithErrors~ast~ptr);

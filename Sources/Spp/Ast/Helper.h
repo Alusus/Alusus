@@ -32,6 +32,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   private: Core::Main::RootManager *rootManager;
   private: NodePathResolver *nodePathResolver;
+  private: ExpressionComputation *expressionComputation = 0;
 
   private: Template *refTemplate = 0;
   private: Template *trefTemplate = 0;
@@ -75,6 +76,7 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     this->inheritInterfaces(parent);
     this->rootManager = parent->getRootManager();
     this->nodePathResolver = parent->getNodePathResolver();
+    this->expressionComputation = parent->getExpressionComputation();
   }
 
 
@@ -106,6 +108,16 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: NodePathResolver* getNodePathResolver() const
   {
     return this->nodePathResolver;
+  }
+
+  public: void setExpressionComputation(ExpressionComputation *ec)
+  {
+    this->expressionComputation = ec;
+  }
+
+  public: ExpressionComputation* getExpressionComputation() const
+  {
+    return this->expressionComputation;
   }
 
   public: Core::Ast::Seeker* getSeeker() const
@@ -151,6 +163,40 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   {
     return this->_traceType(ref, skipErrors);
   }
+
+  private: Bool resolveVarProps(Variable *var, Bool skipErrors);
+  private: Bool deduceVarType(Variable *var);
+
+  private: Type* deduceIntLiteralType(Core::Ast::Node *astExpr);
+
+  public: void parseIntLiteral(Char const *src, LongWord &value, Int &size, Bool &signedNum, Bool &typeRequested);
+
+  /// Returns the args to pass to the constructor of the given var, if any. astTypeRef is set to the node from which
+  /// the var's type should be traced.
+  public: Core::Ast::Node* getVarInitArgs(Core::Ast::Node *astVar, Core::Ast::Node *&astTypeRef);
+
+  /// Returns true if this var should be initialized by copy.
+  public: Bool isVarInitByCopy(Core::Ast::Node *astVar)
+  {
+    auto var = ti_cast<Variable>(astVar);
+    if (var == 0) return false;
+    this->resolveVarPropsIfNeeded(var);
+    return var->getInitMode() == VarInitMode::COPY;
+  }
+
+  /// Determining the var's type can move things between its type ref and init args: with `var expression` the init
+  /// args might be the var's type, and with `var name: type(args)` the args are moved from the type ref into the init
+  /// args. This traces the type to make sure the var's init args are final.
+  private: void resolveVarPropsIfNeeded(Variable *var)
+  {
+    if (var->getType() == 0) this->resolveVarProps(var, true);
+  }
+
+  /// Adds an auto `this` definition to the given body, or updates the existing one. Returns the definition's var and
+  /// sets index to the definition's index within the body.
+  public: Variable* addThisDefinition(
+    Block *body, Char const *thisName, Type *astThisType, Bool skipInjection, Int &index
+  );
 
   public: METHOD_BINDING_CACHE(isVoid, Bool, (Core::Ast::Node const*));
   private: static Bool _isVoid(TiObject *self, Core::Ast::Node const *ref);

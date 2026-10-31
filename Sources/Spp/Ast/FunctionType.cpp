@@ -157,7 +157,7 @@ Type* FunctionType::traceRetType(Helper *helper) const
 }
 
 
-TypeMatchStatus FunctionType::matchCall(Containing<Core::Ast::Node> *types, Helper *helper) {
+TypeMatchStatus FunctionType::matchCall(Containing<Spp::Ast::Type> *types, Helper *helper) {
   if (helper == 0) {
     throw EXCEPTION(InvalidArgumentException, S("helper"), S("Cannot be null."));
   }
@@ -204,7 +204,7 @@ TypeMatchStatus FunctionType::matchCall(Containing<Core::Ast::Node> *types, Help
 }
 
 
-TypeMatchStatus FunctionType::matchNextArg(Core::Ast::Node *nextType, ArgMatchContext &matchContext, Helper *helper) {
+TypeMatchStatus FunctionType::matchNextArg(Spp::Ast::Type *nextType, ArgMatchContext &matchContext, Helper *helper) {
   if (nextType == 0) {
     throw EXCEPTION(InvalidArgumentException, S("nextType"), S("Cannot be null."));
   }
@@ -215,7 +215,6 @@ TypeMatchStatus FunctionType::matchNextArg(Core::Ast::Node *nextType, ArgMatchCo
     throw EXCEPTION(InvalidArgumentException, S("matchContext"), S("Value is corrupted."));
   }
 
-  Type *providedType = helper->traceType(nextType);
   Word argCount = this->argTypes == 0 ? 0 : this->argTypes->getCount();
 
   // Check if we are at an arg pack and can add more args to the pack.
@@ -226,12 +225,12 @@ TypeMatchStatus FunctionType::matchNextArg(Core::Ast::Node *nextType, ArgMatchCo
     if (currentArg->isDerivedFrom<ArgPack>()) {
       auto currentArgPack = static_cast<ArgPack*>(currentArg);
       if (currentArgPack->getMax() == 0 || matchContext.subIndex + 1 < currentArgPack->getMax().get()) {
-        if (matchContext.type == 0 || matchContext.type->isEqual(providedType, helper)) {
+        if (matchContext.type == 0 || matchContext.type->isEqual(nextType, helper)) {
           matchContext.subIndex++;
           return TypeMatchStatus::EXACT;
         } else {
           Function *caster;
-          auto status = helper->matchTargetType(providedType, matchContext.type, caster);
+          auto status = helper->matchTargetType(nextType, matchContext.type, caster);
           if (status >= TypeMatchStatus::CUSTOM_CASTER) {
             matchContext.subIndex++;
             return status;
@@ -258,7 +257,7 @@ TypeMatchStatus FunctionType::matchNextArg(Core::Ast::Node *nextType, ArgMatchCo
         return TypeMatchStatus::EXACT;
       } else {
         Function *caster;
-        auto status = helper->matchTargetType(providedType, wantedType, caster);
+        auto status = helper->matchTargetType(nextType, wantedType, caster);
         if (status >= TypeMatchStatus::CUSTOM_CASTER) {
           matchContext.type = wantedType;
           matchContext.index += steps;
@@ -274,7 +273,7 @@ TypeMatchStatus FunctionType::matchNextArg(Core::Ast::Node *nextType, ArgMatchCo
       Type *wantedType = helper->traceType(nextArg);
       if (wantedType == 0) return TypeMatchStatus::NONE;
       Function *caster;
-      auto status = helper->matchTargetType(providedType, wantedType, caster);
+      auto status = helper->matchTargetType(nextType, wantedType, caster);
       if (status >= TypeMatchStatus::CUSTOM_CASTER) {
         matchContext.type = wantedType;
         matchContext.index += steps;

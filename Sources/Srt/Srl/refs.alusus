@@ -28,7 +28,7 @@ if 1 {
         originalTp: ref[Core.Ast.Node], tp: ref[Core.Ast.Node], className: ref[Core.Ast.Node]
     ) {
         if not Core.Basic.isDerivedFrom[tp, Spp.Ast.UserType] return;
-        def elements: Array[ref[Core.Ast.Node]] = Spp.astMgr.findElements(
+        var elements: Array[ref[Core.Ast.Node]] = Spp.astMgr.findElements(
             (ast elementType == "var"),
             tp,
             Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN

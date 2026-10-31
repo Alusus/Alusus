@@ -27,8 +27,8 @@
     } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_info) == 0) {
       printPackageInfo(argv~cnt(3)~cast[ptr[array[Char]]]);
     } else if(argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_help) == 0) {
-      def homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
-      def pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
+      var homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
+      var pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
       Console.print(I18n.help_commands, Console.Style.FG_GREEN);
       Console.print(I18n.help_apm_help, Console.Style.FG_YELLOW);
       Console.print(I18n.help_apm_help_tip, Console.Style.FG_WHITE);
@@ -54,8 +54,8 @@
   func createLink (packageName: ptr[array[Char]], path: ptr[array[Char]]) {
     removeLink(packageName);
 
-    def packageStr: String = packageName;
-    def packageInfo: Array[String] = packageStr.split("/");
+    var packageStr: String = packageName;
+    var packageInfo: Array[String] = packageStr.split("/");
     if packageInfo.getLength() != 2 {
       Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
       return;
@@ -68,9 +68,9 @@
     }
 
     // Create the author directory.
-    def authorDir: String = ".apm/";
+    var authorDir: String = ".apm/";
     authorDir += packageInfo(0);
-    def createDirCmd: String = String.format("mkdir -p \"%s\"", authorDir.buf);
+    var createDirCmd: String = String.format("mkdir -p \"%s\"", authorDir.buf);
     if System.exec(createDirCmd) != 0 {
       Console.print(I18n.authorDirCreationFailed, Console.Style.FG_RED, authorDir);
       return;
@@ -91,8 +91,8 @@
   }
 
   func removeLink (packageName: ptr[array[Char]]) {
-    def packageStr: String = packageName;
-    def packageInfo: Array[String] = packageStr.split("/");
+    var packageStr: String = packageName;
+    var packageInfo: Array[String] = packageStr.split("/");
     if packageInfo.getLength() != 2 {
       Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
       return;
@@ -113,7 +113,7 @@
   }
 
   func printPackageInfo (packageName: ptr[array[Char]]) {
-    def packageVersions: Array[String] = fetchPackageVersions(packageName, true);
+    var packageVersions: Array[String] = fetchPackageVersions(packageName, true);
     if packageVersions.getLength() > 0 {
       def i: Int;
       for i = 0, i < packageVersions.getLength(), ++i {

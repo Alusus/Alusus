@@ -10,8 +10,8 @@ func factorial (i:Int): Int {
 
 @expname[main]
 func start (argCount: Int, args: ptr[array[ptr[array[Char]]]]): Int {
-  def i: Int;
-  def lastArg: ptr[array[Char]] = args~cnt(argCount - 1);
+  var i: Int;
+  var lastArg: ptr[array[Char]] = args~cnt(argCount - 1);
   if lastArg~cnt(0) >= '0' && lastArg~cnt(0) <= '9' {
     String.scan(lastArg, "%d", i~ptr);
     Console.print("Factorial of %d is %d\n", i, factorial(i));
@@ -22,7 +22,7 @@ func start (argCount: Int, args: ptr[array[ptr[array[Char]]]]): Int {
 }
 
 if Process.argCount == 3 {
-  def lastArg: ptr[array[Char]] = Process.args~cnt(Process.argCount - 1);
+  var lastArg: ptr[array[Char]] = Process.args~cnt(Process.argCount - 1);
   if lastArg~cnt(0) >= '0' && lastArg~cnt(0) <= '9' {
     start(Process.argCount, Process.args);
   } else {

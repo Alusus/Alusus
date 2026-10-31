@@ -709,10 +709,10 @@ handler this.addPossiblyMergeableElement(
 
 ```
   دالة معالج_مبدلي (العنصر: سند[الـقلب.شـبم.عـقدة]، المعطيات: سند[الـقلب.شـبم.عـقدة]) {
-      عرف المالك: سند[الـقلب.احـتواء_مرن[الـقلب.شـبم.عـقدة]](
+      متغير المالك: سند[الـقلب.احـتواء_مرن[الـقلب.شـبم.عـقدة]](
           الـقلب.هات_الوسيط[العنصر.المالك، الـقلب.احـتواء_مرن[الـقلب.شـبم.عـقدة]]
       )؛
-      عرف التسلسل: صـحيح = المالك.جد_تسلسل_عنصر(العنصر)؛
+      متغير التسلسل: صـحيح = المالك.جد_تسلسل_عنصر(العنصر)؛
       // حشر شفرة جديدة قبل العنصر مباشرة.
       نـبم.مدير_شبم.أضف_عنصرا_قابلا_للدمج(العقدة_الجديدة، المالك، التسلسل)؛
   }؛
@@ -748,22 +748,22 @@ handler this.insertAst(
 استدعت دالة `احشر_شبم`. المثال التالي يحشر عشرة تعريفات لمتغيرات من صنف صحيح أسماؤها من ن0 إلى ن9:
 
 ```
-  عرف ع: صـحيح؛
+  متغير ع: صـحيح؛
   لكل ع = 0، ع < 5، ++ع {
-      عرف عداد: الـقلب.شـبم.نـص_حرفي(نـص.املأ("%i"، ع))؛
+      متغير عداد: الـقلب.شـبم.نـص_حرفي(نـص.املأ("%i"، ع))؛
       نـبم.مدير_شبم.أنشئ_شبم(
-          شبم { عرف ن__عداد__: صـحيح }،
+          شبم { متغير ن__عداد__: صـحيح }،
           تـطبيق[نـص، سند[الـقلب.شـبم.عـقدة]]().حدد(نـص("عداد")، عداد)
       )؛
   }
 ```
 
 ```
-  def i: Int;
+  var i: Int;
   for i = 0, i < 10, ++i {
-      def counter: Core.Ast.StringLiteral(String.format("%i", i));
+      var counter: Core.Ast.StringLiteral(String.format("%i", i));
       Spp.astMgr.insertAst(
-          ast { def n__counter__: Int },
+          ast { var n__counter__: Int },
           Map[String, ref[Core.Ast.Node]]().set(String("counter"), counter)
       );
   }
@@ -812,12 +812,12 @@ handler this.buildAst(
 لدالة `احشر_شبم`:
 
 ```
-  عرف ع: صـحيح؛
+  متغير ع: صـحيح؛
   لكل ع = 0، ع < 5، ++ع {
-      عرف عداد: الـقلب.شـبم.نـص_حرفي(نـص.املأ("%i"، ع))؛
-      عرف نتيجة: سـندنا[الـقلب.شـبم.عـقدة]؛
+      متغير عداد: الـقلب.شـبم.نـص_حرفي(نـص.املأ("%i"، ع))؛
+      متغير نتيجة: سـندنا[الـقلب.شـبم.عـقدة]؛
       نـبم.مدير_شبم.أنشئ_شبم(
-          شبم { عرف ن__عداد__: صـحيح }،
+          شبم { متغير ن__عداد__: صـحيح }،
           تـطبيق[نـص، سند[الـقلب.شـبم.عـقدة]]().حدد(نـص("عداد")، عداد)،
           نتيجة
       )؛
@@ -834,12 +834,12 @@ handler this.buildAst(
 ```
 
 ```
-  def i: Int;
+  var i: Int;
   for i = 0, i < 10, ++i {
-      def counter: Core.Ast.StringLiteral(String.format("%i", i));
-      def result: SrdRef[Core.Ast.Node];
+      var counter: Core.Ast.StringLiteral(String.format("%i", i));
+      var result: SrdRef[Core.Ast.Node];
       Spp.astMgr.buildAst(
-          ast { def n__counter__: Int },
+          ast { var n__counter__: Int },
           Map[String, ref[Core.Ast.Node]]().set(String("counter"), counter),
           result
       );
@@ -918,7 +918,7 @@ handler this.preprocessTypeBody(type: ref[Spp.Ast.UserType]) => Bool;
 
 عادةً ما يُعالَج متن الصنف تمهيديًا بشكل كسول، أي فقط عندما يُبنى الصنف فعليًا (مثلًا لأن كائنًا منه استُخدم في
 الشفرة). هذا يعني أن أي شفرة تحتاج لمعرفة أعضاء الصنف الحقيقيين قبل تلك اللحظة قد لا تجدهم موجودين، خصوصًا إن كانوا
-أعضاءً وُلِّدوا ديناميكيًا (مثلًا عبر دالة `احشر_شبم`) بدلًا من أن يُكتبوا مباشرةً كعبارات `عرف`. تتيح هذه الدالة
+أعضاءً وُلِّدوا ديناميكيًا (مثلًا عبر دالة `احشر_شبم`) بدلًا من أن يُكتبوا مباشرةً كعبارات `متغير` أو `عرف`. تتيح هذه الدالة
 لتلك الشفرة إجبار معالجة متن الصنف تمهيديًا لتتم فورًا بدلًا من انتظار حدوثها بشكل طبيعي.
 
 ترجع الدالة القيمة 1 في حال النجاح، أو 0 في حال حدوث خطأ أثناء معالجة متن الصنف تمهيديًا.
@@ -929,16 +929,16 @@ handler this.preprocessTypeBody(type: ref[Spp.Ast.UserType]) => Bool;
 ```
   صنف نـقطة {
       تمهيد {
-          نـبم.مدير_شبم.احشر_شبم(شبم { عرف س: صحيح؛ عرف ص: صحيح؛ })؛
+          نـبم.مدير_شبم.احشر_شبم(شبم { متغير س: صحيح؛ متغير ص: صحيح؛ })؛
       }
   }
 
   تمهيد {
-      عرف الصنف: سند[نـبم.شـبم.صـنف_مستخدم](
+      متغير الصنف: سند[نـبم.شـبم.صـنف_مستخدم](
           مثل_سندا[نـبم.مدير_شبم.تتبع_الصنف(نـقطة~شبم)، نـبم.شـبم.صـنف_مستخدم]
       )؛
       نـبم.مدير_شبم.مهد_متن_صنف(الصنف)؛
-      عرف أسماء_المتغيرات: مـصفوفة[نـص] = نـبم.مدير_شبم.هات_أسماء_متغيرات_صنف(الصنف)؛
+      متغير أسماء_المتغيرات: مـصفوفة[نـص] = نـبم.مدير_شبم.هات_أسماء_متغيرات_صنف(الصنف)؛
       // أسماء_المتغيرات تحتوي الآن على "س" و"ص".
   }
 ```
@@ -946,16 +946,16 @@ handler this.preprocessTypeBody(type: ref[Spp.Ast.UserType]) => Bool;
 ```
   class Point {
       preprocess {
-          Spp.astMgr.insertAst(ast { def x: Int; def y: Int; });
+          Spp.astMgr.insertAst(ast { var x: Int; var y: Int; });
       }
   }
 
   preprocess {
-      def userType: ref[Spp.Ast.UserType](
+      var userType: ref[Spp.Ast.UserType](
           castRef[Spp.astMgr.traceType(Point~ast), Spp.Ast.UserType]
       );
       Spp.astMgr.preprocessTypeBody(userType);
-      def varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
+      var varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
       // varNames now contains "x" and "y".
   }
 ```
@@ -1190,11 +1190,11 @@ class MyType {
 }
 عرف مـكون2: {
   عملية هذا.احفظ(اسم_الملف: نـص) {
-    عرف المحتوى: نـص = هذا.إلى_نص()؛
+    متغير المحتوى: نـص = هذا.إلى_نص()؛
     نـم.أنشئ_ملفا(اسم_الملف، المحتوى.صوان، المحتوى.هات_الطول)؛
   }
 }
-عرف مـكونات: مـكون1 & مـكون2؛
+متغير مـكونات: مـكون1 & مـكون2؛
 صنف صـنفي {
   نـبم.مدير_شبم.احشر_مكونا[مـكونات]؛
   // الآن هذا الصنف يحتوي على الوظيفتين `اطبع` و `احفظ`.
@@ -1210,11 +1210,11 @@ def Mixin1: {
 }
 def Mixin2: {
   handler this.save(filename: String) {
-    def content: String = this.toString();
+    var content: String = this.toString();
     Fs.createFile(filename, content.buf, content.getLength());
   }
 }
-def Mixins: Mixin1 & Mixin2;
+var Mixins: Mixin1 & Mixin2;
 class MyType {
   Spp.astMgr.insertMixin[Mixins];
   // Now the class has the `print` and the `save` methods.

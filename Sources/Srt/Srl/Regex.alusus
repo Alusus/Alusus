@@ -64,7 +64,7 @@ import "Spp";
 
         class Matcher {
             def context: Context;
-            def initialized: Bool = false;
+            var initialized: Bool = false;
 
             handler this~init() {
             }
@@ -105,7 +105,7 @@ import "Spp";
                     def i: Int;
                     for i = 0, i < 100 && i <= this.context.re_nsub~cast[Int[64]], ++i {
                         if regmatch(i).rm_so != -1 {
-                            def len: Int = regmatch(i).rm_eo - regmatch(i).rm_so;
+                            var len: Int = regmatch(i).rm_eo - regmatch(i).rm_so;
                             str.assign(content~cnt(regmatch(i).rm_so)~ptr~cast[ptr[array[Char]]], len);
                             matches.add(str);
                         } else {
