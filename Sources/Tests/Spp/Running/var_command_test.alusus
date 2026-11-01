@@ -59,6 +59,10 @@ module Main {
       "one = %d, unsignedOne = %d, negative = %d, big = %d, small = %d, n = %d\n",
       one~size, unsignedOne~size, negative~size, big~size, small~size, n~size
     );
+    var zero = 0;
+    zero -= 2;
+    one -= 2;
+    print("Deduced 0 and 1 are signed: %d, %d\n", zero < 0, one < 0);
 
     print("References (copied by = and bound by ::)\n");
     def r: ref[Int];

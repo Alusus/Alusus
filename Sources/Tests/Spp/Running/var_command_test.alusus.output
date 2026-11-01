@@ -9,6 +9,7 @@ Logged~init(10)
 x = 5, y = 6, z = 9, w = 10, n = 42
 Deduced sizes:
 one = 4, unsignedOne = 4, negative = 4, big = 8, small = 1, n = 8
+Deduced 0 and 1 are signed: 1, 1
 References (copied by = and bound by ::)
 x = 5, copy = 20
 x = 30, bound = 30

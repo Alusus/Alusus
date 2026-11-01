@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.16.1 (2026-xx-xx)
+## Version 0.17.0 (2026-xx-xx)
 
 * Optimized parser and lexer performance.
   - Sped up parser route decision caching.
@@ -31,6 +31,11 @@
     statement.
  * The `def` command no longer accepts an `=` operator, so you can no longer do `def x: Int = value`. For
    initializing a variable's value in the definition the `var` command must be used instead.
+* Added support for defining counter variables in for loops, as in `for i: Int = 0, i < 10, ++i` or
+  `for (i: Int = 0, j: Int = 1), ...`, or using the `var` command, as in `for (var i = 0), ...`. These variables
+  are scoped to the loop.
+* Fixed a bug where enclosing the entire header of a for loop in brackets, as in `for (i = 0, i < 10, ++i)`,
+  resulted in an invalid for statement error.
 
 
 ## Version 0.16.0 (2026-10-09)

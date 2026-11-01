@@ -31,7 +31,6 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   // var name :: args
   // var name = value
   SharedPtr<Core::Ast::Node> nameNode;
-  SharedPtr<Core::Ast::Node> typeRef;
   SharedPtr<Core::Ast::Node> initArgs;
   Spp::Ast::VarInitMode initMode = Spp::Ast::VarInitMode::BIND;
   Bool valid = true;
@@ -47,17 +46,14 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     nameNode = linkOp->getFirst();
     initArgs = linkOp->getSecond();
   } else if (linkOp != 0 && linkOp->getType() == S(":")) {
-    nameNode = linkOp->getFirst();
-    typeRef = linkOp->getSecond();
-    auto typeAssignmentOp = typeRef.ti_cast_get<Core::Ast::AssignmentOperator>();
-    if (typeAssignmentOp != 0 && typeAssignmentOp->getType() == S("=")) {
-      initMode = Spp::Ast::VarInitMode::COPY;
-      initArgs = typeAssignmentOp->getSecond();
-      typeRef = typeAssignmentOp->getFirst();
-      valid = initArgs != 0;
+    auto def = createTypedVarDef(linkOp, expr->getProdId().get(), expr->findSourceLocation());
+    if (def == 0) {
+      state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
+      state->setData(SharedPtr<Core::Ast::Node>(0));
+      return;
     }
-    // Constructor args, as in `var name: type(args)`, are left within the type ref and extracted during code
-    // generation, since the type ref might only take that form after macro expansion.
+    state->setData(def);
+    return;
   } else if (assignmentOp != 0 && assignmentOp->getType() == S("=")) {
     initMode = Spp::Ast::VarInitMode::COPY;
     nameNode = assignmentOp->getFirst();
@@ -82,7 +78,7 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   }
 
   auto name = nameNode.ti_cast_get<Core::Ast::Identifier>();
-  if (!valid || name == 0 || (typeRef == 0 && initArgs == 0)) {
+  if (!valid || name == 0 || initArgs == 0) {
     state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
@@ -93,7 +89,6 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     { "sourceLocation", expr->findSourceLocation() },
     { "initMode", initMode }
   }, {
-    { "typeRef", typeRef },
     { "initArgs", initArgs }
   });
 
@@ -104,6 +99,44 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   }, {
     { "target", var }
   }));
+}
+
+
+SharedPtr<Core::Ast::Definition> VarParsingHandler::createTypedVarDef(
+  Core::Ast::LinkOperator *linkOp, Word prodId, SharedPtr<Core::Ast::SourceLocation> const &sourceLocation
+) {
+  auto name = linkOp->getFirst().ti_cast_get<Core::Ast::Identifier>();
+  auto typeRef = linkOp->getSecond();
+  SharedPtr<Core::Ast::Node> initArgs;
+  Spp::Ast::VarInitMode initMode = Spp::Ast::VarInitMode::BIND;
+  auto typeAssignmentOp = typeRef.ti_cast_get<Core::Ast::AssignmentOperator>();
+  if (typeAssignmentOp != 0 && typeAssignmentOp->getType() == S("=")) {
+    initMode = Spp::Ast::VarInitMode::COPY;
+    initArgs = typeAssignmentOp->getSecond();
+    typeRef = typeAssignmentOp->getFirst();
+    if (initArgs == 0) return SharedPtr<Core::Ast::Definition>::null;
+  }
+  // Constructor args, as in `var name: type(args)`, are left within the type ref and extracted during code
+  // generation, since the type ref might only take that form after macro expansion.
+
+  if (name == 0 || (typeRef == 0 && initArgs == 0)) return SharedPtr<Core::Ast::Definition>::null;
+
+  auto var = Spp::Ast::Variable::create({
+    { "prodId", TiWord(prodId) },
+    { "sourceLocation", sourceLocation },
+    { "initMode", initMode }
+  }, {
+    { "typeRef", typeRef },
+    { "initArgs", initArgs }
+  });
+
+  return Core::Ast::Definition::create({
+    { "prodId", TiWord(prodId) },
+    { "sourceLocation", sourceLocation },
+    { "name", name->getValue() }
+  }, {
+    { "target", var }
+  });
 }
 
 } // namespace

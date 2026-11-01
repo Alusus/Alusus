@@ -15,6 +15,50 @@ def Main: module
       print("%d: ", i);
       print("%d\n", j);
     };
+
+    for k: Int = 0, k < 3, ++k print("k = %d\n", k);
+
+    for (m: Int = 0, n: Int[64] = 10), m < 3, (++m, n += 5) {
+      print("%d: ", m);
+      print("%d\n", n);
+    };
+
+    // Mixing variable definitions with other initializers, which are executed in order.
+    for (j = 3, k: Int = j * 10, i = k + 1), k < 32, ++k print("%d, %d, %d\n", j, k, i);
+
+    // Defining variables with the var command.
+    for (var k = 0), k < 2, ++k print("var k = %d\n", k);
+    for (var k :: 7), k < 9, ++k print("var k = %d\n", k);
+    for (j = 4, var k = j * 10), k < 42, ++k print("%d, var k = %d\n", j, k);
+
+    // Same variable name in sibling loops.
+    for k: Int = 10, k < 12, ++k print("k = %d\n", k);
+
+    // Header enclosed in brackets.
+    for (k: Int = 20, k < 22, ++k) print("k = %d\n", k);
+
+    // Non-block bodies.
+    if 1 for k: Int = 0, k < 2, ++k print("if k = %d\n", k);
+    for m: Int = 0, m < 2, ++m for n: Int = 0, n < 2, ++n print("%d, %d\n", m, n);
+
+    // Loop vars are destroyed when the loop ends.
+    for (c: Counter, k: Int = 0), k < 2, ++k c.n = k + 100;
+    print("after loop\n");
+
+    // Continuing and breaking outer loops.
+    for m: Int = 0, m < 3, ++m {
+      for n: Int = 0, n < 3, ++n {
+        if n == 1 continue 2;
+        if m == 2 break 2;
+        print("%d, %d\n", m, n);
+      };
+    };
+  };
+
+  class Counter {
+    def n: Int;
+    handler this~init() { this.n = 0 };
+    handler this~terminate() { print("~Counter %d\n", this.n) };
   };
 };
 

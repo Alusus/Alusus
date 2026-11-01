@@ -502,6 +502,31 @@ in round brackets. For example:
   for i=0, i&lt;10, i++ { print("%d\n", i) };
 ```
 
+The counter can be defined within the for loop itself using the `name: type` syntax, with or without an initial value, in
+which case the counter is only visible within the loop. Multiple counters can be defined by enclosing them in round
+brackets. For example:
+
+```
+  for i: Int = 0, i < 10, i++ print("%d\n", i);
+  for (i: Int = 0, j: Int = 1), i < 10, (i++, j *= 2) print("%d: %d\n", i, j);
+```
+
+The counter definitions follow the same rules as the `var` command, except that the type must be specified explicitly.
+Counter definitions can be mixed with other initialization expressions, in which case they are all executed in order:
+
+```
+  for (j = 3, i: Int = j * 10), i < 40, i++ print("%d\n", i);
+```
+
+The `var` command can also be used to define the counter, which allows the counter's type to be deduced from its initial
+value. In this case the initializer must be enclosed in round brackets, and the `var` command must be the last element in
+these brackets, since it consumes everything that follows it:
+
+```
+  for (var i = 0), i < 10, i++ print("%d\n", i);
+  for (j = 3, var i = j * 10), i < 40, i++ print("%d\n", i);
+```
+
 ### `continue` Command
 
 It is used to skip what left from the current iteration, and start the next one.
