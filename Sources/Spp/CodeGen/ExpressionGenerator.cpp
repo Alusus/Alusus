@@ -49,6 +49,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateContentOp,
     &this->generateDerefOp,
     &this->generateNoDerefOp,
+    &this->generateNoDeref,
     &this->generateCastOp,
     &this->generateSizeOp,
     &this->generateInitOp,
@@ -68,7 +69,9 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateFunctionPtrCall,
     &this->prepareFunctionParams,
     &this->prepareCallee,
+    &this->prepareNoDerefCallee,
     &this->prepareCalleeLookupRequest,
+    &this->prepareResultCalleeLookupRequest,
     &this->generateCalleeReferenceChain,
     &this->referencifyThisIfNeeded,
     &this->generateParams
@@ -106,6 +109,7 @@ void ExpressionGenerator::initBindings()
   this->generateContentOp = &ExpressionGenerator::_generateContentOp;
   this->generateDerefOp = &ExpressionGenerator::_generateDerefOp;
   this->generateNoDerefOp = &ExpressionGenerator::_generateNoDerefOp;
+  this->generateNoDeref = &ExpressionGenerator::_generateNoDeref;
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
   this->generateInitOp = &ExpressionGenerator::_generateInitOp;
@@ -125,7 +129,9 @@ void ExpressionGenerator::initBindings()
   this->generateFunctionPtrCall = &ExpressionGenerator::_generateFunctionPtrCall;
   this->prepareFunctionParams = &ExpressionGenerator::_prepareFunctionParams;
   this->prepareCallee = &ExpressionGenerator::_prepareCallee;
+  this->prepareNoDerefCallee = &ExpressionGenerator::_prepareNoDerefCallee;
   this->prepareCalleeLookupRequest = &ExpressionGenerator::_prepareCalleeLookupRequest;
+  this->prepareResultCalleeLookupRequest = &ExpressionGenerator::_prepareResultCalleeLookupRequest;
   this->generateCalleeReferenceChain = &ExpressionGenerator::_generateCalleeReferenceChain;
   this->referencifyThisIfNeeded = &ExpressionGenerator::_referencifyThisIfNeeded;
   this->generateParams = &ExpressionGenerator::_generateParams;
@@ -509,6 +515,7 @@ Bool ExpressionGenerator::_generateOperator(
   // Determine operator function name.
   Char const *funcName;
   OpType opType = OpType::INVALID;
+  Bool noDeref = false;
   if (astNode->isDerivedFrom<Core::Ast::InfixOperator>()) {
     auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
     if (infixOp->getFirst() == 0 || infixOp->getSecond() == 0) {
@@ -534,6 +541,10 @@ Bool ExpressionGenerator::_generateOperator(
     else if (infixOp->getType() == S("<")) { funcName = S("<"); opType = OpType::COMPARISON; }
     else if (infixOp->getType() == S("<=")) { funcName = S("<="); opType = OpType::COMPARISON; }
     else if (infixOp->getType() == S("=")) { funcName = S("="); opType = OpType::ASSIGN; }
+    else if (infixOp->getType() == S(":=")) {
+      // `x := y` is a shortcut for `x~no_deref = y`, so it uses the `=` operator rather than an operator of its own.
+      funcName = S("="); opType = OpType::ASSIGN; noDeref = true;
+    }
     else if (infixOp->getType() == S("+=")) { funcName = S("+="); opType = OpType::ARITHMETIC_ASSIGN; }
     else if (infixOp->getType() == S("-=")) { funcName = S("-="); opType = OpType::ARITHMETIC_ASSIGN; }
     else if (infixOp->getType() == S("*=")) { funcName = S("*="); opType = OpType::ARITHMETIC_ASSIGN; }
@@ -600,10 +611,14 @@ Bool ExpressionGenerator::_generateOperator(
   auto operand = containing->getElement(0);
   if (operand == 0) throw EXCEPTION(GenericException, S("Invalid operator operand."));
 
-  TerminalStatement terminal;
+  TerminalStatement terminal = TerminalStatement::NO;
   GenResult callee;
   GenResult thisArg;
-  if (!expGenerator->prepareCallee(operand, &paramAstTypes, funcName, g, session, callee, thisArg, terminal)) {
+  if (noDeref) {
+    if (!expGenerator->prepareNoDerefCallee(operand, &paramAstTypes, funcName, g, session, callee, thisArg)) {
+      return false;
+    }
+  } else if (!expGenerator->prepareCallee(operand, &paramAstTypes, funcName, g, session, callee, thisArg, terminal)) {
     return false;
   }
   if (terminal == TerminalStatement::YES) {
@@ -1880,17 +1895,26 @@ Bool ExpressionGenerator::_generateNoDerefOp(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  // Generate the operand.
   auto operand = astNode->getOperand().get();
   if (operand == 0) {
     throw EXCEPTION(GenericException, S("NoDerefOp operand is missing."));
   }
+  return expGenerator->generateNoDeref(operand, g, session, result);
+}
+
+
+Bool ExpressionGenerator::_generateNoDeref(
+  TiObject *self, Core::Ast::Node *operand, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate the operand.
   TerminalStatement terminal;
   GenResult operandResult;
   if (!expGenerator->generate(operand, g, session, operandResult, terminal)) return false;
   if (terminal == TerminalStatement::YES) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(operand))
     );
     return false;
   }
@@ -2864,6 +2888,34 @@ Bool ExpressionGenerator::_prepareCallee(
 }
 
 
+Bool ExpressionGenerator::_prepareNoDerefCallee(
+  TiObject *self, Core::Ast::Node *operand, Containing<Spp::Ast::Type> *argTypes, Char const *op,
+  Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // Generate the operand as if it's marked with ~no_deref, then lookup the callee on the result.
+  GenResult prevResult;
+  if (!expGenerator->generateNoDeref(operand, g, session, prevResult)) return false;
+  Ast::CalleeLookupRequest lookupRequest;
+  expGenerator->prepareResultCalleeLookupRequest(prevResult, lookupRequest);
+  lookupRequest.astNode = operand;
+  lookupRequest.op = op;
+  lookupRequest.argTypes = argTypes;
+
+  Ast::CalleeLookupResult lookupResult;
+  expGenerator->calleeTracer->lookupCallee(lookupRequest, lookupResult);
+  if (lookupResult.isFailure()) {
+    expGenerator->astHelper->getNoticeStore()->add(lookupResult.notice);
+    return false;
+  }
+
+  return expGenerator->generateCalleeReferenceChain(
+    lookupResult, operand, prevResult, g, session, calleeResult, thisResult
+  );
+}
+
+
 Bool ExpressionGenerator::_prepareCalleeLookupRequest(
   TiObject *self, Core::Ast::Node *operand, Generation *g, Session *session,
   GenResult &prevResult, Ast::CalleeLookupRequest &calleeRequest,
@@ -3010,27 +3062,36 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
       }
 
       // Lookup a callee on the result.
-      Ast::Type *prevAstType;
-      Ast::Type *prevThisAstType;
-      if (prevResult.astType) {
-        prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-        // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
-        // to actually call that function.
-        if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
-          prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
-        } else {
-          prevThisAstType = 0;
-        }
-        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
-      } else {
-        prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
-        prevThisAstType = 0;
-      }
-      calleeRequest.target = prevAstType;
-      calleeRequest.thisType = prevThisAstType;
+      expGenerator->prepareResultCalleeLookupRequest(prevResult, calleeRequest);
       return true;
     }
   }
+}
+
+
+void ExpressionGenerator::_prepareResultCalleeLookupRequest(
+  TiObject *self, GenResult const &prevResult, Ast::CalleeLookupRequest &calleeRequest
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  Ast::Type *prevAstType;
+  Ast::Type *prevThisAstType;
+  if (prevResult.astType) {
+    prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+    // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
+    // to actually call that function.
+    if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
+      prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
+    } else {
+      prevThisAstType = 0;
+    }
+    calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+  } else {
+    prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
+    prevThisAstType = 0;
+  }
+  calleeRequest.target = prevAstType;
+  calleeRequest.thisType = prevThisAstType;
 }
 
 

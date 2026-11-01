@@ -415,6 +415,16 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::NoDerefOp *astNode, Generation *g, Session *session, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateNoDeref,
+    Bool, (
+      Core::Ast::Node* /* operand */, Generation* /* g */,
+      Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateNoDeref(
+    TiObject *self, Core::Ast::Node *operand, Generation *g, Session *session, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateCastOp,
     Bool, (
       Spp::Ast::CastOp* /* astNode */, Generation* /* g */,
@@ -629,6 +639,17 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TerminalStatement &terminal
   );
 
+  public: METHOD_BINDING_CACHE(prepareNoDerefCallee,
+    Bool, (
+      Core::Ast::Node* /* operand */, Containing<Spp::Ast::Type>* /* argTypes */, Char const* /* op */,
+      Generation* /* g */, Session* /* session */, GenResult& /* calleeResult */, GenResult& /* thisResult */
+    )
+  );
+  private: static Bool _prepareNoDerefCallee(
+    TiObject *self, Core::Ast::Node *operand, Containing<Spp::Ast::Type> *argTypes, Char const *op,
+    Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
+  );
+
   public: METHOD_BINDING_CACHE(prepareCalleeLookupRequest,
     Bool, (
       Core::Ast::Node* /* operand */, Generation* /* g */, Session* /* session */,
@@ -640,6 +661,13 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Core::Ast::Node *operand, Generation *g, Session *session,
     GenResult &prevResult, Ast::CalleeLookupRequest &calleeRequest,
     TerminalStatement &terminal
+  );
+
+  public: METHOD_BINDING_CACHE(prepareResultCalleeLookupRequest,
+    void, (GenResult const& /* prevResult */, Ast::CalleeLookupRequest& /* calleeRequest */)
+  );
+  private: static void _prepareResultCalleeLookupRequest(
+    TiObject *self, GenResult const &prevResult, Ast::CalleeLookupRequest &calleeRequest
   );
 
   public: METHOD_BINDING_CACHE(generateCalleeReferenceChain,

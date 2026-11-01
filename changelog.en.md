@@ -37,6 +37,8 @@
   are scoped to the loop.
 * Fixed a bug where enclosing the entire header of a for loop in brackets, as in `for (i = 0, i < 10, ++i)`,
   resulted in an invalid for statement error.
+* Added the `:=` operator as a shortcut for assigning with `~no_deref`, i.e. `r := i` is equivalent to
+  `r~no_deref = i`. This operator can't be overloaded.
 
 
 ## Version 0.16.0 (2026-10-09)
