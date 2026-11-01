@@ -8,44 +8,44 @@
 
 ```
 دالة رئيسي {
-  عرف م: مـصفوفة[صـحيح] = هات_مصفوفة()؛
+  متغير م: مـصفوفة[صـحيح] = هات_مصفوفة()؛
   م.أضف(1)؛ // هنا يتم تمديد حجم الذاكرة المحجوزة
-  عرف م2: مـصفوفة[صـحيح] = م؛ // هنا لا يتم إنشاء نسخة جديدة من الصوان
+  متغير م2: مـصفوفة[صـحيح] = م؛ // هنا لا يتم إنشاء نسخة جديدة من الصوان
   م.أضف(2)؛ // الآن يتم إنشاء نسخة جديدة كي لا يتأثر م2
   اطبع_مصفوفة(م)؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
   // الآن يتم تحرير ذاكرة م وم2
 }
 
 دالة هات_مصفوفة (): مـصفوفة[صـحيح] {
-  عرف ن: مـصفوفة[صـحيح]؛
+  متغير ن: مـصفوفة[صـحيح]؛
   ن.أضف(0)؛
   ارجع ن؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
 }
 
 دالة اطبع_مصفوفة (ن: مـصفوفة[صـحيح]) {
-  عرف ع: صـحيح؛
+  متغير ع: صـحيح؛
   لكل ع = 0، ع < ن.هات_الطول()، ++ع طـرفية.اطبع("%d\ج"، ن(ع))؛
 }
 ```
 
 ```
 func main {
-  def a: Array[Int] = getArray();
+  var a: Array[Int] = getArray();
   a.add(1); // Here the allocated memory block is expanded.
-  def a2: Array[Int] = a; // No new memory block is allocated here.
+  var a2: Array[Int] = a; // No new memory block is allocated here.
   a.add(2); // Now a new copy of the buffer is created so a2 is not affected.
   printArray(a); // No new memory block is created or copied here.
   // Now the memory blocks of a and a2 are freed.
 }
 
 func getArray(): Array[Int] {
-  def a: Array[Int];
+  var a: Array[Int];
   a.add(0);
   return a; // No new memory block is allcoated here and memory copy happens.
 }
 
 func printArray (a: Array[Int]) {
-  def i: Int;
+  var i: Int;
   for i = 0, i < a.getLength(), ++i Console.print("%d\n", a(i));
 }
 ```
@@ -69,13 +69,13 @@ handler this~init(count: Int, args: ...ContentType);
 الصيغة الثانية تهيئ المصفوفة من العناصر المعطاة كما في المثال التالي:
 
 ```
-عرف م1: مـصوفة[صحيح]({ 5، 2، 1 })؛ // ستحتوي المصفوفة على 3 عناصر: 5، 2، 1.
-عرف م2: مـصفوفة[صحيح](3، 5، 2، 1)؛ // ستحتوي المصفوفة على 3 عناصر: 5، 2، 1.
+متغير م1: مـصوفة[صحيح]({ 5، 2، 1 })؛ // ستحتوي المصفوفة على 3 عناصر: 5، 2، 1.
+متغير م2: مـصفوفة[صحيح](3، 5، 2، 1)؛ // ستحتوي المصفوفة على 3 عناصر: 5، 2، 1.
 ```
 
 ```
-def a1: Array[Int]({ 5, 2, 1 }); // Array will contain 3 elements: 5, 2, and 1.
-def a2: Array[Int](3, 5, 2, 1); // Array will contain 3 elements: 5, 2, and 1.
+var a1: Array[Int]({ 5, 2, 1 }); // Array will contain 3 elements: 5, 2, and 1.
+var a2: Array[Int](3, 5, 2, 1); // Array will contain 3 elements: 5, 2, and 1.
 ```
 
 #### هات_الطول (getLength)
@@ -211,16 +211,16 @@ handler this.clear ();
 
 ```
 دالة رئيسي {
-  عرف نص: نـص = هات_نص()؛
+  متغير نص: نـص = هات_نص()؛
   نص += " والحمد لله"؛ // هنا يتم تمديد حجم الذاكرة المحجوزة
-  عرف نص2: نـص = نص؛ // هنا لا يتم إنشاء نسخة جديدة من النص
+  متغير نص2: نـص = نص؛ // هنا لا يتم إنشاء نسخة جديدة من النص
   نص += "."؛ // الآن يتم إنشاء نسخة جديدة كي لا يتأثر نص2
   اطبع_نص(نص)؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
   // الآن يتم تحرير ذاكرة نص ونص2
 }
 
 دالة هات_نص (): نـص {
-  عرف ن: نـص = "بسم الله"؛
+  متغير ن: نـص = "بسم الله"؛
   ارجع ن؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها
 }
 
@@ -231,16 +231,16 @@ handler this.clear ();
 
 ```
 func main {
-  def str: String = getString();
+  var str: String = getString();
   str += " world"; // Memory block is expanded here.
-  def str2: String = str; // No new memory is allocated here.
+  var str2: String = str; // No new memory is allocated here.
   str += "."; // Copy of the string buffer is created so str2 is not affected.
   printStr(str); // No new memory allocation or copy happens here.
   // Now memory blocks of str and str2 are freed.
 }
 
 func getString (): String {
-  def s: String = "Hello";
+  var s: String = "Hello";
   return s; // No new memory allocation or copy happens here.
 }
 
@@ -254,11 +254,11 @@ func printStr (s: String) {
 #### صوان (buf)
 
 ```
-عرف صوان: مؤشر[مصفوفة[مـحرف]]؛
+متغير صوان: مؤشر[مصفوفة[مـحرف]]؛
 ```
 
 ```
-def buf: ptr[array[Char]];
+var buf: ptr[array[Char]];
 ```
 
 مؤشر على محتوى هذا النص.
@@ -748,26 +748,26 @@ class StringBuilder [formatMixin: ast_ref = _emptyMixin] {
 
 ```
 دالة رئيسي {
-  عرف من: مـنشئ_نص(
+  متغير من: مـنشئ_نص(
     1024، // احجز 1024 بايت من الذاكرة مسبقا
     512   // وسع الذاكرة بمقدار 512 بايت كلما امتلأت
   )؛
   من.ألحق("ناتج ")؛
   من.املأ("7 + 7 = %i\ج"، 7 + 7)؛
-  عرف ن: نـص = من؛
+  متغير ن: نـص = من؛
   طـرفية.اطبع(ن)؛ // سيطبع: ناتج 7 + 7 = 14
 }
 ```
 
 ```
 func main {
-  def sb: StringBuilder(
+  var sb: StringBuilder(
     1024, // preallocate 1024 bytes
     512   // enlarge memory block by 512 whenever it's full
   );
   sb.append("Result of ");
   sb.format("7 + 7 = %i\n", 7 + 7);
-  def s: String = sb;
+  var s: String = sb;
   Console.print(s); // Prints: Result of 7 + 7 = 14
 }
 ```
@@ -832,8 +832,8 @@ handler this~init(str: String, growSize: ArchInt);
   }
 }
 دالة رئيسي {
-  عرف من: مـنشئ_نص[مـكون_منشئ_نص](1024، 512)؛
-  عرف خز: صـحيح[64] = ...؛
+  متغير من: مـنشئ_نص[مـكون_منشئ_نص](1024، 512)؛
+  متغير خز: صـحيح[64] = ...؛
   من.املأ("تاريخ اليوم هو %gd\ج"، خز)؛
   ...
 }
@@ -847,8 +847,8 @@ def StringBuilderMixin: {
   }
 }
 func main {
-  def sb: StringBuilder[StringBuilderMixin](1024, 512);
-  def timestamp: Int[64] = ...;
+  var sb: StringBuilder[StringBuilderMixin](1024, 512);
+  var timestamp: Int[64] = ...;
   sb.format("Today's date is %gd", timestamp);
   ...
 }
@@ -860,9 +860,9 @@ func main {
 
 ```
 دالة رئيسي {
-  عرف ت1: تـطبيق[صـحيح، صـحيح] = هات_تطبيق()؛
+  متغير ت1: تـطبيق[صـحيح، صـحيح] = هات_تطبيق()؛
   ت1.حدد(7، 50)؛ // هنا يتم تمديد حجم الذاكرة المحجوزة.
-  عرف ت2: تـطبيق[صـحيح، صـحيح] = ت1؛ // هنا لا يتم إنشاء نسخة جديدة من الصوان.
+  متغير ت2: تـطبيق[صـحيح، صـحيح] = ت1؛ // هنا لا يتم إنشاء نسخة جديدة من الصوان.
   ت2.حدد(12، 7)؛ // الآن يتم إنشاء نسخة جديدة كي لا يتأثر ت1.
   اطبع_تطبيق(ت2)؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها.
   اطبع_صحيح(ت2(7))؛ // سيطبع 50.
@@ -871,13 +871,13 @@ func main {
 }
 
 دالة هات_تطبيق (): تطبيق[صـحيح، صـحيح] {
-  عرف ت: تـطبيق[صـحيح، صـحيح]؛
+  متغير ت: تـطبيق[صـحيح، صـحيح]؛
   ت.أضف(0، 10)؛
   ارجع ت؛ // لا يتم هنا إعادة حجز الذاكرة أو نسخها.
 }
 
 دالة اطبع_تطبيق (ت: تـطبيق[صـحيح، صـحيح]) {
-  عرف ع: صـحيح؛
+  متغير ع: صـحيح؛
   لكل ع = 0، ع < ت.هات_الطول()، ++ع {
     طـرفية.اطبع("%d = %d\ج"، ت.المفتاح_عند(ع)، ت.القيمة_عند(ع))؛
   }
@@ -886,9 +886,9 @@ func main {
 
 ```
 func main {
-  def m1: Map[Int, Int] = getMap();
+  var m1: Map[Int, Int] = getMap();
   m1.set(7, 50); // Memory buffer is expanded here.
-  def m2: Map[Int, Int] = m1; // Buffer is not cloned here.
+  var m2: Map[Int, Int] = m1; // Buffer is not cloned here.
   m2.set(12, 7); // Buffer is cloned here so that m1 is not affected.
   printMap(m2); // No buffer cloning happens here.
   printInt(m2(7)); // Prints 50.
@@ -897,13 +897,13 @@ func main {
 }
 
 func getMap (): Map[Int, Int] {
-  def m: Map[Int, Int];
+  var m: Map[Int, Int];
   m.add(0, 10);
   return m; // No buffer cloning happens here.
 }
 
 func printMap (m: Map[Int, Int]) {
-  def i: Int;
+  var i: Int;
   for i = 0, i < m.getLength(), ++i {
     Console.print("%d = %d\n", m.keyAt(i), m.valAt(i));
   }
@@ -936,11 +936,11 @@ handler this~init (ref[Map[KeyType, ValueType]], useIndex: Bool);
 #### مفاتيح (keys)
 
 ```
-عرف مفاتيح: مـصفوفة[صـنف_المفتاح]؛
+متغير مفاتيح: مـصفوفة[صـنف_المفتاح]؛
 ```
 
 ```
-def keys: Array[KeyType];
+var keys: Array[KeyType];
 ```
 
 مصفوفة المفاتيح التي في هذا التطبيق.
@@ -948,11 +948,11 @@ def keys: Array[KeyType];
 #### قيم (values)
 
 ```
-عرف قيم: مـصفوفة[صـنف_المحتوى]؛
+متغير قيم: مـصفوفة[صـنف_المحتوى]؛
 ```
 
 ```
-def values: Array[ValueType];
+var values: Array[ValueType];
 ```
 
 مصفوفة المحتويات التي في هذا التطبيق.
@@ -1094,8 +1094,8 @@ handler this.findPos (key: KeyType): ArchInt;
 
 ```
 دالة رئيسي {
-  عرف س: سـندنا[صـنفي] = سـندنا[صـنفي].أنشئ()؛
-  عرف ص: سـندنا[صـنفي] = س؛ // الآن كلا السندين يشيران لنفس الكائن وعداده الآن 2.
+  متغير س: سـندنا[صـنفي] = سـندنا[صـنفي].أنشئ()؛
+  متغير ص: سـندنا[صـنفي] = س؛ // الآن كلا السندين يشيران لنفس الكائن وعداده الآن 2.
   س.حرر()؛ // العداد صار 1 لكن الكائن لم يُحرر بعد.
   ص.حرر()؛ // الآن أتلف الكائن وحررت ذاكرته.
 }
@@ -1103,8 +1103,8 @@ handler this.findPos (key: KeyType): ArchInt;
 
 ```
 func main {
-  def x: SrdRef[MyType] = SrdRef[MyType].construct();
-  def y: SrdRef[MyType] = x; // Both refs point to same object. Counter is now 2.
+  var x: SrdRef[MyType] = SrdRef[MyType].construct();
+  var y: SrdRef[MyType] = x; // Both refs point to same object. Counter is now 2.
   x.release(); // Counter is now 1 and the object is not freed yet.
   y.release(); // Now the object is destructed and its memory is released.
 }
@@ -1199,9 +1199,9 @@ handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
 تحرير الكائن عند إتلاف السند سيؤدي إلى تحرير الكائن الأصلي وبصنفه الأصلي الذي أنشئ عليه. المثال التالي يوضح الفرق:
 
 ```
-عرف س: سـندنا[صـنفي]؛
+متغير س: سـندنا[صـنفي]؛
 س.أنشئ()؛
-عرف ص: سـندنا[صـنف_فرعي]؛
+متغير ص: سـندنا[صـنف_فرعي]؛
 ص.عين(س.عداد_السندات، س.فرعي)؛
 
 س.حرر()؛ // لن يحرر شيئًا الآن لأن ص ما زال يحجز الكائن.
@@ -1209,9 +1209,9 @@ handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
 ```
 
 ```
-def x: SrdRef[MyType];
+var x: SrdRef[MyType];
 x.construct();
-def y: SrdRef[SubType];
+var y: SrdRef[SubType];
 y.assign(x.refCounter, x.subObj);
 
 x.release(); // Nothing will be released as y still holds the object.
@@ -1284,11 +1284,11 @@ handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
 تحرير الكائن عند إتلاف السند سيؤدي إلى تحرير الكائن الأصلي وبصنفه الأصلي الذي أنشئ عليه. المثال التالي يوضح الفرق:
 
 ```
-عرف س: سـندنا[صـنفي]؛
+متغير س: سـندنا[صـنفي]؛
 س.أنشئ()؛
-عرف ع: سـندهم[صـنف_فرعي]؛
+متغير ع: سـندهم[صـنف_فرعي]؛
 ع.عين(س.عداد_السندات، س.فرعي)؛
-عرف ص: سـندنا[صـنف_فرعي]؛
+متغير ص: سـندنا[صـنف_فرعي]؛
 ص = ع؛
 
 س.حرر()؛ // لن يحرر شيئًا الآن لأن ص ما زال يحجز الكائن.
@@ -1296,11 +1296,11 @@ handler this.assign (c: ref[RefCounter], o: ref[ObjType]);
 ```
 
 ```
-def x: SrdRef[MyType];
+var x: SrdRef[MyType];
 x.construct();
-def y: WkRef[SubType];
+var y: WkRef[SubType];
 y.assign(x.refCounter, x.subObj);
-def z: SrdRef[SubType];
+var z: SrdRef[SubType];
 z = y;
 
 x.release(); // Nothing is released here.
@@ -1325,20 +1325,20 @@ handler this.isNull(): Bool;
 الذي يملكه مباشرة. مثال:
 
 ```
-عرف س: سـندي[صـنفي]؛
+متغير س: سـندي[صـنفي]؛
 س.أنشئ()؛
 
-عرف ص: سـندي[صـنفي]؛
+متغير ص: سـندي[صـنفي]؛
 ص = س؛ // خطأ.
 
 س.حرر()؛ // يُحرر الكائن هنا تلقائيا.
 ```
 
 ```
-def x: UnqRef[MyType];
+var x: UnqRef[MyType];
 x.construct();
 
-def y: UnqRef[MyType];
+var y: UnqRef[MyType];
 y = x; // Error.
 
 x.release(); // Object will be released here.
@@ -1434,11 +1434,11 @@ handler this.getMessage(): String as_ptr;
 البيانات التي يحملها الكائن. الصنف `صـنف_البيانات` (`DataType`) يشير إلى معطى القالب.
 
 ```
-@حقنة عرف القيمة: صـنف_البيانات؛
+@حقنة متغير القيمة: صـنف_البيانات؛
 ```
 
 ```
-@injection def value: DataType;
+@injection var value: DataType;
 ```
 
 #### الخطأ (error)
@@ -1447,11 +1447,11 @@ handler this.getMessage(): String as_ptr;
 غير صالحة للاستخدام.
 
 ```
-عرف الخطأ: سـندنا[خـطأ]؛
+متغير الخطأ: سـندنا[خـطأ]؛
 ```
 
 ```
-def error: SrdRef[Error];
+var error: SrdRef[Error];
 ```
 
 #### عمليات التمثيل
@@ -1505,11 +1505,11 @@ func failure (err: SrdRef[Error]): Possible[DataType];
 البيانات التي يحملها الكائن. الصنف `صـنف_البيانات` (`DataType`) يشير إلى معطى القالب.
 
 ```
-@حقنة عرف القيمة: صـنف_البيانات؛
+@حقنة متغير القيمة: صـنف_البيانات؛
 ```
 
 ```
-@injection def value: DataType;
+@injection var value: DataType;
 ```
 
 #### أهو_عدم (isNull)
@@ -1517,11 +1517,11 @@ func failure (err: SrdRef[Error]): Possible[DataType];
 قيمة ثنائية تحدد إن كانت القيمة `عدم` (`null`) أم لا.
 
 ```
-عرف أهو_عدم: ثـنائي؛
+متغير أهو_عدم: ثـنائي؛
 ```
 
 ```
-def isNull: Bool;
+var isNull: Bool;
 ```
 
 #### عمليات التمثيل
@@ -2328,15 +2328,15 @@ func getEnv (name: ptr[array[Char]]): ptr[array[Char]];
 
 ```
 صنف قـيد_مجلد {
-  عرف نوع: صـحيح[8]؛
-  عرف اسم: مصفوفة[مـحرف، 256]؛
+  متغير نوع: صـحيح[8]؛
+  متغير اسم: مصفوفة[مـحرف، 256]؛
 }
 ```
 
 ```
 class DirEnt {
-  def dType: Int[8];
-  def dName: array[Char, FILENAME_LENGTH];
+  var dType: Int[8];
+  var dName: array[Char, FILENAME_LENGTH];
 };
 ```
 سجل معلومات عنصر من عناصر المجلد.
@@ -2345,15 +2345,15 @@ class DirEnt {
 
 ```
 صنف اسـماء_ملفات {
-  عرف عدد: صـحيح؛
-  عرف اسماء: مصفوفة[مصفوفة[مـحرف، 256]]؛
+  متغير عدد: صـحيح؛
+  متغير اسماء: مصفوفة[مصفوفة[مـحرف، 256]]؛
 }
 ```
 
 ```
 class FileNames {
-  def count: Int;
-  def names: array[array[Char, FILENAME_LENGTH]];
+  var count: Int;
+  var names: array[array[Char, FILENAME_LENGTH]];
 }
 ```
 قائمة بأسماء ملفات.
@@ -2709,32 +2709,32 @@ class Matcher {
 
 ```
 صنف وقـت_مفصل {
-  عرف ثانية: صـحيح؛
-  عرف دقيقة: صـحيح؛
-  عرف ساعة: صـحيح؛
-  عرف يوم: صـحيح؛
-  عرف شهر: صـحيح؛
-  عرف سنة: صـحيح؛
-  عرف يوم_اسبوعي: صـحيح؛
-  عرف يوم_سنوي: صـحيح؛
-  عرف إزاحة_زمنية: صـحيح؛
-  عرف منطقة_زمنية: صـحيح؛
+  متغير ثانية: صـحيح؛
+  متغير دقيقة: صـحيح؛
+  متغير ساعة: صـحيح؛
+  متغير يوم: صـحيح؛
+  متغير شهر: صـحيح؛
+  متغير سنة: صـحيح؛
+  متغير يوم_اسبوعي: صـحيح؛
+  متغير يوم_سنوي: صـحيح؛
+  متغير إزاحة_زمنية: صـحيح؛
+  متغير منطقة_زمنية: صـحيح؛
 }؛
 ```
 
 ```
 class DetailedTime {
-  def second: Int;
-  def minute: Int;
-  def hour: Int;
-  def day: Int;
-  def month: Int;
-  def year: Int;
-  def weekDay: Int;
-  def yearDay: Int;
-  def daylightSaving: Int;
-  def timezoneOffset: Int[64];
-  def timezone: ptr[array[Char]];
+  var second: Int;
+  var minute: Int;
+  var hour: Int;
+  var day: Int;
+  var month: Int;
+  var year: Int;
+  var weekDay: Int;
+  var yearDay: Int;
+  var daylightSaving: Int;
+  var timezoneOffset: Int[64];
+  var timezone: ptr[array[Char]];
 };
 ```
 سجل لحمل معلومات الوقت والتاريخ.
@@ -2857,13 +2857,13 @@ class DetailedTime {
 تحرير أي منهما يعمل بشكل صحيح بغض النظر عن أيهما يُحرر أولا، ولا يُحرر الكائن الأصلي إلا بعد تحرير آخر سند من السندين.
 
 ```
-عرف س: سـندنا[صـنفي] = سـندنا[صـنفي].أنشئ()؛
-عرف ص: سـندنا[صـنف_فرعي] = مثل_سندنا[س، صـنف_فرعي]؛
+متغير س: سـندنا[صـنفي] = سـندنا[صـنفي].أنشئ()؛
+متغير ص: سـندنا[صـنف_فرعي] = مثل_سندنا[س، صـنف_فرعي]؛
 ```
 
 ```
-def x: SrdRef[MyType] = SrdRef[MyType].construct();
-def y: SrdRef[SubType] = castSrdRef[x, SubType];
+var x: SrdRef[MyType] = SrdRef[MyType].construct();
+var y: SrdRef[SubType] = castSrdRef[x, SubType];
 ```
 
 #### احجز_كائنا (allocObj)
@@ -2872,12 +2872,12 @@ def y: SrdRef[SubType] = castSrdRef[x, SubType];
 الماكرو عندما يحتاج الكائن للتهيئة بمعطيات، إذ يمكن حينها استدعاء `~هيئ` يدويًا بعد الحجز.
 
 ```
-عرف ك: سند[صـنفي](احجز_كائنا[صـنفي])؛
+متغير ك: سند[صـنفي](احجز_كائنا[صـنفي])؛
 ك~هيئ(معطى)؛
 ```
 
 ```
-def o: ref[MyType](allocObj[MyType]);
+var o: ref[MyType](allocObj[MyType]);
 o~init(someArg);
 ```
 
@@ -2887,11 +2887,11 @@ o~init(someArg);
 يجب تحرير الكائنات المحجوزة بهذا الماكرو لاحقًا باستخدام `حرر_كائنا`.
 
 ```
-عرف ك: سند[صـنفي](أنشئ_كائنا[صـنفي])؛
+متغير ك: سند[صـنفي](أنشئ_كائنا[صـنفي])؛
 ```
 
 ```
-def o: ref[MyType](newObj[MyType]);
+var o: ref[MyType](newObj[MyType]);
 ```
 
 #### حرر_كائنا (freeObj)

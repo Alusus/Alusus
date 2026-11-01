@@ -83,10 +83,10 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper) const
               if (method == TypeInitMethod::BOTH) break;
             }
           } else if (helper->isInMemVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
-            auto paramPass = ti_cast<Core::Ast::ParamPass>(def->getTarget().get());
-            if (paramPass != 0 && paramPass->getType() == Core::Ast::BracketType::ROUND) {
-              // If there are args passed to the definition then it's an AUTO init method even if the object type
-              // is a primary data type.
+            Core::Ast::Node *astTypeRef;
+            if (helper->getVarInitArgs(def->getTarget().get(), astTypeRef) != 0) {
+              // If there are args passed to the definition, or an initial value assigned to it, then it's an AUTO
+              // init method even if the object type is a primary data type.
               method |= TypeInitMethod::AUTO;
               if (method == TypeInitMethod::BOTH) break;
             } else {

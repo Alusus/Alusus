@@ -513,10 +513,10 @@ right before or after it:
 
 ```
   function myModifier (element: ref[Core.Ast.Node], args: ref[Core.Ast.Node]) {
-      def owner: ref[Core.Basic.DynamicContaining[Core.Ast.Node]](
+      var owner: ref[Core.Basic.DynamicContaining[Core.Ast.Node]](
           Core.Basic.getInterface[element.owner, Core.Basic.DynamicContaining[Core.Ast.Node]]
       );
-      def index: Int = owner.findElementIndex(element);
+      var index: Int = owner.findElementIndex(element);
       // Insert new code right before `element`.
       Spp.astMgr.addPossiblyMergeableElement(newNode, owner, index);
   }
@@ -546,11 +546,11 @@ The next example inserts 10 definitions to variables with type `Int`, its names 
 `n0` to `n9`:
 
 ```
-  def i: Int;
+  var i: Int;
   for i = 0, i < 10, ++i {
-      def counter: Core.Ast.StringLiteral(String.format("%i", i));
+      var counter: Core.Ast.StringLiteral(String.format("%i", i));
       Spp.astMgr.insertAst(
-          ast { def n__counter__: Int },
+          ast { var n__counter__: Int },
           Map[String, ref[Core.Ast.Node]]().set(String("counter"), counter)
       );
   }
@@ -582,12 +582,12 @@ The next example, is a modification of the previous one to use this function and
 The example creates a definition then use that definition as an interpolation in later call to `insertAst` function:
 
 ```
-  def i: Int;
+  var i: Int;
   for i = 0, i < 10, ++i {
-      def counter: Core.Ast.StringLiteral(String.format("%i", i));
-      def result: SrdRef[Core.Ast.Node];
+      var counter: Core.Ast.StringLiteral(String.format("%i", i));
+      var result: SrdRef[Core.Ast.Node];
       Spp.astMgr.buildAst(
-          ast { def n__counter__: Int },
+          ast { var n__counter__: Int },
           Map[String, ref[Core.Ast.Node]]().set(String("counter"), counter),
           result
       );
@@ -646,8 +646,8 @@ Forces the preprocessing of the body of the given user type, including any `prep
 
 A type's body is normally preprocessed lazily, only once the type is actually generated (e.g. because an object of it gets
 used). This means that code that needs to inspect a type's real members before that point may find that they don't exist
-yet, especially if those members are generated dynamically (e.g. through `insertAst`) rather than written directly as `def`
-statements. This function lets that code force the preprocessing of the type's body to happen immediately instead of
+yet, especially if those members are generated dynamically (e.g. through `insertAst`) rather than written directly as `var` or
+`def` statements. This function lets that code force the preprocessing of the type's body to happen immediately instead of
 waiting for it to happen naturally.
 
 The function returns 1 on success, or 0 if an error was encountered while preprocessing the type's body.
@@ -658,16 +658,16 @@ member variables:
 ```
   class Point {
       preprocess {
-          Spp.astMgr.insertAst(ast { def x: Int; def y: Int; });
+          Spp.astMgr.insertAst(ast { var x: Int; var y: Int; });
       }
   }
 
   preprocess {
-      def userType: ref[Spp.Ast.UserType](
+      var userType: ref[Spp.Ast.UserType](
           castRef[Spp.astMgr.traceType(Point~ast), Spp.Ast.UserType]
       );
       Spp.astMgr.preprocessTypeBody(userType);
-      def varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
+      var varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
       // varNames now contains "x" and "y".
   }
 ```
@@ -820,11 +820,11 @@ def Mixin1: {
 }
 def Mixin2: {
   handler this.save(filename: String) {
-    def content: String = this.toString();
+    var content: String = this.toString();
     Fs.createFile(filename, content.buf, content.getLength());
   }
 }
-def Mixins: Mixin1 & Mixin2;
+var Mixins: Mixin1 & Mixin2;
 class MyType {
   Spp.astMgr.insertMixin[Mixins];
   // Now the class has the `print` and the `save` methods.

@@ -462,7 +462,11 @@ void BuildManager::_resetBuildData(TiObject *self, Core::Ast::Node *node, CodeGe
   auto container = ti_cast<Core::Basic::Containing<Core::Ast::Node>>(node);
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
-      buildMgr->resetBuildData(container->getElement(i), cda);
+      // Only owned elements are part of this tree. Others, like the cached type of a var, can be anywhere in the
+      // tree, including this node's ancestors.
+      if (container->getElementHoldMode(i) == HoldMode::SHARED_REF) {
+        buildMgr->resetBuildData(container->getElement(i), cda);
+      }
     }
   }
 
@@ -488,16 +492,19 @@ Bool BuildManager::_computeResultType(
 ) {
   PREPARE_SELF(buildMgr, BuildManager);
 
-  BuildSession buildSession(buildMgr->preprocessBuildSession->getBuildId(), buildMgr->preprocessBuildSession.get());
-
-  buildMgr->rootManager->getNoticeStore()->clearPrefixSourceLocationStack();
-  buildMgr->astHelper->prepare();
+  // This function can be called in the middle of other builds (during preprocessing for example), so it must not
+  // touch the target nor reset any build state. An AST computation only session guarantees the former.
+  CodeGen::Session session(
+    buildMgr->preprocessBuildSession->getCodeGenSession(), 0, 0,
+    newSrdObj<CodeGen::DestructionStack>(), newSrdObj<CodeGen::DependencyInfo>()
+  );
+  session.setAstComputationOnly(true);
 
   CodeGen::GenResult genResult;
 
   CodeGen::TerminalStatement terminal;
   auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
-  if (!generation->generateExpression(astNode, buildSession.getCodeGenSession(), genResult, terminal)) {
+  if (!generation->generateExpression(astNode, &session, genResult, terminal)) {
     buildMgr->rootManager->flushNotices();
     return false;
   }

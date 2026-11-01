@@ -33,19 +33,27 @@ class Variable : public Core::Ast::Node,
   // Member Variables
 
   private: SharedPtr<Core::Ast::Node> typeRef;
+  /// The var's initial value, from `var x: T(args)`, `var x :: args`, `var x = value`, or `var x: T = value`. Either
+  /// a single expression or a list. With `var expression` it might instead be the var's type until it's resolved.
+  private: SharedPtr<Core::Ast::Node> initArgs;
+  /// How initArgs is used to initialize the var.
+  private: VarInitMode initMode = VarInitMode::BIND;
   private: TiBool valueOnly;
   private: Type *type = 0;
+  private: VarTypeDeductionState typeDeductionState = VarTypeDeductionState::NONE;
 
 
   //============================================================================
   // Implementations
 
   IMPLEMENT_BINDING(Core::Ast::Node,
+    (initMode, VarInitMode, VALUE, setInitMode(value), &initMode),
     (valueOnly, TiBool, VALUE, setValueOnly(value), &valueOnly)
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
     (typeRef, Core::Ast::Node, SHARED_REF, setTypeRef(value), typeRef.get()),
+    (initArgs, Core::Ast::Node, SHARED_REF, setInitArgs(value), initArgs.get()),
     (type, Type, PLAIN_REF, setType(value), type)
   );
 
@@ -64,6 +72,7 @@ class Variable : public Core::Ast::Node,
   public: virtual ~Variable()
   {
     DISOWN_SHAREDPTR(this->typeRef);
+    DISOWN_SHAREDPTR(this->initArgs);
   }
 
 
@@ -82,6 +91,34 @@ class Variable : public Core::Ast::Node,
   public: SharedPtr<Core::Ast::Node> const& getTypeRef() const
   {
     return this->typeRef;
+  }
+
+  public: void setInitArgs(SharedPtr<Core::Ast::Node> const &a)
+  {
+    UPDATE_OWNED_SHAREDPTR(this->initArgs, a);
+  }
+  private: void setInitArgs(Core::Ast::Node *a)
+  {
+    this->setInitArgs(getSharedPtr(a));
+  }
+
+  public: SharedPtr<Core::Ast::Node> const& getInitArgs() const
+  {
+    return this->initArgs;
+  }
+
+  public: void setInitMode(VarInitMode const &m)
+  {
+    this->initMode = m;
+  }
+  public: void setInitMode(VarInitMode const *m)
+  {
+    this->initMode = m == 0 ? VarInitMode::BIND : m->get();
+  }
+
+  public: VarInitMode const& getInitMode() const
+  {
+    return this->initMode;
   }
 
   public: void setValueOnly(Bool vo)
@@ -106,6 +143,16 @@ class Variable : public Core::Ast::Node,
   public: Type* getType() const
   {
     return this->type;
+  }
+
+  public: void setTypeDeductionState(VarTypeDeductionState s)
+  {
+    this->typeDeductionState = s;
+  }
+
+  public: VarTypeDeductionState getTypeDeductionState() const
+  {
+    return this->typeDeductionState;
   }
 
 }; // class

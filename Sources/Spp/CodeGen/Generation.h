@@ -127,7 +127,7 @@ class Generation : public ObjTiInterface
 
   public: METHOD_BINDING_CACHE(generateVarInitialization, Bool, (
     Spp::Ast::Type* /* varAstType */, TiObject* /* tgVarRef */, Core::Ast::Node* /* astNode */,
-    PlainList<Core::Ast::Node>* /* paramAstNodes */, PlainList<Core::Ast::Node>* /* paramAstTypes */,
+    PlainList<Core::Ast::Node>* /* paramAstNodes */, PlainList<Spp::Ast::Type>* /* paramAstTypes */,
     SharedList<TiObject>* /* paramTgValues */, Session* /* session */
   ));
 
@@ -184,7 +184,7 @@ class Generation : public ObjTiInterface
   public: METHOD_BINDING_CACHE(generateFunctionCall,
     Bool, (
       Core::Ast::Node* /* astNode */, Spp::Ast::Function* /* callee */,
-      Containing<Core::Ast::Node>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
+      Containing<Spp::Ast::Type>* /* paramAstTypes */, Containing<TiObject>* /* paramTgValues */,
       Session* /* session */, GenResult& /* result */
     )
   );

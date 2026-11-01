@@ -67,6 +67,8 @@ void LibraryGateway::initialize(Main::RootManager *manager)
     this->globalItemRepo.get()
   );
 
+  this->astHelper->setExpressionComputation(this->buildManager.ti_cast_get<ExpressionComputation>());
+
   this->astProcessor = newSrdObj<CodeGen::AstProcessor>(
     this->astHelper.get(),
     this->calleeTracer.get(),

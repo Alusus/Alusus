@@ -77,17 +77,17 @@ import "Spp/Ast";
 
         handler this.append (buf: CharsPtr, bufLen: ArchInt) {
             if bufLen == 0 return;
-            def newLength: ArchInt = this.length + bufLen;
-            def newBufSize: ArchInt = this.bufferSize;
+            var newLength: ArchInt = this.length + bufLen;
+            var newBufSize: ArchInt = this.bufferSize;
             if newLength > newBufSize {
-                def growSize: ArchInt = newLength - this.bufferSize;
-                def remainder: ArchInt = growSize % this.bufferGrowSize;
+                var growSize: ArchInt = newLength - this.bufferSize;
+                var remainder: ArchInt = growSize % this.bufferGrowSize;
                 if remainder != 0 growSize += this.bufferGrowSize - remainder;
                 newBufSize = this.bufferSize + growSize;
             }
 
             if this.string.refCount~ptr == 0 or this.string.refCount > 1 {
-                def currentBuf: CharsPtr = this.string.buf;
+                var currentBuf: CharsPtr = this.string.buf;
                 this.string.alloc(newBufSize);
                 this.bufferSize = newBufSize;
                 String.copy(this.string.buf, currentBuf);
@@ -110,9 +110,9 @@ import "Spp/Ast";
 
         handler this._append (i: Int[64], minDigits: Int) {
             def buf: array[Char, 22];
-            def strptr: ptr[Char] = buf(19)~ptr;
+            var strptr: ptr[Char] = buf(19)~ptr;
             strptr~cnt = 0;
-            def negative: Bool = 0;
+            var negative: Bool = 0;
             if i < 0 {
                 negative = 1;
                 i = -i;
@@ -135,14 +135,14 @@ import "Spp/Ast";
                 this.append('-');
             }
             this.append(f~cast[Int[64]]);
-            def fractions: Float[64] = f - f~cast[Int[64]];
+            var fractions: Float[64] = f - f~cast[Int[64]];
             this.append('.');
             this._append((fractions * 1000000.0f64 + 0.5f64)~cast[Int[64]], 6);
         };
 
         handler this.format(fmt: ptr[array[Char]], args: ...any) {
             while 1 {
-                def pos: ptr[Char] = String.find(fmt, '%');
+                var pos: ptr[Char] = String.find(fmt, '%');
                 if pos == 0 {
                     this += fmt;
                     break;
@@ -150,7 +150,7 @@ import "Spp/Ast";
                     this.append(fmt, pos~cast[ArchInt] - fmt~cast[ArchInt]);
                     pos = pos + 1; // Move to the character after the % mark.
                     preprocess { _insertFormattingCalls() };
-                    def c: Char = pos~cnt;
+                    var c: Char = pos~cnt;
                     if c == 's' this += args~next_arg[ptr[array[Char]]]
                     else if c == 'c' this += args~next_arg[Char]
                     else if c == 'i' this += args~next_arg[Int]
@@ -165,7 +165,7 @@ import "Spp/Ast";
 
         function _insertFormattingCalls() {
             use Core.Basic;
-            def elements: Array[ref[Core.Ast.Node]] = Spp.astMgr.findElements(
+            var elements: Array[ref[Core.Ast.Node]] = Spp.astMgr.findElements(
                 (ast elementType == "function"),
                 this_type~ast,
                 Spp.SeekerFlags.SKIP_OWNERS | Spp.SeekerFlags.SKIP_USES | Spp.SeekerFlags.SKIP_CHILDREN
@@ -180,8 +180,8 @@ import "Spp/Ast";
                         Spp.buildMgr.raiseBuildNotice("SRT1002", 1, elements(i));
                         continue;
                     }
-                    def fmtKey: String = params(0);
-                    def fnName: String = Spp.astMgr.getDefinitionName(elements(i));
+                    var fmtKey: String = params(0);
+                    var fnName: String = Spp.astMgr.getDefinitionName(elements(i));
                     def argTypes: ContainerOf[Spp.astMgr.getFuncArgTypes(elements(i)), Core.Ast.Node];
                     if argTypes~ptr == 0 or argTypes.getElementCount() != 2u {
                         Spp.buildMgr.raiseBuildNotice("SRT1003", 1, elements(i));

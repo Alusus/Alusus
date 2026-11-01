@@ -326,10 +326,10 @@ import "curl";
       // allocate enough for that.
       result.alloc(String.getLength(input) * 3 + 1);
 
-      def hex: CharsPtr = "0123456789abcdef";
+      var hex: CharsPtr = "0123456789abcdef";
 
-      def pos: Int = 0;
-      def i: Int = 0;
+      var pos: Int = 0;
+      var i: Int = 0;
       while input~cnt(i) != 0 {
         if (input~cnt(i) >= 'a' and input~cnt(i) <= 'z')
         or (input~cnt(i) >= 'A' and input~cnt(i) <= 'Z')
@@ -356,8 +356,8 @@ import "curl";
       def buf: array[Char, 3];
       buf(0) = buf(1) = buf(2) = 0;
 
-      def pos: Int = 0;
-      def i: Int = 0;
+      var pos: Int = 0;
+      var i: Int = 0;
       while input~cnt(i) != 0 {
         if input~cnt(i) == '%' {
           if input~cnt(i + 1) == 0 or input~cnt(i + 2) == 0 break;

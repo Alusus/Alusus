@@ -25,27 +25,27 @@ func test1 {
 }
 
 func test2 {
-    def n1: SrdRef[Num] = SrdRef[Num].construct();
-    def n2: SrdRef[Num] = n1;
+    var n1: SrdRef[Num] = SrdRef[Num].construct();
+    var n2: SrdRef[Num] = n1;
     n2.x = 7;
 }
 
 func test3 {
-    def n1: SrdRef[Num] = SrdRef[Num].own(Memory.alloc(Num~size)~cast[ptr[Num]]~cnt);
-    def n2: SrdRef[Num] = n1;
+    var n1: SrdRef[Num] = SrdRef[Num].own(Memory.alloc(Num~size)~cast[ptr[Num]]~cnt);
+    var n2: SrdRef[Num] = n1;
     n2 = n1;
     n2.x = 9;
 }
 
 func test4 {
-    def n: UnqRef[Num] = Memory.alloc(Num~size)~cast[ptr[Num]];
+    var n: UnqRef[Num] = Memory.alloc(Num~size)~cast[ptr[Num]];
     n.x = 11;
 }
 
 func test5 {
-    def n1: SrdRef[Num] = SrdRef[Num].construct();
-    def n2: SrdRef[Num] = n1;
-    def n3: WkRef[Num] = n1;
+    var n1: SrdRef[Num] = SrdRef[Num].construct();
+    var n2: SrdRef[Num] = n1;
+    var n3: WkRef[Num] = n1;
     Console.print("test5: preparing to release\n");
     n1.release();
     Console.print("n1 released\n");
@@ -57,7 +57,7 @@ func test5 {
 }
 
 func test6 {
-    def n1: SrdRef[Num] = SrdRef[Num].construct();
+    var n1: SrdRef[Num] = SrdRef[Num].construct();
     def n2: SrdRef[Int];
     n2.assign(n1.refCounter, n1.x);
     n2.obj = 13;
@@ -73,10 +73,10 @@ func getComplexNum(): SrdRef[ComplexNum] {
 }
 
 func test7 {
-    def n: SrdRef[Num] = SrdRef[ComplexNum]().{ construct(); x = 5; y = 6 };
+    var n: SrdRef[Num] = SrdRef[ComplexNum]().{ construct(); x = 5; y = 6 };
     Console.print("test7: auto cast\n");
     Console.print("%d\n", n.x);
-    def n2: SrdRef[Num] = getComplexNum();
+    var n2: SrdRef[Num] = getComplexNum();
     Console.print("%d\n", n2.x);
 }
 
@@ -93,6 +93,6 @@ func testAll {
 testAll();
 
 func testErrors {
-    def n: SrdRef[ComplexNum] = SrdRef[Num]().{ construct(); x = 5 };
+    var n: SrdRef[ComplexNum] = SrdRef[Num]().{ construct(); x = 5 };
 }
 testErrors();

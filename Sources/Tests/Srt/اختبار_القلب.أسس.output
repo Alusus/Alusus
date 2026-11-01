@@ -17,7 +17,7 @@ Core.Ast.List
    -first: مـعرف ب
    -second: Core.Ast.Bracket
      الأعضاء:
-     -prodId: طـبيعي_بهوية 314
+     -prodId: طـبيعي_بهوية 315
      -sourceLocation: Core.Ast.SourceLocationRecord
      -modifiers: عدم
      -metadata: عدم
@@ -35,7 +35,7 @@ Core.Ast.List
  -مـعرف ت
  -Core.Ast.Definition
    الأعضاء:
-   -prodId: طـبيعي_بهوية 248
+   -prodId: طـبيعي_بهوية 249
    -sourceLocation: Core.Ast.SourceLocationRecord
    -modifiers: عدم
    -metadata: عدم
@@ -44,7 +44,7 @@ Core.Ast.List
    عناصر مسماة:
    -target: Spp.Ast.Function
      الأعضاء:
-     -prodId: طـبيعي_بهوية 248
+     -prodId: طـبيعي_بهوية 249
      -sourceLocation: Core.Ast.SourceLocationRecord
      -modifiers: عدم
      -metadata: عدم
@@ -53,7 +53,7 @@ Core.Ast.List
      عناصر مسماة:
      -type: Spp.Ast.FunctionType
        الأعضاء:
-       -prodId: طـبيعي_بهوية 248
+       -prodId: طـبيعي_بهوية 249
        -sourceLocation: Core.Ast.SourceLocationRecord
        -modifiers: عدم
        -metadata: عدم
@@ -63,7 +63,7 @@ Core.Ast.List
        -retType: عدم
      -body: Spp.Ast.Block
        الأعضاء:
-       -prodId: طـبيعي_بهوية 308
+       -prodId: طـبيعي_بهوية 309
        -sourceLocation: عدم
        -modifiers: عدم
        -metadata: عدم

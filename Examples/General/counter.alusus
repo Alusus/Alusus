@@ -2,7 +2,7 @@ import "Srl/Console";
 import "Srl/System";
 import "Srl/Fs";
 
-def j: Word = 0;
+var j: Word = 0;
 while 1 {
   Srl.Console.print("  %d\r", j);
   Srl.Fs.flush(0~cast[ptr[Srl.Fs.File]]);

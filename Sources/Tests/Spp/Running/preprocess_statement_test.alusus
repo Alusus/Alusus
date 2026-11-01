@@ -143,13 +143,13 @@ func getSharedValue(): Int {
 }
 
 func useSharedValueFromJit() {
-    def i: Int = getSharedValue();
+    var i: Int = getSharedValue();
     Console.print("shared value from jit: %d\n", i);
 }
 
 func useSharedValueFromPreprocess() {
     preprocess {
-        def i: Int = getSharedValue();
+        var i: Int = getSharedValue();
         Console.print("shared value from preprocess: %d\n", i);
     };
 }

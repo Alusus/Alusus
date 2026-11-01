@@ -28,7 +28,7 @@ external libraries then no need to add it as a dependency manually because the c
 The following example shows how to do these steps:
 
 ```
-  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  var exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.addDependency(Gtk~ast); // or exe.addDependency(String("libgtk...."));
   exe.addDependencies(Array[String]({ String("libcurl.so"), ... }));
   exe.addFlag("-Wl,-rpath,@executable_path");
@@ -57,7 +57,7 @@ OS. For example, you can build for Windows from a Linux machine by doing
 the following:
 
 ```
-  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  var exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.targetTriple = "x86_64-pc-win32";
   exe.linkerFilename = "x86_64-w64-mingw32-g++";
   exe.generate();
@@ -71,7 +71,7 @@ object) to `true` before calling `generate` makes the compiler optimize the gene
 The user of the compiler can override this value from the command line using `--opt optimize=0` or `--opt optimize=1`.
 
 ```
-  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  var exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.optimize = true;
   exe.generate();
 ```
@@ -82,7 +82,7 @@ This class is similar to `Exe` class and used in the same way but it generates w
 that targets operating system and curren device architecture.
 
 ```
-  def wasm: Build.Wasm(HelloWorld.start~ast, "hello_world");
+  var wasm: Build.Wasm(HelloWorld.start~ast, "hello_world");
   wasm.addDependency(String("stdlib.wasm"));
   wasm.addFlags({ String("--export=malloc"), String("--export=realloc") });
   if wasm.generate() {

@@ -76,7 +76,7 @@ macro where [condition] {
 func test {
     def firstName: String("Mohammed");
     def position: String("Engineer");
-    def query: String = where[name == firstName && (pos == position || pos == "Lawyer")];
+    var query: String = where[name == firstName && (pos == position || pos == "Lawyer")];
     Console.print("%s\n", query.buf);
 }
 test();

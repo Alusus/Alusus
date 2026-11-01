@@ -30,7 +30,7 @@ class Test {
 @expname[printTestMap] function printTestMap (Map[String, String]);
 
 function testSrdRef1 {
-    def r: SrdRef[Test] = getTestSrdRef();
+    var r: SrdRef[Test] = getTestSrdRef();
     Console.print("testSrdRef1() %d\n", r.i);
 }
 
@@ -52,7 +52,7 @@ function testSrdRef3 {
     def r: SrdRef[Test];
     r.construct();
     r.i = 64;
-    def r2: SrdRef[Test] = setAndGetTestSrdRef(r);
+    var r2: SrdRef[Test] = setAndGetTestSrdRef(r);
     Console.print("testSrdRef3-1, %d %d\n", r.refCounter.count, r2.i);
     r2.release();
     Console.print("testSrdRef3-2, %d\n", r.refCounter.count);

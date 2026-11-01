@@ -63,7 +63,7 @@ def Main: module
   }
 
   def f6: function (count: Int, args: ...any) {
-    def mt: Mt = args~next_arg[Mt];
+    var mt: Mt = args~next_arg[Mt];
   }
 
   class Mt {

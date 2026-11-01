@@ -1,7 +1,7 @@
 import "Srl/Console.alusus";
 
 func sum (count: Int, args: ...Int): Int {
-    def r: Int = 0;
+    var r: Int = 0;
     while count-- > 0 r += args~next_arg[Int];
     return r;
 }

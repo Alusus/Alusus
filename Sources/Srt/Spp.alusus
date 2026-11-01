@@ -65,7 +65,7 @@ import "Srl/refs_base";
             modifierKwd: CharsPtr,
             kwdTranslations: ref[Map[String, String]]
         ): Array[ref[AstNode]] {
-            def elements: Array[ref[AstNode]] = this.findElements(comparison, target, flags);
+            var elements: Array[ref[AstNode]] = this.findElements(comparison, target, flags);
             def result: Array[ref[AstNode]];
             def i: Int;
             for i = 0, i < elements.getLength(), ++i {
@@ -110,8 +110,8 @@ import "Srl/refs_base";
             for i = 0, i < modifiers.getElementCount()~cast[Int], ++i {
                 def modifier: ref[AstNode](modifiers.getElement(i));
                 if modifier~ptr == 0 continue;
-                def modKwd: String = this.getModifierKeyword(modifier);
-                def translationIndex: ArchInt = kwdTranslations.findPos(modKwd);
+                var modKwd: String = this.getModifierKeyword(modifier);
+                var translationIndex: ArchInt = kwdTranslations.findPos(modKwd);
                 def translatedKwd: String;
                 if translationIndex == -1 translatedKwd = modKwd
                 else translatedKwd = kwdTranslations.valAt(translationIndex);
@@ -173,7 +173,7 @@ import "Srl/refs_base";
         handler this.getClassVarNames(
             parent: ref[AstNode], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
         ): Array[String] {
-            def vars: Array[ref[AstNode]] = this.getClassVars(parent, modifierKwd, kwdTranslations);
+            var vars: Array[ref[AstNode]] = this.getClassVars(parent, modifierKwd, kwdTranslations);
             def result: Array[String];
             def i: Int;
             for i = 0, i < vars.getLength(), ++i {
@@ -209,7 +209,7 @@ import "Srl/refs_base";
         handler this.getClassFuncNames(
             parent: ref[AstNode], modifierKwd: CharsPtr, kwdTranslations: ref[Map[String, String]]
         ): Array[String] {
-            def funcs: Array[ref[AstNode]] = this.getClassFuncs(parent, modifier, kwdTranslations);
+            var funcs: Array[ref[AstNode]] = this.getClassFuncs(parent, modifier, kwdTranslations);
             def result: Array[String];
             def i: Int;
             for i = 0, i < funcs.getLength(), ++i {
@@ -234,7 +234,7 @@ import "Srl/refs_base";
         handler this.getSourceFullPathForElement(element: ref[AstNode]) => String;
 
         handler this.getSourceDirectoryForElement(element: ref[AstNode]) => String {
-            def fullPath: String = this.getSourceFullPathForElement(element);
+            var fullPath: String = this.getSourceFullPathForElement(element);
             return fullPath.slice(0, fullPath.findLast('/') + 1);
         }
 
@@ -278,12 +278,12 @@ import "Srl/refs_base";
         handler this.insertCopyHandlers(obj: ref[AstNode]) {
             use Core.Basic;
             use Core.Ast;
-            def varNames: Array[String] = this.getClassVarNames(obj);
-            def assignments: SrdRef[MergeList] = newSrdObj[MergeList];
-            def assignContainer: DynContainerOf[assignments.obj, AstNode];
-            def i: Int;
+            var varNames: Array[String] = this.getClassVarNames(obj);
+            var assignments: SrdRef[MergeList] = newSrdObj[MergeList];
+            var assignContainer:: DynContainerOf[assignments.obj, AstNode];
+            var i: Int;
             for i = 0, i < varNames.getLength(), ++i {
-                def payloadAssignment: SrdRef[AstNode] = Spp.astMgr.buildAst(
+                var payloadAssignment: SrdRef[AstNode] = Spp.astMgr.buildAst(
                     (ast this.varName~no_deref = value.varName),
                     AstTemplateMap().set(String("varName"), Identifier(varNames(i)))
                 );
@@ -313,7 +313,7 @@ import "Srl/refs_base";
                 return;
             }
             if isDerivedFrom[obj, ParamPass] or isDerivedFrom[obj, LinkOperator] or isDerivedFrom[obj, Identifier] {
-                def elements: Array[ref[AstNode]] = this.findElements(
+                var elements: Array[ref[AstNode]] = this.findElements(
                     obj, castRef[obj, Node].owner, 0
                 );
                 if elements.getLength() == 0 {

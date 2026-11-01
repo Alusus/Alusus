@@ -102,6 +102,12 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
 
   private: Bool _getGeneratedType(Core::Ast::Node *ref, Generation *g, Session *session, Spp::Ast::Type *&type);
 
+  private: Bool prepareType(Spp::Ast::Type *astType);
+
+  private: Bool validateIntegerType(Spp::Ast::IntegerType *astType);
+
+  private: Bool validateFloatType(Spp::Ast::FloatType *astType);
+
   public: Bool getGeneratedTypeAutoCtor(
     Spp::Ast::Type *astType, Generation *g, Session *session, TiObject *&tgAutoCtor
   );

@@ -23,7 +23,7 @@ import "Srl/String";
         while count-- > 0 namesArray.add(String(names~next_arg[CharsPtr]));
         def i: Int;
         for i = 0, i < optionCount, ++i {
-            def option: Array[String] = String(1, options~cnt(i)).split("=");
+            var option: Array[String] = String(1, options~cnt(i)).split("=");
             def j: Int;
             for j = 0, j < namesArray.getLength(), ++j {
                 if (option(0) == namesArray(j)) {

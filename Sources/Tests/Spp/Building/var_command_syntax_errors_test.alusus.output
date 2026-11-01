@@ -1,0 +1,8 @@
+[0;31mERROR SPPH1027: The :: operator can't be used when the variable type is given. Use `var name: type(args)` instead.[0m
+  var_command_syntax_errors_test.alusus (6,7)
+[0;31mERROR SPPH1026: Invalid var command. A variable needs a name followed by a type, an initial value, or both.[0m
+  var_command_syntax_errors_test.alusus (7,3)
+[0;31mERROR SPPG1001: Unsupported operation.[0m
+  var_command_syntax_errors_test.alusus (5,3)
+[0;31mERROR SPPG1001: Unsupported operation.[0m
+  var_command_syntax_errors_test.alusus (8,3)

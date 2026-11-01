@@ -5,10 +5,10 @@ func test {
     Console.print("size = %d\n", 34500~size);
     Console.print("size = %d\n", 34500u~size);
 
-    def i: Int[8] = 5;
-    def w: Word[8] = 5u;
-    def li: Int[16] = 31000;
-    def lw: Word[16] = 31000u;
+    var i: Int[8] = 5;
+    var w: Word[8] = 5u;
+    var li: Int[16] = 31000;
+    var lw: Word[16] = 31000u;
 
     Console.print("w > 4: %d\n", w > 4i16);
     Console.print("w > 200: %d\n", w > 200);
@@ -29,7 +29,7 @@ func test {
     Console.print("i == -1: %d\n", i == -1);
     Console.print("i == 1: %d\n", i == 1);
 
-    def i64: Int[64] = 5 - 6;
+    var i64: Int[64] = 5 - 6;
     Console.print("%ld\n", i64);
 }
 test();

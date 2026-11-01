@@ -10,14 +10,14 @@ func runNoArgNoRet (c: closure ()) {
 }
 
 func prepareNoArgNoRet (): (closure ()) {
-    def i: Int = 1;
+    var i: Int = 1;
     return closure () {
         print("prepareNoArgNoRet: %d\n", i);
     };
 }
 
 func testNoArgNoRet {
-    def c: closure() = prepareNoArgNoRet();
+    var c: closure() = prepareNoArgNoRet();
     runNoArgNoRet(c);
 }
 testNoArgNoRet();
@@ -29,14 +29,14 @@ func runArgNoRet (c: closure (Int):void) {
 }
 
 func prepareArgNoRet (): (closure (Int)) {
-    def i: Int = 3;
+    var i: Int = 3;
     return closure (j: Int) {
         print("prepareArgNoRet: %d, %d\n", j, i);
     };
 }
 
 func testArgNoRet {
-    def c: closure(i:Int) = prepareArgNoRet();
+    var c: closure(i:Int) = prepareArgNoRet();
     runArgNoRet(c);
 }
 testArgNoRet();
@@ -44,12 +44,12 @@ testArgNoRet();
 // No args, ret val
 
 func runNoArgRet (c: closure ():Int) {
-    def r: Int = c();
+    var r: Int = c();
     print("runNoArgRet: %d\n", r);
 }
 
 func prepareNoArgRet (): (closure (): Int) {
-    def i: Int = 4;
+    var i: Int = 4;
     return closure (): Int {
         print("prepareNoArgRet: %d\n", i);
         return i;
@@ -57,7 +57,7 @@ func prepareNoArgRet (): (closure (): Int) {
 }
 
 func testNoArgRet {
-    def c: closure():Int = prepareNoArgRet();
+    var c: closure():Int = prepareNoArgRet();
     runNoArgRet(c);
 }
 testNoArgRet();
@@ -65,12 +65,12 @@ testNoArgRet();
 // Args, ret val
 
 func runArgRet (c: closure (Int):Int) {
-    def r: Int = c(5);
+    var r: Int = c(5);
     print("runArgRet: %d\n", r);
 }
 
 func prepareArgRet (): (closure (Int):Int) {
-    def i: Int = 6;
+    var i: Int = 6;
     return closure (j: Int): Int {
         print("prepareArgRet: %d, %d\n", j, i);
         return i;
@@ -78,7 +78,7 @@ func prepareArgRet (): (closure (Int):Int) {
 }
 
 func testArgRet {
-    def c: closure(Int):Int = prepareArgRet();
+    var c: closure(Int):Int = prepareArgRet();
     runArgRet(c);
 }
 testArgRet();
@@ -94,12 +94,12 @@ module M {
 func runTypeWithDot (c: closure (M.T):M.T) {
     def t: M.T;
     t.i = 7;
-    def r: M.T = c(t);
+    var r: M.T = c(t);
     print("runTypeWithDot: %d\n", r.i);
 }
 
 func prepareTypeWithDot (): (closure (M.T):M.T) {
-    def i: Int = 8;
+    var i: Int = 8;
     return closure (j: M.T): M.T {
         print("prepareTypeWithDot: %d, %d\n", j.i, i);
         def r: M.T;
@@ -109,7 +109,7 @@ func prepareTypeWithDot (): (closure (M.T):M.T) {
 }
 
 func testTypeWithDot {
-    def c: closure(M.T):M.T = prepareTypeWithDot();
+    var c: closure(M.T):M.T = prepareTypeWithDot();
     runTypeWithDot(c);
 }
 testTypeWithDot();
@@ -121,15 +121,15 @@ func runVarShadow (c: closure ()) {
 }
 
 func prepareVarShadow (): (closure ()) {
-    def i: Int = 10;
+    var i: Int = 10;
     return closure () {
-        def i: Int = 9;
+        var i: Int = 9;
         print("prepareVarShadow: %d\n", i);
     };
 }
 
 func testVarShadow {
-    def c: closure() = prepareVarShadow();
+    var c: closure() = prepareVarShadow();
     runVarShadow(c);
 }
 testVarShadow();
@@ -140,10 +140,10 @@ func runGlobalAccess (c: closure ()) {
     c();
 }
 
-def globalI: Int = 9;
+var globalI: Int = 9;
 func prepareGlobalAccess (): (closure ()) {
-    def i: Int = 10;
-    def c: closure () = closure () {
+    var i: Int = 10;
+    var c: closure () = closure () {
         print("prepareGlobalAccess: %d, %d\n", i, globalI);
     };
     i = 12;
@@ -152,7 +152,7 @@ func prepareGlobalAccess (): (closure ()) {
 }
 
 func testGlobalAccess {
-    def c: closure() = prepareGlobalAccess();
+    var c: closure() = prepareGlobalAccess();
     runGlobalAccess(c);
 }
 testGlobalAccess();
@@ -165,8 +165,8 @@ func runSharedAccess (c: closure ()) {
 
 func prepareSharedAccess (): (closure ()) {
     @shared def sharedI: Int(11);
-    def i: Int = 12;
-    def c: closure () = closure () {
+    var i: Int = 12;
+    var c: closure () = closure () {
         print("prepareSharedAccess: %d, %d\n", i, sharedI);
     };
     i = 11;
@@ -175,7 +175,7 @@ func prepareSharedAccess (): (closure ()) {
 }
 
 func testSharedAccess {
-    def c: closure() = prepareSharedAccess();
+    var c: closure() = prepareSharedAccess();
     runSharedAccess(c);
 }
 testSharedAccess();
@@ -187,10 +187,10 @@ func runThisAccess (c: closure ()) {
 }
 
 class ThisAccessTester1 {
-    def i: Int = 15;
+    var i: Int = 15;
 
     handler this.prepare (): (closure ()) {
-        def c: closure () = closure () {
+        var c: closure () = closure () {
             print("ThisAccessTester1.prepare: %d\n", this.i);
         };
         this.i = 14;
@@ -201,7 +201,7 @@ class ThisAccessTester1 {
 def cThisAccessTester2: closure();
 
 class ThisAccessTester2 {
-    def i: Int = 16;
+    var i: Int = 16;
 
     cThisAccessTester2 = closure () {
         print("ThisAccessTester2~init: %d\n", this.i);
@@ -211,7 +211,7 @@ class ThisAccessTester2 {
 
 func testThisAccess {
     def v: ThisAccessTester1;
-    def c: closure() = v.prepare();
+    var c: closure() = v.prepare();
     runThisAccess(c);
     def v2: ThisAccessTester2;
     runThisAccess(cThisAccessTester2);
@@ -264,7 +264,7 @@ func runDataRelease (c: closure ()) {
 func prepareDataRelease (): (closure ()) {
     def t: MyType;
     t.i = 22;
-    def c: closure () = closure () {
+    var c: closure () = closure () {
         print("prepareDataRelease: %d\n", t.i);
     };
     t.i = 21;
@@ -272,7 +272,7 @@ func prepareDataRelease (): (closure ()) {
 }
 
 func testDataRelease {
-    def c: closure() = prepareDataRelease();
+    var c: closure() = prepareDataRelease();
     runDataRelease(c);
 }
 testDataRelease();
@@ -308,7 +308,7 @@ testCaptureByRef(5);
 
 print("\ntestCaptureByValue:\n");
 func testCaptureByValue (n: Int) {
-    def c: closure (i: Int): Int = closure (n: by_val)&(i: Int): Int {
+    var c: closure (i: Int): Int = closure (n: by_val)&(i: Int): Int {
         return i * n++;
     };
     print("%d\n", c(3));
@@ -342,7 +342,7 @@ func testCaptureAuto (n: Int) {
     def ca: CaptureAuto;
     ca.i = 7;
     def rn: ref[Int](n);
-    def c: closure () = closure () {
+    var c: closure () = closure () {
         print("%d\n", n);
         print("%d\n", rn);
     };
@@ -377,14 +377,14 @@ class ThisAccessError {
 }
 
 func testErrorCases {
-    def cInvalidArgType: closure (j: Invalid) = closure (j: Invalid) {
+    var cInvalidArgType: closure (j: Invalid) = closure (j: Invalid) {
     };
 
-    def cInvalidRetType: closure ():Invalid = closure ():Invalid {
+    var cInvalidRetType: closure ():Invalid = closure ():Invalid {
         return 0;
     };
 
-    def cMissingVar: closure () = closure () {
+    var cMissingVar: closure () = closure () {
         missingVar = 0;
     };
 
@@ -393,10 +393,10 @@ func testErrorCases {
 print("\ntestErrorCases:\n");
 testErrorCases();
 func testInvalidArgNameErrorCases {
-    def cInvalidArgName: closure ("i": Int) = closure ("i": Int) {
+    var cInvalidArgName: closure ("i": Int) = closure ("i": Int) {
     };
 
-    def cDuplicateArg: closure (i: Int, i: Int) = closure (i: Int, i: Int) {
+    var cDuplicateArg: closure (i: Int, i: Int) = closure (i: Int, i: Int) {
     };
 }
 

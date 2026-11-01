@@ -138,8 +138,8 @@ def Main: module
 
   def testShift: function ()=>Void
   {
-    def i: Int = 128;
-    def w: Word = 128;
+    var i: Int = 128;
+    var w: Word = 128;
     i >> 1;
     w >> 1;
   }

@@ -1,0 +1,34 @@
+import "defs-ignore.alusus";
+
+def noRet: function () {};
+
+def Main: module
+{
+  var multipleArgs :: 1, 2;
+  var selfDeduced = selfDeduced + 1;
+  var voidValue = noRet();
+  var typeValue = Int;
+  var typeArg :: Int;
+  def defVoidValue: var noRet();
+  def defUnknown: var Unknown;
+  var ctorArgsWithValue: Int(5) = 6;
+
+  def Circular: class {
+    var a = this.b;
+    var b = this.a;
+  };
+
+  def test: function () {
+    multipleArgs = 1;
+    selfDeduced = 1;
+    voidValue = 1;
+    typeValue = 1;
+    typeArg = 1;
+    defVoidValue = 1;
+    defUnknown = 1;
+    ctorArgsWithValue = 1;
+    def c: Circular;
+  };
+};
+
+Spp.buildMgr.dumpLlvmIrForElement(Main.test~ast);

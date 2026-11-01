@@ -47,36 +47,14 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   // Get the definition target (after the colon).
   auto val = linkOp->getSecond();
   if (val == 0) {
-    // TODO: We need to choose terms for the parts of a define command, e.g.
-    // definition name, definition, etc.
     state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(expr->findSourceLocation()));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
 
   if(val->isDerivedFrom<Core::Ast::AssignmentOperator>()) {
-    auto def = Core::Ast::Definition::create({
-      { "prodId", expr->getProdId() },
-      { "sourceLocation", expr->findSourceLocation() },
-      { "name", name }
-    }, {
-      { "target", static_cast<Core::Ast::AssignmentOperator*>(val.get())->getFirst() }
-    });
-
-    auto assignment = Core::Ast::AssignmentOperator::create({
-      { "prodId", expr->getProdId() },
-      { "sourceLocation", expr->findSourceLocation() },
-      { "type", TiStr("=") }
-    }, {
-      { "first", nameToken },
-      { "second", static_cast<Core::Ast::AssignmentOperator*>(val.get())->getSecond() }
-    });
-
-    // Create the definition.
-    state->setData(Core::Ast::MergeList::create({}, {
-      def,
-      assignment
-    }));
+    state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(expr->findSourceLocation()));
+    state->setData(SharedPtr<Core::Ast::Node>(0));
   } else {
     auto def = Core::Ast::Definition::create({
       { "prodId", expr->getProdId() },

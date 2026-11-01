@@ -126,9 +126,9 @@ class FunctionType : public Type, public MapContaining<Core::Ast::Node>
 
   public: Type* traceRetType(Helper *helper) const;
 
-  public: TypeMatchStatus matchCall(Containing<Core::Ast::Node> *types, Helper *helper);
+  public: TypeMatchStatus matchCall(Containing<Spp::Ast::Type> *types, Helper *helper);
 
-  public: TypeMatchStatus matchNextArg(Core::Ast::Node *nextType, ArgMatchContext &matchContext, Helper *helper);
+  public: TypeMatchStatus matchNextArg(Spp::Ast::Type *nextType, ArgMatchContext &matchContext, Helper *helper);
 
   public: void setMember(Bool m)
   {

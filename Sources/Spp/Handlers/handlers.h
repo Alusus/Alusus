@@ -55,5 +55,6 @@ Bool parseTemplateArg(
 #include "TypeParsingHandler.h"
 #include "TypeHandlersParsingHandler.h"
 #include "UseInParsingHandler.h"
+#include "VarParsingHandler.h"
 
 #endif

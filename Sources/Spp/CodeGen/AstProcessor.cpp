@@ -258,7 +258,7 @@ Bool AstProcessor::_processModifiers(TiObject *self, Containing<Core::Ast::Node>
       continue;
     }
     auto nodeRefType = astProcessor->astHelper->getReferenceTypeFor(nodeType, Ast::ReferenceMode::EXPLICIT);
-    PlainList<Core::Ast::Node> argTypes;
+    PlainList<Spp::Ast::Type> argTypes;
     argTypes.add(nodeRefType);
     argTypes.add(nodeRefType);
 
@@ -420,6 +420,24 @@ Bool AstProcessor::_processTypeBody(TiObject *self, Spp::Ast::UserType *type)
   LOG(
     Spp::LogLevel::PREPROCESS, S("Preprocessing type body: ") << astProcessor->astHelper->resolveNodePath(type) << " ... DONE"
   );
+
+  // Deducing the type of a member var may require resolving other members through `this`. Deduction can happen
+  // before the auto constructor (which normally adds `this`) is generated, and from within loops over the body, so
+  // we add `this` now rather than during deduction.
+  for (Int i = 0; i < body->getCount(); ++i) {
+    auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
+    if (def == 0) continue;
+    auto var = def->getTarget().ti_cast_get<Spp::Ast::Variable>();
+    if (var != 0 && var->getTypeRef() == 0 && !var->isValueOnly() && !astProcessor->astHelper->isSharedDef(def)) {
+      Int index;
+      astProcessor->astHelper->addThisDefinition(
+        body, S("this"), astProcessor->astHelper->getReferenceTypeFor(type, Ast::ReferenceMode::EXPLICIT), false,
+        index
+      );
+      break;
+    }
+  }
+
   setAstProcessingState(body, AstProcessingState::PROCESSED);
   return result;
 }

@@ -1,0 +1,33 @@
+Logged~init()
+Logged = 7
+Logged~init(8)
+Logged~init()
+Locals:
+Logged~init()
+Logged = 9
+Logged~init(10)
+x = 5, y = 6, z = 9, w = 10, n = 42
+Deduced sizes:
+one = 4, unsignedOne = 4, negative = 4, big = 8, small = 1, n = 8
+References (copied by = and bound by ::)
+x = 5, copy = 20
+x = 30, bound = 30
+x = 30, copiedVar = 40
+Globals:
+globalDeduced = 5, globalAssigned = 7, globalCtor = 8, globalDeducedCtor = 42, priorityVar = 3
+Members:
+Logged~init(11)
+Logged~init()
+Logged = 12
+Logged~init(11)
+Logged~init()
+Logged = 12
+a = 3, b = 4, c = 8, d = 11, e = 12
+h1.id = 11, h2.id = 12, count = 12
+Def form:
+Logged~init()
+Logged~init()
+defGlobalValue = 6, defGlobalType = 0, defValue = 32, x = 50, defBound = 50, defType = 3 (2), defObj = 0
+dh.a = 4, dh.b = 8, dh.c = 0
+Templates:
+twice[Int](21) = 42, twice[Int[64]](50) = 100

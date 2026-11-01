@@ -1,0 +1,13 @@
+import "defs-ignore.alusus";
+
+def Main: module
+{
+  // The assignment must happen in the global constructor so that it's included in offline builds.
+  var deduced = 5;
+  var assigned: Int[64] = 6;
+  var constructed: Int(7);
+
+  def getSum: function (): Int[64] { return deduced + assigned + constructed };
+};
+
+Spp.buildMgr.dumpLlvmIrForElement(Main.getSum~ast);

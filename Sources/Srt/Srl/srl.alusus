@@ -24,8 +24,8 @@ def void: alias Void;
 def ArchInt: alias Int[0];
 def ArchWord: alias Word[0];
 
-def true: 1;
-def false: 0;
+def true: 1i1;
+def false: 0i1;
 def null: 0;
 
 macro castRef [obj, T] obj~ptr~cast[ptr[T]]~cnt;

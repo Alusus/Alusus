@@ -20,28 +20,28 @@ func echoMixed (pre: Int[32], s: Mixed, post: Int[32]) => Mixed { s.a += pre; s.
 func echoBig (pre: Int[32], s: Big, post: Int[32]) => Big { s.id += pre; s.f += post; return s; }
 
 func test {
-  def d: DivT = div(17, 5);
+  var d: DivT = div(17, 5);
   Console.print("div: %d %d\n", d.quot, d.rem);
-  def ld: LDivT = ldiv(-17, 5);
+  var ld: LDivT = ldiv(-17, 5);
   Console.print("ldiv: %ld %ld\n", ld.quot, ld.rem);
 
   def s: Small; s.c = 10;
-  def sr: Small = echoSmall(1, s, 2);
+  var sr: Small = echoSmall(1, s, 2);
   Console.print("small: %d\n", sr.c);
   def f: Floats; f.x = 1.5; f.y = 2.5;
-  def fr: Floats = echoFloats(1, f, 2);
+  var fr: Floats = echoFloats(1, f, 2);
   Console.print("floats: %f %f\n", Float[64](fr.x), Float[64](fr.y));
   def m: Mixed; m.a = 7; m.b = 8.5;
-  def mr: Mixed = echoMixed(1, m, 2);
+  var mr: Mixed = echoMixed(1, m, 2);
   Console.print("mixed: %ld %f\n", mr.a, mr.b);
   def b: Big; b.id = 1; b.w = 2; b.h = 3; b.m = 4; b.f = 5;
-  def br: Big = echoBig(1, b, 2);
+  var br: Big = echoBig(1, b, 2);
   Console.print("big: %d %d %d %d %d\n", br.id, br.w, br.h, br.m, br.f);
 
-  def pSmall: ptr[function (Int[32], Small, Int[32])=>Small] = echoSmall~ptr;
-  def pFloats: ptr[function (Int[32], Floats, Int[32])=>Floats] = echoFloats~ptr;
-  def pMixed: ptr[function (Int[32], Mixed, Int[32])=>Mixed] = echoMixed~ptr;
-  def pBig: ptr[function (Int[32], Big, Int[32])=>Big] = echoBig~ptr;
+  var pSmall: ptr[function (Int[32], Small, Int[32])=>Small] = echoSmall~ptr;
+  var pFloats: ptr[function (Int[32], Floats, Int[32])=>Floats] = echoFloats~ptr;
+  var pMixed: ptr[function (Int[32], Mixed, Int[32])=>Mixed] = echoMixed~ptr;
+  var pBig: ptr[function (Int[32], Big, Int[32])=>Big] = echoBig~ptr;
   sr = pSmall(1, s, 2);
   fr = pFloats(1, f, 2);
   mr = pMixed(1, m, 2);
