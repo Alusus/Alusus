@@ -120,9 +120,9 @@ module Closures {
         findExternalVariables(getInterface[fn.obj, Containing[AstNode]].getElement(1), owner, varDefs);
         // Generate member var definitions and assignments.
         var payloadDefs: SrdRef[MergeList] = newSrdObj[MergeList];
-        var defsContainer:: DynContainerOf[payloadDefs.obj, AstNode];
+        var defsContainer := DynContainerOf[payloadDefs.obj, AstNode];
         var payloadAssignments: SrdRef[MergeList] = newSrdObj[MergeList];
-        var assignContainer:: DynContainerOf[payloadAssignments.obj, AstNode];
+        var assignContainer := DynContainerOf[payloadAssignments.obj, AstNode];
         var i: Int;
         for i = 0, i < varDefs.getLength(), ++i {
             var useNoDeref: Bool;
@@ -299,7 +299,7 @@ module Closures {
 
     func addFuncArgs (input: ref[AstNode], index: Int, map: ref[DynamicMapContaining[AstNode]], useBox: Bool) {
         if input~ptr == 0 return;
-        var inputContaining:: ContainerOf[input, AstNode];
+        var inputContaining := ContainerOf[input, AstNode];
         if isDerivedFrom[input, Bracket] {
             addFuncArgs(inputContaining.getElement(0), index, map, useBox);
         } else if isDerivedFrom[input, Core.Ast.Map] {
@@ -356,7 +356,7 @@ module Closures {
     }
 
     func isStringPropEqual(item: ref[AstNode], name: CharsPtr, value: CharsPtr): Bool {
-        var bindings:: BindingOf[item];
+        var bindings := BindingOf[item];
         if bindings~ptr == 0 return false;
         var prop: ref[TiObject](bindings.getMember(name));
         if prop~ptr == 0 or not isDerivedFrom[prop, TiStr] return false;
@@ -366,9 +366,9 @@ module Closures {
     func generateFuncArgListFromType (fnType: ref[AstNode]): AstNodeSrdRef {
         var args: ref[AstNode](ContainerOf[fnType, AstNode].getElement(0));
         if args~ptr == 0 return AstNodeSrdRef();
-        var argsMap:: MapContainerOf[args, AstNode];
+        var argsMap := MapContainerOf[args, AstNode];
         var list: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
-        var listContainer:: DynContainerOf[list.obj, AstNode];
+        var listContainer := DynContainerOf[list.obj, AstNode];
         var i: Word;
         for i = 0, i < argsMap.getElementCount() - 1, ++i {
             var arg: SrdRef[Identifier] = newSrdObj[Identifier];
@@ -471,7 +471,7 @@ preprocess {
             args: "module".ClosureSigExp*(1,1) + "module".BlockSet*(0,1);
         }),
         func (data: AstNodeSrdRef): AstNodeSrdRef {
-            var container:: ContainerOf[data.obj, AstNode];
+            var container := ContainerOf[data.obj, AstNode];
             if container.getElementCount() == 2u {
                 // Generate closure type reference.
                 var closureArgFnType: AstNodeSrdRef = generateFuncType(
@@ -488,7 +488,7 @@ preprocess {
                     construct();
                     MapContainerOf[obj, AstNode].setElement("body", data);
                     BindingOf[obj].setMember("transform", TiPtr(function (data: ref[AstNode]): AstNodeSrdRef {
-                        var container:: ContainerOf[data, AstNode];
+                        var container := ContainerOf[data, AstNode];
                         return Closures.generateClosureInstance(
                             container.getElement(1), container.getElement(2), castRef[data, AstNode].owner
                         );

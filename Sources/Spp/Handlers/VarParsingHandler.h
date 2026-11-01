@@ -37,6 +37,24 @@ class VarParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
 
   public: virtual void onProdEnd(Core::Processing::Parser *parser, Core::Processing::ParserState *state);
 
+  public: virtual Bool onIncomingModifier(
+    Core::Processing::Parser *parser, Core::Processing::ParserState *state,
+    SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
+  );
+
+  private: SharedPtr<Core::Ast::Node> createVar(
+    Core::Ast::Node *astExpr, Core::Ast::Node *expr, Core::Processing::ParserState *state
+  );
+
+  /**
+   * @brief Create a var definition from a `name: type` expression.
+   * Accepts the forms `name: type`, `name: type(args)`, and `name: type = value`. Returns null if the expression is
+   * invalid.
+   */
+  public: static SharedPtr<Core::Ast::Definition> createTypedVarDef(
+    Core::Ast::LinkOperator *linkOp, Word prodId, SharedPtr<Core::Ast::SourceLocation> const &sourceLocation
+  );
+
 }; // class
 
 } // namespace

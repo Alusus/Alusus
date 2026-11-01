@@ -48,6 +48,7 @@ Bool parseTemplateArg(
 #include "FunctionParsingHandler.h"
 #include "IfParsingHandler.h"
 #include "WhileParsingHandler.h"
+#include "VarParsingHandler.h"
 #include "ForParsingHandler.h"
 #include "TildeOpParsingHandler.h"
 #include "MacroParsingHandler.h"
@@ -55,6 +56,5 @@ Bool parseTemplateArg(
 #include "TypeParsingHandler.h"
 #include "TypeHandlersParsingHandler.h"
 #include "UseInParsingHandler.h"
-#include "VarParsingHandler.h"
 
 #endif

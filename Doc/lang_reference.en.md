@@ -181,34 +181,48 @@ value to its constructor, and its type can be deduced from that value:
 
 ```
 var x = 5;           // Type is deduced as Int, then 5 is assigned to x.
-var y :: getValue(); // Type is deduced from getValue(), which is passed to the constructor.
+var y := getValue(); // Type is deduced from getValue(), which is passed to the constructor.
 var z: Int = 5;      // Constructed with no args, then 5 is assigned to z.
 var w: MyType(5);    // 5 is passed to the constructor.
 ```
 
 The `=` forms construct the variable without arguments and then assign the
-value to it, through the type's `=` operator if it has one. The `::` form and
+value to it, through the type's `=` operator if it has one. The `:=` form and
 the round brackets after the type pass the values to the type's constructor
 (`~init`) instead. This differs from C++, where `=` in a definition calls the
 constructor.
 
 When the type is deduced:
-* Reading a variable gives a copy of its value, so `var y = x` and `var y :: x`
+* Reading a variable gives a copy of its value, so `var y = x` and `var y := x`
   both make `y` a copy of `x`.
 * An explicit reference, e.g. one returned by a function, is copied by the `=`
-  forms and bound by the `::` form. For example, if `getRef()` returns a
-  `ref[Int]`, then `var c :: getRef()` makes `c` a `ref[Int]` bound to the
+  forms and bound by the `:=` form. For example, if `getRef()` returns a
+  `ref[Int]`, then `var c := getRef()` makes `c` a `ref[Int]` bound to the
   returned reference, while `var c = getRef()` makes `c` an `Int` holding a copy
   of the value.
 * Integer literals without an explicit size get at least 32 bits, so
   `var i = 1` gives an `Int` rather than the smallest type that fits the value.
-* The `::` form accepts only a single value. To pass multiple values to the
+* The `:=` form accepts only a single value. To pass multiple values to the
   constructor, give the type explicitly, e.g. `var w: MyType(5, 6)`.
 
 Global variables get their initial values assigned in the global constructors,
 together with the rest of their initialization. Member
 variables get theirs in the class's automatic constructor, and the initial
 value of a member variable can refer to other members.
+
+
+### Multiple Variables
+
+Multiple variables can be defined in a single `var` command by separating them with commas. Each variable can use
+any of the forms above:
+
+```
+var i = 0, j = 1;
+var k: Int, l: Int;
+var a = 5, b: Int[64] = 6, c := getValue();
+```
+
+Modifiers on the command apply to all of its variables, so `@shared var x = 0, y = 0` defines two shared variables.
 
 
 ### Shared Variables
@@ -500,6 +514,38 @@ in round brackets. For example:
   for i=0, i&lt;10, i++ print("%d\n", i);
   for (i=0, i&lt;10, i++) print("%d\n", i);
   for i=0, i&lt;10, i++ { print("%d\n", i) };
+```
+
+The counter can be defined within the for loop itself using the `name: type` syntax, with or without an initial value, in
+which case the counter is only visible within the loop. Multiple counters can be defined by enclosing them in round
+brackets. For example:
+
+```
+  for i: Int = 0, i < 10, i++ print("%d\n", i);
+  for (i: Int = 0, j: Int = 1), i < 10, (i++, j *= 2) print("%d: %d\n", i, j);
+```
+
+The counter definitions follow the same rules as the `var` command, except that the type must be specified explicitly.
+Counter definitions can be mixed with other initialization expressions, in which case they are all executed in order:
+
+```
+  for (j = 3, i: Int = j * 10), i < 40, i++ print("%d\n", i);
+```
+
+The `var` command can also be used to define the counter, which allows the counter's type to be deduced from its initial
+value. In this case the initializer must be enclosed in round brackets, and the `var` command must be the last element in
+these brackets, since everything that follows it is treated as more variable definitions:
+
+```
+  for (var i = 0), i < 10, i++ print("%d\n", i);
+  for (var i = 0, j = 1), i < 10, (i++, j *= 2) print("%d: %d\n", i, j);
+  for (j = 3, var i = j * 10), i < 40, i++ print("%d\n", i);
+```
+
+To add initializers after the `var` command, enclose the `var` command in its own brackets:
+
+```
+  for ((var i = getVal()), j = i), i < 10, i++ print("%d: %d\n", i, j);
 ```
 
 ### `continue` Command

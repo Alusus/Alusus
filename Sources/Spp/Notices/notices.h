@@ -182,7 +182,7 @@ DEFINE_NOTICE(InvalidVarCommandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH
   "Invalid var command. A variable needs a name followed by a type, an initial value, or both."
 );
 DEFINE_NOTICE(VarInitArgsWithExplicitTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1027", 1,
-  "The :: operator can't be used when the variable type is given. Use `var name: type(args)` instead."
+  "The := operator can't be used when the variable type is given. Use `var name: type(args)` instead."
 );
 
 } // namespace

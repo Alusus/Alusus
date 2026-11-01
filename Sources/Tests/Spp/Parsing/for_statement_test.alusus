@@ -23,9 +23,24 @@ def main: function ()=>Void
     doSomething2(j);
   };
 
+  for (i = 0, i < 10, i++) doSomething(i);
+
+  for i: Int = 0, i < 10, i++ doSomething(i);
+
+  for (i: Int = 0, j: Int[64] = 0), i < 10, (++i, j += 2) doSomething(j);
+
+  for (i: Int = 0, i < 10, i++) doSomething(i);
+
+  for (j = 0, i: Int = j), i < 10, ++i doSomething(i);
+
+  for (var i = 0), i < 10, ++i doSomething(i);
+
+  for (j = 0, var i = j), i < 10, ++i doSomething(i);
+
   for i = 0, i < 10, i++;
   for i = 0, , i++ doSomething(i);
   for i = 0, i < 10, { doSomething(i) };
+  for 5: Int = 0, i < 10, ++i doSomething(i);
 };
 
 dump_ast main;

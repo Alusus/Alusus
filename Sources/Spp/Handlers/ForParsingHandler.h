@@ -49,7 +49,11 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
       return;
     }
 
-    auto head = ti_cast<Core::Ast::List>(expr->getElement(1));
+    // The head can optionally be enclosed in brackets, as in `for (i = 0, i < 10, ++i)`.
+    auto headBracket = ti_cast<Core::Ast::Bracket>(expr->getElement(1));
+    auto head = headBracket != 0 && headBracket->getType() == Core::Ast::BracketType::ROUND
+      ? headBracket->getOperand().ti_cast_get<Core::Ast::List>()
+      : ti_cast<Core::Ast::List>(expr->getElement(1));
     if (head == 0 || head->getCount() != 3) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(expr->findSourceLocation()));
       state->setData(SharedPtr<Core::Ast::Node>(0));
@@ -63,15 +67,111 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
       }
     }
 
+    // Variables defined in the initializer, as in `for i: Int = 0, ...` or `for (i: Int = 0, j: Int = 1), ...`, are
+    // moved into definitions preceding the for statement, and both are wrapped in a block to limit the scope of
+    // these variables to the loop.
+    auto initializer = head->get(0);
+    SharedPtr<Spp::Ast::Block> block;
+    if (this->isVarDef(initializer.get())) {
+      block = this->createBlock(expr);
+      if (!this->addVarDef(initializer.get(), block.get(), state)) return;
+      initializer.reset();
+    } else if (initializer.ti_cast_get<Core::Ast::Bracket>() != 0) {
+      auto operand = initializer.s_cast_get<Core::Ast::Bracket>()->getOperand();
+      auto list = operand.ti_cast_get<Core::Ast::List>();
+      if (this->isVarDef(operand.get())) {
+        block = this->createBlock(expr);
+        if (!this->addVarDef(operand.get(), block.get(), state)) return;
+        initializer.reset();
+      } else if (list != 0 && this->hasVarDef(list)) {
+        // Other initializers are added to the block as statements, in their original order.
+        block = this->createBlock(expr);
+        for (Int i = 0; i < list->getCount(); ++i) {
+          if (this->isVarDef(list->getElement(i))) {
+            if (!this->addVarDef(list->getElement(i), block.get(), state)) return;
+          } else {
+            block->add(list->get(i));
+          }
+        }
+        initializer.reset();
+      }
+    }
+
     auto newObj = newSrdObj<Spp::Ast::ForStatement>();
     newObj->setSourceLocation(expr->findSourceLocation());
     newObj->setProdId(expr->getProdId());
-    newObj->setInitializer(head->get(0));
+    newObj->setInitializer(initializer);
     newObj->setCondition(head->get(1));
     newObj->setUpdater(head->get(2));
     newObj->setBody(expr->get(2));
 
-    state->setData(newObj);
+    if (block != 0) {
+      block->add(newObj);
+      state->setData(block);
+    } else {
+      state->setData(newObj);
+    }
+  }
+
+  // Var definitions can be enclosed in brackets to separate them from the initializers that follow, since the var
+  // command consumes the rest of the comma separated list, as in `((var i = 0), j = i)`.
+  private: Core::Ast::Node* unwrapBrackets(Core::Ast::Node *node)
+  {
+    auto bracket = ti_cast<Core::Ast::Bracket>(node);
+    while (bracket != 0 && bracket->getType() == Core::Ast::BracketType::ROUND) {
+      node = bracket->getOperand().get();
+      bracket = ti_cast<Core::Ast::Bracket>(node);
+    }
+    return node;
+  }
+
+  private: Bool isVarDef(Core::Ast::Node *node)
+  {
+    node = this->unwrapBrackets(node);
+    if (ti_cast<Core::Ast::Definition>(node) != 0 || ti_cast<Core::Ast::MergeList>(node) != 0) return true;
+    auto linkOp = ti_cast<Core::Ast::LinkOperator>(node);
+    return linkOp != 0 && linkOp->getType() == S(":");
+  }
+
+  private: Bool hasVarDef(Core::Ast::List *list)
+  {
+    for (Int i = 0; i < list->getCount(); ++i) {
+      if (this->isVarDef(list->getElement(i))) return true;
+    }
+    return false;
+  }
+
+  private: SharedPtr<Spp::Ast::Block> createBlock(Core::Ast::Node *expr)
+  {
+    auto block = Spp::Ast::Block::create();
+    block->setSourceLocation(expr->findSourceLocation());
+    return block;
+  }
+
+  private: Bool addVarDef(
+    Core::Ast::Node *node, Spp::Ast::Block *block, Core::Processing::ParserState *state
+  ) {
+    node = this->unwrapBrackets(node);
+    if (node->isDerivedFrom<Core::Ast::Definition>()) {
+      block->add(getSharedPtr(node));
+      return true;
+    }
+    if (node->isDerivedFrom<Core::Ast::MergeList>()) {
+      // Multiple variables defined by a single var command.
+      auto mergeList = static_cast<Core::Ast::MergeList*>(node);
+      for (Int i = 0; i < mergeList->getCount(); ++i) block->add(mergeList->get(i));
+      return true;
+    }
+    auto def = VarParsingHandler::createTypedVarDef(
+      static_cast<Core::Ast::LinkOperator*>(node), UNKNOWN_ID, node->findSourceLocation()
+    );
+    if (def == 0) {
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(node->findSourceLocation()));
+      state->setData(SharedPtr<Core::Ast::Node>(0));
+      return false;
+    }
+    block->add(def);
+    return true;
   }
 
 }; // class

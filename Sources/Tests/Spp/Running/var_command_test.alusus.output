@@ -9,7 +9,8 @@ Logged~init(10)
 x = 5, y = 6, z = 9, w = 10, n = 42
 Deduced sizes:
 one = 4, unsignedOne = 4, negative = 4, big = 8, small = 1, n = 8
-References (copied by = and bound by ::)
+Deduced 0 and 1 are signed: 1, 1
+References (copied by = and bound by :=)
 x = 5, copy = 20
 x = 30, bound = 30
 x = 30, copiedVar = 40
@@ -31,3 +32,8 @@ defGlobalValue = 6, defGlobalType = 0, defValue = 32, x = 50, defBound = 50, def
 dh.a = 4, dh.b = 8, dh.c = 0
 Templates:
 twice[Int](21) = 42, twice[Int[64]](50) = 100
+Multiple variables:
+Logged~init(13)
+p = 1, q = 13, s = 2
+multiA = 1, multiB = 2 (8), multiC = 42
+a = 1, b = 2, sa = 3, sb = 4, size = 8

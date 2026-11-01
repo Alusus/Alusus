@@ -421,6 +421,14 @@ Type* Helper::deduceIntLiteralType(Core::Ast::Node *astExpr)
   this->parseIntLiteral(value, _value, size, signedNum, typeRequested);
   if (typeRequested) return 0;
   if (size < 32) size = 32;
+  // 0 and 1 are considered unsigned by parseIntLiteral, which we don't want for variables unless explicitly requested.
+  if (!signedNum && _value <= 1) {
+    Char const *str = value.getBuf();
+    Int len = getStrLen(str);
+    Bool unsignedRequested = (len >= 1 && (str[len - 1] == C('u') || str[len - 1] == C('U'))) ||
+      (len >= 2 && compareStr(str + len - 2, S("ط"), 2) == 0);
+    if (!unsignedRequested) signedNum = true;
+  }
   return signedNum ? static_cast<Type*>(this->getIntType(size)) : static_cast<Type*>(this->getWordType(size));
 }
 
