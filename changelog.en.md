@@ -24,7 +24,8 @@
   hold the size.
 * Added the `var` command for defining variables, which can deduce the variable type from its initial value:
   - `var x = value` and `var x: T = value` construct the variable without args, then assign the value to it.
-  - `var x :: value` and `var x: T(args)` pass the value or args to the constructor.
+  - `var x := value` and `var x: T(args)` pass the value or args to the constructor.
+  - Multiple variables can be defined in a single command, as in `var i = 0, j: Int = 1`.
   - Global variables get their initial values assigned in the global constructors, which means the assignment
     is included in offline builds.
   - `var` and `متغير` are now keywords, so they can no longer be used as identifiers at the start of a

@@ -74,7 +74,7 @@ SPPH1023:Invalid type property identifier.
 SPPH1024:Template function lacks a body.
 SPPH1025:Template handler statement must not be a pointer.
 SPPH1026:Invalid var command. A variable needs a name followed by a type, an initial value, or both.
-SPPH1027:The :: operator can't be used when the variable type is given. Use `var name: type(args)` instead.
+SPPH1027:The := operator can't be used when the variable type is given. Use `var name: type(args)` instead.
 
 SPPG1001:Unsupported operation.
 SPPG1002:Invalid operation.

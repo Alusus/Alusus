@@ -24,64 +24,110 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   ASSERT(expr != 0);
   auto astExpr = expr->getCount() == 2 ? expr->getElement(1) : 0;
 
+  // Multiple variables, as in `var a = 1, b: Int`, result in a merge list of definitions.
+  if (astExpr != 0 && astExpr->isA<Core::Ast::List>()) {
+    auto list = static_cast<Core::Ast::List*>(astExpr);
+    auto mergeList = Core::Ast::MergeList::create({
+      { "sourceLocation", expr->findSourceLocation() }
+    });
+    for (Int i = 0; i < list->getCount(); ++i) {
+      auto var = this->createVar(list->getElement(i), expr, state);
+      if (var == 0) {
+        state->setData(SharedPtr<Core::Ast::Node>(0));
+        return;
+      }
+      if (!var->isDerivedFrom<Core::Ast::Definition>()) {
+        state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
+        state->setData(SharedPtr<Core::Ast::Node>(0));
+        return;
+      }
+      mergeList->add(var);
+    }
+    state->setData(mergeList);
+  } else {
+    state->setData(this->createVar(astExpr, expr, state));
+  }
+}
+
+
+Bool VarParsingHandler::onIncomingModifier(
+  Processing::Parser *parser, Processing::ParserState *state,
+  SharedPtr<Core::Ast::Node> const &modifierData, Bool prodProcessingComplete
+) {
+  if (!GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) return false;
+
+  // A merge list only passes its modifiers to its first element, but the modifiers of a var command that defines
+  // multiple variables apply to all of them, so we move the modifiers to each of the definitions.
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto mergeList = state->getData(levelOffset).ti_cast_get<Core::Ast::MergeList>();
+  if (mergeList != 0) {
+    for (Int i = 0; i < mergeList->getCount(); ++i) {
+      auto element = mergeList->getElement(i);
+      if (mergeList->getModifiers() != 0) element->addModifiers(Core::Ast::clone(mergeList->getModifiers().get()));
+      if (mergeList->getMetadata() != 0) element->addMetadata(Core::Ast::clone(mergeList->getMetadata().get()));
+    }
+    mergeList->setModifiers(SharedPtr<Core::Ast::List>());
+    mergeList->setMetadata(SharedPtr<Core::Ast::Map>());
+  }
+  return true;
+}
+
+
+SharedPtr<Core::Ast::Node> VarParsingHandler::createVar(
+  Core::Ast::Node *astExpr, Core::Ast::Node *expr, Processing::ParserState *state
+) {
   // Split the expression into its parts. The possible forms are:
   // var name: type
   // var name: type(args)
   // var name: type = value
-  // var name :: args
+  // var name := args
   // var name = value
   SharedPtr<Core::Ast::Node> nameNode;
   SharedPtr<Core::Ast::Node> initArgs;
-  Spp::Ast::VarInitMode initMode = Spp::Ast::VarInitMode::BIND;
+  Spp::Ast::VarInitMode initMode;
   Bool valid = true;
   auto linkOp = ti_cast<Core::Ast::LinkOperator>(astExpr);
   auto assignmentOp = ti_cast<Core::Ast::AssignmentOperator>(astExpr);
-  if (linkOp != 0 && linkOp->getType() == S("::")) {
-    auto innerLinkOp = linkOp->getFirst().ti_cast_get<Core::Ast::LinkOperator>();
-    if (innerLinkOp != 0 && innerLinkOp->getType() == S(":")) {
+  if (linkOp != 0 && linkOp->getType() == S(":")) {
+    auto typeAssignmentOp = linkOp->getSecond().ti_cast_get<Core::Ast::AssignmentOperator>();
+    if (typeAssignmentOp != 0 && typeAssignmentOp->getType() == S(":=")) {
       state->addNotice(newSrdObj<Spp::Notices::VarInitArgsWithExplicitTypeNotice>(linkOp->findSourceLocation()));
-      state->setData(SharedPtr<Core::Ast::Node>(0));
-      return;
+      return SharedPtr<Core::Ast::Node>::null;
     }
-    nameNode = linkOp->getFirst();
-    initArgs = linkOp->getSecond();
-  } else if (linkOp != 0 && linkOp->getType() == S(":")) {
     auto def = createTypedVarDef(linkOp, expr->getProdId().get(), expr->findSourceLocation());
     if (def == 0) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
-      state->setData(SharedPtr<Core::Ast::Node>(0));
-      return;
     }
-    state->setData(def);
-    return;
+    return def;
   } else if (assignmentOp != 0 && assignmentOp->getType() == S("=")) {
     initMode = Spp::Ast::VarInitMode::COPY;
     nameNode = assignmentOp->getFirst();
     initArgs = assignmentOp->getSecond();
     valid = initArgs != 0;
+  } else if (assignmentOp != 0 && assignmentOp->getType() == S(":=")) {
+    initMode = Spp::Ast::VarInitMode::BIND;
+    nameNode = assignmentOp->getFirst();
+    initArgs = assignmentOp->getSecond();
   } else if (assignmentOp == 0) {
     // `var expression`, where the expression can be either the type of the var or its initial value, which can only
     // be determined later, so we store it as the initial value and let type deduction decide.
     if (astExpr == 0) {
       state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
-      state->setData(SharedPtr<Core::Ast::Node>(0));
-      return;
+      return SharedPtr<Core::Ast::Node>::null;
     }
-    state->setData(Spp::Ast::Variable::create({
+    return Spp::Ast::Variable::create({
       { "prodId", expr->getProdId() },
       { "sourceLocation", expr->findSourceLocation() },
       { "initMode", Spp::Ast::VarInitMode(Spp::Ast::VarInitMode::UNRESOLVED) }
     }, {
       { "initArgs", getSharedPtr(astExpr) }
-    }));
-    return;
+    });
   }
 
   auto name = nameNode.ti_cast_get<Core::Ast::Identifier>();
   if (!valid || name == 0 || initArgs == 0) {
     state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
-    state->setData(SharedPtr<Core::Ast::Node>(0));
-    return;
+    return SharedPtr<Core::Ast::Node>::null;
   }
 
   auto var = Spp::Ast::Variable::create({
@@ -92,13 +138,13 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
     { "initArgs", initArgs }
   });
 
-  state->setData(Core::Ast::Definition::create({
+  return Core::Ast::Definition::create({
     { "prodId", expr->getProdId() },
     { "sourceLocation", expr->findSourceLocation() },
     { "name", name->getValue() }
   }, {
     { "target", var }
-  }));
+  });
 }
 
 
@@ -115,6 +161,9 @@ SharedPtr<Core::Ast::Definition> VarParsingHandler::createTypedVarDef(
     initArgs = typeAssignmentOp->getSecond();
     typeRef = typeAssignmentOp->getFirst();
     if (initArgs == 0) return SharedPtr<Core::Ast::Definition>::null;
+  } else if (typeAssignmentOp != 0 && typeAssignmentOp->getType() == S(":=")) {
+    // Constructor args can't be given with `:=` when the type is given explicitly.
+    return SharedPtr<Core::Ast::Definition>::null;
   }
   // Constructor args, as in `var name: type(args)`, are left within the type ref and extracted during code
   // generation, since the type ref might only take that form after macro expansion.

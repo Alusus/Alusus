@@ -113,9 +113,22 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
     }
   }
 
+  // Var definitions can be enclosed in brackets to separate them from the initializers that follow, since the var
+  // command consumes the rest of the comma separated list, as in `((var i = 0), j = i)`.
+  private: Core::Ast::Node* unwrapBrackets(Core::Ast::Node *node)
+  {
+    auto bracket = ti_cast<Core::Ast::Bracket>(node);
+    while (bracket != 0 && bracket->getType() == Core::Ast::BracketType::ROUND) {
+      node = bracket->getOperand().get();
+      bracket = ti_cast<Core::Ast::Bracket>(node);
+    }
+    return node;
+  }
+
   private: Bool isVarDef(Core::Ast::Node *node)
   {
-    if (ti_cast<Core::Ast::Definition>(node) != 0) return true;
+    node = this->unwrapBrackets(node);
+    if (ti_cast<Core::Ast::Definition>(node) != 0 || ti_cast<Core::Ast::MergeList>(node) != 0) return true;
     auto linkOp = ti_cast<Core::Ast::LinkOperator>(node);
     return linkOp != 0 && linkOp->getType() == S(":");
   }
@@ -138,8 +151,15 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
   private: Bool addVarDef(
     Core::Ast::Node *node, Spp::Ast::Block *block, Core::Processing::ParserState *state
   ) {
+    node = this->unwrapBrackets(node);
     if (node->isDerivedFrom<Core::Ast::Definition>()) {
       block->add(getSharedPtr(node));
+      return true;
+    }
+    if (node->isDerivedFrom<Core::Ast::MergeList>()) {
+      // Multiple variables defined by a single var command.
+      auto mergeList = static_cast<Core::Ast::MergeList*>(node);
+      for (Int i = 0; i < mergeList->getCount(); ++i) block->add(mergeList->get(i));
       return true;
     }
     auto def = VarParsingHandler::createTypedVarDef(

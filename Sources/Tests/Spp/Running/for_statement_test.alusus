@@ -28,8 +28,14 @@ def Main: module
 
     // Defining variables with the var command.
     for (var k = 0), k < 2, ++k print("var k = %d\n", k);
-    for (var k :: 7), k < 9, ++k print("var k = %d\n", k);
+    for (var k := 7), k < 9, ++k print("var k = %d\n", k);
     for (j = 4, var k = j * 10), k < 42, ++k print("%d, var k = %d\n", j, k);
+    for (var k = 0, l = 10), k < 2, ++k print("var k = %d, l = %d\n", k, l);
+    for (j = 2, var k = j, l = j * 2), k < 4, ++k print("var k = %d, l = %d\n", k, l);
+
+    // Enclosing the var command in brackets to add initializers after it.
+    for ((var k = 5), j = k * 2), k < 7, ++k print("var k = %d, j = %d\n", k, j);
+    for ((var k = 0, l = 3), j = l), k < 2, ++k print("var k = %d, l = %d, j = %d\n", k, l, j);
 
     // Same variable name in sibling loops.
     for k: Int = 10, k < 12, ++k print("k = %d\n", k);

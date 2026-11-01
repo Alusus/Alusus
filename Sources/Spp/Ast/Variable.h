@@ -33,7 +33,7 @@ class Variable : public Core::Ast::Node,
   // Member Variables
 
   private: SharedPtr<Core::Ast::Node> typeRef;
-  /// The var's initial value, from `var x: T(args)`, `var x :: args`, `var x = value`, or `var x: T = value`. Either
+  /// The var's initial value, from `var x: T(args)`, `var x := args`, `var x = value`, or `var x: T = value`. Either
   /// a single expression or a list. With `var expression` it might instead be the var's type until it's resolved.
   private: SharedPtr<Core::Ast::Node> initArgs;
   /// How initArgs is used to initialize the var.

@@ -3,9 +3,11 @@ import "defs-ignore.alusus";
 def Main: module
 {
   var missingInit;
-  var initArgsWithType: Int :: 5;
+  var initArgsWithType: Int := 5;
   var compoundAssignment += 5;
   var 5;
+  var multipleArgs := 1, 2;
+  var multiValid = 1, multiInitArgsWithType: Int := 5;
 };
 
 def i: Int[32];

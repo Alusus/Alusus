@@ -699,9 +699,10 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
 void StandardFactory::createTokenDataModule()
 {
   this->set(S("root.TokenData"), Module::create({}));
-  // assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "<<=", ">>=");
+  // assignmentOpList : keywords = ("=", ":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "<<=", ">>=");
   this->set(S("root.TokenData.assignmentOpList"), Map::create({}, {
    {S("="), 0},
+   {S(":="), 0},
    {S("+="), 0},
    {S("-="), 0},
    {S("*="), 0},
