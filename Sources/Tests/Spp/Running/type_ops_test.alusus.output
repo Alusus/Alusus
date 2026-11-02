@@ -60,22 +60,40 @@ Parent.f2(Int): 123
 Parent.f3()
 Chidl2.f3(Int): 456
 Parent = Int: 789
+Child 3
+Parent.f2()
+Parent.f2(Int): 123
+Parent.f3()
+Child3.f3(Int): 456
+Parent = Int: 789
+Child 4
+Parent.f2()
+Parent.f2(Int): 123
+Parent.f3()
+Parent.f3(Int): 456
+Parent = Int: 789
+GrandChild
+Parent.f2()
+Parent.f2(Int): 123
+GrandChild.f3()
+Child3.f3(Int): 456
+Parent = Int: 789
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  type_ops_test.alusus (302,1)
+  type_ops_test.alusus (337,1)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  type_ops_test.alusus (303,1)
+  type_ops_test.alusus (338,1)
 [0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
-  type_ops_test.alusus (304,1)
+  type_ops_test.alusus (339,1)
 [0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
-type_ops_test.alusus (307,11)
-type_ops_test.alusus (308,11)
+type_ops_test.alusus (342,11)
+type_ops_test.alusus (343,11)
 Called from:[0m
-  type_ops_test.alusus (309,3)
+  type_ops_test.alusus (344,3)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  type_ops_test.alusus (317,3)
+  type_ops_test.alusus (352,3)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  type_ops_test.alusus (318,3)
+  type_ops_test.alusus (353,3)
 [0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
-  type_ops_test.alusus (319,3)
+  type_ops_test.alusus (354,3)
 [0;31mERROR SPPG1002: Invalid operation.[0m
-  type_ops_test.alusus (320,3)
+  type_ops_test.alusus (355,3)

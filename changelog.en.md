@@ -39,6 +39,11 @@
   resulted in an invalid for statement error.
 * Added the `:=` operator as a shortcut for assigning with `~no_deref`, i.e. `r := i` is equivalent to
   `r~no_deref = i`. This operator can't be overloaded.
+* Function pointers defined in a parent class can now be overridden through the member variable holding the parent,
+  as in `handler this.parent.func() set_ptr { ... }`, instead of `handler (this:Parent).func() set_ptr { ... }`.
+  Nested members are supported as well for multi-level inheritance, as in `handler this.child.parent.func() set_ptr`.
+* The `~type` operator now accepts any expression, including member access chains like `a.b~type`, and can reference
+  class members directly inside the class body.
 
 
 ## Version 0.16.0 (2026-10-09)

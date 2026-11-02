@@ -273,6 +273,35 @@ class Child2 {
     }
 }
 
+class Child3 {
+    @injection def parent: Parent;
+    handler this.parent.f1(): ptr[Char] set_ptr {
+        return "Child 3\n";
+    }
+
+    handler this.parent.f3(i: Int) set_ptr {
+        print("Child3.f3(Int): %d\n", i);
+    }
+}
+
+class Child4 {
+    def p: Parent;
+    handler this.p.f1(): ptr[Char] set_ptr {
+        return "Child 4\n";
+    }
+}
+
+class GrandChild {
+    @injection def child: Child3;
+    handler this.child.parent.f1(): ptr[Char] set_ptr {
+        return "GrandChild\n";
+    }
+
+    handler this.child.parent.f3() set_ptr {
+        print("GrandChild.f3()\n");
+    }
+}
+
 func printParent (r: ref[Parent]) {
     print(r.f1());
     r.f2();
@@ -289,6 +318,12 @@ func test {
     c2.j = 7;
     printParent(c1);
     printParent(c2);
+    def c3: Child3;
+    def c4: Child4;
+    printParent(c3);
+    printParent(c4.p);
+    def gc: GrandChild;
+    printParent(gc);
 }
 test();
 

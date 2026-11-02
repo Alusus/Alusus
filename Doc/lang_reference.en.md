@@ -1130,6 +1130,19 @@ current class rather than the parent class. For example:
   }
 ```
 
+Alternatively, the pointer can be referenced through the member variable that holds the parent object, in which case
+the type of `this` is deduced from the type of that variable:
+
+```
+  class MyType {
+    @injection var parent: ParentType;
+    handler this.parent.mp(i: Int) set_ptr { ... };
+  }
+```
+
+This form is only allowed with `set_ptr`, and the member variable doesn't have to be an injection. The member can also
+be nested at any depth, which is useful with multi-level inheritance, as in `handler this.child.parent.mp() set_ptr`.
+
 ### Custom Object Initialization
 
 Users can customize object initialization, i.e. define a constructor, using `handler` command, with the following syntax:
@@ -1335,6 +1348,16 @@ Using this operator it is possible to inference the type of a given variable as 
   var p: ptr;
   p = x~cast[ptr];
   p = x~cast[p~type]; // Equivalent to the upper statement.
+```
+
+The operand can be any expression, including a chain of member accesses. Inside a class body, the members of the class
+can be referenced directly:
+
+```
+  class MyType {
+    var a: OtherType;
+    var b: a.c~type; // b has the same type as member c of a.
+  }
 ```
 
 Basically, this operator is useful in templates and macros where the type of the variable is not known until using

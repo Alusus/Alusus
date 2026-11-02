@@ -1,4 +1,4 @@
-[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+[0;31mERROR SPPA1007: Unknown symbol.[0m
   typeop_test.alusus (25,16)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
