@@ -93,7 +93,14 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   }
 
   Bool success = true;
-  if (expr->isDerivedFrom<Core::Ast::AssignmentOperator>()) {
+  if (
+    expr->isDerivedFrom<Core::Ast::AssignmentOperator>() &&
+    static_cast<Core::Ast::AssignmentOperator*>(expr)->getType() == S(":=")
+  ) {
+    // The `:=` operator always assigns to the reference itself, so it can't be overloaded.
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
+    success = false;
+  } else if (expr->isDerivedFrom<Core::Ast::AssignmentOperator>()) {
     success = this->createAssignmentHandler(
       state, static_cast<Core::Ast::AssignmentOperator*>(expr), body, retType, mode
     );

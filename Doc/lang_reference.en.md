@@ -340,6 +340,7 @@ What follows is a list of the operators sorted in ascending order by priority, w
 #### Assigment operator
 
 * `=`   Set a new value.
+* `:=`  Set a new value without dereferencing, i.e. make a reference point to a new value (see the `~no_deref` operator).
 * `+=` 	Add a value to the current value.
 
 * `-=` 	Subtract a value from the current value.
@@ -1507,6 +1508,20 @@ used with other types. See the next example:
   var k: Tp2[Int]; // No problem, value of x will be set to 0.
   var l: Tp2[ref[Int]]; // No problem, value of x will be set to 0, i.e. the pointer value.
 ```
+
+### := Operator
+
+The `:=` operator is a shortcut for assigning with `~no_deref`, i.e. `x := y` is equivalent to `x~no_deref = y`:
+
+```
+  var i: Int;
+  var r: ref[Int];
+
+  r := i; // Will make r point to i, same as r~no_deref = i.
+```
+
+Unlike other operators, `:=` can't be overloaded. On a variable that isn't a reference it calls the `=` operator, as
+`x~no_deref = y` does.
 
 ## Arrays
 
