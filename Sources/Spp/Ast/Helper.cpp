@@ -195,12 +195,23 @@ Type* Helper::__traceType(TiObject *self, Core::Ast::Node *ref, Bool skipErrors)
   if (ref->isDerivedFrom<Spp::Ast::TypeOp>()) {
     auto typeOp = static_cast<Spp::Ast::TypeOp*>(ref);
     if (typeOp->getType() != 0) return typeOp->getType();
-    auto operand = typeOp->getOperand().ti_cast_get<Core::Ast::Node>();
-    auto typeRef = helper->getSeeker()->tryGet(operand, operand->getOwner());
-    if (typeRef != 0) {
-      type = helper->_traceType(typeRef, skipErrors);
-      if (type != 0) typeOp->setType(type);
+    // We compute the operand rather than seek it so that any expression is supported, including member chains like
+    // `a.b~type`. Expression computation reports its own errors.
+    Core::Ast::Node *result;
+    Bool resultIsValue;
+    if (!helper->expressionComputation->computeResultType(typeOp->getOperand().get(), result, resultIsValue)) {
+      return 0;
     }
+    if (resultIsValue) {
+      type = static_cast<Type*>(result);
+      // Reading a variable gives an implicit reference to it, which isn't part of the variable's type.
+      auto refType = ti_cast<ReferenceType>(type);
+      if (refType != 0 && refType->isImplicit()) type = refType->getContentType(helper);
+    } else if (result != 0) {
+      type = helper->_traceType(result, skipErrors);
+      if (type == 0) return 0;
+    }
+    if (type != 0) typeOp->setType(type);
   }
   else if (ref->isDerivedFrom<Spp::Ast::Type>()) {
     type = static_cast<Spp::Ast::Type*>(ref);

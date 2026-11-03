@@ -117,6 +117,11 @@ class T {
 
   handler this := Int {}
   handler this.myprop := Int {}
+
+  handler this.base.myfunc(a: Int): Int set_ptr {}
+  handler this.base.myfunc(a: Int): Int {}
+  handler this.a.base.myfunc(a: Int): Int set_ptr {}
+  handler that.base.myfunc(a: Int): Int set_ptr {}
 };
 
 dump_ast T;

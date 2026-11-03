@@ -592,7 +592,9 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
       return;
     }
   } else {
-    if (helper->getVariableDomain(request.target) == Ast::DefinitionDomain::OBJECT) {
+    if (
+      !request.treatObjectMembersAsGlobals && helper->getVariableDomain(request.target) == Ast::DefinitionDomain::OBJECT
+    ) {
       result.notice = newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
         Core::Ast::findSourceLocation(request.target)
       );

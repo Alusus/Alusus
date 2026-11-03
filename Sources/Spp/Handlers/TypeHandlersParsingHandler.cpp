@@ -173,8 +173,9 @@ Bool TypeHandlersParsingHandler::createAssignmentHandler(
   Core::Ast::Identifier *thisIdentifier;
   Core::Ast::Identifier *propIdentifier;
   SharedPtr<Core::Ast::ParamPass> thisType;
+  SharedPtr<Core::Ast::Node> memberPath;
   if (!this->getThisAndPropIdentifiers(
-    state, assignmentOp->getFirst().get(), false, thisIdentifier, thisType, propIdentifier
+    state, assignmentOp->getFirst().get(), false, thisIdentifier, thisType, propIdentifier, memberPath
   )) {
     return false;
   }
@@ -208,7 +209,7 @@ Bool TypeHandlersParsingHandler::createAssignmentHandler(
 
   auto def = this->createBinaryOpFunction(
     state, funcName, op, thisType, inputName,  inputType,
-    returnType, body, assignmentOp->findSourceLocation(), mode
+    returnType, body, assignmentOp->findSourceLocation(), mode, memberPath
   );
   state->setData(def);
   return true;
@@ -222,8 +223,9 @@ Bool TypeHandlersParsingHandler::createComparisonHandler(
   Core::Ast::Identifier *thisIdentifier;
   Core::Ast::Identifier *propIdentifier;
   SharedPtr<Core::Ast::ParamPass> thisType;
+  SharedPtr<Core::Ast::Node> memberPath;
   if (!this->getThisAndPropIdentifiers(
-    state, comparisonOp->getFirst().get(), false, thisIdentifier, thisType, propIdentifier
+    state, comparisonOp->getFirst().get(), false, thisIdentifier, thisType, propIdentifier, memberPath
   )) {
     return false;
   }
@@ -243,7 +245,8 @@ Bool TypeHandlersParsingHandler::createComparisonHandler(
   }
 
   auto def = this->createBinaryOpFunction(
-    state, funcName, op, thisType, inputName,  inputType, returnType, body, comparisonOp->findSourceLocation(), mode
+    state, funcName, op, thisType, inputName,  inputType, returnType, body, comparisonOp->findSourceLocation(), mode,
+    memberPath
   );
   state->setData(def);
   return true;
@@ -257,8 +260,9 @@ Bool TypeHandlersParsingHandler::createInfixOpHandler(
   Core::Ast::Identifier *thisIdentifier;
   Core::Ast::Identifier *propIdentifier;
   SharedPtr<Core::Ast::ParamPass> thisType;
+  SharedPtr<Core::Ast::Node> memberPath;
   if (!this->getThisAndPropIdentifiers(
-    state, infixOp->getFirst().get(), false, thisIdentifier, thisType, propIdentifier
+    state, infixOp->getFirst().get(), false, thisIdentifier, thisType, propIdentifier, memberPath
   )) {
     return false;
   }
@@ -272,7 +276,8 @@ Bool TypeHandlersParsingHandler::createInfixOpHandler(
   if (!this->prepareInputArg(state, infixOp->getSecond(), inputName, inputType)) return false;
 
   auto def = this->createBinaryOpFunction(
-    state, funcName, op, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation(), mode
+    state, funcName, op, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation(), mode,
+    memberPath
   );
   state->setData(def);
   return true;
@@ -290,7 +295,8 @@ Bool TypeHandlersParsingHandler::createReadHandler(
   Core::Ast::Identifier *thisIdentifier;
   Core::Ast::Identifier *propIdentifier;
   SharedPtr<Core::Ast::ParamPass> thisType;
-  if (!this->getThisAndPropIdentifiers(state, linkOp, false, thisIdentifier, thisType, propIdentifier)) {
+  SharedPtr<Core::Ast::Node> memberPath;
+  if (!this->getThisAndPropIdentifiers(state, linkOp, false, thisIdentifier, thisType, propIdentifier, memberPath)) {
     return false;
   }
 
@@ -307,7 +313,7 @@ Bool TypeHandlersParsingHandler::createReadHandler(
   argTypes->add(S("this"), thisType);
 
   auto def = this->createFunction(
-    state, funcName, op, true, argTypes, retType, body, linkOp->findSourceLocation(), mode
+    state, funcName, op, true, argTypes, retType, body, linkOp->findSourceLocation(), mode, memberPath
   );
   state->setData(def);
   return true;
@@ -418,8 +424,9 @@ Bool TypeHandlersParsingHandler::createParensOpHandler(
   Core::Ast::Identifier *thisIdentifier;
   Core::Ast::Identifier *propIdentifier;
   SharedPtr<Core::Ast::ParamPass> thisType;
+  SharedPtr<Core::Ast::Node> memberPath;
   if (!this->getThisAndPropIdentifiers(
-    state, parensOp->getOperand().get(), true, thisIdentifier, thisType, propIdentifier
+    state, parensOp->getOperand().get(), true, thisIdentifier, thisType, propIdentifier, memberPath
   )) {
     return false;
   }
@@ -457,7 +464,7 @@ Bool TypeHandlersParsingHandler::createParensOpHandler(
   }
 
   auto def = this->createFunction(
-    state, funcName, op, thisType != 0, argTypes, retType, body, parensOp->findSourceLocation(), mode
+    state, funcName, op, thisType != 0, argTypes, retType, body, parensOp->findSourceLocation(), mode, memberPath
   );
   state->setData(def);
   return true;
@@ -467,22 +474,28 @@ Bool TypeHandlersParsingHandler::createParensOpHandler(
 SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createBinaryOpFunction(
   Processing::ParserState *state, Char const *funcName, Char const *op, SharedPtr<Core::Ast::Node> const &thisType,
   Char const *inputName, SharedPtr<Core::Ast::Node> const &inputType, SharedPtr<Core::Ast::Node> const &retType, SharedPtr<Core::Ast::Node> const &body,
-  SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode
+  SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode, SharedPtr<Core::Ast::Node> const &memberPath
 ) {
   // Prepare arg types map.
   auto argTypes = Core::Ast::Map::create();
   argTypes->add(S("this"), thisType);
   argTypes->add(inputName, inputType);
 
-  return this->createFunction(state, funcName, op, true, argTypes, retType, body, sourceLocation, mode);
+  return this->createFunction(state, funcName, op, true, argTypes, retType, body, sourceLocation, mode, memberPath);
 }
 
 
 SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
   Processing::ParserState *state, Char const *funcName, Char const *op, Bool member,
   SharedPtr<Core::Ast::Map> const argTypes, SharedPtr<Core::Ast::Node> const &retType, SharedPtr<Core::Ast::Node> const &body,
-  SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode
+  SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode, SharedPtr<Core::Ast::Node> const &memberPath
 ) {
+  // A member path, as in `this.base.prop`, is only valid when setting a function pointer defined in that member.
+  if (memberPath != 0 && mode != Mode::PTR_SET) {
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(sourceLocation));
+    return SharedPtr<Core::Ast::Node>::null;
+  }
+
   // Create the function type.
   auto funcType = Spp::Ast::FunctionType::create({
     {S("member"), TiBool(member)}
@@ -519,14 +532,25 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
         {S("body"), body}
       });
       // Assign the function pointer.
+      SharedPtr<Core::Ast::Node> funcPtrRef = Core::Ast::Identifier::create({
+        {S("sourceLocation"), sourceLocation},
+        {S("value"), TiStr(funcName)}
+      });
+      if (memberPath != 0) {
+        auto memberFuncPtrRef = Core::Ast::LinkOperator::create({
+          {S("sourceLocation"), sourceLocation}
+        }, {
+          {S("first"), memberPath},
+          {S("second"), funcPtrRef}
+        });
+        memberFuncPtrRef->setType(S("."));
+        funcPtrRef = memberFuncPtrRef;
+      }
       mergeList->add(Core::Ast::AssignmentOperator::create({
         {S("sourceLocation"), sourceLocation},
         {S("type"), TiStr(S("="))}
       }, {
-        {S("first"), Core::Ast::Identifier::create({
-          {S("sourceLocation"), sourceLocation},
-          {S("value"), TiStr(funcName)}
-        })},
+        {S("first"), funcPtrRef},
         {S("second"), Spp::Ast::CastOp::create({
           {S("sourceLocation"), sourceLocation},
         }, {
@@ -594,12 +618,44 @@ Bool TypeHandlersParsingHandler::prepareInputArg(
 Bool TypeHandlersParsingHandler::getThisAndPropIdentifiers(
   Processing::ParserState *state, Core::Ast::Node *astNode, Bool allowThisType,
   Core::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Ast::ParamPass> &thisType,
-  Core::Ast::Identifier *&propIdentifier
+  Core::Ast::Identifier *&propIdentifier, SharedPtr<Core::Ast::Node> &memberPath
 ) {
+  memberPath.reset();
   if (astNode->isDerivedFrom<Core::Ast::LinkOperator>()) {
     auto linkOp = static_cast<Core::Ast::LinkOperator*>(astNode);
     if (linkOp->getType() == S(".")) {
-      if (!this->getThisIdentifierAndType(state, linkOp->getFirst().get(), false, thisIdentifier, thisType)) return false;
+      auto firstLinkOp = linkOp->getFirst().ti_cast_get<Core::Ast::LinkOperator>();
+      if (firstLinkOp != 0 && firstLinkOp->getType() == S(".")) {
+        // A prop of a member, as in `this.base.prop` or `this.a.base.prop`, which is used to override a function
+        // pointer defined in the type of that member, so `this` is given the type of that member.
+        memberPath = this->removeThisFromMemberPath(firstLinkOp);
+        if (memberPath == 0) {
+          state->addNotice(
+            newSrdObj<Spp::Notices::OpTargetNotThisNotice>(Core::Ast::findSourceLocation(astNode))
+          );
+          return false;
+        }
+        auto sourceLocation = Core::Ast::findSourceLocation(firstLinkOp);
+        thisIdentifier = 0;
+        thisType = Core::Ast::ParamPass::create({
+          {S("sourceLocation"), sourceLocation},
+          {S("type"), Core::Ast::BracketType(Core::Ast::BracketType::SQUARE)}
+        }, {
+          {S("operand"), Core::Ast::Identifier::create({
+            {S("sourceLocation"), sourceLocation},
+            {S("value"), TiStr(S("ref"))}
+          })},
+          {S("param"), Spp::Ast::TypeOp::create({
+            {S("sourceLocation"), sourceLocation}
+          }, {
+            {S("operand"), Core::Ast::clone(memberPath.get())}
+          })}
+        });
+      } else if (!this->getThisIdentifierAndType(
+        state, linkOp->getFirst().get(), false, thisIdentifier, thisType
+      )) {
+        return false;
+      }
       propIdentifier = linkOp->getSecond().ti_cast_get<Core::Ast::Identifier>();
       if (propIdentifier == 0) {
         state->addNotice(
@@ -614,6 +670,28 @@ Bool TypeHandlersParsingHandler::getThisAndPropIdentifiers(
   return this->getThisIdentifierAndType(state, astNode, allowThisType, thisIdentifier, thisType);
 }
 
+SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::removeThisFromMemberPath(Core::Ast::LinkOperator *linkOp)
+{
+  auto memberId = linkOp->getSecond().ti_cast_get<Core::Ast::Identifier>();
+  if (linkOp->getType() != S(".") || memberId == 0) return SharedPtr<Core::Ast::Node>();
+  auto thisId = linkOp->getFirst().ti_cast_get<Core::Ast::Identifier>();
+  if (thisId != 0) {
+    if (thisId->getValue() != S("this")) return SharedPtr<Core::Ast::Node>();
+    return Core::Ast::clone(memberId);
+  }
+  auto firstLinkOp = linkOp->getFirst().ti_cast_get<Core::Ast::LinkOperator>();
+  if (firstLinkOp == 0) return SharedPtr<Core::Ast::Node>();
+  auto ownerPath = this->removeThisFromMemberPath(firstLinkOp);
+  if (ownerPath == 0) return SharedPtr<Core::Ast::Node>();
+  auto memberPath = Core::Ast::LinkOperator::create({
+    {S("sourceLocation"), Core::Ast::findSourceLocation(linkOp)}
+  }, {
+    {S("first"), ownerPath},
+    {S("second"), Core::Ast::clone(memberId)}
+  });
+  memberPath->setType(S("."));
+  return memberPath;
+}
 
 Bool TypeHandlersParsingHandler::getThisIdentifierAndType(
   Processing::ParserState *state, Core::Ast::Node *astNode, Bool allowThisType,

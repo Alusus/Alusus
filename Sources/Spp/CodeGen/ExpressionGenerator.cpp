@@ -2487,8 +2487,12 @@ Bool ExpressionGenerator::_generateReferenceToNonObjectMember(
   Bool retVal = false;
 
   if (expGenerator->astHelper->isVariable(obj)) {
-    // Make sure the var is not an object member.
-    if (expGenerator->getAstHelper()->getVariableDomain(obj) == Ast::DefinitionDomain::OBJECT) {
+    // Make sure the var is not an object member. AST computation only sessions don't access the var, so they can
+    // refer to object members without an object, as in `def x: member~type` inside a class body.
+    if (
+      !session->isAstComputationOnly() &&
+      expGenerator->getAstHelper()->getVariableDomain(obj) == Ast::DefinitionDomain::OBJECT
+    ) {
       expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidObjectMemberAccessNotice>(
         Core::Ast::findSourceLocation(astNode)
       ));
@@ -2931,6 +2935,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     ////
     calleeRequest.target = static_cast<Core::Ast::Identifier*>(operand)->findOwner<Core::Ast::Scope>();
     calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
+    calleeRequest.treatObjectMembersAsGlobals = session->isAstComputationOnly();
     calleeRequest.ref = operand;
     prevResult = GenResult();
     return true;
@@ -2940,6 +2945,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     ////
     calleeRequest.target = static_cast<Core::Ast::Passage*>(operand)->get();
     calleeRequest.mode = Ast::CalleeLookupMode::DIRECTLY_ACCESSIBLE;
+    calleeRequest.treatObjectMembersAsGlobals = session->isAstComputationOnly();
     prevResult = GenResult();
     return true;
   } else if (operand->isDerivedFrom<Core::Ast::LinkOperator>()) {
@@ -3021,6 +3027,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         // Calling a global in another module or type.
         calleeRequest.target = prevResult.astNode;
         calleeRequest.mode = Ast::CalleeLookupMode::SCOPE_MEMBER;
+        calleeRequest.treatObjectMembersAsGlobals = session->isAstComputationOnly();
         calleeRequest.ref = linkOperator->getSecond().get();
         return true;
       } else {

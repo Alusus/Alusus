@@ -89,13 +89,14 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   private: SharedPtr<Core::Ast::Node> createBinaryOpFunction(
     Processing::ParserState *state, Char const *funcName, Char const *op, SharedPtr<Core::Ast::Node> const &thisType,
     Char const *inputName, SharedPtr<Core::Ast::Node> const &inputType, SharedPtr<Core::Ast::Node> const &retType, SharedPtr<Core::Ast::Node> const &body,
-    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode
+    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode, SharedPtr<Core::Ast::Node> const &memberPath
   );
 
   private: SharedPtr<Core::Ast::Node> createFunction(
     Processing::ParserState *state, Char const *funcName, Char const *op, Bool member,
     SharedPtr<Core::Ast::Map> const argTypes, SharedPtr<Core::Ast::Node> const &retType, SharedPtr<Core::Ast::Node> const &body,
-    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode
+    SharedPtr<Core::Ast::SourceLocation> const &sourceLocation, Mode mode,
+    SharedPtr<Core::Ast::Node> const &memberPath = SharedPtr<Core::Ast::Node>::null
   );
 
   private: Bool prepareInputArg(
@@ -106,8 +107,10 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
   private: Bool getThisAndPropIdentifiers(
     Processing::ParserState *state, Core::Ast::Node *astNode, Bool allowThisType,
     Core::Ast::Identifier *&thisIdentifier, SharedPtr<Core::Ast::ParamPass> &thisType,
-    Core::Ast::Identifier *&propIdentifier
+    Core::Ast::Identifier *&propIdentifier, SharedPtr<Core::Ast::Node> &memberPath
   );
+
+  private: SharedPtr<Core::Ast::Node> removeThisFromMemberPath(Core::Ast::LinkOperator *linkOp);
 
   private: Bool getThisIdentifierAndType(
     Processing::ParserState *state, Core::Ast::Node *astNode, Bool allowThisType,
