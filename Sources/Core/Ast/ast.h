@@ -96,11 +96,20 @@ void addSourceLocation(Node *node, SourceLocation *sl);
 Bool mergeDefinition(
   Definition *def, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore
 );
+/**
+ * @brief Add an element to a scope, merging or expanding it when needed.
+ * The element is merged into the existing definition if it's a definition to merge, and it's expanded if it's a
+ * Within object. The qualifier of a Within object is resolved starting from lookupContext, or from the target scope if
+ * lookupContext is null. Parsing handlers pass the parser's data stack as the lookup context since the scope being
+ * built is not yet attached to the scopes that enclose it.
+ */
 Bool addPossiblyMergeableElement(
-  Node *src, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore
+  Node *src, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore,
+  Node *lookupContext = 0
 );
 Bool addPossiblyMergeableElement(
-  Node *src, DynamicContaining<Node> *target, Seeker *seeker, Notices::Store *noticeStore
+  Node *src, DynamicContaining<Node> *target, Seeker *seeker, Notices::Store *noticeStore,
+  Node *lookupContext = 0
 );
 Bool addPossiblyMergeableElements(
   Containing<Node> *src, DynamicContaining<Node> *target, Int &index,
@@ -155,7 +164,6 @@ Bool isEqual(SourceLocation const *sl1, SourceLocation const *sl2);
 #include "Mergeable.h"
 
 #include "List.h"
-#include "MergeList.h"
 #include "Map.h"
 
 #include "Token.h"
@@ -171,6 +179,7 @@ Bool isEqual(SourceLocation const *sl1, SourceLocation const *sl2);
 #include "Bracket.h"
 #include "GenericCommand.h"
 #include "Alias.h"
+#include "Within.h"
 #include "Passage.h"
 
 namespace Core::Ast

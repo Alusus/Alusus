@@ -119,10 +119,14 @@ module Closures {
         var varDefs: AstTemplateMap;
         findExternalVariables(getInterface[fn.obj, Containing[AstNode]].getElement(1), owner, varDefs);
         // Generate member var definitions and assignments.
-        var payloadDefs: SrdRef[MergeList] = newSrdObj[MergeList];
-        var defsContainer := DynContainerOf[payloadDefs.obj, AstNode];
-        var payloadAssignments: SrdRef[MergeList] = newSrdObj[MergeList];
-        var assignContainer := DynContainerOf[payloadAssignments.obj, AstNode];
+        var payloadDefs: SrdRef[Within] = newSrdObj[Within];
+        var payloadDefsList: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
+        MapContainerOf[payloadDefs.obj, AstNode].setElement("subject", payloadDefsList.obj);
+        var defsContainer := DynContainerOf[payloadDefsList.obj, AstNode];
+        var payloadAssignments: SrdRef[Within] = newSrdObj[Within];
+        var payloadAssignmentsList: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
+        MapContainerOf[payloadAssignments.obj, AstNode].setElement("subject", payloadAssignmentsList.obj);
+        var assignContainer := DynContainerOf[payloadAssignmentsList.obj, AstNode];
         var i: Int;
         for i = 0, i < varDefs.getLength(), ++i {
             var useNoDeref: Bool;

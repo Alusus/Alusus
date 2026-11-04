@@ -8,7 +8,7 @@ import "Spp/Ast";
 // these SrdRef types without these extra casting features to break the circular dependency.
 if 1 {
     Srl.SrdRef[Core.Basic.TiObject]();
-    Srl.SrdRef[Core.Ast.MergeList]();
+    Srl.SrdRef[Core.Ast.Within]();
     Srl.SrdRef[Core.Ast.LinkOperator]();
     Srl.SrdRef[Core.Ast.List]();
     Srl.SrdRef[Core.Ast.Identifier]();
@@ -75,7 +75,7 @@ if 1 {
         }
     }
     _defineSrdRefCaster[CoreDataAstNodeSrdRef, Core.Ast.Node, Core.Basic.TiObject];
-    _defineSrdRefCaster[CoreDataAstMergeListSrdRef, Core.Ast.MergeList, Core.Ast.Node, Core.Basic.TiObject];
+    _defineSrdRefCaster[CoreDataAstWithinSrdRef, Core.Ast.Within, Core.Ast.Node, Core.Basic.TiObject];
     _defineSrdRefCaster[CoreDataAstLinkOperatorSrdRef, Core.Ast.LinkOperator, Core.Ast.Node, Core.Basic.TiObject];
     _defineSrdRefCaster[CoreDataAstListSrdRef, Core.Ast.List, Core.Ast.Node, Core.Basic.TiObject];
     _defineSrdRefCaster[CoreDataAstIdentifierSrdRef, Core.Ast.Identifier, Core.Ast.Node, Core.Basic.TiObject];

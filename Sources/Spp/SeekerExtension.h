@@ -50,6 +50,7 @@ class SeekerExtension : public ObjTiInterface
     Basic::initBindingCaches(this->owner, {
       &this->astHelper
     });
+    this->add_toNode.init(this->owner, &SeekerExtension::_add_toNode);
     this->foreach.init(this->owner, &SeekerExtension::_foreach);
     this->extForeach.init(this->owner, &SeekerExtension::_extForeach);
     this->foreach_identifierLevel.init(this->owner, &SeekerExtension::_foreach_identifierLevel);
@@ -96,6 +97,21 @@ class SeekerExtension : public ObjTiInterface
 
   public: static void extend(Core::Ast::Seeker *seeker, SharedPtr<Ast::Helper> const &astHelper);
   public: static void unextend(Core::Ast::Seeker *seeker);
+
+  /// @}
+
+  /// @name Add Functions
+  /// @{
+
+  // The following cache overrides a binding of the Seeker. The override gets removed automatically when this
+  // extension is destroyed.
+
+  public: METHOD_BINDING_CACHE(add_toNode,
+    Bool, (Core::Ast::Node*, Core::Ast::Node*, Core::Notices::Store*)
+  );
+  private: static Bool _add_toNode(
+    TiObject *self, Core::Ast::Node *dest, Core::Ast::Node *element, Core::Notices::Store *noticeStore
+  );
 
   /// @}
 

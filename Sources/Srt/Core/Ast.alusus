@@ -112,7 +112,7 @@ import "Srl/String";
         defAstType[GenericCommand, "alusus.org/Core/Core.Ast.GenericCommand"];
         defAstType[List, "alusus.org/Core/Core.Ast.List"];
         defAstType[Map, "alusus.org/Core/Core.Ast.Map"];
-        defAstType[MergeList, "alusus.org/Core/Core.Ast.MergeList"];
+        defAstType[Within, "alusus.org/Core/Core.Ast.Within"];
         defAstType[ParamPass, "alusus.org/Core/Core.Ast.ParamPass"];
         defAstType[Scope, "alusus.org/Core/Core.Ast.Scope"];
         defAstType[Token, "alusus.org/Core/Core.Ast.Token"];

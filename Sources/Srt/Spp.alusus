@@ -279,8 +279,10 @@ import "Srl/refs_base";
             use Core.Basic;
             use Core.Ast;
             var varNames: Array[String] = this.getClassVarNames(obj);
-            var assignments: SrdRef[MergeList] = newSrdObj[MergeList];
-            var assignContainer := DynContainerOf[assignments.obj, AstNode];
+            var assignments: SrdRef[Within] = newSrdObj[Within];
+            var assignmentsList: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
+            MapContainerOf[assignments.obj, AstNode].setElement("subject", assignmentsList.obj);
+            var assignContainer := DynContainerOf[assignmentsList.obj, AstNode];
             var i: Int;
             for i = 0, i < varNames.getLength(), ++i {
                 var payloadAssignment: SrdRef[AstNode] = Spp.astMgr.buildAst(

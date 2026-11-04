@@ -22,6 +22,7 @@ CD1001:Missing link expression in 'def' command.
 CD1002:Missing definition name in 'def' command.
 CD1003:Invalid 'def' command.
 CD1004:Incompatible 'def' merge.
+CD1005:Invalid or missing target scope in 'within' command.
 
 CG1001:Unrecognized error.
 CG1002:Invalid argument for 'dump_ast' command.

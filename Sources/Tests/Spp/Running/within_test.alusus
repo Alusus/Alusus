@@ -1,0 +1,51 @@
+import "Srl/Console.alusus";
+use Srl;
+
+module Outer {
+    module Inner {
+        def a: 1;
+    }
+    class Cls {
+        def x: 10;
+    }
+}
+
+// Single statement, single identifier.
+within Outer def b: 2;
+
+// Single statement, dot-separated path.
+within Outer.Inner def c: 3;
+
+// Block.
+within Outer.Inner {
+    def d: 4;
+    func hello {
+        Console.print("Outer.Inner.hello\n");
+    }
+}
+
+// Block with multiple statements added to a class.
+within Outer.Cls {
+    def y: 20;
+    func sum (): Int {
+        return x + y;
+    }
+}
+
+// Nested within, with the path starting at the root.
+within Outer {
+    within Outer.Inner def e: 5;
+    def f: 6;
+}
+
+Console.print("%d %d %d %d %d %d\n", Outer.b, Outer.Inner.a, Outer.Inner.c, Outer.Inner.d, Outer.Inner.e, Outer.f);
+Outer.Inner.hello();
+Console.print("%d\n", Outer.Cls.sum());
+
+// Merge definitions through within.
+within Outer {
+    @merge def Inner: module {
+        def g: 7;
+    }
+}
+Console.print("%d\n", Outer.Inner.g);
