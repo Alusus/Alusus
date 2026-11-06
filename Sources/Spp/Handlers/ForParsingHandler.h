@@ -128,7 +128,7 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
   private: Bool isVarDef(Core::Ast::Node *node)
   {
     node = this->unwrapBrackets(node);
-    if (ti_cast<Core::Ast::Definition>(node) != 0 || ti_cast<Core::Ast::MergeList>(node) != 0) return true;
+    if (ti_cast<Core::Ast::Definition>(node) != 0 || ti_cast<Core::Ast::Within>(node) != 0) return true;
     auto linkOp = ti_cast<Core::Ast::LinkOperator>(node);
     return linkOp != 0 && linkOp->getType() == S(":");
   }
@@ -156,10 +156,10 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
       block->add(getSharedPtr(node));
       return true;
     }
-    if (node->isDerivedFrom<Core::Ast::MergeList>()) {
+    if (node->isDerivedFrom<Core::Ast::Within>()) {
       // Multiple variables defined by a single var command.
-      auto mergeList = static_cast<Core::Ast::MergeList*>(node);
-      for (Int i = 0; i < mergeList->getCount(); ++i) block->add(mergeList->get(i));
+      auto defs = static_cast<Core::Ast::Within*>(node)->getSubject().ti_cast_get<Core::Ast::List>();
+      for (Int i = 0; defs != 0 && i < defs->getCount(); ++i) block->add(defs->get(i));
       return true;
     }
     auto def = VarParsingHandler::createTypedVarDef(

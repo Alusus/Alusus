@@ -2074,6 +2074,44 @@ to define an alias for that instance to be able to merge with it, as shown in th
   }
 ```
 
+## Adding To Existing Scopes
+
+The `within` command adds statements to a scope that was defined earlier, such as a module or a class. It takes
+the following forms:
+
+```
+  within <qualifier> <statement>
+
+  within <qualifier> {
+    <statements>
+  }
+```
+
+The qualifier is either a single identifier or a list of identifiers separated by dots. The statements are added
+to the scope that the qualifier points to, as shown in the next example:
+
+```
+  module Outer {
+    module Inner {}
+    class Point { var x: Int; }
+  }
+
+  within Outer def a: 1;
+
+  within Outer.Inner {
+    def b: 2;
+    func hello { ... }
+  }
+
+  within Outer.Point {
+    var y: Int;
+  }
+```
+
+If the target is a class, the statements are added to the body of the class. The target must already be defined
+at the point where the `within` command appears. The statements can include `@merge` definitions, which are merged
+into the matching definitions in the target.
+
 ## Import Libraries Or Source Code
 
 `import` command is used to load a source code or a library and use it in the program. This command automatically distinguished

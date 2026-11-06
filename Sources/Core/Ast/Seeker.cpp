@@ -46,6 +46,9 @@ void Seeker::initBindingCaches()
     &this->foreach_identifierOnMap,
     &this->foreach_linkOperator,
     &this->foreach_linkOperatorRouting,
+    // Add Functions
+    &this->add,
+    &this->add_toNode,
     // Other Functions
     &this->extForeach
   });
@@ -81,6 +84,10 @@ void Seeker::initBindings()
   this->foreach_identifierOnMap = &Seeker::_foreach_identifierOnMap;
   this->foreach_linkOperator = &Seeker::_foreach_linkOperator;
   this->foreach_linkOperatorRouting = &Seeker::_foreach_linkOperatorRouting;
+
+  // Add Functions
+  this->add = &Seeker::_add;
+  this->add_toNode = &Seeker::_add_toNode;
 
   // Other Functions
   this->extForeach = &Seeker::_extForeach;
@@ -350,6 +357,35 @@ Seeker::Verb Seeker::_set_linkOperatorRouting(
     throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
   return Seeker::Verb::MOVE;
+}
+
+
+//==============================================================================
+// Add Functions
+
+Bool Seeker::_add(
+  TiObject *self, Node const *ref, Node *target, Node *element, Notices::Store *noticeStore, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  VALIDATE_NOT_NULL(ref, target, element, noticeStore);
+  Node *dest = seeker->tryGet(ref, target, flags);
+  if (dest != 0 && dest->isDerivedFrom<Passage>()) dest = static_cast<Passage*>(dest)->get();
+  if (dest == 0) {
+    noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(findSourceLocation(ref)));
+    return false;
+  }
+  return seeker->add_toNode(dest, element, noticeStore);
+}
+
+
+Bool Seeker::_add_toNode(TiObject *self, Node *dest, Node *element, Notices::Store *noticeStore)
+{
+  PREPARE_SELF(seeker, Seeker);
+  if (dest->isDerivedFrom<Scope>()) {
+    return addPossiblyMergeableElement(element, static_cast<Scope*>(dest), seeker, noticeStore);
+  }
+  noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(findSourceLocation(element)));
+  return false;
 }
 
 

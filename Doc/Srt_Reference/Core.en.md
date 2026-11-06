@@ -661,10 +661,13 @@ access interfaces mentioned above.
 
 * Map
 
-* MergeList
+* Within
 
-  A private class that tells the parser to merge its elements directly into the upper namespace instead of letting it be a sub-list inside
-  the upper namespace.
+  Represents the `within` command, which adds statements to an existing scope. It has two properties: `qualifier`,
+  the identifier or dot-separated path of the scope to add to, and `subject`, which is either a single statement or a
+  `List` of statements that gets expanded into the target scope. If `qualifier` is null, the subject is added to the
+  scope that contains the `Within` object. This is also how a single command can produce multiple statements, like
+  `var a = 1, b = 2`.
 
 * ParamPass
 

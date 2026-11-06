@@ -22,6 +22,10 @@
   example during preprocessing, caused the new element to be ignored.
 * The `~size` operator now always returns an `ArchWord` instead of the smallest signed integer type that can
   hold the size.
+* Added the `within` command (`ضمن` in Arabic), which adds statements to an existing scope:
+  `within MyScope def num: 123;` or `within A.B { ... }`. Within a class, it adds to the body of the class.
+  The command is represented by the new `Core.Ast.Within` class, which replaces `Core.Ast.MergeList`, and the
+  `Seeker` has a new `add` operation that extensions can override to support more kinds of targets.
 * Added the `var` command for defining variables, which can deduce the variable type from its initial value:
   - `var x = value` and `var x: T = value` construct the variable without args, then assign the value to it.
   - `var x := value` and `var x: T(args)` pass the value or args to the constructor.

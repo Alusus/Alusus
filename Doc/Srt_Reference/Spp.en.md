@@ -499,8 +499,8 @@ handler this.addPossiblyMergeableElement(
 Adds `node` into `target` at the given `index`, merging it into an existing, compatible definition already
 in `target` instead of inserting it when that's possible (for example, `node` being a `def` marked with
 `@merge` that matches an existing definition's name), the same way the compiler itself merges elements
-coming from `preprocess` blocks and macros. If `node` is a `Core.Ast.MergeList`, its elements are added
-individually rather than the list itself. Pass -1 for `index` to always append at the end instead of
+coming from `preprocess` blocks and macros. If `node` is a `Core.Ast.Within`, its subject is expanded and added
+individually rather than the `Within` itself, and elements with a qualifier are added to the scope it points to. Pass -1 for `index` to always append at the end instead of
 inserting at a specific position.
 
 `index` is updated in place to point just past the inserted element(s), so it's ready to be passed again for

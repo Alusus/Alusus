@@ -27,9 +27,11 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   // Multiple variables, as in `var a = 1, b: Int`, result in a merge list of definitions.
   if (astExpr != 0 && astExpr->isA<Core::Ast::List>()) {
     auto list = static_cast<Core::Ast::List*>(astExpr);
-    auto mergeList = Core::Ast::MergeList::create({
+    auto within = Core::Ast::Within::create({
       { "sourceLocation", expr->findSourceLocation() }
     });
+    auto defs = Core::Ast::List::create();
+    within->setSubject(defs);
     for (Int i = 0; i < list->getCount(); ++i) {
       auto var = this->createVar(list->getElement(i), expr, state);
       if (var == 0) {
@@ -41,9 +43,9 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
         state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
-      mergeList->add(var);
+      defs->add(var);
     }
-    state->setData(mergeList);
+    state->setData(within);
   } else {
     state->setData(this->createVar(astExpr, expr, state));
   }
@@ -56,18 +58,19 @@ Bool VarParsingHandler::onIncomingModifier(
 ) {
   if (!GenericParsingHandler::onIncomingModifier(parser, state, modifierData, prodProcessingComplete)) return false;
 
-  // A merge list only passes its modifiers to its first element, but the modifiers of a var command that defines
+  // A within object only passes its modifiers to its first element, but the modifiers of a var command that defines
   // multiple variables apply to all of them, so we move the modifiers to each of the definitions.
   Int levelOffset = -state->getTopProdTermLevelCount();
-  auto mergeList = state->getData(levelOffset).ti_cast_get<Core::Ast::MergeList>();
-  if (mergeList != 0) {
-    for (Int i = 0; i < mergeList->getCount(); ++i) {
-      auto element = mergeList->getElement(i);
-      if (mergeList->getModifiers() != 0) element->addModifiers(Core::Ast::clone(mergeList->getModifiers().get()));
-      if (mergeList->getMetadata() != 0) element->addMetadata(Core::Ast::clone(mergeList->getMetadata().get()));
+  auto within = state->getData(levelOffset).ti_cast_get<Core::Ast::Within>();
+  if (within != 0) {
+    auto defs = within->getSubject().ti_cast_get<Core::Ast::List>();
+    for (Int i = 0; defs != 0 && i < defs->getCount(); ++i) {
+      auto element = defs->getElement(i);
+      if (within->getModifiers() != 0) element->addModifiers(Core::Ast::clone(within->getModifiers().get()));
+      if (within->getMetadata() != 0) element->addMetadata(Core::Ast::clone(within->getMetadata().get()));
     }
-    mergeList->setModifiers(SharedPtr<Core::Ast::List>());
-    mergeList->setMetadata(SharedPtr<Core::Ast::Map>());
+    within->setModifiers(SharedPtr<Core::Ast::List>());
+    within->setMetadata(SharedPtr<Core::Ast::Map>());
   }
   return true;
 }

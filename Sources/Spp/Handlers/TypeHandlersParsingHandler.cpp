@@ -519,9 +519,11 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
       })},
       {S("param"), funcType}
     });
-    auto mergeList = Core::Ast::MergeList::create();
+    auto within = Core::Ast::Within::create();
+    auto statements = Core::Ast::List::create();
+    within->setSubject(statements);
     if (mode == Mode::PTR_DEF) {
-      mergeList->add(this->createDefinition(funcName, op, funcPtrType, sourceLocation));
+      statements->add(this->createDefinition(funcName, op, funcPtrType, sourceLocation));
     }
     if (body != 0) {
       // Create the function.
@@ -546,7 +548,7 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
         memberFuncPtrRef->setType(S("."));
         funcPtrRef = memberFuncPtrRef;
       }
-      mergeList->add(Core::Ast::AssignmentOperator::create({
+      statements->add(Core::Ast::AssignmentOperator::create({
         {S("sourceLocation"), sourceLocation},
         {S("type"), TiStr(S("="))}
       }, {
@@ -568,7 +570,7 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
         })}
       }));
     }
-    return mergeList;
+    return within;
   } else {
     // Create the function.
     auto func = Spp::Ast::Function::create({}, {
@@ -840,10 +842,10 @@ Bool TypeHandlersParsingHandler::processExpnameModifier(
   if (data->isDerivedFrom<Core::Ast::Definition>()) {
     auto def = static_cast<Core::Ast::Definition*>(data);
     function = def->getTarget().ti_cast_get<Spp::Ast::Function>();
-  } else if (data->isDerivedFrom<Core::Ast::MergeList>()) {
-    auto mergeList = static_cast<Core::Ast::MergeList*>(data);
-    for (Int i = 0; i < mergeList->getCount(); ++i) {
-      auto def = ti_cast<Core::Ast::Definition>(mergeList->getElement(i));
+  } else if (data->isDerivedFrom<Core::Ast::Within>()) {
+    auto statements = static_cast<Core::Ast::Within*>(data)->getSubject().ti_cast_get<Core::Ast::List>();
+    for (Int i = 0; statements != 0 && i < statements->getCount(); ++i) {
+      auto def = ti_cast<Core::Ast::Definition>(statements->getElement(i));
       if (def != 0) {
         function = def->getTarget().ti_cast_get<Spp::Ast::Function>();
         if (function != 0) break;
