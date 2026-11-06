@@ -361,7 +361,6 @@ import "Array";
         // Operators
 
         handler this = ref[StringBase[T]] this.assign(value);
-        handler this = ptr[array[T]] this.assign(value);
 
         handler this~cast[ptr[array[T]]] return this.buf;
 
@@ -602,3 +601,11 @@ import "Array";
         }
     };
 };
+
+// Auto cast string literals and char arrays to String.
+within CharsLptr handler this~cast[Srl.String] {
+    return Srl.String(1, this);
+}
+within CharsPtr handler this~cast[Srl.String] {
+    return Srl.String(this);
+}

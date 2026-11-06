@@ -122,6 +122,11 @@ static Bool addWithinElements(
     if (lookupNode == 0) lookupNode = ti_cast<Node>(target->getTiObject());
   }
 
+  // The qualifier may contain nodes that are resolved through their owner chain (e.g. template arguments), but the
+  // Within object is not attached to anything while parsing. So we temporarily attach it to the target scope.
+  Node *prevOwner = within->getOwner();
+  within->setOwner(ti_cast<Node>(target->getTiObject()));
+
   Bool result = true;
   for (Int i = 0; i < count; ++i) {
     auto element = list != 0 ? list->getElement(i) : subject;
@@ -129,9 +134,16 @@ static Bool addWithinElements(
     if (qualifier == 0) {
       if (!addPossiblyMergeableElement(element, target, index, seeker, noticeStore, lookupContext)) result = false;
     } else {
-      if (lookupNode == 0 || !seeker->add(qualifier, lookupNode, element, noticeStore, 0)) result = false;
+      if (lookupNode == 0) result = false;
+      else if (!seeker->addPossiblyMergeable(qualifier, lookupNode, element, noticeStore, 0)) {
+        noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(
+          findSourceLocation(qualifier)
+        ));
+        result = false;
+      }
     }
   }
+  within->setOwner(prevOwner);
   return result;
 }
 

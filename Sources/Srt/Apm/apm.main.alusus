@@ -11,24 +11,24 @@
 
 @merge module Apm
 {
-  func main(argCount: Int, argv: ptr[array[ptr[array[Char]]]]): Int {
+  func main(argCount: Int, argv: ptr[array[CharsLptr]]): Int {
     if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_install) == 0) {
-      installRelease(argv~cnt(3)~cast[ptr[array[Char]]], 1, 1);
+      installRelease(argv~cnt(3), 1, 1);
     } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_local) == 0) {
       if (argCount >= 4 && String.compare(argv~cnt(3), I18n.cmd_install) == 0) {
-        installRelease(argv~cnt(4)~cast[ptr[array[Char]]], 0, 1);
+        installRelease(argv~cnt(4), 0, 1);
       } else {
         Console.print(I18n.use_apm_local_install, Console.Style.FG_RED);
       }
     } else if (argCount >= 4 && String.compare(argv~cnt(2), I18n.cmd_link) == 0) {
-      createLink(argv~cnt(3)~cast[ptr[array[Char]]], argv~cnt(4)~cast[ptr[array[Char]]]);
+      createLink(argv~cnt(3), argv~cnt(4));
     } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_unlink) == 0) {
-      removeLink(argv~cnt(3)~cast[ptr[array[Char]]]);
+      removeLink(argv~cnt(3));
     } else if (argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_info) == 0) {
-      printPackageInfo(argv~cnt(3)~cast[ptr[array[Char]]]);
+      printPackageInfo(argv~cnt(3));
     } else if(argCount >= 3 && String.compare(argv~cnt(2), I18n.cmd_help) == 0) {
-      var homeDirectory: ptr[array[Char]] = System.getEnv("HOME")~cast[ptr[array[Char]]];
-      var pwdDirectory: ptr[array[Char]] = System.getEnv("PWD")~cast[ptr[array[Char]]];
+      var homeDirectory = System.getEnv("HOME");
+      var pwdDirectory = System.getEnv("PWD");
       Console.print(I18n.help_commands, Console.Style.FG_GREEN);
       Console.print(I18n.help_apm_help, Console.Style.FG_YELLOW);
       Console.print(I18n.help_apm_help_tip, Console.Style.FG_WHITE);
@@ -51,19 +51,18 @@
     return 0;
   }
 
-  func createLink (packageName: ptr[array[Char]], path: ptr[array[Char]]) {
+  func createLink (packageName: String, path: String) {
     removeLink(packageName);
 
-    var packageStr: String = packageName;
-    var packageInfo: Array[String] = packageStr.split("/");
+    var packageInfo: Array[String] = packageName.split("/");
     if packageInfo.getLength() != 2 {
-      Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
+      Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName.buf);
       return;
     }
 
     def absolutePath: array[Char, 256];
     if Fs.getAbsolutePath(path, absolutePath~ptr) == 0 {
-      Console.print(I18n.invalidPath, Console.Style.FG_RED, path);
+      Console.print(I18n.invalidPath, Console.Style.FG_RED, path.buf);
       return;
     }
 
@@ -78,7 +77,7 @@
 
     // Create the symlink.
     def linkName: array[Char, 256];
-    String.assign(linkName~ptr, ".apm/%s", packageName);
+    String.assign(linkName~ptr, ".apm/%s", packageName.buf);
 
     def cmd: array[Char, 1000];
     String.assign(cmd~ptr, "ln -s \"%s\" \"%s\"", absolutePath~ptr, linkName~ptr);
@@ -90,17 +89,16 @@
     Console.print(I18n.linkCreated, Console.Style.FG_GREEN, linkName~ptr);
   }
 
-  func removeLink (packageName: ptr[array[Char]]) {
-    var packageStr: String = packageName;
-    var packageInfo: Array[String] = packageStr.split("/");
+  func removeLink (packageName: String) {
+    var packageInfo: Array[String] = packageName.split("/");
     if packageInfo.getLength() != 2 {
-      Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName);
+      Console.print(I18n.invalidPkgName, Console.Style.FG_RED, packageName.buf);
       return;
     }
 
     // Create the symlink.
     def linkName: array[Char, 256];
-    String.assign(linkName~ptr, ".apm/%s", packageName);
+    String.assign(linkName~ptr, ".apm/%s", packageName.buf);
 
     def cmd: array[Char, 1000];
     String.assign(cmd~ptr, "rm -f \"%s\"", linkName~ptr);
@@ -112,7 +110,7 @@
     Console.print(I18n.linkRemoved, Console.Style.FG_GREEN, linkName~ptr);
   }
 
-  func printPackageInfo (packageName: ptr[array[Char]]) {
+  func printPackageInfo (packageName: String) {
     var packageVersions: Array[String] = fetchPackageVersions(packageName, true);
     if packageVersions.getLength() > 0 {
       def i: Int;
@@ -120,7 +118,7 @@
         Console.print("- %s\n", packageVersions(i).buf);
       }
     } else {
-      System.fail(1, String.format(I18n.packageInstallFailed, Console.Style.FG_RED, packageName));
+      System.fail(1, String.format(I18n.packageInstallFailed, Console.Style.FG_RED, packageName.buf));
     }
   }
 }

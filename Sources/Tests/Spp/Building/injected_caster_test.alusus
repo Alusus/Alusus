@@ -1,0 +1,20 @@
+import "defs-ignore.alusus";
+
+class T {
+  def i: Int;
+  handler this~cast[Int] return this.i;
+};
+
+// Casters are only looked up through an injection that is the first member, so this should fail to cast.
+class NotFirst {
+  def a: Int;
+  @injection var t: T;
+};
+
+func test {
+  def n: NotFirst;
+  def i: Int;
+  i = n;
+};
+
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

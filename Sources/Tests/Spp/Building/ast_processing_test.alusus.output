@@ -154,6 +154,8 @@ Function test() [Main.Function]
    initArgs: PointerOp [Main.PointerTilde]
     operand: Identifier: pointedFunction [Main.BlockSubject.Identifier]
    type: PointerType
+    props:
+     mode: PointerMode
     body: NULL
   ParamPass () [Main.Expression.ParamPassExp]
    operand: Identifier: print [Main.BlockSubject.Identifier]

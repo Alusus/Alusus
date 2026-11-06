@@ -335,7 +335,11 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
     return;
   }
 
-  // TODO: Should we skip if mode is not OBJECT_MEMBER and the function is a member function?
+  // Member functions can only be called on an object, so they are not valid matches when looking up scope members.
+  if (request.mode == CalleeLookupMode::SCOPE_MEMBER && func->getType()->isMember()) {
+    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
+  }
 
   if (!func->getType()->isMember() && request.thisType != 0) {
     result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(

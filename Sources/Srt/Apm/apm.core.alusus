@@ -28,43 +28,42 @@ import "Zip.alusus";
   def APM_CHECK_UPDATES_OPT_KEY_EN: "apm_check_updates";
   def APM_CHECK_UPDATES_OPT_KEY_AR: "محا_حدث";
 
-  func importPackage(packageName: CharsPtr, requestedFile: CharsPtr): Bool {
+  func importPackage(packageName: String, requestedFile: String): Bool {
     return importPackage(packageName, { requestedFile });
   }
 
-  func importPackage(packageName: CharsPtr): Bool {
+  func importPackage(packageName: String): Bool {
     return importPackage(packageName, 0);
   }
 
-  func importPackage(packageName: CharsPtr, requestedFileCount: Int, requestedFiles: ...CharsPtr): Bool {
-    var pkg: String = packageName;
-    var slashPos: ArchInt = pkg.find('/');
-    var atPos: ArchInt = pkg.find('@');
+  func importPackage(packageName: String, requestedFileCount: Int, requestedFiles: ...String): Bool {
+    var slashPos: ArchInt = packageName.find('/');
+    var atPos: ArchInt = packageName.find('@');
 
     if slashPos == -1 || atPos == -1 || slashPos == 0 || atPos <= slashPos + 1 {
-      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, packageName));
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, packageName.buf));
     }
 
-    var author: String = pkg.slice(0, slashPos);
-    var name: String = pkg.slice(slashPos + 1, atPos - slashPos - 1);
-    var versionSpec: String = pkg.slice(atPos + 1, pkg.getLength() - atPos - 1);
+    var author: String = packageName.slice(0, slashPos);
+    var name: String = packageName.slice(slashPos + 1, atPos - slashPos - 1);
+    var versionSpec: String = packageName.slice(atPos + 1, packageName.getLength() - atPos - 1);
 
     if versionSpec.getLength() == 0 {
-      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, packageName));
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, packageName.buf));
     }
 
     def reqMaj: Int;
     def reqMin: Int;
     def reqPat: Int;
     if parseVersion(versionSpec, reqMaj, reqMin, reqPat) == 0 {
-      System.fail(1, String.format(I18n.invalidPkgVersion, Console.Style.FG_RED, versionSpec.buf, packageName));
+      System.fail(1, String.format(I18n.invalidPkgVersion, Console.Style.FG_RED, versionSpec.buf, packageName.buf));
     }
 
     def fileName: String;
     if requestedFileCount == 0 {
       fileName = name + ".alusus";
     } else {
-      fileName = requestedFiles~next_arg[CharsPtr];
+      fileName = requestedFiles~next_arg[String];
       --requestedFileCount;
     }
 
@@ -99,14 +98,14 @@ import "Zip.alusus";
     }
 
     if resolvedEntry.getLength() == 0 {
-      System.fail(1, String.format(I18n.packageInstallFailed, Console.Style.FG_RED, packageName));
+      System.fail(1, String.format(I18n.packageInstallFailed, Console.Style.FG_RED, packageName.buf));
     }
 
     var basePath: String = apmBase + "/" + author + "/" + resolvedEntry;
     Core.importFile(basePath + "/" + fileName);
 
     while requestedFileCount-- > 0 {
-      Core.importFile(basePath + "/" + requestedFiles~next_arg[CharsPtr]);
+      Core.importFile(basePath + "/" + requestedFiles~next_arg[String]);
     }
 
     return 1;
@@ -149,25 +148,24 @@ import "Zip.alusus";
     return result;
   }
 
-  func installRelease(package: CharsPtr, global: Bool, logs: Bool): Void {
-    def pkg: String(1, package);
-    var slashPos: ArchInt = pkg.find('/');
-    var atPos: ArchInt = pkg.find('@');
+  func installRelease(package: String, global: Bool, logs: Bool): Void {
+    var slashPos: ArchInt = package.find('/');
+    var atPos: ArchInt = package.find('@');
 
     if slashPos == -1 || atPos == -1 || slashPos == 0 || atPos <= slashPos + 1 {
-      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, package));
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, package.buf));
     }
 
-    var author: String = pkg.slice(0, slashPos);
-    var name: String = pkg.slice(slashPos + 1, atPos - slashPos - 1);
-    var versionSpec: String = pkg.slice(atPos + 1, pkg.getLength() - atPos - 1);
+    var author: String = package.slice(0, slashPos);
+    var name: String = package.slice(slashPos + 1, atPos - slashPos - 1);
+    var versionSpec: String = package.slice(atPos + 1, package.getLength() - atPos - 1);
 
     def reqMaj: Int;
     def reqMin: Int;
     def reqPat: Int;
     var versionComponents: Int = parseVersion(versionSpec, reqMaj, reqMin, reqPat);
     if versionComponents == 0 {
-      System.fail(1, String.format(I18n.invalidPkgVersion, Console.Style.FG_RED, versionSpec.buf, package));
+      System.fail(1, String.format(I18n.invalidPkgVersion, Console.Style.FG_RED, versionSpec.buf, package.buf));
     }
 
     if versionComponents == 3 {
@@ -198,34 +196,33 @@ import "Zip.alusus";
   }
 
   func downloadModule(
-    moduleAuthor: CharsPtr, moduleName: CharsPtr, moduleReleaseTag: CharsPtr,
+    moduleAuthor: String, moduleName: String, moduleReleaseTag: String,
     global: Bool, logs: Bool
   ): Bool {
-    var homeDir: String = System.getEnv("HOME")~cast[CharsPtr];
+    var homeDir: String = System.getEnv("HOME");
 
     // GitHub archives strip a leading 'v' from the tag when naming the inner folder.
-    var tagForFolder: String = moduleReleaseTag;
-    if tagForFolder.getLength() > 0 && tagForFolder(0) == 'v' {
-      tagForFolder = tagForFolder.slice(1, tagForFolder.getLength() - 1);
+    if moduleReleaseTag.getLength() > 0 && moduleReleaseTag(0) == 'v' {
+      moduleReleaseTag = moduleReleaseTag.slice(1, moduleReleaseTag.getLength() - 1);
     }
 
-    var folderInTemp: String = String.format("/tmp/temp_zip/%s-%s", moduleName, tagForFolder.buf);
+    var folderInTemp: String = String.format("/tmp/temp_zip/%s-%s", moduleName.buf, moduleReleaseTag.buf);
     def modulePath: String;
     def authorPath: String;
     def dirOfAPM: String;
 
     if global {
-      modulePath = String.format("%s/.apm/%s/%s@%s", homeDir.buf, moduleAuthor, moduleName, tagForFolder.buf);
-      authorPath = String.format("%s/.apm/%s", homeDir.buf, moduleAuthor);
+      modulePath = String.format("%s/.apm/%s/%s@%s", homeDir.buf, moduleAuthor.buf, moduleName.buf, moduleReleaseTag.buf);
+      authorPath = String.format("%s/.apm/%s", homeDir.buf, moduleAuthor.buf);
       dirOfAPM = homeDir + "/.apm";
     } else {
-      modulePath = String.format("./.apm/%s/%s@%s", moduleAuthor, moduleName, tagForFolder.buf);
-      authorPath = String.format("./.apm/%s", moduleAuthor);
+      modulePath = String.format("./.apm/%s/%s@%s", moduleAuthor.buf, moduleName.buf, moduleReleaseTag.buf);
+      authorPath = String.format("./.apm/%s", moduleAuthor.buf);
       dirOfAPM = ".apm";
     }
 
     var downloadLink: String = String.format(
-      "https://github.com/%s/%s/archive/%s.zip", moduleAuthor, moduleName, moduleReleaseTag
+      "https://github.com/%s/%s/archive/%s.zip", moduleAuthor.buf, moduleName.buf, moduleReleaseTag.buf
     );
 
     var refetch: Bool = Process.getOption({ APM_REFETCH_OPT_KEY_EN, APM_REFETCH_OPT_KEY_AR }) == "1";
@@ -240,7 +237,7 @@ import "Zip.alusus";
     }
 
     if logs {
-      Console.print(I18n.installingPkg, Console.Style.FG_BLUE, moduleName, moduleReleaseTag);
+      Console.print(I18n.installingPkg, Console.Style.FG_BLUE, moduleName, moduleReleaseTag.buf);
       Console.print(I18n.pkgRequest, Console.Style.FG_BLUE, downloadLink.buf);
       Console.print(I18n.downloadingPkg, Console.Style.FG_YELLOW, downloadLink.buf, "/tmp/temp.zip");
     }
@@ -282,20 +279,19 @@ import "Zip.alusus";
     return 0;
   };
 
-  func fetchPackageVersions(package: CharsPtr, logs: Bool): Array[String] {
-    def pkg: String(1, package);
-    var slashPos: ArchInt = pkg.find('/');
-    var atPos: ArchInt = pkg.find('@');
+  func fetchPackageVersions(package: String, logs: Bool): Array[String] {
+    var slashPos: ArchInt = package.find('/');
+    var atPos: ArchInt = package.find('@');
     if atPos == -1 {
-      atPos = pkg.getLength();
+      atPos = package.getLength();
     }
 
     if slashPos == -1 || atPos == -1 || slashPos == 0 || atPos <= slashPos + 1 {
-      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, package));
+      System.fail(1, String.format(I18n.invalidPkgName, Console.Style.FG_RED, package.buf));
     }
 
-    var author: String = pkg.slice(0, slashPos);
-    var name: String = pkg.slice(slashPos + 1, atPos - slashPos - 1);
+    var author: String = package.slice(0, slashPos);
+    var name: String = package.slice(slashPos + 1, atPos - slashPos - 1);
     return fetchPackageVersions(author, name, logs);
   }
 
@@ -310,7 +306,7 @@ import "Zip.alusus";
     def result: CharsPtr;
     def size: Int;
     if Net.get(requestUrl.buf, result~ptr, size~ptr) {
-      var packageVersions: Array[String] = parseReleasesJson(result);
+      var packageVersions: Array[String] = parseReleasesJson(result~cast[CharsLptr]);
       Memory.free(result);
       return packageVersions;
     } else {
@@ -320,9 +316,8 @@ import "Zip.alusus";
   }
 
   // Parses a GitHub releases JSON response to extract version tags.
-  func parseReleasesJson(json: CharsPtr): Array[String] {
+  func parseReleasesJson(jsonStr: String): Array[String] {
     def result: Array[String];
-    var jsonStr: String = String(1, json);
     var pos: ArchInt = 0;
     var needle: CharsPtr = "\"tag_name\":\"";
     var needleLen: ArchInt = String.getLength(needle);

@@ -1333,6 +1333,40 @@ as shown in the next example:
   o.printY();
 ```
 
+Custom casters (`~cast` handlers) of the injected variable are also available on the enclosing type, but only if the
+injected variable is the first member variable of the enclosing class. In the next example `Outer` can be cast to
+`Int` through the caster defined in `Inner`:
+
+```
+  class Inner {
+    var x: Int;
+    handler this~cast[Int] return this.x;
+  };
+
+  class Outer {
+    @injection var i: Inner; // First member variable, so its casters are available.
+    var y: Int;
+  };
+
+  class Other {
+    var y: Int;
+    @injection var i: Inner; // Not the first member variable, so its casters are not available.
+  };
+
+  func printInt (n: Int) { ... };
+
+  var o: Outer;
+  o.x = 5;
+  printInt(o); // OK, uses the caster of Inner.
+
+  var other: Other;
+  printInt(other); // Error, Other has no caster to Int.
+```
+
+This limitation exists because a caster of the injected variable is called with the address of the enclosing object, which
+matches the address of the injected variable only when it is the first member. Members and functions of the injected
+variable are not affected by this limitation and are available regardless of the position of the injection.
+
 ## Type Inference
 
 It is possible to infer information about classes at compile time using the following operators:
@@ -1414,6 +1448,37 @@ For example, if we add 1 to a pointer to `Int`, the value of the pointer will in
   p2 = p2 + 1; // Incremented by 1.
   p2 = p2 + 5; // Incremented by 5.
 ```
+
+### Literal Pointers
+
+String literals are of type `lptr[array[Word[8]]]` (a literal pointer), which is a pointer type that
+differs from `ptr` in one aspect: a literal pointer can be implicitly cast to a regular pointer, but a regular
+pointer can only be cast to a literal pointer explicitly. This allows distinguishing pointers to literal
+strings from other pointers, which makes it possible to automatically cast string literals to other types like
+`String` by defining custom casters on the literal pointer type (see `within` command).
+
+```
+  func f1 (p: ptr[array[Word[8]]]) { ... }
+  func f2 (p: lptr[array[Word[8]]]) { ... }
+
+  var p: ptr[array[Word[8]]] = "abc"; // OK, literal pointers are implicitly cast to regular pointers.
+  f1("abc");                          // OK.
+  f2("abc");                          // OK.
+  f2(p);                              // Error, regular pointers are not implicitly cast to literal pointers.
+  f2(p~cast[lptr[array[Word[8]]]]);   // OK.
+```
+
+Custom casters can be defined directly on the literal pointer type using `within`:
+
+```
+  within lptr[array[Word[8]]] handler this~cast[String] return String(1, this);
+  func printStr (s: String) { ... }
+  printStr("Hello"); // The literal is automatically cast to String.
+```
+
+The `Srl` library defines the aliases `CharsPtr` for `ptr[array[Word[8]]]` and `CharsLptr` for
+`lptr[array[Word[8]]]`. See the `String` class in the Srl reference for how string literals and `CharsPtr`
+differ when cast to `String`.
 
 ## References
 
@@ -2087,7 +2152,8 @@ the following forms:
   }
 ```
 
-The qualifier is either a single identifier or a list of identifiers separated by dots. The statements are added
+The qualifier is either a single identifier, a list of identifiers separated by dots, or a template
+instance like `lptr[array[Word[8]]]`. The statements are added
 to the scope that the qualifier points to, as shown in the next example:
 
 ```

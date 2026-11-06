@@ -1926,20 +1926,6 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         }
         // The qualifier must be an identifier or a dot-separated list of identifiers.
         auto qualifier = currentList->getElement(1);
-        auto path = qualifier;
-        while (path != 0 && path->isDerivedFrom<Ast::LinkOperator>()) {
-          auto link = static_cast<Ast::LinkOperator*>(path);
-          if (link->getType() != S(".") || !link->getSecond()->isDerivedFrom<Ast::Identifier>()) {
-            path = 0;
-            break;
-          }
-          path = link->getFirst().get();
-        }
-        if (path == 0 || !path->isDerivedFrom<Ast::Identifier>()) {
-          state->addNotice(newSrdObj<Notices::InvalidWithinTargetNotice>(node->findSourceLocation()));
-          state->setData(SharedPtr<Ast::Node>(0));
-          return;
-        }
         auto within = Ast::Within::create({
           { "prodId", node->getProdId() },
           { "sourceLocation", node->findSourceLocation() }

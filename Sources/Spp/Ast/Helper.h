@@ -39,6 +39,10 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: Template *irefTemplate = 0;
   private: Template *ndrefTemplate = 0;
   private: Template *ptrTemplate = 0;
+  /// (Source content type, target type) pairs for which a custom caster lookup is in progress, used to break cycles
+  /// in caster chains.
+  private: std::vector<Type*> activeCasterLookups;
+  private: Template *lptrTemplate = 0;
   private: Template *arrayTemplate = 0;
   private: IntegerType *nullType = 0;
   private: IntegerType *boolType = 0;
@@ -228,6 +232,9 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   public: METHOD_BINDING_CACHE(getPointerTypeFor, PointerType*, (Core::Ast::Node*));
   private: static PointerType* _getPointerTypeFor(TiObject *self, Core::Ast::Node *type);
 
+  public: METHOD_BINDING_CACHE(getLiteralPointerTypeFor, PointerType*, (Core::Ast::Node*));
+  public: static PointerType* _getLiteralPointerTypeFor(TiObject *self, Core::Ast::Node *type);
+
   public: METHOD_BINDING_CACHE(getArrayTypeFor, ArrayType*, (Core::Ast::Node*));
   private: static ArrayType* _getArrayTypeFor(TiObject *self, Core::Ast::Node *type);
 
@@ -338,6 +345,8 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   private: Template* getReferenceTemplate(ReferenceMode const &mode);
 
   private: Template* getPointerTemplate();
+  private: Template* getLiteralPointerTemplate();
+  private: PointerType* instantiatePointerType(Template *tpl, Core::Ast::Node *type);
 
   private: Template* getArrayTemplate();
 

@@ -2322,10 +2322,11 @@ Bool ExpressionGenerator::_generateStringLiteral(
   if (!g->getGeneratedType(charAstType, session, charTgType, 0)) return false;
 
   auto strAstType = expGenerator->astHelper->getCharArrayType(value->getLength() + 1);
+  auto str1AstType = expGenerator->astHelper->getCharArrayType(1);
   TiObject *strTgType;
   if (!g->getGeneratedType(strAstType, session, strTgType, 0)) return false;
 
-  auto strPtrAstType = expGenerator->astHelper->getPointerTypeFor(strAstType);
+  auto strPtrAstType = expGenerator->astHelper->getLiteralPointerTypeFor(str1AstType);
   TiObject *strPtrTgType;
   if (!g->getGeneratedType(strPtrAstType, session, strPtrTgType, 0)) return false;
 
