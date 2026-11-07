@@ -54,6 +54,8 @@ class TargetGeneration : public ObjTiInterface
       &this->setVariableDebugInfo,
       &this->setGlobalVariableDebugInfo,
       &this->setDebugLocation,
+      &this->prepareDebugScope,
+      &this->finishDebugScope,
       &this->generateGlobalVariable,
       &this->generateLocalVariable,
       &this->prepareIfStatement,
@@ -244,6 +246,11 @@ class TargetGeneration : public ObjTiInterface
 
   /// Set the source location that will be attached to the instructions generated from here on.
   public: METHOD_BINDING_CACHE(setDebugLocation, Bool, (TiObject* /* context */, Core::Ast::Node* /* node */));
+
+  /// Start a lexical scope for the variables declared in the given block. Must be matched by finishDebugScope.
+  public: METHOD_BINDING_CACHE(prepareDebugScope, Bool, (TiObject* /* context */, Core::Ast::Node* /* node */));
+
+  public: METHOD_BINDING_CACHE(finishDebugScope, Bool, (TiObject* /* context */));
 
   /// @}
 

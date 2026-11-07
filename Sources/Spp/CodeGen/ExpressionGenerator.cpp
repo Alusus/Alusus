@@ -2714,6 +2714,9 @@ Bool ExpressionGenerator::_generateFunctionCall(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
+  // A statement can span several lines, so the call gets its own location.
+  if (!session->isAstComputationOnly()) session->getTg()->setDebugLocation(session->getTgContext(), astNode);
+
   if (callee->getInlined()) {
     // TODO: Generate inlined function body.
     throw EXCEPTION(GenericException, S("Inline function generation is not implemented yet."));
@@ -2777,6 +2780,8 @@ Bool ExpressionGenerator::_generateFunctionPtrCall(
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  if (!session->isAstComputationOnly()) session->getTg()->setDebugLocation(session->getTgContext(), astNode);
 
   auto astRetType = astFuncType->traceRetType(expGenerator->astHelper);
   if (astRetType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {

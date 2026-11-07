@@ -38,6 +38,7 @@ class ModuleDebugInfo
   private: Bool optimized;
   private: std::map<std::string, llvm::DIFile*> files;
   private: std::map<Type const*, llvm::DIType*> types;
+  private: std::map<std::string, llvm::DISubprogram*> inlinedCodeScopes;
 
 
   //============================================================================
@@ -68,6 +69,38 @@ class ModuleDebugInfo
    */
   public: static Core::Ast::SourceLocationRecord const* findLocationRecord(Core::Ast::Node const *node);
 
+  /**
+   * @brief Get all the source location records of a node, outermost first.
+   *
+   * A node produced by a macro expansion (or a template instantiation) has a stack of locations, starting with where
+   * the expansion was requested and ending with where the node was originally written. The last record of the chain
+   * is the one findLocationRecord returns. The chain is empty if the node has no usable location.
+   */
+  public: static void findLocationChain(
+    Core::Ast::Node const *node, std::vector<Core::Ast::SourceLocationRecord const*> &chain
+  );
+
+  /// Create a lexical block, which scopes variables and groups the code of a block or a macro expansion.
+  public: llvm::DILexicalBlock* createLexicalBlock(
+    llvm::DIScope *parent, Core::Ast::SourceLocationRecord const *location
+  );
+
+  /**
+   * @brief Get the scope to use for code that came from a macro body in the given source file.
+   *
+   * Macro code is described as a function that was inlined at the macro call site, and this is that function. There
+   * is one per source file, called "<macro>", rather than one per macro because the macro's name isn't available.
+   */
+  public: llvm::DISubprogram* getInlinedCodeScope(Str const &filename);
+
+  /**
+   * @brief Find the last line of a piece of source code, such as a function.
+   *
+   * This only considers the code as it was written in the given file, i.e. the first location of each node, so lines
+   * of macro bodies that were expanded into it don't count.
+   */
+  public: static Int findLastLine(Core::Ast::Node const *node, Str const &filename);
+
   /// Get the DIFile for the given source file name, creating it if needed.
   public: llvm::DIFile* getFile(Str const &filename);
 
@@ -92,7 +125,7 @@ class ModuleDebugInfo
    * @param argIndex The 1-based index of the argument, or 0 if this is not an argument.
    */
   public: void declareLocalVariable(
-    llvm::DISubprogram *scope, llvm::Value *storage, Char const *name, Type const *type,
+    llvm::DILocalScope *scope, llvm::Value *storage, Char const *name, Type const *type,
     Core::Ast::SourceLocationRecord const *location, Word argIndex
   );
 

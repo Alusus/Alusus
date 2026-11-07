@@ -141,6 +141,10 @@ void OfflineBuildTarget::generateObjectFile(
 
   if (this->optimize) {
     optimizeLlvmModule(*this->llvmModule, this->targetMachine.get());
+  } else if (this->debugInfo != 0) {
+    // The backend optimizes by default, which folds away statements and variables and leaves nothing to step
+    // through, so a debug build that wasn't asked to be optimized is compiled without any optimization.
+    this->targetMachine->setOptLevel(llvm::CodeGenOptLevel::None);
   }
 
   std::error_code ec;

@@ -988,6 +988,7 @@ Bool Generator::_generateStatementBlock(
   Bool result = true;
   terminal = TerminalStatement::UNKNOWN;
   session->getDestructionStack()->pushScope();
+  if (!session->isAstComputationOnly()) session->getTg()->prepareDebugScope(session->getTgContext(), astBlock);
   if (astBlock->isDerivedFrom<Core::Ast::Scope>()) {
     for (Int i = 0; i < static_cast<Core::Ast::Scope*>(astBlock)->getCount(); ++i) {
       auto astNode = static_cast<Core::Ast::Scope*>(astBlock)->getElement(i);
@@ -997,6 +998,7 @@ Bool Generator::_generateStatementBlock(
         generator->rootManager->getNoticeStore()->add(
           newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Ast::findSourceLocation(astNode))
         );
+        if (!session->isAstComputationOnly()) session->getTg()->finishDebugScope(session->getTgContext());
         return false;
       }
       if (astNode->isDerivedFrom<Spp::Ast::Block>()) {
@@ -1013,6 +1015,7 @@ Bool Generator::_generateStatementBlock(
       result = false;
     }
   }
+  if (!session->isAstComputationOnly()) session->getTg()->finishDebugScope(session->getTgContext());
   session->getDestructionStack()->popScope();
 
   return result;

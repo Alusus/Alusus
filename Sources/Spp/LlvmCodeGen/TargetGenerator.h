@@ -159,6 +159,10 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   private: static Bool _setDebugLocation(TiObject *self, TiObject *context, Core::Ast::Node *node);
 
+  private: static Bool _prepareDebugScope(TiObject *self, TiObject *context, Core::Ast::Node *node);
+
+  private: static Bool _finishDebugScope(TiObject *self, TiObject *context);
+
   /// @}
 
   /// @name Variable Definition Generation Functions

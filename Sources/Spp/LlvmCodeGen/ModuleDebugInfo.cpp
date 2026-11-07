@@ -41,29 +41,82 @@ ModuleDebugInfo::ModuleDebugInfo(llvm::Module *module, Char const *targetTriple,
 }
 
 
-static Core::Ast::SourceLocationRecord const* findRecordIn(Core::Ast::SourceLocation const *sl)
-{
-  if (sl == 0) return 0;
+static void flattenLocation(
+  Core::Ast::SourceLocation const *sl, std::vector<Core::Ast::SourceLocationRecord const*> &records
+) {
+  if (sl == 0) return;
   auto record = ti_cast<Core::Ast::SourceLocationRecord const>(sl);
-  if (record != 0) return record;
+  if (record != 0) {
+    if (record->line <= 0) return;
+    if (!records.empty() && *records.back() == *record) return;
+    records.push_back(record);
+    return;
+  }
   auto stack = ti_cast<Core::Ast::SourceLocationStack const>(sl);
   if (stack != 0) {
-    // New locations are pushed on top of the node's original one, so the innermost one is the last.
-    for (Int i = stack->getCount() - 1; i >= 0; --i) {
-      record = findRecordIn(stack->get(i).get());
-      if (record != 0) return record;
-    }
+    for (Int i = 0; i < stack->getCount(); ++i) flattenLocation(stack->get(i).get(), records);
   }
-  return 0;
+}
+
+
+void ModuleDebugInfo::findLocationChain(
+  Core::Ast::Node const *node, std::vector<Core::Ast::SourceLocationRecord const*> &chain
+) {
+  chain.clear();
+  if (node != 0) flattenLocation(node->findSourceLocation().get(), chain);
 }
 
 
 Core::Ast::SourceLocationRecord const* ModuleDebugInfo::findLocationRecord(Core::Ast::Node const *node)
 {
-  if (node == 0) return 0;
-  auto record = findRecordIn(node->findSourceLocation().get());
-  if (record == 0 || record->line <= 0) return 0;
-  return record;
+  std::vector<Core::Ast::SourceLocationRecord const*> chain;
+  findLocationChain(node, chain);
+  return chain.empty() ? 0 : chain.back();
+}
+
+
+llvm::DILexicalBlock* ModuleDebugInfo::createLexicalBlock(
+  llvm::DIScope *parent, Core::Ast::SourceLocationRecord const *location
+) {
+  return this->diBuilder->createLexicalBlock(
+    parent, this->getFile(location->filename), location->line, location->column
+  );
+}
+
+
+llvm::DISubprogram* ModuleDebugInfo::getInlinedCodeScope(Str const &filename)
+{
+  auto it = this->inlinedCodeScopes.find(filename.getBuf());
+  if (it != this->inlinedCodeScopes.end()) return it->second;
+
+  auto file = this->getFile(filename);
+  auto type = this->diBuilder->createSubroutineType(this->diBuilder->getOrCreateTypeArray({}));
+  auto flags = llvm::DISubprogram::SPFlagDefinition;
+  if (this->optimized) flags |= llvm::DISubprogram::SPFlagOptimized;
+  auto scope = this->diBuilder->createFunction(
+    file, "<macro>", "", file, 1, type, 1, llvm::DINode::FlagZero, flags
+  );
+  this->inlinedCodeScopes[filename.getBuf()] = scope;
+  return scope;
+}
+
+
+Int ModuleDebugInfo::findLastLine(Core::Ast::Node const *node, Str const &filename)
+{
+  Int lastLine = 0;
+  if (node == 0) return lastLine;
+
+  std::vector<Core::Ast::SourceLocationRecord const*> chain;
+  flattenLocation(node->getSourceLocation().get(), chain);
+  if (!chain.empty() && chain.front()->filename == filename) lastLine = chain.front()->line;
+
+  auto container = node->getInterface<Containing<Core::Ast::Node> const>();
+  if (container != 0) {
+    for (Int i = 0; i < container->getElementCount(); ++i) {
+      lastLine = std::max(lastLine, findLastLine(container->getElement(i), filename));
+    }
+  }
+  return lastLine;
 }
 
 
@@ -195,7 +248,7 @@ llvm::DISubprogram* ModuleDebugInfo::createFunction(
 
 
 void ModuleDebugInfo::declareLocalVariable(
-  llvm::DISubprogram *scope, llvm::Value *storage, Char const *name, Type const *type,
+  llvm::DILocalScope *scope, llvm::Value *storage, Char const *name, Type const *type,
   Core::Ast::SourceLocationRecord const *location, Word argIndex
 ) {
   auto file = this->getFile(location->filename);
