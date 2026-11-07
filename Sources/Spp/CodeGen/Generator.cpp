@@ -162,6 +162,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     // Prepare the function body.
     SharedList<TiObject> tgVars;
     TioSharedPtr tgContext;
+    session->getTg()->setFunctionDebugInfo(tgFunc, generator->astHelper->getFunctionName(astFunc), astFunc);
     if (!session->getTg()->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return false;
 
     auto destructionStack = newSrdObj<DestructionStack>();
@@ -194,6 +195,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
         return false;
       }
       session->getEda()->setCodeGenData(argType, argTgVar);
+      session->getTg()->setVariableDebugInfo(
+        tgContext.get(), argTgVar.get(), astArgs->getElementKey(i), argTgType, argType, i + 1
+      );
       Ast::Type *argSourceAstType;
       if (argAstType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
         argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType, Ast::ReferenceMode::IMPLICIT);
@@ -420,6 +424,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
         return false;
       }
       session->getEda()->setCodeGenData(astVar, tgGlobalVar);
+      session->getTg()->setGlobalVariableDebugInfo(tgGlobalVar.get(), definition->getName().get(), tgType, definition);
 
       if (!session->isOfflineExecution()) {
         Int itemIndex = generator->globalItemRepo->findItem(name);
@@ -469,6 +474,9 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
         return false;
       }
       session->getEda()->setCodeGenData(astVar, tgLocalVar);
+      session->getTg()->setVariableDebugInfo(
+        session->getTgAllocContext(), tgLocalVar.get(), definition->getName().get(), tgType, definition, 0
+      );
 
       // Initialize the variable.
       // TODO: Should we use default values with local variables?
@@ -1019,6 +1027,10 @@ Bool Generator::_generateStatement(
 
   terminal = TerminalStatement::NO;
   Bool retVal = true;
+
+  if (!session->isAstComputationOnly()) {
+    session->getTg()->setDebugLocation(session->getTgContext(), astNode);
+  }
 
   if (astNode->isDerivedFrom<Core::Ast::Definition>()) {
     auto def = static_cast<Core::Ast::Definition*>(astNode);

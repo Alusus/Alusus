@@ -106,6 +106,8 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
 
   private: Bool getOptimizeOverride(Bool defaultValue) const;
 
+  private: Bool getDebugInfoOption() const;
+
   private: SharedPtr<BuildSession> createOfflineBuildSession(Char const *targetTriple);
 
   public: Core::Main::RootManager* getRootManager() const

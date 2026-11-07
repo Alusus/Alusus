@@ -267,6 +267,10 @@ class StructType : public Type
 
   private: llvm::StructType *llvmType;
   private: Str name;
+  // Member info is only needed for debug info. The member types are not owned here since owning them could create
+  // reference cycles (e.g. a struct with a pointer to itself).
+  private: std::vector<std::string> memberNames;
+  private: std::vector<Type*> memberTypes;
 
 
   //============================================================================
@@ -288,6 +292,22 @@ class StructType : public Type
   public: Str const& getName() const
   {
     return this->name;
+  }
+
+  public: void addMember(Char const *memberName, Type *memberType)
+  {
+    this->memberNames.push_back(memberName);
+    this->memberTypes.push_back(memberType);
+  }
+
+  public: std::vector<std::string> const& getMemberNames() const
+  {
+    return this->memberNames;
+  }
+
+  public: std::vector<Type*> const& getMemberTypes() const
+  {
+    return this->memberTypes;
   }
 
 }; // class

@@ -43,6 +43,8 @@ class OfflineBuildTarget : public BuildTarget
   private: std::unique_ptr<llvm::DataLayout> llvmDataLayout;
   private: std::unique_ptr<llvm::LLVMContext> llvmContext;
   private: std::unique_ptr<llvm::Module> llvmModule;
+  // Declared after llvmModule so that it's destroyed first.
+  private: std::unique_ptr<ModuleDebugInfo> debugInfo;
   private: LlvmGlobalCtorDtorEntryTypes llvmGlobalCtorDtorEntryTypes;
   private: Bool optimize = false;
 
@@ -57,6 +59,7 @@ class OfflineBuildTarget : public BuildTarget
 
   public: virtual ~OfflineBuildTarget()
   {
+    this->debugInfo.reset();
     this->llvmModule.reset();
     this->llvmContext.reset();
   }
@@ -106,7 +109,16 @@ class OfflineBuildTarget : public BuildTarget
     return this->llvmDataLayout->getPointerSizeInBits();
   }
 
+  /// Returns the debug info of the global module, or null if debug info is disabled.
+  public: virtual ModuleDebugInfo* getDebugInfo()
+  {
+    this->getGlobalLlvmModule();
+    return this->debugInfo.get();
+  }
+
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module);
+
+  private: void finalizeDebugInfo();
 
   public: Str generateLlvmIr(Array<Str> const *ctorNames, Array<Str> const *dtorNames);
 

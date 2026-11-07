@@ -141,6 +141,26 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   /// @}
 
+  /// @name Debug Info Generation Functions
+  /// @{
+
+  private: static Bool _setFunctionDebugInfo(
+    TiObject *self, TiObject *function, Char const *name, Core::Ast::Node *node
+  );
+
+  private: static Bool _setVariableDebugInfo(
+    TiObject *self, TiObject *context, TiObject *variable, Char const *name, TiObject *type, Core::Ast::Node *node,
+    Word argIndex
+  );
+
+  private: static Bool _setGlobalVariableDebugInfo(
+    TiObject *self, TiObject *variable, Char const *name, TiObject *type, Core::Ast::Node *node
+  );
+
+  private: static Bool _setDebugLocation(TiObject *self, TiObject *context, Core::Ast::Node *node);
+
+  /// @}
+
   /// @name Variable Definition Generation Functions
   /// @{
 
@@ -430,6 +450,12 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   private: static Bool _generatePointerLiteral(
     TiObject *self, TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal
+  );
+
+  private: SharedPtr<Block> prepareBlock(
+    llvm::BasicBlock *llvmBlock,
+    Function *function,
+    Bool exitBlock
   );
 
   /// @}

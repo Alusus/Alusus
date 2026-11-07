@@ -20,6 +20,7 @@ void OfflineBuildTarget::setupBuild()
   BuildTarget::setupBuild();
 
   this->llvmGlobalCtorDtorEntryTypes = LlvmGlobalCtorDtorEntryTypes();
+  this->debugInfo.reset();
   this->llvmModule.reset();
 
   std::string error;
@@ -57,6 +58,11 @@ llvm::Module* OfflineBuildTarget::getGlobalLlvmModule()
   if (this->llvmModule == 0) {
     this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", *this->llvmContext);
     this->llvmModule->setDataLayout(*this->llvmDataLayout);
+    if (this->isDebugInfoEnabled()) {
+      this->debugInfo = std::make_unique<ModuleDebugInfo>(
+        this->llvmModule.get(), this->targetTriple.c_str(), this->optimize
+      );
+    }
   }
   return this->llvmModule.get();
 }
@@ -74,9 +80,29 @@ void OfflineBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
     }
   #endif
 
-  // Compile the module.
+  // Compile the module. Offline builds are expected to use a single global module, so any debug info that belonged to
+  // the previous module is dropped along with it.
+  this->debugInfo.reset();
   this->llvmModule = std::move(module);
   this->llvmModule->setDataLayout(*this->llvmDataLayout);
+}
+
+
+void OfflineBuildTarget::finalizeDebugInfo()
+{
+  if (this->debugInfo == 0) return;
+  this->debugInfo->finalize();
+
+  // Malformed debug info can make the backend crash or emit garbage, so if it fails verification we report that and
+  // drop it rather than fail the build.
+  std::string errors;
+  llvm::raw_string_ostream errorStream(errors);
+  if (llvm::verifyModule(*this->llvmModule, &errorStream)) {
+    errorStream.flush();
+    outStream << S("WARNING: Invalid LLVM module while generating debug info; debug info will be dropped:\n")
+      << errors.c_str() << S("\n");
+    llvm::StripDebugInfo(*this->llvmModule);
+  }
 }
 
 
@@ -87,6 +113,8 @@ Str OfflineBuildTarget::generateLlvmIr(Array<Str> const *ctorNames, Array<Str> c
 
   this->buildCtorOrDtorArray(ctorNames, "llvm.global_ctors");
   this->buildCtorOrDtorArray(dtorNames, "llvm.global_dtors");
+
+  this->finalizeDebugInfo();
 
   StrStream strStream;
   llvm::raw_os_ostream ostream(strStream);
@@ -108,6 +136,8 @@ void OfflineBuildTarget::generateObjectFile(
   this->buildCtorOrDtorArray(dtorNames, "llvm.global_dtors");
 
   this->llvmModule->setTargetTriple(this->targetTriple);
+
+  this->finalizeDebugInfo();
 
   if (this->optimize) {
     optimizeLlvmModule(*this->llvmModule, this->targetMachine.get());

@@ -92,12 +92,31 @@ Bool BuildManager::getOptimizeOverride(Bool defaultValue) const
 }
 
 
+/// Returns whether debug info generation is requested through the `debug=1` command line option. It is off by default.
+Bool BuildManager::getDebugInfoOption() const
+{
+  auto options = this->rootManager->getProcessOptions();
+  Bool result = false;
+  for (Int i = 0; i < this->rootManager->getProcessOptionCount(); ++i) {
+    if (strcmp(options[i], S("debug=0")) == 0 || strcmp(options[i], S("تنقيح=0")) == 0) {
+      result = false;
+      break;
+    } else if (strcmp(options[i], S("debug=1")) == 0 || strcmp(options[i], S("تنقيح=1")) == 0) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+}
+
+
 void BuildManager::initNonOfflineBuildSessions()
 {
   // Prepare build targets and target generators.
 
   auto jitBuildTarget = newSrdObj<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
   jitBuildTarget->setOptimize(this->getOptimizeOverride(false));
+  jitBuildTarget->setDebugInfo(this->getDebugInfoOption());
   auto jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->rootManager, jitBuildTarget.get(), false
   );
@@ -135,6 +154,7 @@ SharedPtr<BuildSession> BuildManager::createOfflineBuildSession(Char const *targ
   ++idPrefixCounter;
   auto buildTarget = newSrdObj<LlvmCodeGen::OfflineBuildTarget>();
   buildTarget->setTargetTriple(targetTriple);
+  buildTarget->setDebugInfo(this->getDebugInfoOption());
   auto targetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->jitBuildSession->getTargetGenerator().get(), buildTarget.get(), false
   );

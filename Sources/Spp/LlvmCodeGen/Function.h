@@ -36,6 +36,13 @@ class Function : public TiObject
   private: llvm::Value *llvmSretPtr = 0;
   private: std::unique_ptr<llvm::Module> llvmModule;
 
+  // Debug info. The name and node are provided before the body is prepared and are used to create the subprogram.
+  private: Str debugName;
+  private: Core::Ast::Node *debugNode = 0;
+  private: llvm::DISubprogram *diSubprogram = 0;
+  // The location that new instructions in this function should be tagged with.
+  private: llvm::DebugLoc currentDebugLoc;
+
 
   //============================================================================
   // Constructor & Destructor

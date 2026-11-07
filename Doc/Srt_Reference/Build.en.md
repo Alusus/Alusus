@@ -76,6 +76,12 @@ The user of the compiler can override this value from the command line using `--
   exe.generate();
 ```
 
+### Debug Info
+
+By default no debug info is generated. The user of the compiler can ask for debug info to be added to the generated
+code, allowing debuggers such as gdb to be used on it, from the command line using `--opt debug=1`. `--opt debug=0`
+turns it off explicitly.
+
 ## Wasm Class
 
 This class is similar to `Exe` class and used in the same way but it generates web assemply code instead of a code

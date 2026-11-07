@@ -50,6 +50,10 @@ class TargetGeneration : public ObjTiInterface
       &this->prepareFunctionBody,
       &this->finishFunctionBody,
       &this->deleteFunction,
+      &this->setFunctionDebugInfo,
+      &this->setVariableDebugInfo,
+      &this->setGlobalVariableDebugInfo,
+      &this->setDebugLocation,
       &this->generateGlobalVariable,
       &this->generateLocalVariable,
       &this->prepareIfStatement,
@@ -209,6 +213,37 @@ class TargetGeneration : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(deleteFunction, Bool, (TiObject* /* function */));
+
+  /// @}
+
+  /// @name Debug Info Generation Functions
+  /// These are no-ops if debug info is disabled for the build.
+  /// @{
+
+  /// Provide the name and source location of a function that is about to have its body prepared.
+  public: METHOD_BINDING_CACHE(setFunctionDebugInfo,
+    Bool, (TiObject* /* function */, Char const* /* name */, Core::Ast::Node* /* node */)
+  );
+
+  /**
+   * @brief Describe a local variable or function argument that was just generated.
+   * @param context The context the variable was allocated in.
+   * @param argIndex The 1-based index of the argument, or 0 if this is not an argument.
+   */
+  public: METHOD_BINDING_CACHE(setVariableDebugInfo,
+    Bool, (
+      TiObject* /* context */, TiObject* /* variable */, Char const* /* name */, TiObject* /* type */,
+      Core::Ast::Node* /* node */, Word /* argIndex */
+    )
+  );
+
+  /// Describe a global variable that was just generated.
+  public: METHOD_BINDING_CACHE(setGlobalVariableDebugInfo,
+    Bool, (TiObject* /* variable */, Char const* /* name */, TiObject* /* type */, Core::Ast::Node* /* node */)
+  );
+
+  /// Set the source location that will be attached to the instructions generated from here on.
+  public: METHOD_BINDING_CACHE(setDebugLocation, Bool, (TiObject* /* context */, Core::Ast::Node* /* node */));
 
   /// @}
 
