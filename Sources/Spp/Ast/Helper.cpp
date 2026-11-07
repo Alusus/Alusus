@@ -33,6 +33,7 @@ void Helper::initBindingCaches()
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
+    &this->getLiteralPointerTypeFor,
     &this->getArrayTypeFor,
     &this->getValueTypeFor,
     &this->getNullType,
@@ -70,6 +71,7 @@ void Helper::initBindings()
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
+  this->getLiteralPointerTypeFor = &Helper::_getLiteralPointerTypeFor;
   this->getArrayTypeFor = &Helper::_getArrayTypeFor;
   this->getValueTypeFor = &Helper::_getValueTypeFor;
   this->getNullType = &Helper::_getNullType;
@@ -149,6 +151,19 @@ TypeMatchStatus Helper::_lookupCustomCaster(
   if (srcRefType != 0) {
     auto srcContentType = ti_cast<DataType>(srcRefType->getContentType(helper));
     if (srcContentType != 0 && srcContentType->getBody() != 0) {
+      // Casters can be chained (the return type of a caster can itself be cast through another caster), so with
+      // casters going in both directions between two types (e.g. ptr to String and String to ptr) the lookup can
+      // cycle.
+      // If a lookup through custom casters of this type is already in progress then we are in a cycle and should
+      // return a no-match regardless of the target type, because a single pass through the custom casters of this
+      // type will also cover indirect casting (casting to a middle type that then cast to the final target) so
+      // there is no way we can reach the target type from a second iteration if the first iteration cannot
+      // reach it.
+      for (auto &active : helper->activeCasterLookups) {
+        if (active == srcContentType) return TypeMatchStatus::NONE;
+      }
+      helper->activeCasterLookups.push_back(srcContentType);
+      finally([=] { helper->activeCasterLookups.pop_back(); });
       PlainList<Spp::Ast::Type> argTypes({ srcRefType });
       static Core::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
       TypeMatchStatus retMatch;
@@ -162,6 +177,7 @@ TypeMatchStatus Helper::_lookupCustomCaster(
             auto match = funcType->matchCall(&argTypes, helper);
             if (match == TypeMatchStatus::EXACT) {
               auto retType = funcType->traceRetType(helper);
+              if (retType == 0) return Core::Ast::Seeker::Verb::MOVE;
               if (retType->getInitializationMethod(helper) != Ast::TypeInitMethod::NONE) {
                 retType = helper->getReferenceTypeFor(retType, Ast::ReferenceMode::IMPLICIT);
               }
@@ -178,6 +194,36 @@ TypeMatchStatus Helper::_lookupCustomCaster(
         },
         Core::Ast::Seeker::Flags::SKIP_OWNERS | Core::Ast::Seeker::Flags::SKIP_USES
       );
+      if (retMatch >= TypeMatchStatus::CUSTOM_CASTER) return retMatch;
+      // We couldn't find a suitable cast operator, so let's see if parent classes has a custom
+      // caster. We'll only look for the first injection, and only if that inject is the first
+      // in-mem variable, because the code that generates the caster calls currently doesn't
+      // handle tracing the injections properly like regular function calls do (it doesn't use
+      // CalleeTracer to properly build a call stack, instead it just calls the cast function
+      // directly with the outer `this`).
+      auto body = srcContentType->getBody().get();
+      if (body->getInjectionCount() > 0) {
+        for (Int i = 0; i < body->getElementCount(); ++i) {
+          auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
+          if (def != 0 && !helper->isSharedDef(def)) {
+            auto obj = def->getTarget().get();
+            if (obj != 0 && helper->isInMemVariable(obj)) {
+              if (!isInjection(def)) break;
+              auto memberType = helper->traceType(obj);
+              if (memberType != 0 && memberType->isDerivedFrom<DataType>()) {
+                auto memberTypeRef = helper->getReferenceTypeFor(memberType, Ast::ReferenceMode::IMPLICIT);
+                Function *innerCaster;
+                auto rmatch = helper->lookupCustomCaster(memberTypeRef, targetType, innerCaster);
+                if ((rmatch>=TypeMatchStatus::CUSTOM_CASTER || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
+                  retMatch = rmatch;
+                  caster = innerCaster;
+                }
+              }
+              break;
+            }
+          }
+        }
+      }
       return retMatch;
     }
   }
@@ -207,6 +253,9 @@ Type* Helper::__traceType(TiObject *self, Core::Ast::Node *ref, Bool skipErrors)
       // Reading a variable gives an implicit reference to it, which isn't part of the variable's type.
       auto refType = ti_cast<ReferenceType>(type);
       if (refType != 0 && refType->isImplicit()) type = refType->getContentType(helper);
+    } else if (result != 0 && result->isDerivedFrom<Spp::Ast::Function>()) {
+      // The type of a function is its function type.
+      type = static_cast<Spp::Ast::Function*>(result)->getType().get();
     } else if (result != 0) {
       type = helper->_traceType(result, skipErrors);
       if (type == 0) return 0;
@@ -717,7 +766,21 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, Core::Ast::Node *type)
 {
   PREPARE_SELF(helper, Helper);
 
-  auto tpl = helper->getPointerTemplate();
+  return helper->instantiatePointerType(helper->getPointerTemplate(), type);
+}
+
+
+PointerType* Helper::_getLiteralPointerTypeFor(TiObject *self, Core::Ast::Node *type)
+{
+  PREPARE_SELF(helper, Helper);
+
+  return helper->instantiatePointerType(helper->getLiteralPointerTemplate(), type);
+}
+
+
+PointerType* Helper::instantiatePointerType(Template *tpl, Core::Ast::Node *type)
+{
+  auto helper = this;
 
   SharedPtr<Core::Ast::Node> result;
   SharedPtr<Core::Notices::Notice> notice;
@@ -1225,6 +1288,22 @@ Template* Helper::getPointerTemplate()
     throw EXCEPTION(GenericException, S("Invalid object found for ptr template."));
   }
   return this->ptrTemplate;
+}
+
+
+Template* Helper::getLiteralPointerTemplate()
+{
+  if (this->lptrTemplate != 0) return this->lptrTemplate;
+
+  Core::Ast::Identifier identifier;
+  identifier.setValue(S("lptr"));
+  this->lptrTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
+    &identifier, this->rootManager->getRootScope().get())
+  );
+  if (this->lptrTemplate == 0) {
+    throw EXCEPTION(GenericException, S("Invalid object found for lptr template."));
+  }
+  return this->lptrTemplate;
 }
 
 

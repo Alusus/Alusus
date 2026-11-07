@@ -41,7 +41,7 @@ void SeekerExtension::unextend(Core::Ast::Seeker *seeker)
 //==============================================================================
 // Add Functions
 
-Bool SeekerExtension::_add_toNode(
+Bool SeekerExtension::_addPossiblyMergeable_toNode(
   TiObject *self, Core::Ast::Node *dest, Core::Ast::Node *element, Core::Notices::Store *noticeStore
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
@@ -49,15 +49,13 @@ Bool SeekerExtension::_add_toNode(
     // Elements added to a data type go into the type's body.
     auto body = static_cast<Ast::DataType*>(dest)->getBody().get();
     if (body == 0) {
-      noticeStore->add(
-        newSrdObj<Core::Notices::InvalidWithinTargetNotice>(Core::Ast::findSourceLocation(element))
-      );
-      return false;
+      static_cast<Ast::DataType*>(dest)->setBody(Spp::Ast::Block::create());
+      body = static_cast<Ast::DataType*>(dest)->getBody().get();
     }
     auto seeker = ti_cast<Core::Ast::Seeker>(self);
     return Core::Ast::addPossiblyMergeableElement(element, body, seeker, noticeStore);
   }
-  return seekerExtension->add_toNode.callSuper(dest, element, noticeStore);
+  return seekerExtension->addPossiblyMergeable_toNode.callSuper(dest, element, noticeStore);
 }
 
 

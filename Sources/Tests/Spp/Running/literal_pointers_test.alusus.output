@@ -1,0 +1,8 @@
+ptr: literal to ptr
+lptr: literal to lptr
+lptr: regular ptr
+String: literal to String
+returned literal
+initialized from literal
+assigned from literal
+Wrapper: 7

@@ -36,26 +36,40 @@ Type* PointerType::getContentType(Helper *helper) const
 }
 
 
+TypeMatchStatus PointerType::matchPointerContent(PointerType const *pointerType, Helper *helper) const
+{
+  Type const *targetContentType = pointerType->getContentType(helper);
+  Type const *thisContentType = this->getContentType(helper);
+  // We will use AGGREGATION for castings that require no automatic conversion in order to enable more implicit
+  // casting in cases of pointers to pointers.
+  if (targetContentType == 0 && thisContentType == 0) return TypeMatchStatus::EXACT;
+  else if (targetContentType == 0 || helper->isVoid(targetContentType)) return TypeMatchStatus::REF_AGGREGATION;
+  else if (thisContentType == 0) return TypeMatchStatus::EXPLICIT_CAST;
+  else {
+    auto status = thisContentType->matchTargetType(targetContentType, helper);
+    if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;
+    else if (status == TypeMatchStatus::AGGREGATION || status == TypeMatchStatus::REF_AGGREGATION) {
+      return TypeMatchStatus::REF_AGGREGATION;
+    } else return TypeMatchStatus::EXPLICIT_CAST;
+  }
+}
+
+
 TypeMatchStatus PointerType::matchTargetType(Type const *type, Helper *helper, TypeMatchOptions opts) const
 {
   if (this == type) return TypeMatchStatus::EXACT;
 
   auto pointerType = ti_cast<PointerType const>(type);
   if (pointerType != 0) {
-    Type const *targetContentType = pointerType->getContentType(helper);
-    Type const *thisContentType = this->getContentType(helper);
-    // We will use AGGREGATION for castings that require no automatic conversion in order to enable more implicit
-    // casting in cases of pointers to pointers.
-    if (targetContentType == 0 && thisContentType == 0) return TypeMatchStatus::EXACT;
-    else if (targetContentType == 0 || helper->isVoid(targetContentType)) return TypeMatchStatus::REF_AGGREGATION;
-    else if (thisContentType == 0) return TypeMatchStatus::EXPLICIT_CAST;
-    else {
-      auto status = thisContentType->matchTargetType(targetContentType, helper);
-      if (status == TypeMatchStatus::EXACT) return TypeMatchStatus::EXACT;
-      else if (status == TypeMatchStatus::AGGREGATION || status == TypeMatchStatus::REF_AGGREGATION) {
-        return TypeMatchStatus::REF_AGGREGATION;
-      } else return TypeMatchStatus::EXPLICIT_CAST;
+    // A literal pointer can be implicitly cast to a regular pointer, but not the other way around.
+    Bool modeDowngrade = !this->isLiteral() && pointerType->isLiteral();
+    auto status = this->matchPointerContent(pointerType, helper);
+    if (modeDowngrade && status != TypeMatchStatus::NONE) return TypeMatchStatus::EXPLICIT_CAST;
+    // Literal to regular pointer conversion is implicit but not exact.
+    if (this->isLiteral() != pointerType->isLiteral() && status == TypeMatchStatus::EXACT) {
+      return TypeMatchStatus::REF_AGGREGATION;
     }
+    return status;
   }
 
   auto integerType = ti_cast<IntegerType const>(type);
@@ -73,6 +87,7 @@ Bool PointerType::isIdentical(Type const *type, Helper *helper) const
 
   auto pointerType = ti_cast<PointerType const>(type);
   if (pointerType == 0) return false;
+  if (this->mode != pointerType->mode) return false;
 
   Type const *targetContentType = pointerType->getContentType(helper);
   Type const *thisContentType = this->getContentType(helper);

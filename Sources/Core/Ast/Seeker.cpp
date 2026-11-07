@@ -47,8 +47,8 @@ void Seeker::initBindingCaches()
     &this->foreach_linkOperator,
     &this->foreach_linkOperatorRouting,
     // Add Functions
-    &this->add,
-    &this->add_toNode,
+    &this->addPossiblyMergeable,
+    &this->addPossiblyMergeable_toNode,
     // Other Functions
     &this->extForeach
   });
@@ -86,8 +86,8 @@ void Seeker::initBindings()
   this->foreach_linkOperatorRouting = &Seeker::_foreach_linkOperatorRouting;
 
   // Add Functions
-  this->add = &Seeker::_add;
-  this->add_toNode = &Seeker::_add_toNode;
+  this->addPossiblyMergeable = &Seeker::_addPossiblyMergeable;
+  this->addPossiblyMergeable_toNode = &Seeker::_addPossiblyMergeable_toNode;
 
   // Other Functions
   this->extForeach = &Seeker::_extForeach;
@@ -363,7 +363,7 @@ Seeker::Verb Seeker::_set_linkOperatorRouting(
 //==============================================================================
 // Add Functions
 
-Bool Seeker::_add(
+Bool Seeker::_addPossiblyMergeable(
   TiObject *self, Node const *ref, Node *target, Node *element, Notices::Store *noticeStore, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
@@ -371,20 +371,18 @@ Bool Seeker::_add(
   Node *dest = seeker->tryGet(ref, target, flags);
   if (dest != 0 && dest->isDerivedFrom<Passage>()) dest = static_cast<Passage*>(dest)->get();
   if (dest == 0) {
-    noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(findSourceLocation(ref)));
     return false;
   }
-  return seeker->add_toNode(dest, element, noticeStore);
+  return seeker->addPossiblyMergeable_toNode(dest, element, noticeStore);
 }
 
 
-Bool Seeker::_add_toNode(TiObject *self, Node *dest, Node *element, Notices::Store *noticeStore)
+Bool Seeker::_addPossiblyMergeable_toNode(TiObject *self, Node *dest, Node *element, Notices::Store *noticeStore)
 {
   PREPARE_SELF(seeker, Seeker);
   if (dest->isDerivedFrom<Scope>()) {
     return addPossiblyMergeableElement(element, static_cast<Scope*>(dest), seeker, noticeStore);
   }
-  noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(findSourceLocation(element)));
   return false;
 }
 

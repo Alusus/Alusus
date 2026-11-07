@@ -1,0 +1,49 @@
+import "Srl/Console.alusus";
+import "Srl/String.alusus";
+use Srl;
+
+func takeChars(p: ptr[array[Word[8]]]) {
+    Console.print("ptr: %s\n", p);
+}
+
+func takeLiteralChars(p: lptr[array[Word[8]]]) {
+    Console.print("lptr: %s\n", p);
+}
+
+func takeString(s: String) {
+    Console.print("String: %s\n", s.buf);
+}
+
+func getString(): String {
+    return "returned literal";
+}
+
+// String literals are literal pointers, which are implicitly castable to regular pointers.
+takeChars("literal to ptr");
+takeLiteralChars("literal to lptr");
+
+// Regular pointers can be explicitly cast to literal pointers.
+var p: ptr[array[Word[8]]] = "regular ptr";
+takeLiteralChars(p~cast[lptr[array[Word[8]]]]);
+
+// Literal pointers can be cast to Strings automatically.
+takeString("literal to String");
+Console.print("%s\n", getString().buf);
+var s: String = "initialized from literal";
+Console.print("%s\n", s.buf);
+s = "assigned from literal";
+Console.print("%s\n", s.buf);
+
+// Custom casters can be defined on a literal pointer type directly.
+class Wrapper {
+    def value: Int;
+}
+within lptr[array[Word[8]]] handler this~cast[Wrapper] {
+    @shared def w: Wrapper;
+    w.value = 7;
+    return w;
+}
+func takeWrapper(w: Wrapper) {
+    Console.print("Wrapper: %d\n", w.value);
+}
+takeWrapper("any literal");

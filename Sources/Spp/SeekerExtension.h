@@ -50,7 +50,7 @@ class SeekerExtension : public ObjTiInterface
     Basic::initBindingCaches(this->owner, {
       &this->astHelper
     });
-    this->add_toNode.init(this->owner, &SeekerExtension::_add_toNode);
+    this->addPossiblyMergeable_toNode.init(this->owner, &SeekerExtension::_addPossiblyMergeable_toNode);
     this->foreach.init(this->owner, &SeekerExtension::_foreach);
     this->extForeach.init(this->owner, &SeekerExtension::_extForeach);
     this->foreach_identifierLevel.init(this->owner, &SeekerExtension::_foreach_identifierLevel);
@@ -106,10 +106,10 @@ class SeekerExtension : public ObjTiInterface
   // The following cache overrides a binding of the Seeker. The override gets removed automatically when this
   // extension is destroyed.
 
-  public: METHOD_BINDING_CACHE(add_toNode,
+  public: METHOD_BINDING_CACHE(addPossiblyMergeable_toNode,
     Bool, (Core::Ast::Node*, Core::Ast::Node*, Core::Notices::Store*)
   );
-  private: static Bool _add_toNode(
+  private: static Bool _addPossiblyMergeable_toNode(
     TiObject *self, Core::Ast::Node *dest, Core::Ast::Node *element, Core::Notices::Store *noticeStore
   );
 

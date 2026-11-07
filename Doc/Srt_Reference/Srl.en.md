@@ -167,6 +167,34 @@ func printStr (s: String) {
 }
 ```
 
+String literals are automatically cast to `String` wherever a `String` is expected, such as when passing
+arguments, returning values, or initializing and assigning variables:
+
+```
+  printStr("Hello"); // The literal is automatically cast to String.
+```
+
+String literals are of type `lptr[array[Char]]`, for which `Srl` provides the alias `CharsLptr` (the literal
+counterpart of `CharsPtr`, which is an alias for `ptr[array[Char]]`). The two types are cast to `String` differently:
+
+* A string literal (`CharsLptr`) is cast to `String` using the skip-copying version of the constructor,
+  `String(true, buf)`. The `String` points directly to the literal's memory, so no memory is allocated and no
+  copy is made. This is safe because a literal lives for the whole lifetime of the program.
+* A `CharsPtr` is cast to `String` using the regular constructor, which allocates a new buffer and copies the
+  given string into it. This guarantees memory safety if the memory pointed to by the `CharsPtr` is eventually
+  freed, since the `String` doesn't depend on it.
+
+```
+  var lit: CharsLptr = "Hello";
+  var p: CharsPtr = lit;     // Implicit cast from lptr to ptr.
+  var s1: String = lit;      // No allocation or copy; s1 points to the literal.
+  var s2: String = p;        // Allocates a buffer and copies the characters.
+```
+
+Note that assigning a literal to a `CharsPtr` variable first, as in `p` above, loses the information that the
+string is a literal, so converting `p` to `String` copies the characters. Conversely, explicitly casting a
+`CharsPtr` to `CharsLptr` makes `String` skip copying, so only do that for memory that outlives the `String`.
+
 `String` class contains the following members:
 
 #### buf

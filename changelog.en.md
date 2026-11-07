@@ -49,6 +49,22 @@
 * The `~type` operator now accepts any expression, including member access chains like `a.b~type`, and can reference
   class members directly inside the class body.
 
+* Added the literal pointer type `lptr` (`مؤشر_حرفي` in Arabic), which is a pointer type that can be implicitly
+  cast to `ptr` but can only be cast from `ptr` explicitly. String literals are now of type
+  `lptr[array[Word[8]]]` instead of `ptr[array[Word[8]]]`.
+* String literals are now automatically cast to `String`, so `String` parameters, return values, variables and
+  assignments accept literals directly. Literals are cast using the skip-copying constructor, so no memory is
+  allocated and nothing is copied, while `CharsPtr` is cast using the regular constructor, which allocates and
+  copies the string.
+* Added the `CharsLptr` alias (`مـؤشر_محارف_حرفي` in Arabic) for `lptr[array[Word[8]]]` and the `مؤشر_حرفي` alias
+  for `lptr` in the Arabic syntax.
+* The qualifier of the `within` command can now be a template instance like `lptr[array[Word[8]]]`, which allows
+  defining custom casters and operators for built-in types.
+* Custom casters of an injected first member are now found when casting, so with
+  `class B { @injection var a: A; }` a `B` can be cast to whatever `A`'s casters produce. Only an injection that is
+  the first member is considered. Chains of casters that go in both directions between two types no longer cause an
+  infinite recursion in the compiler.
+* The `~type` operator now accepts functions, giving their function type, as in `ptr[myFunc~type]`.
 
 ## Version 0.16.0 (2026-10-09)
 

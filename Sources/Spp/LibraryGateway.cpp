@@ -196,6 +196,15 @@ void LibraryGateway::createBuiltInTypes(Core::Main::RootManager *manager)
   identifier.setValue(S("ptr"));
   manager->getSeeker()->doSet(&identifier, root, tmplt.get());
 
+  // lptr
+  tmplt = Ast::Template::create();
+  tmplt->setVarDefs(Core::Ast::List::create({}, {
+    newSrdObj<Ast::TemplateVarDef>(S("type"), Ast::TemplateVarType::TYPE, defaultPtrType)
+  }));
+  tmplt->setBody(Ast::PointerType::create({ { S("mode"), Ast::PointerMode(Ast::PointerMode::LITERAL) } }));
+  identifier.setValue(S("lptr"));
+  manager->getSeeker()->doSet(&identifier, root, tmplt.get());
+
   // ref
   tmplt = Ast::Template::create();
   tmplt->setVarDefs(Core::Ast::List::create({}, {
@@ -268,6 +277,9 @@ void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
   identifier.setValue(S("ptr"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
+  identifier.setValue(S("lptr"));
+  manager->getSeeker()->tryRemove(&identifier, root);
+
   identifier.setValue(S("ref"));
   manager->getSeeker()->tryRemove(&identifier, root);
 
@@ -290,12 +302,12 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
   manager->processString(S(R"SRC(
     module Process {
       def argCount: Int;
-      def args: ptr[array[ptr[array[Word[8]]]]];
+      def args: lptr[array[lptr[array[Word[8]]]]];
       def optionCount: Int;
-      def options: ptr[array[ptr[array[Word[8]]]]];
-      def language: ptr[array[Word[8]]];
-      def coreBinPath: ptr[array[Word[8]]];
-      def platform: ptr[array[Word[8]]];
+      def options: lptr[array[lptr[array[Word[8]]]]];
+      def language: lptr[array[Word[8]]];
+      def coreBinPath: lptr[array[Word[8]]];
+      def platform: lptr[array[Word[8]]];
     };
     عرّف الـعملية: لقب Process؛
     @دمج عرف Process: وحدة

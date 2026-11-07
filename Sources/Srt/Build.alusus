@@ -55,15 +55,15 @@ if Srl.String.compare(Process.language, "ar") == 0 {
 
         handler this~init() {}
 
-        handler this~init(e: ref[Core.Ast.Node], fn: CharsPtr) {
+        handler this~init(e: ref[Core.Ast.Node], fn: String) {
             this.element~no_deref = e;
             this.addDependency(e);
             this.outputFilename = fn;
-            var nameStart: ptr[Char] = String.findLast(fn, '/');
-            if nameStart == 0 {
+            var nameStart = fn.findLast('/');
+            if nameStart == -1 {
                 this.outputPath = "./";
             } else {
-                this.outputPath = String(fn, (nameStart~cast[ArchInt] - fn~cast[ArchInt]) + 1);
+                this.outputPath = fn.slice(0, nameStart + 1);
             }
         }
 

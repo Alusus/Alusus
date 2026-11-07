@@ -1,0 +1,54 @@
+import "Srl/Console.alusus";
+use Srl;
+
+class T {
+    def i: Int;
+    handler this~cast[Int] return this.i;
+}
+
+// An injected first member exposes its custom casters.
+class T2 {
+    @injection var t: T;
+}
+
+// Casters are found through multiple levels of injections.
+class T3 {
+    @injection var t2: T2;
+    def x: Int;
+}
+
+// A caster returning a type that needs another conversion to reach the target.
+class Small {
+    def i: Int[32];
+    handler this~cast[Int[32]] return this.i;
+}
+
+class Wrapper {
+    @injection var s: Small;
+}
+
+func printInt(i: Int) {
+    Console.print("Int: %d\n", i);
+}
+
+func printInt64(i: Int[64]) {
+    Console.print("Int[64]: %ld\n", i);
+}
+
+func test {
+    var t2: T2;
+    t2.i = 7;
+    printInt(t2);
+
+    var t3: T3;
+    t3.i = 8;
+    t3.x = 9;
+    printInt(t3);
+    Console.print("x: %d\n", t3.x);
+
+    var w: Wrapper;
+    w.i = 10;
+    printInt64(w);
+}
+
+test();

@@ -1,0 +1,16 @@
+import "defs-ignore.alusus";
+
+func takeLiteralChars(p: lptr[array[Word[8]]]) {}
+
+func test {
+  def p: ptr[array[Word[8]]];
+  // Regular pointers can't be implicitly cast to literal pointers.
+  takeLiteralChars(p);
+  // But explicit casting is allowed.
+  takeLiteralChars(p~cast[lptr[array[Word[8]]]]);
+  // And literal pointers are implicitly cast to regular pointers.
+  def l: lptr[array[Word[8]]];
+  var p2: ptr[array[Word[8]]] = l;
+}
+
+Spp.buildMgr.dumpLlvmIrForElement(test~ast);

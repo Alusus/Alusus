@@ -16,6 +16,15 @@
 namespace Spp::Ast
 {
 
+//============================================================================
+// Other Defs
+
+ti_s_enum(PointerMode, TiInt, "Spp.Ast", "Spp", "alusus.org", HEAP, LITERAL);
+
+
+//============================================================================
+// PointerType class
+
 class PointerType : public DataType
 {
   //============================================================================
@@ -23,6 +32,20 @@ class PointerType : public DataType
 
   TYPE_INFO(PointerType, DataType, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(PointerType);
+
+
+  //============================================================================
+  // Member Variables
+
+  private: PointerMode mode = PointerMode::HEAP;
+
+
+  //============================================================================
+  // Implementations
+
+  IMPLEMENT_BINDING(DataType,
+    (mode, PointerMode, VALUE, setMode(value), &this->mode)
+  );
 
 
   //============================================================================
@@ -38,7 +61,28 @@ class PointerType : public DataType
   //============================================================================
   // Member Functions
 
+  public: void setMode(PointerMode const &m)
+  {
+    this->mode = m;
+  }
+  public: void setMode(PointerMode const *m)
+  {
+    this->mode = m == 0 ? PointerMode::HEAP : m->get();
+  }
+
+  public: PointerMode const& getMode() const
+  {
+    return this->mode;
+  }
+
+  public: Bool isLiteral() const
+  {
+    return this->mode == PointerMode::LITERAL;
+  }
+
   public: Type* getContentType(Helper *helper) const;
+
+  private: TypeMatchStatus matchPointerContent(PointerType const *pointerType, Helper *helper) const;
 
   public: virtual TypeMatchStatus matchTargetType(
     Type const *type, Helper *helper, TypeMatchOptions opts = TypeMatchOptions::NONE
