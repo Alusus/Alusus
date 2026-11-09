@@ -1,0 +1,8 @@
+// A second source file for debug_info_test.alusus, to have code from more than one file in the same function.
+
+def libInit: function () => Int[32]
+{
+  return 5;
+};
+
+var fromLib: Int[32] = libInit();

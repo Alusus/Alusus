@@ -380,12 +380,15 @@ void* BuildManager::_prepareToExecuteFunction(TiObject *self, Core::Ast::Node *e
 }
 
 
-void BuildManager::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element)
+void BuildManager::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element, Bool debugInfo)
 {
   VALIDATE_NOT_NULL(element);
   PREPARE_SELF(buildMgr, BuildManager);
 
   SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(BuildManager::BuildType::OFFLINE, 0);
+  // Asking for debug info explicitly adds to the `debug` command line option rather than overrides it, so the option
+  // still works for the callers that don't ask.
+  if (debugInfo) buildSession->getBuildTarget().s_cast<LlvmCodeGen::OfflineBuildTarget>()->setDebugInfo(true);
   Bool result = true;
   if (element->isDerivedFrom<Ast::Module>()) {
     buildMgr->prepareExecutionEntry(buildSession.get());

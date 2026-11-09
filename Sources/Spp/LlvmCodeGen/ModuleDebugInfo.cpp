@@ -31,8 +31,11 @@ ModuleDebugInfo::ModuleDebugInfo(llvm::Module *module, Char const *targetTriple,
   this->diBuilder = std::make_unique<llvm::DIBuilder>(*module);
 
   // The compile unit requires a primary file, but an Alusus program is made of many files, so we use a placeholder
-  // here and give each function and variable its own file.
-  auto placeholderFile = this->diBuilder->createFile("<alusus>", ".");
+  // here and give each function and variable its own file. The placeholder is named like a C file on purpose: gdb
+  // guesses the language of each source file from its extension, which it can't do for ours, and a file it can't
+  // guess takes the language of the file before it, which is this one. Without that, gdb reports the language of our
+  // source files as unknown, even though it evaluates expressions in the language of the compile unit.
+  auto placeholderFile = this->diBuilder->createFile("<alusus>.c", ".");
   // There's no DWARF language code for Alusus, so we use C, which gives debuggers sensible expression evaluation.
   this->compileUnit = this->diBuilder->createCompileUnit(
     llvm::dwarf::DW_LANG_C, placeholderFile, "Alusus", optimized, "", 0, "", llvm::DICompileUnit::FullDebug, 0, true,
@@ -136,12 +139,18 @@ llvm::DIFile* ModuleDebugInfo::getFile(Str const &filename)
   auto it = this->files.find(filename.getBuf());
   if (it != this->files.end()) return it->second;
 
-  // Debuggers need absolute paths to find the sources reliably.
-  std::error_code ec;
-  std::filesystem::path path = std::filesystem::absolute(std::filesystem::path(filename.getBuf()), ec);
-  if (ec) path = filename.getBuf();
-  path = path.lexically_normal();
-  auto file = this->diBuilder->createFile(path.filename().string(), path.parent_path().string());
+  llvm::DIFile *file;
+  if (Core::Notices::getSourceLocationPathSkipping()) {
+    // The tests ask for file paths to be left out of the output so that it doesn't depend on where the tests are.
+    file = this->diBuilder->createFile(std::filesystem::path(filename.getBuf()).filename().string(), "");
+  } else {
+    // Debuggers need absolute paths to find the sources reliably.
+    std::error_code ec;
+    std::filesystem::path path = std::filesystem::absolute(std::filesystem::path(filename.getBuf()), ec);
+    if (ec) path = filename.getBuf();
+    path = path.lexically_normal();
+    file = this->diBuilder->createFile(path.filename().string(), path.parent_path().string());
+  }
   this->files[filename.getBuf()] = file;
   return file;
 }

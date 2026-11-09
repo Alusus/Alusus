@@ -154,8 +154,8 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
   public: METHOD_BINDING_CACHE(prepareToExecuteFunction, void*, (Core::Ast::Node* /* element */, BuildSession* /* buildSession */));
   private: static void* _prepareToExecuteFunction(TiObject *self, Core::Ast::Node *element, BuildSession *buildSession);
 
-  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (Core::Ast::Node*));
-  public: static void _dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element);
+  public: METHOD_BINDING_CACHE(dumpLlvmIrForElement, void, (Core::Ast::Node*, Bool));
+  public: static void _dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element, Bool debugInfo);
 
   public: METHOD_BINDING_CACHE(buildObjectFileForElement, Bool, (Core::Ast::Node*, Char const*, Char const*, Bool));
   public: static Bool _buildObjectFileForElement(

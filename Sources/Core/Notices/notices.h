@@ -79,6 +79,8 @@ Str getSourceLocationString(Ast::SourceLocation *sl, Int indentation = 0);
 
 void setSourceLocationPathSkipping(Bool skip);
 
+Bool getSourceLocationPathSkipping();
+
 } // namespace
 
 

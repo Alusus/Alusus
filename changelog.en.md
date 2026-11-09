@@ -65,6 +65,13 @@
   the first member is considered. Chains of casters that go in both directions between two types no longer cause an
   infinite recursion in the compiler.
 * The `~type` operator now accepts functions, giving their function type, as in `ptr[myFunc~type]`.
+* Added support for debugging with debuggers such as gdb. Passing `--opt debug=1` makes the compiler generate debug
+  info for generated executables and for code that Alusus runs directly, including `preprocess` blocks, which allows
+  setting breakpoints on source lines and inspecting the call stack and the values of variables, arguments and
+  global variables. Code produced by macros is shown along with the line where the macro was used. Debug builds are
+  compiled without optimization unless `optimize=1` is passed as well. Debugging code that Alusus runs directly is
+  currently supported on Linux only.
+* `Spp.buildMgr.dumpLlvmIrForElement` now accepts an optional second argument to include debug info in the output.
 
 ## Version 0.16.0 (2026-10-09)
 
