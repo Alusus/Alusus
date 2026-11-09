@@ -36,9 +36,17 @@ class Function : public TiObject
   private: llvm::Value *llvmSretPtr = 0;
   private: std::unique_ptr<llvm::Module> llvmModule;
 
-  // Debug info. The name and node are provided before the body is prepared and are used to create the subprogram.
+  // Debug Info Related Variables
+
+  // Debug info. When functions are built in modules of their own the debug info of the module is owned here, and it's
+  // declared after the module so that it's destroyed first.
+  private: std::unique_ptr<ModuleDebugInfo> debugInfo;
+  // The name and node are provided before the body is prepared and are used to create the subprogram.
   private: Str debugName;
   private: Core::Ast::Node *debugNode = 0;
+  // Set for functions the compiler makes up (such as the ones that run top level statements), which have no node of
+  // their own. Their DI subprogram is created when the first statement with a location is generated, using that location.
+  private: Bool debugSynthetic = false;
   private: llvm::DISubprogram *diSubprogram = 0;
   // The scopes of the blocks currently being generated, starting with the subprogram itself.
   private: std::vector<llvm::DILocalScope*> debugScopes;

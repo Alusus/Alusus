@@ -471,6 +471,14 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   private: std::string getAnonymouseVarName();
 
+  /// Get the debug info of the module the given function is being built in, or null if there is none.
+  private: ModuleDebugInfo* getFunctionDebugInfo(Function *function);
+
+  /// Create the debug info subprogram of a function, using the location chain of the function's source code.
+  private: void createFunctionDebugInfo(
+    Function *function, std::vector<Core::Ast::SourceLocationRecord const*> const &chain
+  );
+
   /// @}
 
   /// @name C ABI Helper Functions

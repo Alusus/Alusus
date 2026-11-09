@@ -228,6 +228,7 @@ Bool TargetGenerator::_generateStructTypeBody(
   SharedList<TiObject> *members
 ) {
   VALIDATE_NOT_NULL(membersTypes, members);
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(type, tgType, StructType);
 
   std::vector<llvm::Type*> structMembers;
@@ -240,7 +241,9 @@ Bool TargetGenerator::_generateStructTypeBody(
       );
     }
     structMembers.push_back(contentTypeWrapper->getLlvmType());
-    tgType->addMember(membersTypes->getElementKey(i).getBuf(), contentTypeWrapper);
+    if (targetGenerator->buildTarget->isDebugInfoEnabled()) {
+      tgType->addMember(membersTypes->getElementKey(i).getBuf(), getSharedPtr(contentTypeWrapper));
+    }
 
     SharedPtr<Variable> var = newSrdObj<Variable>();
     var->setLlvmStructIndex(i);
@@ -706,29 +709,10 @@ Bool TargetGenerator::_prepareFunctionBody(
 
   // Create the debug info subprogram, if we have what we need for it. Instructions generated from here on, including
   // the function prologue, are tagged with the function's declaration location.
-  auto debugInfo = targetGenerator->buildTarget->getDebugInfo();
-  if (debugInfo != 0 && funcWrapper->debugNode != 0) {
+  if (targetGenerator->buildTarget->isDebugInfoEnabled() && funcWrapper->debugNode != 0) {
     std::vector<Core::Ast::SourceLocationRecord const*> chain;
     ModuleDebugInfo::findLocationChain(funcWrapper->debugNode, chain);
-    if (!chain.empty()) {
-      auto location = chain.back();
-      funcWrapper->diSubprogram = debugInfo->createFunction(
-        funcWrapper->debugName.getBuf(), location, ti_cast<FunctionType>(functionType)
-      );
-      llvmFunc->setSubprogram(funcWrapper->diSubprogram);
-      funcWrapper->debugScopes.assign(1, funcWrapper->diSubprogram);
-      // Code in the function body that was produced by a macro is described as inlined into the function, which only
-      // makes sense when the function itself was written directly in the source, i.e. it has a single location.
-      funcWrapper->debugInlinedCodeAllowed = chain.size() == 1;
-      funcWrapper->debugFilename = location->filename;
-      funcWrapper->debugLastLine = ModuleDebugInfo::findLastLine(funcWrapper->debugNode, location->filename);
-      // The prologue and the argument setup get line 0, which marks them as compiler generated. The backend takes the
-      // first instruction with a real line to be the end of the prologue, which is where a debugger should stop when
-      // a breakpoint is set on the function, i.e. after the arguments have been stored.
-      funcWrapper->currentDebugLoc = llvm::DILocation::get(
-        *targetGenerator->buildTarget->getLlvmContext(), 0, 0, funcWrapper->diSubprogram
-      );
-    }
+    if (!chain.empty()) targetGenerator->createFunctionDebugInfo(funcWrapper, chain);
   }
 
   // Create the block
@@ -824,6 +808,12 @@ Bool TargetGenerator::_finishFunctionBody(
     LOG(
       Spp::LogLevel::LLVMCODEGEN_IR, S("Adding function module to build target: ") << funcWrapper->getName()
     );
+    // The function's debug info is complete once its body is, and it must not outlive the module, which is about to
+    // be handed over to the build target.
+    if (funcWrapper->debugInfo != 0) {
+      funcWrapper->debugInfo->finalize();
+      funcWrapper->debugInfo.reset();
+    }
     targetGenerator->buildTarget->addLlvmModule(std::move(funcWrapper->llvmModule));
   }
 
@@ -846,10 +836,11 @@ Bool TargetGenerator::_setFunctionDebugInfo(
   TiObject *self, TiObject *function, Char const *name, Core::Ast::Node *node
 ) {
   PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
   PREPARE_ARG(function, funcWrapper, Function);
-  if (targetGenerator->buildTarget->getDebugInfo() == 0) return true;
   funcWrapper->debugName = name;
   funcWrapper->debugNode = node;
+  funcWrapper->debugSynthetic = node == 0;
   return true;
 }
 
@@ -859,8 +850,7 @@ Bool TargetGenerator::_setVariableDebugInfo(
   Word argIndex
 ) {
   PREPARE_SELF(targetGenerator, TargetGenerator);
-  auto debugInfo = targetGenerator->buildTarget->getDebugInfo();
-  if (debugInfo == 0) return true;
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
   PREPARE_ARG(context, block, Block);
   PREPARE_ARG(variable, varWrapper, Variable);
 
@@ -869,7 +859,7 @@ Bool TargetGenerator::_setVariableDebugInfo(
   auto location = ModuleDebugInfo::findLocationRecord(node);
   if (location == 0 || varWrapper->getLlvmAllocaInst() == 0) return true;
 
-  debugInfo->declareLocalVariable(
+  targetGenerator->getFunctionDebugInfo(funcWrapper)->declareLocalVariable(
     funcWrapper->debugScopes.back(), varWrapper->getLlvmAllocaInst(), name, ti_cast<Type>(type), location, argIndex
   );
   return true;
@@ -895,19 +885,24 @@ Bool TargetGenerator::_setGlobalVariableDebugInfo(
 Bool TargetGenerator::_setDebugLocation(TiObject *self, TiObject *context, Core::Ast::Node *node)
 {
   PREPARE_SELF(targetGenerator, TargetGenerator);
-  if (targetGenerator->buildTarget->getDebugInfo() == 0) return true;
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
   PREPARE_ARG(context, block, Block);
 
-  // Functions that have no subprogram (e.g. compiler generated ones) are left without locations.
+  // Functions that were not given any debug info are left without locations.
   auto funcWrapper = block->getFunction();
-  if (funcWrapper == 0 || funcWrapper->diSubprogram == 0) return true;
+  if (funcWrapper == 0) return true;
+  if (funcWrapper->diSubprogram == 0 && !funcWrapper->debugSynthetic) return true;
 
   // If the node has no usable location we keep the previous one.
   std::vector<Core::Ast::SourceLocationRecord const*> chain;
   ModuleDebugInfo::findLocationChain(node, chain);
   if (chain.empty()) return true;
+
+  // A function made up by the compiler has no location of its own, so it takes the one of its first statement.
+  if (funcWrapper->diSubprogram == 0) targetGenerator->createFunctionDebugInfo(funcWrapper, chain);
+
   auto &llvmContext = *targetGenerator->buildTarget->getLlvmContext();
-  auto debugInfo = targetGenerator->buildTarget->getDebugInfo();
+  auto debugInfo = targetGenerator->getFunctionDebugInfo(funcWrapper);
 
   // A node that came from a macro expansion has more than one location: where the macro was used, followed by where
   // the node was written in the macro body. The line the debugger should show is the last one, and we describe the
@@ -919,7 +914,6 @@ Bool TargetGenerator::_setDebugLocation(TiObject *self, TiObject *context, Core:
   // a macro or a template) and whose first location falls inside their own body.
   auto scope = funcWrapper->debugScopes.back();
   llvm::DILocation *inlinedAt = 0;
-  size_t firstInlined = 0;
   if (
     chain.size() > 1 && funcWrapper->debugInlinedCodeAllowed &&
     chain.front()->filename == funcWrapper->debugFilename &&
@@ -935,6 +929,14 @@ Bool TargetGenerator::_setDebugLocation(TiObject *self, TiObject *context, Core:
       );
     }
     scope = debugInfo->getInlinedCodeScope(chain.back()->filename);
+  } else {
+    // If we are generating code for an entry function (function that contains global code outside of any function or
+    // class) then the same entry function can contain code from multiple files. This can happen in cases where the
+    // code triggers initialziation of global variables from another file or in cases where a module imported from
+    // another file contains global code that isn't executed yet (since the compiler batches those with global ccode
+    // from the the root scope for performance reasons). So, we need to make sure to use a scope for the file of the
+    // line currently being compiled.
+    scope = debugInfo->getScopeForCodeFromFile(scope, chain.back()->filename);
   }
 
   auto location = chain.back();
@@ -949,12 +951,12 @@ Bool TargetGenerator::_setDebugLocation(TiObject *self, TiObject *context, Core:
 Bool TargetGenerator::_prepareDebugScope(TiObject *self, TiObject *context, Core::Ast::Node *node)
 {
   PREPARE_SELF(targetGenerator, TargetGenerator);
-  auto debugInfo = targetGenerator->buildTarget->getDebugInfo();
-  if (debugInfo == 0) return true;
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
   PREPARE_ARG(context, block, Block);
 
   auto funcWrapper = block->getFunction();
   if (funcWrapper == 0 || funcWrapper->diSubprogram == 0) return true;
+  auto debugInfo = targetGenerator->getFunctionDebugInfo(funcWrapper);
 
   // Always push something so that every prepare is matched by a finish, even if the block has no location.
   auto location = ModuleDebugInfo::findLocationRecord(node);
@@ -967,7 +969,7 @@ Bool TargetGenerator::_prepareDebugScope(TiObject *self, TiObject *context, Core
 Bool TargetGenerator::_finishDebugScope(TiObject *self, TiObject *context)
 {
   PREPARE_SELF(targetGenerator, TargetGenerator);
-  if (targetGenerator->buildTarget->getDebugInfo() == 0) return true;
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
   PREPARE_ARG(context, block, Block);
 
   auto funcWrapper = block->getFunction();
@@ -2742,6 +2744,43 @@ std::string TargetGenerator::getNewBlockName()
 std::string TargetGenerator::getAnonymouseVarName()
 {
   return std::string("#anonymous") + std::to_string(this->anonymousVarIndex++);
+}
+
+
+ModuleDebugInfo* TargetGenerator::getFunctionDebugInfo(Function *function)
+{
+  return this->perFunctionModules ? function->debugInfo.get() : this->buildTarget->getDebugInfo();
+}
+
+
+void TargetGenerator::createFunctionDebugInfo(
+  Function *function, std::vector<Core::Ast::SourceLocationRecord const*> const &chain
+) {
+  // Debug metadata can't be shared between modules, so a function that has a module of its own gets its own debug
+  // info as well.
+  if (this->perFunctionModules) {
+    function->debugInfo = std::make_unique<ModuleDebugInfo>(
+      function->llvmModule.get(), this->buildTarget->getTargetTripleName().c_str(), this->buildTarget->isOptimized()
+    );
+  }
+  auto debugInfo = this->getFunctionDebugInfo(function);
+
+  auto location = chain.back();
+  function->diSubprogram = debugInfo->createFunction(function->debugName.getBuf(), location, function->functionType);
+  function->llvmFunction->setSubprogram(function->diSubprogram);
+  function->debugScopes.assign(1, function->diSubprogram);
+
+  // Code in the function body that was produced by a macro is described as inlined into the function, which only
+  // makes sense when the function itself was written directly in the source, i.e. it has a single location.
+  function->debugInlinedCodeAllowed = function->debugNode != 0 && chain.size() == 1;
+  function->debugFilename = location->filename;
+  function->debugLastLine = function->debugNode != 0 ?
+    ModuleDebugInfo::findLastLine(function->debugNode, location->filename) : 0;
+
+  // The prologue and the argument setup get line 0, which marks them as compiler generated. The backend takes the
+  // first instruction with a real line to be the end of the prologue, which is where a debugger should stop when a
+  // breakpoint is set on the function, i.e. after the arguments have been stored.
+  function->currentDebugLoc = llvm::DILocation::get(*this->buildTarget->getLlvmContext(), 0, 0, function->diSubprogram);
 }
 
 

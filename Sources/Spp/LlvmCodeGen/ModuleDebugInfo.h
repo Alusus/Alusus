@@ -38,6 +38,7 @@ class ModuleDebugInfo
   private: Bool optimized;
   private: std::map<std::string, llvm::DIFile*> files;
   private: std::map<Type const*, llvm::DIType*> types;
+  private: std::vector<SharedPtr<Type>> retainedTypes;
   private: std::map<std::string, llvm::DISubprogram*> inlinedCodeScopes;
 
 
@@ -84,6 +85,16 @@ class ModuleDebugInfo
   public: llvm::DILexicalBlock* createLexicalBlock(
     llvm::DIScope *parent, Core::Ast::SourceLocationRecord const *location
   );
+
+  /**
+   * @brief Get a scope for code in the given source file that belongs to the given scope.
+   *
+   * If the given scope is already from the given file then the given scope is returned, otherwise
+   * a new scope will be created that is tied to the given scope but says the code in it comes from
+   * a different file. This is needed for cases where global code from multiple files can be included
+   * in the same compiler-generated entry function.
+   */
+  public: llvm::DILocalScope* getScopeForCodeFromFile(llvm::DILocalScope *scope, Str const &filename);
 
   /**
    * @brief Get the scope to use for code that came from a macro body in the given source file.
@@ -135,7 +146,12 @@ class ModuleDebugInfo
     Core::Ast::SourceLocationRecord const *location
   );
 
-  /// Resolves all pending debug metadata. Calling it more than once has no effect.
+  /**
+   * @brief Resolves all pending debug metadata and verifies the module.
+   *
+   * If the module fails verification the debug info is dropped from it, after reporting the errors, instead of
+   * failing the build. Calling it more than once has no effect.
+   */
   public: void finalize();
 
 }; // class

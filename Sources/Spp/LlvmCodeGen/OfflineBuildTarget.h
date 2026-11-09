@@ -84,6 +84,16 @@ class OfflineBuildTarget : public BuildTarget
     return this->targetTriple;
   }
 
+  public: virtual std::string getTargetTripleName()
+  {
+    return this->targetTriple;
+  }
+
+  public: virtual Bool isOptimized() const
+  {
+    return this->optimize;
+  }
+
   public: virtual Bool isSysVX86_64Abi()
   {
     llvm::Triple tt(this->targetTriple);
@@ -117,8 +127,6 @@ class OfflineBuildTarget : public BuildTarget
   }
 
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module);
-
-  private: void finalizeDebugInfo();
 
   public: Str generateLlvmIr(Array<Str> const *ctorNames, Array<Str> const *dtorNames);
 

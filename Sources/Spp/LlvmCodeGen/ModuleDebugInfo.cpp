@@ -84,6 +84,14 @@ llvm::DILexicalBlock* ModuleDebugInfo::createLexicalBlock(
 }
 
 
+llvm::DILocalScope* ModuleDebugInfo::getScopeForCodeFromFile(llvm::DILocalScope *scope, Str const &filename)
+{
+  auto file = this->getFile(filename);
+  if (scope->getFile() == file) return scope;
+  return this->diBuilder->createLexicalBlockFile(scope, file);
+}
+
+
 llvm::DISubprogram* ModuleDebugInfo::getInlinedCodeScope(Str const &filename)
 {
   auto it = this->inlinedCodeScopes.find(filename.getBuf());
@@ -113,6 +121,9 @@ Int ModuleDebugInfo::findLastLine(Core::Ast::Node const *node, Str const &filena
   auto container = node->getInterface<Containing<Core::Ast::Node> const>();
   if (container != 0) {
     for (Int i = 0; i < container->getElementCount(); ++i) {
+      // Only the children the node owns are part of its code. The rest are references to other parts of the tree,
+      // which can lead back to this node.
+      if (container->getElementHoldMode(i) != HoldMode::SHARED_REF) continue;
       lastLine = std::max(lastLine, findLastLine(container->getElement(i), filename));
     }
   }
@@ -142,6 +153,10 @@ llvm::DIType* ModuleDebugInfo::getType(Type const *type)
 
   auto it = this->types.find(type);
   if (it != this->types.end()) return it->second;
+
+  // The cache is keyed by address, so the type has to stay alive as long as the cache does, otherwise a new type
+  // allocated at the same address would be mistaken for it.
+  this->retainedTypes.push_back(getSharedPtr(const_cast<Type*>(type)));
 
   auto &dl = this->llvmModule->getDataLayout();
   llvm::DIType *result = 0;
@@ -198,7 +213,7 @@ llvm::DIType* ModuleDebugInfo::getType(Type const *type)
         members.push_back(this->diBuilder->createMemberType(
           placeholder, memberNames[i], 0, 0, dl.getTypeSizeInBits(llvmMemberType),
           dl.getABITypeAlign(llvmMemberType).value() * 8, layout->getElementOffsetInBits(i), llvm::DINode::FlagZero,
-          this->getType(memberTypes[i])
+          this->getType(memberTypes[i].get())
         ));
       }
       auto composite = this->diBuilder->createStructType(
@@ -289,6 +304,19 @@ void ModuleDebugInfo::finalize()
   if (this->finalized) return;
   this->diBuilder->finalize();
   this->finalized = true;
+
+  // Malformed debug info can make the backend crash or emit garbage, so if it fails verification we report that and
+  // drop it rather than fail the build. Other problems in the module are not our concern here: they are reported
+  // separately in the process of the build.
+  std::string errors;
+  llvm::raw_string_ostream errorStream(errors);
+  bool brokenDebugInfo = false;
+  llvm::verifyModule(*this->llvmModule, &errorStream, &brokenDebugInfo);
+  if (brokenDebugInfo) {
+    errorStream.flush();
+    outStream << S("WARNING: Invalid debug info was generated and will be dropped:\n") << errors.c_str() << S("\n");
+    llvm::StripDebugInfo(*this->llvmModule);
+  }
 }
 
 } // namespace

@@ -309,6 +309,8 @@ void Generator::_prepareNullaryProcedure(
   if (!session->getTg()->generateFunctionDecl(funcName, tgFuncType, tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for nullary procedure."));
   }
+  // This function has no source code of its own, so debug info is based on the statements that end up in it.
+  session->getTg()->setFunctionDebugInfo(tgFunc.get(), funcName, 0);
   SharedList<TiObject> args;
   if (!session->getTg()->prepareFunctionBody(tgFunc.get(), tgFuncType, &args, tgContext)) {
     throw EXCEPTION(GenericException, S("Failed to prepare function body for root scope execution."));

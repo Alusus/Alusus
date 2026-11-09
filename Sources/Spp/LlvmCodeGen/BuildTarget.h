@@ -55,6 +55,18 @@ class BuildTarget : public TiObject
     return 0;
   }
 
+  /// The triple of the target the generated code is for. The JIT targets always build for the host.
+  public: virtual std::string getTargetTripleName()
+  {
+    return llvm::sys::getDefaultTargetTriple();
+  }
+
+  /// Whether the generated code is optimized, which is recorded in the debug info.
+  public: virtual Bool isOptimized() const
+  {
+    return false;
+  }
+
   public: virtual llvm::DataLayout* getLlvmDataLayout() = 0;
 
   public: virtual llvm::LLVMContext* getLlvmContext() = 0;

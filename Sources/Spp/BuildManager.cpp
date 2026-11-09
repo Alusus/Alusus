@@ -123,6 +123,7 @@ void BuildManager::initNonOfflineBuildSessions()
   jitTargetGenerator->setupBuild();
 
   auto preprocessBuildTarget = newSrdObj<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
+  preprocessBuildTarget->setDebugInfo(this->getDebugInfoOption());
   auto preprocessTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     jitTargetGenerator.get(), preprocessBuildTarget.get(), true
   );

@@ -88,24 +88,6 @@ void OfflineBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
 }
 
 
-void OfflineBuildTarget::finalizeDebugInfo()
-{
-  if (this->debugInfo == 0) return;
-  this->debugInfo->finalize();
-
-  // Malformed debug info can make the backend crash or emit garbage, so if it fails verification we report that and
-  // drop it rather than fail the build.
-  std::string errors;
-  llvm::raw_string_ostream errorStream(errors);
-  if (llvm::verifyModule(*this->llvmModule, &errorStream)) {
-    errorStream.flush();
-    outStream << S("WARNING: Invalid LLVM module while generating debug info; debug info will be dropped:\n")
-      << errors.c_str() << S("\n");
-    llvm::StripDebugInfo(*this->llvmModule);
-  }
-}
-
-
 Str OfflineBuildTarget::generateLlvmIr(Array<Str> const *ctorNames, Array<Str> const *dtorNames)
 {
   // Make sure the global llvm module exists.
@@ -114,7 +96,7 @@ Str OfflineBuildTarget::generateLlvmIr(Array<Str> const *ctorNames, Array<Str> c
   this->buildCtorOrDtorArray(ctorNames, "llvm.global_ctors");
   this->buildCtorOrDtorArray(dtorNames, "llvm.global_dtors");
 
-  this->finalizeDebugInfo();
+  if (this->debugInfo != 0) this->debugInfo->finalize();
 
   StrStream strStream;
   llvm::raw_os_ostream ostream(strStream);
@@ -137,7 +119,7 @@ void OfflineBuildTarget::generateObjectFile(
 
   this->llvmModule->setTargetTriple(this->targetTriple);
 
-  this->finalizeDebugInfo();
+  if (this->debugInfo != 0) this->debugInfo->finalize();
 
   if (this->optimize) {
     optimizeLlvmModule(*this->llvmModule, this->targetMachine.get());
