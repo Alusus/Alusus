@@ -96,8 +96,61 @@ Bool mergeDefinition(
 }
 
 
+static Bool addWithinElements(
+  Within *within, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore,
+  Node *lookupContext
+) {
+  auto subject = within->getSubject().get();
+  if (subject == 0) return true;
+
+  // A list gets expanded into the target scope.
+  auto list = ti_cast<List>(subject);
+  Int count = list != 0 ? list->getCount() : 1;
+
+  // If there are modifiers or metadata on the Within object itself, move them over to its first element, since the
+  // Within object is discarded and won't be kept in the target.
+  auto first = list != 0 ? (count > 0 ? list->getElement(0) : 0) : subject;
+  if (first != 0) {
+    first->addModifiers(within->getModifiers());
+    first->addMetadata(within->getMetadata());
+  }
+
+  auto qualifier = within->getQualifier().get();
+  Node *lookupNode = lookupContext;
+  if (qualifier != 0) {
+    VALIDATE_NOT_NULL(seeker);
+    if (lookupNode == 0) lookupNode = ti_cast<Node>(target->getTiObject());
+  }
+
+  // The qualifier may contain nodes that are resolved through their owner chain (e.g. template arguments), but the
+  // Within object is not attached to anything while parsing. So we temporarily attach it to the target scope.
+  Node *prevOwner = within->getOwner();
+  within->setOwner(ti_cast<Node>(target->getTiObject()));
+
+  Bool result = true;
+  for (Int i = 0; i < count; ++i) {
+    auto element = list != 0 ? list->getElement(i) : subject;
+    if (element == 0) continue;
+    if (qualifier == 0) {
+      if (!addPossiblyMergeableElement(element, target, index, seeker, noticeStore, lookupContext)) result = false;
+    } else {
+      if (lookupNode == 0) result = false;
+      else if (!seeker->addPossiblyMergeable(qualifier, lookupNode, element, noticeStore, 0)) {
+        noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(
+          findSourceLocation(qualifier)
+        ));
+        result = false;
+      }
+    }
+  }
+  within->setOwner(prevOwner);
+  return result;
+}
+
+
 Bool addPossiblyMergeableElement(
-  Node *src, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore
+  Node *src, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore,
+  Node *lookupContext
 ) {
   VALIDATE_NOT_NULL(src, target, noticeStore);
   if (src->isDerivedFrom<Definition>()) {
@@ -108,21 +161,8 @@ Bool addPossiblyMergeableElement(
       if (index == -1) target->addElement(src);
       else target->insertElement(index++, src);
     }
-  } else if(src->isDerivedFrom<MergeList>()){
-    auto mergeList = static_cast<MergeList*>(src);
-    // If there are modifiers or metadata on the MergeList itself, move them over to its first element,
-    // since the MergeList itself is discarded and won't be kept in the target.
-    if (mergeList->getElementCount() > 0) {
-      auto firstElement = mergeList->getElement(0);
-      if (firstElement != 0) {
-        firstElement->addModifiers(mergeList->getModifiers());
-        firstElement->addMetadata(mergeList->getMetadata());
-      }
-    }
-    for (Int i = 0; i < mergeList->getElementCount(); ++i) {
-      if (index == -1) target->addElement(mergeList->getElement(i));
-      else target->insertElement(index++, mergeList->getElement(i));
-    }
+  } else if (src->isDerivedFrom<Within>()) {
+    return addWithinElements(static_cast<Within*>(src), target, index, seeker, noticeStore, lookupContext);
   } else {
     if (index == -1) target->addElement(src);
     else target->insertElement(index++, src);
@@ -132,10 +172,10 @@ Bool addPossiblyMergeableElement(
 
 
 Bool addPossiblyMergeableElement(
-  Node *src, DynamicContaining<Node> *target, Seeker *seeker, Notices::Store *noticeStore
+  Node *src, DynamicContaining<Node> *target, Seeker *seeker, Notices::Store *noticeStore, Node *lookupContext
 ) {
   Int index = -1;
-  return addPossiblyMergeableElement(src, target, index, seeker, noticeStore);
+  return addPossiblyMergeableElement(src, target, index, seeker, noticeStore, lookupContext);
 }
 
 

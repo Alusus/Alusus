@@ -40,7 +40,7 @@ func preprocessTest1 {
                 .set(String("v2"), Passage(var2~ast))
         )
         // Call a function template.
-        def list: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
+        var list: SrdRef[Core.Ast.List] = newSrdObj[Core.Ast.List];
         def listContainer: DynContainerOf[list.obj, Core.Ast.Node];
         listContainer.addElement(StringLiteral.create("Hello from a template\n"));
         def instance: SrdRef[Core.Ast.Node];

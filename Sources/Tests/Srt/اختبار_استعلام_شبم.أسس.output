@@ -18,6 +18,7 @@ Int
 Word
 Float
 ptr
+lptr
 ref
 temp_ref
 iref

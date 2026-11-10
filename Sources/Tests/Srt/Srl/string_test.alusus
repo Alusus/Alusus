@@ -98,7 +98,7 @@ def Main: module
 
     if s.slice(12, 5) == "world" Console.print("Comparison successful!\n");
 
-    def ss: Array[String] = s.trim().split(" ");
+    var ss: Array[String] = s.trim().split(" ");
     for i = 0, i < ss.getLength(), ++i {
       Console.print(ss(i));
       Console.print("\n");

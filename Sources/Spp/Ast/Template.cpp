@@ -33,6 +33,8 @@ SharedPtr<Core::Ast::Node> const& Template::getDefaultInstance(Helper *helper)
   // No default instance was found, create a new one.
   auto block = newSrdObj<Core::Ast::Scope>();
   block->add(Core::Ast::clone(this->body.get()));
+  PlainList<Core::Ast::Node> vars;
+  this->instancesIndex[this->hashTemplateVars(&vars)].push_back(this->instances.getCount());
   this->instances.add(block);
   block->setOwner(this);
   return this->instances.get(this->instances.getCount() - 1)->get(0);
@@ -54,8 +56,8 @@ Bool Template::matchInstance(
   }
 
   // Do we already have an instance?
-  auto count = this->instances.getCount();
-  for (Int i = 0; i < count; ++i) {
+  auto &candidates = this->instancesIndex[this->hashTemplateVars(&vars)];
+  for (auto i : candidates) {
     if (this->matchTemplateVars(&vars, this->instances.getElement(i), helper, notice)) {
       result = this->instances.get(i)->get(0);
       return true;
@@ -71,6 +73,7 @@ Bool Template::matchInstance(
   if (!this->assignTemplateVars(&vars, block.get(), helper, notice)) {
     return false;
   }
+  candidates.push_back(this->instances.getCount());
   this->instances.add(block);
   block->setOwner(this);
   result = this->instances.get(this->instances.getCount() - 1)->get(0);
@@ -139,7 +142,7 @@ Bool Template::matchTemplateVar(
   switch (varDef->getType().get()) {
     case TemplateVarType::INTEGER: {
       auto var = static_cast<Core::Ast::IntegerLiteral*>(
-        Template::getTemplateVar(instance, varDef->getName().get())
+        Template::getTemplateVar(instance, varDef->getName().getStr())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
@@ -151,7 +154,7 @@ Bool Template::matchTemplateVar(
 
     case TemplateVarType::STRING: {
       auto var = static_cast<Core::Ast::StringLiteral*>(
-        Template::getTemplateVar(instance, varDef->getName().get())
+        Template::getTemplateVar(instance, varDef->getName().getStr())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
@@ -162,7 +165,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::MODULE: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
@@ -172,7 +175,7 @@ Bool Template::matchTemplateVar(
 
     case TemplateVarType::TYPE: {
       auto var = static_cast<Spp::Ast::Type*>(
-        Template::getTemplateVar(instance, varDef->getName().get())
+        Template::getTemplateVar(instance, varDef->getName().getStr())
       );
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing or invalid variable in template instance."));
@@ -186,7 +189,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::FUNCTION: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
@@ -195,7 +198,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::AST: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing or invalid variable in template instance."));
       }
@@ -204,7 +207,7 @@ Bool Template::matchTemplateVar(
     }
 
     case TemplateVarType::AST_REF: {
-      auto var = Template::getTemplateVar(instance, varDef->getName().get());
+      auto var = Template::getTemplateVar(instance, varDef->getName().getStr());
       if (var == 0) {
         throw EXCEPTION(GenericException, S("Missing variable in template instance."));
       }
@@ -216,6 +219,41 @@ Bool Template::matchTemplateVar(
       throw EXCEPTION(GenericException, S("Unexpected template var type."));
     }
   }
+}
+
+
+std::size_t Template::hashTemplateVars(Containing<Core::Ast::Node> *templateInputs)
+{
+  // Equal vars, as determined by matchTemplateVar, must always produce equal hashes.
+  std::size_t hash = 0;
+  for (Int i = 0; i < templateInputs->getElementCount(); ++i) {
+    auto varDef = this->varDefs->get(i).s_cast_get<TemplateVarDef>();
+    ASSERT(varDef != 0);
+    auto var = templateInputs->getElement(i);
+    std::size_t varHash = 0;
+    switch (varDef->getType().get()) {
+      case TemplateVarType::INTEGER:
+        varHash = std::hash<long>{}(std::stol(static_cast<Core::Ast::IntegerLiteral*>(var)->getValue().get()));
+        break;
+      case TemplateVarType::STRING:
+        varHash = std::hash<std::string_view>{}(static_cast<Core::Ast::StringLiteral*>(var)->getValue().get());
+        break;
+      case TemplateVarType::TYPE:
+        // Function types are compared with isIdentical rather than by identity.
+        if (!var->isA<Spp::Ast::FunctionType>()) varHash = std::hash<void*>{}(var);
+        break;
+      case TemplateVarType::MODULE:
+      case TemplateVarType::FUNCTION:
+      case TemplateVarType::AST_REF:
+        varHash = std::hash<void*>{}(var);
+        break;
+      default:
+        // AST vars are compared with isEqual.
+        break;
+    }
+    hash ^= varHash + 0x9e3779b97f4a7c15 + (hash << 6) + (hash >> 2);
+  }
+  return hash;
 }
 
 
@@ -240,17 +278,16 @@ Bool Template::assignTemplateVars(
 }
 
 
-Core::Ast::Node* Template::getTemplateVar(Core::Ast::Scope const *instance, Char const *name)
+Core::Ast::Node* Template::getTemplateVar(Core::Ast::Scope const *instance, Str const &name)
 {
-  for (Int i = 0; i < instance->getCount(); ++i) {
-    auto def = ti_cast<Core::Ast::Definition>(instance->getElement(i));
-    if (def != 0 && def->getName() == name) {
-      auto passage = def->getTarget().ti_cast_get<Core::Ast::Passage>();
-      if (passage != 0) return passage->get();
-      else return def->getTarget().get();
-    }
+  auto defs = instance->findDefinitions(name);
+  if (defs == 0 || defs->size() == 0) {
+    throw EXCEPTION(GenericException, S("Template var not found."));
   }
-  throw EXCEPTION(GenericException, S("Template var not found."));
+  auto def = defs->front();
+  auto passage = def->getTarget().ti_cast_get<Core::Ast::Passage>();
+  if (passage != 0) return passage->get();
+  else return def->getTarget().get();
 }
 
 

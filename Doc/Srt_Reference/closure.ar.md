@@ -4,9 +4,9 @@
 يمكن للدالات الضمنية الولوج إلى المتغيرات العمومية خارجها، لكن لا يمكنها الولوج إلى المتغيرات المحلية ضمن دالة خارجية تحوي الدالة الضمنية، وذلك لأن الدالة الخارجية قد ينتهي تنفيذها وتُزال متغيراتها من الذاكرة قبل استدعاء الدالة الضمنية. على سبيل المثال:
 
 ```
-عرف مد: مؤشر[دالة]؛
+متغير مد: مؤشر[دالة]؛
 دالة جهز_دالة {
-    عرف ع: صحيح = 10؛
+    متغير ع: صحيح = 10؛
     مد = دالة {
         طـرفية.اطبع("%d\ج"، ع)؛ // خطأ: في الوقت الذي يُنفذ فيه هذا السطر
             // يكون ع قد أزيل من الذاكرة
@@ -18,9 +18,9 @@
 ```
 
 ```
-def pf: ptr[func];
+var pf: ptr[func];
 func prepareFunc {
-    def i: Int = 10;
+    var i: Int = 10;
     pf = func {
         Console.print("%d\n", i); // Error: by the time this line is executed
             // i would have been removed from memory
@@ -36,9 +36,9 @@ pf();
 ```
 اشمل "مغلفة"؛
 
-عرف مغ: مغلفة ()؛
+متغير مغ: مغلفة ()؛
 دالة جهز_مغلفة {
-    عرف ع: صحيح = 10؛
+    متغير ع: صحيح = 10؛
     مغ = مغلفة () {
         طـرفية.اطبع("%d\ج"، ع)؛ // صحيح: سيبدل المترجم هذا الولوج تلقائيًا
             // إلى ولوج إلى نسخة من ع.
@@ -52,9 +52,9 @@ pf();
 ```
 import "closure";
 
-def pc: closure ();
+var pc: closure ();
 func prepareClosure {
-    def i: Int = 10;
+    var i: Int = 10;
     pf = closure () {
         Console.print("%d\n", i); // Correct: access to i will be replaced
             // by the compiler to an access to a copy of i
@@ -71,11 +71,11 @@ pc();
 اشمل "مغلفة"؛
 
 صنف قـيد {
-    عرف مغ: مغلفة ()؛
-    عرف ص: صحيح؛
+    متغير مغ: مغلفة ()؛
+    متغير ص: صحيح؛
 }
 
-عرف ق1: سـندنا[قـيد]؛
+متغير ق1: سـندنا[قـيد]؛
 ق1.أنشئ()؛
 ق1.ص = 10؛
 ق1.مغ = مغلفة () {
@@ -83,10 +83,10 @@ pc();
 }؛
 ق1.حرر()؛ // لن يُحرر هنا ق1 ولا المغلفة التي يملكها.
 
-عرف ق2: سـندنا[قـيد]؛
+متغير ق2: سـندنا[قـيد]؛
 ق2.أنشئ()؛
 ق2.ص = 10؛
-عرف ق22: سـندهم[قـيد] = ق2؛
+متغير ق22: سـندهم[قـيد] = ق2؛
 ق2.مغ = مغلفة () {
     طـرفية.اطبع("%d\ج"، ق22.ص)؛
 }}
@@ -97,11 +97,11 @@ pc();
 import "closure";
 
 class Record {
-    def c: closure ();
-    def i: Int;
+    var c: closure ();
+    var i: Int;
 }
 
-def r1: SrdRef[Record];
+var r1: SrdRef[Record];
 r1.construct();
 r1.i = 10;
 r1.c = closure() {
@@ -109,10 +109,10 @@ r1.c = closure() {
 };
 r1.release(); // r1 will not be released and neither will the closure it owns.
 
-def r2: SrdRef[Record];
+var r2: SrdRef[Record];
 r2.construct();
 r2.i = 10;
-def r22: WkRef[Record] = r2;
+var r22: WkRef[Record] = r2;
 r2.c = closure() {
     Console.print("%d\n", r22.i);
 };
@@ -124,9 +124,9 @@ r2.release(); // r2 will be released along with the closure it owns.
 ```
 اشمل "مغلفة"؛
 
-عرف مغ: مغلفة (عائم): صحيح؛
+متغير مغ: مغلفة (عائم): صحيح؛
 دالة جهز_مغلفة {
-    عرف ع: صحيح = 10؛
+    متغير ع: صحيح = 10؛
     مغ = مغلفة (ن: عائم): صحيح {
         أرجع ع * ن؛
     }؛
@@ -139,9 +139,9 @@ r2.release(); // r2 will be released along with the closure it owns.
 ```
 import "closure";
 
-def pc: closure (Float): Int;
+var pc: closure (Float): Int;
 func prepareClosure {
-    def i: Int = 10;
+    var i: Int = 10;
     pf = closure (j: Float): Int {
         return i * j;
     };
@@ -171,7 +171,7 @@ closure (/*capture_mode_defs*/)&(/*args_defs*/): /*ret_type*/ {
 
 ```
 دالة اختبر_التقط_كسند (ن: صحيح) {
-    عرف م: مغلفة (ع: صحيح): صحيح؛
+    متغير م: مغلفة (ع: صحيح): صحيح؛
     م = مغلفة (ن: كسند)&(ع: صحيح): صحيح {
         أرجع ع * ن++؛
     }
@@ -190,7 +190,7 @@ closure (/*capture_mode_defs*/)&(/*args_defs*/): /*ret_type*/ {
 
 ```
 func testCaptureByRef (n: Int) {
-    def c: closure (i: Int): Int;
+    var c: closure (i: Int): Int;
     c = closure (n: by_ref)&(i: Int): Int {
         return i * n++;
     };
@@ -217,14 +217,14 @@ n after calling c: 6
 يمكن التحقق فيما إن كان مؤشر المغلفة صفرا أم لا باستخدام الدالة `أهو_عدم` (isNull).
 
 ```
-    عرف م: مغلفة (ع: صحيح): صحيح؛
+    متغير م: مغلفة (ع: صحيح): صحيح؛
     م.أهو_عدم() // يرجع 1
     م = مغلفة (ع: صحيح): صحيح { أرجع 0؛ }؛
     م.أهو_عدم() // يرجع 0
 ```
 
 ```
-    def c: closure (i: Int): Int;
+    var c: closure (i: Int): Int;
     c.isNull() // returns true
     c = closure (i: Int): Int { return 0 };
     c.isNull() // returns false

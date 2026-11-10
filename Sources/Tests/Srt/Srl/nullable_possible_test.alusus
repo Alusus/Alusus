@@ -9,8 +9,8 @@ func test {
     def n1: Nullable[Int];
     def n2: Nullable[Int](3);
     def n3: Nullable[Int];
-    def p1: Possible[Int] = Possible[Int].success(4);
-    def p2: Possible[Int] = Possible[Int].failure(
+    var p1: Possible[Int] = Possible[Int].success(4);
+    var p2: Possible[Int] = Possible[Int].failure(
         SrdRef[GenericError].construct().{ code = "test_err1"; message = "fail!" }
     );
 

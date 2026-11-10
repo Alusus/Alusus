@@ -1,0 +1,32 @@
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  literal_pointers_test.alusus (8,3)
+Build Failed...
+--------------------- Partial LLVM IR ----------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, ptr, ptr }
+
+@llvm.global_ctors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @"test()"() {
+"#block0":
+  %p = alloca ptr, align 8
+  %0 = load ptr, ptr %p, align 8
+  call void @"takeLiteralChars(lptr[array[Word[8],1]])"(ptr %0)
+  %l = alloca ptr, align 8
+  %p2 = alloca ptr, align 8
+  %1 = load ptr, ptr %l, align 8
+  store ptr %1, ptr %p2, align 8
+  ret void
+}
+
+define void @"takeLiteralChars(lptr[array[Word[8],1]])"(ptr %p) {
+"#block1":
+  %p1 = alloca ptr, align 8
+  store ptr %p, ptr %p1, align 8
+  ret void
+}
+------------------------------------------------------------

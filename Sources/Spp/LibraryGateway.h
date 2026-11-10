@@ -26,9 +26,6 @@ class LibraryGateway : public Core::Main::LibraryGateway
   //============================================================================
   // Member Variables
 
-  private: SeekerExtension::Overrides *seekerExtensionOverrides = 0;
-  private: RootScopeHandlerExtension::Overrides *rootScopeHandlerExtensionOverrides = 0;
-  private: RootManagerExtension::Overrides *rootManagerExtensionOverrides = 0;
   private: SharedPtr<Grammar::SppFactory> grammarFactory;
   private: SharedPtr<Ast::Helper> astHelper;
   private: SharedPtr<Ast::CalleeTracer> calleeTracer;

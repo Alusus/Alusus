@@ -23,9 +23,11 @@ void JitBuildTarget::setupBuild()
 
   JitEngineBuilder engineBuilder;
   engineBuilder.useOptimizeLayer = this->optimize;
+  engineBuilder.enableDebuggerSupport = this->isDebugInfoEnabled();
   this->llvmJitEngine = llvm::cantFail(engineBuilder.create(this->globalItemRepo));
   this->llvmDataLayout = const_cast<llvm::DataLayout*>(&this->llvmJitEngine->getDataLayout());
 
+  this->debugInfo.reset();
   this->llvmModule.reset();
 
   this->llvmTsContext = std::make_unique<llvm::orc::ThreadSafeContext>(std::make_unique<llvm::LLVMContext>());
@@ -44,6 +46,11 @@ llvm::Module* JitBuildTarget::getGlobalLlvmModule()
   if (this->llvmModule == 0) {
     this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", *this->llvmContext);
     this->llvmModule->setDataLayout(*this->llvmDataLayout);
+    if (this->isDebugInfoEnabled()) {
+      this->debugInfo = std::make_unique<ModuleDebugInfo>(
+        this->llvmModule.get(), this->getTargetTripleName().c_str(), this->optimize
+      );
+    }
   }
   return this->llvmModule.get();
 }
@@ -78,7 +85,15 @@ void JitBuildTarget::execute(Char const *entry)
 
 void* JitBuildTarget::getFunctionPointer(Char const *entry)
 {
-  if (this->llvmModule != 0) this->addLlvmModule(std::move(this->llvmModule));
+  if (this->llvmModule != 0) {
+    // The module is about to be handed over to the JIT, so its debug info is complete. The next global module gets a
+    // new one.
+    if (this->debugInfo != 0) {
+      this->debugInfo->finalize();
+      this->debugInfo.reset();
+    }
+    this->addLlvmModule(std::move(this->llvmModule));
+  }
 
   auto llvmEntry = llvm::cantFail(this->llvmJitEngine->lookup(entry));
   return (void*)llvmEntry.getAddress();

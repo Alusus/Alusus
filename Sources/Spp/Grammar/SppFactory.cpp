@@ -37,6 +37,7 @@ void SppFactory::createGrammar()
     S("continue"), S("أكمل"),
     S("break"), S("اقطع"),
     S("return"), S("أرجع"), S("ارجع"),
+    S("var"), S("متغير"),
     S("module"), S("وحدة"),
     S("class"), S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
@@ -232,6 +233,27 @@ void SppFactory::createGrammar()
       returnStatement->setOperand(getSharedPtr(currentList->getElement(1)));
     }
     state->setData(returnStatement);
+  }));
+
+  //// var = "var" + Expression
+  this->createCommand(S("root.Main.Var"), {{
+    Map::create({}, { { S("var"), 0 }, { S("متغير"), 0 } }),
+    {{
+      PARSE_REF(S("module.Expression")),
+      TiInt::create(1),
+      TiInt::create(1),
+      TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+    }}
+  }}, newSrdObj<Handlers::VarParsingHandler>());
+  this->set(S("root.Main.Var.modifierActions"), Map::create({}, {
+    {S("shared"), newSrdObj<Grammar::StoreModifierAction>(S("shared"))},
+    {S("مشترك"), newSrdObj<Grammar::StoreModifierAction>(S("shared"))},
+    {S("no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
+    {S("دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
+    {S("injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
+    {S("حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
+    {S("priority"), newSrdObj<Grammar::StoreModifierAction>(S("priority"))},
+    {S("أولوية"), newSrdObj<Grammar::StoreModifierAction>(S("priority"))}
   }));
 
   //// TypeOp = "handler" + Exp + TypeOpOptions + Statement
@@ -873,6 +895,7 @@ void SppFactory::createGrammar()
     PARSE_REF(S("module.Type")),
     PARSE_REF(S("module.Function")),
     PARSE_REF(S("module.Macro")),
+    PARSE_REF(S("module.Var")),
     PARSE_REF(S("module.Preprocess")),
     PARSE_REF(S("module.AstLiteral")),
     PARSE_REF(S("module.Keywords")),
@@ -897,6 +920,7 @@ void SppFactory::cleanGrammar()
     S("continue"), S("أكمل"),
     S("break"), S("اقطع"),
     S("return"), S("أرجع"), S("ارجع"),
+    S("var"), S("متغير"),
     S("module"), S("وحدة"),
     S("class"), S("type"), S("صنف"),
     S("func"), S("function"), S("دالّة"), S("دالة"),
@@ -970,6 +994,7 @@ void SppFactory::cleanGrammar()
     S("module.Type"),
     S("module.Function"),
     S("module.Macro"),
+    S("module.Var"),
     S("module.Preprocess"),
     S("module.AstLiteral"),
     S("module.Keywords"),
@@ -1002,6 +1027,7 @@ void SppFactory::cleanGrammar()
   this->tryRemove(S("root.Main.Continue"));
   this->tryRemove(S("root.Main.Break"));
   this->tryRemove(S("root.Main.Return"));
+  this->tryRemove(S("root.Main.Var"));
   this->tryRemove(S("root.Main.TypeOp"));
   this->tryRemove(S("root.Main.TypeOpOptions"));
 

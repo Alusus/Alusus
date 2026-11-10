@@ -57,6 +57,11 @@ class ReferenceTerm : public Term
   //============================================================================
   // Member Functions
 
+  public: virtual TermType getTermType() const
+  {
+    return TermType::REFERENCE;
+  }
+
   public: void setReference(SharedPtr<Reference> const &ref)
   {
     UPDATE_OWNED_SHAREDPTR(this->reference, ref);

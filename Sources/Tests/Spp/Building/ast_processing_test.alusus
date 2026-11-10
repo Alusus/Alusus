@@ -29,7 +29,7 @@ func test {
   defInt[abc];
   abc = 51;
   pf = pointedFunction~ptr;
-  def pf2: ptr[function] = pointedFunction~ptr;
+  var pf2: ptr[function] = pointedFunction~ptr;
   print("%d\n", abc);
 
   def p: Point;

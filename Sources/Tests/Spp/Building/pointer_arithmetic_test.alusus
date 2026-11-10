@@ -7,10 +7,10 @@ func takeChar (c: Char) {
 }
 
 func test {
-    def p: ptr[Char] = "Alusus";
+    var p: ptr[Char] = "Alusus";
     takeChar((p+5i32)~cnt);
 
-    def p2: ptr[Char] = p + 5i64;
+    var p2: ptr[Char] = p + 5i64;
     takeChar((p2-3)~cnt);
 
     takeChar((p + 6.0)~cnt);

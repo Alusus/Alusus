@@ -89,6 +89,28 @@ s_enum(TermFlags, ERROR_SYNC_TERM=(1<<16));
  */
 s_enum(SymbolFlags, ROOT_TOKEN=(1<<16), IGNORED_TOKEN=(1<<17), PREFER_SHORTER=(1<<18));
 
+/**
+ * @brief The type of a grammar term, as returned by Term::getTermType().
+ * This allows the parser and lexer to dispatch on a term's type with a single
+ * call rather than a chain of type info checks. NONE is used where no term is
+ * available.
+ */
+s_enum(TermType, NONE = 0, TOKEN, CONST, CHAR_GROUP, MULTIPLY, ALTERNATE, CONCAT, REFERENCE);
+
+/**
+ * @brief A sequence of route decisions cached on a term for a specific token.
+ * The first entry is the decision of the term itself, and the remaining
+ * entries are the decisions taken, in order, by the terms within that term's
+ * subtree while processing the same token.
+ */
+typedef std::vector<Int> DecisionChain;
+
+/// Decision chains cached by token text, used for keywords.
+typedef std::unordered_map<Str, DecisionChain, std::hash<Str>> TextBasedDecisionCache;
+
+/// Decision chains cached by token id, used for non-keyword tokens.
+typedef std::unordered_map<Word, DecisionChain> IdBasedDecisionCache;
+
 } // namespace
 
 
@@ -168,6 +190,8 @@ template <class T> SharedPtr<T> cloneInherited(T *obj)
  * @ingroup core_data_grammar
  */
 void clearCaches(TiObject *obj);
+
+Word getCacheClearCount();
 
 } // namespace
 

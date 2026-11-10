@@ -9,6 +9,15 @@ macro castAssign [v1, v2] {
     v2 = v1~cast[v2~type];
 }
 
+class Inner {
+    def i: Int[8];
+};
+
+class Outer {
+    def inner: Inner;
+    def j: inner.i~type;
+};
+
 func test {
     def i: Int;
     duplicate[i];
@@ -20,5 +29,11 @@ func test {
     def pc: ptr[Int[8]];
     castAssign[i~ptr, pc];
     Console.print("%d\n", pc~cnt~cast[Int]);
+
+    def o: Outer;
+    def oi: o.inner~type;
+    o.j = 257;
+    oi.i = 258;
+    Console.print("%d, %d\n", o.j~cast[Int], oi.i~cast[Int]);
 }
 test();

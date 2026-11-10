@@ -68,6 +68,15 @@ template<class T> class BindingCache : public BindingCacheBase
     }
   };
 
+  // The binding map can be destroyed before the cache, depending on the order in which the owner's members are
+  // destroyed, so we need to stop using it once it's destroyed.
+  private: Slot<void, SharedMapBase<TiObject, TiObject>*> bindingDestroySlot = {
+    [=](SharedMapBase<TiObject, TiObject> *src)->void
+    {
+      this->bindingMap = 0;
+    }
+  };
+
 
   //============================================================================
   // Constructor & Destructor
@@ -113,7 +122,9 @@ template<class T> class BindingCache : public BindingCacheBase
     }
     this->bindingMap = bindings->getBindingMap();
     this->bindingChangeSlot.disconnect();
+    this->bindingDestroySlot.disconnect();
     this->bindingMap->changeNotifier.connect(this->bindingChangeSlot);
+    this->bindingMap->destroyNotifier.connect(this->bindingDestroySlot);
 
     this->index = -1;
     auto i = this->bindingMap->findIndex(this->name);
@@ -183,34 +194,45 @@ template<class T> class BindingCache : public BindingCacheBase
 }; // class BindingCache
 
 
-template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCache<TiFunctionBase>
+template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCache<TiCallee>
 {
-  //============================================================================
-  // Types
-
-  public: struct FunctionCalleeInstance
-  {
-    TiObject *callee;
-    FunctionCalleeInstance(TiObject *c) : callee(c) {}
-    RT operator()(ARGS... args)
-    {
-      return Core::Basic::call<RT, ARGS...>(this->callee, args...);
-    }
-  };
-
-
   //============================================================================
   // Member Variables
 
+  /// The function currently bound to this cache's key.
   private: TiFunction<RT(ARGS...)> *callee;
-  private: TiFunction<RT(TiFunctionBase*, ARGS...)> *calleeWithSuper;
+
+  /**
+   * @brief The override that holds this cache's function, if any.
+   * This is either an override created by this cache, or an existing override
+   * of the same function found in the callee chain, as is the case when the
+   * owner inherits its bindings from another object.
+   */
+  private: SharedPtr<TiFunctionOverride<RT(ARGS...)>> ownOverride;
+
+  /**
+   * @brief Whether ownOverride was created by this cache.
+   * Only an override created by this cache gets replaced by set() or removed
+   * by reset(); an override found in the callee chain belongs to whichever
+   * cache created it.
+   */
+  private: Bool ownOverrideCreated;
+
+  /// The function overridden by ownOverride, if any.
+  private: TiFunction<RT(ARGS...)> *superCallee;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: FunctionBindingCache(Char const *name) : BindingCache<TiFunctionBase>(name)
+  public: FunctionBindingCache(Char const *name) :
+    BindingCache<TiCallee>(name), callee(0), ownOverrideCreated(false), superCallee(0)
   {
+  }
+
+  public: ~FunctionBindingCache()
+  {
+    this->reset();
   }
 
 
@@ -224,154 +246,185 @@ template<class RT, class ...ARGS> class FunctionBindingCache : public BindingCac
 
   public: RT operator()(ARGS... args)
   {
-    if (this->calleeWithSuper != 0) return this->calleeWithSuper->fn(this->calleeWithSuper->getSuper(), args...);
-    else if (this->callee != 0) return this->callee->fn(args...);
-    else {
-      if (this->obj == 0) throw EXCEPTION(GenericException, S("Function is not set."));
-      else throw EXCEPTION(GenericException, S("Function signature mismatch."));
-    }
+    if (this->callee != 0) return this->callee->fn(args...);
+    else if (this->obj == 0) throw EXCEPTION(GenericException, S("Function is not set."));
+    else throw EXCEPTION(GenericException, S("Function signature mismatch."));
   }
 
 
   //============================================================================
   // Member Functions
 
+  public: using BindingCache<TiCallee>::init;
+
+  /**
+   * @brief Initialize the cache and bind the given function as an override at its key.
+   * If the callee chain at the key already has an override of the same
+   * function, as is the case when the owner inherits its bindings from an
+   * object that has the same override, then that override is used instead of
+   * creating a new one.
+   * @note When an owner inherits from another object, it must inherit the
+   *       bindings before the interfaces, otherwise the inherited override
+   *       won't be found and a second override of the same function gets
+   *       created, causing callSuper to call the same function recursively.
+   */
+  public: void init(TiObject *owner, RT (*fn)(ARGS...))
+  {
+    VALIDATE_NOT_NULL(fn);
+    BindingCache<TiCallee>::init(owner);
+    auto existing = this->findOverride(fn);
+    if (existing != 0) {
+      this->ownOverride = getSharedPtr(existing);
+      this->ownOverrideCreated = false;
+      this->updateSuperCallee();
+    } else {
+      this->set(fn);
+    }
+  }
+
   protected: virtual void onBindingChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)
   {
-    BindingCache<TiFunctionBase>::onBindingChanged(src, op, i);
+    BindingCache<TiCallee>::onBindingChanged(src, op, i);
     this->callee = ti_cast<TiFunction<RT(ARGS...)>>(this->obj);
-    this->calleeWithSuper = ti_cast<TiFunction<RT(TiFunctionBase*, ARGS...)>>(this->obj);
+    this->updateSuperCallee();
   }
 
-  public: SharedPtr<TiFunctionOverride<RT(ARGS...)>> set(RT (*fn)(ARGS...))
+  private: void updateSuperCallee()
   {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    return this->bindingMap->setFunction(this->name, fn);
+    this->superCallee = this->ownOverride == 0 ? 0 : ti_cast<TiFunction<RT(ARGS...)>>(this->ownOverride->getSuper());
   }
 
-  public: SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, ARGS...)>> set(RT (*fn)(TiFunctionBase*, ARGS...))
+  /// Find the override of the given function in the callee chain at this cache's key.
+  private: TiFunctionOverride<RT(ARGS...)>* findOverride(RT (*fn)(ARGS...)) const
   {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
+    for (TiCallee *tifn = this->obj; tifn != 0; tifn = tifn->getSuper()) {
+      auto functionOverride = ti_cast<TiFunctionOverride<RT(ARGS...)>>(tifn);
+      if (functionOverride == 0) continue;
+      auto target = functionOverride->fn.template target<RT (*)(ARGS...)>();
+      if (target != 0 && *target == fn) return functionOverride;
     }
-    return this->bindingMap->setFunction(this->name, fn);
+    return 0;
   }
 
+  /**
+   * @brief Set the given function as an override of the function at this cache's key.
+   * If an override was previously created by this cache, it gets replaced by
+   * the new one, keeping its position in the callee chain.
+   */
   public: SharedPtr<TiFunctionOverride<RT(ARGS...)>> set(std::function<RT(ARGS...)> fn)
   {
     VALIDATE_NOT_NULL(fn);
     if (this->bindingMap == 0) {
       throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
     }
-    return this->bindingMap->setFunction(this->name, fn);
-  }
-
-  public: SharedPtr<TiFunctionOverride<RT(TiFunctionBase*, ARGS...)>> set(
-    std::function<RT(TiFunctionBase*, ARGS...)> fn
-  ) {
-    VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
+    if (
+      this->ownOverride != 0 && this->ownOverrideCreated &&
+      this->bindingMap->hasCallee(this->name, this->ownOverride.get())
+    ) {
+      this->ownOverride = this->bindingMap->updateFunction(this->name, this->ownOverride.get(), fn);
+    } else {
+      this->ownOverride = this->bindingMap->setFunction(this->name, fn);
     }
-    return this->bindingMap->setFunction(this->name, fn);
+    this->ownOverrideCreated = true;
+    this->updateSuperCallee();
+    return this->ownOverride;
   }
 
-  public: SharedPtr<TiFunctionOverride<RT(ARGS...)>> update(TiFunctionBase *currentTifn, RT (*fn)(ARGS...))
+  public: SharedPtr<TiFunctionOverride<RT(ARGS...)>> set(RT (*fn)(ARGS...))
   {
     VALIDATE_NOT_NULL(fn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    return this->bindingMap->updateFunction(this->name, currentTifn, fn);
+    return this->set(std::function<RT(ARGS...)>(fn));
   }
 
-  public: void updateChain(TiFunctionBase *currentTifn, SharedPtr<TiFunctionBase> const &newTifn)
+  /// Remove the override created by this cache, if any, from the binding map.
+  public: void reset()
   {
-    VALIDATE_NOT_NULL(newTifn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
+    if (this->ownOverride == 0) return;
+    if (
+      this->ownOverrideCreated && this->bindingMap != 0 &&
+      this->bindingMap->hasCallee(this->name, this->ownOverride.get())
+    ) {
+      this->bindingMap->resetCallee(this->name, this->ownOverride.get());
     }
-    this->bindingMap->updateFunctionChain(this->name, currentTifn, newTifn);
+    this->ownOverride.reset();
+    this->ownOverrideCreated = false;
+    this->superCallee = 0;
   }
 
-  public: void reset(TiFunctionBase *currentTifn)
+  /// Call the function overridden by the override bound to this cache.
+  public: RT callSuper(ARGS... args)
   {
-    VALIDATE_NOT_NULL(currentTifn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    this->bindingMap->resetFunction(this->name, currentTifn);
-  }
-
-  public: void resetChain(TiFunctionBase *currentTifn)
-  {
-    VALIDATE_NOT_NULL(currentTifn);
-    if (this->bindingMap == 0) {
-      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
-    }
-    this->bindingMap->resetFunctionChain(this->name, currentTifn);
-  }
-
-  public: FunctionCalleeInstance useCallee(TiFunctionBase *c)
-  {
-    return FunctionCalleeInstance(c);
+    if (this->superCallee != 0) return this->superCallee->fn(args...);
+    else if (this->ownOverride == 0) throw EXCEPTION(GenericException, S("No override is bound to this cache."));
+    else throw EXCEPTION(GenericException, S("Super function is not set or has a mismatching signature."));
   }
 
 }; // class FunctionBindingCache
 
 
-template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBindingCache<RT, TiObject*, ARGS...>
+template<class RT, class ...ARGS> class MethodBindingCache : public BindingCache<TiCallee>
 {
+  //============================================================================
+  // Types
+
+  public: typedef typename TiMethod<RT(ARGS...)>::Fn Fn;
+
+
   //============================================================================
   // Member Variables
 
   protected: TiObject *self;
 
+  /// The function currently bound to this cache's key.
+  private: Fn callee;
 
-  //============================================================================
-  // Types
+  /**
+   * @brief The override that holds this cache's function, if any.
+   * This is either an override created by this cache, or an existing override
+   * of the same function found in the callee chain, as is the case when the
+   * owner inherits its bindings from another object.
+   */
+  private: SharedPtr<TiMethodOverride<RT(ARGS...)>> ownOverride;
 
-  public: struct MethodCalleeInstance
-  {
-    TiObject *callee, *self;
-    MethodCalleeInstance(TiObject *c, TiObject *s) : callee(c), self(s) {}
-    RT operator()(ARGS... args)
-    {
-      return Core::Basic::call<RT, TiObject*, ARGS...>(this->callee, this->self, args...);
-    }
-  };
+  /**
+   * @brief Whether ownOverride was created by this cache.
+   * Only an override created by this cache gets replaced by set() or removed
+   * by reset(); an override found in the callee chain belongs to whichever
+   * cache created it.
+   */
+  private: Bool ownOverrideCreated;
+
+  /// The function overridden by ownOverride, if any.
+  private: Fn superCallee;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: MethodBindingCache(Char const *name) : FunctionBindingCache<RT, TiObject*, ARGS...>(name), self(0)
+  public: MethodBindingCache(Char const *name) :
+    BindingCache<TiCallee>(name), self(0), callee(0), ownOverrideCreated(false), superCallee(0)
   {
+  }
+
+  public: ~MethodBindingCache()
+  {
+    this->reset();
   }
 
 
   //============================================================================
   // Operators
 
-  public: using FunctionBindingCache<RT, TiObject*, ARGS...>::operator=;
-
-  public: template<class C> void operator=(RT (C::*fn)(ARGS...))
+  public: void operator=(Fn fn)
   {
-    this->set(
-      [=](TiObject *self, ARGS... args)->RT {
-        PREPARE_SELF(c, C);
-        return (c->*fn)(args...);
-      }
-    );
+    this->set(fn);
   }
 
   public: RT operator()(ARGS... args)
   {
-    return FunctionBindingCache<RT, TiObject*, ARGS...>::operator()(this->self, args...);
+    if (this->callee != 0) return this->callee(this->self, args...);
+    else if (this->obj == 0) throw EXCEPTION(GenericException, S("Function is not set."));
+    else throw EXCEPTION(GenericException, S("Function signature mismatch."));
   }
 
 
@@ -384,15 +437,106 @@ template<class RT, class ...ARGS> class MethodBindingCache : public FunctionBind
       throw EXCEPTION(InvalidArgumentException, S("owner"), S("Argument is null."));
     }
     this->self = owner;
-    FunctionBindingCache<RT, TiObject*, ARGS...>::init(owner);
+    BindingCache<TiCallee>::init(owner);
   }
 
-  public: MethodCalleeInstance useCallee(TiFunctionBase *c)
+  /**
+   * @brief Initialize the cache and bind the given function as an override at its key.
+   * If the callee chain at the key already has an override of the same
+   * function, as is the case when the owner inherits its bindings from an
+   * object that has the same override, then that override is used instead of
+   * creating a new one.
+   * @note When an owner inherits from another object, it must inherit the
+   *       bindings before the interfaces, otherwise the inherited override
+   *       won't be found and a second override of the same function gets
+   *       created, causing callSuper to call the same function recursively.
+   */
+  public: void init(TiObject *owner, Fn fn)
   {
-    return MethodCalleeInstance(c, this->self);
+    VALIDATE_NOT_NULL(fn);
+    this->init(owner);
+    auto existing = this->findOverride(fn);
+    if (existing != 0) {
+      this->ownOverride = getSharedPtr(existing);
+      this->ownOverrideCreated = false;
+      this->updateSuperCallee();
+    } else {
+      this->set(fn);
+    }
   }
 
-}; // class FunctionBindingCache
+  protected: virtual void onBindingChanged(SharedMapBase<TiObject, TiObject> *src, ContentChangeOp op, Int i)
+  {
+    BindingCache<TiCallee>::onBindingChanged(src, op, i);
+    auto method = ti_cast<TiMethod<RT(ARGS...)>>(this->obj);
+    this->callee = method == 0 ? 0 : method->fn;
+    this->updateSuperCallee();
+  }
+
+  private: void updateSuperCallee()
+  {
+    auto super = this->ownOverride == 0 ? 0 : ti_cast<TiMethod<RT(ARGS...)>>(this->ownOverride->getSuper());
+    this->superCallee = super == 0 ? 0 : super->fn;
+  }
+
+  /// Find the override of the given function in the callee chain at this cache's key.
+  private: TiMethodOverride<RT(ARGS...)>* findOverride(Fn fn) const
+  {
+    for (TiCallee *tifn = this->obj; tifn != 0; tifn = tifn->getSuper()) {
+      auto methodOverride = ti_cast<TiMethodOverride<RT(ARGS...)>>(tifn);
+      if (methodOverride != 0 && methodOverride->fn == fn) return methodOverride;
+    }
+    return 0;
+  }
+
+  /**
+   * @brief Set the given function as an override of the function at this cache's key.
+   * If an override was previously created by this cache, it gets replaced by
+   * the new one, keeping its position in the callee chain.
+   */
+  public: SharedPtr<TiMethodOverride<RT(ARGS...)>> set(Fn fn)
+  {
+    VALIDATE_NOT_NULL(fn);
+    if (this->bindingMap == 0) {
+      throw EXCEPTION(GenericException, S("Binding cache not initialized yet."));
+    }
+    if (
+      this->ownOverride != 0 && this->ownOverrideCreated &&
+      this->bindingMap->hasCallee(this->name, this->ownOverride.get())
+    ) {
+      this->ownOverride = this->bindingMap->updateMethod(this->name, this->ownOverride.get(), fn);
+    } else {
+      this->ownOverride = this->bindingMap->setMethod(this->name, fn);
+    }
+    this->ownOverrideCreated = true;
+    this->updateSuperCallee();
+    return this->ownOverride;
+  }
+
+  /// Remove the override created by this cache, if any, from the binding map.
+  public: void reset()
+  {
+    if (this->ownOverride == 0) return;
+    if (
+      this->ownOverrideCreated && this->bindingMap != 0 &&
+      this->bindingMap->hasCallee(this->name, this->ownOverride.get())
+    ) {
+      this->bindingMap->resetCallee(this->name, this->ownOverride.get());
+    }
+    this->ownOverride.reset();
+    this->ownOverrideCreated = false;
+    this->superCallee = 0;
+  }
+
+  /// Call the function overridden by the override bound to this cache.
+  public: RT callSuper(ARGS... args)
+  {
+    if (this->superCallee != 0) return this->superCallee(this->self, args...);
+    else if (this->ownOverride == 0) throw EXCEPTION(GenericException, S("No override is bound to this cache."));
+    else throw EXCEPTION(GenericException, S("Super function is not set or has a mismatching signature."));
+  }
+
+}; // class MethodBindingCache
 
 
 //==============================================================================

@@ -26,7 +26,7 @@
 المثال التالي يوضح هذه الخطوات:
 
 ```
-  عرف تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
+  متغير تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
   تنفيذي.أضف_اعتمادية(جـتك~شبم)؛ // أو: تنفيذي.أضف_اعتمادية(نـص("libgtk..."))؛
   تنفيذي.أضف_اعتماديات(مـصفوفة[نـص]({ نـص("libcurl.so")، ... }))؛
   تنفيذي.أضف_خيارا("-Wl,-rpath,@executable_path")؛
@@ -38,7 +38,7 @@
 ```
 
 ```
-  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  var exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.addDependency(Gtk~ast); // or exe.addDependency(String("libgtk...."));
   exe.addDependencies(Array[String]({ String("libcurl.so"), ... }));
   exe.addFlag("-Wl,-rpath,@executable_path");
@@ -71,14 +71,14 @@
 على سبيل المثال، لإنشاء شفرة تنفيذية لنظام ويندوز من نظام لينكس يمكن فعل التالي:
 
 ```
-  عرف تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
+  متغير تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
   تنفيذي.معرف_النتيجة = "x86_64-pc-win32"؛
   تنفيذي.اسم_المجمع = "x86_64-w64-mingw32-g++"؛
   تنفيذي.أنتج()؛
 ```
 
 ```
-  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  var exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.targetTriple = "x86_64-pc-win32";
   exe.linkerFilename = "x86_64-w64-mingw32-g++";
   exe.generate();
@@ -95,16 +95,46 @@
 `--opt optmize=1`
 
 ```
-  عرف تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
+  متغير تنفيذي: بـناء.تـنفيذي(الـبسملة.ابدأ~شبم، "البسملة")؛
   تنفيذي.تحسين = 1؛
   تنفيذي.أنتج()؛
 ```
 
 ```
-  def exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
+  var exe: Build.Exe(WidgetGuide.start~ast, "hello_world");
   exe.optimize = true;
   exe.generate();
 ```
+
+### معلومات التنقيح
+
+افتراضيا لا تُضاف معلومات التنقيح إلى الشفرة الناتجة. يمكن لمستخدم المترجم طلب إضافتها، للسماح باستخدام
+مصححات الأخطاء مثل gdb، من سطر الأوامر بالخيارات:
+ `--خيار تنقيح=1`
+`--opt debug=1`
+وتُعطَّل صراحةً بالخيار `تنقيح=0` (`debug=0`).
+
+ينطبق هذا الخيار على الملفات التي يولدها `بـناء` وعلى الشفرة التي تشغلها الأسس مباشرةً أثناء معالجة البرنامج
+(بما في ذلك كتل `preprocess`). يمكن تنقيح الملف التنفيذي الناتج كأي ملف آخر، مثلا:
+
+```
+gdb ./my_program
+(gdb) break my_file.alusus:12
+```
+
+ولتنقيح برنامج تشغله الأسس مباشرةً يجب تشغيل الأسس نفسه من داخل gdb. لا تكون الشفرة موجودة عند بدء gdb، لذلك يجب
+السماح بتعليق نقاط التوقف إلى حين توليدها:
+
+```
+gdb --args alusus --opt debug=1 my_file.alusus
+(gdb) set breakpoint pending on
+(gdb) break my_file.alusus:12
+(gdb) run
+```
+
+ما لم يُمرَّر الخيار `optimize=1` أيضا فإن شفرة التنقيح تُبنى دون أي تحسين ليمكن فحص كل جملة وكل متغير. تظهر الشفرة
+الناتجة عن الماكرو كاستدعاء لدالة اسمها `<macro>` من السطر الذي استُخدم فيه الماكرو. أسماء الدوال تتضمن مسارها، مثل
+`MyModule.myFunc`.
 
 ## الصنف: ويـب_أسمبلي (Wasm)
 
@@ -112,7 +142,7 @@
 نظام التشغيل ومعمارية الجهاز الحالي. مثال:
 
 ```
-  عرف ويب_أسمبلي: بـناء.ويـب_أسمبلي(الـبسملة.ابدأ~شبم، "البسملة")؛
+  متغير ويب_أسمبلي: بـناء.ويـب_أسمبلي(الـبسملة.ابدأ~شبم، "البسملة")؛
   ويب_أسمبلي.أضف_اعتمادية(نـص("stdlib.wasm"))؛
   ويب_أسمبلي.أضف_خيارات({ نـص("--export=malloc"), نـص("--export=realloc") });
   إذا ويب_أسمبلي.أنتج() {
@@ -123,7 +153,7 @@
 ```
 
 ```
-  def wasm: Build.Wasm(HelloWorld.start~ast, "hello_world");
+  var wasm: Build.Wasm(HelloWorld.start~ast, "hello_world");
   wasm.addDependency(String("stdlib.wasm"));
   wasm.addFlags({ String("--export=malloc"), String("--export=realloc") });
   if wasm.generate() {

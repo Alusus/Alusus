@@ -19,4 +19,4 @@ Num 5 is terminated.
 ComplexNum 8 is terminated.
 Num 7 is terminated.
 [0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
-  smart_refs_test.alusus (96,9)
+  smart_refs_test.alusus (96,5)

@@ -32,6 +32,8 @@ class JitBuildTarget : public BuildTarget
   private: llvm::LLVMContext *llvmContext = 0;
   private: llvm::DataLayout *llvmDataLayout = 0;
   private: std::unique_ptr<llvm::Module> llvmModule;
+  // Declared after llvmModule so that it's destroyed first.
+  private: std::unique_ptr<ModuleDebugInfo> debugInfo;
 
   private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
   private: Bool optimize = false;
@@ -52,6 +54,7 @@ class JitBuildTarget : public BuildTarget
   public: virtual ~JitBuildTarget()
   {
     this->llvmJitEngine.reset();
+    this->debugInfo.reset();
     this->llvmModule.reset();
     this->llvmTsContext.reset();
   }
@@ -73,6 +76,17 @@ class JitBuildTarget : public BuildTarget
   }
 
   public: virtual llvm::Module* getGlobalLlvmModule();
+
+  public: virtual ModuleDebugInfo* getDebugInfo()
+  {
+    this->getGlobalLlvmModule();
+    return this->debugInfo.get();
+  }
+
+  public: virtual Bool isOptimized() const
+  {
+    return this->optimize;
+  }
 
   public: Word getPointerBitCount()
   {

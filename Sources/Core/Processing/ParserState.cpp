@@ -164,7 +164,7 @@ void ParserState::reset()
  *         keeping a pointer to this entry because the entry can be moved in
  *         memory as a result of a push or pop operation.
  */
-ParserTermLevel& ParserState::refTermLevel(Int i)
+ParserTermLevel& ParserState::_refTermLevel(Int i)
 {
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
@@ -223,18 +223,32 @@ void ParserState::pushTermLevel(Grammar::Term *term)
   // Set level info.
   this->topTermLevelCache->setTerm(term);
   this->topTermLevelCache->setFlags(this->grammarContext.getTermFlags(term));
-  // Cache term parameters for faster access later.
-  if (term->isA<Grammar::TokenTerm>()) {
-    Grammar::TokenTerm *tokenTerm = static_cast<Grammar::TokenTerm*>(term);
-    this->topTermLevelCache->setParam1(this->grammarContext.getTokenTermId(tokenTerm));
-    this->topTermLevelCache->setParam2(this->grammarContext.getTokenTermText(tokenTerm));
-  } else if (term->isDerivedFrom<Grammar::ListTerm>()) {
-    Grammar::ListTerm *listTerm = static_cast<Grammar::ListTerm*>(term);
-    this->topTermLevelCache->setParam1(this->grammarContext.getListTermFilter(listTerm));
-  } else if (term->isA<Grammar::MultiplyTerm>()) {
-    Grammar::MultiplyTerm *multiplyTerm = static_cast<Grammar::MultiplyTerm*>(term);
-    this->topTermLevelCache->setParam1(this->grammarContext.getMultiplyTermMax(multiplyTerm));
-    this->topTermLevelCache->setParam2(this->grammarContext.getMultiplyTermMin(multiplyTerm));
+  // Cache the term type and parameters for faster access later.
+  Grammar::TermType termType = term->getTermType();
+  this->topTermLevelCache->setTermType(termType);
+  switch (termType.val) {
+    case Grammar::TermType::TOKEN: {
+      Grammar::TokenTerm *tokenTerm = static_cast<Grammar::TokenTerm*>(term);
+      this->topTermLevelCache->setParam1(this->grammarContext.getTokenTermId(tokenTerm));
+      this->topTermLevelCache->setParam2(this->grammarContext.getTokenTermText(tokenTerm));
+      break;
+    }
+    case Grammar::TermType::CONCAT:
+    case Grammar::TermType::ALTERNATE: {
+      Grammar::ListTerm *listTerm = static_cast<Grammar::ListTerm*>(term);
+      TiObject *filter = this->grammarContext.getListTermFilter(listTerm);
+      this->topTermLevelCache->setParam1(filter);
+      this->topTermLevelCache->setChildCount(this->grammarContext.getListTermChildCount(listTerm, filter));
+      break;
+    }
+    case Grammar::TermType::MULTIPLY: {
+      Grammar::MultiplyTerm *multiplyTerm = static_cast<Grammar::MultiplyTerm*>(term);
+      this->topTermLevelCache->setParam1(this->grammarContext.getMultiplyTermMax(multiplyTerm));
+      this->topTermLevelCache->setParam2(this->grammarContext.getMultiplyTermMin(multiplyTerm));
+      break;
+    }
+    default:
+      break;
   }
 }
 
@@ -261,38 +275,10 @@ void ParserState::popTermLevel()
 }
 
 
-Int ParserState::findProdLevel(Int termIndex) const
-{
-  if (termIndex < 0) termIndex += this->getTermLevelCount();
-  if (this->prodStack.size() == 0) return -1;
-  if (termIndex < this->refProdLevel(0).getTermStackIndex()) return -1;
-  if (termIndex >= this->refTopProdLevel().getTermStackIndex()) {
-    return this->getProdLevelCount()-1;
-  }
-  return this->_findProdLevel(termIndex, 0, this->getProdLevelCount()-2);
-}
-
-
-Int ParserState::_findProdLevel(Int termIndex, Int start, Int end) const
-{
-  if (this->refProdLevel(start).getTermStackIndex() == termIndex) return start;
-  else if (this->refProdLevel(end).getTermStackIndex() >= termIndex) return end;
-  else if (end-start < 2) return start;
-  else {
-    Int mid = (start+end)/2;
-    if (this->refProdLevel(mid).getTermStackIndex() > termIndex) {
-      return this->_findProdLevel(termIndex, start, mid);
-    } else {
-      return this->_findProdLevel(termIndex, mid, end);
-    }
-  }
-}
-
-
 //==============================================================================
 // Production Stack Member Functions
 
-ParserProdLevel& ParserState::refProdLevel(Int i)
+ParserProdLevel& ParserState::_refProdLevel(Int i)
 {
   // Validate i and convert it into positive indexing if it's currently negative.
   if (i >= 0) {
@@ -341,6 +327,7 @@ void ParserState::pushProdLevel(Grammar::Module *module, Grammar::SymbolDefiniti
     throw EXCEPTION(GenericException, S("Production is missing a term."));
   }
   this->pushTermLevel(term);
+  this->topTermLevelCache->setProdRoot(true);
 }
 
 
@@ -395,9 +382,7 @@ Word ParserState::getListTermChildCount(Int levelOffset) const
   if (levelOffset == -1) level = &this->refTopTermLevel();
   else level = &this->refTermLevel(levelOffset);
   ASSERT(level->getTerm()->isDerivedFrom<Grammar::ListTerm>());
-  return this->grammarContext.getListTermChildCount(
-    static_cast<Grammar::ListTerm*>(level->getTerm()), level->getParam1()
-  );
+  return level->getChildCount();
 }
 
 

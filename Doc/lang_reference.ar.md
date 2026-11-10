@@ -23,7 +23,7 @@
 
 ### التعريفات
 
-كل التعريفات تتم باستخدام الأمر "عرّف" (def) ويأخذ الصيغة التالية:
+تتم التعريفات باستخدام الأمر "عرّف" (def) ويأخذ الصيغة التالية:
 
 ```
   عرّف &lt;معرِّف&gt; : &lt;تعريف&gt;
@@ -164,35 +164,38 @@ import "Srl/Console.alusus";
 
 ## المتغيرات
 
-يتم تعريف المتغيرات كالتالي:
+يمكن تعريف المتغيرات باستخدام الأمر `عرف` لكن الافضل الاعتماد على الأمر `متغير` (`var`) الذي
+يوفر مزايا لا يوفرها الأمر `عرف` عندما يتعلق الأمر بالمتغيرات. تعريف المتغير كالتالي:
 
 ```
-عرف &lt;اسم_المتغير&gt;: &lt;صنف_المتغير&gt;؛
+متغير &lt;اسم_المتغير&gt;: &lt;صنف_المتغير&gt;؛
 ```
 
 ```
-def &lt;var_name&gt;: &lt;var_type&gt;;
+var &lt;var_name&gt;: &lt;var_type&gt;;
 ```
 
 مثلا، لتعريف متغير بصنف عدد صحيح نكتب التالي:
 
 ```
-عرف س: صـحيح؛
+متغير س: صـحيح؛
 ```
 
 ```
-def x: Int;
+var x: Int;
 ```
 
 ولتهيئة المتغير بقيمة (أو قيم) نمرر القيم باستخدام الأقواس الاعتيادية بعد صنف المتغير، كما يلي:
 
 ```
-عرف س: صـحيح(5)؛
+متغير س: صـحيح(5)؛
 ```
 
 ```
-def x: Int(5);
+var x: Int(5);
 ```
+
+ويمكن أيضا استنتاج الصنف من القيمة الأولية كما هو مشروح في القسم التالي.
 
 * عند تعريف المتغير داخل متن دالة يكون متغيرا محليا يُعرف على المكدس (stack)، فينشأ مع الدخول إلى
 الدالة ويُزال من الذاكرة عند الخروج منها.
@@ -202,6 +205,62 @@ def x: Int(5);
 * عند تعريف المتغير في المجال الرئيسي أو ضمن متن وحدة سيكون المتغير عموميا يعرف في الكومة (heap)
 ويبقى صالحا على طول تنفيذ البرنامج.
 
+### القيم الأولية واستنتاج الصنف
+
+يمكن إعطاء المتغير قيمة أولية إما بالإسناد أو بتمرير القيمة إلى دالة تهيئته، ويمكن استنتاج صنفه من
+تلك القيمة:
+
+```
+متغير س = 5؛              // يُستنتج الصنف كـ صـحيح ثم تُسند القيمة 5 إلى س.
+متغير ع := هات_القيمة()؛  // يُستنتج الصنف من هات_القيمة() وتُمرر القيمة إلى دالة التهيئة.
+متغير م: صـحيح = 5؛       // يُهيأ المتغير دون معطيات ثم تُسند القيمة 5 إليه.
+متغير ل: صـنفي(5)؛        // تُمرر القيمة 5 إلى دالة التهيئة.
+```
+
+```
+var x = 5;
+var y := getValue();
+var z: Int = 5;
+var w: MyType(5);
+```
+
+الصيغ التي تستخدم `=` تُهيئ المتغير دون معطيات ثم تُسند القيمة إليه، وذلك عبر مؤثر `=` الخاص
+بالصنف إن وُجد. أما الصيغة `:=` والأقواس الاعتيادية بعد الصنف فتمرر القيم إلى دالة تهيئة الصنف
+(`~هيئ`) بدلا من ذلك. وهذا يختلف عن سي++ حيث تستدعي `=` في التعريف دالة التهيئة.
+
+عند استنتاج الصنف:
+* قراءة متغير تعطي نسخة من قيمته، فيكون `ص` نسخة من `س` في كل من `متغير ص = س` و `متغير ص := س`.
+* السند الصريح، كالذي ترجعه دالة، يُنسخ في صيغ `=` ويُربط في صيغة `:=`. مثلا، إذا كانت `هات_سند()`
+  ترجع `سند[صـحيح]` فإن `متغير ن := هات_سند()` يجعل `ن` من صنف `سند[صـحيح]` مربوطا بالسند المُرجع،
+  بينما `متغير ن = هات_سند()` يجعل `ن` من صنف `صـحيح` يحمل نسخة من القيمة.
+* تُعطى الأعداد الصحيحة الحرفية التي لم يُحدد حجمها 32 بتًا على الأقل، فينتج عن `متغير ع = 1`
+  متغير بصنف `صـحيح` بدلا من أصغر صنف يتسع للقيمة.
+* لا تقبل الصيغة `:=` إلا قيمة واحدة. لتمرير عدة قيم إلى دالة التهيئة يجب تحديد الصنف صراحة، مثل
+  `متغير ل: صـنفي(5، 6)`.
+
+تُسند القيم الأولية للمتغيرات العمومية داخل دالات التهيئة العمومية مع بقية تهيئتها.
+أما المتغيرات الأعضاء فتُسند قيمها في دالة التهيئة التلقائية للصنف، ويمكن للقيمة الأولية لمتغير
+عضو أن تشير إلى أعضاء آخرين.
+
+### المتغيرات المتعددة
+
+يمكن تعريف عدة متغيرات في أمر `متغير` واحد بالفصل بينها بالفاصلة، ويمكن لكل متغير أن يستخدم أيًّا من
+الصيغ أعلاه:
+
+```
+متغير ع = 0، ن = 1؛
+متغير ك: صـحيح، ل: صـحيح؛
+متغير أ = 5، ب: صـحيح[64] = 6، ج := هات_القيمة()؛
+```
+
+```
+var i = 0, j = 1;
+var k: Int, l: Int;
+var a = 5, b: Int[64] = 6, c := getValue();
+```
+
+تنطبق المبدلات المطبقة على الأمر على كل متغيراته، فيعرّف `@مشترك متغير س = 0، ص = 0` متغيرين مشتركين.
+
 ### المتغيرات المشتركة
 
 يمكن تعريف المتغيرات المشتركة داخل متن الدالات أو الأصناف باستخدام المتبدل `@مشترك` (`@shared`)
@@ -209,11 +268,11 @@ def x: Int(5);
 الدالة أو الصنف.
 
 ```
-@مشترك عرف س: صـحيح؛
+@مشترك متغير س: صـحيح؛
 ```
 
 ```
-@shared def x: Int;
+@shared var x: Int;
 ```
 
 ### تهيئة المتغيرات العمومية
@@ -228,11 +287,11 @@ def x: Int(5);
 تحمله.
 
 ```
-@أولوية عرف س: صـحيح(5)؛
+@أولوية متغير س: صـحيح(5)؛
 ```
 
 ```
-@shared def x: Int(5);
+@shared var x: Int(5);
 ```
 
 ## الأصناف الأساسية للمتغيرات
@@ -356,6 +415,8 @@ ptr[the_type]
 #### مؤثرات التعيين
 
 * `=`   تحديد قيمة جديدة
+
+* `:=`  تحديد قيمة جديدة دون تتبع السند، أي جعل السند يشير إلى قيمة جديدة (انظر مؤثر ~عطل_التتبع)
 
 * `+=`  إضافة قيمة للقيمة الحالية
 
@@ -550,6 +611,56 @@ ptr[the_type]
   for i=0, i&lt;10, i++ print("%d\n", i);
   for (i=0, i&lt;10, i++) print("%d\n", i);
   for i=0, i&lt;10, i++ { print("%d\n", i) };
+```
+
+يمكن تعريف العداد داخل حلقة "لكل" نفسها باستخدام صيغة `اسم: صنف`، مع قيمة أولية أو بدونها، وفي هذه الحالة يكون
+العداد مرئيا داخل الحلقة فقط. ويمكن تعريف أكثر من عداد بحصرها بين أقواس هلالية. مثال:
+
+```
+  لكل ع: صـحيح = 0، ع < 10، ++ع اطبع("%d\ج"، ع)؛
+  لكل (ع: صـحيح = 0، ن: صـحيح = 1)، ع < 10، (ع++، ن *= 2) اطبع("%d: %d\ج"، ع، ن)؛
+```
+
+```
+  for i: Int = 0, i < 10, ++i print("%d\n", i);
+  for (i: Int = 0, j: Int = 1), i < 10, (i++, j *= 2) print("%d: %d\n", i, j);
+```
+
+يخضع تعريف العدادات لنفس قواعد الأمر `متغير` (var)، باستثناء أن الصنف يجب أن يُحدد صراحة. ويمكن الجمع بين تعريف
+العدادات وتراكيب التهيئة الأخرى، وفي هذه الحالة تُنفذ جميعها بالترتيب:
+
+```
+  لكل (ن = 3، ع: صـحيح = ن * 10)، ع<40، ع++ اطبع("%d\ج"، ع)؛
+```
+
+```
+  for (j = 3, i: Int = j * 10), i < 40, i++ print("%d\n", i);
+```
+
+يمكن أيضا استخدام الأمر `متغير` (var) لتعريف العداد، ما يسمح باستنتاج صنف العداد من قيمته الأولية. في هذه الحالة يجب
+حصر تركيب التهيئة بأقواس هلالية، ويجب أن يكون الأمر `متغير` آخر عنصر داخل هذه الأقواس لأن كل ما يليه
+يُعامل كتعريفات لمتغيرات إضافية:
+
+```
+  لكل (متغير ع = 0)، ع < 10، ع++ اطبع("%d\ج"، ع)؛
+  لكل (متغير ع = 0، ن = 1)، ع < 10، (ع++، ن *= 2) اطبع("%d: %d\ج"، ع، ن)؛
+  لكل (ن = 3، متغير ع = ن * 10)، ع < 40، ع++ اطبع("%d\ج"، ع)؛
+```
+
+```
+  for (var i = 0), i < 10, i++ print("%d\n", i);
+  for (var i = 0, j = 1), i < 10, (i++, j *= 2) print("%d: %d\n", i, j);
+  for (j = 3, var i = j * 10), i < 40, i++ print("%d\n", i);
+```
+
+لإضافة تراكيب تهيئة بعد الأمر `متغير` يجب حصره بأقواس خاصة به:
+
+```
+  لكل ((متغير ع = هات_القيمة())، ن = ع)، ع < 10، ع++ اطبع("%d: %d\ج"، ع، ن)؛
+```
+
+```
+  for ((var i = getVal()), j = i), i < 10, i++ print("%d: %d\n", i, j);
 ```
 
 ### الأمر `أكمل` (continue)
@@ -763,8 +874,8 @@ ptr[the_type]
     قيود: سند[مـصفوفة[قـيد]]،
     قارن: مؤشر[دالة (سند[قـيد]، سند[قـيد])]
 ) {
-    عرف م: صحيح؛
-    عرف ن: صحيح؛
+    متغير م: صحيح؛
+    متغير ن: صحيح؛
     لكل م = 0، م < قيود.هات_الطول() - 1، ++م {
         لكل ن = م + 1، ن < قيود.هات_الطول()، ن++ {
             إذا قارن(قيود(م)، قيود(ن)) {
@@ -790,8 +901,8 @@ func sort (
     records: ref[Array[Record]],
     compare: ptr[func (ref[Record], ref[Record])]
 ) {
-    def i: Int;
-    def j: Int;
+    var i: Int;
+    var j: Int;
     for i = 0, i < records.getLength() - 1, ++i {
         for j = i + 1, j < records.getLength(), ++j {
             if compare(records(i), records(j)) {
@@ -870,24 +981,24 @@ func &lt;func_name&gt; [&lt;template_arg_defs&gt;] (&lt;func_arg_defs&gt;): &lt;
 
 ```
   عرّف النقطة : صنف {
-    عرّف س : العدد_الحقيقي؛
-    عرّف ص : العدد_الحقيقي؛
+    متغير س : العدد_الحقيقي؛
+    متغير ص : العدد_الحقيقي؛
   }؛
   .
   .
-  عرّف ن : النقطة؛
+  متغير ن : النقطة؛
   ن.س = إقرأ_قيمة()؛
   ن.ص = إقرأ_قيمة()؛
 ```
 
 ```
   def Point : class {
-    def x : Float;
-    def y : Float
+    var x : Float;
+    var y : Float
   };
   .
   .
-  def p : Point;
+  var p : Point;
   p.x = readValue();
   p.y = readValue();
 ```
@@ -906,24 +1017,24 @@ func &lt;func_name&gt; [&lt;template_arg_defs&gt;] (&lt;func_arg_defs&gt;): &lt;
 
 ```
   صنف النقطة {
-    عرّف س : العدد_الحقيقي؛
-    عرّف ص : العدد_الحقيقي؛
+    متغير س : العدد_الحقيقي؛
+    متغير ص : العدد_الحقيقي؛
   }؛
   .
   .
-  عرّف ن : النقطة؛
+  متغير ن : النقطة؛
   ن.س = إقرأ_قيمة()؛
   ن.ص = إقرأ_قيمة()؛
 ```
 
 ```
   class Point {
-    def x : Float;
-    def y : Float
+    var x : Float;
+    var y : Float
   };
   .
   .
-  def p : Point;
+  var p : Point;
   p.x = readValue();
   p.y = readValue();
 ```
@@ -935,35 +1046,35 @@ func &lt;func_name&gt; [&lt;template_arg_defs&gt;] (&lt;func_arg_defs&gt;): &lt;
 ```
   صنف &lt;اسم_الصنف&gt; [&lt;تعريف_معطيات_القالب&gt;] { &lt;متن_الصنف&gt; }
 
-  عرف &lt;اسم_المتغير&gt;: &lt;اسم_الصنف&gt;[&lt;معطيات_القالب&gt;]؛
+  متغير &lt;اسم_المتغير&gt;: &lt;اسم_الصنف&gt;[&lt;معطيات_القالب&gt;]؛
 ```
 
 ```
   class &lt;type_name&gt; [&lt;template_arg_defs&gt;] { &lt;type_body&gt; }
 
-  def &lt;var_name&gt;: &lt;type_name&gt;[&lt;template_args&gt;];
+  var &lt;var_name&gt;: &lt;type_name&gt;[&lt;template_args&gt;];
 ```
 
 كما في المثال التالي:
 
 ```
   صنف نـقطة [نوع: صنف] {
-    عرف س: نوع؛
-    عرف ص: نوع؛
+    متغير س: نوع؛
+    متغير ص: نوع؛
   }؛
 
-  عرف موقع_صحيح: نـقطة[صحيح]؛
-  عرف موقع_عائم: نـقطة[عائم]؛
+  متغير موقع_صحيح: نـقطة[صحيح]؛
+  متغير موقع_عائم: نـقطة[عائم]؛
 ```
 
 ```
   class Point [T: type] {
-    def x: T;
-    def y: T;
+    var x: T;
+    var y: T;
   };
 
-  def intPoint: Point[int];
-  def floatPoint: Point[float];
+  var intPoint: Point[int];
+  var floatPoint: Point[float];
 ```
 
 معطيات القوالب يمكن أن تكون من الأنواع التالية:
@@ -987,22 +1098,22 @@ func &lt;func_name&gt; [&lt;template_arg_defs&gt;] (&lt;func_arg_defs&gt;): &lt;
 
 ```
   صنف نـقطة [نوع: صنف، القيمة_المبدئية: صحيح = 0] {
-    عرف س: نوع = القيمة_المبدئية؛
-    عرف ص: نوع = القيمة_المبدئية؛
+    متغير س: نوع = القيمة_المبدئية؛
+    متغير ص: نوع = القيمة_المبدئية؛
   }
 
-  عرف موقع1: نـقطة[صحيح]؛ // س و ص سيكونان 0.
-  عرف موقع2: نـقطة[صحيح، 1]؛ // س و ص سيكونان 1.
+  متغير موقع1: نـقطة[صحيح]؛ // س و ص سيكونان 0.
+  متغير موقع2: نـقطة[صحيح، 1]؛ // س و ص سيكونان 1.
 ```
 
 ```
   class Point [T: type, V: integer = 0] {
-    def x: T = V;
-    def y: T = V;
+    var x: T = V;
+    var y: T = V;
   }
 
-  def point1: Point[Int]; // x and y will be 0.
-  def point2: Point[Int, 1]; // x and y will be 1.
+  var point1: Point[Int]; // x and y will be 0.
+  var point2: Point[Int, 1]; // x and y will be 1.
 ```
 
 ### الوظائف (methods)
@@ -1033,13 +1144,13 @@ class &lt;type_name&gt; {
 
 ```
   صنف نـقطة {
-    عرف س: عائم؛
-    عرف ص: عائم؛
+    متغير س: عائم؛
+    متغير ص: عائم؛
     @عضو دالة هات_المسافة (هذا: سند[هذا_الصنف]): عائم {
       ارجع ريـاضيات.جذر(هذا.س * هذا.س + هذا.ص * هذا.ص)؛
     }؛
   }؛
-  عرف ن: نـقطة؛
+  متغير ن: نـقطة؛
   ن.س = 3؛
   ن.ص = 4؛
   اطبع(ن.هات_المسافة())؛ // سيطبع 5
@@ -1047,13 +1158,13 @@ class &lt;type_name&gt; {
 
 ```
   class Point {
-    def x: float;
-    def y: float;
+    var x: float;
+    var y: float;
     @member func getDistance (this: ref[this_type]):float {
       return Math.sqrt(this.x * this.x + this.y * this.y);
     };
   }:
-  def p: Point;
+  var p: Point;
   p.x = 3;
   p.y = 4;
   print(p.getDistance()); // prints 5
@@ -1085,13 +1196,13 @@ class &lt;type_name&gt; {
 
 ```
   صنف نـقطة {
-    عرف س: عائم؛
-    عرف ص: عائم؛
+    متغير س: عائم؛
+    متغير ص: عائم؛
     عملية هذا.هات_المسافة (): عائم {
       ارجع ريـاضيات.جذر(هذا.س * هذا.س + هذا.ص * هذا.ص)؛
     }؛
   }؛
-  عرف ن: نـقطة؛
+  متغير ن: نـقطة؛
   ن.س = 3؛
   ن.ص = 4؛
   اطبع(ن.هات_المسافة())؛ // سيطبع 5
@@ -1099,13 +1210,13 @@ class &lt;type_name&gt; {
 
 ```
   class Point {
-    def x: float;
-    def y: float;
+    var x: float;
+    var y: float;
     handler this.getDistance ():float {
       return Math.sqrt(this.x * this.x + this.y * this.y);
     };
   }:
-  def p: Point;
+  var p: Point;
   p.x = 3;
   p.y = 4;
   print(p.getDistance()); // prints 5
@@ -1143,26 +1254,26 @@ class &lt;type_name&gt; {
 
 ```
   صنف مـدة {
-    عرف بداية: عائم؛
-    عرف نهاية: عائم؛
+    متغير بداية: عائم؛
+    متغير نهاية: عائم؛
     @عضو @عملية["="] دالة طول (هذا: سند[هذا_الصنف]، ط: عائم) {
       هذا.نهاية = هذا.بداية + ط؛
     }؛
   }؛
-  عرف م: مـدة؛
+  متغير م: مـدة؛
   م.بداية = 10؛
   م.طول = 50؛ // ستوضع القيمة 60 في م.نهاية
 ```
 
 ```
   class Period {
-    def start: float;
-    def end: float;
+    var start: float;
+    var end: float;
     @member @operation["="] func length (this: ref[this_type], l:float) {
       this.end = this.start + l;
     };
   }:
-  def p: Period;
+  var p: Period;
   p.start = 10;
   p.length = 50; // p.end will be set to 60
 ```
@@ -1171,13 +1282,13 @@ class &lt;type_name&gt; {
 
 ```
   صنف مـدة {
-    عرف بداية: عائم؛
-    عرف نهاية: عائم؛
+    متغير بداية: عائم؛
+    متغير نهاية: عائم؛
     @عضو @عملية[""] دالة طول (هذا: سند[هذا_الصنف]): عائم {
       أرجع هذا.نهاية - هذا.بداية؛
     }؛
   }؛
-  عرف م: مـدة؛
+  متغير م: مـدة؛
   م.بداية = 10؛
   م.نهاية = 60؛
   اطبع_عائم(م.طول)؛ // سيطبع 50
@@ -1185,13 +1296,13 @@ class &lt;type_name&gt; {
 
 ```
   class Period {
-    def start: float;
-    def end: float;
+    var start: float;
+    var end: float;
     @member @operation[""] func length (this: ref[this_type]): float {
       return this.end - this.start;
     };
   }:
-  def p: Period;
+  var p: Period;
   p.start = 10;
   p.end = 60;
   printFloat(p.length) // prints 50
@@ -1201,8 +1312,8 @@ class &lt;type_name&gt; {
 
 ```
   صنف مـدة {
-    عرف بداية: عائم؛
-    عرف نهاية: عائم؛
+    متغير بداية: عائم؛
+    متغير نهاية: عائم؛
     عملية هذا.طول = عائم {
         هذا.نهاية = هذا.بداية + قيمة؛
         أرجع قيمة؛
@@ -1211,7 +1322,7 @@ class &lt;type_name&gt; {
       أرجع هذا.نهاية - هذا.بداية؛
     }؛
   }؛
-  عرف م: مـدة؛
+  متغير م: مـدة؛
   م.بداية = 10؛
   م.طول = 50؛ // قيمة م.نهاية ستكون 60
   اطبع_عائم(م.طول)؛ // سيطبع 50
@@ -1219,8 +1330,8 @@ class &lt;type_name&gt; {
 
 ```
   class Period {
-    def start: float;
-    def end: float;
+    var start: float;
+    var end: float;
     handler this.length = float {
         this.end = this.start + value;
         return value;
@@ -1229,7 +1340,7 @@ class &lt;type_name&gt; {
       return this.end - this.start;
     };
   }:
-  def p: Period;
+  var p: Period;
   p.start = 10;
   p.length = 50; // p.end will be 60;
   printFloat(p.length) // prints 50
@@ -1265,7 +1376,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
         إذا م1 > م2 أرجع م1 وإلا أرجع م2؛
       }
     }
-    عرف ر: ريـاضيات؛
+    متغير ر: ريـاضيات؛
     ر.هات_الأعلى[صـحيح](5، 7)؛ // ترجع 7
     ر.هات_الأعلى[عـائم](5.3، 7.7)؛ // ترجع 7.7
 ```
@@ -1276,7 +1387,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
       if a > b return a else return b;
     }
   }
-  def m: Math;
+  var m: Math;
   m.getMax[Int](5, 7); // returns 7
   m.getMax[Float](5.3, 7.7); // returns 7.7
 ```
@@ -1289,20 +1400,20 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 
 ```
   صنف نـقطة {
-    @مشترك عرف عدد: صحيح = 0؛
-    عرف س: صحيح؛
-    عرف ص: صحيح؛
+    @مشترك متغير عدد: صحيح = 0؛
+    متغير س: صحيح؛
+    متغير ص: صحيح؛
     دالة أنشئ_نقطة (ا: صحيح، ب: صحيح): نـقطة {
       ++عدد؛
       س = ا؛ // خطأ
       ص = ب؛ // خطأ
-      عرف ن: نـقطة؛
+      متغير ن: نـقطة؛
       ن.س = ا؛
       ن.ص = ب؛
       ارجع ن؛
     }؛
   }؛
-  عرف ن: نـقطة = نـقطة.أنشئ_نقطة(1، 2)؛
+  متغير ن: نـقطة = نـقطة.أنشئ_نقطة(1، 2)؛
   اطبع(نـقطة.عدد)؛ // يطبع 1
   اطبع(ن.عدد)؛ // خطأ
   اطبع(نـقطة.س)؛ // خطأ
@@ -1310,20 +1421,20 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 
 ```
   class Point {
-    @shared def count: int;
-    def x: int;
-    def y: int;
+    @shared var count: int;
+    var x: int;
+    var y: int;
     func getPoint (a: int, b: int): Point {
       ++count;
       x = a; // error
       y = b; // error
-      def p: Point;
+      var p: Point;
       p.x = a;
       p.y = b;
       return p;
     };
   }:
-  def p: Point = Point.getPoint(1, 2);
+  var p: Point = Point.getPoint(1, 2);
   print(Point.count); // prints 1
   print(p.count); // error
   print(Point.x); // error
@@ -1339,10 +1450,10 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 ```
   صنف صـنفي {
     @عضو دالة افعل (هذا: سند[هذا_الصنف]، ص: صحيح) { ... }
-    عرف مد: مؤشر[@عضو دالة (ص: صحيح)]؛
+    متغير مد: مؤشر[@عضو دالة (ص: صحيح)]؛
   }
 
-  عرف ص: صـنفي؛
+  متغير ص: صـنفي؛
   ص.مد = صـنفي.افعل~مؤشر؛ // صحيح
   ص.مد(4)؛
 
@@ -1353,10 +1464,10 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 ```
   class MyType {
     @member func doSomething (this: ref[this_type], j: Int) { ... }
-    def pf: ptr[@member func (Int)];
+    var pf: ptr[@member func (Int)];
   }
 
-  def mt: MyType;
+  var mt: MyType;
   mt.pf = MyType.doSomething~ptr; // correct
   mt.pf(5);
 
@@ -1370,10 +1481,10 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 ```
   صنف صـنفي {
     @عضو دالة افعل (هذا: سند[هذا_الصنف]، ص: صحيح) { ... }
-    عرف مد: مؤشر[دالة (ص: صحيح)]؛
+    متغير مد: مؤشر[دالة (ص: صحيح)]؛
   }
 
-  عرف ص: صـنفي؛
+  متغير ص: صـنفي؛
   ص.مد = صـنفي.افعل~مؤشر؛ // خاطئ
 
   دالة افعل2 (ص: صحيح) { ... }
@@ -1383,10 +1494,10 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 ```
   class MyType {
     @member func doSomething (this: ref[this_type], j: Int) { ... }
-    def pf: ptr[func (Int)];
+    var pf: ptr[func (Int)];
   }
 
-  def mt: MyType;
+  var mt: MyType;
   mt.pf = MyType.doSomething~ptr; // error
 
   func doSomething2 (j: Int) { ... }
@@ -1453,6 +1564,26 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
   }
 ```
 
+كما يمكن الإشارة إلى المؤشر عبر المتغير العضو الذي يحمل كائن الصنف الجذر، وفي هذه الحالة يُستنتج صنف `هذا`
+من صنف ذلك المتغير:
+
+```
+  صنف صـنفي {
+    @حقنة متغير جذر: صـنف_الجذر؛
+    عملية هذا.جذر.مو(ص: صحيح) حدد_مؤشر { ... }؛
+  }
+```
+
+```
+  class MyType {
+    @injection var parent: ParentType;
+    handler this.parent.mp(i: Int) set_ptr { ... };
+  }
+```
+
+هذه الصيغة متاحة فقط مع `حدد_مؤشر` (`set_ptr`)، ولا يشترط أن يكون المتغير العضو حقنة. ويمكن أيضا أن يكون المتغير
+العضو متداخلا بأي عمق، وهو مفيد مع الوراثة متعددة المستويات، كما في `عملية هذا.ابن.جذر.مو() حدد_مؤشر`.
+
 ### تخصيص تهيئة الكائنات
 
 يمكن للمستخدم تخصيص عملية تهيئة الكائنات باستخدام الأمر `عملية` (handler) وهذه صيغته:
@@ -1471,8 +1602,8 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 
 ```
   صنف نـقطة {
-    عرف س: صحيح؛
-    عرف ص: صحيح؛
+    متغير س: صحيح؛
+    متغير ص: صحيح؛
 
     عملية هذا~هيئ() {
       هذا.س = 0؛
@@ -1484,17 +1615,17 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     }؛
   }؛
 
-  عرف ن: نـقطة: // يستدعي عملية التهيئة دون معطيات.
+  متغير ن: نـقطة: // يستدعي عملية التهيئة دون معطيات.
   دالة هات_نقطة (): نـقطة {
-    عرف ن: نقطة؛
+    متغير ن: نقطة؛
     ارجع ن: // يستدعي عملية التهيئة بالمعطى لتهيئة العنصر الذي سيستلم ن
   }؛
 ```
 
 ```
   class Point {
-    def x: int;
-    def y: int;
+    var x: int;
+    var y: int;
 
     handler this~init() {
       this.x = 0;
@@ -1506,9 +1637,9 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     };
   }:
 
-  def p: Point; // calls this~init()
+  var p: Point; // calls this~init()
   func getPoint (): Point {
-    def p: Point;
+    var p: Point;
     return p; // calls this~init(src)
   };
 ```
@@ -1516,19 +1647,19 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 عند وجود عمليات تهيئة بمعطيات فإن تعريف المتغير يحتاج لتمرير هذه المعطيات، ويكون التعريف كالتالي:
 
 ```
-  عرف &lt;اسم_المتغير&gt;: &lt;صنف_المتغير&gt;(&lt;معطيات&gt;)؛
+  متغير &lt;اسم_المتغير&gt;: &lt;صنف_المتغير&gt;(&lt;معطيات&gt;)؛
 ```
 
 ```
-  def &lt;var_name&gt;: &lt;var_type&gt;(&lt;arguments&gt;);
+  var &lt;var_name&gt;: &lt;var_type&gt;(&lt;arguments&gt;);
 ```
 
 المثال التالي يوضح تهيئة بمعطيات:
 
 ```
   صنف نـقطة {
-    عرف س: صحيح؛
-    عرف ص: صحيح؛
+    متغير س: صحيح؛
+    متغير ص: صحيح؛
 
     عملية هذا~هيئ(س: صحيح، ص: صحيح) {
       هذا.س = س؛
@@ -1536,13 +1667,13 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     }؛
   }؛
 
-  عرف ن: نـقطة(5، 10)؛
+  متغير ن: نـقطة(5، 10)؛
 ```
 
 ```
   class Point {
-    def x: int;
-    def y: int;
+    var x: int;
+    var y: int;
 
     handler this~init(x: int, y: int) {
       this.x = x;
@@ -1550,15 +1681,15 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     };
   }:
 
-  def p: Point(5, 10);
+  var p: Point(5, 10);
 ```
 
 يمكن أيضا تخصيص التهيئة بدون معطيات بكتابة عمليات تلك التهيئة مباشرة داخل متن الصنف، وهذا مطابق لتعريف `عملية هذا~هيئ()`، كما في المثال التالي:
 
 ```
   صنف نـقطة {
-    عرف س: صحيح؛
-    عرف ص: صحيح؛
+    متغير س: صحيح؛
+    متغير ص: صحيح؛
 
     هذا.س = 0؛ // مطابق لفعلها داخل عملية هذا~هيئ()
     هذا.ص = 0؛ // مطابق لفعلها داخل عملية هذا~هيئ()
@@ -1569,17 +1700,17 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     }؛
   }؛
 
-  عرف ن: نـقطة: // يستدعي عملية التهيئة دون معطيات.
+  متغير ن: نـقطة: // يستدعي عملية التهيئة دون معطيات.
   دالة هات_نقطة (): نـقطة {
-    عرف ن: نقطة؛
+    متغير ن: نقطة؛
     ارجع ن: // يستدعي عملية التهيئة بالمعطى لتهيئة العنصر الذي سيستلم ن
   }؛
 ```
 
 ```
   class Point {
-    def x: int;
-    def y: int;
+    var x: int;
+    var y: int;
 
     this.x = 0;
     this.y = 0;
@@ -1626,7 +1757,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     }؛
   }؛
 
-  عرف ن: نـص؛
+  متغير ن: نـص؛
   ن = "بسم الله"؛
   إذا ن == "بسم الله" اطبع("النص مطابق")؛
 ```
@@ -1642,7 +1773,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     };
   };
 
-  def s: String;
+  var s: String;
   s = "hello world";
   if s == "hello world" print("text is identical");
 ```
@@ -1657,7 +1788,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     }؛
   }؛
 
-  عرف ن: نـص؛
+  متغير ن: نـص؛
   ن = "!@#$"؛
   اطبع(ن(1))؛ // سيطبع @
 ```
@@ -1670,7 +1801,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
     };
   };
 
-  def s: String;
+  var s: String;
   s = "!@#$";
   print(s(1)); // prints @
 ```
@@ -1683,7 +1814,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 صنف قـيد {
     ...
     عملية هذا_الصنف(): سند[قـيد] {
-        عرف س: سند[قـيد]؛
+        متغير س: سند[قـيد]؛
         س~مؤشر = ذاكـرة.احجز(قـيد~حجم)~مثل[مؤشر[قـيد]]؛
         س~هيئ()؛
         أرجع س؛
@@ -1698,7 +1829,7 @@ handler [&lt;template_arg_defs&gt;] &lt;operation_expression&gt; {
 class Record {
     ...
     handler this_type(): ref[Record] {
-        def r: ref[Record];
+        var r: ref[Record];
         r~ptr = Memory.alloc(Record~size)~cast[ptr[Record]];
         r~init();
         return r;
@@ -1715,36 +1846,68 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   صنف داخـلي {
-    عرف س: صحيح؛
+    متغير س: صحيح؛
     دالة اطبع_س { ... }؛
   }؛
 
   صنف خـارجي {
-    @حقنة عرف د: داخـلي؛
-    عرف ص: صحيح؛
+    @حقنة متغير د: داخـلي؛
+    متغير ص: صحيح؛
     دالة اطبع_ص { ... }؛
   }؛
 
-  عرف خ: خـارجي؛
+  متغير خ: خـارجي؛
   خ.س = 1؛ // يحولها المترجم إلى خ.د.س
   خ.ص = 2؛
   خ.اطبع_س()؛ // يحولها المترجم إلى خ.د.اطبع_س()
   خ.اطبع_ص()؛
 ```
 
+تتوفر أيضا المحولات المخصصة (عمليات `~مثل`) الخاصة بالمتغير المحقون على الصنف الحاوي، لكن فقط إذا كان المتغير المحقون هو
+أول متغير عضو في الصنف الحاوي. في المثال التالي يمكن تحويل `خـارجي` إلى `صحيح` عبر المحول المعرّف في `داخـلي`:
+
+```
+  صنف داخـلي {
+    متغير س: صحيح؛
+    عملية هذا~مثل[صحيح] ارجع هذا.س؛
+  }؛
+
+  صنف خـارجي {
+    @حقنة متغير د: داخـلي؛ // أول متغير عضو، فمحولاته متوفرة.
+    متغير ص: صحيح؛
+  }؛
+
+  صنف آخـر {
+    متغير ص: صحيح؛
+    @حقنة متغير د: داخـلي؛ // ليس أول متغير عضو، فمحولاته غير متوفرة.
+  }؛
+
+  دالة اطبع_صحيحا (ن: صحيح) { ... }؛
+
+  متغير خ: خـارجي؛
+  خ.س = 5؛
+  اطبع_صحيحا(خ)؛ // سليم، يُستخدم محول داخـلي.
+
+  متغير آ: آخـر؛
+  اطبع_صحيحا(آ)؛ // خطأ، لا يوجد محول من آخـر إلى صحيح.
+```
+
+سبب هذا القيد أن المحول الخاص بالمتغير المحقون يُستدعى بعنوان الكائن الحاوي، ولا يطابق هذا العنوان عنوان المتغير المحقون إلا
+إذا كان أول عضو. لا ينطبق هذا القيد على أعضاء المتغير المحقون ودالاته، فهي متوفرة بغض النظر عن موضع الحقنة.
+
 ```
   class Inner {
-    def x: Int;
+    var x: Int;
     func printX { ... };
   };
 
   class Outer {
-    @injection def i: Inner;
-    def y: Int;
+    @injection var i: Inner;
+    var y: Int;
     func printY { ... };
   };
 
-  def o: Outer;
+  var o: Outer;
   o.x = 1; // compiler translates it to o.i.x
   o.y = 2;
   o.printX(); // compiler translates it to o.i.printX()
@@ -1760,21 +1923,38 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 باستخدام هذا المؤثر يمكن استنباط صنف متغير معين كما في المثال التالي:
 
 ```
-  عرف س: صحيح[64]؛
-  عرف ص: س~صنف؛ // صنف ص هنا مطابق لصنف س، وهو عدد صحيح[64].
+  متغير س: صحيح[64]؛
+  متغير ص: س~صنف؛ // صنف ص هنا مطابق لصنف س، وهو عدد صحيح[64].
 
-  عرف م: مؤشر؛
+  متغير م: مؤشر؛
   م = س~مثل[مؤشر]؛
   م = س~مثل[م~صنف]؛ // مطابقة للجملة أعلاه.
 ```
 
 ```
-  def x: Int[64];
-  def y: x~type; // y here has the same type as x, which is Int[64].
+  var x: Int[64];
+  var y: x~type; // y here has the same type as x, which is Int[64].
 
-  def p: ptr;
+  var p: ptr;
   p = x~cast[ptr];
   p = x~cast[p~type]; // Equivalent to the upper statement.
+```
+
+يمكن أن يكون المُعامل أي تعبير، بما في ذلك سلسلة من الوصول إلى العناصر. وداخل متن الصنف يمكن الإشارة إلى عناصر الصنف
+مباشرة:
+
+```
+  صنف صـنفي {
+    متغير أ: صـنف_آخر؛
+    متغير ب: أ.ج~صنف؛ // صنف ب مطابق لصنف العنصر ج من أ.
+  }
+```
+
+```
+  class MyType {
+    var a: OtherType;
+    var b: a.c~type; // b has the same type as member c of a.
+  }
 ```
 
 هذا المؤثر مفيد بشكل أساسي في القوالب والماكروهات حيث صنف المتغير قد لا يكون معروفا إلا عند استخدام القالب أو الماكرو.
@@ -1785,8 +1965,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 صنف أو متغير أو حتى على تركيب، كما في الأمثلة التالية:
 
 ```
-  عرف س: صحيح[16]؛
-  عرف ص: صحيح[32]؛
+  متغير س: صحيح[16]؛
+  متغير ص: صحيح[32]؛
   دالة هات_صحيح (): صحيح { ... }؛
 
   طـرفية.اطبع(س~حجم)؛ // يطبع 2.
@@ -1797,8 +1977,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 ```
 
 ```
-  def x: Int[16];
-  def y: Int[32];
+  var x: Int[16];
+  var y: Int[32];
   func getInt (): Int { ... };
 
   Console.print(x~size); // Prints 2.
@@ -1823,8 +2003,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 يمكن الولوج إلى المحتوى المشار إليه بالمؤشر عن طريق المؤثر "~محتوى" (~cnt) ويمكن الحصول على موقع أي متغير عن طريق المؤثر "~مؤشر" (~ptr) كما في المثال التالي:
 
 ```
-  عرّف م : مؤشر[العدد_الصحيح]؛
-  عرّف س : العدد_الصحيح؛
+  متغير م : مؤشر[العدد_الصحيح]؛
+  متغير س : العدد_الصحيح؛
   س = 5؛
   م = س~مؤشر؛
   م~محتوى = 1؛
@@ -1832,8 +2012,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 ```
 
 ```
-  def p : ptr[Int];
-  def x : Int;
+  var p : ptr[Int];
+  var x : Int;
   x = 5;
   p = x~ptr;
   p~cnt = 1;
@@ -1843,8 +2023,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 يمكن تطبيق عمليات الجمع والطرح على المؤشرات، وفي هذه الحالة فإن مقدار الزيادة لقيمة المؤشر ستكون من مضاعفات حجم الصنف الذي يشير إليه المؤشر. على سبيل المثال، إذا أضفت 1 لمؤشر على عدد صحيح فإن قيم المؤشر ستزداد بمقدار حجم العدد الصحيح، أي بمقدار 4 بايتات في حالة العدد الصحيح بصيغة 32 بت.
 
 ```
-  عرّف م1: مؤشر[صحيح[32]] = ...؛
-  عرف م2: مؤشر[محرف] = ...؛
+  متغير م1: مؤشر[صحيح[32]] = ...؛
+  متغير م2: مؤشر[محرف] = ...؛
   م1 = م1 + 1؛ // سيزداد بمقدار 4.
   م1 = م1 + 5؛ // سيزداد بمقدار 4 * 5، أي 20.
   م2 = م2 + 1؛ // سيزداد بمقدار 1.
@@ -1852,13 +2032,40 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 ```
 
 ```
-  def p1: ptr[Int[32]] = ...;
-  def p2: ptr[Char] = ...;
+  var p1: ptr[Int[32]] = ...;
+  var p2: ptr[Char] = ...;
   p1 = p1 + 1; // Incremented by 4.
   p1 = p1 + 5; // Incremented by 5 * 4.
   p2 = p2 + 1; // Incremented by 1.
   p2 = p2 + 5; // Incremented by 5.
 ```
+
+### المؤشرات الحرفية
+
+النصوص الحرفية (string literals) من الصنف `مؤشر_حرفي[مصفوفة[طبيعي[8]]]` (`lptr[array[Word[8]]]`)، وهو مؤشر حرفي يختلف عن المؤشر العادي `مؤشر` (`ptr`) في أمر واحد: يمكن تحويل المؤشر الحرفي ضمنيا إلى مؤشر عادي، بينما لا يمكن تحويل المؤشر العادي إلى مؤشر حرفي إلا صراحة. يتيح هذا التمييز بين المؤشرات على النصوص الحرفية وغيرها من المؤشرات، وبالتالي إمكانية تحويل النصوص الحرفية تلقائيا إلى أصناف أخرى مثل `نـص` (`String`) عبر تعريف محولات مخصصة على صنف المؤشر الحرفي (انظر الأمر `ضمن`).
+
+```
+  دالة د1 (م: مؤشر[مصفوفة[طبيعي[8]]]) { ... }
+  دالة د2 (م: مؤشر_حرفي[مصفوفة[طبيعي[8]]]) { ... }
+
+  متغير م: مؤشر[مصفوفة[طبيعي[8]]] = "abc"؛ // سليم، المؤشر الحرفي يُحوَّل ضمنيا إلى مؤشر عادي.
+  د1("abc")؛                                // سليم.
+  د2("abc")؛                                // سليم.
+  د2(م)؛                                    // خطأ، المؤشر العادي لا يُحوَّل ضمنيا إلى مؤشر حرفي.
+  د2(م~مثل[مؤشر_حرفي[مصفوفة[طبيعي[8]]]])؛  // سليم.
+```
+
+يمكن تعريف محولات مخصصة على صنف المؤشر الحرفي مباشرة باستخدام `ضمن`:
+
+```
+  ضمن مؤشر_حرفي[مصفوفة[طبيعي[8]]] عملية هذا~مثل[نـص] ارجع نـص(1، هذا)؛
+  دالة اطبع_نص (ن: نـص) { ... }
+  اطبع_نص("مرحبا")؛ // يُحوَّل النص الحرفي تلقائيا إلى نـص.
+```
+
+تعرّف المكتبة `Srl` اللقبين `مـؤشر_محارف` (`CharsPtr`) للصنف `مؤشر[مصفوفة[طبيعي[8]]]` و`مـؤشر_محارف_حرفي` (`CharsLptr`)
+للصنف `مؤشر_حرفي[مصفوفة[طبيعي[8]]]`. راجع الصنف `نـص` في مرجع Srl لمعرفة الفرق بين تحويل النصوص الحرفية وتحويل
+`مـؤشر_محارف` إلى `نـص`.
 
 ## السندات
 
@@ -1877,7 +2084,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 ```
   دالة ضاعف (سم: سند[صحيح]) { سم *= 2 }؛
 
-  عرف م: صحيح = 5؛
+  متغير م: صحيح = 5؛
   افعل(م)؛
   // الآن م == 10
 ```
@@ -1885,7 +2092,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 ```
   func twice (ri: ref[int]) { ri *= 2 };
 
-  def i: int = 5;
+  var i: int = 5;
   twice(i);
   // now i == 10
 ```
@@ -1893,16 +2100,16 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 في حالة كون السند معرفا كمتغير اعتيادي وليس معطى لدالة فتحتاج لتحديد مؤشره يدويا كما في المثال التالي:
 
 ```
-  عرف سم: سند[صحيح]؛
-  عرف م: صحيح؛
+  متغير سم: سند[صحيح]؛
+  متغير م: صحيح؛
   سم~مؤشر = م~مؤشر؛
   سم = 3؛
   // الآن م == 3
 ```
 
 ```
-  def ri: ref[Int];
-  def i: Int;
+  var ri: ref[Int];
+  var i: Int;
   ri~ptr = i~ptr;
   ri = 3;
   // now i == 3
@@ -1911,21 +2118,21 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 بالإمكان أيضا استخدام المؤثر `~مؤشر` لجعل السند يشير إلى حجز ديناميكي للذاكرة:
 
 ```
-  عرف سم: سند[صـنفي]؛
+  متغير سم: سند[صـنفي]؛
   سم~مؤشر = ذاكـرة.احجز(صـنفي~حجم)~مثل[مؤشر[صـنفي]]؛
 ```
 
 ```
-  def r: ref[MyType];
+  var r: ref[MyType];
   r~ptr = Memory.alloc(MyType~size)~cast[ptr[MyType]];
 ```
 
 كما يمكنك تعريف سند لسند كما في المثال:
 
 ```
-  عرف سسم: سند[سند[صحيح]]؛
-  عرف سم: سند[صحيح]؛
-  عرف م: صحيح؛
+  متغير سسم: سند[سند[صحيح]]؛
+  متغير سم: سند[صحيح]؛
+  متغير م: صحيح؛
   سم~مؤشر = م~مؤشر؛
   سسم~مؤشر~مؤشر = سم~مؤشر~مؤشر؛
   سسم = 3؛
@@ -1933,9 +2140,9 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 ```
 
 ```
-  def rri: ref[ref[Int]];
-  def ri: ref[Int];
-  def i: Int;
+  var rri: ref[ref[Int]];
+  var ri: ref[Int];
+  var i: Int;
   ri~ptr = i~ptr;
   rri~ptr~ptr = ri~ptr~ptr;
   rri = 3;
@@ -1976,16 +2183,16 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 وليس القيمة. كما في المثال التالي:
 
 ```
-  عرف ع: صحيح؛
-  عرف س: سند[صحيح]؛
+  متغير ع: صحيح؛
+  متغير س: سند[صحيح]؛
 
   س = ع؛ // سيؤدي لتغيير القيمة المخزونة في الموقع الذي يشير إليه س.
   س~عطل_التتبع = ع؛ // سيجعل س يشير إلى ع.
 ```
 
 ```
-  def i: Int;
-  def r: ref[Int];
+  var i: Int;
+  var r: ref[Int];
 
   r = i; // Will change the value pointed to by r.
   r~no_deref = i; // Will make r point to i.
@@ -1994,12 +2201,12 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 استخدام مؤثر ~عطل_التتبع على متغير غير سند ليس له أي تأثير لكنه لا يؤدي إلى خطأ.
 
 ```
-  عرف ع: صحيح؛
+  متغير ع: صحيح؛
   ع~عطل_التتبع = 7؛ // مطابق لـ: ع = 7؛
 ```
 
 ```
-  def i: Int;
+  var i: Int;
   i~no_deref = 7; // Equivalent to: i = 7;
 ```
 
@@ -2008,35 +2215,56 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   صنف صـنف1 [ن: صنف] {
-    عرف س: ن؛
+    متغير س: ن؛
     س = 0؛
   }
-  عرف ك: صـنف1[صحيح]؛ // لا مشكلة. سيصفر قيمة س.
-  عرف ل: صـنف1[سند[صحيح]]؛ // سيؤدي إلى segfault لأنه سيحاول تصفير موقع عشوائي لأن س سند.
+  متغير ك: صـنف1[صحيح]؛ // لا مشكلة. سيصفر قيمة س.
+  متغير ل: صـنف1[سند[صحيح]]؛ // سيؤدي إلى segfault لأنه سيحاول تصفير موقع عشوائي لأن س سند.
 
   صنف صـنف2 [ن: صنف] {
-    عرف س: ن؛
+    متغير س: ن؛
     س~عطل_التتبع = 0؛
   }
-  عرف م: صـنف2[صحيح]؛ // لا مشكلة. سيصفر قيمة س.
-  عرف ن: صـنف2[سند[صحيح]]؛ // لا مشكلة. سيصفر قيمة س، اي قيمة المؤشر.
+  متغير م: صـنف2[صحيح]؛ // لا مشكلة. سيصفر قيمة س.
+  متغير ن: صـنف2[سند[صحيح]]؛ // لا مشكلة. سيصفر قيمة س، اي قيمة المؤشر.
 ```
 
 ```
   class Tp1 [T: type] {
-    def x: T;
+    var x: T;
     x = 0;
   }
-  def i: Tp1[Int]; // No problem, x will be set to 0.
-  def j: Tp1[ref[Int]]; // Causes segfault for updating a random location in memory.
+  var i: Tp1[Int]; // No problem, x will be set to 0.
+  var j: Tp1[ref[Int]]; // Causes segfault for updating a random location in memory.
 
   class Tp2 [T: type] {
-    def x: T;
+    var x: T;
     x~no_deref = 0;
   }
-  def k: Tp2[Int]; // No problem, value of x will be set to 0.
-  def l: Tp2[ref[Int]]; // No problem, value of x will be set to 0, i.e. the pointer value.
+  var k: Tp2[Int]; // No problem, value of x will be set to 0.
+  var l: Tp2[ref[Int]]; // No problem, value of x will be set to 0, i.e. the pointer value.
 ```
+
+### مؤثر :=
+
+المؤثر `:=` اختصار للإسناد مع ~عطل_التتبع، أي أن `س := ع` مطابق لـ `س~عطل_التتبع = ع`:
+
+```
+  متغير ع: صحيح؛
+  متغير س: سند[صحيح]؛
+
+  س := ع؛ // سيجعل س يشير إلى ع، مثل س~عطل_التتبع = ع.
+```
+
+```
+  var i: Int;
+  var r: ref[Int];
+
+  r := i; // Will make r point to i, same as r~no_deref = i.
+```
+
+بخلاف المؤثرات الأخرى لا يمكن إعادة تعريف المؤثر `:=`. وعند استخدامه على متغير ليس سندا فإنه يستدعي المؤثر `=` كما
+يفعل `س~عطل_التتبع = ع`.
 
 ## المصفوفات
 
@@ -2052,16 +2280,16 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 يمكن الدخول إلى عناصر المصفوفة بإعطاء رقم العنصر المعني بين قوسين معقوفين. مثال:
 
 ```
-  عرّف مصفوفتي : مصفوفة[صحيح، 10]؛
-  عرّف ع : صحيح؛
+  متغير مصفوفتي : مصفوفة[صحيح، 10]؛
+  متغير ع : صحيح؛
   لكل ع=0، ع&lt;10، ع++ {
     مصفوفتي(ع) = مضروب(ع)
   }
 ```
 
 ```
-  def myArray : array[Int, 10];
-  def i : Int;
+  var myArray : array[Int, 10];
+  var i : Int;
   for i=0, i&lt;10, i++ {
     myArray(i) = factorial(i)
   }
@@ -2072,12 +2300,12 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 يمكن تمثيل المتغيرات بصنف غير صنفها الحقيقي باستخدام المؤثر "~مثّل" (~cast) متبوعاً بقوسين معقوفين بينهما الصنف المراد تمثيله، كما في المثال التالي:
 
 ```
-  عرّف ح : عـائم؛
+  متغير ح : عـائم؛
   إطبع_عددا_صحيحا(ح~مثّل[صحيح])؛
 ```
 
 ```
-  def f : Float;
+  var f : Float;
   printInteger(f~cast[Int]);
 ```
 
@@ -2114,11 +2342,11 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   صنف نـقطة {
-    عرف س: صـحيح؛
-    عرف ص: صـحيح؛
+    متغير س: صـحيح؛
+    متغير ص: صـحيح؛
   }
   
-  عرف ن: نـقطة؛
+  متغير ن: نـقطة؛
   ن.{ س = 5؛ ص = 10 }؛
   // الجملة أعلاه مطابقة ل:
   // ن.س = 5؛
@@ -2127,11 +2355,11 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   class Point {
-    def x: Int;
-    def y: Int;
+    var x: Int;
+    var y: Int;
   }
   
-  def p: Point;
+  var p: Point;
   p.{ x = 5; y = 10 };
   // Upper statement is equivalent to:
   // p.x = 5;
@@ -2186,7 +2414,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   اطبع("أدخل رقمًا: ")؛
-  عرف ر: صحيح(أدخل_صحيحا())؛
+  متغير ر: صحيح(أدخل_صحيحا())؛
   اطبع("الرقم %s.\ج"، مؤشر[محرف]().{
       إذا ر > 0 هذا = "موجب"
       وإلا إذا ر < 0 هذا = "سالب"
@@ -2196,7 +2424,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   print("Enter a number: ");
-  def i: Int(getInt());
+  var i: Int(getInt());
   print("Number is %s.\n", ptr[Char]().{
       if i > 0 this = "positive"
       else if i < 0 this = "negative"
@@ -2210,7 +2438,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   صنف صـنف {
-    عرف ع: صحيح؛
+    متغير ع: صحيح؛
     عملية هذا.هل_الرقم_موجب (): نـص {
       أرجع نـص()~استخدم_في(أنا){
         إذا هذا.ع > 0 أنا = "موجب"
@@ -2223,7 +2451,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   class Type {
-    def i: int;
+    var i: int;
     handler isNumPositive (): String {
       return String()~use_in(self){
         if this.i > 0 self = "positive"
@@ -2240,9 +2468,9 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   صنف صـنف {
-    عرف ع: صحيح؛
+    متغير ع: صحيح؛
   }
-  عرف ص: صـنف؛
+  متغير ص: صـنف؛
   ص.{
     ع = 1؛ // يغير قيمة ص.ع.
   }؛
@@ -2254,9 +2482,9 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   class Type {
-    def i: int;
+    var i: int;
   }
-  def t: Type;
+  var t: Type;
   t.{
     t.i = 1; // Updates t.i.
   };
@@ -2277,7 +2505,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
     ...
   }؛
 
-  عرف ن: سند[نـقطة]؛
+  متغير ن: سند[نـقطة]؛
   ن~مؤشر = ذاكـرة.احجز(نـقطة~حجم)~مثل[مؤشر[نـقطة]]؛
   ن~هيئ()؛
 ```
@@ -2289,7 +2517,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
     ...
   };
 
-  def p: ref[Point];
+  var p: ref[Point];
   p~ptr = Memory.alloc(Point~size)~cast[ptr[Point]];
   p~init();
 ```
@@ -2344,7 +2572,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   وحدة الـخارجية {
     وحدة الـداخلية1 {
       وحدة الـداخلية2 {
-        عرف م: صـحيح؛
+        متغير م: صـحيح؛
       }؛
     }؛
   }
@@ -2354,7 +2582,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   module Outer {
     module Inner1 {
       module Inner2 {
-        def v: Int;
+        var v: Int;
       };
     };
   }
@@ -2366,7 +2594,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
   ```
     عرف الـخارجية: وحدة {
-      عرف م: صـحيح؛
+      متغير م: صـحيح؛
 
       عرف الـداخلية: وحدة {
         عرف اطبع_م: دالة {
@@ -2378,7 +2606,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
   ```
     def Outer: module {
-      def v: Int;
+      var v: Int;
 
       def Inner: module {
         def printV: function {
@@ -2393,7 +2621,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   ```
     عرف الـخارجية: وحدة {
       عرف الـداخلية1: وحدة {
-        عرف م: صـحيح؛
+        متغير م: صـحيح؛
       }؛
 
       عرف الـداخلية2: وحدة {
@@ -2407,7 +2635,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   ```
     def Outer: module {
       def Inner1: module {
-        def v: Int;
+        var v: Int;
       };
 
       def Inner2: module {
@@ -2434,7 +2662,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
     عرف الـخارجية: وحدة {
       عرف الـداخلية1: وحدة {
         عرف الـداخلية2: وحدة {
-          عرف م: صـحيح؛
+          متغير م: صـحيح؛
         }؛
       }؛
 
@@ -2450,7 +2678,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
     def Outer: module {
       def Inner1: module {
         def Inner2: module {
-          def v: Int;
+          var v: Int;
         };
       };
 
@@ -2567,7 +2795,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   صنف صـنف1 {
-    عرف ع: صحيح؛
+    متغير ع: صحيح؛
     @عضو ماكرو اطبع_متغيرات [الكائن، م] {
       اطبع("هذا.ع + {{م}}1 = %d\ج"، الكائن.ع + __م__1)؛
       اطبع("هذا.ع + {{م}}2 = %d\ج"، الكائن.ع + __م__2)؛
@@ -2577,7 +2805,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   .
   س1 = 5؛
   س2 = 6؛
-  عرف ص: صـنف1؛
+  متغير ص: صـنف1؛
   ص.ع = 2؛
   ص.اطبع_متغيرات[س]؛
 
@@ -2598,7 +2826,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   class C1 {
-    def i: Int;
+    var i: Int;
     @member macro print_vars [self, v] {
       print("this.i + {{v}}1 = %d\n", self.i + __v__1);
       print("this.i + {{v}}2 = %d\n", self.i + __v__2);
@@ -2608,7 +2836,7 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
   .
   s1 = 5;
   s2 = 6;
-  def c: C1;
+  var c: C1;
   c.i = 2;
   c.print_vars[s];
 
@@ -2702,8 +2930,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   تمهيد {
-      عرف متغيرات: مـصفوفة[نـص] = جد_أسماء_المتغيرات(...)؛
-      عرف ع: صحيح؛
+      متغير متغيرات: مـصفوفة[نـص] = جد_أسماء_المتغيرات(...)؛
+      متغير ع: صحيح؛
       لكل ع = 0، ع &lt; متغيرات.هات_الطول()، ++ع {
           نـبم.مدير_شبم.احشر_شبم(
               شبم { هذا.اسم = 0 }،
@@ -2716,8 +2944,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   preprocess {
-      def vars: Array[String] = findVarNames(...);
-      def i: Int;
+      var vars: Array[String] = findVarNames(...);
+      var i: Int;
       for i = 0, i &lt; vars.getLength(), ++i {
           Spp.astMgr.insertAst(
               ast { this.name = 0 },
@@ -2738,17 +2966,17 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   عرف نـقطة: صنف {
-    عرف س: صـحيح؛
+    متغير س: صـحيح؛
   }؛
   .
   .
   @دمج عرف نـقطة: صنف {
-    عرف ص: صحيح؛
+    متغير ص: صحيح؛
   }؛
   .
   .
   عرف ابدأ: دالة {
-    عرف ن: نـطقة؛
+    متغير ن: نـطقة؛
     ن.س = 10؛
     ن.ص = 12؛
     .
@@ -2758,17 +2986,17 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   def Point: class {
-    def x: Int;
+    var x: Int;
   };
   .
   .
   @merge def Point: class {
-    def y: Int;
+    var y: Int;
   };
   .
   .
   def start: function {
-    def p: Point;
+    var p: Point;
     p.x = 10;
     p.y = 12;
     .
@@ -2780,8 +3008,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   صنف نـقطة [الـصنف: صنف] {
-    عرف س: الـصنف؛
-    عرف ص: الـصنف؛
+    متغير س: الـصنف؛
+    متغير ص: الـصنف؛
   }
 
   عرف نـقطة_صحيح: لقب نـقطة[صحيح]؛
@@ -2793,8 +3021,8 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
 
 ```
   class Point [T: type] {
-    def x: T;
-    def y: T;
+    var x: T;
+    var y: T;
   }
 
   def IntPoint: alias Point[Int];
@@ -2803,6 +3031,42 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
     func print { ... } // This function will be added to Point[Int] only, not all template instances.
   }
 ```
+
+## الإضافة إلى المجالات الموجودة
+
+يضيف الأمر `ضمن` (`within`) أوامر إلى مجال معرّف مسبقا، كوحدة أو صنف. له الصيغتان التاليتان:
+
+```
+  ضمن <مؤهِّل> <أمر>
+
+  ضمن <مؤهِّل> {
+    <أوامر>
+  }
+```
+
+المؤهِّل إما معرّف واحد أو عدة معرّفات تفصل بينها نقاط أو نسخة قالب مثل `مؤشر_حرفي[مصفوفة[طبيعي[8]]]`. تضاف الأوامر إلى المجال الذي يشير إليه المؤهِّل، كما في
+المثال التالي:
+
+```
+  وحدة خارجية {
+    وحدة داخلية {}
+    صنف نـقطة { متغير س: صحيح؛ }
+  }
+
+  ضمن خارجية عرف أ: 1؛
+
+  ضمن خارجية.داخلية {
+    عرف ب: 2؛
+    دالة مرحبا { ... }
+  }
+
+  ضمن خارجية.نـقطة {
+    متغير ص: صحيح؛
+  }
+```
+
+إن كان الهدف صنفا فإن الأوامر تضاف إلى جسم الصنف. يجب أن يكون الهدف معرّفا مسبقا عند موضع الأمر `ضمن`. يمكن أن
+تتضمن الأوامر تعريفات موسومة بالمبدل `@دمج`، وسيتم دمجها مع التعريفات المطابقة في الهدف.
 
 ## شمل مكتبات أو ملفات مصدرية
 

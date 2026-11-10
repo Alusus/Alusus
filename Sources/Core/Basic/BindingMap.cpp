@@ -37,17 +37,17 @@ void BindingMap::onBaseContentChanged(SharedMapBase<TiObject, TiObject> *src, Co
 {
   if (op == ContentChangeOp::WILL_UPDATE || op == ContentChangeOp::WILL_REMOVE) {
     if (this->isInherited(index)) return;
-    auto superFunc = src->get(index).ti_cast_get<TiFunctionBase>();
-    auto func = this->get(index).ti_cast<TiFunctionBase>();
+    auto superFunc = src->get(index).ti_cast_get<TiCallee>();
+    auto func = this->get(index).ti_cast<TiCallee>();
     if (superFunc != 0 && func != 0) {
-      this->resetFunctionChain(this->getKey(index), superFunc);
+      this->resetCalleeChain(this->getKey(index), superFunc);
     }
   } else if (op == ContentChangeOp::ADDED || op == ContentChangeOp::UPDATED) {
     if (this->isInherited(index)) return;
-    auto superFunc = src->get(index).ti_cast<TiFunctionBase>();
-    auto func = this->get(index).ti_cast<TiFunctionBase>();
+    auto superFunc = src->get(index).ti_cast<TiCallee>();
+    auto func = this->get(index).ti_cast<TiCallee>();
     if (superFunc != 0 && func != 0) {
-      this->updateFunctionChain(this->getKey(index), 0, superFunc);
+      this->updateCalleeChain(this->getKey(index), 0, superFunc);
     }
   }
 }
@@ -58,24 +58,24 @@ void BindingMap::onBaseDetached()
   auto src = this->getBase();
   for (Int i = 0; i < this->getCount(); ++i) {
     if (this->isInherited(i)) continue;
-    auto superFunc = src->get(i).ti_cast_get<TiFunctionBase>();
-    auto func = this->get(i).ti_cast<TiFunctionBase>();
+    auto superFunc = src->get(i).ti_cast_get<TiCallee>();
+    auto func = this->get(i).ti_cast<TiCallee>();
     if (superFunc != 0 && func != 0) {
-      this->resetFunctionChain(this->getKey(i), superFunc);
+      this->resetCalleeChain(this->getKey(i), superFunc);
     }
   }
 }
 
 
-void BindingMap::updateFunctionChain(Char const *name, TiFunctionBase *currentTifn,
-                                     SharedPtr<TiFunctionBase> const &newTifn)
+void BindingMap::updateCalleeChain(Char const *name, TiCallee *currentTifn,
+                                   SharedPtr<TiCallee> const &newTifn)
 {
   VALIDATE_NOT_NULL(name, newTifn);
   auto index = this->findIndex(name);
   if (index == -1) {
     throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
   }
-  auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
+  auto tifn = this->get(index).ti_cast_get<TiCallee>();
   if (tifn == 0) {
     throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
   }
@@ -87,19 +87,21 @@ void BindingMap::updateFunctionChain(Char const *name, TiFunctionBase *currentTi
       throw EXCEPTION(InvalidArgumentException, S("name"),
                       S("Provided funciton override is not found at the given key."), name);
     }
+    this->onWillUpdate(index);
     tifn->setSuper(newTifn.get());
+    this->onUpdated(index);
   }
 }
 
 
-void BindingMap::resetFunction(Char const *name, TiFunctionBase *currentTifn)
+void BindingMap::resetCallee(Char const *name, TiCallee *currentTifn)
 {
   VALIDATE_NOT_NULL(name, currentTifn);
   auto index = this->findIndex(name);
   if (index == -1) {
     throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
   }
-  auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
+  auto tifn = this->get(index).ti_cast_get<TiCallee>();
   if (tifn == 0) {
     throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
   }
@@ -115,19 +117,21 @@ void BindingMap::resetFunction(Char const *name, TiFunctionBase *currentTifn)
       throw EXCEPTION(InvalidArgumentException, S("name"),
                       S("Provided funciton override is not found at the given key."), name);
     }
+    this->onWillUpdate(index);
     tifn->setSuper(currentTifn->getSuper());
+    this->onUpdated(index);
   }
 }
 
 
-void BindingMap::resetFunctionChain(Char const *name, TiFunctionBase *currentTifn)
+void BindingMap::resetCalleeChain(Char const *name, TiCallee *currentTifn)
 {
   VALIDATE_NOT_NULL(name, currentTifn);
   auto index = this->findIndex(name);
   if (index == -1) {
     throw EXCEPTION(InvalidArgumentException, S("name"), S("Not found."), name);
   }
-  auto tifn = this->get(index).ti_cast_get<TiFunctionBase>();
+  auto tifn = this->get(index).ti_cast_get<TiCallee>();
   if (tifn == 0) {
     throw EXCEPTION(InvalidArgumentException, S("name"), S("No function override is defined at this key."), name);
   }
@@ -139,8 +143,30 @@ void BindingMap::resetFunctionChain(Char const *name, TiFunctionBase *currentTif
       throw EXCEPTION(InvalidArgumentException, S("name"),
                       S("Provided funciton override is not found at the given key."), name);
     }
+    this->onWillUpdate(index);
     tifn->setSuper(0);
+    this->onUpdated(index);
   }
+}
+
+
+Bool BindingMap::hasCallee(Char const *name, TiCallee *tifn) const
+{
+  VALIDATE_NOT_NULL(name, tifn);
+  auto index = this->findIndex(name);
+  if (index == -1) return false;
+  auto current = this->get(index).ti_cast_get<TiCallee>();
+  while (current != 0 && current != tifn) current = current->getSuper();
+  return current != 0;
+}
+
+
+void BindingMap::addOverride(Char const *name, SharedPtr<TiCallee> const &tifn)
+{
+  VALIDATE_NOT_NULL(name, tifn);
+  auto index = this->findIndex(name);
+  if (index != -1) tifn->setSuper(this->get(index).ti_cast_get<TiCallee>());
+  this->set(name, tifn);
 }
 
 } } // namespace

@@ -1,5 +1,78 @@
 # Alusus Changelog
 
+## Version 0.17.0 (2026-xx-xx)
+
+* Optimized parser and lexer performance.
+  - Sped up parser route decision caching.
+  - Sped up looking up definitions by name by indexing the definitions of each scope, which makes lookups in
+    scopes with many definitions faster.
+  - Sped up finding existing template instances by indexing the instances of each template, which makes
+    templates with many instances, like `ref` and `ptr`, faster.
+  - Sped up JIT compilation:
+    - Code that isn't optimized, including all preprocessing code, is now compiled with LLVM's fastest code
+      generation level.
+    - Preprocessing code now reuses a single LLVM target machine instead of creating one for each function.
+  - Misc other optimizations.
+* Refactored the Core's dynamic function and method bindings:
+  - Method bindings now call plain function pointers instead of `std::function`, which improves performance
+    and keeps call stacks clean while debugging.
+  - Overrides set through a binding cache are now removed automatically when the cache is destroyed, and can
+    call the function they override through `callSuper`.
+* Fixed a bug where replacing an element at the end of a scope with a `use` statement or an injection, for
+  example during preprocessing, caused the new element to be ignored.
+* The `~size` operator now always returns an `ArchWord` instead of the smallest signed integer type that can
+  hold the size.
+* Added the `within` command (`ضمن` in Arabic), which adds statements to an existing scope:
+  `within MyScope def num: 123;` or `within A.B { ... }`. Within a class, it adds to the body of the class.
+  The command is represented by the new `Core.Ast.Within` class, which replaces `Core.Ast.MergeList`, and the
+  `Seeker` has a new `add` operation that extensions can override to support more kinds of targets.
+* Added the `var` command for defining variables, which can deduce the variable type from its initial value:
+  - `var x = value` and `var x: T = value` construct the variable without args, then assign the value to it.
+  - `var x := value` and `var x: T(args)` pass the value or args to the constructor.
+  - Multiple variables can be defined in a single command, as in `var i = 0, j: Int = 1`.
+  - Global variables get their initial values assigned in the global constructors, which means the assignment
+    is included in offline builds.
+  - `var` and `متغير` are now keywords, so they can no longer be used as identifiers at the start of a
+    statement.
+ * The `def` command no longer accepts an `=` operator, so you can no longer do `def x: Int = value`. For
+   initializing a variable's value in the definition the `var` command must be used instead.
+* Added support for defining counter variables in for loops, as in `for i: Int = 0, i < 10, ++i` or
+  `for (i: Int = 0, j: Int = 1), ...`, or using the `var` command, as in `for (var i = 0), ...`. These variables
+  are scoped to the loop.
+* Fixed a bug where enclosing the entire header of a for loop in brackets, as in `for (i = 0, i < 10, ++i)`,
+  resulted in an invalid for statement error.
+* Added the `:=` operator as a shortcut for assigning with `~no_deref`, i.e. `r := i` is equivalent to
+  `r~no_deref = i`. This operator can't be overloaded.
+* Function pointers defined in a parent class can now be overridden through the member variable holding the parent,
+  as in `handler this.parent.func() set_ptr { ... }`, instead of `handler (this:Parent).func() set_ptr { ... }`.
+  Nested members are supported as well for multi-level inheritance, as in `handler this.child.parent.func() set_ptr`.
+* The `~type` operator now accepts any expression, including member access chains like `a.b~type`, and can reference
+  class members directly inside the class body.
+
+* Added the literal pointer type `lptr` (`مؤشر_حرفي` in Arabic), which is a pointer type that can be implicitly
+  cast to `ptr` but can only be cast from `ptr` explicitly. String literals are now of type
+  `lptr[array[Word[8]]]` instead of `ptr[array[Word[8]]]`.
+* String literals are now automatically cast to `String`, so `String` parameters, return values, variables and
+  assignments accept literals directly. Literals are cast using the skip-copying constructor, so no memory is
+  allocated and nothing is copied, while `CharsPtr` is cast using the regular constructor, which allocates and
+  copies the string.
+* Added the `CharsLptr` alias (`مـؤشر_محارف_حرفي` in Arabic) for `lptr[array[Word[8]]]` and the `مؤشر_حرفي` alias
+  for `lptr` in the Arabic syntax.
+* The qualifier of the `within` command can now be a template instance like `lptr[array[Word[8]]]`, which allows
+  defining custom casters and operators for built-in types.
+* Custom casters of an injected first member are now found when casting, so with
+  `class B { @injection var a: A; }` a `B` can be cast to whatever `A`'s casters produce. Only an injection that is
+  the first member is considered. Chains of casters that go in both directions between two types no longer cause an
+  infinite recursion in the compiler.
+* The `~type` operator now accepts functions, giving their function type, as in `ptr[myFunc~type]`.
+* Added support for debugging with debuggers such as gdb. Passing `--opt debug=1` makes the compiler generate debug
+  info for generated executables and for code that Alusus runs directly, including `preprocess` blocks, which allows
+  setting breakpoints on source lines and inspecting the call stack and the values of variables, arguments and
+  global variables. Code produced by macros is shown along with the line where the macro was used. Debug builds are
+  compiled without optimization unless `optimize=1` is passed as well. Debugging code that Alusus runs directly is
+  currently supported on Linux only.
+* `Spp.buildMgr.dumpLlvmIrForElement` now accepts an optional second argument to include debug info in the output.
+
 ## Version 0.16.0 (2026-10-09)
 
 ### Updates to the Compiler

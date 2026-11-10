@@ -13,3 +13,39 @@
 2: 4
 3: 8
 4: 16
+k = 0
+k = 1
+k = 2
+0: 10
+1: 15
+2: 20
+3, 30, 31
+3, 31, 31
+var k = 0
+var k = 1
+var k = 7
+var k = 8
+4, var k = 40
+4, var k = 41
+var k = 0, l = 10
+var k = 1, l = 10
+var k = 2, l = 4
+var k = 3, l = 4
+var k = 5, j = 10
+var k = 6, j = 10
+var k = 0, l = 3, j = 3
+var k = 1, l = 3, j = 3
+k = 10
+k = 11
+k = 20
+k = 21
+if k = 0
+if k = 1
+0, 0
+0, 1
+1, 0
+1, 1
+~Counter 101
+after loop
+0, 0
+1, 0

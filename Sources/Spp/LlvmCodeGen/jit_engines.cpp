@@ -21,6 +21,9 @@ Error JitEngineBuilderState::prepareForConstruction() {
       jtmb = std::move(*JTMBOrErr);
     else
       return JTMBOrErr.takeError();
+    // Unoptimized code is usually run once, so fast instruction selection and register allocation save more time
+    // than the generated code loses.
+    if (!useOptimizeLayer) jtmb->setCodeGenOptLevel(CodeGenOptLevel::None);
   }
 
   if (!createObjectLinkingLayer && !jtmb->getCodeModel().has_value() &&
@@ -116,6 +119,13 @@ std::unique_ptr<ObjectLayer> JitEngine::createObjectLinkingLayer(JitEngineBuilde
   auto objLinkingLayer =
       std::make_unique<RTDyldObjectLinkingLayer>(es, std::move(GetMemMgr));
 
+  if (s.enableDebuggerSupport && s.jtmb->getTargetTriple().isOSBinFormatELF()) {
+    // The debug sections have to be loaded along with the code, otherwise the debugger would find nothing to read.
+    objLinkingLayer->setProcessAllSections(true);
+    // Tell debuggers about every object we load by using the GDB JIT interface, which gdb and lldb both understand.
+    objLinkingLayer->registerJITEventListener(*JITEventListener::createGDBRegistrationListener());
+  }
+
   if (s.jtmb->getTargetTriple().isOSBinFormatCOFF()) {
     objLinkingLayer->setOverrideObjectFlagsWithResponsibilityFlags(true);
     objLinkingLayer->setAutoClaimResponsibilityForObjectSymbols(true);
@@ -136,8 +146,9 @@ Expected<std::unique_ptr<IRCompileLayer::IRCompiler>> JitEngine::createCompileFu
     return s.createCompileFunction(std::move(jtmb));
 
   // Otherwise default to creating a SimpleCompiler, or ConcurrentIRCompiler,
-  // depending on the number of threads requested.
-  if (s.numCompileThreads > 0)
+  // depending on the number of threads requested. A single compile thread never compiles two modules at once, so
+  // it can share one TargetMachine instead of creating one per module like ConcurrentIRCompiler does.
+  if (s.numCompileThreads > 1)
     return std::make_unique<ConcurrentIRCompiler>(std::move(jtmb));
 
   auto TM = jtmb.createTargetMachine();
@@ -193,13 +204,16 @@ JitEngine::JitEngine(JitEngineBuilderState &s, Error &err)
   }
 
   if (s.useOptimizeLayer) {
-    optimizeLayer = createOptimizeLayer(*compileLayer);
+    optimizeLayer = createOptimizeLayer(*compileLayer, s.skipIrOptimization);
   }
 }
 
 std::unique_ptr<llvm::orc::IRTransformLayer>
-JitEngine::createOptimizeLayer(llvm::orc::IRLayer &prevLayer) {
+JitEngine::createOptimizeLayer(llvm::orc::IRLayer &prevLayer, Bool skipOptimization) {
   auto optimizeLayer = std::make_unique<IRTransformLayer>(*es, prevLayer);
+
+  // The layer still has to exist since it's where modules are added, but it doesn't have to do anything.
+  if (skipOptimization) return optimizeLayer;
 
   static llvm::Expected<llvm::orc::JITTargetMachineBuilder> tmb =
       llvm::orc::JITTargetMachineBuilder::detectHost();
@@ -337,7 +351,7 @@ LazyJitEngine::LazyJitEngine(LazyJitEngineBuilderState &s, Error &err)
     }
 
     // Finalize by creating the optimization layer on top of the COD layer.
-    optimizeLayer = createOptimizeLayer(*codLayer);
+    optimizeLayer = createOptimizeLayer(*codLayer, s.skipIrOptimization);
 }
 
 } // namespace

@@ -21,7 +21,7 @@ import "Console";
         }
 
         @expname[system]
-        func exec(filename: ptr[array[Word[8]]]): Int;
+        func exec(filename: CharsPtr): Int;
 
         @expname[usleep]
         func sleep(d: Word): Int;
@@ -30,15 +30,15 @@ import "Console";
         func sleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
 
         @expname[setenv]
-        func setEnv(name: ptr[array[Word[8]]], value: ptr[array[Word[8]]], overwrite: Int): Int;
+        func setEnv(name: CharsPtr, value: CharsPtr, overwrite: Int): Int;
 
         @expname[getenv]
-        func getEnv(name: ptr[array[Word[8]]]): ptr[array[Word[8]]];
+        func getEnv(name: CharsPtr): CharsLptr;
 
         @expname[exit]
         func exit(Int);
 
-        func fail(code: Int, msg: ptr[array[Word[8]]]) {
+        func fail(code: Int, msg: CharsPtr) {
             Console.print("Error: %s\n", msg);
             exit(code);
         };

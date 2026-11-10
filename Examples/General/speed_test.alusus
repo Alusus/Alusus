@@ -3,8 +3,8 @@ import "Srl/Time";
 use Srl;
 
 func isPrime(number: Int[64]): Bool {
-  def prime: Bool = true;
-  def i: int[64];
+  var prime: Bool = true;
+  var i: int[64];
   for i=2, i<= (number/2), i++ {
     if((number % i) == 0)  {
       prime = false;
@@ -15,8 +15,9 @@ func isPrime(number: Int[64]): Bool {
   return prime;
 }
 
-def number: int[64] = 6673214311;
-def startTime: int[64] = Time.getClock();
+var number: int[64] = 6673214311;
+var startTime: int[64];
+startTime = Time.getClock();
 Console.print("%ld is ", number);
 if (isPrime(number)){
   Console.print("prime\n");
@@ -24,7 +25,7 @@ if (isPrime(number)){
   Console.print("not prime\n");
 };
 
-def endTime: int[64] = Time.getClock();
-def elapsed: int[64] = (endTime - startTime);
+var endTime: int[64] = Time.getClock();
+var elapsed: int[64] = (endTime - startTime);
 Console.print("Operation took %d seconds\n", (elapsed/1000000));
 

@@ -9,9 +9,9 @@ because the outer function could be terminated and its variables removed from me
 For example:
 
 ```
-def pf: ptr[func];
+var pf: ptr[func];
 func prepareFunc {
-    def i: Int = 10;
+    var i: Int = 10;
     pf = func {
         Console.print("%d\n", i); // Error: by the time this line is executed
             // i would have been removed from memory
@@ -31,9 +31,9 @@ use `closure` keyword instead of `function` keyword. Example of closure:
 ```
 import "closure";
 
-def pc: closure ();
+var pc: closure ();
 func prepareClosure {
-    def i: Int = 10;
+    var i: Int = 10;
     pf = closure () {
         Console.print("%d\n", i); // Correct: access to i will be replaced
             // by the compiler to an access to a copy of i
@@ -55,11 +55,11 @@ In that case, all we need to do is to make the closure hold a non-shared referen
 import "closure";
 
 class Record {
-    def c: closure ();
-    def i: Int;
+    var c: closure ();
+    var i: Int;
 }
 
-def r1: SrdRef[Record];
+var r1: SrdRef[Record];
 r1.construct();
 r1.i = 10;
 r1.c = closure() {
@@ -67,10 +67,10 @@ r1.c = closure() {
 };
 r1.release(); // r1 will not be released and neither will the closure it owns.
 
-def r2: SrdRef[Record];
+var r2: SrdRef[Record];
 r2.construct();
 r2.i = 10;
-def r22: WkRef[Record] = r2;
+var r22: WkRef[Record] = r2;
 r2.c = closure() {
     Console.print("%d\n", r22.i);
 };
@@ -82,9 +82,9 @@ Closure can receive values and return values as regular functions.
 ```
 import "closure";
 
-def pc: closure (Float): Int;
+var pc: closure (Float): Int;
 func prepareClosure {
-    def i: Int = 10;
+    var i: Int = 10;
     pf = closure (j: Float): Int {
         return i * j;
     };
@@ -113,7 +113,7 @@ of a copy, so changing the variable's value inside the closure will lead to chan
 
 ```
 func testCaptureByRef (n: Int) {
-    def c: closure (i: Int): Int;
+    var c: closure (i: Int): Int;
     c = closure (n: by_ref)&(i: Int): Int {
         return i * n++;
     };
@@ -150,7 +150,7 @@ use `by_val` instead.
 It is possible to check whether the closure's pointer is null or not by using `isNull` function.
 
 ```
-  def c: closure (i: Int): Int;
+  var c: closure (i: Int): Int;
   c.isNull() // returns true
   c = closure (i: Int): Int { return 0 };
   c.isNull() // returns false

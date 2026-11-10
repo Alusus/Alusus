@@ -24,9 +24,9 @@ def toBeRenamed: Int;
 // inserts a different element in its place (through addPossiblyMergeableElement).
 func replace (node: ref[Core.Ast.Node], params: ref[Core.Ast.Node]) {
     def dynOwner: Core.Basic.DynContainerOf[node.owner, Core.Ast.Node];
-    def index: Int = dynOwner.findElementIndex(node);
+    var index: Int = dynOwner.findElementIndex(node);
     dynOwner.removeElement(index);
-    def newDef: SrdRef[Core.Ast.Node] = Spp.astMgr.cloneAst((ast def replacement: Int), node);
+    var newDef: SrdRef[Core.Ast.Node] = Spp.astMgr.cloneAst((ast def replacement: Int), node);
     Spp.astMgr.addPossiblyMergeableElement(newDef, dynOwner, index);
 }
 

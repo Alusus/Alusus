@@ -4,8 +4,8 @@ import "Srl/System";
 use Srl;
 
 func parseHex (hex: ptr[array[Char]], len: Int): Int {
-    def i: Int;
-    def result: Int = 0;
+    var i: Int;
+    var result = 0;
     if len == 0 len = String.getLength(hex);
     for i = 0, i < len, ++i {
         result *= 16;
@@ -20,10 +20,10 @@ func parseHex (hex: ptr[array[Char]], len: Int): Int {
 }
 
 class Rgba {
-    def r: Word[8];
-    def g: Word[8];
-    def b: Word[8];
-    def a: Word[8];
+    var r: Word[8];
+    var g: Word[8];
+    var b: Word[8];
+    var a: Word[8];
 
     handler this.print() {
         Console.print(
@@ -37,8 +37,8 @@ func hexDigitToDoubleHexDigits (i: Int): Int {
 }
 
 func hexToRgba (hex: ptr[array[Char]]): Rgba {
-    def rgba: Rgba;
-    def len: Int = String.getLength(hex);
+    var rgba: Rgba;
+    var len = String.getLength(hex);
     if len == 3 or len == 4 {
         rgba.r = hexDigitToDoubleHexDigits(parseHex(hex + 0, 1));
         rgba.g = hexDigitToDoubleHexDigits(parseHex(hex + 1, 1));

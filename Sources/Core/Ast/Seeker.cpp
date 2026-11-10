@@ -46,6 +46,9 @@ void Seeker::initBindingCaches()
     &this->foreach_identifierOnMap,
     &this->foreach_linkOperator,
     &this->foreach_linkOperatorRouting,
+    // Add Functions
+    &this->addPossiblyMergeable,
+    &this->addPossiblyMergeable_toNode,
     // Other Functions
     &this->extForeach
   });
@@ -81,6 +84,10 @@ void Seeker::initBindings()
   this->foreach_identifierOnMap = &Seeker::_foreach_identifierOnMap;
   this->foreach_linkOperator = &Seeker::_foreach_linkOperator;
   this->foreach_linkOperatorRouting = &Seeker::_foreach_linkOperatorRouting;
+
+  // Add Functions
+  this->addPossiblyMergeable = &Seeker::_addPossiblyMergeable;
+  this->addPossiblyMergeable_toNode = &Seeker::_addPossiblyMergeable_toNode;
 
   // Other Functions
   this->extForeach = &Seeker::_extForeach;
@@ -271,16 +278,16 @@ Seeker::Verb Seeker::_set_identifierOnScope(
   TiObject *self, Identifier const *identifier, Scope *scope, SetCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
-  for (Int i = 0; i < scope->getCount(); ++i) {
-    auto def = ti_cast<Definition>(scope->getElement(i));
-    if (def != 0 && def->getName() == identifier->getValue()) {
-      auto obj = def->getTarget().get();
-      verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
-      if (isPerform(verb)) {
-        def->setTarget(getSharedPtr(obj));
-      }
-      if (!Seeker::isMove(verb)) break;
+  auto defs = scope->findDefinitions(identifier->getValue().getStr());
+  // The size is checked on every iteration since the callback can modify the scope.
+  for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
+    auto def = (*defs)[i];
+    auto obj = def->getTarget().get();
+    verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
+    if (isPerform(verb)) {
+      def->setTarget(getSharedPtr(obj));
     }
+    if (!Seeker::isMove(verb)) break;
   }
   if (Seeker::isMove(verb)) {
     Node *obj = 0;
@@ -350,6 +357,33 @@ Seeker::Verb Seeker::_set_linkOperatorRouting(
     throw EXCEPTION(InvalidArgumentException, S("link"), S("Unknown link operator type."), link->getType());
   }
   return Seeker::Verb::MOVE;
+}
+
+
+//==============================================================================
+// Add Functions
+
+Bool Seeker::_addPossiblyMergeable(
+  TiObject *self, Node const *ref, Node *target, Node *element, Notices::Store *noticeStore, Word flags
+) {
+  PREPARE_SELF(seeker, Seeker);
+  VALIDATE_NOT_NULL(ref, target, element, noticeStore);
+  Node *dest = seeker->tryGet(ref, target, flags);
+  if (dest != 0 && dest->isDerivedFrom<Passage>()) dest = static_cast<Passage*>(dest)->get();
+  if (dest == 0) {
+    return false;
+  }
+  return seeker->addPossiblyMergeable_toNode(dest, element, noticeStore);
+}
+
+
+Bool Seeker::_addPossiblyMergeable_toNode(TiObject *self, Node *dest, Node *element, Notices::Store *noticeStore)
+{
+  PREPARE_SELF(seeker, Seeker);
+  if (dest->isDerivedFrom<Scope>()) {
+    return addPossiblyMergeableElement(element, static_cast<Scope*>(dest), seeker, noticeStore);
+  }
+  return false;
 }
 
 
@@ -424,17 +458,21 @@ Seeker::Verb Seeker::_remove_identifierOnScope(
   TiObject *self, Identifier const *identifier, Scope *scope, RemoveCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
-  for (Int i = 0; i < scope->getCount(); ++i) {
-    auto def = ti_cast<Definition>(scope->getElement(i));
-    if (def != 0 && def->getName() == identifier->getValue()) {
-      auto obj = def->getTarget().get();
-      verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
-      if (isPerform(verb)) {
-        scope->remove(i);
+  auto defs = scope->findDefinitions(identifier->getValue().getStr());
+  // The size is checked on every iteration since the callback can modify the scope.
+  for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
+    auto def = (*defs)[i];
+    auto obj = def->getTarget().get();
+    verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
+    if (isPerform(verb)) {
+      // Removing the definition from the scope also removes it from the definitions list.
+      auto index = scope->findDefinitionIndex(def);
+      if (index != -1) {
+        scope->remove(index);
         --i;
       }
-      if (!Seeker::isMove(verb)) return verb;
     }
+    if (!Seeker::isMove(verb)) return verb;
   }
   return verb;
 }
@@ -587,26 +625,25 @@ Seeker::Verb Seeker::_foreach_identifierAtScope(
   TiObject *self, Identifier const *identifier, Scope *scope, ForeachCallback const &cb, Word flags
 ) {
   Seeker::Verb verb = Seeker::Verb::MOVE;
-  for (Int i = 0; i < scope->getCount(); ++i) {
-    auto def = ti_cast<Definition>(scope->getElement(i));
-    if (def != 0 && def->getName() == identifier->getValue()) {
-      auto obj = def->getTarget().get();
-      if (obj->isDerivedFrom<Alias>()) {
-        verb = cb(Action::ALIAS_TRACE_START, obj, Seeker::NoticePtr::null);
-        if (verb == Verb::SKIP) return Verb::MOVE;
-        else if (!Seeker::isMove(verb)) return verb;
-        PREPARE_SELF(seeker, Seeker);
-        auto alias = static_cast<Alias*>(obj);
-        verb = seeker->foreach(
-          alias->getReference().get(), alias->getOwner(), cb, flags & ~Flags::SKIP_OWNED
-        );
-        if (!Seeker::isMove(verb)) return verb;
-        verb = cb(Action::ALIAS_TRACE_END, obj, Seeker::NoticePtr::null);
-        if (verb != Verb::MOVE) return verb;
-      } else {
-        verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
-        if (!Seeker::isMove(verb)) return verb;
-      }
+  auto defs = scope->findDefinitions(identifier->getValue().getStr());
+  // The size is checked on every iteration since the callback can modify the scope.
+  for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
+    auto obj = (*defs)[i]->getTarget().get();
+    if (obj->isDerivedFrom<Alias>()) {
+      verb = cb(Action::ALIAS_TRACE_START, obj, Seeker::NoticePtr::null);
+      if (verb == Verb::SKIP) return Verb::MOVE;
+      else if (!Seeker::isMove(verb)) return verb;
+      PREPARE_SELF(seeker, Seeker);
+      auto alias = static_cast<Alias*>(obj);
+      verb = seeker->foreach(
+        alias->getReference().get(), alias->getOwner(), cb, flags & ~Flags::SKIP_OWNED
+      );
+      if (!Seeker::isMove(verb)) return verb;
+      verb = cb(Action::ALIAS_TRACE_END, obj, Seeker::NoticePtr::null);
+      if (verb != Verb::MOVE) return verb;
+    } else {
+      verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
+      if (!Seeker::isMove(verb)) return verb;
     }
   }
 
@@ -642,26 +679,25 @@ Seeker::Verb Seeker::_foreach_identifierOnScope(
   TiObject *self, Identifier *identifier, Scope *scope, ForeachCallback const &cb, Word flags
 ) {
   Verb verb = Verb::MOVE;
-  for (Int i = 0; i < scope->getCount(); ++i) {
-    auto def = ti_cast<Definition>(scope->getElement(i));
-    if (def != 0 && def->getName() == identifier->getValue()) {
-      auto obj = def->getTarget().get();
-      if (obj->isDerivedFrom<Alias>()) {
-        verb = cb(Action::ALIAS_TRACE_START, obj, Seeker::NoticePtr::null);
-        if (verb == Verb::SKIP) return Verb::MOVE;
-        else if (!Seeker::isMove(verb)) return verb;
-        PREPARE_SELF(seeker, Seeker);
-        auto alias = static_cast<Alias*>(obj);
-        verb = seeker->foreach(
-          alias->getReference().get(), alias->getOwner(), cb, flags & ~Flags::SKIP_OWNED
-        );
-        if (!Seeker::isMove(verb)) break;
-        verb = cb(Action::ALIAS_TRACE_END, obj, Seeker::NoticePtr::null);
-        if (verb != Verb::MOVE) return verb;
-      } else {
-        verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
-        if (!Seeker::isMove(verb)) break;
-      }
+  auto defs = scope->findDefinitions(identifier->getValue().getStr());
+  // The size is checked on every iteration since the callback can modify the scope.
+  for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
+    auto obj = (*defs)[i]->getTarget().get();
+    if (obj->isDerivedFrom<Alias>()) {
+      verb = cb(Action::ALIAS_TRACE_START, obj, Seeker::NoticePtr::null);
+      if (verb == Verb::SKIP) return Verb::MOVE;
+      else if (!Seeker::isMove(verb)) return verb;
+      PREPARE_SELF(seeker, Seeker);
+      auto alias = static_cast<Alias*>(obj);
+      verb = seeker->foreach(
+        alias->getReference().get(), alias->getOwner(), cb, flags & ~Flags::SKIP_OWNED
+      );
+      if (!Seeker::isMove(verb)) break;
+      verb = cb(Action::ALIAS_TRACE_END, obj, Seeker::NoticePtr::null);
+      if (verb != Verb::MOVE) return verb;
+    } else {
+      verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
+      if (!Seeker::isMove(verb)) break;
     }
   }
   return verb;

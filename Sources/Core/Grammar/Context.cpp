@@ -22,7 +22,7 @@ TiObject* Context::traceValue(TiObject *val)
 {
   if (val == 0 || !val->isA<Reference>()) return val;
   auto ref = static_cast<Reference*>(val);
-  if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) return ref->getCachedValue();
+  if (ref->isValueCacheEnabled() && ref->isValueCached()) return ref->getCachedValue();
   auto originalRef = ref;
   do {
     auto module = static_cast<Reference*>(val)->findOwner<Module>();
@@ -41,8 +41,9 @@ TiObject* Context::traceValue(TiObject *val)
 
 TiObject* Context::getListTermFilter(ListTerm *term)
 {
-  auto retVal = this->traceValue(term->getFilter().get());
-  if (retVal != 0 && !retVal->isA<List>() && !retVal->isA<TiInt>()) {
+  Bool needsCheck;
+  auto retVal = this->traceValue(term->getFilter().get(), needsCheck);
+  if (needsCheck && retVal != 0 && !retVal->isA<List>() && !retVal->isA<TiInt>()) {
     throw EXCEPTION(GenericException, S("Type of list term filter is invalid"));
   }
   return retVal;
@@ -84,8 +85,9 @@ Term* Context::getListTermChild(ListTerm *term, Int index, TiObject *listFilter)
 
 TiInt* Context::getTokenTermId(TokenTerm *term)
 {
-  TiObject *id = this->traceValue(term->getTokenId().get());
-  if (id == 0 || !id->isA<TiInt>()) {
+  Bool needsCheck;
+  TiObject *id = this->traceValue(term->getTokenId().get(), needsCheck);
+  if (id == 0 || (needsCheck && !id->isA<TiInt>())) {
     throw EXCEPTION(GenericException, S("Token term's ID is invalid."));
   }
   return static_cast<TiInt*>(id);
@@ -94,8 +96,9 @@ TiInt* Context::getTokenTermId(TokenTerm *term)
 
 TiObject* Context::getTokenTermText(TokenTerm *term)
 {
-  TiObject *text = this->traceValue(term->getTokenText().get());
-  if (text != 0 && !text->isA<TiStr>() && !text->isA<Map>()) {
+  Bool needsCheck;
+  TiObject *text = this->traceValue(term->getTokenText().get(), needsCheck);
+  if (needsCheck && text != 0 && !text->isA<TiStr>() && !text->isA<Map>()) {
     throw EXCEPTION(GenericException, S("Token term's text is of invalid type."));
   }
   return text;
@@ -104,8 +107,9 @@ TiObject* Context::getTokenTermText(TokenTerm *term)
 
 CharGroupDefinition* Context::getReferencedCharGroup(Reference const *ref)
 {
-  TiObject *obj = this->traceValue(const_cast<Reference*>(ref));
-  if (obj == 0 || !obj->isA<CharGroupDefinition>()) {
+  Bool needsCheck;
+  TiObject *obj = this->traceValue(const_cast<Reference*>(ref), needsCheck);
+  if (obj == 0 || (needsCheck && !obj->isA<CharGroupDefinition>())) {
     throw EXCEPTION(GenericException, S("Reference does not point to a char group definition."));
   }
   return static_cast<CharGroupDefinition*>(obj);
@@ -115,10 +119,8 @@ CharGroupDefinition* Context::getReferencedCharGroup(Reference const *ref)
 SymbolDefinition* Context::getReferencedSymbol(Reference const *ref)
 {
   TiObject *retVal = const_cast<Reference*>(ref);
-  if (ref->isValueCacheEnabled() && ref->getCachedValue() != 0) {
-    if (!ref->getCachedValue()->isA<SymbolDefinition>()) {
-      throw EXCEPTION(GenericException, S("Reference does not point to a symbol definition."));
-    }
+  // A cached value was already checked when it was first resolved below.
+  if (ref->isValueCacheEnabled() && ref->isValueCached()) {
     return static_cast<SymbolDefinition*>(ref->getCachedValue());
   }
   auto originalRef = ref;
@@ -143,8 +145,9 @@ SymbolDefinition* Context::getReferencedSymbol(Reference const *ref)
 
 TiInt* Context::getMultiplyTermMax(MultiplyTerm *term)
 {
-  TiObject *max = this->traceValue(term->getMax().get());
-  if (max != 0 && !max->isA<TiInt>()) {
+  Bool needsCheck;
+  TiObject *max = this->traceValue(term->getMax().get(), needsCheck);
+  if (needsCheck && max != 0 && !max->isA<TiInt>()) {
     throw EXCEPTION(GenericException, S("Multiply term's max occurances is of invalid type."));
   }
   return static_cast<TiInt*>(max);
@@ -153,8 +156,9 @@ TiInt* Context::getMultiplyTermMax(MultiplyTerm *term)
 
 TiInt* Context::getMultiplyTermMin(MultiplyTerm *term)
 {
-  TiObject *min = this->traceValue(term->getMin().get());
-  if (min != 0 && !min->isA<TiInt>()) {
+  Bool needsCheck;
+  TiObject *min = this->traceValue(term->getMin().get(), needsCheck);
+  if (needsCheck && min != 0 && !min->isA<TiInt>()) {
     throw EXCEPTION(GenericException, S("Multiply term's min occurances is of invalid type."));
   }
   return static_cast<TiInt*>(min);
@@ -163,8 +167,9 @@ TiInt* Context::getMultiplyTermMin(MultiplyTerm *term)
 
 TiInt* Context::getTermFlags(Term *term)
 {
-  TiObject *flags = this->traceValue(term->getFlags().get());
-  if (flags != 0 && !flags->isA<TiInt>()) {
+  Bool needsCheck;
+  TiObject *flags = this->traceValue(term->getFlags().get(), needsCheck);
+  if (needsCheck && flags != 0 && !flags->isA<TiInt>()) {
     throw EXCEPTION(GenericException, S("Term's flags is of invalid type."));
   }
   return static_cast<TiInt*>(flags);
@@ -176,8 +181,9 @@ TiInt* Context::getTermFlags(Term *term)
 
 Map* Context::getSymbolVars(const SymbolDefinition *definition)
 {
-  TiObject *vars = this->traceValue(definition->getVars().get());
-  if (vars != 0 && !vars->isA<Map>()) {
+  Bool needsCheck;
+  TiObject *vars = this->traceValue(definition->getVars().get(), needsCheck);
+  if (needsCheck && vars != 0 && !vars->isA<Map>()) {
     throw EXCEPTION(GenericException, S("Symbol's vars is of invalid type."));
   }
   return static_cast<Map*>(vars);
@@ -186,8 +192,9 @@ Map* Context::getSymbolVars(const SymbolDefinition *definition)
 
 TiInt* Context::getSymbolFlags(SymbolDefinition const *definition)
 {
-  TiObject *flags = this->traceValue(definition->getFlags().get());
-  if (flags != 0 && !flags->isA<TiInt>()) {
+  Bool needsCheck;
+  TiObject *flags = this->traceValue(definition->getFlags().get(), needsCheck);
+  if (needsCheck && flags != 0 && !flags->isA<TiInt>()) {
     throw EXCEPTION(GenericException, S("Symbol's flags is of invalid type."));
   }
   return static_cast<TiInt*>(flags);

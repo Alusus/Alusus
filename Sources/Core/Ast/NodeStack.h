@@ -32,7 +32,9 @@ class NodeStack : public Node, public DynamicContaining<Node>
   //============================================================================
   // Member Variables
 
-  private: SharedList<Node> stack;
+  // A plain vector is used rather than a SharedList because this stack is at the heart of the parser's operations and
+  // doesn't need the SharedList's inheritance or change notifications.
+  private: std::vector<SharedPtr<Node>> stack;
 
   private: NodeStack *trunkStack;
   private: Int trunkIndex;
@@ -63,7 +65,7 @@ class NodeStack : public Node, public DynamicContaining<Node>
 
   public: void push(SharedPtr<Node> const &obj)
   {
-    this->stack.add(obj);
+    this->stack.push_back(obj);
   }
 
   public: void pop();
@@ -74,7 +76,7 @@ class NodeStack : public Node, public DynamicContaining<Node>
 
   public: Word getCount() const
   {
-    return this->trunkIndex + 1 + this->stack.getCount();
+    return this->trunkIndex + 1 + this->stack.size();
   }
 
   /**
@@ -131,7 +133,8 @@ class NodeStack : public Node, public DynamicContaining<Node>
 
   public: virtual Int addElement(Node *val)
   {
-    return this->stack.addElement(val);
+    this->push(getSharedPtr(val));
+    return this->getCount() - 1;
   }
 
   public: virtual void insertElement(Int index, Node *val);

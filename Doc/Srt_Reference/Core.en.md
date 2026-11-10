@@ -53,7 +53,7 @@ its factory and create new objects from the same type.
 #### createPlain
 
 ```
-  def createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
+  var createPlain: ptr[@shared @no_bind function ():ref[TiObject]];
 ```
 
 Create an object and return a regular reference to it after initializing it.
@@ -69,7 +69,7 @@ Create an object and return a `SrdRef` to it after initializing it.
 #### initialize
 
 ```
-  def initialize: ptr[@shared @no_bind function (ref[TiObject])];
+  var initialize: ptr[@shared @no_bind function (ref[TiObject])];
 ```
 
 Intialize an object that already allocated in memory.
@@ -77,7 +77,7 @@ Intialize an object that already allocated in memory.
 #### terminate
 
 ```
-  def terminate: ptr[@shared @no_bind function (ref[TiObject])];
+  var terminate: ptr[@shared @no_bind function (ref[TiObject])];
 ```
 
 Terminate an object without releasing its memory.
@@ -245,13 +245,13 @@ This function returns a reference to the type's info, which means to the info of
 The following example shows how to define and use these classes:
 
 ```
-  def i: TiInt(45);
+  var i: TiInt(45);
   printInt(i.value);
   i = 7;
   
-  def o: ref[TiObject](i);
+  var o: ref[TiObject](i);
   if isDerivedFrom[o, TiInt] {
-    def x: ref[TiInt](castRef[o, TiInt]);
+    var x: ref[TiInt](castRef[o, TiInt]);
     printInt(x.value);
   }
 ```
@@ -661,10 +661,13 @@ access interfaces mentioned above.
 
 * Map
 
-* MergeList
+* Within
 
-  A private class that tells the parser to merge its elements directly into the upper namespace instead of letting it be a sub-list inside
-  the upper namespace.
+  Represents the `within` command, which adds statements to an existing scope. It has two properties: `qualifier`,
+  the identifier or dot-separated path of the scope to add to, and `subject`, which is either a single statement or a
+  `List` of statements that gets expanded into the target scope. If `qualifier` is null, the subject is added to the
+  scope that contains the `Within` object. This is also how a single command can produce multiple statements, like
+  `var a = 1, b = 2`.
 
 * ParamPass
 

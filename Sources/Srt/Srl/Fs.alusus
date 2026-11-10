@@ -140,7 +140,7 @@ import "String";
       if exists(filename) {
         file = openFile(filename, "rb");
         seek(file, 0, Seek.END);
-        def size: ArchInt = tell(file);
+        var size: ArchInt = tell(file);
         content.alloc(size);
         seek(file, 0, Seek.SET);
         read(content.buf, size, 1, file);

@@ -69,7 +69,7 @@ function testReturnA
 
 function testLoop
 {
-  def i: Int = 2;
+  var i: Int = 2;
   while i > 0 {
     def a: A;
     Srl.Console.print("testLoop: %d\n", a.i);

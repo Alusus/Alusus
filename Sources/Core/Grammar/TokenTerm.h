@@ -61,6 +61,11 @@ class TokenTerm : public Term
   //============================================================================
   // Member Functions
 
+  public: virtual TermType getTermType() const
+  {
+    return TermType::TOKEN;
+  }
+
   public: void setTokenId(SharedPtr<TiObject> const &id)
   {
     if (id != 0 && !id->isA<TiInt>() && !id->isDerivedFrom<Reference>()) {

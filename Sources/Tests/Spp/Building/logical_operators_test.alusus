@@ -128,7 +128,7 @@ def Main: module
   }
 
   func testTempVars {
-    def i: Int = 0;
+    var i: Int = 0;
     if i != 5 or getObj().b {
         print("or temp var");
     }

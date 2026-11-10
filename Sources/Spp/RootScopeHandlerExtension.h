@@ -25,15 +25,6 @@ class RootScopeHandlerExtension : public ObjTiInterface
 
 
   //============================================================================
-  // Types
-
-  public: struct Overrides
-  {
-    TiFunctionBase *addNewElementRef;
-  };
-
-
-  //============================================================================
   // Member Variables
 
   private: TiObject *owner;
@@ -47,6 +38,7 @@ class RootScopeHandlerExtension : public ObjTiInterface
     Basic::initBindingCaches(this->owner, {
       &this->rootManagerBox
     });
+    this->addNewElement.init(this->owner, &RootScopeHandlerExtension::_addNewElement);
   }
 
 
@@ -77,18 +69,21 @@ class RootScopeHandlerExtension : public ObjTiInterface
   /// @name Setup Functions
   /// @{
 
-  public: static Overrides* extend(
-    Core::Main::RootScopeHandler *handler, Core::Main::RootManager *rootManager
-  );
-  public: static void unextend(Core::Main::RootScopeHandler *handler, Overrides *overrides);
+  public: static void extend(Core::Main::RootScopeHandler *handler, Core::Main::RootManager *rootManager);
+  public: static void unextend(Core::Main::RootScopeHandler *handler);
 
   /// @}
 
   /// @name Main Functions
   /// @{
 
+  // Overrides the RootScopeHandler's binding. The override gets removed automatically when this extension is
+  // destroyed.
+  public: METHOD_BINDING_CACHE(addNewElement,
+    void, (SharedPtr<Core::Ast::Node> const&, Core::Processing::Parser*, Core::Processing::ParserState*)
+  );
   private: static void _addNewElement(
-    TiFunctionBase *base, TiObject *self, SharedPtr<Core::Ast::Node> const &data,
+    TiObject *self, SharedPtr<Core::Ast::Node> const &data,
     Core::Processing::Parser *parser, Core::Processing::ParserState *state
   );
 

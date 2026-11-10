@@ -40,6 +40,7 @@ void optimizeLlvmModule(llvm::Module &module, llvm::TargetMachine *targetMachine
 // Classes
 
 // Build Data
+#include "ModuleDebugInfo.h"
 #include "types.h"
 #include "Function.h"
 #include "Block.h"

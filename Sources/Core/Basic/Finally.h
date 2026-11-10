@@ -16,20 +16,24 @@
 namespace Core { namespace Basic
 {
 
-class Finally
+// This is a template on the lambda type rather than holding a std::function to avoid the overhead of type erasure,
+// since this class is used in hot paths like signal emitting.
+template <class F> class Finally
 {
   //============================================================================
   // Member Variables
 
-  private: std::function<void(void)> lambda;
+  private: F lambda;
 
 
   //============================================================================
   // Constructor & Destructor
 
-  public: Finally(std::function<void(void)> l) : lambda(l)
+  public: Finally(F l) : lambda(l)
   {
   }
+
+  public: Finally(Finally const&) = delete;
 
   public: ~Finally()
   {

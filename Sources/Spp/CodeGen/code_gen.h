@@ -94,6 +94,7 @@ inline DT* getCustomData(OT *object, Char const *name)
   template <class OT> inline void reset##name(OT *object) { object->removeCustomData(#name); }
 
 DEFINE_FLAG_ACCESSORS(Executed);
+DEFINE_FLAG_ACCESSORS(TypePrepared);
 DEFINE_STR_ACCESSORS(MangledName);
 
 // Ast Processing State

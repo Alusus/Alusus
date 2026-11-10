@@ -24,3 +24,9 @@ testRefCasting:
 5.000000
 3.000000
 3.000000
+testColonAssign:
+i = 1, j = 5
+j = 6
+i = 7
+Assignable = called
+x = 4, a = 8

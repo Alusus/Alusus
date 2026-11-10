@@ -1,0 +1,33 @@
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, ptr, ptr }
+
+@"!Main.constructed" = global i32 0
+@"!Main.assigned" = global i64 0
+@"!Main.deduced" = global i32 0
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, ptr @__constructor__1, ptr null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define i64 @"Main.getSum()=>(Int[64])"() {
+"#block0":
+  %0 = load i32, ptr @"!Main.deduced", align 4
+  %1 = load i64, ptr @"!Main.assigned", align 8
+  %2 = sext i32 %0 to i64
+  %3 = add nsw i64 %2, %1
+  %4 = load i32, ptr @"!Main.constructed", align 4
+  %5 = sext i32 %4 to i64
+  %6 = add nsw i64 %3, %5
+  ret i64 %6
+}
+
+define void @__constructor__1() {
+"#block1":
+  store i32 7, ptr @"!Main.constructed", align 4
+  store i64 6, ptr @"!Main.assigned", align 8
+  store i32 5, ptr @"!Main.deduced", align 4
+  ret void
+}
+------------------------------------------------------------

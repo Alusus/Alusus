@@ -79,6 +79,8 @@ Str getSourceLocationString(Ast::SourceLocation *sl, Int indentation = 0);
 
 void setSourceLocationPathSkipping(Bool skip);
 
+Bool getSourceLocationPathSkipping();
+
 } // namespace
 
 
@@ -165,6 +167,9 @@ DEFINE_NOTICE(InvalidDefCommandNotice, "Core.Notices", "Core", "alusus.org", "CD
 );
 DEFINE_NOTICE(IncompatibleDefMergeNotice, "Core.Notices", "Core", "alusus.org", "CD1004", 1,
   "Incompatible 'def' merge."
+);
+DEFINE_NOTICE(InvalidWithinTargetNotice, "Core.Notices", "Core", "alusus.org", "CD1005", 1,
+  "Invalid or missing target scope in 'within' command."
 );
 
 } // namespace

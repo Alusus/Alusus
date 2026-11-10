@@ -41,4 +41,7 @@ testCircularRefWithAutoCtor();
 
 // Test error cases
 
-def i: Int = b;
+var i: Int = b;
+
+func useI { i = 0 }
+useI();

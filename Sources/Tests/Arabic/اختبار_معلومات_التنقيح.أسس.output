@@ -1,0 +1,129 @@
+-------------------- Generated LLVM IR ---------------------
+; ModuleID = 'AlususProgram'
+source_filename = "AlususProgram"
+target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
+
+%LlvmGlobalCtorDtor = type { i32, ptr, ptr }
+
+@llvm.global_ctors = appending constant [1 x %LlvmGlobalCtorDtor] [%LlvmGlobalCtorDtor { i32 0, ptr @__entry__3, ptr null }]
+@llvm.global_dtors = appending constant [0 x %LlvmGlobalCtorDtor] zeroinitializer
+
+define void @__entry__3() {
+"#block0":
+  ret void
+}
+
+define i32 @"\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\AC\D9\85\D8\B9(Int[32],Int[32])=>(Int[32])"(i32 %"\D8\A3", i32 %"\D8\A8") !dbg !4 {
+"#block1":
+  %"\D8\A31" = alloca i32, align 4, !dbg !12
+  call void @llvm.dbg.declare(metadata ptr %"\D8\A31", metadata !10, metadata !DIExpression()), !dbg !13
+  store i32 %"\D8\A3", ptr %"\D8\A31", align 4, !dbg !12
+  %"\D8\A82" = alloca i32, align 4, !dbg !12
+  call void @llvm.dbg.declare(metadata ptr %"\D8\A82", metadata !11, metadata !DIExpression()), !dbg !14
+  store i32 %"\D8\A8", ptr %"\D8\A82", align 4, !dbg !12
+  %0 = load i32, ptr %"\D8\A31", align 4, !dbg !15
+  %1 = load i32, ptr %"\D8\A82", align 4, !dbg !15
+  %2 = add nsw i32 %0, %1, !dbg !15
+  ret i32 %2, !dbg !15
+}
+
+; Function Attrs: nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare void @llvm.dbg.declare(metadata, metadata, metadata) #0
+
+define i32 @"\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\A7\D8\AD\D8\B3\D8\A8(Int[32],ref[\D9\86\D9\82\D8\B7\D8\A9])=>(Int[32])"(i32 %"\D9\86", ptr %"\D9\82") !dbg !17 {
+"#block2":
+  %"\D9\861" = alloca i32, align 4, !dbg !34
+  call void @llvm.dbg.declare(metadata ptr %"\D9\861", metadata !26, metadata !DIExpression()), !dbg !35
+  store i32 %"\D9\86", ptr %"\D9\861", align 4, !dbg !34
+  %"\D9\822" = alloca ptr, align 8, !dbg !34
+  call void @llvm.dbg.declare(metadata ptr %"\D9\822", metadata !27, metadata !DIExpression()), !dbg !36
+  store ptr %"\D9\82", ptr %"\D9\822", align 8, !dbg !34
+  %"\D9\86\D8\A7\D8\AA\D8\AC" = alloca i32, align 4, !dbg !37
+  call void @llvm.dbg.declare(metadata ptr %"\D9\86\D8\A7\D8\AA\D8\AC", metadata !28, metadata !DIExpression()), !dbg !37
+  store i32 0, ptr %"\D9\86\D8\A7\D8\AA\D8\AC", align 4, !dbg !37
+  %0 = load i32, ptr %"\D9\861", align 4, !dbg !38
+  %1 = icmp sgt i32 %0, 0, !dbg !38
+  %"\D8\AA" = alloca i32, align 4, !dbg !38
+  call void @llvm.dbg.declare(metadata ptr %"\D8\AA", metadata !30, metadata !DIExpression()), !dbg !39
+  %"\D8\AA3" = alloca i32, align 4, !dbg !38
+  call void @llvm.dbg.declare(metadata ptr %"\D8\AA3", metadata !32, metadata !DIExpression()), !dbg !40
+  br i1 %1, label %"#block3", label %"#block4", !dbg !38
+
+"#block3":                                        ; preds = %"#block2"
+  %2 = load i32, ptr %"\D9\861", align 4, !dbg !39
+  %3 = mul nsw i32 %2, 2, !dbg !39
+  store i32 %3, ptr %"\D8\AA", align 4, !dbg !39
+  %4 = load i32, ptr %"\D9\86\D8\A7\D8\AA\D8\AC", align 4, !dbg !41
+  %5 = load i32, ptr %"\D8\AA", align 4, !dbg !41
+  %6 = add nsw i32 %4, %5, !dbg !41
+  store i32 %6, ptr %"\D9\86\D8\A7\D8\AA\D8\AC", align 4, !dbg !41
+  br label %"#block5", !dbg !41
+
+"#block4":                                        ; preds = %"#block2"
+  %7 = load i32, ptr %"\D9\861", align 4, !dbg !40
+  %8 = mul nsw i32 %7, 3, !dbg !40
+  store i32 %8, ptr %"\D8\AA3", align 4, !dbg !40
+  %9 = load i32, ptr %"\D9\86\D8\A7\D8\AA\D8\AC", align 4, !dbg !42
+  %10 = load i32, ptr %"\D8\AA3", align 4, !dbg !42
+  %11 = add nsw i32 %9, %10, !dbg !42
+  store i32 %11, ptr %"\D9\86\D8\A7\D8\AA\D8\AC", align 4, !dbg !42
+  br label %"#block5", !dbg !42
+
+"#block5":                                        ; preds = %"#block4", %"#block3"
+  %12 = load i32, ptr %"\D9\86\D8\A7\D8\AA\D8\AC", align 4, !dbg !43
+  %13 = load i32, ptr %"\D9\861", align 4, !dbg !43
+  %14 = call i32 @"\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\AC\D9\85\D8\B9(Int[32],Int[32])=>(Int[32])"(i32 %12, i32 %13), !dbg !44
+  ret i32 %14, !dbg !44
+}
+
+attributes #0 = { nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+
+!llvm.module.flags = !{!0, !1}
+!llvm.dbg.cu = !{!2}
+
+!0 = !{i32 7, !"Dwarf Version", i32 5}
+!1 = !{i32 2, !"Debug Info Version", i32 3}
+!2 = distinct !DICompileUnit(language: DW_LANG_C, file: !3, producer: "Alusus", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, nameTableKind: None)
+!3 = !DIFile(filename: "<alusus>.c", directory: ".")
+!4 = distinct !DISubprogram(name: "\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\AC\D9\85\D8\B9", scope: !5, file: !5, line: 12, type: !6, scopeLine: 12, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !9)
+!5 = !DIFile(filename: "\D8\A7\D8\AE\D8\AA\D8\A8\D8\A7\D8\B1_\D9\85\D8\B9\D9\84\D9\88\D9\85\D8\A7\D8\AA_\D8\A7\D9\84\D8\AA\D9\86\D9\82\D9\8A\D8\AD.\D8\A3\D8\B3\D8\B3", directory: "")
+!6 = !DISubroutineType(types: !7)
+!7 = !{!8, !8, !8}
+!8 = !DIBasicType(name: "Int[32]", size: 32, encoding: DW_ATE_signed)
+!9 = !{!10, !11}
+!10 = !DILocalVariable(name: "\D8\A3", arg: 1, scope: !4, file: !5, line: 12, type: !8)
+!11 = !DILocalVariable(name: "\D8\A8", arg: 2, scope: !4, file: !5, line: 12, type: !8)
+!12 = !DILocation(line: 0, scope: !4)
+!13 = !DILocation(line: 12, column: 16, scope: !4)
+!14 = !DILocation(line: 12, column: 26, scope: !4)
+!15 = !DILocation(line: 14, column: 5, scope: !16)
+!16 = distinct !DILexicalBlock(scope: !4, file: !5, line: 14, column: 5)
+!17 = distinct !DISubprogram(name: "\D8\B1\D8\A6\D9\80\D9\8A\D8\B3\D9\8A.\D8\A7\D8\AD\D8\B3\D8\A8", scope: !5, file: !5, line: 17, type: !18, scopeLine: 17, spFlags: DISPFlagDefinition, unit: !2, retainedNodes: !25)
+!18 = !DISubroutineType(types: !19)
+!19 = !{!8, !8, !20}
+!20 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !21, size: 64)
+!21 = !DICompositeType(tag: DW_TAG_structure_type, name: "________", size: 64, align: 32, elements: !22)
+!22 = !{!23, !24}
+!23 = !DIDerivedType(tag: DW_TAG_member, name: "\D8\B3", scope: !21, baseType: !8, size: 32, align: 32)
+!24 = !DIDerivedType(tag: DW_TAG_member, name: "\D8\B5", scope: !21, baseType: !8, size: 32, align: 32, offset: 32)
+!25 = !{!26, !27, !28, !30, !32}
+!26 = !DILocalVariable(name: "\D9\86", arg: 1, scope: !17, file: !5, line: 17, type: !8)
+!27 = !DILocalVariable(name: "\D9\82", arg: 2, scope: !17, file: !5, line: 17, type: !20)
+!28 = !DILocalVariable(name: "\D9\86\D8\A7\D8\AA\D8\AC", scope: !29, file: !5, line: 19, type: !8)
+!29 = distinct !DILexicalBlock(scope: !17, file: !5, line: 19, column: 5)
+!30 = !DILocalVariable(name: "\D8\AA", scope: !31, file: !5, line: 21, type: !8)
+!31 = distinct !DILexicalBlock(scope: !29, file: !5, line: 21, column: 7)
+!32 = !DILocalVariable(name: "\D8\AA", scope: !33, file: !5, line: 25, type: !8)
+!33 = distinct !DILexicalBlock(scope: !29, file: !5, line: 25, column: 7)
+!34 = !DILocation(line: 0, scope: !17)
+!35 = !DILocation(line: 17, column: 17, scope: !17)
+!36 = !DILocation(line: 17, column: 27, scope: !17)
+!37 = !DILocation(line: 19, column: 5, scope: !29)
+!38 = !DILocation(line: 20, column: 5, scope: !29)
+!39 = !DILocation(line: 21, column: 7, scope: !31)
+!40 = !DILocation(line: 25, column: 7, scope: !33)
+!41 = !DILocation(line: 22, column: 7, scope: !31)
+!42 = !DILocation(line: 26, column: 7, scope: !33)
+!43 = !DILocation(line: 28, column: 5, scope: !29)
+!44 = !DILocation(line: 28, column: 10, scope: !29)
+------------------------------------------------------------

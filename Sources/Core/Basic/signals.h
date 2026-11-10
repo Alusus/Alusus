@@ -36,6 +36,21 @@ template<class RT, class ...ARGS> class Slot
   private: std::vector<_Signal<RT, ARGS...>*> signals;
   private: std::function<RT(ARGS...)> func;
 
+  // Slots bound to member functions are stored here rather than in func because the object pointer together with the
+  // member function pointer don't fit in std::function's internal buffer, which would cause a heap allocation for
+  // every such slot. The member function pointer is stored as a pointer to a member of an incomplete class and is cast
+  // back to its original type when called; the standard guarantees that such a round trip gives back the original
+  // value.
+  // NOTE: This relies on all member function pointers sharing the same representation, which is the case with the
+  //       Itanium ABI used by GCC and Clang. MSVC uses different representations depending on the class's inheritance
+  //       and may reject the cast (error C2440), in which case the pointer would need to be copied into a byte buffer
+  //       instead.
+  private: struct _Unknown;
+  private: typedef void (_Unknown::*_GenericMemberFunc)();
+  private: void *memberSelf = 0;
+  private: _GenericMemberFunc memberFunc = 0;
+  private: RT (*memberInvoker)(Slot *slot, ARGS... args) = 0;
+
 
   //============================================================================
   // Constructors & Destructor
@@ -86,29 +101,36 @@ template<class RT, class ...ARGS> class Slot
   {
     this->disconnect();
     this->func = std::function<RT(ARGS...)>(f);
+    this->memberInvoker = 0;
   }
 
   public: void init(std::function<RT(ARGS...)> const &f)
   {
     this->disconnect();
     this->func = f;
+    this->memberInvoker = 0;
   }
 
   public: template<class C> void init(C *self, RT(C::*m)(ARGS...))
   {
     this->disconnect();
-    this->func = [=](ARGS... args)->RT {
-      return (self->*m)(args...);
+    this->func = nullptr;
+    this->memberSelf = self;
+    this->memberFunc = reinterpret_cast<_GenericMemberFunc>(m);
+    this->memberInvoker = [](Slot *slot, ARGS... args)->RT {
+      auto m = reinterpret_cast<RT(C::*)(ARGS...)>(slot->memberFunc);
+      return (static_cast<C*>(slot->memberSelf)->*m)(args...);
     };
   }
 
   public: Bool isInitialized() const
   {
-    return (Bool)this->func;
+    return this->memberInvoker != 0 || (Bool)this->func;
   }
 
   public: RT call(ARGS... args)
   {
+    if (this->memberInvoker != 0) return this->memberInvoker(this, args...);
     return this->func(args...);
   }
 
@@ -118,13 +140,12 @@ template<class RT, class ...ARGS> class Slot
 
   public: void operator=(std::function<RT(ARGS...)> const &f)
   {
-    this->disconnect();
-    this->func = f;
+    this->init(f);
   }
 
   public: RT operator()(ARGS... args)
   {
-    return this->func(args...);
+    return this->call(args...);
   }
 
 };
@@ -222,6 +243,8 @@ template<class ...ARGS> class Signal<void, ARGS...> : public _Signal<void, ARGS.
 {
   public: void emit(ARGS... args)
   {
+    if (this->slotsEntries.empty()) return;
+
     finally([=] {
       --this->firing;
       if (this->scheduledDelete) this->disconnectScheduled();
@@ -240,6 +263,8 @@ template<class ...ARGS> class Signal<Bool, ARGS...> : public _Signal<Bool, ARGS.
 {
   public: Word emit(ARGS... args)
   {
+    if (this->slotsEntries.empty()) return 0;
+
     finally([=] {
       --this->firing;
       if (this->scheduledDelete) this->disconnectScheduled();
@@ -259,6 +284,8 @@ template<class ...ARGS> class Signal<Bool, ARGS...> : public _Signal<Bool, ARGS.
 
   public: Bool emitAny(ARGS... args)
   {
+    if (this->slotsEntries.empty()) return false;
+
     finally([=] {
       --this->firing;
       if (this->scheduledDelete) this->disconnectScheduled();

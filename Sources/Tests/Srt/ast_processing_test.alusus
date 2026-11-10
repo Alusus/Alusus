@@ -77,7 +77,7 @@ macro where [condition] {
 func test {
     def firstName: String("Mohammed");
     def position: String("Engineer");
-    def query: String = where[name == firstName && (pos == position || pos == "Lawyer")];
+    var query: String = where[name == firstName && (pos == position || pos == "Lawyer")];
     Console.print("%s\n", query.buf);
 }
 test();
@@ -115,7 +115,7 @@ macro dumpFields [typeRef] {
             System.fail(1, "Failed to preprocess the type's body.\n");
         }
 
-        def varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
+        var varNames: Array[String] = Spp.astMgr.getClassVarNames(userType);
         Console.print("Found %d field(s):\n", varNames.getLength());
         def i: Int;
         for i = 0, i < varNames.getLength(), ++i {

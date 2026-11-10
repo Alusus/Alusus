@@ -18,7 +18,7 @@ namespace Spp
 //==============================================================================
 // Initialization Functions
 
-RootManagerExtension::Overrides* RootManagerExtension::extend(
+void RootManagerExtension::extend(
   Core::Main::RootManager *rootManager,
   SharedPtr<BuildManager> const &buildManager,
   SharedPtr<CodeGen::AstProcessor> const &astProcessor,
@@ -29,38 +29,24 @@ RootManagerExtension::Overrides* RootManagerExtension::extend(
   auto extension = newSrdObj<RootManagerExtension>(rootManager);
   rootManager->addDynamicInterface(extension);
 
-  auto overrides = new Overrides();
   extension->buildManager = buildManager;
   extension->astProcessor = astProcessor;
   extension->rtGrammarMgr = grammarM;
   extension->rtAstMgr = astM;
   extension->rtBuildMgr = buildM;
-
-  overrides->importFileRef = extension->importFile.set(&RootManagerExtension::_importFile).get();
-  overrides->prefixAlususTemplateClassFuncExpNamesRef = extension->prefixAlususTemplateClassFuncExpNames.set(
-    &RootManagerExtension::_prefixAlususTemplateClassFuncExpNames
-  ).get();
-  overrides->insertClassPaddingRef = extension->insertClassPadding.set(
-    &RootManagerExtension::_insertClassPadding
-  ).get();
-
-  return overrides;
 }
 
 
-void RootManagerExtension::unextend(Core::Main::RootManager *rootManager, Overrides *overrides)
+void RootManagerExtension::unextend(Core::Main::RootManager *rootManager)
 {
   auto extension = ti_cast<RootManagerExtension>(rootManager);
-  extension->importFile.reset(overrides->importFileRef);
-  extension->prefixAlususTemplateClassFuncExpNames.reset(overrides->prefixAlususTemplateClassFuncExpNamesRef);
-  extension->insertClassPadding.reset(overrides->insertClassPaddingRef);
   extension->buildManager.remove();
   extension->astProcessor.remove();
   extension->rtGrammarMgr.remove();
   extension->rtAstMgr.remove();
   extension->rtBuildMgr.remove();
+  // Removing the extension destroys its binding caches, which in turn remove the overrides they have set.
   rootManager->removeDynamicInterface<RootManagerExtension>();
-  delete overrides;
 }
 
 

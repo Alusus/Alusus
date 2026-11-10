@@ -16,6 +16,20 @@ namespace Core::Ast
 {
 
 //==============================================================================
+// Member Functions
+
+void Definition::setName(Char const *n)
+{
+  if (this->name == n) return;
+  Str oldName = this->name.getStr();
+  this->name = n;
+  // The owning scope indexes its definitions by name, so it needs to know about the change.
+  auto scope = ti_cast<Scope>(this->getOwner());
+  if (scope != 0) scope->onDefinitionRenamed(this, oldName);
+}
+
+
+//==============================================================================
 // Printing Functions
 
 void Definition::print(OutStream &stream, Int indents) const

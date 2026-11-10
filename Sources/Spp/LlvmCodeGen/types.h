@@ -267,6 +267,11 @@ class StructType : public Type
 
   private: llvm::StructType *llvmType;
   private: Str name;
+  // Member info is only needed for debug info, so it's only recorded when that's enabled. The member types have to be
+  // owned here, otherwise they could be gone by the time the debug info is built, but that means a struct with a
+  // pointer to itself is part of a reference cycle, which is a small price for debug builds.
+  private: std::vector<std::string> memberNames;
+  private: std::vector<SharedPtr<Type>> memberTypes;
 
 
   //============================================================================
@@ -288,6 +293,22 @@ class StructType : public Type
   public: Str const& getName() const
   {
     return this->name;
+  }
+
+  public: void addMember(Char const *memberName, SharedPtr<Type> const &memberType)
+  {
+    this->memberNames.push_back(memberName);
+    this->memberTypes.push_back(memberType);
+  }
+
+  public: std::vector<std::string> const& getMemberNames() const
+  {
+    return this->memberNames;
+  }
+
+  public: std::vector<SharedPtr<Type>> const& getMemberTypes() const
+  {
+    return this->memberTypes;
   }
 
 }; // class

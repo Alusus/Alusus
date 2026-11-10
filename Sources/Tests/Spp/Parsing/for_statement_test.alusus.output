@@ -1,9 +1,11 @@
 [0;31mERROR CP1001: Parser syntax error.[0m
-  for_statement_test.alusus (26,25)
+  for_statement_test.alusus (40,25)
 [0;31mERROR SPPH1010: Invalid for statement.[0m
-  for_statement_test.alusus (27,3)
+  for_statement_test.alusus (41,3)
 [0;31mERROR CP1001: Parser syntax error.[0m
-  for_statement_test.alusus (28,40)
+  for_statement_test.alusus (42,40)
+[0;31mERROR SPPH1010: Invalid for statement.[0m
+  for_statement_test.alusus (43,7)
 ------------------ Parsed Data Dump ------------------
 Function  [Main.Function]
  type: FunctionType member: 0 [Main.Function]
@@ -110,4 +112,123 @@ Function  [Main.Function]
     ParamPass () [Main.Expression.ParamPassExp]
      operand: Identifier: doSomething2 [Main.BlockSubject.Identifier]
      param: Identifier: j [Main.BlockSubject.Identifier]
+  ForStatement [Main.For]
+   initializer: AssignmentOperator = [Main.Expression.AssignmentExp]
+    first: Identifier: i [Main.BlockSubject.Identifier]
+    second: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+   condition: ComparisonOperator < [Main.Expression.ComparisonExp]
+    first: Identifier: i [Main.BlockSubject.Identifier]
+    second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
+   updater: PostfixOperator ++ [Main.Expression.UnaryExp]
+    operand: Identifier: i [Main.BlockSubject.Identifier]
+   body: ParamPass () [Main.Expression.ParamPassExp]
+    operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+    param: Identifier: i [Main.BlockSubject.Identifier]
+  Block [Main.LeadingCmdGrp]
+   Definition i: Variable inMem
+    typeRef: Identifier: Int [Main.BlockSubject.Identifier]
+    initArgs: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+    type: NULL
+   ForStatement [Main.For]
+    initializer: NULL
+    condition: ComparisonOperator < [Main.Expression.ComparisonExp]
+     first: Identifier: i [Main.BlockSubject.Identifier]
+     second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
+    updater: PostfixOperator ++ [Main.Expression.UnaryExp]
+     operand: Identifier: i [Main.BlockSubject.Identifier]
+    body: ParamPass () [Main.Expression.ParamPassExp]
+     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+     param: Identifier: i [Main.BlockSubject.Identifier]
+  Block [Main.LeadingCmdGrp]
+   Definition i: Variable inMem
+    typeRef: Identifier: Int [Main.BlockSubject.Identifier]
+    initArgs: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+    type: NULL
+   Definition j: Variable inMem
+    typeRef: ParamPass [] [Main.Expression.ParamPassExp]
+     operand: Identifier: Int [Main.BlockSubject.Identifier]
+     param: IntegerLiteral: 64 [Main.BlockSubject.Literal]
+    initArgs: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+    type: NULL
+   ForStatement [Main.For]
+    initializer: NULL
+    condition: ComparisonOperator < [Main.Expression.ComparisonExp]
+     first: Identifier: i [Main.BlockSubject.Identifier]
+     second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
+    updater: Bracket () [Main.BlockSubject.Sbj]
+     operand: List [Main.Expression.ListExp]
+      PrefixOperator ++ [Main.Expression.UnaryExp]
+       operand: Identifier: i [Main.BlockSubject.Identifier]
+      AssignmentOperator += [Main.Expression.AssignmentExp]
+       first: Identifier: j [Main.BlockSubject.Identifier]
+       second: IntegerLiteral: 2 [Main.BlockSubject.Literal]
+    body: ParamPass () [Main.Expression.ParamPassExp]
+     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+     param: Identifier: j [Main.BlockSubject.Identifier]
+  Block [Main.LeadingCmdGrp]
+   Definition i: Variable inMem
+    typeRef: Identifier: Int [Main.BlockSubject.Identifier]
+    initArgs: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+    type: NULL
+   ForStatement [Main.For]
+    initializer: NULL
+    condition: ComparisonOperator < [Main.Expression.ComparisonExp]
+     first: Identifier: i [Main.BlockSubject.Identifier]
+     second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
+    updater: PostfixOperator ++ [Main.Expression.UnaryExp]
+     operand: Identifier: i [Main.BlockSubject.Identifier]
+    body: ParamPass () [Main.Expression.ParamPassExp]
+     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+     param: Identifier: i [Main.BlockSubject.Identifier]
+  Block [Main.LeadingCmdGrp]
+   AssignmentOperator = [Main.Expression.AssignmentExp]
+    first: Identifier: j [Main.BlockSubject.Identifier]
+    second: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+   Definition i: Variable inMem
+    typeRef: Identifier: Int [Main.BlockSubject.Identifier]
+    initArgs: Identifier: j [Main.BlockSubject.Identifier]
+    type: NULL
+   ForStatement [Main.For]
+    initializer: NULL
+    condition: ComparisonOperator < [Main.Expression.ComparisonExp]
+     first: Identifier: i [Main.BlockSubject.Identifier]
+     second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
+    updater: PrefixOperator ++ [Main.Expression.UnaryExp]
+     operand: Identifier: i [Main.BlockSubject.Identifier]
+    body: ParamPass () [Main.Expression.ParamPassExp]
+     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+     param: Identifier: i [Main.BlockSubject.Identifier]
+  Block [Main.LeadingCmdGrp]
+   Definition [Main.Var] i: Variable inMem [Main.Var]
+    typeRef: NULL
+    initArgs: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+    type: NULL
+   ForStatement [Main.For]
+    initializer: NULL
+    condition: ComparisonOperator < [Main.Expression.ComparisonExp]
+     first: Identifier: i [Main.BlockSubject.Identifier]
+     second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
+    updater: PrefixOperator ++ [Main.Expression.UnaryExp]
+     operand: Identifier: i [Main.BlockSubject.Identifier]
+    body: ParamPass () [Main.Expression.ParamPassExp]
+     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+     param: Identifier: i [Main.BlockSubject.Identifier]
+  Block [Main.LeadingCmdGrp]
+   AssignmentOperator = [Main.Expression.AssignmentExp]
+    first: Identifier: j [Main.BlockSubject.Identifier]
+    second: IntegerLiteral: 0 [Main.BlockSubject.Literal]
+   Definition [Main.Var] i: Variable inMem [Main.Var]
+    typeRef: NULL
+    initArgs: Identifier: j [Main.BlockSubject.Identifier]
+    type: NULL
+   ForStatement [Main.For]
+    initializer: NULL
+    condition: ComparisonOperator < [Main.Expression.ComparisonExp]
+     first: Identifier: i [Main.BlockSubject.Identifier]
+     second: IntegerLiteral: 10 [Main.BlockSubject.Literal]
+    updater: PrefixOperator ++ [Main.Expression.UnaryExp]
+     operand: Identifier: i [Main.BlockSubject.Identifier]
+    body: ParamPass () [Main.Expression.ParamPassExp]
+     operand: Identifier: doSomething [Main.BlockSubject.Identifier]
+     param: Identifier: i [Main.BlockSubject.Identifier]
 ------------------------------------------------------

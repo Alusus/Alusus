@@ -1,6 +1,4 @@
 [0;31mERROR CP1001: Parser syntax error.[0m
-  misc_test.alusus (4,11)
-[0;31mERROR CP1001: Parser syntax error.[0m
   misc_test.alusus (9,12)
 [0;31mERROR CP1001: Parser syntax error.[0m
   misc_test.alusus (17,7)
@@ -18,7 +16,9 @@ Scope [Main.Statements.StmtList]
     first: Identifier: b [Main.Subject.Identifier]
     second: Identifier: i [Main.Subject.Identifier]
   second: IntegerLiteral: 5 [Main.Subject.Literal]
- StringLiteral: Hello World [Main.Subject.Literal]
+ AssignmentOperator := [Main.Expression.AssignmentExp]
+  first: Identifier: strVar [Main.Subject.Identifier]
+  second: StringLiteral: Hello World [Main.Subject.Literal]
  AssignmentOperator += [Main.Expression.AssignmentExp]
   first: Identifier: intVar [Main.Subject.Identifier]
   second: IntegerLiteral: 5 [Main.Subject.Literal]

@@ -325,6 +325,30 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
 
   /// @}
 
+  /// @name Add Functions
+  /// @{
+
+  /**
+   * @brief Add an element to the scope that the given reference points to.
+   * If the reference can't be resolved, or the resolved node doesn't support adding elements to it, a notice is
+   * added to the given store and false is returned.
+   */
+  public: METHOD_BINDING_CACHE(addPossiblyMergeable, Bool, (Node const*, Node*, Node*, Notices::Store*, Word));
+  private: static Bool _addPossiblyMergeable(
+    TiObject *self, Node const *ref, Node *target, Node *element, Notices::Store *noticeStore, Word flags
+  );
+
+  /**
+   * @brief Add an element to the given node, which is the result of resolving the reference passed to add.
+   * Extensions override this function to support adding elements to node types defined outside of Core.
+   */
+  public: METHOD_BINDING_CACHE(addPossiblyMergeable_toNode, Bool, (Node*, Node*, Notices::Store*));
+  private: static Bool _addPossiblyMergeable_toNode(
+    TiObject *self, Node *dest, Node *element, Notices::Store *noticeStore
+  );
+
+  /// @}
+
   /// @name Other Functions
   /// @{
 

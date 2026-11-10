@@ -64,6 +64,11 @@ class ConcatTerm : public ListTerm
   //============================================================================
   // Member Functions
 
+  public: virtual TermType getTermType() const
+  {
+    return TermType::CONCAT;
+  }
+
   /**
    * @brief Set the position id to switch to in case of syntax errors.
    *

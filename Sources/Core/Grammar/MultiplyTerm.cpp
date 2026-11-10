@@ -57,6 +57,7 @@ void MultiplyTerm::clearCache()
 {
   this->innerTextBasedDecisionCache.clear();
   this->innerIdBasedDecisionCache.clear();
+  this->charBasedDecisionCache.clear();
 }
 
 } // namespace

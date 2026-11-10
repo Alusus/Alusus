@@ -36,8 +36,8 @@ import "String";
             }
         }
 
-        func new(c: CharsPtr, m: CharsPtr): SrdRef[GenericError] {
-            return new(String(c), String(m));
+        func new(c: String, m: String): SrdRef[GenericError] {
+            return new(c, m);
         }
     }
 }

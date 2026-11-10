@@ -2,10 +2,10 @@ import "defs-ignore.alusus";
 
 module Main
 {
-  def var: Int = 7;
+  var v: Int = 7;
 
   func setVarTo2 {
-    var = 2
+    v = 2
   }
 };
 

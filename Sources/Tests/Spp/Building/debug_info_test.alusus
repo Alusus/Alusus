@@ -1,0 +1,72 @@
+import "defs-ignore.alusus";
+import "debug_info_imported-ignore.alusus";
+
+macro addTo [target, amount]
+{
+  target = target + amount;
+  target = target * 2;
+};
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  class Point
+  {
+    def x: Int[32];
+    def y: Int[32];
+    def next: ptr[Point];
+  };
+
+  class Box [T: type]
+  {
+    def v: T;
+
+    @member function twice(this: ref[this_type]) => T
+    {
+      var x: T = this.v;
+      return x + x;
+    };
+  };
+
+  def mainInit: function () => Int[32]
+  {
+    return 7;
+  };
+
+  var fromMain: Int[32] = mainInit();
+
+  def add: function (a: Int[32], b: Int[32]) => Int[32]
+  {
+    return a + b;
+  };
+
+  def scopes: function (n: Int[32], p: ref[Point]) => Int[32]
+  {
+    var result: Int[32] = 0;
+    var arr: array[Int[32], 3];
+    if n > 0 {
+      var t: Int[32] = n * 2;
+      result = result + t;
+    } else {
+      var t: Int[32] = n * 3;
+      result = result + t;
+    };
+    addTo[result, 10];
+    addTo[result,
+      20];
+    result = add(result,
+      add(fromLib, fromMain));
+    return result;
+  };
+
+  def start: function () => Void
+  {
+    var pt: Point;
+    var box: Box[Int[32]];
+    box.v = 4;
+    print("%d %d\n", scopes(5, pt), box.twice());
+  };
+};
+
+Spp.buildMgr.dumpLlvmIrForElement(Main~ast, 1);

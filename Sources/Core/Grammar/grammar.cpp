@@ -30,7 +30,7 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
         referenceCache->push_back(newSrdObj<Reference>());
       }
       seg = referenceCache->at(cacheIndex);
-      seg->setCachedValue(0);
+      seg->resetCachedValue();
       seg->setValueCacheEnabled(false);
       ++cacheIndex;
     } else {
@@ -55,8 +55,7 @@ SharedPtr<Reference> createReference(Char const *qualifier, std::vector<SharedPt
   addSegment(start, SBSTR(qualifier).getLength() - start);
   ASSERT(ref != 0);
 
-  // Cache any reference that isn't on the stack since the stack is the only place updated inside list terms' loops.
-  if (ref->getKey() != S("stack")) ref->setValueCacheEnabled(true);
+  ref->setValueCacheEnabled(true);
 
   return ref;
 }
@@ -241,9 +240,26 @@ TioSharedPtr _cloneInherited(TiObject *obj)
   return clone;
 }
 
+// The counter is kept in the global storage because this library is linked statically into multiple modules (the
+// executable and the Spp library), each of which would otherwise get its own copy of the counter.
+static Word *cacheClearCount = 0;
+
+static Word* getCacheClearCountPtr()
+{
+  if (cacheClearCount == 0) {
+    cacheClearCount = reinterpret_cast<Word*>(GLOBAL_STORAGE->getObject(S("Core::Grammar::cacheClearCount")));
+    if (cacheClearCount == 0) {
+      cacheClearCount = new Word(0);
+      GLOBAL_STORAGE->setObject(S("Core::Grammar::cacheClearCount"), reinterpret_cast<void*>(cacheClearCount));
+    }
+  }
+  return cacheClearCount;
+}
+
 void clearCaches(TiObject *obj)
 {
   if (obj == 0) return;
+  ++(*getCacheClearCountPtr());
   auto dh = ti_cast<CacheHaving>(obj);
   if (dh != 0) dh->clearCache();
 
@@ -258,6 +274,16 @@ void clearCaches(TiObject *obj)
   if (containing != 0) {
     for (Int i = 0; i < containing->getElementCount(); ++i) clearCaches(containing->getElement(i));
   }
+}
+
+/**
+ * Returns a counter that changes every time clearCaches is called. This allows
+ * users holding pointers into grammar caches to detect when those pointers are
+ * no longer valid.
+ */
+Word getCacheClearCount()
+{
+  return *getCacheClearCountPtr();
 }
 
 } // namespace

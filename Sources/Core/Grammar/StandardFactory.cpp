@@ -106,7 +106,8 @@ void StandardFactory::createGrammar(
     S("def"), S("عرّف"), S("عرف"),
     S("use"), S("استخدم"),
     S("dump_ast"), S("أدرج_ش_ب_م"),
-    S("alias"), S("لقب")
+    S("alias"), S("لقب"),
+    S("within"), S("ضمن")
   });
 }
 
@@ -699,9 +700,10 @@ void StandardFactory::createProductionDefinitions(Bool exprOnly)
 void StandardFactory::createTokenDataModule()
 {
   this->set(S("root.TokenData"), Module::create({}));
-  // assignmentOpList : keywords = ("=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "<<=", ">>=");
+  // assignmentOpList : keywords = ("=", ":=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "$=", "<<=", ">>=");
   this->set(S("root.TokenData.assignmentOpList"), Map::create({}, {
    {S("="), 0},
+   {S(":="), 0},
    {S("+="), 0},
    {S("-="), 0},
    {S("*="), 0},
@@ -1744,6 +1746,13 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
     PARSE_REF(S("module.ExpVariation"))
   });
 
+  // A statement that can also be a set of statements, used by commands that take either.
+  this->createProdGroup(S("root.Main.Statements.OuterStmt"), {
+    PARSE_REF(S("module.owner.Set")),
+    PARSE_REF(S("module.CmdVariation")),
+    PARSE_REF(S("module.ExpVariation"))
+  });
+
   if (!exprOnly) {
     this->set(S("root.Main.RootStatements"), Module::create({
       {S("baseRef"), PARSE_REF(S("module.owner.Statements"))}
@@ -1809,7 +1818,8 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
       PARSE_REF(S("module.Import")),
       PARSE_REF(S("module.Def")),
       PARSE_REF(S("module.Use")),
-      PARSE_REF(S("module.DumpAst"))
+      PARSE_REF(S("module.DumpAst")),
+      PARSE_REF(S("module.Within"))
     });
 
     // SubjectCommandGroup
@@ -1888,6 +1898,43 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         TiInt::create(ParsingFlags::PASS_ITEMS_UP)
       }}
     }}, this->dumpAstParsingHandler);
+
+    //// Within = "within" + Qualifier + (Statement | Set)
+    this->createCommand(S("root.Main.Within"), {{
+      Map::create({}, { { S("within"), 0 }, { S("ضمن"), 0 } }),
+      {
+        {
+          PARSE_REF(S("module.Expression")),
+          TiInt::create(1),
+          TiInt::create(1),
+          TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+        },
+        {
+          PARSE_REF(S("module.Statements.OuterStmt")),
+          TiInt::create(1),
+          TiInt::create(1),
+          TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+        }
+      }
+    }}, newSrdObj<CustomParsingHandler>(
+      [](Parser *parser, ParserState *state)
+      {
+        auto node = state->getData().get();
+        auto currentList = ti_cast<Containing<Ast::Node>>(node);
+        if (currentList == 0 || currentList->getElementCount() != 3) {
+          throw EXCEPTION(GenericException, S("Unexpected data type while parsing 'within' command."));
+        }
+        // The qualifier must be an identifier or a dot-separated list of identifiers.
+        auto qualifier = currentList->getElement(1);
+        auto within = Ast::Within::create({
+          { "prodId", node->getProdId() },
+          { "sourceLocation", node->findSourceLocation() }
+        });
+        within->setQualifier(getSharedPtr(qualifier));
+        within->setSubject(getSharedPtr(currentList->getElement(2)));
+        state->setData(within);
+      }
+    ));
 
     //// Alias = "alias" + Subject
     this->createCommand(S("root.Main.Alias"), {{

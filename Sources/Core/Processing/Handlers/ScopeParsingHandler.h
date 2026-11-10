@@ -63,7 +63,9 @@ template <class TYPE> class ScopeParsingHandler : public GenericParsingHandler
     if (state->isAProdRoot(levelIndex)) {
       auto listContainer = state->getData(levelIndex).ti_cast_get<DynamicContaining<Ast::Node>>();
       ASSERT(listContainer);
-      Core::Ast::addPossiblyMergeableElement(data.get(), listContainer, this->seeker, state->getNoticeStore());
+      Core::Ast::addPossiblyMergeableElement(
+        data.get(), listContainer, this->seeker, state->getNoticeStore(), state->getDataStack()
+      );
     } else {
       GenericParsingHandler::addData(data, parser, state, levelIndex);
     }

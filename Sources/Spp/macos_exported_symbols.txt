@@ -1,1 +1,3 @@
 _get_library_gateway
+___jit_debug_register_code
+___jit_debug_descriptor

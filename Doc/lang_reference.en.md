@@ -30,7 +30,7 @@ loop bodies, classes, functions, and modules.
 
 ### Definitions
 
-All definitions must be done with the command `def`, which takes the following form:
+Definitions are done with the command `def`, which takes the following form:
 
 ```
  def &lt;identifier&gt; : &lt;definition&gt;
@@ -136,24 +136,31 @@ A common use for such a handler is to tag `element` with metadata that can be qu
 
 ## Variables
 
-Variables are defined like this:
+Variables can be defined using the `def` command, but
+we recommend using the `var` command instead, which
+provides features not provided by the `def` command
+when it comes to variable definitions.
+Variable definitions look like this:
 
 ```
-def &lt;var_name&gt;: &lt;var_type&gt;;
+var &lt;var_name&gt;: &lt;var_type&gt;;
 ```
 
 For example, to define a variable of an integer type:
 
 ```
-def x: Int;
+var x: Int;
 ```
 
 And to initialize the variable with a value (or values) we pass those values
 in parenthesis following the type, like this:
 
 ```
-def x: Int(5);
+var x: Int(5);
 ```
+
+The type can also be deduced from the initial value, as explained in the next
+section.
 
 * When a variable is define inside a function body, the variable is allocated
 on the stack, so it's allocated upon entry to the function and is freed
@@ -167,6 +174,57 @@ it becomes a global varaible allocated on the heap, and it remains valid
 throughout the entire execution of the program.
 
 
+### Initial Values and Type Deduction
+
+A variable can be given an initial value either by assignment or by passing the
+value to its constructor, and its type can be deduced from that value:
+
+```
+var x = 5;           // Type is deduced as Int, then 5 is assigned to x.
+var y := getValue(); // Type is deduced from getValue(), which is passed to the constructor.
+var z: Int = 5;      // Constructed with no args, then 5 is assigned to z.
+var w: MyType(5);    // 5 is passed to the constructor.
+```
+
+The `=` forms construct the variable without arguments and then assign the
+value to it, through the type's `=` operator if it has one. The `:=` form and
+the round brackets after the type pass the values to the type's constructor
+(`~init`) instead. This differs from C++, where `=` in a definition calls the
+constructor.
+
+When the type is deduced:
+* Reading a variable gives a copy of its value, so `var y = x` and `var y := x`
+  both make `y` a copy of `x`.
+* An explicit reference, e.g. one returned by a function, is copied by the `=`
+  forms and bound by the `:=` form. For example, if `getRef()` returns a
+  `ref[Int]`, then `var c := getRef()` makes `c` a `ref[Int]` bound to the
+  returned reference, while `var c = getRef()` makes `c` an `Int` holding a copy
+  of the value.
+* Integer literals without an explicit size get at least 32 bits, so
+  `var i = 1` gives an `Int` rather than the smallest type that fits the value.
+* The `:=` form accepts only a single value. To pass multiple values to the
+  constructor, give the type explicitly, e.g. `var w: MyType(5, 6)`.
+
+Global variables get their initial values assigned in the global constructors,
+together with the rest of their initialization. Member
+variables get theirs in the class's automatic constructor, and the initial
+value of a member variable can refer to other members.
+
+
+### Multiple Variables
+
+Multiple variables can be defined in a single `var` command by separating them with commas. Each variable can use
+any of the forms above:
+
+```
+var i = 0, j = 1;
+var k: Int, l: Int;
+var a = 5, b: Int[64] = 6, c := getValue();
+```
+
+Modifiers on the command apply to all of its variables, so `@shared var x = 0, y = 0` defines two shared variables.
+
+
 ### Shared Variables
 
 Shared varialbes can be defined inside function bodies or class bodies by
@@ -175,7 +233,7 @@ allocated on the heap and makes it similar to global variables with the only
 difference being that it's scoped within the body of the class or function.
 
 ```
-@shared def x: Int;
+@shared var x: Int;
 ```
 
 ### Global Variable Initialization
@@ -194,7 +252,7 @@ variables carrying it have higher initialization priority than variables
 without this modifier.
 
 ```
-@shared def x: Int(5);
+@shared var x: Int(5);
 ```
 
 ## Basic Types
@@ -282,6 +340,7 @@ What follows is a list of the operators sorted in ascending order by priority, w
 #### Assigment operator
 
 * `=`   Set a new value.
+* `:=`  Set a new value without dereferencing, i.e. make a reference point to a new value (see the `~no_deref` operator).
 * `+=` 	Add a value to the current value.
 
 * `-=` 	Subtract a value from the current value.
@@ -458,6 +517,38 @@ in round brackets. For example:
   for i=0, i&lt;10, i++ { print("%d\n", i) };
 ```
 
+The counter can be defined within the for loop itself using the `name: type` syntax, with or without an initial value, in
+which case the counter is only visible within the loop. Multiple counters can be defined by enclosing them in round
+brackets. For example:
+
+```
+  for i: Int = 0, i < 10, i++ print("%d\n", i);
+  for (i: Int = 0, j: Int = 1), i < 10, (i++, j *= 2) print("%d: %d\n", i, j);
+```
+
+The counter definitions follow the same rules as the `var` command, except that the type must be specified explicitly.
+Counter definitions can be mixed with other initialization expressions, in which case they are all executed in order:
+
+```
+  for (j = 3, i: Int = j * 10), i < 40, i++ print("%d\n", i);
+```
+
+The `var` command can also be used to define the counter, which allows the counter's type to be deduced from its initial
+value. In this case the initializer must be enclosed in round brackets, and the `var` command must be the last element in
+these brackets, since everything that follows it is treated as more variable definitions:
+
+```
+  for (var i = 0), i < 10, i++ print("%d\n", i);
+  for (var i = 0, j = 1), i < 10, (i++, j *= 2) print("%d: %d\n", i, j);
+  for (j = 3, var i = j * 10), i < 40, i++ print("%d\n", i);
+```
+
+To add initializers after the `var` command, enclose the `var` command in its own brackets:
+
+```
+  for ((var i = getVal()), j = i), i < 10, i++ print("%d: %d\n", i, j);
+```
+
 ### `continue` Command
 
 It is used to skip what left from the current iteration, and start the next one.
@@ -607,8 +698,8 @@ value will be a pointer to that function, as shown in the following example:
       records: ref[Array[Record]],
       compare: ptr[func (ref[Record], ref[Record])]
   ) {
-      def i: Int;
-      def j: Int;
+      var i: Int;
+      var j: Int;
       for i = 0, i < records.getLength() - 1, ++i {
           for j = i + 1, j < records.getLength(), ++j {
               if compare(records(i), records(j)) {
@@ -671,12 +762,12 @@ Accessing class members is done using `.` operator, for example:
 
 ```
   def Point : class {
-    def x : Float;
-    def y : Float
+    var x : Float;
+    var y : Float
   };
   .
   .
-  def p : Point;
+  var p : Point;
   p.x = readValue();
   p.y = readValue();
 ```
@@ -691,12 +782,12 @@ As show in the next example:
 
 ```
   class Point {
-    def x : Float;
-    def y : Float
+    var x : Float;
+    var y : Float
   };
   .
   .
-  def p : Point;
+  var p : Point;
   p.x = readValue();
   p.y = readValue();
 ```
@@ -710,19 +801,19 @@ Definition and usage take the following form:
 ```
   class &lt;type_name&gt; [&lt;template_arg_defs&gt;] { &lt;type_body&gt; }
 
-  def &lt;var_name&gt;: &lt;type_name&gt;[&lt;template_args&gt;];
+  var &lt;var_name&gt;: &lt;type_name&gt;[&lt;template_args&gt;];
 ```
 
 As shown in the next example:
 
 ```
   class Point [T: type] {
-    def x: T;
-    def y: T;
+    var x: T;
+    var y: T;
   };
 
-  def intPoint: Point[int];
-  def floatPoint: Point[float];
+  var intPoint: Point[int];
+  var floatPoint: Point[float];
 ```
 
 Templates arguments could be one of the following types:
@@ -751,12 +842,12 @@ It is possible to set default values for template arguments, as shown in the fol
 
 ```
   class Point [T: type, V: integer = 0] {
-    def x: T = V;
-    def y: T = V;
+    var x: T = V;
+    var y: T = V;
   }
 
-  def point1: Point[Int]; // x and y will be 0.
-  def point2: Point[Int, 1]; // x and y will be 1.
+  var point1: Point[Int]; // x and y will be 0.
+  var point2: Point[Int, 1]; // x and y will be 1.
 ```
 
 ### Methods
@@ -781,13 +872,13 @@ Example:
 
 ```
   class Point {
-    def x: float;
-    def y: float;
+    var x: float;
+    var y: float;
     @member func getDistance (this: ref[this_type]):float {
       return Math.sqrt(this.x * this.x + this.y * this.y);
     };
   }:
-  def p: Point;
+  var p: Point;
   p.x = 3;
   p.y = 4;
   print(p.getDistance()); // prints 5
@@ -810,13 +901,13 @@ Example:
 
 ```
   class Point {
-    def x: float;
-    def y: float;
+    var x: float;
+    var y: float;
     handler this.getDistance ():float {
       return Math.sqrt(this.x * this.x + this.y * this.y);
     };
   }:
-  def p: Point;
+  var p: Point;
   p.x = 3;
   p.y = 4;
   print(p.getDistance()); // prints 5
@@ -844,13 +935,13 @@ the next example explain how to define `=` operation on a property.
 
 ```
   class Period {
-    def start: float;
-    def end: float;
+    var start: float;
+    var end: float;
     @member @operation["="] func length (this: ref[this_type], l:float) {
       this.end = this.start + l;
     };
   }:
-  def p: Period;
+  var p: Period;
   p.start = 10;
   p.length = 50; // p.end will be set to 60
 ```
@@ -862,13 +953,13 @@ as empty string instead of a string with the required operator. For example:
 
 ```
   class Period {
-    def start: float;
-    def end: float;
+    var start: float;
+    var end: float;
     @member @operation[""] func length (this: ref[this_type]): float {
       return this.end - this.start;
     };
   }:
-  def p: Period;
+  var p: Period;
   p.start = 10;
   p.end = 60;
   printFloat(p.length) // prints 50
@@ -878,8 +969,8 @@ It is also possible to use `handler` command to simplify defining those properti
 
 ```
   class Period {
-    def start: float;
-    def end: float;
+    var start: float;
+    var end: float;
     handler this.length = float {
         this.end = this.start + value;
         return value;
@@ -888,7 +979,7 @@ It is also possible to use `handler` command to simplify defining those properti
       return this.end - this.start;
     };
   }:
-  def p: Period;
+  var p: Period;
   p.start = 10;
   p.length = 50; // p.end will be 60;
   printFloat(p.length) // prints 50
@@ -919,7 +1010,7 @@ As shown in the following example:
       if a > b return a else return b;
     }
   }
-  def m: Math;
+  var m: Math;
   m.getMax[Int](5, 7); // returns 7
   m.getMax[Float](5.3, 7.7); // returns 7.7
 ```
@@ -935,20 +1026,20 @@ definitions are scoped inside that class. For example:
 
 ```
   class Point {
-    @shared def count: int;
-    def x: int;
-    def y: int;
+    @shared var count: int;
+    var x: int;
+    var y: int;
     func getPoint (a: int, b: int): Point {
       ++count;
       x = a; // error
       y = b; // error
-      def p: Point;
+      var p: Point;
       p.x = a;
       p.y = b;
       return p;
     };
   }:
-  def p: Point = Point.getPoint(1, 2);
+  var p: Point = Point.getPoint(1, 2);
   print(Point.count); // prints 1
   print(p.count); // error
   print(Point.x); // error
@@ -967,10 +1058,10 @@ in the same class. The following example explains that:
 ```
   class MyType {
     @member func doSomething (this: ref[this_type], j: Int) { ... }
-    def pf: ptr[@member func (Int)];
+    var pf: ptr[@member func (Int)];
   }
 
-  def mt: MyType;
+  var mt: MyType;
   mt.pf = MyType.doSomething~ptr; // correct
   mt.pf(5);
 
@@ -987,10 +1078,10 @@ Defining a pointer to a function without `member` modifier is the solution, as s
 ```
   class MyType {
     @member func doSomething (this: ref[this_type], j: Int) { ... }
-    def pf: ptr[func (Int)];
+    var pf: ptr[func (Int)];
   }
 
-  def mt: MyType;
+  var mt: MyType;
   mt.pf = MyType.doSomething~ptr; // error
 
   func doSomething2 (j: Int) { ... }
@@ -1039,6 +1130,19 @@ current class rather than the parent class. For example:
   }
 ```
 
+Alternatively, the pointer can be referenced through the member variable that holds the parent object, in which case
+the type of `this` is deduced from the type of that variable:
+
+```
+  class MyType {
+    @injection var parent: ParentType;
+    handler this.parent.mp(i: Int) set_ptr { ... };
+  }
+```
+
+This form is only allowed with `set_ptr`, and the member variable doesn't have to be an injection. The member can also
+be nested at any depth, which is useful with multi-level inheritance, as in `handler this.child.parent.mp() set_ptr`.
+
 ### Custom Object Initialization
 
 Users can customize object initialization, i.e. define a constructor, using `handler` command, with the following syntax:
@@ -1059,8 +1163,8 @@ The next example explain custom initialization:
 
 ```
   class Point {
-    def x: int;
-    def y: int;
+    var x: int;
+    var y: int;
 
     handler this~init() {
       this.x = 0;
@@ -1072,9 +1176,9 @@ The next example explain custom initialization:
     };
   }:
 
-  def p: Point; // calls this~init()
+  var p: Point; // calls this~init()
   func getPoint (): Point {
-    def p: Point;
+    var p: Point;
     return p; // calls this~init(src)
   };
 ```
@@ -1082,15 +1186,15 @@ The next example explain custom initialization:
 In case of initialization operations with arguments, we must pass them to the variable's definition, which becomes as follows:
 
 ```
-  def &lt;var_name&gt;: &lt;var_type&gt;(&lt;arguments&gt;);
+  var &lt;var_name&gt;: &lt;var_type&gt;(&lt;arguments&gt;);
 ```
 
 The next example shows that:
 
 ```
   class Point {
-    def x: int;
-    def y: int;
+    var x: int;
+    var y: int;
 
     handler this~init(x: int, y: int) {
       this.x = x;
@@ -1098,7 +1202,7 @@ The next example shows that:
     };
   }:
 
-  def p: Point(5, 10);
+  var p: Point(5, 10);
 ```
 
 It is also possible to customize initialization without arguments by writing initialization operationss inside the body
@@ -1106,8 +1210,8 @@ of the class. This is the same as defining `handler this~init`, as shown in the 
 
 ```
   class Point {
-    def x: int;
-    def y: int;
+    var x: int;
+    var y: int;
 
     this.x = 0;
     this.y = 0;
@@ -1161,7 +1265,7 @@ equality operation on an object.
     };
   };
 
-  def s: String;
+  var s: String;
   s = "hello world";
   if s == "hello world" print("text is identical");
 ```
@@ -1177,7 +1281,7 @@ It is also possible to customize parentheses as shown in the next example:
     };
   };
 
-  def s: String;
+  var s: String;
   s = "!@#$";
   print(s(1)); // prints @
 ```
@@ -1192,7 +1296,7 @@ object from it, which means on `this_type` instead of `this`. The next example s
 class Record {
     ...
     handler this_type(): ref[Record] {
-        def r: ref[Record];
+        var r: ref[Record];
         r~ptr = Memory.alloc(Record~size)~cast[ptr[Record]];
         r~init();
         return r;
@@ -1212,22 +1316,56 @@ as shown in the next example:
 
 ```
   class Inner {
-    def x: Int;
+    var x: Int;
     func printX { ... };
   };
 
   class Outer {
-    @injection def i: Inner;
-    def y: Int;
+    @injection var i: Inner;
+    var y: Int;
     func printY { ... };
   };
 
-  def o: Outer;
+  var o: Outer;
   o.x = 1; // compiler translates it to o.i.x
   o.y = 2;
   o.printX(); // compiler translates it to o.i.printX()
   o.printY();
 ```
+
+Custom casters (`~cast` handlers) of the injected variable are also available on the enclosing type, but only if the
+injected variable is the first member variable of the enclosing class. In the next example `Outer` can be cast to
+`Int` through the caster defined in `Inner`:
+
+```
+  class Inner {
+    var x: Int;
+    handler this~cast[Int] return this.x;
+  };
+
+  class Outer {
+    @injection var i: Inner; // First member variable, so its casters are available.
+    var y: Int;
+  };
+
+  class Other {
+    var y: Int;
+    @injection var i: Inner; // Not the first member variable, so its casters are not available.
+  };
+
+  func printInt (n: Int) { ... };
+
+  var o: Outer;
+  o.x = 5;
+  printInt(o); // OK, uses the caster of Inner.
+
+  var other: Other;
+  printInt(other); // Error, Other has no caster to Int.
+```
+
+This limitation exists because a caster of the injected variable is called with the address of the enclosing object, which
+matches the address of the injected variable only when it is the first member. Members and functions of the injected
+variable are not affected by this limitation and are available regardless of the position of the injection.
 
 ## Type Inference
 
@@ -1238,12 +1376,22 @@ It is possible to infer information about classes at compile time using the foll
 Using this operator it is possible to inference the type of a given variable as shown in the next example:
 
 ```
-  def x: Int[64];
-  def y: x~type; // y here has the same type as x, which is Int[64].
+  var x: Int[64];
+  var y: x~type; // y here has the same type as x, which is Int[64].
 
-  def p: ptr;
+  var p: ptr;
   p = x~cast[ptr];
   p = x~cast[p~type]; // Equivalent to the upper statement.
+```
+
+The operand can be any expression, including a chain of member accesses. Inside a class body, the members of the class
+can be referenced directly:
+
+```
+  class MyType {
+    var a: OtherType;
+    var b: a.c~type; // b has the same type as member c of a.
+  }
 ```
 
 Basically, this operator is useful in templates and macros where the type of the variable is not known until using
@@ -1255,8 +1403,8 @@ This operator is used to find the size of a class or variable in the memory, whi
 used in the memory. This operator can be used on a class, variable, or even an expression, as shown in the next example:
 
 ```
-  def x: Int[16];
-  def y: Int[32];
+  var x: Int[16];
+  var y: Int[32];
   func getInt (): Int { ... };
 
   Console.print(x~size); // Prints 2.
@@ -1279,8 +1427,8 @@ It is possible to access the content pointed to by a pointer with the `~cnt` ope
 Also, it is possible to get the location of any variable using `~ptr` operator, as shown in the next example:
 
 ```
-  def p : ptr[Int];
-  def x : Int;
+  var p : ptr[Int];
+  var x : Int;
   x = 5;
   p = x~ptr;
   p~cnt = 1;
@@ -1293,13 +1441,44 @@ For example, if we add 1 to a pointer to `Int`, the value of the pointer will in
 4 bytes when `Int` is represented using 32bit.
 
 ```
-  def p1: ptr[Int[32]] = ...;
-  def p2: ptr[Char] = ...;
+  var p1: ptr[Int[32]] = ...;
+  var p2: ptr[Char] = ...;
   p1 = p1 + 1; // Incremented by 4.
   p1 = p1 + 5; // Incremented by 5 * 4.
   p2 = p2 + 1; // Incremented by 1.
   p2 = p2 + 5; // Incremented by 5.
 ```
+
+### Literal Pointers
+
+String literals are of type `lptr[array[Word[8]]]` (a literal pointer), which is a pointer type that
+differs from `ptr` in one aspect: a literal pointer can be implicitly cast to a regular pointer, but a regular
+pointer can only be cast to a literal pointer explicitly. This allows distinguishing pointers to literal
+strings from other pointers, which makes it possible to automatically cast string literals to other types like
+`String` by defining custom casters on the literal pointer type (see `within` command).
+
+```
+  func f1 (p: ptr[array[Word[8]]]) { ... }
+  func f2 (p: lptr[array[Word[8]]]) { ... }
+
+  var p: ptr[array[Word[8]]] = "abc"; // OK, literal pointers are implicitly cast to regular pointers.
+  f1("abc");                          // OK.
+  f2("abc");                          // OK.
+  f2(p);                              // Error, regular pointers are not implicitly cast to literal pointers.
+  f2(p~cast[lptr[array[Word[8]]]]);   // OK.
+```
+
+Custom casters can be defined directly on the literal pointer type using `within`:
+
+```
+  within lptr[array[Word[8]]] handler this~cast[String] return String(1, this);
+  func printStr (s: String) { ... }
+  printStr("Hello"); // The literal is automatically cast to String.
+```
+
+The `Srl` library defines the aliases `CharsPtr` for `ptr[array[Word[8]]]` and `CharsLptr` for
+`lptr[array[Word[8]]]`. See the `String` class in the Srl reference for how string literals and `CharsPtr`
+differ when cast to `String`.
 
 ## References
 
@@ -1320,7 +1499,7 @@ in the next example.
 ```
   func twice (ri: ref[int]) { ri *= 2 };
 
-  def i: int = 5;
+  var i: int = 5;
   twice(i);
   // now i == 10
 ```
@@ -1329,8 +1508,8 @@ In the case of the reference being defined as a regular variable and not an argu
 its pointer manually as shown in the next example:
 
 ```
-  def ri: ref[Int];
-  def i: Int;
+  var ri: ref[Int];
+  var i: Int;
   ri~ptr = i~ptr;
   ri = 3;
   // now i == 3
@@ -1339,16 +1518,16 @@ its pointer manually as shown in the next example:
 It is also possible to use `~ptr` operator to make the reference point to a dynamically allocated memory.
 
 ```
-  def r: ref[MyType];
+  var r: ref[MyType];
   r~ptr = Memory.alloc(MyType~size)~cast[ptr[MyType]];
 ```
 
 It is also possible to define a reference to a reference as shown in the next example:
 
 ```
-  def rri: ref[ref[Int]];
-  def ri: ref[Int];
-  def i: Int;
+  var rri: ref[ref[Int]];
+  var ri: ref[Int];
+  var i: Int;
   ri~ptr = i~ptr;
   rri~ptr~ptr = ri~ptr~ptr;
   rri = 3;
@@ -1385,8 +1564,8 @@ the reference itself, not the value that it points to. In those cases we use `~n
 to change the reference itself, not the value. As shown in the next example:
 
 ```
-  def i: Int;
-  def r: ref[Int];
+  var i: Int;
+  var r: ref[Int];
 
   r = i; // Will change the value pointed to by r.
   r~no_deref = i; // Will make r point to i.
@@ -1395,7 +1574,7 @@ to change the reference itself, not the value. As shown in the next example:
 Using `~no_deref` operator on a variable that is not a reference has no effect, but it does not lead to an error.
 
 ```
-  def i: Int;
+  var i: Int;
   i~no_deref = 7; // Equivalent to: i = 7;
 ```
 
@@ -1404,19 +1583,33 @@ used with other types. See the next example:
 
 ```
   class Tp1 [T: type] {
-    def x: T;
+    var x: T;
     x = 0;
   }
-  def i: Tp1[Int]; // No problem, x will be set to 0.
-  def j: Tp1[ref[Int]]; // Causes segfault for updating a random location in memory.
+  var i: Tp1[Int]; // No problem, x will be set to 0.
+  var j: Tp1[ref[Int]]; // Causes segfault for updating a random location in memory.
 
   class Tp2 [T: type] {
-    def x: T;
+    var x: T;
     x~no_deref = 0;
   }
-  def k: Tp2[Int]; // No problem, value of x will be set to 0.
-  def l: Tp2[ref[Int]]; // No problem, value of x will be set to 0, i.e. the pointer value.
+  var k: Tp2[Int]; // No problem, value of x will be set to 0.
+  var l: Tp2[ref[Int]]; // No problem, value of x will be set to 0, i.e. the pointer value.
 ```
+
+### := Operator
+
+The `:=` operator is a shortcut for assigning with `~no_deref`, i.e. `x := y` is equivalent to `x~no_deref = y`:
+
+```
+  var i: Int;
+  var r: ref[Int];
+
+  r := i; // Will make r point to i, same as r~no_deref = i.
+```
+
+Unlike other operators, `:=` can't be overloaded. On a variable that isn't a reference it calls the `=` operator, as
+`x~no_deref = y` does.
 
 ## Arrays
 
@@ -1429,8 +1622,8 @@ Arrays are defined using the `array` built-in type, followed by the elements' ty
 It is possible to access an element in the array by putting its index inside square brackets, as follows:
 
 ```
-  def myArray : array[Int, 10];
-  def i : Int;
+  var myArray : array[Int, 10];
+  var i : Int;
   for i=0, i&lt;10, i++ {
     myArray(i) = factorial(i)
   }
@@ -1442,7 +1635,7 @@ Variables could be represented by a type other than its real type using `~cast` 
 type to be represented inside them. As shown in the next example.
 
 ```
-  def f : Float;
+  var f : Float;
   printInteger(f~cast[Int]);
 ```
 
@@ -1475,11 +1668,11 @@ As shown in the next example.
 
 ```
   class Point {
-    def x: Int;
-    def y: Int;
+    var x: Int;
+    var y: Int;
   }
   
-  def p: Point;
+  var p: Point;
   p.{ x = 5; y = 10 };
   // Upper statement is equivalent to:
   // p.x = 5;
@@ -1519,7 +1712,7 @@ It is also possible to use statements pack with basic types, as shown in the nex
 
 ```
   print("Enter a number: ");
-  def i: Int(getInt());
+  var i: Int(getInt());
   print("Number is %s.\n", ptr[Char]().{
       if i > 0 this = "positive"
       else if i < 0 this = "negative"
@@ -1538,7 +1731,7 @@ as shown in the next example:
 
 ```
   class Type {
-    def i: int;
+    var i: int;
     handler isNumPositive (): String {
       return String()~use_in(self){
         if this.i > 0 self = "positive"
@@ -1560,9 +1753,9 @@ extension, as shown in the next example:
 
 ```
   class Type {
-    def i: int;
+    var i: int;
   }
-  def t: Type;
+  var t: Type;
   t.{
     t.i = 1; // Updates t.i.
   };
@@ -1583,7 +1776,7 @@ User could initialize dynamically created objects using `~init` command, as show
     ...
   };
 
-  def p: ref[Point];
+  var p: ref[Point];
   p~ptr = Memory.alloc(Point~size)~cast[ptr[Point]];
   p~init();
 ```
@@ -1638,7 +1831,7 @@ As shown in the next example:
   module Outer {
     module Inner1 {
       module Inner2 {
-        def v: Int;
+        var v: Int;
       };
     };
   }
@@ -1651,7 +1844,7 @@ Accessing definitions inside another module is done using any of the following:
 
   ```
     def Outer: module {
-      def v: Int;
+      var v: Int;
 
       def Inner: module {
         def printV: function {
@@ -1666,7 +1859,7 @@ Accessing definitions inside another module is done using any of the following:
   ```
     def Outer: module {
       def Inner1: module {
-        def v: Int;
+        var v: Int;
       };
 
       def Inner2: module {
@@ -1690,7 +1883,7 @@ Accessing definitions inside another module is done using any of the following:
     def Outer: module {
       def Inner1: module {
         def Inner2: module {
-          def v: Int;
+          var v: Int;
         };
       };
 
@@ -1778,7 +1971,7 @@ Example:
 
 ```
   class C1 {
-    def i: Int;
+    var i: Int;
     @member macro print_vars [self, v] {
       print("this.i + {{v}}1 = %d\n", self.i + __v__1);
       print("this.i + {{v}}2 = %d\n", self.i + __v__2);
@@ -1788,7 +1981,7 @@ Example:
   .
   s1 = 5;
   s2 = 6;
-  def c: C1;
+  var c: C1;
   c.i = 2;
   c.print_vars[s];
 
@@ -1888,8 +2081,8 @@ The following example explains how to create a group of assignment statements fo
 
 ```
   preprocess {
-      def vars: Array[String] = findVarNames(...);
-      def i: Int;
+      var vars: Array[String] = findVarNames(...);
+      var i: Int;
       for i = 0, i &lt; vars.getLength(), ++i {
           Spp.astMgr.insertAst(
               ast { this.name = 0 },
@@ -1912,17 +2105,17 @@ appending additions to pre-defined definitions. Merge is done using `@merge` mod
 
 ```
   def Point: class {
-    def x: Int;
+    var x: Int;
   };
   .
   .
   @merge def Point: class {
-    def y: Int;
+    var y: Int;
   };
   .
   .
   def start: function {
-    def p: Point;
+    var p: Point;
     p.x = 10;
     p.y = 12;
     .
@@ -1935,8 +2128,8 @@ to define an alias for that instance to be able to merge with it, as shown in th
 
 ```
   class Point [T: type] {
-    def x: T;
-    def y: T;
+    var x: T;
+    var y: T;
   }
 
   def IntPoint: alias Point[Int];
@@ -1945,6 +2138,45 @@ to define an alias for that instance to be able to merge with it, as shown in th
     func print { ... } // This function will be added to Point[Int] only, not all template instances.
   }
 ```
+
+## Adding To Existing Scopes
+
+The `within` command adds statements to a scope that was defined earlier, such as a module or a class. It takes
+the following forms:
+
+```
+  within <qualifier> <statement>
+
+  within <qualifier> {
+    <statements>
+  }
+```
+
+The qualifier is either a single identifier, a list of identifiers separated by dots, or a template
+instance like `lptr[array[Word[8]]]`. The statements are added
+to the scope that the qualifier points to, as shown in the next example:
+
+```
+  module Outer {
+    module Inner {}
+    class Point { var x: Int; }
+  }
+
+  within Outer def a: 1;
+
+  within Outer.Inner {
+    def b: 2;
+    func hello { ... }
+  }
+
+  within Outer.Point {
+    var y: Int;
+  }
+```
+
+If the target is a class, the statements are added to the body of the class. The target must already be defined
+at the point where the `within` command appears. The statements can include `@merge` definitions, which are merged
+into the matching definitions in the target.
 
 ## Import Libraries Or Source Code
 

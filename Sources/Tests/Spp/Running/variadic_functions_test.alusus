@@ -3,8 +3,8 @@ import "Srl/Console.alusus";
 func test (pairCount: Int[32], vArgs: ...any) {
     def i: int;
     while (pairCount > 0) {
-        def iarg: Int = vArgs~next_arg[Int];
-        def farg: Float = vArgs~next_arg[Float];
+        var iarg: Int = vArgs~next_arg[Int];
+        var farg: Float = vArgs~next_arg[Float];
         Srl.Console.print("%d, %f\n", iarg, farg~cast[Float[64]]);
         --pairCount;
     }
@@ -13,7 +13,7 @@ func test (pairCount: Int[32], vArgs: ...any) {
 test(3, 6, 7.3, 18, 9.7, 1, 110.1);
 
 func sum (count: Int, args: ...Int): Int {
-    def r: Int = 0;
+    var r: Int = 0;
     while count-- > 0 r += args~next_arg[Int];
     return r;
 }
@@ -36,12 +36,12 @@ Srl.Console.print("%d\n", sum({}));
 Srl.Console.print("%d\n", sum({ 4, A(), 3 }));
 
 func sumA(count: Int, args: ...A): Int {
-    def r: Int = 0;
+    var r: Int = 0;
     while count-- > 0 r += args~next_arg[A].i;
     return r;
 }
 func sumAnyA(count: Int, args: ...any): Int {
-    def r: Int = 0;
+    var r: Int = 0;
     while count-- > 0 r += args~next_arg[A].i;
     return r;
 }
@@ -49,13 +49,13 @@ Srl.Console.print("%d\n", sumA({ A(12), A(23), A(3) }));
 Srl.Console.print("%d\n", sumAnyA({ A(12), A(23), A(3) }));
 
 func sumB(count: Int, args: ...B): Int {
-    def r: Int = 0;
+    var r: Int = 0;
     while count-- > 0 r += args~next_arg[B].i;
     return r;
 }
 Srl.Console.print("%d\n", sumB({ B().{ i = 13 }, B().{ i = 25 }, B().{ i = 7 } }));
 
-def sumBPtr: ptr[func (Int, ...B): Int] = sumB~ptr;
+var sumBPtr: ptr[func (Int, ...B): Int] = sumB~ptr;
 Srl.Console.print("%d\n", sumBPtr({ B().{ i = 13 }, B().{ i = 25 }, B().{ i = 7 } }));
 
 Srl.Console.print("%d\n", sum({ 4, A(), "wrong" }));

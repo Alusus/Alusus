@@ -47,10 +47,10 @@ void BuildMgr::initializeRuntimePointers(CodeGen::GlobalItemRepo *globalItemRepo
 //==============================================================================
 // Operations
 
-void BuildMgr::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element)
+void BuildMgr::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element, Bool debugInfo)
 {
   PREPARE_SELF(buildMgr, BuildMgr);
-  buildMgr->buildManager->dumpLlvmIrForElement(element);
+  buildMgr->buildManager->dumpLlvmIrForElement(element, debugInfo);
 }
 
 

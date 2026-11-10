@@ -33,6 +33,7 @@ void Helper::initBindingCaches()
     &this->isReferenceTypeFor,
     &this->getReferenceTypeFor,
     &this->getPointerTypeFor,
+    &this->getLiteralPointerTypeFor,
     &this->getArrayTypeFor,
     &this->getValueTypeFor,
     &this->getNullType,
@@ -70,6 +71,7 @@ void Helper::initBindings()
   this->isReferenceTypeFor = &Helper::_isReferenceTypeFor;
   this->getReferenceTypeFor = &Helper::_getReferenceTypeFor;
   this->getPointerTypeFor = &Helper::_getPointerTypeFor;
+  this->getLiteralPointerTypeFor = &Helper::_getLiteralPointerTypeFor;
   this->getArrayTypeFor = &Helper::_getArrayTypeFor;
   this->getValueTypeFor = &Helper::_getValueTypeFor;
   this->getNullType = &Helper::_getNullType;
@@ -149,7 +151,20 @@ TypeMatchStatus Helper::_lookupCustomCaster(
   if (srcRefType != 0) {
     auto srcContentType = ti_cast<DataType>(srcRefType->getContentType(helper));
     if (srcContentType != 0 && srcContentType->getBody() != 0) {
-      PlainList<Core::Ast::Node> argTypes({ srcRefType });
+      // Casters can be chained (the return type of a caster can itself be cast through another caster), so with
+      // casters going in both directions between two types (e.g. ptr to String and String to ptr) the lookup can
+      // cycle.
+      // If a lookup through custom casters of this type is already in progress then we are in a cycle and should
+      // return a no-match regardless of the target type, because a single pass through the custom casters of this
+      // type will also cover indirect casting (casting to a middle type that then cast to the final target) so
+      // there is no way we can reach the target type from a second iteration if the first iteration cannot
+      // reach it.
+      for (auto &active : helper->activeCasterLookups) {
+        if (active == srcContentType) return TypeMatchStatus::NONE;
+      }
+      helper->activeCasterLookups.push_back(srcContentType);
+      finally([=] { helper->activeCasterLookups.pop_back(); });
+      PlainList<Spp::Ast::Type> argTypes({ srcRefType });
       static Core::Ast::Identifier ref({{S("value"), TiStr(S("~cast"))}});
       TypeMatchStatus retMatch;
       helper->getSeeker()->extForeach(&ref, srcContentType->getBody().get(),
@@ -162,6 +177,7 @@ TypeMatchStatus Helper::_lookupCustomCaster(
             auto match = funcType->matchCall(&argTypes, helper);
             if (match == TypeMatchStatus::EXACT) {
               auto retType = funcType->traceRetType(helper);
+              if (retType == 0) return Core::Ast::Seeker::Verb::MOVE;
               if (retType->getInitializationMethod(helper) != Ast::TypeInitMethod::NONE) {
                 retType = helper->getReferenceTypeFor(retType, Ast::ReferenceMode::IMPLICIT);
               }
@@ -178,6 +194,36 @@ TypeMatchStatus Helper::_lookupCustomCaster(
         },
         Core::Ast::Seeker::Flags::SKIP_OWNERS | Core::Ast::Seeker::Flags::SKIP_USES
       );
+      if (retMatch >= TypeMatchStatus::CUSTOM_CASTER) return retMatch;
+      // We couldn't find a suitable cast operator, so let's see if parent classes has a custom
+      // caster. We'll only look for the first injection, and only if that inject is the first
+      // in-mem variable, because the code that generates the caster calls currently doesn't
+      // handle tracing the injections properly like regular function calls do (it doesn't use
+      // CalleeTracer to properly build a call stack, instead it just calls the cast function
+      // directly with the outer `this`).
+      auto body = srcContentType->getBody().get();
+      if (body->getInjectionCount() > 0) {
+        for (Int i = 0; i < body->getElementCount(); ++i) {
+          auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
+          if (def != 0 && !helper->isSharedDef(def)) {
+            auto obj = def->getTarget().get();
+            if (obj != 0 && helper->isInMemVariable(obj)) {
+              if (!isInjection(def)) break;
+              auto memberType = helper->traceType(obj);
+              if (memberType != 0 && memberType->isDerivedFrom<DataType>()) {
+                auto memberTypeRef = helper->getReferenceTypeFor(memberType, Ast::ReferenceMode::IMPLICIT);
+                Function *innerCaster;
+                auto rmatch = helper->lookupCustomCaster(memberTypeRef, targetType, innerCaster);
+                if ((rmatch>=TypeMatchStatus::CUSTOM_CASTER || rmatch==TypeMatchStatus::AGGREGATION) && rmatch>retMatch) {
+                  retMatch = rmatch;
+                  caster = innerCaster;
+                }
+              }
+              break;
+            }
+          }
+        }
+      }
       return retMatch;
     }
   }
@@ -195,12 +241,26 @@ Type* Helper::__traceType(TiObject *self, Core::Ast::Node *ref, Bool skipErrors)
   if (ref->isDerivedFrom<Spp::Ast::TypeOp>()) {
     auto typeOp = static_cast<Spp::Ast::TypeOp*>(ref);
     if (typeOp->getType() != 0) return typeOp->getType();
-    auto operand = typeOp->getOperand().ti_cast_get<Core::Ast::Node>();
-    auto typeRef = helper->getSeeker()->tryGet(operand, operand->getOwner());
-    if (typeRef != 0) {
-      type = helper->_traceType(typeRef, skipErrors);
-      if (type != 0) typeOp->setType(type);
+    // We compute the operand rather than seek it so that any expression is supported, including member chains like
+    // `a.b~type`. Expression computation reports its own errors.
+    Core::Ast::Node *result;
+    Bool resultIsValue;
+    if (!helper->expressionComputation->computeResultType(typeOp->getOperand().get(), result, resultIsValue)) {
+      return 0;
     }
+    if (resultIsValue) {
+      type = static_cast<Type*>(result);
+      // Reading a variable gives an implicit reference to it, which isn't part of the variable's type.
+      auto refType = ti_cast<ReferenceType>(type);
+      if (refType != 0 && refType->isImplicit()) type = refType->getContentType(helper);
+    } else if (result != 0 && result->isDerivedFrom<Spp::Ast::Function>()) {
+      // The type of a function is its function type.
+      type = static_cast<Spp::Ast::Function*>(result)->getType().get();
+    } else if (result != 0) {
+      type = helper->_traceType(result, skipErrors);
+      if (type == 0) return 0;
+    }
+    if (type != 0) typeOp->setType(type);
   }
   else if (ref->isDerivedFrom<Spp::Ast::Type>()) {
     type = static_cast<Spp::Ast::Type*>(ref);
@@ -217,11 +277,8 @@ Type* Helper::__traceType(TiObject *self, Core::Ast::Node *ref, Bool skipErrors)
   } else if (ref->isDerivedFrom<Spp::Ast::Variable>()) {
     auto var = static_cast<Spp::Ast::Variable*>(ref);
     if (var->getType() != 0) return var->getType();
-    if (var->getTypeRef() == 0) {
-      throw EXCEPTION(GenericException, S("Variable definition is missing the type reference."));
-    }
-    type = helper->_traceType(var->getTypeRef().get(), skipErrors);
-    var->setType(type);
+    if (!helper->resolveVarProps(var, skipErrors)) return 0;
+    return var->getType();
   } else if (ref->isDerivedFrom<Spp::Ast::ArgPack>()) {
     // With arg packs we should already have the type set during the generation of the function signature.
     return getAstType(ref);
@@ -301,6 +358,281 @@ Type* Helper::__traceType(TiObject *self, Core::Ast::Node *ref, Bool skipErrors)
   }
 
   return type;
+}
+
+
+Bool Helper::resolveVarProps(Variable *var, Bool skipErrors)
+{
+  if (var->getTypeRef() == 0) {
+    // Deduction reports its own errors.
+    return this->deduceVarType(var);
+  } else {
+    auto paramPass = var->getTypeRef().ti_cast<Core::Ast::ParamPass>();
+    if (paramPass != 0 && paramPass->getType() == Core::Ast::BracketType::ROUND) {
+      if (var->getInitArgs() != 0) {
+        // Constructor args in the type ref, as in `var name: type(args) = value`, can't be combined with init args.
+        if (!skipErrors) {
+          this->getNoticeStore()->add(
+            newSrdObj<Spp::Notices::VarCtorArgsWithValueNotice>(Core::Ast::findSourceLocation(var))
+          );
+          var->setTypeDeductionState(VarTypeDeductionState::FAILED);
+        }
+        return 0;
+      }
+      var->setInitArgs(paramPass->getParam());
+      var->setTypeRef(paramPass->getOperand());
+    }
+    auto type = this->_traceType(var->getTypeRef().get(), skipErrors);
+    var->setType(type);
+    return type != 0;
+  }
+}
+
+
+Bool Helper::deduceVarType(Variable *var)
+{
+  if (var->getTypeDeductionState() == VarTypeDeductionState::FAILED) return 0;
+  if (var->getTypeDeductionState() == VarTypeDeductionState::DEDUCING) {
+    this->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularVarTypeDeductionNotice>(Core::Ast::findSourceLocation(var))
+    );
+    return false;
+  }
+
+  // Find the expression to deduce the type from.
+  if (var->getInitArgs() == 0) {
+    throw EXCEPTION(
+      GenericException, S("Variable definition is missing both the type reference and the initial value.")
+    );
+  }
+  Core::Ast::Node *astExpr;
+  auto list = var->getInitArgs().ti_cast_get<Core::Ast::List>();
+  if (list == 0) {
+    astExpr = var->getInitArgs().get();
+  } else if (list->getCount() == 1) {
+    astExpr = list->getElement(0);
+  } else {
+    this->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::MultiArgVarTypeDeductionNotice>(Core::Ast::findSourceLocation(var))
+    );
+    var->setTypeDeductionState(VarTypeDeductionState::FAILED);
+    return false;
+  }
+
+  // Compute the type of the expression. With an unresolved init mode the expression is either a value, which is
+  // passed to the constructor, or the var's type. Either way the var is initialized by binding.
+  Bool initModeUnresolved = var->getInitMode() == VarInitMode::UNRESOLVED;
+  if (initModeUnresolved) var->setInitMode(VarInitMode::BIND);
+  var->setTypeDeductionState(VarTypeDeductionState::DEDUCING);
+  Core::Ast::Node *result;
+  Bool resultIsValue;
+  Type *type = this->deduceIntLiteralType(astExpr);
+  if (type == 0) {
+    if (this->expressionComputation->computeResultType(astExpr, result, resultIsValue)) {
+      if (resultIsValue) {
+        type = static_cast<Type*>(result);
+        // Implicit references, which we get when reading a variable, are always dropped so the var gets a copy of the
+        // value. Explicit references (e.g. returned by functions) are kept when passed to the constructor, which binds
+        // the reference, but dropped when assigned, since assigning to a reference writes to the referenced value
+        // rather than binding the reference.
+        auto refType = ti_cast<ReferenceType>(type);
+        if (refType != 0 && refType->isImplicit()) type = refType->getContentType(this);
+        if (var->getInitMode() == VarInitMode::COPY) type = this->tryGetDeepReferenceContentType(type);
+        if (this->isVoid(type)) type = 0;
+      } else if (result != 0 && initModeUnresolved) {
+        // The expression is the type of the var rather than its initial value (e.g. `def x: var Int`).
+        type = this->traceType(result, true);
+        if (type != 0) {
+          // Clear the init args before setting the type ref, since clearing them disowns the node.
+          auto typeRef = var->getInitArgs();
+          var->setInitArgs(SharedPtr<Core::Ast::Node>());
+          var->setTypeRef(typeRef);
+        }
+      }
+      if (type == 0) {
+        this->getNoticeStore()->add(
+          newSrdObj<Spp::Notices::VarTypeDeductionFailedNotice>(Core::Ast::findSourceLocation(astExpr))
+        );
+      }
+    }
+  }
+  var->setType(type);
+  var->setTypeDeductionState(type == 0 ? VarTypeDeductionState::FAILED : VarTypeDeductionState::NONE);
+  return type != 0;
+}
+
+
+Type* Helper::deduceIntLiteralType(Core::Ast::Node *astExpr)
+{
+  // Integer literals are given the smallest type that fits their value, which is good for implicit casting but not
+  // as the type of a variable, so we give integer literals that have no explicit size at least 32 bits.
+  while (astExpr->isDerivedFrom<Core::Ast::PrefixOperator>()) {
+    auto prefixOp = static_cast<Core::Ast::PrefixOperator*>(astExpr);
+    if (prefixOp->getType() != S("-") && prefixOp->getType() != S("+")) return 0;
+    astExpr = prefixOp->getOperand().get();
+  }
+  auto literal = ti_cast<Core::Ast::IntegerLiteral>(astExpr);
+  if (literal == 0) return 0;
+  Str value = literal->getValue().get();
+  LongWord _value;
+  Int size;
+  Bool signedNum;
+  Bool typeRequested;
+  this->parseIntLiteral(value, _value, size, signedNum, typeRequested);
+  if (typeRequested) return 0;
+  if (size < 32) size = 32;
+  // 0 and 1 are considered unsigned by parseIntLiteral, which we don't want for variables unless explicitly requested.
+  if (!signedNum && _value <= 1) {
+    Char const *str = value.getBuf();
+    Int len = getStrLen(str);
+    Bool unsignedRequested = (len >= 1 && (str[len - 1] == C('u') || str[len - 1] == C('U'))) ||
+      (len >= 2 && compareStr(str + len - 2, S("ط"), 2) == 0);
+    if (!unsignedRequested) signedNum = true;
+  }
+  return signedNum ? static_cast<Type*>(this->getIntType(size)) : static_cast<Type*>(this->getWordType(size));
+}
+
+
+void Helper::parseIntLiteral(Char const *src, LongWord &value, Int &size, Bool &signedNum, Bool &typeRequested)
+{
+  // TODO: Consider non-English letters prefixes and postfixes in the literal.
+  // TODO: Implement unsigned integers.
+
+  // Parse the given value.
+  Int base = 10;
+  if (compareStr(src, S("0b"), 2) == 0 || compareStr(src, S("0B"), 2) == 0) {
+    base = 2;
+    src += 2;
+  } else if (compareStr(src, S("0ن"), 3) == 0) {
+    base = 2;
+    src += 3;
+  } else if (compareStr(src, S("0o"), 2) == 0 || compareStr(src, S("0O"), 2) == 0) {
+    base = 8;
+    src += 2;
+  } else if (compareStr(src, S("0م"), 3) == 0) {
+    base = 8;
+    src += 3;
+  } else if (
+    compareStr(src, S("0h"), 2) == 0 || compareStr(src, S("0H"), 2) == 0 ||
+    compareStr(src, S("0x"), 2) == 0 || compareStr(src, S("0X"), 2) == 0
+  ) {
+    base = 16;
+    src += 2;
+  }
+  value = 0;
+  while (
+    (*src >= C('0') && *src <= C('9')) ||
+    (*src >= C('a') && *src <= C('f')) ||
+    (*src >= C('A') && *src <= C('F'))
+  ) {
+    Int digit = 0;
+    if (*src >= C('0') && *src <= C('9')) digit = *src - C('0');
+    else if (*src >= C('a') && *src <= C('f')) digit = *src - C('a') + 10;
+    else if (*src >= C('A') && *src <= C('F')) digit = *src - C('A') + 10;
+    ASSERT(digit < base);
+    value *= base;
+    value += digit;
+    ++src;
+  }
+
+  // Is it a signed number?
+  signedNum = true;
+  if (*src == C('u') || *src == C('U')) {
+    signedNum = false;
+    ++src;
+  } else if (compareStr(src, S("ط"), 2) == 0) {
+    signedNum = false;
+    src += 2;
+  }
+
+  // Determine integer size.
+  typeRequested = false;
+  size = 0;
+  if (*src == C('i') || *src == C('I')) {
+    typeRequested = true;
+    ++src;
+    if (getStrLen(src) > 0) size = std::stoi(src);
+  } else if (compareStr(src, S("ص"), 2) == 0) {
+    typeRequested = true;
+    src += 2;
+    if (getStrLen(src) > 0) size = std::stoi(src);
+  }
+  if (size == 0) {
+    if (value == 0 || value == 1) {
+      // Give special treatment to 0 and 1 and consider it unsigned.
+      signedNum = false;
+    }
+    size = signedNum ?
+      this->getNeededIntSize((LongInt)value) :
+      this->getNeededWordSize(value);
+  }
+}
+
+
+Core::Ast::Node* Helper::getVarInitArgs(Core::Ast::Node *astVar, Core::Ast::Node *&astTypeRef)
+{
+  astTypeRef = astVar;
+  auto var = ti_cast<Variable>(astVar);
+  if (var != 0) {
+    this->resolveVarPropsIfNeeded(var);
+    return var->getInitArgs().get();
+  }
+  // TODO: Remove the following once the Variable class is fully utilized as the
+  //       exclusive way to define variables.
+  auto paramPass = ti_cast<Core::Ast::ParamPass>(astVar);
+  if (paramPass != 0 && paramPass->getType() == Core::Ast::BracketType::ROUND) {
+    astTypeRef = paramPass->getOperand().get();
+    return paramPass->getParam().get();
+  }
+  return 0;
+}
+
+
+Variable* Helper::addThisDefinition(
+  Block *body, Char const *thisName, Type *astThisType, Bool skipInjection, Int &index
+) {
+  Core::Ast::Definition *def = 0;
+  // Do we already have the definition?
+  for (index = 0; index < body->getCount(); ++index) {
+    auto tempDef = body->get(index).ti_cast_get<Core::Ast::Definition>();
+    if (
+      tempDef != 0 &&
+      tempDef->getName() == thisName &&
+      tempDef->getMetadata(S("__autovar")) != 0
+    ) {
+      def = tempDef;
+      break;
+    }
+  }
+  // We don't have the definition yet, so we'll create it.
+  if (def == 0) {
+    auto newDef = Core::Ast::Definition::create({
+      {S("sourceLocation"), body->getSourceLocation()},
+      {S("name"), TiStr(thisName)}
+    });
+    newDef->setMetadata(S("__autovar"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+    if (!skipInjection) {
+      newDef->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+    }
+    body->insert(0, newDef);
+    index = 0;
+    def = newDef.get();
+  }
+  // Now we can set the target of the new or existing definition. We reuse the existing var, if any, because the
+  // definition may have been added earlier, in which case the var could already be referenced.
+  auto var = def->getTarget().ti_cast_get<Variable>();
+  if (var == 0) {
+    def->setTarget(Variable::create({
+      {S("valueOnly"), TiBool(true)},
+      {S("sourceLocation"), body->getSourceLocation()}
+    }, {
+      {S("type"), astThisType}
+    }));
+    var = def->getTarget().ti_cast_get<Variable>();
+  } else {
+    var->setType(astThisType);
+  }
+  return var;
 }
 
 
@@ -434,7 +766,21 @@ PointerType* Helper::_getPointerTypeFor(TiObject *self, Core::Ast::Node *type)
 {
   PREPARE_SELF(helper, Helper);
 
-  auto tpl = helper->getPointerTemplate();
+  return helper->instantiatePointerType(helper->getPointerTemplate(), type);
+}
+
+
+PointerType* Helper::_getLiteralPointerTypeFor(TiObject *self, Core::Ast::Node *type)
+{
+  PREPARE_SELF(helper, Helper);
+
+  return helper->instantiatePointerType(helper->getLiteralPointerTemplate(), type);
+}
+
+
+PointerType* Helper::instantiatePointerType(Template *tpl, Core::Ast::Node *type)
+{
+  auto helper = this;
 
   SharedPtr<Core::Ast::Node> result;
   SharedPtr<Core::Notices::Notice> notice;
@@ -942,6 +1288,22 @@ Template* Helper::getPointerTemplate()
     throw EXCEPTION(GenericException, S("Invalid object found for ptr template."));
   }
   return this->ptrTemplate;
+}
+
+
+Template* Helper::getLiteralPointerTemplate()
+{
+  if (this->lptrTemplate != 0) return this->lptrTemplate;
+
+  Core::Ast::Identifier identifier;
+  identifier.setValue(S("lptr"));
+  this->lptrTemplate = ti_cast<Template>(rootManager->getSeeker()->doGet(
+    &identifier, this->rootManager->getRootScope().get())
+  );
+  if (this->lptrTemplate == 0) {
+    throw EXCEPTION(GenericException, S("Invalid object found for lptr template."));
+  }
+  return this->lptrTemplate;
 }
 
 

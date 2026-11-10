@@ -18,27 +18,22 @@ namespace Spp
 //==============================================================================
 // Initialization Functions
 
-RootScopeHandlerExtension::Overrides* RootScopeHandlerExtension::extend(
+void RootScopeHandlerExtension::extend(
   Core::Main::RootScopeHandler *handler, Core::Main::RootManager *rootManager
 ) {
   auto extension = newSrdObj<RootScopeHandlerExtension>(handler);
   handler->addDynamicInterface(extension);
 
-  auto overrides = new Overrides();
   extension->rootManagerBox = TiBox<Core::Main::RootManager*>::create(rootManager);
-  overrides->addNewElementRef = handler->addNewElement.set(&RootScopeHandlerExtension::_addNewElement).get();
-
-  return overrides;
 }
 
 
-void RootScopeHandlerExtension::unextend(Core::Main::RootScopeHandler *handler, Overrides *overrides)
+void RootScopeHandlerExtension::unextend(Core::Main::RootScopeHandler *handler)
 {
   auto extension = ti_cast<RootScopeHandlerExtension>(handler);
-  handler->addNewElement.reset(overrides->addNewElementRef);
   extension->rootManagerBox.remove();
+  // Removing the extension destroys its binding caches, which in turn remove the overrides they have set.
   handler->removeDynamicInterface<RootScopeHandlerExtension>();
-  delete overrides;
 }
 
 
@@ -46,14 +41,15 @@ void RootScopeHandlerExtension::unextend(Core::Main::RootScopeHandler *handler, 
 // Main Functions
 
 void RootScopeHandlerExtension::_addNewElement(
-  TiFunctionBase *base, TiObject *self, SharedPtr<Core::Ast::Node> const &data,
+  TiObject *self, SharedPtr<Core::Ast::Node> const &data,
   Core::Processing::Parser *parser, Core::Processing::ParserState *state
 ) {
   PREPARE_SELF(rootScopeHandler, Core::Main::RootScopeHandler);
+  PREPARE_SELF(extension, RootScopeHandlerExtension);
   auto root = rootScopeHandler->getRootScope().get();
 
   auto start = root->getCount();
-  rootScopeHandler->addNewElement.useCallee(base)(data, parser, state);
+  extension->addNewElement.callSuper(data, parser, state);
 
   Bool execute = false;
   for (Int i = start; i < root->getCount(); ++i) {
@@ -65,7 +61,6 @@ void RootScopeHandlerExtension::_addNewElement(
   }
 
   if (execute) {
-    PREPARE_SELF(extension, RootScopeHandlerExtension);
     auto rootManager = extension->rootManagerBox->get();
     auto rootManagerExt = ti_cast<RootManagerExtension>(rootManager);
 

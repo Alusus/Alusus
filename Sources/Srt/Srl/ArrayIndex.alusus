@@ -121,7 +121,7 @@ import "Memory";
                 result = endPos;
                 return 0;
             } else {
-                def midPos: ArchInt = (startPos + endPos) / 2;
+                var midPos: ArchInt = (startPos + endPos) / 2;
                 def vm: ref[T](this.values(this.indices(midPos)));
                 if v == vm {
                     result = midPos;

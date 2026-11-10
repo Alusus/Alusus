@@ -239,3 +239,46 @@ func testRefCasting {
 }
 
 testRefCasting();
+
+//
+// := operator
+//
+
+class Holder {
+    def r: ref[Int];
+};
+
+class Assignable {
+    def v: Int;
+    handler this = Assignable { print("Assignable = called\n"); this.v = value.v };
+};
+
+func testColonAssign {
+    print("testColonAssign:\n");
+    var i = 1, j = 2;
+    def ri: ref[Int];
+    ri := i;
+    ri := j;
+    ri = 5;
+    print("i = %d, j = %d\n", i, j);
+
+    def rri: ref[ref[Int]];
+    rri := ri;
+    rri = 6;
+    print("j = %d\n", j);
+
+    var h: Holder;
+    h.r := i;
+    h.r = 7;
+    print("i = %d\n", i);
+
+    // For non-references, := is the same as =.
+    var x = 3;
+    x := 4;
+    var a: Assignable, b: Assignable;
+    b.v = 8;
+    a := b;
+    print("x = %d, a = %d\n", x, a.v);
+}
+
+testColonAssign();

@@ -45,8 +45,8 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
   //============================================================================
   // Types
 
-  public: typedef std::unordered_map<Str, Int, std::hash<Str>> TextBasedDecisionCache;
-  public: typedef std::unordered_map<Word, Int> IdBasedDecisionCache;
+  /// Used by the lexer to map a character to whether the inner term may accept it.
+  public: typedef std::unordered_map<WChar, Bool> CharBasedDecisionCache;
 
 
   //============================================================================
@@ -61,6 +61,8 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
   private: TextBasedDecisionCache innerTextBasedDecisionCache;
 
   private: IdBasedDecisionCache innerIdBasedDecisionCache;
+
+  private: CharBasedDecisionCache charBasedDecisionCache;
 
 
   //============================================================================
@@ -93,6 +95,11 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
 
   //============================================================================
   // Member Functions
+
+  public: virtual TermType getTermType() const
+  {
+    return TermType::MULTIPLY;
+  }
 
   /// Set the head of the child branch.
   public: void setTerm(const SharedPtr<Term> &t)
@@ -147,6 +154,11 @@ class MultiplyTerm : public Term, public CacheHaving, public MapContaining<TiObj
   public: IdBasedDecisionCache* getInnerIdBasedDecisionCache()
   {
     return &this->innerIdBasedDecisionCache;
+  }
+
+  public: CharBasedDecisionCache* getCharBasedDecisionCache()
+  {
+    return &this->charBasedDecisionCache;
   }
 
 

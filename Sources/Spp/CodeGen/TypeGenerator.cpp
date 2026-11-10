@@ -73,7 +73,8 @@ Bool TypeGenerator::getGeneratedType(
 ) {
   Spp::Ast::Type *astType;
   if (!this->_getGeneratedType(ref, g, session, astType)) return false;
-  targetTypeResult = session->getEda()->getCodeGenData<TiObject>(astType);
+  if (session->isAstComputationOnly()) targetTypeResult = 0;
+  else targetTypeResult = session->getEda()->getCodeGenData<TiObject>(astType);
   if (astTypeResult != 0) {
     *astTypeResult = astType;
   }
@@ -87,7 +88,8 @@ Bool TypeGenerator::getGeneratedVoidType(
   auto voidType = this->astHelper->getVoidType();
   Ast::Type *dummy;
   if (!this->_getGeneratedType(voidType, g, session, dummy)) return false;
-  tgTypeResult = session->getEda()->getCodeGenData<TiObject>(voidType);
+  if (session->isAstComputationOnly()) tgTypeResult = 0;
+  else tgTypeResult = session->getEda()->getCodeGenData<TiObject>(voidType);
   if (astTypeResult != 0) {
     *astTypeResult = voidType;
   }
@@ -107,12 +109,77 @@ Bool TypeGenerator::_getGeneratedType(Core::Ast::Node *ref, Generation *g, Sessi
     sourceLocation = ref->findSourceLocation().get();
     this->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   }
-  Bool result = this->generateType(type, g, session);
+  Bool result = session->isAstComputationOnly() ? this->prepareType(type) : this->generateType(type, g, session);
   if (shouldPushSl && sourceLocation != 0) {
     this->astHelper->getNoticeStore()->popPrefixSourceLocation();
   }
 
   return result;
+}
+
+
+/// Prepares a type for use in an AST computation only session by running the AST processing that generating the type
+/// would otherwise trigger, without generating anything in the target.
+Bool TypeGenerator::prepareType(Spp::Ast::Type *astType)
+{
+  if (isTypePrepared(astType)) return true;
+
+  Bool result = true;
+  if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
+    result = this->astProcessor->processTypeBody(static_cast<Spp::Ast::UserType*>(astType));
+  } else if (astType->isDerivedFrom<Spp::Ast::PointerType>()) {
+    auto contentType = static_cast<Spp::Ast::PointerType*>(astType)->getContentType(this->astHelper);
+    result = contentType == 0 || this->prepareType(contentType);
+  } else if (astType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
+    auto contentType = static_cast<Spp::Ast::ReferenceType*>(astType)->getContentType(this->astHelper);
+    result = contentType == 0 || this->prepareType(contentType);
+  } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
+    auto contentType = static_cast<Spp::Ast::ArrayType*>(astType)->getContentType(this->astHelper);
+    result = contentType == 0 || this->prepareType(contentType);
+  } else if (astType->isDerivedFrom<Spp::Ast::FunctionType>()) {
+    auto funcType = static_cast<Spp::Ast::FunctionType*>(astType);
+    auto astArgs = funcType->getArgTypes().get();
+    auto argCount = astArgs == 0 ? 0 : astArgs->getCount();
+    for (Int i = 0; i < argCount; ++i) {
+      auto argType = astArgs->getElement(i);
+      if (argType->isDerivedFrom<Ast::ArgPack>()) break;
+      auto argAstType = this->astHelper->traceType(argType);
+      if (argAstType == 0 || !this->prepareType(argAstType)) result = false;
+    }
+    auto retType = funcType->traceRetType(this->astHelper);
+    if (retType == 0 || !this->prepareType(retType)) result = false;
+  } else if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
+    result = this->validateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType));
+  } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
+    result = this->validateFloatType(static_cast<Spp::Ast::FloatType*>(astType));
+  }
+
+  if (result) setTypePrepared(astType, true);
+  return result;
+}
+
+
+Bool TypeGenerator::validateIntegerType(Spp::Ast::IntegerType *astType)
+{
+  auto bitCount = astType->getBitCount(this->astHelper);
+  // TODO: Support 128 bits?
+  if (bitCount != 0 && bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
+    this->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
+    return false;
+  }
+  return true;
+}
+
+
+Bool TypeGenerator::validateFloatType(Spp::Ast::FloatType *astType)
+{
+  auto bitCount = astType->getBitCount(this->astHelper);
+  // TODO: Support 128 bits?
+  if (bitCount != 32 && bitCount != 64) {
+    this->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
+    return false;
+  }
+  return true;
 }
 
 
@@ -156,26 +223,31 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
   auto cgType = session->getEda()->tryGetCodeGenData<TiObject>(astType);
   if (cgType != 0) return true;
 
+  Bool result;
   if (astType->isDerivedFrom<Spp::Ast::VoidType>()) {
-    return typeGenerator->generateVoidType(static_cast<Spp::Ast::VoidType*>(astType), session);
+    result = typeGenerator->generateVoidType(static_cast<Spp::Ast::VoidType*>(astType), session);
   } else if (astType->isDerivedFrom<Spp::Ast::IntegerType>()) {
-    return typeGenerator->generateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType), session);
+    result = typeGenerator->generateIntegerType(static_cast<Spp::Ast::IntegerType*>(astType), session);
   } else if (astType->isDerivedFrom<Spp::Ast::FloatType>()) {
-    return typeGenerator->generateFloatType(static_cast<Spp::Ast::FloatType*>(astType), session);
+    result = typeGenerator->generateFloatType(static_cast<Spp::Ast::FloatType*>(astType), session);
   } else if (astType->isDerivedFrom<Spp::Ast::PointerType>()) {
-    return typeGenerator->generatePointerType(static_cast<Spp::Ast::PointerType*>(astType), g, session);
+    result = typeGenerator->generatePointerType(static_cast<Spp::Ast::PointerType*>(astType), g, session);
   } else if (astType->isDerivedFrom<Spp::Ast::ReferenceType>()) {
-    return typeGenerator->generateReferenceType(static_cast<Spp::Ast::ReferenceType*>(astType), g, session);
+    result = typeGenerator->generateReferenceType(static_cast<Spp::Ast::ReferenceType*>(astType), g, session);
   } else if (astType->isDerivedFrom<Spp::Ast::ArrayType>()) {
-    return typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType), g, session);
+    result = typeGenerator->generateArrayType(static_cast<Spp::Ast::ArrayType*>(astType), g, session);
   } else if (astType->isDerivedFrom<Spp::Ast::UserType>()) {
-    return typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType), g, session);
+    result = typeGenerator->generateUserType(static_cast<Spp::Ast::UserType*>(astType), g, session);
   } else if (astType->isDerivedFrom<Spp::Ast::FunctionType>()) {
-    return typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), g, session);
+    result = typeGenerator->generateFunctionType(static_cast<Spp::Ast::FunctionType*>(astType), g, session);
   } else {
     typeGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidTypeNotice>());
-    return false;
+    result = false;
   }
+
+  // Generating a type covers everything preparing it does, so AST computation only sessions can skip it.
+  if (result) setTypePrepared(astType, true);
+  return result;
 }
 
 
@@ -191,12 +263,8 @@ Bool TypeGenerator::_generateVoidType(TiObject *self, Spp::Ast::VoidType *astTyp
 Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *astType, Session *session)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
+  if (!typeGenerator->validateIntegerType(astType)) return false;
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
-  // TODO: Support 128 bits?
-  if (bitCount != 0 && bitCount != 1 && bitCount != 8 && bitCount != 16 && bitCount != 32 && bitCount != 64) {
-    typeGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidIntegerBitCountNotice>());
-    return false;
-  }
   TioSharedPtr tgType;
   if (!session->getTg()->generateIntType(bitCount, astType->isSigned(), tgType)) return false;
   session->getEda()->setCodeGenData(astType, tgType);
@@ -207,12 +275,8 @@ Bool TypeGenerator::_generateIntegerType(TiObject *self, Spp::Ast::IntegerType *
 Bool TypeGenerator::_generateFloatType(TiObject *self, Spp::Ast::FloatType *astType, Session *session)
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
+  if (!typeGenerator->validateFloatType(astType)) return false;
   auto bitCount = astType->getBitCount(typeGenerator->astHelper);
-  // TODO: Support 128 bits?
-  if (bitCount != 32 && bitCount != 64) {
-    typeGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidFloatBitCountNotice>());
-    return false;
-  }
   TioSharedPtr tgType;
   if (!session->getTg()->generateFloatType(bitCount, tgType)) return false;
   session->getEda()->setCodeGenData(astType, tgType);
@@ -693,7 +757,7 @@ Bool TypeGenerator::_generateCast(
     TioSharedPtr tgTempVar;
     if (!g->generateTempVar(astNode, srcType, session, false, tgTempVar)) return false;
     PlainList<Core::Ast::Node> paramAstNodes({ astNode });
-    PlainList<Core::Ast::Node> paramAstTypes({ srcType });
+    PlainList<Spp::Ast::Type> paramAstTypes({ srcType });
     SharedList<TiObject> paramTgValues({ getSharedPtr(tgValue) });
     TioSharedPtr tgRef;
     if (!session->getTg()->generateVarReference(
@@ -722,7 +786,7 @@ Bool TypeGenerator::_generateCast(
     // Call the caster.
     GenResult callResult;
     PlainList<TiObject> paramTgValues({ tgValue });
-    PlainList<Core::Ast::Node> paramAstTypes({ srcType });
+    PlainList<Spp::Ast::Type> paramAstTypes({ srcType });
     if (!g->generateFunctionCall(astNode, caster, &paramAstTypes, &paramTgValues, session, callResult)) return false;
     return typeGenerator->generateCast(
       g, session, callResult.astType, targetType, astNode, callResult.targetData.get(), implicit, result

@@ -40,8 +40,8 @@ class AlternateTerm : public ListTerm
   //============================================================================
   // Types
 
-  public: typedef std::unordered_map<Str, Int, std::hash<Str>> TextBasedDecisionCache;
-  public: typedef std::unordered_map<Word, Int> IdBasedDecisionCache;
+  /// Used by the lexer to map a character to the indexes of the branches that may accept it.
+  public: typedef std::unordered_map<WChar, std::vector<Int>> CharBasedDecisionCache;
 
 
   //============================================================================
@@ -49,6 +49,7 @@ class AlternateTerm : public ListTerm
 
   private: TextBasedDecisionCache textBasedDecisionCache;
   private: IdBasedDecisionCache idBasedDecisionCache;
+  private: CharBasedDecisionCache charBasedDecisionCache;
 
 
   //============================================================================
@@ -66,6 +67,11 @@ class AlternateTerm : public ListTerm
   //============================================================================
   // Member Functions
 
+  public: virtual TermType getTermType() const
+  {
+    return TermType::ALTERNATE;
+  }
+
   public: TextBasedDecisionCache* getInnerTextBasedDecisionCache()
   {
     return &this->textBasedDecisionCache;
@@ -74,6 +80,11 @@ class AlternateTerm : public ListTerm
   public: IdBasedDecisionCache* getInnerIdBasedDecisionCache()
   {
     return &this->idBasedDecisionCache;
+  }
+
+  public: CharBasedDecisionCache* getCharBasedDecisionCache()
+  {
+    return &this->charBasedDecisionCache;
   }
 
 
@@ -85,6 +96,7 @@ class AlternateTerm : public ListTerm
   {
     this->textBasedDecisionCache.clear();
     this->idBasedDecisionCache.clear();
+    this->charBasedDecisionCache.clear();
   }
 
 }; // class

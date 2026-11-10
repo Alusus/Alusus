@@ -41,11 +41,13 @@ struct CalleeLookupRequest
   Core::Ast::Node *injectionChainStartTarget = 0;
   CalleeLookupMode mode = CalleeLookupMode::DIRECTLY_ACCESSIBLE;
   Bool skipInjections = false;
+  // Allows directly accessing object member vars without an object, which is valid when only computing types.
+  Bool treatObjectMembersAsGlobals = false;
   Char const *varTargetOp = 0;
   Core::Ast::Node *ref = 0;
   Str op;
-  Core::Ast::Node *thisType = 0;
-  Containing<Core::Ast::Node> *argTypes = 0;
+  Spp::Ast::Type *thisType = 0;
+  Containing<Spp::Ast::Type> *argTypes = 0;
   Core::Ast::Node *templateParam = 0;
 };
 

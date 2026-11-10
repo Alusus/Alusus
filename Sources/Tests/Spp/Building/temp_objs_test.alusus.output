@@ -225,12 +225,12 @@ define void @D.__autoDestruct__(ptr %this) {
 
 define void @E.__autoConstruct__(ptr %this) {
 "#block5":
+  %0 = getelementptr %E, ptr %this, i32 0, i32 0
   %"#temp5" = alloca %A, align 4
   call void @"A.~init(ref[A])"(ptr %"#temp5")
-  %0 = getelementptr %A, ptr %"#temp5", i32 0, i32 0
-  %1 = getelementptr %E, ptr %this, i32 0, i32 0
-  %2 = load i32, ptr %0, align 4
-  store i32 %2, ptr %1, align 4
+  %1 = getelementptr %A, ptr %"#temp5", i32 0, i32 0
+  %2 = load i32, ptr %1, align 4
+  store i32 %2, ptr %0, align 4
   call void @"A.~terminate(ref[A])"(ptr %"#temp5")
   %3 = getelementptr %E, ptr %this, i32 0, i32 1
   %"#temp6" = alloca %A, align 4

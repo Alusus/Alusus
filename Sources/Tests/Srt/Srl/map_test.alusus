@@ -53,8 +53,8 @@ func testWithIndex {
 
 func testRefValues {
     def map: Map[Int, ref[Int]];
-    def i: Int = 5;
-    def j: Int = 6;
+    var i: Int = 5;
+    var j: Int = 6;
 
     map.set(0, i);
     map.set(1, i);

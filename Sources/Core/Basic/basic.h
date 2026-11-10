@@ -816,7 +816,7 @@ extern std::istream &inStream;
 #include "TiWStr.h"
 #include "TiBool.h"
 #include "TiBox.h"
-#include "ti_functions.h"
+#include "ti_callees.h"
 
 #include "Binding.h"
 #include "BindingMap.h"

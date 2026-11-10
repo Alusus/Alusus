@@ -40,6 +40,11 @@ class Session : public TiObject
   private: TioSharedPtr tgSelf; // TODO: Rename to tgSelfVar
   private: Ast::Type *astSelfType;
 
+  // When set, expressions are only processed to compute their AST results (e.g. result types) and nothing is
+  // generated in the target, including types and function declarations. Sessions that aren't in this mode always
+  // have a TG context when generating expressions.
+  private: Bool astComputationOnly;
+
   // This variable is used to enable generating global constructors in a different session.
   // It's needed in case of running in JIT session. When running in JIT session we still
   // want to run global constructors in the pre-process session to avoid cases where a
@@ -72,6 +77,7 @@ class Session : public TiObject
     , depsInfo(newSrdObj<DependencyInfo>())
     , tgSelf(0)
     , astSelfType(0)
+    , astComputationOnly(false)
     , globalCtorSession(globalCtorSess)
   {}
 
@@ -88,6 +94,7 @@ class Session : public TiObject
     , depsInfo(session->depsInfo)
     , tgSelf(session->getTgSelf())
     , astSelfType(session->getAstSelfType())
+    , astComputationOnly(session->isAstComputationOnly())
     , globalCtorSession(session->getGlobalCtorSession())
   {}
 
@@ -105,6 +112,7 @@ class Session : public TiObject
     , globalDtors(session->getGlobalDtors())
     , tgSelf(session->getTgSelf())
     , astSelfType(session->getAstSelfType())
+    , astComputationOnly(session->isAstComputationOnly())
     , globalCtorSession(session->getGlobalCtorSession())
   {}
 
@@ -123,6 +131,7 @@ class Session : public TiObject
     , offlineExecution(session->isOfflineExecution())
     , globalCtors(session->getGlobalCtors())
     , globalDtors(session->getGlobalDtors())
+    , astComputationOnly(session->isAstComputationOnly())
     , globalCtorSession(session->getGlobalCtorSession())
   {}
 
@@ -139,6 +148,7 @@ class Session : public TiObject
   }
 
   public: TargetGeneration* getTg() {
+    ASSERT(!this->astComputationOnly);
     return this->tg;
   }
 
@@ -204,6 +214,14 @@ class Session : public TiObject
 
   public: Ast::Type* getAstSelfType() {
     return this->astSelfType;
+  }
+
+  public: void setAstComputationOnly(Bool to) {
+    this->astComputationOnly = to;
+  }
+
+  public: Bool isAstComputationOnly() const {
+    return this->astComputationOnly;
   }
 
   public: Session* getGlobalCtorSession() const {

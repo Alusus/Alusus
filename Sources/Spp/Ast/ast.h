@@ -106,6 +106,24 @@ s_enum(TypeInitMethod,
   BOTH = 3
 );
 
+/// @ingroup spp_ast
+/// How a var's init args are used to initialize it.
+/// BIND: The init args are passed to the constructor, which binds references.
+/// COPY: The var is constructed empty, then the init args are assigned to it.
+/// UNRESOLVED: The init args are either the var's type or its initial value, as in `var expression`, which is decided
+///             during type deduction, after which it's set to BIND and, if it's a type, moved into the type ref.
+ti_s_enum(VarInitMode,
+  TiInt, "Spp.Ast", "Spp", "alusus.org",
+  BIND = 0, COPY = 1, UNRESOLVED = 2
+);
+
+/// @ingroup spp_ast
+s_enum(VarTypeDeductionState,
+  NONE = 0,
+  DEDUCING = 1,
+  FAILED = 2
+);
+
 
 //==============================================================================
 // Forward Class Declarations

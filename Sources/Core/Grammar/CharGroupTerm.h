@@ -63,6 +63,11 @@ class CharGroupTerm : public Term
   //============================================================================
   // Member Functions
 
+  public: virtual TermType getTermType() const
+  {
+    return TermType::CHAR_GROUP;
+  }
+
   public: void setCharGroupReference(SharedPtr<Reference> const &ref)
   {
     UPDATE_OWNED_SHAREDPTR(this->charGroupReference, ref);
