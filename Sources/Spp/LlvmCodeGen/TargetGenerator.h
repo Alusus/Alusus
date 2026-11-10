@@ -141,6 +141,30 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   /// @}
 
+  /// @name Debug Info Generation Functions
+  /// @{
+
+  private: static Bool _setFunctionDebugInfo(
+    TiObject *self, TiObject *function, Char const *name, Core::Ast::Node *node
+  );
+
+  private: static Bool _setVariableDebugInfo(
+    TiObject *self, TiObject *context, TiObject *variable, Char const *name, TiObject *type, Core::Ast::Node *node,
+    Word argIndex
+  );
+
+  private: static Bool _setGlobalVariableDebugInfo(
+    TiObject *self, TiObject *variable, Char const *name, TiObject *type, Core::Ast::Node *node
+  );
+
+  private: static Bool _setDebugLocation(TiObject *self, TiObject *context, Core::Ast::Node *node);
+
+  private: static Bool _prepareDebugScope(TiObject *self, TiObject *context, Core::Ast::Node *node);
+
+  private: static Bool _finishDebugScope(TiObject *self, TiObject *context);
+
+  /// @}
+
   /// @name Variable Definition Generation Functions
   /// @{
 
@@ -432,6 +456,12 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
     TiObject *self, TiObject *context, TiObject *type, void *value, TioSharedPtr &destVal
   );
 
+  private: SharedPtr<Block> prepareBlock(
+    llvm::BasicBlock *llvmBlock,
+    Function *function,
+    Bool exitBlock
+  );
+
   /// @}
 
   /// @name Helper Functions
@@ -440,6 +470,14 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   private: std::string getNewBlockName();
 
   private: std::string getAnonymouseVarName();
+
+  /// Get the debug info of the module the given function is being built in, or null if there is none.
+  private: ModuleDebugInfo* getFunctionDebugInfo(Function *function);
+
+  /// Create the debug info subprogram of a function, using the location chain of the function's source code.
+  private: void createFunctionDebugInfo(
+    Function *function, std::vector<Core::Ast::SourceLocationRecord const*> const &chain
+  );
 
   /// @}
 

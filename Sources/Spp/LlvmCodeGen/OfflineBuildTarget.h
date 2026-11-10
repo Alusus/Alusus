@@ -43,6 +43,8 @@ class OfflineBuildTarget : public BuildTarget
   private: std::unique_ptr<llvm::DataLayout> llvmDataLayout;
   private: std::unique_ptr<llvm::LLVMContext> llvmContext;
   private: std::unique_ptr<llvm::Module> llvmModule;
+  // Declared after llvmModule so that it's destroyed first.
+  private: std::unique_ptr<ModuleDebugInfo> debugInfo;
   private: LlvmGlobalCtorDtorEntryTypes llvmGlobalCtorDtorEntryTypes;
   private: Bool optimize = false;
 
@@ -57,6 +59,7 @@ class OfflineBuildTarget : public BuildTarget
 
   public: virtual ~OfflineBuildTarget()
   {
+    this->debugInfo.reset();
     this->llvmModule.reset();
     this->llvmContext.reset();
   }
@@ -79,6 +82,16 @@ class OfflineBuildTarget : public BuildTarget
   public: std::string const& getTargetTriple() const
   {
     return this->targetTriple;
+  }
+
+  public: virtual std::string getTargetTripleName()
+  {
+    return this->targetTriple;
+  }
+
+  public: virtual Bool isOptimized() const
+  {
+    return this->optimize;
   }
 
   public: virtual Bool isSysVX86_64Abi()
@@ -104,6 +117,13 @@ class OfflineBuildTarget : public BuildTarget
   public: Word getPointerBitCount()
   {
     return this->llvmDataLayout->getPointerSizeInBits();
+  }
+
+  /// Returns the debug info of the global module, or null if debug info is disabled.
+  public: virtual ModuleDebugInfo* getDebugInfo()
+  {
+    this->getGlobalLlvmModule();
+    return this->debugInfo.get();
   }
 
   public: virtual void addLlvmModule(std::unique_ptr<llvm::Module> module);

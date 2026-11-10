@@ -40,6 +40,14 @@ void TargetGenerator::initBindings()
   targetGeneration->finishFunctionBody = &TargetGenerator::_finishFunctionBody;
   targetGeneration->deleteFunction = &TargetGenerator::_deleteFunction;
 
+  // Debug Info Generation Functions
+  targetGeneration->setFunctionDebugInfo = &TargetGenerator::_setFunctionDebugInfo;
+  targetGeneration->setVariableDebugInfo = &TargetGenerator::_setVariableDebugInfo;
+  targetGeneration->setGlobalVariableDebugInfo = &TargetGenerator::_setGlobalVariableDebugInfo;
+  targetGeneration->setDebugLocation = &TargetGenerator::_setDebugLocation;
+  targetGeneration->prepareDebugScope = &TargetGenerator::_prepareDebugScope;
+  targetGeneration->finishDebugScope = &TargetGenerator::_finishDebugScope;
+
   // Variable Definition Generation Functions
   targetGeneration->generateGlobalVariable = &TargetGenerator::_generateGlobalVariable;
   targetGeneration->generateLocalVariable = &TargetGenerator::_generateLocalVariable;
@@ -220,6 +228,7 @@ Bool TargetGenerator::_generateStructTypeBody(
   SharedList<TiObject> *members
 ) {
   VALIDATE_NOT_NULL(membersTypes, members);
+  PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(type, tgType, StructType);
 
   std::vector<llvm::Type*> structMembers;
@@ -232,6 +241,9 @@ Bool TargetGenerator::_generateStructTypeBody(
       );
     }
     structMembers.push_back(contentTypeWrapper->getLlvmType());
+    if (targetGenerator->buildTarget->isDebugInfoEnabled()) {
+      tgType->addMember(membersTypes->getElementKey(i).getBuf(), getSharedPtr(contentTypeWrapper));
+    }
 
     SharedPtr<Variable> var = newSrdObj<Variable>();
     var->setLlvmStructIndex(i);
@@ -695,13 +707,22 @@ Bool TargetGenerator::_prepareFunctionBody(
     llvmModule = targetGenerator->buildTarget->getGlobalLlvmModule();
   }
 
+  // Create the debug info subprogram, if we have what we need for it. Instructions generated from here on, including
+  // the function prologue, are tagged with the function's declaration location.
+  if (targetGenerator->buildTarget->isDebugInfoEnabled() && funcWrapper->debugNode != 0) {
+    std::vector<Core::Ast::SourceLocationRecord const*> chain;
+    ModuleDebugInfo::findLocationChain(funcWrapper->debugNode, chain);
+    if (!chain.empty()) targetGenerator->createFunctionDebugInfo(funcWrapper, chain);
+  }
+
   // Create the block
-  auto block = newSrdObj<Block>();
-  block->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), llvmFunc
-  ));
-  block->setIrBuilder(new llvm::IRBuilder<>(block->getLlvmBlock()));
-  block->setFunction(funcWrapper);
+  auto block = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), llvmFunc
+    ),
+    funcWrapper,
+    false
+  );
 
   // Prepare the function arguments.
   PREPARE_ARG(functionType, funcTypeWrapper, FunctionType);
@@ -787,6 +808,12 @@ Bool TargetGenerator::_finishFunctionBody(
     LOG(
       Spp::LogLevel::LLVMCODEGEN_IR, S("Adding function module to build target: ") << funcWrapper->getName()
     );
+    // The function's debug info is complete once its body is, and it must not outlive the module, which is about to
+    // be handed over to the build target.
+    if (funcWrapper->debugInfo != 0) {
+      funcWrapper->debugInfo->finalize();
+      funcWrapper->debugInfo.reset();
+    }
     targetGenerator->buildTarget->addLlvmModule(std::move(funcWrapper->llvmModule));
   }
 
@@ -798,6 +825,156 @@ Bool TargetGenerator::_deleteFunction(TiObject *self, TiObject *function)
 {
   PREPARE_ARG(function, funcWrapper, Function);
   funcWrapper->getLlvmFunction()->eraseFromParent();
+  return true;
+}
+
+
+//==============================================================================
+// Debug Info Generation Functions
+
+Bool TargetGenerator::_setFunctionDebugInfo(
+  TiObject *self, TiObject *function, Char const *name, Core::Ast::Node *node
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
+  PREPARE_ARG(function, funcWrapper, Function);
+  funcWrapper->debugName = name;
+  funcWrapper->debugNode = node;
+  funcWrapper->debugSynthetic = node == 0;
+  return true;
+}
+
+
+Bool TargetGenerator::_setVariableDebugInfo(
+  TiObject *self, TiObject *context, TiObject *variable, Char const *name, TiObject *type, Core::Ast::Node *node,
+  Word argIndex
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
+  PREPARE_ARG(context, block, Block);
+  PREPARE_ARG(variable, varWrapper, Variable);
+
+  auto funcWrapper = block->getFunction();
+  if (funcWrapper == 0 || funcWrapper->diSubprogram == 0) return true;
+  auto location = ModuleDebugInfo::findLocationRecord(node);
+  if (location == 0 || varWrapper->getLlvmAllocaInst() == 0) return true;
+
+  targetGenerator->getFunctionDebugInfo(funcWrapper)->declareLocalVariable(
+    funcWrapper->debugScopes.back(), varWrapper->getLlvmAllocaInst(), name, ti_cast<Type>(type), location, argIndex
+  );
+  return true;
+}
+
+
+Bool TargetGenerator::_setGlobalVariableDebugInfo(
+  TiObject *self, TiObject *variable, Char const *name, TiObject *type, Core::Ast::Node *node
+) {
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  auto debugInfo = targetGenerator->buildTarget->getDebugInfo();
+  if (debugInfo == 0) return true;
+  PREPARE_ARG(variable, varWrapper, Variable);
+
+  auto location = ModuleDebugInfo::findLocationRecord(node);
+  if (location == 0 || varWrapper->getLlvmGlobalVariable() == 0) return true;
+
+  debugInfo->describeGlobalVariable(varWrapper->getLlvmGlobalVariable(), name, ti_cast<Type>(type), location);
+  return true;
+}
+
+
+Bool TargetGenerator::_setDebugLocation(TiObject *self, TiObject *context, Core::Ast::Node *node)
+{
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
+  PREPARE_ARG(context, block, Block);
+
+  // Functions that were not given any debug info are left without locations.
+  auto funcWrapper = block->getFunction();
+  if (funcWrapper == 0) return true;
+  if (funcWrapper->diSubprogram == 0 && !funcWrapper->debugSynthetic) return true;
+
+  // If the node has no usable location we keep the previous one.
+  std::vector<Core::Ast::SourceLocationRecord const*> chain;
+  ModuleDebugInfo::findLocationChain(node, chain);
+  if (chain.empty()) return true;
+
+  // A function made up by the compiler has no location of its own, so it takes the one of its first statement.
+  if (funcWrapper->diSubprogram == 0) targetGenerator->createFunctionDebugInfo(funcWrapper, chain);
+
+  auto &llvmContext = *targetGenerator->buildTarget->getLlvmContext();
+  auto debugInfo = targetGenerator->getFunctionDebugInfo(funcWrapper);
+
+  // A node that came from a macro expansion has more than one location: where the macro was used, followed by where
+  // the node was written in the macro body. The line the debugger should show is the last one, and we describe the
+  // rest as the code having been inlined at the macro call site. This is what lets a debugger tell the expansions of
+  // the same macro apart, break on a macro line at every expansion, and show where a macro was used in a backtrace.
+  //
+  // Template instantiations carry the same kind of chain, but a template function is a real function rather than an
+  // inlined piece of code, so we only do this for functions that were written directly in the source (not generated by
+  // a macro or a template) and whose first location falls inside their own body.
+  auto scope = funcWrapper->debugScopes.back();
+  llvm::DILocation *inlinedAt = 0;
+  if (
+    chain.size() > 1 && funcWrapper->debugInlinedCodeAllowed &&
+    chain.front()->filename == funcWrapper->debugFilename &&
+    chain.front()->line >= (Int)funcWrapper->diSubprogram->getLine() &&
+    chain.front()->line <= funcWrapper->debugLastLine
+  ) {
+    // The first record is where the macro was used, in the function itself, and each following one is a level of
+    // code inlined into the previous level.
+    inlinedAt = llvm::DILocation::get(llvmContext, chain[0]->line, chain[0]->column, scope);
+    for (size_t i = 1; i + 1 < chain.size(); ++i) {
+      inlinedAt = llvm::DILocation::get(
+        llvmContext, chain[i]->line, chain[i]->column, debugInfo->getInlinedCodeScope(chain[i]->filename), inlinedAt
+      );
+    }
+    scope = debugInfo->getInlinedCodeScope(chain.back()->filename);
+  } else {
+    // If we are generating code for an entry function (function that contains global code outside of any function or
+    // class) then the same entry function can contain code from multiple files. This can happen in cases where the
+    // code triggers initialziation of global variables from another file or in cases where a module imported from
+    // another file contains global code that isn't executed yet (since the compiler batches those with global ccode
+    // from the the root scope for performance reasons). So, we need to make sure to use a scope for the file of the
+    // line currently being compiled.
+    scope = debugInfo->getScopeForCodeFromFile(scope, chain.back()->filename);
+  }
+
+  auto location = chain.back();
+  funcWrapper->currentDebugLoc = llvm::DILocation::get(
+    llvmContext, location->line, location->column, scope, inlinedAt
+  );
+  block->getIrBuilder()->SetCurrentDebugLocation(funcWrapper->currentDebugLoc);
+  return true;
+}
+
+
+Bool TargetGenerator::_prepareDebugScope(TiObject *self, TiObject *context, Core::Ast::Node *node)
+{
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
+  PREPARE_ARG(context, block, Block);
+
+  auto funcWrapper = block->getFunction();
+  if (funcWrapper == 0 || funcWrapper->diSubprogram == 0) return true;
+  auto debugInfo = targetGenerator->getFunctionDebugInfo(funcWrapper);
+
+  // Always push something so that every prepare is matched by a finish, even if the block has no location.
+  auto location = ModuleDebugInfo::findLocationRecord(node);
+  auto parent = funcWrapper->debugScopes.back();
+  funcWrapper->debugScopes.push_back(location != 0 ? debugInfo->createLexicalBlock(parent, location) : parent);
+  return true;
+}
+
+
+Bool TargetGenerator::_finishDebugScope(TiObject *self, TiObject *context)
+{
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  if (!targetGenerator->buildTarget->isDebugInfoEnabled()) return true;
+  PREPARE_ARG(context, block, Block);
+
+  auto funcWrapper = block->getFunction();
+  if (funcWrapper == 0 || funcWrapper->diSubprogram == 0) return true;
+  if (funcWrapper->debugScopes.size() > 1) funcWrapper->debugScopes.pop_back();
   return true;
 }
 
@@ -870,24 +1047,24 @@ Bool TargetGenerator::_prepareIfStatement(
   ifContext->setConditionBlock(getSharedPtr(block));
 
   // Prepare body context.
-  auto bodyBlock = newSrdObj<Block>();
-  bodyBlock->setLlvmBlock(
+  auto bodyBlock = targetGenerator->prepareBlock(
     llvm::BasicBlock::Create(
       *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-    )
+    ),
+    block->getFunction(),
+    false
   );
-  bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
-  bodyBlock->setFunction(block->getFunction());
   ifContext->setBodyBlock(bodyBlock);
 
   // Prepare else context.
   if (withElse) {
-    auto elseBlock = newSrdObj<Block>();
-    elseBlock->setLlvmBlock(llvm::BasicBlock::Create(
-      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-    ));
-    elseBlock->setIrBuilder(new llvm::IRBuilder<>(elseBlock->getLlvmBlock()));
-    elseBlock->setFunction(block->getFunction());
+    auto elseBlock = targetGenerator->prepareBlock(
+      llvm::BasicBlock::Create(
+        *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+      ),
+      block->getFunction(),
+      false
+    );
     ifContext->setElseBlock(elseBlock);
   }
 
@@ -950,29 +1127,33 @@ Bool TargetGenerator::_prepareWhileStatement(
   SharedPtr<LoopContext> loopContext = newSrdObj<LoopContext>();
 
   // Prepare condition context.
-  auto condBlock = newSrdObj<Block>();
-  condBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
-  condBlock->setFunction(block->getFunction());
+  auto condBlock = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    false
+  );
   loopContext->setConditionBlock(condBlock);
 
   // Prepare body context.
-  auto bodyBlock = newSrdObj<Block>();
-  bodyBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
-  bodyBlock->setFunction(block->getFunction());
+  auto bodyBlock = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    false
+  );
   loopContext->setBodyBlock(bodyBlock);
 
   // Prepare exit block.
-  auto exitBlock = newSrdObj<Block>();
-  exitBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  exitBlock->setFunction(block->getFunction());
+  auto exitBlock = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    true
+  );
   loopContext->setExitBlock(exitBlock);
 
   loopTgContext = loopContext;
@@ -1018,38 +1199,43 @@ Bool TargetGenerator::_prepareForStatement(
   SharedPtr<LoopContext> loopContext = newSrdObj<LoopContext>();
 
   // Prepare condition context.
-  auto condBlock = newSrdObj<Block>();
-  condBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  condBlock->setIrBuilder(new llvm::IRBuilder<>(condBlock->getLlvmBlock()));
-  condBlock->setFunction(block->getFunction());
+  auto condBlock = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    false
+  );
   loopContext->setConditionBlock(condBlock);
 
   // Prepare increment context.
-  auto updaterBlock = newSrdObj<Block>();
-  updaterBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  updaterBlock->setIrBuilder(new llvm::IRBuilder<>(updaterBlock->getLlvmBlock()));
-  updaterBlock->setFunction(block->getFunction());
+  auto updaterBlock = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    false
+  );
   loopContext->setUpdaterBlock(updaterBlock);
 
   // Prepare body context.
-  auto bodyBlock = newSrdObj<Block>();
-  bodyBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  bodyBlock->setIrBuilder(new llvm::IRBuilder<>(bodyBlock->getLlvmBlock()));
-  bodyBlock->setFunction(block->getFunction());
+  auto bodyBlock = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    false
+  );
   loopContext->setBodyBlock(bodyBlock);
 
   // Prepare exit block.
-  auto exitBlock = newSrdObj<Block>();
-  exitBlock->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  exitBlock->setFunction(block->getFunction());
+  auto exitBlock = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    true
+  );
   loopContext->setExitBlock(exitBlock);
 
   loopTgContext = loopContext;
@@ -1597,12 +1783,13 @@ Bool TargetGenerator::_prepareLogicalOp(TiObject *self, TiObject *context, TioSh
   PREPARE_SELF(targetGenerator, TargetGenerator);
   PREPARE_ARG(context, block, Block);
 
-  auto block2 = newSrdObj<Block>();
-  block2->setLlvmBlock(llvm::BasicBlock::Create(
-    *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
-  ));
-  block2->setIrBuilder(new llvm::IRBuilder<>(block2->getLlvmBlock()));
-  block2->setFunction(block->getFunction());
+  auto block2 = targetGenerator->prepareBlock(
+    llvm::BasicBlock::Create(
+      *targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), block->getFunction()->getLlvmFunction()
+    ),
+    block->getFunction(),
+    false
+  );
   secondContext = block2;
 
   return true;
@@ -2557,6 +2744,65 @@ std::string TargetGenerator::getNewBlockName()
 std::string TargetGenerator::getAnonymouseVarName()
 {
   return std::string("#anonymous") + std::to_string(this->anonymousVarIndex++);
+}
+
+
+ModuleDebugInfo* TargetGenerator::getFunctionDebugInfo(Function *function)
+{
+  return this->perFunctionModules ? function->debugInfo.get() : this->buildTarget->getDebugInfo();
+}
+
+
+void TargetGenerator::createFunctionDebugInfo(
+  Function *function, std::vector<Core::Ast::SourceLocationRecord const*> const &chain
+) {
+  // Debug metadata can't be shared between modules, so a function that has a module of its own gets its own debug
+  // info as well.
+  if (this->perFunctionModules) {
+    function->debugInfo = std::make_unique<ModuleDebugInfo>(
+      function->llvmModule.get(), this->buildTarget->getTargetTripleName().c_str(), this->buildTarget->isOptimized()
+    );
+  }
+  auto debugInfo = this->getFunctionDebugInfo(function);
+
+  auto location = chain.back();
+  function->diSubprogram = debugInfo->createFunction(function->debugName.getBuf(), location, function->functionType);
+  function->llvmFunction->setSubprogram(function->diSubprogram);
+  function->debugScopes.assign(1, function->diSubprogram);
+
+  // Code in the function body that was produced by a macro is described as inlined into the function, which only
+  // makes sense when the function itself was written directly in the source, i.e. it has a single location.
+  function->debugInlinedCodeAllowed = function->debugNode != 0 && chain.size() == 1;
+  function->debugFilename = location->filename;
+  function->debugLastLine = function->debugNode != 0 ?
+    ModuleDebugInfo::findLastLine(function->debugNode, location->filename) : 0;
+
+  // The prologue and the argument setup get line 0, which marks them as compiler generated. The backend takes the
+  // first instruction with a real line to be the end of the prologue, which is where a debugger should stop when a
+  // breakpoint is set on the function, i.e. after the arguments have been stored.
+  function->currentDebugLoc = llvm::DILocation::get(*this->buildTarget->getLlvmContext(), 0, 0, function->diSubprogram);
+}
+
+
+SharedPtr<Block> TargetGenerator::prepareBlock(
+  llvm::BasicBlock *llvmBlock,
+  Function *function,
+  Bool exitBlock
+) {
+  auto block = newSrdObj<Block>();
+  block->setLlvmBlock(llvmBlock);
+  block->setFunction(function);
+  if (!exitBlock) {
+    auto builder = new llvm::IRBuilder<>(llvmBlock);
+    block->setIrBuilder(builder);
+
+    // Make the builder tag new instructions with the function's current debug location, if there is one. This is what
+    // makes blocks created in the middle of a statement (if, while, ...) inherit the statement's location.
+    if (function->currentDebugLoc) {
+      builder->SetCurrentDebugLocation(function->currentDebugLoc);
+    }
+  }
+  return block;
 }
 
 } // namespace

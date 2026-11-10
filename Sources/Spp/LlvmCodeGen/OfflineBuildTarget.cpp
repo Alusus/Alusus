@@ -20,6 +20,7 @@ void OfflineBuildTarget::setupBuild()
   BuildTarget::setupBuild();
 
   this->llvmGlobalCtorDtorEntryTypes = LlvmGlobalCtorDtorEntryTypes();
+  this->debugInfo.reset();
   this->llvmModule.reset();
 
   std::string error;
@@ -57,6 +58,11 @@ llvm::Module* OfflineBuildTarget::getGlobalLlvmModule()
   if (this->llvmModule == 0) {
     this->llvmModule = std::make_unique<llvm::Module>("AlususProgram", *this->llvmContext);
     this->llvmModule->setDataLayout(*this->llvmDataLayout);
+    if (this->isDebugInfoEnabled()) {
+      this->debugInfo = std::make_unique<ModuleDebugInfo>(
+        this->llvmModule.get(), this->targetTriple.c_str(), this->optimize
+      );
+    }
   }
   return this->llvmModule.get();
 }
@@ -74,7 +80,9 @@ void OfflineBuildTarget::addLlvmModule(std::unique_ptr<llvm::Module> module)
     }
   #endif
 
-  // Compile the module.
+  // Compile the module. Offline builds are expected to use a single global module, so any debug info that belonged to
+  // the previous module is dropped along with it.
+  this->debugInfo.reset();
   this->llvmModule = std::move(module);
   this->llvmModule->setDataLayout(*this->llvmDataLayout);
 }
@@ -87,6 +95,8 @@ Str OfflineBuildTarget::generateLlvmIr(Array<Str> const *ctorNames, Array<Str> c
 
   this->buildCtorOrDtorArray(ctorNames, "llvm.global_ctors");
   this->buildCtorOrDtorArray(dtorNames, "llvm.global_dtors");
+
+  if (this->debugInfo != 0) this->debugInfo->finalize();
 
   StrStream strStream;
   llvm::raw_os_ostream ostream(strStream);
@@ -109,8 +119,14 @@ void OfflineBuildTarget::generateObjectFile(
 
   this->llvmModule->setTargetTriple(this->targetTriple);
 
+  if (this->debugInfo != 0) this->debugInfo->finalize();
+
   if (this->optimize) {
     optimizeLlvmModule(*this->llvmModule, this->targetMachine.get());
+  } else if (this->debugInfo != 0) {
+    // The backend optimizes by default, which folds away statements and variables and leaves nothing to step
+    // through, so a debug build that wasn't asked to be optimized is compiled without any optimization.
+    this->targetMachine->setOptLevel(llvm::CodeGenOptLevel::None);
   }
 
   std::error_code ec;

@@ -32,6 +32,9 @@ class LazyJitBuildTarget : public BuildTarget
   private: llvm::LLVMContext *llvmContext = 0;
   private: llvm::DataLayout *llvmDataLayout = 0;
   private: std::unique_ptr<llvm::Module> llvmModule;
+  // Declared after llvmModule so that it's destroyed first. This belongs to the global module, which only holds global
+  // variables since this target builds every function in a module of its own.
+  private: std::unique_ptr<ModuleDebugInfo> debugInfo;
 
   private: CodeGen::GlobalItemRepo *globalItemRepo = 0;
 
@@ -46,6 +49,7 @@ class LazyJitBuildTarget : public BuildTarget
   public: virtual ~LazyJitBuildTarget()
   {
     this->llvmJitEngine.reset();
+    this->debugInfo.reset();
     this->llvmModule.reset();
     this->llvmTsContext.reset();
   }
@@ -67,6 +71,12 @@ class LazyJitBuildTarget : public BuildTarget
   }
 
   public: virtual llvm::Module* getGlobalLlvmModule();
+
+  public: virtual ModuleDebugInfo* getDebugInfo()
+  {
+    this->getGlobalLlvmModule();
+    return this->debugInfo.get();
+  }
 
   public: Word getPointerBitCount()
   {

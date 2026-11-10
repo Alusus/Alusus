@@ -162,6 +162,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     // Prepare the function body.
     SharedList<TiObject> tgVars;
     TioSharedPtr tgContext;
+    session->getTg()->setFunctionDebugInfo(tgFunc, generator->astHelper->getFunctionName(astFunc), astFunc);
     if (!session->getTg()->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return false;
 
     auto destructionStack = newSrdObj<DestructionStack>();
@@ -194,6 +195,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
         return false;
       }
       session->getEda()->setCodeGenData(argType, argTgVar);
+      session->getTg()->setVariableDebugInfo(
+        tgContext.get(), argTgVar.get(), astArgs->getElementKey(i), argTgType, argType, i + 1
+      );
       Ast::Type *argSourceAstType;
       if (argAstType->getInitializationMethod(generator->astHelper) != Ast::TypeInitMethod::NONE) {
         argSourceAstType = generator->astHelper->getReferenceTypeFor(argAstType, Ast::ReferenceMode::IMPLICIT);
@@ -305,6 +309,8 @@ void Generator::_prepareNullaryProcedure(
   if (!session->getTg()->generateFunctionDecl(funcName, tgFuncType, tgFunc)) {
     throw EXCEPTION(GenericException, S("Failed to generate function declaration for nullary procedure."));
   }
+  // This function has no source code of its own, so debug info is based on the statements that end up in it.
+  session->getTg()->setFunctionDebugInfo(tgFunc.get(), funcName, 0);
   SharedList<TiObject> args;
   if (!session->getTg()->prepareFunctionBody(tgFunc.get(), tgFuncType, &args, tgContext)) {
     throw EXCEPTION(GenericException, S("Failed to prepare function body for root scope execution."));
@@ -420,6 +426,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
         return false;
       }
       session->getEda()->setCodeGenData(astVar, tgGlobalVar);
+      session->getTg()->setGlobalVariableDebugInfo(tgGlobalVar.get(), definition->getName().get(), tgType, definition);
 
       if (!session->isOfflineExecution()) {
         Int itemIndex = generator->globalItemRepo->findItem(name);
@@ -469,6 +476,9 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
         return false;
       }
       session->getEda()->setCodeGenData(astVar, tgLocalVar);
+      session->getTg()->setVariableDebugInfo(
+        session->getTgAllocContext(), tgLocalVar.get(), definition->getName().get(), tgType, definition, 0
+      );
 
       // Initialize the variable.
       // TODO: Should we use default values with local variables?
@@ -980,6 +990,7 @@ Bool Generator::_generateStatementBlock(
   Bool result = true;
   terminal = TerminalStatement::UNKNOWN;
   session->getDestructionStack()->pushScope();
+  if (!session->isAstComputationOnly()) session->getTg()->prepareDebugScope(session->getTgContext(), astBlock);
   if (astBlock->isDerivedFrom<Core::Ast::Scope>()) {
     for (Int i = 0; i < static_cast<Core::Ast::Scope*>(astBlock)->getCount(); ++i) {
       auto astNode = static_cast<Core::Ast::Scope*>(astBlock)->getElement(i);
@@ -989,6 +1000,7 @@ Bool Generator::_generateStatementBlock(
         generator->rootManager->getNoticeStore()->add(
           newSrdObj<Spp::Notices::UnreachableCodeNotice>(Core::Ast::findSourceLocation(astNode))
         );
+        if (!session->isAstComputationOnly()) session->getTg()->finishDebugScope(session->getTgContext());
         return false;
       }
       if (astNode->isDerivedFrom<Spp::Ast::Block>()) {
@@ -1005,6 +1017,7 @@ Bool Generator::_generateStatementBlock(
       result = false;
     }
   }
+  if (!session->isAstComputationOnly()) session->getTg()->finishDebugScope(session->getTgContext());
   session->getDestructionStack()->popScope();
 
   return result;
@@ -1019,6 +1032,10 @@ Bool Generator::_generateStatement(
 
   terminal = TerminalStatement::NO;
   Bool retVal = true;
+
+  if (!session->isAstComputationOnly()) {
+    session->getTg()->setDebugLocation(session->getTgContext(), astNode);
+  }
 
   if (astNode->isDerivedFrom<Core::Ast::Definition>()) {
     auto def = static_cast<Core::Ast::Definition*>(astNode);

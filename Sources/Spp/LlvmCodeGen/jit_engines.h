@@ -145,7 +145,9 @@ class JitEngine
     JitEngineBuilderState &s, llvm::orc::ExecutionSession &es
   );
 
-  protected: std::unique_ptr<llvm::orc::IRTransformLayer> createOptimizeLayer(llvm::orc::IRLayer &prevLayer);
+  protected: std::unique_ptr<llvm::orc::IRTransformLayer> createOptimizeLayer(
+    llvm::orc::IRLayer &prevLayer, Bool skipOptimization
+  );
 
   protected: static llvm::Expected<std::unique_ptr<llvm::orc::IRCompileLayer::IRCompiler>> createCompileFunction(
     JitEngineBuilderState &s, llvm::orc::JITTargetMachineBuilder jtmb
@@ -223,6 +225,14 @@ class JitEngineBuilderState
   public: CompileFunctionCreator createCompileFunction;
   public: unsigned numCompileThreads = 0;
   public: Bool useOptimizeLayer = false;
+
+  /// Make the code the JIT generates visible to debuggers (through the GDB JIT interface), which requires the modules
+  /// to carry debug info. Only supported on platforms that use ELF.
+  public: Bool enableDebuggerSupport = false;
+
+  /// Don't run IR optimizations on the code, even in engines that normally do. Used to keep variables and statements
+  /// intact for debugging.
+  public: Bool skipIrOptimization = false;
 
   /// Called prior to JIT class construcion to fix up defaults.
   public: llvm::Error prepareForConstruction();

@@ -119,6 +119,13 @@ std::unique_ptr<ObjectLayer> JitEngine::createObjectLinkingLayer(JitEngineBuilde
   auto objLinkingLayer =
       std::make_unique<RTDyldObjectLinkingLayer>(es, std::move(GetMemMgr));
 
+  if (s.enableDebuggerSupport && s.jtmb->getTargetTriple().isOSBinFormatELF()) {
+    // The debug sections have to be loaded along with the code, otherwise the debugger would find nothing to read.
+    objLinkingLayer->setProcessAllSections(true);
+    // Tell debuggers about every object we load by using the GDB JIT interface, which gdb and lldb both understand.
+    objLinkingLayer->registerJITEventListener(*JITEventListener::createGDBRegistrationListener());
+  }
+
   if (s.jtmb->getTargetTriple().isOSBinFormatCOFF()) {
     objLinkingLayer->setOverrideObjectFlagsWithResponsibilityFlags(true);
     objLinkingLayer->setAutoClaimResponsibilityForObjectSymbols(true);
@@ -197,13 +204,16 @@ JitEngine::JitEngine(JitEngineBuilderState &s, Error &err)
   }
 
   if (s.useOptimizeLayer) {
-    optimizeLayer = createOptimizeLayer(*compileLayer);
+    optimizeLayer = createOptimizeLayer(*compileLayer, s.skipIrOptimization);
   }
 }
 
 std::unique_ptr<llvm::orc::IRTransformLayer>
-JitEngine::createOptimizeLayer(llvm::orc::IRLayer &prevLayer) {
+JitEngine::createOptimizeLayer(llvm::orc::IRLayer &prevLayer, Bool skipOptimization) {
   auto optimizeLayer = std::make_unique<IRTransformLayer>(*es, prevLayer);
+
+  // The layer still has to exist since it's where modules are added, but it doesn't have to do anything.
+  if (skipOptimization) return optimizeLayer;
 
   static llvm::Expected<llvm::orc::JITTargetMachineBuilder> tmb =
       llvm::orc::JITTargetMachineBuilder::detectHost();
@@ -341,7 +351,7 @@ LazyJitEngine::LazyJitEngine(LazyJitEngineBuilderState &s, Error &err)
     }
 
     // Finalize by creating the optimization layer on top of the COD layer.
-    optimizeLayer = createOptimizeLayer(*codLayer);
+    optimizeLayer = createOptimizeLayer(*codLayer, s.skipIrOptimization);
 }
 
 } // namespace

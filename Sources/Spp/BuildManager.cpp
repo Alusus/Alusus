@@ -92,18 +92,38 @@ Bool BuildManager::getOptimizeOverride(Bool defaultValue) const
 }
 
 
+/// Returns whether debug info generation is requested through the `debug=1` command line option. It is off by default.
+Bool BuildManager::getDebugInfoOption() const
+{
+  auto options = this->rootManager->getProcessOptions();
+  Bool result = false;
+  for (Int i = 0; i < this->rootManager->getProcessOptionCount(); ++i) {
+    if (strcmp(options[i], S("debug=0")) == 0 || strcmp(options[i], S("تنقيح=0")) == 0) {
+      result = false;
+      break;
+    } else if (strcmp(options[i], S("debug=1")) == 0 || strcmp(options[i], S("تنقيح=1")) == 0) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+}
+
+
 void BuildManager::initNonOfflineBuildSessions()
 {
   // Prepare build targets and target generators.
 
   auto jitBuildTarget = newSrdObj<LlvmCodeGen::JitBuildTarget>(this->globalItemRepo);
   jitBuildTarget->setOptimize(this->getOptimizeOverride(false));
+  jitBuildTarget->setDebugInfo(this->getDebugInfoOption());
   auto jitTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->rootManager, jitBuildTarget.get(), false
   );
   jitTargetGenerator->setupBuild();
 
   auto preprocessBuildTarget = newSrdObj<LlvmCodeGen::LazyJitBuildTarget>(this->globalItemRepo);
+  preprocessBuildTarget->setDebugInfo(this->getDebugInfoOption());
   auto preprocessTargetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     jitTargetGenerator.get(), preprocessBuildTarget.get(), true
   );
@@ -135,6 +155,7 @@ SharedPtr<BuildSession> BuildManager::createOfflineBuildSession(Char const *targ
   ++idPrefixCounter;
   auto buildTarget = newSrdObj<LlvmCodeGen::OfflineBuildTarget>();
   buildTarget->setTargetTriple(targetTriple);
+  buildTarget->setDebugInfo(this->getDebugInfoOption());
   auto targetGenerator = newSrdObj<LlvmCodeGen::TargetGenerator>(
     this->jitBuildSession->getTargetGenerator().get(), buildTarget.get(), false
   );
@@ -359,12 +380,15 @@ void* BuildManager::_prepareToExecuteFunction(TiObject *self, Core::Ast::Node *e
 }
 
 
-void BuildManager::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element)
+void BuildManager::_dumpLlvmIrForElement(TiObject *self, Core::Ast::Node *element, Bool debugInfo)
 {
   VALIDATE_NOT_NULL(element);
   PREPARE_SELF(buildMgr, BuildManager);
 
   SharedPtr<BuildSession> buildSession = buildMgr->prepareBuild(BuildManager::BuildType::OFFLINE, 0);
+  // Asking for debug info explicitly adds to the `debug` command line option rather than overrides it, so the option
+  // still works for the callers that don't ask.
+  if (debugInfo) buildSession->getBuildTarget().s_cast<LlvmCodeGen::OfflineBuildTarget>()->setDebugInfo(true);
   Bool result = true;
   if (element->isDerivedFrom<Ast::Module>()) {
     buildMgr->prepareExecutionEntry(buildSession.get());

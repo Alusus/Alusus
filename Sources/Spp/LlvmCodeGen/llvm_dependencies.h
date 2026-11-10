@@ -16,6 +16,8 @@
 #undef C
 #undef S
 
+#include <filesystem>
+#include <map>
 #include <llvm/IR/IRPrintingPasses.h>
 #include <llvm/IR/Mangler.h>
 #include <llvm/IR/DataLayout.h>
@@ -26,6 +28,10 @@
 #include <llvm/IR/GlobalVariable.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/DebugInfo.h>
+#include <llvm/IR/DebugInfoMetadata.h>
+#include <llvm/BinaryFormat/Dwarf.h>
 #include <llvm/IR/DiagnosticInfo.h>
 #include <llvm/IR/DiagnosticPrinter.h>
 #include <llvm/Support/TargetSelect.h>
@@ -35,6 +41,7 @@
 #include <llvm/Transforms/IPO.h>
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
+#include <llvm/ExecutionEngine/JITEventListener.h>
 #include <llvm/ExecutionEngine/Orc/CompileUtils.h>
 #include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
 #include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>
