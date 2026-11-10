@@ -2283,14 +2283,27 @@ func getString (str: ptr[array[Char]], size: Word);
 #### نم (sleep)
 
 ```
+صنف مـدة_مفصلة {
+عرف ثوان : صـحيح_متكيف؛
+عرف نانوثوان : صـحيح_متكيف؛
+}
+
 @تصدير[usleep] دالة نم (ط: طـبيعي): صـحيح؛
+@تصدير[nanosleep] دالة نم (مطلوب: مؤشر[مـدة_مفصلة]، باقي: مؤشر[مـدة_مفصلة]): صـحيح[32]؛
 ```
 
 ```
+class TimeSpec {
+    def tvSec : ArchInt;
+    def tvNsec: ArchInt; 
+}
+
 @expname[usleep] func sleep (w: Word): Int;
+@expname[nanosleep] func sleep(req: ptr[TimeSpec], rem: ptr[TimeSpec]): Int[32];
 ```
 
-مطابقة لدالة usleep من POSIX.
+الصيغة الأولى مطابقة لدالة usleep من POSIX.
+الصيغة الثانية مطابقة لدالة nanosleep من POSIX.
 
 #### اضبط_متغيرا_محيطيا (setEnv)
 
@@ -2745,8 +2758,8 @@ class Matcher {
   متغير سنة: صـحيح؛
   متغير يوم_اسبوعي: صـحيح؛
   متغير يوم_سنوي: صـحيح؛
-  متغير إزاحة_زمنية: صـحيح؛
-  متغير منطقة_زمنية: صـحيح؛
+  متغير إزاحة_زمنية: صـحيح[64]؛
+  متغير منطقة_زمنية: مؤشر[مصفوفة[مـحرف]]؛
 }؛
 ```
 
