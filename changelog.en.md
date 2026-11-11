@@ -62,6 +62,9 @@
   global variables. Code produced by macros is shown along with the line where the macro was used. Debug builds are
   compiled without optimization unless `optimize=1` is passed as well. Debugging code that Alusus runs directly is
   currently supported on Linux only.
+* Added the `@unshared_instances` modifier (`@طبعات_لامشتركة` in Arabic) for class and function templates.
+  Every use of such a template creates a new instance, even if the template args match an existing instance, which is useful for templates whose
+  instances are modified after creation.
 
 ### Compiler Fixes
 

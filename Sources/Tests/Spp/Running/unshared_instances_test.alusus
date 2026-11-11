@@ -1,0 +1,55 @@
+import "Core/Basic";
+
+@expname[printf] function printf (s: ptr[Word[8]], ...any) => Int;
+
+// Instances of a regular template are shared when the args match, so they share the shared variable as well.
+class Shared [T: type] {
+  @shared var count: Int;
+
+  @member function inc(this: ref[this_type]) {
+    count = count + 1;
+    printf("Shared count: %d\n", count);
+  };
+};
+
+// Every use of a template with unshared instances creates a new instance, even if the args match.
+@unshared_instances class Unshared [T: type] {
+  @shared var count: Int;
+
+  @member function inc(this: ref[this_type]) {
+    count = count + 1;
+    printf("Unshared count: %d\n", count);
+  };
+};
+
+function sharedFunc [T: type] (v: T) {
+  preprocess {
+    printf("sharedFunc called\n");
+  }
+};
+
+@unshared_instances function unsharedFunc [T: type] (v: T) {
+  preprocess {
+    printf("unsharedFunc called\n");
+  }
+};
+
+def s1: Shared[Int];
+def s2: Shared[Int];
+s1.inc();
+s2.inc();
+
+def u1: Unshared[Int];
+def u2: Unshared[Int];
+u1.inc();
+u2.inc();
+u1.inc();
+
+// The same variable always refers to the same instance.
+u1.inc();
+u2.inc();
+
+sharedFunc[Int](1);
+sharedFunc[Int](2);
+unsharedFunc[Int](1);
+unsharedFunc[Int](2);

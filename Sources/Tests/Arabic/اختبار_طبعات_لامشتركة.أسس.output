@@ -1,0 +1,10 @@
+Shared count: 1
+Shared count: 2
+Unshared count: 1
+Unshared count: 1
+Unshared count: 2
+Unshared count: 3
+Unshared count: 2
+sharedFunc called
+unsharedFunc called
+unsharedFunc called

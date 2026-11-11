@@ -1,0 +1,129 @@
+// This example demonstrates using the `@unshared_instances` modifier to build a tiny ORM-style query builder.
+//
+// `Query` is a template class that takes a table name. Its `where` member function receives a condition as an AST,
+// converts it to an SQL where clause at compile time (in a `preprocess` statement), and stores the result in the
+// `Query` instance as a constant named `condition`. `select` then prints a SQL statement using that constant.
+//
+// Since the condition is stored in the template instance itself, two variables of `Query["users"]` would share the
+// same condition if they shared the same instance. The `@unshared_instances` modifier makes every use of `Query` create a new
+// instance, which gives each variable its own condition.
+
+import "Srl/Console";
+import "Srl/System";
+import "Srl/String";
+import "Core/Ast";
+import "Spp";
+import "Spp/Ast";
+
+use Srl;
+use Core.Basic;
+use Core.Ast;
+def AstNodeSrdRef: alias SrdRef[Core.Ast.Node];
+
+// Returns the text of an identifier or a literal.
+func getNodeText (obj: ref[Core.Ast.Node]): String {
+    if isDerivedFrom[obj, Identifier] {
+        return String(castRef[obj, Identifier].value.value.buf);
+    } else if isDerivedFrom[obj, StringLiteral] {
+        return String("'") + castRef[obj, StringLiteral].value.value + String("'");
+    } else if isDerivedFrom[obj, IntegerLiteral] {
+        return String(castRef[obj, IntegerLiteral].value.value.buf);
+    }
+    System.fail(1, "getNodeText: unsupported node.\n");
+    return String();
+}
+
+// Converts an AST condition like `name == "John" && age >= 18` to an SQL where clause.
+func generateWhere (obj: ref[Core.Ast.Node]): String {
+    if obj~ptr == 0 {
+        System.fail(1, "generateWhere: obj is null.\n");
+    }
+
+    if isDerivedFrom[obj, ComparisonOperator] {
+        def binding: ref[Binding](getInterface[obj, Binding]);
+        def mapContaining: ref[MapContaining[Core.Ast.Node]](getInterface[obj, MapContaining[Core.Ast.Node]]);
+        var op: String = String(castRef[binding.getMember("type"), TiStr].value.buf);
+        if op == "==" { op = "="; }
+        return getNodeText(mapContaining.getElement("first")) + String(" ") + op + String(" ")
+            + getNodeText(mapContaining.getElement("second"));
+    } else if isDerivedFrom[obj, LogOperator] {
+        def binding: ref[Binding](getInterface[obj, Binding]);
+        def mapContaining: ref[MapContaining[Core.Ast.Node]](getInterface[obj, MapContaining[Core.Ast.Node]]);
+        var op: String = String(castRef[binding.getMember("type"), TiStr].value.buf);
+        if op == "&&" { op = "AND"; } else if op == "||" { op = "OR"; }
+        return generateWhere(mapContaining.getElement("first")) + String(" ") + op + String(" ")
+            + generateWhere(mapContaining.getElement("second"));
+    } else if isDerivedFrom[obj, Bracket] {
+        def mapContaining: ref[MapContaining[Core.Ast.Node]](getInterface[obj, MapContaining[Core.Ast.Node]]);
+        return String("(") + generateWhere(mapContaining.getElement("operand")) + String(")");
+    }
+    System.fail(1, "generateWhere: unsupported condition.\n");
+    return String();
+}
+
+// Stores the given where clause as `def condition: "<clause>"` in the body of the class that owns the function
+// currently being preprocessed.
+func storeCondition (clause: String) {
+    // Find the class that contains the function being preprocessed.
+    def node: ref[Core.Ast.Node](Spp.astMgr.getCurrentPreprocessOwner());
+    while node~ptr != 0 && !isDerivedFrom[node, Spp.Ast.UserType] {
+        node~no_deref = node.owner;
+    }
+    if node~ptr == 0 {
+        System.fail(1, "storeCondition: not inside a class.\n");
+    }
+
+    // Build the definition.
+    def definition: AstNodeSrdRef;
+    if !Spp.astMgr.buildAst(
+        ast { def condition: sql },
+        Map[String, ref[Core.Ast.Node]]().set(String("sql"), StringLiteral(clause.buf)),
+        definition
+    ) {
+        System.fail(1, "Failed to build the condition definition.\n");
+    }
+
+    // Add the definition to the body of the class. Note that `within` can't be used here since it is applied
+    // immediately when the `ast` literal is parsed, rather than when the AST is inserted.
+    def typeContaining: ref[MapContaining[Core.Ast.Node]](getInterface[node, MapContaining[Core.Ast.Node]]);
+    def body: ref[DynamicContaining[Core.Ast.Node]](
+        getInterface[typeContaining.getElement("body"), DynamicContaining[Core.Ast.Node]]
+    );
+    var index: Int = -1;
+    // The result of buildAst is a scope that contains the definition.
+    def definitionContaining: ref[Containing[Core.Ast.Node]](
+        getInterface[definition.obj, Containing[Core.Ast.Node]]
+    );
+    if !Spp.astMgr.addPossiblyMergeableElement(definitionContaining.getElement(0), body, index) {
+        System.fail(1, "Failed to store the condition.\n");
+    }
+}
+
+@unshared_instances class Query [table: string] {
+    handler [condition: ast] this.where: ref[this_type] {
+        preprocess {
+            storeCondition(generateWhere(condition~ast));
+        }
+        return this;
+    }
+
+    @member func select (this: ref[this_type]) {
+        Console.print("SELECT * FROM %s WHERE %s\n", table, condition);
+    }
+}
+
+func test {
+    var t1: Query["users"];
+    t1.where[name == "John.Doe"].select();
+
+    var t2: Query["users"];
+    t2.where[age >= 18 && (country == "SA" || country == "AE")].select();
+
+    // t1 still has its own condition.
+    t1.select();
+
+    // with temp variables
+    Query["users"]().where[name == "John.Doe"].select();
+    Query["users"]().where[age >= 18 && (country == "SA" || country == "AE")].select();
+}
+test();

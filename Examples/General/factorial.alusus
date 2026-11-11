@@ -9,7 +9,7 @@ func factorial (i:Int): Int {
 }
 
 @expname[main]
-func start (argCount: Int, args: ptr[array[ptr[array[Char]]]]): Int {
+func start (argCount: Int, args: lptr[array[lptr[array[Char]]]]): Int {
   var i: Int;
   var lastArg: ptr[array[Char]] = args~cnt(argCount - 1);
   if lastArg~cnt(0) >= '0' && lastArg~cnt(0) <= '9' {

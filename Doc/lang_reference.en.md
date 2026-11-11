@@ -748,6 +748,17 @@ As shown in the next example:
   getMax[Float](5.3, 7.7); // returns 7.7
 ```
 
+By default, a function template creates only one instance for each distinct set of template arguments, and every call
+with the same arguments uses that instance. To make every use of the template create a new instance, even when the
+arguments match an existing one, add the `@unshared_instances` modifier:
+
+```
+  @unshared_instances func getMax [T: type] (a: T, b: T): T { ... }
+```
+
+This is useful when the body of the function is processed differently for each use, for example when a `preprocess`
+statement in it generates different code or stores different data on every instantiation.
+
 There are a lot of arguments to pass to the template, see [types templates](types templates) for more information about types of template arguments.
 
 ## User-Defined Types
@@ -849,6 +860,23 @@ It is possible to set default values for template arguments, as shown in the fol
   var point1: Point[Int]; // x and y will be 0.
   var point2: Point[Int, 1]; // x and y will be 1.
 ```
+
+By default, a template creates only one instance for each distinct set of arguments, and every use with the same
+arguments shares that instance. To make every use of a template create a new instance, even when the arguments match
+an existing one, add the `@unshared_instances` modifier. This works for both class and function templates.
+This is useful when the template instance is modified after its creation, for example when a macro stores generated
+code in the body of the class:
+
+```
+  @unshared_instances class Query [T: type] {
+    ...
+  }
+  var q1: Query[Model]; // A new instance of Query.
+  var q2: Query[Model]; // Another new instance, even though the arguments are the same.
+```
+
+Note that a variable always keeps the instance it was created with, so repeated uses of `q1` refer to the same
+instance.
 
 ### Methods
 
@@ -1013,6 +1041,16 @@ As shown in the following example:
   var m: Math;
   m.getMax[Int](5, 7); // returns 7
   m.getMax[Float](5.3, 7.7); // returns 7.7
+```
+
+Like other templates, a method template creates one instance for each distinct set of template arguments. To make
+every use create a new instance, define the method as a member function using `func` with the `@member` modifier, and
+add the `@unshared_instances` modifier. The `@unshared_instances` modifier isn't supported on `handler` templates.
+
+```
+  class Math {
+    @unshared_instances handler [T: type] this.getMax (this: ref[this_type], a: T, b: T): T { ... }
+  }
 ```
 
 There are different types of arguments to pass to the template, see [class templates](#types-templates) for more information

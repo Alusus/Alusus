@@ -362,7 +362,8 @@ void SppFactory::createGrammar()
     }
   }}, newSrdObj<Handlers::TypeParsingHandler>());
   this->set(S("root.Main.Type.modifierActions"), Map::create({}, {
-    {S("دمج"), newSrdObj<Grammar::TranslateModifierAction>(S("merge"))}
+    {S("دمج"), newSrdObj<Grammar::TranslateModifierAction>(S("merge"))},
+    {S("طبعات_لامشتركة"), newSrdObj<Grammar::TranslateModifierAction>(S("unshared_instances"))}
   }));
 
   // Function
@@ -399,7 +400,8 @@ void SppFactory::createGrammar()
     {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
     {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))},
     {S("operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
-    {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))}
+    {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
+    {S("طبعات_لامشتركة"), newSrdObj<Grammar::TranslateModifierAction>(S("unshared_instances"))}
   }));
 
   // FuncSigExpression

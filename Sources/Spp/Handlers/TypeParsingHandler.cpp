@@ -116,6 +116,14 @@ Bool TypeParsingHandler::onIncomingModifier(
     return true;
   }
 
+  // Look for unshared_instances modifier. Only templates can have unshared instances.
+  if (identifier != 0 && identifier->getValue() == S("unshared_instances")) {
+    auto tpl = definition->getTarget().ti_cast_get<Spp::Ast::Template>();
+    if (tpl == 0) return false;
+    tpl->setInstancesUnshareable(true);
+    return true;
+  }
+
   // The modifier is unknown to us, leave it for an outer parsing handler to deal with.
   return false;
 }

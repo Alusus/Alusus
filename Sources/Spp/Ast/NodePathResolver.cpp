@@ -163,6 +163,9 @@ void NodePathResolver::_resolveTemplateInstance(
     }
   }
   path << C(']');
+  // Templates that cannot share instances can end up with multiple instances having the same args, so we need the
+  // instance index to tell them apart.
+  if (!tmplt->canShareInstances()) path << C('#') << tmplt->findInstanceIndex(block);
 }
 
 
