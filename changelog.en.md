@@ -2,6 +2,8 @@
 
 ## Version 0.17.0 (2026-xx-xx)
 
+### Compiler Updates
+
 * Optimized parser and lexer performance.
   - Sped up parser route decision caching.
   - Sped up looking up definitions by name by indexing the definitions of each scope, which makes lookups in
@@ -18,8 +20,6 @@
     and keeps call stacks clean while debugging.
   - Overrides set through a binding cache are now removed automatically when the cache is destroyed, and can
     call the function they override through `callSuper`.
-* Fixed a bug where replacing an element at the end of a scope with a `use` statement or an injection, for
-  example during preprocessing, caused the new element to be ignored.
 * The `~size` operator now always returns an `ArchWord` instead of the smallest signed integer type that can
   hold the size.
 * Added the `within` command (`ضمن` in Arabic), which adds statements to an existing scope:
@@ -39,8 +39,6 @@
 * Added support for defining counter variables in for loops, as in `for i: Int = 0, i < 10, ++i` or
   `for (i: Int = 0, j: Int = 1), ...`, or using the `var` command, as in `for (var i = 0), ...`. These variables
   are scoped to the loop.
-* Fixed a bug where enclosing the entire header of a for loop in brackets, as in `for (i = 0, i < 10, ++i)`,
-  resulted in an invalid for statement error.
 * Added the `:=` operator as a shortcut for assigning with `~no_deref`, i.e. `r := i` is equivalent to
   `r~no_deref = i`. This operator can't be overloaded.
 * Function pointers defined in a parent class can now be overridden through the member variable holding the parent,
@@ -48,16 +46,9 @@
   Nested members are supported as well for multi-level inheritance, as in `handler this.child.parent.func() set_ptr`.
 * The `~type` operator now accepts any expression, including member access chains like `a.b~type`, and can reference
   class members directly inside the class body.
-
 * Added the literal pointer type `lptr` (`مؤشر_حرفي` in Arabic), which is a pointer type that can be implicitly
   cast to `ptr` but can only be cast from `ptr` explicitly. String literals are now of type
   `lptr[array[Word[8]]]` instead of `ptr[array[Word[8]]]`.
-* String literals are now automatically cast to `String`, so `String` parameters, return values, variables and
-  assignments accept literals directly. Literals are cast using the skip-copying constructor, so no memory is
-  allocated and nothing is copied, while `CharsPtr` is cast using the regular constructor, which allocates and
-  copies the string.
-* Added the `CharsLptr` alias (`مـؤشر_محارف_حرفي` in Arabic) for `lptr[array[Word[8]]]` and the `مؤشر_حرفي` alias
-  for `lptr` in the Arabic syntax.
 * The qualifier of the `within` command can now be a template instance like `lptr[array[Word[8]]]`, which allows
   defining custom casters and operators for built-in types.
 * Custom casters of an injected first member are now found when casting, so with
@@ -71,7 +62,24 @@
   global variables. Code produced by macros is shown along with the line where the macro was used. Debug builds are
   compiled without optimization unless `optimize=1` is passed as well. Debugging code that Alusus runs directly is
   currently supported on Linux only.
+
+### Compiler Fixes
+
+* Fixed a bug where replacing an element at the end of a scope with a `use` statement or an injection, for
+  example during preprocessing, caused the new element to be ignored.
+* Fixed a bug where enclosing the entire header of a for loop in brackets, as in `for (i = 0, i < 10, ++i)`,
+  resulted in an invalid for statement error.
+
+### Standard Libraries Updates
+
+* String literals are now automatically cast to `String`, so `String` parameters, return values, variables and
+  assignments accept literals directly. Literals are cast using the skip-copying constructor, so no memory is
+  allocated and nothing is copied, while `CharsPtr` is cast using the regular constructor, which allocates and
+  copies the string.
+* Added the `CharsLptr` alias (`مـؤشر_محارف_حرفي` in Arabic) for `lptr[array[Word[8]]]` and the `مؤشر_حرفي` alias
+  for `lptr` in the Arabic syntax.
 * `Spp.buildMgr.dumpLlvmIrForElement` now accepts an optional second argument to include debug info in the output.
+
 
 ## Version 0.16.0 (2026-10-09)
 

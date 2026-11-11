@@ -100,8 +100,8 @@
             عرف هات_الصنف_المطلوب_للعناصر: لقب getElementsNeededType؛
         }
 
-        عرف احـتواء_تطبيقي: لقب MapContaining؛
-        @دمج صنف احـتواء_تطبيقي {
+        عرف احـتواء_معجمي: لقب MapContaining؛
+        @دمج صنف احـتواء_معجمي {
             عرف حدد_عنصرا: لقب setElement؛
             عرف هات_عنصرا: لقب getElement؛
             عرف هات_الصنف_المطلوب_لعنصر: لقب getElementNeededType؛
@@ -109,8 +109,8 @@
             عرف جد_تسلسل_عنصر: لقب findElementIndex؛
         }
 
-        عرف احـتواء_تطبيقي_مرن: لقب DynamicMapContaining؛
-        @دمج صنف احـتواء_تطبيقي_مرن {
+        عرف احـتواء_معجمي_مرن: لقب DynamicMapContaining؛
+        @دمج صنف احـتواء_معجمي_مرن {
             عرف أضف_عنصرا: لقب addElement؛
             عرف احشر_عنصرا: لقب insertElement؛
             عرف أزل_عنصرا: لقب removeElement؛
@@ -120,7 +120,7 @@
         عرف رابـط: لقب BindingOf؛
         عرف حـاوية: لقب ContainerOf؛
         عرف حـاوية_مرنة: لقب DynContainerOf؛
-        عرف حـاوية_تطبيقية: لقب MapContainerOf؛
-        عرف حـاوية_تطبيقية_مرنة: لقب DynMapContainerOf؛
+        عرف حـاوية_معجمية: لقب MapContainerOf؛
+        عرف حـاوية_معجمية_مرنة: لقب DynMapContainerOf؛
     }
 }
