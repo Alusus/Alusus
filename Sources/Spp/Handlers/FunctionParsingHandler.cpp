@@ -212,6 +212,7 @@ Bool FunctionParsingHandler::onIncomingModifier(
 
   if (this->processExpnameModifier(state, modifierData)) return true;
   else if (this->processMemberModifier(state, modifierData)) return true;
+  else if (this->processUnsharedInstancesModifier(state, modifierData)) return true;
   else return false;
 }
 
@@ -307,6 +308,31 @@ Bool FunctionParsingHandler::processMemberModifier(
 
   funcType->setMember(true);
 
+  return true;
+}
+
+
+Bool FunctionParsingHandler::processUnsharedInstancesModifier(
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+) {
+  // Look for unshared_instances modifier. Its keyword may have already been translated by the call to the parent implementation.
+  auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
+  if (identifier == 0) return false;
+  if (identifier->getValue() != S("unshared_instances")) return false;
+
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  Core::Ast::Node *data = state->getData(levelOffset).get();
+  if (data == 0) return false;
+
+  // Grab the data from the definition, if any, otherwise use the data from the state level.
+  if (data->isDerivedFrom<Core::Ast::Definition>()) {
+    data = static_cast<Core::Ast::Definition*>(data)->getTarget().get();
+  }
+
+  // Only templates can have unshared instances.
+  auto tpl = ti_cast<Spp::Ast::Template>(data);
+  if (tpl == 0) return false;
+  tpl->setInstancesUnshareable(true);
   return true;
 }
 

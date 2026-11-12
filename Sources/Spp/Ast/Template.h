@@ -38,12 +38,19 @@ class Template : public Core::Ast::Node,
 
   private: SharedList<Core::Ast::Scope> instances;
 
+  /// When true, every instantiation creates a new instance, even if the template args match an existing instance.
+  private: TiBool instancesUnshareable;
+
   /// Indices of instances grouped by the hash of their template vars, to avoid scanning all instances on lookup.
   private: std::unordered_map<std::size_t, std::vector<Int>> instancesIndex;
 
 
   //============================================================================
   // Implementations
+
+  IMPLEMENT_BINDING(Core::Ast::Node,
+    (instancesUnshareable, TiBool, VALUE, setInstancesUnshareable(value), &instancesUnshareable)
+  );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Core::Ast::Node>,
     (varDefs, Core::Ast::List, SHARED_REF, setVarDefs(value), varDefs.get()),
@@ -102,6 +109,28 @@ class Template : public Core::Ast::Node,
   {
     return this->body;
   }
+
+  /**
+   * @brief Set whether this template can share instances.
+   * A template with unshareable instances creates a new instance on every instantiation, even if the template args
+   * match an existing instance.
+   */
+  public: void setInstancesUnshareable(Bool u)
+  {
+    this->instancesUnshareable = u;
+  }
+  public: void setInstancesUnshareable(TiBool const *u)
+  {
+    this->instancesUnshareable = u == 0 ? false : u->get();
+  }
+
+  public: Bool canShareInstances() const
+  {
+    return !this->instancesUnshareable.get();
+  }
+
+  /// @brief Find the index of the given instance block, or -1 if it doesn't belong to this template.
+  public: Int findInstanceIndex(Core::Ast::Scope const *instance) const;
 
   public: virtual SharedPtr<Core::Ast::Node> const& getDefaultInstance(Helper *helper);
   /**

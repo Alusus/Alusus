@@ -59,6 +59,10 @@ class FunctionParsingHandler : public Core::Processing::Handlers::GenericParsing
     Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
   );
 
+  private: Bool processUnsharedInstancesModifier(
+    Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+  );
+
 }; // class
 
 } // namespace

@@ -18,6 +18,15 @@ namespace Spp::Ast
 //==============================================================================
 // Member Functions
 
+Int Template::findInstanceIndex(Core::Ast::Scope const *instance) const
+{
+  for (Int i = 0; i < this->instances.getCount(); ++i) {
+    if (this->instances.get(i).get() == instance) return i;
+  }
+  return -1;
+}
+
+
 SharedPtr<Core::Ast::Node> const& Template::getDefaultInstance(Helper *helper)
 {
   if (this->body == 0) {
@@ -55,8 +64,13 @@ Bool Template::matchInstance(
     return false;
   }
 
+  // Templates that cannot share instances always create new ones, so they neither look for existing instances nor
+  // index the new ones.
+  Bool canShare = this->canShareInstances();
+
   // Do we already have an instance?
-  auto &candidates = this->instancesIndex[this->hashTemplateVars(&vars)];
+  std::vector<Int> noCandidates;
+  auto &candidates = canShare ? this->instancesIndex[this->hashTemplateVars(&vars)] : noCandidates;
   for (auto i : candidates) {
     if (this->matchTemplateVars(&vars, this->instances.getElement(i), helper, notice)) {
       result = this->instances.get(i)->get(0);
@@ -73,7 +87,7 @@ Bool Template::matchInstance(
   if (!this->assignTemplateVars(&vars, block.get(), helper, notice)) {
     return false;
   }
-  candidates.push_back(this->instances.getCount());
+  if (canShare) candidates.push_back(this->instances.getCount());
   this->instances.add(block);
   block->setOwner(this);
   result = this->instances.get(this->instances.getCount() - 1)->get(0);
@@ -393,6 +407,11 @@ void Template::print(OutStream &stream, Int indents) const
       case TemplateVarType::AST: stream << S("Ast"); break;
       case TemplateVarType::AST_REF: stream << S("AstRef"); break;
     }
+  }
+  if (this->instancesUnshareable.get()) {
+    stream << S("\n");
+    printIndents(stream, indents+1);
+    stream << S("-instancesUnshareable: true");
   }
   Node::printModifiers(stream, indents);
   Node::printMetadata(stream, indents);
