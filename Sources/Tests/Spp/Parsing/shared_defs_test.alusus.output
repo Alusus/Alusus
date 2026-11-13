@@ -6,11 +6,11 @@ Module [Main.ModuleStatements.StmtList]
    Definition [Main.Def] y
     metadata:
      shared: IntegerLiteral: 1
-    target: Identifier: Int [Main.BlockSubject.Identifier]
+    subject: Identifier: Int [Main.BlockSubject.Identifier]
    Definition [Main.Def] t
     metadata:
      shared: IntegerLiteral: 1
-    target: Identifier: MyType [Main.BlockSubject.Identifier]
+    subject: Identifier: MyType [Main.BlockSubject.Identifier]
    Definition [Main.Def] printIt: Function  [Main.Function]
     type: FunctionType member: 0 [Main.Function]
      argTypes: NULL
@@ -19,5 +19,5 @@ Module [Main.ModuleStatements.StmtList]
      Definition [Main.Def] z
       metadata:
        shared: IntegerLiteral: 1
-      target: Identifier: Int [Main.BlockSubject.Identifier]
+      subject: Identifier: Int [Main.BlockSubject.Identifier]
 ------------------------------------------------------

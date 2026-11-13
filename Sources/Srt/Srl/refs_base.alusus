@@ -12,7 +12,6 @@
 
 import "Memory";
 import "String";
-import "Spp";
 
 @merge module Srl
 {
@@ -29,19 +28,11 @@ import "Spp";
             // On macOS object addresses need to be aligned in memory to 16 bytes, so we'll compute a size for this
             // object that is aligned to 16 bytes so that the actual object, which follows, has an address that is
             // 16 bytes aligned.
-            preprocess {
+            @shared var alignedSize = ArchInt().{
                 if String.isEqual(Process.platform, "macos") {
-                    Spp.astMgr.insertAst(
-                        ast {
-                            @shared def alignedSize: ArchInt(16 * ((RefCounter~size + 15) / 16));
-                        }
-                    );
+                    this = ArchInt(16 * ((RefCounter~size + 15) / 16));
                 } else {
-                    Spp.astMgr.insertAst(
-                        ast {
-                            @shared def alignedSize: ArchInt(8 * ((RefCounter~size + 7) / 8));
-                        }
-                    );
+                    this = ArchInt(8 * ((RefCounter~size + 7) / 8));
                 }
             }
             def refCounter: ref[RefCounter];

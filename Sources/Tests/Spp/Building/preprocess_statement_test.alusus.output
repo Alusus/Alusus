@@ -82,7 +82,7 @@ define void @"testPreprocessVarDestruction()"() {
 }
 ------------------------------------------------------------
 [0;31mERROR SPPA1003: No valid match was found for the given type.[0m
-  preprocess_statement_test.alusus (85,12)
+  preprocess_statement_test.alusus (84,12)
 Build Failed...
 --------------------- Partial LLVM IR ----------------------
 ; ModuleID = 'AlususProgram'

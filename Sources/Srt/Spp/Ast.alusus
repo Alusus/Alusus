@@ -10,11 +10,18 @@
  */
 //==============================================================================
 
-import "Core/Ast";
-
 @merge module Spp {
     module Ast {
         def defAstType: alias Core.Ast.defAstType;
+        def defTiEnumType: alias AstInteropHelpers.defTiEnumType;
+
+        defTiEnumType[ReferenceMode, "alusus.org/Spp/Spp.Ast.ReferenceMode", (EXPLICIT, TEMP_EXPLICIT, IMPLICIT, NO_DEREF)];
+        defTiEnumType[PointerMode, "alusus.org/Spp/Spp.Ast.PointerMode", (HEAP, LITERAL)];
+        defTiEnumType[
+            TemplateVarType, "alusus.org/Spp/Spp.Ast.TemplateVarType",
+            (STRING, INTEGER, MODULE, TYPE, FUNCTION, AST, AST_REF)
+        ];
+        defTiEnumType[VarInitMode, "alusus.org/Spp/Spp.Ast.VarInitMode", (BIND, COPY, UNRESOLVED)];
 
         defAstType[Type, "alusus.org/Spp/Spp.Ast.Type"];
         defAstType[DataType, "alusus.org/Spp/Spp.Ast.DataType"];

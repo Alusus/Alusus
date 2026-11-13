@@ -13,7 +13,7 @@
 import "srl";
 import "String";
 import "Memory";
-import "Spp";
+import "compiler";
 
 @merge module Srl {
     module Regex {

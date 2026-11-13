@@ -392,7 +392,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   for (Int i = 0; i < body->getCount(); ++i) {
     auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
     if (def != 0) {
-      auto obj = def->getTarget().get();
+      auto obj = def->getSubject().get();
       if (typeGenerator->astHelper->isInMemVariable(obj)) {
         if (typeGenerator->astHelper->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT) {
           TiObject *tgType;
@@ -529,7 +529,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Ast::Definition>(obj);
     if (def != 0) {
-      auto target = def->getTarget().get();
+      auto target = def->getSubject().get();
       if (
         typeGenerator->getAstHelper()->isInMemVariable(target) &&
         typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
@@ -636,7 +636,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
     auto obj = body->getElement(i);
     auto def = ti_cast<Core::Ast::Definition>(obj);
     if (def != 0) {
-      auto target = def->getTarget().get();
+      auto target = def->getSubject().get();
       if (
         typeGenerator->getAstHelper()->isInMemVariable(target) &&
         typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT
@@ -1014,7 +1014,7 @@ Bool TypeGenerator::_generateDefaultUserTypeValue(
   for (Int i = 0; i < body->getElementCount(); ++i) {
     auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
     if (def != 0) {
-      auto obj = def->getTarget().get();
+      auto obj = def->getSubject().get();
       if (typeGenerator->getAstHelper()->isInMemVariable(obj)) {
         if (typeGenerator->getAstHelper()->getVariableDomain(def) == Ast::DefinitionDomain::OBJECT) {
           TiObject *tgMemberType;

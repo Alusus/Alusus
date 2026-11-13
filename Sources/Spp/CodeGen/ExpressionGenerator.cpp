@@ -222,7 +222,7 @@ Bool ExpressionGenerator::_generate(
     return expGenerator->generateInnerFunction(astFunc, g, session, result);
   } else if (astNode->isDerivedFrom<Core::Ast::Definition>()) {
     auto def = static_cast<Core::Ast::Definition*>(astNode);
-    auto astFunc = def->getTarget().ti_cast_get<Spp::Ast::Function>();
+    auto astFunc = def->getSubject().ti_cast_get<Spp::Ast::Function>();
     if (astFunc != 0) {
       return expGenerator->generateInnerFunction(astFunc, g, session, result);
     }

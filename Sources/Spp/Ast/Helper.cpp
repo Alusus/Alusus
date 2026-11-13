@@ -206,7 +206,7 @@ TypeMatchStatus Helper::_lookupCustomCaster(
         for (Int i = 0; i < body->getElementCount(); ++i) {
           auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
           if (def != 0 && !helper->isSharedDef(def)) {
-            auto obj = def->getTarget().get();
+            auto obj = def->getSubject().get();
             if (obj != 0 && helper->isInMemVariable(obj)) {
               if (!isInjection(def)) break;
               auto memberType = helper->traceType(obj);
@@ -620,15 +620,15 @@ Variable* Helper::addThisDefinition(
   }
   // Now we can set the target of the new or existing definition. We reuse the existing var, if any, because the
   // definition may have been added earlier, in which case the var could already be referenced.
-  auto var = def->getTarget().ti_cast_get<Variable>();
+  auto var = def->getSubject().ti_cast_get<Variable>();
   if (var == 0) {
-    def->setTarget(Variable::create({
+    def->setSubject(Variable::create({
       {S("valueOnly"), TiBool(true)},
       {S("sourceLocation"), body->getSourceLocation()}
     }, {
       {S("type"), astThisType}
     }));
-    var = def->getTarget().ti_cast_get<Variable>();
+    var = def->getSubject().ti_cast_get<Variable>();
   } else {
     var->setType(astThisType);
   }
@@ -1169,7 +1169,7 @@ DefinitionDomain Helper::_getVariableDomain(TiObject *self, Core::Ast::Node cons
   }
 
   // Values are always treated as local.
-  auto var = def->getTarget().ti_cast_get<Ast::Variable>();
+  auto var = def->getSubject().ti_cast_get<Ast::Variable>();
   if (var != 0 && var->isValueOnly()) return DefinitionDomain::FUNCTION;
 
   auto owner = def->getOwner();

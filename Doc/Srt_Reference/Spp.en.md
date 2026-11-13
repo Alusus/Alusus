@@ -834,6 +834,32 @@ class MyType {
 
 ## AST Types
 
+The properties listed with each class below are accessed as described in the
+[Properties](./Core.en.md#properties) section of the Core reference. All classes also have the properties of `Node`.
+
+### Enums
+
+Defined inside module `Spp.Ast`.
+
+Enums are `TiInt` based types, with each value available as a static member (e.g. `ReferenceMode.IMPLICIT`). Values
+are numbered sequentially from 0.
+
+* ReferenceMode
+
+  The mode of a reference type. Values: `EXPLICIT`, `TEMP_EXPLICIT`, `IMPLICIT`, `NO_DEREF`.
+
+* PointerMode
+
+  The mode of a pointer type. Values: `HEAP`, `LITERAL`.
+
+* TemplateVarType
+
+  The type of a template variable. Values: `STRING`, `INTEGER`, `MODULE`, `TYPE`, `FUNCTION`, `AST`, `AST_REF`.
+
+* VarInitMode
+
+  How a variable is initialized. Values: `BIND`, `COPY`, `UNRESOLVED`.
+
 ### Types
 
 defined inside module `Spp.Ast`.
@@ -852,33 +878,49 @@ defined inside module `Spp.Ast`.
 
 * IntegerType
 
+  Properties: `nullLiteral: TiBool`, `withSign: TiBool`, `body: Block`.
+
   Derived from `DataType`.
 
 * FloatType
+
+  Properties: `body: Block`.
 
   Derived from `DataType`.
 
 * ArrayType
 
+  Properties: `body: Block`.
+
   Derived from `DataType`.
 
 * PointerType
+
+  Properties: `mode: PointerMode`, `body: Block`.
 
   Derived from `DataType`.
 
 * ReferenceType
 
+  Properties: `mode: ReferenceMode`, `body: Block`.
+
   Derived from `DataType`.
 
 * VoidType
+
+  Properties: `body: Block`.
 
   Derived from `DataType`.
 
 * UserType
 
+  Properties: `body: Block`.
+
   Derived from `DataType`.
 
 * FunctionType
+
+  Properties: `member: TiBool`, `argTypes: Map`, `retType: Node`.
 
   Derived from `Type`.
 
@@ -891,27 +933,51 @@ Derived from `Node`.
 
 * AstRefOp
 
+  Properties: `operand: Node`.
+
 * CastOp
+
+  Properties: `operand: Node`, `targetType: Node`.
 
 * InitOp
 
+  Properties: `operand: Node`, `param: Node`.
+
 * TerminateOp
+
+  Properties: `operand: Node`.
 
 * NextArgOp
 
+  Properties: `operand: Node`, `targetType: Node`.
+
 * DerefOp
+
+  Properties: `operand: Node`.
 
 * NoDerefOp
 
+  Properties: `operand: Node`.
+
 * ContentOp
+
+  Properties: `operand: Node`.
 
 * PointerOp
 
+  Properties: `operand: Node`.
+
 * SizeOp
+
+  Properties: `operand: Node`.
 
 * TypeOp
 
+  Properties: `operand: Node`, `type: Type`.
+
 * UseInOp
+
+  Properties: `operandName: TiStr`, `skipInjection: TiBool`, `operand: Node`, `body: Block`.
 
 
 ### Statements
@@ -922,19 +988,35 @@ Derived from `Node`.
 
 * IfStatement
 
+  Properties: `condition: Node`, `ifBody: Node`, `elseBody: Node`.
+
 * WhileStatement
+
+  Properties: `condition: Node`, `body: Node`.
 
 * ForStatement
 
+  Properties: `initializer: Node`, `condition: Node`, `updater: Node`, `body: Node`.
+
 * ContinueStatement
+
+  Properties: `steps: IntegerLiteral`.
 
 * BreakStatement
 
+  Properties: `steps: IntegerLiteral`.
+
 * ReturnStatement
+
+  Properties: `operand: Node`.
 
 * PreprocessStatement
 
+  Properties: `body: Node`.
+
 * PreGenTransformStatement
+
+  Properties: `transform: TiPtr`, `body: Node`.
 
 
 ### Others
@@ -945,21 +1027,35 @@ Derived from `Node`.
 
 * Template
 
+  Properties: `instancesUnshareable: TiBool`, `varDefs: List`, `body: Node`.
+
 * TemplateVarDef
+
+  Properties: `name: TiStr`, `type: TemplateVarType`, `defaultVal: Node`.
 
 * Block
 
 * Function
 
+  Properties: `name: TiStr`, `inlined: TiBool`, `type: FunctionType`, `body: Scope`.
+
 * Macro
+
+  Properties: `member: TiBool`, `argTypes: Map`, `body: Node`.
 
 * Module
 
 * Variable
 
+  Properties: `initMode: VarInitMode`, `valueOnly: TiBool`, `typeRef: Node`, `initArgs: Node`, `type: Type`.
+
 * ArgPack
 
+  Properties: `min: TiWord`, `max: TiWord`, `argType: Node`.
+
 * AstLiteralCommand
+
+  Properties: `preprocessDisabled: TiBool`, `body: Node`.
 
 * ThisTypeRef
 

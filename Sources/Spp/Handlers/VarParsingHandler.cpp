@@ -146,7 +146,7 @@ SharedPtr<Core::Ast::Node> VarParsingHandler::createVar(
     { "sourceLocation", expr->findSourceLocation() },
     { "name", name->getValue() }
   }, {
-    { "target", var }
+    { "subject", var }
   });
 }
 
@@ -187,7 +187,7 @@ SharedPtr<Core::Ast::Definition> VarParsingHandler::createTypedVarDef(
     { "sourceLocation", sourceLocation },
     { "name", name->getValue() }
   }, {
-    { "target", var }
+    { "subject", var }
   });
 }
 

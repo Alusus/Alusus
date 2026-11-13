@@ -2,8 +2,7 @@ import "Srl/Console";
 import "Srl/Array";
 import "Srl/Map";
 import "Srl/String";
-import "Core/Ast";
-import "Spp";
+import "compiler";
 use Srl;
 
 function generateAddingElementNames (varName: String, elements: Array[ref[Core.Ast.Node]]) {

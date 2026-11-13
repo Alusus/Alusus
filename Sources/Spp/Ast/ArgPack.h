@@ -23,7 +23,7 @@ class ArgPack : public Core::Ast::Node, public MapContaining<Core::Ast::Node>
   //============================================================================
   // Type Info
 
-  TYPE_INFO(ArgPack, Core::Ast::Node, "Spp.Ast", "Core", "alusus.org");
+  TYPE_INFO(ArgPack, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   IMPLEMENT_INTERFACES(
     Core::Ast::Node, MapContaining<Core::Ast::Node>
   );

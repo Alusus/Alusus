@@ -61,7 +61,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
       { "sourceLocation", expr->findSourceLocation() },
       { "name", name }
     }, {
-      { "target", val }
+      { "subject", val }
     });
 
     // Create the definition.

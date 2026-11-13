@@ -77,7 +77,7 @@ Bool AstProcessor::_process(TiObject *self, Core::Ast::Node *owner)
   Bool result = true;
 
   auto def = ti_cast<Core::Ast::Definition>(owner);
-  if (def != 0 && def->isToMerge() && def->getTarget().ti_cast_get<Spp::Ast::Type>() != 0) {
+  if (def != 0 && def->isToMerge() && def->getSubject().ti_cast_get<Spp::Ast::Type>() != 0) {
     // Having a type definition with to-merge flag set means we eventually didn't find the merge target.
     astProcessor->astHelper->getNoticeStore()->add(
       newSrdObj<Spp::Notices::MissingTypeMergeTargetNotice>(findSourceLocation(def))
@@ -427,7 +427,7 @@ Bool AstProcessor::_processTypeBody(TiObject *self, Spp::Ast::UserType *type)
   for (Int i = 0; i < body->getCount(); ++i) {
     auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
     if (def == 0) continue;
-    auto var = def->getTarget().ti_cast_get<Spp::Ast::Variable>();
+    auto var = def->getSubject().ti_cast_get<Spp::Ast::Variable>();
     if (var != 0 && var->getTypeRef() == 0 && !var->isValueOnly() && !astProcessor->astHelper->isSharedDef(def)) {
       Int index;
       astProcessor->astHelper->addThisDefinition(

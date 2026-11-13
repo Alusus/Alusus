@@ -9,8 +9,6 @@
  */
 //==============================================================================
 
-اشمل "Spp"؛
-
 عرف نـبم: لقب Spp؛
 @دمج عرف Spp: وحدة
 {
@@ -57,8 +55,6 @@
         عرف أضف_عنصرا_قابلا_للدمج: لقب addPossiblyMergeableElement؛
         عرف احشر_شبم: لقب insertAst؛
         عرف أنشئ_شبم: لقب buildAst؛
-        عرف احشر_عمليات_النسخ: لقب insertCopyHandlers؛
-        عرف احشر_مكونا: لقب insertMixin؛
         عرف هات_مالك_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessOwner؛
         عرف هات_محشر_عبارة_التمهيد_الحالية: لقب getCurrentPreprocessInsertionPosition؛
         عرف هات_نطاق_المتغير: لقب getVariableDomain؛
@@ -71,6 +67,8 @@
         عرف هات_صنف_السند_ل: لقب getReferenceTypeFor؛
         عرف حاول_جلب_صنف_المحتوى_العميق: لقب tryGetDeepReferenceContentType؛
         عرف مهد_متن_صنف: لقب preprocessTypeBody؛
+        عرف احشر_عمليات_النسخ: لقب insertCopyHandlers؛
+        عرف احشر_مكونا: لقب insertMixin؛
     }
 
     عرف مدير_البناء: لقب buildMgr؛

@@ -165,8 +165,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         if (block != 0) {
           for (Int i = 0; i < block->getInjectionCount(); ++i) {
             auto def = ti_cast<Core::Ast::Definition>(block->getInjection(i));
-            if (def == 0 || def->getTarget() == 0) continue;
-            if (!helper->isVariable(def->getTarget().get())) continue;
+            if (def == 0 || def->getSubject() == 0) continue;
+            if (!helper->isVariable(def->getSubject().get())) continue;
             auto domain = helper->getVariableDomain(def);
 
             // If we are not requesting directly accessible members and instead looking for object or scope members and
@@ -180,7 +180,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
 
             Bool isMember = domain == DefinitionDomain::OBJECT;
             if ((isMember && request.thisType == 0) || (!isMember && request.thisType != 0)) continue;
-            auto objType = helper->traceType(def->getTarget().get());
+            auto objType = helper->traceType(def->getSubject().get());
             if (objType == 0) continue;
             if (helper->tryGetDeepReferenceContentType(objType) == request.injectionChainStartTarget) {
               continue; // Prevent infinite loops in case of circular injections.
@@ -200,7 +200,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             tracer->lookupCallee(innerRequest, innerResult);
             if (innerResult.isSuccessful()) {
               if (!noBindDef) innerResult.pushThisMarker();
-              innerResult.pushObject(def->getTarget().get());
+              innerResult.pushObject(def->getSubject().get());
               ++innerResult.injectionLevel;
             }
             CalleeTracer::selectBetterResult(innerResult, result);

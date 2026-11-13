@@ -1,10 +1,7 @@
 import "Srl/Console";
 import "Srl/Map";
 import "Srl/String";
-import "Core/Basic";
-import "Core/Ast";
-import "Spp";
-import "Spp/Ast";
+import "compiler";
 use Srl;
 use Core.Basic;
 use Core.Ast;

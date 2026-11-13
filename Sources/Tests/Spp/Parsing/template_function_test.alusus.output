@@ -19,7 +19,7 @@ Module [Main.ModuleStatements.StmtList]
  Definition [Main.Function] myTplFunc2
   modifiers:
    Identifier: somemod [Modifier.Subject.Identifier]
-  target: Template
+  subject: Template
     -varDefs:
      T: Type
      F: Function

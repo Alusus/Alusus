@@ -268,6 +268,7 @@ namespace Core::Basic
   class x : public p \
   { \
     TYPE_INFO(x, p, typeNamespace, packageName, url); \
+    OBJECT_FACTORY(x); \
     public: \
       enum _##x {__VA_ARGS__}; \
       x() : p(0) {} \

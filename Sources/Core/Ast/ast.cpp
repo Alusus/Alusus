@@ -82,7 +82,7 @@ Bool mergeDefinition(
           targetDef->addMetadata(def->getMetadata());
         }
         // Merge the target itself.
-        result = targetObj->merge(def->getTarget().get(), seeker, noticeStore);
+        result = targetObj->merge(def->getSubject().get(), seeker, noticeStore);
         return Seeker::Verb::STOP;
       },
       Seeker::Flags::SKIP_OWNERS | Seeker::Flags::SKIP_OWNED | Seeker::Flags::SKIP_USES
