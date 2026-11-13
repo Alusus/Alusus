@@ -1,0 +1,20 @@
+link.type: :
+id.value: abc
+id.value: xyz
+passage.target is null: 1
+passage.target: target
+passage owns target: 0
+id.modifiers is set: 1
+id owns its modifiers: 1
+definition.name through binding: myDef
+definition.name: otherDef
+bracket.type: 0
+bracket.type: 1
+func.name: myFunc
+func.inlined: 1
+refType.mode: 2
+link.first is null: 1
+link: a.b
+link owns first: 1
+definition.subject: b
+func.type.argTypes is set: 1

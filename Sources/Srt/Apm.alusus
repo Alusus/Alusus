@@ -11,7 +11,7 @@
 
 import "Srl/String";
 import "Srl/Console";
-import "Core";
+import "compiler";
 
 if Srl.String.compare(Process.language, "ar") == 0 {
   Core.importFile("Apm/I18n/ar.alusus");

@@ -81,7 +81,7 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
       { S("prodId"), expr->getProdId() },
       { S("sourceLocation"), expr->findSourceLocation() }
     }, {
-      { S("target"), macro }
+      { S("subject"), macro }
     });
     state->setData(def);
   }
@@ -165,7 +165,7 @@ Bool MacroParsingHandler::onIncomingModifier(
   auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
   if (identifier != 0 && identifier->getValue() == S("member")) {
     Spp::Ast::Macro *macro;
-    if (definition != 0) macro = definition->getTarget().ti_cast_get<Spp::Ast::Macro>();
+    if (definition != 0) macro = definition->getSubject().ti_cast_get<Spp::Ast::Macro>();
     else macro = ti_cast<Spp::Ast::Macro>(data);
     if (macro == 0) {
       throw EXCEPTION(GenericException, S("Unexpected data type while parsing macro modifier."));

@@ -82,7 +82,7 @@ void RootScopeHandlerExtension::_addNewElement(
     for (Int i = 0; i < start; ++i) {
       auto def = ti_cast<Core::Ast::Definition>(root->get(i));
       if (def != 0) {
-        auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
+        auto module = def->getSubject().ti_cast_get<Spp::Ast::Module>();
         if (module != 0) {
           if (!executing->addElementToExecutionEntry(def.get(), buildSession.get())) execute = false;
         }

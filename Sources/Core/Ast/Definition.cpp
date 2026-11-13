@@ -49,11 +49,11 @@ void Definition::print(OutStream &stream, Int indents) const
       (this->metadata != 0 && this->metadata->getCount() > 0)) {
     stream << S("\n");
     printIndents(stream, indents+1);
-    stream << S("target: ");
-    Ast::dumpAst(stream, this->target.get(), indents+2);
+    stream << S("subject: ");
+    Ast::dumpAst(stream, this->subject.get(), indents+2);
   } else {
     stream << S(": ");
-    Ast::dumpAst(stream, this->target.get(), indents);
+    Ast::dumpAst(stream, this->subject.get(), indents);
   }
 }
 

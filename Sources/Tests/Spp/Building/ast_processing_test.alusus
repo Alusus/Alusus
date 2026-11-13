@@ -1,5 +1,5 @@
-import "Core/Basic";
 import "Srl/Console.alusus";
+import "compiler";
 use Srl.Console;
 
 macro defInt [n] { def n: Int; }

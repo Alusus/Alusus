@@ -11,9 +11,7 @@
 import "Srl/Console";
 import "Srl/System";
 import "Srl/String";
-import "Core/Ast";
-import "Spp";
-import "Spp/Ast";
+import "compiler";
 
 use Srl;
 use Core.Basic;

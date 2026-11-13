@@ -141,9 +141,9 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   if (success) {
     if (tmpltArgs != 0) {
       auto def = state->getData().s_cast_get<Core::Ast::Definition>();
-      def->setTarget(Ast::Template::create({}, {
+      def->setSubject(Ast::Template::create({}, {
         { S("varDefs"), tmpltArgs },
-        { S("body"), def->getTarget() }
+        { S("body"), def->getSubject() }
       }));
     }
   } else {
@@ -792,7 +792,7 @@ SharedPtr<Core::Ast::Definition> TypeHandlersParsingHandler::createDefinition(
     auto def = Core::Ast::Definition::create({
       {S("name"), TiStr(name)}
     }, {
-      {S("target"), target}
+      {S("subject"), target}
     });
     def->setMetadata(S("operation"), Core::Ast::StringLiteral::create({ {S("value"), TiStr(op)} }));
     return def;
@@ -800,7 +800,7 @@ SharedPtr<Core::Ast::Definition> TypeHandlersParsingHandler::createDefinition(
     return Core::Ast::Definition::create({
       {S("name"), TiStr(name)}
     }, {
-      {S("target"), target}
+      {S("subject"), target}
     });
   }
 }
@@ -841,13 +841,13 @@ Bool TypeHandlersParsingHandler::processExpnameModifier(
   Spp::Ast::Function *function = 0;
   if (data->isDerivedFrom<Core::Ast::Definition>()) {
     auto def = static_cast<Core::Ast::Definition*>(data);
-    function = def->getTarget().ti_cast_get<Spp::Ast::Function>();
+    function = def->getSubject().ti_cast_get<Spp::Ast::Function>();
   } else if (data->isDerivedFrom<Core::Ast::Within>()) {
     auto statements = static_cast<Core::Ast::Within*>(data)->getSubject().ti_cast_get<Core::Ast::List>();
     for (Int i = 0; statements != 0 && i < statements->getCount(); ++i) {
       auto def = ti_cast<Core::Ast::Definition>(statements->getElement(i));
       if (def != 0) {
-        function = def->getTarget().ti_cast_get<Spp::Ast::Function>();
+        function = def->getSubject().ti_cast_get<Spp::Ast::Function>();
         if (function != 0) break;
       }
     }

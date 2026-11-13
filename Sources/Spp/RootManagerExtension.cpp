@@ -142,7 +142,7 @@ void RootManagerExtension::_insertClassPadding(TiObject *self, ArchInt definedSi
 
   auto def = newSrdObj<Core::Ast::Definition>();
   def->setName(S("_data"));
-  def->setTarget(arrayType);
+  def->setSubject(arrayType);
 
   Array<Str> names;
   Array<Core::Ast::Node*> values;

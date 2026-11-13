@@ -131,7 +131,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
       { S("prodId"), expr->getProdId() },
       { S("sourceLocation"), expr->findSourceLocation() }
     }, {
-      { S("target"), stateData }
+      { S("subject"), stateData }
     });
     stateData = def;
   }
@@ -238,7 +238,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
   Core::Ast::Definition *definition = 0;
   if (data->isDerivedFrom<Core::Ast::Definition>()) {
     definition = data.s_cast_get<Core::Ast::Definition>();
-    data = definition->getTarget();
+    data = definition->getSubject();
   }
   Spp::Ast::Function *function = data.ti_cast_get<Spp::Ast::Function>();
 
@@ -258,7 +258,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
     newFunction->setName(param->getValue());
     // If a definition exists, update its target with the new function, otherwise set the new function to the state.
     if (definition != 0) {
-      definition->setTarget(newFunction);
+      definition->setSubject(newFunction);
     } else {
       state->setData(newFunction, levelOffset);
     }
@@ -288,7 +288,7 @@ Bool FunctionParsingHandler::processMemberModifier(
   Core::Ast::Definition *definition = 0;
   if (data->isDerivedFrom<Core::Ast::Definition>()) {
     definition = static_cast<Core::Ast::Definition*>(data);
-    data = definition->getTarget().get();
+    data = definition->getSubject().get();
   }
 
   if (data->isDerivedFrom<Spp::Ast::Template>()) {
@@ -326,7 +326,7 @@ Bool FunctionParsingHandler::processUnsharedInstancesModifier(
 
   // Grab the data from the definition, if any, otherwise use the data from the state level.
   if (data->isDerivedFrom<Core::Ast::Definition>()) {
-    data = static_cast<Core::Ast::Definition*>(data)->getTarget().get();
+    data = static_cast<Core::Ast::Definition*>(data)->getSubject().get();
   }
 
   // Only templates can have unshared instances.

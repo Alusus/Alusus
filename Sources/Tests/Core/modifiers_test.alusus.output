@@ -149,5 +149,5 @@ Scope [Main.Statements.StmtList]
  Definition [Main.Def] p
   modifiers:
    Identifier: public [Modifier.Subject.Identifier]
-  target: IntegerLiteral: 5 [Main.Subject.Literal]
+  subject: IntegerLiteral: 5 [Main.Subject.Literal]
 ------------------------------------------------------

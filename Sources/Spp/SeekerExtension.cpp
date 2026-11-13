@@ -324,7 +324,7 @@ Core::Ast::Seeker::Verb SeekerExtension::_foreach_comparisonOnScope(
   for (Int i = 0; i < scope->getCount(); ++i) {
     auto def = ti_cast<Core::Ast::Definition>(scope->getElement(i));
     if (def != 0) {
-      auto obj = def->getTarget().get();
+      auto obj = def->getSubject().get();
       if (seekerExtension->foreach_computeComparison(comparison, obj)) {
         verb = cb(Core::Ast::Seeker::Action::TARGET_MATCH, obj, Core::Ast::Seeker::NoticePtr::null);
         if (!Core::Ast::Seeker::isMove(verb)) return verb;

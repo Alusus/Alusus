@@ -1,0 +1,78 @@
+import "Srl/Console";
+import "Srl/refs";
+import "compiler";
+
+use Srl;
+use Core.Basic;
+use Core.Ast;
+
+// --- Accessors of value members ---------------------------------------------------
+// Members that are held by value (strings, numbers, ...) are accessed as references to the member itself.
+var link: SrdRef[LinkOperator] = newSrdObj[LinkOperator];
+link.type = TiStr(":");
+Console.print("link.type: %s\n", link.type.value.buf);
+
+// --- Accessors of text nodes --------------------------------------------------------
+var id: SrdRef[Identifier] = Identifier.create("abc");
+Console.print("id.value: %s\n", id.value.value.buf);
+id.value.value = "xyz";
+Console.print("id.value: %s\n", id.value.value.buf);
+
+// --- Accessors of reference members -------------------------------------------------
+// The setter lets the node decide whether it needs to own the given object. Passage doesn't own its target (it
+// only captures it), while a node owns its modifiers list.
+var passage: SrdRef[Passage] = newSrdObj[Passage];
+Console.print("passage.target is null: %i\n", (passage.target~ptr == 0)~cast[Int]);
+var target: SrdRef[Identifier] = Identifier.create("target");
+passage.target = castRef[target.obj, Node];
+Console.print("passage.target: %s\n", castRef[passage.target, Identifier].value.value.buf);
+Console.print("passage owns target: %i\n", (passage.target.owner~ptr == passage.obj~ptr)~cast[Int]);
+
+func setModifiers (n: ref[Identifier]) {
+    var modifiers: SrdRef[List] = newSrdObj[List];
+    n.modifiers = modifiers.obj;
+}
+setModifiers(id.obj);
+Console.print("id.modifiers is set: %i\n", (id.modifiers~ptr != 0)~cast[Int]);
+Console.print("id owns its modifiers: %i\n", (id.modifiers.owner~ptr == id.obj~ptr)~cast[Int]);
+
+// --- Accessors are consistent with the Binding interface -----------------------------
+var definition: SrdRef[Definition] = newSrdObj[Definition];
+definition.name = TiStr("myDef");
+Console.print("definition.name through binding: %s\n", castRef[BindingOf[definition.obj].getMember("name"), TiStr].value.buf);
+BindingOf[definition.obj].setMember("name", TiStr("otherDef"));
+Console.print("definition.name: %s\n", definition.name.value.buf);
+
+// --- Enum members -----------------------------------------------------------------------
+// Enums are objects of their own types (derived from TiInt), with their values available as static members.
+var bracket: SrdRef[Bracket] = newSrdObj[Bracket];
+Console.print("bracket.type: %i\n", bracket.type.value);
+bracket.type = BracketType.SQUARE;
+Console.print("bracket.type: %i\n", bracket.type.value);
+
+// --- Accessors of Spp.Ast nodes --------------------------------------------------------------
+var fn: SrdRef[Spp.Ast.Function] = newSrdObj[Spp.Ast.Function];
+fn.name = TiStr("myFunc");
+fn.inlined = TiBool(true);
+Console.print("func.name: %s\n", fn.name.value.buf);
+Console.print("func.inlined: %i\n", fn.inlined.value~cast[Int]);
+var refType: SrdRef[Spp.Ast.ReferenceType] = newSrdObj[Spp.Ast.ReferenceType];
+refType.mode = Spp.Ast.ReferenceMode.IMPLICIT;
+Console.print("refType.mode: %i\n", refType.mode.value);
+
+// --- Accessors of map elements ----------------------------------------------------------------
+// Map elements are accessed the same way as binding members.
+var first: SrdRef[Identifier] = Identifier.create("a");
+var second: SrdRef[Identifier] = Identifier.create("b");
+Console.print("link.first is null: %i\n", (link.first~ptr == 0)~cast[Int]);
+link.first = castRef[first.obj, Node];
+link.second = castRef[second.obj, Node];
+Console.print("link: %s.%s\n", castRef[link.first, Identifier].value.value.buf, castRef[link.second, Identifier].value.value.buf);
+Console.print("link owns first: %i\n", (link.first.owner~ptr == link.obj~ptr)~cast[Int]);
+definition.subject = castRef[second.obj, Node];
+Console.print("definition.subject: %s\n", castRef[definition.subject, Identifier].value.value.buf);
+var fnType: SrdRef[Spp.Ast.FunctionType] = newSrdObj[Spp.Ast.FunctionType];
+var args: SrdRef[Map] = newSrdObj[Map];
+fn.type = fnType.obj;
+fnType.argTypes = args.obj;
+Console.print("func.type.argTypes is set: %i\n", (fn.type.argTypes~ptr != 0)~cast[Int]);

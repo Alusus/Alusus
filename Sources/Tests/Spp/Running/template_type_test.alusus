@@ -1,4 +1,4 @@
-import "Core/Basic";
+import "compiler";
 
 @expname[printf] function printf (s: ptr[Word[8]], ...any) => Int;
 
