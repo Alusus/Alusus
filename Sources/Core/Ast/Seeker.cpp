@@ -282,10 +282,10 @@ Seeker::Verb Seeker::_set_identifierOnScope(
   // The size is checked on every iteration since the callback can modify the scope.
   for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
     auto def = (*defs)[i];
-    auto obj = def->getTarget().get();
+    auto obj = def->getSubject().get();
     verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
     if (isPerform(verb)) {
-      def->setTarget(getSharedPtr(obj));
+      def->setSubject(getSharedPtr(obj));
     }
     if (!Seeker::isMove(verb)) break;
   }
@@ -296,7 +296,7 @@ Seeker::Verb Seeker::_set_identifierOnScope(
       // Add a new definition.
       auto def = Definition::create();
       def->setName(identifier->getValue());
-      def->setTarget(getSharedPtr(obj));
+      def->setSubject(getSharedPtr(obj));
       scope->add(def);
     }
   }
@@ -462,7 +462,7 @@ Seeker::Verb Seeker::_remove_identifierOnScope(
   // The size is checked on every iteration since the callback can modify the scope.
   for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
     auto def = (*defs)[i];
-    auto obj = def->getTarget().get();
+    auto obj = def->getSubject().get();
     verb = cb(Action::TARGET_MATCH, obj, Seeker::NoticePtr::null);
     if (isPerform(verb)) {
       // Removing the definition from the scope also removes it from the definitions list.
@@ -628,7 +628,7 @@ Seeker::Verb Seeker::_foreach_identifierAtScope(
   auto defs = scope->findDefinitions(identifier->getValue().getStr());
   // The size is checked on every iteration since the callback can modify the scope.
   for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
-    auto obj = (*defs)[i]->getTarget().get();
+    auto obj = (*defs)[i]->getSubject().get();
     if (obj->isDerivedFrom<Alias>()) {
       verb = cb(Action::ALIAS_TRACE_START, obj, Seeker::NoticePtr::null);
       if (verb == Verb::SKIP) return Verb::MOVE;
@@ -682,7 +682,7 @@ Seeker::Verb Seeker::_foreach_identifierOnScope(
   auto defs = scope->findDefinitions(identifier->getValue().getStr());
   // The size is checked on every iteration since the callback can modify the scope.
   for (Int i = 0; defs != 0 && i < static_cast<Int>(defs->size()); ++i) {
-    auto obj = (*defs)[i]->getTarget().get();
+    auto obj = (*defs)[i]->getSubject().get();
     if (obj->isDerivedFrom<Alias>()) {
       verb = cb(Action::ALIAS_TRACE_START, obj, Seeker::NoticePtr::null);
       if (verb == Verb::SKIP) return Verb::MOVE;

@@ -12,7 +12,6 @@
 
 import "Srl/Fs.alusus";
 import "Srl/String";
-import "Core";
 import "libkubazip.so" or "libkubazip.dylib";
 
 def Zip: module {

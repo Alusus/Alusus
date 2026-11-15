@@ -9,9 +9,7 @@
  */
 //==============================================================================
 
-import "Core";
-import "Spp";
-import "Core/Ast";
+import "compiler";
 import "Srl/Console";
 import "Srl/String";
 import "Srl/System";

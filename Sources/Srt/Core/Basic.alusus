@@ -10,10 +10,6 @@
  */
 //==============================================================================
 
-import "../Core";
-import "Srl/refs_base";
-import "Srl/String";
-
 @merge module Core {
     module Basic {
         use Srl;
@@ -84,11 +80,24 @@ import "Srl/String";
             handler this.getTiObject (): ref[TiObject];
         }
 
-        macro getInterface [obj, T] castRef[obj.getInterface(T.getTypeInfo()), T];
-        macro isDerivedFrom [obj, T] obj.isDerivedFrom(T.getTypeInfo());
+        // In the following macros we use the obj.{} notation to make sure obj is computed
+        // only once, in case the user provides an expression as obj, like a function call.
 
-        macro dynCastRef [obj, T] ref[T]().{
-            def self: ref[ref[T]](this);
+        macro getInterface [obj, T] ref[T]()~use_in(self) {
+            obj.{
+                if this~ptr == 0 self~ptr = 0
+                else self := castRef[this.getInterface(T.getTypeInfo()), T]
+            }
+        };
+
+        macro isDerivedFrom [obj, T] Bool()~use_in(self) {
+            obj.{
+                if this~ptr == 0 self = false
+                else self = this.isDerivedFrom(T.getTypeInfo())
+            }
+        };
+
+        macro dynCastRef [obj, T] ref[T]()~use_in(self) {
             obj.{
                 if this~ptr != 0 && this.isDerivedFrom(T.getTypeInfo())
                     self~deref~no_deref = castRef[this, T]

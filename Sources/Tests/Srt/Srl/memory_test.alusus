@@ -1,7 +1,7 @@
 import "Srl/Memory.alusus";
 import "Srl/Console.alusus";
 import "Srl/String";
-import "Spp";
+import "compiler";
 use Srl;
 
 def Main: module

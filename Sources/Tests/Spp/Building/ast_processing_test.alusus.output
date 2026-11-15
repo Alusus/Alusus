@@ -19,7 +19,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] getDouble
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -116,7 +116,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] getDouble
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []

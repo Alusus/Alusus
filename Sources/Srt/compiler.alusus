@@ -1,0 +1,23 @@
+/**
+ * @file compiler.alusus
+ * Contains all imports needed for interacting with the compiler from Alusus
+ * side.
+ *
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+import "Srl/Map";
+import "Srl/String";
+import "Srl/refs_base";
+
+import "AstInteropHelpers";
+import "Core";
+import "Core/Basic";
+import "Core/Ast";
+import "Spp";
+import "Spp/Ast";

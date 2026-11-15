@@ -10,59 +10,319 @@
  */
 //==============================================================================
 
-اشمل "الـقلب/شـبم"؛
-اشمل "نـبم"؛
-اشمل "Spp/Ast"؛
-
 @دمج وحدة نـبم {
     عرف شـبم: لقب Ast؛
     @دمج وحدة شـبم {
-        عرف عرب_صنف_شبم: لقب الـقلب.شـبم.عرب_صنف_شبم؛
+        عرف نـمط_سند: لقب ReferenceMode؛
+        @دمج صنف ReferenceMode {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف القيمة: لقب value؛
+            عرف أنشئ: لقب create؛
+            عرف _صريح_: لقب EXPLICIT؛
+            عرف _صريح_مؤقت_: لقب TEMP_EXPLICIT؛
+            عرف _ضمني_: لقب IMPLICIT؛
+            عرف _بلا_تتبع_: لقب NO_DEREF؛
+        }
+        عرف نـمط_مؤشر: لقب PointerMode؛
+        @دمج صنف PointerMode {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف القيمة: لقب value؛
+            عرف أنشئ: لقب create؛
+            عرف _كومة_: لقب HEAP؛
+            عرف _حرفي_: لقب LITERAL؛
+        }
+        عرف نـوع_متغير_قالب: لقب TemplateVarType؛
+        @دمج صنف TemplateVarType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف القيمة: لقب value؛
+            عرف أنشئ: لقب create؛
+            عرف _نص_: لقب STRING؛
+            عرف _صحيح_: لقب INTEGER؛
+            عرف _وحدة_: لقب MODULE؛
+            عرف _صنف_: لقب TYPE؛
+            عرف _دالة_: لقب FUNCTION؛
+            عرف _شبم_: لقب AST؛
+            عرف _إشارة_شبم_: لقب AST_REF؛
+        }
+        عرف نـمط_تهيئة_متغير: لقب VarInitMode؛
+        @دمج صنف VarInitMode {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف القيمة: لقب value؛
+            عرف أنشئ: لقب create؛
+            عرف _ربط_: لقب BIND؛
+            عرف _نسخ_: لقب COPY؛
+            عرف _غير_محدد_: لقب UNRESOLVED؛
+        }
 
-        عرب_صنف_شبم[Type, صـنف];
-        عرب_صنف_شبم[DataType, صـنف_بيانات];
-        عرب_صنف_شبم[IntegerType, صـنف_صحيح];
-        عرب_صنف_شبم[FloatType, صـنف_عائم];
-        عرب_صنف_شبم[ArrayType, صـنف_مصفوفة];
-        عرب_صنف_شبم[PointerType, صـنف_مؤشر];
-        عرب_صنف_شبم[ReferenceType, صـنف_سند];
-        عرب_صنف_شبم[VoidType, صـنف_عدم];
-        عرب_صنف_شبم[UserType, صـنف_مستخدم];
-        عرب_صنف_شبم[FunctionType, صـنف_دالة];
+        عرف صـنف: لقب Type؛
+        @دمج صنف Type {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
 
-        عرب_صنف_شبم[Template, قـالب];
-        عرب_صنف_شبم[TemplateVarDef, تـعريف_معطى_قالب];
+        عرف صـنف_بيانات: لقب DataType؛
+        @دمج صنف DataType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
 
-        عرب_صنف_شبم[AstRefOp, مـؤثر_إشارة_لشبم];
-        عرب_صنف_شبم[CastOp, مـؤثر_تمثيل];
-        عرب_صنف_شبم[InitOp, مـؤثر_تهيئة];
-        عرب_صنف_شبم[TerminateOp, مـؤثر_إتلاف];
-        عرب_صنف_شبم[NextArgOp, مـؤثر_التالي];
-        عرب_صنف_شبم[DerefOp, مـؤثر_تتبع];
-        عرب_صنف_شبم[NoDerefOp, مـؤثر_تعطيل_التتبع];
-        عرب_صنف_شبم[ContentOp, مـؤثر_محتوى];
-        عرب_صنف_شبم[PointerOp, مـؤثر_مؤشر];
-        عرب_صنف_شبم[SizeOp, مـؤثر_حجم];
-        عرب_صنف_شبم[TypeOp, مـؤثر_صنف];
-        عرب_صنف_شبم[UseInOp, مـؤثر_استخدم_في];
+        عرف صـنف_صحيح: لقب IntegerType؛
+        @دمج صنف IntegerType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف عدم_حرفي: لقب nullLiteral؛
+            عرف بإشارة: لقب withSign؛
+            عرف المتن: لقب body؛
+        }
 
-        عرب_صنف_شبم[Block, مـتن];
-        عرب_صنف_شبم[Function, دالـة];
-        عرب_صنف_شبم[Macro, مـاكرو];
-        عرب_صنف_شبم[Module, وحـدة];
-        عرب_صنف_شبم[Variable, مـتغير];
+        عرف صـنف_عائم: لقب FloatType؛
+        @دمج صنف FloatType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المتن: لقب body؛
+        }
 
-        عرب_صنف_شبم[IfStatement, عـبارة_إذا];
-        عرب_صنف_شبم[WhileStatement, عـبارة_بينما];
-        عرب_صنف_شبم[ForStatement, عـبارة_لكل];
-        عرب_صنف_شبم[ContinueStatement, عـبارة_أكمل];
-        عرب_صنف_شبم[BreakStatement, عـبارة_اقطع];
-        عرب_صنف_شبم[ReturnStatement, عـبارة_ارجع];
-        عرب_صنف_شبم[PreprocessStatement, عـبارة_تمهيد];
-        عرب_صنف_شبم[PreGenTransformStatement, عـبارة_ترجمة_قبلية];
+        عرف صـنف_مصفوفة: لقب ArrayType؛
+        @دمج صنف ArrayType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المتن: لقب body؛
+        }
 
-        عرب_صنف_شبم[ArgPack, رزمـة_معطيات];
-        عرب_صنف_شبم[AstLiteralCommand, إيـعاز_شبم_حرفي];
-        عرب_صنف_شبم[ThisTypeRef, إشـارة_لهذا_الصنف];
+        عرف صـنف_مؤشر: لقب PointerType؛
+        @دمج صنف PointerType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النمط: لقب mode؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف صـنف_سند: لقب ReferenceType؛
+        @دمج صنف ReferenceType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النمط: لقب mode؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف صـنف_عدم: لقب VoidType؛
+        @دمج صنف VoidType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف صـنف_مستخدم: لقب UserType؛
+        @دمج صنف UserType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف صـنف_دالة: لقب FunctionType؛
+        @دمج صنف FunctionType {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف عضو: لقب member؛
+            عرف أصناف_المعطيات: لقب argTypes؛
+            عرف صنف_الإرجاع: لقب retType؛
+        }
+
+        عرف قـالب: لقب Template؛
+        @دمج صنف Template {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الطبعات_لامشتركة: لقب instancesUnshareable؛
+            عرف تعريفات_المتغيرات: لقب varDefs؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف تـعريف_معطى_قالب: لقب TemplateVarDef؛
+        @دمج صنف TemplateVarDef {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الاسم: لقب name؛
+            عرف النوع: لقب type؛
+            عرف القيمة_الافتراضية: لقب defaultVal؛
+        }
+
+        عرف مـؤثر_مشير_شبم: لقب AstRefOp؛
+        @دمج صنف AstRefOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_تمثيل: لقب CastOp؛
+        @دمج صنف CastOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+            عرف الصنف_المستهدف: لقب targetType؛
+        }
+
+        عرف مـؤثر_تهيئة: لقب InitOp؛
+        @دمج صنف InitOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+            عرف المعطى: لقب param؛
+        }
+
+        عرف مـؤثر_إتلاف: لقب TerminateOp؛
+        @دمج صنف TerminateOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_التالي: لقب NextArgOp؛
+        @دمج صنف NextArgOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+            عرف الصنف_المستهدف: لقب targetType؛
+        }
+
+        عرف مـؤثر_تتبع: لقب DerefOp؛
+        @دمج صنف DerefOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_تعطيل_تتبع: لقب NoDerefOp؛
+        @دمج صنف NoDerefOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_محتوى: لقب ContentOp؛
+        @دمج صنف ContentOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_مؤشر: لقب PointerOp؛
+        @دمج صنف PointerOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_حجم: لقب SizeOp؛
+        @دمج صنف SizeOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_صنف: لقب TypeOp؛
+        @دمج صنف TypeOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+            عرف النوع: لقب type؛
+        }
+
+        عرف مـؤثر_استخدم_في: لقب UseInOp؛
+        @دمج صنف UseInOp {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف اسم_المعامل: لقب operandName؛
+            عرف تخطي_الحقن: لقب skipInjection؛
+            عرف المعامل: لقب operand؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف مـتن: لقب Block؛
+        @دمج صنف Block {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
+
+        عرف دالـة: لقب Function؛
+        @دمج صنف Function {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الاسم: لقب name؛
+            عرف مضمن: لقب inlined؛
+            عرف الصنف: لقب type؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف مـاكرو: لقب Macro؛
+        @دمج صنف Macro {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف عضو: لقب member؛
+            عرف أصناف_المعطيات: لقب argTypes؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف وحـدة: لقب Module؛
+        @دمج صنف Module {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
+
+        عرف مـتغير: لقب Variable؛
+        @دمج صنف Variable {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف نمط_التهيئة: لقب initMode؛
+            عرف قيمة_فقط: لقب valueOnly؛
+            عرف مشير_الصنف: لقب typeRef؛
+            عرف معطيات_التهيئة: لقب initArgs؛
+            عرف الصنف: لقب type؛
+        }
+
+        عرف عـبارة_إذا: لقب IfStatement؛
+        @دمج صنف IfStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الشرط: لقب condition؛
+            عرف متن_إذا: لقب ifBody؛
+            عرف متن_وإلا: لقب elseBody؛
+        }
+
+        عرف عـبارة_بينما: لقب WhileStatement؛
+        @دمج صنف WhileStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الشرط: لقب condition؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف عـبارة_لكل: لقب ForStatement؛
+        @دمج صنف ForStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المهيئ: لقب initializer؛
+            عرف الشرط: لقب condition؛
+            عرف المحدث: لقب updater؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف عـبارة_أكمل: لقب ContinueStatement؛
+        @دمج صنف ContinueStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الخطوات: لقب steps؛
+        }
+
+        عرف عـبارة_اقطع: لقب BreakStatement؛
+        @دمج صنف BreakStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الخطوات: لقب steps؛
+        }
+
+        عرف عـبارة_ارجع: لقب ReturnStatement؛
+        @دمج صنف ReturnStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف عـبارة_تمهيد: لقب PreprocessStatement؛
+        @دمج صنف PreprocessStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف عـبارة_ترجمة_قبلية: لقب PreGenTransformStatement؛
+        @دمج صنف PreGenTransformStatement {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف التحويل: لقب transform؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف رزمـة_معطيات: لقب ArgPack؛
+        @دمج صنف ArgPack {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الأدنى: لقب min؛
+            عرف الأقصى: لقب max؛
+            عرف صنف_المعطى: لقب argType؛
+        }
+
+        عرف إيـعاز_شبم_حرفي: لقب AstLiteralCommand؛
+        @دمج صنف AstLiteralCommand {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف التمهيد_معطل: لقب preprocessDisabled؛
+            عرف المتن: لقب body؛
+        }
+
+        عرف مـشير_هذا_الصنف: لقب ThisTypeRef؛
+        @دمج صنف ThisTypeRef {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
     }
 }

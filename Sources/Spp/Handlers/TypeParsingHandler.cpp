@@ -82,7 +82,7 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
       { S("prodId"), currentList->getProdId() },
       { S("sourceLocation"), currentList->findSourceLocation() }
     }, {
-      { S("target"), type }
+      { S("subject"), type }
     }));
   } else {
     state->setData(type);
@@ -118,7 +118,7 @@ Bool TypeParsingHandler::onIncomingModifier(
 
   // Look for unshared_instances modifier. Only templates can have unshared instances.
   if (identifier != 0 && identifier->getValue() == S("unshared_instances")) {
-    auto tpl = definition->getTarget().ti_cast_get<Spp::Ast::Template>();
+    auto tpl = definition->getSubject().ti_cast_get<Spp::Ast::Template>();
     if (tpl == 0) return false;
     tpl->setInstancesUnshareable(true);
     return true;

@@ -1,5 +1,5 @@
 import "Srl/Console";
-import "Spp";
+import "compiler";
 
 use Srl.Console;
 

@@ -42,7 +42,7 @@ Core.Ast.List
    -name: نـص_بهوية "د"
    -toMerge: ثـنائي_بهوية خطأ
    عناصر مسماة:
-   -target: Spp.Ast.Function
+   -subject: Spp.Ast.Function
      الأعضاء:
      -prodId: طـبيعي_بهوية 254
      -sourceLocation: Core.Ast.SourceLocationRecord

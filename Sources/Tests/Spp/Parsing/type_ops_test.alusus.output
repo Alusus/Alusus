@@ -71,7 +71,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ~init
    metadata:
     operation: StringLiteral: ~init
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -82,7 +82,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ~init
    metadata:
     operation: StringLiteral: ~init
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -99,7 +99,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ~terminate
    metadata:
     operation: StringLiteral: ~terminate
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -110,7 +110,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ~terminate
    metadata:
     operation: StringLiteral: ~terminate
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -125,7 +125,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] =
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -146,7 +146,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] =
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -167,7 +167,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] +=
    metadata:
     operation: StringLiteral: +=
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -188,7 +188,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] /=
    metadata:
     operation: StringLiteral: /=
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -209,7 +209,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] =
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -234,7 +234,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] =
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -259,7 +259,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] >
    metadata:
     operation: StringLiteral: >
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -279,7 +279,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] -
    metadata:
     operation: StringLiteral: -
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -297,7 +297,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] *
    metadata:
     operation: StringLiteral: *
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -321,7 +321,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] <<
    metadata:
     operation: StringLiteral: <<
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -339,7 +339,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] $
    metadata:
     operation: StringLiteral: $
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -357,7 +357,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ~cast
    metadata:
     operation: StringLiteral: ~cast
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -376,7 +376,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ()
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -391,7 +391,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ()
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -408,7 +408,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ()
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -431,7 +431,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -448,7 +448,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -465,7 +465,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: +=
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -482,7 +482,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: /=
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -499,7 +499,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -522,7 +522,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: =
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -545,7 +545,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: >
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -565,7 +565,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: -
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -583,7 +583,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: *
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -607,7 +607,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: <<
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -625,7 +625,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: $
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -643,7 +643,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: 
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -658,7 +658,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -673,7 +673,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -690,7 +690,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -717,7 +717,7 @@ UserType [Main.Type]
      param: StringLiteral: hello [Main.BlockSubject.Literal]
    metadata:
     operation: StringLiteral: ()
-   target: Function f2
+   subject: Function f2
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -729,7 +729,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -740,7 +740,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ()
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -753,7 +753,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ()
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 0
       argTypes: Map
       retType: NULL
@@ -761,7 +761,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ()
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 0
       argTypes: Map
       retType: ParamPass [] [Main.Expression.ParamPassExp]
@@ -771,7 +771,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] ()
    metadata:
     operation: StringLiteral: ()
-   target: Function 
+   subject: Function 
      type: FunctionType member: 0
       argTypes: Map
        n: Identifier: Int [Main.BlockSubject.Identifier]
@@ -782,7 +782,7 @@ UserType [Main.Type]
   Definition [Main.LeadingCmdGrp] myprop
    metadata:
     operation: StringLiteral: ()
-   target: Template
+   subject: Template
      -varDefs:
       T: Type
      -body:

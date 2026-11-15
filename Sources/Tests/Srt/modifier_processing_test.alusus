@@ -1,6 +1,5 @@
 import "Srl/Console";
-import "Core/Ast";
-import "Spp";
+import "compiler";
 use Srl;
 
 function getDefName(element: ref[Core.Ast.Node]): String {

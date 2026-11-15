@@ -13,9 +13,7 @@
 import "Srl/String";
 import "Srl/Array";
 import "Srl/Map";
-import "Core/Basic";
-import "Spp";
-import "Spp/Ast";
+import "compiler";
 
 @merge module Srl {
     def _emptyMixin: {}

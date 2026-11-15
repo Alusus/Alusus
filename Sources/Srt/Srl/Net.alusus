@@ -21,11 +21,11 @@ import "curl";
   def Net: module
   {
     func getBuildDependencies(): Array[String] {
-      return Array[String]({ String(getThisSourceDirectory[]) + preprocess {
+      return Array[String]({ String(getThisSourceDirectory[]) + CharsPtr().{
         if String.isEqual(Process.platform, "macos") {
-          Spp.astMgr.insertAst(ast "../libcurl.dylib");
+          this = "../libcurl.dylib";
         } else {
-          Spp.astMgr.insertAst(ast "../libcurl.so");
+          this = "../libcurl.so";
         }
       } });
     }

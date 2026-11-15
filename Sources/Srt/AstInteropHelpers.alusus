@@ -1,0 +1,200 @@
+/**
+ * @file AstInteropHelpers.alusus
+ * Contains helper functions for AST Cpp-Alusus interop.
+ *
+ * @copyright Copyright (C) 2026 Sarmad Khalid Abdullah
+ *
+ * @license This file is released under Alusus Public License, Version 1.0.
+ * For details on usage and copying conditions read the full license in the
+ * accompanying license file or at <https://alusus.org/license.html>.
+ */
+//==============================================================================
+
+module AstInteropHelpers {
+    use Srl;
+    use Core.Basic;
+    use Core.Ast;
+
+    def identifierTypeName: "alusus.org/Core/Core.Ast.Identifier";
+    def integerLiteralTypeName: "alusus.org/Core/Core.Ast.IntegerLiteral";
+
+    // Creates a text based node (Identifier, IntegerLiteral, ...) using its object factory. The classes of these
+    // nodes are still being generated when this is used, so they can't be referred to directly.
+    function createTextNode (
+        nodeTypeName: ptr[array[Word[8]]], text: ptr[array[Char]]
+    ): SrdRef[Node] {
+        var ti: ref[TypeInfo](getFromGlobalStorage(nodeTypeName)~cast[ptr[TypeInfo]]~cnt);
+        var obj = ti.objectFactory.createShared();
+        var value: TiStr = text;
+        getInterface[obj.obj, Binding].setMember("value", castRef[value, TiObject]);
+        return castSrdRef[obj, Node];
+    }
+
+    // Collects the identifiers found in the given AST, which can be a single identifier or a (nested) list of
+    // them. Node classes can't be referred to directly since this is used while generating some of them.
+    function collectIdentifierNames (node: ref[Node], result: ref[Array[String]]) {
+        if node~ptr == 0 return;
+        if node.getMyTypeInfo().uniqueName == identifierTypeName {
+            result.add(castRef[getInterface[node, Binding].getMember("value"), TiStr].value);
+            return;
+        }
+        var container := getInterface[node, Containing[Node]];
+        if container~ptr == 0 return;
+        var i: Int;
+        for i = 0, i < container.getElementCount()~cast[Int], ++i {
+            collectIdentifierNames(container.getElement(i), result);
+        }
+    }
+
+    // Returns the Alusus type AST corresponding to the given C++ binding member type, or an empty ref if the
+    // type has no Alusus counterpart.
+    function getBindingMemberTypeAst (typeName: String): SrdRef[Node] {
+        var result: SrdRef[Node];
+        var name: String;
+        var kind: Int = 0; // 0: Core.Basic, 1: Core.Ast, 2: Spp.Ast.
+        if typeName == "alusus.org/Core/Core.Basic.TiStrBase<alusus.org/Core/Core.Basic.TiObject>" {
+            name = "TiStr";
+        } else if typeName == "alusus.org/Core/Core.Basic.TiBoolBase<alusus.org/Core/Core.Basic.TiObject>" {
+            name = "TiBool";
+        } else if typeName == "alusus.org/Core/Core.Basic.TiNumber<alusus.org/Srl/Srl.Word,alusus.org/Core/Core.Basic.TiObject>" {
+            name = "TiWord";
+        } else if typeName == "alusus.org/Core/Core.Basic.TiNumber<alusus.org/Srl/Srl.Int,alusus.org/Core/Core.Basic.TiObject>" {
+            name = "TiInt";
+        } else if typeName == "alusus.org/Core/Core.Basic.TiNumber<alusus.org/Srl/Srl.Float,alusus.org/Core/Core.Basic.TiObject>" {
+            name = "TiFloat";
+        } else if typeName == "alusus.org/Core/Core.Basic.TiBox<void*,alusus.org/Core/Core.Basic.TiObject>" {
+            name = "TiPtr";
+        } else if typeName.compare("alusus.org/Core/Core.Ast.", 25) == 0 {
+            kind = 1;
+            name = typeName.slice(25, typeName.getLength() - 25);
+            // These types have no Alusus counterpart yet.
+            if name == "SourceLocation" or name == "SourceLocationStack" return result;
+        } else if typeName.compare("alusus.org/Spp/Spp.Ast.", 23) == 0 {
+            kind = 2;
+            name = typeName.slice(23, typeName.getLength() - 23);
+        } else {
+            return result;
+        }
+        var interpolations = Map[String, SrdRef[Node]]().{
+            set("typeName", createTextNode(identifierTypeName, name));
+        };
+        if kind == 0 {
+            Spp.astMgr.buildAst((ast Core.Basic.typeName), interpolations, result);
+        } else if kind == 1 {
+            Spp.astMgr.buildAst((ast Core.Ast.typeName), interpolations, result);
+        } else {
+            Spp.astMgr.buildAst((ast Spp.Ast.typeName), interpolations, result);
+        }
+        return result;
+    }
+
+    // Returns the number of binding members that all nodes share (the members of Node). Node is abstract, so the
+    // count is taken from a List, which has no members of its own.
+    function getNodeMemberCount (): Int {
+        var ti: ref[TypeInfo](getFromGlobalStorage("alusus.org/Core/Core.Ast.List")~cast[ptr[TypeInfo]]~cnt);
+        var objRef = ti.objectFactory.createShared();
+        return getInterface[objRef.obj, Binding].getMemberCount()~cast[Int];
+    }
+
+    // Inserts a getter and a setter for each binding member of the given object, which is an instance of the C++
+    // class that the accessors are generated for. The members of Node are skipped since they are defined on Node.
+    function insertBindingAccessors (obj: ref[TiObject]) {
+        var binding := getInterface[obj, Binding];
+        if binding~ptr == 0 return;
+        var count = binding.getMemberCount()~cast[Int];
+        for i: Int = getNodeMemberCount(), i < count, ++i {
+            var key = binding.getMemberKey(i);
+            var neededType := binding.getMemberNeededType(i);
+            var typeAst = getBindingMemberTypeAst(neededType.uniqueName);
+            if typeAst.obj~ptr == 0 continue;
+            var interpolations = Map[String, SrdRef[Node]]().{
+                set("propName", createTextNode(identifierTypeName, key));
+                set("propType", typeAst);
+                set("propIndex", createTextNode(integerLiteralTypeName, String.format("%i", i)));
+            };
+            Spp.astMgr.insertAst(
+                ast {
+                    handler this.propName: ref[propType] {
+                        return castRef[Core.Basic.BindingOf[this].getMember(propIndex), propType];
+                    }
+                    handler this.propName = ref[propType] {
+                        Core.Basic.BindingOf[this].setMember(propIndex, castRef[value, Core.Basic.TiObject]);
+                        return value;
+                    }
+                },
+                interpolations
+            );
+        }
+    }
+
+    // Inserts a getter and a setter for each element of the map containing interface of the given object, if it has
+    // one. The setter lets each node decide whether it owns the element.
+    function insertMapElementAccessors (obj: ref[TiObject]) {
+        var map := getInterface[obj, MapContaining[Node]];
+        if map~ptr == 0 return;
+        var count = getInterface[obj, Containing[Node]].getElementCount()~cast[Int];
+        for i: Int = 0, i < count, ++i {
+            var key = map.getElementKey(i);
+            var neededType := map.getElementNeededType(key);
+            var typeAst = getBindingMemberTypeAst(neededType.uniqueName);
+            if typeAst.obj~ptr == 0 continue;
+            var interpolations = Map[String, SrdRef[Node]]().{
+                set("propName", createTextNode(identifierTypeName, key));
+                set("propType", typeAst);
+                set("propIndex", createTextNode(integerLiteralTypeName, String.format("%i", i)));
+            };
+            Spp.astMgr.insertAst(
+                ast {
+                    handler this.propName: ref[propType] {
+                        return castRef[Core.Basic.ContainerOf[this, Core.Ast.Node].getElement(propIndex), propType];
+                    }
+                    handler this.propName = ref[propType] {
+                        Core.Basic.ContainerOf[this, Core.Ast.Node].setElement(propIndex, value);
+                        return value;
+                    }
+                },
+                interpolations
+            );
+        }
+    }
+
+    // Inserts getters and setters for the binding members and the map elements of the C++ class with the given unique
+    // name.
+    function insertAccessors (uniqueName: ptr[array[Word[8]]]) {
+        var ti: ref[TypeInfo](getFromGlobalStorage(uniqueName)~cast[ptr[TypeInfo]]~cnt);
+        // Abstract classes have no object factory, so there's no object to probe for the members.
+        if ti.objectFactory~ptr == 0 return;
+        var objRef = ti.objectFactory.createShared();
+        insertBindingAccessors(objRef.obj);
+        insertMapElementAccessors(objRef.obj);
+    }
+
+    // Inserts a static member for each of the given enum values (a list of identifiers) into the enum class being
+    // defined. Values are numbered sequentially starting from zero.
+    function insertEnumValues (values: ref[Node]) {
+        var names: Array[String];
+        collectIdentifierNames(values, names);
+        for i: Int = 0, i < names.getLength(), ++i {
+            var interpolations = Map[String, SrdRef[Node]]().{
+                set("valueName", createTextNode(identifierTypeName, names(i)));
+                set("valueIndex", createTextNode(integerLiteralTypeName, String.format("%i", i)));
+            };
+            Spp.astMgr.insertAst(ast { @shared def valueName: this_type(valueIndex); }, interpolations);
+        }
+    }
+
+    // Enums are TiInt based objects with their own type info, which is needed since the C++ side validates the type
+    // of the values assigned to enum members. The values are numbered sequentially starting from zero, and each is
+    // available as a static member, e.g. `BracketType.ROUND`.
+    macro addEnumValues [name, values] {
+        @merge class name {
+            preprocess {
+                AstInteropHelpers.insertEnumValues(ast values);
+            }
+        }
+    }
+    macro defTiEnumType [name, uniqueName, values] {
+        Core.Basic.defTiBasicType[name, Int, uniqueName];
+        AstInteropHelpers.addEnumValues[name, values];
+    }
+}

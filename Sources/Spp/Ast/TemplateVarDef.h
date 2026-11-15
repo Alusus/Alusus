@@ -38,7 +38,7 @@ class TemplateVarDef: public Core::Ast::Node
   //============================================================================
   // Type Info
 
-  TYPE_INFO(TemplateVarDef, Core::Ast::Node, "Spp.Ast.Template", "Spp", "alusus.org");
+  TYPE_INFO(TemplateVarDef, Core::Ast::Node, "Spp.Ast", "Spp", "alusus.org");
   OBJECT_FACTORY(TemplateVarDef);
 
 

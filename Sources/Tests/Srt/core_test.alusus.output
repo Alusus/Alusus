@@ -42,7 +42,7 @@ Core.Ast.List
    -name: TiStr "fn"
    -toMerge: TiBool false
    map elements:
-   -target: Spp.Ast.Function
+   -subject: Spp.Ast.Function
      members:
      -prodId: TiWord 254
      -sourceLocation: Core.Ast.SourceLocationRecord

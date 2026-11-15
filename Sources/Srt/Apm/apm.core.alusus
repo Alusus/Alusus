@@ -237,7 +237,7 @@ import "Zip.alusus";
     }
 
     if logs {
-      Console.print(I18n.installingPkg, Console.Style.FG_BLUE, moduleName, moduleReleaseTag.buf);
+      Console.print(I18n.installingPkg, Console.Style.FG_BLUE, moduleName.buf, moduleReleaseTag.buf);
       Console.print(I18n.pkgRequest, Console.Style.FG_BLUE, downloadLink.buf);
       Console.print(I18n.downloadingPkg, Console.Style.FG_YELLOW, downloadLink.buf, "/tmp/temp.zip");
     }
@@ -257,7 +257,7 @@ import "Zip.alusus";
         System.exec(String.format("mkdir -p %s", authorPath.buf));
         if System.exec(String.format("cp -rf %s %s", folderInTemp.buf, modulePath.buf)) == 0 {
           if logs Console.print(I18n.pkgMoved, Console.Style.FG_GREEN, dirOfAPM.buf);
-          if logs Console.print(I18n.pkgInstalled, Console.Style.FG_GREEN, moduleName);
+          if logs Console.print(I18n.pkgInstalled, Console.Style.FG_GREEN, moduleName.buf);
           return 1;
         } else {
           if logs Console.print(I18n.cannotMovePkg, Console.Style.FG_RED, dirOfAPM.buf);

@@ -32,7 +32,7 @@ class Definition : public Node, public MapContaining<Node>
   // Member Variables
 
   private: TiStr name;
-  private: SharedPtr<Node> target;
+  private: SharedPtr<Node> subject;
   private: TiBool toMerge;
 
 
@@ -45,7 +45,7 @@ class Definition : public Node, public MapContaining<Node>
   );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
-    (target, Node, SHARED_REF, setTarget(value), target.get())
+    (subject, Node, SHARED_REF, setSubject(value), subject.get())
   );
 
 
@@ -60,7 +60,7 @@ class Definition : public Node, public MapContaining<Node>
 
   public: virtual ~Definition()
   {
-    DISOWN_SHAREDPTR(this->target);
+    DISOWN_SHAREDPTR(this->subject);
   }
 
 
@@ -78,18 +78,18 @@ class Definition : public Node, public MapContaining<Node>
     return this->name;
   }
 
-  public: void setTarget(SharedPtr<Node> const &t)
+  public: void setSubject(SharedPtr<Node> const &t)
   {
-    UPDATE_OWNED_SHAREDPTR(this->target, t);
+    UPDATE_OWNED_SHAREDPTR(this->subject, t);
   }
-  private: void setTarget(Node *t)
+  private: void setSubject(Node *t)
   {
-    this->setTarget(getSharedPtr(t));
+    this->setSubject(getSharedPtr(t));
   }
 
-  public: SharedPtr<Node> const& getTarget() const
+  public: SharedPtr<Node> const& getSubject() const
   {
-    return this->target;
+    return this->subject;
   }
 
   public: void setToMerge(Bool tm)

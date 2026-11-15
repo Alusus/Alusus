@@ -282,9 +282,9 @@ Bool Template::assignTemplateVars(
     auto def = Core::Ast::Definition::create();
     def->setName(varDef->getName().get());
     if (varDef->getType() == TemplateVarType::INTEGER || varDef->getType() == TemplateVarType::STRING) {
-      def->setTarget(Core::Ast::clone(var));
+      def->setSubject(Core::Ast::clone(var));
     } else {
-      def->setTarget(Core::Ast::Passage::create(var));
+      def->setSubject(Core::Ast::Passage::create(var));
     }
     instance->add(def);
   }
@@ -299,9 +299,9 @@ Core::Ast::Node* Template::getTemplateVar(Core::Ast::Scope const *instance, Str 
     throw EXCEPTION(GenericException, S("Template var not found."));
   }
   auto def = defs->front();
-  auto passage = def->getTarget().ti_cast_get<Core::Ast::Passage>();
+  auto passage = def->getSubject().ti_cast_get<Core::Ast::Passage>();
   if (passage != 0) return passage->get();
-  else return def->getTarget().get();
+  else return def->getSubject().get();
 }
 
 

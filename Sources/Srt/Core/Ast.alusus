@@ -10,11 +10,6 @@
  */
 //==============================================================================
 
-import "Basic";
-import "Spp";
-import "Srl/Map";
-import "Srl/String";
-
 @merge module Core {
     module Ast {
         use Basic;
@@ -42,16 +37,30 @@ import "Srl/String";
             @expname[CoreAstNode_removeMetadata]
             handler this.removeMetadata(name: ptr[array[Char]]);
 
+            // Accessors of the members shared by all nodes. These are defined here, rather than generated, since Node
+            // can't use the generator, and the generated accessors of the other classes skip them. `sourceLocation`
+            // has no Alusus counterpart yet.
+            handler this.modifiers: ref[Core.Ast.List] {
+                return castRef[BindingOf[this].getMember(2), Core.Ast.List];
+            }
+            handler this.modifiers = ref[Core.Ast.List] {
+                BindingOf[this].setMember(2, castRef[value, TiObject]);
+                return value;
+            }
+
             defTypeInfoGetter["alusus.org/Core/Core.Ast.Node"];
         }
+
+        AstInteropHelpers.defTiEnumType[BracketType, "alusus.org/Core/Core.Ast.BracketType", (ROUND, SQUARE)];
 
         macro defTextAstType [name, uniqueName] {
             class name {
                 @injection def node: Node;
-                def value: TiStr;
 
                 preprocess {
-                    Core.insertClassPadding(Node~size + TiStr~size, uniqueName);
+                    Core.insertClassPadding(Node~size, uniqueName);
+                    // This also defines the `value` accessors.
+                    AstInteropHelpers.insertAccessors(uniqueName);
                 }
 
                 handler this~init() {
@@ -59,14 +68,10 @@ import "Srl/String";
                 }
                 handler this~init(v: ptr[array[Char]]) {
                     getTypeInfo().objectFactory.initialize(this);
-                    this.value = v;
+                    this.value.value = v;
                 }
                 handler this~terminate() {
                     getTypeInfo().objectFactory.terminate(this);
-                    // We need to re-initialize value to avoid segfault caused by double termination of value when
-                    // Alusus auto-destructor tries to destroy value which was already destroyed by the object
-                    // factory.
-                    this.value~init();
                 }
 
                 func create (v: ptr[array[Char]]): Srl.SrdRef[name] {
@@ -92,6 +97,7 @@ import "Srl/String";
 
                 preprocess {
                     Core.insertClassPadding(Core.Ast.Node~size, uniqueName);
+                    AstInteropHelpers.insertAccessors(uniqueName);
                 }
 
                 handler this~init() {

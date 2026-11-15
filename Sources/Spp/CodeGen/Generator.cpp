@@ -61,7 +61,7 @@ Bool Generator::_generateModules(TiObject *self, Core::Ast::Scope *root, Session
   for (Int i = 0; i < root->getCount(); ++i) {
     auto def = ti_cast<Core::Ast::Definition>(root->getElement(i));
     if (def != 0) {
-      auto module = def->getTarget().ti_cast_get<Spp::Ast::Module>();
+      auto module = def->getSubject().ti_cast_get<Spp::Ast::Module>();
       if (module != 0) {
         if (!generation->generateModule(module, session)) result = false;
       }
@@ -81,7 +81,7 @@ Bool Generator::_generateModule(TiObject *self, Spp::Ast::Module *astModule, Ses
     auto obj = astModule->getElement(i);
     auto def = ti_cast<Core::Ast::Definition>(obj);
     if (def != 0) {
-      auto target = def->getTarget().get();
+      auto target = def->getSubject().get();
       if (target->isDerivedFrom<Spp::Ast::Module>()) {
         if (!generation->generateModule(static_cast<Spp::Ast::Module*>(target), session)) result = false;
       } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
@@ -114,7 +114,7 @@ Bool Generator::_generateModuleInit(TiObject *self, Spp::Ast::Module *astModule,
     auto obj = astModule->getElement(i);
     if (obj->isDerivedFrom<Core::Ast::Definition>()) {
       auto definition = static_cast<Core::Ast::Definition*>(obj);
-      if (definition->getTarget().ti_cast_get<Spp::Ast::Module>() == 0) continue;
+      if (definition->getSubject().ti_cast_get<Spp::Ast::Module>() == 0) continue;
     }
     TerminalStatement terminal;
     if (!generation->generateStatement(obj, session, terminal)) retVal = false;
@@ -370,7 +370,7 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
   PREPARE_SELF(generator, Generator);
   PREPARE_SELF(generation, Generation);
 
-  auto astVar = definition->getTarget().get();
+  auto astVar = definition->getSubject().get();
   auto tgVar = session->getEda()->tryGetCodeGenData<TiObject>(astVar);
 
   if (tgVar == 0) {
@@ -1033,13 +1033,16 @@ Bool Generator::_generateStatement(
   terminal = TerminalStatement::NO;
   Bool retVal = true;
 
-  if (!session->isAstComputationOnly()) {
-    session->getTg()->setDebugLocation(session->getTgContext(), astNode);
-  }
+  // Currently computation phase is only used for computing result type, which doesn't need
+  // any of these statements, so we can simply skip them all if we are in computation
+  // only mode.
+  if (session->isAstComputationOnly()) return retVal;
+
+  session->getTg()->setDebugLocation(session->getTgContext(), astNode);
 
   if (astNode->isDerivedFrom<Core::Ast::Definition>()) {
     auto def = static_cast<Core::Ast::Definition*>(astNode);
-    auto target = def->getTarget().get();
+    auto target = def->getSubject().get();
     if (target == 0) {
       generator->rootManager->getNoticeStore()->add(
         newSrdObj<Core::Notices::InvalidDefCommandNotice>(def->findSourceLocation())

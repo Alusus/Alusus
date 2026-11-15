@@ -9,28 +9,35 @@
  */
 //==============================================================================
 
-اشمل "أسـاسيات"؛
-اشمل "Core/Ast"؛
-
 @دمج وحدة الـقلب {
     عرف شـبم: لقب Ast؛
     @دمج وحدة شـبم {
         عرف عـقدة: لقب Node؛
         @دمج صنف عـقدة {
-            عرف المالك: لقب owner؛
             عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المالك: لقب owner؛
             عرف أمملوك_ل: لقب isOwnedBy؛
+            عرف المبدلات: لقب modifiers؛
             عرف هات_بيانات_وصفية: لقب getMetadata؛
             عرف حدد_بيانات_وصفية: لقب setMetadata؛
             عرف أزل_بيانات_وصفية: لقب removeMetadata؛
         }
 
+        عرف نـوع_قوس: لقب BracketType؛
+        @دمج صنف نـوع_قوس {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف القيمة: لقب value؛
+            عرف أنشئ: لقب create؛
+            عرف _هلالي_: لقب ROUND؛
+            عرف _معقوف_: لقب SQUARE؛
+        }
+
         ماكرو عرب_صنف_شبم_نصيا [الاسم_الانجليزي، الاسم_العربي] {
             عرف الاسم_العربي: لقب الاسم_الانجليزي؛
             @دمج صنف الاسم_العربي {
-                عرف القيمة: لقب value؛
                 عرف هات_هوية_الصنف: لقب getTypeInfo؛
                 عرف أنشئ: لقب create؛
+                عرف القيمة: لقب value؛
             }
         }
 
@@ -40,42 +47,160 @@
         عرب_صنف_شبم_نصيا[IntegerLiteral، صـحيح_حرفي]؛
         عرب_صنف_شبم_نصيا[FloatLiteral، عـائم_حرفي]؛
 
-        ماكرو عرب_صنف_شبم [الاسم_الانجليزي، الاسم_العربي] {
-            عرف الاسم_العربي: لقب الاسم_الانجليزي؛
-            @دمج صنف الاسم_العربي {
-                عرف هات_هوية_الصنف: لقب getTypeInfo؛
-            }
+        عرف لـقب: لقب Alias؛
+        @دمج صنف Alias {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المرجع: لقب reference؛
         }
 
-        ماكرو عرب_صنف_شبم_بمنشئ [الاسم_الانجليزي، الاسم_العربي] {
-            عرف الاسم_العربي: لقب الاسم_الانجليزي؛
-            @دمج صنف الاسم_العربي {
-                عرف هات_هوية_الصنف: لقب getTypeInfo؛
-                عرف أنشئ: لقب create؛
-            }
+        عرف قـوس: لقب Bracket؛
+        @دمج صنف Bracket {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف المعامل: لقب operand؛
         }
 
-        عرب_صنف_شبم[Alias، لـقب]؛
-        عرب_صنف_شبم[Bracket، قـوس]؛
-        عرب_صنف_شبم[Bridge، جـسر]؛
-        عرب_صنف_شبم[Definition، تـعريف]؛
-        عرب_صنف_شبم[GenericCommand، إيـعاز]؛
-        عرب_صنف_شبم[List، قـائمة]؛
-        عرب_صنف_شبم[Map، مـعجم]؛
-        عرب_صنف_شبم[Within، ضـمن]؛
-        عرب_صنف_شبم[ParamPass، مـمرر_معطيات]؛
-        عرب_صنف_شبم[Scope، مـجال]؛
-        عرب_صنف_شبم[Token، رمـز]؛
-        عرب_صنف_شبم[PrefixOperator، مـؤثر_قبلي]؛
-        عرب_صنف_شبم[PostfixOperator، مـؤثر_بعدي]؛
-        عرب_صنف_شبم[AssignmentOperator، مـؤثر_تعيين]؛
-        عرب_صنف_شبم[ComparisonOperator، مـؤثر_مقارنة]؛
-        عرب_صنف_شبم[AdditionOperator، مـؤثر_جمع]؛
-        عرب_صنف_شبم[MultiplicationOperator، مـؤثر_ضرب]؛
-        عرب_صنف_شبم[BitwiseOperator، مـؤثر_بتي]؛
-        عرب_صنف_شبم[LogOperator، مـؤثر_منطقي]؛
-        عرب_صنف_شبم[LinkOperator، مـؤثر_ربط]؛
-        عرب_صنف_شبم[ConditionalOperator، مـؤثر_شرط]؛
-        عرب_صنف_شبم_بمنشئ[Passage، مـمر]؛
+        عرف جـسر: لقب Bridge؛
+        @دمج صنف Bridge {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الهدف: لقب target؛
+        }
+
+        عرف تـعريف: لقب Definition؛
+        @دمج صنف Definition {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف الاسم: لقب name؛
+            عرف للدمج: لقب toMerge؛
+            عرف الموضوع: لقب subject؛
+        }
+
+        عرف إيـعاز: لقب GenericCommand؛
+        @دمج صنف GenericCommand {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف المعطيات: لقب args؛
+        }
+
+        عرف قـائمة: لقب List؛
+        @دمج صنف List {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
+
+        عرف مـعجم: لقب Map؛
+        @دمج صنف Map {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
+
+        عرف ضـمن: لقب Within؛
+        @دمج صنف Within {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المشير: لقب qualifier؛
+            عرف الموضوع: لقب subject؛
+        }
+
+        عرف مـمرر_معطيات: لقب ParamPass؛
+        @دمج صنف ParamPass {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف المعامل: لقب operand؛
+            عرف المعطى: لقب param؛
+        }
+
+        عرف مـجال: لقب Scope؛
+        @دمج صنف Scope {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+        }
+
+        عرف رمـز: لقب Token؛
+        @دمج صنف Token {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف المعرف: لقب id؛
+            عرف النص: لقب text؛
+        }
+
+        عرف مـؤثر_قبلي: لقب PrefixOperator؛
+        @دمج صنف PrefixOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_بعدي: لقب PostfixOperator؛
+        @دمج صنف PostfixOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف المعامل: لقب operand؛
+        }
+
+        عرف مـؤثر_تعيين: لقب AssignmentOperator؛
+        @دمج صنف AssignmentOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـؤثر_مقارنة: لقب ComparisonOperator؛
+        @دمج صنف ComparisonOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـؤثر_جمع: لقب AdditionOperator؛
+        @دمج صنف AdditionOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـؤثر_ضرب: لقب MultiplicationOperator؛
+        @دمج صنف MultiplicationOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـؤثر_بتي: لقب BitwiseOperator؛
+        @دمج صنف BitwiseOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـؤثر_منطقي: لقب LogOperator؛
+        @دمج صنف LogOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـؤثر_ربط: لقب LinkOperator؛
+        @دمج صنف LinkOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـؤثر_شرط: لقب ConditionalOperator؛
+        @دمج صنف ConditionalOperator {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف النوع: لقب type؛
+            عرف الأول: لقب first؛
+            عرف الثاني: لقب second؛
+        }
+
+        عرف مـمر: لقب Passage؛
+        @دمج صنف Passage {
+            عرف هات_هوية_الصنف: لقب getTypeInfo؛
+            عرف أنشئ: لقب create؛
+            عرف الهدف: لقب target؛
+        }
     }
 }

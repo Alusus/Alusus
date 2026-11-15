@@ -538,6 +538,18 @@ This is the root of AST classes. This class allows an object to access its owner
 
 A reference to the owner of this object.
 
+#### modifiers: List
+
+The list of modifiers attached to this node (see [Modifiers](../lang_reference.en.md#modifiers)), or null if the node
+has no modifiers.
+
+#### metadata: Map
+
+The map holding the metadata attached to this node. Prefer `getMetadata`, `setMetadata` and `removeMetadata` below
+for accessing it.
+
+The node's source location is not exposed to Alusus yet.
+
 #### getMetadata
 
 ```
@@ -574,6 +586,39 @@ Removes the metadata with the given name from this node, if any.
 ```
 
 This function returns a reference to this type info, which means the info of objects derived from this type.
+
+### Properties
+
+The members of AST classes are exposed as properties. Each property has a getter, `node.name`, which returns a
+reference to the member, and a setter, `node.name = value`. The properties of each class are listed with the class
+below, and all classes also have the properties of `Node`. These properties are the same members that are available
+through the `Binding` interface (for members stored by value) and the `MapContaining[Node]` interface (for child nodes).
+
+* Members stored by value (`TiStr`, `TiBool`, `TiWord`, `TiPtr`, and enums like `BracketType`) are returned as
+  references to the member object itself, so to read or write the actual value use its `value` property.
+* Members that are child nodes are returned as a reference to a node, or a null reference if the member is not set.
+  The setter lets the node decide whether it takes ownership of the given object. Most nodes own their children
+  (after the assignment `child.owner` is the node), while `Passage` doesn't own its `target`, it only refers to it.
+
+```
+use Core.Ast;
+var link: SrdRef[LinkOperator] = newSrdObj[LinkOperator];
+link.type = TiStr(".");
+var a: SrdRef[Identifier] = Identifier.create("a");
+link.first = castRef[a.obj, Node];
+Console.print("%s\n", castRef[link.first, Identifier].value.value.buf);
+```
+
+### Enums
+
+Defined inside module `Core.Ast`.
+
+Enums are `TiInt` based types of their own, with each value available as a static member. The value of an enum
+object is read through its `value` property, and values are numbered sequentially from 0.
+
+* BracketType
+
+  The type of a bracket, used by `Bracket` and `ParamPass`. Values: `ROUND` (0), `SQUARE` (1).
 
 ### Text Types
 
@@ -644,16 +689,26 @@ access interfaces mentioned above.
 
 * Alias
 
+  Properties: `reference: Node`.
+
 * Bracket
 
+  Properties: `type: BracketType`, `operand: Node`.
+
 * Bridge
+
+  Properties: `target: Node`.
 
   This class represent `use` expression that creates a bridge from a namespace which allows it to automatically access
   another namespace items.
 
 * Definition
 
+  Properties: `name: TiStr`, `toMerge: TiBool`, `subject: Node`.
+
 * GenericCommand
+
+  Properties: `type: TiStr`, `args: List`.
 
   A generic class used for holding unspecified command's information. It contains a string for the keyword and a dynamic list of data.
 
@@ -663,6 +718,8 @@ access interfaces mentioned above.
 
 * Within
 
+  Properties: `qualifier: Node`, `subject: Node`.
+
   Represents the `within` command, which adds statements to an existing scope. It has two properties: `qualifier`,
   the identifier or dot-separated path of the scope to add to, and `subject`, which is either a single statement or a
   `List` of statements that gets expanded into the target scope. If `qualifier` is null, the subject is added to the
@@ -671,39 +728,65 @@ access interfaces mentioned above.
 
 * ParamPass
 
+  Properties: `type: BracketType`, `operand: Node`, `param: Node`.
+
   Represents the operation of passing data to an element, like calling a function, a macro, or a template.
 
 * Scope
 
 * Token
 
+  Properties: `id: TiWord`, `text: TiStr`.
+
 * PrefixOperator
+
+  Properties: `type: TiStr`, `operand: Node`.
 
 * PostfixOperator
 
+  Properties: `type: TiStr`, `operand: Node`.
+
 * AssignmentOperator
+
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
 
 * ComparisonOperator
 
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
+
 * AdditionOperator
+
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
 
   For addition and subtraction operators.
 
 * MultiplicationOperator
 
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
+
   For multiplication and division operators.
 
 * BitwiseOperator
 
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
+
 * LogOperator
 
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
+
 * LinkOperator
+
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
 
   For the operators that link between an element and a member from it like dot operator, `->` operator, or anything similar to that.
 
 * ConditionalOperator
 
+  Properties: `type: TiStr`, `first: Node`, `second: Node`.
+
 * Passage
+
+  Properties: `target: Node`.
 
   This type is used to refer to an AST element using its pointer instead of referring
   to that element using an identifier (the name of the element in the source code).

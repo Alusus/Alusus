@@ -1,5 +1,5 @@
 import "Srl/Console";
-import "Core/Ast";
+import "compiler";
 
 use Srl;
 

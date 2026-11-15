@@ -65,6 +65,10 @@
 * Added the `@unshared_instances` modifier (`@طبعات_لامشتركة` in Arabic) for class and function templates.
   Every use of such a template creates a new instance, even if the template args match an existing instance, which is useful for templates whose
   instances are modified after creation.
+* Renamed `Core.Ast.Definition`'s `target` property to `subject`.
+* Made `Process.platform`, `Process.language`, and `Process.coreBinPath` constants instead of variables.
+* Fixed the type info registration of `GenericCommand`, `ArgPack`, and `TemplateVarDef`, and the namespace and package
+  of the type infos of `TemplateVarDef` and `ArgPack`.
 
 ### Compiler Fixes
 
@@ -82,6 +86,17 @@
 * Added the `CharsLptr` alias (`مـؤشر_محارف_حرفي` in Arabic) for `lptr[array[Word[8]]]` and the `مؤشر_حرفي` alias
   for `lptr` in the Arabic syntax.
 * `Spp.buildMgr.dumpLlvmIrForElement` now accepts an optional second argument to include debug info in the output.
+* Added property accessors to the AST classes in `Core.Ast` and `Spp.Ast`. Each member of an AST class, whether
+  stored by value or a child node, can now be read and set as a property, as in `link.first = node` or
+  `def.name.value`, instead of going through the `Binding` and `MapContaining` interfaces. The accessors are
+  generated from the members of the C++ classes, and the members shared by all nodes (`modifiers` and
+  `metadata`) are defined once on `Node`. The members of each class are listed in the Core and Spp references.
+* Added the AST enums `Core.Ast.BracketType`, `Spp.Ast.ReferenceMode`, `Spp.Ast.PointerMode`,
+  `Spp.Ast.TemplateVarType`, and `Spp.Ast.VarInitMode`, which are `TiInt` based types with their values available as
+  static members.
+* Added full Arabic localization of the AST classes, including their names and members.
+* Added the `compiler` module (`المترجم` in Arabic), which imports everything related to interacting with the compiler
+  in a single import.
 
 
 ## Version 0.16.0 (2026-10-09)

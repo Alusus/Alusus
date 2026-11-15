@@ -26,6 +26,13 @@ void LibraryGateway::initialize(Main::RootManager *manager)
   // Initialize type info for types that aren't initialized at the C++ side prior to being used on Alusus side.
   TiPtr::getTypeInfo();
   Ast::PreGenTransformStatement::getTypeInfo();
+  Ast::ArgPack::getTypeInfo();
+  Ast::TemplateVarDef::getTypeInfo();
+  Core::Ast::GenericCommand::getTypeInfo();
+  Ast::ReferenceMode::getTypeInfo();
+  Ast::PointerMode::getTypeInfo();
+  Ast::TemplateVarType::getTypeInfo();
+  Ast::VarInitMode::getTypeInfo();
 
   // Create AST helpers.
   this->nodePathResolver = newSrdObj<Ast::NodePathResolver>();
@@ -299,15 +306,32 @@ void LibraryGateway::removeBuiltInTypes(Core::Main::RootManager *manager)
 
 void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
 {
-  manager->processString(S(R"SRC(
+  auto language = manager->getLanguage().getBuf();
+  auto coreBinPath = manager->getCoreBinPath().getBuf();
+  Char const *platform;
+  #ifdef WINDOWS
+    platform = "windows";
+  #elif __APPLE__
+    platform = "macos";
+  #else
+    platform = "linux";
+  #endif
+
+  Str src = S(R"SRC(
     module Process {
       def argCount: Int;
       def args: lptr[array[lptr[array[Word[8]]]]];
       def optionCount: Int;
       def options: lptr[array[lptr[array[Word[8]]]]];
-      def language: lptr[array[Word[8]]];
-      def coreBinPath: lptr[array[Word[8]]];
-      def platform: lptr[array[Word[8]]];
+      def language: ")SRC");
+  src += language;
+  src += S(R"SRC(";
+      def coreBinPath: ")SRC");
+  src += coreBinPath;
+  src += S(R"SRC(";
+      def platform: ")SRC");
+  src += platform;
+  src += S(R"SRC(";
     };
     عرّف الـعملية: لقب Process؛
     @دمج عرف Process: وحدة
@@ -320,7 +344,8 @@ void LibraryGateway::createGlobalDefs(Core::Main::RootManager *manager)
       عرف مسار_القلب_التنفيذي: لقب coreBinPath؛
       عرف النظام: لقب platform؛
     }؛
-  )SRC"), S("spp"));
+  )SRC");
+  manager->processString(src.getBuf(), S("spp"));
 }
 
 
@@ -343,25 +368,11 @@ void LibraryGateway::initializeGlobalItemRepo(Core::Main::RootManager *manager)
   auto args = manager->getProcessArgs();
   auto optionCount = manager->getProcessOptionCount();
   auto options = manager->getProcessOptions();
-  auto language = manager->getLanguage().getBuf();
-  auto coreBinPath = manager->getCoreBinPath().getBuf();
-
-  Char const *platform;
-  #ifdef WINDOWS
-    platform = "windows";
-  #elif __APPLE__
-    platform = "macos";
-  #else
-    platform = "linux";
-  #endif
 
   this->globalItemRepo->addItem(S("!Process.argCount"), sizeof(argCount), &argCount);
   this->globalItemRepo->addItem(S("!Process.args"), sizeof(args), &args);
   this->globalItemRepo->addItem(S("!Process.optionCount"), sizeof(optionCount), &optionCount);
   this->globalItemRepo->addItem(S("!Process.options"), sizeof(options), &options);
-  this->globalItemRepo->addItem(S("!Process.language"), sizeof(language), &language);
-  this->globalItemRepo->addItem(S("!Process.coreBinPath"), sizeof(coreBinPath), &coreBinPath);
-  this->globalItemRepo->addItem(S("!Process.platform"), sizeof(platform), &platform);
   this->globalItemRepo->addItem(S("!Core.rootManager"), sizeof(void*), &manager);
   this->globalItemRepo->addItem(
     S("RootManager_importFile"), (void*)&RootManagerExtension::_importFile

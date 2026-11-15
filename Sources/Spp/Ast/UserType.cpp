@@ -26,7 +26,7 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Type
       for (Int i = 0; i < body->getElementCount(); ++i) {
         auto def = ti_cast<Core::Ast::Definition>(body->getElement(i));
         if (def != 0 && !helper->isSharedDef(def)) {
-          auto obj = def->getTarget().get();
+          auto obj = def->getSubject().get();
           if (obj != 0 && helper->isInMemVariable(obj)) {
             if (!isInjection(def)) break;
             auto memberType = helper->traceType(obj);
@@ -76,21 +76,21 @@ TypeInitMethod UserType::getInitializationMethod(Helper *helper) const
       auto statement = body->getElement(i);
       auto def = ti_cast<Core::Ast::Definition>(statement);
       if (def != 0) {
-        if (def->getTarget() != 0) {
-          if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
+        if (def->getSubject() != 0) {
+          if (def->getSubject().ti_cast_get<Ast::Function>() != 0) {
             if (def->getName() == S("~init")) {
               method |= TypeInitMethod::USER;
               if (method == TypeInitMethod::BOTH) break;
             }
-          } else if (helper->isInMemVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
+          } else if (helper->isInMemVariable(def->getSubject().get()) && !helper->isSharedDef(def)) {
             Core::Ast::Node *astTypeRef;
-            if (helper->getVarInitArgs(def->getTarget().get(), astTypeRef) != 0) {
+            if (helper->getVarInitArgs(def->getSubject().get(), astTypeRef) != 0) {
               // If there are args passed to the definition, or an initial value assigned to it, then it's an AUTO
               // init method even if the object type is a primary data type.
               method |= TypeInitMethod::AUTO;
               if (method == TypeInitMethod::BOTH) break;
             } else {
-              auto type = helper->traceType(def->getTarget().get());
+              auto type = helper->traceType(def->getSubject().get());
               if (type != 0 && type->getInitializationMethod(helper) != TypeInitMethod::NONE) {
                 method |= TypeInitMethod::AUTO;
                 if (method == TypeInitMethod::BOTH) break;
@@ -118,14 +118,14 @@ TypeInitMethod UserType::getDestructionMethod(Helper *helper) const
       auto statement = body->getElement(i);
       auto def = ti_cast<Core::Ast::Definition>(statement);
       if (def != 0) {
-        if (def->getTarget() != 0) {
-          if (def->getTarget().ti_cast_get<Ast::Function>() != 0) {
+        if (def->getSubject() != 0) {
+          if (def->getSubject().ti_cast_get<Ast::Function>() != 0) {
             if (def->getName() == S("~terminate")) {
               method |= TypeInitMethod::USER;
               if (method == TypeInitMethod::BOTH) break;
             }
-          } else if (helper->isInMemVariable(def->getTarget().get()) && !helper->isSharedDef(def)) {
-            auto type = helper->traceType(def->getTarget().get());
+          } else if (helper->isInMemVariable(def->getSubject().get()) && !helper->isSharedDef(def)) {
+            auto type = helper->traceType(def->getSubject().get());
             if (type != 0 && type->getDestructionMethod(helper) != TypeInitMethod::NONE) {
               method |= TypeInitMethod::AUTO;
               if (method == TypeInitMethod::BOTH) break;

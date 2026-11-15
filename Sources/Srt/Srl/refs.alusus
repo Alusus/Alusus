@@ -1,7 +1,5 @@
 import "Srl/refs_base";
-import "Core/Basic";
-import "Core/Ast";
-import "Spp/Ast";
+import "compiler";
 
 // Pre-generate shared refs to avoid circular dependency. These types depend on SrdRef in their
 // preprocess, while these casting features of SrdRef depend on those types. So we'll pre-generate

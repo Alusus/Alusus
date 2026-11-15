@@ -40,7 +40,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
       { S("prodId"), currentList->getProdId() },
       { S("sourceLocation"), currentList->findSourceLocation() }
     }, {
-      { S("target"), getSharedPtr(body) }
+      { S("subject"), getSharedPtr(body) }
     });
     state->setData(def);
   }

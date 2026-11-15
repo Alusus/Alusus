@@ -1,8 +1,7 @@
 import "Srl/Console";
 import "Srl/Map";
 import "Srl/String";
-import "Core/Basic";
-import "Spp";
+import "compiler";
 use Srl;
 
 def AstTemplateMap: alias Map[String, ref[Core.Ast.Node]];

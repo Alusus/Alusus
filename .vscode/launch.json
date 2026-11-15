@@ -6,7 +6,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/AlususBuild/Install/x64-linux-debug/Bin/alusus.dbg",
-      "args": ["--log", "0", "Examples/General/hello_world.alusus"],
+      "args": ["--log", "0", "--opt", "debug=1", "Examples/General/hello_world.alusus"],
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
       "environment": [],
