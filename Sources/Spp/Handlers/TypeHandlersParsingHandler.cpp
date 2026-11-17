@@ -528,7 +528,14 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
     if (body != 0) {
       // Create the function.
       auto funcTypeClone = Core::Ast::clone(funcType.get(), sourceLocation.get());
-      funcTypeClone->getArgTypes()->set(0, this->prepareThisType(sourceLocation));
+      // If we are using `set_ptr` it means we are overriding the method from a child class, so
+      // for simplicity we'll use the enclosing type's `this` to declare the function itself rather
+      // than the type of the parent class that is specified in the actual signature. So, we'll define
+      // the function with the child's type and then cast it to the parent's type. This will allow the
+      // user to easily reference elements of the child without needing to cast `this`.
+      // For as_ptr and non-ptr methods we'll stick to whatever we already have since we are defining
+      // the original method rather than overriding.
+      if (mode == Mode::PTR_SET) funcTypeClone->getArgTypes()->set(0, this->prepareThisType(sourceLocation));
       auto func = Spp::Ast::Function::create({}, {
         {S("type"), funcTypeClone},
         {S("body"), body}
