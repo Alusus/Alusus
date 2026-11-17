@@ -16,6 +16,11 @@
 namespace Core::Ast
 {
 
+//============================================================================
+// Other Defs
+
+ti_s_enum(WithinMergePolicy, TiInt, "Core.Ast", "Core", "alusus.org", AUTO, IMMEDIATE, DELAYED);
+
 /**
  * @brief Adds one or more statements to an existing scope.
  *
@@ -38,10 +43,15 @@ class Within : public Node, public MapContaining<Node>
 
   private: SharedPtr<Node> qualifier;
   private: SharedPtr<Node> subject;
+  private: WithinMergePolicy mergePolicy;
 
 
   //============================================================================
   // Implementations
+
+  IMPLEMENT_BINDING(Node,
+    (mergePolicy, WithinMergePolicy, VALUE, setMergePolicy(value), &this->mergePolicy)
+  );
 
   IMPLEMENT_MAP_CONTAINING(MapContaining<Node>,
     (qualifier, Node, SHARED_REF, setQualifier(value), qualifier.get()),
@@ -67,6 +77,20 @@ class Within : public Node, public MapContaining<Node>
 
   //============================================================================
   // Member Functions
+
+  public: void setMergePolicy(WithinMergePolicy const &p)
+  {
+    this->mergePolicy = p;
+  }
+  public: void setMergePolicy(WithinMergePolicy const *p)
+  {
+    this->mergePolicy = p == 0 ? WithinMergePolicy::AUTO : p->get();
+  }
+
+  public: WithinMergePolicy const& getMergePolicy() const
+  {
+    return this->mergePolicy;
+  }
 
   public: void setQualifier(SharedPtr<Node> const &q)
   {

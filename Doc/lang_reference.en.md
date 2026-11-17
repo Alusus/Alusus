@@ -2212,9 +2212,25 @@ to the scope that the qualifier points to, as shown in the next example:
   }
 ```
 
-If the target is a class, the statements are added to the body of the class. The target must already be defined
-at the point where the `within` command appears. The statements can include `@merge` definitions, which are merged
-into the matching definitions in the target.
+If the target is a class, the statements are added to the body of the class. The statements can include `@merge`
+definitions, which are merged into the matching definitions in the target.
+
+By default, if the target can't be found at the point where the `within` command is parsed (for example because it's
+going to be generated later by a `preprocess` statement or a macro), the command is kept and applied during
+preprocessing instead, and it's an error if the target still doesn't exist by then. This can be controlled using the
+following modifiers:
+
+* `@immediate`: The target must exist at the point where the command appears, otherwise it's an error.
+* `@delayed`: The command is always applied during preprocessing, without looking for the target while parsing.
+
+```
+  macro defineModule [name] {
+    preprocess { Spp.astMgr.insertAst(ast { module name {} }); }
+  }
+  defineModule[Generated];
+
+  @delayed within Generated def a: 1;
+```
 
 ## Import Libraries Or Source Code
 

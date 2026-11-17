@@ -1,0 +1,8 @@
+1 2
+1 3
+Delayed.hello
+4 5
+[0;31mERROR CD1005: Invalid or missing target scope in 'within' command.[0m
+  within_policy_test.alusus (45,12)
+[0;31mERROR CD1005: Invalid or missing target scope in 'within' command.[0m
+  within_policy_test.alusus (54,23)

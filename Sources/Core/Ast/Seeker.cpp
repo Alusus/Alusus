@@ -364,24 +364,26 @@ Seeker::Verb Seeker::_set_linkOperatorRouting(
 // Add Functions
 
 Bool Seeker::_addPossiblyMergeable(
-  TiObject *self, Node const *ref, Node *target, Node *element, Notices::Store *noticeStore, Word flags
+  TiObject *self, Node const *ref, Node *target, Containing<Node> *elements, Notices::Store *noticeStore, Word flags
 ) {
   PREPARE_SELF(seeker, Seeker);
-  VALIDATE_NOT_NULL(ref, target, element, noticeStore);
+  VALIDATE_NOT_NULL(ref, target, elements, noticeStore);
   Node *dest = seeker->tryGet(ref, target, flags);
   if (dest != 0 && dest->isDerivedFrom<Passage>()) dest = static_cast<Passage*>(dest)->get();
   if (dest == 0) {
     return false;
   }
-  return seeker->addPossiblyMergeable_toNode(dest, element, noticeStore);
+  return seeker->addPossiblyMergeable_toNode(dest, elements, noticeStore);
 }
 
 
-Bool Seeker::_addPossiblyMergeable_toNode(TiObject *self, Node *dest, Node *element, Notices::Store *noticeStore)
-{
+Bool Seeker::_addPossiblyMergeable_toNode(
+  TiObject *self, Node *dest, Containing<Node> *elements, Notices::Store *noticeStore
+) {
   PREPARE_SELF(seeker, Seeker);
   if (dest->isDerivedFrom<Scope>()) {
-    return addPossiblyMergeableElement(element, static_cast<Scope*>(dest), seeker, noticeStore);
+    addPossiblyMergeableElements(elements, static_cast<Scope*>(dest), seeker, noticeStore);
+    return true;
   }
   return false;
 }

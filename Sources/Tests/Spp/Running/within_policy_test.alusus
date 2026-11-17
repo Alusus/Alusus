@@ -1,0 +1,55 @@
+import "Srl/Console.alusus";
+import "compiler";
+use Srl;
+
+// Creates a module through a preprocess statement, so it doesn't exist yet at the time the `within` commands below
+// get parsed.
+macro defineModule [name] {
+    preprocess {
+        Spp.astMgr.insertAst(ast { module name { def base: 1; } });
+    }
+}
+
+// Inside a module the macros are only expanded during preprocessing, which is after the `within` commands are parsed.
+module Outer {
+    defineModule[Auto];
+    defineModule[Delayed];
+
+    // The default policy (auto): the target isn't found while parsing, so the command is applied during
+    // preprocessing.
+    within Auto def a: 2;
+
+    // Delayed: the target isn't even looked up while parsing.
+    @delayed within Delayed {
+        def b: 3;
+        func hello {
+            Console.print("Delayed.hello\n");
+        }
+    }
+}
+
+// Qualified commands on an existing scope are not affected by the policy.
+module Existing {}
+@delayed within Existing def c: 4;
+@immediate within Existing def d: 5;
+
+Console.print("%d %d\n", Outer.Auto.base, Outer.Auto.a);
+Console.print("%d %d\n", Outer.Delayed.base, Outer.Delayed.b);
+Outer.Delayed.hello();
+Console.print("%d %d\n", Existing.c, Existing.d);
+
+module Outer2 {
+    defineModule[Auto];
+
+    // Auto mode should eventually fail and raise an error.
+    within Unknown def c: 7;
+}
+
+Console.print("%d\n", Outer2.Auto.c);
+
+module Outer3 {
+    defineModule[Auto];
+
+    // The immediate policy should fail sicne the module is not defined yet.
+    @immediate within Auto def b: 6;
+}
