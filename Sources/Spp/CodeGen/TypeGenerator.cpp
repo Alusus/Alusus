@@ -409,13 +409,6 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
           }
           tgMemberTypes.add(defName.getBuf(), tgType);
           members.add(obj);
-        } else {
-          if (Spp::Ast::isInjection(def)) {
-            typeGenerator->astHelper->getNoticeStore()->add(
-              newSrdObj<Spp::Notices::SharedInjectionNotice>(def->findSourceLocation())
-            );
-            result = false;
-          }
         }
       } else if (typeGenerator->astHelper->isValueOnlyVariable(obj)) {
         continue;
@@ -425,8 +418,10 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         }
         continue;
       } else {
-        // Injected read properties defined as functions don't need anything from the struct.
-        if (Spp::Ast::isInjection(def) && !Spp::Ast::isReadPropertyDef(def)) {
+        // Injected read properties defined as functions don't need anything from the struct. Anything else (including
+        // templates) can't be injected.
+        Bool isInjectableReadProperty = Spp::Ast::isReadPropertyDef(def) && obj->isDerivedFrom<Spp::Ast::Function>();
+        if (Spp::Ast::isInjection(def) && !isInjectableReadProperty) {
           typeGenerator->astHelper->getNoticeStore()->add(
             newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
           );

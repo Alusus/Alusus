@@ -106,7 +106,6 @@ SPPG1024:Trying to access a variable before it's initialized.
 SPPG1025:Invalid operand for ~init operator.
 SPPG1026:Invalid operand for ~terminate operator.
 SPPG1027:Invalid redefinition of `this` in function args.
-SPPG1028:Trying to inject a shared definition.
 SPPG1029:Invalid type for an injected definition.
 SPPG1030:Assignment failed. This type needs an assignment operator.
 SPPG1031:Variable initialization failed. Custom init op matching the given data is needed for this type.

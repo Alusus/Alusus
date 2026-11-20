@@ -1450,6 +1450,27 @@ value returned by an injected handler are not available on the enclosing type.
 
 If a member is found through more than one injection, the injection that is defined first wins.
 
+Shared variables can also be injected, as can non-member read properties defined using `func` with the
+`@operation[""]` modifier. Similar to shared variables themselves, the members of such injections are accessed without
+an object, either through the type (as in `App.level`) or directly from within the type's own functions, but not
+through an object of that type:
+
+```
+  class App {
+    @shared @injection var config: Config;
+    @shared var settingsStore: Settings;
+    @injection @operation[""] func settings(): ref[Settings] {
+      return App.settingsStore;
+    };
+    handler this.run() {
+      level = 3; // compiler translates it to App.config.level
+      mode = 4; // compiler translates it to App.settings.mode
+    };
+  };
+
+  App.level = 5; // compiler translates it to App.config.level
+```
+
 ### Binding Members to the Enclosing Object (no_bind)
 
 When accessing a member of an object, the object becomes `this` for anything accessed through that member. For
@@ -1507,6 +1528,14 @@ injection of the parent's vtable in the child's vtable should also be marked wit
 
 Using `no_bind` with other kinds of handlers (operators, `~init`, `~cast`, etc.) or with `set_ptr` handlers is an
 error.
+
+Since handlers are syntactic sugar for member functions, the `no_bind` and `injection` modifiers can also be applied
+directly to member functions defined with `func`. For example, the following is equivalent to
+`@no_bind @injection handler this.vtable: ref[VTable]`:
+
+```
+    @no_bind @injection @member @operation[""] func vtable (this: ref[this_type]): ref[VTable] { ... };
+```
 
 ## Type Inference
 

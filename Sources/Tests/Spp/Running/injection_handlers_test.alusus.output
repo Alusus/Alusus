@@ -10,3 +10,13 @@ Base.describe: i = 3
 Child.childOnly: i + j = 7
 Base.describe: i = 5
 Child2.childOnly: i + j = 11
+fo.inner.x = 12, fo.getX() = 12
+FuncHolder.show: i = 13
+App.run: id = 1, x = 14, getX() = 14
+Settings.showMode: mode = 15
+App.x = 16, App.getX() = 16
+Settings.showMode: mode = 17
+sf.y = 18
+testLocals: shared x = 1
+testLocals: shared x = 2
+testLocalProp: getX() = 19, globalInner.x = 19

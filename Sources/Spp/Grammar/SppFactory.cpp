@@ -403,6 +403,10 @@ void SppFactory::createGrammar()
     {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))},
     {S("operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
     {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
+    {S("no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
+    {S("دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
+    {S("injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
+    {S("حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
     {S("طبعات_لامشتركة"), newSrdObj<Grammar::TranslateModifierAction>(S("unshared_instances"))}
   }));
 

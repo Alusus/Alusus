@@ -102,6 +102,57 @@ class Child2 {
     };
 }
 
+// The same modifiers applied directly on functions rather than through handlers.
+class FuncOuter {
+    var inner: Inner;
+    @injection @operation[""] @member func prop(this: ref[this_type]): ref[Inner] {
+        return this.inner;
+    };
+}
+
+class FuncHolder {
+    var i: Int;
+    class Table {
+        handler (this: FuncHolder).show() {
+            Console.print("FuncHolder.show: i = %d\n", this.i);
+        };
+    }
+    @shared var table: Table;
+    @no_bind @injection @operation[""] @member func tbl(this: ref[this_type]): ref[Table] {
+        return FuncHolder.table;
+    };
+}
+
+// Shared injections, either as shared variables or as non-member read properties, are accessible without an object
+// similar to shared variables.
+class Settings {
+    var mode: Int;
+    handler this.showMode() {
+        Console.print("Settings.showMode: mode = %d\n", this.mode);
+    };
+}
+
+class App {
+    var id: Int;
+    @shared @injection var inner: Inner;
+    @shared var settingsStore: Settings;
+    @injection @operation[""] func settings(): ref[Settings] {
+        return App.settingsStore;
+    };
+    handler this.run() {
+        x = 14;
+        mode = 15;
+        Console.print("App.run: id = %d, x = %d, getX() = %d\n", this.id, x, getX());
+        showMode();
+    };
+}
+
+// A shared injection that comes first isn't treated as an embedded first member (for example by SrdRef's casters).
+class SharedFirst {
+    @shared @injection var inner: Inner;
+    var y: Int;
+}
+
 var o: Outer;
 o.calls = 0;
 o.x = 5;
@@ -139,3 +190,45 @@ c2.i = 5;
 c2.j = 6;
 c2.describe();
 c2.childOnly();
+
+var fo: FuncOuter;
+fo.x = 12;
+Console.print("fo.inner.x = %d, fo.getX() = %d\n", fo.inner.x, fo.getX());
+
+var fh: FuncHolder;
+fh.i = 13;
+fh.show();
+
+var app: App;
+app.id = 1;
+app.run();
+App.x = 16;
+App.mode = 17;
+Console.print("App.x = %d, App.getX() = %d\n", App.x, App.getX());
+App.showMode();
+
+var sf: SrdRef[SharedFirst];
+sf.alloc()~init();
+sf.y = 18;
+Console.print("sf.y = %d\n", sf.y);
+
+// Injections of local variables, including shared ones and read properties.
+var globalInner: Inner;
+func getGlobalInner(): ref[Inner] { return globalInner }
+
+func testLocals {
+    @shared @injection var counter: Inner;
+    x += 1;
+    Console.print("testLocals: shared x = %d\n", getX());
+}
+
+func testLocalProp {
+    @injection @operation[""] def prop: ptr[func (): ref[Inner]];
+    prop = getGlobalInner~ptr;
+    x = 19;
+    Console.print("testLocalProp: getX() = %d, globalInner.x = %d\n", getX(), globalInner.x);
+}
+
+testLocals();
+testLocals();
+testLocalProp();

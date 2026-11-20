@@ -167,44 +167,49 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             auto def = ti_cast<Core::Ast::Definition>(block->getInjection(i));
             if (def == 0 || def->getSubject() == 0) continue;
             auto subject = def->getSubject().get();
+            Bool isVar = helper->isVariable(subject);
+            auto domain = isVar ? helper->getVariableDomain(def) : DefinitionDomain::GLOBAL;
+            if (domain == DefinitionDomain::FUNCTION) {
+              // If we are not requesting directly accessible members and instead looking for object or scope members
+              // and we encounter local variables or values (like the auto created this) then we should skip that. This
+              // is to avoid cases where an auto created local variable (for example: this) is unintentionally picked
+              // up while looking through object members.
+              if (request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) continue;
+              // If we are going out of the current function then we should ignore local variables of outer functions.
+              if (searchingFunctionOwners) continue;
+            }
             // Injected read properties are either functions or function pointers (as_ptr).
             Bool isReadProperty = isReadPropertyDef(def);
             Type *objType = 0;
             if (isReadProperty) {
-              // Read properties are always object members, so we can only use them if we have a `this`.
-              if (request.thisType == 0) continue;
               FunctionType *funcType = 0;
               if (subject->isDerivedFrom<Function>()) {
                 funcType = static_cast<Function*>(subject)->getType().get();
-              } else if (helper->isVariable(subject)) {
-                if (helper->getVariableDomain(def) != DefinitionDomain::OBJECT) continue;
+              } else if (isVar) {
                 auto varType = helper->traceType(subject);
                 if (varType == 0) continue;
                 funcType = helper->tryGetPointerContentType<FunctionType>(
                   helper->tryGetDeepReferenceContentType(varType)
                 );
+                // A pointer held in an object can only point to a member function and vice versa.
+                if (funcType != 0 && funcType->isMember() != (domain == DefinitionDomain::OBJECT)) continue;
               }
-              if (funcType == 0 || !funcType->isMember()) continue;
-              PlainList<Type> thisArgTypes({ request.thisType });
-              if (funcType->matchCall(&thisArgTypes, helper) < TypeMatchStatus::CUSTOM_CASTER) continue;
+              if (funcType == 0) continue;
+              // Similar to variables, member read properties can only be used if we have a `this`, while non-member
+              // ones can only be used if we don't.
+              PlainList<Type> argTypes;
+              if (funcType->isMember()) {
+                if (request.thisType == 0) continue;
+                argTypes.add(request.thisType);
+              } else if (request.thisType != 0) {
+                continue;
+              }
+              if (funcType->matchCall(&argTypes, helper) < TypeMatchStatus::CUSTOM_CASTER) continue;
               objType = funcType->traceRetType(helper);
               // Members can only be looked up on user types.
               if (objType == 0 || !helper->tryGetDeepReferenceContentType(objType)->isDerivedFrom<UserType>()) continue;
             } else {
-              if (!helper->isVariable(subject)) continue;
-              auto domain = helper->getVariableDomain(def);
-
-              // If we are not requesting directly accessible members and instead looking for object or scope members
-              // and we encounter local variables or values (like the auto created this) then we should skip that. This
-              // is to avoid cases where an auto created local variable (for example: this) is unintentionally picked
-              // up while looking through object members.
-              if (domain == DefinitionDomain::FUNCTION && request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
-                continue;
-              }
-
-              // If we are going out of the current function then we should ignore local variables of outer functions.
-              if (domain == DefinitionDomain::FUNCTION && searchingFunctionOwners) continue;
-
+              if (!isVar) continue;
               Bool isMember = domain == DefinitionDomain::OBJECT;
               if ((isMember && request.thisType == 0) || (!isMember && request.thisType != 0)) continue;
               objType = helper->traceType(subject);
@@ -228,7 +233,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             tracer->lookupCallee(innerRequest, innerResult);
             if (innerResult.isSuccessful()) {
               if (!noBindDef) innerResult.pushThisMarker();
-              // Read properties are called (with the current `this`) to get the value to look up the members on.
+              // Read properties are called (with the current `this` if they are members) to get the value to look up
+              // the members on.
               if (isReadProperty) innerResult.pushFunctionCall();
               innerResult.pushObject(subject);
               ++innerResult.injectionLevel;

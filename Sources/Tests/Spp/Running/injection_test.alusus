@@ -68,8 +68,9 @@ c.test();
 
 class Wrong {
   def i: Int;
-  @shared @injection def o: Outer;
   @injection def test: func {}
+  @injection @member func method(this: ref[this_type]): ref[Outer] { return Outer() }
+  @injection @operation[""] @member func tpl [T: type] (this: ref[this_type]): ref[Outer] { return Outer() }
 };
 def w: Wrong;
 print("w.i=%d\n", w.i);

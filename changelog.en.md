@@ -83,6 +83,14 @@
 * Added support for the `@injection` modifier on read handlers (`handler this.prop: T`), including `as_ptr` ones,
   which makes the members of the value returned by the handler available in the enclosing type. The handler can
   return by reference or by value, and can be combined with `@no_bind`.
+* The `@no_bind` and `@injection` modifiers can now be applied directly to member functions defined with `func`, as in
+  `@no_bind @injection @member @operation[""] func prop(this: ref[this_type]): T`, making everything doable with
+  `handler` also doable with `func`.
+* Shared variables can now be injected (`@shared @injection var config: Config`), as can non-member read properties
+  (`@injection @operation[""] func settings(): ref[Settings]`). Similar to shared variables, their members are accessed
+  without an object, either through the type or from within the type's own functions. Injecting a shared definition
+  was previously an error (SPPG1028). Local variables, including shared ones, can also be injected as read properties
+  (`@injection @operation[""] def prop: ptr[func (): ref[Inner]]`).
 
 ### Compiler Fixes
 
