@@ -1,0 +1,141 @@
+import "Srl/Console";
+import "Srl/refs";
+use Srl;
+
+class Inner {
+    var x: Int;
+    handler this.getX(): Int {
+        return this.x;
+    };
+}
+
+// A read handler returning a reference.
+class Outer {
+    var inner: Inner;
+    var calls: Int;
+    @injection handler this.prop: ref[Inner] {
+        ++this.calls;
+        return this.inner;
+    };
+}
+
+// A read handler returning a value that has its own injection (SrdRef).
+class Shared {
+    var sr: SrdRef[Inner];
+    @injection handler this.prop: SrdRef[Inner] {
+        return this.sr;
+    };
+}
+
+// A read handler defined as a function pointer.
+class PtrOuter {
+    var inner: Inner;
+    @injection handler this.prop: ref[Inner] as_ptr {
+        return this.inner;
+    };
+}
+
+// Direct members take precedence over injected ones.
+class Shadow {
+    var x: Int;
+    var inner: Inner;
+    @injection handler this.prop: ref[Inner] {
+        return this.inner;
+    };
+}
+
+// A read handler returning the object itself shouldn't cause infinite lookups.
+class Circular {
+    var i: Int;
+    @injection handler this.self: ref[Circular] {
+        return this;
+    };
+}
+
+class Base {
+    class VTable {
+        handler (this: Base).describe() {
+            Console.print("Base.describe: i = %d\n", this.i);
+        };
+    }
+    @shared var s__vtable__: VTable;
+    @no_bind @injection var vtable: ref[VTable](s__vtable__);
+    var i: Int;
+}
+
+// The base injection is declared before the vtable injection, so members found in both are reached through the base.
+class Child {
+    @injection var base: Base;
+    class VTable {
+        @no_bind @injection var base: Base.VTable;
+        handler (this: Child).childOnly() {
+            Console.print("Child.childOnly: i + j = %d\n", this.base.i + this.j);
+        };
+    }
+    @shared var s__vtable__: VTable;
+    @no_bind @injection handler this.vtable: ref[VTable] {
+        return this.base.vtable~ptr~cast[ptr[VTable]]~cnt;
+    };
+    var j: Int;
+    handler this~init() {
+        this.base.vtable~no_deref = Child.s__vtable__~ptr~cast[ptr[Base.VTable]]~cnt;
+    };
+}
+
+// The vtable injection is declared before the base injection, so members found in both are reached through the
+// vtable.
+class Child2 {
+    @no_bind @injection handler this.vtable: ref[VTable] {
+        return this.base.vtable~ptr~cast[ptr[VTable]]~cnt;
+    };
+    @injection var base: Base;
+    class VTable {
+        @no_bind @injection var base: Base.VTable;
+        handler (this: Child2).childOnly() {
+            Console.print("Child2.childOnly: i + j = %d\n", this.base.i + this.j);
+        };
+    }
+    @shared var s__vtable__: VTable;
+    var j: Int;
+    handler this~init() {
+        this.base.vtable~no_deref = Child2.s__vtable__~ptr~cast[ptr[Base.VTable]]~cnt;
+    };
+}
+
+var o: Outer;
+o.calls = 0;
+o.x = 5;
+Console.print("o.inner.x = %d\n", o.inner.x);
+Console.print("o.getX() = %d\n", o.getX());
+Console.print("o.calls = %d\n", o.calls);
+
+var s: Shared;
+s.sr.alloc()~init();
+s.x = 6;
+Console.print("s.getX() = %d\n", s.getX());
+
+var p: PtrOuter;
+p.x = 7;
+Console.print("p.inner.x = %d\n", p.inner.x);
+Console.print("p.getX() = %d\n", p.getX());
+
+var sh: Shadow;
+sh.x = 8;
+sh.inner.x = 9;
+Console.print("sh.x = %d, sh.getX() = %d\n", sh.x, sh.getX());
+
+var circ: Circular;
+circ.i = 10;
+Console.print("circ.i = %d\n", circ.i);
+
+var c: Child;
+c.i = 3;
+c.j = 4;
+c.describe();
+c.childOnly();
+
+var c2: Child2;
+c2.i = 5;
+c2.j = 6;
+c2.describe();
+c2.childOnly();

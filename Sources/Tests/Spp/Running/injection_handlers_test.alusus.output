@@ -1,0 +1,12 @@
+o.inner.x = 5
+o.getX() = 5
+o.calls = 2
+s.getX() = 6
+p.inner.x = 7
+p.getX() = 7
+sh.x = 8, sh.getX() = 9
+circ.i = 10
+Base.describe: i = 3
+Child.childOnly: i + j = 7
+Base.describe: i = 5
+Child2.childOnly: i + j = 11

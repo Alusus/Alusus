@@ -425,7 +425,8 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         }
         continue;
       } else {
-        if (Spp::Ast::isInjection(def)) {
+        // Injected read properties defined as functions don't need anything from the struct.
+        if (Spp::Ast::isInjection(def) && !Spp::Ast::isReadPropertyDef(def)) {
           typeGenerator->astHelper->getNoticeStore()->add(
             newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
           );

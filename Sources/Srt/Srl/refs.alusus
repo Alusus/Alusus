@@ -34,6 +34,9 @@ if 1 {
         if elements.getLength() == 0 return;
 
         if not Spp.astMgr.isInjection(elements(0)) return;
+        // Injected read properties (as_ptr) aren't embedded objects.
+        def opMetadata: ref[Core.Ast.Node](elements(0).owner.getMetadata("operation"));
+        if opMetadata~ptr != 0 return;
 
         def varType: ref[Spp.Ast.Type](Spp.astMgr.traceType(elements(0)));
         if varType~ptr == originalTp~ptr return;

@@ -1405,6 +1405,30 @@ This limitation exists because a caster of the injected variable is called with 
 matches the address of the injected variable only when it is the first member. Members and functions of the injected
 variable are not affected by this limitation and are available regardless of the position of the injection.
 
+The `injection` modifier can also be used with read handlers (`handler this.prop: T`), including `as_ptr` ones, in which
+case the members of the value returned by the handler become available in the enclosing type. The handler can return
+any user type, whether by reference or by value (as in returning a `SrdRef`):
+
+```
+  class Outer {
+    var i: Inner;
+    @injection handler this.inner: ref[Inner] {
+      return this.i;
+    };
+  };
+
+  var o: Outer;
+  o.x = 1; // compiler translates it to o.inner.x
+  o.printX(); // compiler translates it to o.inner.printX()
+```
+
+Keep in mind that the handler is called every time a member is accessed through the injection, so such handlers should
+be kept small so that they get inlined. Using the `injection` modifier with other kinds of handlers (methods,
+operators, `~init`, `~cast`, etc.), with template handlers, or with `set_ptr` handlers is an error. Custom casters of the
+value returned by an injected handler are not available on the enclosing type.
+
+If a member is found through more than one injection, the injection that is defined first wins.
+
 ### Binding Members to the Enclosing Object (no_bind)
 
 When accessing a member of an object, the object becomes `this` for anything accessed through that member. For
@@ -1454,6 +1478,11 @@ class can define a handler that casts the vtable of its parent to the child's vt
   c.vtable.childOnly(); // childOnly receives `c` as `this`.
   c.getVTable().childOnly(); // Same as the previous line.
 ```
+
+Read handlers can combine `no_bind` with `injection`, so if the `vtable` handler in the previous example was defined as
+`@no_bind @injection handler this.vtable: ref[VTable]`, then `c.childOnly()` would work as well. In this case the
+injection of the parent's vtable in the child's vtable should also be marked with `no_bind`
+(`@no_bind @injection var base: Base.VTable`), so that the parent's functions receive `c` as well.
 
 Using `no_bind` with other kinds of handlers (operators, `~init`, `~cast`, etc.) or with `set_ptr` handlers is an
 error.

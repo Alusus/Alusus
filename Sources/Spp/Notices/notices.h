@@ -188,6 +188,10 @@ DEFINE_NOTICE(InvalidNoBindHandlerNotice, "Spp.Notices", "Spp", "alusus.org", "S
   "The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr "
   "handlers."
 );
+DEFINE_NOTICE(InvalidInjectionHandlerNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1029", 1,
+  "The injection modifier can only be used with property read handlers, and can't be used with templates or set_ptr "
+  "handlers."
+);
 
 } // namespace
 

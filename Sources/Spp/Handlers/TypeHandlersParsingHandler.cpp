@@ -824,6 +824,7 @@ Bool TypeHandlersParsingHandler::onIncomingModifier(
   if (!prodProcessingComplete) return false;
 
   if (this->processNoBindModifier(state, modifierData)) return true;
+  if (this->processInjectionModifier(state, modifierData)) return true;
   return this->processExpnameModifier(state, modifierData);
 }
 
@@ -871,6 +872,30 @@ Bool TypeHandlersParsingHandler::processNoBindModifier(
   }
 
   def->setMetadata(S("no_bind"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  return true;
+}
+
+
+Bool TypeHandlersParsingHandler::processInjectionModifier(
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+) {
+  // Arabic keywords are already translated by the modifier actions at this point.
+  auto identifier = Core::Ast::getModifierKeywordIdentifier(modifierData.get());
+  if (identifier == 0 || identifier->getValue() != S("injection")) return false;
+
+  // The modifier is only valid for read properties, either defined as functions or as function pointers (as_ptr).
+  // Templates are not valid since there will be no template args to instantiate them with during the lookup.
+  auto def = this->findHandlerDefinition(state);
+  Char const *op = def == 0 ? 0 : Spp::Ast::findOperationModifier(def);
+  auto subject = def == 0 ? 0 : def->getSubject().get();
+  if (op == 0 || SBSTR(op) != S("") || subject == 0 || subject->isDerivedFrom<Spp::Ast::Template>()) {
+    state->addNotice(newSrdObj<Spp::Notices::InvalidInjectionHandlerNotice>(
+      Core::Ast::findSourceLocation(modifierData.get())
+    ));
+    return true;
+  }
+
+  def->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
   return true;
 }
 

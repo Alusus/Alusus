@@ -208,7 +208,8 @@ TypeMatchStatus Helper::_lookupCustomCaster(
           if (def != 0 && !helper->isSharedDef(def)) {
             auto obj = def->getSubject().get();
             if (obj != 0 && helper->isInMemVariable(obj)) {
-              if (!isInjection(def)) break;
+              // Injected read properties (as_ptr) aren't embedded objects, so their casters can't be used.
+              if (!isInjection(def) || isReadPropertyDef(def)) break;
               auto memberType = helper->traceType(obj);
               if (memberType != 0 && memberType->isDerivedFrom<DataType>()) {
                 auto memberTypeRef = helper->getReferenceTypeFor(memberType, Ast::ReferenceMode::IMPLICIT);

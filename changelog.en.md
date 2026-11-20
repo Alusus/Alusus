@@ -76,6 +76,9 @@
   (`handler this.method(...)`), including `as_ptr` ones. Members of the value returned by such a handler bind to the
   object the handler was called on, which allows, for example, a child class to define a `vtable` handler that casts
   the parent's vtable to the child's vtable type. Using `@no_bind` with other handlers or with `set_ptr` is an error.
+* Added support for the `@injection` modifier on read handlers (`handler this.prop: T`), including `as_ptr` ones,
+  which makes the members of the value returned by the handler available in the enclosing type. The handler can
+  return by reference or by value, and can be combined with `@no_bind`.
 
 ### Compiler Fixes
 
