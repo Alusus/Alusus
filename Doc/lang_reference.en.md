@@ -1345,6 +1345,27 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
     // on the heap instead of creating a temp var on the stack.
 ```
 
+A call on a class, like `MyType(...)`, can match any of the following:
+
+* A constructor (`this~init`).
+* A parentheses operation on the class itself (`this_type`), which doesn't receive `this`.
+* A parentheses operation on an object (`this`), which receives an object of the class as its first argument, as in
+  `MyType(obj, 10)`, which is the same as `obj(10)`.
+
+The compiler looks at all of them and picks the best match, i.e. the one that needs the least conversion of the given
+arguments. If a parentheses operation and a constructor match equally well then the parentheses operation is chosen.
+If more than one constructor (or more than one operation) matches equally well then the call is reported as
+ambiguous.
+
+```
+class Num {
+    var v: Int;
+    handler this~init(n: Int[32]) { ... };          // Chosen for Num(a32), exact match.
+    handler this_type(n: Int[64]): ref[Num] { ... }; // Chosen for Num(a64), exact match.
+    handler this(i: Int): Int { ... };               // Chosen for Num(obj, 5).
+};
+```
+
 ### Definition Injection
 
 Definition injection allows the user to make the elements of a specific definition available immediately in the outer scope.

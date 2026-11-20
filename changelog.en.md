@@ -56,6 +56,10 @@
   the first member is considered. Chains of casters that go in both directions between two types no longer cause an
   infinite recursion in the compiler.
 * The `~type` operator now accepts functions, giving their function type, as in `ptr[myFunc~type]`.
+* A call on a type, like `MyType(...)`, now considers constructors, `()` operators on the type itself (`this_type`) and
+  `()` operators on an object (`this`) together and picks the best match. If a `()` operator and a constructor match
+  equally well the `()` operator is chosen. Previously the first `()` operator found won even if a constructor
+  matched better.
 * Added support for debugging with debuggers such as gdb. Passing `--opt debug=1` makes the compiler generate debug
   info for generated executables and for code that Alusus runs directly, including `preprocess` blocks, which allows
   setting breakpoints on source lines and inspecting the call stack and the values of variables, arguments and

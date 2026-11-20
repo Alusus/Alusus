@@ -365,12 +365,6 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
     return;
   }
 
-  // Member functions can only be called on an object, so they are not valid matches when looking up scope members.
-  if (request.mode == CalleeLookupMode::SCOPE_MEMBER && func->getType()->isMember()) {
-    result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
-    return;
-  }
-
   if (!func->getType()->isMember() && request.thisType != 0) {
     result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
       Core::Ast::findSourceLocation(request.target)
@@ -461,7 +455,12 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
     return;
   } else if (request.op == S("()")) {
-    // Look for a () operator on the Type itself.
+    // A call on a type, like `MyType(...)`, can match any of the following, so we'll look for all of them and pick the
+    // best match:
+    // * A `()` operator on the type itself (`handler this_type(...)`), which doesn't receive `this`.
+    // * A `()` operator on an object (`handler this(...)`), which receives the object as the first argument.
+    // * A constructor (`~init`).
+    // If the matches are at the same level then the `()` operators take precedence over the constructor.
     static Core::Ast::Identifier ref;
     CalleeLookupRequest innerRequest = request;
     innerRequest.ref = &ref;
@@ -470,23 +469,29 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     innerRequest.op = S("()");
     innerRequest.target = type;
     innerRequest.thisType = 0;
-    tracer->lookupCallee(innerRequest, result);
-    if (result.isSuccessful()) {
-      return;
-    }
+    CalleeLookupResult opResult;
+    tracer->lookupCallee(innerRequest, opResult);
 
-    // Look for a constructor.
     ref.setValue(S("~init"));
     innerRequest.op = S("~init");
     innerRequest.target = type;
     innerRequest.thisType = helper->getReferenceTypeFor(type, Ast::ReferenceMode::IMPLICIT);
     innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
     innerRequest.skipInjections = true;
-    tracer->lookupCallee(innerRequest, result);
-    if (result.isSuccessful()) {
+    CalleeLookupResult initResult;
+    tracer->lookupCallee(innerRequest, initResult);
+
+    if (opResult.isSuccessful() && (!initResult.isSuccessful() || opResult.matchStatus >= initResult.matchStatus)) {
+      result = opResult;
+      return;
+    } else if (initResult.isSuccessful()) {
+      result = initResult;
       result.pushObject(type);
       return;
     }
+    // Neither was a successful match, so keep the failure that is more informative.
+    result = opResult;
+    CalleeTracer::selectBetterResult(initResult, result);
 
     Function *customCaster;
     if (

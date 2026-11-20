@@ -695,6 +695,14 @@ Bool Generator::_generateVarInitialization(
         astNode, static_cast<Ast::Function*>(callee.obj), paramAstTypes, paramTgValues, generation, session, result
       );
     } else if (
+      lookupResult.notice != 0 && lookupResult.notice->isDerivedFrom<Spp::Notices::MultipleCalleeMatchNotice>()
+    ) {
+      // More than one constructor matches equally well, which is more specific than a missing constructor. The
+      // lookup request has no source location since we used a synthesized reference, so we use the node itself.
+      lookupResult.notice->setSourceLocation(Core::Ast::findSourceLocation(astNode));
+      generator->rootManager->getNoticeStore()->add(lookupResult.notice);
+      return false;
+    } else if (
       paramAstTypes->getCount() != 0 ||
       generator->getSeeker()->tryGet(&ref, varAstType, Core::Ast::Seeker::Flags::SKIP_OWNERS) != 0
     ) {
