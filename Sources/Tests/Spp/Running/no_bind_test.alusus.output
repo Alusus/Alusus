@@ -1,0 +1,7 @@
+t.getVal() = 7
+t.vtable.getVal() = 7
+t.vtable.getValPlus(3) = 10
+this.getVal() = 7
+this.vtable.getVal() = 7
+o.inner.vtable.getVal() = 9
+o.bound.getJ() = 11

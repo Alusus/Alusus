@@ -1,0 +1,12 @@
+[0;31mERROR SPPH1028: The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr handlers.[0m
+  no_bind_handlers_test.alusus (11,4)
+[0;31mERROR SPPH1028: The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr handlers.[0m
+  no_bind_handlers_test.alusus (12,4)
+[0;31mERROR SPPH1028: The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr handlers.[0m
+  no_bind_handlers_test.alusus (13,4)
+[0;31mERROR SPPH1028: The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr handlers.[0m
+  no_bind_handlers_test.alusus (14,4)
+[0;31mERROR SPPH1028: The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr handlers.[0m
+  no_bind_handlers_test.alusus (15,4)
+[0;31mERROR SPPH1028: The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr handlers.[0m
+  no_bind_handlers_test.alusus (21,4)

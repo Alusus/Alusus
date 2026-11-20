@@ -356,6 +356,9 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
   if (def != 0) {
     defOp = findOperationModifier(def);
   }
+  // A no_bind member function means that the value it returns doesn't become the new `this`, instead members of that
+  // value bind to the same `this` that the function itself received.
+  Bool noBindDef = def != 0 && helper->isNoBindDef(def) && func->getType()->isMember();
   if (defOp != 0 && SBSTR(defOp) == S("")) {
     PlainList<Spp::Ast::Type> argTypes;
     if (useThis) argTypes.add(request.thisType);
@@ -369,7 +372,7 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
       result.matchStatus = TypeMatchStatus::EXACT;
       result.notice.reset();
       result.stack.clear();
-      result.pushThisMarker();
+      if (!noBindDef) result.pushThisMarker();
       result.pushFunctionCall();
       result.pushObject(request.target);
     } else if (CalleeTracer::isAssignOp(request.op)) {
@@ -378,16 +381,17 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
       return;
     } else {
       auto retType = helper->tryGetDeepReferenceContentType(func->getType()->traceRetType(helper));
+      Bool bindToRet = !noBindDef && retType->isDerivedFrom<UserType>();
       CalleeLookupRequest innerRequest = request;
       innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
       innerRequest.target = retType;
-      if (retType->isDerivedFrom<UserType>()) {
+      if (bindToRet) {
         innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
       }
       tracer->lookupCallee_routing(innerRequest, result);
 
       if (result.isSuccessful()) {
-        if (retType->isDerivedFrom<UserType>()) result.pushThisMarker();
+        if (bindToRet) result.pushThisMarker();
         result.pushFunctionCall();
         result.pushObject(request.target);
       }
@@ -610,6 +614,7 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
 
   CalleeLookupRequest innerRequest = request;
   innerRequest.varTargetOp = def == 0 ? 0 : Ast::findOperationModifier(def);
+  innerRequest.varTargetNoBind = noBindDef;
   innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
   innerRequest.target = objType;
   if (!noBindDef && objType->isDerivedFrom<UserType>() && targetIsRef) {
@@ -618,7 +623,10 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
   tracer->lookupCallee_routing(innerRequest, result);
 
   if (result.isSuccessful()) {
-    if (!noBindDef && objType->isDerivedFrom<UserType>()) result.pushThisMarker();
+    // The variable becomes the new `this` if something that binds to it follows, or if the variable itself is the
+    // final value (in which case it binds to itself), unless it's a no_bind variable.
+    Bool isFinalValue = request.op == S("") && result.stack.getLength() == 0;
+    if (!noBindDef && (objType->isDerivedFrom<UserType>() || isFinalValue)) result.pushThisMarker();
     result.pushObject(request.target);
   }
 }
@@ -671,7 +679,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
       result.matchStatus = TypeMatchStatus::EXACT;
       result.notice.reset();
       result.stack.clear();
-      result.pushThisMarker();
+      if (!request.varTargetNoBind) result.pushThisMarker();
       result.pushFunctionCall();
     } else if (CalleeTracer::isAssignOp(request.op)) {
       // This is a read property, so we shouldn't allow assign operations on it.
@@ -679,17 +687,19 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
       return;
     } else {
       auto retType = helper->tryGetDeepReferenceContentType(funcType->traceRetType(helper));
+      Bool bindToRet = !request.varTargetNoBind && retType->isDerivedFrom<UserType>();
       CalleeLookupRequest innerRequest = request;
       innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
       innerRequest.target = retType;
       innerRequest.varTargetOp = 0;
-      if (retType->isDerivedFrom<UserType>()) {
+      innerRequest.varTargetNoBind = false;
+      if (bindToRet) {
         innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
       }
       tracer->lookupCallee_routing(innerRequest, result);
 
       if (result.isSuccessful()) {
-        if (retType->isDerivedFrom<UserType>()) result.pushThisMarker();
+        if (bindToRet) result.pushThisMarker();
         result.pushFunctionCall();
       }
     }

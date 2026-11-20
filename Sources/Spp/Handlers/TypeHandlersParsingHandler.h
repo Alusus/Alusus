@@ -139,6 +139,12 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
     Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
   );
 
+  private: Bool processNoBindModifier(
+    Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+  );
+
+  private: Core::Ast::Definition* findHandlerDefinition(Core::Processing::ParserState *state);
+
 }; // class
 
 } // namespace

@@ -287,7 +287,8 @@ void SppFactory::createGrammar()
     }
   }}, newSrdObj<Handlers::TypeHandlersParsingHandler>());
   this->set(S("root.Main.TypeOp.modifierActions"), Map::create({}, {
-    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))}
+    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
+    {S("دون_ربط"), newSrdObj<Grammar::TranslateModifierAction>(S("no_bind"))}
   }));
   this->createCommand(S("root.Main.TypeOpOptions"), {{
     Map::create({}, {

@@ -69,6 +69,13 @@
 * Made `Process.platform`, `Process.language`, and `Process.coreBinPath` constants instead of variables.
 * Fixed the type info registration of `GenericCommand`, `ArgPack`, and `TemplateVarDef`, and the namespace and package
   of the type infos of `TemplateVarDef` and `ArgPack`.
+* The `@no_bind` modifier (`@دون_ربط` in Arabic) now also applies when its member is accessed explicitly rather than only
+  through injection, so with `@no_bind var vtable: ref[VTable]`, `t.vtable.getVal()` calls `getVal` with `t` as `this`
+  instead of `t.vtable`.
+* Added support for the `@no_bind` modifier on read handlers (`handler this.prop: T`) and method handlers
+  (`handler this.method(...)`), including `as_ptr` ones. Members of the value returned by such a handler bind to the
+  object the handler was called on, which allows, for example, a child class to define a `vtable` handler that casts
+  the parent's vtable to the child's vtable type. Using `@no_bind` with other handlers or with `set_ptr` is an error.
 
 ### Compiler Fixes
 

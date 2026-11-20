@@ -184,6 +184,10 @@ DEFINE_NOTICE(InvalidVarCommandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH
 DEFINE_NOTICE(VarInitArgsWithExplicitTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1027", 1,
   "The := operator can't be used when the variable type is given. Use `var name: type(args)` instead."
 );
+DEFINE_NOTICE(InvalidNoBindHandlerNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1028", 1,
+  "The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr "
+  "handlers."
+);
 
 } // namespace
 

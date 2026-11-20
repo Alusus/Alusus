@@ -1405,6 +1405,59 @@ This limitation exists because a caster of the injected variable is called with 
 matches the address of the injected variable only when it is the first member. Members and functions of the injected
 variable are not affected by this limitation and are available regardless of the position of the injection.
 
+### Binding Members to the Enclosing Object (no_bind)
+
+When accessing a member of an object, the object becomes `this` for anything accessed through that member. For
+example, in `o.a.f()` the function `f` gets `o.a` as `this`. Marking a member variable with the `no_bind` modifier
+makes anything accessed through that member bind to the enclosing object instead. This is useful for tables of
+member functions (vtables), where the functions are stored in a separate object but need the owning object as `this`:
+
+```
+  class MyType {
+    class VTable {
+      handler (this: MyType).getVal(): Int {
+        return this.i;
+      };
+    };
+    @shared var s__vtable__: VTable;
+    @no_bind var vtable: ref[VTable](s__vtable__);
+    var i: Int;
+  };
+
+  var t: MyType;
+  t.vtable.getVal(); // getVal receives `t` as `this` rather than `t.vtable`.
+```
+
+The `no_bind` modifier can be combined with `injection`, in which case the members can be accessed directly, as in
+`t.getVal()` in the previous example if `vtable` was defined as `@no_bind @injection var vtable: ...`.
+
+The `no_bind` modifier can also be used with read handlers and method handlers (including `as_ptr` handlers), in which
+case members of the value returned by the handler bind to the object the handler was called on. For example, a child
+class can define a handler that casts the vtable of its parent to the child's vtable type:
+
+```
+  class Child {
+    @injection var base: Base;
+    class VTable {
+      @injection var base: Base.VTable;
+      handler (this: Child).childOnly() { ... };
+    };
+    @no_bind handler this.vtable: ref[VTable] {
+      return this.base.vtable~ptr~cast[ptr[VTable]]~cnt;
+    };
+    @no_bind handler this.getVTable(): ref[VTable] {
+      return this.vtable;
+    };
+  };
+
+  var c: Child;
+  c.vtable.childOnly(); // childOnly receives `c` as `this`.
+  c.getVTable().childOnly(); // Same as the previous line.
+```
+
+Using `no_bind` with other kinds of handlers (operators, `~init`, `~cast`, etc.) or with `set_ptr` handlers is an
+error.
+
 ## Type Inference
 
 It is possible to infer information about classes at compile time using the following operators:
