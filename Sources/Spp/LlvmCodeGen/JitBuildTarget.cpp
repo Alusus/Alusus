@@ -22,7 +22,7 @@ void JitBuildTarget::setupBuild()
   this->llvmJitEngine.reset();
 
   JitEngineBuilder engineBuilder;
-  engineBuilder.useOptimizeLayer = this->optimize;
+  engineBuilder.optimize = this->optimize;
   engineBuilder.enableDebuggerSupport = this->isDebugInfoEnabled();
   this->llvmJitEngine = llvm::cantFail(engineBuilder.create(this->globalItemRepo));
   this->llvmDataLayout = const_cast<llvm::DataLayout*>(&this->llvmJitEngine->getDataLayout());

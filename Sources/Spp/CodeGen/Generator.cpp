@@ -287,6 +287,7 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   Str name = generator->astHelper->getFunctionName(astFunc);
   TioSharedPtr tgFuncResult;
   if (!session->getTg()->generateFunctionDecl(name, tgFunctionType, tgFuncResult)) return false;
+  if (astFunc->getInlined() && !session->getTg()->setFunctionInlined(tgFuncResult.get(), true)) return false;
   session->getEda()->setCodeGenData(astFunc, tgFuncResult);
 
   // TODO: Do we need these attributes?

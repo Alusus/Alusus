@@ -761,6 +761,40 @@ statement in it generates different code or stores different data on every insta
 
 There are a lot of arguments to pass to the template, see [types templates](types templates) for more information about types of template arguments.
 
+### Inline Functions
+
+Adding the `@inline` modifier to a function makes the compiler copy the function's body into the places it's called
+from instead of generating a call to it, which saves the cost of the call for small functions that are called often.
+The modifier can be used with normal functions, function templates, member functions, and handlers (methods,
+properties, operators, etc.):
+
+```
+  @inline func square (i: Int): Int {
+      return i * i;
+  }
+
+  class Point {
+      def x: Int;
+      def y: Int;
+
+      @inline handler this.isOrigin: Bool {
+          return this.x == 0 && this.y == 0;
+      }
+  }
+```
+
+An inline function is still a regular function, so its pointer can be taken and it can be called from places where it
+can't be inlined, in which case it's called normally. Inlining is done in both optimized and unoptimized builds, with
+the following limitations:
+
+* Recursive calls are not inlined.
+* In JIT builds the call is inlined only if the function is compiled along with the code calling it. Functions are
+  compiled when the top level statements that use them are executed for the first time, so a call made by code that
+  executes later is a regular call rather than an inlined one. Offline builds don't have this limitation.
+* Calls inside preprocess statements are not inlined.
+
+Using `@inline` with a function that has no body, or with `as_ptr` or `set_ptr` handlers, is an error.
+
 ## User-Defined Types
 
 Classes are defined using `class` command as the definition in `def` command.
@@ -1444,7 +1478,7 @@ any user type, whether by reference or by value (as in returning a `SrdRef`):
 ```
 
 Keep in mind that the handler is called every time a member is accessed through the injection, so such handlers should
-be kept small so that they get inlined. Using the `injection` modifier with other kinds of handlers (methods,
+be kept small and marked with the [`@inline`](#inline-functions) modifier. Using the `injection` modifier with other kinds of handlers (methods,
 operators, `~init`, `~cast`, etc.), with template handlers, or with `set_ptr` handlers is an error. Custom casters of the
 value returned by an injected handler are not available on the enclosing type.
 

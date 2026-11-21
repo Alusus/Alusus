@@ -91,6 +91,8 @@
   without an object, either through the type or from within the type's own functions. Injecting a shared definition
   was previously an error (SPPG1028). Local variables, including shared ones, can also be injected as read properties
   (`@injection @operation[""] def prop: ptr[func (): ref[Inner]]`).
+* Added the `@inline` modifier (`@مضمن` in Arabic) for functions and handlers, which makes the compiler inline calls to
+  them, including in unoptimized builds.
 
 ### Compiler Fixes
 

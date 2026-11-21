@@ -23,7 +23,7 @@ Error JitEngineBuilderState::prepareForConstruction() {
       return JTMBOrErr.takeError();
     // Unoptimized code is usually run once, so fast instruction selection and register allocation save more time
     // than the generated code loses.
-    if (!useOptimizeLayer) jtmb->setCodeGenOptLevel(CodeGenOptLevel::None);
+    if (!optimize) jtmb->setCodeGenOptLevel(CodeGenOptLevel::None);
   }
 
   if (!createObjectLinkingLayer && !jtmb->getCodeModel().has_value() &&
@@ -203,17 +203,28 @@ JitEngine::JitEngine(JitEngineBuilderState &s, Error &err)
     });
   }
 
-  if (s.useOptimizeLayer) {
-    optimizeLayer = createOptimizeLayer(*compileLayer, s.skipIrOptimization);
-  }
+  // Even unoptimized builds need the layer to inline calls to inline functions.
+  optimizeLayer = createOptimizeLayer(*compileLayer, s.skipIrOptimization, s.optimize);
 }
 
 std::unique_ptr<llvm::orc::IRTransformLayer>
-JitEngine::createOptimizeLayer(llvm::orc::IRLayer &prevLayer, Bool skipOptimization) {
+JitEngine::createOptimizeLayer(llvm::orc::IRLayer &prevLayer, Bool skipOptimization, Bool fullOptimization) {
   auto optimizeLayer = std::make_unique<IRTransformLayer>(*es, prevLayer);
 
   // The layer still has to exist since it's where modules are added, but it doesn't have to do anything.
   if (skipOptimization) return optimizeLayer;
+
+  if (!fullOptimization) {
+    optimizeLayer->setTransform(
+      [](llvm::orc::ThreadSafeModule tsm, const llvm::orc::MaterializationResponsibility &r) {
+        tsm.withModuleDo([](llvm::Module &module) {
+          inlineLlvmModuleFunctions(module);
+        });
+        return tsm;
+      }
+    );
+    return optimizeLayer;
+  }
 
   static llvm::Expected<llvm::orc::JITTargetMachineBuilder> tmb =
       llvm::orc::JITTargetMachineBuilder::detectHost();
@@ -351,7 +362,7 @@ LazyJitEngine::LazyJitEngine(LazyJitEngineBuilderState &s, Error &err)
     }
 
     // Finalize by creating the optimization layer on top of the COD layer.
-    optimizeLayer = createOptimizeLayer(*codLayer, s.skipIrOptimization);
+    optimizeLayer = createOptimizeLayer(*codLayer, s.skipIrOptimization, true);
 }
 
 } // namespace

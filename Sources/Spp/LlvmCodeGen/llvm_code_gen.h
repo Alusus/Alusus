@@ -32,6 +32,7 @@ class BuildTarget;
 // Global Functions
 void llvmDiagnosticCallback(const llvm::DiagnosticInfo &di, void *context);
 void optimizeLlvmModule(llvm::Module &module, llvm::TargetMachine *targetMachine);
+void inlineLlvmModuleFunctions(llvm::Module &module);
 
 } // namespace
 

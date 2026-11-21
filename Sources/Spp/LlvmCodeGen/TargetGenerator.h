@@ -139,6 +139,8 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
 
   private: static Bool _deleteFunction(TiObject *self, TiObject *function);
 
+  private: static Bool _setFunctionInlined(TiObject *self, TiObject *function, Bool inlined);
+
   /// @}
 
   /// @name Debug Info Generation Functions

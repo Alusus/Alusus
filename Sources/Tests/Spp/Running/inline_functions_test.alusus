@@ -1,0 +1,73 @@
+import "Srl/Console";
+import "Srl/String";
+use Srl;
+
+class A {
+    def i: Int;
+    handler this~init() {
+        this.i = 0;
+        Console.print("A initialized.\n");
+    }
+    handler this~init(a: ref[A]) {
+        this.i = a.i;
+        Console.print("A copied.\n");
+    }
+    handler this~terminate() {
+        Console.print("A terminated.\n");
+    }
+
+    @inline @member func scale(this: ref[A], f: Int) {
+        this.i *= f;
+    }
+
+    @inline handler this.doubled: Int {
+        return this.i * 2;
+    }
+
+    @inline handler [T: type] this.add(t: T): T {
+        return this.i + t;
+    }
+}
+
+class B {
+    def j: Int;
+    @inline handler this~init(j: Int) {
+        this.j = j;
+    }
+}
+
+@inline func square(i: Int): Int {
+    return i * i;
+}
+
+@inline func twice [T: type] (t: T): T {
+    return t + t;
+}
+
+@inline func makeA(i: Int): A {
+    def a: A;
+    a.i = i;
+    return a;
+}
+
+// Inlining a recursive function can't be completed, but it should still work.
+@inline func factorial(i: Int): Int {
+    if i <= 1 return 1;
+    return i * factorial(i - 1);
+}
+
+func test {
+    Console.print("square(5): %d\n", square(5));
+    Console.print("twice[Int](21): %d\n", twice[Int](21));
+    Console.print("twice[String]: %s\n", twice[String](String("ab")).buf);
+    Console.print("factorial(5): %d\n", factorial(5));
+    def a: A(makeA(3));
+    a.scale(square(2));
+    Console.print("a.i: %d\n", a.i);
+    Console.print("a.doubled: %d\n", a.doubled);
+    Console.print("a.add[Int](1): %d\n", a.add[Int](1));
+    def b: B(9);
+    Console.print("b.j: %d\n", b.j);
+}
+
+test();

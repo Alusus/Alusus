@@ -289,7 +289,8 @@ void SppFactory::createGrammar()
   this->set(S("root.Main.TypeOp.modifierActions"), Map::create({}, {
     {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
     {S("دون_ربط"), newSrdObj<Grammar::TranslateModifierAction>(S("no_bind"))},
-    {S("حقنة"), newSrdObj<Grammar::TranslateModifierAction>(S("injection"))}
+    {S("حقنة"), newSrdObj<Grammar::TranslateModifierAction>(S("injection"))},
+    {S("مضمن"), newSrdObj<Grammar::TranslateModifierAction>(S("inline"))}
   }));
   this->createCommand(S("root.Main.TypeOpOptions"), {{
     Map::create({}, {
@@ -401,6 +402,7 @@ void SppFactory::createGrammar()
   this->set(S("root.Main.Function.modifierActions"), Map::create({}, {
     {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
     {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))},
+    {S("مضمن"), newSrdObj<Grammar::TranslateModifierAction>(S("inline"))},
     {S("operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
     {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
     {S("no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},

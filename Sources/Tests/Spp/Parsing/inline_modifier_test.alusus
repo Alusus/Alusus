@@ -1,0 +1,25 @@
+import "alusus_spp";
+
+// The inline modifier is valid on any function or handler that has a body.
+@inline func f1(): Int { return 0 };
+@inline func f2 [T: type] (t: T): T { return t };
+class A {
+  @inline @member func m(this: ref[A]) {};
+  @inline handler this.prop: Int { return 0 };
+  @inline handler this.method(): Int { return 0 };
+  @inline handler [T: type] this.tmethod(t: T): T { return t };
+  @inline handler this + (x: Int): Int { return 0 };
+  @inline handler this~init() {};
+  handler this.n() as_ptr {};
+}
+
+// The inline modifier is invalid on functions and handlers without bodies, and on pointer based handlers.
+@inline func f3(): Int;
+@inline @expname[f4] func f4(): Int;
+class B {
+  @injection var a: A;
+  @inline @expname[B_method] handler this.method(): Int;
+  @inline handler this.ptrProp: Int as_ptr { return 0 };
+  @inline handler this.ptrMethod(): Int as_ptr { return 0 };
+  @inline handler (this: A).n() set_ptr {};
+}

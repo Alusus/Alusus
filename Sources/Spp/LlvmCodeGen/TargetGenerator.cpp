@@ -39,6 +39,7 @@ void TargetGenerator::initBindings()
   targetGeneration->prepareFunctionBody = &TargetGenerator::_prepareFunctionBody;
   targetGeneration->finishFunctionBody = &TargetGenerator::_finishFunctionBody;
   targetGeneration->deleteFunction = &TargetGenerator::_deleteFunction;
+  targetGeneration->setFunctionInlined = &TargetGenerator::_setFunctionInlined;
 
   // Debug Info Generation Functions
   targetGeneration->setFunctionDebugInfo = &TargetGenerator::_setFunctionDebugInfo;
@@ -702,6 +703,7 @@ Bool TargetGenerator::_prepareFunctionBody(
     llvmModule = funcWrapper->llvmModule.get();
     // C ABI compatibility.
     targetGenerator->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
+    if (funcWrapper->inlined) llvmFunc->addFnAttr(llvm::Attribute::AlwaysInline);
   } else {
     llvmFunc = funcWrapper->getLlvmFunction();
     llvmModule = targetGenerator->buildTarget->getGlobalLlvmModule();
@@ -825,6 +827,21 @@ Bool TargetGenerator::_deleteFunction(TiObject *self, TiObject *function)
 {
   PREPARE_ARG(function, funcWrapper, Function);
   funcWrapper->getLlvmFunction()->eraseFromParent();
+  return true;
+}
+
+
+Bool TargetGenerator::_setFunctionInlined(TiObject *self, TiObject *function, Bool inlined)
+{
+  PREPARE_ARG(function, funcWrapper, Function);
+  funcWrapper->inlined = inlined;
+  // The LLVM function is null at this point if it's to be created in a module of its own, in which case the attribute
+  // is applied when the body is prepared.
+  auto llvmFunc = funcWrapper->getLlvmFunction();
+  if (llvmFunc != 0) {
+    if (inlined) llvmFunc->addFnAttr(llvm::Attribute::AlwaysInline);
+    else llvmFunc->removeFnAttr(llvm::Attribute::AlwaysInline);
+  }
   return true;
 }
 

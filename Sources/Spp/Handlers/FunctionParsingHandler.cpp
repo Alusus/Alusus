@@ -212,6 +212,7 @@ Bool FunctionParsingHandler::onIncomingModifier(
 
   if (this->processExpnameModifier(state, modifierData)) return true;
   else if (this->processMemberModifier(state, modifierData)) return true;
+  else if (this->processInlineModifier(state, modifierData)) return true;
   else if (this->processUnsharedInstancesModifier(state, modifierData)) return true;
   else return false;
 }
@@ -308,6 +309,39 @@ Bool FunctionParsingHandler::processMemberModifier(
 
   funcType->setMember(true);
 
+  return true;
+}
+
+
+Bool FunctionParsingHandler::processInlineModifier(
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+) {
+  // Look for inline modifier. Its Arabic keyword has already been translated by the call to the parent implementation.
+  auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
+  if (identifier == 0) return false;
+  if (identifier->getValue() != S("inline")) return false;
+
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  Core::Ast::Node *data = state->getData(levelOffset).get();
+
+  // Grab the data from the definition, if any, otherwise use the data from the state level.
+  if (data != 0 && data->isDerivedFrom<Core::Ast::Definition>()) {
+    data = static_cast<Core::Ast::Definition*>(data)->getSubject().get();
+  }
+
+  if (data != 0 && data->isDerivedFrom<Spp::Ast::Template>()) {
+    data = static_cast<Spp::Ast::Template*>(data)->getBody().get();
+  }
+
+  // Only functions with bodies can be inlined.
+  auto function = ti_cast<Spp::Ast::Function>(data);
+  if (function == 0 || function->getBody() == 0) {
+    state->addNotice(newSrdObj<Spp::Notices::InvalidInlineFunctionNotice>(
+      Core::Ast::findSourceLocation(modifierData.get())
+    ));
+    return true;
+  }
+  function->setInlined(true);
   return true;
 }
 

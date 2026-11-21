@@ -825,6 +825,7 @@ Bool TypeHandlersParsingHandler::onIncomingModifier(
 
   if (this->processNoBindModifier(state, modifierData)) return true;
   if (this->processInjectionModifier(state, modifierData)) return true;
+  if (this->processInlineModifier(state, modifierData)) return true;
   return this->processExpnameModifier(state, modifierData);
 }
 
@@ -896,6 +897,33 @@ Bool TypeHandlersParsingHandler::processInjectionModifier(
   }
 
   def->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  return true;
+}
+
+
+Bool TypeHandlersParsingHandler::processInlineModifier(
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+) {
+  // The Arabic keyword is already translated by the modifier actions at this point.
+  auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
+  if (identifier == 0 || identifier->getValue() != S("inline")) return false;
+
+  // The modifier is only valid for handlers that are functions with bodies, possibly templates. In case of as_ptr the
+  // definition is for the pointer variable, and in case of set_ptr there is no definition at all.
+  auto def = this->findHandlerDefinition(state);
+  auto subject = def == 0 ? 0 : def->getSubject().get();
+  if (subject != 0 && subject->isDerivedFrom<Spp::Ast::Template>()) {
+    subject = static_cast<Spp::Ast::Template*>(subject)->getBody().get();
+  }
+  auto function = ti_cast<Spp::Ast::Function>(subject);
+  if (function == 0 || function->getBody() == 0) {
+    state->addNotice(newSrdObj<Spp::Notices::InvalidInlineFunctionNotice>(
+      Core::Ast::findSourceLocation(modifierData.get())
+    ));
+    return true;
+  }
+
+  function->setInlined(true);
   return true;
 }
 

@@ -192,6 +192,10 @@ DEFINE_NOTICE(InvalidInjectionHandlerNotice, "Spp.Notices", "Spp", "alusus.org",
   "The injection modifier can only be used with property read handlers, and can't be used with templates or set_ptr "
   "handlers."
 );
+DEFINE_NOTICE(InvalidInlineFunctionNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1030", 1,
+  "The inline modifier can only be used with functions and handlers that have a body, and can't be used with as_ptr "
+  "or set_ptr handlers."
+);
 
 } // namespace
 
