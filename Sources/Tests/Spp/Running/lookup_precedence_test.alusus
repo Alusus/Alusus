@@ -1,0 +1,128 @@
+import "Srl/Console";
+use Srl.Console;
+
+class Wrapper {
+  def i: Int;
+}
+
+func show(s: CharsPtr) {
+  print("root show(%s)\n", s);
+}
+
+// A failed match in an outer scope doesn't hide matches in scopes further out.
+
+module Outer {
+  func describe(s: CharsPtr) {
+    print("Outer.describe(%s)\n", s);
+  }
+
+  module Inner {
+    func describe(i: Int) {
+      print("Inner.describe(%d)\n", i);
+    }
+
+    func test() {
+      describe(5);
+      describe("str");
+    }
+
+    func testNoMatch() {
+      def w: Wrapper;
+      describe(w);
+    }
+  }
+}
+
+Outer.Inner.test();
+
+// A failed match through a bridge doesn't hide matches in outer scopes.
+
+module Lib {
+  func show(i: Int) {
+    print("Lib.show(%d)\n", i);
+  }
+}
+
+func testBridge() {
+  use Lib;
+  show(7);
+  show("str");
+}
+testBridge();
+
+func testBridgeNoMatch() {
+  use Lib;
+  def w: Wrapper;
+  show(w);
+}
+
+// A match within the initial function takes precedence over injected members, even if the injected member is a better
+// match.
+
+class Holder {
+  handler this.pick(i: Int) {
+    print("member pick(Int)\n");
+  }
+
+  handler this.test() {
+    func pick(i: Int[64]) {
+      print("local pick(Int[64])\n");
+    }
+    pick(5);
+  }
+}
+def h: Holder;
+h.test();
+
+// Accessing a local of an outer function, or an ambiguous match, isn't a mismatch, so it isn't skipped in favor of
+// matches in scopes further out.
+
+def count: Int;
+count = 0;
+
+func testOuterLocal() {
+  def count: Int;
+  count = 1;
+  func inner() {
+    print("count=%d\n", count);
+  }
+  inner();
+}
+
+module LibA {
+  func greet(i: Int) {
+    print("LibA.greet\n");
+  }
+}
+module LibB {
+  func greet(i: Int) {
+    print("LibB.greet\n");
+  }
+}
+func greet(i: Int) {
+  print("root greet\n");
+}
+
+func testAmbiguousBridges() {
+  use LibA;
+  use LibB;
+  greet(1);
+}
+
+// A failed match within the initial function hides matches in outer scopes.
+
+func testArg(show: Int) {
+  show("str");
+}
+
+func testLocal() {
+  def show: Int;
+  show("str");
+}
+
+Outer.Inner.testNoMatch();
+testBridgeNoMatch();
+testArg(1);
+testLocal();
+testOuterLocal();
+testAmbiguousBridges();

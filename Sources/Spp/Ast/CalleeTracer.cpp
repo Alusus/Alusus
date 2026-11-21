@@ -65,9 +65,13 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
     auto target = request.target;
     Int tracingAlias = 0;
     Bool searchingFunctionOwners = false;
-    auto callback = [=, &request, &result, &target, &tracingAlias, &searchingFunctionOwners]
+    // The result that the search callback writes to. Searches that only accept successful matches write to a
+    // temporary result, which is then committed by commitReferencedResult.
+    CalleeLookupResult *currentResult = &result;
+    auto callback = [=, &request, &currentResult, &target, &tracingAlias, &searchingFunctionOwners]
       (TiInt action, Core::Ast::Node *obj, Core::Ast::Seeker::NoticePtr const &notice)->Core::Ast::Seeker::Verb
       {
+        auto &result = *currentResult;
         if (action == Core::Ast::Seeker::Action::ERROR) {
           if (result.isNew()) result.notice = notice;
           return Core::Ast::Seeker::Verb::MOVE;
@@ -143,8 +147,33 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         return Core::Ast::Seeker::Verb::MOVE;
       };
 
+    // Any name match from within the initial function being searched is taken even if it's a failure, whereas matches
+    // from referenced scopes (through injections or bridges) and from scopes outside the initial function are only
+    // accepted on success. This distinction is to prevent local variables from being shadowed by a better match from
+    // a referenced scope, which can be harder to spot by the programmer. Failed matches that aren't accepted are kept
+    // aside and the first of them is only reported if nothing else matches the name. This allows, for example, calling
+    // a type's shared functions from within its member functions despite the members injected through the auto `this`
+    // of those member functions.
+    // Failures that aren't due to a mismatch (accessing a local variable of an outer function, or matching multiple
+    // callees) are accepted as well, since they mean the programmer most likely meant that definition, so we shouldn't
+    // silently pick another one with the same name from further out.
+    //
+    // TODO: Is there a more generic way to decide the errors that would be deferred than hardcoding them?
+    CalleeLookupResult deferredFailure;
+    auto commitReferencedResult = [&result, &deferredFailure](CalleeLookupResult const &referencedResult) {
+      Bool accepted = referencedResult.isSuccessful() || (
+        referencedResult.notice != 0 && (
+          referencedResult.notice->isDerivedFrom<Spp::Notices::AccessingLocalVarInOtherFuncNotice>() ||
+          referencedResult.notice->isDerivedFrom<Spp::Notices::MultipleCalleeMatchNotice>()
+        )
+      );
+      CalleeTracer::selectBetterResult(referencedResult, accepted ? result : deferredFailure);
+    };
+
     while (target != 0) {
       // Search the requested scope.
+      CalleeLookupResult scopeResult;
+      currentResult = &scopeResult;
       tracingAlias = 0;
       tracer->getSeeker()->foreach(request.ref, target, callback, 0);
 
@@ -152,15 +181,42 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       // if we are at the top of the stack to avoid re-testing the same scope again.
       auto dataType = target == request.target ? ti_cast<DataType>(target) : 0;
       Core::Ast::Scope *scope = dataType != 0 ? dataType->getBody().get() : ti_cast<Core::Ast::Scope>(target);
-
-      // Try the injections if we don't have an exact match yet.
       auto block = ti_cast<Block>(scope);
-      if (block != 0 && !request.skipInjections && result.matchStatus < TypeMatchStatus::EXACT) {
-        tracer->lookupCallee_injections(request, block, dataType, searchingFunctionOwners, result);
+
+      // Function args take precedence over the injections of the function's body (e.g. the auto injected `this` of
+      // member functions), so we search the args before trying those injections.
+      if (scope != 0 && request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE && !currentResult->isNameMatched()) {
+        auto func = ti_cast<Ast::Function>(scope->getOwner());
+        if (func != 0) {
+          tracingAlias = 0;
+          tracer->getSeeker()->foreach(request.ref, func, callback, 0);
+        }
+      }
+
+      // If we are still within the function, and didn't move to outer scope yet then we should just
+      // take the result even if it's a failure.
+      if (searchingFunctionOwners) commitReferencedResult(scopeResult);
+      else CalleeTracer::selectBetterResult(scopeResult, result);
+
+      // Try the injections if we haven't found any name match in a function's scopes, or if we don't have an exact
+      // match yet in a type body or an object member lookup. Type bodies need it because members found directly in the
+      // body can only be accessed through the injected `this` of the auto constructor, and object member lookups need
+      // it because overloads of a member can be split between the type and the types injected into it (inheritance).
+      if (
+        block != 0 && !request.skipInjections && (
+          request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE && ti_cast<DataType>(block->getOwner()) == 0 ?
+            !result.isNameMatched() : result.matchStatus < TypeMatchStatus::EXACT
+        )
+      ) {
+        CalleeLookupResult injectionResult;
+        tracer->lookupCallee_injections(request, block, dataType, searchingFunctionOwners, injectionResult);
+        commitReferencedResult(injectionResult);
       }
 
       // Try scope bridges if we haven't found any name match.
       if (scope != 0 && !result.isNameMatched() && request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
+        CalleeLookupResult bridgeResult;
+        currentResult = &bridgeResult;
         for (Int i = 0; i < scope->getBridgeCount(); ++i) {
           auto bridgeRef = scope->getBridge(i);
           // If the thing we are looking for is actually this bridgeRef, then we need to skip, otherwise we end up in
@@ -176,19 +232,29 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
           auto verb = tracer->getSeeker()->foreach(request.ref, bridgeTarget, callback, 0);
           if (!Core::Ast::Seeker::isMove(verb)) break;
         }
+        commitReferencedResult(bridgeResult);
       }
 
-      // Only directly accessible lookups go up to owner scopes.
+      // Only directly accessible lookups go up to owner scopes. `result` only receives failures that should be
+      // reported (see commitReferencedResult), so any name match in it ends the search.
       if (request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE || result.isNameMatched()) break;
 
       if (ti_cast<Ast::Function>(target) != 0) searchingFunctionOwners = true;
 
       target = target->getOwner();
+      auto ownerFunc = ti_cast<Ast::Function>(target);
+      if (ownerFunc != 0 && ownerFunc->getBody() == scope) {
+        // The function's args were already searched along with its body, so we skip the function itself.
+        searchingFunctionOwners = true;
+        target = target->getOwner();
+      }
       if (ti_cast<Ast::DataType>(target) != 0) {
         // Skip the type object itself.
         target = static_cast<Core::Ast::Node*>(target)->getOwner();
       }
     }
+
+    if (!result.isNameMatched() && deferredFailure.isNameMatched()) result = deferredFailure;
   } else {
     tracer->lookupCallee_routing(request, result);
   }

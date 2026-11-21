@@ -1,0 +1,10 @@
+i=1, j=2, b=3, getB()=3, sum()=3, doubled=6
+i=5, j=2, b=3, getB()=3, sum()=7, doubled=14
+local j=100, member j=2
+i=5, j=14, b=3, getB()=3, sum()=19, doubled=38
+i=5, j=14, b=7, getB()=7, sum()=19, doubled=38
+scaled=92
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  implicit_this_test.alusus (88,5)
+[0;31mERROR SPPG1019: Invalid access to object member.[0m
+  implicit_this_test.alusus (99,5)

@@ -1,0 +1,20 @@
+Inner.describe(5)
+Outer.describe(str)
+Lib.show(7)
+root show(str)
+local pick(Int[64])
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  lookup_precedence_test.alusus (31,7)
+[0;31mERROR SPPA1008: Provided arguments do not match signature.[0m
+  lookup_precedence_test.alusus (56,3)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  lookup_precedence_test.alusus (115,3)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  lookup_precedence_test.alusus (120,3)
+[0;31mERROR SPPA1015: Trying to access a local variable from a different function.[0m
+  lookup_precedence_test.alusus (87,25)
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+lookup_precedence_test.alusus (93,3)
+lookup_precedence_test.alusus (98,3)
+Called from:[0m
+  lookup_precedence_test.alusus (109,3)
