@@ -42,7 +42,8 @@ void SeekerExtension::unextend(Core::Ast::Seeker *seeker)
 // Add Functions
 
 Bool SeekerExtension::_addPossiblyMergeable_toNode(
-  TiObject *self, Core::Ast::Node *dest, Core::Ast::Node *element, Core::Notices::Store *noticeStore
+  TiObject *self, Core::Ast::Node *dest, Core::Basic::Containing<Core::Ast::Node> *elements,
+  Core::Notices::Store *noticeStore
 ) {
   PREPARE_SELF(seekerExtension, SeekerExtension);
   if (dest->isDerivedFrom<Ast::DataType>()) {
@@ -53,9 +54,10 @@ Bool SeekerExtension::_addPossiblyMergeable_toNode(
       body = static_cast<Ast::DataType*>(dest)->getBody().get();
     }
     auto seeker = ti_cast<Core::Ast::Seeker>(self);
-    return Core::Ast::addPossiblyMergeableElement(element, body, seeker, noticeStore);
+    Core::Ast::addPossiblyMergeableElements(elements, body, seeker, noticeStore);
+    return true;
   }
-  return seekerExtension->addPossiblyMergeable_toNode.callSuper(dest, element, noticeStore);
+  return seekerExtension->addPossiblyMergeable_toNode.callSuper(dest, elements, noticeStore);
 }
 
 

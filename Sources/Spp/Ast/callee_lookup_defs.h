@@ -44,6 +44,8 @@ struct CalleeLookupRequest
   // Allows directly accessing object member vars without an object, which is valid when only computing types.
   Bool treatObjectMembersAsGlobals = false;
   Char const *varTargetOp = 0;
+  // Whether the variable whose type is being looked up (when varTargetOp is used) is marked with no_bind.
+  Bool varTargetNoBind = false;
   Core::Ast::Node *ref = 0;
   Str op;
   Spp::Ast::Type *thisType = 0;
@@ -77,6 +79,9 @@ struct CalleeLookupResultStackEntry
 /// @ingroup spp_ast
 struct CalleeLookupResult
 {
+  // The stack is processed from the first entry. A THIS_MARKER makes the value generated so far the `this` for what
+  // follows. If the stack ends with a THIS_MARKER then the final value binds to itself, otherwise it binds to the last
+  // `this` in effect (which, for callees, is the `this` arg to pass to the call).
   TypeMatchStatus matchStatus = TypeMatchStatus::NONE;
   Array<CalleeLookupResultStackEntry> stack;
   SharedPtr<Core::Notices::Notice> notice;

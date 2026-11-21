@@ -184,6 +184,14 @@ DEFINE_NOTICE(InvalidVarCommandNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH
 DEFINE_NOTICE(VarInitArgsWithExplicitTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1027", 1,
   "The := operator can't be used when the variable type is given. Use `var name: type(args)` instead."
 );
+DEFINE_NOTICE(InvalidNoBindHandlerNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1028", 1,
+  "The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr "
+  "handlers."
+);
+DEFINE_NOTICE(InvalidInjectionHandlerNotice, "Spp.Notices", "Spp", "alusus.org", "SPPH1029", 1,
+  "The injection modifier can only be used with property read handlers, and can't be used with templates or set_ptr "
+  "handlers."
+);
 
 } // namespace
 
@@ -274,9 +282,6 @@ DEFINE_NOTICE(InvalidTerminateOperandNotice, "Spp.Notices", "Spp", "alusus.org",
 );
 DEFINE_NOTICE(ThisRedefinedNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1027", 1,
   "Invalid redefinition of `this` in function args."
-);
-DEFINE_NOTICE(SharedInjectionNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1028", 1,
-  "Trying to inject a shared definition."
 );
 DEFINE_NOTICE(InvalidInjectionTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1029", 1,
   "Invalid type for an injected definition."

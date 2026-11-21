@@ -76,6 +76,8 @@ SPPH1024:Template function lacks a body.
 SPPH1025:Template handler statement must not be a pointer.
 SPPH1026:Invalid var command. A variable needs a name followed by a type, an initial value, or both.
 SPPH1027:The := operator can't be used when the variable type is given. Use `var name: type(args)` instead.
+SPPH1028:The no_bind modifier can only be used with property read handlers and methods, and can't be used with set_ptr handlers.
+SPPH1029:The injection modifier can only be used with property read handlers, and can't be used with templates or set_ptr handlers.
 
 SPPG1001:Unsupported operation.
 SPPG1002:Invalid operation.
@@ -104,7 +106,6 @@ SPPG1024:Trying to access a variable before it's initialized.
 SPPG1025:Invalid operand for ~init operator.
 SPPG1026:Invalid operand for ~terminate operator.
 SPPG1027:Invalid redefinition of `this` in function args.
-SPPG1028:Trying to inject a shared definition.
 SPPG1029:Invalid type for an injected definition.
 SPPG1030:Assignment failed. This type needs an assignment operator.
 SPPG1031:Variable initialization failed. Custom init op matching the given data is needed for this type.

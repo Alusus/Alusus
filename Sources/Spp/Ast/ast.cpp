@@ -28,6 +28,13 @@ Bool isInjection(Core::Ast::Definition *def)
 }
 
 
+Bool isReadPropertyDef(Core::Ast::Definition const *def)
+{
+  auto op = findOperationModifier(def);
+  return op != 0 && SBSTR(op) == S("");
+}
+
+
 Function* getDummyBuiltInOpFunction()
 {
   static Function func;

@@ -1,0 +1,136 @@
+import "Srl/Console";
+use Srl;
+
+// A call on a type, like `MyType(...)`, can match a constructor (`~init`), a `()` operator on the type itself
+// (`this_type`), or a `()` operator on an object (`this`), which receives the object as the first argument.
+class All {
+    def kind: Int;
+    def v: Int;
+
+    handler this~init(a: Int, b: Int, c: Int) {
+        this.kind = 1;
+        this.v = a + b + c;
+    }
+
+    handler this(i: Int): Int {
+        return this.v + i;
+    }
+
+    handler this_type(n: Int): ref[All] {
+        @shared def a: All(0, 0, 0);
+        a.kind = 3;
+        a.v = n;
+        return a;
+    }
+}
+
+func testAll {
+    Console.print("testAll\n");
+
+    // Constructor.
+    Console.print("ctor: %d, %d\n", All(1, 2, 3).kind, All(1, 2, 3).v);
+
+    // Operator on the type itself.
+    Console.print("type op: %d, %d\n", All(7).kind, All(7).v);
+
+    // Operator on an object, which takes the object as the first argument.
+    def x: All(1, 2, 3);
+    Console.print("object op: %d\n", All(x, 10));
+    Console.print("object op: %d\n", x(10));
+}
+testAll();
+
+Console.print("\n");
+
+// The best match wins regardless of which kind of operation it is.
+class Pick {
+    def kind: Int;
+
+    handler this~init(n: Int[32]) {
+        this.kind = 1;
+    }
+
+    handler this_type(n: Int[64]): ref[Pick] {
+        @shared def p: Pick(0);
+        p.kind = 2;
+        return p;
+    }
+}
+
+func testBestMatch {
+    Console.print("testBestMatch\n");
+    def a32: Int[32];
+    def a64: Int[64];
+    a32 = 1;
+    a64 = 1;
+
+    // Exact match for the constructor, promotion for the type operator.
+    Console.print("%d\n", Pick(a32).kind);
+    // Exact match for the type operator.
+    Console.print("%d\n", Pick(a64).kind);
+}
+testBestMatch();
+
+Console.print("\n");
+
+// The `()` operator wins when both match at the same level.
+class Tie {
+    def kind: Int;
+
+    handler this~init(n: Int[32]) {
+        this.kind = 1;
+    }
+
+    handler this_type(n: Int[32]): ref[Tie] {
+        @shared def t: Tie(0);
+        t.kind = 2;
+        return t;
+    }
+}
+
+func testTie {
+    Console.print("testTie\n");
+    def n: Int[32];
+    n = 5;
+    Console.print("%d\n", Tie(n).kind);
+}
+testTie();
+
+Console.print("\n");
+
+// A caster to the type makes the first argument of `()` operator on an object convertible, but the constructor is a
+// better match here since it needs no conversion.
+class Text {
+    def kind: Int;
+
+    handler this~init(t: ptr[array[Word[8]]], n: Int) {
+        this.kind = 1;
+    }
+
+    // Needed since the caster below returns a Text by value.
+    handler this~init(src: ref[Text]) {
+        this.kind = src.kind;
+    }
+
+    handler this(i: Int): Int {
+        return 100 + i;
+    }
+}
+
+within ptr[array[Word[8]]] handler this~cast[Text] {
+    return Text(this, 1);
+}
+
+func autoCast(v: ref[Text]) {
+    Console.print("autoCast: %d\n", v.kind);
+}
+
+func testCaster {
+    Console.print("testCaster\n");
+    var p: ptr[array[Word[8]]] = "abc";
+    Console.print("%d\n", Text(p, 3).kind);
+    def t: Text(p, 3);
+    Console.print("%d\n", Text(t, 3));
+    autoCast(p);
+}
+testCaster();

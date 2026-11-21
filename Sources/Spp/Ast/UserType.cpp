@@ -28,7 +28,8 @@ TypeMatchStatus UserType::matchTargetType(Type const *type, Helper *helper, Type
         if (def != 0 && !helper->isSharedDef(def)) {
           auto obj = def->getSubject().get();
           if (obj != 0 && helper->isInMemVariable(obj)) {
-            if (!isInjection(def)) break;
+            // Injected read properties (as_ptr) aren't embedded objects, so they don't count as aggregation.
+            if (!isInjection(def) || isReadPropertyDef(def)) break;
             auto memberType = helper->traceType(obj);
             auto memberMatchStatus = memberType != 0 ?
               memberType->matchTargetType(type, helper, opts | TypeMatchOptions::SKIP_DEREF) :

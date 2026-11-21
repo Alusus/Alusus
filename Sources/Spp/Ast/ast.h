@@ -138,6 +138,10 @@ Char const* findOperationModifier(Core::Ast::Definition const *def);
 
 Bool isInjection(Core::Ast::Definition *def);
 
+/// Checks whether the definition is a read property (i.e. defined with `handler this.prop: T`, whether as a function
+/// or as a function pointer using as_ptr).
+Bool isReadPropertyDef(Core::Ast::Definition const *def);
+
 Function* getDummyBuiltInOpFunction();
 
 } // namespace

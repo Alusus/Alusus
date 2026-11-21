@@ -329,22 +329,25 @@ class Seeker : public TiObject, public DynamicBinding, public DynamicInterfacing
   /// @{
 
   /**
-   * @brief Add an element to the scope that the given reference points to.
-   * If the reference can't be resolved, or the resolved node doesn't support adding elements to it, a notice is
-   * added to the given store and false is returned.
+   * @brief Add a list of elements to the scope that the given reference points to.
+   * The reference is resolved once for the whole list. If the reference can't be resolved, or the resolved node doesn't
+   * support adding elements to it, nothing is added and false is returned. Otherwise the elements are added, merging
+   * or expanding them when needed, and true is returned. Problems encountered while adding individual elements
+   * (e.g. incompatible merges) are reported through the given notice store.
    */
-  public: METHOD_BINDING_CACHE(addPossiblyMergeable, Bool, (Node const*, Node*, Node*, Notices::Store*, Word));
+  public: METHOD_BINDING_CACHE(addPossiblyMergeable, Bool, (Node const*, Node*, Containing<Node>*, Notices::Store*, Word));
   private: static Bool _addPossiblyMergeable(
-    TiObject *self, Node const *ref, Node *target, Node *element, Notices::Store *noticeStore, Word flags
+    TiObject *self, Node const *ref, Node *target, Containing<Node> *elements, Notices::Store *noticeStore, Word flags
   );
 
   /**
-   * @brief Add an element to the given node, which is the result of resolving the reference passed to add.
+   * @brief Add a list of elements to the given node, which is the result of resolving the reference passed to add.
+   * Returns false, without adding anything, if the node doesn't support adding elements to it.
    * Extensions override this function to support adding elements to node types defined outside of Core.
    */
-  public: METHOD_BINDING_CACHE(addPossiblyMergeable_toNode, Bool, (Node*, Node*, Notices::Store*));
+  public: METHOD_BINDING_CACHE(addPossiblyMergeable_toNode, Bool, (Node*, Containing<Node>*, Notices::Store*));
   private: static Bool _addPossiblyMergeable_toNode(
-    TiObject *self, Node *dest, Node *element, Notices::Store *noticeStore
+    TiObject *self, Node *dest, Containing<Node> *elements, Notices::Store *noticeStore
   );
 
   /// @}

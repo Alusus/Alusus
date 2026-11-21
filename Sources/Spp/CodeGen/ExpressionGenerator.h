@@ -169,13 +169,13 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
 
   public: METHOD_BINDING_CACHE(generateRoundParamPassOnCallee,
     Bool, (
-      Core::Ast::Node* /* astNode */, GenResult const& /* callee */, GenResult const& /* thisArg */,
+      Core::Ast::Node* /* astNode */, GenResult const& /* callee */,
       SharedList<TiObject>* /* paramTgValues */, PlainList<Spp::Ast::Type>* /* paramAstTypes */,
       PlainList<Core::Ast::Node>* /* paramAstNodes */, Generation* /* g */, Session* /* session */, GenResult& /* result */
     )
   );
   private: static Bool _generateRoundParamPassOnCallee(
-    TiObject *self, Core::Ast::Node *astNode, GenResult const &callee, GenResult const &thisArg,
+    TiObject *self, Core::Ast::Node *astNode, GenResult const &callee,
     SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
     PlainList<Core::Ast::Node> *paramAstNodes, Generation *g, Session *session, GenResult &result
   );
@@ -629,25 +629,25 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   public: METHOD_BINDING_CACHE(prepareCallee,
     Bool, (
       Core::Ast::Node* /* astNode */, Containing<Spp::Ast::Type>* /* argTypes */, Char const* /* op */,
-      Generation* /* g */, Session* /* session */, GenResult& /* calleeResult */, GenResult& /* thisResult */,
+      Generation* /* g */, Session* /* session */, GenResult& /* calleeResult */,
       TerminalStatement& /* terminal */
     )
   );
   private: static Bool _prepareCallee(
     TiObject *self, Core::Ast::Node *astNode, Containing<Spp::Ast::Type> *argTypes, Char const *op,
-    Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult,
+    Generation *g, Session *session, GenResult &calleeResult,
     TerminalStatement &terminal
   );
 
   public: METHOD_BINDING_CACHE(prepareNoDerefCallee,
     Bool, (
       Core::Ast::Node* /* operand */, Containing<Spp::Ast::Type>* /* argTypes */, Char const* /* op */,
-      Generation* /* g */, Session* /* session */, GenResult& /* calleeResult */, GenResult& /* thisResult */
+      Generation* /* g */, Session* /* session */, GenResult& /* calleeResult */
     )
   );
   private: static Bool _prepareNoDerefCallee(
     TiObject *self, Core::Ast::Node *operand, Containing<Spp::Ast::Type> *argTypes, Char const *op,
-    Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
+    Generation *g, Session *session, GenResult &calleeResult
   );
 
   public: METHOD_BINDING_CACHE(prepareCalleeLookupRequest,
@@ -674,12 +674,12 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     Bool, (
       Ast::CalleeLookupResult const& /* calleeInfo */, Core::Ast::Node* /* astNode */,
       GenResult const& /* prevResult */, Generation* /* g */, Session* /* session */,
-      GenResult& /* calleeResult */, GenResult& /* thisResult */
+      GenResult& /* calleeResult */
     )
   );
   private: static Bool _generateCalleeReferenceChain(
     TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Ast::Node *astNode, GenResult const &prevResult,
-    Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
+    Generation *g, Session *session, GenResult &calleeResult
   );
 
   public: METHOD_BINDING_CACHE(referencifyThisIfNeeded,
@@ -723,6 +723,10 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
   );
 
   private: Bool addFunctionDependencyIfNeeded(Session *session, Spp::Ast::Function *func);
+
+  private: Bool isNoBindMemberCallee(GenResult const &callee);
+
+  private: Ast::Type* getThisTypeForMembersOf(GenResult const &value);
 
   /// @}
 

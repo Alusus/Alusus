@@ -56,6 +56,10 @@
   the first member is considered. Chains of casters that go in both directions between two types no longer cause an
   infinite recursion in the compiler.
 * The `~type` operator now accepts functions, giving their function type, as in `ptr[myFunc~type]`.
+* A call on a type, like `MyType(...)`, now considers constructors, `()` operators on the type itself (`this_type`) and
+  `()` operators on an object (`this`) together and picks the best match. If a `()` operator and a constructor match
+  equally well the `()` operator is chosen. Previously the first `()` operator found won even if a constructor
+  matched better.
 * Added support for debugging with debuggers such as gdb. Passing `--opt debug=1` makes the compiler generate debug
   info for generated executables and for code that Alusus runs directly, including `preprocess` blocks, which allows
   setting breakpoints on source lines and inspecting the call stack and the values of variables, arguments and
@@ -69,6 +73,24 @@
 * Made `Process.platform`, `Process.language`, and `Process.coreBinPath` constants instead of variables.
 * Fixed the type info registration of `GenericCommand`, `ArgPack`, and `TemplateVarDef`, and the namespace and package
   of the type infos of `TemplateVarDef` and `ArgPack`.
+* The `@no_bind` modifier (`@دون_ربط` in Arabic) now also applies when its member is accessed explicitly rather than only
+  through injection, so with `@no_bind var vtable: ref[VTable]`, `t.vtable.getVal()` calls `getVal` with `t` as `this`
+  instead of `t.vtable`.
+* Added support for the `@no_bind` modifier on read handlers (`handler this.prop: T`) and method handlers
+  (`handler this.method(...)`), including `as_ptr` ones. Members of the value returned by such a handler bind to the
+  object the handler was called on, which allows, for example, a child class to define a `vtable` handler that casts
+  the parent's vtable to the child's vtable type. Using `@no_bind` with other handlers or with `set_ptr` is an error.
+* Added support for the `@injection` modifier on read handlers (`handler this.prop: T`), including `as_ptr` ones,
+  which makes the members of the value returned by the handler available in the enclosing type. The handler can
+  return by reference or by value, and can be combined with `@no_bind`.
+* The `@no_bind` and `@injection` modifiers can now be applied directly to member functions defined with `func`, as in
+  `@no_bind @injection @member @operation[""] func prop(this: ref[this_type]): T`, making everything doable with
+  `handler` also doable with `func`.
+* Shared variables can now be injected (`@shared @injection var config: Config`), as can non-member read properties
+  (`@injection @operation[""] func settings(): ref[Settings]`). Similar to shared variables, their members are accessed
+  without an object, either through the type or from within the type's own functions. Injecting a shared definition
+  was previously an error (SPPG1028). Local variables, including shared ones, can also be injected as read properties
+  (`@injection @operation[""] def prop: ptr[func (): ref[Inner]]`).
 
 ### Compiler Fixes
 

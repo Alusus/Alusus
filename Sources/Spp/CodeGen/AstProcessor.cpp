@@ -94,6 +94,36 @@ Bool AstProcessor::_process(TiObject *self, Core::Ast::Node *owner)
     auto child = container->getElement(i);
     if (child == 0) continue;
 
+    if (child->isDerivedFrom<Core::Ast::Within>()) {
+      // A Within object that is still here wasn't applied during parsing, because its target didn't exist yet or
+      // because of its merge policy. This is the last chance to apply it, so a failure now is an error. This is done
+      // before processing modifiers since the Within object's modifiers get moved to the first statement it adds, and
+      // we don't want them to be processed twice.
+      auto within = static_cast<Core::Ast::Within*>(child);
+      auto dynContainer = ti_cast<DynamicContaining<Core::Ast::Node>>(owner);
+      if (dynContainer == 0) {
+        astProcessor->astHelper->getNoticeStore()->add(
+          newSrdObj<Core::Notices::InvalidWithinTargetNotice>(findSourceLocation(within))
+        );
+        result = false;
+        continue;
+      }
+      // Take the Within object out of its owner first, since its statements may end up being inserted in the same
+      // spot. We need to keep it alive while we use it.
+      SharedPtr<Core::Ast::Node> withinHolder = getSharedPtr(within);
+      dynContainer->removeElement(i);
+      Int index = i;
+      if (!Core::Ast::addWithinElements(
+        within, dynContainer, index, astProcessor->astHelper->getSeeker(),
+        astProcessor->astHelper->getNoticeStore(), 0, true
+      )) {
+        result = false;
+      }
+      // Revisit the current index since it now holds whatever was inserted in place of the Within object.
+      --i;
+      continue;
+    }
+
     if (!astProcessor->processModifiers(container, i)) result = false;
 
     // Re-get the child, in case the preprocessor replaced it with something else.

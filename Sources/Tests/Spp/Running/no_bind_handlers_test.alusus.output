@@ -1,0 +1,12 @@
+t.vtable.getVal() = 7
+(t.vtable).getVal() = 7
+t.getVTable().getVal() = 7
+t.ptrVTable.getVal() = 7
+t.ptrGetVTable().getVal() = 7
+this.vtable.getVal() = 7
+this.getVTable().getVal() = 7
+n.holder.getJ() = 5
+n.getHolder().getJ() = 5
+Base.describe: i = 3
+Child.childOnly: i + j = 7
+Child.childOnly: i + j = 7

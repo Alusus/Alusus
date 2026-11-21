@@ -1,0 +1,17 @@
+testAll
+ctor: 1, 6
+type op: 3, 7
+object op: 16
+object op: 16
+
+testBestMatch
+1
+2
+
+testTie
+2
+
+testCaster
+1
+103
+autoCast: 1

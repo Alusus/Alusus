@@ -107,10 +107,11 @@ class SeekerExtension : public ObjTiInterface
   // extension is destroyed.
 
   public: METHOD_BINDING_CACHE(addPossiblyMergeable_toNode,
-    Bool, (Core::Ast::Node*, Core::Ast::Node*, Core::Notices::Store*)
+    Bool, (Core::Ast::Node*, Core::Basic::Containing<Core::Ast::Node>*, Core::Notices::Store*)
   );
   private: static Bool _addPossiblyMergeable_toNode(
-    TiObject *self, Core::Ast::Node *dest, Core::Ast::Node *element, Core::Notices::Store *noticeStore
+    TiObject *self, Core::Ast::Node *dest, Core::Basic::Containing<Core::Ast::Node> *elements,
+    Core::Notices::Store *noticeStore
   );
 
   /// @}

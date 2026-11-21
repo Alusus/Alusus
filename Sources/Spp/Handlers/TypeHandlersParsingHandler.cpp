@@ -528,7 +528,14 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
     if (body != 0) {
       // Create the function.
       auto funcTypeClone = Core::Ast::clone(funcType.get(), sourceLocation.get());
-      funcTypeClone->getArgTypes()->set(0, this->prepareThisType(sourceLocation));
+      // If we are using `set_ptr` it means we are overriding the method from a child class, so
+      // for simplicity we'll use the enclosing type's `this` to declare the function itself rather
+      // than the type of the parent class that is specified in the actual signature. So, we'll define
+      // the function with the child's type and then cast it to the parent's type. This will allow the
+      // user to easily reference elements of the child without needing to cast `this`.
+      // For as_ptr and non-ptr methods we'll stick to whatever we already have since we are defining
+      // the original method rather than overriding.
+      if (mode == Mode::PTR_SET) funcTypeClone->getArgTypes()->set(0, this->prepareThisType(sourceLocation));
       auto func = Spp::Ast::Function::create({}, {
         {S("type"), funcTypeClone},
         {S("body"), body}
@@ -816,6 +823,8 @@ Bool TypeHandlersParsingHandler::onIncomingModifier(
 
   if (!prodProcessingComplete) return false;
 
+  if (this->processNoBindModifier(state, modifierData)) return true;
+  if (this->processInjectionModifier(state, modifierData)) return true;
   return this->processExpnameModifier(state, modifierData);
 }
 
@@ -833,29 +842,82 @@ Bool TypeHandlersParsingHandler::processExpnameModifier(
   auto param = paramPass->getParam().ti_cast_get<Core::Ast::Text>();
   if (param == 0) return false;
 
-  Int levelOffset = -state->getTopProdTermLevelCount();
-  auto data = state->getData(levelOffset).get();
-  if (data == 0) return false;
-
   // Find the function to update.
-  Spp::Ast::Function *function = 0;
-  if (data->isDerivedFrom<Core::Ast::Definition>()) {
-    auto def = static_cast<Core::Ast::Definition*>(data);
-    function = def->getSubject().ti_cast_get<Spp::Ast::Function>();
-  } else if (data->isDerivedFrom<Core::Ast::Within>()) {
-    auto statements = static_cast<Core::Ast::Within*>(data)->getSubject().ti_cast_get<Core::Ast::List>();
-    for (Int i = 0; statements != 0 && i < statements->getCount(); ++i) {
-      auto def = ti_cast<Core::Ast::Definition>(statements->getElement(i));
-      if (def != 0) {
-        function = def->getSubject().ti_cast_get<Spp::Ast::Function>();
-        if (function != 0) break;
-      }
-    }
-  }
+  auto def = this->findHandlerDefinition(state);
+  if (def == 0) return false;
+  auto function = def->getSubject().ti_cast_get<Spp::Ast::Function>();
   if (function == 0) return false;
 
   function->setName(param->getValue());
   return true;
+}
+
+
+Bool TypeHandlersParsingHandler::processNoBindModifier(
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+) {
+  // Arabic keywords are already translated by the modifier actions at this point.
+  auto identifier = Core::Ast::getModifierKeywordIdentifier(modifierData.get());
+  if (identifier == 0 || identifier->getValue() != S("no_bind")) return false;
+
+  // The modifier is only valid for read properties and methods. It's not valid for set_ptr handlers either since
+  // those don't define the member, they only set a member defined elsewhere.
+  auto def = this->findHandlerDefinition(state);
+  Char const *op = def == 0 ? 0 : Spp::Ast::findOperationModifier(def);
+  if (op == 0 || (SBSTR(op) != S("") && (SBSTR(op) != S("()") || def->getName() == S("()")))) {
+    state->addNotice(newSrdObj<Spp::Notices::InvalidNoBindHandlerNotice>(
+      Core::Ast::findSourceLocation(modifierData.get())
+    ));
+    return true;
+  }
+
+  def->setMetadata(S("no_bind"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  return true;
+}
+
+
+Bool TypeHandlersParsingHandler::processInjectionModifier(
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+) {
+  // Arabic keywords are already translated by the modifier actions at this point.
+  auto identifier = Core::Ast::getModifierKeywordIdentifier(modifierData.get());
+  if (identifier == 0 || identifier->getValue() != S("injection")) return false;
+
+  // The modifier is only valid for read properties, either defined as functions or as function pointers (as_ptr).
+  // Templates are not valid since there will be no template args to instantiate them with during the lookup.
+  auto def = this->findHandlerDefinition(state);
+  Char const *op = def == 0 ? 0 : Spp::Ast::findOperationModifier(def);
+  auto subject = def == 0 ? 0 : def->getSubject().get();
+  if (op == 0 || SBSTR(op) != S("") || subject == 0 || subject->isDerivedFrom<Spp::Ast::Template>()) {
+    state->addNotice(newSrdObj<Spp::Notices::InvalidInjectionHandlerNotice>(
+      Core::Ast::findSourceLocation(modifierData.get())
+    ));
+    return true;
+  }
+
+  def->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  return true;
+}
+
+
+Core::Ast::Definition* TypeHandlersParsingHandler::findHandlerDefinition(Core::Processing::ParserState *state)
+{
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto data = state->getData(levelOffset).get();
+  if (data == 0) return 0;
+
+  if (data->isDerivedFrom<Core::Ast::Definition>()) {
+    return static_cast<Core::Ast::Definition*>(data);
+  } else if (data->isDerivedFrom<Core::Ast::Within>()) {
+    // Pointer based handlers are wrapped in a `within` statement. In case of as_ptr the statements will have the
+    // definition of the pointer, while in case of set_ptr there won't be any definition.
+    auto statements = static_cast<Core::Ast::Within*>(data)->getSubject().ti_cast_get<Core::Ast::List>();
+    for (Int i = 0; statements != 0 && i < statements->getCount(); ++i) {
+      auto def = ti_cast<Core::Ast::Definition>(statements->getElement(i));
+      if (def != 0) return def;
+    }
+  }
+  return 0;
 }
 
 } // namespace

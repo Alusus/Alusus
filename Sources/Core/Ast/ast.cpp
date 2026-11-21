@@ -96,55 +96,79 @@ Bool mergeDefinition(
 }
 
 
-static Bool addWithinElements(
+Bool addWithinElements(
   Within *within, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore,
-  Node *lookupContext
+  Node *lookupContext, Bool lastAttempt
 ) {
+  VALIDATE_NOT_NULL(within, target, noticeStore);
   auto subject = within->getSubject().get();
   if (subject == 0) return true;
 
+  // If we are not in the last processing phase and the policy is delayed then we should insert the within
+  // object itself so that a later phase can handle it.
+  if (!lastAttempt && within->getMergePolicy() == WithinMergePolicy::DELAYED) {
+    if (index == -1) target->addElement(within);
+    else target->insertElement(index++, within);
+    return true;
+  }
+
   // A list gets expanded into the target scope.
-  auto list = ti_cast<List>(subject);
-  Int count = list != 0 ? list->getCount() : 1;
+  PlainList<Node> singleElement;
+  Containing<Node> *elements = ti_cast<List>(subject);
+  if (elements == 0) {
+    singleElement.add(subject);
+    elements = &singleElement;
+  }
 
   // If there are modifiers or metadata on the Within object itself, move them over to its first element, since the
   // Within object is discarded and won't be kept in the target.
-  auto first = list != 0 ? (count > 0 ? list->getElement(0) : 0) : subject;
-  if (first != 0) {
-    first->addModifiers(within->getModifiers());
-    first->addMetadata(within->getMetadata());
-  }
+  auto first = elements->getElementCount() > 0 ? elements->getElement(0) : 0;
+  auto transferInfo = [=]()
+  {
+    if (first != 0 && within->getModifiers() != 0 || within->getMetadata() != 0) {
+      first->addModifiers(within->getModifiers());
+      first->addMetadata(within->getMetadata());
+    }
+  };
 
   auto qualifier = within->getQualifier().get();
-  Node *lookupNode = lookupContext;
-  if (qualifier != 0) {
-    VALIDATE_NOT_NULL(seeker);
-    if (lookupNode == 0) lookupNode = ti_cast<Node>(target->getTiObject());
+  if (qualifier == 0) {
+    // Nothing to look up, so the elements can always be added right away.
+    transferInfo();
+    Bool result = true;
+    for (Int i = 0; i < elements->getElementCount(); ++i) {
+      auto element = elements->getElement(i);
+      if (element == 0) continue;
+      if (!addPossiblyMergeableElement(element, target, index, seeker, noticeStore, lookupContext)) result = false;
+    }
+    return result;
   }
+
+  VALIDATE_NOT_NULL(seeker);
+  auto targetNode = ti_cast<Node>(target->getTiObject());
+  Node *lookupNode = lookupContext != 0 ? lookupContext : targetNode;
+  VALIDATE_NOT_NULL(lookupNode);
 
   // The qualifier may contain nodes that are resolved through their owner chain (e.g. template arguments), but the
   // Within object is not attached to anything while parsing. So we temporarily attach it to the target scope.
   Node *prevOwner = within->getOwner();
-  within->setOwner(ti_cast<Node>(target->getTiObject()));
-
-  Bool result = true;
-  for (Int i = 0; i < count; ++i) {
-    auto element = list != 0 ? list->getElement(i) : subject;
-    if (element == 0) continue;
-    if (qualifier == 0) {
-      if (!addPossiblyMergeableElement(element, target, index, seeker, noticeStore, lookupContext)) result = false;
-    } else {
-      if (lookupNode == 0) result = false;
-      else if (!seeker->addPossiblyMergeable(qualifier, lookupNode, element, noticeStore, 0)) {
-        noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(
-          findSourceLocation(qualifier)
-        ));
-        result = false;
-      }
-    }
-  }
+  within->setOwner(targetNode);
+  auto result = seeker->addPossiblyMergeable(qualifier, lookupNode, elements, noticeStore, 0);
   within->setOwner(prevOwner);
-  return result;
+  if (result) {
+    transferInfo();
+    return true;
+  } else if (!lastAttempt && within->getMergePolicy() == WithinMergePolicy::AUTO) {
+    // We are not in the final processing phase, but we are allowed to defer the processing, so we'll just
+    // insert the within object as is and leave it to a later phase to handle it.
+    if (index == -1) target->addElement(within);
+    else target->insertElement(index++, within);
+    return true;
+  } else {
+    // We are either in the last phase, or the policy is immediate, so we'll error out.
+    noticeStore->add(newSrdObj<Notices::InvalidWithinTargetNotice>(findSourceLocation(qualifier)));
+    return false;
+  }
 }
 
 

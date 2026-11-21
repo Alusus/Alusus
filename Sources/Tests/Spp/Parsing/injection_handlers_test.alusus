@@ -1,0 +1,28 @@
+import "alusus_spp";
+
+class Inner {
+  var x: Int;
+}
+
+// The injection modifier is only valid on read properties.
+class A {
+  var inner: Inner;
+  @injection handler this.prop: ref[Inner] { return this.inner };
+  @injection handler this.ptrProp: ref[Inner] as_ptr { return this.inner };
+  handler this.n() as_ptr {};
+
+  @injection handler this.method(): ref[Inner] { return this.inner };
+  @injection handler this.ptrMethod(): ref[Inner] as_ptr { return this.inner };
+  @injection handler [T: type] this.tplProp: ref[Inner] { return this.inner };
+  @injection handler this + (x: Int): Int { return 0 };
+  @injection handler this(x: Int): Int { return 0 };
+  @injection handler this = (x: Int) {};
+  @injection handler this~init() {};
+  @injection handler this~cast[Int] { return 0 };
+}
+
+// The injection modifier isn't valid on set_ptr handlers since those don't define the member.
+class B {
+  @injection var a: A;
+  @injection handler (this: A).n() set_ptr {};
+}

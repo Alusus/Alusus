@@ -1,0 +1,234 @@
+import "Srl/Console";
+import "Srl/refs";
+use Srl;
+
+class Inner {
+    var x: Int;
+    handler this.getX(): Int {
+        return this.x;
+    };
+}
+
+// A read handler returning a reference.
+class Outer {
+    var inner: Inner;
+    var calls: Int;
+    @injection handler this.prop: ref[Inner] {
+        ++this.calls;
+        return this.inner;
+    };
+}
+
+// A read handler returning a value that has its own injection (SrdRef).
+class Shared {
+    var sr: SrdRef[Inner];
+    @injection handler this.prop: SrdRef[Inner] {
+        return this.sr;
+    };
+}
+
+// A read handler defined as a function pointer.
+class PtrOuter {
+    var inner: Inner;
+    @injection handler this.prop: ref[Inner] as_ptr {
+        return this.inner;
+    };
+}
+
+// Direct members take precedence over injected ones.
+class Shadow {
+    var x: Int;
+    var inner: Inner;
+    @injection handler this.prop: ref[Inner] {
+        return this.inner;
+    };
+}
+
+// A read handler returning the object itself shouldn't cause infinite lookups.
+class Circular {
+    var i: Int;
+    @injection handler this.self: ref[Circular] {
+        return this;
+    };
+}
+
+class Base {
+    class VTable {
+        handler (this: Base).describe() {
+            Console.print("Base.describe: i = %d\n", this.i);
+        };
+    }
+    @shared var s__vtable__: VTable;
+    @no_bind @injection var vtable: ref[VTable](s__vtable__);
+    var i: Int;
+}
+
+// The base injection is declared before the vtable injection, so members found in both are reached through the base.
+class Child {
+    @injection var base: Base;
+    class VTable {
+        @no_bind @injection var base: Base.VTable;
+        handler (this: Child).childOnly() {
+            Console.print("Child.childOnly: i + j = %d\n", this.base.i + this.j);
+        };
+    }
+    @shared var s__vtable__: VTable;
+    @no_bind @injection handler this.vtable: ref[VTable] {
+        return this.base.vtable~ptr~cast[ptr[VTable]]~cnt;
+    };
+    var j: Int;
+    handler this~init() {
+        this.base.vtable~no_deref = Child.s__vtable__~ptr~cast[ptr[Base.VTable]]~cnt;
+    };
+}
+
+// The vtable injection is declared before the base injection, so members found in both are reached through the
+// vtable.
+class Child2 {
+    @no_bind @injection handler this.vtable: ref[VTable] {
+        return this.base.vtable~ptr~cast[ptr[VTable]]~cnt;
+    };
+    @injection var base: Base;
+    class VTable {
+        @no_bind @injection var base: Base.VTable;
+        handler (this: Child2).childOnly() {
+            Console.print("Child2.childOnly: i + j = %d\n", this.base.i + this.j);
+        };
+    }
+    @shared var s__vtable__: VTable;
+    var j: Int;
+    handler this~init() {
+        this.base.vtable~no_deref = Child2.s__vtable__~ptr~cast[ptr[Base.VTable]]~cnt;
+    };
+}
+
+// The same modifiers applied directly on functions rather than through handlers.
+class FuncOuter {
+    var inner: Inner;
+    @injection @operation[""] @member func prop(this: ref[this_type]): ref[Inner] {
+        return this.inner;
+    };
+}
+
+class FuncHolder {
+    var i: Int;
+    class Table {
+        handler (this: FuncHolder).show() {
+            Console.print("FuncHolder.show: i = %d\n", this.i);
+        };
+    }
+    @shared var table: Table;
+    @no_bind @injection @operation[""] @member func tbl(this: ref[this_type]): ref[Table] {
+        return FuncHolder.table;
+    };
+}
+
+// Shared injections, either as shared variables or as non-member read properties, are accessible without an object
+// similar to shared variables.
+class Settings {
+    var mode: Int;
+    handler this.showMode() {
+        Console.print("Settings.showMode: mode = %d\n", this.mode);
+    };
+}
+
+class App {
+    var id: Int;
+    @shared @injection var inner: Inner;
+    @shared var settingsStore: Settings;
+    @injection @operation[""] func settings(): ref[Settings] {
+        return App.settingsStore;
+    };
+    handler this.run() {
+        x = 14;
+        mode = 15;
+        Console.print("App.run: id = %d, x = %d, getX() = %d\n", this.id, x, getX());
+        showMode();
+    };
+}
+
+// A shared injection that comes first isn't treated as an embedded first member (for example by SrdRef's casters).
+class SharedFirst {
+    @shared @injection var inner: Inner;
+    var y: Int;
+}
+
+var o: Outer;
+o.calls = 0;
+o.x = 5;
+Console.print("o.inner.x = %d\n", o.inner.x);
+Console.print("o.getX() = %d\n", o.getX());
+Console.print("o.calls = %d\n", o.calls);
+
+var s: Shared;
+s.sr.alloc()~init();
+s.x = 6;
+Console.print("s.getX() = %d\n", s.getX());
+
+var p: PtrOuter;
+p.x = 7;
+Console.print("p.inner.x = %d\n", p.inner.x);
+Console.print("p.getX() = %d\n", p.getX());
+
+var sh: Shadow;
+sh.x = 8;
+sh.inner.x = 9;
+Console.print("sh.x = %d, sh.getX() = %d\n", sh.x, sh.getX());
+
+var circ: Circular;
+circ.i = 10;
+Console.print("circ.i = %d\n", circ.i);
+
+var c: Child;
+c.i = 3;
+c.j = 4;
+c.describe();
+c.childOnly();
+
+var c2: Child2;
+c2.i = 5;
+c2.j = 6;
+c2.describe();
+c2.childOnly();
+
+var fo: FuncOuter;
+fo.x = 12;
+Console.print("fo.inner.x = %d, fo.getX() = %d\n", fo.inner.x, fo.getX());
+
+var fh: FuncHolder;
+fh.i = 13;
+fh.show();
+
+var app: App;
+app.id = 1;
+app.run();
+App.x = 16;
+App.mode = 17;
+Console.print("App.x = %d, App.getX() = %d\n", App.x, App.getX());
+App.showMode();
+
+var sf: SrdRef[SharedFirst];
+sf.alloc()~init();
+sf.y = 18;
+Console.print("sf.y = %d\n", sf.y);
+
+// Injections of local variables, including shared ones and read properties.
+var globalInner: Inner;
+func getGlobalInner(): ref[Inner] { return globalInner }
+
+func testLocals {
+    @shared @injection var counter: Inner;
+    x += 1;
+    Console.print("testLocals: shared x = %d\n", getX());
+}
+
+func testLocalProp {
+    @injection @operation[""] def prop: ptr[func (): ref[Inner]];
+    prop = getGlobalInner~ptr;
+    x = 19;
+    Console.print("testLocalProp: getX() = %d, globalInner.x = %d\n", getX(), globalInner.x);
+}
+
+testLocals();
+testLocals();
+testLocalProp();

@@ -29,9 +29,25 @@ namespace Spp::CodeGen
 
 struct GenResult
 {
+  // The AST node this result refers to, which is the subject of the definition (e.g. a Function, a Type, a Scope, or a
+  // Variable) rather than the definition itself. Results that refer to a value (i.e. astType is set) only have this
+  // set if the value is a direct reference to a variable, while values computed from other values leave it empty.
   Core::Ast::Node *astNode = 0;
   Ast::Type *astType = 0;
   TioSharedPtr targetData;
+  // The `this` that applies to this result when it's not the result itself:
+  // - For callees (functions or function pointers) this is the `this` arg to pass to the call.
+  // - For values, this is the object that members of the value bind to, which is the case when the value comes from a
+  //   no_bind definition.
+  // Empty means the result binds to itself.
+  Ast::Type *thisAstType = 0;
+  TioSharedPtr thisTargetData;
+
+  void resetThisBinding()
+  {
+    this->thisAstType = 0;
+    this->thisTargetData.reset();
+  }
 };
 
 s_enum(TerminalStatement, UNKNOWN, NO, YES);

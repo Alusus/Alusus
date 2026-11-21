@@ -1345,6 +1345,27 @@ myFunc(Record()); // Will call the custom operation and allocate dynamically
     // on the heap instead of creating a temp var on the stack.
 ```
 
+A call on a class, like `MyType(...)`, can match any of the following:
+
+* A constructor (`this~init`).
+* A parentheses operation on the class itself (`this_type`), which doesn't receive `this`.
+* A parentheses operation on an object (`this`), which receives an object of the class as its first argument, as in
+  `MyType(obj, 10)`, which is the same as `obj(10)`.
+
+The compiler looks at all of them and picks the best match, i.e. the one that needs the least conversion of the given
+arguments. If a parentheses operation and a constructor match equally well then the parentheses operation is chosen.
+If more than one constructor (or more than one operation) matches equally well then the call is reported as
+ambiguous.
+
+```
+class Num {
+    var v: Int;
+    handler this~init(n: Int[32]) { ... };          // Chosen for Num(a32), exact match.
+    handler this_type(n: Int[64]): ref[Num] { ... }; // Chosen for Num(a64), exact match.
+    handler this(i: Int): Int { ... };               // Chosen for Num(obj, 5).
+};
+```
+
 ### Definition Injection
 
 Definition injection allows the user to make the elements of a specific definition available immediately in the outer scope.
@@ -1404,6 +1425,117 @@ injected variable is the first member variable of the enclosing class. In the ne
 This limitation exists because a caster of the injected variable is called with the address of the enclosing object, which
 matches the address of the injected variable only when it is the first member. Members and functions of the injected
 variable are not affected by this limitation and are available regardless of the position of the injection.
+
+The `injection` modifier can also be used with read handlers (`handler this.prop: T`), including `as_ptr` ones, in which
+case the members of the value returned by the handler become available in the enclosing type. The handler can return
+any user type, whether by reference or by value (as in returning a `SrdRef`):
+
+```
+  class Outer {
+    var i: Inner;
+    @injection handler this.inner: ref[Inner] {
+      return this.i;
+    };
+  };
+
+  var o: Outer;
+  o.x = 1; // compiler translates it to o.inner.x
+  o.printX(); // compiler translates it to o.inner.printX()
+```
+
+Keep in mind that the handler is called every time a member is accessed through the injection, so such handlers should
+be kept small so that they get inlined. Using the `injection` modifier with other kinds of handlers (methods,
+operators, `~init`, `~cast`, etc.), with template handlers, or with `set_ptr` handlers is an error. Custom casters of the
+value returned by an injected handler are not available on the enclosing type.
+
+If a member is found through more than one injection, the injection that is defined first wins.
+
+Shared variables can also be injected, as can non-member read properties defined using `func` with the
+`@operation[""]` modifier. Similar to shared variables themselves, the members of such injections are accessed without
+an object, either through the type (as in `App.level`) or directly from within the type's own functions, but not
+through an object of that type:
+
+```
+  class App {
+    @shared @injection var config: Config;
+    @shared var settingsStore: Settings;
+    @injection @operation[""] func settings(): ref[Settings] {
+      return App.settingsStore;
+    };
+    handler this.run() {
+      level = 3; // compiler translates it to App.config.level
+      mode = 4; // compiler translates it to App.settings.mode
+    };
+  };
+
+  App.level = 5; // compiler translates it to App.config.level
+```
+
+### Binding Members to the Enclosing Object (no_bind)
+
+When accessing a member of an object, the object becomes `this` for anything accessed through that member. For
+example, in `o.a.f()` the function `f` gets `o.a` as `this`. Marking a member variable with the `no_bind` modifier
+makes anything accessed through that member bind to the enclosing object instead. This is useful for tables of
+member functions (vtables), where the functions are stored in a separate object but need the owning object as `this`:
+
+```
+  class MyType {
+    class VTable {
+      handler (this: MyType).getVal(): Int {
+        return this.i;
+      };
+    };
+    @shared var s__vtable__: VTable;
+    @no_bind var vtable: ref[VTable](s__vtable__);
+    var i: Int;
+  };
+
+  var t: MyType;
+  t.vtable.getVal(); // getVal receives `t` as `this` rather than `t.vtable`.
+```
+
+The `no_bind` modifier can be combined with `injection`, in which case the members can be accessed directly, as in
+`t.getVal()` in the previous example if `vtable` was defined as `@no_bind @injection var vtable: ...`.
+
+The `no_bind` modifier can also be used with read handlers and method handlers (including `as_ptr` handlers), in which
+case members of the value returned by the handler bind to the object the handler was called on. For example, a child
+class can define a handler that casts the vtable of its parent to the child's vtable type:
+
+```
+  class Child {
+    @injection var base: Base;
+    class VTable {
+      @injection var base: Base.VTable;
+      handler (this: Child).childOnly() { ... };
+    };
+    @no_bind handler this.vtable: ref[VTable] {
+      return this.base.vtable~ptr~cast[ptr[VTable]]~cnt;
+    };
+    @no_bind handler this.getVTable(): ref[VTable] {
+      return this.vtable;
+    };
+  };
+
+  var c: Child;
+  c.vtable.childOnly(); // childOnly receives `c` as `this`.
+  c.getVTable().childOnly(); // Same as the previous line.
+```
+
+Read handlers can combine `no_bind` with `injection`, so if the `vtable` handler in the previous example was defined as
+`@no_bind @injection handler this.vtable: ref[VTable]`, then `c.childOnly()` would work as well. In this case the
+injection of the parent's vtable in the child's vtable should also be marked with `no_bind`
+(`@no_bind @injection var base: Base.VTable`), so that the parent's functions receive `c` as well.
+
+Using `no_bind` with other kinds of handlers (operators, `~init`, `~cast`, etc.) or with `set_ptr` handlers is an
+error.
+
+Since handlers are syntactic sugar for member functions, the `no_bind` and `injection` modifiers can also be applied
+directly to member functions defined with `func`. For example, the following is equivalent to
+`@no_bind @injection handler this.vtable: ref[VTable]`:
+
+```
+    @no_bind @injection @member @operation[""] func vtable (this: ref[this_type]): ref[VTable] { ... };
+```
 
 ## Type Inference
 
@@ -2212,9 +2344,25 @@ to the scope that the qualifier points to, as shown in the next example:
   }
 ```
 
-If the target is a class, the statements are added to the body of the class. The target must already be defined
-at the point where the `within` command appears. The statements can include `@merge` definitions, which are merged
-into the matching definitions in the target.
+If the target is a class, the statements are added to the body of the class. The statements can include `@merge`
+definitions, which are merged into the matching definitions in the target.
+
+By default, if the target can't be found at the point where the `within` command is parsed (for example because it's
+going to be generated later by a `preprocess` statement or a macro), the command is kept and applied during
+preprocessing instead, and it's an error if the target still doesn't exist by then. This can be controlled using the
+following modifiers:
+
+* `@immediate`: The target must exist at the point where the command appears, otherwise it's an error.
+* `@delayed`: The command is always applied during preprocessing, without looking for the target while parsing.
+
+```
+  macro defineModule [name] {
+    preprocess { Spp.astMgr.insertAst(ast { module name {} }); }
+  }
+  defineModule[Generated];
+
+  @delayed within Generated def a: 1;
+```
 
 ## Import Libraries Or Source Code
 

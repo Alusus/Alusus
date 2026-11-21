@@ -1,0 +1,10 @@
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+duplicate_init_test.alusus (8,13)
+duplicate_init_test.alusus (12,13)
+Called from:[0m
+  duplicate_init_test.alusus (18,5)
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+duplicate_init_test.alusus (8,13)
+duplicate_init_test.alusus (12,13)
+Called from:[0m
+  duplicate_init_test.alusus (24,27)

@@ -1933,8 +1933,39 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         within->setQualifier(getSharedPtr(qualifier));
         within->setSubject(getSharedPtr(currentList->getElement(2)));
         state->setData(within);
+      },
+      true,
+      [](Parser *parser, ParserState *state, SharedPtr<Ast::Node> const &modifierData, Bool prodProcessingComplete)->Bool
+      {
+        if (!prodProcessingComplete) return false;
+
+        // Prepare to modify.
+        Int levelOffset = -state->getTopProdTermLevelCount();
+        auto within = ti_cast<Ast::Within>(state->getData(levelOffset).get());
+
+        // If we couldn't find a within object, it's probably because of a syntax error. We'll just ignore the
+        // modifier in this case.
+        if (within == 0) return false;
+
+        // Look for the merge policy modifiers. Their keywords may have already been translated by the parent
+        // implementation.
+        auto identifier = modifierData.ti_cast_get<Ast::Identifier>();
+        if (identifier != 0 && identifier->getValue() == S("immediate")) {
+          within->setMergePolicy(Ast::WithinMergePolicy(Ast::WithinMergePolicy::IMMEDIATE));
+          return true;
+        } else if (identifier != 0 && identifier->getValue() == S("delayed")) {
+          within->setMergePolicy(Ast::WithinMergePolicy(Ast::WithinMergePolicy::DELAYED));
+          return true;
+        }
+
+        // The modifier is unknown to us, leave it for an outer parsing handler to deal with.
+        return false;
       }
     ));
+    this->set(S("root.Main.Within.modifierActions"), Map::create({}, {
+      {S("فوري"), newSrdObj<TranslateModifierAction>(S("immediate"))},
+      {S("مؤجل"), newSrdObj<TranslateModifierAction>(S("delayed"))}
+    }));
 
     //// Alias = "alias" + Subject
     this->createCommand(S("root.Main.Alias"), {{

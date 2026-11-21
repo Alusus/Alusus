@@ -1,0 +1,47 @@
+import "Srl/Console";
+use Srl;
+
+class MyType {
+    class VTable {
+        handler (this: MyType).getVal(): Int {
+            return this.i;
+        };
+        handler (this: MyType).getValPlus(n: Int): Int {
+            return this.i + n;
+        };
+    }
+    @shared var s__vtable__: VTable;
+    @no_bind @injection var vtable: ref[VTable](s__vtable__);
+
+    var i: Int;
+
+    handler this.printVals() {
+        Console.print("this.getVal() = %d\n", this.getVal());
+        Console.print("this.vtable.getVal() = %d\n", this.vtable.getVal());
+    };
+}
+
+class Bound {
+    var j: Int;
+    handler this.getJ(): Int {
+        return this.j;
+    };
+}
+
+class Outer {
+    var inner: MyType;
+    var bound: Bound;
+}
+
+var t: MyType;
+t.i = 7;
+Console.print("t.getVal() = %d\n", t.getVal());
+Console.print("t.vtable.getVal() = %d\n", t.vtable.getVal());
+Console.print("t.vtable.getValPlus(3) = %d\n", t.vtable.getValPlus(3));
+t.printVals();
+
+var o: Outer;
+o.inner.i = 9;
+o.bound.j = 11;
+Console.print("o.inner.vtable.getVal() = %d\n", o.inner.vtable.getVal());
+Console.print("o.bound.getJ() = %d\n", o.bound.getJ());

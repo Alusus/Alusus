@@ -287,7 +287,9 @@ void SppFactory::createGrammar()
     }
   }}, newSrdObj<Handlers::TypeHandlersParsingHandler>());
   this->set(S("root.Main.TypeOp.modifierActions"), Map::create({}, {
-    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))}
+    {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
+    {S("دون_ربط"), newSrdObj<Grammar::TranslateModifierAction>(S("no_bind"))},
+    {S("حقنة"), newSrdObj<Grammar::TranslateModifierAction>(S("injection"))}
   }));
   this->createCommand(S("root.Main.TypeOpOptions"), {{
     Map::create({}, {
@@ -401,6 +403,10 @@ void SppFactory::createGrammar()
     {S("عضو"), newSrdObj<Grammar::TranslateModifierAction>(S("member"))},
     {S("operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
     {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
+    {S("no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
+    {S("دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
+    {S("injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
+    {S("حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
     {S("طبعات_لامشتركة"), newSrdObj<Grammar::TranslateModifierAction>(S("unshared_instances"))}
   }));
 

@@ -58,6 +58,7 @@ namespace Core::Ast
   class Definition;
   class Identifier;
   class List;
+  class Within;
   class Map;
   class Seeker;
   class SourceLocation;
@@ -96,6 +97,26 @@ void addSourceLocation(Node *node, SourceLocation *sl);
 Bool mergeDefinition(
   Definition *def, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore
 );
+
+/**
+ * @brief Apply a Within object to a scope.
+ * If the Within object has no qualifier then its statements are added to the target scope. Otherwise they are added to
+ * the scope that the qualifier points to, which is looked up once for all statements.
+ *
+ * If the qualifier's target can't be found, what happens depends on the Within object's merge policy, unless
+ * lastAttempt is true. With the IMMEDIATE policy, or if lastAttempt is true, an InvalidWithinTargetNotice is raised and
+ * false is returned. With the DELAYED policy the target is not even looked up, and with the AUTO policy the lookup
+ * happens but failing it is not an error. In both cases the Within object itself is added to the target scope at
+ * index (or at the end if index is -1) so that it can be applied in a later phase, and true is returned.
+ *
+ * The caller is responsible for making sure the Within object isn't still part of the target when passing lastAttempt.
+ * The qualifier is resolved starting from lookupContext, or from the target scope if lookupContext is null.
+ */
+Bool addWithinElements(
+  Within *within, DynamicContaining<Node> *target, Int &index, Seeker *seeker, Notices::Store *noticeStore,
+  Node *lookupContext = 0, Bool lastAttempt = false
+);
+
 /**
  * @brief Add an element to a scope, merging or expanding it when needed.
  * The element is merged into the existing definition if it's a definition to merge, and it's expanded if it's a

@@ -1,0 +1,26 @@
+import "Srl/Console";
+use Srl;
+
+// Two constructors that match equally well should be reported as multiple matches.
+class A {
+    def k: Int;
+
+    handler this~init(n: Int) {
+        this.k = n;
+    }
+
+    handler this~init(n: Int) {
+        this.k = n + 1;
+    }
+}
+
+func testVar {
+    def a: A(1);
+    Console.print("%d\n", a.k);
+}
+testVar();
+
+func testTemp {
+    Console.print("%d\n", A(1).k);
+}
+testTemp();

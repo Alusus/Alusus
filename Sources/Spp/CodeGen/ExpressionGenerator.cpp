@@ -293,8 +293,7 @@ Bool ExpressionGenerator::_generateIdentifier(
 
   TerminalStatement terminal;
   PlainList<Spp::Ast::Type> paramAstTypes;
-  GenResult thisResult;
-  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, terminal);
 }
 
 
@@ -305,8 +304,7 @@ Bool ExpressionGenerator::_generatePassage(
 
   TerminalStatement terminal;
   PlainList<Spp::Ast::Type> paramAstTypes;
-  GenResult thisResult;
-  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, terminal);
 }
 
 
@@ -324,8 +322,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
   }
 
   PlainList<Spp::Ast::Type> paramAstTypes;
-  GenResult thisResult;
-  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, terminal);
 }
 
 
@@ -360,8 +357,7 @@ Bool ExpressionGenerator::_generateRoundParamPass(
 
   TerminalStatement terminal;
   GenResult callee;
-  GenResult thisArg;
-  if (!expGenerator->prepareCallee(operand, &paramAstTypes, S("()"), g, session, callee, thisArg, terminal)) {
+  if (!expGenerator->prepareCallee(operand, &paramAstTypes, S("()"), g, session, callee, terminal)) {
     return false;
   }
   if (terminal == TerminalStatement::YES) {
@@ -372,19 +368,33 @@ Bool ExpressionGenerator::_generateRoundParamPass(
   }
 
   // Make the actual call.
-  return expGenerator->generateRoundParamPassOnCallee(
-    astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
-  );
+  if (!expGenerator->generateRoundParamPassOnCallee(
+    astNode, callee, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+  )) return false;
+  // The value returned by a no_bind method binds to the same `this` the method was called with.
+  if (expGenerator->isNoBindMemberCallee(callee)) {
+    result.thisAstType = callee.thisAstType;
+    result.thisTargetData = callee.thisTargetData;
+  }
+  return true;
 }
 
 
 Bool ExpressionGenerator::_generateRoundParamPassOnCallee(
-  TiObject *self, Core::Ast::Node *astNode, GenResult const &callee, GenResult const &thisArg,
+  TiObject *self, Core::Ast::Node *astNode, GenResult const &callee,
   SharedList<TiObject> *paramTgValues, PlainList<Spp::Ast::Type> *paramAstTypes,
   PlainList<Core::Ast::Node> *paramAstNodes,
   Generation *g, Session *session, GenResult &result
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // The callee carries the `this` arg to pass to the call, if any.
+  GenResult thisArg;
+  thisArg.astType = callee.thisAstType;
+  thisArg.targetData = callee.thisTargetData;
+
+  // The result is a new value that binds to itself. Callers must not pass the same object as callee and result.
+  result = GenResult();
 
   if (callee.astNode != 0 && callee.astNode->isDerivedFrom<Ast::Function>()) {
     //// Call a function.
@@ -496,9 +506,8 @@ Bool ExpressionGenerator::_generateSquareParamPass(
 
   TerminalStatement terminal;
   PlainList<Spp::Ast::Type> paramAstTypes;
-  GenResult thisResult;
   GenResult operandResult;
-  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, thisResult, terminal);
+  return expGenerator->prepareCallee(astNode, &paramAstTypes, S(""), g, session, result, terminal);
 }
 
 
@@ -613,12 +622,11 @@ Bool ExpressionGenerator::_generateOperator(
 
   TerminalStatement terminal = TerminalStatement::NO;
   GenResult callee;
-  GenResult thisArg;
   if (noDeref) {
-    if (!expGenerator->prepareNoDerefCallee(operand, &paramAstTypes, funcName, g, session, callee, thisArg)) {
+    if (!expGenerator->prepareNoDerefCallee(operand, &paramAstTypes, funcName, g, session, callee)) {
       return false;
     }
-  } else if (!expGenerator->prepareCallee(operand, &paramAstTypes, funcName, g, session, callee, thisArg, terminal)) {
+  } else if (!expGenerator->prepareCallee(operand, &paramAstTypes, funcName, g, session, callee, terminal)) {
     return false;
   }
   if (terminal == TerminalStatement::YES) {
@@ -629,9 +637,9 @@ Bool ExpressionGenerator::_generateOperator(
   }
 
   if (callee.astNode == Ast::getDummyBuiltInOpFunction()) {
-    // We have a built-in operation.
-    paramTgValues.insertElement(0, thisArg.targetData.get());
-    paramAstTypes.insertElement(0, thisArg.astType);
+    // We have a built-in operation, and the operand is the callee's `this`.
+    paramTgValues.insertElement(0, callee.thisTargetData.get());
+    paramAstTypes.insertElement(0, callee.thisAstType);
     paramAstNodes.insertElement(0, containing->getElement(0));
 
     if (opType == OpType::ASSIGN) {
@@ -672,7 +680,7 @@ Bool ExpressionGenerator::_generateOperator(
   } else {
     // We have a function or a funciton pointer to call.
     return expGenerator->generateRoundParamPassOnCallee(
-      astNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+      astNode, callee, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
     );
   }
 }
@@ -1284,20 +1292,19 @@ Bool ExpressionGenerator::_generateVarAssignment(
     return false;
   }
   GenResult callee;
-  GenResult thisArg;
   if (!expGenerator->generateCalleeReferenceChain(
-    lookupResult, varAstNode, varRef, g, session, callee, thisArg
+    lookupResult, varAstNode, varRef, g, session, callee
   )) return false;
 
   // Generate the assignment.
   if (callee.astNode == Ast::getDummyBuiltInOpFunction()) {
     return expGenerator->generateAssign(
-      varAstNode, static_cast<Ast::Type*>(thisArg.astType), thisArg.targetData.get(),
+      varAstNode, callee.thisAstType, callee.thisTargetData.get(),
       static_cast<Ast::Type*>(paramAstTypes.get(0)), paramTgValues.getElement(0), g, session, result
     );
   } else {
     return expGenerator->generateRoundParamPassOnCallee(
-      varAstNode, callee, thisArg, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
+      varAstNode, callee, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, result
     );
   }
 }
@@ -2593,6 +2600,7 @@ Bool ExpressionGenerator::_generateVarReference(
     }
     result.astType = expGenerator->astHelper->getReferenceTypeFor(astType, Ast::ReferenceMode::IMPLICIT);
   }
+  result.astNode = varAstNode;
   return true;
 }
 
@@ -2622,6 +2630,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
     TiObject *tgMemberType;
     if (!g->getGeneratedType(astMemberType, session, tgMemberType, 0)) return false;
     result.astType = expGenerator->astHelper->getReferenceTypeFor(astMemberType, Ast::ReferenceMode::IMPLICIT);
+    result.astNode = astMemberVar;
     return true;
   }
 
@@ -2648,6 +2657,7 @@ Bool ExpressionGenerator::_generateMemberVarReference(
     }
   }
   result.astType = expGenerator->astHelper->getReferenceTypeFor(astMemberType, Ast::ReferenceMode::IMPLICIT);
+  result.astNode = astMemberVar;
   return true;
 }
 
@@ -2869,7 +2879,7 @@ Bool ExpressionGenerator::_prepareFunctionParams(
 
 Bool ExpressionGenerator::_prepareCallee(
   TiObject *self, Core::Ast::Node *astNode, Containing<Spp::Ast::Type> *argTypes, Char const *op,
-  Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult,
+  Generation *g, Session *session, GenResult &calleeResult,
   TerminalStatement &terminal
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
@@ -2892,15 +2902,13 @@ Bool ExpressionGenerator::_prepareCallee(
   }
 
   // Generate reference chain.
-  return expGenerator->generateCalleeReferenceChain(
-    lookupResult, astNode, prevResult, g, session, calleeResult, thisResult
-  );
+  return expGenerator->generateCalleeReferenceChain(lookupResult, astNode, prevResult, g, session, calleeResult);
 }
 
 
 Bool ExpressionGenerator::_prepareNoDerefCallee(
   TiObject *self, Core::Ast::Node *operand, Containing<Spp::Ast::Type> *argTypes, Char const *op,
-  Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
+  Generation *g, Session *session, GenResult &calleeResult
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
@@ -2920,9 +2928,26 @@ Bool ExpressionGenerator::_prepareNoDerefCallee(
     return false;
   }
 
-  return expGenerator->generateCalleeReferenceChain(
-    lookupResult, operand, prevResult, g, session, calleeResult, thisResult
-  );
+  return expGenerator->generateCalleeReferenceChain(lookupResult, operand, prevResult, g, session, calleeResult);
+}
+
+
+Bool ExpressionGenerator::isNoBindMemberCallee(GenResult const &callee)
+{
+  // The callee is either a function, or a function pointer referenced directly from a variable (as_ptr methods).
+  Core::Ast::Definition *def = 0;
+  Ast::FunctionType *funcType = 0;
+  if (callee.astNode == 0) return false;
+  if (callee.astNode->isDerivedFrom<Ast::Function>()) {
+    def = callee.astNode->findOwner<Core::Ast::Definition>();
+    funcType = static_cast<Ast::Function*>(callee.astNode)->getType().get();
+  } else if (callee.astType != 0 && this->astHelper->isVariable(callee.astNode)) {
+    def = ti_cast<Core::Ast::Definition>(callee.astNode->getOwner());
+    funcType = this->astHelper->tryGetPointerContentType<Ast::FunctionType>(
+      this->astHelper->tryGetDeepReferenceContentType(callee.astType)
+    );
+  }
+  return def != 0 && funcType != 0 && funcType->isMember() && this->astHelper->isNoBindDef(def);
 }
 
 
@@ -2977,20 +3002,16 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     if (prevResult.astType != 0) {
       if (linkOperator->getSecond()->isDerivedFrom<Core::Ast::Identifier>()) {
         // Calling a member of an object.
-        auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-        auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
-        calleeRequest.target = thisType;
+        calleeRequest.target = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
         calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
         calleeRequest.ref = linkOperator->getSecond().get();
-        calleeRequest.thisType = thisRefType;
+        calleeRequest.thisType = expGenerator->getThisTypeForMembersOf(prevResult);
         return true;
       } else if (linkOperator->getSecond()->isDerivedFrom<Core::Ast::Passage>()) {
         // Calling a member of an object using a direct pointer to the callee.
-        auto thisType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-        auto thisRefType = expGenerator->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
         calleeRequest.target = linkOperator->getSecond().s_cast_get<Core::Ast::Passage>()->get();
         calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
-        calleeRequest.thisType = thisRefType;
+        calleeRequest.thisType = expGenerator->getThisTypeForMembersOf(prevResult);
         return true;
       } else if (linkOperator->getSecond()->isDerivedFrom<Ast::Block>()) {
         // .{} operator
@@ -3082,6 +3103,17 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
 }
 
 
+Ast::Type* ExpressionGenerator::getThisTypeForMembersOf(GenResult const &value)
+{
+  // Members bind to the value itself unless the value specifies a different `this` (as is the case with values coming
+  // from no_bind definitions).
+  auto thisType = this->astHelper->tryGetDeepReferenceContentType(
+    value.thisAstType != 0 ? value.thisAstType : value.astType
+  );
+  return this->astHelper->getReferenceTypeFor(thisType, Ast::ReferenceMode::IMPLICIT);
+}
+
+
 void ExpressionGenerator::_prepareResultCalleeLookupRequest(
   TiObject *self, GenResult const &prevResult, Ast::CalleeLookupRequest &calleeRequest
 ) {
@@ -3094,7 +3126,7 @@ void ExpressionGenerator::_prepareResultCalleeLookupRequest(
     // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
     // to actually call that function.
     if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
-      prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
+      prevThisAstType = expGenerator->getThisTypeForMembersOf(prevResult);
     } else {
       prevThisAstType = 0;
     }
@@ -3110,11 +3142,19 @@ void ExpressionGenerator::_prepareResultCalleeLookupRequest(
 
 Bool ExpressionGenerator::_generateCalleeReferenceChain(
   TiObject *self, Ast::CalleeLookupResult const &calleeInfo, Core::Ast::Node *astNode, GenResult const &prevResult,
-  Generation *g, Session *session, GenResult &calleeResult, GenResult &thisResult
+  Generation *g, Session *session, GenResult &calleeResult
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  if (prevResult.astType != 0) {
+  // The `this` in effect while walking the chain. It's updated by THIS markers and applied to the final result at the
+  // end, unless the chain ends with a THIS marker, in which case the final result binds to itself.
+  GenResult thisResult;
+  if (prevResult.thisAstType != 0) {
+    // The previous value specifies what its members bind to (e.g. it's a no_bind member).
+    thisResult = GenResult();
+    thisResult.astType = prevResult.thisAstType;
+    thisResult.targetData = prevResult.thisTargetData;
+  } else if (prevResult.astType != 0) {
     auto prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
     if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
       thisResult = prevResult;
@@ -3122,8 +3162,10 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
   }
 
   calleeResult = prevResult;
+  Bool endsWithThisMarker = false;
   for (Int i = 0; i < calleeInfo.stack.getLength(); ++i) {
     auto item = calleeInfo.stack(i);
+    endsWithThisMarker = item.type == Ast::CalleeLookupResultStackEntryType::THIS_MARKER;
     if (item.type == Ast::CalleeLookupResultStackEntryType::THIS_MARKER) {
       thisResult = calleeResult;
     } else if (item.type == Ast::CalleeLookupResultStackEntryType::FUNCTION_CALL) {
@@ -3131,10 +3173,11 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
       SharedList<TiObject> paramTgValues;
       PlainList<Core::Ast::Node> paramAstNodes;
       GenResult prevCalleeResult = calleeResult;
+      prevCalleeResult.thisAstType = thisResult.astType;
+      prevCalleeResult.thisTargetData = thisResult.targetData;
       if (!expGenerator->generateRoundParamPassOnCallee(
-        astNode, prevCalleeResult, thisResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, calleeResult
+        astNode, prevCalleeResult, &paramTgValues, &paramAstTypes, &paramAstNodes, g, session, calleeResult
       )) return false;
-      calleeResult.astNode = 0;
     } else {
       if (item.obj->isDerivedFrom<Ast::Function>()) {
         // In case of member function calling we can have function items when calleeResult.astType is not null.
@@ -3146,8 +3189,12 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
         if (!expGenerator->generateReferenceToNonObjectMember(item.obj, astNode, g, session, calleeResult)) {
           return false;
         }
+        // Types don't bind to anything.
+        thisResult = GenResult();
         break;
       } else {
+        // The var reference generators set the AST node in case of vars, while it should be empty for other values.
+        calleeResult.astNode = 0;
         if (calleeResult.astType != 0) {
           // Generate member var reference.
           GenResult structResult;
@@ -3167,6 +3214,12 @@ Bool ExpressionGenerator::_generateCalleeReferenceChain(
     }
   }
 
+  if (endsWithThisMarker) {
+    calleeResult.resetThisBinding();
+  } else {
+    calleeResult.thisAstType = thisResult.astType;
+    calleeResult.thisTargetData = thisResult.targetData;
+  }
   return true;
 }
 

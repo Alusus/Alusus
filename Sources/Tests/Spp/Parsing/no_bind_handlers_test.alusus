@@ -1,0 +1,22 @@
+import "alusus_spp";
+
+// The no_bind modifier is only valid on read properties and methods.
+class A {
+  @no_bind handler this.prop: Int { return 0 };
+  @no_bind handler this.method(): Int { return 0 };
+  @no_bind handler this.ptrProp: Int as_ptr { return 0 };
+  @no_bind handler this.ptrMethod(): Int as_ptr { return 0 };
+  handler this.n() as_ptr {};
+
+  @no_bind handler this + (x: Int): Int { return 0 };
+  @no_bind handler this(x: Int): Int { return 0 };
+  @no_bind handler this = (x: Int) {};
+  @no_bind handler this~init() {};
+  @no_bind handler this~cast[Int] { return 0 };
+}
+
+// The no_bind modifier isn't valid on set_ptr handlers since those don't define the member.
+class B {
+  @injection var a: A;
+  @no_bind handler (this: A).n() set_ptr {};
+}
