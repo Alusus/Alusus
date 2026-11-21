@@ -1276,15 +1276,14 @@ Bool ExpressionGenerator::_generateVarAssignment(
   auto astContentType = expGenerator->astHelper->tryGetDeepReferenceContentType(varAstType);
   Ast::CalleeLookupRequest lookupRequest;
   lookupRequest.astNode = varAstNode;
-  lookupRequest.target = astContentType;
-  lookupRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+  lookupRequest.setObjectTarget(
+    astContentType,
+    astContentType->isDerivedFrom<Ast::UserType>()
+      ? expGenerator->astHelper->getReferenceTypeFor(astContentType, Ast::ReferenceMode::IMPLICIT)
+      : 0
+  );
   lookupRequest.op = S("=");
   lookupRequest.argTypes = &paramAstTypes;
-  if (astContentType->isDerivedFrom<Ast::UserType>()) {
-    lookupRequest.thisType = expGenerator->astHelper->getReferenceTypeFor(
-      astContentType, Ast::ReferenceMode::IMPLICIT
-    );
-  }
   Ast::CalleeLookupResult lookupResult;
   expGenerator->calleeTracer->lookupCallee(lookupRequest, lookupResult);
   if (lookupResult.isFailure()) {
@@ -3002,10 +3001,11 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
     if (prevResult.astType != 0) {
       if (linkOperator->getSecond()->isDerivedFrom<Core::Ast::Identifier>()) {
         // Calling a member of an object.
-        calleeRequest.target = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
-        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+        calleeRequest.setObjectTarget(
+          expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType),
+          expGenerator->getThisTypeForMembersOf(prevResult)
+        );
         calleeRequest.ref = linkOperator->getSecond().get();
-        calleeRequest.thisType = expGenerator->getThisTypeForMembersOf(prevResult);
         return true;
       } else if (linkOperator->getSecond()->isDerivedFrom<Core::Ast::Passage>()) {
         // Calling a member of an object using a direct pointer to the callee.
@@ -3028,17 +3028,8 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         g->addThisDefinition(block, S("this"), explicitRefType, false, prevResult.targetData, session);
         terminal = TerminalStatement::UNKNOWN;
         if (!g->generateStatementBlock(block, session, terminal)) return false;
-        Ast::Type *prevAstType;
-        Ast::Type *prevThisAstType;
-        prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(contentType);
-        if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
-          prevThisAstType = expGenerator->astHelper->getReferenceTypeFor(prevAstType, Ast::ReferenceMode::IMPLICIT);
-        } else {
-          prevThisAstType = 0;
-        }
-        calleeRequest.target = prevAstType;
-        calleeRequest.thisType = prevThisAstType;
-        calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+        // The .{} operator evaluates to the object itself, so we lookup the callee on it.
+        expGenerator->prepareResultCalleeLookupRequest(prevResult, calleeRequest);
         return true;
       } else {
         expGenerator->astHelper->getNoticeStore()->add(
@@ -3119,24 +3110,18 @@ void ExpressionGenerator::_prepareResultCalleeLookupRequest(
 ) {
   PREPARE_SELF(expGenerator, ExpressionGenerator);
 
-  Ast::Type *prevAstType;
-  Ast::Type *prevThisAstType;
   if (prevResult.astType) {
-    prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
+    auto prevAstType = expGenerator->astHelper->tryGetDeepReferenceContentType(prevResult.astType);
     // We don't need to set `this` if the value itself is a function pointer since in this case the intention would be
     // to actually call that function.
-    if (expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) == 0) {
-      prevThisAstType = expGenerator->getThisTypeForMembersOf(prevResult);
-    } else {
-      prevThisAstType = 0;
-    }
-    calleeRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+    Bool isFuncPtr = expGenerator->astHelper->tryGetPointerContentType<Ast::FunctionType>(prevAstType) != 0;
+    calleeRequest.setObjectTarget(prevAstType, isFuncPtr ? 0 : expGenerator->getThisTypeForMembersOf(prevResult));
   } else {
-    prevAstType = ti_cast<Ast::Type>(prevResult.astNode);
-    prevThisAstType = 0;
+    // The previous result is a type rather than a value, so the operation is applied on the type itself.
+    calleeRequest.target = ti_cast<Ast::Type>(prevResult.astNode);
+    calleeRequest.thisType = 0;
+    calleeRequest.mode = Ast::CalleeLookupMode::SCOPE_MEMBER;
   }
-  calleeRequest.target = prevAstType;
-  calleeRequest.thisType = prevThisAstType;
 }
 
 
