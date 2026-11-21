@@ -1,0 +1,45 @@
+import "defs-ignore.alusus";
+
+def Main: module
+{
+  def print: @expname[printf] function (fmt: ptr[Word[8]], args: ...any)=>Int[64];
+
+  def square: @inline function (i: Int) => Int {
+    return i * i;
+  };
+
+  class Point {
+    def x: Int;
+    def y: Int;
+    def scale: @inline @member function (this: ref[this_type], f: Int) {
+      this.x *= f;
+      this.y *= f;
+    };
+    @inline handler this.sum: Int {
+      return this.x + this.y;
+    };
+    @inline handler this.shift(d: Int) {
+      this.x += d;
+      this.y += d;
+    };
+    @inline handler this - (p: ref[Point]): Int {
+      return this.sum - p.sum;
+    };
+  };
+
+  def notInlined: function (i: Int) => Int {
+    return i + 1;
+  };
+
+  def start: function () => Void
+  {
+    def p: Point;
+    p.x = 1;
+    p.y = 2;
+    p.scale(square(3));
+    p.shift(1);
+    print("%d %d %d\n", p.sum, p - p, notInlined(1));
+  };
+};
+
+Spp.buildMgr.dumpLlvmIrForElement(Main.start~ast);

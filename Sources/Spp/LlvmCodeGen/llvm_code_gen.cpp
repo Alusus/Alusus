@@ -54,4 +54,39 @@ void optimizeLlvmModule(llvm::Module &module, llvm::TargetMachine *targetMachine
   mpm.run(module, mam);
 }
 
+
+/// Inlines the calls to functions marked with AlwaysInline without doing any other optimization. Used for builds that
+/// aren't optimized, since inlining in optimized builds is done as part of the optimization pipeline.
+void inlineLlvmModuleFunctions(llvm::Module &module)
+{
+  // Most modules have nothing to inline, so we avoid the cost of setting up the pass pipeline for them.
+  Bool found = false;
+  for (auto &func : module) {
+    if (!func.isDeclaration() && func.hasFnAttribute(llvm::Attribute::AlwaysInline)) {
+      found = true;
+      break;
+    }
+  }
+  if (!found) return;
+
+  llvm::LoopAnalysisManager lam;
+  llvm::FunctionAnalysisManager fam;
+  llvm::CGSCCAnalysisManager cgam;
+  llvm::ModuleAnalysisManager mam;
+
+  llvm::PassBuilder pb;
+
+  pb.registerModuleAnalyses(mam);
+  pb.registerCGSCCAnalyses(cgam);
+  pb.registerFunctionAnalyses(fam);
+  pb.registerLoopAnalyses(lam);
+  pb.crossRegisterProxies(lam, fam, cgam, mam);
+
+  llvm::ModulePassManager mpm;
+  // Lifetime markers are only useful to later optimizations, which won't run.
+  mpm.addPass(llvm::AlwaysInlinerPass(false));
+
+  mpm.run(module, mam);
+}
+
 }

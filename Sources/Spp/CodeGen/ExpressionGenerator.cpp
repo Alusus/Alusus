@@ -2726,60 +2726,57 @@ Bool ExpressionGenerator::_generateFunctionCall(
   // A statement can span several lines, so the call gets its own location.
   if (!session->isAstComputationOnly()) session->getTg()->setDebugLocation(session->getTgContext(), astNode);
 
-  if (callee->getInlined()) {
-    // TODO: Generate inlined function body.
-    throw EXCEPTION(GenericException, S("Inline function generation is not implemented yet."));
-  } else {
-    // Build called function declaration.
-    if (!g->generateFunctionDecl(callee, session)) return false;
-    if (!expGenerator->addFunctionDependencyIfNeeded(session, callee)) {
-      expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
-          Core::Ast::findSourceLocation(astNode)
-        )
-      );
-      return false;
-    }
-    TiObject *tgFunction = 0;
-    if (!session->isAstComputationOnly()) tgFunction = session->getEda()->getCodeGenData<TiObject>(callee);
+  // Inline functions are called normally as well; the inlining itself is done by the target (see setFunctionInlined).
 
-    // Create function call.
-    auto astRetType = callee->getType()->traceRetType(expGenerator->astHelper);
-    if (astRetType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
-      if (!session->isAstComputationOnly()) {
-        // Pass a reference to the return value.
-        TioSharedPtr tgTempVar;
-        if (!g->generateTempVar(astNode, astRetType, session, false, tgTempVar)) return false;
-        TioSharedPtr tgResult;
-        if (!session->getTg()->generateVarReference(
-          session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(astRetType),
-          tgTempVar.get(), tgResult
-        )) {
-          return false;
-        }
-        PlainList<TiObject> paramTgValuesWithRet;
-        paramTgValuesWithRet.add(tgResult.get());
-        for (Int i = 0; i < paramTgValues->getElementCount(); ++i) {
-          paramTgValuesWithRet.add(paramTgValues->getElement(i));
-        }
-        if (!session->getTg()->generateFunctionCall(
-          session->getTgContext(), tgFunction, &paramTgValuesWithRet, result.targetData
-        )) return false;
-        result.targetData = tgResult;
-        // Register temp var for destruction.
-        g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack().get());
-      }
-      result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
-    } else {
-      if (!session->isAstComputationOnly()) {
-        if (!session->getTg()->generateFunctionCall(
-          session->getTgContext(), tgFunction, paramTgValues, result.targetData
-        )) return false;
-      }
-      result.astType = astRetType;
-    }
-    return true;
+  // Build called function declaration.
+  if (!g->generateFunctionDecl(callee, session)) return false;
+  if (!expGenerator->addFunctionDependencyIfNeeded(session, callee)) {
+    expGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(
+        Core::Ast::findSourceLocation(astNode)
+      )
+    );
+    return false;
   }
+  TiObject *tgFunction = 0;
+  if (!session->isAstComputationOnly()) tgFunction = session->getEda()->getCodeGenData<TiObject>(callee);
+
+  // Create function call.
+  auto astRetType = callee->getType()->traceRetType(expGenerator->astHelper);
+  if (astRetType->getInitializationMethod(expGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
+    if (!session->isAstComputationOnly()) {
+      // Pass a reference to the return value.
+      TioSharedPtr tgTempVar;
+      if (!g->generateTempVar(astNode, astRetType, session, false, tgTempVar)) return false;
+      TioSharedPtr tgResult;
+      if (!session->getTg()->generateVarReference(
+        session->getTgContext(), session->getEda()->getCodeGenData<TiObject>(astRetType),
+        tgTempVar.get(), tgResult
+      )) {
+        return false;
+      }
+      PlainList<TiObject> paramTgValuesWithRet;
+      paramTgValuesWithRet.add(tgResult.get());
+      for (Int i = 0; i < paramTgValues->getElementCount(); ++i) {
+        paramTgValuesWithRet.add(paramTgValues->getElement(i));
+      }
+      if (!session->getTg()->generateFunctionCall(
+        session->getTgContext(), tgFunction, &paramTgValuesWithRet, result.targetData
+      )) return false;
+      result.targetData = tgResult;
+      // Register temp var for destruction.
+      g->registerDestructor(astNode, astRetType, tgTempVar, session->getDestructionStack().get());
+    }
+    result.astType = expGenerator->astHelper->getReferenceTypeFor(astRetType, Ast::ReferenceMode::IMPLICIT);
+  } else {
+    if (!session->isAstComputationOnly()) {
+      if (!session->getTg()->generateFunctionCall(
+        session->getTgContext(), tgFunction, paramTgValues, result.targetData
+      )) return false;
+    }
+    result.astType = astRetType;
+  }
+  return true;
 }
 
 

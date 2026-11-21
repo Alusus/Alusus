@@ -39,6 +39,7 @@
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/ThreadPool.h>
 #include <llvm/Transforms/IPO.h>
+#include <llvm/Transforms/IPO/AlwaysInliner.h>
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/ExecutionEngine/JITEventListener.h>

@@ -146,7 +146,7 @@ class JitEngine
   );
 
   protected: std::unique_ptr<llvm::orc::IRTransformLayer> createOptimizeLayer(
-    llvm::orc::IRLayer &prevLayer, Bool skipOptimization
+    llvm::orc::IRLayer &prevLayer, Bool skipOptimization, Bool fullOptimization
   );
 
   protected: static llvm::Expected<std::unique_ptr<llvm::orc::IRCompileLayer::IRCompiler>> createCompileFunction(
@@ -224,7 +224,9 @@ class JitEngineBuilderState
   public: ObjectLinkingLayerCreator createObjectLinkingLayer;
   public: CompileFunctionCreator createCompileFunction;
   public: unsigned numCompileThreads = 0;
-  public: Bool useOptimizeLayer = false;
+  /// Run the full IR optimization pipeline and optimize the machine code. Otherwise only calls to functions marked
+  /// with AlwaysInline are inlined. Not used by the lazy engine, which always optimizes.
+  public: Bool optimize = false;
 
   /// Make the code the JIT generates visible to debuggers (through the GDB JIT interface), which requires the modules
   /// to carry debug info. Only supported on platforms that use ELF.

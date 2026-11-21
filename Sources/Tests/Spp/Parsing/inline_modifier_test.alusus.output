@@ -1,0 +1,12 @@
+[0;31mERROR SPPH1030: The inline modifier can only be used with functions and handlers that have a body, and can't be used with as_ptr or set_ptr handlers.[0m
+  inline_modifier_test.alusus (17,2)
+[0;31mERROR SPPH1030: The inline modifier can only be used with functions and handlers that have a body, and can't be used with as_ptr or set_ptr handlers.[0m
+  inline_modifier_test.alusus (18,2)
+[0;31mERROR SPPH1030: The inline modifier can only be used with functions and handlers that have a body, and can't be used with as_ptr or set_ptr handlers.[0m
+  inline_modifier_test.alusus (21,4)
+[0;31mERROR SPPH1030: The inline modifier can only be used with functions and handlers that have a body, and can't be used with as_ptr or set_ptr handlers.[0m
+  inline_modifier_test.alusus (22,4)
+[0;31mERROR SPPH1030: The inline modifier can only be used with functions and handlers that have a body, and can't be used with as_ptr or set_ptr handlers.[0m
+  inline_modifier_test.alusus (23,4)
+[0;31mERROR SPPH1030: The inline modifier can only be used with functions and handlers that have a body, and can't be used with as_ptr or set_ptr handlers.[0m
+  inline_modifier_test.alusus (24,4)

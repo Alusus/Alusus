@@ -35,6 +35,9 @@ class Function : public TiObject
   private: llvm::AllocaInst *llvmVaList = 0;
   private: llvm::Value *llvmSretPtr = 0;
   private: std::unique_ptr<llvm::Module> llvmModule;
+  // Whether the function should always be inlined into its callers. Kept here since with per-function modules the
+  // LLVM function isn't created until the body is prepared.
+  private: Bool inlined = false;
 
   // Debug Info Related Variables
 

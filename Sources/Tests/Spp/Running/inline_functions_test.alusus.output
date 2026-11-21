@@ -1,0 +1,14 @@
+square(5): 25
+twice[Int](21): 42
+twice[String]: abab
+factorial(5): 120
+A initialized.
+A copied.
+A terminated.
+A copied.
+A terminated.
+a.i: 12
+a.doubled: 24
+a.add[Int](1): 13
+b.j: 9
+A terminated.

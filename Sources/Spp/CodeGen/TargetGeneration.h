@@ -50,6 +50,7 @@ class TargetGeneration : public ObjTiInterface
       &this->prepareFunctionBody,
       &this->finishFunctionBody,
       &this->deleteFunction,
+      &this->setFunctionInlined,
       &this->setFunctionDebugInfo,
       &this->setVariableDebugInfo,
       &this->setGlobalVariableDebugInfo,
@@ -215,6 +216,9 @@ class TargetGeneration : public ObjTiInterface
   );
 
   public: METHOD_BINDING_CACHE(deleteFunction, Bool, (TiObject* /* function */));
+
+  /// Mark a function to be always inlined into its callers. Called before the function's body is prepared.
+  public: METHOD_BINDING_CACHE(setFunctionInlined, Bool, (TiObject* /* function */, Bool /* inlined */));
 
   /// @}
 
