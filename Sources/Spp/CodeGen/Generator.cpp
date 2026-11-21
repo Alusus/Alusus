@@ -228,6 +228,24 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       generation->registerDestructor(argType, argAstType, argTgVar, childSession.getDestructionStack().get());
     }
 
+    // Inject `this` into the body of member functions so that members can be accessed without `this.`. The injected
+    // definition gets a name of its own so that `this` itself still resolves to the arg.
+    auto astBodyBlock = ti_cast<Ast::Block>(astBlock);
+    if (
+      astBodyBlock != 0 && astFuncType->isMember() && tgVars.getCount() > 0 &&
+      !astArgs->getElement(0)->isDerivedFrom<Ast::ArgPack>()
+    ) {
+      auto thisRefType = ti_cast<Ast::ReferenceType>(Ast::getAstType(astArgs->getElement(0)));
+      auto thisContentType = thisRefType == 0 ? 0 : thisRefType->getContentType(generator->astHelper);
+      if (thisContentType != 0 && thisContentType->isDerivedFrom<Ast::UserType>()) {
+        generation->addThisDefinition(
+          astBodyBlock, S("__this__"),
+          generator->astHelper->getReferenceTypeFor(thisContentType, Ast::ReferenceMode::EXPLICIT), false,
+          tgVars.get(0), &childSession
+        );
+      }
+    }
+
     // Generate the function's statements.
     TerminalStatement terminal;
     auto retVal = generation->generateStatementBlock(astBlock, &childSession, terminal);

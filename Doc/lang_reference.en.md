@@ -975,6 +975,39 @@ Example:
   print(p.getDistance()); // prints 5
 ```
 
+The members of the object can also be accessed from within the method without the `this.` prefix, since the compiler
+implicitly [injects](#definition-injection) `this` into the body of every method. This applies to member variables,
+methods, properties, and members of injected definitions. The previous example can be written as follows:
+
+```
+  class Point {
+    var x: float;
+    var y: float;
+    handler this.getDistance ():float {
+      return Math.sqrt(x * x + y * y);
+    };
+  }:
+```
+
+Local variables and the method's arguments take precedence over members with the same name, in which case the member
+can still be accessed through `this`:
+
+```
+  class Point {
+    var x: float;
+    var y: float;
+    handler this.set (x: float, y: float) {
+      this.x = x; // `x` alone refers to the argument.
+      this.y = y;
+    };
+  }:
+```
+
+Members take precedence over definitions in outer scopes. However, if a member is found but doesn't match the given
+arguments, the compiler keeps looking in outer scopes. This allows calling a shared function of the class from within a
+method with the same name, like calling `getLength(buf)` from within a `this.getLength()` method. See
+[Name Lookup](#name-lookup) for more details.
+
 ### Properties
 
 Properties are methods, but they are different in that they are called using the operators specified in the definition
@@ -1483,6 +1516,11 @@ operators, `~init`, `~cast`, etc.), with template handlers, or with `set_ptr` ha
 value returned by an injected handler are not available on the enclosing type.
 
 If a member is found through more than one injection, the injection that is defined first wins.
+
+Injections within a function's body don't hide the function's arguments or its local definitions, even if the injected
+member is a better match. Also, if a name is found through an injection but doesn't match the given arguments, the
+compiler keeps looking for that name in outer scopes, and only reports the mismatch if nothing else is found. See
+[Name Lookup](#name-lookup) for more details.
 
 Shared variables can also be injected, as can non-member read properties defined using `func` with the
 `@operation[""]` modifier. Similar to shared variables themselves, the members of such injections are accessed without
@@ -2098,6 +2136,47 @@ Accessing definitions inside another module is done using any of the following:
       }
     }
   ```
+
+### Name Lookup
+
+When a name is used without a scope, the compiler looks for it starting from the scope in which it's used and moving
+out to the enclosing scopes, until it finds a match. Within each scope, the compiler looks in the following order:
+
+1. The definitions of the scope itself. If the scope is the body of a function, the function's arguments are
+   searched along with the body's definitions.
+2. The members of the definitions injected into the scope (see [Definition Injection](#definition-injection)),
+   including the `this` that's implicitly injected into the body of methods.
+3. The scopes made available in the scope using the `use` command.
+
+A name found within the current function, i.e. in its blocks or arguments, is always used, even if it doesn't match the
+given arguments, in which case an error is reported. This prevents a local definition from being silently replaced by
+a definition found elsewhere. On the other hand, a name found through an injection, a `use` command, or a scope outside
+the current function is only used if it matches the given arguments. Otherwise, the compiler keeps looking further out,
+and only reports the mismatch if nothing else matches the name. In the next example the call to `print` from within
+`printNumber` doesn't match `Lib.print`, so the global `print` is called instead:
+
+```
+  module Lib {
+    func print(i: Int) { ... };
+  };
+
+  func print(s: CharsPtr) { ... };
+
+  func printNumber(i: Int) {
+    use Lib;
+    print(i); // Calls Lib.print.
+    print("done"); // Calls the global print.
+  };
+```
+
+However, if a definition is found that can't be used for reasons other than a mismatch, an error is reported and the
+compiler doesn't continue looking further out. This is the case when finding multiple matches for the name (as in
+using two modules that both have a matching definition), or finding a local variable of another function (as in
+accessing a local variable of the enclosing function from within an inner function).
+
+Within the body of a type, and when accessing the members of an object, the members of injected definitions are
+considered along with the type's own members unless one of the type's own members is an exact match. This allows a
+type to add overloads to the functions of the definitions injected into it.
 
 ## Macros
 
