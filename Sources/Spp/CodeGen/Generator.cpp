@@ -670,9 +670,7 @@ Bool Generator::_generateVarInitialization(
     static Core::Ast::Identifier ref({{ S("value"), TiStr(S("~init")) }});
     Ast::CalleeLookupRequest lookupRequest;
     lookupRequest.astNode = astNode;
-    lookupRequest.target = varAstType;
-    lookupRequest.thisType = varPtrAstType;
-    lookupRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+    lookupRequest.setObjectTarget(varAstType, varPtrAstType);
     lookupRequest.skipInjections = true;
     lookupRequest.ref = &ref;
     lookupRequest.argTypes = paramAstTypes;
@@ -870,9 +868,7 @@ Bool Generator::_generateVarDestruction(
   static Core::Ast::Identifier ref({{ S("value"), TiStr(S("~terminate")) }});
   Ast::CalleeLookupRequest lookupRequest;
   lookupRequest.astNode = astNode;
-  lookupRequest.target = varAstType;
-  lookupRequest.thisType = ptrAstType;
-  lookupRequest.mode = Ast::CalleeLookupMode::OBJECT_MEMBER;
+  lookupRequest.setObjectTarget(varAstType, ptrAstType);
   lookupRequest.skipInjections = true;
   lookupRequest.ref = &ref;
   lookupRequest.argTypes = &paramAstTypes;

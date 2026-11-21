@@ -153,6 +153,13 @@ class CalleeTracer : public TiObject, public DynamicBinding, public DynamicInter
   /// @name Helper Functions
   /// @{
 
+  /// Looks up the request's ref within the objects injected into the given block. `dataType` is the type owning the
+  /// block if the block is the body of the lookup's original target type.
+  private: void lookupCallee_injections(
+    CalleeLookupRequest &request, Block *block, DataType *dataType, Bool searchingFunctionOwners,
+    CalleeLookupResult &result
+  );
+
   private: static void selectBetterResult(CalleeLookupResult const &newResult, CalleeLookupResult &result);
 
   private: static Bool isAssignOp(Str const &op);

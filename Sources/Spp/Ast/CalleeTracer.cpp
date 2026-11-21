@@ -96,10 +96,8 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
             return Core::Ast::Seeker::Verb::STOP;
           }
 
-          // If we are not requesting directly accessible members and instead looking for object or scope members and
-          // we encounter local variables or values (like the auto created this) then we should skip that. This is to
-          // avoid cases where an auto created local variable (for example: this) is unintentionally picked up while
-          // looking through object members.
+          // Local variables (including auto created values like `this`) are only accessible directly. Object and scope
+          // member lookups skip them to avoid unintentionally picking up an auto created `this`.
           if (domain == DefinitionDomain::FUNCTION && request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
             return Core::Ast::Seeker::Verb::MOVE;
           }
@@ -150,132 +148,37 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       tracingAlias = 0;
       tracer->getSeeker()->foreach(request.ref, target, callback, 0);
 
+      // The scope in which to look for injections and bridges. Special handling for Type targets, but it's only needed
+      // if we are at the top of the stack to avoid re-testing the same scope again.
+      auto dataType = target == request.target ? ti_cast<DataType>(target) : 0;
+      Core::Ast::Scope *scope = dataType != 0 ? dataType->getBody().get() : ti_cast<Core::Ast::Scope>(target);
+
       // Try the injections if we don't have an exact match yet.
-      if (!request.skipInjections && result.matchStatus < TypeMatchStatus::EXACT) {
-        Block *block = 0;
-        auto helper = tracer->helper;
-        // Special handling for Type targets, but it's only needed if we are at the top of the stack to avoid re-testing
-        // the same block again.
-        auto dataType = target == request.target ? ti_cast<DataType>(target) : 0;
-        if (dataType != 0) {
-          block = dataType->getBody().get();
-        } else {
-          block = ti_cast<Block>(target);
-        }
-        if (block != 0) {
-          for (Int i = 0; i < block->getInjectionCount(); ++i) {
-            auto def = ti_cast<Core::Ast::Definition>(block->getInjection(i));
-            if (def == 0 || def->getSubject() == 0) continue;
-            auto subject = def->getSubject().get();
-            Bool isVar = helper->isVariable(subject);
-            auto domain = isVar ? helper->getVariableDomain(def) : DefinitionDomain::GLOBAL;
-            if (domain == DefinitionDomain::FUNCTION) {
-              // If we are not requesting directly accessible members and instead looking for object or scope members
-              // and we encounter local variables or values (like the auto created this) then we should skip that. This
-              // is to avoid cases where an auto created local variable (for example: this) is unintentionally picked
-              // up while looking through object members.
-              if (request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) continue;
-              // If we are going out of the current function then we should ignore local variables of outer functions.
-              if (searchingFunctionOwners) continue;
-            }
-            // Injected read properties are either functions or function pointers (as_ptr).
-            Bool isReadProperty = isReadPropertyDef(def);
-            Type *objType = 0;
-            if (isReadProperty) {
-              FunctionType *funcType = 0;
-              if (subject->isDerivedFrom<Function>()) {
-                funcType = static_cast<Function*>(subject)->getType().get();
-              } else if (isVar) {
-                auto varType = helper->traceType(subject);
-                if (varType == 0) continue;
-                funcType = helper->tryGetPointerContentType<FunctionType>(
-                  helper->tryGetDeepReferenceContentType(varType)
-                );
-                // A pointer held in an object can only point to a member function and vice versa.
-                if (funcType != 0 && funcType->isMember() != (domain == DefinitionDomain::OBJECT)) continue;
-              }
-              if (funcType == 0) continue;
-              // Similar to variables, member read properties can only be used if we have a `this`, while non-member
-              // ones can only be used if we don't.
-              PlainList<Type> argTypes;
-              if (funcType->isMember()) {
-                if (request.thisType == 0) continue;
-                argTypes.add(request.thisType);
-              } else if (request.thisType != 0) {
-                continue;
-              }
-              if (funcType->matchCall(&argTypes, helper) < TypeMatchStatus::CUSTOM_CASTER) continue;
-              objType = funcType->traceRetType(helper);
-              // Members can only be looked up on user types.
-              if (objType == 0 || !helper->tryGetDeepReferenceContentType(objType)->isDerivedFrom<UserType>()) continue;
-            } else {
-              if (!isVar) continue;
-              Bool isMember = domain == DefinitionDomain::OBJECT;
-              if ((isMember && request.thisType == 0) || (!isMember && request.thisType != 0)) continue;
-              objType = helper->traceType(subject);
-              if (objType == 0) continue;
-            }
-            if (helper->tryGetDeepReferenceContentType(objType) == request.injectionChainStartTarget) {
-              continue; // Prevent infinite loops in case of circular injections.
-            }
-            auto refType = helper->getReferenceTypeFor(objType, Ast::ReferenceMode::IMPLICIT);
-            objType = helper->tryGetDeepReferenceContentType(objType);
-            Bool noBindDef = helper->isNoBindDef(def);
-            CalleeLookupRequest innerRequest = request;
-            innerRequest.target = objType;
-            innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
-            if (innerRequest.injectionChainStartTarget == 0) {
-              // Capture the first injection's content type to prevent infinite loops in case of circular injections.
-              innerRequest.injectionChainStartTarget = dataType;
-            }
-            if (!noBindDef) innerRequest.thisType = refType;
-            CalleeLookupResult innerResult;
-            tracer->lookupCallee(innerRequest, innerResult);
-            if (innerResult.isSuccessful()) {
-              if (!noBindDef) innerResult.pushThisMarker();
-              // Read properties are called (with the current `this` if they are members) to get the value to look up
-              // the members on.
-              if (isReadProperty) innerResult.pushFunctionCall();
-              innerResult.pushObject(subject);
-              ++innerResult.injectionLevel;
-            }
-            CalleeTracer::selectBetterResult(innerResult, result);
-            // No need to keep looking if we already found an exact match.
-            if (result.matchStatus == TypeMatchStatus::EXACT) break;
-          }
-        }
+      auto block = ti_cast<Block>(scope);
+      if (block != 0 && !request.skipInjections && result.matchStatus < TypeMatchStatus::EXACT) {
+        tracer->lookupCallee_injections(request, block, dataType, searchingFunctionOwners, result);
       }
 
       // Try scope bridges if we haven't found any name match.
-      if (!result.isNameMatched() && request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
-        Core::Ast::Scope *scope = 0;
-        // Special handling for Type targets, but it's only needed if we are at the top of the stack to avoid re-testing
-        // the same scope again.
-        auto dataType = target == request.target ? ti_cast<DataType>(target) : 0;
-        if (dataType != 0) {
-          scope = dataType->getBody().get();
-        } else {
-          scope = ti_cast<Core::Ast::Scope>(target);
-        }
-        if (scope != 0) {
-          for (Int i = 0; i < scope->getBridgeCount(); ++i) {
-            auto bridgeRef = scope->getBridge(i);
-            // If the thing we are looking for is actually this bridgeRef, then we need to skip, otherwise we end up in
-            // an infinite loop.
-            if (bridgeRef->getTarget() == request.ref) continue;
-            auto bridgeTarget = tracer->getSeeker()->tryGet(
-              bridgeRef->getTarget().get(), scope,
-              Core::Ast::Seeker::Flags::SKIP_USES | Core::Ast::Seeker::Flags::SKIP_USES_FOR_ALIASES
-            );
-            if (bridgeTarget == 0) continue;
+      if (scope != 0 && !result.isNameMatched() && request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE) {
+        for (Int i = 0; i < scope->getBridgeCount(); ++i) {
+          auto bridgeRef = scope->getBridge(i);
+          // If the thing we are looking for is actually this bridgeRef, then we need to skip, otherwise we end up in
+          // an infinite loop.
+          if (bridgeRef->getTarget() == request.ref) continue;
+          auto bridgeTarget = tracer->getSeeker()->tryGet(
+            bridgeRef->getTarget().get(), scope,
+            Core::Ast::Seeker::Flags::SKIP_USES | Core::Ast::Seeker::Flags::SKIP_USES_FOR_ALIASES
+          );
+          if (bridgeTarget == 0) continue;
 
-            tracingAlias = 0;
-            auto verb = tracer->getSeeker()->foreach(request.ref, bridgeTarget, callback, 0);
-            if (!Core::Ast::Seeker::isMove(verb)) break;
-          }
+          tracingAlias = 0;
+          auto verb = tracer->getSeeker()->foreach(request.ref, bridgeTarget, callback, 0);
+          if (!Core::Ast::Seeker::isMove(verb)) break;
         }
       }
 
+      // Only directly accessible lookups go up to owner scopes.
       if (request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE || result.isNameMatched()) break;
 
       if (ti_cast<Ast::Function>(target) != 0) searchingFunctionOwners = true;
@@ -320,9 +223,15 @@ void CalleeTracer::_lookupCallee_routing(TiObject *self, CalleeLookupRequest &re
     return;
   }
 
-  if (request.target != 0 && request.target->isDerivedFrom<Ast::Function>()) {
+  if (request.target == 0) {
+    if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
+  }
+
+  if (request.target->isDerivedFrom<Ast::Function>()) {
     tracer->lookupCallee_function(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Type>()) {
+  } else if (request.target->isDerivedFrom<Type>()) {
+    // In object member mode the type represents an object of that type rather than the type itself.
     if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
       auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
       if (funcType != 0) {
@@ -335,19 +244,19 @@ void CalleeTracer::_lookupCallee_routing(TiObject *self, CalleeLookupRequest &re
     } else {
       tracer->lookupCallee_type(request, result);
     }
-  } else if (request.target != 0 && request.target->isDerivedFrom<Template>()) {
+  } else if (request.target->isDerivedFrom<Template>()) {
     tracer->lookupCallee_template(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::Scope>()) {
+  } else if (request.target->isDerivedFrom<Core::Ast::Scope>()) {
     tracer->lookupCallee_scope(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<ArgPack>()) {
+  } else if (request.target->isDerivedFrom<ArgPack>()) {
     tracer->lookupCallee_argPack(request, result);
-  } else if (request.target != 0 && helper->isVariable(request.target)) {
+  } else if (helper->isVariable(request.target)) {
     tracer->lookupCallee_var(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::StringLiteral>()) {
-    tracer->lookupCallee_literal(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::IntegerLiteral>()) {
-    tracer->lookupCallee_literal(request, result);
-  } else if (request.target != 0 && request.target->isDerivedFrom<Core::Ast::FloatLiteral>()) {
+  } else if (
+    request.target->isDerivedFrom<Core::Ast::StringLiteral>() ||
+    request.target->isDerivedFrom<Core::Ast::IntegerLiteral>() ||
+    request.target->isDerivedFrom<Core::Ast::FloatLiteral>()
+  ) {
     tracer->lookupCallee_literal(request, result);
   } else {
     // Invalid
@@ -413,11 +322,9 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
       auto retType = helper->tryGetDeepReferenceContentType(func->getType()->traceRetType(helper));
       Bool bindToRet = !noBindDef && retType->isDerivedFrom<UserType>();
       CalleeLookupRequest innerRequest = request;
-      innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
-      innerRequest.target = retType;
-      if (bindToRet) {
-        innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
-      }
+      innerRequest.setObjectTarget(
+        retType, bindToRet ? helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT) : request.thisType
+      );
       tracer->lookupCallee_routing(innerRequest, result);
 
       if (result.isSuccessful()) {
@@ -480,9 +387,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
 
     ref.setValue(S("~init"));
     innerRequest.op = S("~init");
-    innerRequest.target = type;
-    innerRequest.thisType = helper->getReferenceTypeFor(type, Ast::ReferenceMode::IMPLICIT);
-    innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
+    innerRequest.setObjectTarget(type, helper->getReferenceTypeFor(type, Ast::ReferenceMode::IMPLICIT));
     innerRequest.skipInjections = true;
     CalleeLookupResult initResult;
     tracer->lookupCallee(innerRequest, initResult);
@@ -653,14 +558,13 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
 
   Bool noBindDef = def != 0 && helper->isNoBindDef(def);
 
+  // If the variable doesn't bind, members of its value bind to the current `this`.
+  Bool bindToVar = !noBindDef && objType->isDerivedFrom<UserType>() && targetIsRef;
   CalleeLookupRequest innerRequest = request;
-  innerRequest.varTargetOp = def == 0 ? 0 : Ast::findOperationModifier(def);
-  innerRequest.varTargetNoBind = noBindDef;
-  innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
-  innerRequest.target = objType;
-  if (!noBindDef && objType->isDerivedFrom<UserType>() && targetIsRef) {
-    innerRequest.thisType = helper->getReferenceTypeFor(objType, ReferenceMode::IMPLICIT);
-  }
+  innerRequest.setObjectTarget(
+    objType, bindToVar ? helper->getReferenceTypeFor(objType, ReferenceMode::IMPLICIT) : request.thisType
+  );
+  innerRequest.varTargetDef = def;
   tracer->lookupCallee_routing(innerRequest, result);
 
   if (result.isSuccessful()) {
@@ -707,7 +611,11 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
   auto funcType = helper->tryGetPointerContentType<FunctionType>(request.target);
   Bool useThis = funcType->isMember() && request.thisType != 0;
 
-  if (request.varTargetOp != 0 && SBSTR(request.varTargetOp) == S("")) {
+  // The operation modifier and no_bind modifier of the variable holding this pointer, if any.
+  Char const *varTargetOp = request.varTargetDef == 0 ? 0 : findOperationModifier(request.varTargetDef);
+  Bool varTargetNoBind = request.varTargetDef != 0 && helper->isNoBindDef(request.varTargetDef);
+
+  if (varTargetOp != 0 && SBSTR(varTargetOp) == S("")) {
     PlainList<Spp::Ast::Type> argTypes;
     if (useThis) argTypes.add(request.thisType);
     auto matchStatus = funcType->matchCall(&argTypes, helper);
@@ -720,7 +628,7 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
       result.matchStatus = TypeMatchStatus::EXACT;
       result.notice.reset();
       result.stack.clear();
-      if (!request.varTargetNoBind) result.pushThisMarker();
+      if (!varTargetNoBind) result.pushThisMarker();
       result.pushFunctionCall();
     } else if (CalleeTracer::isAssignOp(request.op)) {
       // This is a read property, so we shouldn't allow assign operations on it.
@@ -728,15 +636,11 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
       return;
     } else {
       auto retType = helper->tryGetDeepReferenceContentType(funcType->traceRetType(helper));
-      Bool bindToRet = !request.varTargetNoBind && retType->isDerivedFrom<UserType>();
+      Bool bindToRet = !varTargetNoBind && retType->isDerivedFrom<UserType>();
       CalleeLookupRequest innerRequest = request;
-      innerRequest.mode = CalleeLookupMode::OBJECT_MEMBER;
-      innerRequest.target = retType;
-      innerRequest.varTargetOp = 0;
-      innerRequest.varTargetNoBind = false;
-      if (bindToRet) {
-        innerRequest.thisType = helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT);
-      }
+      innerRequest.setObjectTarget(
+        retType, bindToRet ? helper->getReferenceTypeFor(retType, ReferenceMode::IMPLICIT) : request.thisType
+      );
       tracer->lookupCallee_routing(innerRequest, result);
 
       if (result.isSuccessful()) {
@@ -745,13 +649,13 @@ void CalleeTracer::_lookupCallee_funcPtr(TiObject *self, CalleeLookupRequest &re
       }
     }
     return;
-  } else if (request.op == S("") && request.varTargetOp == 0) {
+  } else if (request.op == S("") && varTargetOp == 0) {
     // We are just trying to get a reference to the function ptr itself.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.notice.reset();
     result.stack.clear();
     return;
-  } else if (request.op != (request.varTargetOp == 0 ? S("()") : request.varTargetOp)) {
+  } else if (request.op != (varTargetOp == 0 ? S("()") : varTargetOp)) {
     result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
     return;
   }
@@ -848,7 +752,7 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
       if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
       return;
     }
-  } else if (request.varTargetOp == 0) {
+  } else if (request.varTargetDef == 0 || findOperationModifier(request.varTargetDef) == 0) {
     // Accept any other operator and let the caller handle the built in type checking.
     result.matchStatus = TypeMatchStatus::EXACT;
     result.stack.clear();
@@ -866,6 +770,92 @@ void CalleeTracer::_lookupCallee_builtInOp(TiObject *self, CalleeLookupRequest &
 
 //==============================================================================
 // Helper Functions
+
+void CalleeTracer::lookupCallee_injections(
+  CalleeLookupRequest &request, Block *block, DataType *dataType, Bool searchingFunctionOwners,
+  CalleeLookupResult &result
+) {
+  auto helper = this->helper;
+  for (Int i = 0; i < block->getInjectionCount(); ++i) {
+    auto def = ti_cast<Core::Ast::Definition>(block->getInjection(i));
+    if (def == 0 || def->getSubject() == 0) continue;
+    auto subject = def->getSubject().get();
+    Bool isVar = helper->isVariable(subject);
+    auto domain = isVar ? helper->getVariableDomain(def) : DefinitionDomain::GLOBAL;
+    if (domain == DefinitionDomain::FUNCTION) {
+      // Local variables are only accessible directly (see the similar check in _lookupCallee).
+      if (request.mode != CalleeLookupMode::DIRECTLY_ACCESSIBLE) continue;
+      // If we are going out of the current function then we should ignore local variables of outer functions.
+      if (searchingFunctionOwners) continue;
+    }
+    // Injected read properties are either functions or function pointers (as_ptr).
+    Bool isReadProperty = isReadPropertyDef(def);
+    Type *objType = 0;
+    if (isReadProperty) {
+      FunctionType *funcType = 0;
+      if (subject->isDerivedFrom<Function>()) {
+        funcType = static_cast<Function*>(subject)->getType().get();
+      } else if (isVar) {
+        auto varType = helper->traceType(subject);
+        if (varType == 0) continue;
+        funcType = helper->tryGetPointerContentType<FunctionType>(
+          helper->tryGetDeepReferenceContentType(varType)
+        );
+        // A pointer held in an object can only point to a member function and vice versa.
+        if (funcType != 0 && funcType->isMember() != (domain == DefinitionDomain::OBJECT)) continue;
+      }
+      if (funcType == 0) continue;
+      // Similar to variables, member read properties can only be used if we have a `this`, while non-member
+      // ones can only be used if we don't.
+      PlainList<Type> argTypes;
+      if (funcType->isMember()) {
+        if (request.thisType == 0) continue;
+        argTypes.add(request.thisType);
+      } else if (request.thisType != 0) {
+        continue;
+      }
+      if (funcType->matchCall(&argTypes, helper) < TypeMatchStatus::CUSTOM_CASTER) continue;
+      objType = funcType->traceRetType(helper);
+      // Members can only be looked up on user types.
+      if (objType == 0 || !helper->tryGetDeepReferenceContentType(objType)->isDerivedFrom<UserType>()) continue;
+    } else {
+      if (!isVar) continue;
+      // Object member variables can only be accessed if we have a `this` to access them through, while non-member
+      // variables can only be used if we don't. This depends on the availability of `this` rather than the lookup
+      // mode since an object member lookup can have no `this` (e.g. on a no_bind value).
+      Bool isMember = domain == DefinitionDomain::OBJECT;
+      if (isMember != (request.thisType != 0)) continue;
+      objType = helper->traceType(subject);
+      if (objType == 0) continue;
+    }
+    if (helper->tryGetDeepReferenceContentType(objType) == request.injectionChainStartTarget) {
+      continue; // Prevent infinite loops in case of circular injections.
+    }
+    auto refType = helper->getReferenceTypeFor(objType, Ast::ReferenceMode::IMPLICIT);
+    objType = helper->tryGetDeepReferenceContentType(objType);
+    Bool noBindDef = helper->isNoBindDef(def);
+    CalleeLookupRequest innerRequest = request;
+    innerRequest.setObjectTarget(objType, noBindDef ? request.thisType : refType);
+    if (innerRequest.injectionChainStartTarget == 0) {
+      // Capture the first injection's content type to prevent infinite loops in case of circular injections.
+      innerRequest.injectionChainStartTarget = dataType;
+    }
+    CalleeLookupResult innerResult;
+    this->lookupCallee(innerRequest, innerResult);
+    if (innerResult.isSuccessful()) {
+      if (!noBindDef) innerResult.pushThisMarker();
+      // Read properties are called (with the current `this` if they are members) to get the value to look up
+      // the members on.
+      if (isReadProperty) innerResult.pushFunctionCall();
+      innerResult.pushObject(subject);
+      ++innerResult.injectionLevel;
+    }
+    CalleeTracer::selectBetterResult(innerResult, result);
+    // No need to keep looking if we already found an exact match.
+    if (result.matchStatus == TypeMatchStatus::EXACT) break;
+  }
+}
+
 
 void CalleeTracer::selectBetterResult(CalleeLookupResult const &newResult, CalleeLookupResult &result)
 {

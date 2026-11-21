@@ -20,16 +20,25 @@ namespace Spp::Ast
  * @enum CalleeLookupMode
  * @ingroup spp_test
  * Specifies what sort of callees are you looking for.
- * 
+ *
+ * The mode is independent from CalleeLookupRequest::thisType, which only specifies the `this` that member callees
+ * bind to, if any. An object member lookup can have no `this` (for example when the object is a function pointer that
+ * is to be called, or a value of a built-in type).
+ *
  * @var CalleeLookupMode::DIRECTLY_ACCESSIBLE
  * Specifies that we are looking for elements that are directly accessible from the current scope. These can be members
- * of the current scope or members of outer scopes.
- * 
+ * of the current scope or members of outer scopes, and can include local variables. Scope bridges are also searched.
+ *
  * @var CalleeLookupMode::OBJECT_MEMBER
- * Specifies that we are looking for a member of a specific object.
- * 
+ * Specifies that the target is a type that represents an object of that type rather than the type itself. When a ref
+ * is given we are looking for a member of that object (only the target is searched, not its owners). When no ref is
+ * given the operation is applied on the object itself (calling a function pointer, a custom or built-in operator,
+ * etc.).
+ *
  * @var CalleeLookupMode::SCOPE_MEMBER
- * Specifies that we are looking for global variables in a specific scope.
+ * Specifies that we are looking for a non-object element (a global, a type, a function, etc.) defined in a specific
+ * scope or type. Only the target is searched, not its owners. Without a ref this behaves like DIRECTLY_ACCESSIBLE,
+ * i.e. the target is treated as the element itself rather than an object.
  */
 s_enum(CalleeLookupMode, DIRECTLY_ACCESSIBLE, OBJECT_MEMBER, SCOPE_MEMBER);
 
@@ -43,14 +52,20 @@ struct CalleeLookupRequest
   Bool skipInjections = false;
   // Allows directly accessing object member vars without an object, which is valid when only computing types.
   Bool treatObjectMembersAsGlobals = false;
-  Char const *varTargetOp = 0;
-  // Whether the variable whose type is being looked up (when varTargetOp is used) is marked with no_bind.
-  Bool varTargetNoBind = false;
+  // The definition of the variable whose type is being looked up, if any. The variable's operation modifier and no_bind
+  // modifier affect how the operation is applied on the variable's value.
+  Core::Ast::Definition *varTargetDef = 0;
   Core::Ast::Node *ref = 0;
   Str op;
+  // The `this` that member callees bind to, or 0 if there is none.
   Spp::Ast::Type *thisType = 0;
   Containing<Spp::Ast::Type> *argTypes = 0;
   Core::Ast::Node *templateParam = 0;
+
+  /// Makes this a request for applying the operation on an object of the given type, with the given `this` for
+  /// member callees to bind to (0 for none). State belonging to the previous target is reset.
+  /// Defined in CalleeTracer.cpp since Type isn't complete at this point.
+  void setObjectTarget(Spp::Ast::Type *type, Spp::Ast::Type *thisType);
 };
 
 s_enum(CalleeLookupResultStackEntryType,
