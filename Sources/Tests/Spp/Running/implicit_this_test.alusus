@@ -1,0 +1,102 @@
+import "Srl/Console";
+use Srl.Console;
+
+class Base {
+  def b: Int;
+  handler this.getB(): Int { return b }
+}
+
+class A {
+  @injection def base: Base;
+  def i: Int;
+  def j: Int;
+
+  handler this~init() {
+    i = 1;
+    j = 2;
+    b = 3;
+  }
+
+  @member func sum(this: ref[this_type]): Int {
+    return i + j;
+  }
+
+  handler this.doubled: Int {
+    return sum() * 2;
+  }
+
+  // Args take precedence over members.
+  handler this.setI(i: Int) {
+    this.i = i;
+  }
+
+  // Locals take precedence over members.
+  handler this.printLocal() {
+    def j: Int;
+    j = 100;
+    print("local j=%d, member j=%d\n", j, this.j);
+  }
+
+  // Members are accessible from nested blocks.
+  handler this.incrementJ(n: Int) {
+    while n > 0 {
+      if n % 2 == 0 j += 10 else j += 1;
+      --n;
+    }
+  }
+
+  // Members of injected members are accessible.
+  handler this.setB(v: Int) {
+    b = v;
+  }
+
+  handler this.printAll() {
+    print("i=%d, j=%d, b=%d, getB()=%d, sum()=%d, doubled=%d\n", i, j, b, getB(), sum(), doubled);
+  }
+
+  // Shared functions are accessible, including ones with the same name as a member.
+  func scaled(n: Int): Int {
+    return n * 10;
+  }
+  func triple(n: Int): Int {
+    return n * 3;
+  }
+  handler this.scaled(): Int {
+    return scaled(i) + triple(j);
+  }
+}
+
+def a: A;
+a.printAll();
+a.setI(5);
+a.printAll();
+a.printLocal();
+a.incrementJ(3);
+a.printAll();
+a.setB(7);
+a.printAll();
+print("scaled=%d\n", a.scaled());
+
+// Calling a member with wrong args.
+
+class B {
+  def i: Int;
+  handler this.inc(n: Int) {
+    i += n;
+  }
+  handler this.wrong() {
+    inc("x");
+  }
+}
+def bb: B;
+bb.wrong();
+
+// Members are inaccessible from non-member functions.
+
+class C {
+  def k: Int;
+  func nonMember() {
+    k = 5;
+  }
+}
+C.nonMember();

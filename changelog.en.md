@@ -93,6 +93,16 @@
   (`@injection @operation[""] def prop: ptr[func (): ref[Inner]]`).
 * Added the `@inline` modifier (`@مضمن` in Arabic) for functions and handlers, which makes the compiler inline calls to
   them, including in unoptimized builds.
+* Members of the object can now be accessed from within methods without the `this.` prefix (e.g. `x` instead of
+  `this.x`), as `this` is now implicitly injected into the body of every method. Local variables and the method's
+  arguments take precedence over members with the same name.
+* Changed the precedence rules of name lookup:
+  - Injections within a function's body no longer hide the function's arguments or its local definitions, even if the
+    injected member is a better match.
+  - A name found through an injection, a `use` command, or a scope outside the current function no longer hides
+    definitions with the same name further out if it doesn't match the given arguments. The mismatch is only reported
+    if nothing else matches the name. Ambiguous matches, and accessing local variables of other functions, are still
+    reported right away.
 
 ### Compiler Fixes
 

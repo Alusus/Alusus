@@ -46,7 +46,8 @@ print(
   getO().getA(), getO().getI(), getO().j, getO().k, getO()()
 );
 
-// Test incorrectly accessing a member of an injection through an auto generated `this`.
+// Test accessing a member of an injection through the auto injected `this` of member functions, and incorrectly
+// accessing it through the auto generated `this` of the constructor from a non-member function.
 
 class Parent {
     def result: Int;
@@ -59,10 +60,16 @@ class Child {
     handler this.test() {
         result = 5;
     }
+
+    func nonMemberTest() {
+        result = 6;
+    }
 }
 
 def c: Child;
 c.test();
+print("c.result=%d\n", c.result);
+Child.nonMemberTest();
 
 // Test other injection errors
 
