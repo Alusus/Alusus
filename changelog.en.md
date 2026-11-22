@@ -103,6 +103,10 @@
     definitions with the same name further out if it doesn't match the given arguments. The mismatch is only reported
     if nothing else matches the name. Ambiguous matches, and accessing local variables of other functions, are still
     reported right away.
+* Added the `~pick` operator (`~التقط` in Arabic), which picks the element matching a given type among multiple
+  elements with the same name, as in `print~pick[func (Int)]~ptr` to get a pointer to a specific overload of a
+  function, or `count~pick[Int]` to pick between variables with the same name. Elements are picked by an exact match
+  of their type.
 
 ### Compiler Fixes
 

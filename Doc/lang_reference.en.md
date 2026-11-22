@@ -2137,7 +2137,7 @@ Accessing definitions inside another module is done using any of the following:
     }
   ```
 
-### Name Lookup
+## Name Lookup
 
 When a name is used without a scope, the compiler looks for it starting from the scope in which it's used and moving
 out to the enclosing scopes, until it finds a match. Within each scope, the compiler looks in the following order:
@@ -2177,6 +2177,66 @@ accessing a local variable of the enclosing function from within an inner functi
 Within the body of a type, and when accessing the members of an object, the members of injected definitions are
 considered along with the type's own members unless one of the type's own members is an exact match. This allows a
 type to add overloads to the functions of the definitions injected into it.
+
+## ~pick Operator
+
+When multiple elements share the same name, using the name in a call is enough for the compiler to pick the right
+function based on the given arguments. However, in other cases, like getting a pointer to a function, the compiler has
+nothing to pick the right element with, and the operation fails because of the multiple matches. The `~pick` operator
+solves this by picking the element that matches the given type, as shown in the next example:
+
+```
+  func print(i: Int) { ... };
+  func print(s: CharsPtr) { ... };
+
+  var pf: ptr[func (Int)];
+  pf = print~ptr; // error: multiple matches.
+  pf = print~pick[func (Int)]~ptr; // correct.
+```
+
+The result of `~pick` is exactly what the name would have given without the operator had it been the only element with
+that name. This means it's not a cast; it only decides which of the elements is used. The element is picked as follows:
+
+* A function is picked if its type is an exact match of the given function type. Argument names are ignored, and
+  pointer types are not accepted, so to get a pointer to the picked function use `~ptr` after `~pick`, as in the
+  previous example.
+* A variable is picked if its type is an exact match of the given type.
+
+Methods and properties belong to the type rather than to the object, so they are picked through the type, not
+through an object, similar to getting a pointer to them using `~ptr`. Picking a property's handler gives the handler
+function itself without calling it:
+
+```
+  class Point {
+    def x: Int;
+    handler this.move(dx: Int) { ... };
+    handler this.move(dx: Int, dy: Int) { ... };
+    handler this.xCoord: Int return this.x;
+  };
+
+  var pm: ptr[func (ref[Point], Int)] = Point.move~pick[func (ref[Point], Int)]~ptr;
+  var px: ptr[func (ref[Point]): Int] = Point.xCoord~pick[func (ref[Point]): Int]~ptr;
+
+  var p: Point;
+  p.move~pick[func (ref[Point], Int)]~ptr; // error: methods can't be picked through an object.
+```
+
+`~pick` can also be used with function templates after giving the template arguments, and with variables that share
+the same name, as in using two modules that define the same variable name:
+
+```
+  func convert [T: type] (v: T): Int { ... };
+  var pc: ptr[func (Float): Int] = convert[Float]~pick[func (Float): Int]~ptr;
+
+  module Lib1 { var count: Int };
+  module Lib2 { var count: Float };
+  use Lib1;
+  use Lib2;
+  count~pick[Int] = 5; // Sets Lib1.count.
+```
+
+The operand of `~pick` must be a name, optionally with a scope (like `Point.move`) or template arguments. Using it on
+the result of an expression, a literal, or a type is an error.
 
 ## Macros
 

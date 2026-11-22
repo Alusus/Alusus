@@ -1,0 +1,140 @@
+import "Srl/Console";
+use Srl;
+
+//
+// Overloaded functions.
+//
+
+func f (i: Int) {
+    Console.print("f(Int): %d\n", i);
+}
+
+func f (s: CharsPtr) {
+    Console.print("f(CharsPtr): %s\n", s);
+}
+
+func f (i: Int, j: Int): Int {
+    Console.print("f(Int, Int): %d, %d\n", i, j);
+    return i + j;
+}
+
+var pf1: ptr[func (Int)] = f~pick[func (Int)]~ptr;
+pf1(5);
+var pf2: ptr[func (CharsPtr)] = f~pick[func (CharsPtr)]~ptr;
+pf2("hello");
+var pf3: ptr[func (Int, Int): Int] = f~pick[func (Int, Int): Int]~ptr;
+Console.print("pf3 returned: %d\n", pf3(3, 4));
+
+//
+// Member functions and property handlers, picked through the type.
+//
+
+class A {
+    def i: Int;
+
+    handler this.show() {
+        Console.print("A.show(): %d\n", this.i);
+    }
+
+    handler this.show(n: Int) {
+        Console.print("A.show(Int): %d\n", this.i + n);
+    }
+
+    handler this.val: Int {
+        return this.i;
+    }
+
+    handler this.val = Int {
+        this.i = value;
+        return value;
+    }
+}
+
+def a: A;
+a.i = 10;
+var pshow1: ptr[func (ref[A])] = A.show~pick[func (ref[A])]~ptr;
+pshow1(a);
+var pshow2: ptr[func (ref[A], Int)] = A.show~pick[func (ref[A], Int)]~ptr;
+pshow2(a, 5);
+// Picking a property handler gives the function itself rather than calling it.
+var psetVal: ptr[func (ref[A], Int): Int] = A.val~pick[func (ref[A], Int): Int]~ptr;
+psetVal(a, 20);
+var pgetVal: ptr[func (ref[A]): Int] = A.val~pick[func (ref[A]): Int]~ptr;
+Console.print("A.val: %d\n", pgetVal(a));
+
+//
+// Template functions.
+//
+
+func g [T: type] (v: T) {
+    Console.print("g[T]\n");
+}
+
+func g (s: CharsPtr) {
+    Console.print("g(CharsPtr): %s\n", s);
+}
+
+var pg1: ptr[func (Int)] = g[Int]~pick[func (Int)]~ptr;
+pg1(1);
+var pg2: ptr[func (CharsPtr)] = g~pick[func (CharsPtr)]~ptr;
+pg2("world");
+
+//
+// Variables.
+//
+
+module M1 {
+    var v: Int = 7;
+}
+
+module M2 {
+    var v: CharsPtr = "seven";
+}
+
+use M1;
+use M2;
+
+Console.print("M1.v: %d\n", v~pick[Int]);
+Console.print("M2.v: %s\n", v~pick[CharsPtr]);
+v~pick[Int] = 8;
+Console.print("M1.v: %d\n", M1.v);
+
+class B1 {
+    def x: Int;
+}
+
+class B2 {
+    def x: CharsPtr;
+}
+
+class C {
+    @injection def b1: B1;
+    @injection def b2: B2;
+}
+
+def c: C;
+c.x~pick[Int] = 9;
+c.x~pick[CharsPtr] = "nine";
+Console.print("c.b1.x: %d, c.b2.x: %s\n", c.b1.x, c.b2.x);
+
+//
+// Failures.
+//
+
+// Ambiguous without ~pick.
+Console.print("%d\n", v);
+// No matching function.
+f~pick[func (Float)]~ptr;
+// Function types must match exactly, so a pointer type isn't accepted.
+f~pick[ptr[func (Int)]]~ptr;
+// No matching variable.
+Console.print("%d\n", v~pick[A]);
+// Variable types must match exactly, so a type that M1.v can be promoted to isn't accepted.
+Console.print("%d\n", v~pick[Int[64]]);
+// Functions can't be picked through an object.
+a.show~pick[func (ref[A])]~ptr;
+// Only named elements can be picked.
+Console.print("%d\n", (a.i + 1)~pick[Int]);
+Console.print("%d\n", 5~pick[Int]);
+// Types can't be picked.
+A~pick[A];

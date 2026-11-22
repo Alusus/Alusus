@@ -51,6 +51,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateNoDerefOp,
     &this->generateNoDeref,
     &this->generateCastOp,
+    &this->generatePickOp,
     &this->generateSizeOp,
     &this->generateInitOp,
     &this->generateTerminateOp,
@@ -111,6 +112,7 @@ void ExpressionGenerator::initBindings()
   this->generateNoDerefOp = &ExpressionGenerator::_generateNoDerefOp;
   this->generateNoDeref = &ExpressionGenerator::_generateNoDeref;
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
+  this->generatePickOp = &ExpressionGenerator::_generatePickOp;
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
   this->generateInitOp = &ExpressionGenerator::_generateInitOp;
   this->generateTerminateOp = &ExpressionGenerator::_generateTerminateOp;
@@ -190,6 +192,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::CastOp>()) {
     auto castOp = static_cast<Spp::Ast::CastOp*>(astNode);
     return expGenerator->generateCastOp(castOp, g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::PickOp>()) {
+    auto pickOp = static_cast<Spp::Ast::PickOp*>(astNode);
+    return expGenerator->generatePickOp(pickOp, g, session, result);
   } else if (astNode->isDerivedFrom<Spp::Ast::SizeOp>()) {
     auto sizeOp = static_cast<Spp::Ast::SizeOp*>(astNode);
     return expGenerator->generateSizeOp(sizeOp, g, session, result);
@@ -2024,6 +2029,40 @@ Bool ExpressionGenerator::_generateCastOp(
   }
   if (!retVal) {
     expGenerator->astHelper->getNoticeStore()->add(newSrdObj<Spp::Notices::InvalidCastNotice>(astNode->getSourceLocation()));
+    return false;
+  }
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generatePickOp(
+  TiObject *self, Spp::Ast::PickOp *astNode, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  auto operand = astNode->getOperand().get();
+  if (operand == 0) {
+    throw EXCEPTION(GenericException, S("PickOp operand is missing."));
+  }
+  auto targetType = astNode->getTargetType().get();
+  if (targetType == 0) {
+    throw EXCEPTION(GenericException, S("PickOp target type is missing."));
+  }
+
+  auto targetAstType = expGenerator->astHelper->traceType(targetType);
+  if (targetAstType == 0) return false;
+
+  // The operand is looked up the same way it would be looked up without the operator, except that the callee tracer
+  // only accepts the elements matching the target type, which means the result is exactly what the operand alone would
+  // evaluate to had there been no other elements with the same name.
+  PlainList<Spp::Ast::Type> argTypes;
+  argTypes.add(targetAstType);
+  TerminalStatement terminal;
+  if (!expGenerator->prepareCallee(operand, &argTypes, S("~pick"), g, session, result, terminal)) return false;
+  if (terminal == TerminalStatement::YES) {
+    expGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::UnexpectedTerminalStatementNotice>(Core::Ast::findSourceLocation(astNode))
+    );
     return false;
   }
   return true;

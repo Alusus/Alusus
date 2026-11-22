@@ -39,6 +39,7 @@
 
         defAstType[AstRefOp, "alusus.org/Spp/Spp.Ast.AstRefOp"];
         defAstType[CastOp, "alusus.org/Spp/Spp.Ast.CastOp"];
+        defAstType[PickOp, "alusus.org/Spp/Spp.Ast.PickOp"];
         defAstType[InitOp, "alusus.org/Spp/Spp.Ast.InitOp"];
         defAstType[TerminateOp, "alusus.org/Spp/Spp.Ast.TerminateOp"];
         defAstType[NextArgOp, "alusus.org/Spp/Spp.Ast.NextArgOp"];

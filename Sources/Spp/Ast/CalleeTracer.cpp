@@ -294,6 +294,18 @@ void CalleeTracer::_lookupCallee_routing(TiObject *self, CalleeLookupRequest &re
     return;
   }
 
+  // The ~pick operator only picks among named functions and variables, possibly from templates. Any other target,
+  // including the result of an expression (an object member lookup on a type), has nothing to pick from.
+  if (
+    request.op == S("~pick") &&
+    !request.target->isDerivedFrom<Ast::Function>() &&
+    !request.target->isDerivedFrom<Template>() &&
+    !helper->isVariable(request.target)
+  ) {
+    if (result.notice == 0) result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+    return;
+  }
+
   if (request.target->isDerivedFrom<Ast::Function>()) {
     tracer->lookupCallee_function(request, result);
   } else if (request.target->isDerivedFrom<Type>()) {
@@ -350,6 +362,26 @@ void CalleeTracer::_lookupCallee_function(TiObject *self, CalleeLookupRequest &r
     result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
       Core::Ast::findSourceLocation(request.target)
     );
+    return;
+  }
+
+  if (request.op == S("~pick")) {
+    // Picking a function is only valid on the function itself, not through an object, since member functions belong
+    // to the type rather than the object (similar to ~ptr). The function's type must exactly match the given type.
+    // This is checked before the function's operation modifier is considered since we want the function itself
+    // regardless of what kind of handler it is.
+    if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
+      result.notice = newSrdObj<Spp::Notices::InvalidOperationNotice>();
+      return;
+    }
+    if (func->getType()->matchTargetType(request.argTypes->getElement(0), helper) != TypeMatchStatus::EXACT) {
+      result.notice = newSrdObj<Spp::Notices::NoMatchingPickTargetNotice>();
+      return;
+    }
+    result.matchStatus = TypeMatchStatus::EXACT;
+    result.notice.reset();
+    result.stack.clear();
+    result.pushObject(func);
     return;
   }
 
@@ -623,6 +655,23 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
   }
 
   Bool noBindDef = def != 0 && helper->isNoBindDef(def);
+
+  if (request.op == S("~pick")) {
+    // Picking a variable means we want the variable itself, the same as referencing it without the operator, so we
+    // won't apply the operation on the variable's value. Since no casting is applied, the variable's type must exactly
+    // match the given type.
+    Function *caster;
+    if (helper->matchTargetType(objType, request.argTypes->getElement(0), caster) != TypeMatchStatus::EXACT) {
+      result.notice = newSrdObj<Spp::Notices::NoMatchingPickTargetNotice>();
+      return;
+    }
+    result.matchStatus = TypeMatchStatus::EXACT;
+    result.notice.reset();
+    result.stack.clear();
+    if (!noBindDef) result.pushThisMarker();
+    result.pushObject(request.target);
+    return;
+  }
 
   // If the variable doesn't bind, members of its value bind to the current `this`.
   Bool bindToVar = !noBindDef && objType->isDerivedFrom<UserType>() && targetIsRef;

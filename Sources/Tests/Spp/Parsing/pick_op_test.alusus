@@ -1,0 +1,15 @@
+import "alusus_spp";
+
+def main: function ()=>Void
+{
+  pf = f~pick[func (Int)]~ptr;
+  pf = T.f~pick[func (ref[T], Int)]~ptr;
+  pf = f[Int]~pick[func (Int): Int]~ptr;
+  i~pick[Int] = 5;
+  pf = f~التقط[func ()=>Int]~ptr;
+  pf = f~pick func (Int);
+  pf = f~pick(func (Int));
+  pf = f~pick;
+};
+
+dump_ast main;
