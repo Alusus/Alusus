@@ -77,6 +77,22 @@ a.setB(7);
 a.printAll();
 print("scaled=%d\n", a.scaled());
 
+// Literal definitions of the type are accessible, but not through an object.
+
+class D {
+  def label: "D label";
+  def count: 4;
+  handler this.printLabel() {
+    print("label=%s, count=%d\n", label, count);
+  }
+  handler this.printLabelThroughThis() {
+    print("label=%s\n", this.label);
+  }
+}
+def d: D;
+d.printLabel();
+d.printLabelThroughThis();
+
 // Calling a member with wrong args.
 
 class B {

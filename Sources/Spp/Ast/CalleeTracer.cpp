@@ -694,6 +694,16 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
 
 void CalleeTracer::_lookupCallee_literal(TiObject *self, CalleeLookupRequest &request, CalleeLookupResult &result)
 {
+  // A literal definition within a type belongs to the type rather than its objects, so it's not accessible through an
+  // object, similar to shared variables. Failing here lets lookups through an injected `this` fall back to the type's
+  // scope.
+  if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
+    result.notice = newSrdObj<Spp::Notices::InvalidGlobalDefAccessNotice>(
+      Core::Ast::findSourceLocation(request.target)
+    );
+    return;
+  }
+
   if (request.op != S("()")) {
     // Accept any other operator and let the caller handle the built in type checking.
     result.matchStatus = TypeMatchStatus::EXACT;

@@ -114,6 +114,9 @@
   example during preprocessing, caused the new element to be ignored.
 * Fixed a bug where enclosing the entire header of a for loop in brackets, as in `for (i = 0, i < 10, ++i)`,
   resulted in an invalid for statement error.
+* Fixed a bug where accessing a literal definition of a type through an object, as in `this.label` where `label` is
+  defined as `def label: "..."`, resulted in a misleading circular code generation error instead of an invalid
+  access to global definition error.
 
 ### Standard Libraries Updates
 
