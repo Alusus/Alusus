@@ -153,6 +153,8 @@ class TypeHandlersParsingHandler : public Core::Processing::Handlers::GenericPar
 
   private: Core::Ast::Definition* findHandlerDefinition(Core::Processing::ParserState *state);
 
+  private: Core::Ast::Definition* findHandlerBackingFunctionDefinition(Core::Processing::ParserState *state);
+
 }; // class
 
 } // namespace

@@ -801,15 +801,16 @@ UserType [Main.Type]
     first: Identifier: base [Main.BlockSubject.Identifier]
     second: Identifier: myfunc
    second: CastOp
-    operand: Function 
-     type: FunctionType member: 1
-      argTypes: Map
-       this: ParamPass []
-        operand: Identifier: ref
-        param: ThisTypeRef
-       a: Identifier: Int [Main.BlockSubject.Identifier]
-      retType: Identifier: Int [Main.BlockSubject.Identifier]
-     body: Block [Main.BlockStatements.StmtList]
+    operand: PointerOp
+     operand: PickOp
+      operand: Identifier: _myfunc
+      targetType: FunctionType member: 1
+       argTypes: Map
+        this: ParamPass []
+         operand: Identifier: ref
+         param: ThisTypeRef
+        a: Identifier: Int [Main.BlockSubject.Identifier]
+       retType: Identifier: Int [Main.BlockSubject.Identifier]
     targetType: ParamPass []
      operand: Identifier: ptr
      param: FunctionType member: 1
@@ -821,14 +822,10 @@ UserType [Main.Type]
          type: NULL
        a: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
-  AssignmentOperator =
-   first: LinkOperator .
-    first: LinkOperator .
-     first: Identifier: a [Main.BlockSubject.Identifier]
-     second: Identifier: base [Main.BlockSubject.Identifier]
-    second: Identifier: myfunc
-   second: CastOp
-    operand: Function 
+  Definition _myfunc
+   metadata:
+    operation: StringLiteral: ()
+   subject: Function 
      type: FunctionType member: 1
       argTypes: Map
        this: ParamPass []
@@ -837,6 +834,23 @@ UserType [Main.Type]
        a: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
      body: Block [Main.BlockStatements.StmtList]
+  AssignmentOperator =
+   first: LinkOperator .
+    first: LinkOperator .
+     first: Identifier: a [Main.BlockSubject.Identifier]
+     second: Identifier: base [Main.BlockSubject.Identifier]
+    second: Identifier: myfunc
+   second: CastOp
+    operand: PointerOp
+     operand: PickOp
+      operand: Identifier: _myfunc
+      targetType: FunctionType member: 1
+       argTypes: Map
+        this: ParamPass []
+         operand: Identifier: ref
+         param: ThisTypeRef
+        a: Identifier: Int [Main.BlockSubject.Identifier]
+       retType: Identifier: Int [Main.BlockSubject.Identifier]
     targetType: ParamPass []
      operand: Identifier: ptr
      param: FunctionType member: 1
@@ -850,4 +864,16 @@ UserType [Main.Type]
          type: NULL
        a: Identifier: Int [Main.BlockSubject.Identifier]
       retType: Identifier: Int [Main.BlockSubject.Identifier]
+  Definition _myfunc
+   metadata:
+    operation: StringLiteral: ()
+   subject: Function 
+     type: FunctionType member: 1
+      argTypes: Map
+       this: ParamPass []
+        operand: Identifier: ref
+        param: ThisTypeRef
+       a: Identifier: Int [Main.BlockSubject.Identifier]
+      retType: Identifier: Int [Main.BlockSubject.Identifier]
+     body: Block [Main.BlockStatements.StmtList]
 ------------------------------------------------------

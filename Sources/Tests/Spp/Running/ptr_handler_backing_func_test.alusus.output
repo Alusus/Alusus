@@ -1,0 +1,15 @@
+Base.describe: 1
+Base.describe(n): 3
+b.val=40
+Child.describe, then: Base.describe: 1
+Base.describe(n): 4
+c.val=11, c._val=11
+GrandChild.describe, then: Child.describe, then: Base.describe: 1
+nb.vtable.getVal()=7, nb._vtable.getVal()=7
+Multi.a.f, then: A.f
+Multi.b.f, then: B.f
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+ptr_handler_backing_func_test.alusus (89,11)
+ptr_handler_backing_func_test.alusus (90,11)
+Called from:[0m
+  ptr_handler_backing_func_test.alusus (89,11)

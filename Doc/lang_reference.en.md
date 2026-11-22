@@ -1248,6 +1248,66 @@ the type of `this` is deduced from the type of that variable:
 This form is only allowed with `set_ptr`, and the member variable doesn't have to be an injection. The member can also
 be nested at any depth, which is useful with multi-level inheritance, as in `handler this.child.parent.mp() set_ptr`.
 
+When an `as_ptr` or `set_ptr` handler has a body, the function is defined as a method with the same name prefixed with
+an underscore, and the pointer is set to that method. For example, `handler this.mp(i: Int) as_ptr { ... }` is
+equivalent to the following:
+
+```
+  class MyType {
+    var mp: ptr[@member func (this: ref[this_type], i: Int)];
+    handler this._mp(i: Int) { ... };
+    mp = _mp~pick[func (this: ref[this_type], i: Int)]~ptr;
+  }
+```
+
+This allows calling the implementation that the pointer was set to directly, even after a child class overrides the
+pointer, which is useful for calling the parent's implementation from the child's implementation:
+
+```
+  class ParentType {
+    handler this.mp(i: Int) as_ptr { ... };
+  }
+
+  class ChildType {
+    @injection var parent: ParentType;
+    handler this.parent.mp(i: Int) set_ptr {
+      ...
+      parent._mp(i); // Calls ParentType's implementation.
+    };
+  }
+```
+
+This is only done for named handlers. Operator handlers, like `handler this + Int as_ptr { ... }`, still point to
+anonymous functions.
+
+Since the name of the method is derived from the handler's name only, overriding pointers with the same name and type
+from two different members of the same class, as in multiple inheritance, results in two methods with the same name and
+type, which is an error:
+
+```
+  class ChildType {
+    @injection var a: A;
+    @injection var b: B;
+    handler this.a.mp() set_ptr { ... }; // Both handlers define `_mp`.
+    handler this.b.mp() set_ptr { ... };
+  }
+```
+
+In this case, define the implementations as regular methods with distinct names and set the pointers manually:
+
+```
+  class ChildType {
+    @injection var a: A;
+    @injection var b: B;
+    handler this.aMp() { ... };
+    handler this.bMp() { ... };
+    handler this~init() {
+      a.mp = aMp~ptr~cast[ptr[func (ref[A])]];
+      b.mp = bMp~ptr~cast[ptr[func (ref[B])]];
+    };
+  }
+```
+
 ### Custom Object Initialization
 
 Users can customize object initialization, i.e. define a constructor, using `handler` command, with the following syntax:

@@ -1,0 +1,94 @@
+import "Srl/Console";
+use Srl.Console;
+
+//
+// Calling the implementation behind an overridden function pointer.
+//
+
+class Base {
+  def i: Int;
+  handler this~init() { i = 1 }
+  handler this.describe() as_ptr { print("Base.describe: %d\n", i) }
+  handler this.describe(n: Int) as_ptr { print("Base.describe(n): %d\n", i + n) }
+  handler this.val: Int as_ptr { return i * 10 }
+  handler this.val = Int as_ptr { i = value; return value }
+}
+
+class Child {
+  @injection def base: Base;
+  handler this.base.describe() set_ptr {
+    print("Child.describe, then: ");
+    base._describe();
+  }
+  handler this.base.val: Int set_ptr { return base._val + 1 }
+}
+
+class GrandChild {
+  @injection def child: Child;
+  handler this.child.base.describe() set_ptr {
+    print("GrandChild.describe, then: ");
+    child._describe();
+  }
+}
+
+def b: Base;
+b.describe();
+b.describe(2);
+b.val = 4;
+print("b.val=%d\n", b.val);
+def c: Child;
+c.describe();
+c.describe(3);
+print("c.val=%d, c._val=%d\n", c.val, c._val);
+def g: GrandChild;
+g.describe();
+
+//
+// Backing functions of no_bind handlers bind the same way the pointers do.
+//
+
+class NoBind {
+  class VTable {
+    handler (this: NoBind).getVal(): Int { return this.i };
+  }
+  @shared var s__vtable__: VTable;
+  @no_bind handler this.vtable: ref[VTable] as_ptr { return NoBind.s__vtable__ };
+  var i: Int;
+}
+
+def nb: NoBind;
+nb.i = 7;
+print("nb.vtable.getVal()=%d, nb._vtable.getVal()=%d\n", nb.vtable.getVal(), nb._vtable.getVal());
+
+//
+// Overriding functions with the same name in multiple members, which requires manually setting the pointers since the
+// backing functions would have the same name.
+//
+
+class A { handler this.f() as_ptr { print("A.f\n") } }
+class B { handler this.f() as_ptr { print("B.f\n") } }
+
+class Multi {
+  @injection def a: A;
+  @injection def b: B;
+  handler this.a_f() { print("Multi.a.f, then: "); a._f() }
+  handler this.b_f() { print("Multi.b.f, then: "); b._f() }
+  handler this~init() {
+    a.f = a_f~ptr~cast[ptr[func (ref[A])]];
+    b.f = b_f~ptr~cast[ptr[func (ref[B])]];
+  }
+}
+
+def m: Multi;
+m.a.f();
+m.b.f();
+
+class MultiCollision {
+  @injection def a: A;
+  @injection def b: B;
+  handler this.a.f() set_ptr { a._f() }
+  handler this.b.f() set_ptr { b._f() }
+}
+
+def mc: MultiCollision;
+mc.a.f();
