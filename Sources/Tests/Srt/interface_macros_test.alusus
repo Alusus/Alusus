@@ -1,0 +1,44 @@
+import "Srl/Console";
+import "compiler";
+use Srl;
+use Core.Basic;
+use Core.Ast;
+
+// Variables passed to getInterface, dynCastRef, and isDerivedFrom shouldn't be hidden by members of the macros'
+// result that share their names, like `vtable` (a member of every TiInterface), or `node` and `owner` (members of
+// every AST class), nor by the name of the result itself.
+
+class X { def i: Int }
+
+func getInterfaceTest (vtable: ref[Spp.Ast.UserType], expected: ref[Node]) {
+    def m: ref[MapContaining[Node]](getInterface[castRef[vtable, Node], MapContaining[Node]]);
+    Console.print("getInterface[vtable]: %d\n", m~ptr == getInterface[expected, MapContaining[Node]]~ptr);
+    Console.print("getInterface[vtable] count: %d\n", m.getElementCount());
+}
+
+func dynCastRefTest (node: ref[Node], owner: ref[Node], self: ref[Node]) {
+    Console.print("dynCastRef[node]: %d\n", dynCastRef[node, Spp.Ast.UserType]~ptr == node~ptr);
+    Console.print("dynCastRef[owner]: %d\n", dynCastRef[owner, Spp.Ast.UserType]~ptr == owner~ptr);
+    Console.print("dynCastRef[self]: %d\n", dynCastRef[self, Spp.Ast.UserType]~ptr == self~ptr);
+    Console.print("dynCastRef[node] wrong type: %d\n", dynCastRef[node, Spp.Ast.FunctionType]~ptr == 0);
+}
+
+func isDerivedFromTest (vtable: ref[Node], node: ref[Node]) {
+    Console.print("isDerivedFrom[vtable]: %d\n", isDerivedFrom[vtable, Spp.Ast.UserType]);
+    Console.print("isDerivedFrom[node]: %d\n", isDerivedFrom[node, Spp.Ast.UserType]);
+}
+
+func test {
+    def t: ref[Node](castRef[Spp.astMgr.traceType(X~ast), Node]);
+    getInterfaceTest(castRef[t, Spp.Ast.UserType], t);
+    dynCastRefTest(t, t, t);
+    isDerivedFromTest(t, t);
+
+    // Using the macros within a `~use_in(self)` block of the user's own.
+    t~use_in(self) {
+        Console.print("nested getInterface[self]: %d\n", getInterface[self, MapContaining[Node]]~ptr != 0);
+        Console.print("nested dynCastRef[self]: %d\n", dynCastRef[self, Spp.Ast.UserType]~ptr == t~ptr);
+        Console.print("nested isDerivedFrom[self]: %d\n", isDerivedFrom[self, Spp.Ast.UserType]);
+    };
+}
+test();

@@ -152,6 +152,12 @@
 * Added the `compiler` module (`المترجم` in Arabic), which imports everything related to interacting with the compiler
   in a single import.
 
+### Standard Libraries Fixes
+
+* Fixed `getInterface`, `dynCastRef`, and `isDerivedFrom` macros resolving the given object to a different
+  element when its name matched a member of the result, like `vtable` and `node`, or the name `self`, which led to
+  wrong results or crashes.
+
 
 ## Version 0.16.0 (2026-10-09)
 

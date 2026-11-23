@@ -1,0 +1,11 @@
+getInterface[vtable]: 1
+getInterface[vtable] count: 1
+dynCastRef[node]: 1
+dynCastRef[owner]: 1
+dynCastRef[self]: 1
+dynCastRef[node] wrong type: 1
+isDerivedFrom[vtable]: 1
+isDerivedFrom[node]: 1
+nested getInterface[self]: 1
+nested dynCastRef[self]: 1
+nested isDerivedFrom[self]: 1
