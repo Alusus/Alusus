@@ -157,6 +157,9 @@
 * Fixed `getInterface`, `dynCastRef`, and `isDerivedFrom` macros resolving the given object to a different
   element when its name matched a member of the result, like `vtable` and `node`, or the name `self`, which led to
   wrong results or crashes.
+* Fixed a crash at exit when inserting objects created by `newSrdObj` or the `create` functions of AST and basic
+  `Ti` classes, like `Identifier.create`, into the AST. These objects are now created through their C++ object
+  factories, so they no longer depend on JIT code to be destroyed.
 
 
 ## Version 0.16.0 (2026-10-09)

@@ -126,10 +126,11 @@
                 name~ptr = 0;
         }
 
-        macro newSrdObj [T] SrdRef[T]().{
-            construct();
-            wkThis.assign(this.refCounter, this.tiObject);
-        };
+        // Objects are created through the C++ object factory rather than allocated here, so that their memory and
+        // termination are managed by C++ the same way as objects created by the compiler. Otherwise the reference
+        // counter would point to a terminator in JIT code, which is no longer available when objects owned by the
+        // compiler, like AST nodes, are released at exit.
+        macro newSrdObj [T] castSrdRef[T.getTypeInfo().objectFactory.createShared(), T];
 
         macro defTiBasicType [name, dataType, uniqueName] {
             class name {
@@ -152,9 +153,8 @@
                 handler this=dataType this.value~no_deref = value;
 
                 func create (v: dataType): SrdRef[name] {
-                    def r: SrdRef[name];
-                    r.alloc()~init(v);
-                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    var r: SrdRef[name] = newSrdObj[name];
+                    r.value~no_deref = v;
                     return r;
                 }
 
@@ -171,9 +171,8 @@
                 handler this=dataType this.value = value;
 
                 func create (v: dataType): SrdRef[name] {
-                    def r: SrdRef[name];
-                    r.alloc()~init(v);
-                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    var r: SrdRef[name] = newSrdObj[name];
+                    r.value = v;
                     return r;
                 }
             }
@@ -189,9 +188,8 @@
                 }
 
                 func create (v: dataType): SrdRef[name] {
-                    def r: SrdRef[name];
-                    r.alloc()~init(v);
-                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    var r: SrdRef[name] = newSrdObj[name];
+                    BindingOf[r.obj].setMember(fieldName, v);
                     return r;
                 }
             }

@@ -75,9 +75,8 @@
                 }
 
                 func create (v: ptr[array[Char]]): Srl.SrdRef[name] {
-                    def r: Srl.SrdRef[name];
-                    r.alloc()~init(v);
-                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    var r: Srl.SrdRef[name] = Core.Basic.newSrdObj[name];
+                    r.value.value = v;
                     return r;
                 }
 
