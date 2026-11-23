@@ -122,6 +122,7 @@ SPPG1040:Circular code generation encountered while generating user type.
 SPPG1041:Circular code generation encountered while generating function.
 SPPG1042:Circular global var initialization encountered.
 SPPG1043:Unexpected terminal statement encountered.
+SPPG1044:Element doesn't match the type given to ~pick operation.
 
 SRT1001:Closure payload capture mode is invalid.
 SRT1002:Invalid @format modifier within StringBuilder class.

@@ -508,17 +508,20 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
   }
 
   if (mode != Mode::FUNCTION) {
-    // Create the function ptr.
-    auto funcPtrType = Core::Ast::ParamPass::create({
-      {S("sourceLocation"), sourceLocation},
-      {S("type"), Core::Ast::BracketType(Core::Ast::BracketType::SQUARE)}
-    }, {
-      {S("operand"), Core::Ast::Identifier::create({
+    auto createPtrType = [&sourceLocation](SharedPtr<Core::Ast::Node> const &contentType) {
+      return Core::Ast::ParamPass::create({
         {S("sourceLocation"), sourceLocation},
-        {S("value"), TiStr(S("ptr"))}
-      })},
-      {S("param"), funcType}
-    });
+        {S("type"), Core::Ast::BracketType(Core::Ast::BracketType::SQUARE)}
+      }, {
+        {S("operand"), Core::Ast::Identifier::create({
+          {S("sourceLocation"), sourceLocation},
+          {S("value"), TiStr(S("ptr"))}
+        })},
+        {S("param"), contentType}
+      });
+    };
+    // Create the function ptr.
+    auto funcPtrType = createPtrType(funcType);
     auto within = Core::Ast::Within::create();
     auto statements = Core::Ast::List::create();
     within->setSubject(statements);
@@ -540,6 +543,33 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
         {S("type"), funcTypeClone},
         {S("body"), body}
       });
+      // Named handlers get a named backing function, `_<name>`, which the pointer is set to, so that the
+      // implementation can still be called directly when the pointer is overridden, as in `this.base._func()`.
+      // Pure operators remain anonymous since there is no name to derive the function's name from.
+      SharedPtr<Core::Ast::Definition> funcDef;
+      SharedPtr<Core::Ast::Node> funcRef;
+      if (SBSTR(funcName) != SBSTR(op)) {
+        Str backingName = S("_");
+        backingName += funcName;
+        funcDef = this->createDefinition(backingName, op, func, sourceLocation);
+        // Pick the backing function by its type since other definitions might share its name, like other overloads
+        // of the handler, or the backing functions of handlers with the same name in other members.
+        funcRef = Spp::Ast::PointerOp::create({
+          {S("sourceLocation"), sourceLocation}
+        }, {
+          {S("operand"), Spp::Ast::PickOp::create({
+            {S("sourceLocation"), sourceLocation}
+          }, {
+            {S("operand"), Core::Ast::Identifier::create({
+              {S("sourceLocation"), sourceLocation},
+              {S("value"), TiStr(backingName)}
+            })},
+            {S("targetType"), Core::Ast::clone(funcTypeClone.get(), sourceLocation.get())}
+          })}
+        });
+      } else {
+        funcRef = func;
+      }
       // Assign the function pointer.
       SharedPtr<Core::Ast::Node> funcPtrRef = Core::Ast::Identifier::create({
         {S("sourceLocation"), sourceLocation},
@@ -563,19 +593,13 @@ SharedPtr<Core::Ast::Node> TypeHandlersParsingHandler::createFunction(
         {S("second"), Spp::Ast::CastOp::create({
           {S("sourceLocation"), sourceLocation},
         }, {
-          {S("operand"), func},
-          {S("targetType"), Core::Ast::ParamPass::create({
-            {S("sourceLocation"), sourceLocation},
-            {S("type"), Core::Ast::BracketType(Core::Ast::BracketType::SQUARE)}
-          }, {
-            {S("operand"), Core::Ast::Identifier::create({
-              {S("sourceLocation"), sourceLocation},
-              {S("value"), TiStr(S("ptr"))}
-            })},
-            {S("param"), Core::Ast::clone(funcType.get(), sourceLocation.get())}
-          })}
+          {S("operand"), funcRef},
+          {S("targetType"), createPtrType(Core::Ast::clone(funcType.get(), sourceLocation.get()))}
         })}
       }));
+      // The backing function's definition is added last since the modifiers of the `within` statement are moved to
+      // its first statement, and those modifiers are meant for the pointer rather than the backing function.
+      if (funcDef != 0) statements->add(funcDef);
     }
     return within;
   } else {
@@ -873,6 +897,11 @@ Bool TypeHandlersParsingHandler::processNoBindModifier(
   }
 
   def->setMetadata(S("no_bind"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  // Calling the backing function of an as_ptr handler directly should bind the same way as calling the pointer.
+  auto backingDef = this->findHandlerBackingFunctionDefinition(state);
+  if (backingDef != 0) {
+    backingDef->setMetadata(S("no_bind"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  }
   return true;
 }
 
@@ -938,12 +967,28 @@ Core::Ast::Definition* TypeHandlersParsingHandler::findHandlerDefinition(Core::P
     return static_cast<Core::Ast::Definition*>(data);
   } else if (data->isDerivedFrom<Core::Ast::Within>()) {
     // Pointer based handlers are wrapped in a `within` statement. In case of as_ptr the statements will have the
-    // definition of the pointer, while in case of set_ptr there won't be any definition.
+    // definition of the pointer, while in case of set_ptr there won't be any definition. In both cases the statements
+    // may also have the definition of the backing function of named handlers, which we skip.
     auto statements = static_cast<Core::Ast::Within*>(data)->getSubject().ti_cast_get<Core::Ast::List>();
     for (Int i = 0; statements != 0 && i < statements->getCount(); ++i) {
       auto def = ti_cast<Core::Ast::Definition>(statements->getElement(i));
-      if (def != 0) return def;
+      if (def != 0 && !def->getSubject().ti_cast_get<Spp::Ast::Function>()) return def;
     }
+  }
+  return 0;
+}
+
+
+Core::Ast::Definition* TypeHandlersParsingHandler::findHandlerBackingFunctionDefinition(
+  Core::Processing::ParserState *state
+) {
+  Int levelOffset = -state->getTopProdTermLevelCount();
+  auto within = state->getData(levelOffset).ti_cast_get<Core::Ast::Within>();
+  if (within == 0) return 0;
+  auto statements = within->getSubject().ti_cast_get<Core::Ast::List>();
+  for (Int i = 0; statements != 0 && i < statements->getCount(); ++i) {
+    auto def = ti_cast<Core::Ast::Definition>(statements->getElement(i));
+    if (def != 0 && def->getSubject().ti_cast_get<Spp::Ast::Function>() != 0) return def;
   }
   return 0;
 }

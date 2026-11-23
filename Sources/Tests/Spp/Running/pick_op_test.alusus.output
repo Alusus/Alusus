@@ -1,0 +1,34 @@
+f(Int): 5
+f(CharsPtr): hello
+f(Int, Int): 3, 4
+pf3 returned: 7
+A.show(): 10
+A.show(Int): 15
+A.val: 20
+g[T]
+g(CharsPtr): world
+M1.v: 7
+M2.v: seven
+M1.v: 8
+c.b1.x: 9, c.b2.x: nine
+[0;31mERROR SPPA1005: Multiple matches were found for the given callee at these locations:
+pick_op_test.alusus (87,5)
+pick_op_test.alusus (91,5)
+Called from:[0m
+  pick_op_test.alusus (125,23)
+[0;31mERROR SPPG1044: Element doesn't match the type given to ~pick operation.[0m
+  pick_op_test.alusus (127,1)
+[0;31mERROR SPPG1044: Element doesn't match the type given to ~pick operation.[0m
+  pick_op_test.alusus (129,1)
+[0;31mERROR SPPG1044: Element doesn't match the type given to ~pick operation.[0m
+  pick_op_test.alusus (131,23)
+[0;31mERROR SPPG1044: Element doesn't match the type given to ~pick operation.[0m
+  pick_op_test.alusus (133,23)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  pick_op_test.alusus (135,3)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  pick_op_test.alusus (137,23)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  pick_op_test.alusus (138,23)
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  pick_op_test.alusus (140,1)

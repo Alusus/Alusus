@@ -1,0 +1,69 @@
+[0;31mERROR CP1001: Parser syntax error.[0m
+  pick_op_test.alusus (10,15)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  pick_op_test.alusus (11,14)
+[0;31mERROR CP1001: Parser syntax error.[0m
+  pick_op_test.alusus (12,14)
+------------------ Parsed Data Dump ------------------
+Function  [Main.Function]
+ type: FunctionType member: 0 [Main.Function]
+  argTypes: NULL
+  retType: Identifier: Void [Main.BlockSubject.Identifier]
+ body: Block [Main.BlockStatements.StmtList]
+  AssignmentOperator = [Main.Expression.AssignmentExp]
+   first: Identifier: pf [Main.BlockSubject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: PickOp [Main.PickTilde]
+     operand: Identifier: f [Main.BlockSubject.Identifier]
+     targetType: FunctionType member: 0 [Main.Function]
+      argTypes: Map
+       __0: Identifier: Int [Main.BlockSubject.Identifier]
+      retType: NULL
+  AssignmentOperator = [Main.Expression.AssignmentExp]
+   first: Identifier: pf [Main.BlockSubject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: PickOp [Main.PickTilde]
+     operand: LinkOperator . [Main.Expression.LinkExp]
+      first: Identifier: T [Main.BlockSubject.Identifier]
+      second: Identifier: f [Main.BlockSubject.Identifier]
+     targetType: FunctionType member: 0 [Main.Function]
+      argTypes: Map
+       __0: ParamPass [] [Main.Expression.ParamPassExp]
+        operand: Identifier: ref [Main.BlockSubject.Identifier]
+        param: Identifier: T [Main.BlockSubject.Identifier]
+       __1: Identifier: Int [Main.BlockSubject.Identifier]
+      retType: NULL
+  AssignmentOperator = [Main.Expression.AssignmentExp]
+   first: Identifier: pf [Main.BlockSubject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: PickOp [Main.PickTilde]
+     operand: ParamPass [] [Main.Expression.ParamPassExp]
+      operand: Identifier: f [Main.BlockSubject.Identifier]
+      param: Identifier: Int [Main.BlockSubject.Identifier]
+     targetType: FunctionType member: 0 [Main.Function]
+      argTypes: Map
+       __0: Identifier: Int [Main.BlockSubject.Identifier]
+      retType: Identifier: Int [Main.BlockSubject.Identifier]
+  AssignmentOperator = [Main.Expression.AssignmentExp]
+   first: PickOp [Main.PickTilde]
+    operand: Identifier: i [Main.BlockSubject.Identifier]
+    targetType: Identifier: Int [Main.BlockSubject.Identifier]
+   second: IntegerLiteral: 5 [Main.BlockSubject.Literal]
+  AssignmentOperator = [Main.Expression.AssignmentExp]
+   first: Identifier: pf [Main.BlockSubject.Identifier]
+   second: PointerOp [Main.PointerTilde]
+    operand: PickOp [Main.PickTilde]
+     operand: Identifier: f [Main.BlockSubject.Identifier]
+     targetType: FunctionType member: 0 [Main.Function]
+      argTypes: NULL
+      retType: Identifier: Int [Main.BlockSubject.Identifier]
+  FunctionType member: 0 [Main.Function]
+   argTypes: Map
+    __0: Identifier: Int [Main.BlockSubject.Identifier]
+   retType: NULL
+  Bracket () [Main.BlockSubject.Sbj]
+   operand: FunctionType member: 0 [Main.Function]
+    argTypes: Map
+     __0: Identifier: Int [Main.BlockSubject.Identifier]
+    retType: NULL
+------------------------------------------------------

@@ -103,6 +103,17 @@
     definitions with the same name further out if it doesn't match the given arguments. The mismatch is only reported
     if nothing else matches the name. Ambiguous matches, and accessing local variables of other functions, are still
     reported right away.
+* Added the `~pick` operator (`~التقط` in Arabic), which picks the element matching a given type among multiple
+  elements with the same name, as in `print~pick[func (Int)]~ptr` to get a pointer to a specific overload of a
+  function, or `count~pick[Int]` to pick between variables with the same name. Elements are picked by an exact match
+  of their type.
+* The functions of named `as_ptr` and `set_ptr` handlers are now defined as methods named after the handler with an
+  underscore prefix, and the pointers are set to those methods. For example, `handler this.f() as_ptr { ... }` now
+  defines the method `_f` and sets `f` to it. This allows calling the implementation directly even after the pointer
+  is overridden, as in calling the parent's implementation from a child's implementation using `base._f()`.
+  Overriding pointers with the same name and type from two different members of the same class, as in multiple
+  inheritance, is now an error since both would define the same method. In this case, the pointers need to be set
+  manually to methods with distinct names.
 
 ### Compiler Fixes
 
@@ -110,6 +121,9 @@
   example during preprocessing, caused the new element to be ignored.
 * Fixed a bug where enclosing the entire header of a for loop in brackets, as in `for (i = 0, i < 10, ++i)`,
   resulted in an invalid for statement error.
+* Fixed a bug where accessing a literal definition of a type through an object, as in `this.label` where `label` is
+  defined as `def label: "..."`, resulted in a misleading circular code generation error instead of an invalid
+  access to global definition error.
 
 ### Standard Libraries Updates
 

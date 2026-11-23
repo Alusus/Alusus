@@ -333,6 +333,9 @@ DEFINE_NOTICE(CircularGlobalVarInitNotice, "Spp.Notices", "Spp", "alusus.org", "
 DEFINE_NOTICE(UnexpectedTerminalStatementNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1043", 1,
   "Unexpected terminal statement encountered."
 );
+DEFINE_NOTICE(NoMatchingPickTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1044", 1,
+  "Element doesn't match the type given to ~pick operation."
+);
 
 } // namespace
 

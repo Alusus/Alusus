@@ -743,6 +743,18 @@ void SppFactory::createGrammar()
       {S("fltr"), newSrdObj<TiInt>(2)}
     })}
   }).get());
+  // ~pick
+  this->createCommand(S("root.Main.PickTilde"), {{
+    Map::create({}, {{S("pick"), 0}, {S("التقط"), 0}}),
+    {
+      {
+        PARSE_REF(S("module.CastSubject")),
+        TiInt::create(1),
+        TiInt::create(1),
+        TiInt::create(ParsingFlags::PASS_ITEMS_UP)
+      }
+    }
+  }}, Spp::Handlers::TildeOpParsingHandler<Spp::Ast::PickOp>::create());
   // ~size
   this->createCommand(S("root.Main.SizeTilde"), {{
     Map::create({}, { { S("size"), 0 }, { S("حجم"), 0 } }),
@@ -890,6 +902,7 @@ void SppFactory::createGrammar()
     PARSE_REF(S("module.SizeTilde")),
     PARSE_REF(S("module.TypeTilde")),
     PARSE_REF(S("module.CastTilde")),
+    PARSE_REF(S("module.PickTilde")),
     PARSE_REF(S("module.DerefTilde")),
     PARSE_REF(S("module.NoDerefTilde")),
     PARSE_REF(S("module.ContentTilde")),
@@ -977,6 +990,7 @@ void SppFactory::cleanGrammar()
     S("module.SizeTilde"),
     S("module.TypeTilde"),
     S("module.CastTilde"),
+    S("module.PickTilde"),
     S("module.DerefTilde"),
     S("module.NoDerefTilde"),
     S("module.ContentTilde"),
@@ -1018,6 +1032,7 @@ void SppFactory::cleanGrammar()
   this->tryRemove(S("root.Main.NoDerefTilde"));
   this->tryRemove(S("root.Main.CastTilde"));
   this->tryRemove(S("root.Main.CastSubject"));
+  this->tryRemove(S("root.Main.PickTilde"));
   this->tryRemove(S("root.Main.SizeTilde"));
   this->tryRemove(S("root.Main.TypeTilde"));
   this->tryRemove(S("root.Main.AstRefTilde"));

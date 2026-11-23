@@ -187,6 +187,7 @@ Function* getDummyBuiltInOpFunction();
 #include "DerefOp.h"
 #include "NoDerefOp.h"
 #include "CastOp.h"
+#include "PickOp.h"
 #include "SizeOp.h"
 #include "TypeOp.h"
 #include "AstRefOp.h"
