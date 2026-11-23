@@ -1943,8 +1943,19 @@ This is the same as `clock` function for POSIX.
   where an overriden function belongs to a second parent. In this case the parent would not be aligned with the beginning of the
   inheriting object so it needs to be unshifted to point to the beginning of the object before it can be used to access members of
   that object.
-  The macro receives one argument, which is the name of the member object referring to the parent in which the override function is
-  defined.
+  The macro has two forms:
+
+  ```
+  alignThis[member];
+  alignThis[member, Type];
+  ```
+
+  The first form receives one argument, which is the name of the member object referring to the parent in which the override function is
+  defined. The position of that member is determined within `this_type`.
+  The second form also receives the type that contains that member, and determines the member's position within that type instead of
+  `this_type`. This form is needed when `this_type` doesn't refer to the type containing the member, like in the functions of a vtable
+  class, where `this_type` refers to the vtable class rather than the class that owns the vtable, even when `this` refers to the owner.
+  This form leaves the type of `this` unchanged.
 
 #### getThisSourceFullPath
   A macro that gives a string that contains the full path to the current source code file. It does not take any arguments.

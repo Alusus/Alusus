@@ -154,6 +154,8 @@
 * Added full Arabic localization of the AST classes, including their names and members.
 * Added the `compiler` module (`المترجم` in Arabic), which imports everything related to interacting with the compiler
   in a single import.
+* Added a variant of the `alignThis` macro that receives the type containing the member, for cases where `this_type`
+  doesn't refer to that type, like in the functions of a vtable class.
 
 ### Standard Libraries Fixes
 

@@ -34,6 +34,9 @@ macro nullRef [T] 0~cast[ptr[T]]~cnt;
 macro alignThis [member] {
     this~ptr = (this~ptr~cast[ArchWord] - ptr[this_type](0)~cnt.member~ptr~cast[ArchWord])~cast[ptr[this_type]];
 }
+macro alignThis [member, Type] {
+    this~ptr = (this~ptr~cast[ArchWord] - ptr[Type](0)~cnt.member~ptr~cast[ArchWord])~cast[this~ptr~type];
+}
 
 macro getThisSourceFullPath {
     preprocess {
