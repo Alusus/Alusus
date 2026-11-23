@@ -61,7 +61,7 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
 
   auto userType = Ast::UserType::create({
     { "prodId", currentList->getProdId()},
-    { "sourceLocation", currentList->findSourceLocation() }
+    { "sourceLocation", Core::Ast::findSourceLocation(currentList) }
   }, {
     { "body", body }
   });
@@ -80,7 +80,7 @@ void TypeParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parse
     state->setData(Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
       { S("prodId"), currentList->getProdId() },
-      { S("sourceLocation"), currentList->findSourceLocation() }
+      { S("sourceLocation"), Core::Ast::findSourceLocation(currentList) }
     }, {
       { S("subject"), type }
     }));

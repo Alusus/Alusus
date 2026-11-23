@@ -255,7 +255,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       // A block could have been terminated by a block or continue statement instead of a return, but that's fine
       // since top level breaks and returns will raise an error anyway.
       generator->rootManager->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::MissingReturnStatementNotice>(astFunc->findSourceLocation())
+        newSrdObj<Spp::Notices::MissingReturnStatementNotice>(Core::Ast::findSourceLocation(astFunc))
       );
       session->getEda()->removeBuildId(astFunc);
       retVal = false;
@@ -1075,7 +1075,7 @@ Bool Generator::_generateStatement(
     auto target = def->getSubject().get();
     if (target == 0) {
       generator->rootManager->getNoticeStore()->add(
-        newSrdObj<Core::Notices::InvalidDefCommandNotice>(def->findSourceLocation())
+        newSrdObj<Core::Notices::InvalidDefCommandNotice>(Core::Ast::findSourceLocation(def))
       );
       retVal = false;
     } else if (target->isDerivedFrom<Spp::Ast::Module>()) {
@@ -1083,13 +1083,13 @@ Bool Generator::_generateStatement(
     // } else if (target->isDerivedFrom<Spp::Ast::Function>()) {
     //   // TODO: Generate function.
     //   generator->rootManager->getNoticeStore()->add(
-    //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+    //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Ast::findSourceLocation(def))
     //   );
     //   retVal = false;
     // } else if (target->isDerivedFrom<Spp::Ast::UserType>()) {
     //   // TODO: Generate type.
     //   generator->rootManager->getNoticeStore()->add(
-    //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(def->findSourceLocation())
+    //     newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Ast::findSourceLocation(def))
     //   );
     //   retVal = false;
     } else if (generator->getAstHelper()->isInMemVariable(target)) {

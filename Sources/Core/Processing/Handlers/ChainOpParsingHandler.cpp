@@ -36,7 +36,7 @@ void ChainOpParsingHandler::addData(SharedPtr<Ast::Node> const &data, Parser *pa
 
       auto srcNode = ti_cast<Ast::Node>(container->getElement(0));
       if (data != 0 && srcNode != 0) {
-        data->setSourceLocation(srcNode->findSourceLocation());
+        data->setSourceLocation(Core::Ast::findSourceLocation(srcNode));
       }
 
       state->setData(data, levelIndex);

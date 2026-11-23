@@ -100,7 +100,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     obj->setType(token->getText());
     obj->setSecond(list != 0 ? list->get(1) : SharedPtr<Ast::Node>::null);
 
-    obj->setSourceLocation(currentData->findSourceLocation());
+    obj->setSourceLocation(Core::Ast::findSourceLocation(currentData));
     return obj;
   }
 
@@ -113,7 +113,7 @@ template <class TYPE> class InfixParsingHandler : public GenericParsingHandler
     newObj->setFirst(this->cloneInfixTree(infixObj->getFirst()));
     newObj->setSecond(this->cloneInfixTree(infixObj->getSecond()));
     newObj->setType(infixObj->getType());
-    newObj->setSourceLocation(infixObj->findSourceLocation());
+    newObj->setSourceLocation(Core::Ast::findSourceLocation(infixObj));
     return newObj;
   }
 

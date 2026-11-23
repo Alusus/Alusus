@@ -130,6 +130,9 @@
   can still be `Void`.
 * Fixed `~type` failing on the pointer of an `as_ptr` handler when accessed through the type, as in
   `MyType.method~type`, which now gives the type of the pointer.
+* Fixed errors in AST nodes that have no source location, like nodes created during preprocessing with
+  `newSrdObj`, being reported without a location. They are now reported at the location of the closest element
+  enclosing them.
 
 ### Standard Libraries Updates
 

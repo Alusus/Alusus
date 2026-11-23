@@ -27,7 +27,7 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
       auto prefixOp = static_cast<Core::Ast::PrefixOperator*>(type);
       if (prefixOp->getType() != S("...")) {
         noticeStore->add(
-          newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(prefixOp->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Ast::findSourceLocation(prefixOp))
         );
         return false;
       }
@@ -39,14 +39,14 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
         auto bracket = operand.s_cast<Core::Ast::Bracket>();
         if (bracket->getType() == Core::Ast::BracketType::ROUND) {
           noticeStore->add(
-            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Ast::findSourceLocation(bracket))
           );
           return false;
         }
         auto bracketOperand = bracket->getOperand();
         if (bracketOperand == 0) {
           noticeStore->add(
-            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracket->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Ast::findSourceLocation(bracket))
           );
           return false;
         }
@@ -54,7 +54,7 @@ Bool processFunctionArgPacks(Spp::Ast::FunctionType *funcType, Core::Notices::St
           auto bracketList = bracketOperand.s_cast<Core::Ast::List>();
           if (bracketList->getCount() == 0 || bracketList->getCount() > 3) {
             noticeStore->add(
-              newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(bracketList->findSourceLocation())
+              newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Ast::findSourceLocation(bracketList))
             );
             return false;
           }
@@ -108,7 +108,7 @@ Bool parseNumber(
     return true;
   } else {
     noticeStore->add(
-      newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(ast->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Ast::findSourceLocation(ast))
     );
     return false;
   }
@@ -120,7 +120,7 @@ Bool parseTemplateArgs(
 ) {
   auto args = bracket->getOperand().get();
   if (args == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(Core::Ast::findSourceLocation(bracket)));
     return false;
   } else if (args->isDerivedFrom<Core::Ast::List>()) {
     auto argsList = static_cast<Core::Ast::List*>(args);
@@ -128,7 +128,7 @@ Bool parseTemplateArgs(
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i).get();
       if (arg == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(bracket->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNotice>(Core::Ast::findSourceLocation(bracket)));
         return false;
       }
       if (!parseTemplateArg(state, arg, result)) return false;
@@ -152,7 +152,7 @@ Bool parseTemplateArg(
   if (link != 0 && link->getType() == S(":")) {
     auto identifier = link->getFirst().ti_cast_get<Core::Ast::Identifier>();
     if (identifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
     name = identifier->getValue().get();
@@ -165,7 +165,7 @@ Bool parseTemplateArg(
       identifier = link->getSecond().ti_cast_get<Core::Ast::Identifier>();
     }
     if (identifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
     if (identifier->getValue() == S("module")) type = Ast::TemplateVarType::MODULE;
@@ -176,7 +176,7 @@ Bool parseTemplateArg(
     else if (identifier->getValue() == S("ast")) type = Ast::TemplateVarType::AST;
     else if (identifier->getValue() == S("ast_ref")) type = Ast::TemplateVarType::AST_REF;
     else {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgTypeNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
   } else {
@@ -189,7 +189,7 @@ Bool parseTemplateArg(
   // Check if arg name is already used.
   for (Int i = 0; i < result->getCount(); ++i) {
     if (result->get(i).ti_cast_get<Ast::TemplateVarDef>()->getName() == name) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidTemplateArgNameNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
   }

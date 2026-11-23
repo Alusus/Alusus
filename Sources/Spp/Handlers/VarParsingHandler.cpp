@@ -28,7 +28,7 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
   if (astExpr != 0 && astExpr->isA<Core::Ast::List>()) {
     auto list = static_cast<Core::Ast::List*>(astExpr);
     auto within = Core::Ast::Within::create({
-      { "sourceLocation", expr->findSourceLocation() }
+      { "sourceLocation", Core::Ast::findSourceLocation(expr) }
     });
     auto defs = Core::Ast::List::create();
     within->setSubject(defs);
@@ -39,7 +39,7 @@ void VarParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Parser
         return;
       }
       if (!var->isDerivedFrom<Core::Ast::Definition>()) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(Core::Ast::findSourceLocation(expr)));
         state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
@@ -94,12 +94,14 @@ SharedPtr<Core::Ast::Node> VarParsingHandler::createVar(
   if (linkOp != 0 && linkOp->getType() == S(":")) {
     auto typeAssignmentOp = linkOp->getSecond().ti_cast_get<Core::Ast::AssignmentOperator>();
     if (typeAssignmentOp != 0 && typeAssignmentOp->getType() == S(":=")) {
-      state->addNotice(newSrdObj<Spp::Notices::VarInitArgsWithExplicitTypeNotice>(linkOp->findSourceLocation()));
+      state->addNotice(
+        newSrdObj<Spp::Notices::VarInitArgsWithExplicitTypeNotice>(Core::Ast::findSourceLocation(linkOp))
+      );
       return SharedPtr<Core::Ast::Node>::null;
     }
-    auto def = createTypedVarDef(linkOp, expr->getProdId().get(), expr->findSourceLocation());
+    auto def = createTypedVarDef(linkOp, expr->getProdId().get(), Core::Ast::findSourceLocation(expr));
     if (def == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(Core::Ast::findSourceLocation(expr)));
     }
     return def;
   } else if (assignmentOp != 0 && assignmentOp->getType() == S("=")) {
@@ -115,12 +117,12 @@ SharedPtr<Core::Ast::Node> VarParsingHandler::createVar(
     // `var expression`, where the expression can be either the type of the var or its initial value, which can only
     // be determined later, so we store it as the initial value and let type deduction decide.
     if (astExpr == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(Core::Ast::findSourceLocation(expr)));
       return SharedPtr<Core::Ast::Node>::null;
     }
     return Spp::Ast::Variable::create({
       { "prodId", expr->getProdId() },
-      { "sourceLocation", expr->findSourceLocation() },
+      { "sourceLocation", Core::Ast::findSourceLocation(expr) },
       { "initMode", Spp::Ast::VarInitMode(Spp::Ast::VarInitMode::UNRESOLVED) }
     }, {
       { "initArgs", getSharedPtr(astExpr) }
@@ -129,13 +131,13 @@ SharedPtr<Core::Ast::Node> VarParsingHandler::createVar(
 
   auto name = nameNode.ti_cast_get<Core::Ast::Identifier>();
   if (!valid || name == 0 || initArgs == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(expr->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidVarCommandNotice>(Core::Ast::findSourceLocation(expr)));
     return SharedPtr<Core::Ast::Node>::null;
   }
 
   auto var = Spp::Ast::Variable::create({
     { "prodId", expr->getProdId() },
-    { "sourceLocation", expr->findSourceLocation() },
+    { "sourceLocation", Core::Ast::findSourceLocation(expr) },
     { "initMode", initMode }
   }, {
     { "initArgs", initArgs }
@@ -143,7 +145,7 @@ SharedPtr<Core::Ast::Node> VarParsingHandler::createVar(
 
   return Core::Ast::Definition::create({
     { "prodId", expr->getProdId() },
-    { "sourceLocation", expr->findSourceLocation() },
+    { "sourceLocation", Core::Ast::findSourceLocation(expr) },
     { "name", name->getValue() }
   }, {
     { "subject", var }

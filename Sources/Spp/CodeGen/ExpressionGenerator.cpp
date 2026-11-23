@@ -238,7 +238,7 @@ Bool ExpressionGenerator::_generate(
       return expGenerator->generate(operand, g, session, result, terminal);
     } else {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidOperationNotice>(bracket->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidOperationNotice>(Core::Ast::findSourceLocation(bracket))
       );
       return false;
     }
@@ -274,7 +274,7 @@ Bool ExpressionGenerator::_generateList(
     auto innerNode = astNode->getElement(i);
     if (innerNode == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidExpressionListNotice>(astNode->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidExpressionListNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -321,7 +321,7 @@ Bool ExpressionGenerator::_generateLinkOperator(
 
   if (astNode->getType() != S(".")) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidOperationNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidOperationNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -534,7 +534,7 @@ Bool ExpressionGenerator::_generateOperator(
     auto infixOp = static_cast<Core::Ast::InfixOperator*>(astNode);
     if (infixOp->getFirst() == 0 || infixOp->getSecond() == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::IncompleteInfixOpNotice>(infixOp->findSourceLocation())
+        newSrdObj<Spp::Notices::IncompleteInfixOpNotice>(Core::Ast::findSourceLocation(infixOp))
       );
       return false;
     }
@@ -580,7 +580,7 @@ Bool ExpressionGenerator::_generateOperator(
     auto outfixOp = static_cast<Core::Ast::PrefixOperator*>(astNode);
     if (outfixOp->getOperand() == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
+        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(Core::Ast::findSourceLocation(outfixOp))
       );
       return false;
     }
@@ -598,7 +598,7 @@ Bool ExpressionGenerator::_generateOperator(
     auto outfixOp = static_cast<Core::Ast::PostfixOperator*>(astNode);
     if (outfixOp->getOperand() == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(outfixOp->findSourceLocation())
+        newSrdObj<Spp::Notices::IncompleteOutfixOpNotice>(Core::Ast::findSourceLocation(outfixOp))
       );
       return false;
     }
@@ -838,7 +838,7 @@ Bool ExpressionGenerator::_generateArithmeticOp(
   } else {
     // Error.
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -949,7 +949,7 @@ Bool ExpressionGenerator::_generateBinaryOp(
   } else {
     // Error.
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1081,7 +1081,7 @@ Bool ExpressionGenerator::_generateComparisonOp(
     } else {
       // error
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+        newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -1104,7 +1104,7 @@ Bool ExpressionGenerator::_generateComparisonOp(
   } else {
     // Error.
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1361,7 +1361,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1373,7 +1373,7 @@ Bool ExpressionGenerator::_generateBinaryAssignOp(
 
   if (!astContentType->isDerivedFrom<Ast::IntegerType>() || !param.astType->isDerivedFrom<Ast::IntegerType>()) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1470,7 +1470,7 @@ Bool ExpressionGenerator::_generateUnaryValOp(
   } else {
     // Error.
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1535,7 +1535,7 @@ Bool ExpressionGenerator::_generateIntUnaryValOp(
     } else {
       // Error.
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+        newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -1588,7 +1588,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
   auto astRefType = ti_cast<Ast::ReferenceType>(target.astType);
   if (astRefType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1596,7 +1596,7 @@ Bool ExpressionGenerator::_generateUnaryVarOp(
 
   if (!astContentType->isDerivedFrom<Ast::IntegerType>() && !astContentType->isDerivedFrom<Ast::FloatType>()) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::IncompatibleOperatorTypesNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1709,7 +1709,7 @@ Bool ExpressionGenerator::_generatePointerOp(
     auto operandRefAstType = ti_cast<Ast::ReferenceType>(operandResult.astType);
     if (operandRefAstType == 0) {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
+        newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -1751,7 +1751,7 @@ Bool ExpressionGenerator::_generateAstRefOp(
   auto nodeType = expGenerator->astHelper->getNodeType();
   if (nodeType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::MissingTypeNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1787,7 +1787,7 @@ Bool ExpressionGenerator::_generateAstLiteralCommand(
   auto nodeType = expGenerator->astHelper->getNodeType();
   if (nodeType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::MissingTypeNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::MissingTypeNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -1843,7 +1843,7 @@ Bool ExpressionGenerator::_generateContentOp(
   );
   if (result.astType == 0) {
     expGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::UnsupportedOperationNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::UnsupportedOperationNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -2428,7 +2428,7 @@ Bool ExpressionGenerator::_generateIntegerLiteral(
   } else {
     astType = expGenerator->astHelper->getWordType(size);
   }
-  auto sourceLocation = astNode->findSourceLocation().get();
+  auto sourceLocation = Core::Ast::findSourceLocation(astNode).get();
   expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   TiObject *intTgType;
   Bool retVal = g->getGeneratedType(astType, session, intTgType, 0);
@@ -2473,7 +2473,7 @@ Bool ExpressionGenerator::_generateFloatLiteral(
 
   // Get the requested float type.
   auto floatAstType = expGenerator->astHelper->getFloatType(size);
-  auto sourceLocation = astNode->findSourceLocation().get();
+  auto sourceLocation = Core::Ast::findSourceLocation(astNode).get();
   expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   TiObject *floatTgType;
   Bool retVal = g->getGeneratedType(floatAstType, session, floatTgType, 0);
@@ -3054,7 +3054,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         auto refType = ti_cast<Ast::ReferenceType>(prevResult.astType);
         if (refType == 0) {
           expGenerator->astHelper->getNoticeStore()->add(
-            newSrdObj<Spp::Notices::InvalidUseInTargetNotice>(linkOperator->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidUseInTargetNotice>(Core::Ast::findSourceLocation(linkOperator))
           );
           return false;
         }
@@ -3069,7 +3069,7 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         return true;
       } else {
         expGenerator->astHelper->getNoticeStore()->add(
-          newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidOperationNotice>(Core::Ast::findSourceLocation(linkOperator))
         );
         return false;
       }
@@ -3086,13 +3086,13 @@ Bool ExpressionGenerator::_prepareCalleeLookupRequest(
         return true;
       } else {
         expGenerator->astHelper->getNoticeStore()->add(
-          newSrdObj<Spp::Notices::InvalidOperationNotice>(linkOperator->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidOperationNotice>(Core::Ast::findSourceLocation(linkOperator))
         );
         return false;
       }
     } else {
       expGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidDotOpTargetNotice>(linkOperator->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidDotOpTargetNotice>(Core::Ast::findSourceLocation(linkOperator))
       );
       return false;
     }

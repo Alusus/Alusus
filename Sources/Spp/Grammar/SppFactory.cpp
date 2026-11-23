@@ -169,13 +169,13 @@ void SppFactory::createGrammar()
     auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto continueStatement = Ast::ContinueStatement::create({
       { S("prodId"), node->getProdId() },
-      { S("sourceLocation"), node->findSourceLocation() }
+      { S("sourceLocation"), Core::Ast::findSourceLocation(node) }
     });
     if (currentList != 0) {
       auto intLiteral = ti_cast<Core::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
         state->addNotice(
-          newSrdObj<Spp::Notices::InvalidContinueStatementNotice>(node->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidContinueStatementNotice>(Core::Ast::findSourceLocation(node))
         );
         state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
@@ -199,12 +199,12 @@ void SppFactory::createGrammar()
     auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto breakStatement = Ast::BreakStatement::create({
       { "prodId", node->getProdId() },
-      { "sourceLocation", node->findSourceLocation() }
+      { "sourceLocation", Core::Ast::findSourceLocation(node) }
     });
     if (currentList != 0) {
       auto intLiteral = ti_cast<Core::Ast::IntegerLiteral>(currentList->getElement(1));
       if (currentList->getElement(1) != 0 && intLiteral == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidBreakStatementNotice>(node->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidBreakStatementNotice>(Core::Ast::findSourceLocation(node)));
         state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
@@ -227,7 +227,7 @@ void SppFactory::createGrammar()
     auto currentList = ti_cast<Containing<Core::Ast::Node>>(node);
     auto returnStatement = Ast::ReturnStatement::create({
       { "prodId", node->getProdId() },
-      { "sourceLocation", node->findSourceLocation() }
+      { "sourceLocation", Core::Ast::findSourceLocation(node) }
     });
     if (currentList != 0) {
       returnStatement->setOperand(getSharedPtr(currentList->getElement(1)));
@@ -548,7 +548,7 @@ void SppFactory::createGrammar()
     }
     auto preprocessStatement = Ast::PreprocessStatement::create({
       { S("prodId"), node->getProdId() },
-      { S("sourceLocation"), node->findSourceLocation() }
+      { S("sourceLocation"), Core::Ast::findSourceLocation(node) }
     }, {
       { S("body"), currentList->getElement(1) }
     });
@@ -580,7 +580,7 @@ void SppFactory::createGrammar()
       }
       auto astLiteralCommand = Ast::AstLiteralCommand::create({
         { "prodId", node->getProdId() },
-        { "sourceLocation", node->findSourceLocation() }
+        { "sourceLocation", Core::Ast::findSourceLocation(node) }
       }, {
         { "body", currentList->getElement(1) }
       });
@@ -672,7 +672,7 @@ void SppFactory::createGrammar()
     SharedPtr<Core::Ast::Text> newObj = newSrdObj<Core::Ast::Identifier>();
     newObj->setValue(current->getText());
     newObj->setProdId(current->getProdId());
-    newObj->setSourceLocation(current->findSourceLocation());
+    newObj->setSourceLocation(Core::Ast::findSourceLocation(current));
     state->setData(newObj);
   }));
 
@@ -685,7 +685,7 @@ void SppFactory::createGrammar()
     auto node = state->getData().get();
     auto thisTypeRef = Ast::ThisTypeRef::create({
       { "prodId", node->getProdId() },
-      { "sourceLocation", node->findSourceLocation() }
+      { "sourceLocation", Core::Ast::findSourceLocation(node) }
     });
     state->setData(thisTypeRef);
   }));

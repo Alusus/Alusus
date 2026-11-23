@@ -28,7 +28,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     auto node = state->getData().get();
     functionType->setArgTypes(SharedPtr<Core::Ast::Map>::null);
     functionType->setRetType(SharedPtr<Core::Ast::Node>::null);
-    functionType->setSourceLocation(node->findSourceLocation());
+    functionType->setSourceLocation(Core::Ast::findSourceLocation(node));
     functionType->setProdId(node->getProdId());
     if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
       state->setData(SharedPtr<Core::Ast::Node>(0));
@@ -93,7 +93,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
   auto functionType = newSrdObj<Spp::Ast::FunctionType>();
   functionType->setArgTypes(args);
   functionType->setRetType(retType);
-  functionType->setSourceLocation(expr->findSourceLocation());
+  functionType->setSourceLocation(Core::Ast::findSourceLocation(expr));
   functionType->setProdId(expr->getProdId());
   if (!processFunctionArgPacks(functionType.get(), state->getNoticeStore())) {
     state->setData(SharedPtr<Core::Ast::Node>(0));
@@ -106,7 +106,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     auto function = newSrdObj<Spp::Ast::Function>();
     function->setType(functionType);
     function->setBody(getSharedPtr(body));
-    function->setSourceLocation(expr->findSourceLocation());
+    function->setSourceLocation(Core::Ast::findSourceLocation(expr));
     function->setProdId(expr->getProdId());
 
     if (tmpltArgs != 0) {
@@ -119,7 +119,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     }
   } else if (tmpltArgs != 0) {
     state->addNotice(
-      newSrdObj<Spp::Notices::TemplateFunctionLacksBodyNotice>(expr->findSourceLocation())
+      newSrdObj<Spp::Notices::TemplateFunctionLacksBodyNotice>(Core::Ast::findSourceLocation(expr))
     );
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
@@ -129,7 +129,7 @@ void FunctionParsingHandler::onProdEnd(Processing::Parser *parser, Processing::P
     auto def = Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
       { S("prodId"), expr->getProdId() },
-      { S("sourceLocation"), expr->findSourceLocation() }
+      { S("sourceLocation"), Core::Ast::findSourceLocation(expr) }
     }, {
       { S("subject"), stateData }
     });
@@ -152,7 +152,7 @@ Bool FunctionParsingHandler::parseArgs(
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNotice>(bracket->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNotice>(Core::Ast::findSourceLocation(bracket)));
         return false;
       }
       if (!this->parseArg(state, arg, result)) return false;
@@ -176,13 +176,13 @@ Bool FunctionParsingHandler::parseArg(
   if (link != 0 && link->getType() == S(":")) {
     auto identifier = link->getFirst().ti_cast_get<Core::Ast::Identifier>();
     if (identifier == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
     name = identifier->getValue().get();
     type = link->getSecond();
     if (type == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgTypeNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
   } else {
@@ -192,7 +192,7 @@ Bool FunctionParsingHandler::parseArg(
   }
   if (result->findIndex(name) != -1) {
     // This arg name is already in use.
-    state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(link->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidFunctionArgNameNotice>(Core::Ast::findSourceLocation(link)));
     return false;
   }
   result->set(name, type);
@@ -254,7 +254,7 @@ Bool FunctionParsingHandler::processExpnameModifier(
 
     auto newFunction = newSrdObj<Spp::Ast::Function>();
     newFunction->setType(functionType);
-    newFunction->setSourceLocation(functionType->findSourceLocation());
+    newFunction->setSourceLocation(Core::Ast::findSourceLocation(functionType));
     newFunction->setProdId(functionType->getProdId());
     newFunction->setName(param->getValue());
     // If a definition exists, update its target with the new function, otherwise set the new function to the state.

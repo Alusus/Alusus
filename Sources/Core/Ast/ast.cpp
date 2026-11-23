@@ -28,10 +28,33 @@ Node* findOwner(Node *obj, TypeInfo const *typeInfo)
 }
 
 
+SharedPtr<SourceLocation> const& findOwnSourceLocation(Node const *node)
+{
+  if (node == 0) return SharedPtr<SourceLocation>::null;
+  SharedPtr<SourceLocation> const &sl = node->getSourceLocation();
+  if (sl != 0) return sl;
+  Containing<Node> const *container = node->getInterface<Containing<Node> const>();
+  if (container != 0) {
+    for (Int i = 0; i < container->getElementCount(); ++i) {
+      SharedPtr<SourceLocation> const &childSl = findOwnSourceLocation(container->getElement(i));
+      if (childSl != 0) return childSl;
+    }
+  }
+  return SharedPtr<SourceLocation>::null;
+}
+
+
 SharedPtr<SourceLocation> const& findSourceLocation(Node const *node)
 {
-  if (node != 0) return node->findSourceLocation();
-  else return SharedPtr<SourceLocation>::null;
+  SharedPtr<SourceLocation> const &sl = findOwnSourceLocation(node);
+  if (sl != 0 || node == 0) return sl;
+  // Only the owners' own locations are considered rather than those of their other children, since the first child
+  // with a location could be unrelated to the given node, like a previous statement in the same block.
+  for (Node const *owner = node->getOwner(); owner != 0; owner = owner->getOwner()) {
+    SharedPtr<SourceLocation> const &ownerSl = owner->getSourceLocation();
+    if (ownerSl != 0) return ownerSl;
+  }
+  return SharedPtr<SourceLocation>::null;
 }
 
 
@@ -40,7 +63,8 @@ void addSourceLocation(Node *node, SourceLocation *sl)
   if (sl == 0) return;
   if (node == 0) return;
 
-  auto currentSl = node->findSourceLocation();
+  // We only care about the location the node already came with, so we don't consider its owners.
+  auto currentSl = findOwnSourceLocation(node);
   if (currentSl == 0) {
     node->setSourceLocation(sl);
   } else if (currentSl.get() == sl) {

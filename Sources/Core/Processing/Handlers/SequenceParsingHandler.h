@@ -63,7 +63,7 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
           // At this point, posId must be 1 since the list is not enforced and the current data is
           // not null, meaning we've already set data at this level.
           SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
-          list.s_cast_get<TYPE>()->setSourceLocation(currentData->findSourceLocation());
+          list.s_cast_get<TYPE>()->setSourceLocation(Core::Ast::findSourceLocation(currentData));
           auto newContainer = list.ti_cast_get<Containing<Ast::Node>>();
           newContainer->setElement(this->startIndex + 0, currentData);
           newContainer->setElement(this->startIndex + 1, data.get());
@@ -72,7 +72,7 @@ template <class TYPE> class SequenceParsingHandler : public GenericParsingHandle
         return;
       } else if (this->isListItemEnforced(state, levelIndex) && state->refTermLevel(levelIndex).getPosId() > 1) {
         SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
-        list.s_cast_get<TYPE>()->setSourceLocation(data->findSourceLocation());
+        list.s_cast_get<TYPE>()->setSourceLocation(Core::Ast::findSourceLocation(data));
         auto newContainer = list.ti_cast_get<Containing<Ast::Node>>();
         newContainer->setElement(this->startIndex + 0, currentData);
         newContainer->setElement(this->startIndex + 1, data.get());

@@ -38,7 +38,7 @@ void ModuleParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Par
     auto def = Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
       { S("prodId"), currentList->getProdId() },
-      { S("sourceLocation"), currentList->findSourceLocation() }
+      { S("sourceLocation"), Core::Ast::findSourceLocation(currentList) }
     }, {
       { S("subject"), getSharedPtr(body) }
     });

@@ -104,9 +104,9 @@ Bool TypeGenerator::_getGeneratedType(Core::Ast::Node *ref, Generation *g, Sessi
   type = this->astHelper->traceType(ref);
   if (type == 0) return false;
 
-  Core::Ast::SourceLocation *sourceLocation = 0;
-  if (shouldPushSl && ref->findSourceLocation() != 0) {
-    sourceLocation = ref->findSourceLocation().get();
+  // The location of the reference itself is pushed, not that of its owners, which notices already get on their own.
+  Core::Ast::SourceLocation *sourceLocation = shouldPushSl ? Core::Ast::findOwnSourceLocation(ref).get() : 0;
+  if (sourceLocation != 0) {
     this->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   }
   Bool result = session->isAstComputationOnly() ? this->prepareType(type) : this->generateType(type, g, session);
@@ -350,7 +350,7 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
   // Did this type get generated during preprocessing? If so it means we ran into circular code generation.
   if (session->getEda()->tryGetCodeGenData<TiObject>(astType) != 0) {
     typeGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(astType->findSourceLocation())
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(Core::Ast::findSourceLocation(astType))
     );
     return false;
   }
@@ -380,7 +380,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   if (prevInProgress != 0) {
     if (prevInProgress->get()) {
       typeGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
+        newSrdObj<Spp::Notices::CircularUserTypeDefinitionsNotice>(Core::Ast::findSourceLocation(astType))
       );
       return false;
     } else {
@@ -436,7 +436,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         Bool isInjectableReadProperty = Spp::Ast::isReadPropertyDef(def) && obj->isDerivedFrom<Spp::Ast::Function>();
         if (Spp::Ast::isInjection(def) && !isInjectableReadProperty) {
           typeGenerator->astHelper->getNoticeStore()->add(
-            newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(Core::Ast::findSourceLocation(def))
           );
           result = false;
         }

@@ -224,7 +224,7 @@ Bool AstProcessor::_processParamPass(
     );
 
     if (macro != 0) {
-      auto sl = paramPass->findSourceLocation();
+      auto sl = Core::Ast::findSourceLocation(paramPass);
       if (astProcessor->processMacro(macro, args, paramPass->getOwner(), indexInOwner, sl.get())) replaced = true;
       else result = false;
     }
@@ -372,7 +372,7 @@ Bool AstProcessor::_processPreprocessStatement(
 
   astProcessor->currentPreprocessOwner = owner;
   astProcessor->currentPreprocessInsertionPosition = indexInOwner;
-  astProcessor->currentPreprocessSourceLocation = preprocess->findSourceLocation();
+  astProcessor->currentPreprocessSourceLocation = Core::Ast::findSourceLocation(preprocess);
 
   // Remove the preprocess statement.
   DynamicContaining<Core::Ast::Node> *dynContainer;
@@ -411,7 +411,7 @@ Bool AstProcessor::_processFunctionBody(TiObject *self, Spp::Ast::Function *func
   if (state == AstProcessingState::PROCESSED) return true;
   if (state == AstProcessingState::PROCESSING) {
     astProcessor->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(func->findSourceLocation())
+      newSrdObj<Spp::Notices::CircularFunctionCodeGenNotice>(Core::Ast::findSourceLocation(func))
     );
     return false;
   }
@@ -438,7 +438,7 @@ Bool AstProcessor::_processTypeBody(TiObject *self, Spp::Ast::UserType *type)
   if (state == AstProcessingState::PROCESSED) return true;
   if (state == AstProcessingState::PROCESSING) {
     astProcessor->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(type->findSourceLocation())
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(Core::Ast::findSourceLocation(type))
     );
     return false;
   }
@@ -486,7 +486,7 @@ Bool AstProcessor::_processMacro(
   if (!astProcessor->applyMacroArgs(macro, args, sl, macroInstance)) return false;
   if (macroInstance == 0) {
     astProcessor->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidMacroNotice>(macro->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidMacroNotice>(Core::Ast::findSourceLocation(macro))
     );
     return false;
   }
@@ -875,7 +875,7 @@ Bool AstProcessor::_interpolateAst_dynMapContaining(
         // Make sure the new key isn't already used.
         if (obj->findElementIndex(newKey) != -1) {
           astProcessor->astHelper->getNoticeStore()->add(
-            newSrdObj<Spp::Notices::InvalidMacroArgNotice>(arg->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidMacroArgNotice>(Core::Ast::findSourceLocation(arg))
           );
           return false;
         }

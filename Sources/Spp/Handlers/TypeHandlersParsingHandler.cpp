@@ -35,13 +35,13 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   }
 
   if (data->getCount() < 2) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(Core::Ast::findSourceLocation(data)));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
   for (Int i = 1; i < data->getCount(); ++i) {
     if (data->get(i) == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(data->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(Core::Ast::findSourceLocation(data)));
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
@@ -66,7 +66,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
 
   if (tmpltArgs != 0 && mode != Mode::FUNCTION) {
     state->addNotice(
-      newSrdObj<Spp::Notices::InvalidTemplateHandlerStatementNotice>(data->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidTemplateHandlerStatementNotice>(Core::Ast::findSourceLocation(data))
     );
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
@@ -98,7 +98,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     static_cast<Core::Ast::AssignmentOperator*>(expr)->getType() == S(":=")
   ) {
     // The `:=` operator always assigns to the reference itself, so it can't be overloaded.
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(Core::Ast::findSourceLocation(data)));
     success = false;
   } else if (expr->isDerivedFrom<Core::Ast::AssignmentOperator>()) {
     success = this->createAssignmentHandler(
@@ -113,7 +113,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     if (paramPass->getType() == Core::Ast::BracketType::ROUND) {
       success = this->createParensOpHandler(state, paramPass, body, retType, mode);
     } else {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(Core::Ast::findSourceLocation(data)));
       success = false;
     }
   } else if (expr->isDerivedFrom<Core::Ast::LinkOperator>()) {
@@ -126,7 +126,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
     if (mode == Mode::FUNCTION) {
       success = this->createInitOpHandler(state, static_cast<Spp::Ast::InitOp*>(expr), body);
     } else {
-      state->addNotice(newSrdObj<Spp::Notices::PtrBasedInitOpNotice>(data->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::PtrBasedInitOpNotice>(Core::Ast::findSourceLocation(data)));
       success = false;
     }
   } else if (expr->isDerivedFrom<Spp::Ast::TerminateOp>()) {
@@ -134,7 +134,7 @@ void TypeHandlersParsingHandler::onProdEnd(Processing::Parser *parser, Processin
   } else if (expr->isDerivedFrom<Spp::Ast::CastOp>()) {
     success = this->createCastHandler(state, static_cast<Spp::Ast::CastOp*>(expr), body, mode);
   } else {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(data->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(Core::Ast::findSourceLocation(data)));
     success = false;
   }
 
@@ -195,7 +195,7 @@ Bool TypeHandlersParsingHandler::createAssignmentHandler(
       // By default we'll consider the return type to be of the same type as the input.
       returnType = Core::Ast::clone(inputType.get());
     } else {
-      returnType = Ast::Ast::clone(thisType.get(), assignmentOp->findSourceLocation().get());
+      returnType = Ast::Ast::clone(thisType.get(), Core::Ast::findSourceLocation(assignmentOp).get());
       // Attach a return statement automatically.
       if (body != 0) {
         body->add(Spp::Ast::ReturnStatement::create({}, {
@@ -209,7 +209,7 @@ Bool TypeHandlersParsingHandler::createAssignmentHandler(
 
   auto def = this->createBinaryOpFunction(
     state, funcName, op, thisType, inputName,  inputType,
-    returnType, body, assignmentOp->findSourceLocation(), mode, memberPath
+    returnType, body, Core::Ast::findSourceLocation(assignmentOp), mode, memberPath
   );
   state->setData(def);
   return true;
@@ -241,12 +241,12 @@ Bool TypeHandlersParsingHandler::createComparisonHandler(
   // Prepare ret type.
   SharedPtr<Core::Ast::Node> returnType = retType;
   if (returnType == 0) {
-    returnType = this->prepareComparisonRetType(comparisonOp->findSourceLocation());
+    returnType = this->prepareComparisonRetType(Core::Ast::findSourceLocation(comparisonOp));
   }
 
   auto def = this->createBinaryOpFunction(
-    state, funcName, op, thisType, inputName,  inputType, returnType, body, comparisonOp->findSourceLocation(), mode,
-    memberPath
+    state, funcName, op, thisType, inputName,  inputType, returnType, body,
+    Core::Ast::findSourceLocation(comparisonOp), mode, memberPath
   );
   state->setData(def);
   return true;
@@ -276,7 +276,7 @@ Bool TypeHandlersParsingHandler::createInfixOpHandler(
   if (!this->prepareInputArg(state, infixOp->getSecond(), inputName, inputType)) return false;
 
   auto def = this->createBinaryOpFunction(
-    state, funcName, op, thisType, inputName,  inputType, retType, body, infixOp->findSourceLocation(), mode,
+    state, funcName, op, thisType, inputName,  inputType, retType, body, Core::Ast::findSourceLocation(infixOp), mode,
     memberPath
   );
   state->setData(def);
@@ -289,7 +289,7 @@ Bool TypeHandlersParsingHandler::createReadHandler(
   SharedPtr<Spp::Ast::Block> const &body, SharedPtr<Core::Ast::Node> const &retType, Mode mode
 ) {
   if (linkOp->getType() != S(".")) {
-    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(linkOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::InvalidHandlerStatementNotice>(Core::Ast::findSourceLocation(linkOp)));
     return false;
   }
   Core::Ast::Identifier *thisIdentifier;
@@ -301,7 +301,7 @@ Bool TypeHandlersParsingHandler::createReadHandler(
   }
 
   if (retType == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::PropGetterMissingRetTypeNotice>(linkOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::PropGetterMissingRetTypeNotice>(Core::Ast::findSourceLocation(linkOp)));
     return false;
   }
 
@@ -313,7 +313,7 @@ Bool TypeHandlersParsingHandler::createReadHandler(
   argTypes->add(S("this"), thisType);
 
   auto def = this->createFunction(
-    state, funcName, op, true, argTypes, retType, body, linkOp->findSourceLocation(), mode, memberPath
+    state, funcName, op, true, argTypes, retType, body, Core::Ast::findSourceLocation(linkOp), mode, memberPath
   );
   state->setData(def);
   return true;
@@ -327,7 +327,7 @@ Bool TypeHandlersParsingHandler::createInitOpHandler(
   // Verify operand.
   auto operand = initOp->getOperand().ti_cast_get<Core::Ast::Identifier>();
   if (operand == 0 || operand->getValue() != S("this")) {
-    state->addNotice(newSrdObj<Spp::Notices::OpTargetNotThisNotice>(initOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::OpTargetNotThisNotice>(Core::Ast::findSourceLocation(initOp)));
     return false;
   }
 
@@ -340,7 +340,7 @@ Bool TypeHandlersParsingHandler::createInitOpHandler(
     params = &tempParams;
   }
   auto argTypes = Core::Ast::Map::create();
-  auto thisType = this->prepareThisType(operand->findSourceLocation());
+  auto thisType = this->prepareThisType(Core::Ast::findSourceLocation(operand));
   argTypes->add(S("this"), thisType);
   for (Int i = 0; i < params->getCount(); ++i) {
     Char const *inputName;
@@ -357,8 +357,8 @@ Bool TypeHandlersParsingHandler::createInitOpHandler(
   }
 
   auto def = this->createFunction(
-    state, S("~init"), S("~init"), true, argTypes, SharedPtr<Core::Ast::Node>::null, body, initOp->findSourceLocation(),
-    Mode::FUNCTION
+    state, S("~init"), S("~init"), true, argTypes, SharedPtr<Core::Ast::Node>::null, body,
+    Core::Ast::findSourceLocation(initOp), Mode::FUNCTION
   );
   state->setData(def);
   return true;
@@ -381,7 +381,7 @@ Bool TypeHandlersParsingHandler::createTerminateOpHandler(
 
   auto def = this->createFunction(
     state, S("~terminate"), S("~terminate"), true, argTypes, SharedPtr<Core::Ast::Node>::null, body,
-    terminateOp->findSourceLocation(), mode
+    Core::Ast::findSourceLocation(terminateOp), mode
   );
   state->setData(def);
   return true;
@@ -401,7 +401,7 @@ Bool TypeHandlersParsingHandler::createCastHandler(
   // Prepare return type.
   auto retType = castOp->getTargetType();
   if (retType == 0) {
-    state->addNotice(newSrdObj<Spp::Notices::CastOpMissingTypeNotice>(castOp->findSourceLocation()));
+    state->addNotice(newSrdObj<Spp::Notices::CastOpMissingTypeNotice>(Core::Ast::findSourceLocation(castOp)));
     return false;
   }
 
@@ -410,7 +410,7 @@ Bool TypeHandlersParsingHandler::createCastHandler(
   argTypes->add(S("this"), thisType);
 
   auto def = this->createFunction(
-    state, S("~cast"), S("~cast"), true, argTypes, retType, body, castOp->findSourceLocation(), mode
+    state, S("~cast"), S("~cast"), true, argTypes, retType, body, Core::Ast::findSourceLocation(castOp), mode
   );
   state->setData(def);
   return true;
@@ -464,7 +464,8 @@ Bool TypeHandlersParsingHandler::createParensOpHandler(
   }
 
   auto def = this->createFunction(
-    state, funcName, op, thisType != 0, argTypes, retType, body, parensOp->findSourceLocation(), mode, memberPath
+    state, funcName, op, thisType != 0, argTypes, retType, body, Core::Ast::findSourceLocation(parensOp), mode,
+    memberPath
   );
   state->setData(def);
   return true;
@@ -739,7 +740,7 @@ Bool TypeHandlersParsingHandler::getThisIdentifierAndType(
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return false;
     }
-    thisType = this->prepareThisType(thisIdentifier->findSourceLocation());
+    thisType = this->prepareThisType(Core::Ast::findSourceLocation(thisIdentifier));
   } else if (astNode->isDerivedFrom<Core::Ast::Bracket>()) {
     auto linkOp = static_cast<Core::Ast::Bracket*>(astNode)->getOperand()
       .ti_cast_get<Core::Ast::LinkOperator>();

@@ -138,30 +138,6 @@ class Node : public TiObject, public Binding
   }
 
   /**
-   * @brief Get the node's location within the source code.
-   *
-   * If this node has no source location of its own, this function searches
-   * its children for the first one that has a source location.
-   */
-  public: SharedPtr<SourceLocation> const& findSourceLocation() const
-  {
-    SharedPtr<SourceLocation> const &sl = this->getSourceLocation();
-    if (sl == 0) {
-      Containing<Node> const *container = this->getInterface<Containing<Node> const>();
-      if (container != 0) {
-        for (Int i = 0; i < container->getElementCount(); ++i) {
-          Node *ptr = container->getElement(i);
-          if (ptr != 0) {
-            SharedPtr<SourceLocation> const &sl2 = ptr->findSourceLocation();
-            if (sl2 != 0) return sl2;
-          }
-        }
-      }
-    }
-    return sl;
-  }
-
-  /**
    * @brief Set the list of modifiers attached to this node.
    */
   public: void setModifiers(SharedPtr<List> const &m);

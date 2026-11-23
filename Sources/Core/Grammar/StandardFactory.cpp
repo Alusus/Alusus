@@ -1300,7 +1300,7 @@ void StandardFactory::createExpressionProductionModule()
       auto token = ti_cast<Ast::Token>(currentList->getElement(0));
       auto linkOp = Ast::LinkOperator::create({
         { "prodId", node->getProdId() },
-        { "sourceLocation", node->findSourceLocation() }
+        { "sourceLocation", Core::Ast::findSourceLocation(node) }
       });
       linkOp->setType(token->getText());
       linkOp->setSecond(getSharedPtr(currentList->getElement(1)));
@@ -1365,7 +1365,7 @@ void StandardFactory::createExpressionProductionModule()
       auto currentRoute = state->getData().ti_cast_get<Ast::Route>();
       auto paramPass = Ast::ParamPass::create({
         { "prodId", currentRoute->getProdId() },
-        { "sourceLocation", currentRoute->findSourceLocation() }
+        { "sourceLocation", Core::Ast::findSourceLocation(currentRoute) }
       });
       paramPass->setType(currentRoute->getRoute()==0 ? Ast::BracketType::ROUND : Ast::BracketType::SQUARE);
       paramPass->setParam(currentRoute->getData());
@@ -1414,7 +1414,7 @@ void StandardFactory::createExpressionProductionModule()
         auto data = state->getData();
         auto linkOp = Ast::LinkOperator::create({
           { "prodId", data->getProdId() },
-          { "sourceLocation", data->findSourceLocation() }
+          { "sourceLocation", Core::Ast::findSourceLocation(data) }
         });
         linkOp->setType(S("~"));
         linkOp->setSecond(data);
@@ -1557,7 +1557,7 @@ void StandardFactory::createSubjectProductionModule()
       SharedPtr<Ast::Text> newObj = newSrdObj<Ast::Identifier>();
       newObj->setValue(current->getText());
       newObj->setProdId(current->getProdId());
-      newObj->setSourceLocation(current->findSourceLocation());
+      newObj->setSourceLocation(Core::Ast::findSourceLocation(current));
       state->setData(newObj);
     })}
   }));
@@ -1591,7 +1591,7 @@ void StandardFactory::createSubjectProductionModule()
       }
       newObj->setValue(current->getText());
       newObj->setProdId(current->getProdId());
-      newObj->setSourceLocation(current->findSourceLocation());
+      newObj->setSourceLocation(Core::Ast::findSourceLocation(current));
       state->setData(newObj);
     })}
   }));
@@ -1882,7 +1882,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
       auto currentList = ti_cast<Containing<Ast::Node>>(node);
       auto bridge = Ast::Bridge::create({
         {S("prodId"), node->getProdId()},
-        {S("sourceLocation"), node->findSourceLocation()}
+        {S("sourceLocation"), Core::Ast::findSourceLocation(node)}
       });
       bridge->setTarget(getSharedPtr(currentList->getElement(1)));
       state->setData(bridge);
@@ -1928,7 +1928,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         auto qualifier = currentList->getElement(1);
         auto within = Ast::Within::create({
           { "prodId", node->getProdId() },
-          { "sourceLocation", node->findSourceLocation() }
+          { "sourceLocation", Core::Ast::findSourceLocation(node) }
         });
         within->setQualifier(getSharedPtr(qualifier));
         within->setSubject(getSharedPtr(currentList->getElement(2)));
@@ -1983,7 +1983,7 @@ void StandardFactory::createMainProductionModule(Bool exprOnly)
         auto currentList = ti_cast<Containing<Ast::Node>>(node);
         auto alias = Ast::Alias::create({
           { "prodId", node->getProdId() },
-          { "sourceLocation", node->findSourceLocation() }
+          { "sourceLocation", Core::Ast::findSourceLocation(node) }
         });
         alias->setReference(getSharedPtr(currentList->getElement(1)));
         state->setData(alias);
