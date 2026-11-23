@@ -18,6 +18,12 @@ class Outer {
     def j: inner.i~type;
 };
 
+class Methods {
+    def i: Int;
+    handler this.ptrMethod(): Int as_ptr { return this.i + 1 }
+    handler this.method(): Int { return this.i + 2 }
+};
+
 func test {
     def i: Int;
     duplicate[i];
@@ -35,5 +41,60 @@ func test {
     o.j = 257;
     oi.i = 258;
     Console.print("%d, %d\n", o.j~cast[Int], oi.i~cast[Int]);
+
+    // Through the type, the type of an `as_ptr` method is the type of its pointer.
+    def m: Methods;
+    m.i = 40;
+    def p: Methods.ptrMethod~type;
+    p = Methods._ptrMethod~ptr;
+    Console.print("%d\n", p(m));
+    p = m.ptrMethod~pick[Methods.ptrMethod~type];
+    Console.print("%d\n", p(m));
 }
 test();
+
+// Error cases
+
+// Through an object, the method's operation is applied, which needs a call.
+if 1 {
+    def m: Methods;
+    def v: m.ptrMethod~type;
+};
+
+// Variables can't be of function types or Void.
+def globalFn: Methods.method~type;
+globalFn;
+
+if 1 {
+    def localFn: Methods.method~type;
+};
+
+if 1 {
+    def v: Void;
+};
+
+class FnMember {
+    def f: Methods.method~type;
+};
+
+if 1 {
+    def fm: FnMember;
+};
+
+// Same for array elements and function args, while return types can be Void but not function types.
+if 1 {
+    def fnArray: array[Methods.method~type, 2];
+};
+
+if 1 {
+    def voidArray: array[Void, 2];
+};
+
+func fnArg (f: Methods.method~type) {}
+fnArg~ptr;
+
+func voidArg (v: Void) {}
+voidArg~ptr;
+
+@expname[puts] func fnRet (): Methods.method~type;
+fnRet~ptr;

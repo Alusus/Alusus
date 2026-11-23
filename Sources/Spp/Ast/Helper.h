@@ -188,6 +188,19 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
     return var->getInitMode() == VarInitMode::COPY;
   }
 
+  /// Returns true if values can be of the given type, which is needed for variables, array elements, and function
+  /// args. This requires a data type other than void. Function types, for example, can only be pointed to.
+  public: Bool isValidValueType(Type const *type)
+  {
+    return type->isDerivedFrom<DataType>() && !type->isA<VoidType>();
+  }
+
+  /// Returns true if the given type can be the return type of a function, which, unlike values, can be void.
+  public: Bool isValidReturnType(Type const *type)
+  {
+    return type->isDerivedFrom<DataType>();
+  }
+
   /// Determining the var's type can move things between its type ref and init args: with `var expression` the init
   /// args might be the var's type, and with `var name: type(args)` the args are moved from the type ref into the init
   /// args. This traces the type to make sure the var's init args are final.

@@ -124,6 +124,12 @@
 * Fixed a bug where accessing a literal definition of a type through an object, as in `this.label` where `label` is
   defined as `def label: "..."`, resulted in a misleading circular code generation error instead of an invalid
   access to global definition error.
+* Fixed a hang when using a type that isn't a data type, like a function type obtained through `~type`, as the
+  type of a variable (`def f: MyType.method~type`), an array element, or a function arg. These, and using `Void`
+  in any of them, now raise a new SPPG1045 error. Function return types can't be such types either, though they
+  can still be `Void`.
+* Fixed `~type` failing on the pointer of an `as_ptr` handler when accessed through the type, as in
+  `MyType.method~type`, which now gives the type of the pointer.
 
 ### Standard Libraries Updates
 

@@ -1,3 +1,28 @@
 257, 258
 1
 1, 2
+41
+41
+[0;31mERROR SPPG1002: Invalid operation.[0m
+  typeop_test.alusus (61,14)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  typeop_test.alusus (65,1)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  typeop_test.alusus (69,5)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  typeop_test.alusus (73,5)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  - typeop_test.alusus (77,5)
+    typeop_test.alusus (81,13)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  - typeop_test.alusus (86,24)
+    typeop_test.alusus (86,18)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  - typeop_test.alusus (90,26)
+    typeop_test.alusus (90,20)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  typeop_test.alusus (93,16)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  typeop_test.alusus (96,18)
+[0;31mERROR SPPG1045: Invalid type. Only data types are allowed here, and Void is only allowed as a return type.[0m
+  typeop_test.alusus (99,31)

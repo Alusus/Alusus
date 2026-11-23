@@ -408,6 +408,13 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
       session->getEda()->setCodeGenFailed(astVar, true);
       return false;
     }
+    if (!generator->astHelper->isValidValueType(astType)) {
+      generator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(definition))
+      );
+      session->getEda()->setCodeGenFailed(astVar, true);
+      return false;
+    }
 
     // Also generate the reference type of this type.
     Ast::Type *astRefType = generator->astHelper->getPointerTypeFor(astType);

@@ -322,6 +322,12 @@ Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astT
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->astHelper);
+  if (!typeGenerator->astHelper->isValidValueType(contentAstType)) {
+    typeGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(astType))
+    );
+    return false;
+  }
   if (!typeGenerator->generateType(contentAstType, g, session)) return false;
   TiObject *contentTgType = session->getEda()->getCodeGenData<TiObject>(contentAstType);
   auto size = astType->getSize(typeGenerator->astHelper);
@@ -398,6 +404,13 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
           TiObject *tgType;
           Ast::Type *astMemberType;
           if (!typeGenerator->getGeneratedType(obj, g, session, tgType, &astMemberType)) {
+            result = false;
+            continue;
+          }
+          if (!typeGenerator->astHelper->isValidValueType(astMemberType)) {
+            typeGenerator->astHelper->getNoticeStore()->add(
+              newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(def))
+            );
             result = false;
             continue;
           }
@@ -676,6 +689,12 @@ Bool TypeGenerator::_generateFunctionType(
     if (!typeGenerator->getGeneratedType(argType, g, session, tgType, &astType)) {
       return false;
     }
+    if (!typeGenerator->astHelper->isValidValueType(astType)) {
+      typeGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(argType))
+      );
+      return false;
+    }
     if (astType->getInitializationMethod(typeGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       // This type has custom initialization, so we'll pass it by reference instead of by value.
       auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
@@ -692,6 +711,12 @@ Bool TypeGenerator::_generateFunctionType(
   if (astType->getRetType() != 0) {
     Ast::Type *astRetType;
     if (!typeGenerator->getGeneratedType(astType->getRetType().get(), g, session, tgRetType, &astRetType)) {
+      return false;
+    }
+    if (!typeGenerator->astHelper->isValidReturnType(astRetType)) {
+      typeGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(astType->getRetType().get()))
+      );
       return false;
     }
     Ast::setAstType(astType->getRetType().get(), astRetType);

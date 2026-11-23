@@ -336,6 +336,9 @@ DEFINE_NOTICE(UnexpectedTerminalStatementNotice, "Spp.Notices", "Spp", "alusus.o
 DEFINE_NOTICE(NoMatchingPickTargetNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1044", 1,
   "Element doesn't match the type given to ~pick operation."
 );
+DEFINE_NOTICE(InvalidValueTypeNotice, "Spp.Notices", "Spp", "alusus.org", "SPPG1045", 1,
+  "Invalid type. Only data types are allowed here, and Void is only allowed as a return type."
+);
 
 } // namespace
 
