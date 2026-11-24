@@ -1696,6 +1696,22 @@ can be referenced directly:
   }
 ```
 
+The result of this operator can be used like the name of the type, so it can be used with other operators, like
+`~size`, or to access the shared members of the type. The operand is only used to determine the type, so it isn't
+executed:
+
+```
+  class MyType {
+    var i: Int;
+    @shared var count: Int;
+  }
+  var x: MyType;
+  x~type.count = 5; // Same as MyType.count = 5.
+  var s: ArchWord = x~type~size; // Same as MyType~size.
+  var t: x~type.count~type; // Same as Int.
+  s = getObject()~type~size; // getObject isn't called.
+```
+
 Basically, this operator is useful in templates and macros where the type of the variable is not known until using
 the template or the macro.
 

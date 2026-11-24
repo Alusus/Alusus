@@ -193,6 +193,9 @@ int main(int argCount, char * const args[])
     return EXIT_SUCCESS;
   } else {
     // Parse the provided source file.
+    // Errors (severity 0 and 1) mean the build failed, so we'll exit with a failure code even if the program
+    // continued running the parts that built successfully.
+    Bool errorReported = false;
     try {
       // Prepare the root object;
       Main::RootManager root;
@@ -202,16 +205,17 @@ int main(int argCount, char * const args[])
         root.setProcessOptionInfo(programOptions.getLength(), &programOptions.at(0));
       }
       Slot<void, SharedPtr<Notices::Notice> const&> noticeSlot(
-        [](SharedPtr<Notices::Notice> const &notice)->void
+        [&errorReported](SharedPtr<Notices::Notice> const &notice)->void
         {
           Notices::printNotice(notice.get());
+          if (notice->getSeverity() <= 1) errorReported = true;
         }
       );
       root.noticeSignal.connect(noticeSlot);
 
       // Parse the provided filename.
       SharedPtr<Core::Ast::Node> ptr = root.processFile(sourceFile);
-      if (ptr == 0) return EXIT_SUCCESS;
+      if (ptr == 0) return errorReported ? EXIT_FAILURE : EXIT_SUCCESS;
 
       // Print the parsed data.
       if (dump) {
@@ -241,6 +245,6 @@ int main(int argCount, char * const args[])
     } catch (Int v) {
       return v;
     }
-    return EXIT_SUCCESS;
+    return errorReported ? EXIT_FAILURE : EXIT_SUCCESS;
   }
 }

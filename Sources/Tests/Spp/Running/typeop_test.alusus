@@ -24,6 +24,17 @@ class Methods {
     handler this.method(): Int { return this.i + 2 }
 };
 
+class Counted {
+    def i: Int[16];
+    @shared def count: Int[64];
+};
+
+func makeCounted (): Counted {
+    Console.print("makeCounted called\n");
+    def c: Counted;
+    return c;
+};
+
 func test {
     def i: Int;
     duplicate[i];
@@ -50,6 +61,14 @@ func test {
     Console.print("%d\n", p(m));
     p = m.ptrMethod~pick[Methods.ptrMethod~type];
     Console.print("%d\n", p(m));
+
+    // The result of `~type` can be used with other operators.
+    def c: Counted;
+    Console.print("%d, %d\n", c~type~size, c.i~type~size);
+    c~type.count = 7;
+    Console.print("%d, %d\n", Counted.count, c~type.count~type~size);
+    // The operand is only computed, so makeCounted isn't called.
+    Console.print("%d\n", makeCounted()~type~size);
 }
 test();
 

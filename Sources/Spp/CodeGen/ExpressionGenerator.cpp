@@ -53,6 +53,7 @@ void ExpressionGenerator::initBindingCaches()
     &this->generateCastOp,
     &this->generatePickOp,
     &this->generateSizeOp,
+    &this->generateTypeOp,
     &this->generateInitOp,
     &this->generateTerminateOp,
     &this->generateNextArgOp,
@@ -114,6 +115,7 @@ void ExpressionGenerator::initBindings()
   this->generateCastOp = &ExpressionGenerator::_generateCastOp;
   this->generatePickOp = &ExpressionGenerator::_generatePickOp;
   this->generateSizeOp = &ExpressionGenerator::_generateSizeOp;
+  this->generateTypeOp = &ExpressionGenerator::_generateTypeOp;
   this->generateInitOp = &ExpressionGenerator::_generateInitOp;
   this->generateTerminateOp = &ExpressionGenerator::_generateTerminateOp;
   this->generateNextArgOp = &ExpressionGenerator::_generateNextArgOp;
@@ -198,6 +200,9 @@ Bool ExpressionGenerator::_generate(
   } else if (astNode->isDerivedFrom<Spp::Ast::SizeOp>()) {
     auto sizeOp = static_cast<Spp::Ast::SizeOp*>(astNode);
     return expGenerator->generateSizeOp(sizeOp, g, session, result);
+  } else if (astNode->isDerivedFrom<Spp::Ast::TypeOp>()) {
+    auto typeOp = static_cast<Spp::Ast::TypeOp*>(astNode);
+    return expGenerator->generateTypeOp(typeOp, g, session, result);
   } else if (astNode->isDerivedFrom<Spp::Ast::InitOp>()) {
     auto initOp = static_cast<Spp::Ast::InitOp*>(astNode);
     return expGenerator->generateInitOp(initOp, g, session, result);
@@ -2125,6 +2130,32 @@ Bool ExpressionGenerator::_generateSizeOp(
     }
   }
   result.astType = astWordType;
+  return true;
+}
+
+
+Bool ExpressionGenerator::_generateTypeOp(
+  TiObject *self, Spp::Ast::TypeOp *astNode, Generation *g, Session *session, GenResult &result
+) {
+  PREPARE_SELF(expGenerator, ExpressionGenerator);
+
+  // The operator refers to the type of its operand, so it's generated the same way as a reference to that type by
+  // name, which allows using it with other operators, as in `x~type~size` or `x~type.sharedVar`. The operand is only
+  // computed, not generated, so it isn't executed.
+  auto type = expGenerator->astHelper->traceType(astNode);
+  if (type == 0) return false;
+  result.astNode = type;
+
+  // If the type is a data type, then let's make sure it's preprocessed, the same as with references by name.
+  auto dataType = ti_cast<Spp::Ast::DataType>(type);
+  if (dataType != 0) {
+    auto sourceLocation = Core::Ast::findSourceLocation(astNode).get();
+    if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
+    TiObject *tgType;
+    auto generated = g->getGeneratedType(dataType, session, tgType, 0);
+    if (sourceLocation != 0) expGenerator->astHelper->getNoticeStore()->popPrefixSourceLocation();
+    if (!generated) return false;
+  }
   return true;
 }
 

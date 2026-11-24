@@ -455,6 +455,16 @@ class ExpressionGenerator : public TiObject, public DynamicBinding, public Dynam
     TiObject *self, Spp::Ast::SizeOp *astNode, Generation *g, Session *session, GenResult &result
   );
 
+  public: METHOD_BINDING_CACHE(generateTypeOp,
+    Bool, (
+      Spp::Ast::TypeOp* /* astNode */, Generation* /* g */,
+      Session* /* session */, GenResult& /* result */
+    )
+  );
+  private: static Bool _generateTypeOp(
+    TiObject *self, Spp::Ast::TypeOp *astNode, Generation *g, Session *session, GenResult &result
+  );
+
   public: METHOD_BINDING_CACHE(generateInitOp,
     Bool, (
       Spp::Ast::InitOp* /* astNode */, Generation* /* g */,
