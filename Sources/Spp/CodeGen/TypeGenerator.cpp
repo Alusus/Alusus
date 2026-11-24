@@ -220,6 +220,9 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
+  // Have we previously failed to build this type?
+  if (session->getEda()->didCodeGenFail(astType)) return false;
+
   auto cgType = session->getEda()->tryGetCodeGenData<TiObject>(astType);
   if (cgType != 0) return true;
 
@@ -247,6 +250,9 @@ Bool TypeGenerator::_generateType(TiObject *self, Spp::Ast::Type *astType, Gener
 
   // Generating a type covers everything preparing it does, so AST computation only sessions can skip it.
   if (result) setTypePrepared(astType, true);
+  // A failed type can still end up with generated data, like a user type with some of its members missing, so we'll
+  // mark it as failed to prevent code built later from using it, since code built after build errors still runs.
+  else if (typeGenerator->shouldMarkFailures(session)) session->getEda()->setCodeGenFailed(astType, true);
   return result;
 }
 
@@ -467,6 +473,7 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
+  if (session->getEda()->didCodeGenFail(astType)) return false;
   if (session->getEda()->tryGetAutoCtor<TiObject>(astType) != 0) return true;
 
   // Validate that the type has custom initialization.
@@ -559,12 +566,18 @@ Bool TypeGenerator::_generateUserTypeAutoConstructor(
     }
   }
 
-  // Finish the function.
-  if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
+  // Finish the function. If it failed, its partial body, which can be invalid, is abandoned rather than finished, and
+  // the type is marked as failed to prevent code built later from using it, since code built after build errors still
+  // runs.
+  auto markFailures = typeGenerator->shouldMarkFailures(session);
+  if (!result && markFailures) {
+    childSession.getTg()->abandonFunctionBody(tgFunc.get());
+  } else if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type constructor."));
   }
 
   if (!g->buildDependencies(&childSession)) result = false;
+  if (!result && markFailures) session->getEda()->setCodeGenFailed(astType, true);
 
   session->getEda()->removeBuildId(body);
 
@@ -579,6 +592,7 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
 ) {
   PREPARE_SELF(typeGenerator, TypeGenerator);
 
+  if (session->getEda()->didCodeGenFail(astType)) return false;
   if (session->getEda()->tryGetAutoDtor<TiObject>(astType) != 0) return true;
 
   // Validate that the type has custom initialization.
@@ -659,12 +673,18 @@ Bool TypeGenerator::_generateUserTypeAutoDestructor(
     }
   }
 
-  // Finish the function.
-  if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
+  // Finish the function. If it failed, its partial body, which can be invalid, is abandoned rather than finished, and
+  // the type is marked as failed to prevent code built later from using it, since code built after build errors still
+  // runs.
+  auto markFailures = typeGenerator->shouldMarkFailures(session);
+  if (!result && markFailures) {
+    childSession.getTg()->abandonFunctionBody(tgFunc.get());
+  } else if (!childSession.getTg()->finishFunctionBody(tgFunc.get(), tgFuncType.get(), &args, tgContext.get())) {
     throw EXCEPTION(GenericException, S("Failed to finalize function body for type destructor."));
   }
 
   if (!g->buildDependencies(&childSession)) result = false;
+  if (!result && markFailures) session->getEda()->setCodeGenFailed(astType, true);
 
   session->getEda()->removeBuildId(body);
 

@@ -225,6 +225,7 @@ void BuildManager::_prepareExecutionEntry(TiObject *self, BuildSession *buildSes
 
   buildSession->setExecutionEntryName(executionEntryName.str().c_str());
   buildSession->setExecutionEntryTgFunc(tgFunc);
+  buildSession->setExecutionEntryFailed(false);
   buildSession->setExecutionEntryTgContext(tgContext);
 }
 
@@ -241,14 +242,22 @@ Bool BuildManager::_finalizeExecutionEntry(TiObject *self, BuildSession *buildSe
   PREPARE_SELF(buildMgr, BuildManager);
   auto generation = ti_cast<CodeGen::Generation>(buildMgr->generator);
 
-  Bool result = true;
-  if (!generation->generateVarGroupDestruction(buildSession->getCodeGenSession(), 0)) result = false;
+  // An entry that failed to build won't be executed, but it'll still be compiled along with code that will, so we'll
+  // abandon its partial body, which can be invalid. Offline builds keep the partial body since they are neither
+  // executed nor output when they fail.
+  Bool result = !buildSession->isExecutionEntryFailed();
+  Bool abandon = !result && buildSession->getBuildType() != BuildType::OFFLINE;
+  if (!abandon && !generation->generateVarGroupDestruction(buildSession->getCodeGenSession(), 0)) result = false;
 
-  generation->finalizeNullaryProcedure(
-    buildSession->getCodeGenSession(),
-    buildSession->getExecutionEntryTgFunc().get(),
-    buildSession->getExecutionEntryTgContext().get()
-  );
+  if (!abandon) {
+    generation->finalizeNullaryProcedure(
+      buildSession->getCodeGenSession(),
+      buildSession->getExecutionEntryTgFunc().get(),
+      buildSession->getExecutionEntryTgContext().get()
+    );
+  } else {
+    buildSession->getCodeGenSession()->getTg()->abandonFunctionBody(buildSession->getExecutionEntryTgFunc().get());
+  }
 
   if (!generation->buildDependencies(buildSession->getCodeGenSession())) result = false;
   
@@ -294,19 +303,15 @@ Bool BuildManager::_addElementToExecutionEntry(TiObject *self, Core::Ast::Node *
   } else {
     result = generation->generateStatement(element, buildSession->getCodeGenSession(), terminal);
   }
+  if (!result) buildSession->setExecutionEntryFailed(true);
   
   buildMgr->rootManager->flushNotices();
   return result;
 }
 
 
-Bool BuildManager::executeGlobalConstructors(BuildSession *buildSession)
+void BuildManager::executeGlobalConstructors(BuildSession *buildSession)
 {
-  auto minSeverity = this->rootManager->getMinNoticeSeverityEncountered();
-  auto thisMinSeverity = this->rootManager->getNoticeStore()->getMinEncounteredSeverity();
-
-  if ((minSeverity != -1 && minSeverity <= 1) || (thisMinSeverity != -1 && thisMinSeverity <= 1)) return false;
-
   // Get the session in which global constructors were generated, if different from the given session.
   // Refer to BuildSession::globalCtorSession for more info about this.
   auto ctorBuildSession = buildSession->getGlobalCtorSession();
@@ -329,8 +334,6 @@ Bool BuildManager::executeGlobalConstructors(BuildSession *buildSession)
   } else {
     throw EXCEPTION(InvalidArgumentException, S("buildSession"), S("Unexpected build type."));
   }
-
-  return true;
 }
 
 
@@ -338,7 +341,7 @@ Bool BuildManager::_execute(TiObject *self, BuildSession *buildSession)
 {
   PREPARE_SELF(buildMgr, BuildManager);
 
-  if (!buildMgr->executeGlobalConstructors(buildSession)) return false;
+  buildMgr->executeGlobalConstructors(buildSession);
 
   // Execute the main function.
   if (buildSession->getBuildType() == BuildType::JIT) {
@@ -360,7 +363,7 @@ void* BuildManager::_prepareToExecuteFunction(TiObject *self, Core::Ast::Node *e
 {
   PREPARE_SELF(buildMgr, BuildManager);
 
-  if (!buildMgr->executeGlobalConstructors(buildSession)) return 0;
+  buildMgr->executeGlobalConstructors(buildSession);
 
   auto func = ti_cast<Ast::Function>(element);
   if (func == 0) {

@@ -364,7 +364,7 @@ Bool AstProcessor::_processPreprocessStatement(
       }
   }
 
-  astProcessor->executing->finalizeExecutionEntry(buildSession.get());
+  if (!astProcessor->executing->finalizeExecutionEntry(buildSession.get())) result = false;
 
   Core::Ast::Node *prevPreprocessOwner = astProcessor->currentPreprocessOwner;
   Int prevPreprocessInsertionPosition = astProcessor->currentPreprocessInsertionPosition;

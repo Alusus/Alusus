@@ -17,8 +17,3 @@ MyOtherType: AdditionOperator
 [0;31mERROR SPPA1001: Template arguments mismatch.[0m
   - template_type_test.alusus (72,16)
     template_type_test.alusus (77,27)
-[0;31mERROR SPPA1001: Template arguments mismatch.[0m
-  - template_type_test.alusus (64,16)
-    template_type_test.alusus (76,22)
-[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
-  template_type_test.alusus (78,5)

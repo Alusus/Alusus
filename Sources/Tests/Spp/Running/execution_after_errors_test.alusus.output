@@ -1,0 +1,26 @@
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  execution_after_errors_test.alusus (10,5)
+after first brokenFunc call
+after second brokenFunc call
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  execution_after_errors_test.alusus (19,35)
+after dependentOuter call
+validGlobal = 5
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  execution_after_errors_test.alusus (28,23)
+after brokenGlobal uses
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - execution_after_errors_test.alusus (38,12)
+    execution_after_errors_test.alusus (41,30)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  execution_after_errors_test.alusus (46,16)
+after BrokenType uses
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  execution_after_errors_test.alusus (56,29)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  execution_after_errors_test.alusus (55,49)
+[0;31mERROR SPPG1022: Missing a return statement for a non-void function.[0m
+  execution_after_errors_test.alusus (55,1)
+after brokenIf
+preprocess statement ran
+end

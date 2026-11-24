@@ -108,6 +108,14 @@ class TypeGenerator : public TiObject, public DynamicBinding, public DynamicInte
 
   private: Bool validateFloatType(Spp::Ast::FloatType *astType);
 
+  /// Whether to mark failed types as failed. Offline builds are neither executed nor output when they fail, so they
+  /// keep the partially generated data for inspecting the partial IR, and AST computation only sessions don't
+  /// generate anything.
+  private: Bool shouldMarkFailures(Session *session)
+  {
+    return !session->isOfflineExecution() && !session->isAstComputationOnly();
+  }
+
   public: Bool getGeneratedTypeAutoCtor(
     Spp::Ast::Type *astType, Generation *g, Session *session, TiObject *&tgAutoCtor
   );

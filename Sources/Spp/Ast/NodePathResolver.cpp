@@ -91,6 +91,18 @@ void NodePathResolver::_resolveFunction(TiObject *self, Spp::Ast::Function const
 }
 
 
+// Resolve the path of the type of the given node. A type that can't be traced, like a reference to a missing symbol,
+// has no path, so we'll use one that's unique to the node to avoid conflicts. Otherwise, for example, `func (j: Invalid)`
+// would get the same path as `func ()`, and definitions using it, like the members of template instances, would
+// conflict with those using `func ()` when generated, which still happens after build errors.
+static void resolveTypeOf(NodePathResolver *resolver, Core::Ast::Node *node, Helper *helper, StrStream &path)
+{
+  auto type = helper->traceType(node, true);
+  if (type == 0) path << S("?") << static_cast<void*>(node);
+  else path << resolver->doResolve(type, helper);
+}
+
+
 void NodePathResolver::_resolveFunctionType(
   TiObject *self, Spp::Ast::FunctionType const *funcType, Helper *helper, StrStream &path
 ) {
@@ -105,8 +117,9 @@ void NodePathResolver::_resolveFunctionType(
   }
   path << S(")");
   if (funcType->getRetType() != 0) {
-    auto type = helper->traceType(funcType->getRetType().get(), true);
-    path << S("=>(") << resolver->doResolve(type, helper) << S(")");
+    path << S("=>(");
+    resolveTypeOf(resolver, funcType->getRetType().get(), helper, path);
+    path << S(")");
   }
 }
 
@@ -120,13 +133,11 @@ void NodePathResolver::_resolveFunctionArg(TiObject *self, Core::Ast::Node *arg,
     if (argPack->getArgType() == 0) {
       path << S("any");
     } else {
-      auto type = helper->traceType(argPack->getArgType().get(), true);
-      path << resolver->doResolve(type, helper);
+      resolveTypeOf(resolver, argPack->getArgType().get(), helper, path);
     }
     path << C(',') << argPack->getMin().get() << C(',') << argPack->getMax().get() << C(']');
   } else {
-    auto type = helper->traceType(arg, true);
-    path << resolver->doResolve(type, helper);
+    resolveTypeOf(resolver, arg, helper, path);
   }
 }
 

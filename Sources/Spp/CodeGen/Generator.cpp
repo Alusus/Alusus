@@ -129,6 +129,9 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
   PREPARE_SELF(generator, Generator);
   auto generation = ti_cast<Generation>(generator);
 
+  // Have we previously failed to build this function?
+  if (session->getEda()->didCodeGenFail(astFunc)) return false;
+
   auto tgFunc = session->getEda()->tryGetCodeGenData<TiObject>(astFunc);
   if (tgFunc == 0) {
     if (!generation->generateFunctionDecl(astFunc, session)) return false;
@@ -144,11 +147,23 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     SharedPtr<TiInt> buildId = newSrdObj<TiInt>(session->getBuildId());
     session->getEda()->setBuildId(astFunc, buildId);
 
+    // Code built later still runs after build errors, so a function that fails to build is marked as failed to
+    // prevent that code from calling it, and its partial body, which can be invalid, is abandoned rather than
+    // finished. Offline builds are neither executed nor output when they fail, so they keep the partial body for
+    // inspecting the partial IR.
+    auto keepPartialBody = session->isOfflineExecution();
+    auto markFailed = [=]()->Bool {
+      if (!keepPartialBody) session->getEda()->setCodeGenFailed(astFunc, true);
+      session->getEda()->removeBuildId(astFunc);
+      return false;
+    };
+    auto abandonBody = [=]()->Bool {
+      if (!keepPartialBody) session->getTg()->abandonFunctionBody(tgFunc);
+      return markFailed();
+    };
+
     if (generator->astProcessor != 0) {
-      if (!generator->astProcessor->processFunctionBody(astFunc)) {
-        session->getEda()->removeBuildId(astFunc);
-        return false;
-      }
+      if (!generator->astProcessor->processFunctionBody(astFunc)) return abandonBody();
     }
 
     auto astFuncType = astFunc->getType().get();
@@ -163,7 +178,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
     SharedList<TiObject> tgVars;
     TioSharedPtr tgContext;
     session->getTg()->setFunctionDebugInfo(tgFunc, generator->astHelper->getFunctionName(astFunc), astFunc);
-    if (!session->getTg()->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return false;
+    if (!session->getTg()->prepareFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext)) return abandonBody();
 
     auto destructionStack = newSrdObj<DestructionStack>();
     auto dependencyInfo = newSrdObj<DependencyInfo>();
@@ -191,8 +206,7 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       if (!session->getTg()->generateLocalVariable(
         tgContext.get(), argTgType, astArgs->getElementKey(i), 0, argTgVar
       )) {
-        session->getEda()->removeBuildId(astFunc);
-        return false;
+        return abandonBody();
       }
       session->getEda()->setCodeGenData(argType, argTgVar);
       session->getTg()->setVariableDebugInfo(
@@ -215,15 +229,13 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       initAstNodes.add(argType);
       TioSharedPtr argTgVarRef;
       if (!session->getTg()->generateVarReference(tgContext.get(), argTgType, argTgVar.get(), argTgVarRef)) {
-        session->getEda()->removeBuildId(astFunc);
-        return false;
+        return abandonBody();
       }
       if (!generation->generateVarInitialization(
         argAstType, argTgVarRef.get(), argType,
         &initAstNodes, &initAstTypes, &initTgVals, &childSession
       )) {
-        session->getEda()->removeBuildId(astFunc);
-        return false;
+        return abandonBody();
       }
       generation->registerDestructor(argType, argAstType, argTgVar, childSession.getDestructionStack().get());
     }
@@ -257,28 +269,30 @@ Bool Generator::_generateFunction(TiObject *self, Spp::Ast::Function *astFunc, S
       generator->rootManager->getNoticeStore()->add(
         newSrdObj<Spp::Notices::MissingReturnStatementNotice>(Core::Ast::findSourceLocation(astFunc))
       );
-      session->getEda()->removeBuildId(astFunc);
       retVal = false;
     }
 
     // If there wasn't a return statement then we should destruct the variables.
-    if (terminal != TerminalStatement::YES) {
+    auto abandon = !retVal && !keepPartialBody;
+    if (!abandon && terminal != TerminalStatement::YES) {
       // Destruct function args first, then return.
       if (!generation->generateVarGroupDestruction(&childSession, 0)) retVal = false;
     }
 
     // Finalize the body.
-    if (!session->getTg()->finishFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext.get())) {
-      session->getEda()->removeBuildId(astFunc);
+    if (abandon) {
+      session->getTg()->abandonFunctionBody(tgFunc);
+    } else if (!session->getTg()->finishFunctionBody(tgFunc, tgFuncType, &tgVars, tgContext.get())) {
       retVal = false;
     }
 
-    // Build dependencies.
+    // Build dependencies, even if this function failed, to report their errors. If a dependency fails, this function
+    // is marked as failed as well since it would call that dependency, but its body is still valid.
     if (!generation->buildDependencies(&childSession)) retVal = false;
 
+    if (!retVal) return markFailed();
     session->getEda()->removeBuildId(astFunc);
-
-    return retVal;
+    return true;
   }
   return true;
 }
@@ -289,6 +303,10 @@ Bool Generator::_generateFunctionDecl(TiObject *self, Spp::Ast::Function *astFun
   PREPARE_SELF(generator, Generator);
 
   if (session->isAstComputationOnly()) return true;
+
+  // A function that failed to build can't be referenced, since code built later still runs after build errors. The
+  // error was already reported when the function failed.
+  if (session->getEda()->didCodeGenFail(astFunc)) return false;
 
   auto tgFunc = session->getEda()->tryGetCodeGenData<TiObject>(astFunc);
   if (tgFunc != 0) return true;
@@ -391,6 +409,15 @@ Bool Generator::_generateVarDef(TiObject *self, Core::Ast::Definition *definitio
 
   auto astVar = definition->getSubject().get();
   auto tgVar = session->getEda()->tryGetCodeGenData<TiObject>(astVar);
+
+  // A global var that failed to initialize can't be used, since code built later still runs after build errors. The
+  // error was already reported when the initialization failed.
+  if (
+    generator->getAstHelper()->getVariableDomain(definition) == Ast::DefinitionDomain::GLOBAL &&
+    (generator->getGlobalVarState(session, definition) & GlobalVarState::INITIALIZATION_FAILED) != 0
+  ) {
+    return false;
+  }
 
   if (tgVar == 0) {
     // Have we previously tried to build this var?
@@ -1437,7 +1464,8 @@ Bool Generator::buildGlobalCtorOrDtor(
       auto mangledName = this->getGlobalVarMangledName(astVar);
       if (!childSession.getTg()->generateGlobalVariable(tgType, mangledName, 0, tgGlobalVar)) {
         childSession.getEda()->setCodeGenFailed(astVar, true);
-        return false;
+        result = false;
+        continue;
       }
       childSession.getEda()->setCodeGenData(astVar, tgGlobalVar);
       tgVar = tgGlobalVar.get();
@@ -1455,20 +1483,28 @@ Bool Generator::buildGlobalCtorOrDtor(
     }
   }
 
-  // Finalize function.
-  generation->finalizeNullaryProcedure(ctorSession, tgFunc.get(), tgContext.get());
+  // Finalize the function, or abandon it if it failed, since a partially generated body can be invalid. Offline builds
+  // keep the partial body since they are neither executed nor output when they fail.
+  if (result || session->isOfflineExecution()) {
+    generation->finalizeNullaryProcedure(ctorSession, tgFunc.get(), tgContext.get());
+  } else {
+    ctorSession->getTg()->abandonFunctionBody(tgFunc.get());
+  }
 
   // Build the dependencies.
   if (!generation->buildDependencies(&childSession)) result = false;
 
-  // Mark all global vars as initilzied/terminated.
+  // Mark all global vars as initilzied/terminated. A failed ctor won't be executed, so none of its vars get initialized
+  // and we'll mark them as failed to prevent code built later from using them.
   for (Int i = 0; i < deps->getCount(); ++i) {
     auto astVar = deps->get(i);
     Int state = this->getGlobalVarState(session, astVar);
     if (dtor) {
       this->setGlobalVarState(session, astVar, (state & ~GlobalVarState::TERMINATING) | GlobalVarState::TERMINATED);
     } else {
-      this->setGlobalVarState(session, astVar, (state & ~GlobalVarState::INITIALIZING) | GlobalVarState::INITIALIZED);
+      state = (state & ~GlobalVarState::INITIALIZING) | GlobalVarState::INITIALIZED;
+      if (!result && !session->isOfflineExecution()) state |= GlobalVarState::INITIALIZATION_FAILED;
+      this->setGlobalVarState(session, astVar, state);
     }
   }
 
