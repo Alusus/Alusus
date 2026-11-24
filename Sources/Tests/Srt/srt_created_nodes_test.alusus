@@ -1,0 +1,54 @@
+import "Srl/Console";
+import "compiler";
+use Srl;
+use Core.Basic;
+use Core.Ast;
+
+// AST nodes created from Alusus code and inserted into the AST are owned by the compiler, which releases them after
+// the JIT code is gone, so they must not depend on JIT code for their termination. This test inserts such nodes
+// directly (without cloning them) and relies on the program exiting cleanly.
+
+func findDef (body: ref[Containing[Node]], name: ptr[array[Char]]): ref[Definition] {
+    def i: Int;
+    for i = 0, i < Int(body.getElementCount()), ++i {
+        def definition: ref[Definition](dynCastRef[body.getElement(i), Definition]);
+        if definition~ptr != 0 && definition.name.value == name return definition;
+    }
+    System.fail(1, "Definition not found.\n");
+    return nullRef[Definition];
+}
+
+// Replaces the content type of a `ptr[...]` definition.
+func replacePtrContentType (body: ref[Containing[Node]], name: ptr[array[Char]], newType: ref[Node]) {
+    castRef[findDef(body, name).subject, ParamPass].param = newType;
+}
+
+class Holder {
+    def i: Float[64];
+    def j: ptr[Float[64]];
+    def k: ptr[Float[64]];
+
+    preprocess {
+        def body: ref[Containing[Node]](getInterface[Spp.astMgr.getCurrentPreprocessOwner(), Containing[Node]]);
+        def intType: ref[Node](castRef[Spp.astMgr.traceType(Int[16]~ast), Node]);
+
+        // Created through a text node's `create` function.
+        var identifier: SrdRef[Identifier] = Identifier.create("Int");
+        findDef(body, "i").subject = identifier.obj;
+
+        // Created through `newSrdObj`.
+        var passage1: SrdRef[Passage] = newSrdObj[Passage];
+        passage1.target = intType;
+        replacePtrContentType(body, "j", passage1.obj);
+
+        // Created through a binding initializer's `create` function.
+        var passage2: SrdRef[Passage] = Passage.create(castRef[intType, TiObject]);
+        replacePtrContentType(body, "k", passage2.obj);
+    }
+}
+
+func test {
+    def h: Holder;
+    Console.print("i: %d, j: %d, k: %d\n", h.i~size, h.j~cnt~size, h.k~cnt~size);
+}
+test();

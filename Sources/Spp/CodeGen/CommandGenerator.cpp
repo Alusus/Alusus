@@ -103,7 +103,7 @@ Bool CommandGenerator::_generateReturnStatement(
         session, operandResult.astType, retType, astNode, operandResult.targetData.get(), true, castedValue)
       ) {
         cmdGenerator->astHelper->getNoticeStore()->add(
-          newSrdObj<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
+          newSrdObj<Spp::Notices::InvalidReturnValueNotice>(Core::Ast::findSourceLocation(astNode))
         );
         return false;
       }
@@ -118,7 +118,7 @@ Bool CommandGenerator::_generateReturnStatement(
     // Make sure return type is void.
     if (!retType->isA<Ast::VoidType>()) {
       cmdGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidReturnValueNotice>(astNode->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidReturnValueNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     }
@@ -284,7 +284,7 @@ Bool CommandGenerator::_generateContinueStatement(
   auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
   if (steps <= 0) {
     cmdGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidContinueStepsNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidContinueStepsNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -297,7 +297,7 @@ Bool CommandGenerator::_generateContinueStatement(
       if (--steps == 0) break;
     } else if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
       cmdGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidContinueStepsNotice>(astNode->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidContinueStepsNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     } else if (loopNode->isDerivedFrom<Core::Ast::Scope>()) {
@@ -332,7 +332,7 @@ Bool CommandGenerator::_generateBreakStatement(
   auto steps = stepsNode == 0 ? 1 : std::stoi(stepsNode->getValue().get());
   if (steps <= 0) {
     cmdGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidBreakStepsNotice>(astNode->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidBreakStepsNotice>(Core::Ast::findSourceLocation(astNode))
     );
     return false;
   }
@@ -345,7 +345,7 @@ Bool CommandGenerator::_generateBreakStatement(
       if (--steps == 0) break;
     } else if (loopNode->isDerivedFrom<Spp::Ast::Function>()) {
       cmdGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::InvalidBreakStepsNotice>(astNode->findSourceLocation())
+        newSrdObj<Spp::Notices::InvalidBreakStepsNotice>(Core::Ast::findSourceLocation(astNode))
       );
       return false;
     } else if (loopNode->isDerivedFrom<Core::Ast::Scope>()) {

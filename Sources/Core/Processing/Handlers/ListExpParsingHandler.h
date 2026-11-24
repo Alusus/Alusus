@@ -73,7 +73,7 @@ template <class TYPE> class ListExpParsingHandler : public GenericParsingHandler
     list->add(i1);
     list->add(i2);
     if (i1 != 0) {
-      list->setSourceLocation(i1->findSourceLocation());
+      list->setSourceLocation(Core::Ast::findSourceLocation(i1));
     }
     return list;
   }

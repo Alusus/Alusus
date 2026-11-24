@@ -104,9 +104,9 @@ Bool TypeGenerator::_getGeneratedType(Core::Ast::Node *ref, Generation *g, Sessi
   type = this->astHelper->traceType(ref);
   if (type == 0) return false;
 
-  Core::Ast::SourceLocation *sourceLocation = 0;
-  if (shouldPushSl && ref->findSourceLocation() != 0) {
-    sourceLocation = ref->findSourceLocation().get();
+  // The location of the reference itself is pushed, not that of its owners, which notices already get on their own.
+  Core::Ast::SourceLocation *sourceLocation = shouldPushSl ? Core::Ast::findOwnSourceLocation(ref).get() : 0;
+  if (sourceLocation != 0) {
     this->astHelper->getNoticeStore()->pushPrefixSourceLocation(sourceLocation);
   }
   Bool result = session->isAstComputationOnly() ? this->prepareType(type) : this->generateType(type, g, session);
@@ -322,6 +322,12 @@ Bool TypeGenerator::_generateArrayType(TiObject *self, Spp::Ast::ArrayType *astT
 {
   PREPARE_SELF(typeGenerator, TypeGenerator);
   auto contentAstType = astType->getContentType(typeGenerator->astHelper);
+  if (!typeGenerator->astHelper->isValidValueType(contentAstType)) {
+    typeGenerator->astHelper->getNoticeStore()->add(
+      newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(astType))
+    );
+    return false;
+  }
   if (!typeGenerator->generateType(contentAstType, g, session)) return false;
   TiObject *contentTgType = session->getEda()->getCodeGenData<TiObject>(contentAstType);
   auto size = astType->getSize(typeGenerator->astHelper);
@@ -344,7 +350,7 @@ Bool TypeGenerator::_generateUserType(TiObject *self, Spp::Ast::UserType *astTyp
   // Did this type get generated during preprocessing? If so it means we ran into circular code generation.
   if (session->getEda()->tryGetCodeGenData<TiObject>(astType) != 0) {
     typeGenerator->astHelper->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(astType->findSourceLocation())
+      newSrdObj<Spp::Notices::CircularUserTypeCodeGenNotice>(Core::Ast::findSourceLocation(astType))
     );
     return false;
   }
@@ -374,7 +380,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
   if (prevInProgress != 0) {
     if (prevInProgress->get()) {
       typeGenerator->astHelper->getNoticeStore()->add(
-        newSrdObj<Spp::Notices::CircularUserTypeDefinitionsNotice>(astType->findSourceLocation())
+        newSrdObj<Spp::Notices::CircularUserTypeDefinitionsNotice>(Core::Ast::findSourceLocation(astType))
       );
       return false;
     } else {
@@ -401,6 +407,13 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
             result = false;
             continue;
           }
+          if (!typeGenerator->astHelper->isValidValueType(astMemberType)) {
+            typeGenerator->astHelper->getNoticeStore()->add(
+              newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(def))
+            );
+            result = false;
+            continue;
+          }
           Ast::setAstType(obj, astMemberType);
           // Make sure the name is unique.
           Str defName = def->getName().getStr();
@@ -423,7 +436,7 @@ Bool TypeGenerator::_generateUserTypeMemberVars(
         Bool isInjectableReadProperty = Spp::Ast::isReadPropertyDef(def) && obj->isDerivedFrom<Spp::Ast::Function>();
         if (Spp::Ast::isInjection(def) && !isInjectableReadProperty) {
           typeGenerator->astHelper->getNoticeStore()->add(
-            newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(def->findSourceLocation())
+            newSrdObj<Spp::Notices::InvalidInjectionTypeNotice>(Core::Ast::findSourceLocation(def))
           );
           result = false;
         }
@@ -676,6 +689,12 @@ Bool TypeGenerator::_generateFunctionType(
     if (!typeGenerator->getGeneratedType(argType, g, session, tgType, &astType)) {
       return false;
     }
+    if (!typeGenerator->astHelper->isValidValueType(astType)) {
+      typeGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(argType))
+      );
+      return false;
+    }
     if (astType->getInitializationMethod(typeGenerator->astHelper) != Ast::TypeInitMethod::NONE) {
       // This type has custom initialization, so we'll pass it by reference instead of by value.
       auto astPtrType = typeGenerator->astHelper->getPointerTypeFor(astType);
@@ -692,6 +711,12 @@ Bool TypeGenerator::_generateFunctionType(
   if (astType->getRetType() != 0) {
     Ast::Type *astRetType;
     if (!typeGenerator->getGeneratedType(astType->getRetType().get(), g, session, tgRetType, &astRetType)) {
+      return false;
+    }
+    if (!typeGenerator->astHelper->isValidReturnType(astRetType)) {
+      typeGenerator->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::InvalidValueTypeNotice>(Core::Ast::findSourceLocation(astType->getRetType().get()))
+      );
       return false;
     }
     Ast::setAstType(astType->getRetType().get(), astRetType);

@@ -30,7 +30,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     linkOp = ti_cast<Core::Ast::LinkOperator>(expr->getElement(1));
   }
   if (linkOp == 0) {
-    state->addNotice(newSrdObj<Notices::MissingDefLinkNotice>(expr->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::MissingDefLinkNotice>(Core::Ast::findSourceLocation(expr)));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
@@ -38,7 +38,7 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   // Get the name of the definition.
   auto nameToken = linkOp->getFirst().ti_cast_get<Core::Ast::Identifier>();
   if (nameToken == 0) {
-    state->addNotice(newSrdObj<Notices::MissingDefNameNotice>(expr->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::MissingDefNameNotice>(Core::Ast::findSourceLocation(expr)));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
@@ -47,18 +47,18 @@ void DefParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   // Get the definition target (after the colon).
   auto val = linkOp->getSecond();
   if (val == 0) {
-    state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(expr->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(Core::Ast::findSourceLocation(expr)));
     state->setData(SharedPtr<Core::Ast::Node>(0));
     return;
   }
 
   if(val->isDerivedFrom<Core::Ast::AssignmentOperator>()) {
-    state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(expr->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::InvalidDefCommandNotice>(Core::Ast::findSourceLocation(expr)));
     state->setData(SharedPtr<Core::Ast::Node>(0));
   } else {
     auto def = Core::Ast::Definition::create({
       { "prodId", expr->getProdId() },
-      { "sourceLocation", expr->findSourceLocation() },
+      { "sourceLocation", Core::Ast::findSourceLocation(expr) },
       { "name", name }
     }, {
       { "subject", val }

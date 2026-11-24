@@ -90,7 +90,21 @@ template <class T> T* findOwner(Node *obj)
   return static_cast<T*>(findOwner(obj, T::getTypeInfo()));
 }
 
+/// Returns the source location of the given node, or of the first of its descendants that has one.
+/// Unlike findSourceLocation, this doesn't consider the node's owners, so it tells whether the node itself or its
+/// content came with a source location.
+SharedPtr<SourceLocation> const& findOwnSourceLocation(Node const *node);
+
+/// Returns the best source location for the given node: its own, or that of its descendants (see
+/// findOwnSourceLocation), or that of its closest owner that has one. Falling back to the owners is useful for nodes
+/// generated without a source location, like ones created during preprocessing, which then get reported at the
+/// location of the element enclosing them.
 SharedPtr<SourceLocation> const& findSourceLocation(Node const *node);
+
+template <class T> SharedPtr<SourceLocation> const& findSourceLocation(SharedPtr<T> const &node)
+{
+  return findSourceLocation(node.get());
+}
 
 void addSourceLocation(Node *node, SourceLocation *sl);
 

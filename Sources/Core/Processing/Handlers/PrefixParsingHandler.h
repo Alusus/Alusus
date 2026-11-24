@@ -69,7 +69,7 @@ template <class TYPE> class PrefixParsingHandler : public GenericParsingHandler
     obj->setOperand(data);
     obj->setType(token->getText());
 
-    obj->setSourceLocation(currentData->findSourceLocation());
+    obj->setSourceLocation(Core::Ast::findSourceLocation(currentData));
     return obj;
   }
 

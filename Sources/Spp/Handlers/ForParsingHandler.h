@@ -44,7 +44,7 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
     ASSERT(expr != 0);
 
     if (expr->getCount() != 3) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(expr->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(Core::Ast::findSourceLocation(expr)));
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
@@ -55,13 +55,13 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
       ? headBracket->getOperand().ti_cast_get<Core::Ast::List>()
       : ti_cast<Core::Ast::List>(expr->getElement(1));
     if (head == 0 || head->getCount() != 3) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(expr->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(Core::Ast::findSourceLocation(expr)));
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
     for (Int i = 1; i < head->getCount(); ++i) {
       if (head->get(i) == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(expr->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(Core::Ast::findSourceLocation(expr)));
         state->setData(SharedPtr<Core::Ast::Node>(0));
         return;
       }
@@ -98,7 +98,7 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
     }
 
     auto newObj = newSrdObj<Spp::Ast::ForStatement>();
-    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setSourceLocation(Core::Ast::findSourceLocation(expr));
     newObj->setProdId(expr->getProdId());
     newObj->setInitializer(initializer);
     newObj->setCondition(head->get(1));
@@ -144,7 +144,7 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
   private: SharedPtr<Spp::Ast::Block> createBlock(Core::Ast::Node *expr)
   {
     auto block = Spp::Ast::Block::create();
-    block->setSourceLocation(expr->findSourceLocation());
+    block->setSourceLocation(Core::Ast::findSourceLocation(expr));
     return block;
   }
 
@@ -163,10 +163,10 @@ class ForParsingHandler : public Core::Processing::Handlers::GenericParsingHandl
       return true;
     }
     auto def = VarParsingHandler::createTypedVarDef(
-      static_cast<Core::Ast::LinkOperator*>(node), UNKNOWN_ID, node->findSourceLocation()
+      static_cast<Core::Ast::LinkOperator*>(node), UNKNOWN_ID, Core::Ast::findSourceLocation(node)
     );
     if (def == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(node->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidForStatementNotice>(Core::Ast::findSourceLocation(node)));
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return false;
     }

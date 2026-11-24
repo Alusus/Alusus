@@ -1239,7 +1239,7 @@ Bool Helper::_validateUseStatement(TiObject *self, Core::Ast::Bridge *bridge)
   );
   if (!found) {
     helper->rootManager->getNoticeStore()->add(
-      newSrdObj<Spp::Notices::InvalidUseStatementNotice>(bridge->findSourceLocation())
+      newSrdObj<Spp::Notices::InvalidUseStatementNotice>(Core::Ast::findSourceLocation(bridge))
     );
   }
   return found;

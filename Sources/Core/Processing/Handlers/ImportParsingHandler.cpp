@@ -32,7 +32,7 @@ void ImportParsingHandler::onProdEnd(Parser *parser, ParserState *state)
   } else if (result == 1) {
     auto node = state->getData().get();
     state->addNotice(newSrdObj<Notices::ImportLoadFailedNotice>(
-      filenames, errorDetails, node->findSourceLocation()
+      filenames, errorDetails, Core::Ast::findSourceLocation(node)
     ));
   }
   // Reset parsed data because we are done with the command.

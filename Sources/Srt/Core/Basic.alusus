@@ -82,27 +82,30 @@
 
         // In the following macros we use the obj.{} notation to make sure obj is computed
         // only once, in case the user provides an expression as obj, like a function call.
+        // Since obj is evaluated within the body of the result, the result is defined with `no_injection` and
+        // with a name specific to each macro, so that neither the result's members nor its name hide the user's
+        // variables, like `vtable` and `node` (members of interfaces and AST classes), or `self`.
 
-        macro getInterface [obj, T] ref[T]()~use_in(self) {
+        macro getInterface [obj, T] ref[T]()~use_in(getInterfaceResult) no_injection {
             obj.{
-                if this~ptr == 0 self~ptr = 0
-                else self := castRef[this.getInterface(T.getTypeInfo()), T]
+                if this~ptr == 0 getInterfaceResult~ptr = 0
+                else getInterfaceResult := castRef[this.getInterface(T.getTypeInfo()), T]
             }
         };
 
-        macro isDerivedFrom [obj, T] Bool()~use_in(self) {
+        macro isDerivedFrom [obj, T] Bool()~use_in(isDerivedFromResult) no_injection {
             obj.{
-                if this~ptr == 0 self = false
-                else self = this.isDerivedFrom(T.getTypeInfo())
+                if this~ptr == 0 isDerivedFromResult = false
+                else isDerivedFromResult = this.isDerivedFrom(T.getTypeInfo())
             }
         };
 
-        macro dynCastRef [obj, T] ref[T]()~use_in(self) {
+        macro dynCastRef [obj, T] ref[T]()~use_in(dynCastRefResult) no_injection {
             obj.{
                 if this~ptr != 0 && this.isDerivedFrom(T.getTypeInfo())
-                    self~deref~no_deref = castRef[this, T]
+                    dynCastRefResult~deref~no_deref = castRef[this, T]
                 else
-                    self~deref~no_deref = nullRef[T];
+                    dynCastRefResult~deref~no_deref = nullRef[T];
             }
         };
 
@@ -123,10 +126,11 @@
                 name~ptr = 0;
         }
 
-        macro newSrdObj [T] SrdRef[T]().{
-            construct();
-            wkThis.assign(this.refCounter, this.tiObject);
-        };
+        // Objects are created through the C++ object factory rather than allocated here, so that their memory and
+        // termination are managed by C++ the same way as objects created by the compiler. Otherwise the reference
+        // counter would point to a terminator in JIT code, which is no longer available when objects owned by the
+        // compiler, like AST nodes, are released at exit.
+        macro newSrdObj [T] castSrdRef[T.getTypeInfo().objectFactory.createShared(), T];
 
         macro defTiBasicType [name, dataType, uniqueName] {
             class name {
@@ -149,9 +153,8 @@
                 handler this=dataType this.value~no_deref = value;
 
                 func create (v: dataType): SrdRef[name] {
-                    def r: SrdRef[name];
-                    r.alloc()~init(v);
-                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    var r: SrdRef[name] = newSrdObj[name];
+                    r.value~no_deref = v;
                     return r;
                 }
 
@@ -168,9 +171,8 @@
                 handler this=dataType this.value = value;
 
                 func create (v: dataType): SrdRef[name] {
-                    def r: SrdRef[name];
-                    r.alloc()~init(v);
-                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    var r: SrdRef[name] = newSrdObj[name];
+                    r.value = v;
                     return r;
                 }
             }
@@ -186,9 +188,8 @@
                 }
 
                 func create (v: dataType): SrdRef[name] {
-                    def r: SrdRef[name];
-                    r.alloc()~init(v);
-                    r.wkThis.assign(r.refCounter, r.tiObject);
+                    var r: SrdRef[name] = newSrdObj[name];
+                    BindingOf[r.obj].setMember(fieldName, v);
                     return r;
                 }
             }

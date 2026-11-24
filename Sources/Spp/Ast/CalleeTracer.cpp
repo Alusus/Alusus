@@ -673,6 +673,23 @@ void CalleeTracer::_lookupCallee_var(TiObject *self, CalleeLookupRequest &reques
     return;
   }
 
+  // A variable with an operation modifier, like the pointer of an `as_ptr` method, is used through its operation when
+  // accessed through an object. Referencing it without an object, as in `MyType.method~type`, refers to the variable
+  // itself, similar to referencing a member function through its type. This has to be decided here since the original
+  // lookup mode is lost once we route into the variable's type. Read properties are excluded, same as with functions,
+  // since referencing them means reading them.
+  Char const *varOp = def == 0 ? 0 : findOperationModifier(def);
+  if (
+    request.op == S("") && request.mode != CalleeLookupMode::OBJECT_MEMBER && varOp != 0 && SBSTR(varOp) != S("")
+  ) {
+    result.matchStatus = TypeMatchStatus::EXACT;
+    result.notice.reset();
+    result.stack.clear();
+    if (!noBindDef) result.pushThisMarker();
+    result.pushObject(request.target);
+    return;
+  }
+
   // If the variable doesn't bind, members of its value bind to the current `this`.
   Bool bindToVar = !noBindDef && objType->isDerivedFrom<UserType>() && targetIsRef;
   CalleeLookupRequest innerRequest = request;

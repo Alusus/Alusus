@@ -66,7 +66,7 @@ void ModuleDebugInfo::findLocationChain(
   Core::Ast::Node const *node, std::vector<Core::Ast::SourceLocationRecord const*> &chain
 ) {
   chain.clear();
-  if (node != 0) flattenLocation(node->findSourceLocation().get(), chain);
+  if (node != 0) flattenLocation(Core::Ast::findSourceLocation(node).get(), chain);
 }
 
 

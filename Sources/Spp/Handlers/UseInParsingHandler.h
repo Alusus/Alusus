@@ -44,7 +44,7 @@ class UseInParsingHandler : public Core::Processing::Handlers::GenericParsingHan
     ASSERT(expr != 0);
 
     auto newObj = newSrdObj<Spp::Ast::UseInOp>();
-    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setSourceLocation(Core::Ast::findSourceLocation(expr));
     newObj->setProdId(expr->getProdId());
     newObj->setOperandName(S("this"));
     newObj->setSkipInjection(false);

@@ -66,7 +66,7 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
   // Create the macro.
   auto macro = Spp::Ast::Macro::create({
     { S("prodId"), expr->getProdId() },
-    { S("sourceLocation"), expr->findSourceLocation() }
+    { S("sourceLocation"), Core::Ast::findSourceLocation(expr) }
   }, {
     { S("argTypes"), args },
     { S("body"), body }
@@ -79,7 +79,7 @@ void MacroParsingHandler::onProdEnd(Processing::Parser *parser, Processing::Pars
     auto def = Core::Ast::Definition::create({
       { S("name"), defName->getValue() },
       { S("prodId"), expr->getProdId() },
-      { S("sourceLocation"), expr->findSourceLocation() }
+      { S("sourceLocation"), Core::Ast::findSourceLocation(expr) }
     }, {
       { S("subject"), macro }
     });
@@ -101,7 +101,7 @@ Bool MacroParsingHandler::parseArgs(
     for (Int i = 0; i < argsList->getCount(); ++i) {
       auto arg = argsList->get(i);
       if (arg == 0) {
-        state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(bracket->findSourceLocation()));
+        state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(Core::Ast::findSourceLocation(bracket)));
         return false;
       }
       if (!this->parseArg(state, argsList->getElement(i), result)) return false;
@@ -121,16 +121,16 @@ Bool MacroParsingHandler::parseArg(
   if (arg->isDerivedFrom<Core::Ast::LinkOperator>()) {
     auto link = static_cast<Core::Ast::LinkOperator*>(arg);
     if (link->getType() != S(":")) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
     auto name = link->getFirst().ti_cast_get<Core::Ast::Identifier>();
     if (name == 0) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
     if (!link->getSecond()->isDerivedFrom<Core::Ast::Identifier>()) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(link->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidMacroArgDefNotice>(Core::Ast::findSourceLocation(link)));
       return false;
     }
     result->add(name->getValue().get(), link->getSecond());

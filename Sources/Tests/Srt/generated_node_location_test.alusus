@@ -1,0 +1,43 @@
+import "Srl/Console";
+import "compiler";
+use Srl;
+use Core.Basic;
+use Core.Ast;
+
+// Errors in nodes that are generated without a source location, like ones created with newSrdObj, should be reported
+// at the location of the closest element enclosing them.
+
+func findDef (body: ref[Containing[Node]], name: ptr[array[Char]]): ref[Definition] {
+    def i: Int;
+    for i = 0, i < Int(body.getElementCount()), ++i {
+        def definition: ref[Definition](dynCastRef[body.getElement(i), Definition]);
+        if definition~ptr != 0 && definition.name.value == name return definition;
+    }
+    System.fail(1, "Definition not found.\n");
+    return nullRef[Definition];
+}
+
+func findCallArgs (body: ref[Containing[Node]]): ref[Containing[Node]] {
+    def i: Int;
+    for i = 0, i < Int(body.getElementCount()), ++i {
+        def call: ref[ParamPass](dynCastRef[body.getElement(i), ParamPass]);
+        if call~ptr != 0 return getInterface[call.param, Containing[Node]];
+    }
+    System.fail(1, "Call not found.\n");
+    return nullRef[Containing[Node]];
+}
+
+func test {
+    def x: Int;
+    x = 5;
+    Console.print("%d\n", x);
+
+    preprocess {
+        def body: ref[Containing[Node]](getInterface[Spp.astMgr.getCurrentPreprocessOwner(), Containing[Node]]);
+        // Replace `x` in the call above with a Passage to x's definition rather than its subject, which is invalid.
+        var passage: SrdRef[Passage] = newSrdObj[Passage];
+        passage.target = findDef(body, "x");
+        findCallArgs(body).setElement(1, passage.obj);
+    }
+}
+test();

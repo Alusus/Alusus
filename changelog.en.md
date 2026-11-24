@@ -124,6 +124,15 @@
 * Fixed a bug where accessing a literal definition of a type through an object, as in `this.label` where `label` is
   defined as `def label: "..."`, resulted in a misleading circular code generation error instead of an invalid
   access to global definition error.
+* Fixed a hang when using a type that isn't a data type, like a function type obtained through `~type`, as the
+  type of a variable (`def f: MyType.method~type`), an array element, or a function arg. These, and using `Void`
+  in any of them, now raise a new SPPG1045 error. Function return types can't be such types either, though they
+  can still be `Void`.
+* Fixed `~type` failing on the pointer of an `as_ptr` handler when accessed through the type, as in
+  `MyType.method~type`, which now gives the type of the pointer.
+* Fixed errors in AST nodes that have no source location, like nodes created during preprocessing with
+  `newSrdObj`, being reported without a location. They are now reported at the location of the closest element
+  enclosing them.
 
 ### Standard Libraries Updates
 
@@ -145,6 +154,17 @@
 * Added full Arabic localization of the AST classes, including their names and members.
 * Added the `compiler` module (`المترجم` in Arabic), which imports everything related to interacting with the compiler
   in a single import.
+* Added a variant of the `alignThis` macro that receives the type containing the member, for cases where `this_type`
+  doesn't refer to that type, like in the functions of a vtable class.
+
+### Standard Libraries Fixes
+
+* Fixed `getInterface`, `dynCastRef`, and `isDerivedFrom` macros resolving the given object to a different
+  element when its name matched a member of the result, like `vtable` and `node`, or the name `self`, which led to
+  wrong results or crashes.
+* Fixed a crash at exit when inserting objects created by `newSrdObj` or the `create` functions of AST and basic
+  `Ti` classes, like `Identifier.create`, into the AST. These objects are now created through their C++ object
+  factories, so they no longer depend on JIT code to be destroyed.
 
 
 ## Version 0.16.0 (2026-10-09)

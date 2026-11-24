@@ -32,7 +32,7 @@ void GenericParsingHandler::onProdEnd(Parser *parser, ParserState *state)
     data->setProdId(prod->getId());
     // Set the line and column, if any.
     if (item != 0) {
-      data->setSourceLocation(item->findSourceLocation());
+      data->setSourceLocation(Core::Ast::findSourceLocation(item));
     }
     // Set the data to this production's state level.
     state->setData(data);
@@ -274,7 +274,7 @@ void GenericParsingHandler::addData(
         // a list whose first item is null.
         SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
         auto newContainer = list.ti_cast_get<DynamicContaining<Ast::Node>>();
-        list->setSourceLocation(data->findSourceLocation());
+        list->setSourceLocation(Core::Ast::findSourceLocation(data));
         newContainer->addElement(currentData);
         newContainer->addElement(data.get());
         state->setData(list, levelIndex);
@@ -294,7 +294,7 @@ void GenericParsingHandler::addData(
         // The term isn't a list, or it's a list that belongs to another production. So we'll create a new list.
         SharedPtr<Ast::Node> list = this->createListNode(state, levelIndex);
         auto newContainer = list.ti_cast_get<DynamicContaining<Ast::Node>>();
-        list->setSourceLocation(currentData->findSourceLocation());
+        list->setSourceLocation(Core::Ast::findSourceLocation(currentData));
         newContainer->addElement(currentData);
         newContainer->addElement(data.get());
         state->setData(list, levelIndex);

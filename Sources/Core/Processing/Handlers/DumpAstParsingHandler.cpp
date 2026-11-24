@@ -41,10 +41,10 @@ void DumpAstParsingHandler::onProdEnd(Parser *parser, ParserState *state)
       }, 0
     );
     if (!found) {
-      state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(data->findSourceLocation()));
+      state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(Core::Ast::findSourceLocation(data)));
     }
   } catch (InvalidArgumentException) {
-    state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(data->findSourceLocation()));
+    state->addNotice(newSrdObj<Notices::InvalidDumpArgNotice>(Core::Ast::findSourceLocation(data)));
   }
 
   state->setData(SharedPtr<Ast::Node>(0));

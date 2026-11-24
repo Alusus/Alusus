@@ -69,7 +69,7 @@ template <class TYPE> class PostfixParsingHandler : public GenericParsingHandler
     obj->setOperand(currentData);
     obj->setType(token->getText());
 
-    obj->setSourceLocation(currentData->findSourceLocation());
+    obj->setSourceLocation(Core::Ast::findSourceLocation(currentData));
     return obj;
   }
 

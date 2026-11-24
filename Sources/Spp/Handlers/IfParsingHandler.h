@@ -44,13 +44,13 @@ class IfParsingHandler : public Core::Processing::Handlers::GenericParsingHandle
     ASSERT(expr != 0);
 
     if (expr->getCount() != 3 && expr->getCount() != 5) {
-      state->addNotice(newSrdObj<Spp::Notices::InvalidIfStatementNotice>(expr->findSourceLocation()));
+      state->addNotice(newSrdObj<Spp::Notices::InvalidIfStatementNotice>(Core::Ast::findSourceLocation(expr)));
       state->setData(SharedPtr<Core::Ast::Node>(0));
       return;
     }
 
     auto newObj = newSrdObj<Spp::Ast::IfStatement>();
-    newObj->setSourceLocation(expr->findSourceLocation());
+    newObj->setSourceLocation(Core::Ast::findSourceLocation(expr));
     newObj->setProdId(expr->getProdId());
     newObj->setCondition(expr->get(1));
     newObj->setIfBody(expr->get(2));
