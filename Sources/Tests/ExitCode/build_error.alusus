@@ -1,0 +1,10 @@
+import "Srl/Console";
+
+// Running a program with a build error should exit with a failure code, even though the parts of the program that
+// were built successfully were executed.
+Srl.Console.print("Executed before the error.\n");
+
+func broken {
+    undefinedSymbol;
+}
+broken();

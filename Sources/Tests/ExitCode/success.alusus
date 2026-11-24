@@ -1,0 +1,4 @@
+import "Srl/Console";
+
+// Running a program that builds without errors should exit with a success code.
+Srl.Console.print("Success.\n");

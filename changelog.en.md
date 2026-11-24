@@ -114,6 +114,10 @@
   Overriding pointers with the same name and type from two different members of the same class, as in multiple
   inheritance, is now an error since both would define the same method. In this case, the pointers need to be set
   manually to methods with distinct names.
+* The result of the `~type` operator can now be used like the name of the type, so it can be used with other
+  operators, as in `x~type~size`, or to access the shared members of the type, as in `x~type.count`.
+* The `alusus` executable now exits with a failure code if any error was reported while building the program, even
+  if the parts of the program that were built successfully were executed.
 
 ### Compiler Fixes
 

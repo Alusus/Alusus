@@ -121,3 +121,17 @@ add_test(NAME مـتم
   WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
 set_tests_properties(مـتم PROPERTIES
   ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+
+# The exit code of the alusus executable, which should only indicate success if the build had no errors.
+add_test(NAME "ExitCode/Success"
+  COMMAND AlususCore "ExitCode/success.alusus"
+  WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
+set_tests_properties("ExitCode/Success" PROPERTIES
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
+
+add_test(NAME "ExitCode/BuildError"
+  COMMAND AlususCore "ExitCode/build_error.alusus"
+  WORKING_DIRECTORY "${AlususTests_SOURCE_DIR}")
+set_tests_properties("ExitCode/BuildError" PROPERTIES
+  WILL_FAIL TRUE
+  ENVIRONMENT "LD_LIBRARY_PATH=${AlususCore_BINARY_DIR}:${AlususSpp_BINARY_DIR}:${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME};ALUSUS_LIBS=${CMAKE_INSTALL_PREFIX}/${ALUSUS_LIB_DIR_NAME}:${AlususSrt_SOURCE_DIR}:${AlususSpp_BINARY_DIR}:${CppInteropTest_BINARY_DIR}")
