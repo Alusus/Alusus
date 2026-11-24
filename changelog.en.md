@@ -118,6 +118,11 @@
   operators, as in `x~type~size`, or to access the shared members of the type, as in `x~type.count`.
 * The `alusus` executable now exits with a failure code if any error was reported while building the program, even
   if the parts of the program that were built successfully were executed.
+* The compiler no longer stops executing code after encountering a build error. Statements, including preprocess
+  statements, are still built and executed after build errors as long as they and what they depend on were built
+  successfully. Previously, a build error in one part of the program prevented all subsequent preprocess statements
+  from running, which broke code that depends on them, like the generated accessors of AST types. Functions, global
+  variables, and types that fail to build are never executed, nor is any code that depends on them.
 
 ### Compiler Fixes
 

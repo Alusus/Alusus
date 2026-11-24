@@ -38,6 +38,7 @@ void TargetGenerator::initBindings()
   targetGeneration->generateFunctionDecl = &TargetGenerator::_generateFunctionDecl;
   targetGeneration->prepareFunctionBody = &TargetGenerator::_prepareFunctionBody;
   targetGeneration->finishFunctionBody = &TargetGenerator::_finishFunctionBody;
+  targetGeneration->abandonFunctionBody = &TargetGenerator::_abandonFunctionBody;
   targetGeneration->deleteFunction = &TargetGenerator::_deleteFunction;
   targetGeneration->setFunctionInlined = &TargetGenerator::_setFunctionInlined;
 
@@ -692,18 +693,9 @@ Bool TargetGenerator::_prepareFunctionBody(
   llvm::Module *llvmModule;
   llvm::Function *llvmFunc;
   if (targetGenerator->perFunctionModules) {
-    funcWrapper->llvmModule = std::make_unique<llvm::Module>("function_module", *targetGenerator->buildTarget->getLlvmContext());
-    funcWrapper->llvmModule->setDataLayout(*targetGenerator->buildTarget->getLlvmDataLayout());
-
-    llvmFunc = llvm::Function::Create(
-      funcWrapper->getFunctionType()->getLlvmFunctionType(), llvm::Function::ExternalLinkage,
-      funcWrapper->getName().getBuf(), funcWrapper->llvmModule.get()
-    );
-    funcWrapper->setLlvmFunction(llvmFunc);
+    targetGenerator->createFunctionModule(funcWrapper);
+    llvmFunc = funcWrapper->getLlvmFunction();
     llvmModule = funcWrapper->llvmModule.get();
-    // C ABI compatibility.
-    targetGenerator->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
-    if (funcWrapper->inlined) llvmFunc->addFnAttr(llvm::Attribute::AlwaysInline);
   } else {
     llvmFunc = funcWrapper->getLlvmFunction();
     llvmModule = targetGenerator->buildTarget->getGlobalLlvmModule();
@@ -812,6 +804,56 @@ Bool TargetGenerator::_finishFunctionBody(
     );
     // The function's debug info is complete once its body is, and it must not outlive the module, which is about to
     // be handed over to the build target.
+    if (funcWrapper->debugInfo != 0) {
+      funcWrapper->debugInfo->finalize();
+      funcWrapper->debugInfo.reset();
+    }
+    targetGenerator->buildTarget->addLlvmModule(std::move(funcWrapper->llvmModule));
+  }
+
+  return true;
+}
+
+
+void TargetGenerator::createFunctionModule(Function *funcWrapper)
+{
+  funcWrapper->llvmModule = std::make_unique<llvm::Module>("function_module", *this->buildTarget->getLlvmContext());
+  funcWrapper->llvmModule->setDataLayout(*this->buildTarget->getLlvmDataLayout());
+
+  auto llvmFunc = llvm::Function::Create(
+    funcWrapper->getFunctionType()->getLlvmFunctionType(), llvm::Function::ExternalLinkage,
+    funcWrapper->getName().getBuf(), funcWrapper->llvmModule.get()
+  );
+  funcWrapper->setLlvmFunction(llvmFunc);
+  // C ABI compatibility.
+  this->applyAbiAttributes(llvmFunc, funcWrapper->getFunctionType());
+  if (funcWrapper->inlined) llvmFunc->addFnAttr(llvm::Attribute::AlwaysInline);
+}
+
+
+Bool TargetGenerator::_abandonFunctionBody(TiObject *self, TiObject *function)
+{
+  PREPARE_SELF(targetGenerator, TargetGenerator);
+  PREPARE_ARG(function, funcWrapper, Function);
+
+  // The partial body can be invalid, like having blocks without terminators, which would break the compilation of the
+  // whole module, so we'll replace it with a body that only traps. Deleting the body also drops its debug info. If
+  // the function failed before its body was prepared, it still gets a body since valid code that was generated
+  // before the failure can be referencing it, and an undefined function would fail the linking of that code.
+  if (targetGenerator->perFunctionModules && funcWrapper->llvmModule == 0) {
+    targetGenerator->createFunctionModule(funcWrapper);
+  }
+  auto llvmFunc = funcWrapper->getLlvmFunction();
+  auto linkage = llvmFunc->getLinkage();
+  llvmFunc->deleteBody();
+  llvmFunc->setLinkage(linkage);
+  llvm::IRBuilder<> irBuilder(
+    llvm::BasicBlock::Create(*targetGenerator->buildTarget->getLlvmContext(), targetGenerator->getNewBlockName(), llvmFunc)
+  );
+  irBuilder.CreateIntrinsic(llvm::Intrinsic::trap, {}, {});
+  irBuilder.CreateUnreachable();
+
+  if (targetGenerator->perFunctionModules) {
     if (funcWrapper->debugInfo != 0) {
       funcWrapper->debugInfo->finalize();
       funcWrapper->debugInfo.reset();

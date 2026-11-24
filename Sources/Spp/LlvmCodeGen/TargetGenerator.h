@@ -137,6 +137,8 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
     TiObject *self, TiObject *function, TiObject *functionType, DynamicContaining<TiObject> *args, TiObject *context
   );
 
+  private: static Bool _abandonFunctionBody(TiObject *self, TiObject *function);
+
   private: static Bool _deleteFunction(TiObject *self, TiObject *function);
 
   private: static Bool _setFunctionInlined(TiObject *self, TiObject *function, Bool inlined);
@@ -480,6 +482,14 @@ class TargetGenerator : public TiObject, public DynamicBinding, public DynamicIn
   private: void createFunctionDebugInfo(
     Function *function, std::vector<Core::Ast::SourceLocationRecord const*> const &chain
   );
+
+  /// @}
+
+  /// @name Helper Functions
+  /// @{
+
+  /// Create the module of a function, and the function in it, when using per-function modules.
+  private: void createFunctionModule(Function *funcWrapper);
 
   /// @}
 

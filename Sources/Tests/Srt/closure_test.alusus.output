@@ -51,8 +51,26 @@ testErrorCases:
 [0;31mERROR SPPA1003: No valid match was found for the given type.[0m
   - - closure_test.alusus (380,61)
       closure.alusus (482,26)
+    - closure.alusus (159,34)
+      closure.alusus (159,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - - closure_test.alusus (380,61)
+      closure.alusus (482,26)
+    - closure.alusus (159,34)
+      closure.alusus (159,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - - closure_test.alusus (380,61)
+      closure.alusus (482,26)
     - closure.alusus (169,33)
       closure.alusus (159,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - closure_test.alusus (383,37)
+    - closure.alusus (465,43)
+      closure.alusus (465,26)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - closure_test.alusus (383,37)
+    - closure.alusus (465,43)
+      closure.alusus (465,26)
 [0;31mERROR SPPA1003: No valid match was found for the given type.[0m
   - closure_test.alusus (383,37)
     - closure.alusus (465,43)
@@ -66,6 +84,16 @@ testErrorCases:
   - closure_test.alusus (383,37)
     - closure.alusus (465,43)
       closure.alusus (465,26)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - - closure_test.alusus (383,58)
+      closure.alusus (482,26)
+    - closure.alusus (159,34)
+      closure.alusus (159,17)
+[0;31mERROR SPPA1003: No valid match was found for the given type.[0m
+  - - closure_test.alusus (383,58)
+      closure.alusus (482,26)
+    - closure.alusus (159,34)
+      closure.alusus (159,17)
 [0;31mERROR SPPA1003: No valid match was found for the given type.[0m
   - - closure_test.alusus (383,58)
       closure.alusus (482,26)

@@ -38,6 +38,8 @@ class BuildSession : public TiObject
   private: TioSharedPtr executionEntryTgFunc;
   private: TioSharedPtr executionEntryTgContext;
   private: Str executionEntryName;
+  // Whether any of the elements added to the execution entry failed to build.
+  private: Bool executionEntryFailed = false;
 
   private: CodeGen::Session codeGenSession;
 
@@ -177,6 +179,16 @@ class BuildSession : public TiObject
   public: Str const& getExecutionEntryName() const
   {
     return this->executionEntryName;
+  }
+
+  public: void setExecutionEntryFailed(Bool f)
+  {
+    this->executionEntryFailed = f;
+  }
+
+  public: Bool isExecutionEntryFailed() const
+  {
+    return this->executionEntryFailed;
   }
 
   public: CodeGen::Session* getCodeGenSession()

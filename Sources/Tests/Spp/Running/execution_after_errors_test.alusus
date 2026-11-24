@@ -1,0 +1,65 @@
+import "Srl/Console";
+use Srl;
+
+// Code that builds successfully still runs after build errors, while code that depends on something that failed to
+// build doesn't.
+
+// A function that failed to build isn't called by statements built later.
+func brokenFunc {
+    Console.print("brokenFunc start\n");
+    undefinedSymbol;
+    Console.print("brokenFunc end\n");
+}
+brokenFunc();
+Console.print("after first brokenFunc call\n");
+brokenFunc();
+Console.print("after second brokenFunc call\n");
+
+// Neither is a function that depends on one that failed to build.
+func brokenInner (): Int { return undefinedSymbol; }
+func dependentOuter (): Int {
+    Console.print("dependentOuter\n");
+    return brokenInner() + 1;
+}
+Console.print("%d\n", dependentOuter());
+Console.print("after dependentOuter call\n");
+
+// A global variable that failed to initialize isn't used by code built later.
+def brokenGlobal: Int(undefinedSymbol);
+def validGlobal: Int(5);
+Console.print("validGlobal = %d\n", validGlobal);
+Console.print("brokenGlobal = %d\n", brokenGlobal);
+func useBrokenGlobal { Console.print("useBrokenGlobal %d\n", brokenGlobal); }
+useBrokenGlobal();
+Console.print("after brokenGlobal uses\n");
+
+// Neither is a type that failed to build.
+class BrokenType {
+    def x: UndefinedType;
+    def y: Int;
+}
+func useBrokenType1 { def b: BrokenType; Console.print("useBrokenType1\n"); }
+useBrokenType1();
+func useBrokenType2 { def b: BrokenType; Console.print("useBrokenType2\n"); }
+useBrokenType2();
+class BrokenInitType {
+    def y: Int(undefinedSymbol);
+}
+func useBrokenInitType1 { def b: BrokenInitType; Console.print("useBrokenInitType1\n"); }
+useBrokenInitType1();
+func useBrokenInitType2 { def b: BrokenInitType; Console.print("useBrokenInitType2\n"); }
+useBrokenInitType2();
+Console.print("after BrokenType uses\n");
+
+// A partially generated statement, like an `if` with a failed body, doesn't prevent later code from running.
+func brokenIf (x: Int): Int { if x > 0 { return undefinedSymbol } else { return 2 } }
+if 1 { if validGlobal > 1 { undefinedSymbol } }
+Console.print("%d\n", brokenIf(1));
+Console.print("after brokenIf\n");
+
+// Preprocess statements still run after build errors.
+preprocess {
+    Console.print("preprocess statement ran\n");
+}
+
+Console.print("end\n");

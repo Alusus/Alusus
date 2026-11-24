@@ -183,7 +183,7 @@ class BuildManager : public TiObject, public DynamicBinding, public DynamicInter
 
   /// Executes the pending global constructors for the given build session (and its ctor session, if
   /// different). Returns false without executing anything if previous errors were encountered.
-  private: Bool executeGlobalConstructors(BuildSession *buildSession);
+  private: void executeGlobalConstructors(BuildSession *buildSession);
 
   private: static Array<Str> getGlobalCtorNames(BuildSession *buildSession);
 

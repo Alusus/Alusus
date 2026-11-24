@@ -49,6 +49,7 @@ class TargetGeneration : public ObjTiInterface
       &this->generateFunctionDecl,
       &this->prepareFunctionBody,
       &this->finishFunctionBody,
+      &this->abandonFunctionBody,
       &this->deleteFunction,
       &this->setFunctionInlined,
       &this->setFunctionDebugInfo,
@@ -214,6 +215,10 @@ class TargetGeneration : public ObjTiInterface
       DynamicContaining<TiObject>* /* args */, TiObject* /* context */
     )
   );
+
+  /// Finish a function whose body failed to generate, in place of finishFunctionBody. The partially generated body
+  /// is replaced with one that traps, which keeps the target valid so that code that did build can still run.
+  public: METHOD_BINDING_CACHE(abandonFunctionBody, Bool, (TiObject* /* function */));
 
   public: METHOD_BINDING_CACHE(deleteFunction, Bool, (TiObject* /* function */));
 
