@@ -1,0 +1,34 @@
+Unlimited: x2=2, x1=1, x0=3, f0=30
+Limited1: x2=4, l2.x1=5, l2.x0=6
+Limited2: x2=7, x1=8, l2.x0=9
+OuterOfLimited: m=10, x1=11, mm.l1.x0=12
+Limited1Outer: x0=100
+local: x2=14, l2.x1=15, x0=100
+Base: this.hidden=3, this.hiddenFn=6, hidden=200, hiddenFn=300
+Derived: visible=5, hidden=200, hiddenFn=300, hiddenMember=400
+Derived: base.hiddenMember=7
+Derived: base.hidden=4, base.hiddenFn=8, base.hiddenProp=15
+Derived: base + 1 = 6
+Wrapper: this.x1=16
+OuterOfWrapper: w=17, wr.x1=18, x0=100
+LimitedHandler: x2=19, l2p.x1=20
+[0;31mERROR SPPA1022: The injection level limit must be a positive integer literal.[0m
+  - injection_controls_test.alusus (172,14)
+    injection_controls_test.alusus (175,9)
+[0;31mERROR SPPA1022: The injection level limit must be a positive integer literal.[0m
+  - injection_controls_test.alusus (173,14)
+    injection_controls_test.alusus (175,9)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  injection_controls_test.alusus (180,8)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  injection_controls_test.alusus (182,5)
+[0;31mERROR SPPG1015: Incompatible types for the given operator.[0m
+  injection_controls_test.alusus (183,3)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  injection_controls_test.alusus (184,5)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  injection_controls_test.alusus (186,7)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  injection_controls_test.alusus (188,6)
+[0;31mERROR SPPA1007: Unknown symbol.[0m
+  injection_controls_test.alusus (141,5)

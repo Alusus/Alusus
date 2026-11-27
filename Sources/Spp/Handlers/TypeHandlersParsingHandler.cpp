@@ -850,6 +850,7 @@ Bool TypeHandlersParsingHandler::onIncomingModifier(
 
   if (this->processNoBindModifier(state, modifierData)) return true;
   if (this->processInjectionModifier(state, modifierData)) return true;
+  if (this->processNotInjectedModifier(state, modifierData)) return true;
   if (this->processInlineModifier(state, modifierData)) return true;
   return this->processExpnameModifier(state, modifierData);
 }
@@ -926,7 +927,29 @@ Bool TypeHandlersParsingHandler::processInjectionModifier(
     return true;
   }
 
-  def->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  // The level limit (`@injection[N]`) is validated by AstProcessor along with the limits of other definitions.
+  auto paramPass = modifierData.ti_cast_get<Core::Ast::ParamPass>();
+  if (paramPass != 0 && paramPass->getParam() != 0) def->setMetadata(S("injection"), paramPass->getParam());
+  else Spp::Ast::setInjection(def);
+  return true;
+}
+
+
+Bool TypeHandlersParsingHandler::processNotInjectedModifier(
+  Core::Processing::ParserState *state, SharedPtr<Core::Ast::Node> const &modifierData
+) {
+  // Arabic keywords are already translated by the modifier actions at this point.
+  auto identifier = modifierData.ti_cast_get<Core::Ast::Identifier>();
+  if (identifier == 0 || identifier->getValue() != S("not_injected")) return false;
+
+  auto def = this->findHandlerDefinition(state);
+  if (def == 0) return false;
+  def->setMetadata(S("not_injected"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  // Calling the backing function of an as_ptr handler directly should be hidden the same way as the pointer.
+  auto backingDef = this->findHandlerBackingFunctionDefinition(state);
+  if (backingDef != 0) {
+    backingDef->setMetadata(S("not_injected"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
+  }
   return true;
 }
 

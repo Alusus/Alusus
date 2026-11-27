@@ -94,7 +94,7 @@ class KeepModifierAction : public ModifierAction
  *
  * The modifier's params (whatever appeared between its `[]` brackets) get stored, under the given key,
  * in the customData of the Node the modifier applies to. If the modifier has no params an IntegerLiteral
- * with a value of "1" is stored instead.
+ * with the action's default value ("1" unless specified otherwise) is stored instead.
  */
 class StoreModifierAction : public ModifierAction
 {
@@ -108,12 +108,13 @@ class StoreModifierAction : public ModifierAction
   // Member Variables
 
   private: Str key;
+  private: Str defaultValue;
 
 
   //============================================================================
   // Constructor
 
-  public: StoreModifierAction(Char const *k) : key(k)
+  public: StoreModifierAction(Char const *k, Char const *dv = S("1")) : key(k), defaultValue(dv)
   {
   }
 
@@ -124,6 +125,11 @@ class StoreModifierAction : public ModifierAction
   public: Str const& getKey() const
   {
     return this->key;
+  }
+
+  public: Str const& getDefaultValue() const
+  {
+    return this->defaultValue;
   }
 
 }; // class

@@ -131,6 +131,21 @@ Bool AstProcessor::_process(TiObject *self, Core::Ast::Node *owner)
     child = container->getElement(i);
     if (child == 0) continue;
 
+    auto childDef = ti_cast<Core::Ast::Definition>(child);
+    if (
+      childDef != 0 && Spp::Ast::isInjection(childDef) &&
+      astProcessor->astHelper->getInjectionLevelLimit(childDef) == 0
+    ) {
+      auto sourceLocation = findSourceLocation(childDef->getMetadata(S("injection")).get());
+      if (sourceLocation == 0) sourceLocation = findSourceLocation(childDef);
+      astProcessor->astHelper->getNoticeStore()->add(
+        newSrdObj<Spp::Notices::InvalidInjectionLevelLimitNotice>(sourceLocation)
+      );
+      // Reset to an unlimited injection to avoid reporting the error again.
+      Spp::Ast::setInjection(childDef);
+      result = false;
+    }
+
     if (child->isDerivedFrom<Core::Ast::ParamPass>()) {
       Bool replaced = false;
       if (!astProcessor->processParamPass(static_cast<Core::Ast::ParamPass*>(child), i, replaced)) result = false;

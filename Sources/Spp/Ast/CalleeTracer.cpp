@@ -120,6 +120,12 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
           return Core::Ast::Seeker::Verb::MOVE;
         }
 
+        // Definitions marked with `not_injected` are treated as non-existent when reached through an injection.
+        if (request.throughInjection) {
+          auto def = ti_cast<Core::Ast::Definition>(obj->getOwner());
+          if (def != 0 && isNotInjectedDef(def)) return Core::Ast::Seeker::Verb::MOVE;
+        }
+
         if (request.mode == CalleeLookupMode::OBJECT_MEMBER) {
           if (obj == 0 || obj->findOwner<Type>() != target) {
             // The found member was probably an alias to a non member.
@@ -133,6 +139,10 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
         CalleeLookupRequest innerRequest = request;
         CalleeLookupResult innerResult;
         innerRequest.target = obj;
+        // The injection restrictions only apply to finding the name. Lookups on the found object (e.g. finding its
+        // operators) start a new injection chain.
+        innerRequest.remainingInjectionLevels = -1;
+        innerRequest.throughInjection = false;
         tracer->lookupCallee_routing(innerRequest, innerResult);
         CalleeTracer::selectBetterResult(innerResult, result);
         if (
@@ -203,7 +213,7 @@ void CalleeTracer::_lookupCallee(TiObject *self, CalleeLookupRequest &request, C
       // body can only be accessed through the injected `this` of the auto constructor, and object member lookups need
       // it because overloads of a member can be split between the type and the types injected into it (inheritance).
       if (
-        block != 0 && !request.skipInjections && (
+        block != 0 && request.remainingInjectionLevels != 0 && (
           request.mode == CalleeLookupMode::DIRECTLY_ACCESSIBLE && ti_cast<DataType>(block->getOwner()) == 0 ?
             !result.isNameMatched() : result.matchStatus < TypeMatchStatus::EXACT
         )
@@ -486,7 +496,7 @@ void CalleeTracer::_lookupCallee_type(TiObject *self, CalleeLookupRequest &reque
     ref.setValue(S("~init"));
     innerRequest.op = S("~init");
     innerRequest.setObjectTarget(type, helper->getReferenceTypeFor(type, Ast::ReferenceMode::IMPLICIT));
-    innerRequest.skipInjections = true;
+    innerRequest.remainingInjectionLevels = 0;
     CalleeLookupResult initResult;
     tracer->lookupCallee(innerRequest, initResult);
 
@@ -921,6 +931,8 @@ void CalleeTracer::lookupCallee_injections(
   for (Int i = 0; i < block->getInjectionCount(); ++i) {
     auto def = ti_cast<Core::Ast::Definition>(block->getInjection(i));
     if (def == 0 || def->getSubject() == 0) continue;
+    // An injection marked with `not_injected` is skipped entirely when reached through another injection.
+    if (request.throughInjection && isNotInjectedDef(def)) continue;
     auto subject = def->getSubject().get();
     Bool isVar = helper->isVariable(subject);
     auto domain = isVar ? helper->getVariableDomain(def) : DefinitionDomain::GLOBAL;
@@ -982,6 +994,13 @@ void CalleeTracer::lookupCallee_injections(
       // Capture the first injection's content type to prevent infinite loops in case of circular injections.
       innerRequest.injectionChainStartTarget = dataType;
     }
+    // Going through this injection uses up one of the remaining levels, if limited, and the injection's own limit
+    // (`@injection[N]`) caps the levels further, with the injection itself being the first of its N levels.
+    Int levelLimit = helper->getInjectionLevelLimit(def);
+    Int &remainingLevels = innerRequest.remainingInjectionLevels;
+    if (levelLimit > 0 && (remainingLevels < 0 || remainingLevels > levelLimit)) remainingLevels = levelLimit;
+    if (remainingLevels > 0) --remainingLevels;
+    innerRequest.throughInjection = true;
     CalleeLookupResult innerResult;
     this->lookupCallee(innerRequest, innerResult);
     if (innerResult.isSuccessful()) {
