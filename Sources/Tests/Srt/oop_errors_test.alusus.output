@@ -1,0 +1,4 @@
+[0;31mERROR SRT1005: Invalid vtable. A vtable must be defined as a class located inside the owner class.[0m
+  - - Oop.alusus (147,13)
+      oop_errors_test.alusus (4,1)
+    oop_errors_test.alusus (4,1)

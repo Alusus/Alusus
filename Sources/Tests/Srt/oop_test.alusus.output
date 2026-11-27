@@ -1,0 +1,35 @@
+testSingleAndMultiLevel:
+shape: 1.500000
+sides: 0, s + 5: 5
+Rect.describe -> rect: 6.000000
+sides: 4, s + 5: 5
+diagonal2: 13.000000
+Rect.describe -> square: 16.000000
+sides: 40, s + 5: 5
+Square.diagonal2 -> diagonal2: 32.000000
+area: 1.500000
+area: 6.000000
+area: 16.000000
+testManualOverride:
+Tile.describe -> tile: 10.000000
+sides: 4, s + 5: 5
+testPlainInheritance:
+sides: 0
+testCustomNames:
+... Woof
+testMultipleInheritance:
+Base1: 10
+Base2: 21
+10, 21
+Base1: 300
+Base2: 403
+300, 403
+testSeparateVTable:
+sides: 40
+Grid -> Polygon: 40
+grid, grid
+testTemplates:
+Box[Int]: 5
+Box[Int]: 12
+4, 8
+14
