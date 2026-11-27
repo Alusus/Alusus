@@ -165,6 +165,14 @@
   in a single import.
 * Added a variant of the `alignThis` macro that receives the type containing the member, for cases where `this_type`
   doesn't refer to that type, like in the functions of a vtable class.
+* Added the `Oop` library (`نـبك` in Arabic), which adds support for inheritance and polymorphism through macros that
+  generate and connect vtables:
+  - `Oop.defVtable` defines a vtable in a base class, to which virtual functions are added with
+    `within VTable handler ... as_ptr`.
+  - `Oop.inheritClass` inherits a base class, optionally along with its vtable, in which case overrides are defined with
+    `within VTable handler this.base.f() set_ptr`.
+  - `Oop.inheritVTable` inherits one of the vtables of a base separately, for multi-level and multiple inheritance.
+  - Functions of vtables get the object of the class owning the vtable as `this`.
 
 ### Standard Libraries Fixes
 
@@ -174,6 +182,8 @@
 * Fixed a crash at exit when inserting objects created by `newSrdObj` or the `create` functions of AST and basic
   `Ti` classes, like `Identifier.create`, into the AST. These objects are now created through their C++ object
   factories, so they no longer depend on JIT code to be destroyed.
+* Fixed `newSrdObj`, `castSrdRef`, `allocObj`, `freeObj`, and `freeObjPtr` failing in code that doesn't have
+  `use Srl`, since they referred to definitions of `Srl` without qualifying them.
 
 
 ## Version 0.16.0 (2026-10-09)

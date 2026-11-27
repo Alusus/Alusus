@@ -1,0 +1,209 @@
+import "compiler";
+import "Srl/refs";
+
+module Oop {
+    use Core.Basic;
+    use Core.Ast;
+
+    // Converts the type of `this` in the given function type to be resolved against `ownerClass` rather than the VTable:
+    // * The automatic `ref[this_type]` becomes a reference to `ownerClass`.
+    // * A `ref[x~type]`, which is generated for `set_ptr` overrides of a member's function, as in `this.base.f()`, gets
+    //   `x` resolved within `ownerClass`, since inside the VTable `x` would refer to the VTable's member of that name.
+    // Explicitly typed `this` is left alone.
+    func convertFunctionTypeThis(funcType: ref[Spp.Ast.FunctionType], ownerClass: ref[Spp.Ast.UserType]) {
+        if funcType~ptr == 0 return;
+        def argTypes: ref[Core.Ast.Map](funcType.argTypes);
+        if argTypes~ptr == 0 return;
+        def args: ref[MapContaining[Node]](getInterface[argTypes, MapContaining[Node]]);
+        var thisIndex: Int = args.findElementIndex("this");
+        if thisIndex < 0 return;
+        def thisType: ref[ParamPass](dynCastRef[args.getElement(thisIndex), ParamPass]);
+        if thisType~ptr == 0 || thisType.param~ptr == 0 return;
+        def refParam: ref[Node](thisType.param);
+
+        if isDerivedFrom[refParam, Spp.Ast.ThisTypeRef] {
+            thisType.param = newSrdObj[Passage].{ target = ownerClass };
+        } else if isDerivedFrom[refParam, Spp.Ast.TypeOp] {
+            // Moving the TypeOp under the owner class's body makes its operand get looked up from there. It has to be the
+            // body since lookups skip the members of a type when going up through the type itself.
+            refParam.owner~no_deref = ownerClass.body;
+            def resolvedType: ref[Spp.Ast.Type](Spp.astMgr.traceType(refParam));
+            if resolvedType~ptr == 0 {
+                Spp.buildMgr.raiseBuildNotice("SRT1004", 1, funcType);
+                return;
+            }
+            thisType.param = newSrdObj[Passage].{ target = resolvedType };
+        }
+    }
+
+    // Finds the closest type that encloses the given node, excluding the node itself.
+    func findEnclosingType(node: ref[Node]): ref[Spp.Ast.UserType] {
+        def n: ref[Node](node.owner);
+        while n~ptr != 0 && !isDerivedFrom[n, Spp.Ast.UserType] n := n.owner;
+        return castRef[n, Spp.Ast.UserType];
+    }
+
+    // Finds the VTable we are currently preprocessing.
+    func findCurrentVTable(): ref[Spp.Ast.UserType] {
+        def node: ref[Node](Spp.astMgr.getCurrentPreprocessOwner());
+        while node~ptr != 0 && !isDerivedFrom[node, Spp.Ast.UserType] node := node.owner;
+        if node~ptr == 0 {
+            return nullRef[Spp.Ast.UserType];
+        }
+        return castRef[node, Spp.Ast.UserType];
+    }
+
+    // Finds the type of the class that owns the VTable we are currently preprocessing.
+    func findVTableOwner(): ref[Spp.Ast.UserType] {
+        var owner := findEnclosingType(findCurrentVTable());
+        if owner~ptr == 0 {
+            Spp.buildMgr.raiseBuildNotice("SRT1005", 1, Spp.astMgr.getCurrentPreprocessOwner());
+        }
+        return owner;
+    }
+
+    // Inserts the given AST at the top of the body of the class we are currently preprocessing. If the AST is a block,
+    // its statements are inserted instead.
+    func insertAtClassTop(element: ref[Node]) {
+        var body := Spp.astMgr.getCurrentPreprocessOwner();
+        if body~ptr == 0 || body.owner~ptr == 0 || !isDerivedFrom[body.owner, Spp.Ast.UserType] {
+            Spp.buildMgr.raiseBuildNotice("SRT1005", 1, element);
+            return;
+        }
+        DynContainerOf[body, Node].{
+            insertElement(0, Spp.astMgr.cloneAst(element));
+        }
+    }
+
+    function convertThisType {
+        var ownerClass := findVTableOwner();
+        if ownerClass~ptr == 0 return;
+        def scope: ref[Containing[Node]](
+            getInterface[Spp.astMgr.getCurrentPreprocessOwner(), Containing[Node]]
+        );
+        def i: Int;
+        for i = 0, i < Int(scope.getElementCount()), ++i {
+            def element: ref[Node](scope.getElement(i));
+            if isDerivedFrom[element, Definition] {
+                def subject: ref[Node](castRef[element, Definition].subject);
+                if subject~ptr != 0 && isDerivedFrom[subject, ParamPass] {
+                    // A function pointer definition: `def f: ptr[func(this: ...)]`.
+                    def param: ref[Node](castRef[subject, ParamPass].param);
+                    if param~ptr != 0 && isDerivedFrom[param, Spp.Ast.FunctionType] {
+                        convertFunctionTypeThis(castRef[param, Spp.Ast.FunctionType], ownerClass);
+                    }
+                } else if subject~ptr != 0 && isDerivedFrom[subject, Spp.Ast.Function] {
+                    // The backing function of a named pointer handler: `def _f: func(this: ...) {}`.
+                    convertFunctionTypeThis(castRef[subject, Spp.Ast.Function].type, ownerClass);
+                }
+            } else if isDerivedFrom[element, AssignmentOperator] {
+                // A function assigned to a function pointer, either `f = func(this: ...) {}~cast[ptr[...]]` for
+                // operator handlers, or `f = _f~pick[func(this: ...)]~ptr~cast[ptr[...]]` for named handlers.
+                def value: ref[Node](castRef[element, AssignmentOperator].second);
+                if value~ptr != 0 && isDerivedFrom[value, Spp.Ast.CastOp] {
+                    def operand: ref[Node](castRef[value, Spp.Ast.CastOp].operand);
+                    if operand~ptr != 0 && isDerivedFrom[operand, Spp.Ast.Function] {
+                        convertFunctionTypeThis(castRef[operand, Spp.Ast.Function].type, ownerClass);
+                    } else if operand~ptr != 0 && isDerivedFrom[operand, Spp.Ast.PointerOp] {
+                        // The picked type must be converted the same way as the backing function's type to match it.
+                        def pickOp: ref[Node](castRef[operand, Spp.Ast.PointerOp].operand);
+                        if pickOp~ptr != 0 && isDerivedFrom[pickOp, Spp.Ast.PickOp] {
+                            convertFunctionTypeThis(
+                                dynCastRef[castRef[pickOp, Spp.Ast.PickOp].targetType, Spp.Ast.FunctionType],
+                                ownerClass
+                            );
+                        }
+                    }
+
+                    var targetPtr := dynCastRef[castRef[value, Spp.Ast.CastOp].targetType, Core.Ast.ParamPass];
+                    if targetPtr~ptr != 0 {
+                        convertFunctionTypeThis(
+                            dynCastRef[targetPtr.param, Spp.Ast.FunctionType],
+                            ownerClass
+                        );
+                    }
+                }
+            }
+        }    
+    }
+
+    // This macro is used inside vtable classes to convert the type of `this` in all functions
+    // of the vtable to be of the type of the original class that owns the VTable. This handles:
+    // * Function pointers defined in the body.
+    // * Backing functions of named pointer handlers: `def _f: func(this: ...) {}`.
+    // * Functions assigned to function pointers, whether anonymous (operator handlers) or picked from the backing
+    //   functions of named handlers.
+    macro convertThisType {
+        preprocess Oop.convertThisType();
+    }
+
+    // Defines a vtable for a base class:
+    // * `VTable` is the vtable class, to which virtual functions are added with `within VTable handler ... as_ptr`.
+    // * A shared instance of `VTable` named `s` followed by the vtable member's name, e.g. `svtable`.
+    // * `vtable`, an injected reference to the vtable. It's marked with `no_bind` so that the vtable's functions get
+    //   the object, rather than the vtable, as `this`. Derived classes point it to their own vtable.
+    macro defVtable[vtable, VTable] {
+        class VTable {
+            Oop.convertThisType[];
+        }
+        @shared var s__vtable__: VTable;
+        @no_bind @injection var vtable: ref[VTable](s__vtable__);
+    }
+
+    // Inherits the vtable of a base class that is held in the member `base` of type `Base`:
+    // * `MyVTable` is a new vtable class that embeds `BaseVTable` in a member named `base`, so overrides can be
+    //   defined with `within MyVTable handler this.base.f() set_ptr`, and new virtual functions can be added with
+    //   `within MyVTable handler this.g() as_ptr`.
+    // * `mySharedVtable` is the shared instance of `MyVTable`.
+    // * The constructor points `baseVtable`, the path to the base's vtable reference (e.g. `base.vtable`), to
+    //   `mySharedVtable`.
+    // * An injected `no_bind` handler named after `mySharedVtable` followed by `Ref` gives access to the functions
+    //   added in `MyVTable`.
+    macro inheritVTable[base, Base, baseVtable, BaseVTable, mySharedVtable, MyVTable] {
+        class MyVTable {
+            // Named after the base member so that paths to base VTables match paths to base classes, as in `this.base.f`.
+            // It's not injected, otherwise lookups through the handler below would find the members of the base
+            // vtables, which have the same names as the members of the object, as in `obj.base`.
+            var base: BaseVTable;
+            Oop.convertThisType[];
+        }
+        @shared var mySharedVtable: MyVTable;
+
+        // `MyVTable` can't be implicitly cast to `BaseVTable` since `base` isn't injected, so we explicitly cast the
+        // reference.
+        baseVtable := mySharedVtable~cast[baseVtable~type];
+
+        // The handler is inserted at the top of the class body so that it comes before the members that hold the
+        // bases, wherever this macro is used in the class. That way lookups through the object, as in `this.base._f`,
+        // search `MyVTable` before the vtables of the bases and so find the closest implementation of `_f`.
+        preprocess {
+            Oop.insertAtClassTop(ast
+                @inline @no_bind @injection handler this.__mySharedVtable__Ref: ref[ref[MyVTable]] {
+                    return baseVtable~ptr~ptr~cast[ptr[ptr[MyVTable]]]~cnt~cnt;
+                }
+            );
+        }
+    }
+
+    // Inherits `Base` by injecting it in a member named `base`, without a new vtable. Virtual functions of the base
+    // keep their base implementations.
+    macro inheritClass[base, Base] {
+        @injection def base: Base;
+    }
+
+    // Inherits `Base` along with its vtable, where `vtable` and `VTable` are the names given to `defVtable` (or to this
+    // macro) in the base class. The derived class gets its own vtable class with the same name, `VTable`, and its
+    // shared instance is named the same way as in `defVtable`.
+    macro inheritClass[base, Base, vtable, VTable] {
+        @injection def base: Base;
+        Oop.inheritVTable[base, Base, base.vtable, Base.VTable, s__vtable__, VTable];
+    }
+
+    // Inherits `Base` along with its vtable with full control over the names. This is needed for multi-level
+    // inheritance, where `baseVtable` is a path through multiple members (e.g. `child.vtable`), and for multiple
+    // inheritance, where each base needs its own vtable class and shared instance.
+    macro inheritClass[base, Base, baseVtable, BaseVTable, mySharedVtable, MyVTable] {
+        @injection def base: Base;
+        Oop.inheritVTable[base, Base, baseVtable, BaseVTable, mySharedVtable, MyVTable];
+    }
+}

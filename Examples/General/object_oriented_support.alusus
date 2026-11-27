@@ -1,0 +1,148 @@
+import "Srl/Console";
+import "Oop";
+
+class Base {
+    Oop.defVtable[vtable, VTable];
+
+    def i: Int;
+    within VTable handler this.getV1(): Int as_ptr {
+        return this.i;
+    }
+
+    within VTable handler this.getV2(): Int as_ptr {
+        return this.i * 2;
+    }
+}
+
+class Child {
+    Oop.inheritClass[base, Base, vtable, VTable];
+
+    def j: Int;
+    within VTable handler this.base.getV1(): Int set_ptr {
+        return this.j;
+    }        
+    within VTable handler this.base.getV2(): Int set_ptr {
+        return this.j * 2;
+    }        
+    within VTable handler this.getV3(): Int as_ptr {
+        return this.j * 3;
+    }
+}
+
+class GrandChild {
+    Oop.inheritClass[child, Child, child.vtable, Child.VTable, svtable, VTable2];
+
+    def k: Int;
+    within VTable2 handler this.child.base.getV1(): Int set_ptr {
+        return this.k + this.child.base._getV1();
+    }
+}
+
+// Multiple Inheritance
+
+class Base2 {
+    Oop.defVtable[vtable, VTable];
+
+    def a: Int;
+    within VTable handler this.getV1(): Int as_ptr {
+        return this.a;
+    }
+}
+
+class MultiBase {
+    Oop.inheritClass[child1, Base, child1.vtable, Base.VTable, svtable1, VTable1];
+    Oop.inheritClass[child2, Base2, child2.vtable, Base2.VTable, svtable2, VTable2];
+
+    within VTable1 handler this.child1.getV1(): Int set_ptr {
+        return this.i * 2;
+    }
+
+    within VTable2 handler this.child2.getV1(): Int set_ptr {
+        alignThis[child2, MultiBase];
+        return this.a * 2;
+    }
+}
+
+class MultiBaseChild {
+    Oop.inheritClass[child, MultiBase, child.vtable, MultiBase.VTable1, svtable, VTable];
+
+    within VTable handler this.child.child1.getV1(): Int set_ptr {
+        return this.i * 3;
+    }
+}
+
+class MultiBaseChild2 {
+    Oop.inheritClass[child, MultiBase];
+    Oop.inheritVTable[child, MultiBase, child1.vtable, MultiBase.VTable1, svtable1, VTable1];
+    Oop.inheritVTable[child, MultiBase, child2.vtable, MultiBase.VTable2, svtable2, VTable2];
+
+
+    within VTable1 handler this.child.child1.getV1(): Int set_ptr {
+        return this.i * 4;
+    }
+    within VTable2 handler this.child.child2.getV1(): Int set_ptr {
+        alignThis[child2, MultiBase];
+        return this.a * 4;
+    }
+}
+
+function testA {
+    def b: Base;
+    b.i = 5;
+    Srl.Console.print("%d\n", b.getV1());
+}
+
+function testB {
+    def c: Child;
+    c.i = 5;
+    c.j = 3;
+    Srl.Console.print("%d, %d, %d\n", c.getV1(), c.getV2(), c.getV3());
+}
+
+function printBase(base: ref[Base]) {
+    Srl.Console.print("Base: %d\n", base.getV1());
+}
+
+function printBase2(base: ref[Base2]) {
+    Srl.Console.print("Base2: %d\n", base.getV1());
+}
+
+function testC {
+    def b: Base;
+    def c: Child;
+    def g: GrandChild;
+    b.i = 5;
+    c.i = 6;
+    c.j = 7;
+    g.i = 8;
+    g.j = 9;
+    g.k = 10;
+    printBase(b);
+    printBase(c);
+    printBase(g);
+}
+
+function testD {
+    def m: MultiBase;
+    def mc: MultiBaseChild;
+    def mc2: MultiBaseChild2;
+    m.i = 1;
+    m.a = 2;
+    mc.i = 1;
+    mc.a = 2;
+    mc2.i = 1;
+    mc2.a = 2;
+    Srl.Console.print("MultiBase:\n");
+    printBase(m);
+    printBase2(m.child2);
+    printBase(mc);
+    printBase(mc2);
+    printBase2(mc2.child2);
+    Srl.Console.print("%d\n", mc2.getV1());
+    Srl.Console.print("%d\n", mc2.child2.getV1());
+}
+
+testA();
+testB();
+testC();
+testD();

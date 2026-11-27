@@ -1,0 +1,335 @@
+import "Srl/Console";
+import "Oop";
+
+use Srl.Console;
+
+// Single inheritance
+
+class Shape {
+    Oop.defVtable[vtable, VTable];
+
+    def name: CharsPtr;
+
+    // Abstract function, i.e. a pointer without an implementation.
+    within VTable handler this.area(): Float[64] as_ptr;
+
+    within VTable handler this.describe() as_ptr {
+        print("%s: %f\n", this.name, this.area());
+    }
+
+    within VTable handler this.sides: Int as_ptr {
+        return 0;
+    }
+
+    within VTable handler this + (n: Int): Int as_ptr {
+        return n;
+    }
+
+    handler this~init() {
+        this.name = "shape";
+    }
+}
+
+class Rect {
+    Oop.inheritClass[shape, Shape, vtable, VTable];
+
+    def w: Float[64];
+    def h: Float[64];
+
+    handler this~init() {
+        this.name = "rect";
+    }
+
+    within VTable handler this.shape.area(): Float[64] set_ptr {
+        return this.w * this.h;
+    }
+
+    within VTable handler this.shape.describe() set_ptr {
+        print("Rect.describe -> ");
+        this.shape._describe();
+    }
+
+    within VTable handler this.shape.sides: Int set_ptr {
+        return 4;
+    }
+
+    within VTable handler this.diagonal2(): Float[64] as_ptr {
+        return this.w * this.w + this.h * this.h;
+    }
+}
+
+// Multi-level inheritance
+
+class Square {
+    Oop.inheritClass[rect, Rect, rect.vtable, Rect.VTable, svtable, VTable];
+
+    handler this~init() {
+        this.name = "square";
+    }
+
+    within VTable handler this.rect.shape.sides: Int set_ptr {
+        // Gets Rect's implementation rather than Shape's.
+        return this.rect._sides * 10;
+    }
+
+    within VTable handler this.rect.diagonal2(): Float[64] set_ptr {
+        print("Square.diagonal2 -> ");
+        return this.rect._diagonal2();
+    }
+}
+
+func printShape(s: ref[Shape]) {
+    s.describe();
+    print("sides: %d, s + 5: %d\n", s.sides, s + 5);
+}
+
+func printRect(r: ref[Rect]) {
+    print("diagonal2: %f\n", r.diagonal2());
+}
+
+func testSingleAndMultiLevel {
+    print("testSingleAndMultiLevel:\n");
+    def s: Shape;
+    // Sets the abstract function in Shape's shared vtable, which doesn't affect the vtables of derived classes.
+    s.vtable.area =(func (this: ref[Shape]): Float[64] { return 1.5 })~cast[ptr[@member func (ref[Shape]): Float[64]]];
+    printShape(s);
+    def r: Rect;
+    r.w = 2;
+    r.h = 3;
+    printShape(r);
+    printRect(r);
+    def q: Square;
+    q.w = 4;
+    q.h = 4;
+    printShape(q);
+    printRect(q);
+
+    def shapes: array[ptr[Shape], 3];
+    shapes(0) = s~ptr;
+    shapes(1) = r~ptr;
+    shapes(2) = q~ptr;
+    def i: Int;
+    for i = 0, i < 3, ++i print("area: %f\n", shapes(i)~cnt.area());
+}
+testSingleAndMultiLevel();
+
+// Manual overrides
+
+class Tile {
+    Oop.inheritClass[rect, Rect, rect.vtable, Rect.VTable, svtable, VTable];
+
+    handler this~init() {
+        this.name = "tile";
+    }
+
+    // `this` is explicitly typed, so it's left as is rather than converted to `Tile`.
+    within VTable handler (this: Shape)._describe() {
+        print("Tile.describe -> %s: %f\n", this.name, this.area());
+    }
+    // `~type` through the vtable's members would apply to the result of calling the pointer, so the pointer's type is
+    // taken through the vtable class instead.
+    within VTable rect.shape.describe = _describe~ptr~cast[Shape.VTable.describe~type];
+}
+
+func testManualOverride {
+    print("testManualOverride:\n");
+    def t: Tile;
+    t.w = 2;
+    t.h = 5;
+    printShape(t);
+}
+testManualOverride();
+
+// Inheritance without a new vtable
+
+class PlainShape {
+    Oop.inheritClass[shape, Shape];
+}
+
+func testPlainInheritance {
+    print("testPlainInheritance:\n");
+    def p: PlainShape;
+    print("sides: %d\n", p.sides);
+}
+testPlainInheritance();
+
+// Custom names
+
+class Animal {
+    Oop.defVtable[vt, AnimalVt];
+    within AnimalVt handler this.speak(): CharsPtr as_ptr {
+        return "...";
+    }
+}
+
+class Dog {
+    Oop.inheritClass[animal, Animal, vt, AnimalVt];
+    within AnimalVt handler this.animal.speak(): CharsPtr set_ptr {
+        return "Woof";
+    }
+}
+
+func testCustomNames {
+    print("testCustomNames:\n");
+    def a: Animal;
+    def d: Dog;
+    def animals: array[ptr[Animal], 2];
+    animals(0) = a~ptr;
+    animals(1) = d~ptr;
+    print("%s %s\n", animals(0)~cnt.speak(), animals(1)~cnt.speak());
+}
+testCustomNames();
+
+// Multiple inheritance
+
+class Base1 {
+    Oop.defVtable[vtable, VTable];
+    def i: Int;
+    within VTable handler this.get1(): Int as_ptr {
+        return this.i;
+    }
+}
+
+class Base2 {
+    Oop.defVtable[vtable, VTable];
+    def j: Int;
+    within VTable handler this.get2(): Int as_ptr {
+        return this.j;
+    }
+}
+
+class Multi {
+    Oop.inheritClass[base1, Base1, base1.vtable, Base1.VTable, svtable1, VTable1];
+    Oop.inheritClass[base2, Base2, base2.vtable, Base2.VTable, svtable2, VTable2];
+
+    within VTable1 handler this.base1.get1(): Int set_ptr {
+        return this.i * 10;
+    }
+
+    within VTable2 handler this.base2.get2(): Int set_ptr {
+        // `this` points to `base2` rather than the start of the object.
+        alignThis[base2, Multi];
+        return this.i + this.j * 10;
+    }
+}
+
+class MultiChild {
+    Oop.inheritClass[multi, Multi];
+    Oop.inheritVTable[multi, Multi, base1.vtable, Multi.VTable1, svtable1, VTable1];
+    Oop.inheritVTable[multi, Multi, base2.vtable, Multi.VTable2, svtable2, VTable2];
+
+    within VTable1 handler this.multi.base1.get1(): Int set_ptr {
+        return this.i * 100;
+    }
+
+    within VTable2 handler this.multi.base2.get2(): Int set_ptr {
+        alignThis[base2, MultiChild];
+        return this.i + this.j * 100;
+    }
+}
+
+func printBase1(b: ref[Base1]) {
+    print("Base1: %d\n", b.get1());
+}
+
+func printBase2(b: ref[Base2]) {
+    print("Base2: %d\n", b.get2());
+}
+
+func testMultipleInheritance {
+    print("testMultipleInheritance:\n");
+    def m: Multi;
+    m.i = 1;
+    m.j = 2;
+    printBase1(m);
+    printBase2(m.base2);
+    print("%d, %d\n", m.get1(), m.get2());
+    def mc: MultiChild;
+    mc.i = 3;
+    mc.j = 4;
+    printBase1(mc);
+    printBase2(mc.base2);
+    print("%d, %d\n", mc.get1(), mc.get2());
+}
+testMultipleInheritance();
+
+// Inheriting the vtable separately, after other members
+
+class Polygon {
+    Oop.defVtable[vtable, VTable];
+    def name: CharsPtr;
+    within VTable handler this.sides: Int as_ptr { return 0; }
+    within VTable handler this.describe() as_ptr { print("Polygon: %d\n", this.sides); }
+}
+
+class Quad {
+    Oop.inheritClass[polygon, Polygon];
+    def w: Int;
+    Oop.inheritVTable[polygon, Polygon, polygon.vtable, Polygon.VTable, svtable, VTable];
+    within VTable handler this.polygon.sides: Int set_ptr { return 4; }
+}
+
+class Grid {
+    Oop.inheritClass[quad, Quad];
+    def cells: Int;
+    Oop.inheritVTable[quad, Quad, quad.polygon.vtable, Quad.VTable, svtable, VTable];
+    within VTable handler this.quad.polygon.sides: Int set_ptr {
+        // Gets Quad's implementation rather than Polygon's.
+        return this.quad._sides * 10;
+    }
+    within VTable handler this.quad.polygon.describe() set_ptr {
+        print("Grid -> ");
+        this.quad.polygon._describe();
+    }
+}
+
+func testSeparateVTable {
+    print("testSeparateVTable:\n");
+    def g: Grid;
+    g.name = "grid";
+    print("sides: %d\n", g.sides);
+    def p: ref[Polygon](g);
+    p.describe();
+    // Members of the bases are still reached through the objects rather than the vtables.
+    print("%s, %s\n", g.polygon.name, g.quad.polygon.name);
+}
+testSeparateVTable();
+
+// Templates
+
+class Box [T: type] {
+    Oop.defVtable[vtable, VTable];
+    def value: T;
+    within VTable handler this.get(): T as_ptr {
+        return this.value;
+    }
+}
+
+class DoubleBox [T: type] {
+    Oop.inheritClass[box, Box[T], vtable, VTable];
+    within VTable handler this.box.get(): T set_ptr {
+        return this.value * 2;
+    }
+    within VTable handler this.size(): Int as_ptr {
+        return T~size;
+    }
+}
+
+func printIntBox(b: ref[Box[Int]]) {
+    print("Box[Int]: %d\n", b.get());
+}
+
+func testTemplates {
+    print("testTemplates:\n");
+    def b: Box[Int];
+    b.value = 5;
+    def db: DoubleBox[Int];
+    db.value = 6;
+    def db64: DoubleBox[Int[64]];
+    db64.value = 7;
+    printIntBox(b);
+    printIntBox(db);
+    print("%d, %d\n", db.size(), db64.size());
+    print("%d\n", db64.get()~cast[Int]);
+}
+testTemplates();

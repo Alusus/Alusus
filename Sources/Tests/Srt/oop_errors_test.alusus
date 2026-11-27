@@ -1,0 +1,4 @@
+import "Oop";
+
+// A vtable must be defined inside the class that owns it.
+Oop.defVtable[vtable, VTable];

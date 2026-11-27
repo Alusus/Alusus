@@ -130,7 +130,7 @@
         // termination are managed by C++ the same way as objects created by the compiler. Otherwise the reference
         // counter would point to a terminator in JIT code, which is no longer available when objects owned by the
         // compiler, like AST nodes, are released at exit.
-        macro newSrdObj [T] castSrdRef[T.getTypeInfo().objectFactory.createShared(), T];
+        macro newSrdObj [T] Srl.castSrdRef[T.getTypeInfo().objectFactory.createShared(), T];
 
         macro defTiBasicType [name, dataType, uniqueName] {
             class name {

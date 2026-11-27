@@ -306,14 +306,14 @@ import "String";
     //==========================================================================
     // Macros
 
-    macro castSrdRef [r, T] SrdRef[T]()~use_in(__self) no_injection {
+    macro castSrdRef [r, T] Srl.SrdRef[T]()~use_in(__self) no_injection {
         r.{
             __self.assign(this.refCounter, castRef[this.obj, T]);
         }
     };
 
     macro allocObj [T] ref[T]()~use_in(__self) no_injection {
-        __self~ptr = Memory.alloc(T~size)~cast[ptr[T]]
+        __self~ptr = Srl.Memory.alloc(T~size)~cast[ptr[T]]
     };
 
     macro newObj [T] allocObj[T]~use_in(__self) no_injection {
@@ -322,16 +322,16 @@ import "String";
 
     macro freeObj [o] o~use_in(__self) no_injection {
         __self~terminate();
-        Memory.free(__self~ptr);
+        Srl.Memory.free(__self~ptr);
     };
 
     macro freeObj [o, T] o~use_in(__self) no_injection {
         castRef[__self, T]~terminate();
-        Memory.free(__self~ptr);
+        Srl.Memory.free(__self~ptr);
     };
 
     macro freeObjPtr [o, T] o~use_in(__self) no_injection {
         __self~cast[ptr[T]]~terminate();
-        Memory.free(__self);
+        Srl.Memory.free(__self);
     };
 };

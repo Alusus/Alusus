@@ -1669,6 +1669,9 @@ directly to member functions defined with `func`. For example, the following is 
     @no_bind @injection @member @operation[""] func vtable (this: ref[this_type]): ref[VTable] { ... };
 ```
 
+The [Oop library](./Srt_Reference/Oop.en.md) provides macros that generate vtables, and the code that connects the
+vtables of derived classes to their bases, based on these features.
+
 ## Type Inference
 
 It is possible to infer information about classes at compile time using the following operators:
