@@ -1,6 +1,6 @@
 # Alusus Changelog
 
-## Version 0.17.0 (2026-xx-xx)
+## Version 1.0.0 (2026-xx-xx)
 
 ### Compiler Updates
 
@@ -22,7 +22,7 @@
     call the function they override through `callSuper`.
 * The `~size` operator now always returns an `ArchWord` instead of the smallest signed integer type that can
   hold the size.
-* Added the `within` command (`ضمن` in Arabic), which adds statements to an existing scope:
+* Added the `within` command, which adds statements to an existing scope:
   `within MyScope def num: 123;` or `within A.B { ... }`. Within a class, it adds to the body of the class.
   The command is represented by the new `Core.Ast.Within` class, which replaces `Core.Ast.MergeList`, and the
   `Seeker` has a new `add` operation that extensions can override to support more kinds of targets.
@@ -32,7 +32,7 @@
   - Multiple variables can be defined in a single command, as in `var i = 0, j: Int = 1`.
   - Global variables get their initial values assigned in the global constructors, which means the assignment
     is included in offline builds.
-  - `var` and `متغير` are now keywords, so they can no longer be used as identifiers at the start of a
+  - `var` is now a keyword, so it can no longer be used as identifier at the start of a
     statement.
  * The `def` command no longer accepts an `=` operator, so you can no longer do `def x: Int = value`. For
    initializing a variable's value in the definition the `var` command must be used instead.
@@ -46,7 +46,7 @@
   Nested members are supported as well for multi-level inheritance, as in `handler this.child.parent.func() set_ptr`.
 * The `~type` operator now accepts any expression, including member access chains like `a.b~type`, and can reference
   class members directly inside the class body.
-* Added the literal pointer type `lptr` (`مؤشر_حرفي` in Arabic), which is a pointer type that can be implicitly
+* Added the literal pointer type `lptr`, which is a pointer type that can be implicitly
   cast to `ptr` but can only be cast from `ptr` explicitly. String literals are now of type
   `lptr[array[Word[8]]]` instead of `ptr[array[Word[8]]]`.
 * The qualifier of the `within` command can now be a template instance like `lptr[array[Word[8]]]`, which allows
@@ -66,14 +66,14 @@
   global variables. Code produced by macros is shown along with the line where the macro was used. Debug builds are
   compiled without optimization unless `optimize=1` is passed as well. Debugging code that Alusus runs directly is
   currently supported on Linux only.
-* Added the `@unshared_instances` modifier (`@طبعات_لامشتركة` in Arabic) for class and function templates.
+* Added the `@unshared_instances` modifier for class and function templates.
   Every use of such a template creates a new instance, even if the template args match an existing instance, which is useful for templates whose
   instances are modified after creation.
 * Renamed `Core.Ast.Definition`'s `target` property to `subject`.
 * Made `Process.platform`, `Process.language`, and `Process.coreBinPath` constants instead of variables.
 * Fixed the type info registration of `GenericCommand`, `ArgPack`, and `TemplateVarDef`, and the namespace and package
   of the type infos of `TemplateVarDef` and `ArgPack`.
-* The `@no_bind` modifier (`@دون_ربط` in Arabic) now also applies when its member is accessed explicitly rather than only
+* The `@no_bind` modifier now also applies when its member is accessed explicitly rather than only
   through injection, so with `@no_bind var vtable: ref[VTable]`, `t.vtable.getVal()` calls `getVal` with `t` as `this`
   instead of `t.vtable`.
 * Added support for the `@no_bind` modifier on read handlers (`handler this.prop: T`) and method handlers
@@ -95,10 +95,10 @@
   - The `@injection` modifier now accepts an optional limit on the number of levels reachable through the injection.
     With `@injection[1] var parent: Parent` the members of `parent` are reachable, but not the members of definitions
     injected into `parent`.
-  - Added the `@not_injected` modifier (`@لا_يحقن` in Arabic), which makes a variable, function, or handler
+  - Added the `@not_injected` modifier, which makes a variable, function, or handler
     unreachable through injections, including the implicit `this` of methods, so it needs to be accessed explicitly
     (e.g. `this.var`). If the definition is itself an injection then the members injected through it are skipped too.
-* Added the `@inline` modifier (`@مضمن` in Arabic) for functions and handlers, which makes the compiler inline calls to
+* Added the `@inline` modifier for functions and handlers, which makes the compiler inline calls to
   them, including in unoptimized builds.
 * Members of the object can now be accessed from within methods without the `this.` prefix (e.g. `x` instead of
   `this.x`), as `this` is now implicitly injected into the body of every method. Local variables and the method's
@@ -110,7 +110,7 @@
     definitions with the same name further out if it doesn't match the given arguments. The mismatch is only reported
     if nothing else matches the name. Ambiguous matches, and accessing local variables of other functions, are still
     reported right away.
-* Added the `~pick` operator (`~التقط` in Arabic), which picks the element matching a given type among multiple
+* Added the `~pick` operator, which picks the element matching a given type among multiple
   elements with the same name, as in `print~pick[func (Int)]~ptr` to get a pointer to a specific overload of a
   function, or `count~pick[Int]` to pick between variables with the same name. Elements are picked by an exact match
   of their type.
@@ -156,8 +156,7 @@
   assignments accept literals directly. Literals are cast using the skip-copying constructor, so no memory is
   allocated and nothing is copied, while `CharsPtr` is cast using the regular constructor, which allocates and
   copies the string.
-* Added the `CharsLptr` alias (`مـؤشر_محارف_حرفي` in Arabic) for `lptr[array[Word[8]]]` and the `مؤشر_حرفي` alias
-  for `lptr` in the Arabic syntax.
+* Added the `CharsLptr` alias for `lptr[array[Word[8]]]`.
 * `Spp.buildMgr.dumpLlvmIrForElement` now accepts an optional second argument to include debug info in the output.
 * Added property accessors to the AST classes in `Core.Ast` and `Spp.Ast`. Each member of an AST class, whether
   stored by value or a child node, can now be read and set as a property, as in `link.first = node` or
@@ -168,11 +167,11 @@
   `Spp.Ast.TemplateVarType`, and `Spp.Ast.VarInitMode`, which are `TiInt` based types with their values available as
   static members.
 * Added full Arabic localization of the AST classes, including their names and members.
-* Added the `compiler` module (`المترجم` in Arabic), which imports everything related to interacting with the compiler
+* Added the `compiler` module, which imports everything related to interacting with the compiler
   in a single import.
 * Added a variant of the `alignThis` macro that receives the type containing the member, for cases where `this_type`
   doesn't refer to that type, like in the functions of a vtable class.
-* Added the `Oop` library (`نـبك` in Arabic), which adds support for inheritance and polymorphism through macros that
+* Added the `Oop` library, which adds support for inheritance and polymorphism through macros that
   generate and connect vtables:
   - `Oop.defVtable` defines a vtable in a base class, to which virtual functions are added with
     `within VTable handler ... as_ptr`.
