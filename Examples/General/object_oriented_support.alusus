@@ -146,3 +146,48 @@ testA();
 testB();
 testC();
 testD();
+
+// Interfaces
+
+class Interface {
+    Oop.defVtable[vtable, VTable];
+
+    within VTable handler this.getV1(): Int as_ptr;
+
+    within VTable handler this.getV2(): Int as_ptr;
+}
+
+class Implementor {
+    var i: Int, j: Int;
+
+    class Interface {
+        Oop.inheritClass[interface, Root.Interface, vtable, VTable];
+
+        @injection var implementor: ref[Implementor];
+
+        within VTable handler this.interface.getV1(): Int set_ptr {
+            return i;
+        }        
+        within VTable handler this.interface.getV2(): Int set_ptr {
+            return j;
+        }        
+    }
+
+    var interface: Interface;
+    interface.implementor := this;
+
+    handler this~cast[ref[Interface]] return this.interface;
+}
+
+function printInterface(i: ref[Interface]) {
+    Srl.Console.print("getV1() = %d, getV2() = %d\n", i.getV1(), i.getV2());
+}
+
+function testInterface {
+    def imp: Implementor;
+    imp.i = 3;
+    imp.j = 4;
+    Srl.Console.print("Test Interfaces:\n");
+    printInterface(imp);
+}
+testInterface();
