@@ -91,6 +91,9 @@ DEFINE_NOTICE(CircularVarTypeDeductionNotice, "Spp.Notices", "Spp", "alusus.org"
 DEFINE_NOTICE(VarCtorArgsWithValueNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1021", 1,
   "Constructor args can't be passed to a variable that is also assigned an initial value."
 );
+DEFINE_NOTICE(InvalidInjectionLevelLimitNotice, "Spp.Notices", "Spp", "alusus.org", "SPPA1022", 1,
+  "The injection level limit must be a positive integer literal."
+);
 
 } /// namespace
 

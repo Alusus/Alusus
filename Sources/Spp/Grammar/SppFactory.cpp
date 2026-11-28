@@ -71,8 +71,15 @@ void SppFactory::createGrammar()
   this->set(S("root.Main.Def.modifierActions.مشترك"), newSrdObj<Grammar::StoreModifierAction>(S("shared")));
   this->set(S("root.Main.Def.modifierActions.no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind")));
   this->set(S("root.Main.Def.modifierActions.دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind")));
-  this->set(S("root.Main.Def.modifierActions.injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection")));
-  this->set(S("root.Main.Def.modifierActions.حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection")));
+  // A parameterless injection stores 0, meaning unlimited injection levels.
+  this->set(
+    S("root.Main.Def.modifierActions.injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"), S("0"))
+  );
+  this->set(S("root.Main.Def.modifierActions.حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"), S("0")));
+  this->set(
+    S("root.Main.Def.modifierActions.not_injected"), newSrdObj<Grammar::StoreModifierAction>(S("not_injected"))
+  );
+  this->set(S("root.Main.Def.modifierActions.لا_يحقن"), newSrdObj<Grammar::StoreModifierAction>(S("not_injected")));
   this->set(S("root.Main.Def.modifierActions.operation"), newSrdObj<Grammar::StoreModifierAction>(S("operation")));
   this->set(S("root.Main.Def.modifierActions.عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation")));
   this->set(S("root.Main.Def.modifierActions.priority"), newSrdObj<Grammar::StoreModifierAction>(S("priority")));
@@ -250,8 +257,10 @@ void SppFactory::createGrammar()
     {S("مشترك"), newSrdObj<Grammar::StoreModifierAction>(S("shared"))},
     {S("no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
     {S("دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
-    {S("injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
-    {S("حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
+    {S("injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"), S("0"))},
+    {S("حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"), S("0"))},
+    {S("not_injected"), newSrdObj<Grammar::StoreModifierAction>(S("not_injected"))},
+    {S("لا_يحقن"), newSrdObj<Grammar::StoreModifierAction>(S("not_injected"))},
     {S("priority"), newSrdObj<Grammar::StoreModifierAction>(S("priority"))},
     {S("أولوية"), newSrdObj<Grammar::StoreModifierAction>(S("priority"))}
   }));
@@ -290,6 +299,7 @@ void SppFactory::createGrammar()
     {S("تصدير"), newSrdObj<Grammar::TranslateModifierAction>(S("expname"))},
     {S("دون_ربط"), newSrdObj<Grammar::TranslateModifierAction>(S("no_bind"))},
     {S("حقنة"), newSrdObj<Grammar::TranslateModifierAction>(S("injection"))},
+    {S("لا_يحقن"), newSrdObj<Grammar::TranslateModifierAction>(S("not_injected"))},
     {S("مضمن"), newSrdObj<Grammar::TranslateModifierAction>(S("inline"))}
   }));
   this->createCommand(S("root.Main.TypeOpOptions"), {{
@@ -407,9 +417,11 @@ void SppFactory::createGrammar()
     {S("عملية"), newSrdObj<Grammar::StoreModifierAction>(S("operation"))},
     {S("no_bind"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
     {S("دون_ربط"), newSrdObj<Grammar::StoreModifierAction>(S("no_bind"))},
-    {S("injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
-    {S("حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"))},
-    {S("طبعات_لامشتركة"), newSrdObj<Grammar::TranslateModifierAction>(S("unshared_instances"))}
+    {S("injection"), newSrdObj<Grammar::StoreModifierAction>(S("injection"), S("0"))},
+    {S("حقنة"), newSrdObj<Grammar::StoreModifierAction>(S("injection"), S("0"))},
+    {S("not_injected"), newSrdObj<Grammar::StoreModifierAction>(S("not_injected"))},
+    {S("لا_يحقن"), newSrdObj<Grammar::StoreModifierAction>(S("not_injected"))},
+    {S("طبعات_لامشتركة"),newSrdObj<Grammar::TranslateModifierAction>(S("unshared_instances"))}
   }));
 
   // FuncSigExpression
@@ -979,6 +991,8 @@ void SppFactory::cleanGrammar()
   this->remove(S("root.Main.Def.modifierActions.دون_ربط"));
   this->remove(S("root.Main.Def.modifierActions.injection"));
   this->remove(S("root.Main.Def.modifierActions.حقنة"));
+  this->remove(S("root.Main.Def.modifierActions.not_injected"));
+  this->remove(S("root.Main.Def.modifierActions.لا_يحقن"));
   this->remove(S("root.Main.Def.modifierActions.operation"));
   this->remove(S("root.Main.Def.modifierActions.عملية"));
   this->remove(S("root.Main.Def.modifierActions.priority"));

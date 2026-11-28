@@ -1603,6 +1603,73 @@ through an object of that type:
   App.level = 5; // compiler translates it to App.config.level
 ```
 
+#### Limiting Injection Levels
+
+By default, injections are chained: if the injected definition's type has injections of its own, the members of those
+injections are also available in the enclosing scope, and so on. Passing a positive integer to the `injection` modifier
+limits the number of levels reachable through that injection, with the injection itself being the first level. With
+`@injection[1]` only the members of the injected definition itself are available, while the definitions injected into it
+are not:
+
+```
+  class Grand {
+    var g: Int;
+  };
+
+  class Parent {
+    @injection var grand: Grand;
+    var p: Int;
+  };
+
+  class Child {
+    @injection[1] var parent: Parent;
+  };
+
+  var c: Child;
+  c.p = 1; // compiler translates it to c.parent.p
+  c.g = 2; // Error, g is two levels deep.
+  c.parent.g = 2; // OK, compiler translates it to c.parent.grand.g
+```
+
+The limit also applies to any injections below it, even if those are unlimited. Omitting the limit, or passing `0`, means
+the levels are not limited. The limit can be used with any kind of injection, including injected read handlers. It only
+affects name lookup, so implicit casting to the type of the first injected member is not affected by it.
+
+#### Excluding Definitions from Injection (not_injected)
+
+Tagging a definition with the `not_injected` modifier prevents it from being reached through
+injections. The modifier can be used with variables, functions, and handlers (methods, operators, read properties,
+etc.). Such definitions are treated as if they don't exist when looked up through an injection, so the lookup continues
+to outer scopes as it would for any missing name. This includes the implicitly injected `this` of methods, so within the
+type's own methods these definitions need to be accessed explicitly through `this`. The definition can still be
+accessed explicitly through the injected object:
+
+```
+  class Parent {
+    var p: Int;
+    @not_injected var internal: Int;
+    @not_injected handler this + Int: Int { ... };
+    handler this.printInternal() {
+      print("%d\n", this.internal); // OK.
+      print("%d\n", internal); // Error, internal isn't reachable through the implicit `this`.
+    };
+  };
+
+  class Child {
+    @injection var parent: Parent;
+  };
+
+  var c: Child;
+  c.p = 1; // compiler translates it to c.parent.p
+  c.internal = 2; // Error, internal isn't reachable through the injection.
+  c.parent.internal = 2; // OK.
+  c + 1; // Error, the operator isn't reachable through the injection.
+  c.parent + 1; // OK.
+```
+
+If the `not_injected` definition is itself an injection then it is skipped entirely, i.e. neither the definition nor the
+members injected through it are reachable through injections from the outer scopes.
+
 ### Binding Members to the Enclosing Object (no_bind)
 
 When accessing a member of an object, the object becomes `this` for anything accessed through that member. For

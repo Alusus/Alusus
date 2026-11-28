@@ -138,6 +138,12 @@ Char const* findOperationModifier(Core::Ast::Definition const *def);
 
 Bool isInjection(Core::Ast::Definition *def);
 
+/// Marks the definition as an injection, limited to the given number of levels (0 means unlimited).
+void setInjection(Core::Ast::Definition *def, Int levelLimit = 0);
+
+/// Whether the definition is excluded from lookups that go through injections (the `not_injected` modifier).
+Bool isNotInjectedDef(Core::Ast::Definition const *def);
+
 /// Checks whether the definition is a read property (i.e. defined with `handler this.prop: T`, whether as a function
 /// or as a function pointer using as_ptr).
 Bool isReadPropertyDef(Core::Ast::Definition const *def);

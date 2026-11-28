@@ -48,6 +48,7 @@ SPPA1018:Could not deduce the variable type from its initial value.
 SPPA1019:Variable type can't be deduced from multiple initialization arguments.
 SPPA1020:Circular variable type deduction encountered.
 SPPA1021:Constructor args can't be passed to a variable that is also assigned an initial value.
+SPPA1022:The injection level limit must be a positive integer literal.
 
 SPPH1001:Invalid argument for build command.
 SPPH1002:Missing signature in function definition.

@@ -91,6 +91,13 @@
   without an object, either through the type or from within the type's own functions. Injecting a shared definition
   was previously an error (SPPG1028). Local variables, including shared ones, can also be injected as read properties
   (`@injection @operation[""] def prop: ptr[func (): ref[Inner]]`).
+* Added controls over injection to help resolve conflicts caused by it:
+  - The `@injection` modifier now accepts an optional limit on the number of levels reachable through the injection.
+    With `@injection[1] var parent: Parent` the members of `parent` are reachable, but not the members of definitions
+    injected into `parent`.
+  - Added the `@not_injected` modifier (`@لا_يحقن` in Arabic), which makes a variable, function, or handler
+    unreachable through injections, including the implicit `this` of methods, so it needs to be accessed explicitly
+    (e.g. `this.var`). If the definition is itself an injection then the members injected through it are skipped too.
 * Added the `@inline` modifier (`@مضمن` in Arabic) for functions and handlers, which makes the compiler inline calls to
   them, including in unoptimized builds.
 * Members of the object can now be accessed from within methods without the `this.` prefix (e.g. `x` instead of

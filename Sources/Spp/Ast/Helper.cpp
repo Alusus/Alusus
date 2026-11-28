@@ -494,6 +494,21 @@ Type* Helper::deduceIntLiteralType(Core::Ast::Node *astExpr)
 }
 
 
+Int Helper::getInjectionLevelLimit(Core::Ast::Definition const *def)
+{
+  auto literal = def->getMetadata(S("injection")).ti_cast_get<Core::Ast::IntegerLiteral>();
+  if (literal == 0) return 0;
+  LongWord value;
+  Int size;
+  Bool signedNum;
+  Bool typeRequested;
+  this->parseIntLiteral(literal->getValue().get(), value, size, signedNum, typeRequested);
+  // A value of 0 (what a parameterless `@injection` stores) means unlimited.
+  if (value == 0 || value > 0x7FFFFFFF) return -1;
+  return value;
+}
+
+
 void Helper::parseIntLiteral(Char const *src, LongWord &value, Int &size, Bool &signedNum, Bool &typeRequested)
 {
   // TODO: Consider non-English letters prefixes and postfixes in the literal.
@@ -612,9 +627,7 @@ Variable* Helper::addThisDefinition(
       {S("name"), TiStr(thisName)}
     });
     newDef->setMetadata(S("__autovar"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
-    if (!skipInjection) {
-      newDef->setMetadata(S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }}));
-    }
+    if (!skipInjection) setInjection(newDef.get());
     body->insert(0, newDef);
     index = 0;
     def = newDef.get();

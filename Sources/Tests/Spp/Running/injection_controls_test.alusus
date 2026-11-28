@@ -1,0 +1,192 @@
+import "Srl/Console.alusus";
+
+use Srl.Console;
+
+// Injection level limits.
+
+class L0 {
+  def x0: Int;
+  handler this.f0(): Int { return this.x0 * 10 }
+}
+
+class L1 {
+  @injection def l0: L0;
+  def x1: Int;
+}
+
+class L2 {
+  @injection def l1: L1;
+  def x2: Int;
+}
+
+class Unlimited {
+  @injection def l2: L2;
+  handler this.test() {
+    x2 = 2; x1 = 1; x0 = 3;
+    print("Unlimited: x2=%d, x1=%d, x0=%d, f0=%d\n", x2, x1, x0, f0());
+  }
+}
+
+class Limited1 {
+  @injection[1] def l2: L2;
+  handler this.test() {
+    x2 = 4;
+    // Deeper levels are still reachable explicitly.
+    l2.x1 = 5;
+    l2.l1.x0 = 6;
+    print("Limited1: x2=%d, l2.x1=%d, l2.x0=%d\n", x2, l2.x1, l2.x0);
+  }
+}
+
+class Limited2 {
+  @injection[2] def l2: L2;
+  handler this.test() {
+    x2 = 7; x1 = 8;
+    l2.x0 = 9;
+    print("Limited2: x2=%d, x1=%d, l2.x0=%d\n", x2, x1, l2.x0);
+  }
+}
+
+// A limit inside an unlimited chain still applies to the levels below it.
+class M {
+  @injection[1] def l1: L1;
+  def m: Int;
+}
+
+class OuterOfLimited {
+  @injection def mm: M;
+  handler this.test() {
+    m = 10; x1 = 11;
+    mm.l1.x0 = 12;
+    print("OuterOfLimited: m=%d, x1=%d, mm.l1.x0=%d\n", m, x1, mm.l1.x0);
+  }
+}
+
+// When a name is blocked by the limit the lookup goes on to outer scopes.
+var x0: Int = 100;
+
+class Limited1Outer {
+  @injection[1] def l1: L1;
+  handler this.test() {
+    l1.x0 = 13;
+    print("Limited1Outer: x0=%d\n", x0);
+  }
+}
+
+def u: Unlimited; u.test();
+def lim1: Limited1; lim1.test();
+def lim2: Limited2; lim2.test();
+def ool: OuterOfLimited; ool.test();
+def lim1o: Limited1Outer; lim1o.test();
+
+// Directly accessible injections (outside types) are limited too.
+func testLocalInjection {
+  @injection[1] def l2: L2;
+  x2 = 14;
+  l2.x1 = 15;
+  print("local: x2=%d, l2.x1=%d, x0=%d\n", x2, l2.x1, x0);
+}
+testLocalInjection();
+
+// not_injected definitions.
+
+class Base {
+  def visible: Int;
+  @not_injected def hidden: Int;
+  @not_injected handler this.hiddenFn(): Int { return this.hidden * 2 }
+  @not_injected handler this + Int: Int { return this.visible + value }
+  @not_injected handler this.hiddenProp: Int { return this.visible * 3 }
+  @not_injected @member func hiddenMember(this: ref[this_type]): Int { return 7 }
+
+  handler this.test() {
+    // The auto injected `this` hides not_injected definitions too, so they need to be accessed explicitly.
+    this.hidden = 3;
+    print("Base: this.hidden=%d, this.hiddenFn=%d, hidden=%d, hiddenFn=%d\n", this.hidden, this.hiddenFn(), hidden, hiddenFn());
+  }
+}
+
+var hidden: Int = 200;
+func hiddenFn (): Int { return 300 }
+func hiddenMember (): Int { return 400 }
+
+class Derived {
+  @injection def base: Base;
+  handler this.test() {
+    visible = 5;
+    // These resolve to the globals since the members aren't reachable through the injection.
+    print(
+      "Derived: visible=%d, hidden=%d, hiddenFn=%d, hiddenMember=%d\n", visible, hidden, hiddenFn(), hiddenMember()
+    );
+    print("Derived: base.hiddenMember=%d\n", base.hiddenMember());
+    // Explicit access still works.
+    base.hidden = 4;
+    print("Derived: base.hidden=%d, base.hiddenFn=%d, base.hiddenProp=%d\n", base.hidden, base.hiddenFn(), base.hiddenProp);
+    print("Derived: base + 1 = %d\n", base + 1);
+  }
+}
+
+def b: Base; b.test();
+def d: Derived; d.test();
+
+// A not_injected injection is skipped entirely, including the definitions it injects.
+class Wrapper {
+  @not_injected @injection def l1: L1;
+  def w: Int;
+  handler this.test() {
+    // Not reachable through the auto injected `this` either, but reachable explicitly through `this`.
+    this.x1 = 16;
+    print("Wrapper: this.x1=%d\n", this.x1);
+  }
+  handler this.testError() {
+    x1 = 1;
+  }
+}
+
+class OuterOfWrapper {
+  @injection def wr: Wrapper;
+  handler this.test() {
+    w = 17;
+    wr.x1 = 18;
+    print("OuterOfWrapper: w=%d, wr.x1=%d, x0=%d\n", w, wr.x1, x0);
+  }
+}
+
+def wr: Wrapper; wr.test();
+def oow: OuterOfWrapper; oow.test();
+
+// Level limits on injected read handlers.
+class LimitedHandler {
+  def l2: L2;
+  @injection[1] handler this.l2p: ref[L2] { return this.l2 }
+  handler this.test() {
+    x2 = 19;
+    l2p.x1 = 20;
+    print("LimitedHandler: x2=%d, l2p.x1=%d\n", x2, l2p.x1);
+  }
+}
+def lh: LimitedHandler; lh.test();
+
+// Errors.
+
+class BadLimits {
+  @injection[-1] def a: L0;
+  @injection["x"] def b: L1;
+}
+def bl: BadLimits;
+bl.a.x0 = 1;
+
+func testErrors {
+  def lim1: Limited1;
+  lim1.x1 = 1;
+  def d: Derived;
+  d.hidden = 1;
+  d + 1;
+  d.hiddenProp;
+  def oow: OuterOfWrapper;
+  oow.x1 = 1;
+  def lh: LimitedHandler;
+  lh.x1 = 1;
+  def wr: Wrapper;
+  wr.testError();
+}
+testErrors();

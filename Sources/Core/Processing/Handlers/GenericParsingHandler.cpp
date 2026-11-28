@@ -72,7 +72,7 @@ Bool GenericParsingHandler::onIncomingModifier(
     auto paramPass = modifierData.ti_cast_get<Ast::ParamPass>();
     if (paramPass != 0) params = paramPass->getParam();
     if (params == 0) {
-      params = Ast::IntegerLiteral::create({{ S("value"), TiStr(S("1")) }});
+      params = Ast::IntegerLiteral::create({{ S("value"), TiStr(storeAction->getDefaultValue().getBuf()) }});
     }
     node->setMetadata(storeAction->getKey().getBuf(), params);
     return true;

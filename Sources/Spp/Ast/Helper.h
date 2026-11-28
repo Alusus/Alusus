@@ -346,6 +346,9 @@ class Helper : public TiObject, public DynamicBinding, public DynamicInterfacing
   {
     return def->getMetadata(S("no_bind")) != 0;
   }
+  /// Returns the number of injection levels reachable through the given injection definition (`@injection[N]`), or
+  /// -1 if the levels aren't limited. Returns 0 if the limit isn't a valid integer literal, which AstProcessor reports.
+  public: Int getInjectionLevelLimit(Core::Ast::Definition const *def);
 
   public: METHOD_BINDING_CACHE(validateUseStatement, Bool, (Core::Ast::Bridge* /* bridge */));
   private: static Bool _validateUseStatement(TiObject *self, Core::Ast::Bridge *bridge);

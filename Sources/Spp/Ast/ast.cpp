@@ -28,6 +28,20 @@ Bool isInjection(Core::Ast::Definition *def)
 }
 
 
+void setInjection(Core::Ast::Definition *def, Int levelLimit)
+{
+  def->setMetadata(
+    S("injection"), Core::Ast::IntegerLiteral::create({{ S("value"), TiStr(std::to_string(levelLimit).c_str()) }})
+  );
+}
+
+
+Bool isNotInjectedDef(Core::Ast::Definition const *def)
+{
+  return def->getMetadata(S("not_injected")) != 0;
+}
+
+
 Bool isReadPropertyDef(Core::Ast::Definition const *def)
 {
   auto op = findOperationModifier(def);

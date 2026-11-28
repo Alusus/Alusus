@@ -49,7 +49,11 @@ struct CalleeLookupRequest
   Core::Ast::Node *target = 0;
   Core::Ast::Node *injectionChainStartTarget = 0;
   CalleeLookupMode mode = CalleeLookupMode::DIRECTLY_ACCESSIBLE;
-  Bool skipInjections = false;
+  // How many more levels of injections can be searched from the target (-1 for unlimited, 0 to skip injections). This
+  // is set from the limit of an injection definition (`@injection[N]`) when searching through that injection.
+  Int remainingInjectionLevels = -1;
+  // Whether the lookup is going through an injection, in which case definitions marked with `not_injected` are skipped.
+  Bool throughInjection = false;
   // Allows directly accessing object member vars without an object, which is valid when only computing types.
   Bool treatObjectMembersAsGlobals = false;
   // The definition of the variable whose type is being looked up, if any. The variable's operation modifier and no_bind

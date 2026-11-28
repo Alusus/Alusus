@@ -724,7 +724,7 @@ Bool Generator::_generateVarInitialization(
     Ast::CalleeLookupRequest lookupRequest;
     lookupRequest.astNode = astNode;
     lookupRequest.setObjectTarget(varAstType, varPtrAstType);
-    lookupRequest.skipInjections = true;
+    lookupRequest.remainingInjectionLevels = 0;
     lookupRequest.ref = &ref;
     lookupRequest.argTypes = paramAstTypes;
     lookupRequest.op = S("~init");
@@ -922,7 +922,7 @@ Bool Generator::_generateVarDestruction(
   Ast::CalleeLookupRequest lookupRequest;
   lookupRequest.astNode = astNode;
   lookupRequest.setObjectTarget(varAstType, ptrAstType);
-  lookupRequest.skipInjections = true;
+  lookupRequest.remainingInjectionLevels = 0;
   lookupRequest.ref = &ref;
   lookupRequest.argTypes = &paramAstTypes;
   lookupRequest.op = S("~terminate");
